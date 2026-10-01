@@ -22,7 +22,10 @@
     "adminLastDepartmentTitle": "This widens access for the whole workspace",
     "adminLastDepartmentBody": "This is the last department. Deleting it returns the workspace to permissions alone, so every member with permission to read conversations will see all of them again.",
     "adminLastDepartmentConfirm": "Delete department",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "unassignedShow": "See who has no department",
+    "unassignedHide": "Hide the list",
+    "unassignedAddTo": "Add to a department"
   },
   "workingHours": {
     "title": "Working hours",
@@ -213,6 +216,7 @@
     "reject": "Reject",
     "createError": "Could not create the conversation",
     "approvalHint": "Needs your approval",
+    "secretHint": "Type it here. This field goes straight to the system: Elo never sees or stores what you type.",
     "toolFailed": "failed",
     "tools": {
       "create_agent": "Create agent",
@@ -306,7 +310,20 @@
       "delete_department": "Delete department",
       "add_department_member": "Add to department",
       "remove_department_member": "Remove from department",
-      "place_call": "Prepare call"
+      "place_call": "Prepare call",
+      "list_calls": "Look up calls",
+      "get_call": "View call",
+      "list_phone_lines": "Look up phone lines",
+      "create_phone_line": "Connect phone line",
+      "update_phone_line": "Edit phone line",
+      "change_phone_line_password": "Change line password",
+      "delete_phone_line": "Remove phone line",
+      "list_call_queues": "Look up call queues",
+      "create_call_queue": "Create call queue",
+      "update_call_queue": "Edit call queue",
+      "delete_call_queue": "Remove call queue",
+      "list_telegram_bots": "Look up Telegram bots",
+      "connect_telegram_bot": "Connect Telegram bot"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -565,7 +582,33 @@
       "newName": "New name",
       "language": "Language",
       "risks": "Risks",
-      "teamMember": "Member"
+      "teamMember": "Member",
+      "phoneLine": "Line",
+      "server": "Server",
+      "username": "Username",
+      "direction": "Calls",
+      "enabled": "Turned on",
+      "host": "Server",
+      "port": "Port",
+      "transport": "Transport",
+      "domain": "SIP domain",
+      "password": "Password",
+      "queue": "Queue",
+      "answeredBy": "Answered by",
+      "distribution": "Distribution",
+      "ringSeconds": "Ring per person (s)",
+      "maxWaitSeconds": "Longest wait (s)",
+      "wrapUpSeconds": "Break between calls (s)",
+      "holdMusic": "Hold music",
+      "agent": "Agent",
+      "addKnowledgeBases": "Knowledge bases to link",
+      "removeKnowledgeBases": "Knowledge bases to unlink",
+      "addMcpCollections": "MCP collections to link",
+      "removeMcpCollections": "MCP collections to unlink",
+      "knowledgeBases": "Knowledge bases",
+      "mcpCollections": "MCP collections",
+      "scheduledMessage": "Scheduled message",
+      "bot_token": "Bot token"
     },
     "attachments": {
       "legend": "Attached files",
@@ -945,7 +988,10 @@
         "transferred": "Transferred",
         "finished": "Finished",
         "timeout": "Timeout",
-        "error": "Error"
+        "error": "Error",
+        "handed_off": "Handed to an agent",
+        "abandoned": "Customer stopped replying",
+        "suppressed": "Did not reply"
       }
     },
     "activity": {
@@ -1021,6 +1067,22 @@
           "automation_taken_over": "Taken over by pausing automation",
           "automation_resumed": "Handed back to automation"
         }
+      },
+      "aiSessionEnd": {
+        "manualAssignment": "{actor} assigned the conversation to {to} and the AI stopped replying",
+        "assignedTo": "The conversation was assigned to {to} and the AI stopped replying",
+        "humanReply": "{actor} replied and took over the conversation",
+        "humanReplyAnonymous": "An agent replied and took over the conversation",
+        "paused": "{actor} paused the AI",
+        "pausedAnonymous": "The AI was paused",
+        "aiHandoff": "The AI handed the conversation to {to}",
+        "aiHandoffTeam": "The AI handed the conversation to the team",
+        "workflowHandoff": "The workflow handed the conversation to {to}",
+        "workflowHandoffTeam": "The workflow handed the conversation to the team",
+        "operatorHandoff": "{actor} handed the conversation to {to}",
+        "operatorHandoffTeam": "{actor} handed the conversation to the team",
+        "finishedBy": "{actor} finished the conversation",
+        "finished": "The conversation was finished"
       }
     },
     "tabs": {
@@ -1191,7 +1253,7 @@
       "eleven_turbo_flash": "TTS (Fast)",
       "eleven_v3": "TTS (v3)",
       "default_markup": "AI Models",
-      "sip_calls": "Calls (SIP trunk)"
+      "sip_calls": "Calls over phone lines"
     },
     "footer": "Prices in BRL. Values may vary based on exchange rates. Plans can be changed at any time."
   },
@@ -1964,8 +2026,9 @@
       "facebookPages": "Pages",
       "connectFacebook": "Connect Page",
       "adminLiveDecisions": "Live decisions",
-      "sipTrunks": "SIP trunks",
-      "callQueues": "Queues"
+      "sipTrunks": "Phone lines",
+      "callQueues": "Queues",
+      "callHistory": "History"
     },
     "badges": {
       "new": "New",
@@ -7114,11 +7177,12 @@
       "instagram_accounts": "Instagram accounts",
       "audience": "Audience analysis",
       "telegram_accounts": "Telegram accounts",
-      "sip_trunks": "SIP trunks",
+      "sip_trunks": "Phone lines",
       "unofficial_whatsapp_instances": "WhatsApp numbers (unofficial)",
       "short_links": "Short links",
       "facebook_pages": "Facebook Pages",
-      "call_queues": "Call queues"
+      "call_queues": "Call queues",
+      "call_history": "Call history"
     },
     "actions": {
       "create": "Create",
@@ -7169,11 +7233,12 @@
       "instagram_accounts": "Connect and manage the workspace's Instagram accounts.",
       "audience": "See the analysis of comments and conversations across connected channels, moderate authors and configure the analysis (which is billed).",
       "telegram_accounts": "Connect and manage the workspace's Telegram bots and accounts.",
-      "sip_trunks": "Register the telephony provider's SIP trunks and place voice calls through them.",
+      "sip_trunks": "Connect the carrier's phone lines (SIP) and place calls through them.",
       "unofficial_whatsapp_instances": "Connect and manage WhatsApp numbers over a linked device.",
       "short_links": "Create and track short links and their click statistics.",
       "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger.",
-      "call_queues": "Create phone queues, choose who answers each one and the hold music."
+      "call_queues": "Create phone queues, choose who answers each one and the hold music.",
+      "call_history": "See the calls you took part in, with outcome, duration, transfers and cost; with permission, the whole team's."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -7337,8 +7402,8 @@
       "callType": "Call type",
       "typeCrm": "Human agent",
       "typeAi": "Voice AI",
-      "typeTrunkIn": "Inbound trunk",
-      "typeTrunkOut": "Outbound trunk",
+      "typeTrunkIn": "Phone line (inbound)",
+      "typeTrunkOut": "Phone line (outbound)",
       "typeWorkflow": "Automation",
       "queueEnqueued": "Joined queue",
       "queueConnected": "Answered",
@@ -7381,7 +7446,7 @@
       "aiDisabled": "Automation Off",
       "aiToggleTooltip": "Toggle automation",
       "call": "Call",
-      "callViaSip": "SIP",
+      "callViaSip": "Phone line",
       "callViaWhatsapp": "WhatsApp",
       "comingSoon": "Coming soon",
       "ringing": "Ringing...",
@@ -7652,7 +7717,7 @@
       },
       "telephony": {
         "whatsapp_calls": "WhatsApp Calls",
-        "sip_calls": "Calls (SIP trunk)"
+        "sip_calls": "Calls over phone lines"
       },
       "sms": {
         "standard": "SMS"
@@ -7819,7 +7884,7 @@
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)",
-        "sip_calls": "Calls (SIP trunk)"
+        "sip_calls": "Calls over phone lines"
       }
     },
     "archive": {
@@ -8112,9 +8177,24 @@
     }
   },
   "plansPage": {
+    "card": {
+      "includes": "What's included",
+      "details": "See the price of each use",
+      "balance": "{amount} of balance every month to spend on services",
+      "whatsappNumbers": "{count, plural, one {# WhatsApp number included} other {# WhatsApp numbers included}}",
+      "voices": "{count, plural, one {# simultaneous text-to-speech voice} other {# simultaneous text-to-speech voices}}",
+      "services": {
+        "whatsapp": "Messages through the official WhatsApp API",
+        "sms": "SMS sending",
+        "stt": "Audio to text transcription",
+        "tts": "Text to speech synthesis",
+        "llm": "AI for agents and conversation analysis",
+        "telephony": "Calls over WhatsApp and your phone lines"
+      }
+    },
     "header": {
       "badge": "Plans",
-      "description": "Compare the plans available to {workspace} side by side, track the current subscription, and generate the next subscription invoice."
+      "description": "See what your plan includes, what each use costs, and change plans whenever you like."
     },
     "stats": {
       "totalPlans": "Available plans",
@@ -8141,63 +8221,76 @@
     },
     "list": {
       "noDescription": "No description provided.",
-      "current": "Current",
+      "current": "Your plan",
       "available": "Available",
       "basePrice": "Base price",
       "pricingItems": "Items",
-      "updatedAt": "Updated at"
+      "updatedAt": "Updated at",
+      "chooseTitle": "Choose a plan",
+      "chooseDescription": "Compare what each plan includes. The price of each use is shown below.",
+      "changeTitle": "Change plan",
+      "changeDescription": "You can move to a larger plan at any time."
     },
     "subscription": {
-      "badge": "Current subscription",
+      "badge": "Your plan",
       "availableBadge": "Available catalog",
-      "noneTitle": "No active subscription",
-      "description": "Your current active subscription for this workspace.",
+      "noneTitle": "You don't have a plan yet",
+      "description": "The plan's price becomes balance to spend on the services. Each month's invoice brings the plan and what you used together.",
       "cancelledDescription": "This subscription was cancelled and stays valid until {date}. You can contract another plan now.",
-      "expiredDescription": "This subscription already ended. Select a plan below to reactivate billing.",
-      "noneDescription": "No active subscription. Select a plan below to get started.",
+      "expiredDescription": "This subscription has ended. Choose a plan below to start again.",
+      "noneDescription": "Choose a plan below to get started.",
       "cancelConfirm": "Cancel the subscription for \"{name}\"? The workspace will keep access until the current period ends.",
       "billingSummary": "Renews on {date} · your plan payment becomes workspace balance · plan and usage on one invoice.",
       "plan": "Plan",
       "period": "Period",
-      "basePrice": "Monthly base price",
+      "basePrice": "Monthly price",
       "pricingItems": "Pricing items",
       "lockedTitle": "Active subscription",
-      "lockedDescription": "A new plan can be contracted after the current period ends on {date}."
+      "lockedDescription": "A new plan can be contracted after the current period ends on {date}.",
+      "invoice": "Invoice",
+      "invoiceDay": "Due on day {day} of each month",
+      "periodEnds": "Current period ends",
+      "accessUntil": "Access until"
     },
     "detail": {
       "currentBadge": "Current plan",
       "availableBadge": "Available plan",
       "emptyTitle": "Select a plan",
-      "emptyDescription": "Pick a plan in the rack to see its usage estimates and per-service price list.",
+      "emptyDescription": "Choose a plan to see its prices.",
       "basePrice": "Base price",
       "pricingItems": "Billing items",
       "perMonth": "/month",
       "pricingItemsIncluded": "billing services",
       "ctaHint": "Subscription activates immediately after payment",
-      "scheduleNote": "Recurring charge on the 23rd. Your payment becomes workspace balance."
+      "scheduleNote": "Recurring charge on the 23rd. Your payment becomes workspace balance.",
+      "title": "{plan} prices",
+      "currentDescription": "Each use is deducted from your plan's balance.",
+      "availableDescription": "Each use is deducted from the plan's balance. These prices are locked in when you subscribe."
     },
     "pricing": {
-      "title": "Plan pricing",
-      "description": "The values below show the commercial catalog that gets frozen when the subscription is contracted.",
+      "title": "Price of each use",
+      "description": "You only pay for what you use, and each use is deducted from the balance.",
       "currencyHint": "All values below are already converted to BRL using the current system exchange rate.",
-      "exchangeRateHint": "Current applied exchange rate: {rate}",
+      "exchangeRateHint": "Some prices are set in US dollars and converted at today's rate: US$ 1 = {rate}.",
       "categories": {
-        "whatsapp": "WhatsApp",
+        "whatsapp": "WhatsApp messages",
         "sms": "SMS",
         "stt": "Speech-to-Text",
         "tts": "Text-to-Speech",
-        "llm": "AI Models"
+        "llm": "Artificial intelligence",
+        "telephony": "Calls"
       },
       "categoryDescriptions": {
-        "whatsapp": "Messaging through WhatsApp Business API",
+        "whatsapp": "Charged per template sent, by type. Replying to a customer within 24 hours is free.",
         "sms": "Standard SMS delivery",
         "stt": "Audio transcription to text",
         "tts": "Text synthesis to audio",
-        "llm": "AI language model inference"
+        "llm": "Used by AI agents and conversation analysis.",
+        "telephony": "Per call minute. On your own phone lines, your carrier bills its calls separately."
       },
       "columns": {
         "service": "Service",
-        "metric": "Unit",
+        "metric": "Charged",
         "price": "Price",
         "cost": "Cost",
         "markup": "Markup",
@@ -8208,41 +8301,47 @@
         "eleven_turbo_flash": "Text-to-Speech (Fast)",
         "scribe_v1v2": "Speech-to-Text (Batch)",
         "scribe_realtime": "Speech-to-Text (Realtime)",
-        "utility": "WhatsApp, Utility messages",
-        "marketing": "WhatsApp, Marketing messages",
-        "authentication": "WhatsApp, Authentication messages",
-        "service": "WhatsApp, Service messages",
+        "utility": "Utility (notices and confirmations)",
+        "marketing": "Marketing (offers and news)",
+        "authentication": "Authentication (access codes)",
+        "service": "Service (replies to customers)",
         "eleven_v3": "Text-to-Speech (v3)",
-        "whatsapp_calls": "WhatsApp calls",
+        "whatsapp_calls": "Over WhatsApp",
         "standard": "SMS messages",
-        "default_markup": "AI models (LLM)",
-        "sip_calls": "Calls (SIP trunk)"
+        "default_markup": "AI models",
+        "sip_calls": "Over your phone line"
       },
       "metrics": {
         "per_million_chars": "per 1M characters",
         "per_hour": "per hour",
         "per_message": "per message",
         "per_minute": "per minute",
-        "percentage": "markup %"
-      }
+        "percentage": "on top of the model cost"
+      },
+      "markup": "Model cost + {percent}%",
+      "atCost": "Model cost price",
+      "free": "Free"
     },
     "actions": {
       "refresh": "Refresh",
       "openInvoices": "Open invoices",
-      "currentPlan": "Current plan",
+      "currentPlan": "Your current plan",
       "cancelSubscription": "Cancel subscription",
       "cancelling": "Cancelling...",
-      "upgrade": "Upgrade plan",
-      "downgradeBlocked": "Cancel current to downgrade",
+      "upgrade": "Switch to this plan",
+      "downgradeBlocked": "Cancel your current plan to move to a smaller one",
       "locked": "Current subscription",
       "noPermission": "No permission to contract",
-      "contract": "Contract plan",
+      "contract": "Subscribe to this plan",
       "retry": "Try again",
       "close": "Close"
     },
     "dialog": {
-      "title": "Generate the subscription invoice",
-      "description": "Choose the payment method to generate the invoice for the selected plan.",
+      "scanQr": "Scan the QR Code or copy the code below",
+      "boletoDescription": "Bank slip generated. You can print it directly above.",
+      "boletoFallback": "The bank slip was generated. See the details on the invoices page.",
+      "title": "Subscribe",
+      "description": "Choose how to pay. The plan turns on as soon as the payment is confirmed.",
       "billingCycleTitle": "Billing cycle",
       "monthly": "Monthly",
       "monthlyDescription": "Recurring charge every month.",
@@ -8255,26 +8354,26 @@
       "pixMethodDescription": "Generate an instant copy-and-paste code for a fast payment flow.",
       "boletoMethod": "Bank slip",
       "boletoMethodDescription": "Generate the boleto and follow settlement from the invoices page.",
-      "confirm": "Generate invoice",
-      "orderSummary": "Order summary",
-      "scheduleNoteMonthly": "You pay now and the subscription activates immediately. The amount becomes workspace balance and future charges land on the 23rd, on a single invoice with the plan and channels.",
-      "scheduleNoteAnnual": "You pay now and the subscription activates immediately. The amount becomes workspace balance and renewal happens every 12 months.",
+      "confirm": "Create payment",
+      "orderSummary": "Summary",
+      "scheduleNoteMonthly": "You pay now and the plan turns on right away. The amount becomes balance for the services, and later invoices are due on day {day} of each month, with the plan and usage together.",
+      "scheduleNoteAnnual": "You pay now and the plan turns on right away. The amount becomes balance for the services, and it renews every 12 months.",
       "monthSingular": "month",
       "monthPlural": "months",
       "discountLabel": "Annual discount ({discount}%)",
       "totalLabel": "Total",
       "createError": "Unable to generate the plan invoice.",
       "documentRequired": "Add your CPF or CNPJ in your profile before subscribing to the plan. It is required to issue the charge.",
-      "invoiceReadyTitle": "Invoice created",
-      "invoiceReadyDescription": "The invoice is ready. As soon as payment is confirmed, the subscription activates automatically.",
+      "invoiceReadyTitle": "Payment created",
+      "invoiceReadyDescription": "As soon as the payment is confirmed, the plan turns on automatically.",
       "paymentConfirmedTitle": "Payment confirmed",
-      "paymentConfirmedDescription": "The subscription was confirmed and this page will refresh the workspace catalog automatically.",
+      "paymentConfirmedDescription": "The plan is active and this page already shows the updated subscription.",
       "amount": "Amount",
       "method": "Payment",
       "status": "Status",
       "paid": "Paid",
       "pending": "Waiting for payment",
-      "pendingHint": "This invoice status is monitored in real time while the dialog stays open.",
+      "pendingHint": "This window follows the payment and updates on its own.",
       "pixCode": "PIX code",
       "pixHint": "Use the copy-and-paste code below in your bank to finish the payment.",
       "copyPix": "Copy PIX",
@@ -8284,7 +8383,7 @@
       "openBoleto": "Open bank slip"
     },
     "toast": {
-      "invoiceCreated": "Subscription invoice created successfully.",
+      "invoiceCreated": "Payment created.",
       "paymentConfirmed": "Payment confirmed. The workspace subscription was updated.",
       "cancelSuccess": "Subscription cancelled successfully.",
       "cancelError": "Unable to cancel the subscription.",
@@ -8301,8 +8400,8 @@
       "expired": "Expired"
     },
     "estimates": {
-      "title": "Usage estimates",
-      "description": "Estimated values based on the plan price and included service pricing.",
+      "title": "What {amount} gets you each month",
+      "description": "How much you could use if the whole monthly balance went to a single service.",
       "messagesTitle": "Estimated messages",
       "messagesValue": "~{count} messages",
       "messagesHint": "Equivalent WhatsApp (utility) messages for the plan price",
@@ -8311,14 +8410,20 @@
       "equivalentBadge": "Equivalents",
       "serviceLabel": {
         "whatsapp": {
-          "utility": "WhatsApp Utility",
-          "marketing": "WhatsApp Marketing",
-          "authentication": "WhatsApp Authentication"
+          "utility": "WhatsApp utility messages",
+          "marketing": "WhatsApp marketing messages",
+          "authentication": "WhatsApp authentication messages"
         },
         "sms": {
           "standard": "SMS"
+        },
+        "telephony": {
+          "whatsapp_calls": "Calls over WhatsApp",
+          "sip_calls": "Calls over your phone line"
         }
-      }
+      },
+      "minutesLabel": "minutes",
+      "approximately": "≈ {count}"
     },
     "loading": "Loading plans...",
     "compare": {
@@ -8383,7 +8488,7 @@
       "chars": "Characters",
       "promptTokens": "Tokens (prompt)",
       "completionTokens": "Tokens (completion)",
-      "telephony": "Telephony (SIP)",
+      "telephony": "Phone line",
       "actualDuration": "Actual duration",
       "billedMinutes": "Billed minutes",
       "ceilingRounded": "ceiling rounded",
@@ -14787,7 +14892,7 @@
     "widget": {
       "ringing": "Ringing…",
       "inCall": "In call",
-      "waitingSlot": "Waiting for a line",
+      "waitingSlot": "Waiting for a free channel",
       "endCall": "Hang up",
       "mute": "Mute microphone",
       "unmute": "Unmute microphone",
@@ -14817,7 +14922,7 @@
       "online": "Connected",
       "offline": "Connecting",
       "minimize": "Minimize",
-      "trunk": "Trunk",
+      "trunk": "Line",
       "number": "Number",
       "numberPlaceholder": "Type the number",
       "keypad": "Keypad",
@@ -14828,10 +14933,10 @@
       "unmute": "Unmute",
       "inCall": "In call",
       "ringing": "Ringing…",
-      "waitingSlot": "Waiting for a line",
-      "loadingTrunks": "Loading trunks…",
-      "noTrunks": "No registered trunk is available to call.",
-      "manageTrunks": "Manage trunks",
+      "waitingSlot": "Waiting for a free channel",
+      "loadingTrunks": "Loading lines…",
+      "noTrunks": "No connected line is available to call.",
+      "manageTrunks": "Manage lines",
       "outcome": {
         "ended": "Call ended",
         "cancelled": "Call cancelled",
@@ -14846,11 +14951,11 @@
         "caller_hung_up": "The caller hung up during the transfer"
       },
       "errors": {
-        "trunk_unavailable": "This trunk cannot place calls.",
-        "trunk_not_registered": "The trunk is not registered with the provider.",
+        "trunk_unavailable": "This line can't place calls.",
+        "trunk_not_registered": "The line isn't connected to the carrier.",
         "invalid_number": "Use only digits, *, # and a leading +.",
-        "unauthorized": "You are not allowed to call through this trunk.",
-        "no_call_slots": "All lines are busy. Try again shortly.",
+        "unauthorized": "You are not allowed to call through this line.",
+        "no_call_slots": "All call channels are busy. Try again shortly.",
         "insufficient_balance": "Not enough balance to call.",
         "already_in_call": "You are already on a call.",
         "dial_failed": "The call could not be started."
@@ -14861,13 +14966,13 @@
     "dragHint": "Drag to move, double-click to put it back",
     "assistantCard": {
       "title": "Call",
-      "via": "Through trunk {trunk}",
-      "chooseTrunk": "You pick the trunk in the dialer",
+      "via": "Through line {trunk}",
+      "chooseTrunk": "You pick the line in the dialer",
       "call": "Call",
       "openDialer": "Open in dialer",
       "started": "Call started. Follow it in the call card.",
-      "handedOver": "Number sent to the dialer. Pick a trunk and call.",
-      "noPermission": "You are not allowed to call through trunks.",
+      "handedOver": "Number sent to the dialer. Pick a line and call.",
+      "noPermission": "You are not allowed to call through phone lines.",
       "connecting": "Connecting to the calling service…",
       "busy": "You are already on a call."
     },
@@ -14921,17 +15026,17 @@
   },
   "sipTrunks": {
     "page": {
-      "title": "SIP trunks",
-      "description": "Connect your telephony provider's trunks to place and receive calls from the dialer.",
-      "create": "New trunk",
+      "title": "Phone lines",
+      "description": "Connect your carrier's phone line (over SIP) to place and receive calls from the dialer.",
+      "create": "New line",
       "refresh": "Refresh",
-      "emptyTitle": "No trunks yet",
-      "emptyDescription": "Add your provider's SIP trunk to use the dialer.",
-      "errorTitle": "Could not load the trunks",
+      "emptyTitle": "No lines yet",
+      "emptyDescription": "Connect your carrier's line to use the dialer. Your carrier gives you the SIP server, username and password.",
+      "errorTitle": "Could not load the lines",
       "retry": "Try again"
     },
     "table": {
-      "trunk": "Trunk",
+      "trunk": "Line",
       "type": "Type",
       "status": "Registration"
     },
@@ -14943,25 +15048,25 @@
       "DISABLED": "Disabled"
     },
     "stats": {
-      "total": "Trunks",
+      "total": "Lines",
       "registered": "Registered",
       "attention": "Failing"
     },
     "actions": {
-      "edit": "Edit trunk",
-      "delete": "Remove trunk"
+      "edit": "Edit line",
+      "delete": "Remove line"
     },
     "delete": {
-      "title": "Remove trunk?",
-      "body": "The trunk {name} will be removed and calls running through it will end.",
+      "title": "Remove line?",
+      "body": "The line {name} will be removed and calls running through it will end.",
       "confirm": "Remove",
       "cancel": "Cancel",
-      "done": "Trunk removed",
-      "failed": "Could not remove the trunk"
+      "done": "Line removed",
+      "failed": "Could not remove the line"
     },
     "form": {
-      "createTitle": "New SIP trunk",
-      "editTitle": "Edit SIP trunk",
+      "createTitle": "New phone line (SIP)",
+      "editTitle": "Edit phone line (SIP)",
       "subtitle": "The access details come from your telephony provider.",
       "name": "Name",
       "host": "Server (host)",
@@ -14979,7 +15084,7 @@
       "domain": "Domain",
       "domainPlaceholder": "Optional, when different from the server",
       "enabled": "Active",
-      "enabledHint": "Active trunks stay registered and show up in the dialer.",
+      "enabledHint": "Active lines stay connected to the carrier and show up in the dialer.",
       "advanced": "Advanced settings",
       "skipRegistration": "Do not register (IP authentication)",
       "skipRegistrationHint": "Use when the provider allows your IP instead of a username and password.",
@@ -15003,9 +15108,9 @@
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving…",
-      "created": "Trunk created",
-      "updated": "Trunk updated",
-      "saveFailed": "Could not save the trunk",
+      "created": "Line created",
+      "updated": "Line updated",
+      "saveFailed": "Could not save the line",
       "invalid": {
         "name": "Enter a name.",
         "host": "Enter the server.",
@@ -15013,6 +15118,119 @@
         "username": "Enter the username.",
         "password": "Enter the password.",
         "codecs": "Include PCMU or PCMA so the dialer works."
+      }
+    }
+  },
+  "callHistory": {
+    "page": {
+      "title": "Call history",
+      "descriptionOwn": "The calls you placed, answered or transferred, each with its timeline.",
+      "descriptionTeam": "Every call in the workspace: who called, who answered, transfers, duration and cost.",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "errorTitle": "The calls could not be loaded",
+      "emptyTitle": "No calls in this period",
+      "emptyDescription": "Phone line and WhatsApp calls show up here as soon as they start."
+    },
+    "stats": {
+      "calls": "Calls"
+    },
+    "table": {
+      "when": "When",
+      "contact": "Contact",
+      "people": "Handled by",
+      "outcome": "Outcome",
+      "duration": "Talk time",
+      "charge": "Cost",
+      "noCharge": "No charge",
+      "transfers": "{count, plural, one {# transfer} other {# transfers}}"
+    },
+    "filters": {
+      "number": "Search number",
+      "period": "Period",
+      "direction": "Direction",
+      "channel": "Channel",
+      "result": "Answered",
+      "member": "Member",
+      "any": "All",
+      "everyone": "Whole team"
+    },
+    "periods": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "all": "All time"
+    },
+    "directions": {
+      "inbound": "Inbound",
+      "outbound": "Outbound"
+    },
+    "channels": {
+      "phone": "Phone",
+      "whatsapp": "WhatsApp"
+    },
+    "results": {
+      "answered": "Answered",
+      "unanswered": "Not answered"
+    },
+    "outcomes": {
+      "in_progress": "In progress",
+      "answered": "Answered",
+      "missed": "Missed",
+      "no_answer": "No answer",
+      "busy": "Busy",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "detail": {
+      "title": "Call details",
+      "loading": "Loading the call…",
+      "loadFailed": "The call could not be loaded",
+      "retry": "Try again",
+      "openContact": "Open contact",
+      "result": "Outcome",
+      "talk": "Talk time",
+      "ring": "Ringing",
+      "charge": "Cost",
+      "placedBy": "Called by",
+      "from": "From",
+      "answeredBy": "Answered by",
+      "handlers": "Handled by",
+      "timeline": "Timeline",
+      "recording": "Recording",
+      "download": "Download"
+    },
+    "timeline": {
+      "someone": "Someone",
+      "aQueue": "a queue",
+      "startedOutbound": "{actor} called",
+      "startedInbound": "Incoming call",
+      "answered": "Answered",
+      "answeredBy": "{actor} answered",
+      "transferredTo": "{actor} transferred to {target}",
+      "sentToQueue": "{actor} sent it to the {queue} queue",
+      "enteredQueue": "Entered the {queue} queue",
+      "transferConnected": "{actor} took the transfer",
+      "queueConnected": "{actor} answered from the {queue} queue",
+      "transferReturned": "{target} did not answer; the call came back",
+      "transferUnanswered": "{target} did not answer",
+      "queueUnanswered": "Nobody in the {queue} queue answered in time",
+      "transferCancelled": "Transfer cancelled",
+      "callerLeft": "The caller hung up during the transfer",
+      "ended": "Call ended",
+      "endedWith": "Call ended: {reason}",
+      "recordingReady": "Recording available",
+      "endReasons": {
+        "ended": "hung up normally",
+        "busy": "number busy",
+        "no_answer": "nobody answered",
+        "declined": "declined",
+        "failed": "the call did not go through",
+        "cancelled": "cancelled before the answer",
+        "insufficient_balance": "insufficient balance",
+        "balance_check_error": "the balance could not be checked",
+        "interrupted": "interrupted by a server failure"
       }
     }
   },
@@ -15085,7 +15303,7 @@
       "searchMembers": "Search people",
       "members": "Queue members",
       "membersHint": "{count, plural, =0 {Nobody chosen} one {# person chosen} other {# people chosen}}",
-      "permissionHint": "Only rings people who may answer trunk calls and have the dialer open.",
+      "permissionHint": "Only rings people who may answer phone line calls and have the dialer open.",
       "ringSeconds": "Ring (s)",
       "maxWaitSeconds": "Max wait (s)",
       "wrapUpSeconds": "Pause after call (s)",
@@ -15189,5 +15407,14 @@
         "offline": "Away"
       }
     }
+  },
+  "crmAdOrigin": {
+    "cameFrom": {
+      "instagram": "Came from an Instagram ad",
+      "facebook": "Came from a Facebook ad",
+      "unknown": "Came from an ad"
+    },
+    "untitled": "Untitled ad",
+    "open": "View ad"
   }
 }

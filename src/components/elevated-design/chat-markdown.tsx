@@ -80,6 +80,7 @@ const components: Components = {
       </a>
     );
   },
+  img: ({ alt }) => (alt ? <span>{alt}</span> : null),
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   blockquote: ({ children }) => (
     <blockquote className="my-2 rounded-lg bg-muted px-3 py-1.5 text-muted-foreground">

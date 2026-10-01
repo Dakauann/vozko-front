@@ -625,7 +625,6 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 <PlansCarousel
                   plans={availablePlans}
                   currentPlanName={currentPlanName}
-                  showBillingToggle={false}
                   onSelectPlan={() => {
                     setRechargeOpen(false);
                     router.push("/dashboard/plans");

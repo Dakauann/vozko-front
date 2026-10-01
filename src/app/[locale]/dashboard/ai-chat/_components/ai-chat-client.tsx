@@ -175,7 +175,7 @@ export function AIChatClient() {
             </div>
           ) : (
             <div className="mx-auto flex max-w-3xl flex-col gap-8 py-6 sm:py-8">
-              {chat.messages.map((m, i) => <MessageBubble elo key={m.id} message={m} live={chat.streaming && i === chat.messages.length - 1} onApprove={(id) => void chat.resolveAction(id, "approve", model)} onReject={(id) => void chat.resolveAction(id, "reject", model)} labels={labels} />)}
+              {chat.messages.map((m, i) => <MessageBubble elo key={m.id} message={m} live={chat.streaming && i === chat.messages.length - 1} onApprove={(id, secrets) => void chat.resolveAction(id, "approve", model, secrets)} onReject={(id) => void chat.resolveAction(id, "reject", model)} labels={labels} />)}
             </div>
           )}
         </div>

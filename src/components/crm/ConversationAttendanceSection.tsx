@@ -30,6 +30,7 @@ import {
 import type { EntryType } from "@/lib/conversations/types";
 import { closeOutcomeLabel } from "@/lib/conversations/close-outcome";
 import { useOutcomeCapture } from "@/hooks/use-outcome-capture";
+import { aiSessionEndLine } from "@/lib/conversations/ai-session-end";
 import {
   eventMatchesFilter,
   isHandoffEvent,
@@ -694,14 +695,25 @@ export default function ConversationAttendanceSection({
                       ev.actor_id,
                     );
                     const details = parseEventDetails(ev.details);
-                    const sub = detailLine(details, (key, values) =>
-                      t(`details.${key}` as "details.assignedTo", values),
-                    );
                     const who = resolveEventParticipants(
                       ev,
                       details,
                       memberNames,
                     );
+                    const aiEnd =
+                      ev.event_type === "ai_session_ended"
+                        ? aiSessionEndLine({
+                            reason: details.reason ?? "",
+                            enderKind: kind,
+                            ender: who.actor,
+                            to: who.to,
+                          })
+                        : null;
+                    const sub = aiEnd
+                      ? t(`aiSessionEnd.${aiEnd.key}` as "aiSessionEnd.paused", aiEnd.values)
+                      : detailLine(details, (key, values) =>
+                          t(`details.${key}` as "details.assignedTo", values),
+                        );
                     const showHandoff =
                       isHandoffEvent(ev.event_type) &&
                       Boolean(who.from || who.to);

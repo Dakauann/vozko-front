@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import {
-  ArrowsClockwise,
   Barcode,
   Brain,
   CalendarBlank,
@@ -14,6 +13,7 @@ import {
   CurrencyDollar,
   Microphone,
   Package,
+  Phone,
   PixLogo,
   Receipt,
   SpeakerHigh,
@@ -34,6 +34,15 @@ import {
   type AffiliateBrand,
 } from "@/components/plans/plans-carousel";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { PlanCard } from "@/components/plans/plan-card";
+import { formatCentsAsBrl, formatMicrosToMoney } from "@/lib/format/money";
+import {
+  MONTHLY_INVOICE_DUE_DAY,
+  PLAN_CATEGORY_ORDER,
+  billableItems,
+  featuredPlan,
+  sortedPlans,
+} from "@/lib/workspace-plan/catalog";
 import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
 import type { Invoice } from "@/lib/invoices/types";
 import type {
@@ -42,7 +51,7 @@ import type {
 } from "@/lib/workspace-plan/types";
 import { cn } from "@/lib/utils";
 import {
-  estimateMessagesByType,
+  estimateUsage,
   formatEstimateNumber,
 } from "./plan-estimates";
 import { motion } from "framer-motion";
@@ -93,13 +102,7 @@ function formatDateOnly(value: string | null | undefined, locale: string) {
   }).format(parsed);
 }
 
-function formatBRLFromCents(cents: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(cents / 100);
-}
-
+const SEARCHABLE_PLAN_COUNT = 6;
 
 interface PlansCatalogResponse {
   plans: PublicPlanDetails[];
@@ -178,7 +181,6 @@ async function fetchDashboardInvoice(
 
 export default function UserPlansCatalog() {
   const t = useTranslations("plansPage");
-  const pricingT = useTranslations("pricing");
   const locale = useLocale();
   const { toast } = useToast();
   const { currentWorkspace, can } = useWorkspace();
@@ -213,6 +215,7 @@ export default function UserPlansCatalog() {
     React.useState(false);
 
   const canCreateBilling = can("plans", "create");
+  const detailsRef = React.useRef<HTMLElement>(null);
 
   const loadData = React.useCallback(async () => {
     if (!currentWorkspace?.id) {
@@ -303,49 +306,21 @@ export default function UserPlansCatalog() {
     };
   }, [dialogOpen, generatedInvoice, loadData, t, toast]);
 
-  const orderedPlans = React.useMemo(() => {
-    const sorted = plans
-      .filter((p) => !p.plan.archivedAt)
-      .sort((a, b) => a.plan.basePriceBRLCents - b.plan.basePriceBRLCents);
-    if (sorted.length <= 1) return sorted;
-
-    const exclusiveIdx = sorted.findIndex((p) => !!p.plan.exclusiveAffiliateId);
-    const featuredIdx =
-      exclusiveIdx >= 0
-        ? exclusiveIdx
-        : sorted.length === 2
-          ? 1
-          : Math.floor(sorted.length / 2);
-
-    if (featuredIdx <= 0) return sorted;
-    const featured = sorted[featuredIdx];
-    return [featured, ...sorted.filter((_, i) => i !== featuredIdx)];
-  }, [plans]);
-
-  const featuredPlanId = React.useMemo(() => {
-    if (orderedPlans.length === 0) return null;
-    return orderedPlans.length > 1 ? orderedPlans[0].plan.id : null;
-  }, [orderedPlans]);
-
-  const featuredLabelKey: "exclusive" | "popular" | null = React.useMemo(() => {
-    if (!featuredPlanId) return null;
-    const featured = orderedPlans.find((p) => p.plan.id === featuredPlanId);
-    if (!featured) return null;
-    return featured.plan.exclusiveAffiliateId ? "exclusive" : "popular";
-  }, [featuredPlanId, orderedPlans]);
+  const featured = React.useMemo(() => featuredPlan(plans), [plans]);
 
   const filteredPlans = React.useMemo(() => {
     const query = search.trim().toLowerCase();
+    const ordered = sortedPlans(plans);
     if (!query) {
-      return orderedPlans;
+      return ordered;
     }
 
-    return orderedPlans.filter((item) => {
+    return ordered.filter((item) => {
       const haystack =
         `${item.plan.name} ${item.plan.description}`.toLowerCase();
       return haystack.includes(query);
     });
-  }, [orderedPlans, search]);
+  }, [plans, search]);
 
   const currentSubscription = subscription?.subscription ?? null;
   const currentPlan = subscription?.plan ?? null;
@@ -409,55 +384,6 @@ export default function UserPlansCatalog() {
       };
     },
     [canCreateBilling, currentPlan, currentPlanId, hasCurrentSubscription, t],
-  );
-
-  const rackPlans = React.useMemo(
-    () =>
-      [...filteredPlans].sort(
-        (a, b) => a.plan.basePriceBRLCents - b.plan.basePriceBRLCents,
-      ),
-    [filteredPlans],
-  );
-
-  const capacityRows: {
-    key: string;
-    label: string;
-    value: (item: PublicPlanDetails) => string;
-  }[] = React.useMemo(
-    () => [
-      {
-        key: "phones",
-        label: t("compare.whatsappPhones"),
-        value: (item) =>
-          String(item.plan.includedWhatsAppBusinessPhones ?? 0),
-      },
-      {
-        key: "tts",
-        label: t("compare.ttsConcurrency"),
-        value: (item) => String(item.plan.maxTtsConcurrency ?? 0),
-      },
-      {
-        key: "items",
-        label: t("compare.pricingItems"),
-        value: (item) => String(billableItems(item.plan.pricingItems).length),
-      },
-    ],
-    [t],
-  );
-
-  const compareCategories = React.useMemo(
-    () =>
-      [
-        ...new Set(
-          rackPlans.flatMap((item) =>
-            billableItems(item.plan.pricingItems).map((entry) => entry.category),
-          ),
-        ),
-      ].sort(
-        (a, b) =>
-          (CATEGORY_SORT_ORDER[a] ?? 99) - (CATEGORY_SORT_ORDER[b] ?? 99),
-      ),
-    [rackPlans],
   );
 
   const lampTone = !currentSubscription
@@ -657,165 +583,116 @@ export default function UserPlansCatalog() {
         >
           <DashboardPageHeader
             actions={
-              <>
-                <Button
-                  icon={<ArrowsClockwise className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                  onClick={() => loadData()}
-                  title={t("actions.refresh")}
-                  variant="outline"
-                />
-                <Button
-                  icon={<Receipt className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                  link="/dashboard/invoices"
-                  newTab={false}
-                  title={t("actions.openInvoices")}
-                  variant="outline"
-                />
-              </>
+              <Button
+                icon={<Receipt className="h-4 w-4" weight="bold" />}
+                iconVisible
+                link="/dashboard/invoices"
+                newTab={false}
+                title={t("actions.openInvoices")}
+                variant="outline"
+              />
             }
             badge={t("header.badge")}
-            description={t("header.description", {
-              workspace: currentWorkspace.name,
-            })}
+            description={t("header.description")}
             icon={<Package className="h-6 w-6" weight="fill" />}
           />
         </motion.div>
 
-        {
-}
-        <section className="well">
-          <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
-            <p className="legend">
-              {currentSubscription
-                ? t("subscription.badge")
-                : t("subscription.availableBadge")}
-            </p>
-            <p className="legend">{currentWorkspace.name}</p>
-          </header>
-
-          <div className="flex flex-col gap-x-10 gap-y-5 px-4 py-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex min-w-0 items-start gap-3">
-              <span
-                aria-hidden
-                className={cn("lamp mt-1.5", !lampTone && "opacity-20")}
-                style={lampTone ? { background: `hsl(${lampTone})` } : undefined}
-              />
-              <div className="min-w-0">
-                <h2 className="truncate font-display text-lg font-semibold tracking-[0.01em] text-foreground">
+        <section aria-labelledby="your-plan" className="well">
+          <div className="flex flex-col gap-x-10 gap-y-5 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <p className="legend">{t("subscription.badge")}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2.5">
+                <h2 id="your-plan" className="truncate font-display text-xl font-semibold text-foreground">
                   {currentPlan?.name ?? t("subscription.noneTitle")}
                 </h2>
-                <p className="mt-1 max-w-[60ch] text-sm leading-snug text-muted-foreground">
-                  {subscriptionDescription}
-                </p>
+                {currentSubscription ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-0.5 text-2xs font-semibold text-foreground">
+                    <span
+                      aria-hidden
+                      className={cn("lamp", !lampTone && "opacity-30")}
+                      style={lampTone ? { background: `hsl(${lampTone})` } : undefined}
+                    />
+                    {t(`status.${currentSubscription.status}`)}
+                  </span>
+                ) : null}
               </div>
+              <p className="mt-1.5 max-w-[62ch] text-sm leading-snug text-muted-foreground">
+                {subscriptionDescription}
+              </p>
             </div>
 
-            <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
-              {currentSubscription ? (
-                <dl className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-4">
-                  <div>
-                    <dt className="legend">{t("subscription.plan")}</dt>
-                    <dd className="mt-1.5 truncate text-sm font-medium text-foreground">
-                      {currentPlan?.name ?? "-"}
-                    </dd>
-                  </div>
+            {currentSubscription ? (
+              <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
+                <dl className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3">
                   <div>
                     <dt className="legend">{t("subscription.basePrice")}</dt>
-                    <dd className="readout mt-1.5 text-sm font-semibold text-foreground">
-                      {formatBRLFromCents(currentPlan?.basePriceBRLCents ?? 0)}
+                    <dd className="readout mt-1.5 whitespace-nowrap text-sm font-semibold text-foreground">
+                      {formatCentsAsBrl(currentPlan?.basePriceBRLCents ?? 0, locale)}
+                      <span className="font-normal text-muted-foreground">{t("detail.perMonth")}</span>
                     </dd>
                   </div>
                   <div>
-                    <dt className="legend">{t("subscription.period")}</dt>
+                    <dt className="legend">{t("subscription.invoice")}</dt>
+                    <dd className="mt-1.5 whitespace-nowrap text-sm text-foreground">
+                      {t("subscription.invoiceDay", { day: MONTHLY_INVOICE_DUE_DAY })}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="legend">
+                      {currentSubscription.status === "active"
+                        ? t("subscription.periodEnds")
+                        : t("subscription.accessUntil")}
+                    </dt>
                     <dd className="readout mt-1.5 whitespace-nowrap text-sm text-foreground">
-                      {formatDateOnly(
-                        currentSubscription.currentPeriodStart,
-                        locale,
-                      )}
-                      {" — "}
-                      {formatDateOnly(
-                        currentSubscription.currentPeriodEnd,
-                        locale,
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="legend">{t("stats.currentStatus")}</dt>
-                    <dd className="mt-1.5 text-sm font-medium text-foreground">
-                      {t(`status.${currentSubscription.status}`)}
+                      {formatDateOnly(currentSubscription.currentPeriodEnd, locale)}
                     </dd>
                   </div>
                 </dl>
-              ) : (
-                <dl className="grid grid-cols-2 gap-x-10 gap-y-4">
-                  <div>
-                    <dt className="legend">{t("stats.totalPlans")}</dt>
-                    <dd className="readout mt-1.5 text-sm font-semibold text-foreground">
-                      {plans.length}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="legend">{t("stats.currentStatus")}</dt>
-                    <dd className="mt-1.5 text-sm font-medium text-foreground">
-                      {t("stats.available")}
-                    </dd>
-                  </div>
-                </dl>
-              )}
 
-              {canCancelSubscription ? (
-                <Button
-                  disabled={cancellingSubscription}
-                  onClick={() => {
-                    void handleCancelSubscription();
-                  }}
-                  title={
-                    cancellingSubscription
-                      ? t("actions.cancelling")
-                      : t("actions.cancelSubscription")
-                  }
-                  variant="outline"
-                />
-              ) : null}
-            </div>
+                {canCancelSubscription ? (
+                  <Button
+                    disabled={cancellingSubscription}
+                    onClick={() => {
+                      void handleCancelSubscription();
+                    }}
+                    title={
+                      cancellingSubscription
+                        ? t("actions.cancelling")
+                        : t("actions.cancelSubscription")
+                    }
+                    variant="outline"
+                  />
+                ) : null}
+              </div>
+            ) : null}
           </div>
-
-          {currentSubscription ? (
-            <p className="border-t border-border px-4 py-2.5 text-2xs leading-relaxed text-muted-foreground">
-              {t("subscription.billingSummary", {
-                date: formatDateOnly(
-                  currentSubscription.currentPeriodEnd,
-                  locale,
-                ),
-              })}
-            </p>
-          ) : null}
         </section>
 
-        {
-}
-        <section className="well overflow-hidden">
-          <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5">
-            <div className="flex items-baseline gap-2.5">
-              <p className="legend">{t("stats.totalPlans")}</p>
-              <span className="readout text-2xs text-muted-foreground">
-                {rackPlans.length}
-              </span>
+        <section aria-labelledby="available-plans" className="space-y-4 pt-2">
+          <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+            <div>
+              <h2 id="available-plans" className="font-display text-lg font-semibold text-foreground">
+                {hasCurrentSubscription ? t("list.changeTitle") : t("list.chooseTitle")}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {hasCurrentSubscription ? t("list.changeDescription") : t("list.chooseDescription")}
+              </p>
             </div>
-            <input
-              aria-label={t("filters.search")}
-              className="h-8 w-full rounded-[--radius] border border-border bg-background px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 sm:w-60"
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("filters.search")}
-              type="search"
-              value={search}
-            />
+            {plans.length > SEARCHABLE_PLAN_COUNT ? (
+              <input
+                aria-label={t("filters.search")}
+                className="h-8 w-full rounded-[--radius] border border-control-edge bg-card px-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring sm:w-60"
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={t("filters.search")}
+                type="search"
+                value={search}
+              />
+            ) : null}
           </header>
 
-          {rackPlans.length === 0 ? (
-            <div className="px-4 py-16 text-center">
+          {filteredPlans.length === 0 ? (
+            <div className="well px-4 py-16 text-center">
               <p className="text-sm font-semibold text-foreground">
                 {t("empty.title")}
               </p>
@@ -824,222 +701,65 @@ export default function UserPlansCatalog() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr>
-                    <th
-                      className="sticky left-0 z-10 w-[168px] min-w-[168px] bg-card px-4 pb-4 align-bottom"
-                      scope="col"
-                    >
-                      <span className="sr-only">{t("subscription.plan")}</span>
-                    </th>
-
-                    {rackPlans.map((item, index) => {
-                      const isSelected = item.plan.id === selectedPlan?.plan.id;
-                      const isFeatured = featuredPlanId === item.plan.id;
-                      const state = contractStateFor(item);
-
-                      return (
-                        <th
-                          key={item.plan.id}
-                          className={cn(
-                            "min-w-[204px] border-l border-border px-4 pb-4 align-top font-normal",
-                            isSelected && "bg-muted",
-                          )}
-                          scope="col"
-                        >
-                          {}
-                          <span
-                            aria-hidden
-                            className="mb-4 block h-0.5 w-full rounded-full"
-                            style={
-                              isSelected
-                                ? { background: "hsl(var(--lamp))" }
-                                : undefined
-                            }
-                          />
-
-                          <button
-                            aria-pressed={isSelected}
-                            className="block w-full text-left"
-                            onClick={() => setSelectedPlanId(item.plan.id)}
-                            type="button"
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className="readout text-2xs text-muted-foreground">
-                                {index + 1}
-                              </span>
-                              <span className="truncate font-display text-base font-semibold tracking-[0.01em] text-foreground">
-                                {item.plan.name}
-                              </span>
-                            </span>
-
-                            <span className="mt-2 flex min-h-[22px] flex-wrap items-center gap-1.5">
-                              {isFeatured && featuredLabelKey ? (
-                                <span className="rounded-[--radius] legend inline-flex border border-border bg-background px-1.5 py-1 text-foreground">
-                                  {pricingT(featuredLabelKey)}
-                                </span>
-                              ) : null}
-                              {state.isCurrent ? (
-                                <span className="rounded-[--radius] legend inline-flex border border-border bg-background px-1.5 py-1 text-primary-ink">
-                                  {t("list.current")}
-                                </span>
-                              ) : null}
-                            </span>
-
-                            <span className="mt-3 flex items-baseline gap-1">
-                              <span className="readout font-display text-2xl font-semibold leading-none tracking-[-0.02em] text-foreground">
-                                {formatBRLFromCents(item.plan.basePriceBRLCents)}
-                              </span>
-                              <span className="text-2xs text-muted-foreground">
-                                {t("detail.perMonth")}
-                              </span>
-                            </span>
-
-                            <span className="mt-2 line-clamp-2 block min-h-[32px] text-xs leading-snug text-muted-foreground">
-                              {item.plan.description || t("list.noDescription")}
-                            </span>
-                          </button>
-
-                          {item.plan.exclusiveAffiliateId && affiliateBrand ? (
-                            <div className="mt-3">
-                              <AffiliateBrandChip brand={affiliateBrand} />
-                            </div>
-                          ) : null}
-
-                          <Button
-                            className="mt-3 w-full"
-                            disabled={state.disabled}
-                            icon={
-                              creatingInvoice &&
-                              selectedPlan?.plan.id === item.plan.id ? (
-                                <CircleNotch
-                                  className="h-4 w-4 animate-spin"
-                                  weight="bold"
-                                />
-                              ) : (
-                                <CurrencyDollar className="h-4 w-4" weight="bold" />
-                              )
-                            }
-                            iconVisible
-                            onClick={() => handleContract(item.plan.id)}
-                            title={state.title}
-                            variant={
-                              isSelected && !state.disabled
-                                ? "primary"
-                                : "outline"
-                            }
-                          />
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {capacityRows.map((row) => (
-                    <tr key={row.key} className="border-t border-border">
-                      <th
-                        className="sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-normal text-muted-foreground"
-                        scope="row"
-                      >
-                        {row.label}
-                      </th>
-                      {rackPlans.map((item) => (
-                        <td
-                          key={item.plan.id}
-                          className={cn(
-                            "readout border-l border-border px-4 py-2.5 text-sm font-semibold text-foreground",
-                            item.plan.id === selectedPlan?.plan.id && "bg-muted",
-                          )}
-                        >
-                          {row.value(item)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-
-                  {compareCategories.map((category) => {
-                    const categoryKey =
-                      `pricing.categories.${category}` as Parameters<
-                        typeof t
-                      >[0];
-
-                    return (
-                      <tr key={category} className="border-t border-border">
-                        <th
-                          className="sticky left-0 z-10 bg-card px-4 py-2.5 text-xs font-normal text-muted-foreground"
-                          scope="row"
-                        >
-                          <span className="flex items-center gap-2">
-                            <CategoryMark category={category} />
-                            {t.has(categoryKey) ? t(categoryKey) : category}
-                          </span>
-                        </th>
-                        {rackPlans.map((item) => {
-                          const included = billableItems(
-                            item.plan.pricingItems,
-                          ).some((entry) => entry.category === category);
-
-                          return (
-                            <td
-                              key={item.plan.id}
-                              className={cn(
-                                "border-l border-border px-4 py-2.5",
-                                item.plan.id === selectedPlan?.plan.id &&
-                                  "bg-muted",
-                              )}
-                            >
-                              {included ? (
-                                <Check
-                                  aria-label={t("compare.included")}
-                                  className="h-3.5 w-3.5 text-healthy-ink"
-                                  weight="bold"
-                                />
-                              ) : (
-                                <span
-                                  aria-label={t("compare.notIncluded")}
-                                  className="text-muted-foreground"
-                                  role="img"
-                                >
-                                  —
-                                </span>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),23rem))]">
+              {filteredPlans.map((item) => {
+                const state = contractStateFor(item);
+                const isSelected = item.plan.id === selectedPlan?.plan.id;
+                return (
+                  <PlanCard
+                    key={item.plan.id}
+                    plan={item.plan}
+                    locale={locale}
+                    featured={featured?.planId === item.plan.id ? featured.kind : null}
+                    current={state.isCurrent}
+                    selected={isSelected}
+                    onShowDetails={
+                      billableItems(item.plan.pricingItems).length > 0
+                        ? () => {
+                            setSelectedPlanId(item.plan.id);
+                            detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }
+                        : undefined
+                    }
+                    brand={
+                      item.plan.exclusiveAffiliateId && affiliateBrand ? (
+                        <AffiliateBrandChip brand={affiliateBrand} />
+                      ) : undefined
+                    }
+                    action={
+                      <Button
+                        className="w-full"
+                        disabled={state.disabled}
+                        icon={
+                          creatingInvoice && isSelected ? (
+                            <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
+                          ) : undefined
+                        }
+                        iconVisible={creatingInvoice && isSelected}
+                        onClick={() => handleContract(item.plan.id)}
+                        title={state.title}
+                        variant={state.disabled ? "outline" : featured?.planId === item.plan.id ? "primary" : "secondary"}
+                      />
+                    }
+                  />
+                );
+              })}
             </div>
           )}
         </section>
 
-        {}
         {selectedPlan && selectedPlanBillableCount > 0 ? (
-          <section className="well">
-            <header className="rule-engraved flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <p className="legend">
-                  {selectedIsCurrentPlan
-                    ? t("detail.currentBadge")
-                    : t("detail.availableBadge")}
-                </p>
-                <span aria-hidden className="h-3 w-px bg-border" />
-                <p className="truncate text-sm font-semibold text-foreground">
-                  {selectedPlan.plan.name}
-                </p>
-              </div>
-              <p className="readout text-2xs text-muted-foreground">
-                {formatBRLFromCents(selectedPlan.plan.basePriceBRLCents)}
-                {t("detail.perMonth")}
+          <section ref={detailsRef} aria-labelledby="plan-prices" className="well scroll-mt-6">
+            <header className="rule-engraved px-5 py-4">
+              <h2 id="plan-prices" className="font-display text-lg font-semibold text-foreground">
+                {t("detail.title", { plan: selectedPlan.plan.name })}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {selectedIsCurrentPlan ? t("detail.currentDescription") : t("detail.availableDescription")}
               </p>
             </header>
 
-            <div className="space-y-7 px-4 py-5">
+            <div className="space-y-8 px-5 py-6">
               <PlanEstimatesPanel
                 basePriceBRLCents={selectedPlan.plan.basePriceBRLCents}
                 items={selectedPlan.plan.pricingItems ?? []}
@@ -1050,13 +770,10 @@ export default function UserPlansCatalog() {
               <PlanPricingTable
                 items={selectedPlan.plan.pricingItems ?? []}
                 exchangeRate={exchangeRate}
+                locale={locale}
                 t={t}
               />
             </div>
-
-            <p className="border-t border-border px-4 py-2.5 text-2xs leading-relaxed text-muted-foreground">
-              {t("detail.ctaHint")} · {t("detail.scheduleNote")}
-            </p>
           </section>
         ) : null}
       </motion.main>
@@ -1102,8 +819,9 @@ export default function UserPlansCatalog() {
                     {t("dialog.amount")}
                   </p>
                   <p className="mt-2 font-display text-xl font-semibold text-foreground">
-                    {formatBRLFromCents(
+                    {formatCentsAsBrl(
                       Math.round(generatedInvoice.amountBRL * 100),
+                      locale,
                     )}
                   </p>
                 </div>
@@ -1262,7 +980,7 @@ export default function UserPlansCatalog() {
                       </div>
                       <div className="shrink-0 text-right">
                         <p className="font-display text-lg font-semibold text-foreground tabular-nums">
-                          {formatBRLFromCents(baseCents)}
+                          {formatCentsAsBrl(baseCents, locale)}
                         </p>
                         <p className="text-2xs text-muted-foreground">
                           {t("detail.perMonth")}
@@ -1426,7 +1144,7 @@ export default function UserPlansCatalog() {
                           : t("dialog.monthPlural")}
                       </span>
                       <span className="font-medium tabular-nums text-foreground">
-                        {formatBRLFromCents(totalCentsNoDiscount)}
+                        {formatCentsAsBrl(totalCentsNoDiscount, locale)}
                       </span>
                     </div>
                     {hasDiscount && (
@@ -1438,8 +1156,9 @@ export default function UserPlansCatalog() {
                         </span>
                         <span className="font-medium tabular-nums text-healthy-ink">
                           -
-                          {formatBRLFromCents(
+                          {formatCentsAsBrl(
                             totalCentsNoDiscount - totalCents,
+                            locale,
                           )}
                         </span>
                       </div>
@@ -1449,7 +1168,7 @@ export default function UserPlansCatalog() {
                         {t("dialog.totalLabel")}
                       </span>
                       <span className="font-display text-lg font-semibold tabular-nums text-foreground">
-                        {formatBRLFromCents(totalCents)}
+                        {formatCentsAsBrl(totalCents, locale)}
                       </span>
                     </div>
                   </div>
@@ -1457,7 +1176,7 @@ export default function UserPlansCatalog() {
                   <p className="rounded-[--radius] bg-muted px-4 py-3 text-2xs leading-relaxed text-muted-foreground">
                     {isAnnual
                       ? t("dialog.scheduleNoteAnnual")
-                      : t("dialog.scheduleNoteMonthly")}
+                      : t("dialog.scheduleNoteMonthly", { day: MONTHLY_INVOICE_DUE_DAY })}
                   </p>
 
                   {invoiceError ? (
@@ -1501,42 +1220,10 @@ export default function UserPlansCatalog() {
 }
 
 
-const CATEGORY_SORT_ORDER: Record<string, number> = {
-  whatsapp: 0,
-  sms: 1,
-  stt: 3,
-  tts: 4,
-  llm: 5,
-};
-
-const HIDDEN_CATEGORIES = new Set(["exchange_rate", "telephony"]);
-
-function billableItems(items: { category: string }[] | undefined) {
-  return (items ?? []).filter((item) => !HIDDEN_CATEGORIES.has(item.category));
-}
-
-function formatUSD(micros: number) {
-  const dollars = micros / 1_000_000;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 6,
-  }).format(dollars);
-}
-
-function formatBRLPrice(micros: number, exchangeRate: number) {
-  const brl = (micros / 1_000_000) * exchangeRate;
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(brl);
-}
 
 const CATEGORY_INK: Record<string, { ink: string; glyph: React.ReactNode }> = {
   whatsapp: { ink: "ink-2", glyph: <WhatsappLogo className="h-3.5 w-3.5" /> },
+  telephony: { ink: "ink-4", glyph: <Phone className="h-3.5 w-3.5" /> },
   sms: { ink: "ink-1", glyph: <ChatCircle className="h-3.5 w-3.5" /> },
   stt: { ink: "ink-4", glyph: <Microphone className="h-3.5 w-3.5" /> },
   tts: { ink: "ink-5", glyph: <SpeakerHigh className="h-3.5 w-3.5" /> },
@@ -1565,39 +1252,52 @@ export function CategoryMark({
   );
 }
 
+type PlansTranslate = ReturnType<typeof useTranslations<"plansPage">>;
+
+function translatedOr(t: PlansTranslate, key: string, fallback: string): string {
+  const typed = key as Parameters<PlansTranslate>[0];
+  return t.has(typed) ? t(typed) : fallback;
+}
+
+interface PricedItem {
+  category: string;
+  service: string;
+  metric: string;
+  priceMicros: number;
+  markupPct?: number;
+  currency: string;
+}
+
+function priceLabel(item: PricedItem, exchangeRate: number, locale: string, t: PlansTranslate): string {
+  if (item.metric === "percentage") {
+    const percent = Math.round((item.markupPct ?? 0) * 100);
+    return percent > 0 ? t("pricing.markup", { percent }) : t("pricing.atCost");
+  }
+  if (item.priceMicros === 0) {
+    return t("pricing.free");
+  }
+  return formatMicrosToMoney(item.priceMicros, exchangeRate, locale);
+}
+
 export function PlanPricingTable({
   items,
   exchangeRate,
+  locale,
   t,
 }: {
-  items: {
-    category: string;
-    service: string;
-    metric: string;
-    priceMicros: number;
-    currency: string;
-  }[];
+  items: PricedItem[];
   exchangeRate: number;
-  t: ReturnType<typeof useTranslations<"plansPage">>;
+  locale: string;
+  t: PlansTranslate;
 }) {
   const grouped = React.useMemo(() => {
-    const filtered = items.filter(
-      (i) =>
-        !HIDDEN_CATEGORIES.has(i.category) &&
-        i.category !== "llm" &&
-        i.metric !== "percentage",
-    );
-    const groups = new Map<string, typeof filtered>();
-    for (const item of filtered) {
-      const existing = groups.get(item.category) ?? [];
-      existing.push(item);
-      groups.set(item.category, existing);
+    const groups = new Map<string, PricedItem[]>();
+    for (const item of billableItems(items)) {
+      groups.set(item.category, [...(groups.get(item.category) ?? []), item]);
     }
-    return [...groups.entries()].sort((a, b) => {
-      const oa = CATEGORY_SORT_ORDER[a[0]] ?? 99;
-      const ob = CATEGORY_SORT_ORDER[b[0]] ?? 99;
-      return oa - ob;
-    });
+    return [...groups.entries()].sort(
+      (a, b) => (PLAN_CATEGORY_ORDER[a[0]] ?? 99) - (PLAN_CATEGORY_ORDER[b[0]] ?? 99),
+    );
   }, [items]);
 
   if (grouped.length === 0) {
@@ -1606,20 +1306,13 @@ export function PlanPricingTable({
 
   return (
     <div>
-      <div className="rule-engraved pb-2.5">
-        <p className="legend">{t("pricing.title")}</p>
-        <p className="mt-1.5 max-w-[74ch] text-sm leading-snug text-muted-foreground">
-          {t("pricing.description")}
-        </p>
-        <p className="readout mt-1 text-2xs text-muted-foreground">
-          {t("pricing.exchangeRateHint", {
-            rate: `1 USD = ${exchangeRate.toFixed(2)} BRL`,
-          })}
-        </p>
-      </div>
+      <h3 className="text-sm font-semibold text-foreground">{t("pricing.title")}</h3>
+      <p className="mt-1 max-w-[74ch] text-sm leading-snug text-muted-foreground">
+        {t("pricing.description")}
+      </p>
 
-      <div className="-mx-1 overflow-x-auto px-1">
-        <table className="w-full min-w-[520px] border-collapse text-left">
+      <div className="-mx-1 mt-3 overflow-x-auto px-1">
+        <table className="w-full min-w-[440px] border-collapse text-left">
           <thead>
             <tr className="rule-engraved">
               <th className="legend py-2 pr-3 font-semibold" scope="col">
@@ -1628,92 +1321,57 @@ export function PlanPricingTable({
               <th className="legend px-3 py-2 font-semibold" scope="col">
                 {t("pricing.columns.metric")}
               </th>
-              <th
-                className="legend px-3 py-2 text-right font-semibold"
-                scope="col"
-              >
-                BRL
-              </th>
               <th className="legend py-2 pl-3 text-right font-semibold" scope="col">
-                USD
+                {t("pricing.columns.price")}
               </th>
             </tr>
           </thead>
 
           {grouped.map(([category, categoryItems]) => {
-            const categoryKey = `pricing.categories.${category}` as Parameters<
-              typeof t
-            >[0];
-            const categoryDescKey =
-              `pricing.categoryDescriptions.${category}` as Parameters<
-                typeof t
-              >[0];
-
+            const description = translatedOr(t, `pricing.categoryDescriptions.${category}`, "");
             return (
               <tbody key={category}>
                 <tr>
-                  <th className="pb-1.5 pt-5" colSpan={4} scope="colgroup">
+                  <th className="pb-1.5 pt-5 font-normal" colSpan={3} scope="colgroup">
                     <span className="flex items-center gap-2">
                       <CategoryMark category={category} />
-                      <span className="legend text-foreground">
-                        {t.has(categoryKey) ? t(categoryKey) : category}
+                      <span className="text-sm font-semibold text-foreground">
+                        {translatedOr(t, `pricing.categories.${category}`, category)}
                       </span>
-                      {t.has(categoryDescKey) ? (
-                        <span className="hidden whitespace-nowrap text-2xs font-normal text-muted-foreground sm:inline">
-                          {t(categoryDescKey)}
-                        </span>
-                      ) : null}
-                      <span
-                        aria-hidden
-                        className="h-px min-w-4 flex-1 bg-border"
-                      />
+                      <span aria-hidden className="h-px min-w-4 flex-1 bg-border" />
                     </span>
+                    {description ? (
+                      <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
+                    ) : null}
                   </th>
                 </tr>
 
-                {categoryItems
-                  .sort((a, b) => a.service.localeCompare(b.service))
-                  .map((item) => {
-                    const serviceKey =
-                      `pricing.services.${item.service}` as Parameters<
-                        typeof t
-                      >[0];
-                    const metricKey =
-                      `pricing.metrics.${item.metric}` as Parameters<
-                        typeof t
-                      >[0];
-
-                    return (
-                      <tr
-                        key={`${item.service}-${item.metric}`}
-                        className="border-b border-border last:border-b-0"
-                      >
-                        <th
-                          className="py-2 pr-3 text-sm font-medium text-foreground"
-                          scope="row"
-                        >
-                          {t.has(serviceKey)
-                            ? t(serviceKey)
-                            : formatPricingServiceFallback(item.service)}
-                        </th>
-                        <td className="px-3 py-2 text-xs text-muted-foreground">
-                          {}
-                          {t.has(metricKey) ? t(metricKey) : item.metric}
-                        </td>
-                        <td className="readout px-3 py-2 text-right text-sm font-semibold text-foreground">
-                          {formatBRLPrice(item.priceMicros, exchangeRate)}
-                        </td>
-                        <td className="readout py-2 pl-3 text-right text-xs text-muted-foreground">
-                          {formatUSD(item.priceMicros)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {[...categoryItems]
+                  .sort((a, b) => b.priceMicros - a.priceMicros || a.service.localeCompare(b.service))
+                  .map((item) => (
+                    <tr key={`${item.service}-${item.metric}`} className="border-b border-border last:border-b-0">
+                      <th className="py-2.5 pr-3 text-sm font-medium text-foreground" scope="row">
+                        {translatedOr(t, `pricing.services.${item.service}`, formatPricingServiceFallback(item.service))}
+                      </th>
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                        {translatedOr(t, `pricing.metrics.${item.metric}`, item.metric)}
+                      </td>
+                      <td className="readout py-2.5 pl-3 text-right text-sm font-semibold text-foreground">
+                        {priceLabel(item, exchangeRate, locale, t)}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             );
           })}
         </table>
       </div>
+
+      <p className="mt-3 text-2xs leading-relaxed text-muted-foreground">
+        {t("pricing.exchangeRateHint", {
+          rate: formatMicrosToMoney(1_000_000, exchangeRate, locale),
+        })}
+      </p>
     </div>
   );
 }
@@ -1734,50 +1392,48 @@ export function PlanEstimatesPanel({
   }[];
   exchangeRate: number;
   locale: string;
-  t: ReturnType<typeof useTranslations<"plansPage">>;
+  t: PlansTranslate;
 }) {
-  const msgEstimates = React.useMemo(
-    () => estimateMessagesByType(basePriceBRLCents, items, exchangeRate),
+  const estimates = React.useMemo(
+    () => estimateUsage(basePriceBRLCents, items, exchangeRate),
     [basePriceBRLCents, items, exchangeRate],
   );
 
-  if (msgEstimates.length === 0) return null;
+  if (estimates.length === 0) return null;
 
   return (
     <div>
-      <div className="rule-engraved pb-2.5">
-        <p className="legend">{t("estimates.title")}</p>
-        <p className="mt-1.5 max-w-[74ch] text-sm leading-snug text-muted-foreground">
-          {t("estimates.description")}
-        </p>
-      </div>
+      <h3 className="text-sm font-semibold text-foreground">
+        {t("estimates.title", { amount: formatCentsAsBrl(basePriceBRLCents, locale) })}
+      </h3>
+      <p className="mt-1 max-w-[74ch] text-sm leading-snug text-muted-foreground">
+        {t("estimates.description")}
+      </p>
 
-      <dl className="mt-1 grid gap-x-10 sm:grid-cols-2 xl:grid-cols-3">
-        {msgEstimates.map((est) => {
-          const serviceKey =
-            `estimates.serviceLabel.${est.category}.${est.service}` as Parameters<
-              typeof t
-            >[0];
-          return (
-            <div
-              key={`${est.category}-${est.service}`}
-              className="flex items-baseline justify-between gap-3 border-b border-border py-2.5"
-            >
-              <dt className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                <CategoryMark category={est.category} />
-                <span className="truncate">
-                  {t.has(serviceKey) ? t(serviceKey) : est.service}
-                </span>
-              </dt>
-              <dd className="readout shrink-0 text-base font-semibold text-foreground">
-                ~{formatEstimateNumber(est.count, locale)}
-                <span className="ml-1 text-2xs font-normal text-muted-foreground">
-                  {t("estimates.messagesLabel")}
-                </span>
-              </dd>
-            </div>
-          );
-        })}
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {estimates.map((est) => (
+          <div
+            key={`${est.category}-${est.service}`}
+            className="flex flex-col-reverse rounded-[--radius] border border-border bg-card px-4 py-3.5"
+          >
+            <dt className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <CategoryMark category={est.category} />
+              <span className="truncate">
+                {translatedOr(
+                  t,
+                  `estimates.serviceLabel.${est.category}.${est.service}`,
+                  translatedOr(t, `pricing.services.${est.service}`, est.service),
+                )}
+              </span>
+            </dt>
+            <dd className="readout flex items-baseline gap-1.5 font-display text-2xl font-semibold text-foreground">
+              {t("estimates.approximately", { count: formatEstimateNumber(est.count, locale) })}
+              <span className="text-xs font-normal text-muted-foreground">
+                {est.unit === "minutes" ? t("estimates.minutesLabel") : t("estimates.messagesLabel")}
+              </span>
+            </dd>
+          </div>
+        ))}
       </dl>
     </div>
   );

@@ -3,6 +3,23 @@ import { describe, expect, it, vi } from "vitest";
 import { dispatchStreamEvent } from "./use-chat-stream";
 
 describe("dispatchStreamEvent", () => {
+  it("passes the protected fields of a proposal through to the approval card", () => {
+    const onProposal = vi.fn();
+    dispatchStreamEvent(
+      {
+        type: "tool_proposal",
+        payload: {
+          id: "a2",
+          toolName: "create_phone_line",
+          fields: [{ key: "name", value: "Principal" }],
+          secrets: [{ key: "password", label: "Senha da linha" }],
+        },
+      },
+      { onProposal },
+    );
+    expect(onProposal).toHaveBeenCalledWith(expect.objectContaining({ secrets: [{ key: "password", label: "Senha da linha" }] }));
+  });
+
   it("keeps the readable fields of a proposal", () => {
     const onProposal = vi.fn();
     dispatchStreamEvent(

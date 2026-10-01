@@ -743,6 +743,16 @@ input:-webkit-autofill:active {
     animation-duration: 1.6s;
   }
 
+  .plan-card-ring {
+    background: conic-gradient(
+      from 210deg,
+      hsl(var(--primary) / 0.35) 0deg,
+      hsl(var(--primary)) 120deg,
+      hsl(var(--lamp)) 200deg,
+      hsl(var(--primary) / 0.35) 360deg
+    );
+  }
+
   @keyframes vz-ai-sweep {
     to {
       --vz-ai-angle: 360deg;

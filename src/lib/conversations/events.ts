@@ -143,6 +143,7 @@ const TO_ID_KEYS = [
   "assignedUserId",
   "to_actor_id",
   "target",
+  "handoff_to",
 ];
 
 const FROM_NAME_KEYS = ["from_username", "fromUsername", "from_user", "fromUser"];

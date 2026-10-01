@@ -22,7 +22,10 @@
     "adminLastDepartmentTitle": "Isto amplia o acesso de todo o workspace",
     "adminLastDepartmentBody": "Este é o último departamento. Excluí-lo faz o workspace voltar a considerar apenas as permissões, então todo membro que puder ler conversas vai voltar a ver todas elas.",
     "adminLastDepartmentConfirm": "Excluir departamento",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "unassignedShow": "Ver quem está sem departamento",
+    "unassignedHide": "Ocultar a lista",
+    "unassignedAddTo": "Adicionar a um departamento"
   },
   "workingHours": {
     "title": "Horário de funcionamento",
@@ -213,6 +216,7 @@
     "reject": "Recusar",
     "createError": "Não foi possível criar a conversa",
     "approvalHint": "Requer sua aprovação",
+    "secretHint": "Digite aqui. Este campo vai direto para o sistema: a Elo nunca vê nem guarda o que você digitar.",
     "toolFailed": "falhou",
     "tools": {
       "create_agent": "Criar agente",
@@ -306,7 +310,20 @@
       "delete_department": "Excluir departamento",
       "add_department_member": "Colocar no departamento",
       "remove_department_member": "Tirar do departamento",
-      "place_call": "Preparar ligação"
+      "place_call": "Preparar ligação",
+      "list_calls": "Consultar ligações",
+      "get_call": "Ver ligação",
+      "list_phone_lines": "Consultar linhas telefônicas",
+      "create_phone_line": "Conectar linha telefônica",
+      "update_phone_line": "Editar linha telefônica",
+      "change_phone_line_password": "Trocar senha da linha",
+      "delete_phone_line": "Remover linha telefônica",
+      "list_call_queues": "Consultar filas de atendimento",
+      "create_call_queue": "Criar fila de atendimento",
+      "update_call_queue": "Editar fila de atendimento",
+      "delete_call_queue": "Remover fila de atendimento",
+      "list_telegram_bots": "Consultar bots do Telegram",
+      "connect_telegram_bot": "Conectar bot do Telegram"
     },
     "threadsLegend": "Conversas",
     "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
@@ -565,7 +582,33 @@
       "newName": "Novo nome",
       "language": "Idioma",
       "risks": "Riscos",
-      "teamMember": "Membro"
+      "teamMember": "Membro",
+      "phoneLine": "Linha",
+      "server": "Servidor",
+      "username": "Usuário",
+      "direction": "Ligações",
+      "enabled": "Ligada",
+      "host": "Servidor",
+      "port": "Porta",
+      "transport": "Transporte",
+      "domain": "Domínio SIP",
+      "password": "Senha",
+      "queue": "Fila",
+      "answeredBy": "Quem atende",
+      "distribution": "Distribuição",
+      "ringSeconds": "Toque por pessoa (s)",
+      "maxWaitSeconds": "Espera máxima (s)",
+      "wrapUpSeconds": "Pausa entre ligações (s)",
+      "holdMusic": "Música de espera",
+      "agent": "Agente",
+      "addKnowledgeBases": "Bases de conhecimento a ligar",
+      "removeKnowledgeBases": "Bases de conhecimento a tirar",
+      "addMcpCollections": "Coleções MCP a ligar",
+      "removeMcpCollections": "Coleções MCP a tirar",
+      "knowledgeBases": "Bases de conhecimento",
+      "mcpCollections": "Coleções MCP",
+      "scheduledMessage": "Mensagem agendada",
+      "bot_token": "Token do bot"
     },
     "attachments": {
       "legend": "Arquivos anexados",
@@ -945,7 +988,10 @@
         "transferred": "Transferido",
         "finished": "Finalizado",
         "timeout": "Tempo esgotado",
-        "error": "Erro"
+        "error": "Erro",
+        "handed_off": "Passou para um atendente",
+        "abandoned": "Cliente não respondeu",
+        "suppressed": "Não respondeu"
       }
     },
     "activity": {
@@ -1021,6 +1067,22 @@
           "automation_taken_over": "Assumida ao pausar a automação",
           "automation_resumed": "Devolvida para a automação"
         }
+      },
+      "aiSessionEnd": {
+        "manualAssignment": "{actor} atribuiu a conversa a {to} e a IA parou de responder",
+        "assignedTo": "A conversa foi atribuída a {to} e a IA parou de responder",
+        "humanReply": "{actor} respondeu e assumiu a conversa",
+        "humanReplyAnonymous": "Um atendente respondeu e assumiu a conversa",
+        "paused": "{actor} pausou a IA",
+        "pausedAnonymous": "A IA foi pausada",
+        "aiHandoff": "A IA passou a conversa para {to}",
+        "aiHandoffTeam": "A IA passou a conversa para a equipe",
+        "workflowHandoff": "O fluxo passou a conversa para {to}",
+        "workflowHandoffTeam": "O fluxo passou a conversa para a equipe",
+        "operatorHandoff": "{actor} passou a conversa para {to}",
+        "operatorHandoffTeam": "{actor} passou a conversa para a equipe",
+        "finishedBy": "{actor} finalizou a conversa",
+        "finished": "A conversa foi finalizada"
       }
     },
     "tabs": {
@@ -1190,7 +1252,7 @@
       "eleven_turbo_flash": "TTS (Rápido)",
       "eleven_v3": "TTS (v3)",
       "default_markup": "Modelos de IA",
-      "sip_calls": "Chamadas (tronco SIP)"
+      "sip_calls": "Ligações pela linha telefônica"
     },
     "footer": "Preços em BRL. Valores podem variar conforme câmbio. Planos podem ser alterados a qualquer momento."
   },
@@ -2365,8 +2427,9 @@
       "facebookPages": "Páginas",
       "connectFacebook": "Conectar Página",
       "adminLiveDecisions": "Decisões ao vivo",
-      "sipTrunks": "Troncos SIP",
-      "callQueues": "Filas"
+      "sipTrunks": "Linhas telefônicas",
+      "callQueues": "Filas",
+      "callHistory": "Histórico"
     },
     "badges": {
       "new": "Novo",
@@ -7153,11 +7216,12 @@
       "instagram_accounts": "Contas do Instagram",
       "audience": "Análise da audiência",
       "telegram_accounts": "Contas do Telegram",
-      "sip_trunks": "Troncos SIP",
+      "sip_trunks": "Linhas telefônicas",
       "unofficial_whatsapp_instances": "Números WhatsApp (não oficial)",
       "short_links": "Links curtos",
       "facebook_pages": "Páginas do Facebook",
-      "call_queues": "Filas de atendimento"
+      "call_queues": "Filas de atendimento",
+      "call_history": "Histórico de chamadas"
     },
     "actions": {
       "create": "Criar",
@@ -7208,11 +7272,12 @@
       "instagram_accounts": "Conectar e gerenciar as contas do Instagram do workspace.",
       "audience": "Ver a análise de comentários e conversas dos canais conectados, moderar autores e configurar a análise (que gera cobrança).",
       "telegram_accounts": "Conectar e gerenciar os bots e contas do Telegram do workspace.",
-      "sip_trunks": "Cadastrar os troncos SIP do provedor de telefonia e fazer ligações de voz por eles.",
+      "sip_trunks": "Conectar as linhas telefônicas da operadora (SIP) e fazer ligações por elas.",
       "unofficial_whatsapp_instances": "Conectar e gerenciar números de WhatsApp por dispositivo vinculado.",
       "short_links": "Criar e acompanhar links curtos e suas estatísticas de clique.",
       "facebook_pages": "Conectar Páginas do Facebook, publicar, moderar comentários e configurar o Messenger.",
-      "call_queues": "Criar filas telefônicas, escolher quem atende cada uma e a música de espera."
+      "call_queues": "Criar filas telefônicas, escolher quem atende cada uma e a música de espera.",
+      "call_history": "Ver as ligações de que participou, com resultado, duração, transferências e custo; com permissão, as de toda a equipe."
     },
     "customRoles": {
       "title": "Cargos Personalizados",
@@ -7376,8 +7441,8 @@
       "callType": "Tipo de chamada",
       "typeCrm": "Atendente humano",
       "typeAi": "IA de voz",
-      "typeTrunkIn": "Tronco entrada",
-      "typeTrunkOut": "Tronco saída",
+      "typeTrunkIn": "Linha (entrada)",
+      "typeTrunkOut": "Linha (saída)",
       "typeWorkflow": "Automação",
       "queueEnqueued": "Entrou na fila",
       "queueConnected": "Atendidas",
@@ -7420,7 +7485,7 @@
       "aiDisabled": "Automação Off",
       "aiToggleTooltip": "Ativar/desativar automação",
       "call": "Ligar",
-      "callViaSip": "SIP",
+      "callViaSip": "Linha telefônica",
       "callViaWhatsapp": "WhatsApp",
       "comingSoon": "Em breve",
       "ringing": "Chamando...",
@@ -7691,7 +7756,7 @@
       },
       "telephony": {
         "whatsapp_calls": "Ligações WhatsApp",
-        "sip_calls": "Chamadas (tronco SIP)"
+        "sip_calls": "Ligações pela linha telefônica"
       },
       "sms": {
         "standard": "SMS"
@@ -7858,7 +7923,7 @@
         "whatsapp_calls": "Chamadas WhatsApp",
         "standard": "Mensagens SMS",
         "default_markup": "Modelos de IA (LLM)",
-        "sip_calls": "Chamadas (tronco SIP)"
+        "sip_calls": "Ligações pela linha telefônica"
       }
     },
     "archive": {
@@ -8151,9 +8216,24 @@
     }
   },
   "plansPage": {
+    "card": {
+      "includes": "O que está incluído",
+      "details": "Ver preço de cada uso",
+      "balance": "{amount} de saldo por mês para usar nos serviços",
+      "whatsappNumbers": "{count, plural, one {# número de WhatsApp incluído} other {# números de WhatsApp incluídos}}",
+      "voices": "{count, plural, one {# voz simultânea de texto para fala} other {# vozes simultâneas de texto para fala}}",
+      "services": {
+        "whatsapp": "Mensagens pela API oficial do WhatsApp",
+        "sms": "Envio de SMS",
+        "stt": "Transcrição de áudio para texto",
+        "tts": "Síntese de texto para voz",
+        "llm": "IA para agentes e análises das conversas",
+        "telephony": "Ligações pelo WhatsApp e pelas suas linhas telefônicas"
+      }
+    },
     "header": {
       "badge": "Planos",
-      "description": "Compare os planos disponíveis para {workspace} lado a lado, acompanhe a assinatura vigente e gere a cobrança da próxima contratação."
+      "description": "Veja o que seu plano inclui, quanto custa cada uso e mude de plano quando quiser."
     },
     "stats": {
       "totalPlans": "Planos disponíveis",
@@ -8180,63 +8260,76 @@
     },
     "list": {
       "noDescription": "Sem descrição cadastrada.",
-      "current": "Atual",
+      "current": "Seu plano",
       "available": "Disponível",
       "basePrice": "Preço base",
       "pricingItems": "Itens",
-      "updatedAt": "Atualizado em"
+      "updatedAt": "Atualizado em",
+      "chooseTitle": "Escolha um plano",
+      "chooseDescription": "Compare o que cada plano inclui. Os preços de cada uso estão logo abaixo.",
+      "changeTitle": "Mudar de plano",
+      "changeDescription": "Você pode passar para um plano maior a qualquer momento."
     },
     "subscription": {
-      "badge": "Assinatura atual",
+      "badge": "Seu plano",
       "availableBadge": "Catálogo disponível",
-      "noneTitle": "Nenhuma assinatura vigente",
-      "description": "Sua assinatura ativa atual para esta área de trabalho.",
+      "noneTitle": "Você ainda não tem um plano",
+      "description": "O valor do plano vira saldo para usar nos serviços. A fatura do mês reúne o plano e o que foi consumido.",
       "cancelledDescription": "Esta assinatura foi cancelada e segue válida até {date}. Você já pode contratar outro plano.",
-      "expiredDescription": "Esta assinatura já terminou. Selecione um plano abaixo para reativar a cobrança.",
-      "noneDescription": "Nenhuma assinatura ativa. Selecione um plano abaixo para começar.",
+      "expiredDescription": "Esta assinatura terminou. Escolha um plano abaixo para voltar a usar.",
+      "noneDescription": "Escolha um plano abaixo para começar.",
       "cancelConfirm": "Cancelar a assinatura de \"{name}\"? A área de trabalho manterá acesso até o fim do período atual.",
       "billingSummary": "Renova em {date} · o pagamento do plano vira saldo do workspace · plano e consumo na mesma fatura.",
       "plan": "Plano",
       "period": "Período",
-      "basePrice": "Preço base mensal",
+      "basePrice": "Mensalidade",
       "pricingItems": "Itens de precificação",
       "lockedTitle": "Assinatura ativa",
-      "lockedDescription": "Um novo plano poderá ser contratado após o período atual encerrar em {date}."
+      "lockedDescription": "Um novo plano poderá ser contratado após o período atual encerrar em {date}.",
+      "invoice": "Fatura",
+      "invoiceDay": "Vence todo dia {day}",
+      "periodEnds": "Período atual até",
+      "accessUntil": "Acesso até"
     },
     "detail": {
       "currentBadge": "Plano atual",
       "availableBadge": "Plano disponível",
       "emptyTitle": "Selecione um plano",
-      "emptyDescription": "Escolha um plano no rack para ver as estimativas de uso e a tabela de preços por serviço.",
+      "emptyDescription": "Escolha um plano para ver os preços.",
       "basePrice": "Preço base",
       "pricingItems": "Itens de cobrança",
       "perMonth": "/mês",
       "pricingItemsIncluded": "serviços de cobrança",
       "ctaHint": "A assinatura é ativada imediatamente após o pagamento",
-      "scheduleNote": "Cobrança recorrente todo dia 23. O pagamento vira saldo do workspace."
+      "scheduleNote": "Cobrança recorrente todo dia 23. O pagamento vira saldo do workspace.",
+      "title": "Preços do {plan}",
+      "currentDescription": "Cada uso é descontado do saldo do seu plano.",
+      "availableDescription": "Cada uso é descontado do saldo do plano. Estes preços ficam garantidos quando você assina."
     },
     "pricing": {
-      "title": "Precificação do plano",
-      "description": "Os valores abaixo mostram o catálogo comercial do plano que será congelado quando a assinatura for contratada.",
+      "title": "Preço de cada uso",
+      "description": "Você paga só o que usar, e cada uso é descontado do saldo.",
       "currencyHint": "Todos os valores abaixo já estão convertidos para BRL com a cotação atual do sistema.",
-      "exchangeRateHint": "Cotação atual aplicada: {rate}",
+      "exchangeRateHint": "Alguns preços são definidos em dólar e convertidos pela cotação de hoje: US$ 1 = {rate}.",
       "categories": {
-        "whatsapp": "WhatsApp",
+        "whatsapp": "Mensagens do WhatsApp",
         "sms": "SMS",
         "stt": "Voz para Texto",
         "tts": "Texto para Voz",
-        "llm": "Modelos de IA"
+        "llm": "Inteligência artificial",
+        "telephony": "Ligações"
       },
       "categoryDescriptions": {
-        "whatsapp": "Mensagens pela API do WhatsApp Business",
+        "whatsapp": "Cobradas por modelo enviado, conforme o tipo. Responder o cliente dentro de 24 horas é grátis.",
         "sms": "Envio de SMS padrão",
         "stt": "Transcrição de áudio para texto",
         "tts": "Síntese de texto para áudio",
-        "llm": "Inferência de modelos de linguagem"
+        "llm": "Usada pelos agentes de IA e pelas análises das conversas.",
+        "telephony": "Por minuto de ligação. Nas suas linhas telefônicas, a operadora cobra as ligações dela à parte."
       },
       "columns": {
         "service": "Serviço",
-        "metric": "Unidade",
+        "metric": "Cobrança",
         "price": "Preço",
         "cost": "Custo",
         "markup": "Markup",
@@ -8247,41 +8340,47 @@
         "eleven_turbo_flash": "Texto para Voz (Rápido)",
         "scribe_v1v2": "Voz para Texto (Batch)",
         "scribe_realtime": "Voz para Texto (Tempo real)",
-        "utility": "WhatsApp, Mensagens utilitárias",
-        "marketing": "WhatsApp, Mensagens de marketing",
-        "authentication": "WhatsApp, Mensagens de autenticação",
-        "service": "WhatsApp, Mensagens de serviço",
+        "utility": "Utilitária (avisos e confirmações)",
+        "marketing": "Marketing (ofertas e novidades)",
+        "authentication": "Autenticação (códigos de acesso)",
+        "service": "Atendimento (respostas ao cliente)",
         "eleven_v3": "Texto para Voz (v3)",
-        "whatsapp_calls": "Chamadas WhatsApp",
+        "whatsapp_calls": "Pelo WhatsApp",
         "standard": "Mensagens SMS",
-        "default_markup": "Modelos de IA (LLM)",
-        "sip_calls": "Chamadas (tronco SIP)"
+        "default_markup": "Modelos de IA",
+        "sip_calls": "Pela linha telefônica"
       },
       "metrics": {
         "per_million_chars": "por 1M caracteres",
         "per_hour": "por hora",
         "per_message": "por mensagem",
         "per_minute": "por minuto",
-        "percentage": "markup %"
-      }
+        "percentage": "sobre o custo do modelo"
+      },
+      "markup": "Custo do modelo + {percent}%",
+      "atCost": "Preço de custo do modelo",
+      "free": "Grátis"
     },
     "actions": {
       "refresh": "Atualizar",
       "openInvoices": "Ver faturas",
-      "currentPlan": "Plano atual",
+      "currentPlan": "Seu plano atual",
       "cancelSubscription": "Cancelar assinatura",
       "cancelling": "Cancelando...",
-      "upgrade": "Fazer upgrade",
-      "downgradeBlocked": "Cancele o atual para rebaixar",
+      "upgrade": "Mudar para este plano",
+      "downgradeBlocked": "Para trocar por um menor, cancele o atual",
       "locked": "Assinatura vigente",
       "noPermission": "Sem permissão para contratar",
-      "contract": "Contratar plano",
+      "contract": "Assinar este plano",
       "retry": "Tentar novamente",
       "close": "Fechar"
     },
     "dialog": {
-      "title": "Gerar cobrança da assinatura",
-      "description": "Escolha a forma de pagamento para gerar a fatura da assinatura do plano selecionado.",
+      "scanQr": "Escaneie o QR Code ou copie o código abaixo",
+      "boletoDescription": "Boleto gerado. Você pode imprimir diretamente acima.",
+      "boletoFallback": "O boleto foi gerado. Veja os detalhes na página de faturas.",
+      "title": "Assinar plano",
+      "description": "Escolha como quer pagar. O plano é ativado assim que o pagamento é confirmado.",
       "billingCycleTitle": "Período de cobrança",
       "monthly": "Mensal",
       "monthlyDescription": "Cobrança recorrente a cada mês.",
@@ -8294,26 +8393,26 @@
       "pixMethodDescription": "Geração imediata com código copia e cola para pagamento rápido.",
       "boletoMethod": "Boleto",
       "boletoMethodDescription": "Gere o boleto bancário e acompanhe a compensação pela tela de faturas.",
-      "confirm": "Gerar cobrança",
-      "orderSummary": "Resumo do pedido",
-      "scheduleNoteMonthly": "Você paga agora e a assinatura é ativada na hora. O valor vira saldo do workspace e as próximas cobranças acontecem todo dia 23, em uma fatura única com o plano e os canais.",
-      "scheduleNoteAnnual": "Você paga agora e a assinatura é ativada na hora. O valor vira saldo do workspace e a renovação acontece a cada 12 meses.",
+      "confirm": "Gerar pagamento",
+      "orderSummary": "Resumo",
+      "scheduleNoteMonthly": "Você paga agora e o plano é ativado na hora. O valor vira saldo para usar nos serviços, e as próximas faturas vencem todo dia {day}, com o plano e o consumo juntos.",
+      "scheduleNoteAnnual": "Você paga agora e o plano é ativado na hora. O valor vira saldo para usar nos serviços, e a renovação acontece a cada 12 meses.",
       "monthSingular": "mês",
       "monthPlural": "meses",
       "discountLabel": "Desconto anual ({discount}%)",
       "totalLabel": "Total",
       "createError": "Não foi possível gerar a cobrança do plano.",
       "documentRequired": "Informe seu CPF ou CNPJ no perfil antes de contratar o plano. Ele é obrigatório para emitir a cobrança.",
-      "invoiceReadyTitle": "Cobrança gerada",
-      "invoiceReadyDescription": "A cobrança foi criada. Assim que o pagamento for confirmado, a assinatura será ativada automaticamente.",
+      "invoiceReadyTitle": "Pagamento gerado",
+      "invoiceReadyDescription": "Assim que o pagamento for confirmado, o plano é ativado automaticamente.",
       "paymentConfirmedTitle": "Pagamento confirmado",
-      "paymentConfirmedDescription": "A assinatura foi confirmada e o catálogo será atualizado automaticamente nesta tela.",
+      "paymentConfirmedDescription": "O plano está ativo e esta tela já mostra a assinatura atualizada.",
       "amount": "Valor",
       "method": "Pagamento",
       "status": "Status",
       "paid": "Pago",
       "pending": "Aguardando pagamento",
-      "pendingHint": "O status desta cobrança é acompanhado em tempo real enquanto a janela estiver aberta.",
+      "pendingHint": "Esta janela acompanha o pagamento e atualiza sozinha.",
       "pixCode": "Código PIX",
       "pixHint": "Use o copia e cola abaixo no seu banco para concluir o pagamento.",
       "copyPix": "Copiar PIX",
@@ -8323,7 +8422,7 @@
       "openBoleto": "Abrir boleto"
     },
     "toast": {
-      "invoiceCreated": "Cobrança de assinatura gerada com sucesso.",
+      "invoiceCreated": "Pagamento gerado.",
       "paymentConfirmed": "Pagamento confirmado. A assinatura da área de trabalho foi atualizada.",
       "cancelSuccess": "Assinatura cancelada com sucesso.",
       "cancelError": "Não foi possível cancelar a assinatura.",
@@ -8340,8 +8439,8 @@
       "expired": "Expirada"
     },
     "estimates": {
-      "title": "Estimativas de uso",
-      "description": "Valores estimados com base no preço do plano e na precificação dos serviços incluídos.",
+      "title": "O que {amount} rendem por mês",
+      "description": "Quanto dá para usar se todo o saldo do mês for para um só serviço.",
       "messagesTitle": "Mensagens estimadas",
       "messagesValue": "~{count} mensagens",
       "messagesHint": "Equivalente em mensagens WhatsApp (utilitárias) pelo preço do plano",
@@ -8350,14 +8449,20 @@
       "equivalentBadge": "Equivalências",
       "serviceLabel": {
         "whatsapp": {
-          "utility": "WhatsApp Utilitária",
-          "marketing": "WhatsApp Marketing",
-          "authentication": "WhatsApp Autenticação"
+          "utility": "Mensagens utilitárias do WhatsApp",
+          "marketing": "Mensagens de marketing do WhatsApp",
+          "authentication": "Mensagens de autenticação do WhatsApp"
         },
         "sms": {
           "standard": "SMS"
+        },
+        "telephony": {
+          "whatsapp_calls": "Ligações pelo WhatsApp",
+          "sip_calls": "Ligações pela linha telefônica"
         }
-      }
+      },
+      "minutesLabel": "minutos",
+      "approximately": "≈ {count}"
     },
     "loading": "Carregando planos...",
     "compare": {
@@ -8422,7 +8527,7 @@
       "chars": "Caracteres",
       "promptTokens": "Tokens (prompt)",
       "completionTokens": "Tokens (resposta)",
-      "telephony": "Telefonia (SIP)",
+      "telephony": "Linha telefônica",
       "actualDuration": "Duração real",
       "billedMinutes": "Minutos cobrados",
       "ceilingRounded": "arredondado para cima",
@@ -14838,7 +14943,7 @@
     "widget": {
       "ringing": "Chamando…",
       "inCall": "Em chamada",
-      "waitingSlot": "Aguardando uma linha",
+      "waitingSlot": "Aguardando um canal livre",
       "endCall": "Desligar",
       "mute": "Silenciar microfone",
       "unmute": "Ativar microfone",
@@ -14868,7 +14973,7 @@
       "online": "Conectado",
       "offline": "Conectando",
       "minimize": "Minimizar",
-      "trunk": "Tronco",
+      "trunk": "Linha",
       "number": "Número",
       "numberPlaceholder": "Digite o número",
       "keypad": "Teclado",
@@ -14879,10 +14984,10 @@
       "unmute": "Ativar som",
       "inCall": "Em chamada",
       "ringing": "Chamando…",
-      "waitingSlot": "Aguardando uma linha",
-      "loadingTrunks": "Carregando troncos…",
-      "noTrunks": "Nenhum tronco registrado disponível para ligar.",
-      "manageTrunks": "Gerenciar troncos",
+      "waitingSlot": "Aguardando um canal livre",
+      "loadingTrunks": "Carregando linhas…",
+      "noTrunks": "Nenhuma linha conectada disponível para ligar.",
+      "manageTrunks": "Gerenciar linhas",
       "outcome": {
         "ended": "Chamada encerrada",
         "cancelled": "Chamada cancelada",
@@ -14897,11 +15002,11 @@
         "caller_hung_up": "Quem ligou desligou durante a transferência"
       },
       "errors": {
-        "trunk_unavailable": "Este tronco não pode fazer ligações.",
-        "trunk_not_registered": "O tronco não está registrado no provedor.",
+        "trunk_unavailable": "Esta linha não pode fazer ligações.",
+        "trunk_not_registered": "A linha não está conectada à operadora.",
         "invalid_number": "Use apenas dígitos, *, # e um + no início.",
-        "unauthorized": "Você não tem permissão para ligar por este tronco.",
-        "no_call_slots": "Todas as linhas estão ocupadas. Tente de novo em instantes.",
+        "unauthorized": "Você não tem permissão para ligar por esta linha.",
+        "no_call_slots": "Todos os canais de ligação estão ocupados. Tente de novo em instantes.",
         "insufficient_balance": "Saldo insuficiente para ligar.",
         "already_in_call": "Você já está em uma chamada.",
         "dial_failed": "Não foi possível iniciar a chamada."
@@ -14912,13 +15017,13 @@
     "dragHint": "Arraste para mover, clique duas vezes para voltar ao lugar",
     "assistantCard": {
       "title": "Ligação",
-      "via": "Pelo tronco {trunk}",
-      "chooseTrunk": "Você escolhe o tronco no discador",
+      "via": "Pela linha {trunk}",
+      "chooseTrunk": "Você escolhe a linha no discador",
       "call": "Ligar",
       "openDialer": "Abrir no discador",
       "started": "Ligação iniciada. Acompanhe no cartão da chamada.",
-      "handedOver": "Número enviado ao discador. Escolha o tronco e ligue.",
-      "noPermission": "Você não tem permissão para ligar pelos troncos.",
+      "handedOver": "Número enviado ao discador. Escolha a linha e ligue.",
+      "noPermission": "Você não tem permissão para ligar pelas linhas telefônicas.",
       "connecting": "Conectando ao serviço de chamadas…",
       "busy": "Você já está em uma chamada."
     },
@@ -14972,17 +15077,17 @@
   },
   "sipTrunks": {
     "page": {
-      "title": "Troncos SIP",
-      "description": "Conecte os troncos do seu provedor de telefonia para ligar e receber chamadas pelo discador.",
-      "create": "Novo tronco",
+      "title": "Linhas telefônicas",
+      "description": "Conecte a linha da sua operadora de telefonia (via SIP) para fazer e receber ligações pelo discador.",
+      "create": "Nova linha",
       "refresh": "Atualizar",
-      "emptyTitle": "Nenhum tronco cadastrado",
-      "emptyDescription": "Cadastre o tronco SIP do seu provedor para usar o discador.",
-      "errorTitle": "Não foi possível carregar os troncos",
+      "emptyTitle": "Nenhuma linha conectada",
+      "emptyDescription": "Conecte a linha da sua operadora para usar o discador. A operadora informa o servidor, o usuário e a senha SIP.",
+      "errorTitle": "Não foi possível carregar as linhas",
       "retry": "Tentar de novo"
     },
     "table": {
-      "trunk": "Tronco",
+      "trunk": "Linha",
       "type": "Tipo",
       "status": "Registro"
     },
@@ -14994,25 +15099,25 @@
       "DISABLED": "Desativado"
     },
     "stats": {
-      "total": "Troncos",
+      "total": "Linhas",
       "registered": "Registrados",
       "attention": "Com falha"
     },
     "actions": {
-      "edit": "Editar tronco",
-      "delete": "Remover tronco"
+      "edit": "Editar linha",
+      "delete": "Remover linha"
     },
     "delete": {
-      "title": "Remover tronco?",
-      "body": "O tronco {name} será removido e as chamadas em andamento por ele serão encerradas.",
+      "title": "Remover linha?",
+      "body": "A linha {name} será removida e as ligações em andamento por ela serão encerradas.",
       "confirm": "Remover",
       "cancel": "Cancelar",
-      "done": "Tronco removido",
-      "failed": "Não foi possível remover o tronco"
+      "done": "Linha removida",
+      "failed": "Não foi possível remover a linha"
     },
     "form": {
-      "createTitle": "Novo tronco SIP",
-      "editTitle": "Editar tronco SIP",
+      "createTitle": "Nova linha telefônica (SIP)",
+      "editTitle": "Editar linha telefônica (SIP)",
       "subtitle": "Os dados de acesso vêm do seu provedor de telefonia.",
       "name": "Nome",
       "host": "Servidor (host)",
@@ -15030,7 +15135,7 @@
       "domain": "Domínio",
       "domainPlaceholder": "Opcional, quando diferente do servidor",
       "enabled": "Ativo",
-      "enabledHint": "Troncos ativos ficam registrados e aparecem no discador.",
+      "enabledHint": "Linhas ativas ficam conectadas à operadora e aparecem no discador.",
       "advanced": "Configurações avançadas",
       "skipRegistration": "Não registrar (autenticação por IP)",
       "skipRegistrationHint": "Use quando o provedor libera o seu IP em vez de usuário e senha.",
@@ -15054,9 +15159,9 @@
       "cancel": "Cancelar",
       "save": "Salvar",
       "saving": "Salvando…",
-      "created": "Tronco criado",
-      "updated": "Tronco atualizado",
-      "saveFailed": "Não foi possível salvar o tronco",
+      "created": "Linha criada",
+      "updated": "Linha atualizada",
+      "saveFailed": "Não foi possível salvar a linha",
       "invalid": {
         "name": "Informe um nome.",
         "host": "Informe o servidor.",
@@ -15064,6 +15169,119 @@
         "username": "Informe o usuário.",
         "password": "Informe a senha.",
         "codecs": "Inclua PCMU ou PCMA para o discador funcionar."
+      }
+    }
+  },
+  "callHistory": {
+    "page": {
+      "title": "Histórico de chamadas",
+      "descriptionOwn": "As ligações que você fez, atendeu ou transferiu, com a linha do tempo de cada uma.",
+      "descriptionTeam": "Todas as ligações do workspace, com quem ligou, quem atendeu, transferências, duração e custo.",
+      "refresh": "Atualizar",
+      "retry": "Tentar de novo",
+      "errorTitle": "Não foi possível carregar as ligações",
+      "emptyTitle": "Nenhuma ligação neste período",
+      "emptyDescription": "Ligações pela linha telefônica e pelo WhatsApp aparecem aqui assim que começam."
+    },
+    "stats": {
+      "calls": "Ligações"
+    },
+    "table": {
+      "when": "Quando",
+      "contact": "Contato",
+      "people": "Atendimento",
+      "outcome": "Resultado",
+      "duration": "Conversa",
+      "charge": "Custo",
+      "noCharge": "Sem cobrança",
+      "transfers": "{count, plural, one {# transferência} other {# transferências}}"
+    },
+    "filters": {
+      "number": "Buscar número",
+      "period": "Período",
+      "direction": "Direção",
+      "channel": "Canal",
+      "result": "Atendimento",
+      "member": "Membro",
+      "any": "Todas",
+      "everyone": "Toda a equipe"
+    },
+    "periods": {
+      "today": "Hoje",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias",
+      "all": "Todo o período"
+    },
+    "directions": {
+      "inbound": "Recebida",
+      "outbound": "Feita"
+    },
+    "channels": {
+      "phone": "Telefone",
+      "whatsapp": "WhatsApp"
+    },
+    "results": {
+      "answered": "Atendidas",
+      "unanswered": "Não atendidas"
+    },
+    "outcomes": {
+      "in_progress": "Em andamento",
+      "answered": "Atendida",
+      "missed": "Perdida",
+      "no_answer": "Não atendeu",
+      "busy": "Ocupado",
+      "declined": "Recusada",
+      "cancelled": "Cancelada",
+      "failed": "Falhou"
+    },
+    "detail": {
+      "title": "Detalhes da ligação",
+      "loading": "Carregando a ligação…",
+      "loadFailed": "Não foi possível carregar a ligação",
+      "retry": "Tentar de novo",
+      "openContact": "Abrir contato",
+      "result": "Resultado",
+      "talk": "Conversa",
+      "ring": "Chamando",
+      "charge": "Custo",
+      "placedBy": "Ligou",
+      "from": "De",
+      "answeredBy": "Atendeu",
+      "handlers": "Passou por",
+      "timeline": "Linha do tempo",
+      "recording": "Gravação",
+      "download": "Baixar"
+    },
+    "timeline": {
+      "someone": "Alguém",
+      "aQueue": "uma fila",
+      "startedOutbound": "{actor} ligou",
+      "startedInbound": "Ligação recebida",
+      "answered": "Atendida",
+      "answeredBy": "{actor} atendeu",
+      "transferredTo": "{actor} transferiu para {target}",
+      "sentToQueue": "{actor} enviou para a fila {queue}",
+      "enteredQueue": "Entrou na fila {queue}",
+      "transferConnected": "{actor} atendeu a transferência",
+      "queueConnected": "{actor} atendeu pela fila {queue}",
+      "transferReturned": "{target} não atendeu; a ligação voltou",
+      "transferUnanswered": "{target} não atendeu",
+      "queueUnanswered": "Ninguém da fila {queue} atendeu a tempo",
+      "transferCancelled": "Transferência cancelada",
+      "callerLeft": "Quem ligou desligou durante a transferência",
+      "ended": "Ligação encerrada",
+      "endedWith": "Ligação encerrada: {reason}",
+      "recordingReady": "Gravação disponível",
+      "endReasons": {
+        "ended": "desligada normalmente",
+        "busy": "número ocupado",
+        "no_answer": "ninguém atendeu",
+        "declined": "recusada",
+        "failed": "a ligação não completou",
+        "cancelled": "cancelada antes de atender",
+        "insufficient_balance": "saldo insuficiente",
+        "balance_check_error": "não foi possível conferir o saldo",
+        "interrupted": "interrompida por uma falha do servidor"
       }
     }
   },
@@ -15136,7 +15354,7 @@
       "searchMembers": "Buscar pessoas",
       "members": "Pessoas da fila",
       "membersHint": "{count, plural, =0 {Ninguém escolhido} one {# pessoa escolhida} other {# pessoas escolhidas}}",
-      "permissionHint": "Só toca para quem pode atender ligações pelos troncos e está com o discador aberto.",
+      "permissionHint": "Só toca para quem pode atender ligações pelas linhas telefônicas e está com o discador aberto.",
       "ringSeconds": "Toque (s)",
       "maxWaitSeconds": "Espera máxima (s)",
       "wrapUpSeconds": "Pausa após ligação (s)",
@@ -15240,5 +15458,14 @@
         "offline": "Fora"
       }
     }
+  },
+  "crmAdOrigin": {
+    "cameFrom": {
+      "instagram": "Veio de um anúncio no Instagram",
+      "facebook": "Veio de um anúncio no Facebook",
+      "unknown": "Veio de um anúncio"
+    },
+    "untitled": "Anúncio sem título",
+    "open": "Ver anúncio"
   }
 }

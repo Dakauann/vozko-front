@@ -7,7 +7,6 @@ import type {
   EntryType,
   InboxEntryLabel,
   Label,
-  MediaType,
   Stage,
   TemplateMessageMetadata,
 } from "@/lib/conversations/types";
@@ -25,18 +24,12 @@ import {
   Check,
   CheckCircle,
   Checks,
-  DownloadSimple,
-  File as FileIcon,
   Hash,
   Image as ImageIcon,
   Info,
   MagnifyingGlass,
-  Pause,
   Phone,
   PhoneCall,
-  Play,
-  SpeakerHigh,
-  Spinner,
   Tag as TagIcon,
   User,
   Warning as WarningIcon,
@@ -47,11 +40,11 @@ import {
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { useThreadAnchor } from "@/hooks/use-thread-anchor";
 
 import type { AgentToolDefinition } from "@/lib/agents/types";
 import {
@@ -86,7 +79,8 @@ import {
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
 import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 import type { FunnelStages } from "@/app/actions/stages";
-import DocumentPreview from "./DocumentPreview";
+import { MessageMedia } from "./message-media";
+import { AdOriginBanner } from "./ad-origin-banner";
 import FormattedMessageText from "@/components/ui/formatted-message-text";
 import TemplateBubble from "@/components/crm/TemplateBubble";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
@@ -96,7 +90,6 @@ import {
 } from "@/lib/conversations/delivery-errors";
 import { cn } from "@/lib/utils";
 import { getAgentToolsAction } from "@/app/actions/agents";
-import { getConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";
 import type { LiveRead } from "@/lib/live-decisions/types";
 
@@ -468,433 +461,6 @@ function CollapsibleMessageText({ text }: { text: string }) {
   );
 }
 
-
-
-function useMediaUrl(
-  url?: string,
-  mediaId?: string,
-  entryType?: EntryType,
-  entryId?: string,
-) {
-  const [fetchedUrl, setFetchedUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!url && !!mediaId);
-  const [error, setError] = useState(false);
-  const fetchedRef = useRef(false);
-
-  useEffect(() => {
-    if (url || !mediaId || !entryType || !entryId || fetchedRef.current) return;
-    fetchedRef.current = true;
-
-    getConversationMediaAction(entryType, entryId, mediaId)
-      .then((media) => {
-        if (media?.url) setFetchedUrl(media.url);
-        else setError(true);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [mediaId, url, entryType, entryId]);
-
-  return { mediaUrl: url || fetchedUrl, loading, error };
-}
-
-function DownloadButton({
-  url,
-  className,
-}: {
-  url: string;
-  className?: string;
-}) {
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      download
-      className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60",
-        className,
-      )}
-      onClick={(e) => e.stopPropagation()}
-      aria-label="Download"
-    >
-      <DownloadSimple weight="bold" className="h-3.5 w-3.5" />
-    </a>
-  );
-}
-
-const WAVEFORM_BARS = Array.from({ length: 32 }, (_, i) =>
-  0.35 + 0.65 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6)),
-);
-
-function AudioPlayer({ url }: { url: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [speed, setSpeed] = useState(1);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-
-  const cycleSpeed = useCallback(() => {
-    setSpeed((prev) => {
-      const next = prev === 1 ? 1.5 : prev === 1.5 ? 2 : 1;
-      if (audioRef.current) audioRef.current.playbackRate = next;
-      return next;
-    });
-  }, []);
-
-  const formatTime = (s: number) => {
-    if (!s || !Number.isFinite(s)) return "0:00";
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${m}:${sec.toString().padStart(2, "0")}`;
-  };
-
-  const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
-    }
-  }, [isPlaying]);
-
-  const handleSeek = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const bar = progressBarRef.current;
-      const audio = audioRef.current;
-      if (!bar || !audio || !duration) return;
-      const rect = bar.getBoundingClientRect();
-      const pct = Math.max(
-        0,
-        Math.min(1, (e.clientX - rect.left) / rect.width),
-      );
-      audio.currentTime = pct * duration;
-    },
-    [duration],
-  );
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-      setCurrentTime(0);
-    };
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      if (audio.duration) setProgress(audio.currentTime / audio.duration);
-    };
-    const onLoaded = () => setDuration(audio.duration);
-
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-    audio.addEventListener("ended", onEnded);
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.addEventListener("durationchange", onLoaded);
-
-    return () => {
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
-      audio.removeEventListener("ended", onEnded);
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      audio.removeEventListener("durationchange", onLoaded);
-    };
-  }, []);
-
-  const played = Math.round(progress * WAVEFORM_BARS.length);
-
-  return (
-    <div className="flex items-center gap-2.5 rounded-[--radius] bg-muted px-3 py-2 mb-1 min-w-[220px] max-w-[300px]">
-      <audio ref={audioRef} src={url} preload="metadata">
-        <track kind="captions" />
-      </audio>
-
-      <button
-        type="button"
-        onClick={togglePlay}
-        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105 active:scale-95"
-      >
-        {isPlaying ? (
-          <Pause weight="fill" className="h-4 w-4" />
-        ) : (
-          <Play weight="fill" className="h-4 w-4 ml-0.5" />
-        )}
-      </button>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div
-          ref={progressBarRef}
-          onClick={handleSeek}
-          className="flex h-6 cursor-pointer items-center gap-[2px]"
-        >
-          {WAVEFORM_BARS.map((h, i) => (
-            <span
-              key={i}
-              className={cn(
-                "w-[2px] flex-1 rounded-full transition-colors",
-                i < played ? "bg-primary" : "bg-muted-foreground/30",
-              )}
-              style={{ height: `${Math.round(h * 100)}%` }}
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-2xs font-medium tabular-nums text-muted-foreground">
-            {formatTime(isPlaying || currentTime ? currentTime : duration)}
-          </span>
-          <button
-            type="button"
-            onClick={cycleSpeed}
-            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
-            aria-label="Velocidade de reprodução"
-          >
-            {speed}×
-          </button>
-        </div>
-      </div>
-
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        download
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary-ink"
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Download audio"
-      >
-        <DownloadSimple weight="bold" className="h-3.5 w-3.5" />
-      </a>
-    </div>
-  );
-}
-
-function ImageLightbox({
-  src,
-  alt,
-  onClose,
-}: {
-  src: string;
-  alt: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-    >
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-        <a
-          href={src}
-          target="_blank"
-          rel="noopener noreferrer"
-          download
-          onClick={(e) => e.stopPropagation()}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
-          aria-label="Download"
-        >
-          <DownloadSimple weight="bold" className="h-5 w-5" />
-        </a>
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
-          aria-label="Fechar"
-        >
-          <X weight="bold" className="h-5 w-5" />
-        </button>
-      </div>
-
-      <motion.img
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
-        src={src}
-        alt={alt}
-        className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      />
-    </motion.div>
-  );
-}
-
-function MediaBubble({
-  type,
-  url,
-  mediaId,
-  entryType,
-  entryId,
-  text,
-}: {
-  type?: MediaType;
-  url?: string;
-  mediaId?: string;
-  entryType?: EntryType;
-  entryId?: string;
-  text?: string;
-}) {
-  const { mediaUrl, loading, error } = useMediaUrl(
-    url,
-    mediaId,
-    entryType,
-    entryId,
-  );
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [documentPreviewOpened, setDocumentPreviewOpened] = useState(false);
-
-  if (!type) return null;
-  if (!mediaUrl && !mediaId) return null;
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2.5 mb-1 min-w-[160px]">
-        <Spinner className="h-4 w-4 animate-spin text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">
-          Carregando mídia...
-        </span>
-      </div>
-    );
-  }
-
-  if (error || (!mediaUrl && !loading)) {
-    return (
-      <div className="flex items-center gap-2 rounded-[--radius] bg-muted px-3 py-2.5 mb-1 min-w-[160px]">
-        {type === "image" && (
-          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-        )}
-        {type === "audio" && (
-          <SpeakerHigh className="h-4 w-4 text-muted-foreground" />
-        )}
-        {type === "video" && <Play className="h-4 w-4 text-muted-foreground" />}
-        {type === "document" && (
-          <FileIcon className="h-4 w-4 text-muted-foreground" />
-        )}
-        <span className="text-xs text-muted-foreground">
-          Mídia não disponível
-        </span>
-      </div>
-    );
-  }
-
-  const resolvedUrl = mediaUrl!;
-
-  switch (type) {
-    case "image":
-      return (
-        <>
-          <div className="group relative mb-1 w-fit cursor-pointer overflow-hidden rounded-[--radius]">
-            <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-              <DownloadButton url={resolvedUrl} />
-            </div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={resolvedUrl}
-              alt={text || "Imagem"}
-              className="block h-auto max-h-[360px] w-auto max-w-[280px] rounded-[--radius] object-contain"
-              loading="lazy"
-              onClick={() => setLightboxOpen(true)}
-            />
-          </div>
-
-          <AnimatePresence>
-            {lightboxOpen && (
-              <ImageLightbox
-                src={resolvedUrl}
-                alt={text || "Imagem"}
-                onClose={() => setLightboxOpen(false)}
-              />
-            )}
-          </AnimatePresence>
-        </>
-      );
-
-    case "video":
-      return (
-        <div className="group relative mb-1 w-fit overflow-hidden rounded-[--radius]">
-          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <DownloadButton url={resolvedUrl} />
-          </div>
-          <video
-            src={resolvedUrl}
-            controls
-            className="block h-auto max-h-[300px] w-auto max-w-[280px] rounded-[--radius]"
-            preload="metadata"
-          />
-        </div>
-      );
-
-    case "audio":
-      return <AudioPlayer url={resolvedUrl} />;
-
-    case "document": {
-      const fileName = text?.trim() || "Documento";
-      const ext = (resolvedUrl.split("?")[0].split(".").pop() || "")
-        .toUpperCase()
-        .slice(0, 4);
-      return (
-        <div
-          onClick={() => setDocumentPreviewOpened((prev) => !prev)}
-          className="mb-1 flex min-w-[220px] max-w-[300px] cursor-pointer items-center gap-3 rounded-[--radius] bg-muted px-3 py-2.5 transition-colors hover:bg-border/70"
-        >
-          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <FileIcon weight="fill" className="h-5 w-5" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-foreground">
-              {fileName}
-            </p>
-            <p className="text-2xs text-muted-foreground">
-              {ext ? `${ext} · ` : ""}Toque para abrir
-            </p>
-          </div>
-          <DownloadSimple
-            weight="bold"
-            className="h-4 w-4 flex-shrink-0 text-muted-foreground"
-          />
-          <DocumentPreview
-            previewDocumentUrl={resolvedUrl}
-            open={documentPreviewOpened}
-            setOpen={setDocumentPreviewOpened}
-          />
-        </div>
-      );
-    }
-
-    case "sticker":
-      return (
-        <div className="mb-1">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resolvedUrl}
-            alt="Sticker"
-            className="max-w-[160px] max-h-[160px] object-contain"
-            loading="lazy"
-          />
-        </div>
-      );
-
-    default:
-      return null;
-  }
-}
 
 
 function FailedReceipt({ metadata }: { metadata?: unknown }) {
@@ -1437,7 +1003,7 @@ export default function CrmConversationView({
     AgentToolDefinition[]
   >([]);
   const isAtBottomRef = useRef(true);
-  const prevMessageCountRef = useRef(0);
+  const threadContentRef = useRef<HTMLDivElement>(null);
   const loadMoreCalledRef = useRef(false);
   const justOpenedRef = useRef(true);
 
@@ -1618,12 +1184,19 @@ export default function CrmConversationView({
     });
   }, []);
 
+  const trackThreadAnchor = useThreadAnchor({
+    containerRef,
+    contentRef: threadContentRef,
+    pinnedRef: isAtBottomRef,
+    lockedRef: scrollLockRef,
+    threadKey: conversation?.entry_id,
+  });
+
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
+    trackThreadAnchor();
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const fromBottom = scrollHeight - scrollTop - clientHeight;
-    isAtBottomRef.current = fromBottom < 80;
-    setShowScrollDown(fromBottom > 200);
+    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 200);
 
     if (
       scrollTop < 60 &&
@@ -1635,7 +1208,7 @@ export default function CrmConversationView({
       loadMoreCalledRef.current = true;
       onLoadMore();
     }
-  }, [conversation?.has_more, onLoadMore, loadingHistory]);
+  }, [conversation?.has_more, onLoadMore, loadingHistory, trackThreadAnchor]);
 
   useEffect(() => {
     if (!loadingHistory) {
@@ -1643,35 +1216,8 @@ export default function CrmConversationView({
     }
   }, [loadingHistory]);
 
-  useLayoutEffect(() => {
-    const container = containerRef.current;
-    const msgCount = conversation?.messages.length ?? 0;
-    const prevCount = prevMessageCountRef.current;
-
-    if (!container) {
-      prevMessageCountRef.current = msgCount;
-      return;
-    }
-
-    if (msgCount > prevCount) {
-      if (!isAtBottomRef.current && prevCount > 0) {
-        const prevScrollHeight = container.scrollHeight;
-        const prevScrollTop = container.scrollTop;
-        requestAnimationFrame(() => {
-          const newScrollHeight = container.scrollHeight;
-          const delta = newScrollHeight - prevScrollHeight;
-          container.scrollTop = prevScrollTop + delta;
-        });
-      } else if (isAtBottomRef.current && !scrollLockRef.current) {
-        scrollToBottom(true);
-      }
-    }
-    prevMessageCountRef.current = msgCount;
-  }, [conversation?.messages.length, scrollToBottom]);
-
   useEffect(() => {
     justOpenedRef.current = true;
-    prevMessageCountRef.current = 0;
     isAtBottomRef.current = true;
     if (conversation?.messages.length && !scrollLockRef.current) {
       scrollToBottom(false);
@@ -2111,12 +1657,14 @@ export default function CrmConversationView({
         </motion.button>
       )}
 
+      {conversation.ad_origin ? <AdOriginBanner origin={conversation.ad_origin} /> : null}
+
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="relative flex-1 overflow-y-auto px-4 py-4 scroll-smooth"
+        className="relative flex-1 overflow-y-auto px-4 py-4"
       >
-        <div className="mx-auto max-w-3xl space-y-1">
+        <div ref={threadContentRef} className="mx-auto max-w-3xl space-y-1">
           <EntryMetadataPanel conversation={conversation} />
 
           <AnimatePresence>
@@ -2599,13 +2147,14 @@ export default function CrmConversationView({
 
                               {(msg.media_url || msg.media_id) &&
                                 msg.media_type && (
-                                  <MediaBubble
+                                  <MessageMedia
                                     type={msg.media_type}
                                     url={msg.media_url}
                                     mediaId={msg.media_id}
                                     entryType={msg.entry_type}
                                     entryId={msg.entry_id}
                                     text={msg.text}
+                                    layout={msg.media_layout}
                                   />
                                 )}
 

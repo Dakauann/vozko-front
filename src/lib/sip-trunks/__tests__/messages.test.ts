@@ -23,6 +23,22 @@ const REQUIRED_KEYS = [
   "adminPlans.pricing.services.sip_calls",
   "plansPage.pricing.services.sip_calls",
   "aiChatPage.tools.place_call",
+  "aiChatPage.secretHint",
+  "aiChatPage.fields.password",
+  "aiChatPage.fields.bot_token",
+  "aiChatPage.tools.list_telegram_bots",
+  "aiChatPage.tools.connect_telegram_bot",
+  "aiChatPage.tools.list_calls",
+  "aiChatPage.tools.get_call",
+  "aiChatPage.tools.list_phone_lines",
+  "aiChatPage.tools.create_phone_line",
+  "aiChatPage.tools.update_phone_line",
+  "aiChatPage.tools.change_phone_line_password",
+  "aiChatPage.tools.delete_phone_line",
+  "aiChatPage.tools.list_call_queues",
+  "aiChatPage.tools.create_call_queue",
+  "aiChatPage.tools.update_call_queue",
+  "aiChatPage.tools.delete_call_queue",
 ];
 
 const RUNTIME_KEYS = [

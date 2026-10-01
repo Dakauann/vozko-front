@@ -38,6 +38,7 @@ import {
   PuzzlePiece,
   EnvelopeSimple,
   Headset,
+  ClockCounterClockwise,
   Tag,
   Leaf,
   CurrencyDollar,
@@ -423,6 +424,12 @@ export const campanhasNavItems: NavItem[] = [
     icon: Headset,
     labelKey: "nav.callQueues",
     href: "/dashboard/call-queues",
+    family: "telephony",
+  },
+  {
+    icon: ClockCounterClockwise,
+    labelKey: "nav.callHistory",
+    href: "/dashboard/call-history",
     family: "telephony",
   },
   {

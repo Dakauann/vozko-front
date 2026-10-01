@@ -13,19 +13,11 @@ export type { AffiliateBrand };
 
 interface PricingSectionProps {
   plans: PublicPlanDetails[];
-  exchangeRate?: number;
-  annualDiscountPct?: number;
   affiliateBrand?: AffiliateBrand | null;
 }
 
-export function PricingSection({
-  plans,
-  exchangeRate = 6.0,
-  annualDiscountPct = 0,
-  affiliateBrand,
-}: PricingSectionProps) {
+export function PricingSection({ plans, affiliateBrand }: PricingSectionProps) {
   const t = useTranslations("pricing");
-  void annualDiscountPct;
 
   return (
     <section
@@ -70,11 +62,7 @@ export function PricingSection({
           )}
         </div>
 
-        <PlansCarousel
-          plans={plans}
-          exchangeRate={exchangeRate}
-          affiliateBrand={affiliateBrand}
-        />
+        <PlansCarousel plans={plans} affiliateBrand={affiliateBrand} />
 
         <p className="mt-10 text-center text-xs text-muted-foreground max-w-xl mx-auto">
           {t("footer")}

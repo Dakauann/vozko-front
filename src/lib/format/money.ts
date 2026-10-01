@@ -15,3 +15,10 @@ export function formatMicrosToUSD(micros: number): string {
     const usd = micros / 1_000_000;
     return `$${usd.toFixed(6)}`;
 }
+
+export function formatCentsAsBrl(cents: number, locale: string): string {
+    return new Intl.NumberFormat(locale === 'pt' ? 'pt-BR' : locale, {
+        style: 'currency',
+        currency: 'BRL',
+    }).format(cents / 100);
+}

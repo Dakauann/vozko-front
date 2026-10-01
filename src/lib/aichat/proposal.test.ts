@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { expireOpen, humanizeFieldKey, isOpenProposal, pendingFromStored, proposalRows } from "./proposal";
+import { expireOpen, humanizeFieldKey, isOpenProposal, pendingFromStored, proposalRows, secretsFilled, secretsPayload } from "./proposal";
 
 describe("humanizeFieldKey", () => {
   it("splits camelCase and snake_case into a sentence", () => {
@@ -66,5 +66,25 @@ describe("proposal lifecycle", () => {
     expect(expireOpen(open)).toEqual({ ...open, status: "expired" });
     expect(expireOpen(done)).toBe(done);
     expect(expireOpen(null)).toBeNull();
+  });
+});
+
+describe("secret fields", () => {
+  const secrets = [{ key: "password", label: "Senha da linha" }];
+
+  it("keeps the protected fields a stored proposal asks for", () => {
+    expect(pendingFromStored({ id: "a1", toolName: "create_phone_line", fields: [], secrets, status: "pending" })?.secrets).toEqual(secrets);
+  });
+
+  it("is filled only when every protected field has a value", () => {
+    expect(secretsFilled(secrets, {})).toBe(false);
+    expect(secretsFilled(secrets, { password: "   " })).toBe(false);
+    expect(secretsFilled(secrets, { password: "s3nh4" })).toBe(true);
+    expect(secretsFilled(undefined, {})).toBe(true);
+  });
+
+  it("sends only the declared fields and nothing when none are asked", () => {
+    expect(secretsPayload(secrets, { password: "s3nh4", other: "x" })).toEqual({ password: "s3nh4" });
+    expect(secretsPayload(undefined, { password: "s3nh4" })).toBeUndefined();
   });
 });

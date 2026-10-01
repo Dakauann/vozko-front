@@ -1,4 +1,4 @@
-import type { PendingAction, ProposalField, StoredProposal } from "./types";
+import type { PendingAction, ProposalField, SecretField, StoredProposal } from "./types";
 
 export interface ProposalDictionary {
   label: (key: string) => string;
@@ -35,7 +35,23 @@ function plainValue(value: string, dict: ProposalDictionary): string {
 
 export function pendingFromStored(stored: StoredProposal | undefined): PendingAction | null {
   if (!stored) return null;
-  return { id: stored.id, toolName: stored.toolName, fields: stored.fields, preview: stored.preview, status: stored.status };
+  return {
+    id: stored.id,
+    toolName: stored.toolName,
+    fields: stored.fields,
+    preview: stored.preview,
+    secrets: stored.secrets,
+    status: stored.status,
+  };
+}
+
+export function secretsFilled(secrets: SecretField[] | undefined, values: Record<string, string>): boolean {
+  return (secrets ?? []).every((s) => (values[s.key] ?? "").trim() !== "");
+}
+
+export function secretsPayload(secrets: SecretField[] | undefined, values: Record<string, string>): Record<string, string> | undefined {
+  if (!secrets || secrets.length === 0) return undefined;
+  return Object.fromEntries(secrets.map((s) => [s.key, values[s.key] ?? ""]));
 }
 
 export function isOpenProposal(action: PendingAction | null | undefined): boolean {

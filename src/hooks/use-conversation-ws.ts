@@ -19,6 +19,8 @@ import type {
   PendingOutcomeRequest,
 } from "@/lib/conversations/types";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { messageMedia } from "@/lib/conversations/message-media";
+import { adOriginOf } from "@/lib/conversations/ad-origin";
 
 import { hasUserDataCookie } from "@/lib/auth/client-cookies";
 import { resolveAutomationEnabled } from "@/lib/conversations/automation";
@@ -573,7 +575,7 @@ export function useConversationWs({
         media_id: (msg.media_id as string) ?? (msg.mediaId as string),
         media_type:
           (msg.media_type as MediaType) ?? (msg.mediaType as MediaType),
-        media_url: (msg.media_url as string) ?? (msg.mediaUrl as string),
+        ...messageMedia(msg),
         sender_name:
           (msg.sender_name as string) ?? (msg.senderName as string) ?? "",
         sender_avatar:
@@ -1124,7 +1126,9 @@ export function useConversationWs({
             window_closed_reason,
             window_tier,
             automation_enabled,
+            ad_origin,
           } = event.payload;
+          const adOrigin = adOriginOf(ad_origin);
 
           if (
             activeSubscriptionRef.current &&
@@ -1172,6 +1176,7 @@ export function useConversationWs({
                 ),
                 conversation_status:
                   inboxEntry?.conversation_status ?? prev.conversation_status,
+                ad_origin: adOrigin ?? prev.ad_origin ?? null,
               };
             }
 
@@ -1196,9 +1201,21 @@ export function useConversationWs({
                 inboxEntry?.automation_enabled,
               ),
               conversation_status: inboxEntry?.conversation_status,
+              ad_origin: adOrigin,
             };
           });
 
+          break;
+        }
+
+        case "conversation:ad_origin": {
+          const { entry_id, entry_type } = event.payload;
+          const adOrigin = adOriginOf(event.payload.ad_origin);
+          setActiveConversation((prev) =>
+            prev && prev.entry_id === entry_id && prev.entry_type === entry_type
+              ? { ...prev, ad_origin: adOrigin }
+              : prev,
+          );
           break;
         }
 

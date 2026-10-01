@@ -183,7 +183,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
   );
 
   const resolveAction = useCallback(
-    async (actionId: string, kind: "approve" | "reject", model: string) => {
+    async (actionId: string, kind: "approve" | "reject", model: string, secrets?: Record<string, string>) => {
       if (!activeId) return;
       const threadId = activeId;
       const status = kind === "approve" ? "approved" : "rejected";
@@ -196,7 +196,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
           ...prev,
           { id: `a-${now}`, role: "assistant", content: "", model, createdAt: now, segments: [] },
         ]);
-        await approve(threadId, actionId, streamHandlers());
+        await approve(threadId, actionId, streamHandlers(), secrets);
         return;
       }
       await reject(threadId, actionId, {

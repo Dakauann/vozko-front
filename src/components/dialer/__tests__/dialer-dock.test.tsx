@@ -181,7 +181,7 @@ describe("DialerDock", () => {
     session.value = callSession({ lastErrorCode: "trunk_not_registered", lastError: "trunk not registered" });
     renderDialer();
     await openDialer();
-    expect(await screen.findByText("O tronco não está registrado no provedor.")).toBeTruthy();
+    expect(await screen.findByText("A linha não está conectada à operadora.")).toBeTruthy();
   });
 
   describe("transferring a live call", () => {

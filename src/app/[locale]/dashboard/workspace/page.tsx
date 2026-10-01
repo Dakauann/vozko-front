@@ -44,6 +44,8 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
+import { UnassignedMembersNotice } from "@/components/departments/unassigned-members-notice";
+import { membersWithoutDepartment } from "@/lib/department/coverage";
 import PermissionsEditor, {
   usePermissionMap,
 } from "@/components/elevated-design/permissions-editor";
@@ -1519,6 +1521,7 @@ function PermissionsTab({
     "analysis",
     "sip_trunks",
     "call_queues",
+    "call_history",
     "call_recordings",
     "whatsapp_flows",
   ];
@@ -2470,26 +2473,11 @@ function DepartmentsTab({
     can("departments", "update") || can("departments", "create");
   const canDelete = can("departments", "delete");
 
-  const scopedMembers = React.useMemo(
-    () => members.filter((m) => m.role !== "owner" && m.role !== "admin"),
-    [members],
+  const unassignedMembers = React.useMemo(
+    () => membersWithoutDepartment(members, departments, deptMembers),
+    [members, departments, deptMembers],
   );
-  const assigned = React.useMemo(() => {
-    const ids = new Set<string>();
-    for (const list of Object.values(deptMembers)) {
-      for (const m of list) {
-        ids.add(m.memberId);
-        if (m.userId) ids.add(m.userId);
-      }
-    }
-    return ids;
-  }, [deptMembers]);
-
-  const unassignedCount = React.useMemo<number | null>(() => {
-    if (departments.length === 0) return scopedMembers.length;
-    if (!departments.every((d) => deptMembers[d.id] !== undefined)) return null;
-    return scopedMembers.filter((m) => !assigned.has(m.id) && !assigned.has(m.userId)).length;
-  }, [departments, deptMembers, scopedMembers, assigned]);
+  const unassignedCount = unassignedMembers?.length ?? null;
 
   const loadDepartments = React.useCallback(async () => {
     setLoading(true);
@@ -2779,18 +2767,13 @@ function DepartmentsTab({
 
       {
 }
-      {departments.length > 0 && unassignedCount !== null && unassignedCount > 0 && (
-        <div
-          role="status"
-          className="rounded-[--radius] border border-border bg-muted px-3 py-2.5 space-y-1"
-        >
-          <p className="text-xs font-semibold text-foreground">
-            {ts("adminNoDepartmentSummary", { count: unassignedCount })}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {ts("adminNoDepartmentTooltip")}
-          </p>
-        </div>
+      {departments.length > 0 && unassignedMembers && unassignedMembers.length > 0 && (
+        <UnassignedMembersNotice
+          members={unassignedMembers}
+          departments={departments}
+          canAssign={canManage}
+          onAssign={handleAddMember}
+        />
       )}
 
       {}

@@ -1,6 +1,6 @@
 "use client";
 
-import { exchangeRateFromMicros, formatMicrosAsBrl } from "@/lib/pricing/currency";
+import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import {
     isTemplateSendable,
     renderTemplateText,
@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SendQuote } from "@/lib/whatsapp-outreach/types";
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
-import { getExchangeRateAction } from "@/app/actions/pricing";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import { quoteTemplateSendAction } from "@/app/actions/whatsapp-outreach";
 import { useTranslations } from "next-intl";
@@ -74,7 +74,7 @@ export function useTemplateComposer({
     const [templates, setTemplates] = useState<LoadedTemplates | null>(null);
     const [version, setVersion] = useState(0);
     const [quote, setQuote] = useState<Loaded<SendQuote | null> | null>(null);
-    const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+    const exchangeRate = useExchangeRate(enabled);
 
     const templateId = selection.phoneId === businessPhoneId ? selection.templateId : "";
 
@@ -88,13 +88,6 @@ export function useTemplateComposer({
             cancelled = true;
         };
     }, [enabled, businessPhoneId, version]);
-
-    useEffect(() => {
-        if (!enabled) return;
-        getExchangeRateAction().then((rate) => {
-            setExchangeRate(exchangeRateFromMicros(rate.item?.priceMicros));
-        });
-    }, [enabled]);
 
     const quoteKey = templateId && businessPhoneId ? `${templateId}|${businessPhoneId}` : "";
 

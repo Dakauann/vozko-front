@@ -55,6 +55,7 @@ export const screenPaths = {
   telegram_connect: "/dashboard/telegram-accounts/connect",
   sip_trunks: "/dashboard/sip-trunks",
   call_queues: "/dashboard/call-queues",
+  call_history: "/dashboard/call-history",
   telegram_account: "/dashboard/telegram-accounts/[accountId]",
   message_shortcuts: "/dashboard/message-shortcuts",
   leads: "/dashboard/leads",

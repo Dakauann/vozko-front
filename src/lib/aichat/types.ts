@@ -147,11 +147,17 @@ export interface ProposalPreview {
   data: unknown;
 }
 
+export interface SecretField {
+  key: string;
+  label: string;
+}
+
 export interface StoredProposal {
   id: string;
   toolName: string;
   fields: ProposalField[];
   preview?: ProposalPreview;
+  secrets?: SecretField[];
   status: ProposalStatus;
 }
 
@@ -162,6 +168,7 @@ export interface PendingAction {
   summary?: string;
   fields?: ProposalField[];
   preview?: ProposalPreview;
+  secrets?: SecretField[];
   status?: ProposalStatus;
 }
 
@@ -190,6 +197,7 @@ export interface ChatStreamEvent {
     args?: Record<string, unknown>;
     fields?: ProposalField[];
     preview?: ProposalPreview;
+    secrets?: SecretField[];
     actionId?: string;
     tool?: string;
     content?: string;

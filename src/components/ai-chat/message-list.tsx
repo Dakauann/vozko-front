@@ -15,6 +15,7 @@ import {
   ArrowsLeftRight,
   CalendarBlank,
   ClockCountdown,
+  ClockCounterClockwise,
   NotePencil,
   PaperPlaneRight,
   Pause,
@@ -56,23 +57,29 @@ import {
   Microphone,
   PencilSimple,
   Phone,
+  PhoneCall,
   Plus,
+  Queue,
+  TelegramLogo,
   Sparkle,
   TrashSimple,
   Users,
   Wrench,
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
+import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { EloAvatar } from "./elo-mark";
 import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
 import { ActionCardView } from "@/components/ai-chat/action-card";
-import type { ChatChart, ChatMessage, PendingAction, ProposalStatus } from "@/lib/aichat/types";
+import type { ChatChart, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
 import {
   humanizeFieldKey,
   isOpenProposal,
   pendingFromStored,
   proposalRows,
+  secretsFilled,
+  secretsPayload,
   type ProposalDictionary,
 } from "@/lib/aichat/proposal";
 import { cn } from "@/lib/utils";
@@ -173,6 +180,19 @@ const TOOL_ICON: Record<string, Icon> = {
   add_department_member: UserPlus,
   remove_department_member: UserMinus,
   place_call: Phone,
+  list_calls: ClockCounterClockwise,
+  get_call: PhoneCall,
+  list_phone_lines: Phone,
+  create_phone_line: Phone,
+  update_phone_line: Phone,
+  change_phone_line_password: Key,
+  delete_phone_line: Phone,
+  list_call_queues: Queue,
+  create_call_queue: Queue,
+  update_call_queue: Queue,
+  delete_call_queue: Queue,
+  list_telegram_bots: TelegramLogo,
+  connect_telegram_bot: TelegramLogo,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
@@ -208,6 +228,8 @@ export interface BubbleLabels {
   toolFailed: string;
   toolDenied: string;
   toolLabel: (name: string) => string;
+  secretLabel: (field: SecretField) => string;
+  secretHint: string;
   proposal: ProposalDictionary;
   decided: Record<DecidedStatus, string>;
 }
@@ -234,6 +256,8 @@ export function useBubbleLabels(): BubbleLabels {
     toolFailed: t("toolFailed"),
     toolDenied: t("toolDenied"),
     toolLabel,
+    secretLabel: (field: SecretField) => (tFields.has(field.key) ? tFields(field.key) : field.label),
+    secretHint: t("secretHint"),
     proposal: { label: fieldLabel, yes: t("yes"), no: t("no") },
     decided: { approved: t("decided.approved"), rejected: t("decided.rejected"), expired: t("decided.expired") },
   };
@@ -250,7 +274,7 @@ export function MessageBubble({
   elo?: boolean;
   message: UIMessage;
   live: boolean;
-  onApprove: (actionId: string) => void;
+  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
@@ -413,7 +437,7 @@ function ApprovalCard({
   labels,
 }: {
   pending: PendingAction;
-  onApprove: (actionId: string) => void;
+  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
@@ -466,43 +490,64 @@ function ApprovalActions({
   labels,
 }: {
   pending: PendingAction;
-  onApprove: (actionId: string) => void;
+  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
+  const [secrets, setSecrets] = useState<Record<string, string>>({});
+  const asksSecrets = (pending.secrets ?? []).length > 0;
   return (
-    <div className="mt-3 flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-      <span className="text-xs font-medium text-primary-ink">{labels.approvalHint}</span>
-      <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={busy !== null}
-          onClick={() => {
-            setBusy("reject");
-            onReject(pending.id);
-          }}
-          className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {busy === "reject" ? (
-            <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
-          ) : null}
-          {labels.reject}
-        </button>
-        <button
-          type="button"
-          disabled={busy !== null}
-          onClick={() => {
-            setBusy("approve");
-            onApprove(pending.id);
-          }}
-          className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {busy === "approve" ? (
-            <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
-          ) : null}
-          {labels.approve}
-        </button>
+    <div className="mt-3 border-t border-border pt-3">
+      {asksSecrets ? (
+        <div className="mb-3 grid gap-2">
+          {pending.secrets?.map((field) => (
+            <ElevatedInput
+              key={field.key}
+              label={labels.secretLabel(field)}
+              type="password"
+              autoComplete="new-password"
+              disabled={busy !== null}
+              value={secrets[field.key] ?? ""}
+              onChange={(e) => setSecrets((prev) => ({ ...prev, [field.key]: e.target.value }))}
+            />
+          ))}
+          <p className="text-xs text-muted-foreground">{labels.secretHint}</p>
+        </div>
+      ) : null}
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <span className="text-xs font-medium text-primary-ink">{labels.approvalHint}</span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={busy !== null}
+            onClick={() => {
+              setBusy("reject");
+              onReject(pending.id);
+            }}
+            className="rounded-[--radius] inline-flex items-center gap-1.5 border border-control-edge bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-colors duration-DEFAULT hover:bg-muted disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {busy === "reject" ? (
+              <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
+            {labels.reject}
+          </button>
+          <button
+            type="button"
+            disabled={busy !== null || !secretsFilled(pending.secrets, secrets)}
+            onClick={() => {
+              setBusy("approve");
+              onApprove(pending.id, secretsPayload(pending.secrets, secrets));
+              setSecrets({});
+            }}
+            className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {busy === "approve" ? (
+              <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
+            {labels.approve}
+          </button>
+        </div>
       </div>
     </div>
   );

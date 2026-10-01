@@ -657,34 +657,6 @@ export default function InvoicesPage() {
                 </div>
               ) : availablePlans.length > 0 ? (
                 <PlanCatalogRail
-                  labels={{
-                    available: plansT("list.available"),
-                    basePrice: plansT("list.basePrice"),
-                    best: gateT("bestBadge"),
-                    categoryNames: {
-                      whatsapp: plansT("pricing.categories.whatsapp"),
-                      sms: plansT("pricing.categories.sms"),
-                      stt: plansT("pricing.categories.stt"),
-                      tts: plansT("pricing.categories.tts"),
-                      llm: plansT("pricing.categories.llm"),
-                    },
-                    messagesLabel: plansT("estimates.messagesLabel"),
-                    serviceLabels: {
-                      whatsapp: {
-                        utility: plansT("estimates.serviceLabel.whatsapp.utility"),
-                        marketing: plansT(
-                          "estimates.serviceLabel.whatsapp.marketing",
-                        ),
-                        authentication: plansT(
-                          "estimates.serviceLabel.whatsapp.authentication",
-                        ),
-                      },
-                      sms: { standard: plansT("estimates.serviceLabel.sms.standard") },
-                    },
-                    current: plansT("list.current"),
-                    noDescription: plansT("list.noDescription"),
-                  }}
-                  locale={locale}
                   plans={availablePlans}
                 />
               ) : (

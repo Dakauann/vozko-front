@@ -57,7 +57,7 @@ describe("place_call card", () => {
 
   it("places the call through the chosen trunk only when the member clicks", () => {
     renderCard(card({ phoneNumber: "+5584999990000", trunkId: "t1", trunkName: "Principal" }));
-    expect(screen.getByText("Pelo tronco Principal")).toBeTruthy();
+    expect(screen.getByText("Pela linha Principal")).toBeTruthy();
     expect(requests).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: copy.call }));
     expect(requests).toEqual([{ phoneNumber: "+5584999990000", trunkId: "t1", label: "Principal" }]);

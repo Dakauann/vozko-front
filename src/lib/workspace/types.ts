@@ -16,6 +16,7 @@ export type ResourceType =
     | "analysis"
     | "sip_trunks"
     | "call_queues"
+    | "call_history"
     | "branches"
     | "call_recordings"
     | "whatsapp_flows"

@@ -1,4 +1,5 @@
 import type { Analysis } from '@/lib/analysis/types';
+import type { AdOrigin } from './ad-origin';
 import type { LiveRead } from '@/lib/live-decisions/types';
 
 
@@ -148,6 +149,12 @@ export type MessageType =
 
 export type MediaType = 'image' | 'video' | 'audio' | 'document' | 'sticker';
 
+export interface MediaLayout {
+    width: number;
+    height: number;
+    thumbhash?: string;
+}
+
 
 export interface MatchedMessage {
     message_id: string;
@@ -267,6 +274,7 @@ export interface ConversationMessage {
     media_id?: string;
     media_type?: MediaType;
     media_url?: string;
+    media_layout?: MediaLayout;
     sender_name: string;
     sender_avatar?: string;
     read: boolean;
@@ -436,6 +444,13 @@ export interface WsSubscribedPayload {
     window_closed_reason?: WindowClosedReason | null;
     window_tier?: WindowTier;
     automation_enabled?: boolean | null;
+    ad_origin?: unknown;
+}
+
+export interface WsAdOriginPayload {
+    entry_id: string;
+    entry_type: EntryType;
+    ad_origin: unknown;
 }
 
 export interface WsHistoryPayload {
@@ -645,6 +660,7 @@ export type WsServerEvent =
     | { type: 'conversation:connected_users'; payload: WSConnectedUsersPayload }
     | { type: 'conversation:entry_update'; payload: WsEntryUpdatePayload }
     | { type: 'conversation:subscribed'; payload: WsSubscribedPayload }
+    | { type: 'conversation:ad_origin'; payload: WsAdOriginPayload }
     | { type: 'conversation:history'; payload: WsHistoryPayload }
     | { type: 'conversation:message'; payload: WsMessagePayload }
     | { type: 'conversation:message_sent'; payload: WsMessageSentPayload }
@@ -728,4 +744,5 @@ export interface ActiveConversation {
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
     is_group?: boolean;
+    ad_origin?: AdOrigin | null;
 }

@@ -240,7 +240,7 @@ function Dock() {
                       key={m.id}
                       message={m}
                       live={chat.streaming && i === chat.messages.length - 1}
-                      onApprove={(id) => void chat.resolveAction(id, "approve", model)}
+                      onApprove={(id, secrets) => void chat.resolveAction(id, "approve", model, secrets)}
                       onReject={(id) => void chat.resolveAction(id, "reject", model)}
                       labels={labels}
                     />
