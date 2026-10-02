@@ -45,4 +45,43 @@ describe("sidebar access", () => {
     expect(navItemVisible(facebook, () => false)).toBe(false);
     expect(navItemVisible(facebook, (href) => href === "/dashboard/facebook-pages")).toBe(true);
   });
+
+  it("groups every ads page under Meta, outside the Facebook family", () => {
+    const meta = campanhasNavItems.filter((item) => item.family === "meta");
+    expect(meta.map((item) => [item.labelKey, item.href])).toEqual([
+      ["nav.adsManager", "/dashboard/advertising"],
+      ["nav.createAd", "/dashboard/advertising/new"],
+      ["nav.adsAudiences", "/dashboard/advertising/audiences"],
+      ["nav.adsForms", "/dashboard/advertising/forms"],
+      ["nav.adsRules", "/dashboard/advertising/rules"],
+      ["nav.adsConversions", "/dashboard/advertising/conversions"],
+    ]);
+    const facebook = hrefs(campanhasNavItems.filter((item) => item.family === "facebook"));
+    expect(facebook.filter((href) => href.startsWith("/dashboard/advertising"))).toEqual([]);
+  });
+
+  it("lists Meta after every channel, since ads are not a channel", () => {
+    const order = [...new Set(campanhasNavItems.map((item) => item.family))];
+    const meta = order.indexOf("meta");
+    for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "telephony", "unofficial-whatsapp"]) {
+      expect(order.indexOf(channel), `${channel} should come before Meta`).toBeLessThan(meta);
+    }
+    expect(order[meta + 1]).toBe("management");
+  });
+
+  it("gates each Meta page by its own screen", () => {
+    expect(ruleForPath("/dashboard/advertising")).toEqual({ kind: "screen", screen: "ads_manager" });
+    expect(ruleForPath("/dashboard/advertising/new")).toEqual({ kind: "screen", screen: "ads_create" });
+    expect(ruleForPath("/dashboard/advertising/audiences")).toEqual({ kind: "screen", screen: "ads_audiences" });
+    expect(ruleForPath("/dashboard/advertising/forms")).toEqual({ kind: "screen", screen: "ads_forms" });
+    expect(ruleForPath("/dashboard/advertising/rules")).toEqual({ kind: "screen", screen: "ads_rules" });
+    expect(ruleForPath("/dashboard/advertising/conversions")).toEqual({ kind: "screen", screen: "ads_conversions" });
+  });
+
+  it("shows a Meta page exactly when its own page would open", () => {
+    const rules = find(campanhasNavItems, "nav.adsRules");
+    expect(navItemVisible(rules, () => false)).toBe(false);
+    expect(navItemVisible(rules, (href) => href === "/dashboard/advertising/rules")).toBe(true);
+    expect(navItemVisible(rules, (href) => href === "/dashboard/advertising")).toBe(false);
+  });
 });

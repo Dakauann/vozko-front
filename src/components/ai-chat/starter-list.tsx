@@ -12,6 +12,7 @@ import {
   FileText,
   type Icon,
   Kanban,
+  Megaphone,
   PaperPlaneTilt,
   Robot,
   Sparkle,
@@ -32,6 +33,7 @@ const GROUP_ICON: Record<StarterGroupKey, Icon> = {
   schedule: CalendarBlank,
   team: UsersThree,
   agents: Robot,
+  ads: Megaphone,
 };
 
 export function StarterList({

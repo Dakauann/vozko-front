@@ -110,4 +110,14 @@ describe("starterGroupsFor", () => {
     const member = starterGroupsFor(grant("ai_chat:read"), "/dashboard/workspace").groups.find((g) => g.key === "team");
     expect(member?.items).toEqual(["access", "explain"]);
   });
+
+  it("offers the ads group only with ads:read, and creation only with ads:create", () => {
+    expect(starterGroupsFor(grant("ads:read"), "/dashboard/advertising")).toEqual({
+      groups: [{ key: "ads", items: ["results", "best"] }],
+      open: "ads",
+    });
+    const creator = starterGroupsFor(grant("ads:read", "ads:create"), "/dashboard").groups;
+    expect(creator).toEqual([{ key: "ads", items: ["results", "best", "create"] }]);
+    expect(starterGroupsFor(everything, "/dashboard").groups.some((g) => g.key === "ads")).toBe(false);
+  });
 });

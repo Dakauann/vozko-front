@@ -74,6 +74,7 @@ export interface DashboardTableProps<T> {
   className?: string;
   emptyState?: ReactNode | DashboardTableEmptyState;
   caption?: ReactNode;
+  footer?: ReactNode;
   renderRowActions?: (row: T) => ReactNode;
 
   stats?: DashboardTableStat[];
@@ -109,6 +110,7 @@ export function DashboardTable<T>({
   className,
   emptyState,
   caption,
+  footer,
   renderRowActions,
   stats,
   headerLeft,
@@ -435,6 +437,9 @@ export function DashboardTable<T>({
                   })
                 : null}
           </tbody>
+          {footer && hasData && !loading ? (
+            <tfoot className="border-t border-border-strong bg-muted">{footer}</tfoot>
+          ) : null}
         </table>
       </div>
 

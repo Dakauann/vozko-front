@@ -1657,7 +1657,9 @@ export default function CrmConversationView({
         </motion.button>
       )}
 
-      {conversation.ad_origin ? <AdOriginBanner origin={conversation.ad_origin} /> : null}
+      {conversation.ad_origin ? (
+        <AdOriginBanner origin={conversation.ad_origin} entryType={conversation.entry_type} entryId={conversation.entry_id} />
+      ) : null}
 
       <div
         ref={containerRef}

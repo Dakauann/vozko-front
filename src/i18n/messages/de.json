@@ -323,7 +323,20 @@
       "update_call_queue": "Warteschlange bearbeiten",
       "delete_call_queue": "Warteschlange entfernen",
       "list_telegram_bots": "Telegram-Bots abfragen",
-      "connect_telegram_bot": "Telegram-Bot verbinden"
+      "connect_telegram_bot": "Telegram-Bot verbinden",
+      "list_ad_accounts": "Werbekonten",
+      "ads_results": "Anzeigenergebnisse",
+      "generate_ad_image": "Anzeigenbild erstellen",
+      "update_ad_budget": "Anzeigenbudget ändern",
+      "list_ad_pages": "Seiten für Anzeigen",
+      "search_ad_locations": "Orte werden gesucht",
+      "create_ad": "Anzeige erstellen",
+      "turn_on_ad": "Anzeige einschalten",
+      "turn_off_ad": "Anzeige ausschalten",
+      "duplicate_ad": "Anzeige duplizieren",
+      "archive_ad": "Anzeige archivieren",
+      "delete_ad": "Anzeige löschen",
+      "ads_breakdown": "Ergebnisse nach Zielgruppe und Platzierung"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -516,6 +529,14 @@
             "tools": "Prüfen, was ein Agent kann",
             "models": "Welche KI-Modelle kann ich nutzen?"
           }
+        },
+        "ads": {
+          "title": "Anzeigen",
+          "items": {
+            "results": "Wie laufen meine Anzeigen in den letzten 7 Tagen?",
+            "best": "Welche Anzeige hat diesen Monat die günstigsten Gespräche gebracht?",
+            "create": "Erstelle eine WhatsApp-Anzeige für meine Aktion"
+          }
         }
       }
     },
@@ -599,6 +620,20 @@
       "ringSeconds": "Klingeln pro Person (s)",
       "maxWaitSeconds": "Maximale Wartezeit (s)",
       "wrapUpSeconds": "Pause zwischen Anrufen (s)",
+      "account": "Werbekonto",
+      "page": "Seite",
+      "destination": "Ziel",
+      "budget": "Budget",
+      "fee": "Gebühr",
+      "image": "Bild",
+      "format": "Format",
+      "item": "Element",
+      "level": "Ebene",
+      "change": "Änderung",
+      "from": "Von",
+      "to": "Auf",
+      "target": "Kopieren nach",
+      "copies": "Was kopiert wird",
       "holdMusic": "Wartemusik",
       "agent": "Agent",
       "addKnowledgeBases": "Wissensdatenbanken verknüpfen",
@@ -689,7 +724,13 @@
       }
     },
     "previews": {
-      "scheduledFor": "Geplant für {when}"
+      "scheduledFor": "Geplant für {when}",
+      "ad": {
+        "account": "Werbekonto",
+        "dailyBudget": "Tagesbudget",
+        "fee": "Gebühr pro veröffentlichter Anzeige",
+        "note": "Alles wird ausgeschaltet erstellt und erst am Ende eingeschaltet. Die Anzeige durchläuft vor der Auslieferung die Prüfung von Meta."
+      }
     },
     "navigation": {
       "open": "Öffnen",
@@ -1234,7 +1275,8 @@
       "telephony": "Telefonie",
       "stt": "Speech-to-Text",
       "tts": "Text-to-Speech",
-      "llm": "KI-Modelle"
+      "llm": "KI-Modelle",
+      "advertising": "Anzeigen"
     },
     "perMessage": "pro Msg",
     "perMinute": "pro Min",
@@ -1254,7 +1296,8 @@
       "eleven_turbo_flash": "TTS (Schnell)",
       "eleven_v3": "TTS (v3)",
       "default_markup": "KI-Modelle",
-      "sip_calls": "Anrufe über Telefonleitungen"
+      "sip_calls": "Anrufe über Telefonleitungen",
+      "published_ad": "Veröffentlichte Anzeige"
     },
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
   },
@@ -1753,7 +1796,13 @@
       "adminLiveDecisions": "Live-Entscheidungen",
       "sipTrunks": "Telefonleitungen",
       "callQueues": "Warteschlangen",
-      "callHistory": "Verlauf"
+      "callHistory": "Verlauf",
+      "adsManager": "Werbeanzeigenmanager",
+      "createAd": "Anzeige erstellen",
+      "adsAudiences": "Zielgruppen",
+      "adsForms": "Formulare und Leads",
+      "adsRules": "Automatische Regeln",
+      "adsConversions": "Pixel und Conversions"
     },
     "badges": {
       "new": "Neu",
@@ -1781,7 +1830,8 @@
       },
       "unofficial-whatsapp": "WhatsApp",
       "facebook": "Facebook",
-      "telephony": "Telefonie"
+      "telephony": "Telefonie",
+      "meta": "Meta"
     },
     "pin": {
       "pin": "Anheften",
@@ -6331,7 +6381,8 @@
       "short_links": "Kurzlinks",
       "facebook_pages": "Facebook-Seiten",
       "call_queues": "Anruf-Warteschlangen",
-      "call_history": "Anrufverlauf"
+      "call_history": "Anrufverlauf",
+      "ads": "Meta-Anzeigen"
     },
     "actions": {
       "create": "Erstellen",
@@ -6387,7 +6438,8 @@
       "short_links": "Kurzlinks erstellen und ihre Klickstatistiken verfolgen.",
       "facebook_pages": "Facebook-Seiten verbinden, veröffentlichen, Kommentare moderieren und den Messenger einrichten.",
       "call_queues": "Telefon-Warteschlangen anlegen, festlegen, wer sie annimmt, und die Wartemusik wählen.",
-      "call_history": "Die Anrufe sehen, an denen man beteiligt war, mit Ergebnis, Dauer, Weiterleitungen und Kosten; mit Berechtigung die des ganzen Teams."
+      "call_history": "Die Anrufe sehen, an denen man beteiligt war, mit Ergebnis, Dauer, Weiterleitungen und Kosten; mit Berechtigung die des ganzen Teams.",
+      "ads": "Kampagnen und Ergebnisse sehen, Anzeigen ein- und ausschalten, Budgets ändern, Anzeigen erstellen und Meta-Werbekonten verbinden."
     },
     "customRoles": {
       "title": "Benutzerdefinierte Rollen",
@@ -6875,7 +6927,8 @@
       "whatsapp": "WhatsApp",
       "telephony": "Telefonie",
       "exchange_rate": "Wechselkurs",
-      "margin": "Marge"
+      "margin": "Marge",
+      "advertising": "Anzeigen"
     },
     "table": {
       "service": "Dienst",
@@ -6911,6 +6964,9 @@
       },
       "margin": {
         "safety_margin": "Sicherheitsmarge"
+      },
+      "advertising": {
+        "published_ad": "Veröffentlichte Anzeige"
       }
     },
     "metrics": {
@@ -6919,7 +6975,8 @@
       "per_message": "pro Nachricht",
       "per_minute": "pro Minute",
       "per_unit": "pro Einheit",
-      "percentage": "Prozentsatz"
+      "percentage": "Prozentsatz",
+      "per_ad": "pro Anzeige"
     },
     "exchangeRate": {
       "title": "Wechselkurs USD → BRL",
@@ -7038,14 +7095,16 @@
         "whatsapp": "WhatsApp",
         "telephony": "Telefonie",
         "sms": "SMS",
-        "margin": "Marge"
+        "margin": "Marge",
+        "advertising": "Anzeigen"
       },
       "metrics": {
         "per_million_chars": "pro 1M Zeichen",
         "per_hour": "pro Stunde",
         "per_message": "pro Nachricht",
         "per_minute": "pro Minute",
-        "percentage": "Prozent"
+        "percentage": "Prozent",
+        "per_ad": "pro Anzeige"
       },
       "columns": {
         "service": "Dienst",
@@ -7068,7 +7127,8 @@
         "whatsapp_calls": "WhatsApp-Anrufe",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle (LLM)",
-        "sip_calls": "Anrufe über Telefonleitungen"
+        "sip_calls": "Anrufe über Telefonleitungen",
+        "published_ad": "Veröffentlichte Anzeige"
       }
     },
     "archive": {
@@ -7324,7 +7384,8 @@
         "stt": "Sprache-zu-Text",
         "tts": "Text-zu-Sprache",
         "llm": "Künstliche Intelligenz",
-        "telephony": "Anrufe"
+        "telephony": "Anrufe",
+        "advertising": "Anzeigen"
       },
       "categoryDescriptions": {
         "whatsapp": "Pro gesendeter Vorlage je nach Typ berechnet. Antworten innerhalb von 24 Stunden sind kostenlos.",
@@ -7332,7 +7393,8 @@
         "stt": "Audio-Transkription zu Text",
         "tts": "Textsynthese zu Audio",
         "llm": "Genutzt von KI-Agenten und Gesprächsanalysen.",
-        "telephony": "Pro Gesprächsminute. Auf deinen eigenen Leitungen rechnet dein Anbieter seine Anrufe separat ab."
+        "telephony": "Pro Gesprächsminute. Auf deinen eigenen Leitungen rechnet dein Anbieter seine Anrufe separat ab.",
+        "advertising": "Gebühr pro über die Plattform veröffentlichter Anzeige. Die Medienausgaben rechnet Meta über dein Werbekonto ab."
       },
       "columns": {
         "service": "Dienst",
@@ -7355,14 +7417,16 @@
         "whatsapp_calls": "Über WhatsApp",
         "standard": "SMS-Nachrichten",
         "default_markup": "KI-Modelle",
-        "sip_calls": "Über die Telefonleitung"
+        "sip_calls": "Über die Telefonleitung",
+        "published_ad": "Veröffentlichte Anzeige"
       },
       "metrics": {
         "per_million_chars": "pro 1M Zeichen",
         "per_hour": "pro Stunde",
         "per_message": "pro Nachricht",
         "per_minute": "pro Minute",
-        "percentage": "auf die Modellkosten"
+        "percentage": "auf die Modellkosten",
+        "per_ad": "pro Anzeige"
       },
       "markup": "Modellkosten + {percent}%",
       "atCost": "Zum Selbstkostenpreis des Modells",
@@ -14411,6 +14475,706 @@
       }
     }
   },
+  "adsAudiences": {
+    "header": {
+      "title": "Zielgruppen",
+      "description": "Kundenlisten, ähnliche Zielgruppen und gespeicherte Zielgruppen für deine Meta Anzeigen."
+    },
+    "tabs": {
+      "meta": "Meta Zielgruppen",
+      "saved": "Gespeicherte Zielgruppen"
+    },
+    "retry": "Erneut versuchen",
+    "refresh": "Liste aktualisieren",
+    "meta": {
+      "description": "Benutzerdefinierte Zielgruppen dieses Werbekontos."
+    },
+    "columns": {
+      "name": "Name",
+      "kind": "Typ",
+      "size": "Größe",
+      "status": "Status",
+      "updated": "Aktualisiert"
+    },
+    "kinds": {
+      "CUSTOMER_LIST": "Kundenliste",
+      "LOOKALIKE": "Ähnlich",
+      "WEBSITE": "Website Besucher",
+      "ENGAGEMENT": "Interaktion",
+      "OTHER": "Sonstige"
+    },
+    "size": {
+      "calculating": "Wird berechnet",
+      "range": "{lower} bis {upper}"
+    },
+    "states": {
+      "ready": "Einsatzbereit",
+      "too_small": "Zu klein",
+      "processing": "In Bearbeitung",
+      "unavailable": "Nicht verfügbar"
+    },
+    "actions": {
+      "new": "Neue Zielgruppe",
+      "crm": "Kundenliste aus dem CRM",
+      "crmHint": "Wähle Leads mit den CRM Filtern aus.",
+      "file": "Kundenliste aus einer Datei",
+      "fileHint": "Lade eine CSV Datei mit E-Mails oder Telefonnummern hoch.",
+      "lookalike": "Ähnliche Zielgruppe",
+      "lookalikeHint": "Personen, die einer vorhandenen Zielgruppe ähneln.",
+      "lookalikeNeedsOrigin": "Erstelle zuerst eine Kundenliste als Quelle."
+    },
+    "terms": {
+      "title": "Akzeptiere die Bedingungen für benutzerdefinierte Zielgruppen",
+      "body": "Meta erlaubt Kundenlisten erst, wenn jemand mit Zugriff auf das Konto die Bedingungen akzeptiert.",
+      "open": "Bedingungen bei Meta öffnen",
+      "check": "Ich habe akzeptiert"
+    },
+    "empty": {
+      "title": "Noch keine Zielgruppen",
+      "body": "Erstelle eine Liste aus deinen CRM Kunden oder einer Datei und danach eine ähnliche Zielgruppe.",
+      "bodyReadOnly": "Zielgruppen dieses Werbekontos erscheinen hier."
+    },
+    "delete": {
+      "action": "Zielgruppe löschen",
+      "title": "Diese Zielgruppe löschen?",
+      "body": "Die Zielgruppe {name} wird bei Meta gelöscht. Anzeigen, die sie nutzen, erreichen sie nicht mehr.",
+      "done": "Zielgruppe {name} gelöscht",
+      "failed": "Die Zielgruppe konnte nicht gelöscht werden"
+    },
+    "hashing": {
+      "title": "Die Daten werden verschlüsselt, bevor sie Vozko verlassen",
+      "body": "Telefonnummern, E-Mails und Namen werden normalisiert und vor dem Senden in Codes (SHA-256) umgewandelt. Meta vergleicht die Codes mit seinen Konten und erhält die Daten nie als Text."
+    },
+    "crm": {
+      "title": "Kundenliste aus dem CRM",
+      "description": "Leads, die zu den Filtern passen, werden zu einer Zielgruppe bei Meta.",
+      "name": "Name der Zielgruppe",
+      "descriptionLabel": "Beschreibung (optional)",
+      "filterTitle": "Welche Leads dazugehören",
+      "filterHint": "Nutze dieselben Filter wie auf der Leads Seite. Ohne Filter sind alle Leads dabei.",
+      "counting": "Leads werden gezählt...",
+      "countFailed": "Die Leads konnten nicht gezählt werden.",
+      "matching": "{count, plural, one {Lead passt zu den Filtern} other {Leads passen zu den Filtern}}",
+      "cancel": "Abbrechen",
+      "create": "Zielgruppe erstellen",
+      "creating": "Wird erstellt..."
+    },
+    "file": {
+      "title": "Kundenliste aus einer Datei",
+      "description": "Lade eine CSV hoch, sag uns, was jede Spalte ist, und Vozko sendet die verschlüsselten Daten an Meta.",
+      "noFile": "Keine Datei ausgewählt",
+      "fileHint": "CSV getrennt durch Komma, Semikolon oder Tabulator, bis 25 MB.",
+      "uploading": "Datei wird hochgeladen...",
+      "uploaded": "Datei hochgeladen",
+      "uploadFailed": "Die Datei konnte nicht hochgeladen werden.",
+      "choose": "Datei auswählen",
+      "replace": "Datei ersetzen",
+      "tooLarge": "Die Datei ist größer als 25 MB.",
+      "emptyFile": "Die Datei ist leer oder keine CSV.",
+      "mapTitle": "Was jede Spalte ist",
+      "mapHint": "Prüfe die ersten Zeilen und wähle den Typ jeder Spalte. Ignorierte Spalten werden nicht gesendet.",
+      "hasHeader": "Die erste Zeile ist die Kopfzeile",
+      "column": "Spalte {number}",
+      "mapColumn": "Typ der Spalte {column}",
+      "ignore": "Ignorieren",
+      "needsIdentifier": "Markiere mindestens eine Spalte mit E-Mail, Telefon oder externer ID.",
+      "name": "Name der Zielgruppe",
+      "descriptionLabel": "Beschreibung (optional)",
+      "cancel": "Abbrechen",
+      "create": "Zielgruppe erstellen",
+      "creating": "Wird erstellt..."
+    },
+    "matchKeys": {
+      "EMAIL": "E-Mail",
+      "PHONE": "Telefon",
+      "FN": "Vorname",
+      "LN": "Nachname",
+      "CT": "Stadt",
+      "ST": "Bundesland",
+      "ZIP": "Postleitzahl",
+      "COUNTRY": "Land (2 Buchstaben)",
+      "EXTERN_ID": "Externe ID",
+      "GEN": "Geschlecht",
+      "DOBY": "Geburtsjahr"
+    },
+    "result": {
+      "title": "Zielgruppe {name} erstellt",
+      "description": "Meta braucht einige Stunden, um die Liste abzugleichen und die Größe zu berechnen.",
+      "matched": "Gesendete Kunden",
+      "skipped": "Übersprungen",
+      "skippedHint": "Wir haben Personen ohne E-Mail, Telefon oder ID übersprungen, die Meta abgleichen kann.",
+      "close": "Verstanden"
+    },
+    "lookalike": {
+      "title": "Ähnliche Zielgruppe",
+      "description": "Meta findet Personen, die denen der Quellzielgruppe ähneln.",
+      "origin": "Quellzielgruppe",
+      "size": "Größe",
+      "percent": "{percent}%",
+      "closer": "Ähnlicher",
+      "broader": "Mehr Reichweite",
+      "sizeHint": "1% umfasst die Personen, die der Quelle am ähnlichsten sind. Je höher der Prozentsatz, desto mehr Personen und desto weniger Ähnlichkeit.",
+      "name": "Name der Zielgruppe",
+      "nameHint": "Ohne Namen verwenden wir {name}.",
+      "suggestedName": "Ähnlich {percent}% zu {origin}",
+      "locationHint": "Das Land der Zielgruppe kommt aus der Anzeigengruppe, in der du sie verwendest.",
+      "created": "Zielgruppe {name} erstellt",
+      "cancel": "Abbrechen",
+      "create": "Zielgruppe erstellen",
+      "creating": "Wird erstellt..."
+    },
+    "saved": {
+      "description": "Kombinationen aus Ort, Alter und Geschlecht, die du beim Erstellen von Anzeigen wiederverwendest.",
+      "new": "Neue gespeicherte Zielgruppe",
+      "retry": "Erneut versuchen",
+      "columns": {
+        "name": "Name",
+        "locations": "Orte",
+        "ages": "Alter",
+        "genders": "Geschlecht",
+        "advantage": "Advantage+",
+        "updated": "Aktualisiert"
+      },
+      "ages": "{min} bis {max}",
+      "agesPlus": "{min} bis {max}+",
+      "genders": {
+        "all": "Alle",
+        "male": "Männer",
+        "female": "Frauen"
+      },
+      "on": "An",
+      "off": "Aus",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "created": "Gespeicherte Zielgruppe {name} erstellt",
+      "updated": "Gespeicherte Zielgruppe {name} aktualisiert",
+      "deleted": "Gespeicherte Zielgruppe {name} gelöscht",
+      "deleteFailed": "Die gespeicherte Zielgruppe konnte nicht gelöscht werden",
+      "deleteTitle": "Diese gespeicherte Zielgruppe löschen?",
+      "deleteBody": "{name} erscheint nicht mehr beim Erstellen von Anzeigen. Veröffentlichte Anzeigen ändern sich nicht.",
+      "emptyTitle": "Keine gespeicherten Zielgruppen",
+      "emptyBody": "Speichere eine Zielgruppe, damit du die Ausrichtung nicht für jede Anzeige wiederholst.",
+      "editor": {
+        "createTitle": "Neue gespeicherte Zielgruppe",
+        "editTitle": "Gespeicherte Zielgruppe bearbeiten",
+        "description": "Nutze diese Zielgruppe beim Erstellen von Anzeigen in jedem Konto.",
+        "name": "Name",
+        "locations": "Orte",
+        "locationSearch": "Land, Bundesland oder Stadt suchen",
+        "people": "Personen",
+        "ageMin": "Mindestalter",
+        "ageMax": "Höchstalter",
+        "agePlus": "{age}+",
+        "genders": {
+          "all": "Alle",
+          "male": "Männer",
+          "female": "Frauen"
+        },
+        "advantage": "Advantage+ Zielgruppe",
+        "advantageHint": "Meta kann die Anzeige über das gewählte Alter und Geschlecht hinaus zeigen, wenn gute Ergebnisse erwartet werden.",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "saving": "Wird gespeichert..."
+      }
+    },
+    "issues": {
+      "generic": {
+        "required": "Fülle dieses Feld aus.",
+        "too_long": "Text ist zu lang.",
+        "too_many": "Zu viele Einträge.",
+        "invalid": "Ungültiger Wert.",
+        "invalid_url": "Gib eine Adresse ein, die mit https:// beginnt.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      },
+      "adAccountId": {
+        "required": "Wähle ein Werbekonto."
+      },
+      "columns": {
+        "needs_email_or_phone": "Markiere mindestens eine Spalte mit E-Mail, Telefon oder externer ID.",
+        "invalid": "Eine Spalte hat einen unbekannten Typ."
+      },
+      "fileMediaId": {
+        "required": "Lade die Datei hoch, bevor du die Zielgruppe erstellst."
+      },
+      "originAudienceId": {
+        "required": "Wähle die Quellzielgruppe."
+      },
+      "percent": {
+        "invalid": "Wähle eine Größe zwischen 1% und 10%."
+      },
+      "targeting_locations": {
+        "required": "Wähle mindestens einen Ort."
+      }
+    }
+  },
+  "adsForms": {
+    "header": {
+      "title": "Formulare und Leads",
+      "description": "Meta Sofortformulare und die Leads, die darüber ankommen, verbunden mit deinem CRM."
+    },
+    "retry": "Erneut versuchen",
+    "refresh": "Liste aktualisieren",
+    "page": "Facebook Seite",
+    "noPages": "Mit diesem Werbekonto ist keine Facebook Seite verbunden.",
+    "questionsCount": "{count, plural, one {# Frage} other {# Fragen}}",
+    "columns": {
+      "name": "Formular",
+      "status": "Status",
+      "leads": "Leads",
+      "created": "Erstellt"
+    },
+    "status": {
+      "ACTIVE": "Aktiv",
+      "ARCHIVED": "Archiviert"
+    },
+    "list": {
+      "description": "Formulare der Seite {page}. Klicke auf ein Formular, um die Leads zu sehen.",
+      "new": "Neues Formular",
+      "viewLeads": "Leads ansehen",
+      "emptyTitle": "Keine Formulare auf dieser Seite",
+      "emptyBody": "Erstelle ein Formular, um Kontakte direkt aus der Anzeige zu erhalten, ohne Facebook oder Instagram zu verlassen.",
+      "emptyBodyReadOnly": "Formulare dieser Seite erscheinen hier."
+    },
+    "archive": {
+      "action": "Formular archivieren",
+      "title": "Dieses Formular archivieren?",
+      "body": "{name} kann nicht mehr in neuen Anzeigen verwendet werden. Erhaltene Leads bleiben hier.",
+      "done": "Formular {name} archiviert",
+      "failed": "Das Formular konnte nicht archiviert werden"
+    },
+    "questions": {
+      "FULL_NAME": "Vollständiger Name",
+      "FIRST_NAME": "Vorname",
+      "LAST_NAME": "Nachname",
+      "EMAIL": "E-Mail",
+      "PHONE": "Telefon",
+      "CITY": "Stadt",
+      "STATE": "Bundesland",
+      "ZIP": "Postleitzahl",
+      "COMPANY_NAME": "Unternehmen",
+      "JOB_TITLE": "Position"
+    },
+    "builder": {
+      "title": "Neues Formular",
+      "description": "Das Formular wird auf der Seite {page} erstellt und kann in Lead Anzeigen genutzt werden.",
+      "created": "Formular {name} erstellt",
+      "basicsTitle": "Grundlagen",
+      "name": "Name des Formulars",
+      "headline": "Überschrift der Einleitung",
+      "questionsTitle": "Fragen",
+      "questionsDescription": "Meta füllt Standardfragen mit Profildaten vor. Füge Telefon oder E-Mail hinzu, damit der Lead im CRM ankommt.",
+      "needsContact": "Füge Telefon oder E-Mail hinzu.",
+      "customUntitled": "Frage ohne Titel",
+      "key": "Schlüssel: {key}",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "remove": "Frage entfernen",
+      "addCustom": "Eigene Frage hinzufügen",
+      "customLabel": "Frage",
+      "optionPlaceholder": "Option {number}",
+      "removeOption": "Option entfernen",
+      "addChoices": "In Mehrfachauswahl umwandeln",
+      "addOption": "Option hinzufügen",
+      "freeTextHint": "Ohne Optionen antwortet die Person mit freiem Text.",
+      "privacyTitle": "Datenschutzrichtlinie",
+      "privacyDescription": "Meta verlangt einen Link zur Datenschutzrichtlinie deines Unternehmens.",
+      "privacyUrl": "Link zur Datenschutzrichtlinie",
+      "privacyText": "Linktext (optional)",
+      "thanksTitle": "Dankesseite",
+      "thankYouTitle": "Titel",
+      "thankYouBody": "Nachricht",
+      "thankYouUrl": "Website Link (optional)",
+      "higherIntent": "Höhere Absicht",
+      "higherIntentHint": "Fügt vor dem Absenden eine Prüfseite hinzu. Es kommen weniger Leads, aber mit mehr Absicht.",
+      "cancel": "Abbrechen",
+      "create": "Formular erstellen",
+      "creating": "Wird erstellt..."
+    },
+    "preview": {
+      "title": "Vorschau",
+      "headline": "Überschrift der Einleitung",
+      "review": "Prüfen und absenden",
+      "noQuestions": "Füge Fragen hinzu.",
+      "customUntitled": "Frage ohne Titel",
+      "privacy": "Mit dem Absenden stimmst du zu, dass {page} deine Angaben nutzt.",
+      "privacyLink": "Datenschutzrichtlinie",
+      "submit": "Absenden",
+      "thanksTitle": "Danke!",
+      "thanksBody": "Wir haben deine Angaben erhalten und melden uns.",
+      "visit": "Website besuchen"
+    },
+    "leads": {
+      "back": "Formulare",
+      "total": "{count, plural, =0 {Keine Leads} one {# Lead} other {# Leads}}",
+      "sync": "Jetzt synchronisieren",
+      "syncing": "Wird synchronisiert...",
+      "synced": "{count, plural, =0 {Keine neuen Leads} one {# Lead importiert} other {# Leads importiert}}",
+      "syncFailed": "Die Leads konnten nicht synchronisiert werden",
+      "retry": "Erneut versuchen",
+      "openCrm": "Im CRM ansehen",
+      "notInCrm": "Nicht im CRM",
+      "columns": {
+        "date": "Datum",
+        "name": "Name",
+        "phone": "Telefon",
+        "email": "E-Mail",
+        "answers": "Weitere Antworten",
+        "crm": "CRM"
+      },
+      "emptyTitle": "Noch keine Leads",
+      "emptyBody": "Leads kommen von selbst an. Nutze Jetzt synchronisieren, um fehlende abzurufen."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fülle dieses Feld aus.",
+        "too_long": "Text ist zu lang.",
+        "too_many": "Zu viele Einträge.",
+        "invalid": "Ungültiger Wert.",
+        "repeated": "Diese Frage kommt doppelt vor.",
+        "invalid_url": "Gib eine Adresse ein, die mit https:// beginnt.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      },
+      "pageId": {
+        "required": "Wähle eine Facebook Seite."
+      },
+      "questions": {
+        "required": "Füge mindestens eine Frage hinzu.",
+        "too_many": "Nutze höchstens 15 Fragen.",
+        "needs_phone_or_email": "Füge Telefon oder E-Mail hinzu."
+      },
+      "questions_label": {
+        "required": "Schreibe die Frage."
+      },
+      "questions_options": {
+        "too_many": "Nutze höchstens 10 Optionen."
+      },
+      "privacyUrl": {
+        "required": "Gib den Link zur Datenschutzrichtlinie an."
+      }
+    }
+  },
+  "adsRules": {
+    "header": {
+      "title": "Automatische Regeln",
+      "description": "Meta prüft deine Anzeigen selbst und pausiert, aktiviert oder ändert das Budget, wenn die Bedingung eintritt."
+    },
+    "retry": "Erneut versuchen",
+    "refresh": "Liste aktualisieren",
+    "columns": {
+      "status": "An",
+      "name": "Regel",
+      "appliesTo": "Gilt für",
+      "action": "Aktion",
+      "frequency": "Häufigkeit"
+    },
+    "list": {
+      "description": "Regeln dieses Werbekontos, auch die im Meta Werbeanzeigenmanager erstellten.",
+      "new": "Neue Regel",
+      "emptyTitle": "Noch keine Regeln",
+      "emptyBody": "Erstelle eine Regel, um zu Teures zu pausieren oder das Budget von Erfolgreichem zu erhöhen.",
+      "emptyBodyReadOnly": "Regeln dieses Werbekontos erscheinen hier."
+    },
+    "toggle": {
+      "label": "{name} ein oder ausschalten",
+      "failed": "Die Regel {name} konnte nicht geändert werden"
+    },
+    "delete": {
+      "action": "Regel löschen",
+      "title": "Diese Regel löschen?",
+      "body": "Die Regel {name} läuft nicht mehr. Was sie an den Anzeigen schon geändert hat, bleibt so.",
+      "done": "Regel {name} gelöscht",
+      "failed": "Die Regel konnte nicht gelöscht werden"
+    },
+    "entities": {
+      "CAMPAIGN": "Kampagnen",
+      "ADSET": "Anzeigengruppen",
+      "AD": "Anzeigen"
+    },
+    "appliesAll": {
+      "CAMPAIGN": "Alle Kampagnen",
+      "ADSET": "Alle Anzeigengruppen",
+      "AD": "Alle Anzeigen"
+    },
+    "appliesChosen": {
+      "CAMPAIGN": "{count, plural, one {# ausgewählte Kampagne} other {# ausgewählte Kampagnen}}",
+      "ADSET": "{count, plural, one {# ausgewählte Anzeigengruppe} other {# ausgewählte Anzeigengruppen}}",
+      "AD": "{count, plural, one {# ausgewählte Anzeige} other {# ausgewählte Anzeigen}}"
+    },
+    "metrics": {
+      "spent": "Ausgaben",
+      "results": "Ergebnisse",
+      "cost_per_result": "Kosten pro Ergebnis",
+      "impressions": "Impressionen",
+      "reach": "Reichweite",
+      "frequency": "Frequenz",
+      "cpc": "CPC",
+      "cpm": "CPM",
+      "ctr": "CTR"
+    },
+    "operators": {
+      "GREATER_THAN": "größer als",
+      "LESS_THAN": "kleiner als"
+    },
+    "windows": {
+      "TODAY": "Heute",
+      "YESTERDAY": "Gestern",
+      "LAST_3_DAYS": "Letzte 3 Tage",
+      "LAST_7_DAYS": "Letzte 7 Tage",
+      "LAST_14_DAYS": "Letzte 14 Tage",
+      "LAST_30_DAYS": "Letzte 30 Tage",
+      "LIFETIME": "Gesamte Laufzeit"
+    },
+    "actionChoices": {
+      "PAUSE": "Pausieren",
+      "UNPAUSE": "Aktivieren",
+      "INCREASE_BUDGET": "Budget um % erhöhen",
+      "DECREASE_BUDGET": "Budget um % senken"
+    },
+    "actionLabels": {
+      "PAUSE": "Pausieren",
+      "UNPAUSE": "Aktivieren",
+      "INCREASE_BUDGET": "Budget um {percent}% erhöhen",
+      "DECREASE_BUDGET": "Budget um {percent}% senken"
+    },
+    "frequencies": {
+      "SEMI_HOURLY": "Alle 30 Minuten",
+      "HOURLY": "Stündlich",
+      "DAILY": "Einmal täglich"
+    },
+    "history": {
+      "open": "Letzte Ausführungen",
+      "title": "Letzte Ausführungen",
+      "refresh": "Aktualisieren",
+      "empty": "Diese Regel hat noch bei keiner Anzeige gehandelt.",
+      "objects": "{count, plural, =0 {Keine Elemente betroffen} one {# Element betroffen} other {# Elemente betroffen}}",
+      "results": {
+        "PAUSE": "Pausiert",
+        "UNPAUSE": "Aktiviert",
+        "CHANGE_BUDGET": "Budget geändert",
+        "CHANGE_CAMPAIGN_BUDGET": "Kampagnenbudget geändert",
+        "NOTIFICATION": "Hinweis gesendet",
+        "unknown": "Ausgeführt"
+      }
+    },
+    "builder": {
+      "title": "Neue Regel",
+      "description": "Sag, wann Meta handeln soll und was zu tun ist. Die Regel läuft auch, wenn Vozko geschlossen ist.",
+      "created": "Regel {name} erstellt",
+      "name": "Name der Regel",
+      "appliesTitle": "Wo die Regel handelt",
+      "chooseObjects": "Elemente auswählen",
+      "allHint": "Gilt für die jetzt aktiven Elemente und für die, die du später erstellst.",
+      "objectsTimezone": "Die Zeitzone dieses Kontos ist unbekannt, daher können die Elemente nicht aufgelistet werden. Aktualisiere das Konto im Anzeigenmanager.",
+      "noObjects": "Keine Elemente mit Aktivität in den letzten 30 Tagen.",
+      "needsObjects": "Wähle mindestens ein Element.",
+      "on": "An",
+      "off": "Aus",
+      "conditionsTitle": "Bedingungen",
+      "conditionsDescription": "Alle Bedingungen müssen gemeinsam eintreten. Geldwerte nutzen die Währung des Kontos.",
+      "metric": "Kennzahl",
+      "operator": "Vergleich",
+      "value": "Wert",
+      "invalidValue": "Gib eine gültige Zahl ein.",
+      "removeCondition": "Bedingung entfernen",
+      "addCondition": "Bedingung hinzufügen",
+      "window": "Geprüfter Zeitraum",
+      "actionTitle": "Aktion",
+      "action": "Was tun",
+      "percent": "Prozentsatz",
+      "invalidPercent": "Gib eine ganze Zahl von 1 bis 100 ein.",
+      "frequency": "Prüfen",
+      "previewTitle": "So funktioniert die Regel",
+      "cancel": "Abbrechen",
+      "create": "Regel erstellen",
+      "creating": "Wird erstellt..."
+    },
+    "sentence": {
+      "sentence": "Wenn {conditions}, {action}.",
+      "condition": "{metric} {window} {operator} {value} ist",
+      "and": "und",
+      "metrics": {
+        "spent": "die Ausgaben",
+        "results": "die Zahl der Ergebnisse",
+        "cost_per_result": "die Kosten pro Ergebnis",
+        "impressions": "die Zahl der Impressionen",
+        "reach": "die Reichweite",
+        "frequency": "die Frequenz",
+        "cpc": "der CPC",
+        "cpm": "der CPM",
+        "ctr": "die CTR"
+      },
+      "windows": {
+        "TODAY": "von heute",
+        "YESTERDAY": "von gestern",
+        "LAST_3_DAYS": "der letzten 3 Tage",
+        "LAST_7_DAYS": "der letzten 7 Tage",
+        "LAST_14_DAYS": "der letzten 14 Tage",
+        "LAST_30_DAYS": "der letzten 30 Tage",
+        "LIFETIME": "der gesamten Laufzeit"
+      },
+      "operators": {
+        "GREATER_THAN": "größer als",
+        "LESS_THAN": "kleiner als"
+      },
+      "objects": {
+        "CAMPAIGN": "die Kampagne",
+        "ADSET": "die Anzeigengruppe",
+        "AD": "die Anzeige"
+      },
+      "of": {
+        "CAMPAIGN": "der Kampagne",
+        "ADSET": "der Anzeigengruppe",
+        "AD": "der Anzeige"
+      },
+      "actions": {
+        "PAUSE": "{object} pausieren",
+        "UNPAUSE": "{object} aktivieren",
+        "INCREASE_BUDGET": "das Budget {of} um {percent}% erhöhen",
+        "DECREASE_BUDGET": "das Budget {of} um {percent}% senken"
+      },
+      "frequencies": {
+        "SEMI_HOURLY": "Prüft alle 30 Minuten.",
+        "HOURLY": "Prüft stündlich.",
+        "DAILY": "Prüft einmal täglich."
+      }
+    },
+    "issues": {
+      "generic": {
+        "required": "Fülle dieses Feld aus.",
+        "too_long": "Text ist zu lang.",
+        "too_many": "Zu viele Einträge.",
+        "invalid": "Ungültiger Wert.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      },
+      "conditions": {
+        "required": "Füge mindestens eine Bedingung hinzu.",
+        "too_many": "Nutze höchstens 5 Bedingungen."
+      },
+      "conditions_value": {
+        "invalid": "Gib einen Wert von null oder mehr ein."
+      },
+      "action_type": {
+        "not_for_ads": "Anzeigen haben kein eigenes Budget. Wähle pausieren oder aktivieren."
+      },
+      "action_budgetPercent": {
+        "invalid": "Gib einen Prozentsatz von 1 bis 100 ein."
+      }
+    }
+  },
+  "adsConversions": {
+    "header": {
+      "title": "Pixel und Conversions",
+      "description": "Sag Meta, welche Gespräche zu Abschlüssen wurden, damit deine Anzeigen Käufer erreichen."
+    },
+    "settings": {
+      "title": "Conversions senden",
+      "description": "Wenn im CRM ein Deal erstellt oder gewonnen wird, informiert Vozko Meta.",
+      "retry": "Erneut versuchen",
+      "otherAccount": "Conversions gehen derzeit an das Konto {name}. Speichern hier sendet sie stattdessen an dieses Konto.",
+      "enabled": "Conversions an Meta senden",
+      "enabledHint": "Aus bedeutet, es wird nichts gesendet.",
+      "sendLeads": "Lead senden, wenn ein Deal erstellt wird",
+      "sendLeadsHint": "Ereignis LeadSubmitted.",
+      "sendPurchases": "Kauf senden, wenn ein Deal gewonnen wird",
+      "sendPurchasesHint": "Ereignis Purchase, mit dem Wert des Deals.",
+      "dataset": {
+        "title": "Gespräche aus WhatsApp Anzeigen",
+        "description": "Verbinde eine offizielle WhatsApp Nummer, damit Meta weiß, aus welcher Anzeige jeder Deal kam.",
+        "linked": "Datensatz verbunden ({id})",
+        "phone": "Offizielle Nummer",
+        "connect": "Mit offiziellem WhatsApp verbinden",
+        "reconnect": "Nummer wechseln",
+        "connecting": "Wird verbunden...",
+        "connected": "Offizielles WhatsApp verbunden",
+        "saveHint": "Speichere die Einstellungen, um mit dem Senden zu beginnen.",
+        "failed": "Das offizielle WhatsApp konnte nicht verbunden werden",
+        "noPhones": "Keine offizielle WhatsApp Nummer in diesem Workspace."
+      },
+      "pixel": "Pixel für Deals ohne Anzeigenklick",
+      "noPixel": "Keiner",
+      "pixelHint": "Wenn der Deal nicht aus einer Anzeige kam, geht die Conversion an dieses Pixel mit verschlüsselter Telefonnummer oder E-Mail.",
+      "problems": {
+        "needs_target": "Verbinde das offizielle WhatsApp oder wähle ein Pixel, um das Senden einzuschalten.",
+        "nothing_to_send": "Wähle mindestens ein Ereignis zum Senden."
+      },
+      "privacy": {
+        "title": "Was gesendet wird",
+        "body": "Nur das Ereignis, der Wert des Deals und die verschlüsselte Telefonnummer oder E-Mail (SHA-256). Gesprächsinhalte verlassen Vozko nie."
+      },
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "Einstellungen gespeichert",
+      "saveFailed": "Die Einstellungen konnten nicht gespeichert werden"
+    },
+    "pixels": {
+      "title": "Pixel",
+      "description": "Meta Pixel dieses Werbekontos.",
+      "retry": "Erneut versuchen",
+      "columns": {
+        "name": "Pixel",
+        "status": "Status",
+        "lastActivity": "Letzte Aktivität"
+      },
+      "receiving": "Empfängt Ereignisse",
+      "noActivity": "Keine Ereignisse",
+      "unavailable": "Nicht verfügbar",
+      "newName": "Name des neuen Pixels",
+      "create": "Pixel erstellen",
+      "creating": "Wird erstellt...",
+      "created": "Pixel {name} erstellt",
+      "createFailed": "Das Pixel konnte nicht erstellt werden",
+      "copy": "ID kopieren",
+      "copied": "Pixel ID kopiert",
+      "copyFailed": "Die ID konnte nicht kopiert werden",
+      "emptyTitle": "Keine Pixel in diesem Konto",
+      "emptyBody": "Erstelle ein Pixel, um Conversions von Deals zu erhalten, die nicht aus einer Anzeige kamen."
+    },
+    "recent": {
+      "title": "Letzte Ereignisse",
+      "description": "Die letzten Conversions, die Vozko zu senden versucht hat.",
+      "refresh": "Aktualisieren",
+      "columns": {
+        "deal": "Deal",
+        "event": "Ereignis",
+        "status": "Status",
+        "attempts": "Versuche",
+        "sentAt": "Gesendet am"
+      },
+      "events": {
+        "lead": "Lead",
+        "purchase": "Kauf"
+      },
+      "statuses": {
+        "sent": "Gesendet",
+        "skipped": "Nicht gesendet",
+        "failed": "Fehlgeschlagen"
+      },
+      "reasons": {
+        "not_enabled": "Das Senden von Conversions war ausgeschaltet.",
+        "event_off": "Dieser Ereignistyp ist ausgeschaltet.",
+        "no_ad_identity": "Der Deal kam nicht aus einer Anzeige und hat keine Telefonnummer oder E-Mail für das Pixel.",
+        "too_old": "Meta akzeptiert nur Ereignisse der letzten 7 Tage.",
+        "no_dataset": "Kein offizielles WhatsApp und kein Pixel eingerichtet.",
+        "value_missing": "Der gewonnene Deal hat keinen Wert."
+      },
+      "emptyTitle": "Noch keine Ereignisse",
+      "emptyBody": "Ereignisse erscheinen hier, wenn ein Deal bei eingeschaltetem Senden erstellt oder gewonnen wird."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fülle dieses Feld aus.",
+        "too_long": "Text ist zu lang.",
+        "invalid": "Ungültiger Wert.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      },
+      "datasetId": {
+        "required": "Verbinde das offizielle WhatsApp oder wähle ein Pixel."
+      },
+      "sendLeads": {
+        "nothing_to_send": "Wähle mindestens ein Ereignis zum Senden."
+      }
+    }
+  },
   "crmAdOrigin": {
     "cameFrom": {
       "instagram": "Kam über eine Instagram-Anzeige",
@@ -14418,6 +15182,1717 @@
       "unknown": "Kam über eine Anzeige"
     },
     "untitled": "Anzeige ohne Titel",
-    "open": "Anzeige ansehen"
+    "open": "Anzeige ansehen",
+    "leadCost": "Geschätzte Lead-Kosten: {amount} (Anzeigenausgaben am Tag ÷ Gespräche am Tag)",
+    "leadCostHint": "Schätzung: Meta meldet Ausgaben pro Anzeige und Tag, nicht pro Klick. Am {day} hat die Anzeige {spend} ausgegeben und {conversations, plural, one {# Gespräch} other {# Gespräche}} gebracht."
+  },
+  "adsWizard": {
+    "editTitle": "Creative austauschen",
+    "editDescription": "Erstelle ein neues Creative für diese Anzeige. Beim Speichern tauscht Meta das Creative und prüft die Anzeige erneut.",
+    "saveCreative": "Creative speichern",
+    "savingCreative": "Wird gespeichert...",
+    "creativeUnavailable": "Das Creative dieser Anzeige konnte nicht geladen werden. Öffne die Anzeige im Manager und versuche es erneut.",
+    "title": "Anzeige erstellen",
+    "description": "Kampagne, Anzeigengruppe und Anzeigen in einem Ablauf, direkt in deinem Meta-Werbekonto veröffentlicht.",
+    "back": "Zurück zu Anzeigen",
+    "noAccess": "Du hast keine Berechtigung, in diesem Workspace Anzeigen zu erstellen.",
+    "noAccountTitle": "Kein Konto bereit zum Werben",
+    "noAccountBody": "Verbinde ein aktives Werbekonto mit einer in Meta hinterlegten Zahlungsmethode.",
+    "optionsError": "Die Anzeigenoptionen konnten nicht geladen werden. Versuche es gleich noch einmal.",
+    "parentError": "Die gewählte Kampagne oder Anzeigengruppe konnte nicht geöffnet werden: {message}. Wähle sie im ersten Schritt erneut.",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "cancel": "Abbrechen",
+    "publish": "Veröffentlichen",
+    "publishPaused": "Ausgeschaltet veröffentlichen",
+    "publishing": "Wird veröffentlicht...",
+    "previewTitle": "Vorschau",
+    "previewAd": "Vorschau von Anzeige {index} von {total}",
+    "previewNote": "Ungefähre Darstellung. Meta passt den Zuschnitt von Text und Medien je Platzierung an.",
+    "placement": {
+      "feed": "Feed",
+      "story": "Stories"
+    },
+    "autosave": "Der Entwurf wird beim Bearbeiten in diesem Browser gespeichert.",
+    "restored": "Entwurf wiederhergestellt ({when}).",
+    "discard": "Entwurf verwerfen",
+    "discardTitle": "Diesen Entwurf verwerfen?",
+    "discardBody": "Alles, was du ausgefüllt hast, wird aus diesem Browser gelöscht. An Meta wurde nichts gesendet.",
+    "discardConfirm": "Verwerfen",
+    "steps": {
+      "objective": "Ziel",
+      "campaign": "Kampagne",
+      "adSet": "Anzeigengruppe",
+      "ads": "Anzeigen",
+      "review": "Prüfung"
+    },
+    "job": {
+      "title": "Veröffentlichung",
+      "needsReview": "Meta hat nicht bestätigt; prüfe den Werbeanzeigenmanager, bevor du es erneut versuchst.",
+      "running": "Kampagne, Anzeigengruppe und Anzeigen werden in Meta erstellt. Alles bleibt bis zum letzten Schritt ausgeschaltet.",
+      "openManager": "Zu Anzeigen"
+    },
+    "objective": {
+      "accountTitle": "Werbekonto",
+      "accountDescription": "Es erscheinen nur aktive Konten mit Zahlungsmethode in Meta.",
+      "startTitle": "Wo du startest",
+      "startDescription": "Erstelle alles neu oder nutze eine bestehende Kampagne.",
+      "modes": {
+        "new": {
+          "title": "Neue Kampagne",
+          "body": "Du legst Ziel, Kampagne, Anzeigengruppe und Anzeigen fest."
+        },
+        "campaign": {
+          "title": "Bestehende Kampagne nutzen",
+          "body": "Erstellt eine neue Anzeigengruppe in einer deiner Kampagnen."
+        },
+        "adSet": {
+          "title": "Zu bestehender Anzeigengruppe hinzufügen",
+          "body": "Erstellt nur neue Anzeigen in einer Anzeigengruppe, die bereits läuft."
+        }
+      },
+      "campaign": "Kampagne",
+      "adSet": "Anzeigengruppe",
+      "search": "Nach Namen suchen",
+      "noCampaigns": "Keine Kampagnen in diesem Konto gefunden.",
+      "noAdSets": "Keine Anzeigengruppen in dieser Kampagne gefunden.",
+      "pickCampaign": "Wähle oben die Kampagne.",
+      "pickAdSet": "Wähle oben die Kampagne und die Anzeigengruppe.",
+      "title": "Kampagnenziel",
+      "description": "Was Menschen tun sollen, wenn sie die Anzeige sehen. Es bestimmt die Optionen der nächsten Schritte.",
+      "unavailable": "In diesem Konto nicht verfügbar.",
+      "objectives": {
+        "OUTCOME_AWARENESS": {
+          "title": "Bekanntheit",
+          "body": "Deine Marke möglichst vielen Menschen zeigen und im Gedächtnis bleiben."
+        },
+        "OUTCOME_TRAFFIC": {
+          "title": "Traffic",
+          "body": "Menschen auf deine Website oder in ein Gespräch über WhatsApp oder Messenger bringen."
+        },
+        "OUTCOME_ENGAGEMENT": {
+          "title": "Interaktion",
+          "body": "Mehr Gespräche, Likes, Kommentare und Interaktionen mit deinen Beiträgen."
+        },
+        "OUTCOME_LEADS": {
+          "title": "Leads",
+          "body": "Kontakte von Interessierten über Formular, Website oder WhatsApp erhalten."
+        },
+        "OUTCOME_SALES": {
+          "title": "Umsatz",
+          "body": "Die Menschen finden, die am ehesten kaufen, auf der Website, im Katalog oder im Gespräch."
+        },
+        "OUTCOME_APP_PROMOTION": {
+          "title": "App-Werbung",
+          "body": "Mehr Installationen deiner App erzielen."
+        }
+      },
+      "fixedTitle": "Bereits festgelegt",
+      "fixedDescription": "Diese Angaben stammen aus der bestehenden Kampagne und ändern sich hier nicht.",
+      "objectiveLabel": "Ziel",
+      "budget": "Kampagnenbudget",
+      "adSetBudget": "Budget der Anzeigengruppe",
+      "budgetDaily": "{amount} pro Tag",
+      "budgetLifetime": "{amount} insgesamt",
+      "budgetOnAdSets": "In jeder Anzeigengruppe festgelegt",
+      "destination": "Ziel des Klicks",
+      "goal": "Leistungsziel"
+    },
+    "campaign": {
+      "nameTitle": "Kampagnenname",
+      "name": "Kampagnenname",
+      "nameHint": "Nur du siehst diesen Namen. Eine Anzeigengruppe ohne Namen übernimmt ihn.",
+      "categoryTitle": "Spezielle Kategorie",
+      "categoryDescription": "Meta verlangt die Angabe, ob die Anzeige Wohnen, Beschäftigung oder Finanzprodukte betrifft.",
+      "category": "Spezielle Anzeigenkategorie",
+      "categories": {
+        "NONE": "Keine",
+        "HOUSING": "Wohnen",
+        "EMPLOYMENT": "Beschäftigung",
+        "FINANCIAL_PRODUCTS_SERVICES": "Finanzprodukte"
+      },
+      "categoryHint": {
+        "NONE": "Für die meisten Anzeigen.",
+        "HOUSING": "Verkauf oder Vermietung von Immobilien, Baufinanzierung und Hausratversicherung.",
+        "EMPLOYMENT": "Stellenangebote, Praktika und Recruiting.",
+        "FINANCIAL_PRODUCTS_SERVICES": "Kredite, Darlehen, Karten, Geldanlagen und Versicherungen."
+      },
+      "restrictedLock": "In dieser Kategorie verlangt Meta ein Alter von 18 bis 65+, alle Geschlechter, keine Zielgruppenausschlüsse und mindestens 25 km Radius um Städte.",
+      "politicalNote": "Anzeigen zu Politik, Wahlen oder gesellschaftlichen Themen werden hier nicht angenommen.",
+      "budgetTitle": "Budget",
+      "budgetDescription": "Wähle, wo das Geld gesteuert wird: für die ganze Kampagne oder je Anzeigengruppe.",
+      "cbo": "Advantage+ Kampagnenbudget",
+      "cboHint": "Meta verteilt ein gemeinsames Budget auf die Anzeigengruppen der Kampagne und gibt der besten mehr.",
+      "budgetOnAdSet": "Das Budget wird im nächsten Schritt in der Anzeigengruppe festgelegt."
+    },
+    "budget": {
+      "kind": {
+        "DAILY": "Tagesbudget",
+        "LIFETIME": "Laufzeitbudget"
+      },
+      "kindHint": {
+        "DAILY": "Meta gibt im Schnitt diesen Betrag pro Tag aus, mit kleinen Schwankungen von Tag zu Tag.",
+        "LIFETIME": "Ein Betrag für den ganzen Zeitraum. Braucht ein Enddatum und erlaubt die Wahl der Auslieferungszeiten."
+      },
+      "amount": {
+        "DAILY": "Tagesbudget ({currency})",
+        "LIFETIME": "Laufzeitbudget ({currency})"
+      },
+      "invalid": "Gib einen Betrag größer als null ein.",
+      "dailyPreview": "{amount} pro Tag, etwa {monthly} in 30 Tagen.",
+      "lifetimePreview": "{amount} für den ganzen Zeitraum.",
+      "strategy": "Gebotsstrategie",
+      "strategies": {
+        "LOWEST_COST_WITHOUT_CAP": "Höchstes Volumen",
+        "LOWEST_COST_WITH_BID_CAP": "Gebotsobergrenze",
+        "COST_CAP": "Ziel für Kosten pro Ergebnis",
+        "LOWEST_COST_WITH_MIN_ROAS": "Mindestrendite (ROAS)"
+      },
+      "strategyHint": {
+        "LOWEST_COST_WITHOUT_CAP": "Meta holt mit dem Budget möglichst viele Ergebnisse. Empfohlen für den Einstieg.",
+        "LOWEST_COST_WITH_BID_CAP": "Legt fest, wie viel Meta höchstens pro Auktion bieten darf. Kann weniger ausliefern.",
+        "COST_CAP": "Meta versucht, die durchschnittlichen Kosten pro Ergebnis nahe an diesem Betrag zu halten.",
+        "LOWEST_COST_WITH_MIN_ROAS": "Meta sucht nur Käufe, die mindestens diese Rendite bringen."
+      },
+      "bidCap": "Gebotsobergrenze ({currency})",
+      "costCap": "Gewünschte Kosten pro Ergebnis ({currency})",
+      "roasFloor": "Mindestrendite (z. B. 2,5 = 250 %)",
+      "roasInvalid": "Gib eine Zahl zwischen 0,01 und 1000 ein.",
+      "roasHint": "Nur mit dem Leistungsziel Conversion-Wert verfügbar.",
+      "billedByMeta": "Die Werbeausgaben stellt Meta der Zahlungsmethode des Werbekontos in Rechnung, nicht deinem Guthaben."
+    },
+    "adSet": {
+      "nameTitle": "Name der Anzeigengruppe",
+      "name": "Name der Anzeigengruppe (optional)",
+      "nameHint": "Ohne Namen übernimmt die Anzeigengruppe den Kampagnennamen.",
+      "destinationTitle": "Wo das Ergebnis passiert",
+      "destinationDescription": "Wohin Menschen gelangen, die auf die Anzeige tippen. Die Optionen hängen vom Ziel ab.",
+      "noRoutes": "Wähle im ersten Schritt ein Ziel.",
+      "destinations": {
+        "WHATSAPP": {
+          "title": "WhatsApp",
+          "body": "Öffnet ein Gespräch mit deiner Nummer."
+        },
+        "MESSENGER": {
+          "title": "Messenger",
+          "body": "Öffnet ein Gespräch im Messenger der Seite."
+        },
+        "INSTAGRAM_DIRECT": {
+          "title": "Instagram Direct",
+          "body": "Öffnet ein Gespräch im Instagram Direct der verknüpften Seite."
+        },
+        "WEBSITE": {
+          "title": "Website",
+          "body": "Führt zu einer Adresse auf deiner Website."
+        },
+        "ON_AD": {
+          "title": "Sofortformular",
+          "body": "Menschen füllen ein Formular aus, ohne Facebook oder Instagram zu verlassen."
+        },
+        "APP": {
+          "title": "App",
+          "body": "Führt zum App Store."
+        },
+        "ON_POST": {
+          "title": "Beitrag",
+          "body": "Interaktionen direkt auf einem Beitrag der Seite."
+        },
+        "CATALOG": {
+          "title": "Katalog",
+          "body": "Zeigt Produkte aus deinem Katalog, passend für jede Person."
+        },
+        "NONE": {
+          "title": "Kein Ziel",
+          "body": "Die Anzeige muss nur gesehen werden."
+        }
+      },
+      "goal": "Leistungsziel",
+      "goals": {
+        "REACH": "Reichweite",
+        "IMPRESSIONS": "Impressionen",
+        "AD_RECALL_LIFT": "Anzeigenerinnerung",
+        "THRUPLAY": "Videoaufrufe (ThruPlay)",
+        "LINK_CLICKS": "Linkklicks",
+        "LANDING_PAGE_VIEWS": "Aufrufe der Zielseite",
+        "POST_ENGAGEMENT": "Beitragsinteraktionen",
+        "CONVERSATIONS": "Gespräche",
+        "LEAD_GENERATION": "Leads",
+        "QUALITY_LEAD": "Qualitäts-Leads",
+        "OFFSITE_CONVERSIONS": "Conversions",
+        "VALUE": "Conversion-Wert",
+        "APP_INSTALLS": "App-Installationen"
+      },
+      "goalHints": {
+        "CONVERSATIONS": "Meta zeigt die Anzeige den Menschen, die am ehesten ein Gespräch beginnen.",
+        "OFFSITE_CONVERSIONS": "Braucht ein Pixel auf der Website, um das gewählte Ereignis zu messen.",
+        "VALUE": "Braucht ein Pixel, das Kaufwerte sendet. Ermöglicht das Gebot mit Mindestrendite.",
+        "QUALITY_LEAD": "Meta sucht Leads, die eher zu Kunden werden."
+      },
+      "pixelEvents": {
+        "PURCHASE": "Kauf",
+        "LEAD": "Lead",
+        "COMPLETE_REGISTRATION": "Registrierung abgeschlossen",
+        "ADD_TO_CART": "In den Warenkorb",
+        "INITIATE_CHECKOUT": "Bezahlvorgang gestartet",
+        "CONTACT": "Kontakt",
+        "SCHEDULE": "Termin",
+        "SUBSCRIBE": "Abonnement"
+      },
+      "identityTitle": "Seite und Instagram",
+      "identityDescription": "Die Anzeige erscheint im Namen dieser Seite, und Gespräche kommen in ihren Kanälen an.",
+      "promotionTitle": "Was du bewirbst",
+      "promotionDescription": "Die Angaben, die dieses Ziel braucht.",
+      "budgetTitle": "Budget und Gebot",
+      "budgetDescription": "Wie viel diese Anzeigengruppe ausgeben darf, in der Währung des Werbekontos.",
+      "budgetOnCampaign": "Das Budget liegt auf der Kampagne (Advantage+), daher hat die Anzeigengruppe kein eigenes Budget.",
+      "placementsTitle": "Platzierungen",
+      "placementsDescription": "Wo die Anzeige erscheinen kann."
+    },
+    "identity": {
+      "page": "Facebook-Seite",
+      "pageCannotAdvertise": "{name} (keine Berechtigung zum Werben)",
+      "noPages": "Für diese Werbeverbindung wurde keine Seite freigegeben. Verbinde neu und wähle die Seiten in Meta.",
+      "instagram": "Instagram-Konto",
+      "instagramNone": "Nur die Facebook-Seite verwenden",
+      "noInstagram": "Diese Seite hat kein verknüpftes Instagram-Konto. Auf Instagram erscheint die Anzeige mit dem Namen der Seite.",
+      "hint": "Gilt für alle Anzeigen in diesem Ablauf."
+    },
+    "promotion": {
+      "choosePageFirst": "Wähle oben die Seite, um die Nummern zu sehen.",
+      "number": "WhatsApp-Nummer",
+      "noNumbers": "Mit dieser Seite ist keine WhatsApp-Nummer dieses Workspaces verknüpft. Verknüpfe die Nummer in den Seiteneinstellungen in Meta.",
+      "numberHint": "Es erscheinen nur Nummern dieses Workspaces, die in Meta mit der Seite verknüpft sind.",
+      "numberKind": {
+        "official": "offiziell",
+        "unofficial": "QR-Code"
+      },
+      "pixel": "Pixel",
+      "pixelEvent": "Conversion-Ereignis",
+      "noPixels": "Keine Pixel in diesem Werbekonto.",
+      "pixelHint": "Das Pixel misst, was Menschen auf deiner Website tun.",
+      "managePixels": "Pixel verwalten",
+      "app": "App",
+      "storeUrl": "Store",
+      "noApps": "In diesem Werbekonto sind keine Apps registriert.",
+      "catalog": "Katalog",
+      "productSet": "Produktset",
+      "productSetOption": "{name} ({count} Produkte)",
+      "noCatalogs": "Für dieses Werbekonto sind keine Kataloge verfügbar."
+    },
+    "schedule": {
+      "title": "Zeitplan",
+      "description": "Daten und Uhrzeiten in der Zeitzone des Werbekontos ({timezone}).",
+      "startNow": "Sofort nach dem Veröffentlichen starten",
+      "startNowHint": "Nach der Prüfung durch Meta.",
+      "startLater": "An einem Datum starten",
+      "startDay": "Start",
+      "endDay": "Ende (optional)",
+      "endDayRequired": "Ende",
+      "endHint": "Ohne Enddatum läuft die Anzeigengruppe, bis du sie ausschaltest.",
+      "endLifetimeHint": "Mit Laufzeitbudget ist das Enddatum Pflicht.",
+      "hoursOn": "Nur zu gewählten Zeiten ausliefern",
+      "hoursHint": "Markiere die Tage und Stunden, in denen die Anzeige erscheinen darf. Drücken und ziehen markiert mehrere.",
+      "hoursNeedLifetime": "Um Auslieferungszeiten zu wählen, nutze ein Laufzeitbudget.",
+      "toggleHour": "{hour} Uhr an allen Tagen markieren oder entfernen",
+      "cell": "{day}, {hour} Uhr",
+      "selected": "{hours, plural, =0 {Keine Stunde markiert} one {# Stunde pro Woche} other {# Stunden pro Woche}}"
+    },
+    "audience": {
+      "savedTitle": "Gespeicherte Zielgruppen",
+      "savedDescription": "Nutze eine bereits erstellte Zielgruppe erneut oder speichere diese für später.",
+      "applySaved": "Gespeicherte Zielgruppe anwenden",
+      "saveAudience": "Diese Zielgruppe speichern",
+      "noSaved": "Du hast noch keine gespeicherten Zielgruppen.",
+      "savedApplied": "Zielgruppe \"{name}\" angewendet.",
+      "savedDone": "Zielgruppe \"{name}\" gespeichert.",
+      "saveTitle": "Zielgruppe speichern",
+      "saveDescription": "Speichert Ort, Alter, Geschlecht, Interessen, Zielgruppen und Platzierungen für andere Kampagnen.",
+      "saveName": "Name der Zielgruppe",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "cancel": "Abbrechen",
+      "locationsTitle": "Ort",
+      "locationsDescription": "Länder, Bundesländer oder Städte, in denen die Anzeige erscheint, und wo sie nicht erscheinen soll.",
+      "locationSearch": "Land, Bundesland oder Stadt suchen",
+      "excludedSearch": "Land, Bundesland oder Stadt ausschließen",
+      "searching": "Suche läuft...",
+      "noLocations": "Kein Ort gefunden.",
+      "kind": {
+        "country": "Land",
+        "region": "Bundesland",
+        "city": "Stadt"
+      },
+      "radius": "Radius",
+      "removeLocation": "{name} entfernen",
+      "peopleTitle": "Personen",
+      "restrictedLock": "In dieser speziellen Kategorie legt Meta das Alter auf 18 bis 65+ und alle Geschlechter fest und erlaubt keine Ausschlüsse.",
+      "ageMin": "Mindestalter",
+      "ageMax": "Höchstalter",
+      "agePlus": "{age}+",
+      "gender": "Geschlecht",
+      "genders": {
+        "all": "Alle",
+        "male": "Männer",
+        "female": "Frauen"
+      },
+      "advantage": "Advantage+ Zielgruppe",
+      "advantageHint": "Meta nutzt deine Auswahl als Vorschlag und kann die Anzeige darüber hinaus zeigen, wenn es Menschen mit besseren Erfolgschancen findet.",
+      "advantageAgeNote": "Mit der Advantage+ Zielgruppe liegt das Mindestalter zwischen 18 und 25 und das Höchstalter ist immer 65+.",
+      "detailedTitle": "Detailliertes Targeting",
+      "detailedDescription": "Sprachen, Interessen und Verhaltensweisen. Leer lassen, um alle am Ort zu erreichen.",
+      "kinds": {
+        "languages": "Sprachen",
+        "interests": "Interessen",
+        "behaviors": "Verhaltensweisen"
+      },
+      "searchPlaceholder": "Zum Suchen tippen",
+      "typeToSearch": "Gib mindestens 2 Buchstaben ein.",
+      "noResults": "Nichts gefunden.",
+      "sizeRange": "{lower} bis {upper} Personen",
+      "remove": "{name} entfernen",
+      "customTitle": "Custom Audiences",
+      "customDescription": "Kundenlisten und Lookalike Audiences aus diesem Werbekonto.",
+      "include": "Zielgruppe einschließen",
+      "exclude": "Zielgruppe ausschließen",
+      "noAudiences": "Keine Zielgruppen in diesem Werbekonto.",
+      "termsTitle": "Bedingungen für Custom Audiences ausstehend",
+      "termsBody": "Meta liefert an Kundenlisten erst aus, wenn jemand mit Zugriff auf das Konto die Bedingungen für Custom Audiences akzeptiert.",
+      "termsLink": "Bedingungen in Meta akzeptieren"
+    },
+    "placements": {
+      "automatic": "Advantage+ Platzierungen",
+      "automaticHint": "Empfohlen. Meta wählt, wo die Anzeige am besten funktioniert.",
+      "manual": "Manuelle Platzierungen",
+      "manualHint": "Du wählst die Plattformen und Orte.",
+      "platforms": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "messenger": "Messenger",
+        "audience_network": "Audience Network",
+        "threads": "Threads"
+      },
+      "positions": {
+        "feed": "Feed",
+        "right_hand_column": "Rechte Spalte",
+        "marketplace": "Marketplace",
+        "story": "Stories",
+        "search": "Suchergebnisse",
+        "instream_video": "In-Stream-Videos",
+        "facebook_reels": "Reels",
+        "facebook_reels_overlay": "Overlay-Anzeigen in Reels",
+        "profile_feed": "Profil-Feed",
+        "notification": "Benachrichtigungen",
+        "stream": "Feed",
+        "explore_home": "Explore-Startseite",
+        "reels": "Reels",
+        "ig_search": "Suchergebnisse",
+        "profile_reels": "Profil-Reels",
+        "sponsored_messages": "Gesponserte Nachrichten",
+        "classic": "Native, Banner und Interstitial",
+        "rewarded_video": "Videos mit Belohnung",
+        "threads_stream": "Feed"
+      },
+      "needsFeed": "Braucht den markierten Facebook-Feed.",
+      "devices": "Geräte",
+      "deviceNames": {
+        "mobile": "Mobil",
+        "desktop": "Desktop"
+      },
+      "devicesHint": "Ohne Auswahl erscheint die Anzeige auf beiden.",
+      "warnings": {
+        "story_alone": "Stories darf nicht der einzige Ort einer Plattform sein. Markiere auch den Feed.",
+        "audience_network_alone": "Audience Network darf nicht die einzige Plattform sein.",
+        "instagram_required": "Für Gespräche über Instagram Direct markiere Instagram.",
+        "facebook_required": "Für Gespräche über Messenger markiere Facebook oder Messenger.",
+        "platforms_required": "Markiere mindestens eine Plattform."
+      }
+    },
+    "reach": {
+      "range": "Geschätzte Zielgruppe: {lower} bis {upper} Personen",
+      "unavailable": "Geschätzte Zielgruppe: Schätzung nicht verfügbar",
+      "loading": "Geschätzte Zielgruppe wird berechnet...",
+      "needsLocation": "Wähle einen Ort, um die geschätzte Zielgruppe zu sehen.",
+      "hint": "Schätzung von Meta für das gewählte Targeting und die Platzierungen. Keine Garantie für die Auslieferung."
+    },
+    "ads": {
+      "creativeEditHint": "Du tauschst das Creative einer bestehenden Anzeige aus. Seite, Anzeigengruppe und Ziel bleiben gleich.",
+      "identityTitle": "Identität",
+      "identityDescription": "Die Seite und das Instagram-Konto, die in allen Anzeigen erscheinen.",
+      "title": "Anzeigen",
+      "description": "Beschreibung",
+      "tab": "Anzeige {index}",
+      "tabHasIssues": "hat offene Punkte",
+      "add": "Anzeige hinzufügen",
+      "duplicate": "Anzeige duplizieren",
+      "copySuffix": "(Kopie)",
+      "remove": "Diese Anzeige entfernen",
+      "maxAds": "Diese Anzeigengruppe hat bereits die maximal 10 Anzeigen.",
+      "flexibleOneAd": "Mit dem flexiblen Format verlangt Meta bei diesem Ziel eine neue Anzeigengruppe mit nur einer Anzeige. Für mehr Anzeigen wechsle das Format.",
+      "nameTitle": "Anzeigenname",
+      "name": "Anzeigenname (optional)",
+      "nameHint": "Ohne Namen nutzt die Anzeige den Kampagnennamen mit einer Nummer.",
+      "formatTitle": "Format",
+      "formatDescription": "Wie Menschen die Anzeige sehen.",
+      "formats": {
+        "IMAGE": {
+          "title": "Bild",
+          "body": "Ein Bild mit Text und Button."
+        },
+        "VIDEO": {
+          "title": "Video",
+          "body": "Ein Video mit Text und Button."
+        },
+        "CAROUSEL": {
+          "title": "Karussell",
+          "body": "2 bis 10 Karten, durch die Menschen wischen."
+        },
+        "EXISTING_POST": {
+          "title": "Bestehender Beitrag",
+          "body": "Bewirbt einen Beitrag der Seite oder von Instagram."
+        },
+        "FLEXIBLE": {
+          "title": "Flexibel",
+          "body": "Du lieferst mehrere Medien und Texte, und Meta kombiniert für jede Person die beste Version."
+        },
+        "CATALOG": {
+          "title": "Katalog",
+          "body": "Produkte aus dem Katalog, passend für jede Person."
+        },
+        "COLLECTION": {
+          "title": "Sammlung",
+          "body": "Ein Titelbild mit Produkten darunter, das ein Instant Experience öffnet."
+        }
+      },
+      "flexibleBlocked": "Bei diesem Ziel funktioniert das flexible Format nur in einer neuen Anzeigengruppe mit einer einzigen Anzeige.",
+      "flexibleOwnAdSet": "Bei diesem Ziel braucht eine flexible Anzeige eine eigene Anzeigengruppe ohne weitere Anzeigen.",
+      "textTitle": "Text",
+      "textDescription": "Schreib so, wie du mit deinen Kunden sprichst. Sag direkt, was sie davon haben.",
+      "primaryText": "Primärer Text",
+      "headline": "Überschrift",
+      "headlineHint": "Bis zu 27 Zeichen werden an den meisten Stellen vollständig angezeigt.",
+      "imageTitle": "Bild",
+      "imageDescription": "Quadratisch (1:1), Hochformat (4:5) oder Story (9:16).",
+      "videoTitle": "Video",
+      "videoDescription": "MP4 oder MOV. Meta verarbeitet das Video nach dem Hochladen, was einige Minuten dauern kann.",
+      "cardsTitle": "Karten",
+      "cardsDescription": "2 bis 10 Karten, jede mit Bild oder Video.",
+      "card": "Karte {index}",
+      "removeCard": "Karte {index} entfernen",
+      "addCard": "Karte hinzufügen",
+      "cardHeadline": "Überschrift der Karte",
+      "cardDescription": "Beschreibung der Karte",
+      "cardLink": "Link der Karte (optional)",
+      "flexMediasTitle": "Medien",
+      "flexMediasDescription": "Bis zu {max} Bilder oder Videos.",
+      "removeMedia": "Medium {index} entfernen",
+      "flexTextsTitle": "Texte",
+      "flexTextsDescription": "Bis zu {max} Varianten für primären Text, Überschrift und Beschreibung.",
+      "flexText": "Primärer Text {index}",
+      "flexHeadline": "Überschrift {index}",
+      "flexDescription": "Beschreibung {index}",
+      "addText": "Text hinzufügen",
+      "addHeadline": "Überschrift hinzufügen",
+      "addDescription": "Beschreibung hinzufügen",
+      "removeText": "Entfernen",
+      "collectionTitle": "Sammlung",
+      "collectionDescription": "Das Instant Experience, das sich beim Tippen öffnet, und das Titelmedium.",
+      "experience": "Instant Experience",
+      "noExperiences": "Diese Seite hat kein Instant Experience. Erstelle eines im Meta Werbeanzeigenmanager.",
+      "collectionCover": "Titelmedium",
+      "catalogNote": "Die Produkte stammen aus dem Produktset der Anzeigengruppe.",
+      "postTitle": "Beitrag",
+      "postDescription": "Wähle den Beitrag, der zur Anzeige wird. Text und Medien kommen aus ihm.",
+      "postPlatform": {
+        "facebook": "Facebook",
+        "instagram": "Instagram"
+      },
+      "noPosts": "Keine Beiträge gefunden.",
+      "postNoText": "Beitrag ohne Text",
+      "choosePage": "Wähle die Seite im Abschnitt Identität.",
+      "linkTitle": "Ziel und Button",
+      "linkDescription": "Wohin die Anzeige führt und der Text des Buttons.",
+      "link": "Website-Link",
+      "linkOptional": "Website-Link (optional)",
+      "displayLink": "Angezeigter Link (optional)",
+      "cta": "Button",
+      "formTitle": "Sofortformular",
+      "formDescription": "Das Formular, das sich öffnet, wenn Menschen auf die Anzeige tippen.",
+      "form": "Formular",
+      "noForms": "Diese Seite hat keine aktiven Formulare.",
+      "createForm": "Formular erstellen",
+      "reloadForms": "Formularliste aktualisieren",
+      "conversationTitle": "Gesprächsbeginn",
+      "conversationDescription": "Die vorausgefüllte Nachricht und die fertigen Fragen, die Menschen antippen können.",
+      "greeting": "Vorausgefüllte Nachricht",
+      "iceBreakers": "Fertige Fragen",
+      "iceBreaker": "Frage {index}",
+      "addIceBreaker": "Frage hinzufügen",
+      "removeIceBreaker": "Frage entfernen",
+      "iceBreakersHint": "Bis zu 3 Fragen mit je bis zu 80 Zeichen.",
+      "enhancementsTitle": "Automatische Optimierungen",
+      "enhancements": "Advantage+ Creative-Optimierungen",
+      "enhancementsHint": "Wenn aktiviert, kann Meta die Anzeige für jede Person anpassen: Bild zuschneiden oder erweitern, Helligkeit und Kontrast anpassen, Texte umstellen und die Anzeigenvorlage wechseln. Lass es aus, wenn die Anzeige genau so bleiben soll, wie du sie gebaut hast."
+    },
+    "media": {
+      "chosenImage": "Bild gewählt",
+      "chosenVideo": "Video gewählt",
+      "remove": "Ändern",
+      "modeUpload": "Datei hochladen",
+      "modeGenerate": "Mit KI erstellen",
+      "upload": {
+        "image": "Bild wählen",
+        "video": "Video wählen",
+        "any": "Bild oder Video wählen"
+      },
+      "uploadHint": {
+        "image": "JPG oder PNG, mindestens 1080 px an der kürzeren Seite.",
+        "video": "MP4 oder MOV. Videos können nur hochgeladen, nicht erstellt werden.",
+        "any": "Bild als JPG oder PNG oder Video als MP4 oder MOV."
+      },
+      "uploading": "Wird hochgeladen...",
+      "notImage": "Wähle eine Bilddatei.",
+      "notVideo": "Wähle eine Videodatei.",
+      "notMedia": "Wähle ein Bild oder ein Video.",
+      "uploadFailed": "Die Datei konnte nicht hochgeladen werden.",
+      "prompt": "Beschreibe das Bild",
+      "aspect": {
+        "square": "Quadratisch",
+        "portrait": "Hochformat",
+        "story": "Story"
+      },
+      "costNote": "Jedes erstellte Bild wird als KI-Nutzung von deinem Guthaben abgerechnet.",
+      "generate": "Bild erstellen",
+      "generating": "Wird erstellt..."
+    },
+    "review": {
+      "creativeCheck": "Meta prüft das Creative beim Speichern. Wenn etwas gegen die Regeln verstößt, zeigen wir hier, was zu beheben ist.",
+      "creativeNote": "Die Anzeige geht nach dem Austausch erneut in die Prüfung von Meta. Bisherige Kennzahlen bleiben an der Anzeige.",
+      "summaryTitle": "Zusammenfassung",
+      "account": "Konto",
+      "objective": "Ziel",
+      "campaign": "Kampagne",
+      "category": "Spezielle Kategorie",
+      "adSet": "Anzeigengruppe",
+      "destination": "Ziel des Klicks",
+      "page": "Seite",
+      "budget": "Budget",
+      "budgetDaily": "{amount} pro Tag",
+      "budgetLifetime": "{amount} insgesamt",
+      "onCampaign": "auf der Kampagne",
+      "onAdSet": "in der Anzeigengruppe",
+      "budgetOnExistingCampaign": "In der bestehenden Kampagne festgelegt",
+      "budgetOnExistingAdSet": "In der bestehenden Anzeigengruppe festgelegt",
+      "schedule": "Zeitplan",
+      "startsOn": "startet am {day}",
+      "startsNow": "startet beim Veröffentlichen",
+      "endsOn": "endet am {day}",
+      "noEnd": "ohne Enddatum",
+      "hours": "zu gewählten Zeiten",
+      "locations": "Ort",
+      "audience": "Zielgruppe",
+      "ages": "{min} bis {max} Jahre",
+      "placements": "Platzierungen",
+      "placementsAuto": "Advantage+ (automatisch)",
+      "ads": "Anzeigen",
+      "adFallback": "Anzeige {index}",
+      "pausedTitle": "Wie veröffentlichen",
+      "keepPaused": "Ausgeschaltet veröffentlichen",
+      "keepPausedHint": "Erstellt alles in Meta, lässt es aber ausgeschaltet, damit du es später im Manager einschaltest. Ohne diese Option gehen die Anzeigen in die Prüfung und laufen nach der Freigabe an.",
+      "checkTitle": "Prüfung",
+      "checkDescription": "Wir prüfen alles gegen die Regeln von Meta, bevor veröffentlicht wird. Veröffentlichen ist nur ohne offene Punkte möglich.",
+      "validating": "Wird geprüft...",
+      "stale": "Du hast nach der Prüfung etwas geändert. Prüfe erneut, um zu veröffentlichen.",
+      "ready": "Alles bereit zum Veröffentlichen.",
+      "feeMissing": "Die Gebühr konnte nicht berechnet werden. Prüfe erneut, um zu veröffentlichen.",
+      "fix": "Beheben",
+      "revalidate": "Erneut prüfen",
+      "feePerAd": "Gebühr pro veröffentlichter Anzeige",
+      "feeTotal": "{count, plural, one {Summe (# Anzeige)} other {Summe (# Anzeigen)}}",
+      "pausedNote": "Alles wird ausgeschaltet erstellt und erst am Ende eingeschaltet, damit nichts halb fertig Geld ausgibt.",
+      "reviewNote": "Neue Anzeigen durchlaufen die Prüfung von Meta (In Prüfung), bevor sie ausgeliefert werden.",
+      "spendNote": "Die Werbeausgaben stellt Meta dem Werbekonto in Rechnung. Die Gebühr oben ist die einzige Belastung deines Guthabens."
+    },
+    "cta": {
+      "LEARN_MORE": "Mehr dazu",
+      "SHOP_NOW": "Jetzt einkaufen",
+      "SIGN_UP": "Registrieren",
+      "CONTACT_US": "Kontaktiere uns",
+      "DOWNLOAD": "Herunterladen",
+      "BOOK_NOW": "Jetzt buchen",
+      "GET_OFFER": "Angebot sichern",
+      "SUBSCRIBE": "Abonnieren",
+      "APPLY_NOW": "Jetzt bewerben",
+      "ORDER_NOW": "Jetzt bestellen",
+      "GET_QUOTE": "Angebot anfordern",
+      "INSTALL_MOBILE_APP": "Jetzt installieren",
+      "WATCH_MORE": "Mehr ansehen",
+      "WHATSAPP_MESSAGE": "WhatsApp-Nachricht senden",
+      "MESSAGE_PAGE": "Nachricht senden",
+      "INSTAGRAM_MESSAGE": "Instagram-Nachricht senden",
+      "NO_BUTTON": "Kein Button"
+    },
+    "preview": {
+      "label": "Anzeigenvorschau",
+      "pageFallback": "Deine Seite",
+      "sponsored": "Gesponsert",
+      "primaryTextFallback": "Hier erscheint der primäre Text.",
+      "imageFallback": "Anzeigenmedium",
+      "conversationStart": "Gesprächsbeginn",
+      "flexibleNote": "Meta kombiniert {medias, plural, one {# Medium} other {# Medien}} und {texts, plural, one {# Text} other {# Texte}} für jede Person.",
+      "catalogNote": "Die Produkte ändern sich je nachdem, wer die Anzeige sieht."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fülle dieses Feld aus.",
+        "too_long": "Text zu lang.",
+        "too_many": "Zu viele Einträge.",
+        "invalid": "Ungültiger Wert.",
+        "count": "Anzahl außerhalb des erlaubten Bereichs.",
+        "wrong_kind": "Falscher Medientyp für dieses Format.",
+        "invalid_url": "Nutze eine vollständige Adresse, die mit https:// beginnt.",
+        "not_allowed": "In dieser Einstellung nicht erlaubt.",
+        "restricted_category": "In dieser speziellen Kategorie nicht erlaubt.",
+        "radius_out_of_range": "Der Radius um Städte muss zwischen 17 und 80 km liegen.",
+        "must_be_positive": "Gib einen Betrag größer als null ein.",
+        "in_the_past": "Wähle ein Datum in der Zukunft.",
+        "before_start": "Das Ende muss nach dem Start liegen.",
+        "political_not_supported": "Anzeigen zu Politik oder gesellschaftlichen Themen werden nicht angenommen.",
+        "not_for_objective": "Diese Option passt nicht zum Kampagnenziel.",
+        "not_for_destination": "Dieses Format passt nicht zum gewählten Ziel des Klicks.",
+        "campaign_has_budget": "Die Kampagne hat bereits ein Budget. Entferne das Budget der Anzeigengruppe.",
+        "needs_campaign_budget": "Diese Gebotsstrategie braucht ein Kampagnenbudget.",
+        "set_on_campaign": "Mit Kampagnenbudget wird die Gebotsstrategie auf der Kampagne festgelegt.",
+        "roas_on_ad_set_only": "Die Mindestrendite kann nur in der Anzeigengruppe festgelegt werden.",
+        "roas_needs_value_goal": "Die Mindestrendite braucht das Leistungsziel Conversion-Wert.",
+        "required_for_lifetime_budget": "Mit Laufzeitbudget gib das Enddatum an.",
+        "needs_lifetime_budget": "Auslieferungszeiten brauchen ein Laufzeitbudget.",
+        "advantage_audience_limits": "Mit der Advantage+ Zielgruppe liegt das Mindestalter zwischen 18 und 25 und das Höchstalter bei 65+.",
+        "also_included": "Eine Zielgruppe kann nicht gleichzeitig ein- und ausgeschlossen sein.",
+        "automatic_with_manual": "Wähle automatische oder manuelle Platzierungen, nicht beides.",
+        "audience_network_alone": "Audience Network darf nicht die einzige Plattform sein.",
+        "story_alone": "Stories darf nicht der einzige Ort einer Plattform sein.",
+        "needs_feed": "Marketplace, Suche, Profil-Feed und Benachrichtigungen brauchen den Facebook-Feed.",
+        "instagram_required": "Für Gespräche über Instagram Direct nimm Instagram in die Platzierungen auf.",
+        "facebook_required": "Für Gespräche über Messenger nimm Facebook oder Messenger auf.",
+        "dynamic_creative_needs_own_ad_set": "Eine flexible Anzeige braucht bei diesem Ziel eine eigene neue Anzeigengruppe.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      },
+      "adAccountId": {
+        "required": "Wähle ein Werbekonto."
+      },
+      "identity_pageId": {
+        "required": "Wähle eine Seite im Abschnitt Identität."
+      },
+      "campaign_objective": {
+        "invalid": "Wähle das Kampagnenziel."
+      },
+      "campaign_name": {
+        "required": "Gib der Kampagne einen Namen.",
+        "too_long": "Der Name darf bis zu 400 Zeichen haben."
+      },
+      "campaign_budget_amount": {
+        "must_be_positive": "Gib ein Kampagnenbudget größer als null ein."
+      },
+      "campaign_bid_amount": {
+        "must_be_positive": "Gib den Gebotsbetrag ein."
+      },
+      "adSet_name": {
+        "required": "Gib der Anzeigengruppe einen Namen.",
+        "too_long": "Der Name darf bis zu 400 Zeichen haben."
+      },
+      "adSet_goal": {
+        "not_for_objective": "Diese Kombination aus Ziel des Klicks und Leistungsziel gilt nicht für das gewählte Kampagnenziel."
+      },
+      "adSet_budget": {
+        "required": "Lege ein Budget in der Anzeigengruppe fest oder schalte das Kampagnenbudget ein.",
+        "campaign_has_budget": "Die Kampagne hat bereits ein Budget. Die Anzeigengruppe kann kein weiteres haben."
+      },
+      "adSet_budget_amount": {
+        "must_be_positive": "Gib ein Budget größer als null ein."
+      },
+      "adSet_bid_amount": {
+        "must_be_positive": "Gib den Gebotsbetrag ein."
+      },
+      "adSet_bid_roasFloor": {
+        "invalid": "Gib eine Mindestrendite zwischen 0,01 und 1000 ein."
+      },
+      "adSet_endAt": {
+        "in_the_past": "Das Enddatum ist bereits vorbei.",
+        "before_start": "Das Enddatum muss nach dem Start liegen.",
+        "required_for_lifetime_budget": "Mit Laufzeitbudget wähle das Enddatum."
+      },
+      "adSet_whatsAppNumber": {
+        "required": "Wähle eine mit der Seite verknüpfte WhatsApp-Nummer."
+      },
+      "adSet_instagramUserId": {
+        "required": "Wähle das mit der Seite verknüpfte Instagram-Konto."
+      },
+      "adSet_appId": {
+        "required": "Wähle die App."
+      },
+      "adSet_appStoreUrl": {
+        "required": "Wähle den App Store.",
+        "invalid_url": "Die Store-Adresse muss mit https:// beginnen."
+      },
+      "adSet_productSetId": {
+        "required": "Wähle den Katalog und das Produktset."
+      },
+      "adSet_pixelId": {
+        "required": "Wähle das Pixel."
+      },
+      "adSet_pixelEvent": {
+        "invalid": "Wähle das Conversion-Ereignis."
+      },
+      "adSet_targeting_locations": {
+        "required": "Wähle mindestens einen Ort.",
+        "too_many": "Wähle höchstens 50 Orte.",
+        "invalid": "Einer der Orte ist ungültig.",
+        "radius_out_of_range": "Der Radius um Städte muss zwischen 17 und 80 km liegen.",
+        "restricted_category": "In dieser Kategorie muss der Radius um Städte mindestens 25 km betragen."
+      },
+      "adSet_targeting_age": {
+        "invalid": "Wähle einen Altersbereich zwischen 13 und 65+.",
+        "restricted_category": "In dieser Kategorie muss das Alter 18 bis 65+ sein."
+      },
+      "adSet_targeting_genders": {
+        "restricted_category": "In dieser Kategorie muss die Anzeige alle Geschlechter erreichen."
+      },
+      "adSet_targeting_exclusions": {
+        "restricted_category": "In dieser Kategorie können keine Orte oder Zielgruppen ausgeschlossen werden."
+      },
+      "adSet_placements_platforms": {
+        "required": "Markiere mindestens eine Plattform."
+      },
+      "ads": {
+        "required": "Erstelle mindestens eine Anzeige.",
+        "too_many": "Nutze höchstens 10 Anzeigen."
+      },
+      "ads_name": {
+        "required": "Gib der Anzeige einen Namen.",
+        "too_long": "Der Name darf bis zu 400 Zeichen haben."
+      },
+      "ads_creative_primaryText": {
+        "required": "Schreib den primären Text.",
+        "too_long": "Der primäre Text darf bis zu 2.200 Zeichen haben."
+      },
+      "ads_creative_headline": {
+        "too_long": "Die Überschrift darf bis zu 255 Zeichen haben."
+      },
+      "ads_creative_description": {
+        "too_long": "Die Beschreibung darf bis zu 255 Zeichen haben."
+      },
+      "ads_creative_media": {
+        "required": "Wähle das Medium der Anzeige.",
+        "wrong_kind": "Das Medium passt nicht zum Format (Bild oder Video)."
+      },
+      "ads_creative_cards": {
+        "count": "Das Karussell braucht 2 bis 10 Karten."
+      },
+      "ads_creative_cards_media": {
+        "required": "Wähle das Medium jeder Karte."
+      },
+      "ads_creative_cards_link": {
+        "invalid_url": "Der Link der Karte muss mit https:// beginnen."
+      },
+      "ads_creative_texts": {
+        "count": "Nutze 1 bis 5 primäre Texte."
+      },
+      "ads_creative_headlines": {
+        "count": "Nutze höchstens 5 Überschriften und 5 Beschreibungen."
+      },
+      "ads_creative_medias": {
+        "count": "Nutze 1 bis 10 Medien.",
+        "required": "Eines der Medien ist leer."
+      },
+      "ads_creative_postId": {
+        "required": "Wähle einen Beitrag."
+      },
+      "ads_creative_instantExperienceId": {
+        "required": "Wähle das Instant Experience."
+      },
+      "ads_creative_link": {
+        "required": "Gib den Website-Link an.",
+        "invalid_url": "Der Link muss mit https:// beginnen."
+      },
+      "ads_creative_leadFormId": {
+        "required": "Wähle das Sofortformular."
+      },
+      "ads_creative_greeting": {
+        "too_long": "Die vorausgefüllte Nachricht darf bis zu 300 Zeichen haben."
+      },
+      "ads_creative_iceBreakers": {
+        "too_many": "Nutze höchstens 3 fertige Fragen.",
+        "too_long": "Jede fertige Frage darf bis zu 80 Zeichen haben."
+      },
+      "ads_creative_format": {
+        "not_for_destination": "Dieses Format ist für das gewählte Ziel des Klicks nicht verfügbar."
+      }
+    }
+  },
+  "adsManager": {
+    "compare": {
+      "previous": "Vorheriger Zeitraum: {value}",
+      "noBaseline": "Keine Vergleichsbasis im vorherigen Zeitraum",
+      "tone": {
+        "better": "{change} gegenüber dem vorherigen Zeitraum ({previous}), besser",
+        "worse": "{change} gegenüber dem vorherigen Zeitraum ({previous}), schlechter",
+        "neutral": "{change} gegenüber dem vorherigen Zeitraum ({previous})"
+      }
+    },
+    "live": {
+      "loading": "Live-Daten werden von Meta geladen",
+      "ready": "Live",
+      "failed": "Live-Daten gerade nicht verfügbar"
+    },
+    "report": {
+      "attribution": "Attributionsfenster",
+      "breakdown": "Aufschlüsselung",
+      "compare": "Mit vorherigem Zeitraum vergleichen",
+      "export": "CSV exportieren",
+      "exporting": "Wird exportiert...",
+      "exportFailed": "Der Bericht konnte nicht exportiert werden",
+      "windowNote": "Ergebnisse und Kosten pro Ergebnis in der Tabelle nutzen das gewählte Fenster, direkt von Meta. Die Kennzahlen oben folgen dem Standardfenster des Kontos.",
+      "windows": {
+        "default": "Kontostandard",
+        "1d_view": "1 Tag nach Ansicht",
+        "1d_click": "1 Tag nach Klick",
+        "7d_click": "7 Tage nach Klick",
+        "28d_click": "28 Tage nach Klick"
+      }
+    },
+    "breakdown": {
+      "menu": "Aufschlüsselung",
+      "title": "Aufschlüsselung nach {group}",
+      "scope": {
+        "selection": "{count, plural, one {# ausgewähltes Element.} other {# ausgewählte Elemente.}}",
+        "all": "Alle Elemente der Tabelle."
+      },
+      "liveNote": "Live-Daten von Meta. Die Reichweite erscheint nur bei einem einzelnen Element, weil dieselben Personen mehrere gesehen haben können.",
+      "failed": "Die Aufschlüsselung konnte nicht geladen werden: {message}",
+      "empty": "Meta hat für diese Aufschlüsselung im Zeitraum keine Daten geliefert.",
+      "groups": {
+        "age": "Alter",
+        "gender": "Geschlecht",
+        "country": "Land",
+        "region": "Region",
+        "publisher_platform": "Plattform",
+        "platform_position": "Platzierung",
+        "device_platform": "Gerät",
+        "hourly_stats_aggregated_by_advertiser_time_zone": "Tageszeit"
+      },
+      "values": {
+        "male": "Männlich",
+        "female": "Weiblich",
+        "unknown": "Nicht angegeben",
+        "mobile_app": "Mobile App",
+        "mobile_web": "Mobiler Browser",
+        "desktop": "Desktop"
+      },
+      "columns": {
+        "spend": "Ausgegebener Betrag",
+        "share": "Anteil an den Ausgaben",
+        "impressions": "Impressionen",
+        "reach": "Reichweite",
+        "results": "Ergebnisse",
+        "costPerResult": "Kosten pro Ergebnis",
+        "cpm": "CPM"
+      }
+    },
+    "rowActions": {
+      "open": "Aktionen für {name}",
+      "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
+      "addAdSet": "Anzeigengruppe hinzufügen",
+      "addAd": "Anzeige hinzufügen",
+      "archive": "Archivieren",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "archived": "{name} archiviert",
+      "archiveFailed": "{name} konnte nicht archiviert werden",
+      "deleted": "{name} gelöscht",
+      "deleteFailed": "{name} konnte nicht gelöscht werden",
+      "deleteTitle": {
+        "campaign": "Kampagne löschen?",
+        "adset": "Anzeigengruppe löschen?",
+        "ad": "Anzeige löschen?"
+      },
+      "deleteBody": "{name} wird bei Meta samt allem Inhalt gelöscht. Das lässt sich nicht rückgängig machen, und die Ergebnisse erscheinen hier nicht mehr. Um nur die Auslieferung zu stoppen, schalte es aus oder archiviere es."
+    },
+    "duplicate": {
+      "title": {
+        "campaign": "Kampagne duplizieren",
+        "adset": "Anzeigengruppe duplizieren",
+        "ad": "Anzeige duplizieren"
+      },
+      "description": "Die Kopie von {name} wird bei Meta ausgeschaltet angelegt.",
+      "deepCopy": {
+        "campaign": "Auch Anzeigengruppen und Anzeigen kopieren",
+        "adset": "Auch die Anzeigen kopieren"
+      },
+      "deepCopyHint": "Ohne diese Option wird nur das gewählte Element kopiert.",
+      "suffix": "Text, der an den Namen angehängt wird",
+      "defaultSuffix": " - Kopie",
+      "suffixPreview": "Name der Kopie: {name}",
+      "parent": {
+        "adset": "Zielkampagne",
+        "ad": "Ziel-Anzeigengruppe"
+      },
+      "sameParent": "Wie beim Original",
+      "cancel": "Abbrechen",
+      "submit": "Duplizieren",
+      "saving": "Wird dupliziert...",
+      "done": "Kopie von {name} erstellt"
+    },
+    "spendCap": {
+      "label": "Ausgabenlimit:",
+      "none": "kein Limit",
+      "spent": "Ausgegeben:",
+      "usage": "{percent} des Limits verbraucht",
+      "edit": "Ausgabenlimit des Kontos bearbeiten",
+      "title": "Ausgabenlimit des Kontos",
+      "description": "Wenn die Gesamtausgaben das Limit erreichen, stoppt Meta alle Anzeigen dieses Kontos.",
+      "spentSoFar": "Bisher ausgegeben:",
+      "amountLabel": "Limit ({currency})",
+      "hint": "Meta kann einige Minuten brauchen, um das neue Limit anzuwenden.",
+      "problems": {
+        "invalid": "Gib einen Betrag größer als null ein.",
+        "notAboveSpent": "Das Limit muss höher sein als das bereits Ausgegebene ({spent})."
+      },
+      "remove": "Limit entfernen",
+      "cancel": "Abbrechen",
+      "save": "Limit speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "Ausgabenlimit aktualisiert",
+      "removed": "Ausgabenlimit entfernt"
+    },
+    "edit": {
+      "title": {
+        "campaign": "Kampagne bearbeiten",
+        "adset": "Anzeigengruppe bearbeiten",
+        "ad": "Anzeige bearbeiten"
+      },
+      "tabs": {
+        "campaign": "Kampagne",
+        "adset": "Anzeigengruppe",
+        "ad": "Anzeige"
+      },
+      "optionsFailed": "Die Optionen von Meta konnten nicht geladen werden, daher ist das Bearbeiten gesperrt: {message}",
+      "retry": "Erneut versuchen",
+      "locked": "Dieses Element ist bei Meta archiviert oder gelöscht und kann nicht mehr geändert werden.",
+      "basics": "Identifikation",
+      "name": "Name",
+      "nameRequired": "Gib einen Namen ein.",
+      "objective": "Ziel",
+      "goal": "Leistungsziel",
+      "destination": "Ziel der Unterhaltung",
+      "goalLocked": "Meta ändert das Leistungsziel nach dem Anlegen der Anzeigengruppe nicht. Zum Ändern duplizieren und in der neuen Gruppe ein anderes wählen.",
+      "budgetTitle": "Budget und Gebote",
+      "scheduleTitle": "Zeitplan",
+      "endDay": "Letzter Auslieferungstag",
+      "endDayHint": "Endet um Mitternacht in der Zeitzone des Kontos ({timezone}).",
+      "scheduleKeep": "Meta braucht mindestens eine Stunde im Zeitplan. Ohne Stunde bleibt der aktuelle Zeitplan bestehen.",
+      "scheduleNeedsLifetime": "Auslieferungszeiten gibt es nur mit Laufzeitbudget.",
+      "audienceTitle": "Zielgruppe",
+      "placementsTitle": "Platzierungen",
+      "creativeTitle": "Werbemittel",
+      "swapCreative": "Werbemittel austauschen",
+      "discard": "Änderungen verwerfen",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "{name} aktualisiert",
+      "fixIssues": "Korrigiere die markierten Felder und speichere erneut.",
+      "tooSoon": "Meta erlaubt höchstens 4 Budgetänderungen pro Stunde. Versuche es später erneut.",
+      "budget": {
+        "kind": "Budgetart",
+        "kinds": {
+          "DAILY": "Tagesbudget",
+          "LIFETIME": "Laufzeitbudget"
+        },
+        "kindLocked": "Meta wechselt nach dem Anlegen nicht zwischen Tages- und Laufzeitbudget.",
+        "amount": {
+          "DAILY": "Tagesbudget ({currency})",
+          "LIFETIME": "Laufzeitbudget ({currency})"
+        },
+        "invalid": "Gib einen Betrag größer als null ein.",
+        "limitHint": "Meta erlaubt bis zu 4 Budgetänderungen pro Stunde.",
+        "onAdSets": "Diese Kampagne hat kein eigenes Budget; jede Anzeigengruppe hat ihr eigenes.",
+        "onCampaign": "Das Budget dieser Anzeigengruppe kommt von der Kampagne.",
+        "strategy": "Gebotsstrategie",
+        "strategies": {
+          "LOWEST_COST_WITHOUT_CAP": "Höchstes Volumen",
+          "LOWEST_COST_WITH_BID_CAP": "Gebotsobergrenze",
+          "COST_CAP": "Ziel für Kosten pro Ergebnis",
+          "LOWEST_COST_WITH_MIN_ROAS": "Mindest-ROAS"
+        },
+        "costCap": "Gewünschte Kosten pro Ergebnis ({currency})",
+        "bidCap": "Höchstgebot ({currency})",
+        "roasFloor": "Mindest-ROAS",
+        "roasInvalid": "Gib eine Zahl größer als null ein, etwa 2,5."
+      },
+      "targeting": {
+        "customAudiences": "Custom Audiences einschließen",
+        "excludedCustomAudiences": "Custom Audiences ausschließen",
+        "noAudiences": "Keine Zielgruppe gefunden.",
+        "search": "Zielgruppe suchen",
+        "remove": "{name} entfernen",
+        "locationsTitle": "Standort",
+        "locations": "Orte einschließen",
+        "excludedLocations": "Orte ausschließen",
+        "peopleTitle": "Personen",
+        "ageMin": "Mindestalter",
+        "ageMax": "Höchstalter",
+        "agePlus": "{age}+",
+        "gender": "Geschlecht",
+        "genders": {
+          "all": "Alle",
+          "male": "Männer",
+          "female": "Frauen"
+        },
+        "advantage": "Advantage+ Zielgruppe",
+        "advantageHint": "Meta kann über die festgelegte Zielgruppe hinausgehen, wenn es Personen mit höherer Erfolgschance findet.",
+        "advantageAgeNote": "Mit Advantage+ bleibt das Höchstalter bei 65+ und das Mindestalter darf höchstens 25 sein.",
+        "detailedTitle": "Detailliertes Targeting",
+        "customTitle": "Custom Audiences"
+      },
+      "placements": {
+        "automatic": "Automatische Platzierungen",
+        "automaticHint": "Meta wählt, wo die Anzeige die beste Leistung bringt.",
+        "manual": "Manuelle Platzierungen",
+        "manualHint": "Du wählst Plattformen und Orte.",
+        "needsFeed": "Benötigt den markierten Facebook-Feed.",
+        "warnings": {
+          "story_alone": "Meta akzeptiert Stories nicht allein. Markiere eine weitere Platzierung.",
+          "audience_network_alone": "Meta akzeptiert das Audience Network nicht allein.",
+          "instagram_required": "Für Unterhaltungen in Instagram Direct muss Instagram markiert sein.",
+          "facebook_required": "Für Unterhaltungen im Messenger markiere Facebook oder Messenger.",
+          "platforms_required": "Markiere mindestens eine Plattform."
+        }
+      }
+    },
+    "abTest": {
+      "create": "A/B-Test erstellen",
+      "countHint": "Wähle 2 bis 5 Elemente zum Vergleichen.",
+      "created": "Test {name} erstellt",
+      "title": "A/B-Test erstellen",
+      "description": {
+        "campaign": "{count, plural, other {# Kampagnen}} konkurrieren ohne Überschneidung um dieselbe Zielgruppe. Meta bestimmt die Gewinnerin nach Kosten pro Ergebnis.",
+        "adset": "{count, plural, other {# Anzeigengruppen}} konkurrieren ohne Überschneidung um dieselbe Zielgruppe. Meta bestimmt die Gewinnerin nach Kosten pro Ergebnis."
+      },
+      "name": "Name des Tests",
+      "cells": "Versionen",
+      "cellName": "Version {index}",
+      "share": "Anteil (%)",
+      "sharesTotal": "Summe: {total}% (muss 100% ergeben)",
+      "start": "Beginn",
+      "end": "Letzter Tag",
+      "window": {
+        "dates": "Wähle einen Beginn ab heute.",
+        "endBeforeStart": "Der letzte Tag muss nach dem Beginn liegen.",
+        "tooLong": "Ein Test darf höchstens 30 Tage laufen."
+      },
+      "timezone": "Daten in der Zeitzone des Kontos ({timezone}). Ein Test, der heute beginnt, startet in wenigen Minuten.",
+      "confidence": "Konfidenzniveau",
+      "confidenceOption": "{value}%",
+      "confidenceHint": "Je höher, desto mehr Sicherheit verlangt Meta, bevor es eine Gewinnerin nennt.",
+      "cancel": "Abbrechen",
+      "submit": "Test erstellen",
+      "saving": "Wird erstellt...",
+      "fixIssues": "Korrigiere die markierten Felder und versuche es erneut."
+    },
+    "abTests": {
+      "open": "A/B-Tests",
+      "title": "A/B-Tests",
+      "description": "Tests dieses Meta-Werbekontos.",
+      "refresh": "Liste aktualisieren",
+      "empty": "Noch keine A/B-Tests in diesem Konto.",
+      "to": "bis",
+      "level": {
+        "campaign": "Kampagnen",
+        "adset": "Anzeigengruppen"
+      },
+      "confidence": "Konfidenz {value}%"
+    },
+    "issues": {
+      "budget": {
+        "kind_locked": "Meta wechselt nach dem Anlegen nicht zwischen Tages- und Laufzeitbudget.",
+        "too_many_changes": "Meta erlaubt höchstens 4 Budgetänderungen pro Stunde.",
+        "no_budget_here": "Das Budget liegt auf einer anderen Ebene."
+      },
+      "parentId": {
+        "not_for_level": "Kampagnen werden beim Duplizieren nicht verschoben."
+      },
+      "cells": {
+        "count": "Ein Test braucht 2 bis 5 Versionen.",
+        "shares_must_sum_100": "Die Anteile müssen 100% ergeben."
+      },
+      "endAt": {
+        "duration": "Der Test muss 1 bis 30 Tage dauern."
+      },
+      "schedule": {
+        "needs_lifetime_budget": "Auslieferungszeiten gibt es nur mit Laufzeitbudget."
+      },
+      "generic": {
+        "required": "Pflichtfeld.",
+        "invalid": "Ungültiger Wert.",
+        "too_long": "Text zu lang.",
+        "too_many": "Zu viele Einträge.",
+        "must_be_positive": "Gib einen Wert größer als null ein.",
+        "not_for_level": "Diese Änderung gilt nicht für diese Ebene.",
+        "not_allowed": "Mit dieser Auswahl nicht erlaubt.",
+        "in_the_past": "Das Datum muss in der Zukunft liegen.",
+        "before_start": "Das Enddatum muss nach dem Beginn liegen.",
+        "required_for_lifetime_budget": "Ein Laufzeitbudget braucht ein Enddatum.",
+        "needs_lifetime_budget": "Nur mit Laufzeitbudget gültig.",
+        "roas_needs_value_goal": "Mindest-ROAS gilt nur für wertoptimierte Anzeigengruppen.",
+        "radius_out_of_range": "Radius außerhalb des von Meta erlaubten Bereichs.",
+        "restricted_category": "In dieser speziellen Anzeigenkategorie nicht erlaubt.",
+        "also_included": "Eine Zielgruppe kann nicht gleichzeitig ein- und ausgeschlossen sein.",
+        "advantage_audience_limits": "Mit Advantage+ bleibt das Höchstalter bei 65+ und das Mindestalter darf höchstens 25 sein.",
+        "automatic_with_manual": "Wähle automatische oder manuelle Platzierungen, nicht beides.",
+        "audience_network_alone": "Meta akzeptiert das Audience Network nicht allein.",
+        "story_alone": "Meta akzeptiert Stories nicht allein.",
+        "needs_feed": "Diese Platzierung braucht den Facebook-Feed.",
+        "instagram_required": "Instagram muss markiert sein.",
+        "facebook_required": "Markiere Facebook oder Messenger.",
+        "not_for_destination": "Für dieses Ziel nicht gültig.",
+        "wrong_kind": "Falscher Medientyp.",
+        "used_twice": "Dasselbe Element ist in zwei Versionen.",
+        "count": "Anzahl außerhalb des Erlaubten.",
+        "duration": "Dauer außerhalb des Erlaubten.",
+        "kind_locked": "Meta wechselt nach dem Anlegen nicht zwischen Tages- und Laufzeitbudget.",
+        "too_many_changes": "Meta erlaubt höchstens 4 Budgetänderungen pro Stunde.",
+        "no_budget_here": "Das Budget liegt auf einer anderen Ebene.",
+        "unknown": "Meta hat {field} abgelehnt ({code})."
+      }
+    },
+    "header": {
+      "title": "Anzeigen",
+      "description": "Meta-Kampagnen, Anzeigengruppen und Anzeigen mit den Ergebnissen, die in deinem Posteingang angekommen sind.",
+      "connect": "Werbekonto verbinden",
+      "create": "Anzeige erstellen"
+    },
+    "noAccess": "Du hast keine Berechtigung, die Anzeigen dieses Workspaces zu sehen.",
+    "retry": "Erneut versuchen",
+    "account": {
+      "label": "Werbekonto"
+    },
+    "sync": {
+      "action": "Aktualisieren",
+      "failed": "Das Konto konnte nicht aktualisiert werden",
+      "updated": "Aktualisiert {when}",
+      "never": "Noch nicht synchronisiert"
+    },
+    "spendBlocker": {
+      "reconnect": "Verbinde das Werbekonto neu, um Anzeigen zu erstellen.",
+      "funding": "Richte im Meta Werbeanzeigenmanager eine Zahlungsmethode ein, um Anzeigen zu erstellen.",
+      "metaStatus": "Meta liefert für dieses Konto gerade keine Anzeigen aus.",
+      "unknown": "Dieses Konto kann gerade keine Anzeigen erstellen."
+    },
+    "connect": {
+      "errorTitle": "Verbindung fehlgeschlagen",
+      "partialTitle": "Teilweise verbunden",
+      "successTitle": "Werbekonto verbunden",
+      "count": "{count, plural, one {# Konto verbunden} other {# Konten verbunden}}",
+      "errors": {
+        "connect_failed": "Meta hat die Verbindung nicht abgeschlossen. Versuche es erneut.",
+        "missing_permissions": "Meta hat die Anzeigenberechtigungen nicht erteilt. Verbinde erneut und erlaube alle Berechtigungen.",
+        "no_accounts_granted": "Bei Meta wurde kein Werbekonto ausgewählt.",
+        "invalid_state": "Dieser Verbindungslink ist abgelaufen oder wurde bereits verwendet. Klicke erneut auf Verbinden.",
+        "expired_state": "Die Verbindung hat zu lange gedauert und ist abgelaufen. Klicke erneut auf Verbinden.",
+        "linked_elsewhere": "Dieses Werbekonto ist bereits mit einem anderen Workspace verbunden."
+      }
+    },
+    "disconnect": {
+      "action": "Konto trennen",
+      "title": "Werbekonto trennen?",
+      "body": "Das Konto {name} wird hier nicht mehr angezeigt. Die Kampagnen bleiben bei Meta, ein- oder ausgeschaltet wie bisher.",
+      "done": "Konto {name} getrennt",
+      "failed": "Das Konto konnte nicht getrennt werden"
+    },
+    "toggle": {
+      "onFailed": "{name} konnte nicht eingeschaltet werden",
+      "offFailed": "{name} konnte nicht ausgeschaltet werden"
+    },
+    "budget": {
+      "tooSoon": "Meta erlaubt höchstens 4 Budgetänderungen pro Stunde. Versuche es später erneut.",
+      "saved": "Budget von {name} aktualisiert",
+      "adSetBudget": "Nutzt das Budget der Anzeigengruppe",
+      "daily": "Täglich",
+      "lifetime": "Laufzeit",
+      "edit": "Budget bearbeiten",
+      "dailyLabel": "Tagesbudget ({currency})",
+      "lifetimeLabel": "Laufzeitbudget ({currency})",
+      "invalid": "Gib einen Betrag größer als null ein.",
+      "limitHint": "Meta erlaubt bis zu 4 Budgetänderungen pro Stunde.",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "errors": {
+      "timezone": "Die Zeitzone dieses Werbekontos ist unbekannt, daher lassen sich die Ergebnisse nicht nach Tagen aufteilen. Aktualisiere das Konto."
+    },
+    "empty": {
+      "noAccountTitle": "Kein Werbekonto verbunden",
+      "noAccountBody": "Verbinde ein Meta-Werbekonto, um Kampagnen zu sehen, Anzeigen ein- und auszuschalten und zu erfahren, was jedes eingegangene Gespräch gekostet hat.",
+      "noAccountBodyNoPermission": "Bitte eine verantwortliche Person des Workspaces, ein Meta-Werbekonto zu verbinden.",
+      "campaignTitle": "Keine Kampagnen gefunden",
+      "adsetTitle": "Keine Anzeigengruppen gefunden",
+      "adTitle": "Keine Anzeigen gefunden",
+      "rangeBody": "Ändere Zeitraum, Suche oder Auswahl, um mehr Ergebnisse zu sehen."
+    },
+    "filters": {
+      "search": "Nach Name oder ID suchen",
+      "campaignsSelected": "{count, plural, one {# Kampagne ausgewählt} other {# Kampagnen ausgewählt}}",
+      "adSetsSelected": "{count, plural, one {# Anzeigengruppe ausgewählt} other {# Anzeigengruppen ausgewählt}}",
+      "clear": "Filter entfernen: {label}"
+    },
+    "tabs": {
+      "campaign": "Kampagnen",
+      "adset": "Anzeigengruppen",
+      "ad": "Anzeigen"
+    },
+    "columns": {
+      "toggle": "Ein",
+      "name": {
+        "campaign": "Kampagne",
+        "adset": "Anzeigengruppe",
+        "ad": "Anzeige"
+      },
+      "delivery": "Auslieferung",
+      "results": "Ergebnisse",
+      "costPerResult": "Kosten pro Ergebnis",
+      "budget": "Budget",
+      "spend": "Ausgegebener Betrag",
+      "impressions": "Impressionen",
+      "linkClicks": "Link-Klicks",
+      "ctr": "CTR",
+      "cpm": "CPM",
+      "crmConversations": "Gespräche (CRM)",
+      "costPerLead": "Kosten pro Lead",
+      "roas": "ROAS",
+      "menu": "Spalten",
+      "menuTitle": "Sichtbare Spalten",
+      "groups": {
+        "report": "Bericht",
+        "live": "Live von Meta",
+        "liveHint": "Sofort bei Meta abgerufen, für denselben Zeitraum."
+      },
+      "reach": "Reichweite",
+      "frequency": "Frequenz",
+      "videoPlays": "Videowiedergaben",
+      "thruPlays": "ThruPlays",
+      "costPerThruPlay": "Kosten pro ThruPlay",
+      "videoP25": "25% angesehen",
+      "videoP50": "50% angesehen",
+      "videoP75": "75% angesehen",
+      "videoP100": "100% angesehen",
+      "avgWatchSeconds": "Durchschnittliche Wiedergabezeit"
+    },
+    "table": {
+      "issues": "{count, plural, one {# Warnung} other {# Warnungen}}",
+      "turnOn": "{name} einschalten",
+      "turnOff": "{name} ausschalten",
+      "totals": {
+        "campaign": "{count, plural, one {Ergebnisse aus # Kampagne} other {Ergebnisse aus # Kampagnen}}",
+        "adset": "{count, plural, one {Ergebnisse aus # Anzeigengruppe} other {Ergebnisse aus # Anzeigengruppen}}",
+        "ad": "{count, plural, one {Ergebnisse aus # Anzeige} other {Ergebnisse aus # Anzeigen}}"
+      },
+      "selected": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
+      "selectAll": "Alle auswählen",
+      "selectRow": "Zeile auswählen",
+      "seconds": "{value} s",
+      "previousTotal": "Vorheriger Zeitraum: {value}"
+    },
+    "results": {
+      "conversations": "Begonnene Gespräche",
+      "leads": "Leads",
+      "linkClicks": "Link-Klicks",
+      "landingPageViews": "Zielseitenaufrufe",
+      "engagement": "Interaktionen",
+      "impressions": "Impressionen",
+      "mixed": "Ergebnisse verschiedener Arten"
+    },
+    "delivery": {
+      "active": "Aktiv",
+      "scheduled": "Geplant",
+      "completed": "Abgeschlossen",
+      "off": "Aus",
+      "campaign_off": "Kampagne aus",
+      "adset_off": "Anzeigengruppe aus",
+      "in_review": "In Prüfung",
+      "rejected": "Abgelehnt",
+      "with_issues": "Mit Problemen",
+      "pending_billing": "Zahlung ausstehend",
+      "archived": "Archiviert",
+      "deleted": "Gelöscht",
+      "unknown": "Unbekannt"
+    },
+    "kpi": {
+      "spend": "Ausgegebener Betrag",
+      "results": "Ergebnisse",
+      "costPerResult": "Kosten pro Ergebnis",
+      "metaConversations": "Gespräche (Meta)",
+      "metaConversationsHint": "Gespräche, die Meta den Anzeigen nach der 7-Tage-Regel von Meta zuordnet. Kann Schätzungen enthalten.",
+      "crmConversations": "Gespräche (CRM)",
+      "crmConversationsHint": "Gespräche aus diesen Anzeigen, die im Posteingang angekommen sind. Weicht von Metas Zählung ab, weil nur zählt, was wirklich ankam.",
+      "costPerLead": "Kosten pro Lead (CRM)",
+      "costPerLeadHint": "Ausgegebener Betrag geteilt durch die Gespräche aus diesen Anzeigen, die zu einer Verkaufschance wurden.",
+      "revenue": "Umsatz",
+      "roas": "ROAS",
+      "roasHint": "Umsatz aus gewonnenen Verkaufschancen geteilt durch den ausgegebenen Betrag."
+    },
+    "trend": {
+      "title": "Ausgaben und Ergebnisse pro Tag",
+      "subtitle": "Tage in der Zeitzone des Werbekontos",
+      "spend": "Ausgegebener Betrag",
+      "results": "Ergebnisse",
+      "day": "Tag",
+      "showChart": "Diagramm anzeigen",
+      "showTable": "Tabelle anzeigen",
+      "empty": "Keine Daten in diesem Zeitraum."
+    },
+    "range": {
+      "label": "Zeitraum",
+      "presets": {
+        "today": "Heute",
+        "yesterday": "Gestern",
+        "last7": "Letzte 7 Tage",
+        "last14": "Letzte 14 Tage",
+        "last30": "Letzte 30 Tage",
+        "thisMonth": "Dieser Monat",
+        "lastMonth": "Letzter Monat",
+        "custom": "Benutzerdefiniert"
+      },
+      "since": "Von",
+      "until": "Bis",
+      "to": "bis",
+      "timezone": "Zeitzone: {timezone}",
+      "timezoneUnknown": "unbekannt"
+    },
+    "notices": {
+      "reconnect": {
+        "title": "Werbekonto neu verbinden",
+        "body": "Meta akzeptiert den Zugriff auf dieses Konto nicht mehr. Die Daten können veraltet sein, und bis zur neuen Verbindung lässt sich nichts ändern.",
+        "action": "Neu verbinden"
+      },
+      "funding": {
+        "title": "Keine Zahlungsmethode",
+        "body": "Richte im Meta Werbeanzeigenmanager eine Zahlungsmethode ein. Ohne sie liefert Meta keine Anzeigen aus.",
+        "action": "Zahlungseinstellungen öffnen"
+      },
+      "metaStatus": {
+        "title": "Das Konto ist bei Meta nicht aktiv",
+        "body": "Status bei Meta: {status}. Kläre das im Meta Werbeanzeigenmanager, um wieder auszuliefern."
+      },
+      "metaStatusLabel": {
+        "active": "aktiv",
+        "disabled": "deaktiviert",
+        "unsettled": "offener Betrag",
+        "pending_risk_review": "in Risikoprüfung",
+        "pending_settlement": "wartet auf Ausgleich",
+        "in_grace_period": "in Kulanzfrist",
+        "pending_closure": "wird geschlossen",
+        "closed": "geschlossen",
+        "unknown": "unbekannt"
+      }
+    },
+    "jobs": {
+      "open": "Veröffentlichungen",
+      "title": "Letzte Veröffentlichungen",
+      "description": "Hier oder von Elo erstellte Anzeigen und der Stand jeder einzelnen.",
+      "refresh": "Liste aktualisieren",
+      "empty": "Noch nichts veröffentlicht.",
+      "needsReview": "Meta hat nicht bestätigt; prüfe den Werbeanzeigenmanager, bevor du es erneut versuchst.",
+      "openMeta": "Werbeanzeigenmanager öffnen",
+      "feeRefunded": "Die Gebühr wurde deinem Guthaben gutgeschrieben.",
+      "feeKept": "Die Gebühr bleibt einbehalten, bis die Lage geprüft ist.",
+      "status": {
+        "QUEUED": "In der Warteschlange",
+        "RUNNING": "Wird veröffentlicht",
+        "PUBLISHED": "Veröffentlicht",
+        "FAILED": "Fehlgeschlagen",
+        "NEEDS_REVIEW": "Muss geprüft werden",
+        "unknown": "Unbekannt"
+      }
+    },
+    "preview": {
+      "label": "Anzeigenvorschau",
+      "pageFallback": "Deine Seite",
+      "sponsored": "Gesponsert",
+      "primaryTextFallback": "Der Haupttext erscheint hier.",
+      "imageFallback": "Anzeigenbild",
+      "conversationStart": "Gesprächsbeginn",
+      "cta": {
+        "WHATSAPP": "WhatsApp-Nachricht senden",
+        "MESSENGER": "Nachricht senden",
+        "INSTAGRAM_DIRECT": "Instagram-Nachricht senden"
+      }
+    },
+    "wizard": {
+      "title": "Anzeige erstellen",
+      "description": "Eine Anzeige, die ein Gespräch auf WhatsApp, Messenger oder Instagram Direct öffnet.",
+      "back": "Zurück zu Anzeigen",
+      "noAccess": "Du hast keine Berechtigung, in diesem Workspace Anzeigen zu erstellen.",
+      "noAccountTitle": "Kein Konto bereit für Anzeigen",
+      "noAccountBody": "Verbinde ein aktives Werbekonto mit eingerichteter Zahlungsmethode bei Meta.",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "publish": "Anzeige veröffentlichen",
+      "publishing": "Wird veröffentlicht...",
+      "previewTitle": "Vorschau",
+      "steps": {
+        "account": "Konto und Seite",
+        "audience": "Zielgruppe",
+        "budget": "Budget",
+        "creative": "Werbemittel",
+        "review": "Überprüfung"
+      },
+      "job": {
+        "title": "Veröffentlichung",
+        "needsReview": "Meta hat nicht bestätigt; prüfe den Werbeanzeigenmanager, bevor du es erneut versuchst.",
+        "running": "Kampagne, Anzeigengruppe und Anzeige werden bei Meta erstellt. Alles bleibt bis zum letzten Schritt ausgeschaltet.",
+        "openManager": "Zu Anzeigen"
+      },
+      "account": {
+        "accountTitle": "Werbekonto",
+        "accountDescription": "Nur aktive Konten mit Zahlungsmethode bei Meta werden angezeigt.",
+        "account": "Werbekonto",
+        "campaignName": "Kampagnenname",
+        "campaignNameHint": "Anzeigengruppe und Anzeige erhalten denselben Namen.",
+        "pageTitle": "Facebook-Seite",
+        "pageDescription": "Die Anzeige läuft im Namen dieser Seite.",
+        "noPages": "Für diese Anzeigenverbindung wurde keine Seite freigegeben. Verbinde neu und wähle die Seiten bei Meta aus.",
+        "page": "Seite",
+        "pageCannotAdvertise": "keine Berechtigung für Anzeigen",
+        "destinationTitle": "Wohin das Gespräch geht",
+        "destinationDescription": "Wer auf die Anzeige klickt, öffnet ein Gespräch in diesem Kanal.",
+        "destination": {
+          "WHATSAPP": "WhatsApp",
+          "MESSENGER": "Messenger",
+          "INSTAGRAM_DIRECT": "Instagram Direct"
+        },
+        "destinationHint": {
+          "WHATSAPP": "Das Gespräch kommt bei der unten gewählten Nummer an.",
+          "MESSENGER": "Das Gespräch kommt im Messenger der Seite an.",
+          "INSTAGRAM_DIRECT": "Das Gespräch kommt im Instagram Direct an, das mit der Seite verknüpft ist."
+        },
+        "destinationUnavailable": {
+          "WHATSAPP": "Verknüpfe in den Seiteneinstellungen eine WhatsApp-Nummer mit der Seite.",
+          "MESSENGER": "Wähle eine Seite.",
+          "INSTAGRAM_DIRECT": "Diese Seite hat kein verknüpftes Instagram-Konto."
+        },
+        "number": "WhatsApp-Nummer",
+        "numberHint": "Nur Nummern dieses Workspaces, die bei Meta mit der Seite verknüpft sind, werden angezeigt.",
+        "numberKind": {
+          "official": "offiziell",
+          "unofficial": "QR-Code"
+        }
+      },
+      "audience": {
+        "categoryTitle": "Besondere Kategorie",
+        "categoryDescription": "Meta verlangt die Angabe, ob die Anzeige Wohnen, Beschäftigung oder Finanzprodukte betrifft.",
+        "category": "Besondere Anzeigenkategorie",
+        "categories": {
+          "NONE": "Keine",
+          "HOUSING": "Wohnen",
+          "EMPLOYMENT": "Beschäftigung",
+          "FINANCIAL_PRODUCTS_SERVICES": "Finanzprodukte"
+        },
+        "categoryHint": {
+          "NONE": "Für die meisten Anzeigen.",
+          "HOUSING": "Verkauf oder Vermietung von Immobilien, Baufinanzierung und Hausratversicherungen.",
+          "EMPLOYMENT": "Stellenangebote, Praktika und Recruiting.",
+          "FINANCIAL_PRODUCTS_SERVICES": "Kredite, Darlehen, Karten, Geldanlagen und Versicherungen."
+        },
+        "restrictedLock": "In dieser Kategorie verlangt Meta ein Alter von 18 bis 65+, alle Geschlechter und einen Mindestradius von 25 km bei Städten.",
+        "locationsTitle": "Standort",
+        "locationsDescription": "Länder, Regionen oder Städte, in denen die Anzeige erscheint.",
+        "locationSearch": "Land, Region oder Stadt suchen",
+        "searching": "Suche läuft...",
+        "noLocations": "Kein Ort gefunden.",
+        "kind": {
+          "country": "Land",
+          "region": "Region",
+          "city": "Stadt"
+        },
+        "radius": "Radius",
+        "removeLocation": "{name} entfernen",
+        "peopleTitle": "Personen",
+        "ageMin": "Mindestalter",
+        "ageMax": "Höchstalter",
+        "agePlus": "{age}+",
+        "gender": "Geschlecht",
+        "genders": {
+          "all": "Alle",
+          "male": "Männer",
+          "female": "Frauen"
+        },
+        "advantage": "Advantage+ Zielgruppe",
+        "advantageHint": "Meta kann die Anzeige über die gewählte Zielgruppe hinaus zeigen, wenn es Personen findet, die eher ein Gespräch beginnen."
+      },
+      "budget": {
+        "dailyTitle": "Tagesbudget",
+        "dailyDescription": "Wie viel Meta pro Tag ausgeben darf, in der Währung des Werbekontos.",
+        "daily": "Tagesbudget ({currency})",
+        "invalid": "Gib einen Betrag größer als null ein.",
+        "dailyPreview": "{amount} pro Tag, etwa {monthly} in 30 Tagen.",
+        "billedByMeta": "Die Werbeausgaben rechnet Meta über die Zahlungsmethode des Werbekontos ab, nicht über dein Guthaben.",
+        "scheduleTitle": "Zeitplan",
+        "scheduleDescription": "Daten in der Zeitzone des Werbekontos ({timezone}).",
+        "startNow": "Starten, sobald veröffentlicht",
+        "startNowHint": "Nach der Prüfung durch Meta.",
+        "startLater": "An einem Datum starten",
+        "startDay": "Start",
+        "endDay": "Ende (optional)",
+        "endHint": "Ohne Enddatum läuft die Anzeige, bis du sie ausschaltest."
+      },
+      "creative": {
+        "textTitle": "Text",
+        "textDescription": "Schreib so, wie du mit deinen Kunden sprichst. Sag klar, was sie davon haben, dir zu schreiben.",
+        "primaryText": "Haupttext",
+        "headline": "Überschrift",
+        "headlineHint": "Bis zu 27 Zeichen werden an den meisten Stellen vollständig angezeigt.",
+        "description": "Beschreibung",
+        "imageTitle": "Bild",
+        "imageDescription": "Quadratisch (1:1), Hochformat (4:5) oder Story (9:16).",
+        "conversationTitle": "Gesprächsbeginn",
+        "conversationDescription": "Die vorausgefüllte Nachricht und die fertigen Fragen, die man antippen kann.",
+        "greeting": "Vorausgefüllte Nachricht",
+        "iceBreakers": "Fertige Fragen",
+        "iceBreakerPlaceholder": "Frage {index}",
+        "removeIceBreaker": "Frage entfernen",
+        "addIceBreaker": "Frage hinzufügen",
+        "iceBreakersHint": "Bis zu 3 Fragen mit je bis zu 80 Zeichen."
+      },
+      "image": {
+        "chosen": "Bild ausgewählt",
+        "remove": "Ändern",
+        "modeUpload": "Bild hochladen",
+        "modeGenerate": "Mit KI erstellen",
+        "upload": "Datei auswählen",
+        "uploading": "Wird hochgeladen...",
+        "uploadHint": "JPG oder PNG, mindestens 1080 px an der kürzeren Seite.",
+        "notImage": "Wähle eine Bilddatei.",
+        "uploadFailed": "Das Bild konnte nicht hochgeladen werden.",
+        "prompt": "Beschreibe das Bild",
+        "aspect": {
+          "square": "Quadratisch",
+          "portrait": "Hochformat",
+          "story": "Story"
+        },
+        "costNote": "Jedes erstellte Bild wird als KI-Nutzung von deinem Guthaben abgerechnet.",
+        "generate": "Bild erstellen",
+        "generating": "Wird erstellt..."
+      },
+      "review": {
+        "summaryTitle": "Zusammenfassung",
+        "campaign": "Kampagne",
+        "account": "Konto",
+        "page": "Seite",
+        "destination": "Ziel",
+        "category": "Besondere Kategorie",
+        "locations": "Standort",
+        "audience": "Zielgruppe",
+        "ages": "{min} bis {max} Jahre",
+        "budget": "Budget",
+        "budgetDaily": "{amount} pro Tag",
+        "schedule": "Zeitplan",
+        "startsOn": "startet am {day}",
+        "startsNow": "startet bei Veröffentlichung",
+        "endsOn": "endet am {day}",
+        "noEnd": "ohne Enddatum",
+        "checkTitle": "Prüfung",
+        "checkDescription": "Wir prüfen vor der Veröffentlichung alles anhand der Regeln von Meta.",
+        "validating": "Wird geprüft...",
+        "stale": "Du hast nach der Prüfung etwas geändert. Prüfe erneut, um zu veröffentlichen.",
+        "ready": "Alles bereit zur Veröffentlichung.",
+        "fix": "Korrigieren",
+        "revalidate": "Erneut prüfen",
+        "fee": "Gebühr pro veröffentlichter Anzeige: {amount}, vom Guthaben abgebucht.",
+        "pausedNote": "Alles wird ausgeschaltet erstellt und erst am Ende eingeschaltet, damit nichts halbfertig Geld ausgibt.",
+        "reviewNote": "Neue Anzeigen durchlaufen die Prüfung von Meta (In Prüfung), bevor sie ausgeliefert werden.",
+        "spendNote": "Die Medienausgaben rechnet Meta über das Werbekonto ab. Die Gebühr oben ist die einzige Belastung deines Guthabens."
+      },
+      "issues": {
+        "generic": {
+          "required": "Fülle dieses Feld aus.",
+          "too_long": "Text zu lang.",
+          "too_many": "Zu viele Einträge.",
+          "invalid": "Ungültiger Wert.",
+          "restricted_category": "In dieser besonderen Kategorie nicht erlaubt.",
+          "radius_out_of_range": "Der Radius bei Städten muss zwischen 17 und 80 km liegen.",
+          "must_be_positive": "Gib einen Betrag größer als null ein.",
+          "in_the_past": "Wähle ein Datum in der Zukunft.",
+          "before_start": "Das Ende muss nach dem Start liegen.",
+          "political_not_supported": "Politische Anzeigen oder Anzeigen zu sozialen Themen werden nicht angenommen.",
+          "unknown": "Meta hat {field} abgelehnt ({code})."
+        },
+        "adAccountId": {
+          "required": "Wähle ein Werbekonto."
+        },
+        "campaignName": {
+          "required": "Gib der Kampagne einen Namen.",
+          "too_long": "Der Name darf bis zu 400 Zeichen haben."
+        },
+        "pageId": {
+          "required": "Wähle eine Seite."
+        },
+        "destination": {
+          "invalid": "Wähle, wohin das Gespräch geht."
+        },
+        "whatsAppNumber": {
+          "required": "Wähle eine WhatsApp-Nummer, die mit der Seite verknüpft ist."
+        },
+        "instagramUserId": {
+          "required": "Diese Seite hat kein verknüpftes Instagram-Konto."
+        },
+        "dailyBudget": {
+          "must_be_positive": "Gib ein Tagesbudget größer als null ein."
+        },
+        "endAt": {
+          "in_the_past": "Das Enddatum liegt bereits in der Vergangenheit.",
+          "before_start": "Das Enddatum muss nach dem Start liegen."
+        },
+        "specialCategory": {
+          "political_not_supported": "Politische Anzeigen oder Anzeigen zu sozialen Themen werden nicht angenommen.",
+          "invalid": "Ungültige besondere Kategorie."
+        },
+        "targeting_locations": {
+          "required": "Wähle mindestens einen Ort.",
+          "too_many": "Wähle höchstens 50 Orte.",
+          "invalid": "Einer der Orte ist ungültig.",
+          "radius_out_of_range": "Der Radius bei Städten muss zwischen 17 und 80 km liegen.",
+          "restricted_category": "In dieser Kategorie muss der Radius bei Städten mindestens 25 km betragen."
+        },
+        "targeting_age": {
+          "invalid": "Wähle eine Altersspanne zwischen 13 und 65+.",
+          "restricted_category": "In dieser Kategorie muss das Alter 18 bis 65+ sein."
+        },
+        "targeting_genders": {
+          "invalid": "Ungültiges Geschlecht.",
+          "restricted_category": "In dieser Kategorie muss die Anzeige alle Geschlechter erreichen."
+        },
+        "creative_primaryText": {
+          "required": "Schreib den Haupttext.",
+          "too_long": "Der Haupttext darf bis zu 2.200 Zeichen haben."
+        },
+        "creative_headline": {
+          "too_long": "Die Überschrift darf bis zu 255 Zeichen haben."
+        },
+        "creative_description": {
+          "too_long": "Die Beschreibung darf bis zu 255 Zeichen haben."
+        },
+        "creative_imageMediaId": {
+          "required": "Wähle oder erstelle ein Bild."
+        },
+        "creative_greeting": {
+          "too_long": "Die vorausgefüllte Nachricht darf bis zu 300 Zeichen haben."
+        },
+        "creative_iceBreakers": {
+          "too_many": "Verwende höchstens 3 fertige Fragen.",
+          "too_long": "Jede fertige Frage darf bis zu 80 Zeichen haben."
+        }
+      }
+    }
   }
 }

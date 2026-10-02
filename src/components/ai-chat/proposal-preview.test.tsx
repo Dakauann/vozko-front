@@ -31,6 +31,33 @@ describe("ProposalPreview", () => {
     expect(screen.getByText("Instagram")).toBeTruthy();
   });
 
+  it("renders the ad creative with budget and fee", () => {
+    renderPreview("ad_creative", {
+      pageName: "Loja da Ana",
+      format: "VIDEO",
+      mediaUrl: "https://cdn/inverno.mp4",
+      mediaKind: "video",
+      callToAction: "WHATSAPP_MESSAGE",
+      primaryText: "Promoção de inverno",
+      headline: "Até 30% off",
+      destination: "WHATSAPP",
+      greeting: "Oi! Quero saber mais",
+      iceBreakers: ["Quanto custa?"],
+      dailyBudget: 5000,
+      currency: "BRL",
+      fee: 2500000,
+      feeCurrency: "BRL",
+      accountName: "Conta principal",
+    });
+    expect(screen.getByText("Promoção de inverno")).toBeTruthy();
+    expect(document.querySelector('video[src="https://cdn/inverno.mp4"]')).toBeTruthy();
+    expect(screen.getByText("Enviar mensagem no WhatsApp")).toBeTruthy();
+    expect(screen.getByText("Quanto custa?")).toBeTruthy();
+    expect(screen.getByText(/50,00/)).toBeTruthy();
+    expect(screen.getByText(/2,50/)).toBeTruthy();
+    expect(hasProposalPreview({ kind: "ad_creative", data: {} })).toBe(true);
+  });
+
   it("only claims kinds it can draw", () => {
     expect(hasProposalPreview({ kind: "message", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "deal", data: {} })).toBe(false);

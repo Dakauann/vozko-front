@@ -24,7 +24,8 @@ export type StarterGroupKey =
   | "knowledge"
   | "schedule"
   | "team"
-  | "agents";
+  | "agents"
+  | "ads";
 
 export interface StarterGroup {
   key: StarterGroupKey;
@@ -134,6 +135,15 @@ const GROUPS: GroupDefinition[] = [
       { key: "create", resource: "agents", action: "create" },
       { key: "tools", resource: "agents" },
       { key: "models", resource: "agents" },
+    ],
+  },
+  {
+    key: "ads",
+    paths: ["/dashboard/advertising"],
+    starters: [
+      { key: "results", resource: "ads" },
+      { key: "best", resource: "ads" },
+      { key: "create", resource: "ads", action: "create" },
     ],
   },
 ];

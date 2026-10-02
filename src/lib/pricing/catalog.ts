@@ -229,6 +229,7 @@ export const PRICING_CATEGORY_ORDER = [
   "llm",
   "whatsapp",
   "telephony",
+  "advertising",
   "margin",
 ] as const;
 

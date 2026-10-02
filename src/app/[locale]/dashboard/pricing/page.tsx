@@ -13,6 +13,7 @@ import {
   FloppyDisk,
   Gear,
   Lightning,
+  Megaphone,
   Microphone,
   MonitorPlay,
   PencilSimple,
@@ -69,6 +70,7 @@ const CATEGORY_ICONS: Record<string, Icon> = {
   stt: Microphone,
   whatsapp: WhatsappLogo,
   telephony: Phone,
+  advertising: Megaphone,
   exchange_rate: Scales,
 };
 

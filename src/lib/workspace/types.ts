@@ -36,6 +36,7 @@ export type ResourceType =
     | "short_links"
     | "instagram_accounts"
     | "facebook_pages"
+    | "ads"
     | "audience"
     | "telegram_accounts"
     | "unofficial_whatsapp_instances"

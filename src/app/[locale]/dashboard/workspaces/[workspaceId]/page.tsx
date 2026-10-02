@@ -13,6 +13,7 @@ import {
   Info,
   Eye,
   FloppyDisk,
+  Megaphone,
   Microphone,
   PencilSimple,
   Phone,
@@ -93,6 +94,7 @@ const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
   stt: { icon: Microphone, bg: "tile-4", fg: "" },
   whatsapp: { icon: WhatsappLogo, bg: channelPlate("whatsapp"), fg: "" },
   telephony: { icon: Phone, bg: channelPlate("voice"), fg: "" },
+  advertising: { icon: Megaphone, bg: "tile-2", fg: "" },
   exchange_rate: { icon: CurrencyDollar, bg: "tile-3", fg: "" },
 };
 

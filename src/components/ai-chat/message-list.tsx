@@ -65,6 +65,12 @@ import {
   TrashSimple,
   Users,
   Wrench,
+  Image as ImageGlyph,
+  CurrencyDollar,
+  Archive,
+  ChartPie,
+  Copy,
+  Trash,
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -193,6 +199,19 @@ const TOOL_ICON: Record<string, Icon> = {
   delete_call_queue: Queue,
   list_telegram_bots: TelegramLogo,
   connect_telegram_bot: TelegramLogo,
+  list_ad_accounts: Megaphone,
+  ads_results: ChartBar,
+  list_ad_pages: Megaphone,
+  search_ad_locations: MagnifyingGlass,
+  generate_ad_image: ImageGlyph,
+  create_ad: Megaphone,
+  turn_on_ad: Play,
+  turn_off_ad: Pause,
+  update_ad_budget: CurrencyDollar,
+  duplicate_ad: Copy,
+  archive_ad: Archive,
+  delete_ad: Trash,
+  ads_breakdown: ChartPie,
 };
 
 const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));

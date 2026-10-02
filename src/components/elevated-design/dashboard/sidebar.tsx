@@ -52,6 +52,7 @@ import {
   Kanban,
   ChartBar,
   UsersThree,
+  Pulse,
   X,
 } from "@/components/icons";
 import type { Icon, IconProps } from "@/components/icons";
@@ -60,6 +61,7 @@ import type { ComponentType } from "react";
 import {
   FacebookLogoColor,
   InstagramLogoColor,
+  MetaLogoColor,
   TelegramLogoColor,
   VoiceLogoColor,
   WhatsAppLogoColor,
@@ -495,6 +497,42 @@ export const campanhasNavItems: NavItem[] = [
         href: "/dashboard/whatsapp-business-phones/manage",
       },
     ],
+  },
+  {
+    icon: Megaphone,
+    labelKey: "nav.adsManager",
+    href: "/dashboard/advertising",
+    family: "meta",
+  },
+  {
+    icon: PlusCircle,
+    labelKey: "nav.createAd",
+    href: "/dashboard/advertising/new",
+    family: "meta",
+  },
+  {
+    icon: UsersThree,
+    labelKey: "nav.adsAudiences",
+    href: "/dashboard/advertising/audiences",
+    family: "meta",
+  },
+  {
+    icon: ClipboardText,
+    labelKey: "nav.adsForms",
+    href: "/dashboard/advertising/forms",
+    family: "meta",
+  },
+  {
+    icon: Lightning,
+    labelKey: "nav.adsRules",
+    href: "/dashboard/advertising/rules",
+    family: "meta",
+  },
+  {
+    icon: Pulse,
+    labelKey: "nav.adsConversions",
+    href: "/dashboard/advertising/conversions",
+    family: "meta",
   },
   {
     icon: Headset,
@@ -1188,6 +1226,7 @@ const familyBrandIcon: Record<string, NavIcon> = {
   facebook: FacebookLogoColor,
   telegram: TelegramLogoColor,
   telephony: VoiceLogoColor,
+  meta: MetaLogoColor,
 };
 
 function groupByFamily(

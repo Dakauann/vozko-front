@@ -323,7 +323,20 @@
       "update_call_queue": "Edit call queue",
       "delete_call_queue": "Remove call queue",
       "list_telegram_bots": "Look up Telegram bots",
-      "connect_telegram_bot": "Connect Telegram bot"
+      "connect_telegram_bot": "Connect Telegram bot",
+      "list_ad_accounts": "Ad accounts",
+      "ads_results": "Ad results",
+      "generate_ad_image": "Generate ad image",
+      "update_ad_budget": "Change ad budget",
+      "list_ad_pages": "Pages to advertise",
+      "search_ad_locations": "Searching locations",
+      "create_ad": "Create ad",
+      "turn_on_ad": "Turn ad on",
+      "turn_off_ad": "Turn ad off",
+      "duplicate_ad": "Duplicate ad",
+      "archive_ad": "Archive ad",
+      "delete_ad": "Delete ad",
+      "ads_breakdown": "Results by audience and placement"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -516,6 +529,14 @@
             "tools": "Review what an agent can do",
             "models": "Which AI models can I use?"
           }
+        },
+        "ads": {
+          "title": "Ads",
+          "items": {
+            "results": "How are my ads doing over the last 7 days?",
+            "best": "Which ad brought the cheapest conversations this month?",
+            "create": "Create a WhatsApp ad for my promotion"
+          }
         }
       }
     },
@@ -599,6 +620,20 @@
       "ringSeconds": "Ring per person (s)",
       "maxWaitSeconds": "Longest wait (s)",
       "wrapUpSeconds": "Break between calls (s)",
+      "account": "Ad account",
+      "page": "Page",
+      "destination": "Destination",
+      "budget": "Budget",
+      "fee": "Fee",
+      "image": "Image",
+      "format": "Format",
+      "item": "Item",
+      "level": "Level",
+      "change": "Change",
+      "from": "From",
+      "to": "To",
+      "target": "Copy into",
+      "copies": "What to copy",
       "holdMusic": "Hold music",
       "agent": "Agent",
       "addKnowledgeBases": "Knowledge bases to link",
@@ -689,7 +724,13 @@
       }
     },
     "previews": {
-      "scheduledFor": "Scheduled for {when}"
+      "scheduledFor": "Scheduled for {when}",
+      "ad": {
+        "account": "Ad account",
+        "dailyBudget": "Daily budget",
+        "fee": "Fee per published ad",
+        "note": "Everything is created off and only turned on at the end. The ad goes through Meta's review before delivering."
+      }
     },
     "navigation": {
       "open": "Open",
@@ -1233,7 +1274,8 @@
       "telephony": "Telephony",
       "stt": "Speech-to-Text",
       "tts": "Text-to-Speech",
-      "llm": "AI Models"
+      "llm": "AI Models",
+      "advertising": "Ads"
     },
     "perMessage": "per msg",
     "perMinute": "per min",
@@ -1253,7 +1295,8 @@
       "eleven_turbo_flash": "TTS (Fast)",
       "eleven_v3": "TTS (v3)",
       "default_markup": "AI Models",
-      "sip_calls": "Calls over phone lines"
+      "sip_calls": "Calls over phone lines",
+      "published_ad": "Published ad"
     },
     "footer": "Prices in BRL. Values may vary based on exchange rates. Plans can be changed at any time."
   },
@@ -2028,7 +2071,13 @@
       "adminLiveDecisions": "Live decisions",
       "sipTrunks": "Phone lines",
       "callQueues": "Queues",
-      "callHistory": "History"
+      "callHistory": "History",
+      "adsManager": "Ads Manager",
+      "createAd": "Create ad",
+      "adsAudiences": "Audiences",
+      "adsForms": "Forms and leads",
+      "adsRules": "Automated rules",
+      "adsConversions": "Pixels and conversions"
     },
     "badges": {
       "new": "New",
@@ -2056,7 +2105,8 @@
       },
       "unofficial-whatsapp": "WhatsApp",
       "facebook": "Facebook",
-      "telephony": "Telephony"
+      "telephony": "Telephony",
+      "meta": "Meta"
     },
     "pin": {
       "pin": "Pin",
@@ -6487,7 +6537,8 @@
       "top_up": "Top Up",
       "manual_adjustment": "Adjustment",
       "addon": "Addon",
-      "whatsapp_outreach": "Conversation started"
+      "whatsapp_outreach": "Conversation started",
+      "advertising": "Meta ads"
     },
     "resourceType": {
       "whatsappSendings": "WhatsApp",
@@ -7182,7 +7233,8 @@
       "short_links": "Short links",
       "facebook_pages": "Facebook Pages",
       "call_queues": "Call queues",
-      "call_history": "Call history"
+      "call_history": "Call history",
+      "ads": "Meta ads"
     },
     "actions": {
       "create": "Create",
@@ -7238,7 +7290,8 @@
       "short_links": "Create and track short links and their click statistics.",
       "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger.",
       "call_queues": "Create phone queues, choose who answers each one and the hold music.",
-      "call_history": "See the calls you took part in, with outcome, duration, transfers and cost; with permission, the whole team's."
+      "call_history": "See the calls you took part in, with outcome, duration, transfers and cost; with permission, the whole team's.",
+      "ads": "See campaigns and results, turn ads on and off, change budgets, create ads and connect Meta ad accounts."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -7690,7 +7743,8 @@
       "telephony": "Telephony",
       "sms": "SMS",
       "exchange_rate": "Exchange Rate",
-      "margin": "Margin"
+      "margin": "Margin",
+      "advertising": "Ads"
     },
     "table": {
       "category": "Category",
@@ -7727,6 +7781,9 @@
       },
       "margin": {
         "safety_margin": "Safety Margin"
+      },
+      "advertising": {
+        "published_ad": "Published ad"
       }
     },
     "metrics": {
@@ -7735,7 +7792,8 @@
       "per_message": "per message",
       "per_minute": "per minute",
       "per_unit": "per unit",
-      "percentage": "percentage"
+      "percentage": "percentage",
+      "per_ad": "per ad"
     },
     "exchangeRate": {
       "title": "USD → BRL Exchange Rate",
@@ -7854,14 +7912,16 @@
         "whatsapp": "WhatsApp",
         "telephony": "Telephony",
         "sms": "SMS",
-        "margin": "Margin"
+        "margin": "Margin",
+        "advertising": "Ads"
       },
       "metrics": {
         "per_million_chars": "per 1M characters",
         "per_hour": "per hour",
         "per_message": "per message",
         "per_minute": "per minute",
-        "percentage": "percentage"
+        "percentage": "percentage",
+        "per_ad": "per ad"
       },
       "columns": {
         "service": "Service",
@@ -7884,7 +7944,8 @@
         "whatsapp_calls": "WhatsApp calls",
         "standard": "SMS messages",
         "default_markup": "AI models (LLM)",
-        "sip_calls": "Calls over phone lines"
+        "sip_calls": "Calls over phone lines",
+        "published_ad": "Published ad"
       }
     },
     "archive": {
@@ -8278,7 +8339,8 @@
         "stt": "Speech-to-Text",
         "tts": "Text-to-Speech",
         "llm": "Artificial intelligence",
-        "telephony": "Calls"
+        "telephony": "Calls",
+        "advertising": "Ads"
       },
       "categoryDescriptions": {
         "whatsapp": "Charged per template sent, by type. Replying to a customer within 24 hours is free.",
@@ -8286,7 +8348,8 @@
         "stt": "Audio transcription to text",
         "tts": "Text synthesis to audio",
         "llm": "Used by AI agents and conversation analysis.",
-        "telephony": "Per call minute. On your own phone lines, your carrier bills its calls separately."
+        "telephony": "Per call minute. On your own phone lines, your carrier bills its calls separately.",
+        "advertising": "Fee per ad published through the platform. Media spend is billed by Meta on your ad account."
       },
       "columns": {
         "service": "Service",
@@ -8309,14 +8372,16 @@
         "whatsapp_calls": "Over WhatsApp",
         "standard": "SMS messages",
         "default_markup": "AI models",
-        "sip_calls": "Over your phone line"
+        "sip_calls": "Over your phone line",
+        "published_ad": "Published ad"
       },
       "metrics": {
         "per_million_chars": "per 1M characters",
         "per_hour": "per hour",
         "per_message": "per message",
         "per_minute": "per minute",
-        "percentage": "on top of the model cost"
+        "percentage": "on top of the model cost",
+        "per_ad": "per ad"
       },
       "markup": "Model cost + {percent}%",
       "atCost": "Model cost price",
@@ -15408,6 +15473,706 @@
       }
     }
   },
+  "adsAudiences": {
+    "header": {
+      "title": "Audiences",
+      "description": "Customer lists, lookalike audiences and saved audiences to use in your Meta ads."
+    },
+    "tabs": {
+      "meta": "Meta audiences",
+      "saved": "Saved audiences"
+    },
+    "retry": "Try again",
+    "refresh": "Refresh list",
+    "meta": {
+      "description": "Custom audiences of this ad account."
+    },
+    "columns": {
+      "name": "Name",
+      "kind": "Type",
+      "size": "Size",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "kinds": {
+      "CUSTOMER_LIST": "Customer list",
+      "LOOKALIKE": "Lookalike",
+      "WEBSITE": "Website visitors",
+      "ENGAGEMENT": "Engagement",
+      "OTHER": "Other"
+    },
+    "size": {
+      "calculating": "Calculating",
+      "range": "{lower} to {upper}"
+    },
+    "states": {
+      "ready": "Ready to use",
+      "too_small": "Too small",
+      "processing": "Processing",
+      "unavailable": "Unavailable"
+    },
+    "actions": {
+      "new": "New audience",
+      "crm": "Customer list from the CRM",
+      "crmHint": "Pick leads with the CRM filters.",
+      "file": "Customer list from a file",
+      "fileHint": "Upload a CSV file with emails or phone numbers.",
+      "lookalike": "Lookalike audience",
+      "lookalikeHint": "People similar to an audience you already have.",
+      "lookalikeNeedsOrigin": "Create a customer list first to use as the source."
+    },
+    "terms": {
+      "title": "Accept the custom audience terms",
+      "body": "Meta only allows customer lists after someone with access to the account accepts the terms.",
+      "open": "Open the terms on Meta",
+      "check": "I have accepted"
+    },
+    "empty": {
+      "title": "No audiences yet",
+      "body": "Create a list from your CRM customers or a file, then a lookalike of it.",
+      "bodyReadOnly": "Audiences created in this ad account show up here."
+    },
+    "delete": {
+      "action": "Delete audience",
+      "title": "Delete this audience?",
+      "body": "The audience {name} will be deleted from Meta. Ads that use it stop reaching it.",
+      "done": "Audience {name} deleted",
+      "failed": "Could not delete the audience"
+    },
+    "hashing": {
+      "title": "Data is encrypted before it leaves Vozko",
+      "body": "Phone numbers, emails and names are normalized and turned into codes (SHA-256) before sending. Meta compares the codes with its accounts and never receives the data as text."
+    },
+    "crm": {
+      "title": "Customer list from the CRM",
+      "description": "Leads that match the filters become an audience on Meta.",
+      "name": "Audience name",
+      "descriptionLabel": "Description (optional)",
+      "filterTitle": "Which leads are included",
+      "filterHint": "Use the same filters as the leads page. With no filter, every lead is included.",
+      "counting": "Counting leads...",
+      "countFailed": "Could not count the leads.",
+      "matching": "{count, plural, one {lead matches the filters} other {leads match the filters}}",
+      "cancel": "Cancel",
+      "create": "Create audience",
+      "creating": "Creating..."
+    },
+    "file": {
+      "title": "Customer list from a file",
+      "description": "Upload a CSV, tell us what each column is, and Vozko sends the encrypted data to Meta.",
+      "noFile": "No file chosen",
+      "fileHint": "CSV separated by commas, semicolons or tabs, up to 25 MB.",
+      "uploading": "Uploading the file...",
+      "uploaded": "File uploaded",
+      "uploadFailed": "Could not upload the file.",
+      "choose": "Choose file",
+      "replace": "Replace file",
+      "tooLarge": "The file is larger than 25 MB.",
+      "emptyFile": "The file is empty or is not a CSV.",
+      "mapTitle": "What each column is",
+      "mapHint": "Check the first rows and pick the type of each column. Ignored columns are not sent.",
+      "hasHeader": "The first row is a header",
+      "column": "Column {number}",
+      "mapColumn": "Type of column {column}",
+      "ignore": "Ignore",
+      "needsIdentifier": "Mark at least one email, phone or external ID column.",
+      "name": "Audience name",
+      "descriptionLabel": "Description (optional)",
+      "cancel": "Cancel",
+      "create": "Create audience",
+      "creating": "Creating..."
+    },
+    "matchKeys": {
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "FN": "First name",
+      "LN": "Last name",
+      "CT": "City",
+      "ST": "State",
+      "ZIP": "ZIP code",
+      "COUNTRY": "Country (2 letter code)",
+      "EXTERN_ID": "External ID",
+      "GEN": "Gender",
+      "DOBY": "Birth year"
+    },
+    "result": {
+      "title": "Audience {name} created",
+      "description": "Meta takes a few hours to match the list and calculate the audience size.",
+      "matched": "Customers sent",
+      "skipped": "Skipped",
+      "skippedHint": "We skipped people without an email, phone or ID that Meta can match.",
+      "close": "Got it"
+    },
+    "lookalike": {
+      "title": "Lookalike audience",
+      "description": "Meta finds people similar to those in the source audience.",
+      "origin": "Source audience",
+      "size": "Size",
+      "percent": "{percent}%",
+      "closer": "More similar",
+      "broader": "Wider reach",
+      "sizeHint": "1% gathers the people most similar to the source. The higher the percentage, the more people and the less similarity.",
+      "name": "Audience name",
+      "nameHint": "Without a name, we use {name}.",
+      "suggestedName": "Lookalike {percent}% of {origin}",
+      "locationHint": "The audience country comes from the ad set where you use this audience.",
+      "created": "Audience {name} created",
+      "cancel": "Cancel",
+      "create": "Create audience",
+      "creating": "Creating..."
+    },
+    "saved": {
+      "description": "Location, age and gender combinations you reuse when creating ads.",
+      "new": "New saved audience",
+      "retry": "Try again",
+      "columns": {
+        "name": "Name",
+        "locations": "Locations",
+        "ages": "Age",
+        "genders": "Gender",
+        "advantage": "Advantage+",
+        "updated": "Updated"
+      },
+      "ages": "{min} to {max}",
+      "agesPlus": "{min} to {max}+",
+      "genders": {
+        "all": "All",
+        "male": "Men",
+        "female": "Women"
+      },
+      "on": "On",
+      "off": "Off",
+      "edit": "Edit",
+      "delete": "Delete",
+      "created": "Saved audience {name} created",
+      "updated": "Saved audience {name} updated",
+      "deleted": "Saved audience {name} deleted",
+      "deleteFailed": "Could not delete the saved audience",
+      "deleteTitle": "Delete this saved audience?",
+      "deleteBody": "{name} no longer shows up when creating ads. Published ads do not change.",
+      "emptyTitle": "No saved audiences",
+      "emptyBody": "Save an audience so you do not repeat the targeting for every ad.",
+      "editor": {
+        "createTitle": "New saved audience",
+        "editTitle": "Edit saved audience",
+        "description": "Use this audience when creating ads in any account.",
+        "name": "Name",
+        "locations": "Locations",
+        "locationSearch": "Search country, state or city",
+        "people": "People",
+        "ageMin": "Minimum age",
+        "ageMax": "Maximum age",
+        "agePlus": "{age}+",
+        "genders": {
+          "all": "All",
+          "male": "Men",
+          "female": "Women"
+        },
+        "advantage": "Advantage+ audience",
+        "advantageHint": "Meta may show the ad beyond the chosen age and gender when it expects good results.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
+      }
+    },
+    "issues": {
+      "generic": {
+        "required": "Fill in this field.",
+        "too_long": "Text is too long.",
+        "too_many": "Too many items.",
+        "invalid": "Invalid value.",
+        "invalid_url": "Enter an address that starts with https://.",
+        "unknown": "Meta rejected {field} ({code})."
+      },
+      "adAccountId": {
+        "required": "Choose an ad account."
+      },
+      "columns": {
+        "needs_email_or_phone": "Mark at least one email, phone or external ID column.",
+        "invalid": "One column has an unknown type."
+      },
+      "fileMediaId": {
+        "required": "Upload the file before creating the audience."
+      },
+      "originAudienceId": {
+        "required": "Choose the source audience."
+      },
+      "percent": {
+        "invalid": "Choose a size between 1% and 10%."
+      },
+      "targeting_locations": {
+        "required": "Choose at least one location."
+      }
+    }
+  },
+  "adsForms": {
+    "header": {
+      "title": "Forms and leads",
+      "description": "Meta instant forms and the leads that arrive through them, linked to your CRM."
+    },
+    "retry": "Try again",
+    "refresh": "Refresh list",
+    "page": "Facebook page",
+    "noPages": "No Facebook page is linked to this ad account.",
+    "questionsCount": "{count, plural, one {# question} other {# questions}}",
+    "columns": {
+      "name": "Form",
+      "status": "Status",
+      "leads": "Leads",
+      "created": "Created"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived"
+    },
+    "list": {
+      "description": "Forms of the page {page}. Click a form to see its leads.",
+      "new": "New form",
+      "viewLeads": "View leads",
+      "emptyTitle": "No forms on this page",
+      "emptyBody": "Create a form to receive contacts straight from the ad, without leaving Facebook or Instagram.",
+      "emptyBodyReadOnly": "Forms of this page show up here."
+    },
+    "archive": {
+      "action": "Archive form",
+      "title": "Archive this form?",
+      "body": "{name} can no longer be used in new ads. Leads already received stay here.",
+      "done": "Form {name} archived",
+      "failed": "Could not archive the form"
+    },
+    "questions": {
+      "FULL_NAME": "Full name",
+      "FIRST_NAME": "First name",
+      "LAST_NAME": "Last name",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "CITY": "City",
+      "STATE": "State",
+      "ZIP": "ZIP code",
+      "COMPANY_NAME": "Company",
+      "JOB_TITLE": "Job title"
+    },
+    "builder": {
+      "title": "New form",
+      "description": "The form is created on the page {page} and can be used in lead ads.",
+      "created": "Form {name} created",
+      "basicsTitle": "Basics",
+      "name": "Form name",
+      "headline": "Intro headline",
+      "questionsTitle": "Questions",
+      "questionsDescription": "Meta prefills standard questions from the profile. Include phone or email so the lead reaches the CRM.",
+      "needsContact": "Include phone or email.",
+      "customUntitled": "Untitled question",
+      "key": "Key: {key}",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove question",
+      "addCustom": "Add custom question",
+      "customLabel": "Question",
+      "optionPlaceholder": "Option {number}",
+      "removeOption": "Remove option",
+      "addChoices": "Make it multiple choice",
+      "addOption": "Add option",
+      "freeTextHint": "Without options, people answer with free text.",
+      "privacyTitle": "Privacy policy",
+      "privacyDescription": "Meta requires a link to your business privacy policy.",
+      "privacyUrl": "Privacy policy link",
+      "privacyText": "Link text (optional)",
+      "thanksTitle": "Thank you screen",
+      "thankYouTitle": "Title",
+      "thankYouBody": "Message",
+      "thankYouUrl": "Website link (optional)",
+      "higherIntent": "Higher intent",
+      "higherIntentHint": "Adds a review screen before submitting. Fewer leads arrive, but with more intent.",
+      "cancel": "Cancel",
+      "create": "Create form",
+      "creating": "Creating..."
+    },
+    "preview": {
+      "title": "Preview",
+      "headline": "Intro headline",
+      "review": "Review and submit",
+      "noQuestions": "Add questions.",
+      "customUntitled": "Untitled question",
+      "privacy": "By submitting, you agree that {page} may use your information.",
+      "privacyLink": "Privacy policy",
+      "submit": "Submit",
+      "thanksTitle": "Thank you!",
+      "thanksBody": "We received your details and will get in touch.",
+      "visit": "Visit website"
+    },
+    "leads": {
+      "back": "Forms",
+      "total": "{count, plural, =0 {No leads} one {# lead} other {# leads}}",
+      "sync": "Sync now",
+      "syncing": "Syncing...",
+      "synced": "{count, plural, =0 {No new leads} one {# lead imported} other {# leads imported}}",
+      "syncFailed": "Could not sync the leads",
+      "retry": "Try again",
+      "openCrm": "View in CRM",
+      "notInCrm": "Not in CRM",
+      "columns": {
+        "date": "Date",
+        "name": "Name",
+        "phone": "Phone",
+        "email": "Email",
+        "answers": "Other answers",
+        "crm": "CRM"
+      },
+      "emptyTitle": "No leads yet",
+      "emptyBody": "Leads arrive on their own. Use Sync now to fetch any that are missing."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fill in this field.",
+        "too_long": "Text is too long.",
+        "too_many": "Too many items.",
+        "invalid": "Invalid value.",
+        "repeated": "This question appears twice.",
+        "invalid_url": "Enter an address that starts with https://.",
+        "unknown": "Meta rejected {field} ({code})."
+      },
+      "pageId": {
+        "required": "Choose a Facebook page."
+      },
+      "questions": {
+        "required": "Add at least one question.",
+        "too_many": "Use at most 15 questions.",
+        "needs_phone_or_email": "Include phone or email."
+      },
+      "questions_label": {
+        "required": "Write the question."
+      },
+      "questions_options": {
+        "too_many": "Use at most 10 options."
+      },
+      "privacyUrl": {
+        "required": "Enter the privacy policy link."
+      }
+    }
+  },
+  "adsRules": {
+    "header": {
+      "title": "Automated rules",
+      "description": "Meta checks your ads on its own and pauses, activates or changes the budget when the condition happens."
+    },
+    "retry": "Try again",
+    "refresh": "Refresh list",
+    "columns": {
+      "status": "On",
+      "name": "Rule",
+      "appliesTo": "Applies to",
+      "action": "Action",
+      "frequency": "Frequency"
+    },
+    "list": {
+      "description": "Rules of this ad account, including those created in Meta Ads Manager.",
+      "new": "New rule",
+      "emptyTitle": "No rules yet",
+      "emptyBody": "Create a rule to pause what is too expensive or raise the budget of what is working.",
+      "emptyBodyReadOnly": "Rules of this ad account show up here."
+    },
+    "toggle": {
+      "label": "Turn {name} on or off",
+      "failed": "Could not change the rule {name}"
+    },
+    "delete": {
+      "action": "Delete rule",
+      "title": "Delete this rule?",
+      "body": "The rule {name} stops running. What it already changed in the ads stays as it is.",
+      "done": "Rule {name} deleted",
+      "failed": "Could not delete the rule"
+    },
+    "entities": {
+      "CAMPAIGN": "Campaigns",
+      "ADSET": "Ad sets",
+      "AD": "Ads"
+    },
+    "appliesAll": {
+      "CAMPAIGN": "All campaigns",
+      "ADSET": "All ad sets",
+      "AD": "All ads"
+    },
+    "appliesChosen": {
+      "CAMPAIGN": "{count, plural, one {# chosen campaign} other {# chosen campaigns}}",
+      "ADSET": "{count, plural, one {# chosen ad set} other {# chosen ad sets}}",
+      "AD": "{count, plural, one {# chosen ad} other {# chosen ads}}"
+    },
+    "metrics": {
+      "spent": "Amount spent",
+      "results": "Results",
+      "cost_per_result": "Cost per result",
+      "impressions": "Impressions",
+      "reach": "Reach",
+      "frequency": "Frequency",
+      "cpc": "CPC",
+      "cpm": "CPM",
+      "ctr": "CTR"
+    },
+    "operators": {
+      "GREATER_THAN": "greater than",
+      "LESS_THAN": "less than"
+    },
+    "windows": {
+      "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "LAST_3_DAYS": "Last 3 days",
+      "LAST_7_DAYS": "Last 7 days",
+      "LAST_14_DAYS": "Last 14 days",
+      "LAST_30_DAYS": "Last 30 days",
+      "LIFETIME": "Lifetime"
+    },
+    "actionChoices": {
+      "PAUSE": "Pause",
+      "UNPAUSE": "Activate",
+      "INCREASE_BUDGET": "Increase budget by %",
+      "DECREASE_BUDGET": "Decrease budget by %"
+    },
+    "actionLabels": {
+      "PAUSE": "Pause",
+      "UNPAUSE": "Activate",
+      "INCREASE_BUDGET": "Increase budget {percent}%",
+      "DECREASE_BUDGET": "Decrease budget {percent}%"
+    },
+    "frequencies": {
+      "SEMI_HOURLY": "Every 30 minutes",
+      "HOURLY": "Every hour",
+      "DAILY": "Once a day"
+    },
+    "history": {
+      "open": "Latest runs",
+      "title": "Latest runs",
+      "refresh": "Refresh",
+      "empty": "This rule has not acted on any ad yet.",
+      "objects": "{count, plural, =0 {No items affected} one {# item affected} other {# items affected}}",
+      "results": {
+        "PAUSE": "Paused",
+        "UNPAUSE": "Activated",
+        "CHANGE_BUDGET": "Changed the budget",
+        "CHANGE_CAMPAIGN_BUDGET": "Changed the campaign budget",
+        "NOTIFICATION": "Sent a notice",
+        "unknown": "Ran"
+      }
+    },
+    "builder": {
+      "title": "New rule",
+      "description": "Say when Meta should act and what to do. The rule runs even with Vozko closed.",
+      "created": "Rule {name} created",
+      "name": "Rule name",
+      "appliesTitle": "Where the rule acts",
+      "chooseObjects": "Choose items",
+      "allHint": "Applies to the items active now and to the ones you create later.",
+      "objectsTimezone": "The time zone of this account is unknown, so the items cannot be listed. Refresh the account in the Ads manager.",
+      "noObjects": "No items with activity in the last 30 days.",
+      "needsObjects": "Choose at least one item.",
+      "on": "On",
+      "off": "Off",
+      "conditionsTitle": "Conditions",
+      "conditionsDescription": "All conditions must happen together. Money values use the account currency.",
+      "metric": "Metric",
+      "operator": "Comparison",
+      "value": "Value",
+      "invalidValue": "Enter a valid number.",
+      "removeCondition": "Remove condition",
+      "addCondition": "Add condition",
+      "window": "Time range checked",
+      "actionTitle": "Action",
+      "action": "What to do",
+      "percent": "Percentage",
+      "invalidPercent": "Enter a whole number from 1 to 100.",
+      "frequency": "Check",
+      "previewTitle": "How the rule works",
+      "cancel": "Cancel",
+      "create": "Create rule",
+      "creating": "Creating..."
+    },
+    "sentence": {
+      "sentence": "If {conditions}, {action}.",
+      "condition": "{metric} {window} is {operator} {value}",
+      "and": "and",
+      "metrics": {
+        "spent": "the amount spent",
+        "results": "the number of results",
+        "cost_per_result": "the cost per result",
+        "impressions": "the number of impressions",
+        "reach": "the reach",
+        "frequency": "the frequency",
+        "cpc": "the CPC",
+        "cpm": "the CPM",
+        "ctr": "the CTR"
+      },
+      "windows": {
+        "TODAY": "for today",
+        "YESTERDAY": "for yesterday",
+        "LAST_3_DAYS": "for the last 3 days",
+        "LAST_7_DAYS": "for the last 7 days",
+        "LAST_14_DAYS": "for the last 14 days",
+        "LAST_30_DAYS": "for the last 30 days",
+        "LIFETIME": "for the lifetime"
+      },
+      "operators": {
+        "GREATER_THAN": "greater than",
+        "LESS_THAN": "less than"
+      },
+      "objects": {
+        "CAMPAIGN": "the campaign",
+        "ADSET": "the ad set",
+        "AD": "the ad"
+      },
+      "of": {
+        "CAMPAIGN": "of the campaign",
+        "ADSET": "of the ad set",
+        "AD": "of the ad"
+      },
+      "actions": {
+        "PAUSE": "pause {object}",
+        "UNPAUSE": "activate {object}",
+        "INCREASE_BUDGET": "increase the budget {of} by {percent}%",
+        "DECREASE_BUDGET": "decrease the budget {of} by {percent}%"
+      },
+      "frequencies": {
+        "SEMI_HOURLY": "Checks every 30 minutes.",
+        "HOURLY": "Checks every hour.",
+        "DAILY": "Checks once a day."
+      }
+    },
+    "issues": {
+      "generic": {
+        "required": "Fill in this field.",
+        "too_long": "Text is too long.",
+        "too_many": "Too many items.",
+        "invalid": "Invalid value.",
+        "unknown": "Meta rejected {field} ({code})."
+      },
+      "conditions": {
+        "required": "Add at least one condition.",
+        "too_many": "Use at most 5 conditions."
+      },
+      "conditions_value": {
+        "invalid": "Enter a value of zero or more."
+      },
+      "action_type": {
+        "not_for_ads": "Ads have no budget of their own. Choose pause or activate."
+      },
+      "action_budgetPercent": {
+        "invalid": "Enter a percentage from 1 to 100."
+      }
+    }
+  },
+  "adsConversions": {
+    "header": {
+      "title": "Pixels and conversions",
+      "description": "Tell Meta which conversations turned into deals, so it delivers your ads to people who buy."
+    },
+    "settings": {
+      "title": "Conversion sending",
+      "description": "When a deal is created or won in the CRM, Vozko tells Meta.",
+      "retry": "Try again",
+      "otherAccount": "Conversions currently go to the account {name}. Saving here sends them to this account instead.",
+      "enabled": "Send conversions to Meta",
+      "enabledHint": "When off, nothing is sent.",
+      "sendLeads": "Send a lead when a deal is created",
+      "sendLeadsHint": "LeadSubmitted event.",
+      "sendPurchases": "Send a purchase when a deal is won",
+      "sendPurchasesHint": "Purchase event, with the deal value.",
+      "dataset": {
+        "title": "Conversations that came from WhatsApp ads",
+        "description": "Link an official WhatsApp number so Meta knows which ad each deal came from.",
+        "linked": "Dataset linked ({id})",
+        "phone": "Official number",
+        "connect": "Connect to official WhatsApp",
+        "reconnect": "Change number",
+        "connecting": "Connecting...",
+        "connected": "Official WhatsApp connected",
+        "saveHint": "Save the settings to start sending.",
+        "failed": "Could not connect the official WhatsApp",
+        "noPhones": "No official WhatsApp number in this workspace."
+      },
+      "pixel": "Pixel for deals without an ad click",
+      "noPixel": "None",
+      "pixelHint": "When the deal did not come from an ad, the conversion goes to this pixel with the encrypted phone or email.",
+      "problems": {
+        "needs_target": "Connect the official WhatsApp or choose a pixel to turn sending on.",
+        "nothing_to_send": "Choose at least one event to send."
+      },
+      "privacy": {
+        "title": "What is sent",
+        "body": "Only the event, the deal value and the encrypted phone or email (SHA-256). Conversation content never leaves Vozko."
+      },
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Settings saved",
+      "saveFailed": "Could not save the settings"
+    },
+    "pixels": {
+      "title": "Pixels",
+      "description": "Meta pixels of this ad account.",
+      "retry": "Try again",
+      "columns": {
+        "name": "Pixel",
+        "status": "Status",
+        "lastActivity": "Last activity"
+      },
+      "receiving": "Receiving events",
+      "noActivity": "No events",
+      "unavailable": "Unavailable",
+      "newName": "New pixel name",
+      "create": "Create pixel",
+      "creating": "Creating...",
+      "created": "Pixel {name} created",
+      "createFailed": "Could not create the pixel",
+      "copy": "Copy ID",
+      "copied": "Pixel ID copied",
+      "copyFailed": "Could not copy the ID",
+      "emptyTitle": "No pixels in this account",
+      "emptyBody": "Create a pixel to receive conversions from deals that did not come from an ad."
+    },
+    "recent": {
+      "title": "Recent events",
+      "description": "The latest conversions Vozko tried to send.",
+      "refresh": "Refresh",
+      "columns": {
+        "deal": "Deal",
+        "event": "Event",
+        "status": "Status",
+        "attempts": "Attempts",
+        "sentAt": "Sent at"
+      },
+      "events": {
+        "lead": "Lead",
+        "purchase": "Purchase"
+      },
+      "statuses": {
+        "sent": "Sent",
+        "skipped": "Not sent",
+        "failed": "Failed"
+      },
+      "reasons": {
+        "not_enabled": "Conversion sending was off.",
+        "event_off": "This event type is off.",
+        "no_ad_identity": "The deal did not come from an ad and has no phone or email for the pixel.",
+        "too_old": "Meta only accepts events from the last 7 days.",
+        "no_dataset": "No official WhatsApp or pixel is set up.",
+        "value_missing": "The won deal has no value."
+      },
+      "emptyTitle": "No events yet",
+      "emptyBody": "Events show up here when a deal is created or won with sending on."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fill in this field.",
+        "too_long": "Text is too long.",
+        "invalid": "Invalid value.",
+        "unknown": "Meta rejected {field} ({code})."
+      },
+      "datasetId": {
+        "required": "Connect the official WhatsApp or choose a pixel."
+      },
+      "sendLeads": {
+        "nothing_to_send": "Choose at least one event to send."
+      }
+    }
+  },
   "crmAdOrigin": {
     "cameFrom": {
       "instagram": "Came from an Instagram ad",
@@ -15415,6 +16180,1717 @@
       "unknown": "Came from an ad"
     },
     "untitled": "Untitled ad",
-    "open": "View ad"
+    "open": "View ad",
+    "leadCost": "Estimated lead cost: {amount} (ad spend that day ÷ conversations that day)",
+    "leadCostHint": "Estimate: Meta reports spend per ad per day, not per click. On {day} the ad spent {spend} and brought {conversations, plural, one {# conversation} other {# conversations}}."
+  },
+  "adsWizard": {
+    "editTitle": "Change creative",
+    "editDescription": "Build a new creative for this ad. When you save, Meta swaps the creative and reviews the ad again.",
+    "saveCreative": "Save creative",
+    "savingCreative": "Saving...",
+    "creativeUnavailable": "Could not load this ad's creative. Open the ad in the manager and try again.",
+    "title": "Create ad",
+    "description": "Campaign, ad set and ads in one flow, published straight to your Meta ad account.",
+    "back": "Back to Ads",
+    "noAccess": "You do not have permission to create ads in this workspace.",
+    "noAccountTitle": "No account ready to advertise",
+    "noAccountBody": "Connect an active ad account with a payment method set up in Meta.",
+    "optionsError": "Could not load the ad options. Try again in a moment.",
+    "parentError": "Could not open the chosen campaign or ad set: {message}. Pick it again in the first step.",
+    "previous": "Back",
+    "next": "Continue",
+    "cancel": "Cancel",
+    "publish": "Publish",
+    "publishPaused": "Publish turned off",
+    "publishing": "Publishing...",
+    "previewTitle": "Preview",
+    "previewAd": "Preview of ad {index} of {total}",
+    "previewNote": "Approximate mockup. Meta adjusts how text and media are cropped in each placement.",
+    "placement": {
+      "feed": "Feed",
+      "story": "Stories"
+    },
+    "autosave": "The draft is saved in this browser while you edit.",
+    "restored": "Draft restored ({when}).",
+    "discard": "Discard draft",
+    "discardTitle": "Discard this draft?",
+    "discardBody": "Everything you filled in will be erased from this browser. Nothing was sent to Meta.",
+    "discardConfirm": "Discard",
+    "steps": {
+      "objective": "Objective",
+      "campaign": "Campaign",
+      "adSet": "Ad set",
+      "ads": "Ads",
+      "review": "Review"
+    },
+    "job": {
+      "title": "Publishing",
+      "needsReview": "Meta did not confirm; check Ads Manager before trying again.",
+      "running": "Creating the campaign, ad set and ads in Meta. Everything stays off until the last step.",
+      "openManager": "Go to Ads"
+    },
+    "objective": {
+      "accountTitle": "Ad account",
+      "accountDescription": "Only active accounts with a payment method in Meta are listed.",
+      "startTitle": "Where to start",
+      "startDescription": "Build everything from scratch or reuse a campaign you already have.",
+      "modes": {
+        "new": {
+          "title": "New campaign",
+          "body": "You set the objective, campaign, ad set and ads."
+        },
+        "campaign": {
+          "title": "Use an existing campaign",
+          "body": "Creates a new ad set inside one of your campaigns."
+        },
+        "adSet": {
+          "title": "Add to an existing ad set",
+          "body": "Only creates new ads in an ad set that is already running."
+        }
+      },
+      "campaign": "Campaign",
+      "adSet": "Ad set",
+      "search": "Search by name",
+      "noCampaigns": "No campaigns found in this account.",
+      "noAdSets": "No ad sets found in this campaign.",
+      "pickCampaign": "Choose the campaign above.",
+      "pickAdSet": "Choose the campaign and the ad set above.",
+      "title": "Campaign objective",
+      "description": "What you want people to do when they see the ad. It shapes the options in the next steps.",
+      "unavailable": "Not available in this account.",
+      "objectives": {
+        "OUTCOME_AWARENESS": {
+          "title": "Awareness",
+          "body": "Show your brand to as many people as possible and help them remember it."
+        },
+        "OUTCOME_TRAFFIC": {
+          "title": "Traffic",
+          "body": "Send people to your website or to a WhatsApp or Messenger conversation."
+        },
+        "OUTCOME_ENGAGEMENT": {
+          "title": "Engagement",
+          "body": "More conversations, likes, comments and interactions with your posts."
+        },
+        "OUTCOME_LEADS": {
+          "title": "Leads",
+          "body": "Collect contacts from interested people through a form, your website or WhatsApp."
+        },
+        "OUTCOME_SALES": {
+          "title": "Sales",
+          "body": "Find the people most likely to buy, on your website, from your catalog or in a conversation."
+        },
+        "OUTCOME_APP_PROMOTION": {
+          "title": "App promotion",
+          "body": "Get more installs of your app."
+        }
+      },
+      "fixedTitle": "Already set",
+      "fixedDescription": "These come from the existing campaign and do not change here.",
+      "objectiveLabel": "Objective",
+      "budget": "Campaign budget",
+      "adSetBudget": "Ad set budget",
+      "budgetDaily": "{amount} per day",
+      "budgetLifetime": "{amount} in total",
+      "budgetOnAdSets": "Set on each ad set",
+      "destination": "Destination",
+      "goal": "Performance goal"
+    },
+    "campaign": {
+      "nameTitle": "Campaign name",
+      "name": "Campaign name",
+      "nameHint": "Only you see this name. An ad set without a name uses it too.",
+      "categoryTitle": "Special category",
+      "categoryDescription": "Meta requires you to say whether the ad is about housing, employment or financial products.",
+      "category": "Special ad category",
+      "categories": {
+        "NONE": "None",
+        "HOUSING": "Housing",
+        "EMPLOYMENT": "Employment",
+        "FINANCIAL_PRODUCTS_SERVICES": "Financial products"
+      },
+      "categoryHint": {
+        "NONE": "For most ads.",
+        "HOUSING": "Selling or renting property, mortgages and home insurance.",
+        "EMPLOYMENT": "Job openings, internships and recruiting.",
+        "FINANCIAL_PRODUCTS_SERVICES": "Credit, loans, cards, investments and insurance."
+      },
+      "restrictedLock": "In this category Meta requires ages 18 to 65+, all genders, no audience exclusions and a minimum 25 km radius around cities.",
+      "politicalNote": "Ads about politics, elections or social issues are not accepted here.",
+      "budgetTitle": "Budget",
+      "budgetDescription": "Choose where the money is controlled: on the whole campaign or on each ad set.",
+      "cbo": "Advantage+ campaign budget",
+      "cboHint": "Meta spreads one budget across the campaign's ad sets, sending more to whichever performs best.",
+      "budgetOnAdSet": "The budget will be set on the ad set, in the next step."
+    },
+    "budget": {
+      "kind": {
+        "DAILY": "Daily",
+        "LIFETIME": "Lifetime"
+      },
+      "kindHint": {
+        "DAILY": "Meta spends about this much per day on average, and it can vary a little from day to day.",
+        "LIFETIME": "One amount for the whole period. It needs an end date and lets you choose delivery hours."
+      },
+      "amount": {
+        "DAILY": "Daily budget ({currency})",
+        "LIFETIME": "Lifetime budget ({currency})"
+      },
+      "invalid": "Enter an amount greater than zero.",
+      "dailyPreview": "{amount} per day, about {monthly} over 30 days.",
+      "lifetimePreview": "{amount} for the whole period.",
+      "strategy": "Bid strategy",
+      "strategies": {
+        "LOWEST_COST_WITHOUT_CAP": "Highest volume",
+        "LOWEST_COST_WITH_BID_CAP": "Bid cap",
+        "COST_CAP": "Cost per result goal",
+        "LOWEST_COST_WITH_MIN_ROAS": "Minimum return (ROAS)"
+      },
+      "strategyHint": {
+        "LOWEST_COST_WITHOUT_CAP": "Meta gets as many results as it can with the budget. Recommended to start.",
+        "LOWEST_COST_WITH_BID_CAP": "Sets the most Meta can bid in each auction. It may deliver less.",
+        "COST_CAP": "Meta tries to keep the average cost per result close to this amount.",
+        "LOWEST_COST_WITH_MIN_ROAS": "Meta only goes after purchases that return at least this much."
+      },
+      "bidCap": "Bid cap ({currency})",
+      "costCap": "Target cost per result ({currency})",
+      "roasFloor": "Minimum return (e.g. 2.5 = 250%)",
+      "roasInvalid": "Enter a number between 0.01 and 1000.",
+      "roasHint": "Only available with the Value performance goal.",
+      "billedByMeta": "Ad spend is charged by Meta to the ad account's payment method, not to your balance."
+    },
+    "adSet": {
+      "nameTitle": "Ad set name",
+      "name": "Ad set name (optional)",
+      "nameHint": "Without a name, the ad set uses the campaign name.",
+      "destinationTitle": "Where the result happens",
+      "destinationDescription": "Where people go when they tap the ad. The options depend on the objective.",
+      "noRoutes": "Choose an objective in the first step.",
+      "destinations": {
+        "WHATSAPP": {
+          "title": "WhatsApp",
+          "body": "Opens a conversation with your number."
+        },
+        "MESSENGER": {
+          "title": "Messenger",
+          "body": "Opens a conversation in the Page's Messenger."
+        },
+        "INSTAGRAM_DIRECT": {
+          "title": "Instagram Direct",
+          "body": "Opens a conversation in the Instagram Direct linked to the Page."
+        },
+        "WEBSITE": {
+          "title": "Website",
+          "body": "Takes people to an address on your website."
+        },
+        "ON_AD": {
+          "title": "Instant form",
+          "body": "People fill in a form without leaving Facebook or Instagram."
+        },
+        "APP": {
+          "title": "App",
+          "body": "Takes people to the app store."
+        },
+        "ON_POST": {
+          "title": "Post",
+          "body": "Interactions right on a Page post."
+        },
+        "CATALOG": {
+          "title": "Catalog",
+          "body": "Shows products from your catalog picked for each person."
+        },
+        "NONE": {
+          "title": "No destination",
+          "body": "The ad only needs to be seen."
+        }
+      },
+      "goal": "Performance goal",
+      "goals": {
+        "REACH": "Reach",
+        "IMPRESSIONS": "Impressions",
+        "AD_RECALL_LIFT": "Ad recall lift",
+        "THRUPLAY": "Video views (ThruPlay)",
+        "LINK_CLICKS": "Link clicks",
+        "LANDING_PAGE_VIEWS": "Landing page views",
+        "POST_ENGAGEMENT": "Post engagement",
+        "CONVERSATIONS": "Conversations",
+        "LEAD_GENERATION": "Leads",
+        "QUALITY_LEAD": "Quality leads",
+        "OFFSITE_CONVERSIONS": "Conversions",
+        "VALUE": "Conversion value",
+        "APP_INSTALLS": "App installs"
+      },
+      "goalHints": {
+        "CONVERSATIONS": "Meta shows the ad to the people most likely to start a conversation.",
+        "OFFSITE_CONVERSIONS": "Needs a pixel on your website to measure the chosen event.",
+        "VALUE": "Needs a pixel that sends purchase values. Lets you use the minimum return bid.",
+        "QUALITY_LEAD": "Meta looks for leads more likely to become customers."
+      },
+      "pixelEvents": {
+        "PURCHASE": "Purchase",
+        "LEAD": "Lead",
+        "COMPLETE_REGISTRATION": "Complete registration",
+        "ADD_TO_CART": "Add to cart",
+        "INITIATE_CHECKOUT": "Initiate checkout",
+        "CONTACT": "Contact",
+        "SCHEDULE": "Schedule",
+        "SUBSCRIBE": "Subscribe"
+      },
+      "identityTitle": "Page and Instagram",
+      "identityDescription": "The ad runs as this Page, and conversations arrive in its channels.",
+      "promotionTitle": "What you are promoting",
+      "promotionDescription": "The details this destination needs.",
+      "budgetTitle": "Budget and bid",
+      "budgetDescription": "How much this ad set can spend, in the ad account currency.",
+      "budgetOnCampaign": "The budget is on the campaign (Advantage+), so the ad set has no budget of its own.",
+      "placementsTitle": "Placements",
+      "placementsDescription": "Where the ad can appear."
+    },
+    "identity": {
+      "page": "Facebook Page",
+      "pageCannotAdvertise": "{name} (not allowed to advertise)",
+      "noPages": "No Page was granted to this ads connection. Reconnect and choose the Pages in Meta.",
+      "instagram": "Instagram account",
+      "instagramNone": "Use only the Facebook Page",
+      "noInstagram": "This Page has no linked Instagram account. On Instagram, the ad shows the Page name.",
+      "hint": "Applies to every ad in this flow."
+    },
+    "promotion": {
+      "choosePageFirst": "Choose the Page above to see the numbers.",
+      "number": "WhatsApp number",
+      "noNumbers": "This Page has no WhatsApp number from this workspace linked. Link the number in the Page settings in Meta.",
+      "numberHint": "Only numbers from this workspace linked to the Page in Meta are listed.",
+      "numberKind": {
+        "official": "official",
+        "unofficial": "QR code"
+      },
+      "pixel": "Pixel",
+      "pixelEvent": "Conversion event",
+      "noPixels": "No pixels in this ad account.",
+      "pixelHint": "The pixel measures what people do on your website.",
+      "managePixels": "Manage pixels",
+      "app": "App",
+      "storeUrl": "Store",
+      "noApps": "No apps registered in this ad account.",
+      "catalog": "Catalog",
+      "productSet": "Product set",
+      "productSetOption": "{name} ({count} products)",
+      "noCatalogs": "No catalogs available for this ad account."
+    },
+    "schedule": {
+      "title": "Schedule",
+      "description": "Dates and hours in the ad account time zone ({timezone}).",
+      "startNow": "Start as soon as it is published",
+      "startNowHint": "After Meta's review.",
+      "startLater": "Start on a date",
+      "startDay": "Start",
+      "endDay": "End (optional)",
+      "endDayRequired": "End",
+      "endHint": "Without an end date, the ad set runs until you turn it off.",
+      "endLifetimeHint": "With a lifetime budget, the end date is required.",
+      "hoursOn": "Run only at chosen hours",
+      "hoursHint": "Mark the days and hours when the ad may appear. Press and drag to mark several.",
+      "hoursNeedLifetime": "To choose delivery hours, use a lifetime budget.",
+      "toggleHour": "Mark or unmark {hour}:00 on every day",
+      "cell": "{day}, {hour}:00",
+      "selected": "{hours, plural, =0 {No hours marked} one {# hour per week} other {# hours per week}}"
+    },
+    "audience": {
+      "savedTitle": "Saved audiences",
+      "savedDescription": "Reuse an audience you already built or keep this one for later.",
+      "applySaved": "Apply saved audience",
+      "saveAudience": "Save this audience",
+      "noSaved": "You have no saved audiences yet.",
+      "savedApplied": "Audience \"{name}\" applied.",
+      "savedDone": "Audience \"{name}\" saved.",
+      "saveTitle": "Save audience",
+      "saveDescription": "Keeps location, age, gender, interests, audiences and placements to use in other campaigns.",
+      "saveName": "Audience name",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "locationsTitle": "Location",
+      "locationsDescription": "Countries, states or cities where the ad appears, and where it should not.",
+      "locationSearch": "Search country, state or city",
+      "excludedSearch": "Exclude country, state or city",
+      "searching": "Searching...",
+      "noLocations": "No location found.",
+      "kind": {
+        "country": "Country",
+        "region": "State",
+        "city": "City"
+      },
+      "radius": "Radius",
+      "removeLocation": "Remove {name}",
+      "peopleTitle": "People",
+      "restrictedLock": "In this special category Meta fixes ages 18 to 65+, all genders and allows no exclusions.",
+      "ageMin": "Minimum age",
+      "ageMax": "Maximum age",
+      "agePlus": "{age}+",
+      "gender": "Gender",
+      "genders": {
+        "all": "All",
+        "male": "Men",
+        "female": "Women"
+      },
+      "advantage": "Advantage+ audience",
+      "advantageHint": "Meta treats your choices as a suggestion and may show the ad beyond them when it finds people more likely to convert.",
+      "advantageAgeNote": "With the Advantage+ audience, the minimum age stays between 18 and 25 and the maximum is always 65+.",
+      "detailedTitle": "Detailed targeting",
+      "detailedDescription": "Languages, interests and behaviors. Leave empty to reach everyone in the location.",
+      "kinds": {
+        "languages": "Languages",
+        "interests": "Interests",
+        "behaviors": "Behaviors"
+      },
+      "searchPlaceholder": "Type to search",
+      "typeToSearch": "Type at least 2 letters.",
+      "noResults": "Nothing found.",
+      "sizeRange": "{lower} to {upper} people",
+      "remove": "Remove {name}",
+      "customTitle": "Custom audiences",
+      "customDescription": "Customer lists and lookalike audiences from this ad account.",
+      "include": "Include audience",
+      "exclude": "Exclude audience",
+      "noAudiences": "No audiences in this ad account.",
+      "termsTitle": "Custom audience terms pending",
+      "termsBody": "Meta only delivers to customer lists after someone with access to the account accepts the custom audience terms.",
+      "termsLink": "Accept terms in Meta"
+    },
+    "placements": {
+      "automatic": "Advantage+ placements",
+      "automaticHint": "Recommended. Meta chooses where the ad performs best.",
+      "manual": "Manual placements",
+      "manualHint": "You choose the platforms and places.",
+      "platforms": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "messenger": "Messenger",
+        "audience_network": "Audience Network",
+        "threads": "Threads"
+      },
+      "positions": {
+        "feed": "Feed",
+        "right_hand_column": "Right column",
+        "marketplace": "Marketplace",
+        "story": "Stories",
+        "search": "Search results",
+        "instream_video": "In-stream videos",
+        "facebook_reels": "Reels",
+        "facebook_reels_overlay": "Ads on Reels",
+        "profile_feed": "Profile feed",
+        "notification": "Notifications",
+        "stream": "Feed",
+        "explore_home": "Explore home",
+        "reels": "Reels",
+        "ig_search": "Search results",
+        "profile_reels": "Profile reels",
+        "sponsored_messages": "Sponsored messages",
+        "classic": "Native, banner and interstitial",
+        "rewarded_video": "Rewarded videos",
+        "threads_stream": "Feed"
+      },
+      "needsFeed": "Needs the Facebook Feed checked.",
+      "devices": "Devices",
+      "deviceNames": {
+        "mobile": "Mobile",
+        "desktop": "Desktop"
+      },
+      "devicesHint": "With none checked, the ad shows on both.",
+      "warnings": {
+        "story_alone": "Stories cannot be the only place on a platform. Check the Feed too.",
+        "audience_network_alone": "Audience Network cannot be the only platform.",
+        "instagram_required": "For Instagram Direct conversations, check Instagram.",
+        "facebook_required": "For Messenger conversations, check Facebook or Messenger.",
+        "platforms_required": "Check at least one platform."
+      }
+    },
+    "reach": {
+      "range": "Estimated audience: {lower} to {upper} people",
+      "unavailable": "Estimated audience: estimate unavailable",
+      "loading": "Calculating the estimated audience...",
+      "needsLocation": "Choose a location to see the estimated audience.",
+      "hint": "Meta's estimate for the chosen targeting and placements. It does not guarantee delivery."
+    },
+    "ads": {
+      "creativeEditHint": "You are changing the creative of an existing ad. The Page, ad set and destination stay the same.",
+      "identityTitle": "Identity",
+      "identityDescription": "The Page and Instagram account shown on every ad.",
+      "title": "Ads",
+      "description": "Description",
+      "tab": "Ad {index}",
+      "tabHasIssues": "has issues",
+      "add": "Add ad",
+      "duplicate": "Duplicate ad",
+      "copySuffix": "(copy)",
+      "remove": "Remove this ad",
+      "maxAds": "This ad set already has the maximum of 10 ads.",
+      "flexibleOneAd": "With the Flexible format in this objective, Meta requires a new ad set with a single ad. To have more ads, change the format.",
+      "nameTitle": "Ad name",
+      "name": "Ad name (optional)",
+      "nameHint": "Without a name, the ad uses the campaign name with a number.",
+      "formatTitle": "Format",
+      "formatDescription": "How people see the ad.",
+      "formats": {
+        "IMAGE": {
+          "title": "Image",
+          "body": "One image with text and a button."
+        },
+        "VIDEO": {
+          "title": "Video",
+          "body": "One video with text and a button."
+        },
+        "CAROUSEL": {
+          "title": "Carousel",
+          "body": "From 2 to 10 cards that people swipe through."
+        },
+        "EXISTING_POST": {
+          "title": "Existing post",
+          "body": "Boosts a post from the Page or from Instagram."
+        },
+        "FLEXIBLE": {
+          "title": "Flexible",
+          "body": "You send several media and texts and Meta combines the best version for each person."
+        },
+        "CATALOG": {
+          "title": "Catalog",
+          "body": "Products from the catalog picked for each person."
+        },
+        "COLLECTION": {
+          "title": "Collection",
+          "body": "A cover with products below that opens an instant experience."
+        }
+      },
+      "flexibleBlocked": "In this objective, the Flexible format only works in a new ad set with a single ad.",
+      "flexibleOwnAdSet": "In this objective, a Flexible ad needs an ad set of its own, with no other ads.",
+      "textTitle": "Text",
+      "textDescription": "Write the way you talk to your customers. Be direct about what they get.",
+      "primaryText": "Primary text",
+      "headline": "Headline",
+      "headlineHint": "Up to 27 characters show in full in most placements.",
+      "imageTitle": "Image",
+      "imageDescription": "Square (1:1), portrait (4:5) or story (9:16).",
+      "videoTitle": "Video",
+      "videoDescription": "MP4 or MOV. Meta processes the video after upload, which can take a few minutes.",
+      "cardsTitle": "Cards",
+      "cardsDescription": "From 2 to 10 cards, each with an image or a video.",
+      "card": "Card {index}",
+      "removeCard": "Remove card {index}",
+      "addCard": "Add card",
+      "cardHeadline": "Card headline",
+      "cardDescription": "Card description",
+      "cardLink": "Card link (optional)",
+      "flexMediasTitle": "Media",
+      "flexMediasDescription": "Up to {max} images or videos.",
+      "removeMedia": "Remove media {index}",
+      "flexTextsTitle": "Texts",
+      "flexTextsDescription": "Up to {max} options for primary text, headline and description.",
+      "flexText": "Primary text {index}",
+      "flexHeadline": "Headline {index}",
+      "flexDescription": "Description {index}",
+      "addText": "Add text",
+      "addHeadline": "Add headline",
+      "addDescription": "Add description",
+      "removeText": "Remove",
+      "collectionTitle": "Collection",
+      "collectionDescription": "The instant experience that opens on tap and the cover media.",
+      "experience": "Instant experience",
+      "noExperiences": "No instant experiences on this Page. Create one in Meta Ads Manager.",
+      "collectionCover": "Cover media",
+      "catalogNote": "Products come from the product set chosen on the ad set.",
+      "postTitle": "Post",
+      "postDescription": "Choose the post that becomes the ad. Text and media come from it.",
+      "postPlatform": {
+        "facebook": "Facebook",
+        "instagram": "Instagram"
+      },
+      "noPosts": "No posts found.",
+      "postNoText": "Post without text",
+      "choosePage": "Choose the Page in the Identity section.",
+      "linkTitle": "Destination and button",
+      "linkDescription": "Where the ad leads and the button text.",
+      "link": "Website link",
+      "linkOptional": "Website link (optional)",
+      "displayLink": "Display link (optional)",
+      "cta": "Button",
+      "formTitle": "Instant form",
+      "formDescription": "The form that opens when people tap the ad.",
+      "form": "Form",
+      "noForms": "No active forms on this Page.",
+      "createForm": "Create form",
+      "reloadForms": "Refresh form list",
+      "conversationTitle": "Conversation start",
+      "conversationDescription": "The message that comes already written and the ready questions people can tap.",
+      "greeting": "Prefilled message",
+      "iceBreakers": "Ready questions",
+      "iceBreaker": "Question {index}",
+      "addIceBreaker": "Add question",
+      "removeIceBreaker": "Remove question",
+      "iceBreakersHint": "Up to 3 questions with up to 80 characters each.",
+      "enhancementsTitle": "Automatic enhancements",
+      "enhancements": "Advantage+ creative enhancements",
+      "enhancementsHint": "When on, Meta may adapt the ad for each person: crop or expand the image, adjust brightness and contrast, reorder the texts and switch the ad template. Leave it off if you want the ad exactly as you built it."
+    },
+    "media": {
+      "chosenImage": "Image chosen",
+      "chosenVideo": "Video chosen",
+      "remove": "Change",
+      "modeUpload": "Upload file",
+      "modeGenerate": "Generate with AI",
+      "upload": {
+        "image": "Choose image",
+        "video": "Choose video",
+        "any": "Choose image or video"
+      },
+      "uploadHint": {
+        "image": "JPG or PNG, at least 1080 px on the shorter side.",
+        "video": "MP4 or MOV. Videos can only be uploaded, not generated.",
+        "any": "JPG or PNG image, or MP4 or MOV video."
+      },
+      "uploading": "Uploading...",
+      "notImage": "Choose an image file.",
+      "notVideo": "Choose a video file.",
+      "notMedia": "Choose an image or a video.",
+      "uploadFailed": "Could not upload the file.",
+      "prompt": "Describe the image",
+      "aspect": {
+        "square": "Square",
+        "portrait": "Portrait",
+        "story": "Story"
+      },
+      "costNote": "Each generated image is charged as AI usage on your balance.",
+      "generate": "Generate image",
+      "generating": "Generating..."
+    },
+    "review": {
+      "creativeCheck": "Meta checks the creative when you save. If something breaks the rules, we show here what to fix.",
+      "creativeNote": "The ad goes back to Meta's review after the change. Past metrics stay on the ad.",
+      "summaryTitle": "Summary",
+      "account": "Account",
+      "objective": "Objective",
+      "campaign": "Campaign",
+      "category": "Special category",
+      "adSet": "Ad set",
+      "destination": "Destination",
+      "page": "Page",
+      "budget": "Budget",
+      "budgetDaily": "{amount} per day",
+      "budgetLifetime": "{amount} in total",
+      "onCampaign": "on the campaign",
+      "onAdSet": "on the ad set",
+      "budgetOnExistingCampaign": "Set on the existing campaign",
+      "budgetOnExistingAdSet": "Set on the existing ad set",
+      "schedule": "Schedule",
+      "startsOn": "starts on {day}",
+      "startsNow": "starts when published",
+      "endsOn": "ends on {day}",
+      "noEnd": "no end date",
+      "hours": "at chosen hours",
+      "locations": "Location",
+      "audience": "Audience",
+      "ages": "{min} to {max} years",
+      "placements": "Placements",
+      "placementsAuto": "Advantage+ (automatic)",
+      "ads": "Ads",
+      "adFallback": "Ad {index}",
+      "pausedTitle": "How to publish",
+      "keepPaused": "Publish turned off",
+      "keepPausedHint": "Creates everything in Meta but leaves it off so you can turn it on later from the manager. Without this, the ads go to review and start running once approved.",
+      "checkTitle": "Check",
+      "checkDescription": "We check everything against Meta's rules before publishing. Publish is only available with no pending issues.",
+      "validating": "Checking...",
+      "stale": "You changed something after the check. Check again to publish.",
+      "ready": "Everything is ready to publish.",
+      "feeMissing": "Could not calculate the fee. Check again to publish.",
+      "fix": "Fix",
+      "revalidate": "Check again",
+      "feePerAd": "Fee per published ad",
+      "feeTotal": "{count, plural, one {Total (# ad)} other {Total (# ads)}}",
+      "pausedNote": "Everything is created off and only turned on at the end, so nothing spends halfway.",
+      "reviewNote": "New ads go through Meta's review (In review) before they start delivering.",
+      "spendNote": "Ad spend is charged by Meta to the ad account. The fee above is the only charge on your balance."
+    },
+    "cta": {
+      "LEARN_MORE": "Learn more",
+      "SHOP_NOW": "Shop now",
+      "SIGN_UP": "Sign up",
+      "CONTACT_US": "Contact us",
+      "DOWNLOAD": "Download",
+      "BOOK_NOW": "Book now",
+      "GET_OFFER": "Get offer",
+      "SUBSCRIBE": "Subscribe",
+      "APPLY_NOW": "Apply now",
+      "ORDER_NOW": "Order now",
+      "GET_QUOTE": "Get quote",
+      "INSTALL_MOBILE_APP": "Install now",
+      "WATCH_MORE": "Watch more",
+      "WHATSAPP_MESSAGE": "Send WhatsApp message",
+      "MESSAGE_PAGE": "Send message",
+      "INSTAGRAM_MESSAGE": "Send Instagram message",
+      "NO_BUTTON": "No button"
+    },
+    "preview": {
+      "label": "Ad preview",
+      "pageFallback": "Your Page",
+      "sponsored": "Sponsored",
+      "primaryTextFallback": "The primary text shows here.",
+      "imageFallback": "Ad media",
+      "conversationStart": "Conversation start",
+      "flexibleNote": "Meta combines {medias, plural, one {# media item} other {# media items}} and {texts, plural, one {# text} other {# texts}} for each person.",
+      "catalogNote": "Products change depending on who sees the ad."
+    },
+    "issues": {
+      "generic": {
+        "required": "Fill in this field.",
+        "too_long": "Text is too long.",
+        "too_many": "Too many items.",
+        "invalid": "Invalid value.",
+        "count": "Number of items out of range.",
+        "wrong_kind": "Wrong media type for this format.",
+        "invalid_url": "Use a full address starting with https://.",
+        "not_allowed": "Not allowed in this setup.",
+        "restricted_category": "Not allowed in this special category.",
+        "radius_out_of_range": "City radius must be between 17 and 80 km.",
+        "must_be_positive": "Enter an amount greater than zero.",
+        "in_the_past": "Choose a future date.",
+        "before_start": "The end must be after the start.",
+        "political_not_supported": "Political or social issue ads are not accepted.",
+        "not_for_objective": "This option does not fit the campaign objective.",
+        "not_for_destination": "This format does not fit the chosen destination.",
+        "campaign_has_budget": "The campaign already has a budget. Remove the ad set budget.",
+        "needs_campaign_budget": "This bid strategy needs a campaign budget.",
+        "set_on_campaign": "With a campaign budget, the bid strategy is set on the campaign.",
+        "roas_on_ad_set_only": "The minimum return can only be set on the ad set.",
+        "roas_needs_value_goal": "The minimum return needs the Conversion value performance goal.",
+        "required_for_lifetime_budget": "With a lifetime budget, set the end date.",
+        "needs_lifetime_budget": "Delivery hours need a lifetime budget.",
+        "advantage_audience_limits": "With the Advantage+ audience, the minimum age goes from 18 to 25 and the maximum is 65+.",
+        "also_included": "An audience cannot be included and excluded at the same time.",
+        "automatic_with_manual": "Choose automatic or manual placements, not both.",
+        "audience_network_alone": "Audience Network cannot be the only platform.",
+        "story_alone": "Stories cannot be the only place on a platform.",
+        "needs_feed": "Marketplace, search, profile feed and notifications need the Facebook Feed.",
+        "instagram_required": "For Instagram Direct conversations, include Instagram in the placements.",
+        "facebook_required": "For Messenger conversations, include Facebook or Messenger.",
+        "dynamic_creative_needs_own_ad_set": "A Flexible ad in this objective needs a new ad set of its own.",
+        "unknown": "Meta rejected {field} ({code})."
+      },
+      "adAccountId": {
+        "required": "Choose an ad account."
+      },
+      "identity_pageId": {
+        "required": "Choose a Page in the Identity section."
+      },
+      "campaign_objective": {
+        "invalid": "Choose the campaign objective."
+      },
+      "campaign_name": {
+        "required": "Name the campaign.",
+        "too_long": "The name can have up to 400 characters."
+      },
+      "campaign_budget_amount": {
+        "must_be_positive": "Enter a campaign budget greater than zero."
+      },
+      "campaign_bid_amount": {
+        "must_be_positive": "Enter the bid amount."
+      },
+      "adSet_name": {
+        "required": "Name the ad set.",
+        "too_long": "The name can have up to 400 characters."
+      },
+      "adSet_goal": {
+        "not_for_objective": "This destination and goal combination does not apply to the chosen objective."
+      },
+      "adSet_budget": {
+        "required": "Set a budget on the ad set or turn on the campaign budget.",
+        "campaign_has_budget": "The campaign already has a budget. The ad set cannot have another one."
+      },
+      "adSet_budget_amount": {
+        "must_be_positive": "Enter a budget greater than zero."
+      },
+      "adSet_bid_amount": {
+        "must_be_positive": "Enter the bid amount."
+      },
+      "adSet_bid_roasFloor": {
+        "invalid": "Enter a minimum return between 0.01 and 1000."
+      },
+      "adSet_endAt": {
+        "in_the_past": "The end date has passed.",
+        "before_start": "The end date must be after the start.",
+        "required_for_lifetime_budget": "With a lifetime budget, choose the end date."
+      },
+      "adSet_whatsAppNumber": {
+        "required": "Choose a WhatsApp number linked to the Page."
+      },
+      "adSet_instagramUserId": {
+        "required": "Choose the Instagram account linked to the Page."
+      },
+      "adSet_appId": {
+        "required": "Choose the app."
+      },
+      "adSet_appStoreUrl": {
+        "required": "Choose the app store.",
+        "invalid_url": "The store address must start with https://."
+      },
+      "adSet_productSetId": {
+        "required": "Choose the catalog and the product set."
+      },
+      "adSet_pixelId": {
+        "required": "Choose the pixel."
+      },
+      "adSet_pixelEvent": {
+        "invalid": "Choose the conversion event."
+      },
+      "adSet_targeting_locations": {
+        "required": "Choose at least one location.",
+        "too_many": "Choose at most 50 locations.",
+        "invalid": "One of the locations is not valid.",
+        "radius_out_of_range": "City radius must be between 17 and 80 km.",
+        "restricted_category": "In this category the city radius must be at least 25 km."
+      },
+      "adSet_targeting_age": {
+        "invalid": "Choose an age range between 13 and 65+.",
+        "restricted_category": "In this category the age must be 18 to 65+."
+      },
+      "adSet_targeting_genders": {
+        "restricted_category": "In this category the ad must reach all genders."
+      },
+      "adSet_targeting_exclusions": {
+        "restricted_category": "In this category you cannot exclude locations or audiences."
+      },
+      "adSet_placements_platforms": {
+        "required": "Check at least one platform."
+      },
+      "ads": {
+        "required": "Create at least one ad.",
+        "too_many": "Use at most 10 ads."
+      },
+      "ads_name": {
+        "required": "Name the ad.",
+        "too_long": "The name can have up to 400 characters."
+      },
+      "ads_creative_primaryText": {
+        "required": "Write the primary text.",
+        "too_long": "The primary text can have up to 2,200 characters."
+      },
+      "ads_creative_headline": {
+        "too_long": "The headline can have up to 255 characters."
+      },
+      "ads_creative_description": {
+        "too_long": "The description can have up to 255 characters."
+      },
+      "ads_creative_media": {
+        "required": "Choose the ad media.",
+        "wrong_kind": "The media does not match the format (image or video)."
+      },
+      "ads_creative_cards": {
+        "count": "The carousel needs 2 to 10 cards."
+      },
+      "ads_creative_cards_media": {
+        "required": "Choose the media for each card."
+      },
+      "ads_creative_cards_link": {
+        "invalid_url": "The card link must start with https://."
+      },
+      "ads_creative_texts": {
+        "count": "Use 1 to 5 primary texts."
+      },
+      "ads_creative_headlines": {
+        "count": "Use at most 5 headlines and 5 descriptions."
+      },
+      "ads_creative_medias": {
+        "count": "Use 1 to 10 media items.",
+        "required": "One of the media items is empty."
+      },
+      "ads_creative_postId": {
+        "required": "Choose a post."
+      },
+      "ads_creative_instantExperienceId": {
+        "required": "Choose the instant experience."
+      },
+      "ads_creative_link": {
+        "required": "Enter the website link.",
+        "invalid_url": "The link must start with https://."
+      },
+      "ads_creative_leadFormId": {
+        "required": "Choose the instant form."
+      },
+      "ads_creative_greeting": {
+        "too_long": "The prefilled message can have up to 300 characters."
+      },
+      "ads_creative_iceBreakers": {
+        "too_many": "Use at most 3 ready questions.",
+        "too_long": "Each ready question can have up to 80 characters."
+      },
+      "ads_creative_format": {
+        "not_for_destination": "This format is not available for the chosen destination."
+      }
+    }
+  },
+  "adsManager": {
+    "compare": {
+      "previous": "Previous period: {value}",
+      "noBaseline": "No comparison baseline in the previous period",
+      "tone": {
+        "better": "{change} versus the previous period ({previous}), better",
+        "worse": "{change} versus the previous period ({previous}), worse",
+        "neutral": "{change} versus the previous period ({previous})"
+      }
+    },
+    "live": {
+      "loading": "Fetching live data from Meta",
+      "ready": "Live",
+      "failed": "Live data unavailable right now"
+    },
+    "report": {
+      "attribution": "Attribution window",
+      "breakdown": "Breakdown",
+      "compare": "Compare with previous period",
+      "export": "Export CSV",
+      "exporting": "Exporting...",
+      "exportFailed": "Could not export the report",
+      "windowNote": "Results and cost per result in the table use the chosen window, straight from Meta. The indicators above follow the account default window.",
+      "windows": {
+        "default": "Account default",
+        "1d_view": "1 day after view",
+        "1d_click": "1 day after click",
+        "7d_click": "7 days after click",
+        "28d_click": "28 days after click"
+      }
+    },
+    "breakdown": {
+      "menu": "Breakdown",
+      "title": "Breakdown by {group}",
+      "scope": {
+        "selection": "{count, plural, one {# selected item.} other {# selected items.}}",
+        "all": "Every item in the table."
+      },
+      "liveNote": "Live data from Meta. Reach only shows for a single item, because the same people may have seen more than one.",
+      "failed": "Could not fetch the breakdown: {message}",
+      "empty": "Meta returned no data for this breakdown in the period.",
+      "groups": {
+        "age": "Age",
+        "gender": "Gender",
+        "country": "Country",
+        "region": "Region",
+        "publisher_platform": "Platform",
+        "platform_position": "Placement",
+        "device_platform": "Device",
+        "hourly_stats_aggregated_by_advertiser_time_zone": "Hour of day"
+      },
+      "values": {
+        "male": "Male",
+        "female": "Female",
+        "unknown": "Not reported",
+        "mobile_app": "Mobile app",
+        "mobile_web": "Mobile browser",
+        "desktop": "Desktop"
+      },
+      "columns": {
+        "spend": "Amount spent",
+        "share": "Share of spend",
+        "impressions": "Impressions",
+        "reach": "Reach",
+        "results": "Results",
+        "costPerResult": "Cost per result",
+        "cpm": "CPM"
+      }
+    },
+    "rowActions": {
+      "open": "Actions for {name}",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "addAdSet": "Add ad set",
+      "addAd": "Add ad",
+      "archive": "Archive",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "archived": "{name} archived",
+      "archiveFailed": "Could not archive {name}",
+      "deleted": "{name} deleted",
+      "deleteFailed": "Could not delete {name}",
+      "deleteTitle": {
+        "campaign": "Delete campaign?",
+        "adset": "Delete ad set?",
+        "ad": "Delete ad?"
+      },
+      "deleteBody": "{name} will be deleted on Meta along with everything inside it. This cannot be undone, and its results stop showing here. To only stop delivery, turn it off or archive it."
+    },
+    "duplicate": {
+      "title": {
+        "campaign": "Duplicate campaign",
+        "adset": "Duplicate ad set",
+        "ad": "Duplicate ad"
+      },
+      "description": "The copy of {name} is created turned off on Meta.",
+      "deepCopy": {
+        "campaign": "Also copy its ad sets and ads",
+        "adset": "Also copy its ads"
+      },
+      "deepCopyHint": "Without this, only the chosen item is copied.",
+      "suffix": "Text added to the name",
+      "defaultSuffix": " - Copy",
+      "suffixPreview": "Copy name: {name}",
+      "parent": {
+        "adset": "Target campaign",
+        "ad": "Target ad set"
+      },
+      "sameParent": "Same as the original",
+      "cancel": "Cancel",
+      "submit": "Duplicate",
+      "saving": "Duplicating...",
+      "done": "Copy of {name} created"
+    },
+    "spendCap": {
+      "label": "Spending limit:",
+      "none": "no limit",
+      "spent": "Spent:",
+      "usage": "{percent} of the limit used",
+      "edit": "Edit the account spending limit",
+      "title": "Account spending limit",
+      "description": "When total spend reaches the limit, Meta stops delivering every ad in this account.",
+      "spentSoFar": "Spent so far:",
+      "amountLabel": "Limit ({currency})",
+      "hint": "Meta may take a few minutes to apply the new limit.",
+      "problems": {
+        "invalid": "Enter an amount greater than zero.",
+        "notAboveSpent": "The limit must be higher than what was already spent ({spent})."
+      },
+      "remove": "Remove limit",
+      "cancel": "Cancel",
+      "save": "Save limit",
+      "saving": "Saving...",
+      "saved": "Spending limit updated",
+      "removed": "Spending limit removed"
+    },
+    "edit": {
+      "title": {
+        "campaign": "Edit campaign",
+        "adset": "Edit ad set",
+        "ad": "Edit ad"
+      },
+      "tabs": {
+        "campaign": "Campaign",
+        "adset": "Ad set",
+        "ad": "Ad"
+      },
+      "optionsFailed": "Could not load the options from Meta, so editing is blocked: {message}",
+      "retry": "Try again",
+      "locked": "This item is archived or deleted on Meta and can no longer be changed.",
+      "basics": "Identification",
+      "name": "Name",
+      "nameRequired": "Enter a name.",
+      "objective": "Objective",
+      "goal": "Performance goal",
+      "destination": "Destination",
+      "goalLocked": "Meta does not change the performance goal after the ad set is created. To change it, duplicate and pick another one in the new ad set.",
+      "budgetTitle": "Budget and bidding",
+      "scheduleTitle": "Schedule",
+      "endDay": "Last day of delivery",
+      "endDayHint": "Ends at midnight in the account time zone ({timezone}).",
+      "scheduleKeep": "Meta needs at least one hour in the schedule. With none, the current schedule stays.",
+      "scheduleNeedsLifetime": "Delivery hours only exist with a lifetime budget.",
+      "audienceTitle": "Audience",
+      "placementsTitle": "Placements",
+      "creativeTitle": "Creative",
+      "swapCreative": "Change creative",
+      "discard": "Discard changes",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saved": "{name} updated",
+      "fixIssues": "Fix the highlighted fields and save again.",
+      "tooSoon": "Meta accepts at most 4 budget changes per hour. Try again later.",
+      "budget": {
+        "kind": "Budget type",
+        "kinds": {
+          "DAILY": "Daily",
+          "LIFETIME": "Lifetime"
+        },
+        "kindLocked": "Meta does not switch between daily and lifetime budgets after creation.",
+        "amount": {
+          "DAILY": "Daily budget ({currency})",
+          "LIFETIME": "Lifetime budget ({currency})"
+        },
+        "invalid": "Enter an amount greater than zero.",
+        "limitHint": "Meta accepts up to 4 budget changes per hour.",
+        "onAdSets": "This campaign has no budget of its own; each ad set has its own.",
+        "onCampaign": "This ad set's budget comes from the campaign.",
+        "strategy": "Bid strategy",
+        "strategies": {
+          "LOWEST_COST_WITHOUT_CAP": "Highest volume",
+          "LOWEST_COST_WITH_BID_CAP": "Bid cap",
+          "COST_CAP": "Cost per result goal",
+          "LOWEST_COST_WITH_MIN_ROAS": "Minimum ROAS"
+        },
+        "costCap": "Target cost per result ({currency})",
+        "bidCap": "Maximum bid ({currency})",
+        "roasFloor": "Minimum ROAS",
+        "roasInvalid": "Enter a number greater than zero, like 2.5."
+      },
+      "targeting": {
+        "customAudiences": "Include custom audiences",
+        "excludedCustomAudiences": "Exclude custom audiences",
+        "noAudiences": "No audience found.",
+        "search": "Search audience",
+        "remove": "Remove {name}",
+        "locationsTitle": "Location",
+        "locations": "Include locations",
+        "excludedLocations": "Exclude locations",
+        "peopleTitle": "People",
+        "ageMin": "Minimum age",
+        "ageMax": "Maximum age",
+        "agePlus": "{age}+",
+        "gender": "Gender",
+        "genders": {
+          "all": "All",
+          "male": "Men",
+          "female": "Women"
+        },
+        "advantage": "Advantage+ audience",
+        "advantageHint": "Meta may go beyond the defined audience when it finds people more likely to convert.",
+        "advantageAgeNote": "With Advantage+, the maximum age stays at 65+ and the minimum can be at most 25.",
+        "detailedTitle": "Detailed targeting",
+        "customTitle": "Custom audiences"
+      },
+      "placements": {
+        "automatic": "Automatic placements",
+        "automaticHint": "Meta chooses where to show the ad for the best performance.",
+        "manual": "Manual placements",
+        "manualHint": "You choose the platforms and places.",
+        "needsFeed": "Needs Facebook Feed checked.",
+        "warnings": {
+          "story_alone": "Meta does not accept Stories alone. Check another placement too.",
+          "audience_network_alone": "Meta does not accept Audience Network alone.",
+          "instagram_required": "To open Instagram Direct conversations, Instagram must be checked.",
+          "facebook_required": "To open Messenger conversations, check Facebook or Messenger.",
+          "platforms_required": "Check at least one platform."
+        }
+      }
+    },
+    "abTest": {
+      "create": "Create A/B test",
+      "countHint": "Select 2 to 5 items to compare.",
+      "created": "Test {name} created",
+      "title": "Create A/B test",
+      "description": {
+        "campaign": "{count, plural, other {# campaigns}} compete for the same audience, with no overlap. Meta names the winner by cost per result.",
+        "adset": "{count, plural, other {# ad sets}} compete for the same audience, with no overlap. Meta names the winner by cost per result."
+      },
+      "name": "Test name",
+      "cells": "Versions",
+      "cellName": "Version {index}",
+      "share": "Share (%)",
+      "sharesTotal": "Total: {total}% (must add up to 100%)",
+      "start": "Start",
+      "end": "Last day",
+      "window": {
+        "dates": "Pick a start from today on.",
+        "endBeforeStart": "The last day must be after the start.",
+        "tooLong": "A test can run for at most 30 days."
+      },
+      "timezone": "Dates in the account time zone ({timezone}). A test starting today begins in a few minutes.",
+      "confidence": "Confidence level",
+      "confidenceOption": "{value}%",
+      "confidenceHint": "The higher it is, the more certainty Meta needs before naming a winner.",
+      "cancel": "Cancel",
+      "submit": "Create test",
+      "saving": "Creating...",
+      "fixIssues": "Fix the highlighted fields and try again."
+    },
+    "abTests": {
+      "open": "A/B tests",
+      "title": "A/B tests",
+      "description": "Tests in this Meta ad account.",
+      "refresh": "Refresh list",
+      "empty": "No A/B tests in this account yet.",
+      "to": "to",
+      "level": {
+        "campaign": "Campaigns",
+        "adset": "Ad sets"
+      },
+      "confidence": "Confidence {value}%"
+    },
+    "issues": {
+      "budget": {
+        "kind_locked": "Meta does not switch between daily and lifetime budgets after creation.",
+        "too_many_changes": "Meta accepts at most 4 budget changes per hour.",
+        "no_budget_here": "The budget lives at another level."
+      },
+      "parentId": {
+        "not_for_level": "Campaigns do not move when duplicated."
+      },
+      "cells": {
+        "count": "A test needs 2 to 5 versions.",
+        "shares_must_sum_100": "Shares must add up to 100%."
+      },
+      "endAt": {
+        "duration": "The test must last 1 to 30 days."
+      },
+      "schedule": {
+        "needs_lifetime_budget": "Delivery hours only exist with a lifetime budget."
+      },
+      "generic": {
+        "required": "Required field.",
+        "invalid": "Invalid value.",
+        "too_long": "Text too long.",
+        "too_many": "Too many items.",
+        "must_be_positive": "Enter a value greater than zero.",
+        "not_for_level": "This change does not apply to this level.",
+        "not_allowed": "Not allowed with this choice.",
+        "in_the_past": "The date must be in the future.",
+        "before_start": "The end date must be after the start.",
+        "required_for_lifetime_budget": "A lifetime budget needs an end date.",
+        "needs_lifetime_budget": "Only valid with a lifetime budget.",
+        "roas_needs_value_goal": "Minimum ROAS only applies to ad sets optimized for value.",
+        "radius_out_of_range": "Radius outside what Meta allows.",
+        "restricted_category": "Not allowed in this special ad category.",
+        "also_included": "An audience cannot be included and excluded at the same time.",
+        "advantage_audience_limits": "With Advantage+, the maximum age stays at 65+ and the minimum can be at most 25.",
+        "automatic_with_manual": "Choose automatic or manual placements, not both.",
+        "audience_network_alone": "Meta does not accept Audience Network alone.",
+        "story_alone": "Meta does not accept Stories alone.",
+        "needs_feed": "This placement needs Facebook Feed.",
+        "instagram_required": "Instagram must be checked.",
+        "facebook_required": "Check Facebook or Messenger.",
+        "not_for_destination": "Not valid for this destination.",
+        "wrong_kind": "Wrong media type.",
+        "used_twice": "The same item is in two versions.",
+        "count": "Quantity outside what is allowed.",
+        "duration": "Duration outside what is allowed.",
+        "kind_locked": "Meta does not switch between daily and lifetime budgets after creation.",
+        "too_many_changes": "Meta accepts at most 4 budget changes per hour.",
+        "no_budget_here": "The budget lives at another level.",
+        "unknown": "Meta refused {field} ({code})."
+      }
+    },
+    "header": {
+      "title": "Ads",
+      "description": "Meta campaigns, ad sets and ads, with the results that reached your inbox.",
+      "connect": "Connect ad account",
+      "create": "Create ad"
+    },
+    "noAccess": "You do not have permission to see this workspace's ads.",
+    "retry": "Try again",
+    "account": {
+      "label": "Ad account"
+    },
+    "sync": {
+      "action": "Refresh",
+      "failed": "Could not refresh the account",
+      "updated": "Updated {when}",
+      "never": "Not synced yet"
+    },
+    "spendBlocker": {
+      "reconnect": "Reconnect the ad account to create ads.",
+      "funding": "Set up a payment method in Meta Ads Manager to create ads.",
+      "metaStatus": "Meta is not delivering ads for this account right now.",
+      "unknown": "This account cannot create ads right now."
+    },
+    "connect": {
+      "errorTitle": "Could not connect",
+      "partialTitle": "Partially connected",
+      "successTitle": "Ad account connected",
+      "count": "{count, plural, one {# account connected} other {# accounts connected}}",
+      "errors": {
+        "connect_failed": "Meta did not finish the connection. Try again.",
+        "missing_permissions": "Meta did not grant the ads permissions. Connect again and allow every permission.",
+        "no_accounts_granted": "No ad account was chosen on Meta.",
+        "invalid_state": "This connection link expired or was already used. Click connect again.",
+        "expired_state": "The connection took too long and expired. Click connect again.",
+        "linked_elsewhere": "This ad account is already connected to another workspace."
+      }
+    },
+    "disconnect": {
+      "action": "Disconnect account",
+      "title": "Disconnect ad account?",
+      "body": "The account {name} stops showing here. Its campaigns stay on Meta, on or off as they are.",
+      "done": "Account {name} disconnected",
+      "failed": "Could not disconnect the account"
+    },
+    "toggle": {
+      "onFailed": "Could not turn on {name}",
+      "offFailed": "Could not turn off {name}"
+    },
+    "budget": {
+      "tooSoon": "Meta accepts at most 4 budget changes per hour. Try again later.",
+      "saved": "Budget for {name} updated",
+      "adSetBudget": "Using the ad set budget",
+      "daily": "Daily",
+      "lifetime": "Lifetime",
+      "edit": "Edit budget",
+      "dailyLabel": "Daily budget ({currency})",
+      "lifetimeLabel": "Lifetime budget ({currency})",
+      "invalid": "Enter an amount greater than zero.",
+      "limitHint": "Meta accepts up to 4 budget changes per hour.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "errors": {
+      "timezone": "This ad account's time zone is unknown, so results cannot be split by day. Refresh the account."
+    },
+    "empty": {
+      "noAccountTitle": "No ad account connected",
+      "noAccountBody": "Connect a Meta ad account to see campaigns, turn ads on and off, and learn what each conversation that arrived cost.",
+      "noAccountBodyNoPermission": "Ask a workspace manager to connect a Meta ad account.",
+      "campaignTitle": "No campaigns found",
+      "adsetTitle": "No ad sets found",
+      "adTitle": "No ads found",
+      "rangeBody": "Change the date range, the search or the selection to see more results."
+    },
+    "filters": {
+      "search": "Search by name or ID",
+      "campaignsSelected": "{count, plural, one {# campaign selected} other {# campaigns selected}}",
+      "adSetsSelected": "{count, plural, one {# ad set selected} other {# ad sets selected}}",
+      "clear": "Clear filter: {label}"
+    },
+    "tabs": {
+      "campaign": "Campaigns",
+      "adset": "Ad sets",
+      "ad": "Ads"
+    },
+    "columns": {
+      "toggle": "On",
+      "name": {
+        "campaign": "Campaign",
+        "adset": "Ad set",
+        "ad": "Ad"
+      },
+      "delivery": "Delivery",
+      "results": "Results",
+      "costPerResult": "Cost per result",
+      "budget": "Budget",
+      "spend": "Amount spent",
+      "impressions": "Impressions",
+      "linkClicks": "Link clicks",
+      "ctr": "CTR",
+      "cpm": "CPM",
+      "crmConversations": "Conversations (CRM)",
+      "costPerLead": "Cost per lead",
+      "roas": "ROAS",
+      "menu": "Columns",
+      "menuTitle": "Visible columns",
+      "groups": {
+        "report": "Report",
+        "live": "Live from Meta",
+        "liveHint": "Fetched from Meta on the spot, for the same period."
+      },
+      "reach": "Reach",
+      "frequency": "Frequency",
+      "videoPlays": "Video plays",
+      "thruPlays": "ThruPlays",
+      "costPerThruPlay": "Cost per ThruPlay",
+      "videoP25": "25% watched",
+      "videoP50": "50% watched",
+      "videoP75": "75% watched",
+      "videoP100": "100% watched",
+      "avgWatchSeconds": "Average watch time"
+    },
+    "table": {
+      "issues": "{count, plural, one {# alert} other {# alerts}}",
+      "turnOn": "Turn on {name}",
+      "turnOff": "Turn off {name}",
+      "totals": {
+        "campaign": "{count, plural, one {Results from # campaign} other {Results from # campaigns}}",
+        "adset": "{count, plural, one {Results from # ad set} other {Results from # ad sets}}",
+        "ad": "{count, plural, one {Results from # ad} other {Results from # ads}}"
+      },
+      "selected": "{count, plural, one {# selected} other {# selected}}",
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "seconds": "{value} s",
+      "previousTotal": "Previous period: {value}"
+    },
+    "results": {
+      "conversations": "Conversations started",
+      "leads": "Leads",
+      "linkClicks": "Link clicks",
+      "landingPageViews": "Landing page views",
+      "engagement": "Engagement",
+      "impressions": "Impressions",
+      "mixed": "Results of different types"
+    },
+    "delivery": {
+      "active": "Active",
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "off": "Off",
+      "campaign_off": "Campaign off",
+      "adset_off": "Ad set off",
+      "in_review": "In review",
+      "rejected": "Rejected",
+      "with_issues": "With issues",
+      "pending_billing": "Payment pending",
+      "archived": "Archived",
+      "deleted": "Deleted",
+      "unknown": "Unknown"
+    },
+    "kpi": {
+      "spend": "Amount spent",
+      "results": "Results",
+      "costPerResult": "Cost per result",
+      "metaConversations": "Conversations (Meta)",
+      "metaConversationsHint": "Conversations Meta attributes to the ads, using Meta's 7-day rule. It may include estimates.",
+      "crmConversations": "Conversations (CRM)",
+      "crmConversationsHint": "Conversations from these ads that reached your inbox. It differs from Meta's count because it only counts what actually arrived.",
+      "costPerLead": "Cost per lead (CRM)",
+      "costPerLeadHint": "Amount spent divided by the conversations from these ads that became an opportunity.",
+      "revenue": "Revenue",
+      "roas": "ROAS",
+      "roasHint": "Revenue from won opportunities divided by the amount spent."
+    },
+    "trend": {
+      "title": "Spend and results per day",
+      "subtitle": "Days in the ad account time zone",
+      "spend": "Amount spent",
+      "results": "Results",
+      "day": "Day",
+      "showChart": "Show chart",
+      "showTable": "Show table",
+      "empty": "No data in this period."
+    },
+    "range": {
+      "label": "Date range",
+      "presets": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7": "Last 7 days",
+        "last14": "Last 14 days",
+        "last30": "Last 30 days",
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "custom": "Custom"
+      },
+      "since": "From",
+      "until": "To",
+      "to": "to",
+      "timezone": "Time zone: {timezone}",
+      "timezoneUnknown": "unknown"
+    },
+    "notices": {
+      "reconnect": {
+        "title": "Reconnect the ad account",
+        "body": "Meta no longer accepts access to this account. Data may be out of date and nothing can change until you reconnect.",
+        "action": "Reconnect"
+      },
+      "funding": {
+        "title": "No payment method",
+        "body": "Set up a payment method in Meta Ads Manager. Without one Meta does not deliver ads.",
+        "action": "Open payment settings"
+      },
+      "metaStatus": {
+        "title": "The account is not active on Meta",
+        "body": "Status on Meta: {status}. Resolve it in Meta Ads Manager to deliver again."
+      },
+      "metaStatusLabel": {
+        "active": "active",
+        "disabled": "disabled",
+        "unsettled": "unpaid balance",
+        "pending_risk_review": "under risk review",
+        "pending_settlement": "awaiting settlement",
+        "in_grace_period": "in grace period",
+        "pending_closure": "closing",
+        "closed": "closed",
+        "unknown": "unknown"
+      }
+    },
+    "jobs": {
+      "open": "Publishing",
+      "title": "Recent publishing",
+      "description": "Ads created here or by Elo, and where each one stands.",
+      "refresh": "Refresh list",
+      "empty": "Nothing published yet.",
+      "needsReview": "Meta did not confirm; check Meta Ads Manager before trying again.",
+      "openMeta": "Open Meta Ads Manager",
+      "feeRefunded": "The fee was returned to your balance.",
+      "feeKept": "The fee stays held until the situation is checked.",
+      "status": {
+        "QUEUED": "Queued",
+        "RUNNING": "Publishing",
+        "PUBLISHED": "Published",
+        "FAILED": "Failed",
+        "NEEDS_REVIEW": "Needs checking",
+        "unknown": "Unknown"
+      }
+    },
+    "preview": {
+      "label": "Ad preview",
+      "pageFallback": "Your Page",
+      "sponsored": "Sponsored",
+      "primaryTextFallback": "The primary text shows here.",
+      "imageFallback": "Ad image",
+      "conversationStart": "Conversation start",
+      "cta": {
+        "WHATSAPP": "Send WhatsApp message",
+        "MESSENGER": "Send message",
+        "INSTAGRAM_DIRECT": "Send Instagram message"
+      }
+    },
+    "wizard": {
+      "title": "Create ad",
+      "description": "An ad that opens a conversation on WhatsApp, Messenger or Instagram Direct.",
+      "back": "Back to Ads",
+      "noAccess": "You do not have permission to create ads in this workspace.",
+      "noAccountTitle": "No account ready to advertise",
+      "noAccountBody": "Connect an active ad account with a payment method set up on Meta.",
+      "previous": "Back",
+      "next": "Continue",
+      "publish": "Publish ad",
+      "publishing": "Publishing...",
+      "previewTitle": "Preview",
+      "steps": {
+        "account": "Account and Page",
+        "audience": "Audience",
+        "budget": "Budget",
+        "creative": "Creative",
+        "review": "Review"
+      },
+      "job": {
+        "title": "Publishing",
+        "needsReview": "Meta did not confirm; check Meta Ads Manager before trying again.",
+        "running": "Creating the campaign, ad set and ad on Meta. Everything stays off until the last step.",
+        "openManager": "Go to Ads"
+      },
+      "account": {
+        "accountTitle": "Ad account",
+        "accountDescription": "Only active accounts with a payment method on Meta show here.",
+        "account": "Ad account",
+        "campaignName": "Campaign name",
+        "campaignNameHint": "The ad set and the ad get the same name.",
+        "pageTitle": "Facebook Page",
+        "pageDescription": "The ad runs as this Page.",
+        "noPages": "No Page was granted to this ads connection. Reconnect and choose the Pages on Meta.",
+        "page": "Page",
+        "pageCannotAdvertise": "cannot advertise",
+        "destinationTitle": "Where the conversation goes",
+        "destinationDescription": "People who click the ad open a conversation on this channel.",
+        "destination": {
+          "WHATSAPP": "WhatsApp",
+          "MESSENGER": "Messenger",
+          "INSTAGRAM_DIRECT": "Instagram Direct"
+        },
+        "destinationHint": {
+          "WHATSAPP": "The conversation reaches the number chosen below.",
+          "MESSENGER": "The conversation reaches the Page's Messenger.",
+          "INSTAGRAM_DIRECT": "The conversation reaches the Instagram Direct linked to the Page."
+        },
+        "destinationUnavailable": {
+          "WHATSAPP": "Link a WhatsApp number to the Page in the Page settings.",
+          "MESSENGER": "Choose a Page.",
+          "INSTAGRAM_DIRECT": "This Page has no linked Instagram account."
+        },
+        "number": "WhatsApp number",
+        "numberHint": "Only numbers from this workspace that are linked to the Page on Meta show here.",
+        "numberKind": {
+          "official": "official",
+          "unofficial": "QR code"
+        }
+      },
+      "audience": {
+        "categoryTitle": "Special category",
+        "categoryDescription": "Meta requires saying whether the ad is about housing, employment or financial products.",
+        "category": "Special ad category",
+        "categories": {
+          "NONE": "None",
+          "HOUSING": "Housing",
+          "EMPLOYMENT": "Employment",
+          "FINANCIAL_PRODUCTS_SERVICES": "Financial products"
+        },
+        "categoryHint": {
+          "NONE": "For most ads.",
+          "HOUSING": "Selling or renting property, mortgages and home insurance.",
+          "EMPLOYMENT": "Job openings, internships and recruiting.",
+          "FINANCIAL_PRODUCTS_SERVICES": "Credit, loans, cards, investments and insurance."
+        },
+        "restrictedLock": "In this category Meta requires ages 18 to 65+, all genders and a minimum 25 km radius for cities.",
+        "locationsTitle": "Location",
+        "locationsDescription": "Countries, regions or cities where the ad shows.",
+        "locationSearch": "Search a country, region or city",
+        "searching": "Searching...",
+        "noLocations": "No location found.",
+        "kind": {
+          "country": "Country",
+          "region": "Region",
+          "city": "City"
+        },
+        "radius": "Radius",
+        "removeLocation": "Remove {name}",
+        "peopleTitle": "People",
+        "ageMin": "Minimum age",
+        "ageMax": "Maximum age",
+        "agePlus": "{age}+",
+        "gender": "Gender",
+        "genders": {
+          "all": "All",
+          "male": "Men",
+          "female": "Women"
+        },
+        "advantage": "Advantage+ audience",
+        "advantageHint": "Meta may show the ad beyond the chosen audience when it finds people more likely to start a conversation."
+      },
+      "budget": {
+        "dailyTitle": "Daily budget",
+        "dailyDescription": "How much Meta may spend per day, in the ad account currency.",
+        "daily": "Daily budget ({currency})",
+        "invalid": "Enter an amount greater than zero.",
+        "dailyPreview": "{amount} per day, about {monthly} over 30 days.",
+        "billedByMeta": "Ad spend is billed by Meta to the ad account's payment method, not to your balance.",
+        "scheduleTitle": "Schedule",
+        "scheduleDescription": "Dates in the ad account time zone ({timezone}).",
+        "startNow": "Start as soon as it is published",
+        "startNowHint": "After Meta's review.",
+        "startLater": "Start on a date",
+        "startDay": "Start",
+        "endDay": "End (optional)",
+        "endHint": "Without an end date the ad runs until you turn it off."
+      },
+      "creative": {
+        "textTitle": "Text",
+        "textDescription": "Write the way you talk to your customers. Be clear about what they get by messaging you.",
+        "primaryText": "Primary text",
+        "headline": "Headline",
+        "headlineHint": "Up to 27 characters show in full in most placements.",
+        "description": "Description",
+        "imageTitle": "Image",
+        "imageDescription": "Square (1:1), portrait (4:5) or story (9:16).",
+        "conversationTitle": "Conversation start",
+        "conversationDescription": "The prefilled message and the ready questions people can tap.",
+        "greeting": "Prefilled message",
+        "iceBreakers": "Ready questions",
+        "iceBreakerPlaceholder": "Question {index}",
+        "removeIceBreaker": "Remove question",
+        "addIceBreaker": "Add question",
+        "iceBreakersHint": "Up to 3 questions of up to 80 characters each."
+      },
+      "image": {
+        "chosen": "Image chosen",
+        "remove": "Change",
+        "modeUpload": "Upload image",
+        "modeGenerate": "Generate with AI",
+        "upload": "Choose file",
+        "uploading": "Uploading...",
+        "uploadHint": "JPG or PNG, at least 1080 px on the shorter side.",
+        "notImage": "Choose an image file.",
+        "uploadFailed": "Could not upload the image.",
+        "prompt": "Describe the image",
+        "aspect": {
+          "square": "Square",
+          "portrait": "Portrait",
+          "story": "Story"
+        },
+        "costNote": "Each generated image is charged as AI usage on your balance.",
+        "generate": "Generate image",
+        "generating": "Generating..."
+      },
+      "review": {
+        "summaryTitle": "Summary",
+        "campaign": "Campaign",
+        "account": "Account",
+        "page": "Page",
+        "destination": "Destination",
+        "category": "Special category",
+        "locations": "Location",
+        "audience": "Audience",
+        "ages": "Ages {min} to {max}",
+        "budget": "Budget",
+        "budgetDaily": "{amount} per day",
+        "schedule": "Schedule",
+        "startsOn": "starts on {day}",
+        "startsNow": "starts when published",
+        "endsOn": "ends on {day}",
+        "noEnd": "no end date",
+        "checkTitle": "Check",
+        "checkDescription": "We check everything against Meta's rules before publishing.",
+        "validating": "Checking...",
+        "stale": "You changed something after the check. Check again to publish.",
+        "ready": "Everything is ready to publish.",
+        "fix": "Fix",
+        "revalidate": "Check again",
+        "fee": "Fee per published ad: {amount}, charged to your balance.",
+        "pausedNote": "Everything is created off and only turned on at the end, so nothing spends half built.",
+        "reviewNote": "New ads go through Meta's review (In review) before they start delivering.",
+        "spendNote": "Media spend is billed by Meta on the ad account. The fee above is the only charge on your balance."
+      },
+      "issues": {
+        "generic": {
+          "required": "Fill in this field.",
+          "too_long": "Text too long.",
+          "too_many": "Too many items.",
+          "invalid": "Invalid value.",
+          "restricted_category": "Not allowed in this special category.",
+          "radius_out_of_range": "City radius must be between 17 and 80 km.",
+          "must_be_positive": "Enter an amount greater than zero.",
+          "in_the_past": "Choose a future date.",
+          "before_start": "The end must be after the start.",
+          "political_not_supported": "Political or social issue ads are not accepted.",
+          "unknown": "Meta refused {field} ({code})."
+        },
+        "adAccountId": {
+          "required": "Choose an ad account."
+        },
+        "campaignName": {
+          "required": "Name the campaign.",
+          "too_long": "The name can have up to 400 characters."
+        },
+        "pageId": {
+          "required": "Choose a Page."
+        },
+        "destination": {
+          "invalid": "Choose where the conversation goes."
+        },
+        "whatsAppNumber": {
+          "required": "Choose a WhatsApp number linked to the Page."
+        },
+        "instagramUserId": {
+          "required": "This Page has no linked Instagram account."
+        },
+        "dailyBudget": {
+          "must_be_positive": "Enter a daily budget greater than zero."
+        },
+        "endAt": {
+          "in_the_past": "The end date has already passed.",
+          "before_start": "The end date must be after the start."
+        },
+        "specialCategory": {
+          "political_not_supported": "Political or social issue ads are not accepted.",
+          "invalid": "Invalid special category."
+        },
+        "targeting_locations": {
+          "required": "Choose at least one location.",
+          "too_many": "Choose at most 50 locations.",
+          "invalid": "One of the locations is not valid.",
+          "radius_out_of_range": "City radius must be between 17 and 80 km.",
+          "restricted_category": "In this category the city radius must be at least 25 km."
+        },
+        "targeting_age": {
+          "invalid": "Choose an age range between 13 and 65+.",
+          "restricted_category": "In this category the ages must be 18 to 65+."
+        },
+        "targeting_genders": {
+          "invalid": "Invalid gender.",
+          "restricted_category": "In this category the ad must reach all genders."
+        },
+        "creative_primaryText": {
+          "required": "Write the primary text.",
+          "too_long": "The primary text can have up to 2,200 characters."
+        },
+        "creative_headline": {
+          "too_long": "The headline can have up to 255 characters."
+        },
+        "creative_description": {
+          "too_long": "The description can have up to 255 characters."
+        },
+        "creative_imageMediaId": {
+          "required": "Choose or generate an image."
+        },
+        "creative_greeting": {
+          "too_long": "The prefilled message can have up to 300 characters."
+        },
+        "creative_iceBreakers": {
+          "too_many": "Use at most 3 ready questions.",
+          "too_long": "Each ready question can have up to 80 characters."
+        }
+      }
+    }
   }
 }

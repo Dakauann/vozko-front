@@ -9,6 +9,7 @@ import {
   CurrencyDollar,
   FunnelSimple,
   Lightning,
+  Megaphone,
   Phone,
   Robot,
   Wallet,
@@ -122,6 +123,8 @@ function getServiceMeta(serviceType: string) {
       return { icon: WhatsappLogo, ink: "text-healthy-ink" };
     case "top_up":
       return { icon: ArrowUp, ink: "text-healthy-ink" };
+    case "advertising":
+      return { icon: Megaphone, ink: "text-muted-foreground" };
     case "manual_adjustment":
     case "admin_credit":
     case "admin_debit":
@@ -567,6 +570,9 @@ export default function BalancePage() {
                     </ElevatedSelectItem>
                     <ElevatedSelectItem value="whatsapp_campaign">
                       {t("serviceType.whatsapp_campaign")}
+                    </ElevatedSelectItem>
+                    <ElevatedSelectItem value="advertising">
+                      {t("serviceType.advertising")}
                     </ElevatedSelectItem>
                     <ElevatedSelectItem value="top_up">
                       {t("serviceType.top_up")}
