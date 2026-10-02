@@ -135,10 +135,3 @@ export function toggleBlockerKey(
 export function isRejected(row: Pick<AdRow, "delivery">): boolean {
   return deliveryKey(row.delivery) === "rejected";
 }
-
-export function partitionBySpend(accounts: AdAccount[]): { ready: AdAccount[]; blocked: AdAccount[] } {
-  return {
-    ready: accounts.filter((account) => spendBlockerKey(account) === null),
-    blocked: accounts.filter((account) => spendBlockerKey(account) !== null),
-  };
-}

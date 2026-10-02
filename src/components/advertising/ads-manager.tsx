@@ -37,7 +37,7 @@ import { canTest } from "@/lib/advertising/ab-test";
 import { needsLiveData, nextSort, parseVisibleColumns, sortRows, toggleColumn, DEFAULT_COLUMNS, type MetricColumn, type RowSort, type SortableColumn } from "@/lib/advertising/columns";
 import { ADVERTISING_PATH, COLUMNS_STORAGE_KEY, newAdHref, readStored, writeStored } from "@/lib/advertising/connect";
 import { DEFAULT_PRESET, civilToday, rangeForPreset, relativeSince, validRange, type RangePreset } from "@/lib/advertising/date-range";
-import { manageBlockerKey, spendBlockerKey } from "@/lib/advertising/delivery";
+import { manageBlockerKey } from "@/lib/advertising/delivery";
 import { issuesUnder, withBudgetMinimum } from "@/lib/advertising/issues";
 import { needsStructureRefresh } from "@/lib/advertising/publish";
 import { liveById, mergeLiveRows, withLiveResults, type LiveFetch, type ManagerRow } from "@/lib/advertising/live";
@@ -56,7 +56,6 @@ import { cn } from "@/lib/utils";
 
 import { AbTestDialog } from "./ab-test-dialog";
 import { AbTestsSheet } from "./ab-tests-sheet";
-import { AccountNotices } from "./account-notices";
 import { useIssueText } from "./field-issue";
 import { AccountPicker } from "./account-picker";
 import { AdsColumnsMenu } from "./ads-columns-menu";
@@ -69,10 +68,12 @@ import { DuplicateDialog } from "./duplicate-dialog";
 import { ObjectEditSheet, type PlacementCatalog } from "./edit/object-edit-sheet";
 import { PublishJobsSheet } from "./publish-jobs-sheet";
 import { PublishedNotice } from "./published-notice";
+import { ManagerReadinessBanner } from "./readiness";
 import { useLoadErrorState } from "./load-error-state";
 import { DEFAULT_WINDOW, LiveHint, ReportControls, knownWindows, type WindowChoice } from "./report-controls";
 import { RowActionsMenu, type RowAction } from "./row-actions-menu";
 import { SpendCapControl } from "./spend-cap-control";
+import { useAdReadiness } from "./use-ad-readiness";
 import { useAdsErrorText } from "./use-ads-error";
 import { useAdsFormat } from "./use-ads-format";
 import { useAdsResource } from "./wizard/use-ads-resource";
@@ -308,6 +309,8 @@ export function AdsManager() {
   const reload = () => setReloadToken((token) => token + 1);
 
   const replaceAccount = accounts.replace;
+  const readiness = useAdReadiness(account, replaceAccount);
+  const refreshReadiness = readiness.refresh;
   const syncAccount = useCallback(() => {
     if (!accountId) return;
     setSyncing(true);
@@ -318,9 +321,10 @@ export function AdsManager() {
         return;
       }
       replaceAccount(result.data);
+      refreshReadiness();
       setReloadToken((token) => token + 1);
     });
-  }, [accountId, replaceAccount, toast, t, errorText]);
+  }, [accountId, replaceAccount, refreshReadiness, toast, t, errorText]);
 
   const campaignReport = fresh ? data.reports.campaign : null;
   const publishedMissing =
@@ -530,8 +534,6 @@ export function AdsManager() {
 
   const manageBlocker = account ? manageBlockerKey(account) : "unknown";
   const manageReason = manageBlocker === null ? null : t(`manageBlocker.${manageBlocker}`);
-  const blocker = account ? spendBlockerKey(account) : "unknown";
-  const blockerText = blocker === null ? null : t(`spendBlocker.${blocker}`);
   const synced = relativeSince(account?.lastSyncedAt, now, fmt.tag);
 
   const connectButton = canCreate ? (
@@ -548,17 +550,14 @@ export function AdsManager() {
 
   const createButton =
     canCreate && account ? (
-      <TooltipWrapper content={blockerText ?? ""} enabled={!!blockerText}>
-        <Button
-          variant="primary"
-          title={t("header.create")}
-          icon={<Plus weight="bold" className="h-4 w-4" />}
-          iconVisible
-          iconSide="left"
-          disabled={!!blockerText}
-          onClick={() => router.push(newAdHref(account.id))}
-        />
-      </TooltipWrapper>
+      <Button
+        variant="primary"
+        title={t("header.create")}
+        icon={<Plus weight="bold" className="h-4 w-4" />}
+        iconVisible
+        iconSide="left"
+        onClick={() => router.push(newAdHref(account.id))}
+      />
     ) : null;
 
   const header = (
@@ -770,13 +769,7 @@ export function AdsManager() {
         />
       ) : null}
 
-      <AccountNotices
-        account={account}
-        canReconnect={canCreate}
-        reconnecting={isConnecting}
-        onReconnect={() => connect(ADVERTISING_PATH)}
-        recheck={{ checking: syncing, onRecheck: syncAccount }}
-      />
+      <ManagerReadinessBanner account={account} state={readiness} />
 
       {!today ? (
         <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">

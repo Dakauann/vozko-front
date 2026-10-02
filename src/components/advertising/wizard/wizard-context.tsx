@@ -21,8 +21,6 @@ export interface WizardContextValue {
   issues: DraftIssue[];
   today: string | null;
   canGenerate: boolean;
-  blockedAccounts: AdAccount[];
-  onAccountUpdated: (account: AdAccount) => void;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);

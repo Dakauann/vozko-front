@@ -58,6 +58,50 @@ export interface AdAccount {
   amountSpent?: number | null;
 }
 
+export type AdReadinessKey =
+  | "connection"
+  | "advertiser_role"
+  | "account_status"
+  | "account_details"
+  | "payment_method"
+  | "page"
+  | "phone_verification"
+  | "email_verification"
+  | "custom_audience_terms"
+  | "pixel";
+
+export type AdReadinessState = "ready" | "missing" | "unknown";
+
+export type AdInAppAction = "reconnect" | "sync" | "create_pixel";
+
+export interface AdReadinessAction {
+  kind: "in_app" | "portal" | string;
+  key?: AdInAppAction | string;
+  url?: string;
+}
+
+export interface AdReadinessItem {
+  key: AdReadinessKey | string;
+  state: AdReadinessState | string;
+  required: boolean;
+  action?: AdReadinessAction;
+}
+
+export interface AdBilling {
+  portalUrl: string;
+  paymentMethod?: string;
+  balance: number;
+  prepay: boolean;
+}
+
+export interface AdReadiness {
+  account: AdAccount;
+  ready: boolean;
+  blocking: string[];
+  items: AdReadinessItem[];
+  billing?: AdBilling;
+}
+
 export interface AdMetrics {
   currency: string;
   spend: number;

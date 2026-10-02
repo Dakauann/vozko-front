@@ -8,7 +8,6 @@ import {
   jobIsTerminal,
   jobTone,
   manageBlockerKey,
-  partitionBySpend,
   resultKind,
   rowIssues,
   spendBlockerKey,
@@ -153,15 +152,6 @@ describe("read-only accounts", () => {
     const permissions = { canCreate: true, canUpdate: true, canDelete: false };
     expect(accountWritePermissions(permissions, readOnly)).toEqual({ canCreate: false, canUpdate: false, canDelete: false });
     expect(accountWritePermissions(permissions, account())).toEqual(permissions);
-  });
-
-  it("splits the accounts that can publish from the ones that cannot", () => {
-    const ready = account();
-    const unfunded = account({ canSpend: false, hasFunding: false });
-    const needsReconnect = account({ ...readOnly, connection: "NEEDS_RECONNECT" });
-    const split = partitionBySpend([ready, readOnly, unfunded, needsReconnect]);
-    expect(split.ready).toEqual([ready]);
-    expect(split.blocked).toEqual([readOnly, unfunded, needsReconnect]);
   });
 
   it("treats an account whose role is missing as read only", () => {

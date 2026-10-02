@@ -21,25 +21,31 @@ const done = (overrides: Partial<Extract<ValidationState, { status: "done" }>> =
   ...overrides,
 });
 
+const ready = { ready: true, blocking: [] };
+
 describe("publishBlockers", () => {
-  it("is empty only for a clean validation of the exact draft with a fee", () => {
-    expect(publishBlockers({ canSpend: true }, done(), "k1")).toEqual([]);
+  it("is empty only for a ready account and a clean validation of the exact draft with a fee", () => {
+    expect(publishBlockers(ready, done(), "k1")).toEqual([]);
   });
 
   it("names why publishing is not possible yet", () => {
-    expect(publishBlockers({ canSpend: true }, { status: "idle" }, "k1")).toEqual(["notValidated"]);
-    expect(publishBlockers({ canSpend: true }, { status: "validating" }, "k1")).toEqual(["validating"]);
-    expect(publishBlockers({ canSpend: true }, { status: "failed", message: "x", code: "price_unavailable" }, "k1")).toEqual([
-      "validationFailed",
-    ]);
-    expect(publishBlockers({ canSpend: true }, done(), "k2")).toEqual(["stale"]);
-    expect(publishBlockers({ canSpend: true }, done({ issues: [{ field: "adSet", code: "required" }] }), "k1")).toEqual(["issues"]);
-    expect(publishBlockers({ canSpend: true }, done({ fee: null }), "k1")).toEqual(["noFee"]);
+    expect(publishBlockers(ready, { status: "idle" }, "k1")).toEqual(["notValidated"]);
+    expect(publishBlockers(ready, { status: "validating" }, "k1")).toEqual(["validating"]);
+    expect(publishBlockers(ready, { status: "failed", message: "x", code: "price_unavailable" }, "k1")).toEqual(["validationFailed"]);
+    expect(publishBlockers(ready, done(), "k2")).toEqual(["stale"]);
+    expect(publishBlockers(ready, done({ issues: [{ field: "adSet", code: "required" }] }), "k1")).toEqual(["issues"]);
+    expect(publishBlockers(ready, done({ fee: null }), "k1")).toEqual(["noFee"]);
   });
 
-  it("refuses an account that cannot create, or no account at all", () => {
-    expect(publishBlockers({ canSpend: false }, done(), "k1")).toEqual(["account"]);
-    expect(publishBlockers(undefined, done({ fee: null }), "k1")).toEqual(["account", "noFee"]);
+  it("lists every readiness item that still blocks the account", () => {
+    expect(publishBlockers({ ready: false, blocking: ["payment_method", "page"] }, done(), "k1")).toEqual(["payment_method", "page"]);
+  });
+
+  it("fails closed when readiness is missing, contradictory or names an unknown item", () => {
+    expect(publishBlockers(null, done({ fee: null }), "k1")).toEqual(["readinessUnchecked", "noFee"]);
+    expect(publishBlockers({ ready: false, blocking: [] }, done(), "k1")).toEqual(["readinessUnchecked"]);
+    expect(publishBlockers({ ready: true, blocking: ["page"] }, done(), "k1")).toEqual(["page"]);
+    expect(publishBlockers({ ready: false, blocking: ["page", "something_new"] }, done(), "k1")).toEqual(["page", "readinessUnchecked"]);
   });
 });
 

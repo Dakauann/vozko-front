@@ -5,11 +5,11 @@ import { useTranslations } from "next-intl";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { ArrowClockwise, CheckCircle, Info, Warning, WarningCircle } from "@/components/icons";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
-import { spendBlockerKey } from "@/lib/advertising/delivery";
 import { MAX_AGE, budgetFromInput, campaignBudgetActive, cleanPlacements } from "@/lib/advertising/draft";
 import { EMPTY_VALUE } from "@/lib/advertising/money";
 import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import type { PublishBlocker, ValidationState } from "@/lib/advertising/publish";
+import { readinessKey } from "@/lib/advertising/readiness";
 import { adIndexOfIssue, stepOfIssue, type DraftIssue, type WizardStep } from "@/lib/advertising/wizard-issues";
 
 import { useAdsFormat } from "../use-ads-format";
@@ -198,14 +198,12 @@ function PublishBlockers({
   onRevalidate: () => void;
 }) {
   const t = useTranslations("adsWizard.review.blockers");
-  const tBlocker = useTranslations("adsManager.spendBlocker");
-  const { account } = useWizard();
+  const tReadiness = useTranslations("adsReadiness.items");
   const issueCount = validation.status === "done" ? validation.issues.length : 0;
-  const accountBlocker = account ? spendBlockerKey(account) : "unknown";
   const text = (blocker: PublishBlocker) => {
+    const readiness = readinessKey(blocker);
+    if (readiness) return tReadiness(`${readiness}.title`);
     switch (blocker) {
-      case "account":
-        return accountBlocker ? tBlocker(accountBlocker) : t("account");
       case "validationFailed":
         return t("validationFailed", { message: validation.status === "failed" ? validation.message : "" });
       case "issues":

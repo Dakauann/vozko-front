@@ -27,7 +27,6 @@ import { ArrowLeft, ArrowRight, Megaphone, PaperPlaneTilt, Trash, Warning } from
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { ADVERTISING_PATH, managerHref, pickAccountId } from "@/lib/advertising/connect";
-import { partitionBySpend } from "@/lib/advertising/delivery";
 import { civilToday } from "@/lib/advertising/date-range";
 import {
   buildCreative,
@@ -63,8 +62,9 @@ import {
 } from "@/lib/advertising/wizard-storage";
 import { formatWhen } from "@/lib/advertising/when";
 
-import { BlockedAccounts } from "../blocked-accounts";
 import { AdPreviewPanel } from "../ad-preview-panel";
+import { WizardReadinessBanner } from "../readiness";
+import { useAdReadiness } from "../use-ad-readiness";
 import { useAdsErrorText, type AdsErrorLike } from "../use-ads-error";
 import { useAdsFormat } from "../use-ads-format";
 import { AdSetStep } from "./ad-set-step";
@@ -166,7 +166,7 @@ export function AdWizard() {
     canCreate && hasParents ? `parents:${entry.adId}:${entry.campaignId}:${entry.adSetId}` : null,
     () => loadParents(entry),
   );
-  const { ready: accounts, blocked: blockedAccounts } = useMemo(() => partitionBySpend(accountsState.accounts), [accountsState.accounts]);
+  const accounts = accountsState.accounts;
   const workspaceId = currentWorkspace?.id ?? "";
 
   const header = (
@@ -203,7 +203,6 @@ export function AdWizard() {
       <div className="space-y-2 rounded-[--radius] border border-border bg-card p-6 shadow-sm">
         <p className="font-display text-base font-semibold text-foreground">{t("noAccountTitle")}</p>
         <p className="text-sm text-muted-foreground">{t("noAccountBody")}</p>
-        <BlockedAccounts accounts={blockedAccounts} onUpdated={accountsState.replace} />
         <Button variant="secondary" title={t("back")} onClick={() => router.push(ADVERTISING_PATH)} />
       </div>,
     );
@@ -224,7 +223,6 @@ export function AdWizard() {
       workspaceId={workspaceId}
       accounts={accounts}
       options={options.data}
-      blockedAccounts={blockedAccounts}
       onAccountUpdated={accountsState.replace}
       entry={entry}
       parentError={parentError}
@@ -244,7 +242,6 @@ function WizardBody({
   header,
   workspaceId,
   accounts,
-  blockedAccounts,
   onAccountUpdated,
   options,
   entry,
@@ -260,7 +257,6 @@ function WizardBody({
   parentError: string | null;
   initial: () => { fresh: WizardForm; stored: StoredWizard | null };
   canGenerate: boolean;
-  blockedAccounts: AdAccount[];
   onAccountUpdated: (account: AdAccount) => void;
 }) {
   const t = useTranslations("adsWizard");
@@ -284,6 +280,7 @@ function WizardBody({
   const [now] = useState(() => new Date());
 
   const account = accounts.find((candidate) => candidate.id === form.accountId);
+  const readiness = useAdReadiness(account, onAccountUpdated);
   const pages = useAdsResource(form.accountId ? `pages:${form.accountId}` : null, () => listAdPagesAction(form.accountId));
   const page = pages.status === "ready" ? pages.data.find((candidate) => candidate.pageId === form.pageId) : undefined;
   const today = account ? civilToday(account.timezone, now) : null;
@@ -300,7 +297,7 @@ function WizardBody({
   const editedCreative = editing && form.ads[0] ? buildCreative(form.ads[0], form.destination) : null;
   const draftKey = JSON.stringify(editedCreative ?? draft);
   const issues: DraftIssue[] = validation.status === "done" ? validation.issues : [];
-  const blockers = publishBlockers(account, validation, draftKey);
+  const blockers = publishBlockers(readiness.readiness, validation, draftKey);
   const existingCampaignId = form.campaignParent?.metaId;
 
   const finishPublish = useCallback(
@@ -443,8 +440,6 @@ function WizardBody({
     issues,
     today,
     canGenerate,
-    blockedAccounts,
-    onAccountUpdated,
   };
 
   if (pendingDraft) {
@@ -535,6 +530,7 @@ function WizardBody({
             />
           ) : null}
         </div>
+        {account && !editing ? <WizardReadinessBanner account={account} state={readiness} canCreate={canGenerate} /> : null}
         {parentError ? (
           <p className="flex items-center gap-2 text-sm text-destructive-ink">
             <Warning className="h-4 w-4" />

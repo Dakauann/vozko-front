@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { ArrowClockwise } from "@/components/icons";
+import { usePortalPopup } from "@/hooks/use-portal-popup";
 
 import { ExternalLink } from "./wizard/choice-row";
 
@@ -36,6 +37,7 @@ export function RequirementSteps({
   checking: boolean;
   onRecheck: () => void;
 }) {
+  const { openPortal } = usePortalPopup(onRecheck);
   return (
     <div className="space-y-2 rounded-[--radius] border border-warning-ink/30 bg-muted px-3 py-2.5">
       <p className="text-sm font-semibold text-warning-ink">{title}</p>
@@ -45,7 +47,9 @@ export function RequirementSteps({
         ))}
       </ol>
       <div className="flex flex-wrap items-center gap-4">
-        <ExternalLink href={href}>{linkLabel}</ExternalLink>
+        <ExternalLink href={href} onOpen={openPortal}>
+          {linkLabel}
+        </ExternalLink>
         <RecheckButton checking={checking} onRecheck={onRecheck} />
       </div>
     </div>

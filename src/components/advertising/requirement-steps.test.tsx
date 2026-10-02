@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
@@ -28,5 +28,25 @@ describe("LeadTermsNotice", () => {
     renderNotice(true);
     const button = screen.getByRole("button", { name: /Verificando/ }) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
+  });
+
+  it("opens the terms in a Meta popup and checks again by itself when it closes", () => {
+    vi.useFakeTimers();
+    const popup = { closed: false };
+    const open = vi.fn(() => popup);
+    vi.stubGlobal("open", open);
+    try {
+      const onRecheck = renderNotice(false);
+      fireEvent.click(screen.getByRole("link", { name: /Aceitar termos na Meta/ }));
+      expect(open).toHaveBeenCalledWith(LEAD_TERMS_URL, expect.any(String), expect.any(String));
+      popup.closed = true;
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+      expect(onRecheck).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
   });
 });

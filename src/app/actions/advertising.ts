@@ -25,6 +25,7 @@ import type {
   AdLocation,
   AdPage,
   AdPublishJob,
+  AdReadiness,
   AdReport,
   AdRow,
   AdTrend,
@@ -44,6 +45,10 @@ export async function listAdAccountsAction(): Promise<AdsResult<AdAccount[]>> {
 
 export async function syncAdAccountAction(id: string): Promise<AdsResult<AdAccount>> {
   return settleAds(await apiClient<AdAccount>(`${accountPath(id)}/sync`, { method: "POST" }));
+}
+
+export async function getAdReadinessAction(id: string): Promise<AdsResult<AdReadiness>> {
+  return settleAds(await apiClient<AdReadiness>(`${accountPath(id)}/readiness`, { method: "GET" }));
 }
 
 export async function disconnectAdAccountAction(id: string): Promise<AdsResult<null>> {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { managerHref, metaAdsResultFromMessage, metaBillingHref, newAdHref, pickAccountId, wizardHref } from "./connect";
+import { managerHref, metaAdsResultFromMessage, newAdHref, overviewHref, pickAccountId, wizardHref } from "./connect";
 
 describe("metaAdsResultFromMessage", () => {
   it("reads the popup message", () => {
@@ -53,8 +53,8 @@ describe("newAdHref", () => {
   });
 });
 
-describe("metaBillingHref", () => {
-  it("opens the payment settings of that ad account in Meta's Billing Hub", () => {
-    expect(metaBillingHref("163167293135040")).toBe("https://business.facebook.com/billing_hub/payment_settings?asset_id=163167293135040");
+describe("overviewHref", () => {
+  it("opens the account overview on the chosen account", () => {
+    expect(overviewHref("a 1")).toBe("/dashboard/advertising/overview?account=a+1");
   });
 });

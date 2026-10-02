@@ -3,12 +3,7 @@ import type { MetaAdsConnectResult, MetaAdsConnectStatus } from "@/lib/advertisi
 export const META_ADS_POPUP_SOURCE = "meta-ads-login";
 export const ADVERTISING_PATH = "/dashboard/advertising";
 export const ADVERTISING_NEW_PATH = "/dashboard/advertising/new";
-const META_BILLING_URL = "https://business.facebook.com/billing_hub/payment_settings";
-
-export function metaBillingHref(metaAccountId: string): string {
-  return `${META_BILLING_URL}?${new URLSearchParams({ asset_id: metaAccountId }).toString()}`;
-}
-export const META_AD_ACCOUNT_ROLES_URL = "https://business.facebook.com/settings/ad-accounts";
+export const ADVERTISING_OVERVIEW_PATH = "/dashboard/advertising/overview";
 export const META_ADS_MANAGER_URL = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 
 const STATUSES: MetaAdsConnectStatus[] = ["connected", "partial", "error", "cancelled"];
@@ -75,6 +70,10 @@ export function managerHref(focus: ManagerFocus): string {
   if (focus.jobId) params.set("job", focus.jobId);
   if (focus.jobs) params.set("jobs", "1");
   return `${ADVERTISING_PATH}?${params.toString()}`;
+}
+
+export function overviewHref(accountId: string): string {
+  return `${ADVERTISING_OVERVIEW_PATH}?${new URLSearchParams({ account: accountId }).toString()}`;
 }
 
 export function newAdHref(accountId: string | null | undefined): string {

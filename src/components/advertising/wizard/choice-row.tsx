@@ -119,12 +119,15 @@ export function ResourceState<T>({ resource, empty }: { resource: Resource<T[]>;
   return null;
 }
 
-export function ExternalLink({ href, children }: { href: string; children: string }) {
+export function ExternalLink({ href, children, onOpen }: { href: string; children: string; onOpen?: (url: string) => boolean }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
+      onClick={(event) => {
+        if (onOpen?.(href)) event.preventDefault();
+      }}
       className="inline-flex items-center gap-1 text-xs font-semibold text-primary-ink hover:underline"
     >
       {children}

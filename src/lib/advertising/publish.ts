@@ -1,7 +1,8 @@
 import { jobStatusKey } from "@/lib/advertising/delivery";
 import type { WizardForm } from "@/lib/advertising/draft";
 import type { AdDraftFee } from "@/lib/advertising/draft-types";
-import type { AdAccount, AdJobProgress, AdPublishJob } from "@/lib/advertising/types";
+import { accountIsReady, readinessKey } from "@/lib/advertising/readiness";
+import type { AdJobProgress, AdPublishJob, AdReadiness, AdReadinessKey } from "@/lib/advertising/types";
 import type { DraftIssue } from "@/lib/advertising/wizard-issues";
 
 export type ValidationState =
@@ -10,14 +11,23 @@ export type ValidationState =
   | { status: "failed"; message: string; code?: string }
   | { status: "done"; key: string; issues: DraftIssue[]; fee: AdDraftFee | null };
 
-export type PublishBlocker = "account" | "notValidated" | "validating" | "validationFailed" | "stale" | "issues" | "noFee";
+export type DraftBlocker = "notValidated" | "validating" | "validationFailed" | "stale" | "issues" | "noFee";
+
+export type PublishBlocker = AdReadinessKey | "readinessUnchecked" | DraftBlocker;
+
+function readinessBlockers(readiness: Pick<AdReadiness, "ready" | "blocking"> | null): PublishBlocker[] {
+  if (accountIsReady(readiness)) return [];
+  const known = (readiness?.blocking ?? []).map(readinessKey);
+  const blockers: PublishBlocker[] = known.filter((key): key is AdReadinessKey => key !== null);
+  return blockers.length === known.length && blockers.length > 0 ? blockers : [...blockers, "readinessUnchecked"];
+}
 
 export function publishBlockers(
-  account: Pick<AdAccount, "canSpend"> | undefined,
+  readiness: Pick<AdReadiness, "ready" | "blocking"> | null,
   validation: ValidationState,
   draftKey: string,
 ): PublishBlocker[] {
-  const blockers: PublishBlocker[] = account?.canSpend ? [] : ["account"];
+  const blockers = readinessBlockers(readiness);
   switch (validation.status) {
     case "idle":
       return [...blockers, "notValidated"];
