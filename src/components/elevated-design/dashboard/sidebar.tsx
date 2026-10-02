@@ -499,6 +499,12 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
+    icon: SquaresFour,
+    labelKey: "nav.adsOverview",
+    href: "/dashboard/advertising/overview",
+    family: "meta",
+  },
+  {
     icon: Megaphone,
     labelKey: "nav.adsManager",
     href: "/dashboard/advertising",

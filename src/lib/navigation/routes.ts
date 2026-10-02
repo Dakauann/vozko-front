@@ -51,6 +51,7 @@ export const screenPaths = {
   instagram_account: "/dashboard/instagram-accounts/[accountId]",
   facebook_pages: "/dashboard/facebook-pages",
   facebook_connect: "/dashboard/facebook-pages/connect",
+  ads_overview: "/dashboard/advertising/overview",
   ads_manager: "/dashboard/advertising",
   ads_create: "/dashboard/advertising/new",
   ads_audiences: "/dashboard/advertising/audiences",

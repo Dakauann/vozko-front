@@ -49,6 +49,7 @@ describe("sidebar access", () => {
   it("groups every ads page under Meta, outside the Facebook family", () => {
     const meta = campanhasNavItems.filter((item) => item.family === "meta");
     expect(meta.map((item) => [item.labelKey, item.href])).toEqual([
+      ["nav.adsOverview", "/dashboard/advertising/overview"],
       ["nav.adsManager", "/dashboard/advertising"],
       ["nav.createAd", "/dashboard/advertising/new"],
       ["nav.adsAudiences", "/dashboard/advertising/audiences"],
@@ -70,6 +71,7 @@ describe("sidebar access", () => {
   });
 
   it("gates each Meta page by its own screen", () => {
+    expect(ruleForPath("/dashboard/advertising/overview")).toEqual({ kind: "screen", screen: "ads_overview" });
     expect(ruleForPath("/dashboard/advertising")).toEqual({ kind: "screen", screen: "ads_manager" });
     expect(ruleForPath("/dashboard/advertising/new")).toEqual({ kind: "screen", screen: "ads_create" });
     expect(ruleForPath("/dashboard/advertising/audiences")).toEqual({ kind: "screen", screen: "ads_audiences" });
