@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DEFAULT_LOOKALIKE_COUNTRY,
+  countryOptions,
   assignColumn,
   audienceSize,
   audienceState,
@@ -156,5 +158,17 @@ describe("saved audience helpers", () => {
       { ...base, metaId: "2", kind: "LOOKALIKE" },
     ]);
     expect(list.map((audience) => audience.metaId)).toEqual(["1"]);
+  });
+});
+
+describe("countryOptions", () => {
+  it("names each country in the reader's language and keeps the codes", () => {
+    const options = countryOptions("pt", ["US", "BR"]);
+    expect(options.map((option) => option.code)).toEqual(["BR", "US"]);
+    expect(options[0].name).toBe("Brasil");
+  });
+
+  it("offers Brazil, the default, in the full list", () => {
+    expect(countryOptions("en").some((option) => option.code === DEFAULT_LOOKALIKE_COUNTRY)).toBe(true);
   });
 });

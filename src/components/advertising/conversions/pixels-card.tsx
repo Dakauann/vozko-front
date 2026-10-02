@@ -8,13 +8,14 @@ import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { Code, Copy, Plus, Warning } from "@/components/icons";
+import { Code, Copy, Plus } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import type { Pixel } from "@/lib/advertising/conversions";
 import { issuesAt, type ExpectedIssues } from "@/lib/advertising/issues";
 import type { AdAccount } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 
+import { useLoadErrorState } from "../load-error-state";
 import { IssueList } from "../field-issue";
 import { IconAction } from "../icon-action";
 import { StatusDot } from "../status-dot";
@@ -39,6 +40,7 @@ export function PixelsCard({
   const t = useTranslations("adsConversions.pixels");
   const fmt = useAdsFormat();
   const { toast } = useToast();
+  const loadError = useLoadErrorState();
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
   const [expected, setExpected] = useState<ExpectedIssues>({});
@@ -103,15 +105,6 @@ export function PixelsCard({
         <h2 className="font-display text-lg font-semibold text-foreground">{t("title")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
-      {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-          <button type="button" onClick={onReload} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
-      ) : null}
       <DashboardTable
         data={pixels}
         columns={columns}
@@ -147,7 +140,7 @@ export function PixelsCard({
             <Copy className="h-4 w-4" />
           </IconAction>
         )}
-        emptyState={{
+        emptyState={error ? loadError(error, onReload) : {
           icon: <Code className="h-7 w-7 text-muted-foreground" />,
           title: t("emptyTitle"),
           description: t("emptyBody"),

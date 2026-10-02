@@ -1,10 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import ptMessages from "@/i18n/messages/pt.json";
 
 import { hasProposalPreview, ProposalPreview } from "./proposal-preview";
+
+const exchangeRate = vi.hoisted(() => ({ priceMicros: 5_000_000 as number | null }));
+
+vi.mock("@/app/actions/pricing", () => ({
+  getExchangeRateAction: () =>
+    Promise.resolve({ item: exchangeRate.priceMicros === null ? null : { priceMicros: exchangeRate.priceMicros } }),
+}));
 
 function renderPreview(kind: string, data: unknown) {
   render(
@@ -31,7 +38,7 @@ describe("ProposalPreview", () => {
     expect(screen.getByText("Instagram")).toBeTruthy();
   });
 
-  it("renders the ad creative with budget and fee", () => {
+  it("renders the ad creative with budget and fee", async () => {
     renderPreview("ad_creative", {
       pageName: "Loja da Ana",
       format: "VIDEO",
@@ -45,8 +52,8 @@ describe("ProposalPreview", () => {
       iceBreakers: ["Quanto custa?"],
       dailyBudget: 5000,
       currency: "BRL",
-      fee: 2500000,
-      feeCurrency: "BRL",
+      fee: 500000,
+      feeCurrency: "USD",
       accountName: "Conta principal",
     });
     expect(screen.getByText("Promoção de inverno")).toBeTruthy();
@@ -54,11 +61,32 @@ describe("ProposalPreview", () => {
     expect(screen.getByText("Enviar mensagem no WhatsApp")).toBeTruthy();
     expect(screen.getByText("Quanto custa?")).toBeTruthy();
     expect(screen.getByText(/50,00/)).toBeTruthy();
-    expect(screen.getByText(/2,50/)).toBeTruthy();
+    expect(await screen.findByText(/R\$\s*2,50/)).toBeTruthy();
+    expect(screen.queryByText(/US\$/)).toBeNull();
     expect(hasProposalPreview({ kind: "ad_creative", data: {} })).toBe(true);
   });
 
+  it("shows the fee as pending while the exchange rate is unknown", async () => {
+    exchangeRate.priceMicros = null;
+    renderPreview("ad_creative", { pageName: "Loja da Ana", primaryText: "Oferta", fee: 500000, feeCurrency: "USD" });
+    expect(await screen.findByText("…")).toBeTruthy();
+    exchangeRate.priceMicros = 5_000_000;
+  });
+
+  it("shows the reference images of an image generation as thumbnails", () => {
+    renderPreview("image_references", {
+      references: [
+        { mediaId: "m-1", url: "https://cdn/m-1.png" },
+        { mediaId: "m-2", url: "https://cdn/m-2.jpg" },
+      ],
+    });
+    expect(screen.getByText(ptMessages.aiChatPage.previews.references)).toBeTruthy();
+    const thumbs = Array.from(document.querySelectorAll("img"));
+    expect(thumbs.map((img) => img.getAttribute("src"))).toEqual(["https://cdn/m-1.png", "https://cdn/m-2.jpg"]);
+  });
+
   it("only claims kinds it can draw", () => {
+    expect(hasProposalPreview({ kind: "image_references", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "message", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "deal", data: {} })).toBe(false);
     expect(hasProposalPreview(undefined)).toBe(false);

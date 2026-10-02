@@ -9,8 +9,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/elevated-design/elevat
 import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
+import { accountWritePermissions } from "@/lib/advertising/delivery";
 
 import { AccountGate } from "../account-gate";
+import { ReadOnlyNotice } from "../account-notices";
 import { AccountPicker } from "../account-picker";
 import { MetaAudiencesPanel } from "./meta-audiences-panel";
 import { SavedAudiencesPanel } from "./saved-audiences-panel";
@@ -59,7 +61,10 @@ export function AudiencesPage() {
             </TabsList>
           </Tabs>
           {tab === "meta" ? (
-            <MetaAudiencesPanel key={account.id} account={account} permissions={permissions} />
+            <>
+              <ReadOnlyNotice account={account} />
+              <MetaAudiencesPanel key={account.id} account={account} permissions={accountWritePermissions(permissions, account)} />
+            </>
           ) : (
             <SavedAudiencesPanel account={account} permissions={permissions} />
           )}

@@ -58,6 +58,31 @@ export interface LookalikeDraft {
   name: string;
   originAudienceId: string;
   percent: number;
+  country?: string;
+}
+
+export const DEFAULT_LOOKALIKE_COUNTRY = "BR";
+
+export const LOOKALIKE_COUNTRIES = [
+  "BR", "AR", "BO", "CL", "CO", "EC", "MX", "PY", "PE", "UY", "VE", "US", "CA", "PT", "ES", "FR", "DE", "IT", "GB", "IE",
+  "NL", "BE", "CH", "AT", "AO", "MZ", "JP", "AU",
+];
+
+export interface CountryOption {
+  code: string;
+  name: string;
+}
+
+export function countryOptions(locale: string, codes: string[] = LOOKALIKE_COUNTRIES): CountryOption[] {
+  let names: Intl.DisplayNames | null = null;
+  try {
+    names = new Intl.DisplayNames([locale], { type: "region" });
+  } catch {
+    names = null;
+  }
+  return codes
+    .map((code) => ({ code, name: names?.of(code) ?? code }))
+    .sort((a, b) => a.name.localeCompare(b.name, locale));
 }
 
 export const MIN_LOOKALIKE_PERCENT = 1;

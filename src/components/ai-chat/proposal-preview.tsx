@@ -5,10 +5,14 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { channelLabel, ChannelLogo } from "@/components/icons/channel-logos";
 
-import { AdPreviewCard, type AdPreviewContent, type AdPreviewMedia } from "@/components/advertising/ad-preview-card";
+import type { AdPreviewContent, AdPreviewMedia } from "@/components/advertising/ad-preview-card";
+import { AdPreviewPanel } from "@/components/advertising/ad-preview-panel";
 import { useAdsFormat } from "@/components/advertising/use-ads-format";
+import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { ProposalPreview as Preview } from "@/lib/aichat/types";
+import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
 import type { TemplateComponent } from "@/lib/whatsapp-templates/types";
 
@@ -81,7 +85,6 @@ interface AdCreativePreviewData {
   dailyBudget?: number;
   currency?: string;
   fee?: number;
-  feeCurrency?: string;
   accountName?: string;
 }
 
@@ -128,18 +131,18 @@ function adPreviewFromProposal(data: AdCreativePreviewData): AdPreviewContent {
 function AdCreativeProposalPreview({ data }: { data: AdCreativePreviewData }) {
   const t = useTranslations("aiChatPage.previews.ad");
   const fmt = useAdsFormat();
+  const hasFee = typeof data.fee === "number" && data.fee > 0;
+  const exchangeRate = useExchangeRate(hasFee);
   const facts = [
     data.accountName ? { label: t("account"), value: data.accountName } : null,
     typeof data.dailyBudget === "number" && data.dailyBudget > 0 && data.currency
       ? { label: t("dailyBudget"), value: fmt.minor(data.dailyBudget, data.currency) }
       : null,
-    typeof data.fee === "number" && data.feeCurrency ? { label: t("fee"), value: fmt.micros(data.fee, data.feeCurrency) } : null,
+    hasFee ? { label: t("fee"), value: formatMicrosAsBrl(data.fee, exchangeRate) ?? "…" } : null,
   ].filter((fact): fact is { label: string; value: string } => fact !== null);
   return (
     <div className="space-y-2">
-      <div className="flex justify-center">
-        <AdPreviewCard content={adPreviewFromProposal(data)} />
-      </div>
+      <AdPreviewPanel content={adPreviewFromProposal(data)} />
       {facts.length > 0 ? (
         <dl className="grid gap-x-4 gap-y-1 rounded-lg border border-border bg-muted px-3 py-2 text-xs sm:grid-cols-3">
           {facts.map((fact) => (
@@ -155,10 +158,27 @@ function AdCreativeProposalPreview({ data }: { data: AdCreativePreviewData }) {
   );
 }
 
+function ImageReferencesPreview({ data }: { data: { references?: unknown } }) {
+  const t = useTranslations("aiChatPage.previews");
+  const references = records(data.references).flatMap((item): ReferenceThumbnail[] => {
+    const mediaId = text(item.mediaId);
+    const url = text(item.url);
+    return mediaId && url ? [{ mediaId, url }] : [];
+  });
+  if (references.length === 0) return null;
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-muted p-3">
+      <p className="text-2xs font-medium text-muted-foreground">{t("references")}</p>
+      <ReferenceThumbnails items={references} />
+    </div>
+  );
+}
+
 const RENDERERS: Record<string, (data: unknown) => ReactNode> = {
   whatsapp_template: (data) => <TemplateProposalPreview data={data as TemplatePreviewData} />,
   message: (data) => <MessageProposalPreview data={data as MessagePreviewData} />,
   ad_creative: (data) => <AdCreativeProposalPreview data={(data ?? {}) as AdCreativePreviewData} />,
+  image_references: (data) => <ImageReferencesPreview data={(data ?? {}) as { references?: unknown }} />,
 };
 
 export function hasProposalPreview(preview: Preview | undefined): preview is Preview {

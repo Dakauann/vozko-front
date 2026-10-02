@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createChatThreadAction, getChatMessagesAction } from "@/app/actions/aichat";
 import { useChatStream } from "@/hooks/use-chat-stream";
-import type { ActionCard, ChatAttachment, ChatChart, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, ChatAttachment, ChatChart, ChatImage, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
 
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
+import { toolStartAspect } from "@/lib/aichat/generating-image";
 import { expireOpen } from "@/lib/aichat/proposal";
 
 import { hydrate, type UIMessage } from "./message-list";
@@ -60,7 +61,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
   );
 
   const streamHandlers = useCallback(
-    () => ({
+    (approved?: PendingAction) => ({
       onReasoning: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];
@@ -77,11 +78,12 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
           }
           return segs;
         }),
-      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name)),
+      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name, toolStartAspect(name, approved))),
       onTool: (name: string, summary: string, ok: boolean) =>
         patchSegments((segs) => finishTool(segs, name, summary, ok)),
       onChart: (chart: ChatChart) => patchSegments((segs) => [...segs, { kind: "chart", chart }]),
       onCard: (card: ActionCard) => patchSegments((segs) => [...segs, { kind: "card", card, live: true }]),
+      onImage: (image: ChatImage) => patchSegments((segs) => [...segs, { kind: "image", image }]),
       onDelta: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];
@@ -187,6 +189,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
       if (!activeId) return;
       const threadId = activeId;
       const status = kind === "approve" ? "approved" : "rejected";
+      const approved = messages.find((m) => m.pending?.id === actionId)?.pending ?? undefined;
       setMessages((prev) =>
         prev.map((m) => (m.pending?.id === actionId ? { ...m, pending: { ...m.pending, status } } : m)),
       );
@@ -196,7 +199,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
           ...prev,
           { id: `a-${now}`, role: "assistant", content: "", model, createdAt: now, segments: [] },
         ]);
-        await approve(threadId, actionId, streamHandlers(), secrets);
+        await approve(threadId, actionId, streamHandlers(approved), secrets);
         return;
       }
       await reject(threadId, actionId, {
@@ -207,7 +210,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
         },
       });
     },
-    [activeId, approve, reject, streamHandlers, reload, onTurnFinished],
+    [activeId, messages, approve, reject, streamHandlers, reload, onTurnFinished],
   );
 
   return {

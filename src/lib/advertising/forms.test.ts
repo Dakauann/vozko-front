@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildFormDraft,
+  buildIntro,
   customQuestion,
   customQuestionKey,
   emptyFormBuilder,
@@ -63,8 +64,9 @@ describe("buildFormDraft", () => {
     );
     expect(draft.name).toBe("Leads julho");
     expect(draft.privacyUrl).toBe("https://x.com/p");
-    expect(draft.thankYouTitle).toBeUndefined();
-    expect(draft.headline).toBeUndefined();
+    expect(draft.thankYouTitle).toBe("");
+    expect(draft.intro).toBeUndefined();
+    expect(draft.thankYouUrl).toBe("");
     expect(draft.questions).toEqual([
       { type: "FULL_NAME" },
       { type: "PHONE" },
@@ -95,5 +97,38 @@ describe("humanizeKey", () => {
   it("turns a key back into a readable label", () => {
     expect(humanizeKey("melhor_horario_d")).toBe("Melhor horario");
     expect(humanizeKey("company_name")).toBe("Company name");
+  });
+});
+
+describe("buildIntro", () => {
+  it("sends no intro unless it is turned on", () => {
+    expect(buildIntro({ ...emptyFormBuilder(), introTitle: "Olá" })).toBeUndefined();
+  });
+
+  it("sends a paragraph as one line", () => {
+    const state = { ...emptyFormBuilder(), introOn: true, introTitle: " Fale com a gente ", introParagraph: " Respondemos em minutos. " };
+    expect(buildIntro(state)).toEqual({ title: "Fale com a gente", style: "PARAGRAPH", content: ["Respondemos em minutos."] });
+  });
+
+  it("sends list bullets without blank items", () => {
+    const state = { ...emptyFormBuilder(), introOn: true, introTitle: "Por que", introStyle: "LIST" as const, introItems: ["Rápido", " ", "Grátis "] };
+    expect(buildIntro(state)).toEqual({ title: "Por que", style: "LIST", content: ["Rápido", "Grátis"] });
+  });
+
+  it("keeps an empty intro so the server can say what is missing", () => {
+    expect(buildIntro({ ...emptyFormBuilder(), introOn: true })).toEqual({ title: "", style: "PARAGRAPH", content: [] });
+  });
+});
+
+describe("buildFormDraft thank-you screen", () => {
+  it("always sends the thank-you link and button text, trimmed", () => {
+    const draft = buildFormDraft({ ...emptyFormBuilder("Visitar site"), thankYouUrl: " https://loja.com " }, "acc", "page");
+    expect(draft.thankYouUrl).toBe("https://loja.com");
+    expect(draft.thankYouButtonText).toBe("Visitar site");
+  });
+
+  it("starts the button text from the given default", () => {
+    expect(emptyFormBuilder("Visit website").thankYouButtonText).toBe("Visit website");
+    expect(emptyFormBuilder().thankYouButtonText).toBe("");
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { metaAdsResultFromMessage, pickAccountId, wizardHref } from "./connect";
+import { managerHref, metaAdsResultFromMessage, metaBillingHref, newAdHref, pickAccountId, wizardHref } from "./connect";
 
 describe("metaAdsResultFromMessage", () => {
   it("reads the popup message", () => {
@@ -34,5 +34,27 @@ describe("wizardHref", () => {
     expect(wizardHref({ accountId: "a1", adSetId: "9" })).toBe("/dashboard/advertising/new?accountId=a1&adSetId=9");
     expect(wizardHref({ accountId: "a1", campaignId: "5" })).toBe("/dashboard/advertising/new?accountId=a1&campaignId=5");
     expect(wizardHref({ accountId: "a 1", adId: "7" })).toBe("/dashboard/advertising/new?accountId=a+1&adId=7");
+  });
+});
+
+describe("managerHref", () => {
+  it("points the manager at the account and the published campaign", () => {
+    expect(managerHref({ accountId: "a 1", campaignId: "c1", published: true })).toBe(
+      "/dashboard/advertising?account=a+1&campaign=c1&published=1",
+    );
+    expect(managerHref({ accountId: "a1", jobs: true })).toBe("/dashboard/advertising?account=a1&jobs=1");
+  });
+});
+
+describe("newAdHref", () => {
+  it("opens the wizard on the chosen account", () => {
+    expect(newAdHref("a1")).toBe("/dashboard/advertising/new?accountId=a1");
+    expect(newAdHref(null)).toBe("/dashboard/advertising/new");
+  });
+});
+
+describe("metaBillingHref", () => {
+  it("opens the payment settings of that ad account in Meta's Billing Hub", () => {
+    expect(metaBillingHref("163167293135040")).toBe("https://business.facebook.com/billing_hub/payment_settings?asset_id=163167293135040");
   });
 });

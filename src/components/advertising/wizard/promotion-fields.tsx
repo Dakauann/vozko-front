@@ -9,6 +9,7 @@ import type { AdDraftDestination, AdOptimizationGoal, AdPixelEvent } from "@/lib
 import { screenPaths } from "@/lib/navigation/routes";
 import { needsPixel } from "@/lib/advertising/wizard-routes";
 
+import { RequirementSteps } from "../requirement-steps";
 import { useAdsFormat } from "../use-ads-format";
 import { ExternalLink, Hint, ResourceState } from "./choice-row";
 import { FieldIssues } from "./field-issues";
@@ -16,14 +17,30 @@ import { readyData, useAdsResource } from "./use-ads-resource";
 import { useWizardLabels } from "./use-wizard-labels";
 import { useWizard } from "./wizard-context";
 
+function LinkWhatsAppSteps({ pageId, checking, onRecheck }: { pageId: string; checking: boolean; onRecheck: () => void }) {
+  const t = useTranslations("adsWizard.promotion.linkNumber");
+  return (
+    <RequirementSteps
+      title={t("title")}
+      steps={[t("openSettings"), t("enterNumber"), t("codeInInbox"), t("recheck")]}
+      href={`https://business.facebook.com/latest/home?asset_id=${encodeURIComponent(pageId)}`}
+      linkLabel={t("openButton")}
+      checking={checking}
+      onRecheck={onRecheck}
+    />
+  );
+}
+
 function WhatsAppNumberField() {
   const t = useTranslations("adsWizard.promotion");
-  const { form, patch, page, issues } = useWizard();
+  const { form, patch, page, pages, issues } = useWizard();
   const numbers = page?.numbers ?? [];
   return (
     <div className="space-y-2">
       {!page ? <Hint>{t("choosePageFirst")}</Hint> : null}
-      {page && numbers.length === 0 ? <p className="text-sm text-warning-ink">{t("noNumbers")}</p> : null}
+      {page && numbers.length === 0 ? (
+        <LinkWhatsAppSteps pageId={page.pageId} checking={pages.status === "loading"} onRecheck={pages.reload} />
+      ) : null}
       {numbers.length > 0 ? (
         <ElevatedSelect label={t("number")} value={form.whatsAppNumber} onValueChange={(whatsAppNumber) => patch({ whatsAppNumber })}>
           {numbers.map((number) => (

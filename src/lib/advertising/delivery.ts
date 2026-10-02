@@ -54,10 +54,11 @@ export function rowIssues(row: Pick<AdRow, "issues" | "reviewFeedback">): IssueE
   return [...issues, ...feedback].filter((entry) => entry.title || entry.message);
 }
 
-export type AccountNotice = "reconnect" | "funding" | "metaStatus";
+export type AccountNotice = "reconnect" | "readOnly" | "funding" | "metaStatus";
 
 export function accountNotices(account: AdAccount): AccountNotice[] {
   if (account.connection !== "CONNECTED") return ["reconnect"];
+  if (!account.canManage) return ["readOnly"];
   const notices: AccountNotice[] = [];
   if (account.metaStatus !== "active" && account.metaStatus !== "in_grace_period") notices.push("metaStatus");
   if (!account.hasFunding) notices.push("funding");
@@ -94,4 +95,50 @@ export function jobTone(status: string): DeliveryTone {
 export function jobIsTerminal(status: string): boolean {
   const key = jobStatusKey(status);
   return key === "PUBLISHED" || key === "FAILED" || key === "NEEDS_REVIEW";
+}
+
+export type ManageBlocker = "reconnect" | "readOnly" | "unknown";
+
+export function manageBlockerKey(account: AdAccount): ManageBlocker | null {
+  if (account.canManage) return null;
+  const notice = accountNotices(account)[0];
+  return notice === "reconnect" || notice === "readOnly" ? notice : "unknown";
+}
+
+export function accountWritePermissions<P extends { [K in keyof P]: boolean }>(permissions: P, account: AdAccount): P {
+  if (manageBlockerKey(account) === null) return permissions;
+  return Object.fromEntries(Object.keys(permissions).map((key) => [key, false])) as P;
+}
+
+export type SpendCapBlocker = ManageBlocker | "adminRequired";
+
+export function spendCapBlockerKey(account: AdAccount): SpendCapBlocker | null {
+  if (account.canSetSpendCap) return null;
+  return manageBlockerKey(account) ?? "adminRequired";
+}
+
+export type ToggleBlocker = "locked" | "permission" | AccountNotice | "unknown";
+
+export function toggleBlockerKey(
+  row: Pick<AdRow, "isOn" | "canToggle">,
+  account: AdAccount,
+  permissions: { canStart: boolean; canStop: boolean },
+): ToggleBlocker | null {
+  if (!row.canToggle) return "locked";
+  const manage = manageBlockerKey(account);
+  if (manage) return manage;
+  if (row.isOn) return permissions.canStop ? null : "permission";
+  if (!permissions.canStart) return "permission";
+  return spendBlockerKey(account);
+}
+
+export function isRejected(row: Pick<AdRow, "delivery">): boolean {
+  return deliveryKey(row.delivery) === "rejected";
+}
+
+export function partitionBySpend(accounts: AdAccount[]): { ready: AdAccount[]; blocked: AdAccount[] } {
+  return {
+    ready: accounts.filter((account) => spendBlockerKey(account) === null),
+    blocked: accounts.filter((account) => spendBlockerKey(account) !== null),
+  };
 }

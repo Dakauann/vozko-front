@@ -6,16 +6,20 @@ import { useTranslations } from "next-intl";
 import { WarningCircle } from "@/components/icons";
 import { issueMessageKey, issuesForField, issuesUnder, type DraftIssue } from "@/lib/advertising/wizard-issues";
 
+import { useBudgetMinimumText } from "../budget-minimum";
+
 export function useIssueMessage() {
   const t = useTranslations("adsWizard.issues");
+  const minimumText = useBudgetMinimumText();
   return useCallback(
     (issue: DraftIssue) => {
+      if (issue.minimum) return minimumText("below", issue.minimum);
       const specific = issueMessageKey(issue);
       if (t.has(specific)) return t(specific);
       if (t.has(`generic.${issue.code}`)) return t(`generic.${issue.code}`);
       return t("generic.unknown", { field: issue.field, code: issue.code });
     },
-    [t],
+    [t, minimumText],
   );
 }
 

@@ -7,11 +7,12 @@ import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { DashboardTable, type DashboardTableColumn, type DashboardTableEmptyState } from "@/components/elevated-design/table/dashboard-table";
 import { Image as ImageGlyph, Warning } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import type { MetricColumn, ReportColumn, RowSort, SortableColumn } from "@/lib/advertising/columns";
-import { resultCount, resultKind, rowIssues } from "@/lib/advertising/delivery";
+import { isRejected, manageBlockerKey, resultCount, resultKind, rowIssues, toggleBlockerKey } from "@/lib/advertising/delivery";
 import { isLiveColumn, liveValue, type LiveColumn, type ManagerRow } from "@/lib/advertising/live";
 import { EMPTY_VALUE } from "@/lib/advertising/money";
-import type { AdLevel, AdMetrics, AdOutcome, AdPeriod, AdRow } from "@/lib/advertising/types";
+import type { AdAccount, AdBudgetMinimum, AdLevel, AdMetrics, AdOutcome, AdPeriod, AdRow } from "@/lib/advertising/types";
 
 import { AdImage } from "./ad-image";
 import { BudgetCell } from "./budget-cell";
@@ -95,6 +96,18 @@ function liveText(column: LiveColumn, row: ManagerRow, currency: string, fmt: Ad
   }
 }
 
+function RejectionNote({ row }: { row: AdRow }) {
+  const t = useTranslations("adsManager.table");
+  if (!isRejected(row)) return null;
+  const first = rowIssues(row)[0];
+  const reason = first ? first.message || first.title : "";
+  return (
+    <span className="line-clamp-2 text-2xs text-destructive-ink" title={reason || undefined}>
+      {reason ? t("rejectedReason", { reason }) : t("rejectedNoReason")}
+    </span>
+  );
+}
+
 function IssuesBadge({ row }: { row: AdRow }) {
   const t = useTranslations("adsManager.table");
   const issues = rowIssues(row);
@@ -151,12 +164,14 @@ function NameCell({ row }: { row: AdRow }) {
           <span className="truncate text-2xs tabular-nums text-muted-foreground">{row.metaId}</span>
           <IssuesBadge row={row} />
         </span>
+        <RejectionNote row={row} />
       </div>
     </div>
   );
 }
 
 export function AdsTable({
+  account,
   level,
   rows,
   totals,
@@ -174,6 +189,7 @@ export function AdsTable({
   onBudget,
   rowActions,
 }: {
+  account: AdAccount;
   level: AdLevel;
   rows: ManagerRow[];
   totals: AdMetrics | null;
@@ -188,11 +204,13 @@ export function AdsTable({
   loading: boolean;
   emptyState: DashboardTableEmptyState;
   onToggle: (row: AdRow, on: boolean) => void;
-  onBudget: (row: AdRow, amount: number) => Promise<string | null>;
+  onBudget: (row: AdRow, amount: number, minimum: AdBudgetMinimum | null) => Promise<string | null>;
   rowActions: (row: ManagerRow) => ReactNode;
 }) {
   const t = useTranslations("adsManager.columns");
   const tTable = useTranslations("adsManager.table");
+  const tToggle = useTranslations("adsManager.toggleBlocker");
+  const writable = manageBlockerKey(account) === null;
   const fmt = useAdsFormat();
   const currency = totals?.currency ?? "";
 
@@ -203,16 +221,20 @@ export function AdsTable({
       header: t("toggle"),
       className: "w-16",
       render: (row) => {
-        const allowed = row.isOn ? permissions.canStop : permissions.canStart;
+        const blocker = toggleBlockerKey(row, account, permissions);
+        const reason = blocker ? tToggle(blocker) : "";
         return (
-          <span onClick={(event) => event.stopPropagation()} className="inline-flex">
-            <ElevatedSwitch
-              checked={row.isOn}
-              disabled={!row.canToggle || !allowed || pending.has(row.metaId)}
-              onCheckedChange={(on) => onToggle(row, on)}
-              aria-label={tTable(row.isOn ? "turnOff" : "turnOn", { name: row.name })}
-            />
-          </span>
+          <TooltipWrapper content={reason} enabled={!!blocker}>
+            <span onClick={(event) => event.stopPropagation()} className="inline-flex" tabIndex={blocker ? 0 : undefined}>
+              <ElevatedSwitch
+                checked={row.isOn}
+                disabled={!!blocker || pending.has(row.metaId)}
+                onCheckedChange={(on) => onToggle(row, on)}
+                aria-label={tTable(row.isOn ? "turnOff" : "turnOn", { name: row.name })}
+                aria-description={reason || undefined}
+              />
+            </span>
+          </TooltipWrapper>
         );
       },
     };
@@ -236,8 +258,9 @@ export function AdsTable({
               dailyBudget={row.dailyBudget}
               lifetimeBudget={row.lifetimeBudget}
               currency={row.metrics.currency || currency}
-              editable={permissions.canUpdate && row.level !== "ad"}
-              onSave={(amount) => onBudget(row, amount)}
+              editable={permissions.canUpdate && writable && row.level !== "ad"}
+              minimumQuery={row.level === "adset" && row.optimizationGoal ? { accountId: account.id, goal: row.optimizationGoal } : null}
+              onSave={(amount, minimum) => onBudget(row, amount, minimum)}
             />
           );
         }
@@ -245,7 +268,7 @@ export function AdsTable({
       },
     }));
     return [toggle, name, ...metrics];
-  }, [t, tTable, level, visibleColumns, permissions, pending, onToggle, onBudget, fmt, currency]);
+  }, [t, tTable, tToggle, account, writable, level, visibleColumns, permissions, pending, onToggle, onBudget, fmt, currency]);
 
   const footerCell = (column: MetricColumn) => {
     if (column === "delivery" || column === "budget") return null;

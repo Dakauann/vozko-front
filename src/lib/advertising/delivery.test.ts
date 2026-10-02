@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { accountNotices, deliveryKey, deliveryTone, jobIsTerminal, jobTone, resultKind, rowIssues, spendBlockerKey } from "./delivery";
+import {
+  accountNotices,
+  accountWritePermissions,
+  deliveryKey,
+  deliveryTone,
+  jobIsTerminal,
+  jobTone,
+  manageBlockerKey,
+  partitionBySpend,
+  resultKind,
+  rowIssues,
+  spendBlockerKey,
+  spendCapBlockerKey,
+  toggleBlockerKey,
+} from "./delivery";
 import type { AdAccount } from "./types";
 
 const account = (overrides: Partial<AdAccount> = {}): AdAccount => ({
@@ -13,6 +27,9 @@ const account = (overrides: Partial<AdAccount> = {}): AdAccount => ({
   connection: "CONNECTED",
   hasFunding: true,
   canSpend: true,
+  canManage: true,
+  canSetSpendCap: true,
+  role: "admin",
   ...overrides,
 });
 
@@ -85,5 +102,70 @@ describe("publish jobs", () => {
     expect(jobIsTerminal("NEEDS_REVIEW")).toBe(true);
     expect(jobTone("FAILED")).toBe("fault");
     expect(jobTone("WHATEVER")).toBe("neutral");
+  });
+});
+
+describe("toggleBlockerKey", () => {
+  const can = { canStart: true, canStop: true };
+
+  it("allows turning off without a payment method but not turning on", () => {
+    const unfunded = account({ canSpend: false, hasFunding: false });
+    expect(toggleBlockerKey({ isOn: true, canToggle: true }, unfunded, can)).toBeNull();
+    expect(toggleBlockerKey({ isOn: false, canToggle: true }, unfunded, can)).toBe("funding");
+    expect(toggleBlockerKey({ isOn: false, canToggle: true }, account(), can)).toBeNull();
+  });
+
+  it("explains locked objects and missing permissions first", () => {
+    expect(toggleBlockerKey({ isOn: false, canToggle: false }, account(), can)).toBe("locked");
+    expect(toggleBlockerKey({ isOn: false, canToggle: true }, account(), { canStart: false, canStop: true })).toBe("permission");
+    expect(toggleBlockerKey({ isOn: true, canToggle: true }, account(), { canStart: true, canStop: false })).toBe("permission");
+  });
+});
+
+describe("read-only accounts", () => {
+  const readOnly = account({ canManage: false, canSpend: false, canSetSpendCap: false, role: "read_only" });
+  const can = { canStart: true, canStop: true };
+
+  it("explains the role instead of payment or status problems", () => {
+    expect(accountNotices(account({ ...readOnly, hasFunding: false, metaStatus: "disabled" }))).toEqual(["readOnly"]);
+    expect(accountNotices(account({ ...readOnly, connection: "NEEDS_RECONNECT" }))).toEqual(["reconnect"]);
+  });
+
+  it("names the role as the reason every write is blocked", () => {
+    expect(manageBlockerKey(readOnly)).toBe("readOnly");
+    expect(manageBlockerKey(account())).toBeNull();
+    expect(manageBlockerKey(account({ canManage: false, connection: "NEEDS_RECONNECT" }))).toBe("reconnect");
+    expect(spendBlockerKey(readOnly)).toBe("readOnly");
+  });
+
+  it("blocks switching off as well as switching on", () => {
+    expect(toggleBlockerKey({ isOn: true, canToggle: true }, readOnly, can)).toBe("readOnly");
+    expect(toggleBlockerKey({ isOn: false, canToggle: true }, readOnly, can)).toBe("readOnly");
+  });
+
+  it("lets only admins change the spend cap", () => {
+    expect(spendCapBlockerKey(account())).toBeNull();
+    expect(spendCapBlockerKey(account({ canSetSpendCap: false, role: "advertiser" }))).toBe("adminRequired");
+    expect(spendCapBlockerKey(readOnly)).toBe("readOnly");
+  });
+
+  it("turns off every write permission of a blocked account", () => {
+    const permissions = { canCreate: true, canUpdate: true, canDelete: false };
+    expect(accountWritePermissions(permissions, readOnly)).toEqual({ canCreate: false, canUpdate: false, canDelete: false });
+    expect(accountWritePermissions(permissions, account())).toEqual(permissions);
+  });
+
+  it("splits the accounts that can publish from the ones that cannot", () => {
+    const ready = account();
+    const unfunded = account({ canSpend: false, hasFunding: false });
+    const needsReconnect = account({ ...readOnly, connection: "NEEDS_RECONNECT" });
+    const split = partitionBySpend([ready, readOnly, unfunded, needsReconnect]);
+    expect(split.ready).toEqual([ready]);
+    expect(split.blocked).toEqual([readOnly, unfunded, needsReconnect]);
+  });
+
+  it("treats an account whose role is missing as read only", () => {
+    const legacy = account({ canManage: undefined as unknown as boolean });
+    expect(manageBlockerKey(legacy)).not.toBeNull();
   });
 });

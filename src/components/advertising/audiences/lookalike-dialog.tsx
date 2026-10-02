@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { createLookalikeAction } from "@/app/actions/advertising-audiences";
 import { isAdsError } from "@/app/actions/advertising";
@@ -20,15 +20,18 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { Info } from "@/components/icons";
 import { Slider } from "@/components/ui/slider";
 import {
+  DEFAULT_LOOKALIKE_COUNTRY,
   MAX_LOOKALIKE_PERCENT,
   MIN_LOOKALIKE_PERCENT,
   clampLookalikePercent,
+  countryOptions,
   type Audience,
 } from "@/lib/advertising/audiences";
 import { issuesAt, type ExpectedIssues } from "@/lib/advertising/issues";
 import type { AdAccount } from "@/lib/advertising/types";
 
 import { IssueList } from "../field-issue";
+import { useAdsErrorText } from "../use-ads-error";
 
 const DEFAULT_PERCENT = 1;
 
@@ -51,6 +54,10 @@ export function LookalikeDialog({
   const [expected, setExpected] = useState<ExpectedIssues>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [country, setCountry] = useState(DEFAULT_LOOKALIKE_COUNTRY);
+  const locale = useLocale();
+  const countries = useMemo(() => countryOptions(locale), [locale]);
+  const errorText = useAdsErrorText();
   const suggested = origin ? t("suggestedName", { origin: origin.name, percent }) : "";
 
   const submit = async () => {
@@ -61,18 +68,19 @@ export function LookalikeDialog({
       name: name.trim() || suggested,
       originAudienceId: originId,
       percent,
+      country,
     });
     setSaving(false);
     if (isAdsError(outcome)) {
       setExpected(outcome.expected ?? {});
-      setFailure(outcome.expected ? null : outcome.error);
+      setFailure(outcome.expected ? t("fixIssues") : errorText(outcome));
       return;
     }
     onCreated(outcome.data);
   };
 
   return (
-    <ElevatedDialog open onOpenChange={(open) => !open && onClose()}>
+    <ElevatedDialog open onOpenChange={(open) => !open && !saving && onClose()}>
       <ElevatedDialogContent>
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
@@ -117,14 +125,24 @@ export function LookalikeDialog({
             <IssueList namespace="adsAudiences" issues={issuesAt(expected, "name")} />
           </div>
 
-          <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-            {t("locationHint")}
-          </p>
+          <div className="space-y-1">
+            <ElevatedSelect label={t("country")} value={country} onValueChange={setCountry}>
+              {countries.map((option) => (
+                <ElevatedSelectItem key={option.code} value={option.code}>
+                  {option.name}
+                </ElevatedSelectItem>
+              ))}
+            </ElevatedSelect>
+            <IssueList namespace="adsAudiences" issues={issuesAt(expected, "country")} />
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              {t("locationHint")}
+            </p>
+          </div>
           {failure ? <p className="text-sm text-destructive-ink">{failure}</p> : null}
         </ElevatedDialogBody>
         <ElevatedDialogFooter>
-          <Button variant="secondary" title={t("cancel")} onClick={onClose} />
+          <Button variant="secondary" title={t("cancel")} onClick={onClose} disabled={saving} />
           <Button variant="primary" title={saving ? t("creating") : t("create")} onClick={submit} disabled={saving || !originId} />
         </ElevatedDialogFooter>
       </ElevatedDialogContent>

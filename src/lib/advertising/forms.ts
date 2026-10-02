@@ -19,6 +19,18 @@ export const MAX_QUESTIONS = 15;
 export const MAX_OPTIONS = 10;
 export const MAX_LABEL = 80;
 export const MAX_FORM_TEXT = 300;
+export const MAX_PRIVACY_TEXT = 70;
+export const MAX_BUTTON_TEXT = 60;
+export const MAX_INTRO_TITLE = 60;
+export const MAX_INTRO_ITEMS = 5;
+
+export type IntroStyle = "PARAGRAPH" | "LIST";
+
+export interface FormIntro {
+  title: string;
+  style: IntroStyle;
+  content: string[];
+}
 
 export interface FormQuestion {
   type: QuestionType;
@@ -46,13 +58,14 @@ export interface LeadFormDraft {
   pageId: string;
   name: string;
   locale?: string;
-  headline?: string;
+  intro?: FormIntro;
   questions: FormQuestion[];
   privacyUrl: string;
   privacyText?: string;
-  thankYouTitle?: string;
+  thankYouTitle: string;
   thankYouBody?: string;
-  thankYouUrl?: string;
+  thankYouUrl: string;
+  thankYouButtonText: string;
   higherIntent?: boolean;
 }
 
@@ -81,13 +94,18 @@ export interface BuilderQuestion {
 
 export interface FormBuilderState {
   name: string;
-  headline: string;
+  introOn: boolean;
+  introTitle: string;
+  introStyle: IntroStyle;
+  introParagraph: string;
+  introItems: string[];
   questions: BuilderQuestion[];
   privacyUrl: string;
   privacyText: string;
   thankYouTitle: string;
   thankYouBody: string;
   thankYouUrl: string;
+  thankYouButtonText: string;
   higherIntent: boolean;
 }
 
@@ -106,16 +124,21 @@ export function customQuestion(): BuilderQuestion {
   return { id: questionId(), type: "CUSTOM", label: "", options: [] };
 }
 
-export function emptyFormBuilder(): FormBuilderState {
+export function emptyFormBuilder(buttonText = ""): FormBuilderState {
   return {
     name: "",
-    headline: "",
+    introOn: false,
+    introTitle: "",
+    introStyle: "PARAGRAPH",
+    introParagraph: "",
+    introItems: [""],
     questions: [standardQuestion("FULL_NAME"), standardQuestion("PHONE"), standardQuestion("EMAIL")],
     privacyUrl: "",
     privacyText: "",
     thankYouTitle: "",
     thankYouBody: "",
     thankYouUrl: "",
+    thankYouButtonText: buttonText,
     higherIntent: false,
   };
 }
@@ -177,12 +200,22 @@ function trimmed(value: string): string | undefined {
   return clean === "" ? undefined : clean;
 }
 
+export function introLines(state: Pick<FormBuilderState, "introStyle" | "introParagraph" | "introItems">): string[] {
+  const lines = state.introStyle === "PARAGRAPH" ? [state.introParagraph] : state.introItems;
+  return lines.map((line) => line.trim()).filter(Boolean);
+}
+
+export function buildIntro(state: FormBuilderState): FormIntro | undefined {
+  if (!state.introOn) return undefined;
+  return { title: state.introTitle.trim(), style: state.introStyle, content: introLines(state) };
+}
+
 export function buildFormDraft(state: FormBuilderState, adAccountId: string, pageId: string): LeadFormDraft {
   return {
     adAccountId,
     pageId,
     name: state.name.trim(),
-    headline: trimmed(state.headline),
+    intro: buildIntro(state),
     questions: state.questions.map((question) =>
       question.type === "CUSTOM"
         ? {
@@ -194,9 +227,10 @@ export function buildFormDraft(state: FormBuilderState, adAccountId: string, pag
     ),
     privacyUrl: state.privacyUrl.trim(),
     privacyText: trimmed(state.privacyText),
-    thankYouTitle: trimmed(state.thankYouTitle),
+    thankYouTitle: state.thankYouTitle.trim(),
     thankYouBody: trimmed(state.thankYouBody),
-    thankYouUrl: trimmed(state.thankYouUrl),
+    thankYouUrl: state.thankYouUrl.trim(),
+    thankYouButtonText: state.thankYouButtonText.trim(),
     higherIntent: state.higherIntent,
   };
 }

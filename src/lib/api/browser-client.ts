@@ -19,10 +19,13 @@ const AUTH_TIMEOUT_MS = 10_000;
 
 const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
-const ANALYTICS_TIMEOUT_MS = 30_000;
+const SLOW_ENDPOINTS: { prefix: string; timeoutMs: number }[] = [
+  { prefix: "/attendance/", timeoutMs: 30_000 },
+];
 
-function isAnalyticsEndpoint(endpoint: string): boolean {
-  return endpoint.startsWith("/attendance/");
+function requestTimeoutMs(endpoint: string, isFormData: boolean): number {
+  if (isFormData) return UPLOAD_TIMEOUT_MS;
+  return SLOW_ENDPOINTS.find((slow) => endpoint.startsWith(slow.prefix))?.timeoutMs ?? AUTH_TIMEOUT_MS;
 }
 
 function timeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
@@ -195,13 +198,7 @@ export async function apiClient<T>(
     typeof FormData !== "undefined" && options.body instanceof FormData;
 
   const run = () => {
-    const t = timeoutSignal(
-      isFormData
-        ? UPLOAD_TIMEOUT_MS
-        : isAnalyticsEndpoint(endpoint)
-          ? ANALYTICS_TIMEOUT_MS
-          : AUTH_TIMEOUT_MS,
-    );
+    const t = timeoutSignal(requestTimeoutMs(endpoint, isFormData));
     return fetch(url, {
       ...options,
       credentials: "include",
@@ -248,6 +245,7 @@ export async function apiClient<T>(
     return {
       error: {
         message: error instanceof Error ? error.message : "Network error",
+        code: error instanceof DOMException && error.name === "TimeoutError" ? "timeout" : undefined,
       },
     };
   }

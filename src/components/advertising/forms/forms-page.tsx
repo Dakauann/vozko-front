@@ -11,10 +11,13 @@ import { ClipboardText, Warning } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
+import { accountWritePermissions } from "@/lib/advertising/delivery";
 import type { LeadForm } from "@/lib/advertising/forms";
 import type { AdAccount, AdPage } from "@/lib/advertising/types";
 
+import { LeadTermsNotice } from "../requirement-steps";
 import { AccountGate } from "../account-gate";
+import { ReadOnlyNotice } from "../account-notices";
 import { AccountPicker } from "../account-picker";
 import { FormLeadsView } from "./form-leads-view";
 import { FormsPanel } from "./forms-panel";
@@ -51,7 +54,8 @@ export function FormsPage() {
       {(account) => (
         <div className="w-full space-y-4">
           {header}
-          <AccountForms key={account.id} account={account} permissions={permissions} />
+          <ReadOnlyNotice account={account} />
+          <AccountForms key={account.id} account={account} permissions={accountWritePermissions(permissions, account)} />
         </div>
       )}
     </AccountGate>
@@ -101,6 +105,7 @@ function AccountForms({ account, permissions }: { account: AdAccount; permission
           ))}
         </ElevatedSelect>
       </div>
+      {!page.leadTermsAccepted ? <LeadTermsNotice pageName={page.name} checking={pagesLoad.loading} onRecheck={pagesLoad.reload} /> : null}
       <FormsPanel key={page.pageId} account={account} page={page} permissions={permissions} onOpen={setOpenForm} />
     </div>
   );

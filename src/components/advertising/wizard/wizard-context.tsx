@@ -16,11 +16,13 @@ export interface WizardContextValue {
   account: AdAccount | undefined;
   accounts: AdAccount[];
   options: AdsOptions;
-  pages: Resource<AdPage[]>;
+  pages: Resource<AdPage[]> & { reload: () => void };
   page: AdPage | undefined;
   issues: DraftIssue[];
   today: string | null;
   canGenerate: boolean;
+  blockedAccounts: AdAccount[];
+  onAccountUpdated: (account: AdAccount) => void;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);

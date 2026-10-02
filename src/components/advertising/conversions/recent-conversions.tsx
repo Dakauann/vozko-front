@@ -5,13 +5,14 @@ import { useTranslations } from "next-intl";
 import { listRecentConversionsAction } from "@/app/actions/advertising-conversions";
 import { isAdsError } from "@/app/actions/advertising";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowClockwise, ChartLineUp, Warning } from "@/components/icons";
+import { ArrowClockwise, ChartLineUp } from "@/components/icons";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { conversionStatusKey, eventKey, knownReason, type ConversionRecord } from "@/lib/advertising/conversions";
 import { EMPTY_VALUE } from "@/lib/advertising/money";
 import { formatWhen } from "@/lib/advertising/when";
 import { cn } from "@/lib/utils";
 
+import { useLoadErrorState } from "../load-error-state";
 import { IconAction } from "../icon-action";
 import { StatusDot } from "../status-dot";
 import { useAdsFormat } from "../use-ads-format";
@@ -20,6 +21,7 @@ const STATUS_TONE = { sent: "healthy", skipped: "neutral", failed: "fault", unkn
 
 export function RecentConversions() {
   const t = useTranslations("adsConversions.recent");
+  const loadError = useLoadErrorState();
   const fmt = useAdsFormat();
   const recent = useKeyedLoad("recent", listRecentConversionsAction);
   const response = recent.latest;
@@ -82,12 +84,6 @@ export function RecentConversions() {
         <h2 className="font-display text-lg font-semibold text-foreground">{t("title")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
-      {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-        </div>
-      ) : null}
       <DashboardTable
         data={records}
         columns={columns}
@@ -98,7 +94,7 @@ export function RecentConversions() {
             <ArrowClockwise className={cn("h-4 w-4", recent.loading && "animate-spin")} />
           </IconAction>
         }
-        emptyState={{
+        emptyState={error ? loadError(error, recent.reload) : {
           icon: <ChartLineUp className="h-7 w-7 text-muted-foreground" />,
           title: t("emptyTitle"),
           description: t("emptyBody"),

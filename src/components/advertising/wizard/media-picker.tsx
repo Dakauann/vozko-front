@@ -3,28 +3,50 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { generateAdImageAction, isAdsError } from "@/app/actions/advertising";
 import { uploadMediaAction } from "@/app/actions/medias";
 import Button from "@/components/elevated-design/button";
 import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
-import { Play, Sparkle, Trash, UploadSimple } from "@/components/icons";
+import { Play, Plus, Sparkle, Trash, UploadSimple } from "@/components/icons";
+import { GeneratingImage } from "@/components/image-generation/generating-image";
+import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
+import { MediaDownloadButton } from "@/components/media/media-download-button";
+import { useImageGeneration, type ImageGenerationError } from "@/hooks/use-image-generation";
 import type { MediaChoice } from "@/lib/advertising/draft";
 import type { AdMediaKind } from "@/lib/advertising/draft-types";
-import type { AdImageAspect } from "@/lib/advertising/types";
+import { MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/image-generation/types";
 
 import { AdImage } from "../ad-image";
 
 type Mode = "upload" | "generate";
 export type MediaAccept = AdMediaKind | "any";
 
-const ASPECTS: AdImageAspect[] = ["square", "portrait", "story"];
+const ASPECTS: ImageAspect[] = ["square", "portrait", "story"];
 const MAX_PROMPT = 4000;
 const ACCEPT: Record<MediaAccept, string> = {
   image: "image/jpeg,image/png",
   video: "video/mp4,video/quicktime",
   any: "image/jpeg,image/png,video/mp4,video/quicktime",
 };
+
+const GENERATION_ERROR_CODES = new Set([
+  "generation_failed",
+  "storage_failed",
+  "timed_out",
+  "enqueue_failed",
+  "poll_failed",
+  "missing_media",
+  "insufficient_balance",
+  "insufficient_funds",
+  "no_subscription",
+  "already_generating",
+  "reference_unavailable",
+  "invalid_request",
+]);
+
+function generationErrorKey(error: ImageGenerationError): string {
+  return `generationErrors.${GENERATION_ERROR_CODES.has(error.code) ? error.code : "unknown"}`;
+}
 
 function kindOf(file: File): AdMediaKind | null {
   if (file.type.startsWith("image/")) return "image";
@@ -47,6 +69,37 @@ export function MediaThumb({ media, className }: { media: MediaChoice; className
   );
 }
 
+const PREVIEW_WIDTH: Record<ImageAspect, string> = {
+  square: "w-40",
+  portrait: "w-36",
+  story: "w-28",
+};
+
+function GeneratingPreview({ aspect }: { aspect: ImageAspect }) {
+  const t = useTranslations("adsWizard.media");
+  return (
+    <div role="status" aria-live="polite" className="flex items-center gap-4 rounded-[--radius] border border-border bg-muted p-3">
+      <GeneratingImage aspect={aspect} className={`${PREVIEW_WIDTH[aspect]} shrink-0 bg-background px-3`} />
+      <div className="space-y-1">
+        <p className="text-sm font-semibold text-foreground">{t("generatingTitle")}</p>
+        <p className="text-xs text-muted-foreground">{t("generatingHint")}</p>
+      </div>
+    </div>
+  );
+}
+
+type LibraryUpload = { mediaId: string; url: string } | { error: string | null };
+
+async function sendToLibrary(file: File, kind: AdMediaKind): Promise<LibraryUpload> {
+  const formData = new FormData();
+  formData.append("media", file);
+  formData.append("mediaType", kind);
+  formData.append("description", file.name);
+  const result = await uploadMediaAction(formData);
+  if (result.error || !result.mediaId || !result.mediaUrl) return { error: result.error ?? null };
+  return { mediaId: result.mediaId, url: result.mediaUrl };
+}
+
 export function MediaPicker({
   value,
   accept,
@@ -60,11 +113,19 @@ export function MediaPicker({
 }) {
   const t = useTranslations("adsWizard.media");
   const inputRef = useRef<HTMLInputElement>(null);
+  const referenceRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode>("upload");
+  const [references, setReferences] = useState<ReferenceThumbnail[]>([]);
   const [prompt, setPrompt] = useState("");
-  const [aspect, setAspect] = useState<AdImageAspect>("square");
-  const [busy, setBusy] = useState(false);
+  const [aspect, setAspect] = useState<ImageAspect>("square");
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const generation = useImageGeneration({
+    onDone: ({ mediaId, mediaUrl }) => onChange({ kind: "image", mediaId, url: mediaUrl }),
+  });
+  const generating = generation.status === "generating";
+  const busy = uploading || generating;
+  const canAddReference = !busy && references.length < MAX_REFERENCE_IMAGES;
   const generates = canGenerate && accept !== "video";
 
   const upload = async (file: File | undefined) => {
@@ -74,40 +135,64 @@ export function MediaPicker({
       setError(t(accept === "video" ? "notVideo" : accept === "image" ? "notImage" : "notMedia"));
       return;
     }
-    setBusy(true);
+    setUploading(true);
     setError(null);
-    const formData = new FormData();
-    formData.append("media", file);
-    formData.append("mediaType", kind);
-    formData.append("description", file.name);
-    const result = await uploadMediaAction(formData);
-    setBusy(false);
-    if (result.error || !result.mediaId || !result.mediaUrl) {
+    const result = await sendToLibrary(file, kind);
+    setUploading(false);
+    if ("error" in result) {
       setError(result.error ?? t("uploadFailed"));
       return;
     }
-    onChange({ kind, mediaId: result.mediaId, url: result.mediaUrl });
+    onChange({ kind, mediaId: result.mediaId, url: result.url });
   };
 
-  const generate = async () => {
-    const text = prompt.trim();
-    if (!text) return;
-    setBusy(true);
-    setError(null);
-    const result = await generateAdImageAction(text, aspect);
-    setBusy(false);
-    if (isAdsError(result)) {
-      setError(result.error);
+  const addReference = async (file: File | undefined) => {
+    if (!file) return;
+    if (kindOf(file) !== "image") {
+      setError(t("notImage"));
       return;
     }
-    onChange({ kind: "image", mediaId: result.data.mediaId, url: result.data.url });
+    setUploading(true);
+    setError(null);
+    const result = await sendToLibrary(file, "image");
+    setUploading(false);
+    if ("error" in result) {
+      setError(result.error ?? t("uploadFailed"));
+      return;
+    }
+    setReferences((current) =>
+      current.some((item) => item.mediaId === result.mediaId) || current.length >= MAX_REFERENCE_IMAGES
+        ? current
+        : [...current, { mediaId: result.mediaId, url: result.url }],
+    );
   };
+
+  const removeReference = (mediaId: string) =>
+    setReferences((current) => current.filter((item) => item.mediaId !== mediaId));
+
+  const generate = () => {
+    const text = prompt.trim();
+    if (!text) return;
+    setError(null);
+    void generation.start(
+      text,
+      aspect,
+      references.map((item) => item.mediaId),
+    );
+  };
+
+  const shownError = error ?? (generation.error ? t(generationErrorKey(generation.error)) : null);
 
   if (value) {
     return (
       <div className="flex items-center gap-3 rounded-[--radius] border border-border bg-muted p-2">
         <MediaThumb media={value} />
-        <span className="min-w-0 flex-1 text-sm text-foreground">{t(value.kind === "video" ? "chosenVideo" : "chosenImage")}</span>
+        <span className="flex min-w-0 flex-1 flex-col items-start gap-1 text-sm text-foreground">
+          {t(value.kind === "video" ? "chosenVideo" : "chosenImage")}
+          {value.kind === "image" ? (
+            <MediaDownloadButton mediaId={value.mediaId} description={prompt.trim() || t("chosenImage")} className="text-xs" />
+          ) : null}
+        </span>
         <Button
           variant="ghost"
           size="sm"
@@ -149,7 +234,7 @@ export function MediaPicker({
           />
           <Button
             variant="secondary"
-            title={busy ? t("uploading") : t(`upload.${accept}`)}
+            title={uploading ? t("uploading") : t(`upload.${accept}`)}
             icon={<UploadSimple className="h-4 w-4" />}
             iconVisible
             iconSide="left"
@@ -165,28 +250,62 @@ export function MediaPicker({
             value={prompt}
             maxLength={MAX_PROMPT}
             onChange={(event) => setPrompt(event.target.value)}
+            disabled={generating}
             autoResize
             maxHeight={200}
           />
-          <ElevatedPillToggle<AdImageAspect>
+          <ElevatedPillToggle<ImageAspect>
             size="sm"
             value={aspect}
             onChange={setAspect}
-            options={ASPECTS.map((option) => ({ value: option, label: t(`aspect.${option}`) }))}
+            options={ASPECTS.map((option) => ({ value: option, label: t(`aspect.${option}`), disabled: generating }))}
           />
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-foreground">{t("references")}</p>
+            {references.length > 0 ? (
+              <ReferenceThumbnails
+                items={references}
+                removeLabel={t("removeReference")}
+                onRemove={generating ? undefined : removeReference}
+              />
+            ) : null}
+            <input
+              ref={referenceRef}
+              type="file"
+              accept={ACCEPT.image}
+              aria-label={t("addReference")}
+              className="sr-only"
+              onChange={(event) => {
+                void addReference(event.target.files?.[0]);
+                event.target.value = "";
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              title={t("addReference")}
+              icon={<Plus className="h-3.5 w-3.5" />}
+              iconVisible
+              iconSide="left"
+              disabled={!canAddReference}
+              onClick={() => referenceRef.current?.click()}
+            />
+            <p className="text-xs text-muted-foreground">{t("referencesHint", { max: MAX_REFERENCE_IMAGES })}</p>
+          </div>
+          {generating ? <GeneratingPreview aspect={aspect} /> : null}
           <p className="text-xs text-muted-foreground">{t("costNote")}</p>
           <Button
             variant="secondary"
-            title={busy ? t("generating") : t("generate")}
+            title={generating ? t("generating") : t("generate")}
             icon={<Sparkle className="h-4 w-4" />}
             iconVisible
             iconSide="left"
             disabled={busy || prompt.trim() === ""}
-            onClick={() => void generate()}
+            onClick={generate}
           />
         </div>
       )}
-      {error ? <p className="text-xs text-destructive-ink">{error}</p> : null}
+      {shownError ? <p className="text-xs text-destructive-ink">{shownError}</p> : null}
     </div>
   );
 }

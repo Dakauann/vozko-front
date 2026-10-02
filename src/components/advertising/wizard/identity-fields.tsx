@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import type { AdPage } from "@/lib/advertising/types";
 
+import { LeadTermsNotice } from "../requirement-steps";
 import { Hint } from "./choice-row";
 import { FieldIssues } from "./field-issues";
 import { useWizard } from "./wizard-context";
@@ -58,6 +59,9 @@ export function IdentityFields({ instagramRequired = false }: { instagramRequire
         </div>
       ) : null}
       {page && !page.instagramUserId ? <Hint>{t("noInstagram")}</Hint> : <Hint>{t("hint")}</Hint>}
+      {page && form.destination === "ON_AD" && !page.leadTermsAccepted ? (
+        <LeadTermsNotice pageName={page.name} checking={pages.status === "loading"} onRecheck={pages.reload} />
+      ) : null}
       <FieldIssues issues={issues} field="identity" nested />
       <FieldIssues issues={issues} field="adSet.instagramUserId" />
     </div>

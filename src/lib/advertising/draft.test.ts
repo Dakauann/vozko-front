@@ -9,7 +9,6 @@ import {
   buildDraft,
   campaignBudgetActive,
   cleanPlacements,
-  draftFeeTotal,
   duplicateAd,
   emptyAdForm,
   emptyWizardForm,
@@ -266,10 +265,11 @@ describe("duplicateAd", () => {
   });
 });
 
-describe("draftFeeTotal", () => {
-  it("uses the total from the backend or multiplies the per ad price", () => {
-    expect(draftFeeTotal({ price: 1_000_000, currency: "USD", total: 2_500_000 }, 3)).toBe(2_500_000);
-    expect(draftFeeTotal({ price: 1_000_000, currency: "USD" }, 3)).toBe(3_000_000);
+describe("publishing paused", () => {
+  it("follows the switch", () => {
+    const form = whatsappForm();
+    expect(buildDraft(form, context).keepPaused).toBeUndefined();
+    expect(buildDraft({ ...form, keepPaused: true }, context).keepPaused).toBe(true);
   });
 });
 

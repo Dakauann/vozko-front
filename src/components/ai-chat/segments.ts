@@ -1,20 +1,24 @@
-import type { ActionCard, ChatChart } from "@/lib/aichat/types";
+import type { ActionCard, ChatChart, ChatImage } from "@/lib/aichat/types";
+import type { ImageAspect } from "@/lib/image-generation/types";
 
 export type Segment =
   | { kind: "thinking"; text: string; streaming?: boolean }
-  | { kind: "tool"; name: string; summary: string; ok: boolean; running?: boolean }
+  | { kind: "tool"; name: string; summary: string; ok: boolean; running?: boolean; aspect?: ImageAspect }
   | { kind: "chart"; chart: ChatChart }
   | { kind: "card"; card: ActionCard; live?: boolean }
+  | { kind: "image"; image: ChatImage }
   | { kind: "text"; text: string; streaming?: boolean };
 
-export function startTool(segs: Segment[], name: string): Segment[] {
-  return [...segs, { kind: "tool", name, summary: "", ok: true, running: true }];
+export function startTool(segs: Segment[], name: string, aspect?: ImageAspect): Segment[] {
+  return [...segs, { kind: "tool", name, summary: "", ok: true, running: true, ...(aspect ? { aspect } : {}) }];
 }
 
 export function finishTool(segs: Segment[], name: string, summary: string, ok: boolean): Segment[] {
-  const settled: Segment = { kind: "tool", name, summary, ok };
   const index = segs.findIndex((s) => s.kind === "tool" && s.running && s.name === name);
-  if (index < 0) return [...segs, settled];
+  if (index < 0) return [...segs, { kind: "tool", name, summary, ok }];
+  const started = segs[index];
+  const aspect = started.kind === "tool" ? started.aspect : undefined;
+  const settled: Segment = { kind: "tool", name, summary, ok, ...(aspect ? { aspect } : {}) };
   return segs.map((s, i) => (i === index ? settled : s));
 }
 

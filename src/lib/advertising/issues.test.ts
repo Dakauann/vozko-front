@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { issueFieldKey, issuesAt, issuesUnder, withoutIssue } from "./issues";
+import { issueFieldKey, issuesAt, issuesUnder, withBudgetMinimum, withoutIssue } from "./issues";
 
 describe("issueFieldKey", () => {
   it("drops indexes and joins the path with underscores", () => {
@@ -33,5 +33,25 @@ describe("withoutIssue", () => {
   it("returns the same object when nothing changes", () => {
     const expected = { name: "required" };
     expect(withoutIssue(expected, "other")).toBe(expected);
+  });
+});
+
+describe("withBudgetMinimum", () => {
+  const minimum = { field: "adSet.budget.amount", daily: 519, currency: "BRL" };
+
+  it("gives the minimum to the issues that are below it", () => {
+    const issues = [
+      { field: "adSet.budget.amount", code: "below_minimum" },
+      { field: "adSet.name", code: "required" },
+    ];
+    expect(withBudgetMinimum(issues, minimum)).toEqual([
+      { field: "adSet.budget.amount", code: "below_minimum", minimum },
+      { field: "adSet.name", code: "required" },
+    ]);
+  });
+
+  it("leaves the issues alone when the minimum is unknown", () => {
+    const issues = [{ field: "budget.amount", code: "below_minimum" }];
+    expect(withBudgetMinimum(issues, null)).toBe(issues);
   });
 });

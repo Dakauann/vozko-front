@@ -133,6 +133,13 @@ export interface ToolActivity {
   ok: boolean;
   chart?: ChatChart;
   card?: ActionCard;
+  image?: ChatImage;
+}
+
+export interface ChatImage {
+  url: string;
+  mediaId: string;
+  alt: string;
 }
 
 export interface ProposalField {
@@ -183,6 +190,7 @@ export interface ChatStreamEvent {
     | "tool_start"
     | "chart"
     | "action_card"
+    | "image"
     | "tool_proposal"
     | "awaiting_approval"
     | "done"

@@ -1,4 +1,11 @@
 {
+  "imageGeneration": {
+    "generating": "Generating image",
+    "failed": "The image could not be generated",
+    "download": "Download",
+    "downloading": "Downloading...",
+    "downloadFailed": "The image could not be downloaded. Try again."
+  },
   "crmAnalysis": {
     "awaiting": "Awaiting analysis",
     "awaitingHint": "This conversation is still going. The AI analyses it once it has been quiet for a few minutes; nothing is being analysed yet.",
@@ -326,7 +333,7 @@
       "connect_telegram_bot": "Connect Telegram bot",
       "list_ad_accounts": "Ad accounts",
       "ads_results": "Ad results",
-      "generate_ad_image": "Generate ad image",
+      "generate_image": "Generate image",
       "update_ad_budget": "Change ad budget",
       "list_ad_pages": "Pages to advertise",
       "search_ad_locations": "Searching locations",
@@ -345,6 +352,9 @@
     "starterModels": "Which models are available?",
     "starterAgentTools": "Review an agent's tools",
     "conversationLegend": "Conversation",
+    "image": {
+      "open": "Open full size"
+    },
     "chart": {
       "other": "Other",
       "showTable": "Table",
@@ -725,6 +735,7 @@
     },
     "previews": {
       "scheduledFor": "Scheduled for {when}",
+      "references": "Reference images",
       "ad": {
         "account": "Ad account",
         "dailyBudget": "Daily budget",
@@ -15615,11 +15626,13 @@
       "name": "Audience name",
       "nameHint": "Without a name, we use {name}.",
       "suggestedName": "Lookalike {percent}% of {origin}",
-      "locationHint": "The audience country comes from the ad set where you use this audience.",
+      "locationHint": "Meta looks for similar people in this country. Use the same country as the ad set where the audience will run.",
       "created": "Audience {name} created",
       "cancel": "Cancel",
       "create": "Create audience",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "country": "Country",
+      "fixIssues": "Fix the highlighted fields and try again."
     },
     "saved": {
       "description": "Location, age and gender combinations you reuse when creating ads.",
@@ -15702,6 +15715,9 @@
       },
       "targeting_locations": {
         "required": "Choose at least one location."
+      },
+      "country": {
+        "invalid": "Choose a country from the list."
       }
     }
   },
@@ -15758,7 +15774,6 @@
       "created": "Form {name} created",
       "basicsTitle": "Basics",
       "name": "Form name",
-      "headline": "Intro headline",
       "questionsTitle": "Questions",
       "questionsDescription": "Meta prefills standard questions from the profile. Include phone or email so the lead reaches the CRM.",
       "needsContact": "Include phone or email.",
@@ -15781,16 +15796,32 @@
       "thanksTitle": "Thank you screen",
       "thankYouTitle": "Title",
       "thankYouBody": "Message",
-      "thankYouUrl": "Website link (optional)",
+      "thankYouUrl": "Website link",
       "higherIntent": "Higher intent",
       "higherIntentHint": "Adds a review screen before submitting. Fewer leads arrive, but with more intent.",
       "cancel": "Cancel",
       "create": "Create form",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "introTitle": "Intro",
+      "introDescription": "An optional screen before the questions that explains what the person gets.",
+      "introOn": "Show intro",
+      "introHeading": "Intro title",
+      "introStyle": {
+        "PARAGRAPH": "Paragraph",
+        "LIST": "List"
+      },
+      "introParagraph": "Intro text",
+      "introItem": "Item {number}",
+      "introAddItem": "Add item",
+      "introRemoveItem": "Remove item",
+      "thanksDescription": "The screen shown after sending, with a button to your website.",
+      "thankYouUrlHint": "Required. The thank you screen button takes the person to this address.",
+      "thankYouButtonText": "Button text",
+      "thankYouButtonDefault": "Visit website",
+      "fixIssues": "Fix the highlighted fields and try again."
     },
     "preview": {
       "title": "Preview",
-      "headline": "Intro headline",
       "review": "Review and submit",
       "noQuestions": "Add questions.",
       "customUntitled": "Untitled question",
@@ -15799,7 +15830,14 @@
       "submit": "Submit",
       "thanksTitle": "Thank you!",
       "thanksBody": "We received your details and will get in touch.",
-      "visit": "Visit website"
+      "visit": "Visit website",
+      "introScreen": "Intro",
+      "introTitle": "Intro title",
+      "introEmpty": "The intro text shows up here.",
+      "next": "Continue",
+      "questionsScreen": "Questions",
+      "thanksScreen": "After sending",
+      "thanksUrlMissing": "Enter the website link"
     },
     "leads": {
       "back": "Forms",
@@ -15848,6 +15886,35 @@
       },
       "privacyUrl": {
         "required": "Enter the privacy policy link."
+      },
+      "intro_title": {
+        "required": "Write the intro title.",
+        "too_long": "Use at most 60 characters."
+      },
+      "intro_content": {
+        "required": "Write the intro text.",
+        "too_many": "Use at most 5 items.",
+        "too_long": "Text too long: up to 80 characters per item or 300 in the paragraph."
+      },
+      "intro_style": {
+        "invalid": "Choose paragraph or list."
+      },
+      "thankYouUrl": {
+        "required": "Enter the website link the person goes to after sending."
+      },
+      "thankYouTitle": {
+        "required": "Write the thank you screen title.",
+        "too_long": "Use at most 80 characters."
+      },
+      "thankYouButtonText": {
+        "required": "Write the button text.",
+        "too_long": "Use at most 60 characters."
+      },
+      "privacyText": {
+        "too_long": "Use at most 70 characters."
+      },
+      "locale": {
+        "invalid": "Form language not recognized."
       }
     }
   },
@@ -16184,6 +16251,37 @@
     "leadCost": "Estimated lead cost: {amount} (ad spend that day ÷ conversations that day)",
     "leadCostHint": "Estimate: Meta reports spend per ad per day, not per click. On {day} the ad spent {spend} and brought {conversations, plural, one {# conversation} other {# conversations}}."
   },
+  "adsAccounts": {
+    "blockedTitle": "Accounts that can't advertise yet",
+    "reasons": {
+      "funding": "No payment method",
+      "readOnly": "Read only",
+      "reconnect": "Needs reconnecting",
+      "metaStatus": "Inactive on Meta",
+      "unknown": "Unavailable"
+    },
+    "fundingHint": "Meta only creates ads on accounts with a payment method. Add one on Meta, then click Check again.",
+    "addPayment": "Add payment method",
+    "readOnlyHint": "Your profile can only view this account. Ask an account admin on Meta for the Advertiser role or higher, then click Check again.",
+    "rolesLink": "See account roles on Meta",
+    "hints": {
+      "reconnect": "The Meta connection expired. Reconnect the account in the Ads manager.",
+      "metaStatus": "Meta doesn't allow advertising on this account right now. Check its status in Meta Ads Manager.",
+      "unknown": "We couldn't confirm yet whether this account can advertise. Refresh the account in the Ads manager."
+    }
+  },
+  "adsRequirements": {
+    "recheck": "Check again",
+    "checking": "Checking...",
+    "leadTerms": {
+      "title": "The Page {page} hasn't accepted Meta's Lead Ads Terms yet",
+      "open": "Open Meta's Lead Ads Terms page with the button below.",
+      "choosePage": "In the selector at the top, choose the Page {page}.",
+      "accept": "Read the terms and click I agree. The person accepting must be a Page admin.",
+      "comeBack": "Come back here and click Check again.",
+      "openButton": "Accept terms on Meta"
+    }
+  },
   "adsWizard": {
     "editTitle": "Change creative",
     "editDescription": "Build a new creative for this ad. When you save, Meta swaps the creative and reviews the ad again.",
@@ -16195,7 +16293,7 @@
     "back": "Back to Ads",
     "noAccess": "You do not have permission to create ads in this workspace.",
     "noAccountTitle": "No account ready to advertise",
-    "noAccountBody": "Connect an active ad account with a payment method set up in Meta.",
+    "noAccountBody": "Connect an ad account that is active in Meta and has a payment method.",
     "optionsError": "Could not load the ad options. Try again in a moment.",
     "parentError": "Could not open the chosen campaign or ad set: {message}. Pick it again in the first step.",
     "previous": "Back",
@@ -16206,7 +16304,7 @@
     "publishing": "Publishing...",
     "previewTitle": "Preview",
     "previewAd": "Preview of ad {index} of {total}",
-    "previewNote": "Approximate mockup. Meta adjusts how text and media are cropped in each placement.",
+    "previewNote": "Approximate feed mockup: 4:5 media and primary text cut at about 125 characters with See more. Meta adjusts the crop in each placement.",
     "placement": {
       "feed": "Feed",
       "story": "Stories"
@@ -16228,7 +16326,23 @@
       "title": "Publishing",
       "needsReview": "Meta did not confirm; check Ads Manager before trying again.",
       "running": "Creating the campaign, ad set and ads in Meta. Everything stays off until the last step.",
-      "openManager": "Go to Ads"
+      "steps": {
+        "campaign": "Campaign created",
+        "adSet": "Ad set created",
+        "ads": "Ads created ({created} of {total})",
+        "activate": "Ads turned on"
+      },
+      "runningPaused": "Creating the campaign, ad set and ads in Meta. Everything stays off for you to turn on later.",
+      "published": "Published. Opening the manager...",
+      "failedTitle": "Publishing failed",
+      "failedRefunded": "The fee went back to your balance. Go back to the draft, fix it and publish again.",
+      "failedHint": "Go back to the draft, fix it and publish again.",
+      "needsReviewTitle": "Meta did not confirm the publish",
+      "openMeta": "Open Ads Manager",
+      "pollFailed": "We could not follow the publish ({message}).",
+      "pollRetry": "Try again",
+      "backToDraft": "Back to the draft",
+      "openJobs": "See publishes"
     },
     "objective": {
       "accountTitle": "Ad account",
@@ -16458,7 +16572,14 @@
     "promotion": {
       "choosePageFirst": "Choose the Page above to see the numbers.",
       "number": "WhatsApp number",
-      "noNumbers": "This Page has no WhatsApp number from this workspace linked. Link the number in the Page settings in Meta.",
+      "linkNumber": {
+        "title": "This Page has no WhatsApp number from this workspace linked yet",
+        "openSettings": "Open the Page in Meta Business Suite and go to Page settings › WhatsApp.",
+        "enterNumber": "Enter the WhatsApp number that is connected to Vozko.",
+        "codeInInbox": "Meta sends a confirmation code to that number over WhatsApp. It arrives in the Vozko inbox, in that number's conversation. Copy the code and confirm it on Meta.",
+        "recheck": "Come back here and click Check again.",
+        "openButton": "Open Page settings"
+      },
       "numberHint": "Only numbers from this workspace linked to the Page in Meta are listed.",
       "numberKind": {
         "official": "official",
@@ -16729,7 +16850,8 @@
       "iceBreakersHint": "Up to 3 questions with up to 80 characters each.",
       "enhancementsTitle": "Automatic enhancements",
       "enhancements": "Advantage+ creative enhancements",
-      "enhancementsHint": "When on, Meta may adapt the ad for each person: crop or expand the image, adjust brightness and contrast, reorder the texts and switch the ad template. Leave it off if you want the ad exactly as you built it."
+      "enhancementsHint": "When on, Meta may adapt the ad for each person: crop or expand the image, adjust brightness and contrast, reorder the texts and switch the ad template. Leave it off if you want the ad exactly as you built it.",
+      "creativesHint": "Each ad has its own creative: media, text and button. After publishing, swap the creative in the manager from the ad menu (Swap creative). Uploaded and AI generated images are kept in the media library."
     },
     "media": {
       "chosenImage": "Image chosen",
@@ -16760,7 +16882,28 @@
       },
       "costNote": "Each generated image is charged as AI usage on your balance.",
       "generate": "Generate image",
-      "generating": "Generating..."
+      "generating": "Generating...",
+      "generatingTitle": "Generating your image",
+      "generatingHint": "This usually takes 20 seconds to a minute. You can keep filling in the ad meanwhile.",
+      "references": "Reference images",
+      "referencesHint": "Optional. Up to {max} images for the AI to follow the style or edit.",
+      "addReference": "Add reference",
+      "removeReference": "Remove reference",
+      "generationErrors": {
+        "generation_failed": "The model couldn't create this image. Try another description.",
+        "storage_failed": "The image was created and charged, but we couldn't save it. Please contact support.",
+        "timed_out": "Generation took longer than expected and was stopped. Try generating again.",
+        "enqueue_failed": "We couldn't start the generation right now. Try again in a moment.",
+        "poll_failed": "We lost track of the generation. Check your connection and try again.",
+        "missing_media": "Generation finished, but the image didn't arrive. Try generating again.",
+        "insufficient_balance": "Not enough balance to generate the image. Add balance and try again.",
+        "no_subscription": "Generating images requires an active subscription.",
+        "unknown": "We couldn't generate the image. Try again.",
+        "insufficient_funds": "The balance ran out before the image started generating, so nothing was charged. Add balance and try again.",
+        "already_generating": "An image with this description and format was just generated. Wait a few seconds and try again.",
+        "reference_unavailable": "One of the reference images is no longer available. Change the references and try again.",
+        "invalid_request": "Check the reference images: images only, no repeats."
+      }
     },
     "review": {
       "creativeCheck": "Meta checks the creative when you save. If something breaks the rules, we show here what to fix.",
@@ -16798,17 +16941,24 @@
       "keepPausedHint": "Creates everything in Meta but leaves it off so you can turn it on later from the manager. Without this, the ads go to review and start running once approved.",
       "checkTitle": "Check",
       "checkDescription": "We check everything against Meta's rules before publishing. Publish is only available with no pending issues.",
-      "validating": "Checking...",
-      "stale": "You changed something after the check. Check again to publish.",
       "ready": "Everything is ready to publish.",
-      "feeMissing": "Could not calculate the fee. Check again to publish.",
       "fix": "Fix",
-      "revalidate": "Check again",
       "feePerAd": "Fee per published ad",
       "feeTotal": "{count, plural, one {Total (# ad)} other {Total (# ads)}}",
       "pausedNote": "Everything is created off and only turned on at the end, so nothing spends halfway.",
       "reviewNote": "New ads go through Meta's review (In review) before they start delivering.",
-      "spendNote": "Ad spend is charged by Meta to the ad account. The fee above is the only charge on your balance."
+      "spendNote": "Ad spend is charged by Meta to the ad account. The fee above is the only charge on your balance.",
+      "blockers": {
+        "title": "Why you cannot publish yet",
+        "account": "This account cannot create ads right now.",
+        "notValidated": "We have not checked this draft against Meta's rules yet.",
+        "validating": "Checking against Meta's rules...",
+        "validationFailed": "The check did not finish: {message}",
+        "stale": "You changed something after the check. Check again to publish.",
+        "issues": "{count, plural, one {There is # item to fix. Use Fix to go to the field.} other {There are # items to fix. Use Fix to go to each field.}}",
+        "noFee": "We could not work out the ad fee. Check again and, if it keeps happening, contact support.",
+        "revalidate": "Check again"
+      }
     },
     "cta": {
       "LEARN_MORE": "Learn more",
@@ -16837,10 +16987,15 @@
       "imageFallback": "Ad media",
       "conversationStart": "Conversation start",
       "flexibleNote": "Meta combines {medias, plural, one {# media item} other {# media items}} and {texts, plural, one {# text} other {# texts}} for each person.",
-      "catalogNote": "Products change depending on who sees the ad."
+      "catalogNote": "Products change depending on who sees the ad.",
+      "seeMore": "See more",
+      "safeZone": "Safe zone",
+      "showSafeZone": "Show safe zones",
+      "safeZoneHint": "Keep text and logos inside the safe zone: 14% free at the top, 35% at the bottom and 6% on each side."
     },
     "issues": {
       "generic": {
+        "below_minimum": "Below the Meta minimum daily budget for this account.",
         "required": "Fill in this field.",
         "too_long": "Text is too long.",
         "too_many": "Too many items.",
@@ -16873,7 +17028,9 @@
         "instagram_required": "For Instagram Direct conversations, include Instagram in the placements.",
         "facebook_required": "For Messenger conversations, include Facebook or Messenger.",
         "dynamic_creative_needs_own_ad_set": "A Flexible ad in this objective needs a new ad set of its own.",
-        "unknown": "Meta rejected {field} ({code})."
+        "unknown": "Meta rejected {field} ({code}).",
+        "set_on_ad_sets": "With a campaign budget, the bid amount goes on each ad set, not on the campaign.",
+        "lead_terms_not_accepted": "The Page hasn't accepted Meta's Lead Ads Terms yet. Accept them to publish ads with a form."
       },
       "adAccountId": {
         "required": "Choose an ad account."
@@ -17025,9 +17182,32 @@
       "ads_creative_format": {
         "not_for_destination": "This format is not available for the chosen destination."
       }
-    }
+    },
+    "draftChoice": {
+      "title": "You have a saved draft",
+      "saved": "Draft saved in this browser.",
+      "savedAt": "Saved {when} in this browser.",
+      "account": "Account",
+      "objective": "Objective",
+      "campaign": "Campaign",
+      "ads": "Ads",
+      "step": "Stopped at",
+      "continue": "Continue draft",
+      "startOver": "Start from scratch",
+      "startOverHint": "Starting from scratch deletes the saved draft. Nothing from it was sent to Meta."
+    },
+    "previewNoteStory": "Approximate 9:16 story mockup. Meta covers the top 14% with the Page and the bottom 35% with the text and the button."
   },
   "adsManager": {
+    "budgetMinimum": {
+      "hint": "Meta minimum for this account: {amount} per day.",
+      "below": "The daily budget must be at least {amount}, the Meta minimum for this account and optimization goal."
+    },
+    "manageBlocker": {
+      "reconnect": "Reconnect the ad account to make changes.",
+      "readOnly": "Your profile can only view this ad account. Ask an admin for advertiser access.",
+      "unknown": "This ad account cannot be changed right now."
+    },
     "compare": {
       "previous": "Previous period: {value}",
       "noBaseline": "No comparison baseline in the previous period",
@@ -17114,7 +17294,8 @@
         "adset": "Delete ad set?",
         "ad": "Delete ad?"
       },
-      "deleteBody": "{name} will be deleted on Meta along with everything inside it. This cannot be undone, and its results stop showing here. To only stop delivery, turn it off or archive it."
+      "deleteBody": "{name} will be deleted on Meta along with everything inside it. This cannot be undone, and its results stop showing here. To only stop delivery, turn it off or archive it.",
+      "swapCreative": "Swap creative"
     },
     "duplicate": {
       "title": {
@@ -17142,6 +17323,12 @@
       "done": "Copy of {name} created"
     },
     "spendCap": {
+      "blocker": {
+        "reconnect": "Reconnect the ad account to change the spending limit.",
+        "readOnly": "Your profile can only view this account, so it cannot change the spending limit.",
+        "unknown": "The spending limit cannot be changed right now.",
+        "adminRequired": "Only an ad account admin can change the spending limit."
+      },
       "label": "Spending limit:",
       "none": "no limit",
       "spent": "Spent:",
@@ -17161,7 +17348,9 @@
       "save": "Save limit",
       "saving": "Saving...",
       "saved": "Spending limit updated",
-      "removed": "Spending limit removed"
+      "removed": "Spending limit removed",
+      "removeTitle": "Remove the spending limit?",
+      "removeBody": "Without a limit, the account can keep spending while ads are on."
     },
     "edit": {
       "title": {
@@ -17330,6 +17519,7 @@
         "needs_lifetime_budget": "Delivery hours only exist with a lifetime budget."
       },
       "generic": {
+        "below_minimum": "Below the Meta minimum daily budget for this account.",
         "required": "Required field.",
         "invalid": "Invalid value.",
         "too_long": "Text too long.",
@@ -17372,6 +17562,7 @@
     "noAccess": "You do not have permission to see this workspace's ads.",
     "retry": "Try again",
     "account": {
+      "readOnly": "Read only",
       "label": "Ad account"
     },
     "sync": {
@@ -17381,6 +17572,7 @@
       "never": "Not synced yet"
     },
     "spendBlocker": {
+      "readOnly": "Your profile can only view this ad account.",
       "reconnect": "Reconnect the ad account to create ads.",
       "funding": "Set up a payment method in Meta Ads Manager to create ads.",
       "metaStatus": "Meta is not delivering ads for this account right now.",
@@ -17436,7 +17628,10 @@
       "campaignTitle": "No campaigns found",
       "adsetTitle": "No ad sets found",
       "adTitle": "No ads found",
-      "rangeBody": "Change the date range, the search or the selection to see more results."
+      "rangeBody": "Change the date range, the search or the selection to see more results.",
+      "firstTitle": "You have no campaigns yet",
+      "firstBody": "Create your first ad here. Campaigns created in Meta Ads Manager show up after Refresh.",
+      "firstBodyReadOnly": "This account's campaigns show up here."
     },
     "filters": {
       "search": "Search by name or ID",
@@ -17499,7 +17694,9 @@
       "selectAll": "Select all",
       "selectRow": "Select row",
       "seconds": "{value} s",
-      "previousTotal": "Previous period: {value}"
+      "previousTotal": "Previous period: {value}",
+      "rejectedReason": "Rejected: {reason}",
+      "rejectedNoReason": "Rejected by Meta. See the reason in Meta Ads Manager."
     },
     "results": {
       "conversations": "Conversations started",
@@ -17568,6 +17765,11 @@
       "timezoneUnknown": "unknown"
     },
     "notices": {
+      "readOnly": {
+        "title": "View-only access",
+        "body": "Your Meta profile only has the analyst role on this account: you can see and export reports, but you cannot create or change ads. Ask a business admin to give you advertiser or admin access to this account in Meta business settings, then use Refresh.",
+        "action": "Open business settings"
+      },
       "reconnect": {
         "title": "Reconnect the ad account",
         "body": "Meta no longer accepts access to this account. Data may be out of date and nothing can change until you reconnect.",
@@ -17575,7 +17777,7 @@
       },
       "funding": {
         "title": "No payment method",
-        "body": "Set up a payment method in Meta Ads Manager. Without one Meta does not deliver ads.",
+        "body": "Without a payment method, Meta does not let this account create or turn on ads. Add one in Meta Ads Manager.",
         "action": "Open payment settings"
       },
       "metaStatus": {
@@ -17891,6 +18093,50 @@
           "too_long": "Each ready question can have up to 80 characters."
         }
       }
-    }
+    },
+    "toggleBlocker": {
+      "readOnly": "Your profile can only view this ad account, so it cannot switch anything on or off.",
+      "locked": "Archived or deleted items cannot be turned on or off.",
+      "permission": "You do not have permission to change this item.",
+      "reconnect": "Reconnect the ad account to turn items on or off.",
+      "funding": "Add a payment method in Meta to turn this on.",
+      "metaStatus": "The account is not active in Meta, so nothing can be turned on.",
+      "unknown": "This account cannot turn ads on right now."
+    },
+    "published": {
+      "title": "Ad published",
+      "body": "The new campaign is selected below. Meta reviews new ads before delivering them (In review).",
+      "paused": "If you published it turned off, turn on the campaign, the ad set and the ad when you want to start.",
+      "pausedNoFunding": "It was created turned off. Add a payment method in Meta to turn on the campaign, the ad set and the ad.",
+      "createAnother": "Create another ad",
+      "dismiss": "Close notice",
+      "switchOn": "Turn ad on",
+      "switchingOn": "Turning on...",
+      "switchOnHint": "Turns on this publish's campaign, ad set and ads at once.",
+      "switchedOn": "Ad turned on. Meta reviews it before it starts running."
+    },
+    "loadFailed": "Could not load"
+  },
+  "adsErrors": {
+    "account_admin_required": "Only an ad account admin can change the spending limit.",
+    "account_read_only": "Your profile can only view this ad account. Ask an admin for advertiser access in Meta business settings.",
+    "price_unavailable": "The ad fee is not set up yet. Contact support to publish.",
+    "insufficient_balance": "Not enough balance for the ad fee. Add balance and check again.",
+    "fee_not_charged": "The ad fee could not be charged. Check your balance and try again.",
+    "no_payment_method": "Add a payment method in Meta to create or turn on ads in this account.",
+    "account_not_active": "The ad account is not active in Meta.",
+    "reconnect_required": "The ad account needs to be reconnected.",
+    "missing_permissions": "Meta did not grant the ads permissions. Connect again and accept all of them.",
+    "meta_busy": "Meta is rate limiting requests. Try again in a moment.",
+    "meta_permission": "Meta refused: permission is missing on this account or Page.",
+    "page_not_granted": "The Page is not available in this ads connection.",
+    "number_not_linked": "The WhatsApp number is not linked to the Page.",
+    "number_not_owned": "The WhatsApp number is not connected to this workspace.",
+    "account_unreadable": "We could not read the account currency or time zone. Use Refresh on the account and try again.",
+    "budget_change_limit": "Meta accepts at most 4 budget changes per hour. Try again later.",
+    "object_locked": "Deleted or archived items cannot be changed.",
+    "video_not_ready": "Meta is still processing the video. Try again in a moment.",
+    "audience_terms_not_accepted": "Accept Meta's custom audience terms on this ad account.",
+    "job_not_activatable": "This publish was already turned on or was not published switched off."
   }
 }

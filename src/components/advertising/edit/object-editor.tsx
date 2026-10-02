@@ -16,11 +16,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "@/i18n/routing";
 import { wizardHref } from "@/lib/advertising/connect";
 import { civilToday } from "@/lib/advertising/date-range";
+import { bidFromInput } from "@/lib/advertising/draft";
 import { buildObjectEdit, editExpected, editFormOf, editInputProblems, editIsEmpty, type EditForm } from "@/lib/advertising/edit";
 import { issuesUnder, type ExpectedIssues } from "@/lib/advertising/issues";
 import type { AdAccount, AdEditableObject, AdRow } from "@/lib/advertising/types";
 
 import { AdImage } from "../ad-image";
+import { useBudgetMinimum } from "../budget-minimum";
 import { IssueList } from "../field-issue";
 import { BudgetBidFields } from "./budget-bid-fields";
 import { PlacementsFields } from "./placements-fields";
@@ -64,6 +66,11 @@ function EditorForm({
   const edit = buildObjectEdit(original, form, account.timezone, currency);
   const problems = editInputProblems(form, currency);
   const lifetime = form.budget?.kind === "LIFETIME";
+  const minimum = useBudgetMinimum(
+    canUpdate && row.level === "adset" && row.optimizationGoal && form.budget?.kind === "DAILY" && form.bid
+      ? { accountId: account.id, goal: row.optimizationGoal, bidAmount: bidFromInput(form.bid, currency).amount ?? 0 }
+      : null,
+  );
 
   const update = (changes: Partial<EditForm>) => setForm((current) => ({ ...current, ...changes }));
 
@@ -127,6 +134,7 @@ function EditorForm({
               goal={row.optimizationGoal ?? ""}
               currency={currency}
               expected={expected}
+              minimum={minimum}
               disabled={disabled}
               onBudget={(budget) => update({ budget })}
               onBid={(bid) => update({ bid })}

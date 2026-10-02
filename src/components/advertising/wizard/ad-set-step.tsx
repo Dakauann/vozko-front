@@ -21,6 +21,7 @@ import {
 import { RadioGroup } from "@/components/ui/radio-group";
 import {
   MAX_NAME,
+  bidFromInput,
   campaignBudgetActive,
   effectiveBudgetKind,
   scheduleAvailable,
@@ -30,6 +31,8 @@ import {
 } from "@/lib/advertising/draft";
 import type { AdDraftDestination, AdOptimizationGoal } from "@/lib/advertising/draft-types";
 import { goalsFor, isMessaging, routesFor } from "@/lib/advertising/wizard-routes";
+
+import { useBudgetMinimum } from "../budget-minimum";
 
 import { AudienceSection } from "./audience-section";
 import { BudgetFields } from "./budget-fields";
@@ -125,6 +128,11 @@ export function AdSetStep() {
   const routes = routesFor(options, form.objective);
   const goals = goalsFor(routes, form.destination);
   const onCampaign = campaignBudgetActive(form);
+  const minimum = useBudgetMinimum(
+    account && !onCampaign && form.adSetBudget.kind === "DAILY"
+      ? { accountId: account.id, goal: form.goal, bidAmount: bidFromInput(form.adSetBid, account.currency).amount ?? 0 }
+      : null,
+  );
 
   return (
     <div className="space-y-6">
@@ -201,6 +209,7 @@ export function AdSetStep() {
             goal={form.goal}
             currency={account?.currency ?? ""}
             issues={issues}
+            minimum={minimum}
             onBudget={(adSetBudget) => patch({ adSetBudget })}
             onBid={(adSetBid) => patch({ adSetBid })}
           />

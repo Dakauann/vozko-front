@@ -35,9 +35,13 @@ function AbTestForm({
   level,
   objects,
   account,
+  saving,
+  setSaving,
   onClose,
   onCreated,
 }: {
+  saving: boolean;
+  setSaving: (saving: boolean) => void;
   level: AdTestLevel;
   objects: AdRow[];
   account: AdAccount;
@@ -52,7 +56,6 @@ function AbTestForm({
   const [startDay, setStartDay] = useState(today);
   const [endDay, setEndDay] = useState(() => (today ? addDays(today, DEFAULT_DAYS - 1) : ""));
   const [confidence, setConfidence] = useState(DEFAULT_TEST_CONFIDENCE);
-  const [saving, setSaving] = useState(false);
   const [expected, setExpected] = useState<ExpectedIssues>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -168,10 +171,21 @@ export function AbTestDialog({
   onClose: () => void;
   onCreated: (name: string) => void;
 }) {
+  const [saving, setSaving] = useState(false);
   return (
-    <ElevatedDialog open={open} onOpenChange={(next) => !next && onClose()}>
+    <ElevatedDialog open={open} onOpenChange={(next) => !next && !saving && onClose()}>
       <ElevatedDialogContent className="max-w-xl">
-        {open ? <AbTestForm level={level} objects={objects} account={account} onClose={onClose} onCreated={onCreated} /> : null}
+        {open ? (
+          <AbTestForm
+            level={level}
+            objects={objects}
+            account={account}
+            saving={saving}
+            setSaving={setSaving}
+            onClose={onClose}
+            onCreated={onCreated}
+          />
+        ) : null}
       </ElevatedDialogContent>
     </ElevatedDialog>
   );

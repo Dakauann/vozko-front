@@ -30,6 +30,14 @@ export type AdDelivery =
   | "deleted"
   | "unknown";
 
+export type AdAccountRole = "admin" | "advertiser" | "read_only";
+
+export interface AdBudgetMinimum {
+  field?: string;
+  daily: number;
+  currency: string;
+}
+
 export interface AdAccount {
   id: string;
   metaAccountId: string;
@@ -41,6 +49,9 @@ export interface AdAccount {
   connection: AdConnection | string;
   hasFunding: boolean;
   canSpend: boolean;
+  canManage: boolean;
+  canSetSpendCap: boolean;
+  role: AdAccountRole | string;
   spendBlocker?: string;
   lastSyncedAt?: string;
   spendCap?: number | null;
@@ -163,6 +174,7 @@ export interface AdPage {
   instagramUserId?: string;
   instagramUsername?: string;
   canAdvertise: boolean;
+  leadTermsAccepted: boolean;
   numbers: AdNumber[] | null;
 }
 
@@ -179,11 +191,11 @@ export interface AdLocation {
 export type AdJobStatus = "QUEUED" | "RUNNING" | "PUBLISHED" | "FAILED" | "NEEDS_REVIEW";
 
 export interface AdJobProgress {
-  imageHash?: string;
+  media?: Record<string, string>;
   campaignId?: string;
   adSetId?: string;
-  creativeId?: string;
-  adId?: string;
+  creatives?: Record<string, string>;
+  ads?: Record<string, string>;
   activated?: boolean;
   inFlight?: string;
 }
@@ -199,14 +211,6 @@ export interface AdPublishJob {
   errorMessage?: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export type AdImageAspect = "square" | "portrait" | "story";
-
-export interface AdGeneratedImage {
-  mediaId: string;
-  url: string;
-  model: string;
 }
 
 export interface AdConversationOrigin {

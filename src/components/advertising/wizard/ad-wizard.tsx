@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import {
   getAdEditableObjectAction,
-  getAdPublishJobAction,
   isAdsError,
   listAdPagesAction,
   updateAdObjectAction,
@@ -23,14 +22,13 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import { ElevatedStepper } from "@/components/elevated-design/elevated-stepper";
 import { ArrowLeft, ArrowRight, Megaphone, PaperPlaneTilt, Trash, Warning } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
-import { ADVERTISING_PATH, pickAccountId } from "@/lib/advertising/connect";
+import { ADVERTISING_PATH, managerHref, pickAccountId } from "@/lib/advertising/connect";
+import { partitionBySpend } from "@/lib/advertising/delivery";
 import { civilToday } from "@/lib/advertising/date-range";
-import { jobIsTerminal, jobStatusKey } from "@/lib/advertising/delivery";
 import {
   buildCreative,
   buildDraft,
@@ -43,6 +41,8 @@ import {
   type WizardForm,
 } from "@/lib/advertising/draft";
 import type { AdsOptions } from "@/lib/advertising/draft-types";
+import { withBudgetMinimum } from "@/lib/advertising/issues";
+import { jobPlan, publishBlockers, publishedCampaignId, type ValidationState } from "@/lib/advertising/publish";
 import type { AdAccount, AdPublishJob } from "@/lib/advertising/types";
 import {
   adIndexOfIssue,
@@ -53,31 +53,36 @@ import {
   type DraftIssue,
   type WizardStep,
 } from "@/lib/advertising/wizard-issues";
-import { clearWizard, readWizard, storedMatchesEntry, writeWizard, type WizardEntry } from "@/lib/advertising/wizard-storage";
+import {
+  clearWizard,
+  readWizard,
+  storedMatchesEntry,
+  writeWizard,
+  type StoredWizard,
+  type WizardEntry,
+} from "@/lib/advertising/wizard-storage";
 import { formatWhen } from "@/lib/advertising/when";
 
-import { AdPreviewCard, type AdPreviewPlacement } from "../ad-preview-card";
-import { JobStatus } from "../status-dot";
+import { BlockedAccounts } from "../blocked-accounts";
+import { AdPreviewPanel } from "../ad-preview-panel";
+import { useAdsErrorText, type AdsErrorLike } from "../use-ads-error";
 import { useAdsFormat } from "../use-ads-format";
 import { AdSetStep } from "./ad-set-step";
 import { AdsStep } from "./ads-step";
 import { CampaignStep } from "./campaign-step";
+import { DraftChoice } from "./draft-choice";
 import { ObjectiveStep } from "./objective-step";
 import { previewContent } from "./preview-content";
-import { ReviewStep, type ValidationState } from "./review-step";
+import { PublishProgress } from "./publish-progress";
+import { ReviewStep } from "./review-step";
 import { useAdsResource } from "./use-ads-resource";
+import { usePublishJob } from "./use-publish-job";
 import { WizardProvider, type WizardContextValue } from "./wizard-context";
-
-const JOB_POLL_MS = 2500;
 
 interface Parents {
   campaign: ParentSummary | null;
   adSet: ParentSummary | null;
   ad: CreativeSource | null;
-}
-
-function managerPath(accountId: string): string {
-  return `${ADVERTISING_PATH}?account=${encodeURIComponent(accountId)}&jobs=1`;
 }
 
 async function loadAd(adId: string): Promise<AdsResult<{ ad: CreativeSource; adSetId?: string; campaignId?: string }>> {
@@ -161,7 +166,7 @@ export function AdWizard() {
     canCreate && hasParents ? `parents:${entry.adId}:${entry.campaignId}:${entry.adSetId}` : null,
     () => loadParents(entry),
   );
-  const accounts = useMemo(() => accountsState.accounts.filter((account) => account.canSpend), [accountsState.accounts]);
+  const { ready: accounts, blocked: blockedAccounts } = useMemo(() => partitionBySpend(accountsState.accounts), [accountsState.accounts]);
   const workspaceId = currentWorkspace?.id ?? "";
 
   const header = (
@@ -198,6 +203,7 @@ export function AdWizard() {
       <div className="space-y-2 rounded-[--radius] border border-border bg-card p-6 shadow-sm">
         <p className="font-display text-base font-semibold text-foreground">{t("noAccountTitle")}</p>
         <p className="text-sm text-muted-foreground">{t("noAccountBody")}</p>
+        <BlockedAccounts accounts={blockedAccounts} onUpdated={accountsState.replace} />
         <Button variant="secondary" title={t("back")} onClick={() => router.push(ADVERTISING_PATH)} />
       </div>,
     );
@@ -218,6 +224,8 @@ export function AdWizard() {
       workspaceId={workspaceId}
       accounts={accounts}
       options={options.data}
+      blockedAccounts={blockedAccounts}
+      onAccountUpdated={accountsState.replace}
       entry={entry}
       parentError={parentError}
       initial={() => {
@@ -236,6 +244,8 @@ function WizardBody({
   header,
   workspaceId,
   accounts,
+  blockedAccounts,
+  onAccountUpdated,
   options,
   entry,
   parentError,
@@ -248,28 +258,28 @@ function WizardBody({
   options: AdsOptions;
   entry: WizardEntry;
   parentError: string | null;
-  initial: () => { fresh: WizardForm; stored: ReturnType<typeof readWizard> };
+  initial: () => { fresh: WizardForm; stored: StoredWizard | null };
   canGenerate: boolean;
+  blockedAccounts: AdAccount[];
+  onAccountUpdated: (account: AdAccount) => void;
 }) {
   const t = useTranslations("adsWizard");
   const fmt = useAdsFormat();
   const router = useRouter();
+  const errorText = useAdsErrorText();
   const [start] = useState(() => {
     const { fresh, stored } = initial();
     const usable = stored && storedMatchesEntry(stored, entry) && accounts.some((account) => account.id === stored.form.accountId);
-    return usable
-      ? { form: stored.form, step: stored.step, restoredAt: stored.savedAt, fresh }
-      : { form: fresh, step: "objective" as WizardStep, restoredAt: "", fresh };
+    return { fresh, stored: usable ? stored : null };
   });
-  const [form, setForm] = useState<WizardForm>(start.form);
-  const [stepId, setStepId] = useState<WizardStep>(start.step);
-  const [restoredAt, setRestoredAt] = useState(start.restoredAt);
+  const [pendingDraft, setPendingDraft] = useState<StoredWizard | null>(start.stored);
+  const [form, setForm] = useState<WizardForm>(start.fresh);
+  const [stepId, setStepId] = useState<WizardStep>(stepsFor(start.fresh.mode)[0]);
+  const [restoredAt, setRestoredAt] = useState("");
   const [activeAd, setActiveAd] = useState(0);
-  const [placement, setPlacement] = useState<AdPreviewPlacement>("feed");
   const [validation, setValidation] = useState<ValidationState>({ status: "idle" });
   const [publishing, setPublishing] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
-  const [job, setJob] = useState<AdPublishJob | null>(null);
+  const [publishError, setPublishError] = useState<AdsErrorLike | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [now] = useState(() => new Date());
 
@@ -282,62 +292,90 @@ function WizardBody({
   const editing = form.mode === "creative";
   const stepIndex = steps.indexOf(step);
 
-  const draft = buildDraft(form, { timezone: account?.timezone ?? "", currency: account?.currency ?? "" });
+  const draftFor = (target: WizardForm) => {
+    const owner = accounts.find((candidate) => candidate.id === target.accountId);
+    return buildDraft(target, { timezone: owner?.timezone ?? "", currency: owner?.currency ?? "" });
+  };
+  const draft = draftFor(form);
   const editedCreative = editing && form.ads[0] ? buildCreative(form.ads[0], form.destination) : null;
   const draftKey = JSON.stringify(editedCreative ?? draft);
-  const validated = validation.status === "done" && validation.key === draftKey;
-  const stale = validation.status === "done" && !validated;
   const issues: DraftIssue[] = validation.status === "done" ? validation.issues : [];
-  const canPublish = editing
-    ? !!editedCreative && !publishing
-    : validated && issues.length === 0 && !!validation.fee && !job && !publishing;
+  const blockers = publishBlockers(account, validation, draftKey);
+  const existingCampaignId = form.campaignParent?.metaId;
+
+  const finishPublish = useCallback(
+    (published: AdPublishJob) => {
+      clearWizard(workspaceId);
+      router.push(
+        managerHref({
+          accountId: published.adAccountId,
+          campaignId: publishedCampaignId(published, existingCampaignId),
+          published: true,
+          jobId: published.id,
+        }),
+      );
+    },
+    [workspaceId, router, existingCampaignId],
+  );
+  const { job, start: followJob, reset: resetJob, pollError, retryPoll } = usePublishJob(finishPublish);
+  const canPublish = editing ? !!editedCreative && !publishing : blockers.length === 0 && !job && !publishing;
 
   useEffect(() => {
-    if (!workspaceId || job) return;
+    if (!workspaceId || job || pendingDraft) return;
     writeWizard(workspaceId, form, step);
-  }, [workspaceId, form, step, job]);
-
-  const jobId = job?.id ?? null;
-  const jobDone = job ? jobIsTerminal(job.status) : true;
-
-  useEffect(() => {
-    if (!jobId || jobDone) return;
-    const timer = window.setInterval(() => {
-      void getAdPublishJobAction(jobId).then((result) => {
-        if (isAdsError(result)) return;
-        setJob(result.data);
-        if (jobStatusKey(result.data.status) === "PUBLISHED") router.push(managerPath(result.data.adAccountId));
-      });
-    }, JOB_POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [jobId, jobDone, router]);
+  }, [workspaceId, form, step, job, pendingDraft]);
 
   const update = (change: (current: WizardForm) => WizardForm) => setForm(change);
   const patch = (changes: Partial<WizardForm>) => setForm((current) => ({ ...current, ...changes }));
 
-  const validate = () => {
-    const key = draftKey;
+  const validateDraft = (target: WizardForm) => {
+    const targetDraft = draftFor(target);
+    const key = JSON.stringify(targetDraft);
     setValidation({ status: "validating" });
-    void validateMetaAdDraftAction(draft).then((result) => {
+    void validateMetaAdDraftAction(targetDraft).then((result) => {
       if (isAdsError(result)) {
         if (result.expected) {
           setValidation({ status: "done", key, issues: issuesFromExpected(result.expected), fee: null });
           return;
         }
-        setValidation({ status: "failed", message: result.error });
+        setValidation({ status: "failed", message: errorText(result), code: result.code });
         return;
       }
-      setValidation({ status: "done", key, issues: result.data.issues ?? [], fee: result.data.fee ?? null });
+      setValidation({ status: "done", key, issues: withBudgetMinimum(result.data.issues ?? [], result.data.budgetMinimum), fee: result.data.fee ?? null });
     });
   };
+
+  const validate = () => validateDraft(form);
 
   const goTo = (target: WizardStep, adIndex: number | null = null) => {
     setStepId(target);
     if (adIndex !== null) setActiveAd(adIndex);
-    if (target === "review" && !validated && !editing) validate();
+    const current = validation.status === "done" && validation.key === draftKey;
+    if (target === "review" && !current && !editing) validate();
   };
 
   const goToIndex = (index: number) => goTo(steps[Math.max(0, Math.min(steps.length - 1, index))]);
+
+  const continueDraft = () => {
+    if (!pendingDraft) return;
+    const restored = pendingDraft.form;
+    setForm(restored);
+    setStepId(pendingDraft.step);
+    setRestoredAt(pendingDraft.savedAt);
+    setPendingDraft(null);
+    if (pendingDraft.step === "review" && restored.mode !== "creative") validateDraft(restored);
+  };
+
+  const startOver = () => {
+    clearWizard(workspaceId);
+    setPendingDraft(null);
+  };
+
+  const showIssues = (found: DraftIssue[], key: string) => {
+    setValidation({ status: "done", key, issues: found, fee: null });
+    const first = found[0];
+    if (first) goTo(stepOfIssue(first.field, form.mode), adIndexOfIssue(first.field));
+  };
 
   const publish = () => {
     if (!canPublish) return;
@@ -348,17 +386,13 @@ function WizardBody({
       setPublishing(false);
       if (isAdsError(result)) {
         if (result.expected) {
-          const found = issuesFromExpected(result.expected);
-          setValidation({ status: "done", key, issues: found, fee: null });
-          const first = found[0];
-          if (first) goTo(stepOfIssue(first.field, form.mode), adIndexOfIssue(first.field));
+          showIssues(issuesFromExpected(result.expected), key);
           return;
         }
-        setPublishError(result.error);
+        setPublishError(result);
         return;
       }
-      clearWizard(workspaceId);
-      setJob(result.data);
+      followJob(result.data);
     });
   };
 
@@ -371,18 +405,20 @@ function WizardBody({
       setPublishing(false);
       if (isAdsError(result)) {
         if (result.expected) {
-          const found = issuesFromCreativeEdit(result.expected);
-          setValidation({ status: "done", key, issues: found, fee: null });
-          const first = found[0];
-          if (first) goTo(stepOfIssue(first.field, form.mode), adIndexOfIssue(first.field));
+          showIssues(issuesFromCreativeEdit(result.expected), key);
           return;
         }
-        setPublishError(result.error);
+        setPublishError(result);
         return;
       }
       clearWizard(workspaceId);
-      router.push(`${ADVERTISING_PATH}?account=${encodeURIComponent(form.accountId)}`);
+      router.push(managerHref({ accountId: form.accountId, campaignId: existingCampaignId }));
     });
+  };
+
+  const backToDraft = () => {
+    resetJob();
+    validate();
   };
 
   const discard = () => {
@@ -407,22 +443,31 @@ function WizardBody({
     issues,
     today,
     canGenerate,
+    blockedAccounts,
+    onAccountUpdated,
   };
 
-  const footer = job ? (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-semibold text-foreground">{t("job.title")}</span>
-        <JobStatus status={job.status} />
+  if (pendingDraft) {
+    return (
+      <div className="w-full space-y-6">
+        {header}
+        <DraftChoice stored={pendingDraft} accounts={accounts} onContinue={continueDraft} onStartOver={startOver} />
       </div>
-      {jobStatusKey(job.status) === "NEEDS_REVIEW" ? <p className="text-xs text-warning-ink">{t("job.needsReview")}</p> : null}
-      {job.errorMessage ? <p className="text-xs text-destructive-ink">{job.errorMessage}</p> : null}
-      {!jobIsTerminal(job.status) ? <p className="text-xs text-muted-foreground">{t("job.running")}</p> : null}
-      <Button variant="secondary" title={t("job.openManager")} onClick={() => router.push(managerPath(job.adAccountId))} />
-    </div>
+    );
+  }
+
+  const footer = job ? (
+    <PublishProgress
+      job={job}
+      plan={jobPlan(form)}
+      pollError={pollError}
+      onRetryPoll={retryPoll}
+      onBackToDraft={backToDraft}
+      onOpenJobs={() => router.push(managerHref({ accountId: job.adAccountId, jobs: true }))}
+    />
   ) : (
     <div className="space-y-2">
-      {publishError ? <p className="text-sm text-destructive-ink">{publishError}</p> : null}
+      {publishError ? <p className="text-sm text-destructive-ink">{errorText(publishError)}</p> : null}
       <div className="flex items-center justify-between gap-3">
         <Button
           variant="ghost"
@@ -509,27 +554,19 @@ function WizardBody({
             {step === "campaign" ? <CampaignStep /> : null}
             {step === "adSet" ? <AdSetStep /> : null}
             {step === "ads" ? <AdsStep active={activeAd} onActive={setActiveAd} /> : null}
-            {step === "review" ? <ReviewStep validation={validation} stale={stale} onRevalidate={validate} onGoTo={goTo} /> : null}
+            {step === "review" ? (
+              <ReviewStep validation={validation} blockers={editing ? [] : blockers} onRevalidate={validate} onGoTo={goTo} />
+            ) : null}
           </ElevatedStepper>
-          <aside className="space-y-3 lg:sticky lg:top-16 lg:self-start">
-            <div className="flex items-center justify-between gap-2">
-              <p className="legend">
-                {form.ads.length > 1
+          <aside className="lg:sticky lg:top-16 lg:self-start">
+            <AdPreviewPanel
+              content={previewContent(form, previewAd, page)}
+              title={
+                form.ads.length > 1
                   ? t("previewAd", { index: Math.min(activeAd, form.ads.length - 1) + 1, total: form.ads.length })
-                  : t("previewTitle")}
-              </p>
-              <ElevatedPillToggle<AdPreviewPlacement>
-                size="sm"
-                value={placement}
-                onChange={setPlacement}
-                options={[
-                  { value: "feed", label: t("placement.feed") },
-                  { value: "story", label: t("placement.story") },
-                ]}
-              />
-            </div>
-            <AdPreviewCard content={previewContent(form, previewAd, page)} placement={placement} />
-            <p className="text-2xs text-muted-foreground">{t("previewNote")}</p>
+                  : t("previewTitle")
+              }
+            />
           </aside>
         </div>
       </div>

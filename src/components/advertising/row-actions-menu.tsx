@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
-import { Archive, Copy, DotsThreeVertical, PencilSimple, PlusCircle, Trash } from "@/components/icons";
+import { Archive, Copy, DotsThreeVertical, Image as ImageGlyph, PencilSimple, PlusCircle, Trash } from "@/components/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -35,16 +36,19 @@ export function RowActionsMenu({
   accountId,
   permissions,
   busy,
+  blockedReason = null,
   onAction,
 }: {
   row: AdRow;
   accountId: string;
   permissions: RowActionPermissions;
   busy: boolean;
+  blockedReason?: string | null;
   onAction: (action: RowAction, row: AdRow) => void;
 }) {
   const t = useTranslations("adsManager.rowActions");
   const { canUpdate, canCreate, canDelete } = permissions;
+  const blocked = !!blockedReason;
   const childHref =
     row.level === "campaign"
       ? wizardHref({ accountId, campaignId: row.metaId })
@@ -68,19 +72,33 @@ export function RowActionsMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52" onClick={(event) => event.stopPropagation()}>
+        {blocked ? (
+          <>
+            <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">{blockedReason}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+          </>
+        ) : null}
         {canUpdate ? (
-          <DropdownMenuItem disabled={isArchived(row)} onSelect={() => onAction("edit", row)}>
+          <DropdownMenuItem disabled={blocked || isArchived(row)} onSelect={() => onAction("edit", row)}>
             <PencilSimple className="mr-2 h-4 w-4" aria-hidden />
             {t("edit")}
           </DropdownMenuItem>
         ) : null}
+        {canUpdate && !blocked && row.level === "ad" && !isArchived(row) ? (
+          <DropdownMenuItem asChild>
+            <Link href={wizardHref({ accountId, adId: row.metaId })}>
+              <ImageGlyph className="mr-2 h-4 w-4" aria-hidden />
+              {t("swapCreative")}
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         {canCreate ? (
-          <DropdownMenuItem disabled={isRemoved(row)} onSelect={() => onAction("duplicate", row)}>
+          <DropdownMenuItem disabled={blocked || isRemoved(row)} onSelect={() => onAction("duplicate", row)}>
             <Copy className="mr-2 h-4 w-4" aria-hidden />
             {t("duplicate")}
           </DropdownMenuItem>
         ) : null}
-        {canCreate && childHref && !isArchived(row) ? (
+        {canCreate && !blocked && childHref && !isArchived(row) ? (
           <DropdownMenuItem asChild>
             <Link href={childHref}>
               <PlusCircle className="mr-2 h-4 w-4" aria-hidden />
@@ -90,13 +108,13 @@ export function RowActionsMenu({
         ) : null}
         {canUpdate || canDelete ? <DropdownMenuSeparator /> : null}
         {canUpdate ? (
-          <DropdownMenuItem disabled={isArchived(row)} onSelect={() => onAction("archive", row)}>
+          <DropdownMenuItem disabled={blocked || isArchived(row)} onSelect={() => onAction("archive", row)}>
             <Archive className="mr-2 h-4 w-4" aria-hidden />
             {t("archive")}
           </DropdownMenuItem>
         ) : null}
         {canDelete ? (
-          <DropdownMenuItem disabled={isRemoved(row)} onSelect={() => onAction("delete", row)} className="text-destructive-ink focus:text-destructive-ink">
+          <DropdownMenuItem disabled={blocked || isRemoved(row)} onSelect={() => onAction("delete", row)} className="text-destructive-ink focus:text-destructive-ink">
             <Trash className="mr-2 h-4 w-4" aria-hidden />
             {t("delete")}
           </DropdownMenuItem>

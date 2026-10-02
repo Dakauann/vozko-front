@@ -1,9 +1,7 @@
 import type { WizardMode } from "@/lib/advertising/draft";
+import type { FieldIssue } from "@/lib/advertising/issues";
 
-export interface DraftIssue {
-  field: string;
-  code: string;
-}
+export type DraftIssue = FieldIssue;
 
 export type WizardStep = "objective" | "campaign" | "adSet" | "ads" | "review";
 

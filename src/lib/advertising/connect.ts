@@ -3,7 +3,12 @@ import type { MetaAdsConnectResult, MetaAdsConnectStatus } from "@/lib/advertisi
 export const META_ADS_POPUP_SOURCE = "meta-ads-login";
 export const ADVERTISING_PATH = "/dashboard/advertising";
 export const ADVERTISING_NEW_PATH = "/dashboard/advertising/new";
-export const META_BILLING_URL = "https://business.facebook.com/billing_hub/payment_settings";
+const META_BILLING_URL = "https://business.facebook.com/billing_hub/payment_settings";
+
+export function metaBillingHref(metaAccountId: string): string {
+  return `${META_BILLING_URL}?${new URLSearchParams({ asset_id: metaAccountId }).toString()}`;
+}
+export const META_AD_ACCOUNT_ROLES_URL = "https://business.facebook.com/settings/ad-accounts";
 export const META_ADS_MANAGER_URL = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 
 const STATUSES: MetaAdsConnectStatus[] = ["connected", "partial", "error", "cancelled"];
@@ -53,4 +58,25 @@ export type WizardEntry = { accountId: string } & ({ campaignId: string } | { ad
 
 export function wizardHref(entry: WizardEntry): string {
   return `${ADVERTISING_NEW_PATH}?${new URLSearchParams(entry).toString()}`;
+}
+
+export interface ManagerFocus {
+  accountId: string;
+  campaignId?: string | null;
+  published?: boolean;
+  jobId?: string;
+  jobs?: boolean;
+}
+
+export function managerHref(focus: ManagerFocus): string {
+  const params = new URLSearchParams({ account: focus.accountId });
+  if (focus.campaignId) params.set("campaign", focus.campaignId);
+  if (focus.published) params.set("published", "1");
+  if (focus.jobId) params.set("job", focus.jobId);
+  if (focus.jobs) params.set("jobs", "1");
+  return `${ADVERTISING_PATH}?${params.toString()}`;
+}
+
+export function newAdHref(accountId: string | null | undefined): string {
+  return accountId ? `${ADVERTISING_NEW_PATH}?${new URLSearchParams({ accountId }).toString()}` : ADVERTISING_NEW_PATH;
 }

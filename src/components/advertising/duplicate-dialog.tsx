@@ -26,9 +26,13 @@ const SAME_PARENT = "same";
 function DuplicateForm({
   row,
   parents,
+  saving,
+  setSaving,
   onClose,
   onDone,
 }: {
+  saving: boolean;
+  setSaving: (saving: boolean) => void;
   row: AdRow;
   parents: AdRow[];
   onClose: () => void;
@@ -38,7 +42,6 @@ function DuplicateForm({
   const [deepCopy, setDeepCopy] = useState(row.level !== "ad");
   const [suffix, setSuffix] = useState(() => t("defaultSuffix"));
   const [parentId, setParentId] = useState(SAME_PARENT);
-  const [saving, setSaving] = useState(false);
   const [expected, setExpected] = useState<ExpectedIssues>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -110,10 +113,13 @@ export function DuplicateDialog({
   onClose: () => void;
   onDone: (row: AdRow, metaId: string) => void;
 }) {
+  const [saving, setSaving] = useState(false);
   return (
-    <ElevatedDialog open={!!row} onOpenChange={(open) => !open && onClose()}>
+    <ElevatedDialog open={!!row} onOpenChange={(open) => !open && !saving && onClose()}>
       <ElevatedDialogContent>
-        {row ? <DuplicateForm key={row.metaId} row={row} parents={parents} onClose={onClose} onDone={onDone} /> : null}
+        {row ? (
+          <DuplicateForm key={row.metaId} row={row} parents={parents} saving={saving} setSaving={setSaving} onClose={onClose} onDone={onDone} />
+        ) : null}
       </ElevatedDialogContent>
     </ElevatedDialog>
   );

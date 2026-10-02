@@ -78,6 +78,8 @@ import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { EloAvatar } from "./elo-mark";
 import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
 import { ActionCardView } from "@/components/ai-chat/action-card";
+import { GeneratingImage } from "@/components/image-generation/generating-image";
+import { imagePlaceholderOf } from "@/lib/aichat/generating-image";
 import type { ChatChart, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
 import {
   humanizeFieldKey,
@@ -91,6 +93,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { ChatChartView } from "./chat-chart";
+import { ChatImageView } from "./chat-image";
 import { isThinkingBetweenSteps, layoutSegments, type Block, type Segment } from "./segments";
 
 const TOOL_ICON: Record<string, Icon> = {
@@ -203,7 +206,7 @@ const TOOL_ICON: Record<string, Icon> = {
   ads_results: ChartBar,
   list_ad_pages: Megaphone,
   search_ad_locations: MagnifyingGlass,
-  generate_ad_image: ImageGlyph,
+  generate_image: ImageGlyph,
   create_ad: Megaphone,
   turn_on_ad: Play,
   turn_off_ad: Pause,
@@ -232,6 +235,7 @@ export function hydrate(m: ChatMessage): UIMessage {
     segments.push({ kind: "tool", name: tool.name, summary: tool.summary, ok: tool.ok });
     if (tool.chart) segments.push({ kind: "chart", chart: tool.chart });
     if (tool.card) segments.push({ kind: "card", card: tool.card });
+    if (tool.image) segments.push({ kind: "image", image: tool.image });
   }
   if (m.content) segments.push({ kind: "text", text: m.content });
   return { ...m, segments, pending };
@@ -366,11 +370,13 @@ function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
     case "thinking":
       return <ThinkingBlock text={seg.text} streaming={seg.streaming} labels={labels} />;
     case "tool":
-      return <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
+      return <ToolStep seg={seg} labels={labels} />;
     case "charts":
       return <ChartGrid charts={seg.charts} />;
     case "card":
       return <ActionCardView card={seg.card} live={seg.live} />;
+    case "image":
+      return <ChatImageView image={seg.image} />;
     default:
       return (
         <div className="text-sm">
@@ -379,6 +385,18 @@ function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
         </div>
       );
   }
+}
+
+function ToolStep({ seg, labels }: { seg: Extract<Block, { kind: "tool" }>; labels: BubbleLabels }) {
+  const line = <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
+  const placeholder = imagePlaceholderOf(seg);
+  if (!placeholder) return line;
+  return (
+    <div className="space-y-1.5">
+      {line}
+      <GeneratingImage aspect={placeholder.aspect} failed={placeholder.failed} className="w-full max-w-sm" />
+    </div>
+  );
 }
 
 function ThinkingBlock({

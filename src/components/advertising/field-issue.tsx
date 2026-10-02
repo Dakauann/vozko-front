@@ -6,19 +6,23 @@ import { useTranslations } from "next-intl";
 import { WarningCircle } from "@/components/icons";
 import { issueFieldKey, type FieldIssue } from "@/lib/advertising/issues";
 
+import { useBudgetMinimumText } from "./budget-minimum";
+
 export type IssueNamespace = "adsManager" | "adsAudiences" | "adsForms" | "adsRules" | "adsConversions";
 
 export function useIssueText(namespace: IssueNamespace) {
   const t = useTranslations(namespace);
+  const minimumText = useBudgetMinimumText();
   return useCallback(
     (issue: FieldIssue) => {
+      if (issue.minimum) return minimumText("below", issue.minimum);
       const specific = `issues.${issueFieldKey(issue.field)}.${issue.code}`;
       if (t.has(specific)) return t(specific);
       const generic = `issues.generic.${issue.code}`;
       if (t.has(generic)) return t(generic);
       return t("issues.generic.unknown", { field: issue.field, code: issue.code });
     },
-    [t],
+    [t, minimumText],
   );
 }
 

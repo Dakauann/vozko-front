@@ -9,7 +9,6 @@ import type {
   AdCreativeFormat,
   AdDayPart,
   AdDraftDestination,
-  AdDraftFee,
   AdDraftGeoLocation,
   AdDraftSpecialCategory,
   AdDraftTargeting,
@@ -574,10 +573,6 @@ export function withParents(form: WizardForm, campaign: ParentSummary | null, ad
     next.ads = fitAdsToDestination(next.ads, next.destination);
   }
   return next;
-}
-
-export function draftFeeTotal(fee: AdDraftFee, adCount: number): number {
-  return typeof fee.total === "number" ? fee.total : fee.price * adCount;
 }
 
 export interface CreativeSource {

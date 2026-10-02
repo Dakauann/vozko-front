@@ -17,11 +17,18 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ArrowDown, ArrowUp, Plus, Trash, X } from "@/components/icons";
 import {
+  MAX_BUTTON_TEXT,
+  MAX_FORM_TEXT,
+  MAX_INTRO_ITEMS,
+  MAX_INTRO_TITLE,
+  MAX_LABEL,
   MAX_OPTIONS,
+  MAX_PRIVACY_TEXT,
   MAX_QUESTIONS,
   STANDARD_QUESTIONS,
   buildFormDraft,
@@ -35,6 +42,7 @@ import {
   toggleStandard,
   type BuilderQuestion,
   type FormBuilderState,
+  type IntroStyle,
   type LeadForm,
   type StandardQuestion,
 } from "@/lib/advertising/forms";
@@ -42,11 +50,29 @@ import { issuesAt, issuesUnder, type ExpectedIssues } from "@/lib/advertising/is
 import type { AdAccount, AdPage } from "@/lib/advertising/types";
 
 import { IssueList } from "../field-issue";
+import { useAdsErrorText } from "../use-ads-error";
 import { IconAction } from "../icon-action";
 import { Section } from "../wizard/choice-row";
+import { Counter, TextListEditor } from "../wizard/text-list-editor";
 import { FormPreview } from "./form-preview";
 
-type TextField = "name" | "headline" | "privacyUrl" | "privacyText" | "thankYouTitle" | "thankYouBody" | "thankYouUrl";
+type TextField =
+  | "name"
+  | "introTitle"
+  | "introParagraph"
+  | "privacyUrl"
+  | "privacyText"
+  | "thankYouTitle"
+  | "thankYouBody"
+  | "thankYouUrl"
+  | "thankYouButtonText";
+
+interface TextOptions {
+  multiline?: boolean;
+  maxLength?: number;
+  issueField?: string;
+  hint?: string;
+}
 
 export function FormBuilderDialog({
   account,
@@ -61,7 +87,8 @@ export function FormBuilderDialog({
 }) {
   const t = useTranslations("adsForms.builder");
   const tq = useTranslations("adsForms.questions");
-  const [state, setState] = useState<FormBuilderState>(emptyFormBuilder);
+  const errorText = useAdsErrorText();
+  const [state, setState] = useState<FormBuilderState>(() => emptyFormBuilder(t("thankYouButtonDefault")));
   const [expected, setExpected] = useState<ExpectedIssues>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -80,7 +107,7 @@ export function FormBuilderDialog({
     setSaving(false);
     if (isAdsError(outcome)) {
       setExpected(outcome.expected ?? {});
-      setFailure(outcome.expected ? null : outcome.error);
+      setFailure(outcome.expected ? t("fixIssues") : errorText(outcome));
       return;
     }
     onCreated(outcome.data);
@@ -88,25 +115,38 @@ export function FormBuilderDialog({
 
   const setText = (field: TextField, value: string) => setState((current) => ({ ...current, [field]: value }));
 
-  const text = (field: TextField, label: string, multiline = false) => (
+  const text = (field: TextField, label: string, options: TextOptions = {}) => (
     <div className="space-y-1">
-      {multiline ? (
+      {options.multiline ? (
         <ElevatedTextarea
           label={label}
           placeholder=" "
           value={state[field]}
+          maxLength={options.maxLength}
           onChange={(event) => setText(field, event.target.value)}
           autoResize
         />
       ) : (
-        <ElevatedInput label={label} placeholder=" " value={state[field]} onChange={(event) => setText(field, event.target.value)} />
+        <ElevatedInput
+          label={label}
+          placeholder=" "
+          value={state[field]}
+          maxLength={options.maxLength}
+          onChange={(event) => setText(field, event.target.value)}
+        />
       )}
-      <IssueList namespace="adsForms" issues={issuesAt(expected, field)} />
+      {options.maxLength ? <Counter value={state[field]} max={options.maxLength} /> : null}
+      {options.hint ? <p className="text-2xs text-muted-foreground">{options.hint}</p> : null}
+      <IssueList namespace="adsForms" issues={issuesAt(expected, options.issueField ?? field)} />
     </div>
   );
 
+  const close = () => {
+    if (!saving) onClose();
+  };
+
   return (
-    <ElevatedDialog open onOpenChange={(open) => !open && onClose()}>
+    <ElevatedDialog open onOpenChange={(open) => !open && close()}>
       <ElevatedDialogContent className="max-w-5xl">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
@@ -117,8 +157,45 @@ export function FormBuilderDialog({
             <div className="space-y-6">
               <Section title={t("basicsTitle")}>
                 {text("name", t("name"))}
-                {text("headline", t("headline"))}
-                <IssueList namespace="adsForms" issues={[...issuesAt(expected, "pageId"), ...issuesAt(expected, "adAccountId")]} />
+                <IssueList
+                  namespace="adsForms"
+                  issues={[...issuesAt(expected, "pageId"), ...issuesAt(expected, "adAccountId"), ...issuesAt(expected, "locale")]}
+                />
+              </Section>
+
+              <Section title={t("introTitle")} description={t("introDescription")}>
+                <ElevatedSwitch checked={state.introOn} onCheckedChange={(introOn) => patch({ introOn })} label={t("introOn")} />
+                {state.introOn ? (
+                  <div className="space-y-3">
+                    {text("introTitle", t("introHeading"), { maxLength: MAX_INTRO_TITLE, issueField: "intro.title" })}
+                    <ElevatedPillToggle<IntroStyle>
+                      size="sm"
+                      value={state.introStyle}
+                      onChange={(introStyle) => patch({ introStyle })}
+                      options={[
+                        { value: "PARAGRAPH", label: t("introStyle.PARAGRAPH") },
+                        { value: "LIST", label: t("introStyle.LIST") },
+                      ]}
+                    />
+                    <IssueList namespace="adsForms" issues={issuesAt(expected, "intro.style")} />
+                    {state.introStyle === "PARAGRAPH" ? (
+                      text("introParagraph", t("introParagraph"), { multiline: true, maxLength: MAX_FORM_TEXT, issueField: "intro.content" })
+                    ) : (
+                      <>
+                        <TextListEditor
+                          values={state.introItems}
+                          max={MAX_INTRO_ITEMS}
+                          maxLength={MAX_LABEL}
+                          label={(index) => t("introItem", { number: index + 1 })}
+                          addLabel={t("introAddItem")}
+                          removeLabel={t("introRemoveItem")}
+                          onChange={(introItems) => patch({ introItems })}
+                        />
+                        <IssueList namespace="adsForms" issues={issuesUnder(expected, "intro.content")} />
+                      </>
+                    )}
+                  </div>
+                ) : null}
               </Section>
 
               <Section title={t("questionsTitle")} description={t("questionsDescription")}>
@@ -185,13 +262,14 @@ export function FormBuilderDialog({
 
               <Section title={t("privacyTitle")} description={t("privacyDescription")}>
                 {text("privacyUrl", t("privacyUrl"))}
-                {text("privacyText", t("privacyText"))}
+                {text("privacyText", t("privacyText"), { maxLength: MAX_PRIVACY_TEXT })}
               </Section>
 
-              <Section title={t("thanksTitle")}>
-                {text("thankYouTitle", t("thankYouTitle"))}
-                {text("thankYouBody", t("thankYouBody"), true)}
-                {text("thankYouUrl", t("thankYouUrl"))}
+              <Section title={t("thanksTitle")} description={t("thanksDescription")}>
+                {text("thankYouTitle", t("thankYouTitle"), { maxLength: MAX_LABEL })}
+                {text("thankYouBody", t("thankYouBody"), { multiline: true, maxLength: MAX_FORM_TEXT })}
+                {text("thankYouUrl", t("thankYouUrl"), { hint: t("thankYouUrlHint") })}
+                {text("thankYouButtonText", t("thankYouButtonText"), { maxLength: MAX_BUTTON_TEXT })}
               </Section>
 
               <ElevatedSwitch
@@ -208,7 +286,7 @@ export function FormBuilderDialog({
           </div>
         </ElevatedDialogBody>
         <ElevatedDialogFooter>
-          <Button variant="secondary" title={t("cancel")} onClick={onClose} />
+          <Button variant="secondary" title={t("cancel")} onClick={close} disabled={saving} />
           <Button
             variant="primary"
             title={saving ? t("creating") : t("create")}

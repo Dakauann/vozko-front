@@ -1,4 +1,4 @@
-import type { AdLocationKind } from "@/lib/advertising/types";
+import type { AdBudgetMinimum, AdLocationKind } from "@/lib/advertising/types";
 
 export type AdObjective =
   "OUTCOME_AWARENESS" | "OUTCOME_TRAFFIC" | "OUTCOME_ENGAGEMENT" | "OUTCOME_LEADS" | "OUTCOME_SALES" | "OUTCOME_APP_PROMOTION";
@@ -245,10 +245,11 @@ export interface AdInstantExperience {
 export interface AdDraftFee {
   price: number;
   currency: string;
-  total?: number;
+  total: number;
 }
 
 export interface AdDraftValidation {
   issues: { field: string; code: string }[] | null;
   fee?: AdDraftFee;
+  budgetMinimum?: AdBudgetMinimum;
 }

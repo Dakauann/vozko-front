@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
-import type { ActionCard, ChatChart, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -15,6 +15,7 @@ export interface StreamHandlers {
   onTool?: (name: string, summary: string, ok: boolean) => void;
   onChart?: (chart: ChatChart) => void;
   onCard?: (card: ActionCard) => void;
+  onImage?: (image: ChatImage) => void;
   onProposal?: (action: PendingAction) => void;
   onAwaitingApproval?: (actionId: string) => void;
   onDone?: () => void;
@@ -44,6 +45,9 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
       break;
     case "action_card":
       if (ev.payload) h.onCard?.(ev.payload as unknown as ActionCard);
+      break;
+    case "image":
+      if (ev.payload) h.onImage?.(ev.payload as unknown as ChatImage);
       break;
     case "tool_proposal":
       h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary, fields: p.fields, preview: p.preview, secrets: p.secrets });

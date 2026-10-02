@@ -7,8 +7,10 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { Lightning } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
+import { accountWritePermissions } from "@/lib/advertising/delivery";
 
 import { AccountGate } from "../account-gate";
+import { ReadOnlyNotice } from "../account-notices";
 import { AccountPicker } from "../account-picker";
 import { RulesPanel } from "./rules-panel";
 
@@ -46,7 +48,8 @@ export function RulesPage() {
       {(account) => (
         <div className="w-full space-y-4">
           {header}
-          <RulesPanel key={account.id} account={account} permissions={permissions} />
+          <ReadOnlyNotice account={account} />
+          <RulesPanel key={account.id} account={account} permissions={accountWritePermissions(permissions, account)} />
         </div>
       )}
     </AccountGate>

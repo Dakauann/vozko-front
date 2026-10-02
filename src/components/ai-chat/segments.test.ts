@@ -18,6 +18,14 @@ describe("tool segments", () => {
     expect(out[1]).toMatchObject({ name: "attendance_trend", running: true });
   });
 
+  it("keeps the requested image aspect from start to finish", () => {
+    const running = startTool([], "generate_image", "story");
+    expect(running).toEqual([{ kind: "tool", name: "generate_image", summary: "", ok: true, running: true, aspect: "story" }]);
+    expect(finishTool(running, "generate_image", "error", false)).toEqual([
+      { kind: "tool", name: "generate_image", summary: "error", ok: false, aspect: "story" },
+    ]);
+  });
+
   it("still records a result that never announced its start (older servers)", () => {
     expect(finishTool([], "calculate", "ok", true)).toEqual([{ kind: "tool", name: "calculate", summary: "ok", ok: true }]);
   });

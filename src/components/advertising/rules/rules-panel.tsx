@@ -8,7 +8,7 @@ import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowClockwise, ClockCounterClockwise, Lightning, Plus, Trash, Warning } from "@/components/icons";
+import { ArrowClockwise, ClockCounterClockwise, Lightning, Plus, Trash } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { actionChoiceOf, type AutomatedRule } from "@/lib/advertising/rules";
 import type { AdAccount } from "@/lib/advertising/types";
 import { cn } from "@/lib/utils";
 
+import { useLoadErrorState } from "../load-error-state";
 import { IconAction } from "../icon-action";
 import { RuleBuilderDialog } from "./rule-builder-dialog";
 import { RuleHistorySheet } from "./rule-history-sheet";
@@ -25,6 +26,7 @@ import { useRuleSentence } from "./use-rule-sentence";
 export function RulesPanel({ account, permissions }: { account: AdAccount; permissions: RulePermissions }) {
   const t = useTranslations("adsRules");
   const { toast } = useToast();
+  const loadError = useLoadErrorState();
   const sentence = useRuleSentence(account.currency);
   const load = useCallback(() => listRulesAction(account.id), [account.id]);
   const list = useKeyedLoad(account.id, load);
@@ -134,15 +136,6 @@ export function RulesPanel({ account, permissions }: { account: AdAccount; permi
 
   return (
     <div className="space-y-4">
-      {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-          <button type="button" onClick={list.reload} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
-      ) : null}
       <DashboardTable
         data={rules}
         columns={columns}
@@ -178,7 +171,7 @@ export function RulesPanel({ account, permissions }: { account: AdAccount; permi
             ) : null}
           </>
         )}
-        emptyState={{
+        emptyState={error ? loadError(error, list.reload) : {
           icon: <Lightning className="h-7 w-7 text-muted-foreground" />,
           title: t("list.emptyTitle"),
           description: permissions.canCreate ? t("list.emptyBody") : t("list.emptyBodyReadOnly"),
@@ -192,6 +185,7 @@ export function RulesPanel({ account, permissions }: { account: AdAccount; permi
         title={t("delete.title")}
         description={t("delete.body", { name: deleting?.name ?? "" })}
         confirmLabel={t("delete.action")}
+        cancelLabel={t("builder.cancel")}
         tone="danger"
         onConfirm={confirmDelete}
       />

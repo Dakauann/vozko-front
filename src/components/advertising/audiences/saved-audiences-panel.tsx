@@ -7,7 +7,7 @@ import { deleteSavedAudienceAction, listSavedAudiencesAction } from "@/app/actio
 import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { Bookmark, PencilSimple, Plus, Trash, Warning } from "@/components/icons";
+import { Bookmark, PencilSimple, Plus, Trash } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdAccount } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 
+import { useLoadErrorState } from "../load-error-state";
 import { IconAction } from "../icon-action";
 import { useAdsFormat } from "../use-ads-format";
 import type { AudiencePermissions } from "./audiences-page";
@@ -27,6 +28,7 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
   const t = useTranslations("adsAudiences.saved");
   const fmt = useAdsFormat();
   const { toast } = useToast();
+  const loadError = useLoadErrorState();
   const list = useKeyedLoad("saved", listSavedAudiencesAction);
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<SavedAudience | null>(null);
@@ -110,15 +112,6 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
 
   return (
     <div className="space-y-4">
-      {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-          <button type="button" onClick={list.reload} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
-      ) : null}
       <DashboardTable
         data={audiences}
         columns={columns}
@@ -138,7 +131,7 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
           ) : null
         }
         renderRowActions={rowActions}
-        emptyState={{
+        emptyState={error ? loadError(error, list.reload) : {
           icon: <Bookmark className="h-7 w-7 text-muted-foreground" />,
           title: t("emptyTitle"),
           description: t("emptyBody"),
@@ -158,6 +151,7 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
         title={t("deleteTitle")}
         description={t("deleteBody", { name: deleting?.name ?? "" })}
         confirmLabel={t("delete")}
+        cancelLabel={t("editor.cancel")}
         tone="danger"
         onConfirm={confirmDelete}
       />

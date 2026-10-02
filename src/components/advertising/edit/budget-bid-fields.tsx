@@ -8,9 +8,11 @@ import { Lock } from "@/components/icons";
 import { Hint, ReadOnlyFact } from "@/components/advertising/wizard/choice-row";
 import { bidStrategiesFor, parseRoas, type BidInput, type BudgetInput } from "@/lib/advertising/draft";
 import type { AdBidStrategy, AdOptimizationGoal } from "@/lib/advertising/draft-types";
-import { issuesUnder, type ExpectedIssues } from "@/lib/advertising/issues";
+import { issuesUnder, withBudgetMinimum, type ExpectedIssues } from "@/lib/advertising/issues";
 import { inputToMinor } from "@/lib/advertising/money";
+import type { AdBudgetMinimum } from "@/lib/advertising/types";
 
+import { BudgetMinimumHint } from "../budget-minimum";
 import { IssueList } from "../field-issue";
 
 export function BudgetBidFields({
@@ -20,6 +22,7 @@ export function BudgetBidFields({
   goal,
   currency,
   expected,
+  minimum = null,
   disabled,
   onBudget,
   onBid,
@@ -30,6 +33,7 @@ export function BudgetBidFields({
   goal: string;
   currency: string;
   expected: ExpectedIssues;
+  minimum?: AdBudgetMinimum | null;
   disabled: boolean;
   onBudget: (budget: BudgetInput) => void;
   onBid: (bid: BidInput) => void;
@@ -57,12 +61,13 @@ export function BudgetBidFields({
             error={budget.input.trim() !== "" && inputToMinor(budget.input, currency) === null ? t("invalid") : undefined}
             controlSize="sm"
           />
+          {budget.kind === "DAILY" ? <BudgetMinimumHint minimum={minimum} /> : null}
           <Hint>{t("limitHint")}</Hint>
         </>
       ) : (
         <Hint>{t(level === "campaign" ? "onAdSets" : "onCampaign")}</Hint>
       )}
-      <IssueList namespace="adsManager" issues={issuesUnder(expected, "budget")} />
+      <IssueList namespace="adsManager" issues={withBudgetMinimum(issuesUnder(expected, "budget"), minimum)} />
 
       <ElevatedSelect
         label={t("strategy")}

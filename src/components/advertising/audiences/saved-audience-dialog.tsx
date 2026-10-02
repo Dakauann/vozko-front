@@ -78,7 +78,7 @@ export function SavedAudienceDialog({
   };
 
   return (
-    <ElevatedDialog open onOpenChange={(open) => !open && onClose()}>
+    <ElevatedDialog open onOpenChange={(open) => !open && !saving && onClose()}>
       <ElevatedDialogContent className="max-w-xl">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{audience ? t("editTitle") : t("createTitle")}</ElevatedDialogTitle>
@@ -152,7 +152,7 @@ export function SavedAudienceDialog({
           {failure ? <p className="text-sm text-destructive-ink">{failure}</p> : null}
         </ElevatedDialogBody>
         <ElevatedDialogFooter>
-          <Button variant="secondary" title={t("cancel")} onClick={onClose} />
+          <Button variant="secondary" title={t("cancel")} onClick={onClose} disabled={saving} />
           <Button variant="primary" title={saving ? t("saving") : t("save")} onClick={submit} disabled={saving} />
         </ElevatedDialogFooter>
       </ElevatedDialogContent>

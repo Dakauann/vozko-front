@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -35,16 +35,29 @@ import { useMetaAdsConnect } from "@/hooks/use-meta-ads-connect";
 import { useToast } from "@/hooks/use-toast";
 import { canTest } from "@/lib/advertising/ab-test";
 import { needsLiveData, nextSort, parseVisibleColumns, sortRows, toggleColumn, DEFAULT_COLUMNS, type MetricColumn, type RowSort, type SortableColumn } from "@/lib/advertising/columns";
-import { ADVERTISING_NEW_PATH, ADVERTISING_PATH, COLUMNS_STORAGE_KEY, readStored, writeStored } from "@/lib/advertising/connect";
+import { ADVERTISING_PATH, COLUMNS_STORAGE_KEY, newAdHref, readStored, writeStored } from "@/lib/advertising/connect";
 import { DEFAULT_PRESET, civilToday, rangeForPreset, relativeSince, validRange, type RangePreset } from "@/lib/advertising/date-range";
-import { spendBlockerKey } from "@/lib/advertising/delivery";
+import { manageBlockerKey, spendBlockerKey } from "@/lib/advertising/delivery";
+import { issuesUnder, withBudgetMinimum } from "@/lib/advertising/issues";
+import { needsStructureRefresh } from "@/lib/advertising/publish";
 import { liveById, mergeLiveRows, withLiveResults, type LiveFetch, type ManagerRow } from "@/lib/advertising/live";
-import type { AdLevel, AdPublishJob, AdRange, AdReport, AdRow, AdTestLevel, AdTrend, MetaAdsConnectResult } from "@/lib/advertising/types";
+import type {
+  AdBudgetMinimum,
+  AdLevel,
+  AdPublishJob,
+  AdRange,
+  AdReport,
+  AdRow,
+  AdTestLevel,
+  AdTrend,
+  MetaAdsConnectResult,
+} from "@/lib/advertising/types";
 import { cn } from "@/lib/utils";
 
 import { AbTestDialog } from "./ab-test-dialog";
 import { AbTestsSheet } from "./ab-tests-sheet";
 import { AccountNotices } from "./account-notices";
+import { useIssueText } from "./field-issue";
 import { AccountPicker } from "./account-picker";
 import { AdsColumnsMenu } from "./ads-columns-menu";
 import { AdsDateRangePicker } from "./ads-date-range-picker";
@@ -55,9 +68,12 @@ import { BreakdownSheet, type BreakdownRequest } from "./breakdown-sheet";
 import { DuplicateDialog } from "./duplicate-dialog";
 import { ObjectEditSheet, type PlacementCatalog } from "./edit/object-edit-sheet";
 import { PublishJobsSheet } from "./publish-jobs-sheet";
+import { PublishedNotice } from "./published-notice";
+import { useLoadErrorState } from "./load-error-state";
 import { DEFAULT_WINDOW, LiveHint, ReportControls, knownWindows, type WindowChoice } from "./report-controls";
 import { RowActionsMenu, type RowAction } from "./row-actions-menu";
 import { SpendCapControl } from "./spend-cap-control";
+import { useAdsErrorText } from "./use-ads-error";
 import { useAdsFormat } from "./use-ads-format";
 import { useAdsResource } from "./wizard/use-ads-resource";
 
@@ -96,6 +112,9 @@ export function AdsManager() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const fmt = useAdsFormat();
+  const errorText = useAdsErrorText();
+  const issueText = useIssueText("adsManager");
+  const loadError = useLoadErrorState();
 
   const canRead = !permissionsLoading && can("ads", "read");
   const canCreate = !permissionsLoading && can("ads", "create");
@@ -111,9 +130,13 @@ export function AdsManager() {
   );
   const rowPermissions = useMemo(() => ({ canUpdate, canCreate, canDelete }), [canUpdate, canCreate, canDelete]);
 
-  const accounts = useAdAccounts({ enabled: canRead, requested: searchParams.get("account") });
+  const requestedAccount = searchParams.get("account");
+  const accounts = useAdAccounts({ enabled: canRead, requested: requestedAccount });
   const account = accounts.selected;
   const accountId = account?.id ?? null;
+  const focusCampaign = searchParams.get("campaign");
+  const justPublished = searchParams.get("published") === "1";
+  const publishedJobId = searchParams.get("job");
 
   const [now, setNow] = useState(() => new Date());
   const [preset, setPreset] = useState<RangePreset>(DEFAULT_PRESET);
@@ -146,10 +169,12 @@ export function AdsManager() {
   const [jobs, setJobs] = useState<AdPublishJob[]>([]);
   const [jobsLoading, setJobsLoading] = useState(() => searchParams.get("jobs") === "1");
   const [jobsError, setJobsError] = useState<string | null>(null);
+  const [publishedOpen, setPublishedOpen] = useState(justPublished);
+  const refreshedAfterPublish = useRef(false);
 
   if (selectionAccount !== accountId) {
     setSelectionAccount(accountId);
-    setSelectedCampaigns(new Set());
+    setSelectedCampaigns(focusCampaign && accountId && accountId === requestedAccount ? new Set([focusCampaign]) : new Set());
     setSelectedAdSets(new Set());
   }
 
@@ -223,7 +248,7 @@ export function AdsManager() {
   const loading = !!range && !fresh;
   const current = fresh ? data.reports[level] : null;
   const report = current && !isAdsError(current) ? current.data : null;
-  const reportError = current && isAdsError(current) ? current.error : null;
+  const reportError = current && isAdsError(current) ? errorText(current) : null;
   const trend = fresh && !isAdsError(data.trend) ? data.trend.data : null;
   const previous = comparing ? (report?.previous ?? null) : null;
 
@@ -282,19 +307,33 @@ export function AdsManager() {
 
   const reload = () => setReloadToken((token) => token + 1);
 
-  const syncAccount = () => {
-    if (!account) return;
+  const replaceAccount = accounts.replace;
+  const syncAccount = useCallback(() => {
+    if (!accountId) return;
     setSyncing(true);
-    void syncAdAccountAction(account.id).then((result) => {
+    void syncAdAccountAction(accountId).then((result) => {
       setSyncing(false);
       if (isAdsError(result)) {
-        toast({ title: t("sync.failed"), description: result.error, variant: "destructive" });
+        toast({ title: t("sync.failed"), description: errorText(result), variant: "destructive" });
         return;
       }
-      accounts.replace(result.data);
-      reload();
+      replaceAccount(result.data);
+      setReloadToken((token) => token + 1);
     });
-  };
+  }, [accountId, replaceAccount, toast, t, errorText]);
+
+  const campaignReport = fresh ? data.reports.campaign : null;
+  const publishedMissing =
+    justPublished &&
+    !!campaignReport &&
+    !isAdsError(campaignReport) &&
+    needsStructureRefresh((campaignReport.data.rows ?? []).map((row) => row.metaId), focusCampaign);
+
+  useEffect(() => {
+    if (!publishedMissing || refreshedAfterPublish.current) return;
+    refreshedAfterPublish.current = true;
+    syncAccount();
+  }, [publishedMissing, syncAccount]);
 
   const patchRow = useCallback((metaId: string, patch: Partial<AdRow> | null) => {
     setOverrides((map) => {
@@ -338,24 +377,27 @@ export function AdsManager() {
         markPending(row.metaId, false);
         if (isAdsError(result)) {
           patchRow(row.metaId, null);
-          toast({ title: t(on ? "toggle.onFailed" : "toggle.offFailed", { name: row.name }), description: result.error, variant: "destructive" });
+          toast({ title: t(on ? "toggle.onFailed" : "toggle.offFailed", { name: row.name }), description: errorText(result), variant: "destructive" });
           return;
         }
         applyRow(result.data);
       });
     },
-    [markPending, patchRow, applyRow, toast, t],
+    [markPending, patchRow, applyRow, toast, t, errorText],
   );
 
   const saveBudget = useCallback(
-    async (row: AdRow, amount: number) => {
+    async (row: AdRow, amount: number, minimum: AdBudgetMinimum | null) => {
       const result = await updateAdBudgetAction(row.metaId, amount);
-      if (isAdsError(result)) return budgetError(result, t("budget.tooSoon"));
+      if (isAdsError(result)) {
+        const issues = withBudgetMinimum(issuesUnder(result.expected, "budget"), minimum);
+        return issues.length > 0 ? issues.map(issueText).join(" ") : budgetError(result, t("budget.tooSoon"));
+      }
       patchRow(row.metaId, { dailyBudget: result.data.dailyBudget, lifetimeBudget: result.data.lifetimeBudget });
       toast({ title: t("budget.saved", { name: row.name }) });
       return null;
     },
-    [patchRow, toast, t],
+    [patchRow, toast, t, issueText],
   );
 
   const archiveRow = useCallback(
@@ -381,7 +423,7 @@ export function AdsManager() {
       if (action === "delete") setDeleting(row);
       if (action === "archive") archiveRow(row);
     },
-    [archiveRow],
+    [archiveRow, setEditing, setDuplicating, setDeleting],
   );
 
   const confirmDelete = async () => {
@@ -486,13 +528,10 @@ export function AdsManager() {
     if (next === "campaign" || next === "adset" || next === "ad") setLevel(next);
   };
 
+  const manageBlocker = account ? manageBlockerKey(account) : "unknown";
+  const manageReason = manageBlocker === null ? null : t(`manageBlocker.${manageBlocker}`);
   const blocker = account ? spendBlockerKey(account) : "unknown";
-  const blockerText =
-    blocker === null
-      ? null
-      : blocker === "unknown" && account?.spendBlocker
-        ? `${t("spendBlocker.unknown")} (${account.spendBlocker})`
-        : t(`spendBlocker.${blocker}`);
+  const blockerText = blocker === null ? null : t(`spendBlocker.${blocker}`);
   const synced = relativeSince(account?.lastSyncedAt, now, fmt.tag);
 
   const connectButton = canCreate ? (
@@ -517,7 +556,7 @@ export function AdsManager() {
           iconVisible
           iconSide="left"
           disabled={!!blockerText}
-          onClick={() => router.push(`${ADVERTISING_NEW_PATH}?accountId=${encodeURIComponent(account.id)}`)}
+          onClick={() => router.push(newAdHref(account.id))}
         />
       </TooltipWrapper>
     ) : null;
@@ -636,7 +675,7 @@ export function AdsManager() {
 
   const testButton = (testLevel: AdTestLevel, selected: ManagerRow[]) =>
     canCreate ? (
-      <TooltipWrapper content={t("abTest.countHint")} enabled={!canTest(selected.length)}>
+      <TooltipWrapper content={manageReason ?? t("abTest.countHint")} enabled={!!manageReason || !canTest(selected.length)}>
         <Button
           variant="secondary"
           size="sm"
@@ -644,7 +683,7 @@ export function AdsManager() {
           icon={<TestTube className="h-4 w-4" />}
           iconVisible
           iconSide="left"
-          disabled={!canTest(selected.length)}
+          disabled={!!manageReason || !canTest(selected.length)}
           onClick={() => setTestObjects({ level: testLevel, rows: selected })}
         />
       </TooltipWrapper>
@@ -656,6 +695,22 @@ export function AdsManager() {
       : level === "adset"
         ? { selected: selectedAdSets, onChange: setSelectedAdSets, actions: (selected: ManagerRow[]) => testButton("adset", selected) }
         : undefined;
+
+  const firstCampaign = level === "campaign" && !search.trim() && !!report && reportRows.length === 0;
+  const tableEmptyState = reportError
+    ? loadError(reportError, reload)
+    : firstCampaign
+      ? {
+          icon: <Megaphone className="h-7 w-7 text-muted-foreground" />,
+          title: t("empty.firstTitle"),
+          description: canCreate ? t("empty.firstBody") : t("empty.firstBodyReadOnly"),
+          action: createButton ? <div className="mt-2">{createButton}</div> : undefined,
+        }
+      : {
+          icon: <Megaphone className="h-7 w-7 text-muted-foreground" />,
+          title: t(`empty.${level}Title`),
+          description: t("empty.rangeBody"),
+        };
 
   const duplicateParents = duplicating?.level === "adset" ? levelRows("campaign") : duplicating?.level === "ad" ? levelRows("adset") : [];
 
@@ -701,7 +756,27 @@ export function AdsManager() {
         />
       </div>
 
-      <AccountNotices account={account} canReconnect={canCreate} reconnecting={isConnecting} onReconnect={() => connect(ADVERTISING_PATH)} />
+      {publishedOpen ? (
+        <PublishedNotice
+          account={account}
+          canCreate={canCreate}
+          jobId={publishedJobId}
+          onSwitchedOn={() => {
+            setPublishedOpen(false);
+            toast({ title: t("published.switchedOn") });
+            reload();
+          }}
+          onDismiss={() => setPublishedOpen(false)}
+        />
+      ) : null}
+
+      <AccountNotices
+        account={account}
+        canReconnect={canCreate}
+        reconnecting={isConnecting}
+        onReconnect={() => connect(ADVERTISING_PATH)}
+        recheck={{ checking: syncing, onRecheck: syncAccount }}
+      />
 
       {!today ? (
         <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
@@ -768,14 +843,8 @@ export function AdsManager() {
           </div>
         </div>
 
-        {reportError ? (
-          <div className="flex items-center gap-2 px-4 py-3 text-sm text-destructive-ink">
-            <Warning className="h-4 w-4" />
-            {reportError}
-          </div>
-        ) : null}
-
         <AdsTable
+          account={account}
           level={level}
           rows={rows}
           totals={report?.totals ?? null}
@@ -788,15 +857,18 @@ export function AdsManager() {
           permissions={permissions}
           pending={pending}
           loading={loading}
-          emptyState={{
-            icon: <Megaphone className="h-7 w-7 text-muted-foreground" />,
-            title: t(`empty.${level}Title`),
-            description: t("empty.rangeBody"),
-          }}
+          emptyState={tableEmptyState}
           onToggle={toggleRow}
           onBudget={saveBudget}
           rowActions={(row) => (
-            <RowActionsMenu row={row} accountId={account.id} permissions={rowPermissions} busy={pending.has(row.metaId)} onAction={runRowAction} />
+            <RowActionsMenu
+              row={row}
+              accountId={account.id}
+              permissions={rowPermissions}
+              busy={pending.has(row.metaId)}
+              blockedReason={manageReason}
+              onAction={runRowAction}
+            />
           )}
         />
       </div>
@@ -824,7 +896,7 @@ export function AdsManager() {
         row={editing}
         account={account}
         catalog={placementCatalog}
-        canUpdate={canUpdate}
+        canUpdate={canUpdate && manageBlocker === null}
         onClose={() => setEditing(null)}
         onSaved={applyRow}
       />

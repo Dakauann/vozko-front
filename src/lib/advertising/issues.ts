@@ -1,8 +1,18 @@
+import type { AdBudgetMinimum } from "./types";
+
 export type ExpectedIssues = Record<string, string>;
 
 export interface FieldIssue {
   field: string;
   code: string;
+  minimum?: AdBudgetMinimum;
+}
+
+export const BELOW_MINIMUM = "below_minimum";
+
+export function withBudgetMinimum<I extends FieldIssue>(issues: I[], minimum: AdBudgetMinimum | null | undefined): I[] {
+  if (!minimum) return issues;
+  return issues.map((issue) => (issue.code === BELOW_MINIMUM ? { ...issue, minimum } : issue));
 }
 
 export function issueFieldKey(field: string): string {

@@ -1,4 +1,5 @@
 import { apiClient, fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
+import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
 import { settleAds } from "@/app/actions/advertising-result";
 import { downloadBlob } from "@/lib/browser/download";
 import {
@@ -21,8 +22,6 @@ import type {
   AdObjectEdit,
   AdSplitTest,
   AdConversationOrigin,
-  AdGeneratedImage,
-  AdImageAspect,
   AdLocation,
   AdPage,
   AdPublishJob,
@@ -31,18 +30,11 @@ import type {
   AdTrend,
 } from "@/lib/advertising/types";
 
-export interface AdsActionError {
-  error: string;
-  code?: string;
-  status?: number;
-  expected?: Record<string, string>;
-}
+export type AdsActionError = ActionError;
 
-export type AdsResult<T> = { data: T } | AdsActionError;
+export type AdsResult<T> = ActionResult<T>;
 
-export function isAdsError<T>(result: AdsResult<T>): result is AdsActionError {
-  return "error" in result;
-}
+export const isAdsError = isActionError;
 
 export type { LiveQuery, ReportFilters, TrendFilters };
 
@@ -99,8 +91,8 @@ export async function getAdPublishJobAction(id: string): Promise<AdsResult<AdPub
   return settleAds(await apiClient<AdPublishJob>(`/ads/publish-jobs/${encodeURIComponent(id)}`, { method: "GET" }));
 }
 
-export async function generateAdImageAction(prompt: string, aspect: AdImageAspect): Promise<AdsResult<AdGeneratedImage>> {
-  return settleAds(await apiClient<AdGeneratedImage>("/ads/images", { method: "POST", body: JSON.stringify({ prompt, aspect }) }));
+export async function switchOnPublishJobAction(id: string): Promise<AdsResult<AdPublishJob>> {
+  return settleAds(await apiClient<AdPublishJob>(`/ads/publish-jobs/${encodeURIComponent(id)}/activate`, { method: "POST" }));
 }
 
 export async function getConversationAdOriginAction(

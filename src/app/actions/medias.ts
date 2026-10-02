@@ -1,5 +1,5 @@
 import { Media } from '@/lib/medias/types';
-import { apiClient } from '@/lib/api/browser-client';
+import { apiClient, fetchWithRefresh, getApiBaseUrl, scopeHeaders } from '@/lib/api/browser-client';
 
 export async function getMediaAction(mediaId: string): Promise<Media | null> {
     const response = await apiClient<Media>(`/medias/${mediaId}`, {
@@ -51,4 +51,28 @@ export async function uploadMediaAction(formData: FormData): Promise<{
     }
 
     return { mediaId: response.data?.id || null, mediaUrl: response.data?.url || null, mediaPreviewUrl: response.data?.previewUrl || null };
+}
+
+export interface MediaFile {
+    blob: Blob;
+    contentType: string;
+}
+
+export async function fetchMediaFileAction(mediaId: string): Promise<{ data: MediaFile | null; error: string | null }> {
+    try {
+        const response = await fetchWithRefresh(() =>
+            fetch(`${getApiBaseUrl()}/medias/${encodeURIComponent(mediaId)}/file`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: scopeHeaders(),
+            }),
+        );
+        if (!response.ok) {
+            return { data: null, error: `Download failed with status ${response.status}` };
+        }
+        const blob = await response.blob();
+        return { data: { blob, contentType: response.headers.get('Content-Type') ?? blob.type }, error: null };
+    } catch (error) {
+        return { data: null, error: error instanceof Error ? error.message : 'Network error' };
+    }
 }

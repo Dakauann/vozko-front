@@ -15,31 +15,47 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PencilSimple } from "@/components/icons";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { inputToMinor, minorToInput } from "@/lib/advertising/money";
+import { spendCapBlockerKey } from "@/lib/advertising/delivery";
 import { activeSpendCap, spendCapProblem, spendCapUsage } from "@/lib/advertising/spend-cap";
 import type { AdAccount } from "@/lib/advertising/types";
 
+import { useAdsErrorText } from "./use-ads-error";
 import { useAdsFormat } from "./use-ads-format";
 
-function SpendCapForm({ account, onClose, onSaved }: { account: AdAccount; onClose: () => void; onSaved: (account: AdAccount) => void }) {
+function SpendCapForm({
+  account,
+  saving,
+  onSaving,
+  onClose,
+  onSaved,
+}: {
+  account: AdAccount;
+  saving: boolean;
+  onSaving: (saving: boolean) => void;
+  onClose: () => void;
+  onSaved: (account: AdAccount) => void;
+}) {
   const t = useTranslations("adsManager.spendCap");
   const { toast } = useToast();
   const fmt = useAdsFormat();
+  const errorText = useAdsErrorText();
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const cap = activeSpendCap(account);
   const [input, setInput] = useState(() => (cap ? minorToInput(cap, account.currency) : ""));
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const amount = inputToMinor(input, account.currency);
   const problem = input.trim() ? spendCapProblem(amount, account.amountSpent) : null;
 
   const save = (next: number | null) => {
-    setSaving(true);
+    onSaving(true);
     setError(null);
     void setAdSpendCapAction(account.id, next).then((result) => {
-      setSaving(false);
+      onSaving(false);
       if (isAdsError(result)) {
-        setError(result.error);
+        setError(errorText(result));
         return;
       }
       onSaved(result.data);
@@ -71,7 +87,7 @@ function SpendCapForm({ account, onClose, onSaved }: { account: AdAccount; onClo
       </div>
       <ElevatedDialogFooter className="sm:justify-between">
         <div>
-          {cap ? <Button variant="ghost" size="sm" title={t("remove")} onClick={() => save(null)} disabled={saving} /> : null}
+          {cap ? <Button variant="ghost" size="sm" title={t("remove")} onClick={() => setConfirmRemove(true)} disabled={saving} /> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button variant="ghost" size="sm" title={t("cancel")} onClick={onClose} disabled={saving} />
@@ -84,6 +100,19 @@ function SpendCapForm({ account, onClose, onSaved }: { account: AdAccount; onClo
           />
         </div>
       </ElevatedDialogFooter>
+      <ConfirmDialog
+        open={confirmRemove}
+        onOpenChange={setConfirmRemove}
+        title={t("removeTitle")}
+        description={t("removeBody")}
+        confirmLabel={t("remove")}
+        cancelLabel={t("cancel")}
+        tone="danger"
+        onConfirm={() => {
+          setConfirmRemove(false);
+          save(null);
+        }}
+      />
     </>
   );
 }
@@ -100,8 +129,11 @@ export function SpendCapControl({
   const t = useTranslations("adsManager.spendCap");
   const fmt = useAdsFormat();
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const cap = activeSpendCap(account);
   const usage = spendCapUsage(account);
+  const blocker = spendCapBlockerKey(account);
+  const reason = blocker ? t(`blocker.${blocker}`) : t("edit");
 
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -122,18 +154,21 @@ export function SpendCapControl({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label={t("edit")}
-          title={t("edit")}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          disabled={!!blocker}
+          aria-label={reason}
+          title={reason}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
         >
           <PencilSimple className="h-3.5 w-3.5" aria-hidden />
         </button>
       ) : null}
-      <ElevatedDialog open={open} onOpenChange={setOpen}>
+      <ElevatedDialog open={open} onOpenChange={(next) => !saving && setOpen(next)}>
         <ElevatedDialogContent>
           {open ? (
             <SpendCapForm
               account={account}
+              saving={saving}
+              onSaving={setSaving}
               onClose={() => setOpen(false)}
               onSaved={(updated) => {
                 setOpen(false);

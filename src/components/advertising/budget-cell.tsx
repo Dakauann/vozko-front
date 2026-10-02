@@ -8,7 +8,9 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PencilSimple } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { inputToMinor, minorToInput } from "@/lib/advertising/money";
+import type { AdBudgetMinimum } from "@/lib/advertising/types";
 
+import { BudgetMinimumHint, useBudgetMinimum, type BudgetMinimumQuery } from "./budget-minimum";
 import { useAdsFormat } from "./use-ads-format";
 
 export function BudgetCell({
@@ -16,13 +18,15 @@ export function BudgetCell({
   lifetimeBudget,
   currency,
   editable,
+  minimumQuery,
   onSave,
 }: {
   dailyBudget: number;
   lifetimeBudget: number;
   currency: string;
   editable: boolean;
-  onSave: (amount: number) => Promise<string | null>;
+  minimumQuery: BudgetMinimumQuery | null;
+  onSave: (amount: number, minimum: AdBudgetMinimum | null) => Promise<string | null>;
 }) {
   const t = useTranslations("adsManager.budget");
   const fmt = useAdsFormat();
@@ -30,6 +34,7 @@ export function BudgetCell({
   const [input, setInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const minimum = useBudgetMinimum(open && dailyBudget > 0 ? minimumQuery : null);
 
   if (dailyBudget <= 0 && lifetimeBudget <= 0) {
     return <span className="text-sm text-muted-foreground">{t("adSetBudget")}</span>;
@@ -49,6 +54,7 @@ export function BudgetCell({
   const parsed = inputToMinor(input, currency);
 
   const openEditor = (next: boolean) => {
+    if (saving) return;
     setOpen(next);
     if (next) {
       setInput(minorToInput(current, currency));
@@ -57,10 +63,10 @@ export function BudgetCell({
   };
 
   const save = async () => {
-    if (parsed === null) return;
+    if (saving || parsed === null || parsed === current) return;
     setSaving(true);
     setError(null);
-    const failure = await onSave(parsed);
+    const failure = await onSave(parsed, minimum);
     setSaving(false);
     if (failure) {
       setError(failure);
@@ -96,6 +102,7 @@ export function BudgetCell({
           controlSize="sm"
           autoFocus
         />
+        {daily ? <BudgetMinimumHint minimum={minimum} /> : null}
         <p className="text-xs text-muted-foreground">{t("limitHint")}</p>
         <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" title={t("cancel")} onClick={() => setOpen(false)} disabled={saving} />

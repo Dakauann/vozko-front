@@ -56,7 +56,7 @@ export function AdsStep({ active, onActive }: { active: number; onActive: (index
 
       <Section
         title={t("title")}
-        description={t("description")}
+        description={editing ? undefined : t("creativesHint")}
         actions={
           editing ? undefined : (
             <>

@@ -7,7 +7,7 @@ import { archiveLeadFormAction, listLeadFormsAction } from "@/app/actions/advert
 import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { Archive, ArrowClockwise, ClipboardText, Eye, Plus, Warning } from "@/components/icons";
+import { Archive, ArrowClockwise, ClipboardText, Eye, Plus } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import type { AdAccount, AdPage } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 import { cn } from "@/lib/utils";
 
+import { useLoadErrorState } from "../load-error-state";
 import { IconAction } from "../icon-action";
 import { StatusDot } from "../status-dot";
 import { useAdsFormat } from "../use-ads-format";
@@ -36,6 +37,7 @@ export function FormsPanel({
   const t = useTranslations("adsForms");
   const fmt = useAdsFormat();
   const { toast } = useToast();
+  const loadError = useLoadErrorState();
   const load = useCallback(() => listLeadFormsAction(account.id, page.pageId), [account.id, page.pageId]);
   const list = useKeyedLoad(`${account.id}:${page.pageId}`, load);
   const [building, setBuilding] = useState(false);
@@ -106,15 +108,6 @@ export function FormsPanel({
 
   return (
     <div className="space-y-4">
-      {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-          <button type="button" onClick={list.reload} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
-      ) : null}
       <DashboardTable
         data={forms}
         columns={columns}
@@ -151,7 +144,7 @@ export function FormsPanel({
             ) : null}
           </div>
         )}
-        emptyState={{
+        emptyState={error ? loadError(error, list.reload) : {
           icon: <ClipboardText className="h-7 w-7 text-muted-foreground" />,
           title: t("list.emptyTitle"),
           description: permissions.canCreate ? t("list.emptyBody") : t("list.emptyBodyReadOnly"),
@@ -164,6 +157,7 @@ export function FormsPanel({
         title={t("archive.title")}
         description={t("archive.body", { name: archiving?.name ?? "" })}
         confirmLabel={t("archive.action")}
+        cancelLabel={t("builder.cancel")}
         tone="danger"
         onConfirm={confirmArchive}
       />

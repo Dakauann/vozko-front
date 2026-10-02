@@ -7,12 +7,14 @@ import { getAdsReportAction } from "@/app/actions/advertising";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import { ChatsCircle, CursorClick, DeviceMobile, Megaphone, Storefront, UserPlus, type Icon } from "@/components/icons";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { spendBlockerKey } from "@/lib/advertising/delivery";
 import { rangeForPreset } from "@/lib/advertising/date-range";
 import { emptyWizardForm, parentFromRow, withObjective, withParents, type WizardMode } from "@/lib/advertising/draft";
 import type { AdObjective } from "@/lib/advertising/draft-types";
 import type { AdLevel, AdRow } from "@/lib/advertising/types";
 import { OBJECTIVES, routesFor } from "@/lib/advertising/wizard-routes";
 
+import { BlockedAccounts } from "../blocked-accounts";
 import { AccountPicker } from "../account-picker";
 import { useAdsFormat } from "../use-ads-format";
 import { ChoiceRow, ReadOnlyFact, Section } from "./choice-row";
@@ -45,7 +47,7 @@ export function ObjectiveStep() {
   const t = useTranslations("adsWizard.objective");
   const labels = useWizardLabels();
   const fmt = useAdsFormat();
-  const { form, update, accounts, account, options, issues, today } = useWizard();
+  const { form, update, accounts, account, options, issues, today, blockedAccounts, onAccountUpdated } = useWizard();
   const mode = form.mode;
   const campaignRows = useStructureRows(form.accountId, "campaign", mode !== "new", today);
   const adSetRows = useStructureRows(form.accountId, "adset", mode === "adSet", today);
@@ -88,13 +90,15 @@ export function ObjectiveStep() {
     <div className="space-y-6">
       <Section title={t("accountTitle")} description={t("accountDescription")}>
         <AccountPicker
-          accounts={accounts}
+          accounts={[...accounts, ...blockedAccounts]}
           value={form.accountId}
           onChange={chooseAccount}
-          disabled={accounts.length < 2}
+          blockerOf={spendBlockerKey}
+          disabled={accounts.length + blockedAccounts.length < 2}
           className="w-full"
         />
         <FieldIssues issues={issues} field="adAccountId" />
+        <BlockedAccounts accounts={blockedAccounts} onUpdated={onAccountUpdated} />
       </Section>
 
       <Section title={t("startTitle")} description={t("startDescription")}>

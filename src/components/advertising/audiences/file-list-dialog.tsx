@@ -127,7 +127,7 @@ export function FileListDialog({
   const columnTitle = (index: number) => preview?.headers[index] || t("column", { number: index + 1 });
 
   return (
-    <ElevatedDialog open onOpenChange={(open) => !open && onClose()}>
+    <ElevatedDialog open onOpenChange={(open) => !open && !saving && onClose()}>
       <ElevatedDialogContent className="max-w-3xl">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
@@ -246,7 +246,7 @@ export function FileListDialog({
           {failure ? <p className="text-sm text-destructive-ink">{failure}</p> : null}
         </ElevatedDialogBody>
         <ElevatedDialogFooter>
-          <Button variant="secondary" title={t("cancel")} onClick={onClose} />
+          <Button variant="secondary" title={t("cancel")} onClick={onClose} disabled={saving} />
           <Button
             variant="primary"
             title={saving ? t("creating") : t("create")}

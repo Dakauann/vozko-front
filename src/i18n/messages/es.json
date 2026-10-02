@@ -1,4 +1,11 @@
 {
+  "imageGeneration": {
+    "generating": "Generando imagen",
+    "failed": "No se pudo generar la imagen",
+    "download": "Descargar",
+    "downloading": "Descargando...",
+    "downloadFailed": "No se pudo descargar la imagen. Inténtalo de nuevo."
+  },
   "crmAnalysis": {
     "awaiting": "Esperando análisis",
     "awaitingHint": "Esta conversación sigue en curso. La IA la analiza cuando pase unos minutos sin mensajes; todavía no se está analizando nada.",
@@ -326,7 +333,7 @@
       "connect_telegram_bot": "Conectar bot de Telegram",
       "list_ad_accounts": "Cuentas publicitarias",
       "ads_results": "Resultados de los anuncios",
-      "generate_ad_image": "Generar imagen del anuncio",
+      "generate_image": "Generar imagen",
       "update_ad_budget": "Cambiar presupuesto del anuncio",
       "list_ad_pages": "Páginas para anunciar",
       "search_ad_locations": "Buscando ubicaciones",
@@ -345,6 +352,9 @@
     "starterModels": "¿Qué modelos están disponibles?",
     "starterAgentTools": "Revisar las herramientas de un agente",
     "conversationLegend": "Conversación",
+    "image": {
+      "open": "Abrir en tamaño real"
+    },
     "chart": {
       "other": "Otros",
       "showTable": "Tabla",
@@ -725,6 +735,7 @@
     },
     "previews": {
       "scheduledFor": "Programado para {when}",
+      "references": "Imágenes de referencia",
       "ad": {
         "account": "Cuenta publicitaria",
         "dailyBudget": "Presupuesto diario",
@@ -14120,11 +14131,13 @@
       "name": "Nombre del público",
       "nameHint": "Sin nombre, usamos {name}.",
       "suggestedName": "Similar {percent}% a {origin}",
-      "locationHint": "El país del público viene del conjunto de anuncios donde uses este público.",
+      "locationHint": "Meta busca personas parecidas en este país. Usa el mismo país del conjunto de anuncios donde correrá el público.",
       "created": "Público {name} creado",
       "cancel": "Cancelar",
       "create": "Crear público",
-      "creating": "Creando..."
+      "creating": "Creando...",
+      "country": "País",
+      "fixIssues": "Corrige los campos indicados e inténtalo de nuevo."
     },
     "saved": {
       "description": "Combinaciones de ubicación, edad y género que reutilizas al crear anuncios.",
@@ -14207,6 +14220,9 @@
       },
       "targeting_locations": {
         "required": "Elige al menos una ubicación."
+      },
+      "country": {
+        "invalid": "Elige un país de la lista."
       }
     }
   },
@@ -14263,7 +14279,6 @@
       "created": "Formulario {name} creado",
       "basicsTitle": "Información básica",
       "name": "Nombre del formulario",
-      "headline": "Título de la introducción",
       "questionsTitle": "Preguntas",
       "questionsDescription": "Meta completa las preguntas estándar con los datos del perfil. Incluye teléfono o correo para que el lead llegue al CRM.",
       "needsContact": "Incluye teléfono o correo.",
@@ -14286,16 +14301,32 @@
       "thanksTitle": "Pantalla de agradecimiento",
       "thankYouTitle": "Título",
       "thankYouBody": "Mensaje",
-      "thankYouUrl": "Enlace del sitio (opcional)",
+      "thankYouUrl": "Enlace del sitio",
       "higherIntent": "Más calificados",
       "higherIntentHint": "Agrega una pantalla de revisión antes del envío. Llegan menos leads, pero con más intención.",
       "cancel": "Cancelar",
       "create": "Crear formulario",
-      "creating": "Creando..."
+      "creating": "Creando...",
+      "introTitle": "Introducción",
+      "introDescription": "Una pantalla opcional antes de las preguntas, para explicar qué gana la persona.",
+      "introOn": "Mostrar introducción",
+      "introHeading": "Título de la introducción",
+      "introStyle": {
+        "PARAGRAPH": "Párrafo",
+        "LIST": "Lista"
+      },
+      "introParagraph": "Texto de la introducción",
+      "introItem": "Elemento {number}",
+      "introAddItem": "Agregar elemento",
+      "introRemoveItem": "Quitar elemento",
+      "thanksDescription": "La pantalla que aparece después del envío, con un botón a tu sitio.",
+      "thankYouUrlHint": "Obligatorio. El botón de la pantalla de agradecimiento lleva a la persona a esta dirección.",
+      "thankYouButtonText": "Texto del botón",
+      "thankYouButtonDefault": "Visitar sitio",
+      "fixIssues": "Corrige los campos indicados e inténtalo de nuevo."
     },
     "preview": {
       "title": "Vista previa",
-      "headline": "Título de la introducción",
       "review": "Revisar y enviar",
       "noQuestions": "Agrega preguntas.",
       "customUntitled": "Pregunta sin título",
@@ -14304,7 +14335,14 @@
       "submit": "Enviar",
       "thanksTitle": "¡Gracias!",
       "thanksBody": "Recibimos tus datos y nos pondremos en contacto.",
-      "visit": "Visitar sitio"
+      "visit": "Visitar sitio",
+      "introScreen": "Introducción",
+      "introTitle": "Título de la introducción",
+      "introEmpty": "El texto de la introducción aparece aquí.",
+      "next": "Continuar",
+      "questionsScreen": "Preguntas",
+      "thanksScreen": "Después del envío",
+      "thanksUrlMissing": "Indica el enlace del sitio"
     },
     "leads": {
       "back": "Formularios",
@@ -14353,6 +14391,35 @@
       },
       "privacyUrl": {
         "required": "Indica el enlace de la política de privacidad."
+      },
+      "intro_title": {
+        "required": "Escribe el título de la introducción.",
+        "too_long": "Usa como máximo 60 caracteres."
+      },
+      "intro_content": {
+        "required": "Escribe el texto de la introducción.",
+        "too_many": "Usa como máximo 5 elementos.",
+        "too_long": "Texto demasiado largo: hasta 80 caracteres por elemento o 300 en el párrafo."
+      },
+      "intro_style": {
+        "invalid": "Elige párrafo o lista."
+      },
+      "thankYouUrl": {
+        "required": "Indica el enlace del sitio al que va la persona después del envío."
+      },
+      "thankYouTitle": {
+        "required": "Escribe el título de la pantalla de agradecimiento.",
+        "too_long": "Usa como máximo 80 caracteres."
+      },
+      "thankYouButtonText": {
+        "required": "Escribe el texto del botón.",
+        "too_long": "Usa como máximo 60 caracteres."
+      },
+      "privacyText": {
+        "too_long": "Usa como máximo 70 caracteres."
+      },
+      "locale": {
+        "invalid": "Idioma del formulario no reconocido."
       }
     }
   },
@@ -14689,6 +14756,37 @@
     "leadCost": "Costo estimado del lead: {amount} (gasto del anuncio en el día ÷ conversaciones del día)",
     "leadCostHint": "Estimación: Meta informa el gasto por anuncio por día, no por clic. El {day} el anuncio gastó {spend} y trajo {conversations, plural, one {# conversación} other {# conversaciones}}."
   },
+  "adsAccounts": {
+    "blockedTitle": "Cuentas que aún no pueden anunciar",
+    "reasons": {
+      "funding": "Sin método de pago",
+      "readOnly": "Solo lectura",
+      "reconnect": "Hay que reconectar",
+      "metaStatus": "Inactiva en Meta",
+      "unknown": "No disponible"
+    },
+    "fundingHint": "Meta solo crea anuncios en cuentas con método de pago. Agrega uno en Meta y luego haz clic en Verificar de nuevo.",
+    "addPayment": "Agregar método de pago",
+    "readOnlyHint": "Tu perfil solo puede ver esta cuenta. Pide a un administrador de la cuenta, en Meta, el rol de Anunciante o superior y luego haz clic en Verificar de nuevo.",
+    "rolesLink": "Ver roles de la cuenta en Meta",
+    "hints": {
+      "reconnect": "La conexión con Meta caducó. Vuelve a conectar la cuenta en el Administrador de anuncios.",
+      "metaStatus": "Meta no permite anunciar en esta cuenta por ahora. Revisa su estado en el Administrador de anuncios de Meta.",
+      "unknown": "Aún no pudimos confirmar si esta cuenta puede anunciar. Actualiza la cuenta en el Administrador de anuncios."
+    }
+  },
+  "adsRequirements": {
+    "recheck": "Verificar de nuevo",
+    "checking": "Verificando...",
+    "leadTerms": {
+      "title": "La Página {page} aún no aceptó los Términos de anuncios para clientes potenciales de Meta",
+      "open": "Abre la página de Términos de anuncios para clientes potenciales de Meta con el botón de abajo.",
+      "choosePage": "En el selector de arriba, elige la Página {page}.",
+      "accept": "Lee los términos y haz clic en Acepto. Quien acepta debe ser administrador de la Página.",
+      "comeBack": "Vuelve aquí y haz clic en Verificar de nuevo.",
+      "openButton": "Aceptar términos en Meta"
+    }
+  },
   "adsWizard": {
     "editTitle": "Cambiar contenido",
     "editDescription": "Arma un contenido nuevo para este anuncio. Al guardar, Meta cambia el contenido y vuelve a revisar el anuncio.",
@@ -14700,7 +14798,7 @@
     "back": "Volver a Anuncios",
     "noAccess": "No tienes permiso para crear anuncios en este workspace.",
     "noAccountTitle": "Ninguna cuenta lista para anunciar",
-    "noAccountBody": "Conecta una cuenta publicitaria activa y con método de pago configurado en Meta.",
+    "noAccountBody": "Conecta una cuenta publicitaria activa en Meta y con método de pago.",
     "optionsError": "No se pudieron cargar las opciones de anuncio. Inténtalo de nuevo en un momento.",
     "parentError": "No se pudo abrir la campaña o el conjunto elegido: {message}. Elígelo de nuevo en el primer paso.",
     "previous": "Volver",
@@ -14711,7 +14809,7 @@
     "publishing": "Publicando...",
     "previewTitle": "Vista previa",
     "previewAd": "Vista previa del anuncio {index} de {total}",
-    "previewNote": "Simulación aproximada. Meta ajusta el recorte del texto y de la imagen en cada ubicación.",
+    "previewNote": "Simulación aproximada del feed: medio 4:5 y texto principal cortado en unos 125 caracteres con Ver más. Meta ajusta el recorte en cada ubicación.",
     "placement": {
       "feed": "Feed",
       "story": "Stories"
@@ -14733,7 +14831,23 @@
       "title": "Publicación",
       "needsReview": "Meta no confirmó; revisa el Administrador de anuncios antes de intentarlo de nuevo.",
       "running": "Creando la campaña, el conjunto y los anuncios en Meta. Todo queda apagado hasta el último paso.",
-      "openManager": "Ir a Anuncios"
+      "steps": {
+        "campaign": "Campaña creada",
+        "adSet": "Conjunto creado",
+        "ads": "Anuncios creados ({created} de {total})",
+        "activate": "Anuncios encendidos"
+      },
+      "runningPaused": "Creando la campaña, el conjunto y los anuncios en Meta. Todo queda apagado para que lo enciendas después.",
+      "published": "Publicado. Abriendo el administrador...",
+      "failedTitle": "La publicación falló",
+      "failedRefunded": "La tarifa volvió a tu saldo. Vuelve al borrador, corrige y publica de nuevo.",
+      "failedHint": "Vuelve al borrador, corrige y publica de nuevo.",
+      "needsReviewTitle": "Meta no confirmó la publicación",
+      "openMeta": "Abrir Administrador de anuncios",
+      "pollFailed": "No pudimos seguir la publicación ({message}).",
+      "pollRetry": "Intentar de nuevo",
+      "backToDraft": "Volver al borrador",
+      "openJobs": "Ver publicaciones"
     },
     "objective": {
       "accountTitle": "Cuenta publicitaria",
@@ -14963,7 +15077,14 @@
     "promotion": {
       "choosePageFirst": "Elige la página arriba para ver los números.",
       "number": "Número de WhatsApp",
-      "noNumbers": "Esta página no tiene un número de WhatsApp de este workspace vinculado. Vincula el número en la configuración de la página en Meta.",
+      "linkNumber": {
+        "title": "Esta Página aún no tiene un número de WhatsApp de este workspace vinculado",
+        "openSettings": "Abre la Página en Meta Business Suite y ve a Configuración de la Página › WhatsApp.",
+        "enterNumber": "Ingresa el número de WhatsApp que está conectado a Vozko.",
+        "codeInInbox": "Meta envía un código de confirmación por WhatsApp a ese número. Llega a la bandeja de entrada de Vozko, en la conversación de ese número. Copia el código y confírmalo en Meta.",
+        "recheck": "Vuelve aquí y haz clic en Verificar de nuevo.",
+        "openButton": "Abrir configuración de la Página"
+      },
       "numberHint": "Solo aparecen números de este workspace vinculados a la página en Meta.",
       "numberKind": {
         "official": "oficial",
@@ -15234,7 +15355,8 @@
       "iceBreakersHint": "Hasta 3 preguntas de hasta 80 caracteres cada una.",
       "enhancementsTitle": "Mejoras automáticas",
       "enhancements": "Mejoras de contenido Advantage+",
-      "enhancementsHint": "Si está activado, Meta puede adaptar el anuncio para cada persona: recortar o ampliar la imagen, ajustar brillo y contraste, cambiar el orden de los textos y cambiar la plantilla del anuncio. Déjalo apagado si quieres el anuncio exactamente como lo armaste."
+      "enhancementsHint": "Si está activado, Meta puede adaptar el anuncio para cada persona: recortar o ampliar la imagen, ajustar brillo y contraste, cambiar el orden de los textos y cambiar la plantilla del anuncio. Déjalo apagado si quieres el anuncio exactamente como lo armaste.",
+      "creativesHint": "Cada anuncio tiene su propio creativo: medio, texto y botón. Después de publicar, cambia el creativo en el administrador, desde el menú del anuncio (Cambiar creativo). Las imágenes subidas o generadas con IA quedan en la biblioteca de medios."
     },
     "media": {
       "chosenImage": "Imagen elegida",
@@ -15265,7 +15387,28 @@
       },
       "costNote": "Cada imagen generada se cobra como uso de IA en tu saldo.",
       "generate": "Generar imagen",
-      "generating": "Generando..."
+      "generating": "Generando...",
+      "generatingTitle": "Generando tu imagen",
+      "generatingHint": "Suele tardar entre 20 segundos y 1 minuto. Puedes seguir completando el anuncio mientras tanto.",
+      "references": "Imágenes de referencia",
+      "referencesHint": "Opcional. Hasta {max} imágenes para que la IA siga el estilo o las edite.",
+      "addReference": "Añadir referencia",
+      "removeReference": "Quitar referencia",
+      "generationErrors": {
+        "generation_failed": "El modelo no pudo crear esta imagen. Prueba con otra descripción.",
+        "storage_failed": "La imagen se creó y se cobró, pero no pudimos guardarla. Contacta con soporte.",
+        "timed_out": "La generación tardó más de lo esperado y se detuvo. Intenta generar de nuevo.",
+        "enqueue_failed": "No pudimos iniciar la generación ahora. Intenta de nuevo en unos instantes.",
+        "poll_failed": "Perdimos el contacto con la generación. Revisa tu conexión e intenta de nuevo.",
+        "missing_media": "La generación terminó, pero la imagen no llegó. Intenta generar de nuevo.",
+        "insufficient_balance": "Saldo insuficiente para generar la imagen. Añade saldo e intenta de nuevo.",
+        "no_subscription": "Generar imágenes requiere una suscripción activa.",
+        "unknown": "No pudimos generar la imagen. Intenta de nuevo.",
+        "insufficient_funds": "El saldo se agotó antes de empezar a generar la imagen, así que no se cobró nada. Agrega saldo e inténtalo de nuevo.",
+        "already_generating": "Se acaba de generar una imagen con esta descripción y formato. Espera unos segundos e inténtalo de nuevo.",
+        "reference_unavailable": "Una de las imágenes de referencia ya no está disponible. Cambia las referencias e inténtalo de nuevo.",
+        "invalid_request": "Revisa las imágenes de referencia: solo imágenes, sin repetir."
+      }
     },
     "review": {
       "creativeCheck": "Meta verifica el contenido al guardar. Si algo no cumple las reglas, mostramos aquí qué corregir.",
@@ -15303,17 +15446,24 @@
       "keepPausedHint": "Crea todo en Meta pero lo deja apagado para que lo enciendas después desde el administrador. Sin esto, los anuncios pasan a revisión y empiezan a publicarse cuando se aprueban.",
       "checkTitle": "Verificación",
       "checkDescription": "Verificamos todo con las reglas de Meta antes de publicar. Publicar solo está disponible sin pendientes.",
-      "validating": "Verificando...",
-      "stale": "Cambiaste algo después de la verificación. Verifica de nuevo para publicar.",
       "ready": "Todo listo para publicar.",
-      "feeMissing": "No se pudo calcular la tarifa. Verifica de nuevo para publicar.",
       "fix": "Corregir",
-      "revalidate": "Verificar de nuevo",
       "feePerAd": "Tarifa por anuncio publicado",
       "feeTotal": "{count, plural, one {Total (# anuncio)} other {Total (# anuncios)}}",
       "pausedNote": "Todo se crea apagado y solo se enciende al final, así nada gasta a medias.",
       "reviewNote": "Los anuncios nuevos pasan por la revisión de Meta (En revisión) antes de empezar a entregarse.",
-      "spendNote": "El gasto en medios lo cobra Meta en la cuenta publicitaria. La tarifa de arriba es el único cobro en tu saldo."
+      "spendNote": "El gasto en medios lo cobra Meta en la cuenta publicitaria. La tarifa de arriba es el único cobro en tu saldo.",
+      "blockers": {
+        "title": "Por qué aún no se puede publicar",
+        "account": "Esta cuenta no puede crear anuncios ahora.",
+        "notValidated": "Aún no revisamos este borrador con las reglas de Meta.",
+        "validating": "Revisando con las reglas de Meta...",
+        "validationFailed": "La revisión no terminó: {message}",
+        "stale": "Cambiaste algo después de la revisión. Revisa de nuevo para publicar.",
+        "issues": "{count, plural, one {Hay # pendiente por corregir. Usa Corregir para ir al campo.} other {Hay # pendientes por corregir. Usa Corregir para ir a cada campo.}}",
+        "noFee": "No pudimos calcular la tarifa del anuncio. Revisa de nuevo y, si sigue pasando, habla con soporte.",
+        "revalidate": "Revisar de nuevo"
+      }
     },
     "cta": {
       "LEARN_MORE": "Más información",
@@ -15342,10 +15492,15 @@
       "imageFallback": "Archivo del anuncio",
       "conversationStart": "Inicio de la conversación",
       "flexibleNote": "Meta combina {medias, plural, one {# archivo} other {# archivos}} y {texts, plural, one {# texto} other {# textos}} para cada persona.",
-      "catalogNote": "Los productos cambian según quién ve el anuncio."
+      "catalogNote": "Los productos cambian según quién ve el anuncio.",
+      "seeMore": "Ver más",
+      "safeZone": "Zona segura",
+      "showSafeZone": "Mostrar zonas seguras",
+      "safeZoneHint": "Deja textos y logotipos dentro de la zona segura: 14% libre arriba, 35% abajo y 6% a los lados."
     },
     "issues": {
       "generic": {
+        "below_minimum": "Por debajo del presupuesto diario mínimo de Meta para esta cuenta.",
         "required": "Completa este campo.",
         "too_long": "Texto demasiado largo.",
         "too_many": "Demasiados elementos.",
@@ -15378,7 +15533,9 @@
         "instagram_required": "Para conversaciones en Instagram Direct, incluye Instagram en las ubicaciones.",
         "facebook_required": "Para conversaciones en Messenger, incluye Facebook o Messenger.",
         "dynamic_creative_needs_own_ad_set": "Un anuncio Flexible en este objetivo necesita un conjunto nuevo solo para él.",
-        "unknown": "Meta rechazó {field} ({code})."
+        "unknown": "Meta rechazó {field} ({code}).",
+        "set_on_ad_sets": "Con presupuesto de campaña, el valor de la puja va en cada conjunto, no en la campaña.",
+        "lead_terms_not_accepted": "La Página aún no aceptó los Términos de anuncios para clientes potenciales de Meta. Acéptalos para publicar anuncios con formulario."
       },
       "adAccountId": {
         "required": "Elige una cuenta publicitaria."
@@ -15530,9 +15687,32 @@
       "ads_creative_format": {
         "not_for_destination": "Este formato no está disponible para el destino elegido."
       }
-    }
+    },
+    "draftChoice": {
+      "title": "Tienes un borrador guardado",
+      "saved": "Borrador guardado en este navegador.",
+      "savedAt": "Guardado {when} en este navegador.",
+      "account": "Cuenta",
+      "objective": "Objetivo",
+      "campaign": "Campaña",
+      "ads": "Anuncios",
+      "step": "Se quedó en",
+      "continue": "Continuar borrador",
+      "startOver": "Empezar de cero",
+      "startOverHint": "Empezar de cero borra el borrador guardado. Nada de él se envió a Meta."
+    },
+    "previewNoteStory": "Simulación aproximada de historia 9:16. Meta cubre el 14% superior con la página y el 35% inferior con el texto y el botón."
   },
   "adsManager": {
+    "budgetMinimum": {
+      "hint": "Mínimo de Meta en esta cuenta: {amount} por día.",
+      "below": "El presupuesto diario debe ser de al menos {amount}, el mínimo de Meta para esta cuenta y este objetivo de optimización."
+    },
+    "manageBlocker": {
+      "reconnect": "Vuelve a conectar la cuenta publicitaria para hacer cambios.",
+      "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta publicitaria. Pide acceso de anunciante a un administrador.",
+      "unknown": "Esta cuenta publicitaria no acepta cambios ahora."
+    },
     "compare": {
       "previous": "Periodo anterior: {value}",
       "noBaseline": "Sin base de comparación en el periodo anterior",
@@ -15619,7 +15799,8 @@
         "adset": "¿Eliminar conjunto de anuncios?",
         "ad": "¿Eliminar anuncio?"
       },
-      "deleteBody": "{name} se eliminará en Meta junto con todo lo que contiene. No se puede deshacer y sus resultados dejarán de aparecer aquí. Para solo detener la entrega, apágalo o archívalo."
+      "deleteBody": "{name} se eliminará en Meta junto con todo lo que contiene. No se puede deshacer y sus resultados dejarán de aparecer aquí. Para solo detener la entrega, apágalo o archívalo.",
+      "swapCreative": "Cambiar creativo"
     },
     "duplicate": {
       "title": {
@@ -15647,6 +15828,12 @@
       "done": "Copia de {name} creada"
     },
     "spendCap": {
+      "blocker": {
+        "reconnect": "Vuelve a conectar la cuenta publicitaria para cambiar el límite de gasto.",
+        "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta, así que no puede cambiar el límite de gasto.",
+        "unknown": "El límite de gasto no se puede cambiar ahora.",
+        "adminRequired": "Solo un administrador de la cuenta publicitaria puede cambiar el límite de gasto."
+      },
       "label": "Límite de gasto:",
       "none": "sin límite",
       "spent": "Gastado:",
@@ -15666,7 +15853,9 @@
       "save": "Guardar límite",
       "saving": "Guardando...",
       "saved": "Límite de gasto actualizado",
-      "removed": "Límite de gasto quitado"
+      "removed": "Límite de gasto quitado",
+      "removeTitle": "¿Quitar el límite de gasto?",
+      "removeBody": "Sin límite, la cuenta puede gastar mientras haya anuncios encendidos."
     },
     "edit": {
       "title": {
@@ -15835,6 +16024,7 @@
         "needs_lifetime_budget": "Las horas de entrega solo existen con presupuesto total."
       },
       "generic": {
+        "below_minimum": "Por debajo del presupuesto diario mínimo de Meta para esta cuenta.",
         "required": "Campo obligatorio.",
         "invalid": "Valor no válido.",
         "too_long": "Texto demasiado largo.",
@@ -15877,6 +16067,7 @@
     "noAccess": "No tienes permiso para ver los anuncios de este workspace.",
     "retry": "Intentar de nuevo",
     "account": {
+      "readOnly": "Solo lectura",
       "label": "Cuenta publicitaria"
     },
     "sync": {
@@ -15886,6 +16077,7 @@
       "never": "Aún no sincronizada"
     },
     "spendBlocker": {
+      "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta publicitaria.",
       "reconnect": "Vuelve a conectar la cuenta publicitaria para crear anuncios.",
       "funding": "Configura un método de pago en el Administrador de anuncios de Meta para crear anuncios.",
       "metaStatus": "Meta no está entregando anuncios de esta cuenta ahora.",
@@ -15941,7 +16133,10 @@
       "campaignTitle": "No se encontraron campañas",
       "adsetTitle": "No se encontraron conjuntos de anuncios",
       "adTitle": "No se encontraron anuncios",
-      "rangeBody": "Cambia el período, la búsqueda o la selección para ver más resultados."
+      "rangeBody": "Cambia el período, la búsqueda o la selección para ver más resultados.",
+      "firstTitle": "Aún no tienes campañas",
+      "firstBody": "Crea tu primer anuncio aquí. Las campañas creadas en el Administrador de anuncios de Meta aparecen después de Actualizar.",
+      "firstBodyReadOnly": "Las campañas de esta cuenta aparecen aquí."
     },
     "filters": {
       "search": "Buscar por nombre o ID",
@@ -16004,7 +16199,9 @@
       "selectAll": "Seleccionar todos",
       "selectRow": "Seleccionar fila",
       "seconds": "{value} s",
-      "previousTotal": "Periodo anterior: {value}"
+      "previousTotal": "Periodo anterior: {value}",
+      "rejectedReason": "Rechazado: {reason}",
+      "rejectedNoReason": "Rechazado por Meta. Mira el motivo en el Administrador de anuncios de Meta."
     },
     "results": {
       "conversations": "Conversaciones iniciadas",
@@ -16073,6 +16270,11 @@
       "timezoneUnknown": "desconocida"
     },
     "notices": {
+      "readOnly": {
+        "title": "Acceso de solo lectura",
+        "body": "Tu perfil de Meta solo tiene el rol de analista en esta cuenta: puedes ver y exportar informes, pero no crear ni cambiar anuncios. Pide a un administrador del negocio que te dé acceso de anunciante o de administrador a esta cuenta en la configuración del negocio de Meta y luego usa Actualizar.",
+        "action": "Abrir la configuración del negocio"
+      },
       "reconnect": {
         "title": "Vuelve a conectar la cuenta publicitaria",
         "body": "Meta ya no acepta el acceso a esta cuenta. Los datos pueden estar desactualizados y no se puede cambiar nada hasta reconectar.",
@@ -16080,7 +16282,7 @@
       },
       "funding": {
         "title": "Sin método de pago",
-        "body": "Configura un método de pago en el Administrador de anuncios de Meta. Sin él Meta no entrega anuncios.",
+        "body": "Sin método de pago, Meta no deja crear ni encender anuncios en esta cuenta. Agrega uno en el Administrador de anuncios de Meta.",
         "action": "Abrir la configuración de pagos"
       },
       "metaStatus": {
@@ -16396,6 +16598,50 @@
           "too_long": "Cada pregunta lista puede tener hasta 80 caracteres."
         }
       }
-    }
+    },
+    "toggleBlocker": {
+      "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta, así que no puede activar ni desactivar nada.",
+      "locked": "Los elementos archivados o eliminados no se pueden encender ni apagar.",
+      "permission": "No tienes permiso para cambiar este elemento.",
+      "reconnect": "Reconecta la cuenta publicitaria para encender o apagar.",
+      "funding": "Agrega un método de pago en Meta para encenderlo.",
+      "metaStatus": "La cuenta no está activa en Meta, así que no se puede encender nada.",
+      "unknown": "Esta cuenta no puede encender anuncios ahora."
+    },
+    "published": {
+      "title": "Anuncio publicado",
+      "body": "La campaña nueva está seleccionada abajo. Meta revisa los anuncios nuevos antes de entregarlos (En revisión).",
+      "paused": "Si lo publicaste apagado, enciende la campaña, el conjunto y el anuncio cuando quieras empezar.",
+      "pausedNoFunding": "Se creó apagado. Agrega un método de pago en Meta para encender la campaña, el conjunto y el anuncio.",
+      "createAnother": "Crear otro anuncio",
+      "dismiss": "Cerrar aviso",
+      "switchOn": "Encender anuncio",
+      "switchingOn": "Encendiendo...",
+      "switchOnHint": "Enciende de una vez la campaña, el conjunto y los anuncios de esta publicación.",
+      "switchedOn": "Anuncio encendido. Meta lo revisa antes de empezar a publicarlo."
+    },
+    "loadFailed": "No se pudo cargar"
+  },
+  "adsErrors": {
+    "account_admin_required": "Solo un administrador de la cuenta publicitaria puede cambiar el límite de gasto.",
+    "account_read_only": "Tu perfil solo tiene acceso de lectura a esta cuenta publicitaria. Pide acceso de anunciante a un administrador en la configuración del negocio de Meta.",
+    "price_unavailable": "La tarifa del anuncio aún no está configurada. Habla con soporte para publicar.",
+    "insufficient_balance": "Saldo insuficiente para la tarifa del anuncio. Agrega saldo y vuelve a revisar.",
+    "fee_not_charged": "No se pudo cobrar la tarifa del anuncio. Revisa el saldo e inténtalo de nuevo.",
+    "no_payment_method": "Agrega un método de pago en Meta para crear o encender anuncios de esta cuenta.",
+    "account_not_active": "La cuenta publicitaria no está activa en Meta.",
+    "reconnect_required": "La cuenta publicitaria necesita reconectarse.",
+    "missing_permissions": "Meta no concedió los permisos de anuncios. Conecta de nuevo y acepta todos.",
+    "meta_busy": "Meta está limitando las llamadas. Inténtalo de nuevo en unos instantes.",
+    "meta_permission": "Meta lo rechazó: falta permiso en esta cuenta o página.",
+    "page_not_granted": "La página no está disponible en esta conexión de anuncios.",
+    "number_not_linked": "El número de WhatsApp no está vinculado a la página.",
+    "number_not_owned": "El número de WhatsApp no está conectado a este workspace.",
+    "account_unreadable": "No pudimos leer la moneda o la zona horaria de la cuenta. Usa Actualizar en la cuenta e inténtalo de nuevo.",
+    "budget_change_limit": "Meta acepta como máximo 4 cambios de presupuesto por hora. Inténtalo más tarde.",
+    "object_locked": "Los elementos eliminados o archivados no se pueden cambiar.",
+    "video_not_ready": "Meta aún está procesando el video. Inténtalo de nuevo en unos instantes.",
+    "audience_terms_not_accepted": "Acepta los términos de públicos personalizados de Meta en esta cuenta publicitaria.",
+    "job_not_activatable": "Esta publicación ya se encendió o no se hizo apagada."
   }
 }

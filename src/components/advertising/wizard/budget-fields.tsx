@@ -8,8 +8,11 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { bidStrategiesFor, parseRoas, type BidInput, type BudgetInput } from "@/lib/advertising/draft";
 import type { AdBidStrategy, AdBudgetKind, AdOptimizationGoal } from "@/lib/advertising/draft-types";
 import { inputToMinor } from "@/lib/advertising/money";
+import { withBudgetMinimum } from "@/lib/advertising/issues";
+import type { AdBudgetMinimum } from "@/lib/advertising/types";
 import type { DraftIssue } from "@/lib/advertising/wizard-issues";
 
+import { BudgetMinimumHint } from "../budget-minimum";
 import { useAdsFormat } from "../use-ads-format";
 import { Hint } from "./choice-row";
 import { FieldIssues } from "./field-issues";
@@ -23,6 +26,7 @@ export function BudgetFields({
   goal,
   currency,
   issues,
+  minimum = null,
   onBudget,
   onBid,
 }: {
@@ -32,6 +36,7 @@ export function BudgetFields({
   goal: AdOptimizationGoal | "";
   currency: string;
   issues: DraftIssue[];
+  minimum?: AdBudgetMinimum | null;
   onBudget: (budget: BudgetInput) => void;
   onBid: (bid: BidInput) => void;
 }) {
@@ -67,7 +72,8 @@ export function BudgetFields({
             : t("lifetimePreview", { amount: fmt.minor(minor, currency) })}
         </p>
       ) : null}
-      <FieldIssues issues={issues} field={`${level}.budget`} nested />
+      {budget.kind === "DAILY" ? <BudgetMinimumHint minimum={minimum} /> : null}
+      <FieldIssues issues={withBudgetMinimum(issues, minimum)} field={`${level}.budget`} nested />
 
       <ElevatedSelect label={t("strategy")} value={strategy} onValueChange={(value) => onBid({ ...bid, strategy: value as AdBidStrategy })}>
         {strategies.map((candidate) => (

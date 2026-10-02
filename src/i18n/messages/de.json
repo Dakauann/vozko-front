@@ -1,4 +1,11 @@
 {
+  "imageGeneration": {
+    "generating": "Bild wird erstellt",
+    "failed": "Das Bild konnte nicht erstellt werden",
+    "download": "Herunterladen",
+    "downloading": "Wird heruntergeladen...",
+    "downloadFailed": "Das Bild konnte nicht heruntergeladen werden. Versuche es erneut."
+  },
   "crmAnalysis": {
     "awaiting": "Wartet auf Analyse",
     "awaitingHint": "Dieses Gespräch läuft noch. Die KI analysiert es, sobald einige Minuten lang nichts mehr kommt; es wird noch nichts analysiert.",
@@ -326,7 +333,7 @@
       "connect_telegram_bot": "Telegram-Bot verbinden",
       "list_ad_accounts": "Werbekonten",
       "ads_results": "Anzeigenergebnisse",
-      "generate_ad_image": "Anzeigenbild erstellen",
+      "generate_image": "Bild generieren",
       "update_ad_budget": "Anzeigenbudget ändern",
       "list_ad_pages": "Seiten für Anzeigen",
       "search_ad_locations": "Orte werden gesucht",
@@ -345,6 +352,9 @@
     "starterModels": "Welche Modelle sind verfügbar?",
     "starterAgentTools": "Die Werkzeuge eines Agenten prüfen",
     "conversationLegend": "Unterhaltung",
+    "image": {
+      "open": "In voller Größe öffnen"
+    },
     "chart": {
       "other": "Sonstige",
       "showTable": "Tabelle",
@@ -725,6 +735,7 @@
     },
     "previews": {
       "scheduledFor": "Geplant für {when}",
+      "references": "Referenzbilder",
       "ad": {
         "account": "Werbekonto",
         "dailyBudget": "Tagesbudget",
@@ -14617,11 +14628,13 @@
       "name": "Name der Zielgruppe",
       "nameHint": "Ohne Namen verwenden wir {name}.",
       "suggestedName": "Ähnlich {percent}% zu {origin}",
-      "locationHint": "Das Land der Zielgruppe kommt aus der Anzeigengruppe, in der du sie verwendest.",
+      "locationHint": "Meta sucht ähnliche Personen in diesem Land. Nutze dasselbe Land wie die Anzeigengruppe, in der die Zielgruppe läuft.",
       "created": "Zielgruppe {name} erstellt",
       "cancel": "Abbrechen",
       "create": "Zielgruppe erstellen",
-      "creating": "Wird erstellt..."
+      "creating": "Wird erstellt...",
+      "country": "Land",
+      "fixIssues": "Korrigiere die markierten Felder und versuche es erneut."
     },
     "saved": {
       "description": "Kombinationen aus Ort, Alter und Geschlecht, die du beim Erstellen von Anzeigen wiederverwendest.",
@@ -14704,6 +14717,9 @@
       },
       "targeting_locations": {
         "required": "Wähle mindestens einen Ort."
+      },
+      "country": {
+        "invalid": "Wähle ein Land aus der Liste."
       }
     }
   },
@@ -14760,7 +14776,6 @@
       "created": "Formular {name} erstellt",
       "basicsTitle": "Grundlagen",
       "name": "Name des Formulars",
-      "headline": "Überschrift der Einleitung",
       "questionsTitle": "Fragen",
       "questionsDescription": "Meta füllt Standardfragen mit Profildaten vor. Füge Telefon oder E-Mail hinzu, damit der Lead im CRM ankommt.",
       "needsContact": "Füge Telefon oder E-Mail hinzu.",
@@ -14783,16 +14798,32 @@
       "thanksTitle": "Dankesseite",
       "thankYouTitle": "Titel",
       "thankYouBody": "Nachricht",
-      "thankYouUrl": "Website Link (optional)",
+      "thankYouUrl": "Website Link",
       "higherIntent": "Höhere Absicht",
       "higherIntentHint": "Fügt vor dem Absenden eine Prüfseite hinzu. Es kommen weniger Leads, aber mit mehr Absicht.",
       "cancel": "Abbrechen",
       "create": "Formular erstellen",
-      "creating": "Wird erstellt..."
+      "creating": "Wird erstellt...",
+      "introTitle": "Einleitung",
+      "introDescription": "Ein optionaler Bildschirm vor den Fragen, der erklärt, was die Person bekommt.",
+      "introOn": "Einleitung zeigen",
+      "introHeading": "Titel der Einleitung",
+      "introStyle": {
+        "PARAGRAPH": "Absatz",
+        "LIST": "Liste"
+      },
+      "introParagraph": "Text der Einleitung",
+      "introItem": "Punkt {number}",
+      "introAddItem": "Punkt hinzufügen",
+      "introRemoveItem": "Punkt entfernen",
+      "thanksDescription": "Der Bildschirm nach dem Absenden, mit einem Button zu deiner Website.",
+      "thankYouUrlHint": "Pflichtfeld. Der Button auf dem Dankesbildschirm führt die Person zu dieser Adresse.",
+      "thankYouButtonText": "Button Text",
+      "thankYouButtonDefault": "Website besuchen",
+      "fixIssues": "Korrigiere die markierten Felder und versuche es erneut."
     },
     "preview": {
       "title": "Vorschau",
-      "headline": "Überschrift der Einleitung",
       "review": "Prüfen und absenden",
       "noQuestions": "Füge Fragen hinzu.",
       "customUntitled": "Frage ohne Titel",
@@ -14801,7 +14832,14 @@
       "submit": "Absenden",
       "thanksTitle": "Danke!",
       "thanksBody": "Wir haben deine Angaben erhalten und melden uns.",
-      "visit": "Website besuchen"
+      "visit": "Website besuchen",
+      "introScreen": "Einleitung",
+      "introTitle": "Titel der Einleitung",
+      "introEmpty": "Der Text der Einleitung erscheint hier.",
+      "next": "Weiter",
+      "questionsScreen": "Fragen",
+      "thanksScreen": "Nach dem Absenden",
+      "thanksUrlMissing": "Gib den Website Link an"
     },
     "leads": {
       "back": "Formulare",
@@ -14850,6 +14888,35 @@
       },
       "privacyUrl": {
         "required": "Gib den Link zur Datenschutzrichtlinie an."
+      },
+      "intro_title": {
+        "required": "Schreibe den Titel der Einleitung.",
+        "too_long": "Nutze höchstens 60 Zeichen."
+      },
+      "intro_content": {
+        "required": "Schreibe den Text der Einleitung.",
+        "too_many": "Nutze höchstens 5 Punkte.",
+        "too_long": "Text zu lang: bis zu 80 Zeichen pro Punkt oder 300 im Absatz."
+      },
+      "intro_style": {
+        "invalid": "Wähle Absatz oder Liste."
+      },
+      "thankYouUrl": {
+        "required": "Gib den Website Link an, zu dem die Person nach dem Absenden gelangt."
+      },
+      "thankYouTitle": {
+        "required": "Schreibe den Titel des Dankesbildschirms.",
+        "too_long": "Nutze höchstens 80 Zeichen."
+      },
+      "thankYouButtonText": {
+        "required": "Schreibe den Button Text.",
+        "too_long": "Nutze höchstens 60 Zeichen."
+      },
+      "privacyText": {
+        "too_long": "Nutze höchstens 70 Zeichen."
+      },
+      "locale": {
+        "invalid": "Sprache des Formulars nicht erkannt."
       }
     }
   },
@@ -15186,6 +15253,37 @@
     "leadCost": "Geschätzte Lead-Kosten: {amount} (Anzeigenausgaben am Tag ÷ Gespräche am Tag)",
     "leadCostHint": "Schätzung: Meta meldet Ausgaben pro Anzeige und Tag, nicht pro Klick. Am {day} hat die Anzeige {spend} ausgegeben und {conversations, plural, one {# Gespräch} other {# Gespräche}} gebracht."
   },
+  "adsAccounts": {
+    "blockedTitle": "Konten, die noch nicht werben können",
+    "reasons": {
+      "funding": "Keine Zahlungsmethode",
+      "readOnly": "Nur lesen",
+      "reconnect": "Neu verbinden nötig",
+      "metaStatus": "Bei Meta inaktiv",
+      "unknown": "Nicht verfügbar"
+    },
+    "fundingHint": "Meta erstellt Anzeigen nur in Konten mit Zahlungsmethode. Füge bei Meta eine hinzu und klicke dann auf Erneut prüfen.",
+    "addPayment": "Zahlungsmethode hinzufügen",
+    "readOnlyHint": "Dein Profil kann dieses Konto nur ansehen. Bitte einen Kontoadministrator bei Meta um die Rolle Werbetreibender oder höher und klicke dann auf Erneut prüfen.",
+    "rolesLink": "Kontorollen bei Meta ansehen",
+    "hints": {
+      "reconnect": "Die Verbindung zu Meta ist abgelaufen. Verbinde das Konto im Werbeanzeigenmanager neu.",
+      "metaStatus": "Meta erlaubt derzeit keine Werbung in diesem Konto. Prüfe den Status im Werbeanzeigenmanager von Meta.",
+      "unknown": "Wir konnten noch nicht bestätigen, ob dieses Konto werben kann. Aktualisiere das Konto im Werbeanzeigenmanager."
+    }
+  },
+  "adsRequirements": {
+    "recheck": "Erneut prüfen",
+    "checking": "Wird geprüft...",
+    "leadTerms": {
+      "title": "Die Seite {page} hat die Lead-Ads-Bedingungen von Meta noch nicht akzeptiert",
+      "open": "Öffne mit der Schaltfläche unten die Seite mit den Lead-Ads-Bedingungen von Meta.",
+      "choosePage": "Wähle oben im Auswahlfeld die Seite {page}.",
+      "accept": "Lies die Bedingungen und klicke auf Ich stimme zu. Die zustimmende Person muss Administrator der Seite sein.",
+      "comeBack": "Komm hierher zurück und klicke auf Erneut prüfen.",
+      "openButton": "Bedingungen bei Meta akzeptieren"
+    }
+  },
   "adsWizard": {
     "editTitle": "Creative austauschen",
     "editDescription": "Erstelle ein neues Creative für diese Anzeige. Beim Speichern tauscht Meta das Creative und prüft die Anzeige erneut.",
@@ -15197,7 +15295,7 @@
     "back": "Zurück zu Anzeigen",
     "noAccess": "Du hast keine Berechtigung, in diesem Workspace Anzeigen zu erstellen.",
     "noAccountTitle": "Kein Konto bereit zum Werben",
-    "noAccountBody": "Verbinde ein aktives Werbekonto mit einer in Meta hinterlegten Zahlungsmethode.",
+    "noAccountBody": "Verbinde ein in Meta aktives Werbekonto mit Zahlungsmethode.",
     "optionsError": "Die Anzeigenoptionen konnten nicht geladen werden. Versuche es gleich noch einmal.",
     "parentError": "Die gewählte Kampagne oder Anzeigengruppe konnte nicht geöffnet werden: {message}. Wähle sie im ersten Schritt erneut.",
     "previous": "Zurück",
@@ -15208,7 +15306,7 @@
     "publishing": "Wird veröffentlicht...",
     "previewTitle": "Vorschau",
     "previewAd": "Vorschau von Anzeige {index} von {total}",
-    "previewNote": "Ungefähre Darstellung. Meta passt den Zuschnitt von Text und Medien je Platzierung an.",
+    "previewNote": "Ungefähre Feed Darstellung: Medien im Format 4:5 und Haupttext nach etwa 125 Zeichen mit Mehr ansehen gekürzt. Meta passt den Zuschnitt je Platzierung an.",
     "placement": {
       "feed": "Feed",
       "story": "Stories"
@@ -15230,7 +15328,23 @@
       "title": "Veröffentlichung",
       "needsReview": "Meta hat nicht bestätigt; prüfe den Werbeanzeigenmanager, bevor du es erneut versuchst.",
       "running": "Kampagne, Anzeigengruppe und Anzeigen werden in Meta erstellt. Alles bleibt bis zum letzten Schritt ausgeschaltet.",
-      "openManager": "Zu Anzeigen"
+      "steps": {
+        "campaign": "Kampagne erstellt",
+        "adSet": "Anzeigengruppe erstellt",
+        "ads": "Anzeigen erstellt ({created} von {total})",
+        "activate": "Anzeigen eingeschaltet"
+      },
+      "runningPaused": "Kampagne, Anzeigengruppe und Anzeigen werden in Meta erstellt. Alles bleibt ausgeschaltet, damit du es später einschaltest.",
+      "published": "Veröffentlicht. Der Manager wird geöffnet...",
+      "failedTitle": "Veröffentlichung fehlgeschlagen",
+      "failedRefunded": "Die Gebühr wurde deinem Guthaben gutgeschrieben. Geh zurück zum Entwurf, korrigiere ihn und veröffentliche erneut.",
+      "failedHint": "Geh zurück zum Entwurf, korrigiere ihn und veröffentliche erneut.",
+      "needsReviewTitle": "Meta hat die Veröffentlichung nicht bestätigt",
+      "openMeta": "Werbeanzeigenmanager öffnen",
+      "pollFailed": "Wir konnten die Veröffentlichung nicht verfolgen ({message}).",
+      "pollRetry": "Erneut versuchen",
+      "backToDraft": "Zurück zum Entwurf",
+      "openJobs": "Veröffentlichungen ansehen"
     },
     "objective": {
       "accountTitle": "Werbekonto",
@@ -15460,7 +15574,14 @@
     "promotion": {
       "choosePageFirst": "Wähle oben die Seite, um die Nummern zu sehen.",
       "number": "WhatsApp-Nummer",
-      "noNumbers": "Mit dieser Seite ist keine WhatsApp-Nummer dieses Workspaces verknüpft. Verknüpfe die Nummer in den Seiteneinstellungen in Meta.",
+      "linkNumber": {
+        "title": "Mit dieser Seite ist noch keine WhatsApp-Nummer aus diesem Workspace verknüpft",
+        "openSettings": "Öffne die Seite in der Meta Business Suite und gehe zu Seiteneinstellungen › WhatsApp.",
+        "enterNumber": "Gib die WhatsApp-Nummer ein, die mit Vozko verbunden ist.",
+        "codeInInbox": "Meta sendet einen Bestätigungscode per WhatsApp an diese Nummer. Er kommt im Vozko-Posteingang an, in der Unterhaltung dieser Nummer. Kopiere den Code und bestätige ihn bei Meta.",
+        "recheck": "Komm hierher zurück und klicke auf Erneut prüfen.",
+        "openButton": "Seiteneinstellungen öffnen"
+      },
       "numberHint": "Es erscheinen nur Nummern dieses Workspaces, die in Meta mit der Seite verknüpft sind.",
       "numberKind": {
         "official": "offiziell",
@@ -15731,7 +15852,8 @@
       "iceBreakersHint": "Bis zu 3 Fragen mit je bis zu 80 Zeichen.",
       "enhancementsTitle": "Automatische Optimierungen",
       "enhancements": "Advantage+ Creative-Optimierungen",
-      "enhancementsHint": "Wenn aktiviert, kann Meta die Anzeige für jede Person anpassen: Bild zuschneiden oder erweitern, Helligkeit und Kontrast anpassen, Texte umstellen und die Anzeigenvorlage wechseln. Lass es aus, wenn die Anzeige genau so bleiben soll, wie du sie gebaut hast."
+      "enhancementsHint": "Wenn aktiviert, kann Meta die Anzeige für jede Person anpassen: Bild zuschneiden oder erweitern, Helligkeit und Kontrast anpassen, Texte umstellen und die Anzeigenvorlage wechseln. Lass es aus, wenn die Anzeige genau so bleiben soll, wie du sie gebaut hast.",
+      "creativesHint": "Jede Anzeige hat ihr eigenes Creative: Medien, Text und Button. Nach dem Veröffentlichen tauschst du das Creative im Manager über das Anzeigenmenü (Creative tauschen). Hochgeladene und mit KI erzeugte Bilder liegen in der Medienbibliothek."
     },
     "media": {
       "chosenImage": "Bild gewählt",
@@ -15762,7 +15884,28 @@
       },
       "costNote": "Jedes erstellte Bild wird als KI-Nutzung von deinem Guthaben abgerechnet.",
       "generate": "Bild erstellen",
-      "generating": "Wird erstellt..."
+      "generating": "Wird erstellt...",
+      "generatingTitle": "Dein Bild wird erstellt",
+      "generatingHint": "Das dauert meist 20 Sekunden bis 1 Minute. Du kannst die Anzeige währenddessen weiter ausfüllen.",
+      "references": "Referenzbilder",
+      "referencesHint": "Optional. Bis zu {max} Bilder, deren Stil die KI übernimmt oder die sie bearbeitet.",
+      "addReference": "Referenz hinzufügen",
+      "removeReference": "Referenz entfernen",
+      "generationErrors": {
+        "generation_failed": "Das Modell konnte dieses Bild nicht erstellen. Versuche eine andere Beschreibung.",
+        "storage_failed": "Das Bild wurde erstellt und abgerechnet, konnte aber nicht gespeichert werden. Wende dich an den Support.",
+        "timed_out": "Die Erstellung hat länger als erwartet gedauert und wurde abgebrochen. Versuche es erneut.",
+        "enqueue_failed": "Die Erstellung konnte gerade nicht gestartet werden. Versuche es gleich noch einmal.",
+        "poll_failed": "Die Verbindung zur Erstellung ist abgebrochen. Prüfe deine Verbindung und versuche es erneut.",
+        "missing_media": "Die Erstellung ist fertig, aber das Bild ist nicht angekommen. Versuche es erneut.",
+        "insufficient_balance": "Nicht genug Guthaben für das Bild. Lade Guthaben auf und versuche es erneut.",
+        "no_subscription": "Für die Bilderstellung ist ein aktives Abo nötig.",
+        "unknown": "Das Bild konnte nicht erstellt werden. Versuche es erneut.",
+        "insufficient_funds": "Das Guthaben war aufgebraucht, bevor die Erstellung begann, daher wurde nichts berechnet. Lade Guthaben auf und versuche es erneut.",
+        "already_generating": "Ein Bild mit dieser Beschreibung und diesem Format wurde gerade erstellt. Warte einige Sekunden und versuche es erneut.",
+        "reference_unavailable": "Eines der Referenzbilder ist nicht mehr verfügbar. Ändere die Referenzen und versuche es erneut.",
+        "invalid_request": "Prüfe die Referenzbilder: nur Bilder, keine Wiederholungen."
+      }
     },
     "review": {
       "creativeCheck": "Meta prüft das Creative beim Speichern. Wenn etwas gegen die Regeln verstößt, zeigen wir hier, was zu beheben ist.",
@@ -15800,17 +15943,24 @@
       "keepPausedHint": "Erstellt alles in Meta, lässt es aber ausgeschaltet, damit du es später im Manager einschaltest. Ohne diese Option gehen die Anzeigen in die Prüfung und laufen nach der Freigabe an.",
       "checkTitle": "Prüfung",
       "checkDescription": "Wir prüfen alles gegen die Regeln von Meta, bevor veröffentlicht wird. Veröffentlichen ist nur ohne offene Punkte möglich.",
-      "validating": "Wird geprüft...",
-      "stale": "Du hast nach der Prüfung etwas geändert. Prüfe erneut, um zu veröffentlichen.",
       "ready": "Alles bereit zum Veröffentlichen.",
-      "feeMissing": "Die Gebühr konnte nicht berechnet werden. Prüfe erneut, um zu veröffentlichen.",
       "fix": "Beheben",
-      "revalidate": "Erneut prüfen",
       "feePerAd": "Gebühr pro veröffentlichter Anzeige",
       "feeTotal": "{count, plural, one {Summe (# Anzeige)} other {Summe (# Anzeigen)}}",
       "pausedNote": "Alles wird ausgeschaltet erstellt und erst am Ende eingeschaltet, damit nichts halb fertig Geld ausgibt.",
       "reviewNote": "Neue Anzeigen durchlaufen die Prüfung von Meta (In Prüfung), bevor sie ausgeliefert werden.",
-      "spendNote": "Die Werbeausgaben stellt Meta dem Werbekonto in Rechnung. Die Gebühr oben ist die einzige Belastung deines Guthabens."
+      "spendNote": "Die Werbeausgaben stellt Meta dem Werbekonto in Rechnung. Die Gebühr oben ist die einzige Belastung deines Guthabens.",
+      "blockers": {
+        "title": "Warum du noch nicht veröffentlichen kannst",
+        "account": "Dieses Konto kann gerade keine Anzeigen erstellen.",
+        "notValidated": "Wir haben diesen Entwurf noch nicht mit den Meta Regeln geprüft.",
+        "validating": "Prüfung mit den Meta Regeln läuft...",
+        "validationFailed": "Die Prüfung wurde nicht abgeschlossen: {message}",
+        "stale": "Du hast nach der Prüfung etwas geändert. Prüfe erneut, um zu veröffentlichen.",
+        "issues": "{count, plural, one {Es gibt # Punkt zu korrigieren. Nutze Korrigieren, um zum Feld zu springen.} other {Es gibt # Punkte zu korrigieren. Nutze Korrigieren, um zu jedem Feld zu springen.}}",
+        "noFee": "Wir konnten die Anzeigengebühr nicht berechnen. Prüfe erneut und wende dich an den Support, falls es weiter passiert.",
+        "revalidate": "Erneut prüfen"
+      }
     },
     "cta": {
       "LEARN_MORE": "Mehr dazu",
@@ -15839,10 +15989,15 @@
       "imageFallback": "Anzeigenmedium",
       "conversationStart": "Gesprächsbeginn",
       "flexibleNote": "Meta kombiniert {medias, plural, one {# Medium} other {# Medien}} und {texts, plural, one {# Text} other {# Texte}} für jede Person.",
-      "catalogNote": "Die Produkte ändern sich je nachdem, wer die Anzeige sieht."
+      "catalogNote": "Die Produkte ändern sich je nachdem, wer die Anzeige sieht.",
+      "seeMore": "Mehr ansehen",
+      "safeZone": "Sicherer Bereich",
+      "showSafeZone": "Sichere Bereiche zeigen",
+      "safeZoneHint": "Halte Texte und Logos im sicheren Bereich: oben 14%, unten 35% und seitlich je 6% frei."
     },
     "issues": {
       "generic": {
+        "below_minimum": "Unter dem Mindest-Tagesbudget von Meta für dieses Konto.",
         "required": "Fülle dieses Feld aus.",
         "too_long": "Text zu lang.",
         "too_many": "Zu viele Einträge.",
@@ -15875,7 +16030,9 @@
         "instagram_required": "Für Gespräche über Instagram Direct nimm Instagram in die Platzierungen auf.",
         "facebook_required": "Für Gespräche über Messenger nimm Facebook oder Messenger auf.",
         "dynamic_creative_needs_own_ad_set": "Eine flexible Anzeige braucht bei diesem Ziel eine eigene neue Anzeigengruppe.",
-        "unknown": "Meta hat {field} abgelehnt ({code})."
+        "unknown": "Meta hat {field} abgelehnt ({code}).",
+        "set_on_ad_sets": "Bei einem Kampagnenbudget gehört der Gebotsbetrag in jede Anzeigengruppe, nicht in die Kampagne.",
+        "lead_terms_not_accepted": "Die Seite hat die Lead-Ads-Bedingungen von Meta noch nicht akzeptiert. Akzeptiere sie, um Anzeigen mit Formular zu veröffentlichen."
       },
       "adAccountId": {
         "required": "Wähle ein Werbekonto."
@@ -16027,9 +16184,32 @@
       "ads_creative_format": {
         "not_for_destination": "Dieses Format ist für das gewählte Ziel des Klicks nicht verfügbar."
       }
-    }
+    },
+    "draftChoice": {
+      "title": "Du hast einen gespeicherten Entwurf",
+      "saved": "Entwurf in diesem Browser gespeichert.",
+      "savedAt": "Gespeichert {when} in diesem Browser.",
+      "account": "Konto",
+      "objective": "Ziel",
+      "campaign": "Kampagne",
+      "ads": "Anzeigen",
+      "step": "Aufgehört bei",
+      "continue": "Entwurf fortsetzen",
+      "startOver": "Neu beginnen",
+      "startOverHint": "Neu beginnen löscht den gespeicherten Entwurf. Nichts davon wurde an Meta gesendet."
+    },
+    "previewNoteStory": "Ungefähre Story Darstellung im Format 9:16. Meta überdeckt die oberen 14% mit der Seite und die unteren 35% mit Text und Button."
   },
   "adsManager": {
+    "budgetMinimum": {
+      "hint": "Meta-Minimum für dieses Konto: {amount} pro Tag.",
+      "below": "Das Tagesbudget muss mindestens {amount} betragen, das Meta-Minimum für dieses Konto und dieses Optimierungsziel."
+    },
+    "manageBlocker": {
+      "reconnect": "Verbinde das Werbekonto neu, um Änderungen vorzunehmen.",
+      "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Werbekonto. Bitte einen Admin um Werbetreibenden-Zugriff.",
+      "unknown": "Dieses Werbekonto kann gerade nicht geändert werden."
+    },
     "compare": {
       "previous": "Vorheriger Zeitraum: {value}",
       "noBaseline": "Keine Vergleichsbasis im vorherigen Zeitraum",
@@ -16116,7 +16296,8 @@
         "adset": "Anzeigengruppe löschen?",
         "ad": "Anzeige löschen?"
       },
-      "deleteBody": "{name} wird bei Meta samt allem Inhalt gelöscht. Das lässt sich nicht rückgängig machen, und die Ergebnisse erscheinen hier nicht mehr. Um nur die Auslieferung zu stoppen, schalte es aus oder archiviere es."
+      "deleteBody": "{name} wird bei Meta samt allem Inhalt gelöscht. Das lässt sich nicht rückgängig machen, und die Ergebnisse erscheinen hier nicht mehr. Um nur die Auslieferung zu stoppen, schalte es aus oder archiviere es.",
+      "swapCreative": "Creative tauschen"
     },
     "duplicate": {
       "title": {
@@ -16144,6 +16325,12 @@
       "done": "Kopie von {name} erstellt"
     },
     "spendCap": {
+      "blocker": {
+        "reconnect": "Verbinde das Werbekonto neu, um das Ausgabenlimit zu ändern.",
+        "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Konto und kann das Ausgabenlimit nicht ändern.",
+        "unknown": "Das Ausgabenlimit kann gerade nicht geändert werden.",
+        "adminRequired": "Nur ein Admin des Werbekontos kann das Ausgabenlimit ändern."
+      },
       "label": "Ausgabenlimit:",
       "none": "kein Limit",
       "spent": "Ausgegeben:",
@@ -16163,7 +16350,9 @@
       "save": "Limit speichern",
       "saving": "Wird gespeichert...",
       "saved": "Ausgabenlimit aktualisiert",
-      "removed": "Ausgabenlimit entfernt"
+      "removed": "Ausgabenlimit entfernt",
+      "removeTitle": "Ausgabenlimit entfernen?",
+      "removeBody": "Ohne Limit kann das Konto Geld ausgeben, solange Anzeigen eingeschaltet sind."
     },
     "edit": {
       "title": {
@@ -16332,6 +16521,7 @@
         "needs_lifetime_budget": "Auslieferungszeiten gibt es nur mit Laufzeitbudget."
       },
       "generic": {
+        "below_minimum": "Unter dem Mindest-Tagesbudget von Meta für dieses Konto.",
         "required": "Pflichtfeld.",
         "invalid": "Ungültiger Wert.",
         "too_long": "Text zu lang.",
@@ -16374,6 +16564,7 @@
     "noAccess": "Du hast keine Berechtigung, die Anzeigen dieses Workspaces zu sehen.",
     "retry": "Erneut versuchen",
     "account": {
+      "readOnly": "Nur Lesezugriff",
       "label": "Werbekonto"
     },
     "sync": {
@@ -16383,6 +16574,7 @@
       "never": "Noch nicht synchronisiert"
     },
     "spendBlocker": {
+      "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Werbekonto.",
       "reconnect": "Verbinde das Werbekonto neu, um Anzeigen zu erstellen.",
       "funding": "Richte im Meta Werbeanzeigenmanager eine Zahlungsmethode ein, um Anzeigen zu erstellen.",
       "metaStatus": "Meta liefert für dieses Konto gerade keine Anzeigen aus.",
@@ -16438,7 +16630,10 @@
       "campaignTitle": "Keine Kampagnen gefunden",
       "adsetTitle": "Keine Anzeigengruppen gefunden",
       "adTitle": "Keine Anzeigen gefunden",
-      "rangeBody": "Ändere Zeitraum, Suche oder Auswahl, um mehr Ergebnisse zu sehen."
+      "rangeBody": "Ändere Zeitraum, Suche oder Auswahl, um mehr Ergebnisse zu sehen.",
+      "firstTitle": "Du hast noch keine Kampagnen",
+      "firstBody": "Erstelle hier deine erste Anzeige. Im Meta Werbeanzeigenmanager erstellte Kampagnen erscheinen nach Aktualisieren.",
+      "firstBodyReadOnly": "Die Kampagnen dieses Kontos erscheinen hier."
     },
     "filters": {
       "search": "Nach Name oder ID suchen",
@@ -16501,7 +16696,9 @@
       "selectAll": "Alle auswählen",
       "selectRow": "Zeile auswählen",
       "seconds": "{value} s",
-      "previousTotal": "Vorheriger Zeitraum: {value}"
+      "previousTotal": "Vorheriger Zeitraum: {value}",
+      "rejectedReason": "Abgelehnt: {reason}",
+      "rejectedNoReason": "Von Meta abgelehnt. Den Grund siehst du im Meta Werbeanzeigenmanager."
     },
     "results": {
       "conversations": "Begonnene Gespräche",
@@ -16570,6 +16767,11 @@
       "timezoneUnknown": "unbekannt"
     },
     "notices": {
+      "readOnly": {
+        "title": "Nur Lesezugriff",
+        "body": "Dein Meta-Profil hat in diesem Konto nur die Analystenrolle: Du kannst Berichte ansehen und exportieren, aber keine Anzeigen erstellen oder ändern. Bitte einen Admin des Unternehmens, dir in den Unternehmenseinstellungen von Meta Werbetreibenden- oder Admin-Zugriff auf dieses Konto zu geben, und nutze danach Aktualisieren.",
+        "action": "Unternehmenseinstellungen öffnen"
+      },
       "reconnect": {
         "title": "Werbekonto neu verbinden",
         "body": "Meta akzeptiert den Zugriff auf dieses Konto nicht mehr. Die Daten können veraltet sein, und bis zur neuen Verbindung lässt sich nichts ändern.",
@@ -16577,7 +16779,7 @@
       },
       "funding": {
         "title": "Keine Zahlungsmethode",
-        "body": "Richte im Meta Werbeanzeigenmanager eine Zahlungsmethode ein. Ohne sie liefert Meta keine Anzeigen aus.",
+        "body": "Ohne Zahlungsmethode lässt Meta in diesem Konto weder Anzeigen erstellen noch einschalten. Füge eine im Meta Werbeanzeigenmanager hinzu.",
         "action": "Zahlungseinstellungen öffnen"
       },
       "metaStatus": {
@@ -16893,6 +17095,50 @@
           "too_long": "Jede fertige Frage darf bis zu 80 Zeichen haben."
         }
       }
-    }
+    },
+    "toggleBlocker": {
+      "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Konto und kann daher nichts ein- oder ausschalten.",
+      "locked": "Archivierte oder gelöschte Elemente können nicht ein oder ausgeschaltet werden.",
+      "permission": "Du hast keine Berechtigung, dieses Element zu ändern.",
+      "reconnect": "Verbinde das Werbekonto neu, um ein oder auszuschalten.",
+      "funding": "Füge in Meta eine Zahlungsmethode hinzu, um es einzuschalten.",
+      "metaStatus": "Das Konto ist in Meta nicht aktiv, daher kann nichts eingeschaltet werden.",
+      "unknown": "Dieses Konto kann gerade keine Anzeigen einschalten."
+    },
+    "published": {
+      "title": "Anzeige veröffentlicht",
+      "body": "Die neue Kampagne ist unten ausgewählt. Meta prüft neue Anzeigen vor der Auslieferung (In Prüfung).",
+      "paused": "Wenn du sie ausgeschaltet veröffentlicht hast, schalte Kampagne, Anzeigengruppe und Anzeige ein, sobald du starten willst.",
+      "pausedNoFunding": "Sie wurde ausgeschaltet erstellt. Füge in Meta eine Zahlungsmethode hinzu, um Kampagne, Anzeigengruppe und Anzeige einzuschalten.",
+      "createAnother": "Weitere Anzeige erstellen",
+      "dismiss": "Hinweis schließen",
+      "switchOn": "Anzeige einschalten",
+      "switchingOn": "Wird eingeschaltet...",
+      "switchOnHint": "Schaltet Kampagne, Anzeigengruppe und Anzeigen dieser Veröffentlichung auf einmal ein.",
+      "switchedOn": "Anzeige eingeschaltet. Meta prüft sie, bevor sie ausgeliefert wird."
+    },
+    "loadFailed": "Konnte nicht geladen werden"
+  },
+  "adsErrors": {
+    "account_admin_required": "Nur ein Admin des Werbekontos kann das Ausgabenlimit ändern.",
+    "account_read_only": "Dein Profil hat nur Lesezugriff auf dieses Werbekonto. Bitte einen Admin in den Unternehmenseinstellungen von Meta um Werbetreibenden-Zugriff.",
+    "price_unavailable": "Die Anzeigengebühr ist noch nicht eingerichtet. Wende dich an den Support, um zu veröffentlichen.",
+    "insufficient_balance": "Nicht genug Guthaben für die Anzeigengebühr. Lade Guthaben auf und prüfe erneut.",
+    "fee_not_charged": "Die Anzeigengebühr konnte nicht abgebucht werden. Prüfe dein Guthaben und versuche es erneut.",
+    "no_payment_method": "Füge in Meta eine Zahlungsmethode hinzu, um in diesem Konto Anzeigen zu erstellen oder einzuschalten.",
+    "account_not_active": "Das Werbekonto ist in Meta nicht aktiv.",
+    "reconnect_required": "Das Werbekonto muss neu verbunden werden.",
+    "missing_permissions": "Meta hat die Anzeigenberechtigungen nicht erteilt. Verbinde erneut und akzeptiere alle.",
+    "meta_busy": "Meta begrenzt gerade die Anfragen. Versuche es gleich noch einmal.",
+    "meta_permission": "Meta hat abgelehnt: Für dieses Konto oder diese Seite fehlt eine Berechtigung.",
+    "page_not_granted": "Die Seite ist in dieser Anzeigenverbindung nicht verfügbar.",
+    "number_not_linked": "Die WhatsApp Nummer ist nicht mit der Seite verknüpft.",
+    "number_not_owned": "Die WhatsApp Nummer ist nicht mit diesem Workspace verbunden.",
+    "account_unreadable": "Wir konnten Währung oder Zeitzone des Kontos nicht lesen. Nutze Aktualisieren am Konto und versuche es erneut.",
+    "budget_change_limit": "Meta akzeptiert höchstens 4 Budgetänderungen pro Stunde. Versuche es später erneut.",
+    "object_locked": "Gelöschte oder archivierte Elemente können nicht geändert werden.",
+    "video_not_ready": "Meta verarbeitet das Video noch. Versuche es gleich noch einmal.",
+    "audience_terms_not_accepted": "Akzeptiere die Meta Bedingungen für Custom Audiences in diesem Werbekonto.",
+    "job_not_activatable": "Diese Veröffentlichung wurde bereits eingeschaltet oder nicht ausgeschaltet veröffentlicht."
   }
 }

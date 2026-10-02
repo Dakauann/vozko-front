@@ -3,10 +3,13 @@
 import { useTranslations } from "next-intl";
 
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
-import { ArrowClockwise, CheckCircle, Info, WarningCircle } from "@/components/icons";
-import { MAX_AGE, budgetFromInput, campaignBudgetActive, cleanPlacements, draftFeeTotal } from "@/lib/advertising/draft";
-import type { AdDraftFee } from "@/lib/advertising/draft-types";
+import { ArrowClockwise, CheckCircle, Info, Warning, WarningCircle } from "@/components/icons";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { spendBlockerKey } from "@/lib/advertising/delivery";
+import { MAX_AGE, budgetFromInput, campaignBudgetActive, cleanPlacements } from "@/lib/advertising/draft";
 import { EMPTY_VALUE } from "@/lib/advertising/money";
+import { formatMicrosAsBrl } from "@/lib/pricing/currency";
+import type { PublishBlocker, ValidationState } from "@/lib/advertising/publish";
 import { adIndexOfIssue, stepOfIssue, type DraftIssue, type WizardStep } from "@/lib/advertising/wizard-issues";
 
 import { useAdsFormat } from "../use-ads-format";
@@ -15,20 +18,14 @@ import { useIssueMessage } from "./field-issues";
 import { useWizardLabels } from "./use-wizard-labels";
 import { useWizard } from "./wizard-context";
 
-export type ValidationState =
-  | { status: "idle" }
-  | { status: "validating" }
-  | { status: "failed"; message: string }
-  | { status: "done"; key: string; issues: DraftIssue[]; fee: AdDraftFee | null };
-
 export function ReviewStep({
   validation,
-  stale,
+  blockers,
   onRevalidate,
   onGoTo,
 }: {
   validation: ValidationState;
-  stale: boolean;
+  blockers: PublishBlocker[];
   onRevalidate: () => void;
   onGoTo: (step: WizardStep, adIndex: number | null) => void;
 }) {
@@ -36,6 +33,7 @@ export function ReviewStep({
   const tAudience = useTranslations("adsWizard.audience");
   const tCampaign = useTranslations("adsWizard.campaign");
   const fmt = useAdsFormat();
+  const exchangeRate = useExchangeRate();
   const labels = useWizardLabels();
   const { form, patch, account, page } = useWizard();
   const currency = account?.currency ?? "";
@@ -78,7 +76,7 @@ export function ReviewStep({
 
   const ageMax = form.targeting.ageMax === MAX_AGE ? tAudience("agePlus", { age: MAX_AGE }) : String(form.targeting.ageMax);
   const placements = cleanPlacements(form.placements);
-  const fee = validation.status === "done" && !stale ? validation.fee : null;
+  const fee = blockers.length === 0 && validation.status === "done" ? validation.fee : null;
 
   return (
     <div className="space-y-6">
@@ -161,35 +159,21 @@ export function ReviewStep({
       </Section>
 
       <Section title={t("checkTitle")} description={t("checkDescription")}>
-        {validation.status === "validating" ? <p className="text-sm text-muted-foreground">{t("validating")}</p> : null}
-        {validation.status === "failed" ? <p className="text-sm text-destructive-ink">{validation.message}</p> : null}
-        {stale ? <p className="text-sm text-warning-ink">{t("stale")}</p> : null}
-        {validation.status === "done" && !stale && validation.issues.length === 0 && validation.fee ? (
+        {blockers.length === 0 ? (
           <p className="flex items-center gap-1.5 text-sm text-healthy-ink">
             <CheckCircle className="h-4 w-4" weight="fill" aria-hidden />
             {t("ready")}
           </p>
-        ) : null}
-        {validation.status === "done" && !stale && validation.issues.length === 0 && !validation.fee ? (
-          <p className="text-sm text-warning-ink">{t("feeMissing")}</p>
-        ) : null}
+        ) : (
+          <PublishBlockers blockers={blockers} validation={validation} onRevalidate={onRevalidate} />
+        )}
         {validation.status === "done" ? <IssueLinks issues={validation.issues} onGoTo={onGoTo} /> : null}
-        {validation.status !== "validating" ? (
-          <button
-            type="button"
-            onClick={onRevalidate}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-ink hover:underline"
-          >
-            <ArrowClockwise className="h-3.5 w-3.5" aria-hidden />
-            {t("revalidate")}
-          </button>
-        ) : null}
         {fee ? (
           <dl className="divide-y divide-border rounded-[--radius] border border-border bg-muted px-3 text-sm">
-            <ReadOnlyFact label={t("feePerAd")} value={<span className="tabular-nums">{fmt.micros(fee.price, fee.currency)}</span>} />
+            <ReadOnlyFact label={t("feePerAd")} value={<span className="tabular-nums">{formatMicrosAsBrl(fee.price, exchangeRate) ?? "…"}</span>} />
             <ReadOnlyFact
               label={t("feeTotal", { count: form.ads.length })}
-              value={<span className="font-semibold tabular-nums">{fmt.micros(draftFeeTotal(fee, form.ads.length), fee.currency)}</span>}
+              value={<span className="font-semibold tabular-nums">{formatMicrosAsBrl(fee.total, exchangeRate) ?? "…"}</span>}
             />
           </dl>
         ) : null}
@@ -200,6 +184,59 @@ export function ReviewStep({
         <Hint icon={<Info className="h-3.5 w-3.5" aria-hidden />}>{t("reviewNote")}</Hint>
         <Hint icon={<Info className="h-3.5 w-3.5" aria-hidden />}>{t("spendNote")}</Hint>
       </div>
+    </div>
+  );
+}
+
+function PublishBlockers({
+  blockers,
+  validation,
+  onRevalidate,
+}: {
+  blockers: PublishBlocker[];
+  validation: ValidationState;
+  onRevalidate: () => void;
+}) {
+  const t = useTranslations("adsWizard.review.blockers");
+  const tBlocker = useTranslations("adsManager.spendBlocker");
+  const { account } = useWizard();
+  const issueCount = validation.status === "done" ? validation.issues.length : 0;
+  const accountBlocker = account ? spendBlockerKey(account) : "unknown";
+  const text = (blocker: PublishBlocker) => {
+    switch (blocker) {
+      case "account":
+        return accountBlocker ? tBlocker(accountBlocker) : t("account");
+      case "validationFailed":
+        return t("validationFailed", { message: validation.status === "failed" ? validation.message : "" });
+      case "issues":
+        return t("issues", { count: issueCount });
+      default:
+        return t(blocker);
+    }
+  };
+  const canRevalidate = !blockers.includes("validating");
+
+  return (
+    <div className="space-y-2 rounded-[--radius] border border-border bg-muted px-3 py-2.5" role="status">
+      <p className="text-sm font-semibold text-foreground">{t("title")}</p>
+      <ul className="space-y-1">
+        {blockers.map((blocker) => (
+          <li key={blocker} className="flex items-start gap-2 text-sm text-warning-ink">
+            <Warning className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <span>{text(blocker)}</span>
+          </li>
+        ))}
+      </ul>
+      {canRevalidate ? (
+        <button
+          type="button"
+          onClick={onRevalidate}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-ink hover:underline"
+        >
+          <ArrowClockwise className="h-3.5 w-3.5" aria-hidden />
+          {t("revalidate")}
+        </button>
+      ) : null}
     </div>
   );
 }
