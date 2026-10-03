@@ -16,7 +16,7 @@ import type {
   MetaAdDraft,
 } from "@/lib/advertising/draft-types";
 import { accountPath } from "@/lib/advertising/report-query";
-import type { AdBudgetMinimum, AdPublishJob } from "@/lib/advertising/types";
+import type { AdBudgetMinimum } from "@/lib/advertising/types";
 
 import type { AdsResult } from "./advertising";
 import { settleAds } from "./advertising-result";
@@ -70,8 +70,9 @@ export async function validateMetaAdDraftAction(draft: MetaAdDraft): Promise<Ads
   return settleAds(await apiClient<AdDraftValidation>("/ads/drafts/validate", { method: "POST", body: JSON.stringify({ draft }) }));
 }
 
-export async function publishMetaAdDraftAction(draft: MetaAdDraft): Promise<AdsResult<AdPublishJob>> {
-  return settleAds(await apiClient<AdPublishJob>("/ads/publish", { method: "POST", body: JSON.stringify({ draft }) }));
+export async function getAdPagePostAction(accountId: string, pageId: string, postId: string, platform: AdPostPlatform): Promise<AdsResult<AdPagePost>> {
+  const path = `${accountPath(accountId)}/pages/${encodeURIComponent(pageId)}/posts/${encodeURIComponent(postId)}`;
+  return settleAds(await apiClient<AdPagePost>(`${path}?${new URLSearchParams({ platform }).toString()}`, get));
 }
 
 export async function getAdBudgetMinimumAction(accountId: string, goal: AdOptimizationGoal, bidAmount: number): Promise<AdsResult<AdBudgetMinimum>> {

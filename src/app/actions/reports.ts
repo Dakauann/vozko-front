@@ -4,6 +4,7 @@ import {
     getApiBaseUrl,
     scopeHeaders,
 } from "@/lib/api/browser-client";
+import { filenameFromDisposition } from "@/lib/browser/download";
 import type {
     CreateReportRequest,
     ReportJob,
@@ -130,10 +131,4 @@ export async function fetchReportFileAction(
         "report";
 
     return { data: { blob: await response.blob(), filename }, error: null };
-}
-
-function filenameFromDisposition(header: string | null): string | null {
-    if (!header) return null;
-    const match = header.match(/filename="?([^";]+)"?/i);
-    return match?.[1] ?? null;
 }

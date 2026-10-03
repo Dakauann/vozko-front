@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { managerHref, metaAdsResultFromMessage, newAdHref, overviewHref, pickAccountId, wizardHref } from "./connect";
+import {
+  draftEditorHref,
+  managerHref,
+  metaAdsResultFromMessage,
+  newAdHref,
+  objectEditorHref,
+  objectsEditorHref,
+  overviewHref,
+  pickAccountId,
+  reportHref,
+  reportTemplateHref,
+} from "./connect";
 
 describe("metaAdsResultFromMessage", () => {
   it("reads the popup message", () => {
@@ -29,14 +40,6 @@ describe("pickAccountId", () => {
   });
 });
 
-describe("wizardHref", () => {
-  it("opens the wizard on the chosen parent or ad", () => {
-    expect(wizardHref({ accountId: "a1", adSetId: "9" })).toBe("/dashboard/advertising/new?accountId=a1&adSetId=9");
-    expect(wizardHref({ accountId: "a1", campaignId: "5" })).toBe("/dashboard/advertising/new?accountId=a1&campaignId=5");
-    expect(wizardHref({ accountId: "a 1", adId: "7" })).toBe("/dashboard/advertising/new?accountId=a+1&adId=7");
-  });
-});
-
 describe("managerHref", () => {
   it("points the manager at the account and the published campaign", () => {
     expect(managerHref({ accountId: "a 1", campaignId: "c1", published: true })).toBe(
@@ -56,5 +59,18 @@ describe("newAdHref", () => {
 describe("overviewHref", () => {
   it("opens the account overview on the chosen account", () => {
     expect(overviewHref("a 1")).toBe("/dashboard/advertising/overview?account=a+1");
+  });
+});
+
+describe("editor and report links", () => {
+  it("opens a draft or a published object in the editor", () => {
+    expect(draftEditorHref("d-1")).toBe("/dashboard/advertising/editor?draft=d-1");
+    expect(objectEditorHref("a-1", "120")).toBe("/dashboard/advertising/editor?object=120&account=a-1");
+    expect(objectsEditorHref("a-1", ["120", "121"])).toBe("/dashboard/advertising/editor?objects=120%2C121&account=a-1");
+  });
+
+  it("opens a saved report or a template", () => {
+    expect(reportHref("r/1")).toBe("/dashboard/advertising/reports/r%2F1");
+    expect(reportTemplateHref("age_gender", "a-1")).toBe("/dashboard/advertising/reports/new?template=age_gender&account=a-1");
   });
 });

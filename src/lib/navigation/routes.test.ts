@@ -42,6 +42,11 @@ describe("route rules", () => {
     expect(ruleForPath("/dashboard/funnels?tab=x")).toEqual({ kind: "screen", screen: "funnels" });
   });
 
+  it("gates the ad editor like creating an ad, not like reading the manager", () => {
+    expect(ruleForPath("/dashboard/advertising/editor?draft=d1")).toEqual({ kind: "screen", screen: "ads_editor" });
+    expect(ruleForPath("/dashboard/advertising/new")).toEqual({ kind: "screen", screen: "ads_create" });
+  });
+
   it("keeps personal routes exact so they never open other pages", () => {
     expect(ruleForPath("/dashboard")).toEqual({ kind: "personal" });
     expect(ruleForPath("/dashboard/unknown-page")).toBeNull();

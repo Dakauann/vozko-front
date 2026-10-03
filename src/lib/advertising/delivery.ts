@@ -135,3 +135,13 @@ export function toggleBlockerKey(
 export function isRejected(row: Pick<AdRow, "delivery">): boolean {
   return deliveryKey(row.delivery) === "rejected";
 }
+
+type StatusPair = Pick<AdRow, "status" | "effectiveStatus">;
+
+export function isRemoved(row: StatusPair): boolean {
+  return row.status === "DELETED" || row.effectiveStatus === "DELETED";
+}
+
+export function isArchived(row: StatusPair): boolean {
+  return row.status === "ARCHIVED" || row.effectiveStatus === "ARCHIVED" || isRemoved(row);
+}

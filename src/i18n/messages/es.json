@@ -343,7 +343,50 @@
       "duplicate_ad": "Duplicar anuncio",
       "archive_ad": "Archivar anuncio",
       "delete_ad": "Eliminar anuncio",
-      "ads_breakdown": "Resultados por público y ubicación"
+      "ads_breakdown": "Resultados por público y ubicación",
+      "ad_account_readiness": "Lo que falta en la cuenta publicitaria",
+      "search_ad_interests": "Buscando intereses",
+      "estimate_ad_audience": "Estimando el público",
+      "list_lead_forms": "Formularios de registro",
+      "save_ad_draft": "Guardar anuncio como borrador",
+      "list_ad_drafts": "Borradores de anuncio",
+      "publish_ad_draft": "Publicar borrador",
+      "edit_ad_text": "Editar texto del anuncio",
+      "create_lead_form": "Crear formulario de registro",
+      "connect_ad_account": "Conectar cuenta publicitaria",
+      "ad_rule_history": "Historial de la regla automática",
+      "bulk_change_ads": "Cambiar finalización o presupuesto en lote",
+      "bulk_edit_ads_text": "Editar textos en lote",
+      "bulk_turn_off_ads": "Desactivar anuncios en lote",
+      "bulk_turn_on_ads": "Activar anuncios en lote",
+      "connect_ad_dataset": "Vincular WhatsApp al conjunto de datos",
+      "create_ad_pixel": "Crear píxel",
+      "create_ad_rule": "Crear regla automática",
+      "create_ad_test": "Crear prueba A/B",
+      "create_customer_list_audience": "Crear público de clientes",
+      "create_lookalike_audience": "Crear público similar",
+      "create_saved_audience": "Guardar público",
+      "delete_ad_audience": "Eliminar público",
+      "delete_ad_rule": "Eliminar regla automática",
+      "edit_ad_set": "Editar conjunto de anuncios",
+      "export_ad_report": "Exportar informe",
+      "get_ad_conversion_settings": "Envío de conversiones",
+      "get_ad_draft": "Leer borrador de anuncio",
+      "list_ad_apps": "Apps para anunciar",
+      "list_ad_audiences": "Públicos",
+      "list_ad_catalogs": "Catálogos de productos",
+      "list_ad_pixels": "Píxeles",
+      "list_ad_reports": "Informes guardados",
+      "list_ad_rules": "Reglas automáticas",
+      "list_ad_tests": "Pruebas A/B",
+      "list_page_posts": "Publicaciones de la página",
+      "recent_ad_conversions": "Conversiones enviadas",
+      "run_ad_report": "Informe de anuncios",
+      "run_saved_ad_report": "Ejecutar informe guardado",
+      "save_ad_conversion_settings": "Guardar envío de conversiones",
+      "set_ad_rule_status": "Activar o desactivar regla",
+      "set_ad_spend_cap": "Límite de gasto de la cuenta",
+      "update_ad_draft": "Cambiar borrador de anuncio"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -653,7 +696,58 @@
       "knowledgeBases": "Bases de conocimiento",
       "mcpCollections": "Colecciones MCP",
       "scheduledMessage": "Mensaje programado",
-      "bot_token": "Token del bot"
+      "bot_token": "Token del bot",
+      "objective": "Objetivo",
+      "ends": "Finaliza",
+      "status": "Estado",
+      "draft": "Borrador",
+      "ad": "Anuncio",
+      "meta_id": "Elemento en Meta",
+      "primaryText": "Texto principal",
+      "headline": "Título",
+      "link": "Enlace",
+      "questions": "Preguntas",
+      "privacy": "Política de privacidad",
+      "thankYou": "Pantalla final",
+      "form": "Formulario",
+      "action": "Acción",
+      "ages": "Edades",
+      "applies": "Se aplica a",
+      "audience": "Público",
+      "audiences": "Públicos personalizados",
+      "bid": "Puja",
+      "breakdowns": "Desgloses",
+      "budget_level": "Dónde está el presupuesto",
+      "changes": "Campos cambiados",
+      "checks": "Verificación",
+      "confidence": "Confianza",
+      "conversions": "Conversiones",
+      "country": "País",
+      "dataset": "Conjunto de datos",
+      "day": "Día",
+      "excludes": "Excluye",
+      "field": "Campo",
+      "includes": "Incluye",
+      "items": "Elementos",
+      "kind": "Tipo",
+      "leads": "Registros",
+      "locations": "Ubicaciones",
+      "metrics": "Métricas",
+      "period": "Período",
+      "pixel": "Píxel",
+      "placements": "Ubicaciones de anuncios",
+      "purchases": "Ventas",
+      "report": "Informe",
+      "rule": "Regla",
+      "sending": "Envío",
+      "size": "Tamaño",
+      "source": "Origen",
+      "spent": "Ya gastado",
+      "starts": "Inicio",
+      "test": "Prueba",
+      "versions": "Versiones",
+      "view": "Vista",
+      "when": "Cuándo"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -1773,12 +1867,13 @@
       "sipTrunks": "Líneas telefónicas",
       "callQueues": "Colas",
       "callHistory": "Historial",
-      "adsManager": "Administrador de anuncios",
-      "createAd": "Crear anuncio",
+      "adsOverview": "Información general de la cuenta",
+      "adsManager": "Campañas",
       "adsAudiences": "Públicos",
       "adsForms": "Formularios y leads",
       "adsRules": "Reglas automáticas",
-      "adsConversions": "Píxeles y conversiones"
+      "adsConversions": "Administrador de eventos",
+      "adsReports": "Informes de anuncios"
     },
     "badges": {
       "new": "Nuevo",
@@ -14756,25 +14851,6 @@
     "leadCost": "Costo estimado del lead: {amount} (gasto del anuncio en el día ÷ conversaciones del día)",
     "leadCostHint": "Estimación: Meta informa el gasto por anuncio por día, no por clic. El {day} el anuncio gastó {spend} y trajo {conversations, plural, one {# conversación} other {# conversaciones}}."
   },
-  "adsAccounts": {
-    "blockedTitle": "Cuentas que aún no pueden anunciar",
-    "reasons": {
-      "funding": "Sin método de pago",
-      "readOnly": "Solo lectura",
-      "reconnect": "Hay que reconectar",
-      "metaStatus": "Inactiva en Meta",
-      "unknown": "No disponible"
-    },
-    "fundingHint": "Meta solo crea anuncios en cuentas con método de pago. Agrega uno en Meta y luego haz clic en Verificar de nuevo.",
-    "addPayment": "Agregar método de pago",
-    "readOnlyHint": "Tu perfil solo puede ver esta cuenta. Pide a un administrador de la cuenta, en Meta, el rol de Anunciante o superior y luego haz clic en Verificar de nuevo.",
-    "rolesLink": "Ver roles de la cuenta en Meta",
-    "hints": {
-      "reconnect": "La conexión con Meta caducó. Vuelve a conectar la cuenta en el Administrador de anuncios.",
-      "metaStatus": "Meta no permite anunciar en esta cuenta por ahora. Revisa su estado en el Administrador de anuncios de Meta.",
-      "unknown": "Aún no pudimos confirmar si esta cuenta puede anunciar. Actualiza la cuenta en el Administrador de anuncios."
-    }
-  },
   "adsRequirements": {
     "recheck": "Verificar de nuevo",
     "checking": "Verificando...",
@@ -14785,6 +14861,10 @@
       "accept": "Lee los términos y haz clic en Acepto. Quien acepta debe ser administrador de la Página.",
       "comeBack": "Vuelve aquí y haz clic en Verificar de nuevo.",
       "openButton": "Aceptar términos en Meta"
+    },
+    "notice": {
+      "show": "Ver detalles",
+      "hide": "Ocultar detalles"
     }
   },
   "adsWizard": {
@@ -14792,17 +14872,6 @@
     "editDescription": "Arma un contenido nuevo para este anuncio. Al guardar, Meta cambia el contenido y vuelve a revisar el anuncio.",
     "saveCreative": "Guardar contenido",
     "savingCreative": "Guardando...",
-    "creativeUnavailable": "No se pudo cargar el contenido de este anuncio. Abre el anuncio en el administrador e inténtalo de nuevo.",
-    "title": "Crear anuncio",
-    "description": "Campaña, conjunto y anuncios en un solo flujo, publicados directo en tu cuenta publicitaria de Meta.",
-    "back": "Volver a Anuncios",
-    "noAccess": "No tienes permiso para crear anuncios en este workspace.",
-    "noAccountTitle": "Ninguna cuenta lista para anunciar",
-    "noAccountBody": "Conecta una cuenta publicitaria activa en Meta y con método de pago.",
-    "optionsError": "No se pudieron cargar las opciones de anuncio. Inténtalo de nuevo en un momento.",
-    "parentError": "No se pudo abrir la campaña o el conjunto elegido: {message}. Elígelo de nuevo en el primer paso.",
-    "previous": "Volver",
-    "next": "Continuar",
     "cancel": "Cancelar",
     "publish": "Publicar",
     "publishPaused": "Publicar apagado",
@@ -14814,19 +14883,9 @@
       "feed": "Feed",
       "story": "Stories"
     },
-    "autosave": "El borrador se guarda en este navegador mientras editas.",
-    "restored": "Borrador recuperado ({when}).",
-    "discard": "Descartar borrador",
     "discardTitle": "¿Descartar este borrador?",
-    "discardBody": "Todo lo que completaste se borrará de este navegador. No se envió nada a Meta.",
+    "discardBody": "Se eliminarán el borrador y todo lo que completaste en él. No se envió nada a Meta.",
     "discardConfirm": "Descartar",
-    "steps": {
-      "objective": "Objetivo",
-      "campaign": "Campaña",
-      "adSet": "Conjunto",
-      "ads": "Anuncios",
-      "review": "Revisión"
-    },
     "job": {
       "title": "Publicación",
       "needsReview": "Meta no confirmó; revisa el Administrador de anuncios antes de intentarlo de nuevo.",
@@ -14850,31 +14909,8 @@
       "openJobs": "Ver publicaciones"
     },
     "objective": {
-      "accountTitle": "Cuenta publicitaria",
-      "accountDescription": "Solo aparecen cuentas activas y con método de pago en Meta.",
-      "startTitle": "Por dónde empezar",
-      "startDescription": "Crea todo desde cero o aprovecha una campaña que ya existe.",
-      "modes": {
-        "new": {
-          "title": "Nueva campaña",
-          "body": "Defines el objetivo, la campaña, el conjunto y los anuncios."
-        },
-        "campaign": {
-          "title": "Usar una campaña existente",
-          "body": "Crea un conjunto nuevo dentro de una de tus campañas."
-        },
-        "adSet": {
-          "title": "Agregar a un conjunto existente",
-          "body": "Solo crea anuncios nuevos en un conjunto que ya está activo."
-        }
-      },
       "campaign": "Campaña",
       "adSet": "Conjunto de anuncios",
-      "search": "Buscar por nombre",
-      "noCampaigns": "No se encontraron campañas en esta cuenta.",
-      "noAdSets": "No se encontraron conjuntos en esta campaña.",
-      "pickCampaign": "Elige la campaña arriba.",
-      "pickAdSet": "Elige la campaña y el conjunto arriba.",
       "title": "Objetivo de la campaña",
       "description": "Lo que quieres que las personas hagan al ver el anuncio. Define las opciones de los próximos pasos.",
       "unavailable": "No disponible en esta cuenta.",
@@ -15242,14 +15278,8 @@
       "creativeEditHint": "Estás cambiando el contenido de un anuncio que ya existe. La página, el conjunto y el destino siguen iguales.",
       "identityTitle": "Identidad",
       "identityDescription": "La página y la cuenta de Instagram que aparecen en todos los anuncios.",
-      "title": "Anuncios",
       "description": "Descripción",
-      "tab": "Anuncio {index}",
-      "tabHasIssues": "tiene pendientes",
-      "add": "Agregar anuncio",
-      "duplicate": "Duplicar anuncio",
       "copySuffix": "(copia)",
-      "remove": "Quitar este anuncio",
       "maxAds": "Este conjunto ya tiene el máximo de 10 anuncios.",
       "flexibleOneAd": "Con el formato Flexible en este objetivo, Meta exige un conjunto nuevo con un solo anuncio. Para tener más anuncios, cambia el formato.",
       "nameTitle": "Nombre del anuncio",
@@ -15355,8 +15385,7 @@
       "iceBreakersHint": "Hasta 3 preguntas de hasta 80 caracteres cada una.",
       "enhancementsTitle": "Mejoras automáticas",
       "enhancements": "Mejoras de contenido Advantage+",
-      "enhancementsHint": "Si está activado, Meta puede adaptar el anuncio para cada persona: recortar o ampliar la imagen, ajustar brillo y contraste, cambiar el orden de los textos y cambiar la plantilla del anuncio. Déjalo apagado si quieres el anuncio exactamente como lo armaste.",
-      "creativesHint": "Cada anuncio tiene su propio creativo: medio, texto y botón. Después de publicar, cambia el creativo en el administrador, desde el menú del anuncio (Cambiar creativo). Las imágenes subidas o generadas con IA quedan en la biblioteca de medios."
+      "enhancementsHint": "Si está activado, Meta puede adaptar el anuncio para cada persona: recortar o ampliar la imagen, ajustar brillo y contraste, cambiar el orden de los textos y cambiar la plantilla del anuncio. Déjalo apagado si quieres el anuncio exactamente como lo armaste."
     },
     "media": {
       "chosenImage": "Imagen elegida",
@@ -15411,41 +15440,17 @@
       }
     },
     "review": {
-      "creativeCheck": "Meta verifica el contenido al guardar. Si algo no cumple las reglas, mostramos aquí qué corregir.",
-      "creativeNote": "El anuncio vuelve a la revisión de Meta después del cambio. Las métricas anteriores siguen en el anuncio.",
-      "summaryTitle": "Resumen",
-      "account": "Cuenta",
-      "objective": "Objetivo",
-      "campaign": "Campaña",
-      "category": "Categoría especial",
-      "adSet": "Conjunto",
-      "destination": "Destino",
-      "page": "Página",
-      "budget": "Presupuesto",
       "budgetDaily": "{amount} por día",
       "budgetLifetime": "{amount} en total",
-      "onCampaign": "en la campaña",
-      "onAdSet": "en el conjunto",
-      "budgetOnExistingCampaign": "Definido en la campaña existente",
-      "budgetOnExistingAdSet": "Definido en el conjunto existente",
-      "schedule": "Programación",
       "startsOn": "empieza el {day}",
       "startsNow": "empieza al publicar",
       "endsOn": "termina el {day}",
       "noEnd": "sin fecha de fin",
       "hours": "en horas elegidas",
-      "locations": "Ubicación",
-      "audience": "Público",
       "ages": "{min} a {max} años",
-      "placements": "Ubicaciones",
       "placementsAuto": "Advantage+ (automáticas)",
-      "ads": "Anuncios",
-      "adFallback": "Anuncio {index}",
-      "pausedTitle": "Cómo publicar",
       "keepPaused": "Publicar apagado",
       "keepPausedHint": "Crea todo en Meta pero lo deja apagado para que lo enciendas después desde el administrador. Sin esto, los anuncios pasan a revisión y empiezan a publicarse cuando se aprueban.",
-      "checkTitle": "Verificación",
-      "checkDescription": "Verificamos todo con las reglas de Meta antes de publicar. Publicar solo está disponible sin pendientes.",
       "ready": "Todo listo para publicar.",
       "fix": "Corregir",
       "feePerAd": "Tarifa por anuncio publicado",
@@ -15455,7 +15460,7 @@
       "spendNote": "El gasto en medios lo cobra Meta en la cuenta publicitaria. La tarifa de arriba es el único cobro en tu saldo.",
       "blockers": {
         "title": "Por qué aún no se puede publicar",
-        "account": "Esta cuenta no puede crear anuncios ahora.",
+        "readinessUnchecked": "Todavía no pudimos confirmar si esta cuenta está lista para publicar anuncios. Usa Verificar de nuevo.",
         "notValidated": "Aún no revisamos este borrador con las reglas de Meta.",
         "validating": "Revisando con las reglas de Meta...",
         "validationFailed": "La revisión no terminó: {message}",
@@ -15688,19 +15693,6 @@
         "not_for_destination": "Este formato no está disponible para el destino elegido."
       }
     },
-    "draftChoice": {
-      "title": "Tienes un borrador guardado",
-      "saved": "Borrador guardado en este navegador.",
-      "savedAt": "Guardado {when} en este navegador.",
-      "account": "Cuenta",
-      "objective": "Objetivo",
-      "campaign": "Campaña",
-      "ads": "Anuncios",
-      "step": "Se quedó en",
-      "continue": "Continuar borrador",
-      "startOver": "Empezar de cero",
-      "startOverHint": "Empezar de cero borra el borrador guardado. Nada de él se envió a Meta."
-    },
     "previewNoteStory": "Simulación aproximada de historia 9:16. Meta cubre el 14% superior con la página y el 35% inferior con el texto y el botón."
   },
   "adsManager": {
@@ -15730,7 +15722,6 @@
     "report": {
       "attribution": "Ventana de atribución",
       "breakdown": "Desglose",
-      "compare": "Comparar con el periodo anterior",
       "export": "Exportar CSV",
       "exporting": "Exportando...",
       "exportFailed": "No se pudo exportar el informe",
@@ -15772,14 +15763,9 @@
         "desktop": "Computadora"
       },
       "columns": {
-        "spend": "Importe gastado",
-        "share": "Parte del gasto",
-        "impressions": "Impresiones",
-        "reach": "Alcance",
-        "results": "Resultados",
-        "costPerResult": "Costo por resultado",
-        "cpm": "CPM"
-      }
+        "share": "Parte del gasto"
+      },
+      "tooMany": "El desglose acepta hasta {max} elementos a la vez. Selecciona menos filas en la tabla y ábrelo de nuevo."
     },
     "rowActions": {
       "open": "Acciones de {name}",
@@ -15800,7 +15786,13 @@
         "ad": "¿Eliminar anuncio?"
       },
       "deleteBody": "{name} se eliminará en Meta junto con todo lo que contiene. No se puede deshacer y sus resultados dejarán de aparecer aquí. Para solo detener la entrega, apágalo o archívalo.",
-      "swapCreative": "Cambiar creativo"
+      "swapCreative": "Cambiar creativo",
+      "publish": "Publicar",
+      "history": "Ver historial de publicaciones",
+      "deleteDraft": "Eliminar borrador",
+      "deleteDraftBody": "Se eliminará el borrador {name}. No se publicó nada en Meta, así que no hay nada que detener allí.",
+      "deleteManyTitle": "{count, plural, one {¿Eliminar # elemento?} other {¿Eliminar # elementos?}}",
+      "deleteManyBody": "{count, plural, one {Se eliminará el elemento seleccionado.} other {Se eliminarán los # elementos seleccionados.}} Los elementos publicados se eliminan en Meta con todo lo que contienen, y no se puede deshacer. Los borradores solo desaparecen de aquí."
     },
     "duplicate": {
       "title": {
@@ -15825,7 +15817,8 @@
       "cancel": "Cancelar",
       "submit": "Duplicar",
       "saving": "Duplicando...",
-      "done": "Copia de {name} creada"
+      "done": "Copia de {name} creada",
+      "draftFailed": "No se pudo duplicar el borrador {name}"
     },
     "spendCap": {
       "blocker": {
@@ -15858,17 +15851,6 @@
       "removeBody": "Sin límite, la cuenta puede gastar mientras haya anuncios encendidos."
     },
     "edit": {
-      "title": {
-        "campaign": "Editar campaña",
-        "adset": "Editar conjunto de anuncios",
-        "ad": "Editar anuncio"
-      },
-      "tabs": {
-        "campaign": "Campaña",
-        "adset": "Conjunto",
-        "ad": "Anuncio"
-      },
-      "optionsFailed": "No se pudieron cargar las opciones de Meta, así que la edición queda bloqueada: {message}",
       "retry": "Intentar de nuevo",
       "locked": "Este elemento está archivado o eliminado en Meta y ya no se puede cambiar.",
       "basics": "Identificación",
@@ -15992,7 +15974,6 @@
       "fixIssues": "Corrige los campos indicados e intenta de nuevo."
     },
     "abTests": {
-      "open": "Pruebas A/B",
       "title": "Pruebas A/B",
       "description": "Pruebas de esta cuenta publicitaria en Meta.",
       "refresh": "Actualizar lista",
@@ -16061,8 +16042,7 @@
     "header": {
       "title": "Anuncios",
       "description": "Campañas, conjuntos y anuncios de Meta con el resultado que llegó a tu atención.",
-      "connect": "Conectar cuenta publicitaria",
-      "create": "Crear anuncio"
+      "connect": "Conectar cuenta publicitaria"
     },
     "noAccess": "No tienes permiso para ver los anuncios de este workspace.",
     "retry": "Intentar de nuevo",
@@ -16075,13 +16055,6 @@
       "failed": "No se pudo actualizar la cuenta",
       "updated": "Actualizado {when}",
       "never": "Aún no sincronizada"
-    },
-    "spendBlocker": {
-      "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta publicitaria.",
-      "reconnect": "Vuelve a conectar la cuenta publicitaria para crear anuncios.",
-      "funding": "Configura un método de pago en el Administrador de anuncios de Meta para crear anuncios.",
-      "metaStatus": "Meta no está entregando anuncios de esta cuenta ahora.",
-      "unknown": "Esta cuenta no puede crear anuncios ahora."
     },
     "connect": {
       "errorTitle": "No se pudo conectar",
@@ -16121,7 +16094,12 @@
       "limitHint": "Meta acepta hasta 4 cambios de presupuesto por hora.",
       "cancel": "Cancelar",
       "save": "Guardar",
-      "saving": "Guardando..."
+      "saving": "Guardando...",
+      "dailyTitle": "Presupuesto diario",
+      "lifetimeTitle": "Presupuesto total",
+      "dailyExplain": "En un día, Meta puede gastar hasta {day}, un 75% más que el presupuesto diario. En una semana gasta como máximo {week}, 7 veces el presupuesto diario.",
+      "lifetimeExplain": "Meta nunca gasta más que el presupuesto total durante toda la programación.",
+      "aboutDaily": "Información sobre el presupuesto diario"
     },
     "errors": {
       "timezone": "La zona horaria de esta cuenta publicitaria es desconocida, así que los resultados no se pueden separar por día. Actualiza la cuenta."
@@ -16136,18 +16114,18 @@
       "rangeBody": "Cambia el período, la búsqueda o la selección para ver más resultados.",
       "firstTitle": "Aún no tienes campañas",
       "firstBody": "Crea tu primer anuncio aquí. Las campañas creadas en el Administrador de anuncios de Meta aparecen después de Actualizar.",
-      "firstBodyReadOnly": "Las campañas de esta cuenta aparecen aquí."
-    },
-    "filters": {
-      "search": "Buscar por nombre o ID",
-      "campaignsSelected": "{count, plural, one {# campaña seleccionada} other {# campañas seleccionadas}}",
-      "adSetsSelected": "{count, plural, one {# conjunto seleccionado} other {# conjuntos seleccionados}}",
-      "clear": "Quitar filtro: {label}"
+      "firstBodyReadOnly": "Las campañas de esta cuenta aparecen aquí.",
+      "viewBody": "No hay nada en esta vista. Elige Todos o cambia el período."
     },
     "tabs": {
       "campaign": "Campañas",
       "adset": "Conjuntos de anuncios",
-      "ad": "Anuncios"
+      "ad": "Anuncios",
+      "adsetForCampaigns": "{count, plural, one {Conjuntos de anuncios para # campaña} other {Conjuntos de anuncios para # campañas}}",
+      "adForCampaigns": "{count, plural, one {Anuncios para # campaña} other {Anuncios para # campañas}}",
+      "adForAdSets": "{count, plural, one {Anuncios para # conjunto de anuncios} other {Anuncios para # conjuntos de anuncios}}",
+      "selected": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+      "clear": "{count, plural, one {Quitar # seleccionado} other {Quitar # seleccionados}}"
     },
     "columns": {
       "toggle": "Encendido",
@@ -16184,7 +16162,17 @@
       "videoP50": "50% visto",
       "videoP75": "75% visto",
       "videoP100": "100% visto",
-      "avgWatchSeconds": "Tiempo medio de reproducción"
+      "avgWatchSeconds": "Tiempo medio de reproducción",
+      "menuWith": "Columnas: {preset}",
+      "presetsTitle": "Configuraciones predefinidas",
+      "presets": {
+        "performance": "Rendimiento",
+        "performanceClicks": "Rendimiento y clics",
+        "engagement": "Interacción",
+        "delivery": "Entrega",
+        "custom": "Personalizado"
+      },
+      "customize": "Personalizar columnas"
     },
     "table": {
       "issues": "{count, plural, one {# alerta} other {# alertas}}",
@@ -16261,44 +16249,27 @@
         "last30": "Últimos 30 días",
         "thisMonth": "Este mes",
         "lastMonth": "Mes pasado",
-        "custom": "Personalizado"
+        "custom": "Personalizado",
+        "todayAndYesterday": "Hoy y ayer",
+        "last28": "Últimos 28 días",
+        "thisWeek": "Esta semana",
+        "lastWeek": "Semana pasada",
+        "maximum": "Máximo"
       },
-      "since": "Desde",
-      "until": "Hasta",
       "to": "a",
       "timezone": "Zona horaria: {timezone}",
-      "timezoneUnknown": "desconocida"
+      "timezoneUnknown": "desconocida",
+      "compare": "Comparar",
+      "compareWith": "Con el período anterior: {range}",
+      "invalid": "Elige un período que termine hoy o antes, dentro de los últimos 37 meses.",
+      "cancel": "Cancelar",
+      "apply": "Actualizar"
     },
     "notices": {
       "readOnly": {
         "title": "Acceso de solo lectura",
-        "body": "Tu perfil de Meta solo tiene el rol de analista en esta cuenta: puedes ver y exportar informes, pero no crear ni cambiar anuncios. Pide a un administrador del negocio que te dé acceso de anunciante o de administrador a esta cuenta en la configuración del negocio de Meta y luego usa Actualizar.",
-        "action": "Abrir la configuración del negocio"
-      },
-      "reconnect": {
-        "title": "Vuelve a conectar la cuenta publicitaria",
-        "body": "Meta ya no acepta el acceso a esta cuenta. Los datos pueden estar desactualizados y no se puede cambiar nada hasta reconectar.",
-        "action": "Reconectar"
-      },
-      "funding": {
-        "title": "Sin método de pago",
-        "body": "Sin método de pago, Meta no deja crear ni encender anuncios en esta cuenta. Agrega uno en el Administrador de anuncios de Meta.",
-        "action": "Abrir la configuración de pagos"
-      },
-      "metaStatus": {
-        "title": "La cuenta no está activa en Meta",
-        "body": "Estado en Meta: {status}. Resuélvelo en el Administrador de anuncios de Meta para volver a publicar."
-      },
-      "metaStatusLabel": {
-        "active": "activa",
-        "disabled": "desactivada",
-        "unsettled": "con saldo pendiente",
-        "pending_risk_review": "en revisión de riesgo",
-        "pending_settlement": "esperando liquidación",
-        "in_grace_period": "en período de gracia",
-        "pending_closure": "en cierre",
-        "closed": "cerrada",
-        "unknown": "desconocida"
+        "body": "Tu perfil de Meta solo tiene el rol de analista en esta cuenta: puedes ver y exportar informes, pero no crear ni cambiar anuncios. Pide a un administrador del negocio acceso de anunciante o de administrador a esta cuenta.",
+        "action": "Ver qué falta en Información general de la cuenta"
       }
     },
     "jobs": {
@@ -16620,7 +16591,278 @@
       "switchOnHint": "Enciende de una vez la campaña, el conjunto y los anuncios de esta publicación.",
       "switchedOn": "Anuncio encendido. Meta lo revisa antes de empezar a publicarlo."
     },
-    "loadFailed": "No se pudo cargar"
+    "loadFailed": "No se pudo cargar",
+    "topBar": {
+      "title": {
+        "campaign": "Campañas",
+        "adset": "Conjuntos de anuncios",
+        "ad": "Anuncios"
+      },
+      "discard": "Descartar borradores",
+      "review": "Revisar y publicar ({count})",
+      "draftsUnknown": "No se pudieron cargar los borradores de esta cuenta.",
+      "noDrafts": "No hay borradores en esta cuenta.",
+      "more": "Más opciones",
+      "overview": "Información general de la cuenta",
+      "jobs": "Historial de publicaciones",
+      "tests": "Pruebas A/B",
+      "connect": "Conectar cuenta publicitaria",
+      "disconnect": "Desconectar cuenta"
+    },
+    "views": {
+      "label": "Vistas",
+      "all": "Todos",
+      "active": "Activos",
+      "issues": "Con problemas",
+      "delivered": "Tuvieron entrega",
+      "search": "Busca para filtrar por nombre o identificador"
+    },
+    "toolbar": {
+      "create": "Crear",
+      "publish": "Publicar",
+      "duplicate": "Duplicar",
+      "edit": "Editar",
+      "editMenu": "Más opciones de edición",
+      "general": "General",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "findReplace": "Buscar y reemplazar",
+      "creative": "Contenido",
+      "delete": "Eliminar",
+      "abTest": "Prueba A/B",
+      "more": "Más",
+      "rules": "Reglas automatizadas",
+      "export": "Exportar",
+      "fields": {
+        "name": "Nombre",
+        "primaryText": "Texto principal",
+        "headline": "Título",
+        "description": "Descripción",
+        "link": "URL del sitio web"
+      },
+      "blockers": {
+        "permission": "No tienes permiso para esta acción.",
+        "account": "Esta cuenta publicitaria no acepta cambios ahora.",
+        "funding": "Agrega un método de pago en Meta para activar.",
+        "selectSome": "Selecciona al menos un elemento.",
+        "selectOne": "Selecciona un solo elemento.",
+        "noDrafts": "Selecciona un borrador para publicar.",
+        "publishedOnly": "Los borradores no entran en esta acción. Quita los borradores de la selección.",
+        "publishing": "Este borrador se está publicando.",
+        "archived": "Los elementos archivados o eliminados no se pueden cambiar.",
+        "tooMany": "Selecciona como máximo 50 elementos a la vez.",
+        "testCount": "Selecciona de 2 a 5 elementos para comparar.",
+        "level": "Esta acción no aplica en este nivel.",
+        "draftRoot": "Para duplicar un borrador, usa su fila superior: la copia lleva la campaña, el conjunto y los anuncios juntos."
+      }
+    },
+    "rename": {
+      "open": "Cambiar el nombre de {name}",
+      "label": "Nuevo nombre",
+      "save": "Guardar nombre",
+      "cancel": "Cancelar",
+      "required": "Escribe un nombre.",
+      "notAllowed": "Este nombre no se puede cambiar aquí."
+    },
+    "drafts": {
+      "label": "Borrador",
+      "toggleHint": "Publica el borrador para poder activarlo.",
+      "state": {
+        "editing": "En borrador",
+        "publishing": "Publicando",
+        "failed": "Error al publicar",
+        "unknown": "Desconocido"
+      },
+      "failedNoReason": "La publicación falló. Abre el historial de publicaciones para ver el motivo.",
+      "loadFailed": "No se pudieron cargar los borradores: {message}",
+      "discardTitle": "¿Descartar borradores?",
+      "discardBody": "{count, plural, one {Se descartará el elemento en borrador de esta cuenta.} other {Se descartarán los # elementos en borrador de esta cuenta.}} Los borradores que ya se están publicando continúan. No se puede deshacer.",
+      "discarded": "{count, plural, one {# borrador descartado} other {# borradores descartados}}",
+      "discardFailed": "No se pudieron descartar los borradores"
+    },
+    "bulk": {
+      "title": "Editar {field}",
+      "appliesTo": "{count, plural, one {Tu edición se aplicará a # elemento.} other {Tus ediciones se aplicarán a # elementos.}}",
+      "mode": "Cómo editar",
+      "modes": {
+        "set": "Reemplazar todo",
+        "replace": "Buscar y reemplazar"
+      },
+      "newValue": "Nuevo valor de {field}",
+      "valueRequired": "Escribe el nuevo valor.",
+      "find": "Buscar",
+      "replace": "Reemplazar por",
+      "findRequired": "Escribe el texto que se buscará.",
+      "matchCase": "Distinguir mayúsculas y minúsculas",
+      "fieldNotForLevel": "Este campo solo existe en anuncios.",
+      "cancel": "Cancelar",
+      "apply": "Aplicar",
+      "saving": "Aplicando...",
+      "close": "Cerrar",
+      "resultsTitle": "Resultado de la edición",
+      "tally": "{ok, plural, one {# cambiado} other {# cambiados}}, {failed, plural, one {# con error} other {# con errores}}.",
+      "noAnswer": "Meta no respondió sobre este elemento.",
+      "switched": "{ok, plural, one {# elemento cambiado} other {# elementos cambiados}}{failed, plural, =0 {} one {, # con error} other {, # con errores}}",
+      "deleted": "{ok, plural, one {# elemento eliminado} other {# elementos eliminados}}{failed, plural, =0 {} one {, # con error} other {, # con errores}}",
+      "activateFailed": "No se pudieron activar los elementos",
+      "pauseFailed": "No se pudieron desactivar los elementos"
+    },
+    "review": {
+      "title": "Revisar y publicar",
+      "description": "Elige los borradores que van a Meta. Cada uno se revisa con las reglas de Meta antes de publicarse.",
+      "empty": "No hay borradores en esta cuenta.",
+      "existingCampaign": "Campaña existente",
+      "inExistingCampaign": "En una campaña existente",
+      "counts": "{adSets, plural, one {# conjunto de anuncios} other {# conjuntos de anuncios}} · {ads, plural, one {# anuncio} other {# anuncios}}",
+      "validating": "Revisando",
+      "started": "Publicación iniciada",
+      "failed": "No publicado",
+      "alreadyPublishing": "Este borrador ya se está publicando.",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "publishing": "Publicando...",
+      "publish": "{count, plural, =0 {Publicar} other {Publicar (#)}}"
+    },
+    "connectCard": {
+      "button": "Continuar con Facebook"
+    }
+  },
+  "adsReadiness": {
+    "title": "Prepárate para publicar anuncios",
+    "description": "Meta pide estos elementos antes de publicar. Lo que la API de Meta permite, lo resuelves aquí; lo demás abre la pantalla correcta de Meta, y volvemos a verificar solos cuando regresas.",
+    "optional": "Opcional",
+    "noPermission": "Tu acceso en Vozko no permite esta acción.",
+    "pixelName": "Píxel {account}",
+    "loadError": "No se pudo verificar la cuenta: {message}",
+    "awaiting": "Cuando termines en Meta, vuelve aquí: verificamos solos.",
+    "unchecked": "Todavía no pudimos confirmar si esta cuenta está lista para publicar anuncios.",
+    "unknownHint": "No pudimos verificar este elemento ahora. Usa Verificar de nuevo.",
+    "states": {
+      "ready": "Listo",
+      "missing": "Pendiente",
+      "unknown": "Sin confirmar"
+    },
+    "actions": {
+      "reconnect": "Volver a conectar",
+      "sync": "Actualizar datos de la cuenta",
+      "create_pixel": "Crear píxel",
+      "portal": "Abrir en Meta"
+    },
+    "items": {
+      "connection": {
+        "title": "Conexión con Meta",
+        "missing": "Meta dejó de aceptar el acceso a esta cuenta. Vuelve a conectarla para continuar."
+      },
+      "advertiser_role": {
+        "title": "Rol de anunciante en la cuenta",
+        "missing": "Tu perfil solo puede ver esta cuenta. Pide a un administrador del negocio el rol de anunciante o de administrador, en la configuración del negocio, en la pestaña de cuentas publicitarias."
+      },
+      "account_status": {
+        "title": "Cuenta activa en Meta",
+        "missing": "Meta no está entregando anuncios de esta cuenta. Si hay un pago pendiente, salda en facturación; si la cuenta fue restringida, solicita una revisión en Calidad de la cuenta."
+      },
+      "account_details": {
+        "title": "Moneda y zona horaria de la cuenta",
+        "missing": "Todavía no tenemos la moneda o la zona horaria de la cuenta. Actualiza los datos de la cuenta."
+      },
+      "payment_method": {
+        "title": "Agrega un método de pago",
+        "missing": "Sin método de pago, Meta no crea ni entrega anuncios en esta cuenta. Solo Meta registra tarjetas y otros métodos de pago."
+      },
+      "page": {
+        "title": "Página de Facebook",
+        "missing": "No hay ninguna página que tu perfil pueda usar para anunciar. Crea una página o pide acceso de anunciante a una página del negocio."
+      },
+      "phone_verification": {
+        "title": "Verificar teléfono",
+        "unknown": "Meta no informa esto por la API. Si Meta lo pide, verifica el teléfono en Autorizaciones y verificaciones."
+      },
+      "email_verification": {
+        "title": "Verifica la dirección de correo",
+        "unknown": "Meta no informa esto por la API. Revisa el correo en los datos de contacto de tu cuenta de Meta."
+      },
+      "custom_audience_terms": {
+        "title": "Condiciones de públicos personalizados",
+        "missing": "Solo es necesario para crear públicos con listas de clientes. Meta solo acepta estas condiciones en su propia pantalla."
+      },
+      "pixel": {
+        "title": "Píxel de Meta",
+        "missing": "Solo es necesario para anuncios de sitio web con conversiones. Crea el píxel aquí mismo."
+      }
+    },
+    "banner": {
+      "manager": {
+        "title": "Prepárate para publicar anuncios",
+        "body": "Confirma algunos datos en 'Información general de la cuenta' antes de publicar.",
+        "emptyBody": "Confirma algunos datos en 'Información general de la cuenta' para publicar tu primera campaña publicitaria.",
+        "action": "Ir a Información general de la cuenta"
+      },
+      "wizard": {
+        "title": "Falta información necesaria sobre la cuenta",
+        "body": "Necesitamos confirmar algunos datos de tu cuenta antes de que puedas publicar un anuncio. Ve a Información general de la cuenta para confirmar esta información antes de empezar a crear, o hazlo más tarde.",
+        "action": "Ir a Información general de la cuenta"
+      },
+      "pending": "{count, plural, one {# pendiente} other {# pendientes}}"
+    },
+    "card": {
+      "ready": "La cuenta {account} está lista para publicar.",
+      "missing": "Esta cuenta publicitaria ya no está conectada a este espacio de trabajo."
+    }
+  },
+  "adsOverview": {
+    "header": {
+      "title": "Información general de la cuenta",
+      "description": "Lo que la cuenta necesita para publicar, sus datos y la facturación."
+    },
+    "summary": {
+      "title": "Cuenta",
+      "name": "Nombre",
+      "id": "ID en Meta",
+      "business": "Negocio",
+      "currency": "Moneda",
+      "timezone": "Zona horaria",
+      "status": "Estado",
+      "role": "Tu rol",
+      "activeCampaigns": "Campañas activas",
+      "spend7d": "Importe gastado en los últimos 7 días",
+      "loading": "Cargando...",
+      "unavailable": "No disponible"
+    },
+    "status": {
+      "active": "Activa",
+      "disabled": "Desactivada",
+      "unsettled": "Con pago pendiente",
+      "pending_risk_review": "En revisión de riesgo",
+      "pending_settlement": "Esperando liquidación del pago",
+      "in_grace_period": "En período de gracia",
+      "pending_closure": "En cierre",
+      "closed": "Cerrada",
+      "unknown": "Desconocido"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "advertiser": "Anunciante",
+      "read_only": "Solo lectura"
+    },
+    "billing": {
+      "title": "Facturación y pagos",
+      "paymentMethod": "Método de pago",
+      "noPaymentMethod": "Ninguno",
+      "paymentMethodHidden": "Registrado; solo los administradores de la cuenta ven los detalles",
+      "balance": "Saldo pendiente",
+      "kind": "Tipo de cobro",
+      "prepay": "Prepago",
+      "postpay": "Pospago",
+      "amountSpent": "Importe gastado en la cuenta",
+      "openBilling": "Abrir Facturación y pagos en Meta",
+      "unavailable": "Los detalles de facturación se muestran a quien anuncia en la cuenta."
+    },
+    "performance": {
+      "title": "Rendimiento",
+      "description": "Últimos 30 días, comparados con los 30 días anteriores, en la zona horaria de la cuenta publicitaria.",
+      "noTimezone": "La zona horaria de esta cuenta es desconocida, así que no se pueden separar los resultados por día. Actualiza la cuenta.",
+      "failed": "No se pudo cargar el rendimiento: {message}"
+    }
   },
   "adsErrors": {
     "account_admin_required": "Solo un administrador de la cuenta publicitaria puede cambiar el límite de gasto.",
@@ -16642,6 +16884,460 @@
     "object_locked": "Los elementos eliminados o archivados no se pueden cambiar.",
     "video_not_ready": "Meta aún está procesando el video. Inténtalo de nuevo en unos instantes.",
     "audience_terms_not_accepted": "Acepta los términos de públicos personalizados de Meta en esta cuenta publicitaria.",
-    "job_not_activatable": "Esta publicación ya se encendió o no se hizo apagada."
+    "job_not_activatable": "Esta publicación ya se encendió o no se hizo apagada.",
+    "draft_changed": "Otra persona cambió este borrador. Carga la versión más reciente e inténtalo de nuevo.",
+    "draft_publishing": "Este borrador se está publicando y no puede cambiar ahora."
+  },
+  "adsReports": {
+    "header": {
+      "title": "Informes de anuncios",
+      "description": "Crea, guarda y exporta informes de tus campañas, como en el Administrador de anuncios de Meta."
+    },
+    "sections": {
+      "label": "Secciones",
+      "reports": "Informes",
+      "exports": "Exportaciones"
+    },
+    "list": {
+      "search": "Busca para filtrar por nombre",
+      "create": "Crear informe",
+      "emptyTitle": "Ningún informe",
+      "emptyBody": "Todavía no creaste ningún informe",
+      "noMatchTitle": "No se encontraron informes",
+      "noMatchBody": "Ningún informe de esta cuenta tiene ese nombre.",
+      "never": "Nunca",
+      "columns": {
+        "name": "Nombre del informe",
+        "lastOpened": "Último acceso",
+        "updated": "Editado",
+        "created": "Creado"
+      },
+      "open": "Abrir",
+      "rename": "Cambiar nombre",
+      "delete": "Eliminar",
+      "exportsHistory": "Historial de exportaciones"
+    },
+    "rename": {
+      "title": "Cambiar nombre del informe",
+      "label": "Nombre del informe",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "done": "Nombre del informe cambiado",
+      "failed": "No se pudo cambiar el nombre del informe"
+    },
+    "delete": {
+      "title": "¿Eliminar informe?",
+      "body": "El informe \"{name}\" se eliminará. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "done": "Informe eliminado",
+      "failed": "No se pudo eliminar el informe"
+    },
+    "templates": {
+      "title": "Plantillas de informe sugeridas",
+      "open": "Ver informe",
+      "failed": "No se pudieron cargar las plantillas: {message}",
+      "roi_snapshot": {
+        "title": "Resumen del ROI",
+        "description": "Importe gastado, resultados y costo por resultado para ver el retorno de las campañas."
+      },
+      "reach_frequency": {
+        "title": "Alcance y frecuencia",
+        "description": "Cuántas personas vieron tus anuncios y cuántas veces, en promedio."
+      },
+      "overall_performance": {
+        "title": "Rendimiento general",
+        "description": "Las principales cifras de entrega, clics y resultados."
+      },
+      "signups_summary": {
+        "title": "Informe de resumen de registros",
+        "description": "Registros generados y cuánto costó cada uno."
+      },
+      "age_gender": {
+        "title": "Edad y sexo",
+        "description": "Resultados divididos por la edad y el sexo de quienes vieron los anuncios."
+      },
+      "engagement": {
+        "title": "Interacción",
+        "description": "Clics, CTR y conversaciones iniciadas por los anuncios."
+      },
+      "unknown": {
+        "title": "Plantilla de informe",
+        "description": "Una plantilla lista para empezar tu informe."
+      }
+    },
+    "editor": {
+      "back": "Todos los informes",
+      "untitled": "Informe sin título",
+      "titleLabel": "Nombre del informe",
+      "save": "Guardar",
+      "refresh": "Actualizar",
+      "export": "Exportar",
+      "customize": "Personalizar",
+      "viewLabel": "Vista",
+      "views": {
+        "pivot": "Tabla dinámica",
+        "trend": "Tendencia",
+        "bars": "Barras"
+      },
+      "saved": "Informe guardado",
+      "saveFailed": "No se pudo guardar el informe",
+      "exported": "Informe exportado",
+      "noData": "No hay datos para mostrar",
+      "noDataBody": "Meta no devolvió datos para este período y estos desgloses.",
+      "noRange": "Elige un período válido para ver los datos.",
+      "loadFailed": "No se pudieron cargar los datos",
+      "templateMissing": "No se encontró la plantilla de informe",
+      "templateMissingBody": "Esta plantilla ya no existe. Vuelve a la lista y elige otra.",
+      "reportMissing": "No se pudo abrir el informe",
+      "total": "Total",
+      "object": {
+        "campaign": "Nombre de la campaña",
+        "adset": "Nombre del conjunto de anuncios",
+        "ad": "Nombre del anuncio"
+      },
+      "noMetrics": "Elige al menos una métrica en Personalizar.",
+      "trendNoMetrics": "Ninguna métrica elegida tiene serie diaria. En Personalizar, elige Importe gastado, Impresiones, Clics en el enlace, Resultados o Conversaciones.",
+      "readOnly": "Puedes ver este informe, pero no tienes permiso para guardar cambios.",
+      "barsOf": "{metric} por {dimension}",
+      "day": "Día",
+      "exportedBody": "El archivo también queda guardado en Exportaciones para descargarlo de nuevo.",
+      "exportFailed": "No se pudo exportar el informe",
+      "exportDownloadFailed": "El informe se exportó, pero la descarga falló. Descarga el archivo en Exportaciones."
+    },
+    "panel": {
+      "title": "Personalizar",
+      "close": "Cerrar",
+      "tabs": {
+        "breakdowns": "Desgloses",
+        "metrics": "Métricas"
+      },
+      "level": "Nivel",
+      "levels": {
+        "campaign": "Campaña",
+        "adset": "Conjunto de anuncios",
+        "ad": "Anuncio"
+      },
+      "breakdowns": "Desgloses",
+      "breakdownsHint": "Meta solo acepta algunas combinaciones, como Edad con Sexo o Plataforma con Ubicación.",
+      "trendHint": "En Tendencia solo aparecen las métricas con serie diaria."
+    },
+    "metrics": {
+      "spend": "Importe gastado",
+      "impressions": "Impresiones",
+      "reach": "Alcance",
+      "frequency": "Frecuencia",
+      "clicks": "Clics (todos)",
+      "linkClicks": "Clics en el enlace",
+      "ctr": "CTR (porcentaje de clics en el enlace)",
+      "cpc": "CPC (costo por clic en el enlace)",
+      "cpm": "CPM (costo por mil impresiones)",
+      "results": "Resultados",
+      "costPerResult": "Costo por resultado",
+      "conversations": "Conversaciones con mensajes iniciadas",
+      "costPerConversation": "Costo por conversación iniciada",
+      "thruPlays": "ThruPlays",
+      "costPerThruPlay": "Costo por ThruPlay"
+    },
+    "unsaved": {
+      "title": "Tienes cambios sin guardar",
+      "body": "Si sales ahora, se perderán los cambios de este informe.",
+      "discard": "No guardar",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "exports": {
+      "columns": {
+        "name": "Nombre",
+        "period": "Período",
+        "rows": "Filas",
+        "size": "Tamaño",
+        "created": "Creado el"
+      },
+      "period": "{since} a {until}",
+      "download": "Descargar",
+      "downloadFailed": "No se pudo descargar la exportación",
+      "emptyTitle": "No hay exportaciones",
+      "emptyBody": "Los informes que exportes aparecen aquí para descargarlos de nuevo.",
+      "delete": {
+        "action": "Eliminar",
+        "title": "¿Eliminar exportación?",
+        "body": "El archivo \"{name}\" se eliminará. Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar",
+        "done": "Exportación eliminada",
+        "failed": "No se pudo eliminar la exportación"
+      }
+    }
+  },
+  "adsCreate": {
+    "title": "Crear",
+    "description": "Crea una campaña nueva o agrega un conjunto de anuncios o un anuncio a una campaña que ya existe.",
+    "tabs": {
+      "new": "Crear nueva campaña",
+      "existing": "Nuevo conjunto de anuncios o anuncio"
+    },
+    "buyingTypeTitle": "Elige un tipo de compra",
+    "buyingType": "Tipo de compra",
+    "auction": "Subasta",
+    "objectiveTitle": "Elige un objetivo de campaña",
+    "pickObjectiveHint": "Pasa el cursor sobre un objetivo para ver para qué sirve.",
+    "goodFor": "Ideal para:",
+    "objectives": {
+      "OUTCOME_AWARENESS": {
+        "description": "Muestra tus anuncios a las personas con más probabilidades de recordarlos.",
+        "goodFor": [
+          "Alcance",
+          "Reconocimiento de marca",
+          "Reproducciones de video",
+          "Reconocimiento de la ubicación de la tienda"
+        ]
+      },
+      "OUTCOME_TRAFFIC": {
+        "description": "Envía a las personas a un destino, como tu sitio web, app, perfil de Instagram o evento de Facebook.",
+        "goodFor": [
+          "Clics en el enlace",
+          "Visitas a la página de destino",
+          "Visitas al perfil de Instagram",
+          "Messenger y WhatsApp",
+          "Llamadas"
+        ]
+      },
+      "OUTCOME_ENGAGEMENT": {
+        "description": "Consigue más mensajes, reproducciones de video, interacción con la publicación, Me gusta en la página o respuestas a eventos.",
+        "goodFor": [
+          "Mensajes",
+          "Reproducciones de video",
+          "Interacción con la publicación",
+          "Me gusta en la página",
+          "Respuestas a eventos"
+        ]
+      },
+      "OUTCOME_LEADS": {
+        "description": "Obtén clientes potenciales para tu negocio o marca.",
+        "goodFor": [
+          "Formularios instantáneos",
+          "Messenger y WhatsApp",
+          "Conversiones",
+          "Llamadas"
+        ]
+      },
+      "OUTCOME_APP_PROMOTION": {
+        "description": "Encuentra personas nuevas que instalen tu app y sigan usándola.",
+        "goodFor": [
+          "Instalaciones de la app",
+          "Eventos de la app"
+        ]
+      },
+      "OUTCOME_SALES": {
+        "description": "Encuentra personas con probabilidad de comprar tu producto o servicio.",
+        "goodFor": [
+          "Conversiones",
+          "Ventas del catálogo",
+          "Messenger y WhatsApp",
+          "Llamadas"
+        ]
+      }
+    },
+    "existingDescription": "Elige la campaña y, si quieres, el conjunto de anuncios donde irá el nuevo elemento.",
+    "campaign": "Campaña",
+    "adSetOptional": "Conjunto de anuncios (opcional)",
+    "noCampaigns": "No se encontraron campañas en esta cuenta.",
+    "noAdSets": "No se encontraron conjuntos de anuncios en esta campaña.",
+    "search": "Buscar por nombre",
+    "creates": {
+      "adSet_ad": "Crea un nuevo conjunto de anuncios con un anuncio en esta campaña.",
+      "ad": "Crea un nuevo anuncio en este conjunto de anuncios."
+    },
+    "names": {
+      "campaign": "Nueva campaña de {objective}",
+      "adSet": "Nuevo conjunto de anuncios de {objective}",
+      "ad": "Nuevo anuncio de {objective}"
+    },
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "creating": "Creando...",
+    "noAccount": "Elige una cuenta publicitaria conectada para crear una campaña."
+  },
+  "adsEditor": {
+    "noAccess": "No tienes permiso para crear anuncios en este workspace.",
+    "draftMissing": "No se pudo abrir este borrador: {message}",
+    "loadFailed": "No se pudo cargar el editor: {message}",
+    "accountMissing": "La cuenta publicitaria de este elemento ya no está conectada.",
+    "objectMissing": "No encontramos esta campaña en la cuenta. Actualiza los datos de la cuenta e inténtalo de nuevo.",
+    "nothingToEdit": "Elige un borrador o un elemento en Campañas para editar.",
+    "toManager": "Ir a Campañas",
+    "issuesTitle": "{count, plural, one {# elemento necesita atención} other {# elementos necesitan atención}}",
+    "publishingNote": "Este borrador se está publicando. Vuelve a ser editable si la publicación falla.",
+    "conflicts": {
+      "changed": "Este borrador se cambió en otra pestaña o lo cambió otra persona. Cargamos la versión más reciente: revisa tus últimos cambios.",
+      "publishing": "Este borrador empezó a publicarse y ya no se puede editar."
+    },
+    "autosave": {
+      "saved": "Guardado como borrador",
+      "pending": "Cambios aún sin guardar",
+      "saving": "Guardando...",
+      "error": "No se pudo guardar: {message}",
+      "retry": "Intentar de nuevo"
+    },
+    "status": {
+      "draft": "En borrador",
+      "publishing": "Publicando",
+      "failed": "Error al publicar"
+    },
+    "tabs": {
+      "edit": "Editar",
+      "analyze": "Revisar"
+    },
+    "tree": {
+      "label": "Elementos del borrador",
+      "menu": "Acciones de {name}",
+      "hasIssues": "Necesita atención",
+      "addAd": "Agregar anuncio",
+      "duplicateAd": "Duplicar anuncio",
+      "deleteAd": "Eliminar anuncio",
+      "objectLabel": "Elementos de la campaña"
+    },
+    "levels": {
+      "campaign": "Campaña",
+      "adSet": "Conjunto de anuncios",
+      "ad": "Anuncio",
+      "adNumbered": "Anuncio {index}"
+    },
+    "footer": {
+      "terms": "Al hacer clic en Publicar, aceptas los <link>Términos y condiciones de Meta</link>.",
+      "close": "Cerrar",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "discard": "Descartar borrador"
+    },
+    "closeDialog": {
+      "title": "¿Publicar elementos en borrador?",
+      "body": "Tus cambios se guardaron como borrador automáticamente. Publica ahora o cierra y continúa después."
+    },
+    "publish": {
+      "title": "Revisar y publicar",
+      "description": "Vozko revisa el borrador con Meta antes de publicar.",
+      "saveFailed": "No se pudo guardar el borrador antes de publicar: {message}"
+    },
+    "preview": {
+      "ad": "Anuncio",
+      "destination": "Destino"
+    },
+    "destination": {
+      "chat": {
+        "whatsapp": "Chat de WhatsApp",
+        "messenger": "Chat de Messenger",
+        "instagram": "Chat de Instagram Direct"
+      },
+      "chatNoGreeting": "Sin mensaje de bienvenida. El chat se abre vacío.",
+      "chatHint": "Es lo que ve la persona al tocar el botón del anuncio.",
+      "website": "Sitio web",
+      "websiteEmpty": "Agrega el enlace del sitio web para ver el destino.",
+      "websiteHint": "La persona abre esta dirección al tocar el anuncio.",
+      "formLoading": "Cargando el formulario instantáneo...",
+      "formEmpty": "Elige un formulario instantáneo para ver el destino.",
+      "app": "La persona va a la tienda de apps para instalar tu app.",
+      "post": "La persona interactúa con la publicación sin salir de Facebook o Instagram.",
+      "none": "Este anuncio no lleva a otro destino."
+    },
+    "analysis": {
+      "edit": "Editar",
+      "empty": "Sin definir",
+      "budgetStrategies": {
+        "campaign": "Presupuesto de campaña Advantage+",
+        "adSet": "Presupuesto del conjunto de anuncios"
+      },
+      "budgetPlaces": {
+        "campaign": "Definido en la campaña",
+        "existingCampaign": "Definido en la campaña existente",
+        "existingAdSet": "Definido en el conjunto de anuncios existente"
+      },
+      "facts": {
+        "name": "Nombre",
+        "campaignName": "Nombre de la campaña",
+        "buyingType": "Tipo de compra",
+        "objective": "Objetivo",
+        "specialCategory": "Categorías especiales de anuncios",
+        "budgetStrategy": "Estrategia de presupuesto",
+        "budget": "Presupuesto",
+        "bidStrategy": "Estrategia de puja",
+        "adSetName": "Nombre del conjunto de anuncios",
+        "destination": "Ubicación de la conversión",
+        "goal": "Objetivo de rendimiento",
+        "whatsAppNumber": "Número de WhatsApp",
+        "schedule": "Programación",
+        "locations": "Ubicaciones",
+        "ages": "Edad",
+        "languages": "Idiomas",
+        "detailedTargeting": "Segmentación detallada",
+        "customAudiences": "Públicos personalizados",
+        "placements": "Ubicaciones de los anuncios",
+        "adName": "Nombre del anuncio",
+        "page": "Página de Facebook",
+        "format": "Formato",
+        "primaryText": "Texto principal",
+        "headline": "Título",
+        "callToAction": "Llamada a la acción",
+        "link": "URL del sitio web",
+        "greeting": "Mensaje de bienvenida"
+      }
+    },
+    "failedNote": "La última publicación falló: {message}. Corrige el borrador y vuelve a publicar.",
+    "multi": {
+      "mixedValues": "Valores mixtos",
+      "mixedStatus": "Estados mixtos",
+      "setForAll": "Definir un valor para todos",
+      "keepMixed": "Mantener el valor actual de cada {each}",
+      "each": {
+        "campaign": "campaña",
+        "adset": "conjunto de anuncios",
+        "ad": "anuncio"
+      },
+      "appliesTo": {
+        "campaign": "{count, plural, one {Tus ediciones se aplicarán a # campaña} other {Tus ediciones se aplicarán a # campañas}}",
+        "adset": "{count, plural, one {Tus ediciones se aplicarán a # conjunto de anuncios} other {Tus ediciones se aplicarán a # conjuntos de anuncios}}",
+        "ad": "{count, plural, one {Tus ediciones se aplicarán a # anuncio} other {Tus ediciones se aplicarán a # anuncios}}"
+      },
+      "editEach": {
+        "campaign": "Editar cada campaña",
+        "adset": "Editar cada conjunto de anuncios",
+        "ad": "Editar cada anuncio"
+      },
+      "crumbs": {
+        "campaign": "{count, plural, one {# Campaña} other {# Campañas}}",
+        "adset": "{count, plural, one {# Conjunto de anuncios} other {# Conjuntos de anuncios}}",
+        "ad": "{count, plural, one {# Anuncio} other {# Anuncios}}"
+      },
+      "treeLabel": "Elementos seleccionados",
+      "activateAll": "Activar todos",
+      "deactivateAll": "Desactivar todos",
+      "allOn": "Activos",
+      "allOff": "Desactivados",
+      "fixFields": "Corrige los campos indicados para guardar.",
+      "textTitle": "Texto del anuncio",
+      "groups": {
+        "name": "Nombre",
+        "budgetBid": "Presupuesto y puja",
+        "endDay": "Último día de entrega",
+        "schedule": "Horarios de entrega",
+        "targeting": "Público",
+        "placements": "Ubicaciones",
+        "primaryText": "Texto principal",
+        "headline": "Título",
+        "description": "Descripción",
+        "link": "URL del sitio web"
+      },
+      "blockers": {
+        "missing": "No todos los elementos tienen este campo. Edita los elementos uno por uno.",
+        "budgetShape": "Los presupuestos están en niveles o tipos distintos. Edita los elementos uno por uno.",
+        "goal": "Los objetivos de rendimiento son distintos, y las estrategias de puja dependen de ellos. Edita los elementos uno por uno.",
+        "destination": "Los elementos llevan a destinos distintos, y las ubicaciones dependen de ellos. Edita los elementos uno por uno."
+      },
+      "loadFailed": "No se pudieron abrir todos los elementos seleccionados. Abre cada uno con los enlaces de abajo.",
+      "levelMismatch": "Los elementos seleccionados no son del mismo nivel. Abre cada uno con los enlaces de abajo.",
+      "notLoaded": "No se pudo cargar este elemento.",
+      "invalidSelection": "Para editar juntos, selecciona en Campañas de 2 a 50 elementos publicados del mismo nivel."
+    }
   }
 }

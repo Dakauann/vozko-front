@@ -1,4 +1,16 @@
-import type { AdBid, AdBudget, AdCreativeDraftV2, AdDayPart, AdDraftTargeting, AdIdentity, AdPlacements } from "@/lib/advertising/draft-types";
+import type {
+  AdBid,
+  AdBudget,
+  AdCreativeDraftV2,
+  AdDayPart,
+  AdDraftDestination,
+  AdDraftTargeting,
+  AdIdentity,
+  AdObjective,
+  AdOptimizationGoal,
+  AdPlacements,
+  MetaAdDraft,
+} from "@/lib/advertising/draft-types";
 
 export type AdLevel = "campaign" | "adset" | "ad";
 
@@ -88,7 +100,7 @@ export interface AdReadinessItem {
 }
 
 export interface AdBilling {
-  portalUrl: string;
+  portalUrl?: string;
   paymentMethod?: string;
   balance: number;
   prepay: boolean;
@@ -357,3 +369,183 @@ export interface AdLiveInsights {
 }
 
 export type AdAttributionWindow = "1d_view" | "1d_click" | "7d_click" | "28d_click";
+
+export type AdDraftState = "editing" | "publishing" | "failed";
+
+export interface AdDraftRow {
+  key: string;
+  level: AdLevel;
+  name: string;
+  parentKey?: string;
+  parentMetaId?: string;
+  budget?: AdBudget;
+  objective?: AdObjective;
+  destination?: AdDraftDestination;
+  goal?: AdOptimizationGoal;
+}
+
+export interface AdSavedDraft {
+  id: string;
+  adAccountId: string;
+  draft: MetaAdDraft;
+  version: number;
+  state: AdDraftState;
+  job?: AdPublishJob;
+  rows: AdDraftRow[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdDraftList {
+  drafts: AdSavedDraft[];
+  objectCount: number;
+}
+
+export type AdBulkField = "name" | "primaryText" | "headline" | "description" | "link";
+
+export type AdBulkChange =
+  | { field: AdBulkField; mode: "set"; value: string }
+  | { field: AdBulkField; mode: "replace"; find: string; replace: string; matchCase: boolean };
+
+export interface AdBulkResult {
+  metaId: string;
+  ok: boolean;
+  object?: AdRow;
+  error?: { code: string; message: string };
+}
+
+export type AdReportView = "pivot" | "trend" | "bars";
+
+export type AdReportMetric =
+  | "spend"
+  | "impressions"
+  | "reach"
+  | "frequency"
+  | "clicks"
+  | "linkClicks"
+  | "ctr"
+  | "cpc"
+  | "cpm"
+  | "results"
+  | "costPerResult"
+  | "conversations"
+  | "costPerConversation"
+  | "thruPlays"
+  | "costPerThruPlay";
+
+export type AdReportPreset =
+  | "today"
+  | "yesterday"
+  | "todayAndYesterday"
+  | "last7"
+  | "last14"
+  | "last28"
+  | "last30"
+  | "thisWeek"
+  | "lastWeek"
+  | "thisMonth"
+  | "lastMonth"
+  | "maximum"
+  | "custom";
+
+export interface AdReportDefinition {
+  view: AdReportView;
+  level: AdLevel;
+  breakdowns: string[];
+  metrics: AdReportMetric[];
+  datePreset: AdReportPreset;
+  since?: string;
+  until?: string;
+}
+
+export interface AdReportTemplate {
+  key: string;
+  definition: AdReportDefinition;
+}
+
+export interface AdReportOptions {
+  templates: AdReportTemplate[];
+  views: AdReportView[];
+  levels: AdLevel[];
+  breakdowns: string[];
+  metrics: AdReportMetric[];
+  trendMetrics: AdReportMetric[];
+  breakdownGroups: string[][];
+}
+
+export interface AdSavedReport {
+  id: string;
+  name: string;
+  adAccountId: string;
+  definition: AdReportDefinition;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  lastOpenedAt?: string;
+}
+
+export interface AdSavedReportInput {
+  name: string;
+  adAccountId: string;
+  definition: AdReportDefinition;
+}
+
+export type AdReportValues = Partial<Record<AdReportMetric, number | null>>;
+
+export interface AdReportRunRow {
+  key: string;
+  objectId?: string;
+  name?: string;
+  dimensions: string[];
+  share: number;
+  values: AdReportValues;
+}
+
+export type AdMetricKind = "money" | "count" | "percent" | "decimal";
+
+export interface AdReportRun {
+  currency: string;
+  view: AdReportView;
+  breakdowns: string[];
+  metrics: AdReportMetric[];
+  metricKinds: Partial<Record<AdReportMetric, AdMetricKind>>;
+  rows: AdReportRunRow[];
+  totals: AdReportValues;
+  series: { day: string; values: AdReportValues }[];
+}
+
+export interface AdReportRunRequest {
+  definition: AdReportDefinition;
+  range: AdRange;
+  objectIds?: string[];
+  windows?: AdAttributionWindow[];
+}
+
+export interface AdReportExportLabels {
+  object: string;
+  day: string;
+  total: string;
+  breakdowns: Record<string, string>;
+  values: Record<string, Record<string, string>>;
+  metrics: Partial<Record<AdReportMetric, string>>;
+}
+
+export interface AdReportExportRequest extends AdReportRunRequest {
+  name: string;
+  adAccountId: string;
+  reportId?: string;
+  labels: AdReportExportLabels;
+}
+
+export interface AdReportExport {
+  id: string;
+  name: string;
+  adAccountId: string;
+  reportId?: string;
+  since: string;
+  until: string;
+  rows: number;
+  sizeBytes: number;
+  createdBy: string;
+  createdAt: string;
+}

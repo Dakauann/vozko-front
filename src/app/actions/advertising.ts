@@ -1,12 +1,11 @@
 import { apiClient, fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
 import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
 import { settleAds } from "@/app/actions/advertising-result";
-import { downloadBlob } from "@/lib/browser/download";
+import { downloadBlob, filenameFromDisposition } from "@/lib/browser/download";
 import {
   accountPath,
   liveInsightsPath,
   objectPath,
-  reportCsvFilename,
   reportCsvPath,
   reportQuery,
   type LiveQuery,
@@ -34,6 +33,8 @@ import type {
 export type AdsActionError = ActionError;
 
 export type AdsResult<T> = ActionResult<T>;
+
+const DEFAULT_CSV_NAME = "anuncios.csv";
 
 export const isAdsError = isActionError;
 
@@ -122,10 +123,10 @@ export async function getAdLiveInsightsAction(accountId: string, query: LiveQuer
   return settleAds(await apiClient<AdLiveInsights>(liveInsightsPath(accountId, query), { method: "GET" }));
 }
 
-export async function downloadAdsReportCsvAction(accountId: string, filters: ReportFilters): Promise<AdsResult<null>> {
+export async function downloadAdsCsv(path: string): Promise<AdsResult<null>> {
   try {
     const response = await fetchWithRefresh(() =>
-      fetch(`${getApiBaseUrl()}${reportCsvPath(accountId, filters)}`, {
+      fetch(`${getApiBaseUrl()}${path}`, {
         method: "GET",
         credentials: "include",
         headers: { Accept: "text/csv", ...scopeHeaders() },
@@ -135,11 +136,15 @@ export async function downloadAdsReportCsvAction(accountId: string, filters: Rep
       const body = (await response.json().catch(() => ({}))) as { message?: string; code?: string };
       return { error: body.message || response.statusText, code: body.code, status: response.status };
     }
-    downloadBlob(await response.blob(), reportCsvFilename(filters));
+    downloadBlob(await response.blob(), filenameFromDisposition(response.headers.get("Content-Disposition")) ?? DEFAULT_CSV_NAME);
     return { data: null };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Network error" };
   }
+}
+
+export async function downloadAdsReportCsvAction(accountId: string, filters: ReportFilters): Promise<AdsResult<null>> {
+  return downloadAdsCsv(reportCsvPath(accountId, filters));
 }
 
 export async function getAdEditableObjectAction(metaId: string): Promise<AdsResult<AdEditableObject>> {

@@ -2,13 +2,15 @@
 
 import { useTranslations } from "next-intl";
 
-import { ArrowRight, CheckCircle, Question, WarningCircle } from "@/components/icons";
+import Button from "@/components/elevated-design/button";
+import { ArrowRight, CheckCircle, MagnifyingGlass, Question, WarningCircle } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "@/i18n/routing";
 import { overviewHref } from "@/lib/advertising/connect";
-import { blockingItems, itemAction, readinessKey, readinessState } from "@/lib/advertising/readiness";
+import { accountIsReady, blockingItems, itemAction, readinessKey, readinessState } from "@/lib/advertising/readiness";
 import type { AdAccount, AdReadinessItem } from "@/lib/advertising/types";
 
+import { CollapsibleNotice } from "./collapsible-notice";
 import { RecheckButton } from "./requirement-steps";
 import type { AdReadinessState } from "./use-ad-readiness";
 import { ExternalLink } from "./wizard/choice-row";
@@ -19,7 +21,7 @@ const STATE_ICONS = {
   unknown: <Question className="h-4 w-4 text-muted-foreground" aria-hidden />,
 };
 
-function ItemActionControl({
+export function ReadinessItemAction({
   item,
   account,
   state,
@@ -68,11 +70,13 @@ function ItemRow({ item, account, state, canCreate }: { item: AdReadinessItem; a
       <div className="min-w-0 flex-1 space-y-1">
         <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
           {t(`items.${key}.title`)}
-          {!item.required ? <span className="rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">{t("optional")}</span> : null}
+          {!item.required ? (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">{t("optional")}</span>
+          ) : null}
           <span className="sr-only">{t(`states.${status}`)}</span>
         </p>
         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
-        <ItemActionControl item={item} account={account} state={state} canCreate={canCreate} />
+        <ReadinessItemAction item={item} account={account} state={state} canCreate={canCreate} />
       </div>
     </li>
   );
@@ -127,9 +131,32 @@ export function ReadinessCard({ account, state, canCreate }: { account: AdAccoun
   );
 }
 
+function OverviewButton({ account, label }: { account: AdAccount; label: string }) {
+  return <Button variant="secondary" size="sm" title={label} link={overviewHref(account.id)} />;
+}
+
+function needsAttention(state: AdReadinessState): boolean {
+  return !state.loading && !accountIsReady(state.readiness);
+}
+
+export function useManagerReadinessEmptyState(account: AdAccount | null, state: AdReadinessState) {
+  const t = useTranslations("adsReadiness.banner.manager");
+  if (!account || !needsAttention(state)) return null;
+  return {
+    icon: <MagnifyingGlass className="h-7 w-7 text-muted-foreground" />,
+    title: t("title"),
+    description: t("emptyBody"),
+    action: (
+      <div className="mt-2">
+        <OverviewButton account={account} label={t("action")} />
+      </div>
+    ),
+  };
+}
+
 export function ManagerReadinessBanner({ account, state }: { account: AdAccount; state: AdReadinessState }) {
   const t = useTranslations("adsReadiness.banner.manager");
-  if (state.loading || state.readiness?.ready) return null;
+  if (!needsAttention(state)) return null;
   return (
     <Alert variant="warning">
       <WarningCircle className="h-4 w-4" />
@@ -144,25 +171,32 @@ export function ManagerReadinessBanner({ account, state }: { account: AdAccount;
   );
 }
 
-export function WizardReadinessBanner({ account, state, canCreate }: { account: AdAccount; state: AdReadinessState; canCreate: boolean }) {
+export function WizardReadinessBanner({
+  account,
+  state,
+  canCreate,
+  defaultOpen = false,
+}: {
+  account: AdAccount;
+  state: AdReadinessState;
+  canCreate: boolean;
+  defaultOpen?: boolean;
+}) {
   const t = useTranslations("adsReadiness");
-  if (state.loading || state.readiness?.ready) return null;
+  if (!needsAttention(state)) return null;
   const items = state.readiness ? blockingItems(state.readiness) : [];
   return (
-    <section className="space-y-2 rounded-[--radius] border border-warning-ink/30 bg-muted px-4 py-3" role="status">
-      <p className="flex items-start gap-2 text-sm font-semibold text-warning-ink">
-        <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="fill" aria-hidden />
-        {t("banner.wizard.title")}
-      </p>
+    <CollapsibleNotice
+      icon={<WarningCircle className="h-5 w-5 shrink-0 text-warning-ink" weight="fill" aria-hidden />}
+      title={t("banner.wizard.title")}
+      summary={items.length > 0 ? t("banner.pending", { count: items.length }) : undefined}
+      actions={<OverviewButton account={account} label={t("banner.wizard.action")} />}
+      defaultOpen={defaultOpen}
+    >
       <p className="text-sm text-muted-foreground">{t("banner.wizard.body")}</p>
       {items.length > 0 ? <ReadinessChecklist items={items} account={account} state={state} canCreate={canCreate} /> : null}
       {!state.readiness ? <p className="text-sm text-muted-foreground">{t("unchecked")}</p> : null}
-      <div className="flex flex-wrap items-center gap-4">
-        <Link href={overviewHref(account.id)} className="text-xs font-semibold text-primary-ink hover:underline">
-          {t("banner.wizard.action")}
-        </Link>
-      </div>
       <ReadinessFooter state={state} />
-    </section>
+    </CollapsibleNotice>
   );
 }

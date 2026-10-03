@@ -12,6 +12,7 @@ import type { AdDraftSpecialCategory } from "@/lib/advertising/draft-types";
 import { BudgetFields } from "./budget-fields";
 import { Hint, Section } from "./choice-row";
 import { FieldIssues } from "./field-issues";
+import { ObjectiveFields } from "./objective-fields";
 import { useWizard } from "./wizard-context";
 
 export function CampaignStep() {
@@ -42,6 +43,8 @@ export function CampaignStep() {
         <Hint>{t("nameHint")}</Hint>
         <FieldIssues issues={issues} field="campaign.name" />
       </Section>
+
+      <ObjectiveFields />
 
       <Section title={t("categoryTitle")} description={t("categoryDescription")}>
         <ElevatedSelect

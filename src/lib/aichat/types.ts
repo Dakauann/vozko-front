@@ -123,7 +123,16 @@ export interface CallCard {
   call: { phoneNumber: string; trunkId?: string; trunkName?: string };
 }
 
-export type ActionCard = OfferCard | NavigationCard | CallCard;
+export interface AdReadinessCard {
+  kind: "ad_readiness";
+  adAccountId: string;
+}
+
+export interface ConnectAdAccountCard {
+  kind: "connect_ad_account";
+}
+
+export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard;
 
 export type ActionKind = ActionCard["kind"];
 

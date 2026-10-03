@@ -56,6 +56,8 @@ export interface AdPreviewContent {
   destination: string;
   callToAction?: string;
   displayLink?: string;
+  link?: string;
+  leadFormId?: string;
   greeting?: string;
   iceBreakers?: string[];
 }
@@ -149,30 +151,6 @@ function Header({ content, inverse }: { content: AdPreviewContent; inverse?: boo
       </div>
       <DotsThree className={cn("h-5 w-5 shrink-0", inverse ? "text-card" : "text-muted-foreground")} weight="bold" aria-hidden />
     </header>
-  );
-}
-
-function Conversation({ greeting, breakers }: { greeting?: string; breakers: string[] }) {
-  const t = useTranslations("adsWizard.preview");
-  if (!greeting && breakers.length === 0) return null;
-  return (
-    <figcaption className="space-y-2 border-t border-border px-3 py-2.5">
-      <p className="legend">{t("conversationStart")}</p>
-      {greeting ? (
-        <p className="w-fit max-w-[85%] whitespace-pre-wrap break-words rounded-lg rounded-bl-sm border border-border bg-muted px-3 py-2 text-xs text-foreground">
-          {greeting}
-        </p>
-      ) : null}
-      {breakers.length > 0 ? (
-        <ul className="flex flex-wrap gap-1.5">
-          {breakers.map((breaker, index) => (
-            <li key={`${index}-${breaker}`} className="rounded-full border border-control-edge px-2.5 py-1 text-2xs font-medium text-foreground">
-              {breaker}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </figcaption>
   );
 }
 
@@ -289,8 +267,6 @@ export function AdPreviewCard({ content, placement = "feed" }: { content: AdPrev
   const cta = resolvedCallToAction(content.destination as AdDraftDestination | "", content.callToAction ?? "");
   const ctaLabel = tCta.has(cta) ? tCta(cta) : cta;
   const CtaIcon = CTA_ICON[cta];
-  const breakers = (content.iceBreakers ?? []).map((b) => b.trim()).filter(Boolean);
-  const greeting = content.greeting?.trim();
   const media = mainMedia(content);
   const text = content.format === "EXISTING_POST" ? (content.post?.message ?? "") : content.primaryText;
   const fallback = t("imageFallback");
@@ -345,7 +321,6 @@ export function AdPreviewCard({ content, placement = "feed" }: { content: AdPrev
           ))}
         </div>
       ) : null}
-      <Conversation greeting={greeting} breakers={breakers} />
     </figure>
   );
 }

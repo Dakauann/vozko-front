@@ -343,7 +343,50 @@
       "duplicate_ad": "Anzeige duplizieren",
       "archive_ad": "Anzeige archivieren",
       "delete_ad": "Anzeige löschen",
-      "ads_breakdown": "Ergebnisse nach Zielgruppe und Platzierung"
+      "ads_breakdown": "Ergebnisse nach Zielgruppe und Platzierung",
+      "ad_account_readiness": "Was dem Werbekonto fehlt",
+      "search_ad_interests": "Interessen werden gesucht",
+      "estimate_ad_audience": "Zielgruppe wird geschätzt",
+      "list_lead_forms": "Leadformulare",
+      "save_ad_draft": "Anzeige als Entwurf speichern",
+      "list_ad_drafts": "Anzeigenentwürfe",
+      "publish_ad_draft": "Entwurf veröffentlichen",
+      "edit_ad_text": "Anzeigentext bearbeiten",
+      "create_lead_form": "Leadformular erstellen",
+      "connect_ad_account": "Werbekonto verbinden",
+      "ad_rule_history": "Verlauf der automatischen Regel",
+      "bulk_change_ads": "Ende oder Budget gesammelt ändern",
+      "bulk_edit_ads_text": "Texte gesammelt bearbeiten",
+      "bulk_turn_off_ads": "Anzeigen gesammelt ausschalten",
+      "bulk_turn_on_ads": "Anzeigen gesammelt einschalten",
+      "connect_ad_dataset": "WhatsApp mit dem Datensatz verbinden",
+      "create_ad_pixel": "Pixel erstellen",
+      "create_ad_rule": "Automatische Regel erstellen",
+      "create_ad_test": "A/B-Test erstellen",
+      "create_customer_list_audience": "Kundenlisten-Zielgruppe erstellen",
+      "create_lookalike_audience": "Lookalike-Zielgruppe erstellen",
+      "create_saved_audience": "Zielgruppe speichern",
+      "delete_ad_audience": "Zielgruppe löschen",
+      "delete_ad_rule": "Automatische Regel löschen",
+      "edit_ad_set": "Anzeigengruppe bearbeiten",
+      "export_ad_report": "Bericht exportieren",
+      "get_ad_conversion_settings": "Conversion-Übermittlung",
+      "get_ad_draft": "Anzeigenentwurf lesen",
+      "list_ad_apps": "Apps zum Bewerben",
+      "list_ad_audiences": "Zielgruppen",
+      "list_ad_catalogs": "Produktkataloge",
+      "list_ad_pixels": "Pixel",
+      "list_ad_reports": "Gespeicherte Berichte",
+      "list_ad_rules": "Automatische Regeln",
+      "list_ad_tests": "A/B-Tests",
+      "list_page_posts": "Seitenbeiträge",
+      "recent_ad_conversions": "Gesendete Conversions",
+      "run_ad_report": "Anzeigenbericht",
+      "run_saved_ad_report": "Gespeicherten Bericht ausführen",
+      "save_ad_conversion_settings": "Conversion-Übermittlung speichern",
+      "set_ad_rule_status": "Regel ein- oder ausschalten",
+      "set_ad_spend_cap": "Ausgabenlimit des Kontos",
+      "update_ad_draft": "Anzeigenentwurf ändern"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -653,7 +696,58 @@
       "knowledgeBases": "Wissensdatenbanken",
       "mcpCollections": "MCP-Sammlungen",
       "scheduledMessage": "Geplante Nachricht",
-      "bot_token": "Bot-Token"
+      "bot_token": "Bot-Token",
+      "objective": "Ziel",
+      "ends": "Ende",
+      "status": "Status",
+      "draft": "Entwurf",
+      "ad": "Anzeige",
+      "meta_id": "Element bei Meta",
+      "primaryText": "Primärtext",
+      "headline": "Überschrift",
+      "link": "Link",
+      "questions": "Fragen",
+      "privacy": "Datenschutzerklärung",
+      "thankYou": "Abschlussseite",
+      "form": "Formular",
+      "action": "Aktion",
+      "ages": "Alter",
+      "applies": "Gilt für",
+      "audience": "Zielgruppe",
+      "audiences": "Custom Audiences",
+      "bid": "Gebot",
+      "breakdowns": "Aufschlüsselungen",
+      "budget_level": "Budget liegt bei",
+      "changes": "Geänderte Felder",
+      "checks": "Prüfung",
+      "confidence": "Konfidenz",
+      "conversions": "Conversions",
+      "country": "Land",
+      "dataset": "Datensatz",
+      "day": "Tag",
+      "excludes": "Schließt aus",
+      "field": "Feld",
+      "includes": "Schließt ein",
+      "items": "Elemente",
+      "kind": "Art",
+      "leads": "Leads",
+      "locations": "Orte",
+      "metrics": "Kennzahlen",
+      "period": "Zeitraum",
+      "pixel": "Pixel",
+      "placements": "Platzierungen",
+      "purchases": "Käufe",
+      "report": "Bericht",
+      "rule": "Regel",
+      "sending": "Übermittlung",
+      "size": "Größe",
+      "source": "Quelle",
+      "spent": "Bereits ausgegeben",
+      "starts": "Beginn",
+      "test": "Test",
+      "versions": "Versionen",
+      "view": "Ansicht",
+      "when": "Wann"
     },
     "attachments": {
       "legend": "Angehängte Dateien",
@@ -1808,12 +1902,13 @@
       "sipTrunks": "Telefonleitungen",
       "callQueues": "Warteschlangen",
       "callHistory": "Verlauf",
-      "adsManager": "Werbeanzeigenmanager",
-      "createAd": "Anzeige erstellen",
+      "adsOverview": "Kontoübersicht",
+      "adsManager": "Kampagnen",
       "adsAudiences": "Zielgruppen",
       "adsForms": "Formulare und Leads",
       "adsRules": "Automatische Regeln",
-      "adsConversions": "Pixel und Conversions"
+      "adsConversions": "Events Manager",
+      "adsReports": "Werbeberichte"
     },
     "badges": {
       "new": "Neu",
@@ -15253,25 +15348,6 @@
     "leadCost": "Geschätzte Lead-Kosten: {amount} (Anzeigenausgaben am Tag ÷ Gespräche am Tag)",
     "leadCostHint": "Schätzung: Meta meldet Ausgaben pro Anzeige und Tag, nicht pro Klick. Am {day} hat die Anzeige {spend} ausgegeben und {conversations, plural, one {# Gespräch} other {# Gespräche}} gebracht."
   },
-  "adsAccounts": {
-    "blockedTitle": "Konten, die noch nicht werben können",
-    "reasons": {
-      "funding": "Keine Zahlungsmethode",
-      "readOnly": "Nur lesen",
-      "reconnect": "Neu verbinden nötig",
-      "metaStatus": "Bei Meta inaktiv",
-      "unknown": "Nicht verfügbar"
-    },
-    "fundingHint": "Meta erstellt Anzeigen nur in Konten mit Zahlungsmethode. Füge bei Meta eine hinzu und klicke dann auf Erneut prüfen.",
-    "addPayment": "Zahlungsmethode hinzufügen",
-    "readOnlyHint": "Dein Profil kann dieses Konto nur ansehen. Bitte einen Kontoadministrator bei Meta um die Rolle Werbetreibender oder höher und klicke dann auf Erneut prüfen.",
-    "rolesLink": "Kontorollen bei Meta ansehen",
-    "hints": {
-      "reconnect": "Die Verbindung zu Meta ist abgelaufen. Verbinde das Konto im Werbeanzeigenmanager neu.",
-      "metaStatus": "Meta erlaubt derzeit keine Werbung in diesem Konto. Prüfe den Status im Werbeanzeigenmanager von Meta.",
-      "unknown": "Wir konnten noch nicht bestätigen, ob dieses Konto werben kann. Aktualisiere das Konto im Werbeanzeigenmanager."
-    }
-  },
   "adsRequirements": {
     "recheck": "Erneut prüfen",
     "checking": "Wird geprüft...",
@@ -15282,6 +15358,10 @@
       "accept": "Lies die Bedingungen und klicke auf Ich stimme zu. Die zustimmende Person muss Administrator der Seite sein.",
       "comeBack": "Komm hierher zurück und klicke auf Erneut prüfen.",
       "openButton": "Bedingungen bei Meta akzeptieren"
+    },
+    "notice": {
+      "show": "Details anzeigen",
+      "hide": "Details ausblenden"
     }
   },
   "adsWizard": {
@@ -15289,17 +15369,6 @@
     "editDescription": "Erstelle ein neues Creative für diese Anzeige. Beim Speichern tauscht Meta das Creative und prüft die Anzeige erneut.",
     "saveCreative": "Creative speichern",
     "savingCreative": "Wird gespeichert...",
-    "creativeUnavailable": "Das Creative dieser Anzeige konnte nicht geladen werden. Öffne die Anzeige im Manager und versuche es erneut.",
-    "title": "Anzeige erstellen",
-    "description": "Kampagne, Anzeigengruppe und Anzeigen in einem Ablauf, direkt in deinem Meta-Werbekonto veröffentlicht.",
-    "back": "Zurück zu Anzeigen",
-    "noAccess": "Du hast keine Berechtigung, in diesem Workspace Anzeigen zu erstellen.",
-    "noAccountTitle": "Kein Konto bereit zum Werben",
-    "noAccountBody": "Verbinde ein in Meta aktives Werbekonto mit Zahlungsmethode.",
-    "optionsError": "Die Anzeigenoptionen konnten nicht geladen werden. Versuche es gleich noch einmal.",
-    "parentError": "Die gewählte Kampagne oder Anzeigengruppe konnte nicht geöffnet werden: {message}. Wähle sie im ersten Schritt erneut.",
-    "previous": "Zurück",
-    "next": "Weiter",
     "cancel": "Abbrechen",
     "publish": "Veröffentlichen",
     "publishPaused": "Ausgeschaltet veröffentlichen",
@@ -15311,19 +15380,9 @@
       "feed": "Feed",
       "story": "Stories"
     },
-    "autosave": "Der Entwurf wird beim Bearbeiten in diesem Browser gespeichert.",
-    "restored": "Entwurf wiederhergestellt ({when}).",
-    "discard": "Entwurf verwerfen",
     "discardTitle": "Diesen Entwurf verwerfen?",
-    "discardBody": "Alles, was du ausgefüllt hast, wird aus diesem Browser gelöscht. An Meta wurde nichts gesendet.",
+    "discardBody": "Der Entwurf und alles, was darin ausgefüllt wurde, werden gelöscht. Nichts wurde an Meta gesendet.",
     "discardConfirm": "Verwerfen",
-    "steps": {
-      "objective": "Ziel",
-      "campaign": "Kampagne",
-      "adSet": "Anzeigengruppe",
-      "ads": "Anzeigen",
-      "review": "Prüfung"
-    },
     "job": {
       "title": "Veröffentlichung",
       "needsReview": "Meta hat nicht bestätigt; prüfe den Werbeanzeigenmanager, bevor du es erneut versuchst.",
@@ -15347,31 +15406,8 @@
       "openJobs": "Veröffentlichungen ansehen"
     },
     "objective": {
-      "accountTitle": "Werbekonto",
-      "accountDescription": "Es erscheinen nur aktive Konten mit Zahlungsmethode in Meta.",
-      "startTitle": "Wo du startest",
-      "startDescription": "Erstelle alles neu oder nutze eine bestehende Kampagne.",
-      "modes": {
-        "new": {
-          "title": "Neue Kampagne",
-          "body": "Du legst Ziel, Kampagne, Anzeigengruppe und Anzeigen fest."
-        },
-        "campaign": {
-          "title": "Bestehende Kampagne nutzen",
-          "body": "Erstellt eine neue Anzeigengruppe in einer deiner Kampagnen."
-        },
-        "adSet": {
-          "title": "Zu bestehender Anzeigengruppe hinzufügen",
-          "body": "Erstellt nur neue Anzeigen in einer Anzeigengruppe, die bereits läuft."
-        }
-      },
       "campaign": "Kampagne",
       "adSet": "Anzeigengruppe",
-      "search": "Nach Namen suchen",
-      "noCampaigns": "Keine Kampagnen in diesem Konto gefunden.",
-      "noAdSets": "Keine Anzeigengruppen in dieser Kampagne gefunden.",
-      "pickCampaign": "Wähle oben die Kampagne.",
-      "pickAdSet": "Wähle oben die Kampagne und die Anzeigengruppe.",
       "title": "Kampagnenziel",
       "description": "Was Menschen tun sollen, wenn sie die Anzeige sehen. Es bestimmt die Optionen der nächsten Schritte.",
       "unavailable": "In diesem Konto nicht verfügbar.",
@@ -15739,14 +15775,8 @@
       "creativeEditHint": "Du tauschst das Creative einer bestehenden Anzeige aus. Seite, Anzeigengruppe und Ziel bleiben gleich.",
       "identityTitle": "Identität",
       "identityDescription": "Die Seite und das Instagram-Konto, die in allen Anzeigen erscheinen.",
-      "title": "Anzeigen",
       "description": "Beschreibung",
-      "tab": "Anzeige {index}",
-      "tabHasIssues": "hat offene Punkte",
-      "add": "Anzeige hinzufügen",
-      "duplicate": "Anzeige duplizieren",
       "copySuffix": "(Kopie)",
-      "remove": "Diese Anzeige entfernen",
       "maxAds": "Diese Anzeigengruppe hat bereits die maximal 10 Anzeigen.",
       "flexibleOneAd": "Mit dem flexiblen Format verlangt Meta bei diesem Ziel eine neue Anzeigengruppe mit nur einer Anzeige. Für mehr Anzeigen wechsle das Format.",
       "nameTitle": "Anzeigenname",
@@ -15852,8 +15882,7 @@
       "iceBreakersHint": "Bis zu 3 Fragen mit je bis zu 80 Zeichen.",
       "enhancementsTitle": "Automatische Optimierungen",
       "enhancements": "Advantage+ Creative-Optimierungen",
-      "enhancementsHint": "Wenn aktiviert, kann Meta die Anzeige für jede Person anpassen: Bild zuschneiden oder erweitern, Helligkeit und Kontrast anpassen, Texte umstellen und die Anzeigenvorlage wechseln. Lass es aus, wenn die Anzeige genau so bleiben soll, wie du sie gebaut hast.",
-      "creativesHint": "Jede Anzeige hat ihr eigenes Creative: Medien, Text und Button. Nach dem Veröffentlichen tauschst du das Creative im Manager über das Anzeigenmenü (Creative tauschen). Hochgeladene und mit KI erzeugte Bilder liegen in der Medienbibliothek."
+      "enhancementsHint": "Wenn aktiviert, kann Meta die Anzeige für jede Person anpassen: Bild zuschneiden oder erweitern, Helligkeit und Kontrast anpassen, Texte umstellen und die Anzeigenvorlage wechseln. Lass es aus, wenn die Anzeige genau so bleiben soll, wie du sie gebaut hast."
     },
     "media": {
       "chosenImage": "Bild gewählt",
@@ -15908,41 +15937,17 @@
       }
     },
     "review": {
-      "creativeCheck": "Meta prüft das Creative beim Speichern. Wenn etwas gegen die Regeln verstößt, zeigen wir hier, was zu beheben ist.",
-      "creativeNote": "Die Anzeige geht nach dem Austausch erneut in die Prüfung von Meta. Bisherige Kennzahlen bleiben an der Anzeige.",
-      "summaryTitle": "Zusammenfassung",
-      "account": "Konto",
-      "objective": "Ziel",
-      "campaign": "Kampagne",
-      "category": "Spezielle Kategorie",
-      "adSet": "Anzeigengruppe",
-      "destination": "Ziel des Klicks",
-      "page": "Seite",
-      "budget": "Budget",
       "budgetDaily": "{amount} pro Tag",
       "budgetLifetime": "{amount} insgesamt",
-      "onCampaign": "auf der Kampagne",
-      "onAdSet": "in der Anzeigengruppe",
-      "budgetOnExistingCampaign": "In der bestehenden Kampagne festgelegt",
-      "budgetOnExistingAdSet": "In der bestehenden Anzeigengruppe festgelegt",
-      "schedule": "Zeitplan",
       "startsOn": "startet am {day}",
       "startsNow": "startet beim Veröffentlichen",
       "endsOn": "endet am {day}",
       "noEnd": "ohne Enddatum",
       "hours": "zu gewählten Zeiten",
-      "locations": "Ort",
-      "audience": "Zielgruppe",
       "ages": "{min} bis {max} Jahre",
-      "placements": "Platzierungen",
       "placementsAuto": "Advantage+ (automatisch)",
-      "ads": "Anzeigen",
-      "adFallback": "Anzeige {index}",
-      "pausedTitle": "Wie veröffentlichen",
       "keepPaused": "Ausgeschaltet veröffentlichen",
       "keepPausedHint": "Erstellt alles in Meta, lässt es aber ausgeschaltet, damit du es später im Manager einschaltest. Ohne diese Option gehen die Anzeigen in die Prüfung und laufen nach der Freigabe an.",
-      "checkTitle": "Prüfung",
-      "checkDescription": "Wir prüfen alles gegen die Regeln von Meta, bevor veröffentlicht wird. Veröffentlichen ist nur ohne offene Punkte möglich.",
       "ready": "Alles bereit zum Veröffentlichen.",
       "fix": "Beheben",
       "feePerAd": "Gebühr pro veröffentlichter Anzeige",
@@ -15952,7 +15957,7 @@
       "spendNote": "Die Werbeausgaben stellt Meta dem Werbekonto in Rechnung. Die Gebühr oben ist die einzige Belastung deines Guthabens.",
       "blockers": {
         "title": "Warum du noch nicht veröffentlichen kannst",
-        "account": "Dieses Konto kann gerade keine Anzeigen erstellen.",
+        "readinessUnchecked": "Wir konnten noch nicht bestätigen, ob dieses Konto Anzeigen schalten kann. Nutze Erneut prüfen.",
         "notValidated": "Wir haben diesen Entwurf noch nicht mit den Meta Regeln geprüft.",
         "validating": "Prüfung mit den Meta Regeln läuft...",
         "validationFailed": "Die Prüfung wurde nicht abgeschlossen: {message}",
@@ -16185,19 +16190,6 @@
         "not_for_destination": "Dieses Format ist für das gewählte Ziel des Klicks nicht verfügbar."
       }
     },
-    "draftChoice": {
-      "title": "Du hast einen gespeicherten Entwurf",
-      "saved": "Entwurf in diesem Browser gespeichert.",
-      "savedAt": "Gespeichert {when} in diesem Browser.",
-      "account": "Konto",
-      "objective": "Ziel",
-      "campaign": "Kampagne",
-      "ads": "Anzeigen",
-      "step": "Aufgehört bei",
-      "continue": "Entwurf fortsetzen",
-      "startOver": "Neu beginnen",
-      "startOverHint": "Neu beginnen löscht den gespeicherten Entwurf. Nichts davon wurde an Meta gesendet."
-    },
     "previewNoteStory": "Ungefähre Story Darstellung im Format 9:16. Meta überdeckt die oberen 14% mit der Seite und die unteren 35% mit Text und Button."
   },
   "adsManager": {
@@ -16227,7 +16219,6 @@
     "report": {
       "attribution": "Attributionsfenster",
       "breakdown": "Aufschlüsselung",
-      "compare": "Mit vorherigem Zeitraum vergleichen",
       "export": "CSV exportieren",
       "exporting": "Wird exportiert...",
       "exportFailed": "Der Bericht konnte nicht exportiert werden",
@@ -16269,14 +16260,9 @@
         "desktop": "Desktop"
       },
       "columns": {
-        "spend": "Ausgegebener Betrag",
-        "share": "Anteil an den Ausgaben",
-        "impressions": "Impressionen",
-        "reach": "Reichweite",
-        "results": "Ergebnisse",
-        "costPerResult": "Kosten pro Ergebnis",
-        "cpm": "CPM"
-      }
+        "share": "Anteil an den Ausgaben"
+      },
+      "tooMany": "Die Aufschlüsselung nimmt bis zu {max} Elemente auf einmal. Wähle weniger Zeilen in der Tabelle aus und öffne sie erneut."
     },
     "rowActions": {
       "open": "Aktionen für {name}",
@@ -16297,7 +16283,13 @@
         "ad": "Anzeige löschen?"
       },
       "deleteBody": "{name} wird bei Meta samt allem Inhalt gelöscht. Das lässt sich nicht rückgängig machen, und die Ergebnisse erscheinen hier nicht mehr. Um nur die Auslieferung zu stoppen, schalte es aus oder archiviere es.",
-      "swapCreative": "Creative tauschen"
+      "swapCreative": "Creative tauschen",
+      "publish": "Veröffentlichen",
+      "history": "Veröffentlichungsverlauf ansehen",
+      "deleteDraft": "Entwurf löschen",
+      "deleteDraftBody": "Der Entwurf {name} wird gelöscht. In Meta wurde nichts veröffentlicht, dort gibt es also nichts zu stoppen.",
+      "deleteManyTitle": "{count, plural, one {# Element löschen?} other {# Elemente löschen?}}",
+      "deleteManyBody": "{count, plural, one {Das ausgewählte Element wird gelöscht.} other {Die # ausgewählten Elemente werden gelöscht.}} Veröffentlichte Elemente werden in Meta samt Inhalt gelöscht, und das lässt sich nicht rückgängig machen. Entwürfe verschwinden nur hier."
     },
     "duplicate": {
       "title": {
@@ -16322,7 +16314,8 @@
       "cancel": "Abbrechen",
       "submit": "Duplizieren",
       "saving": "Wird dupliziert...",
-      "done": "Kopie von {name} erstellt"
+      "done": "Kopie von {name} erstellt",
+      "draftFailed": "Der Entwurf {name} konnte nicht dupliziert werden"
     },
     "spendCap": {
       "blocker": {
@@ -16355,17 +16348,6 @@
       "removeBody": "Ohne Limit kann das Konto Geld ausgeben, solange Anzeigen eingeschaltet sind."
     },
     "edit": {
-      "title": {
-        "campaign": "Kampagne bearbeiten",
-        "adset": "Anzeigengruppe bearbeiten",
-        "ad": "Anzeige bearbeiten"
-      },
-      "tabs": {
-        "campaign": "Kampagne",
-        "adset": "Anzeigengruppe",
-        "ad": "Anzeige"
-      },
-      "optionsFailed": "Die Optionen von Meta konnten nicht geladen werden, daher ist das Bearbeiten gesperrt: {message}",
       "retry": "Erneut versuchen",
       "locked": "Dieses Element ist bei Meta archiviert oder gelöscht und kann nicht mehr geändert werden.",
       "basics": "Identifikation",
@@ -16489,7 +16471,6 @@
       "fixIssues": "Korrigiere die markierten Felder und versuche es erneut."
     },
     "abTests": {
-      "open": "A/B-Tests",
       "title": "A/B-Tests",
       "description": "Tests dieses Meta-Werbekontos.",
       "refresh": "Liste aktualisieren",
@@ -16558,8 +16539,7 @@
     "header": {
       "title": "Anzeigen",
       "description": "Meta-Kampagnen, Anzeigengruppen und Anzeigen mit den Ergebnissen, die in deinem Posteingang angekommen sind.",
-      "connect": "Werbekonto verbinden",
-      "create": "Anzeige erstellen"
+      "connect": "Werbekonto verbinden"
     },
     "noAccess": "Du hast keine Berechtigung, die Anzeigen dieses Workspaces zu sehen.",
     "retry": "Erneut versuchen",
@@ -16572,13 +16552,6 @@
       "failed": "Das Konto konnte nicht aktualisiert werden",
       "updated": "Aktualisiert {when}",
       "never": "Noch nicht synchronisiert"
-    },
-    "spendBlocker": {
-      "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Werbekonto.",
-      "reconnect": "Verbinde das Werbekonto neu, um Anzeigen zu erstellen.",
-      "funding": "Richte im Meta Werbeanzeigenmanager eine Zahlungsmethode ein, um Anzeigen zu erstellen.",
-      "metaStatus": "Meta liefert für dieses Konto gerade keine Anzeigen aus.",
-      "unknown": "Dieses Konto kann gerade keine Anzeigen erstellen."
     },
     "connect": {
       "errorTitle": "Verbindung fehlgeschlagen",
@@ -16618,7 +16591,12 @@
       "limitHint": "Meta erlaubt bis zu 4 Budgetänderungen pro Stunde.",
       "cancel": "Abbrechen",
       "save": "Speichern",
-      "saving": "Wird gespeichert..."
+      "saving": "Wird gespeichert...",
+      "dailyTitle": "Tagesbudget",
+      "lifetimeTitle": "Laufzeitbudget",
+      "dailyExplain": "An einem Tag kann Meta bis zu {day} ausgeben, 75% mehr als das Tagesbudget. In einer Woche gibt Meta höchstens {week} aus, das 7-Fache des Tagesbudgets.",
+      "lifetimeExplain": "Meta gibt über die gesamte Laufzeit nie mehr als das Laufzeitbudget aus.",
+      "aboutDaily": "Über Tagesbudgets"
     },
     "errors": {
       "timezone": "Die Zeitzone dieses Werbekontos ist unbekannt, daher lassen sich die Ergebnisse nicht nach Tagen aufteilen. Aktualisiere das Konto."
@@ -16633,18 +16611,18 @@
       "rangeBody": "Ändere Zeitraum, Suche oder Auswahl, um mehr Ergebnisse zu sehen.",
       "firstTitle": "Du hast noch keine Kampagnen",
       "firstBody": "Erstelle hier deine erste Anzeige. Im Meta Werbeanzeigenmanager erstellte Kampagnen erscheinen nach Aktualisieren.",
-      "firstBodyReadOnly": "Die Kampagnen dieses Kontos erscheinen hier."
-    },
-    "filters": {
-      "search": "Nach Name oder ID suchen",
-      "campaignsSelected": "{count, plural, one {# Kampagne ausgewählt} other {# Kampagnen ausgewählt}}",
-      "adSetsSelected": "{count, plural, one {# Anzeigengruppe ausgewählt} other {# Anzeigengruppen ausgewählt}}",
-      "clear": "Filter entfernen: {label}"
+      "firstBodyReadOnly": "Die Kampagnen dieses Kontos erscheinen hier.",
+      "viewBody": "In dieser Ansicht ist nichts. Wähle Alle oder ändere den Zeitraum."
     },
     "tabs": {
       "campaign": "Kampagnen",
       "adset": "Anzeigengruppen",
-      "ad": "Anzeigen"
+      "ad": "Anzeigen",
+      "adsetForCampaigns": "{count, plural, one {Anzeigengruppen für # Kampagne} other {Anzeigengruppen für # Kampagnen}}",
+      "adForCampaigns": "{count, plural, one {Anzeigen für # Kampagne} other {Anzeigen für # Kampagnen}}",
+      "adForAdSets": "{count, plural, one {Anzeigen für # Anzeigengruppe} other {Anzeigen für # Anzeigengruppen}}",
+      "selected": "{count} ausgewählt",
+      "clear": "{count} ausgewählte abwählen"
     },
     "columns": {
       "toggle": "Ein",
@@ -16681,7 +16659,17 @@
       "videoP50": "50% angesehen",
       "videoP75": "75% angesehen",
       "videoP100": "100% angesehen",
-      "avgWatchSeconds": "Durchschnittliche Wiedergabezeit"
+      "avgWatchSeconds": "Durchschnittliche Wiedergabezeit",
+      "menuWith": "Spalten: {preset}",
+      "presetsTitle": "Voreinstellungen",
+      "presets": {
+        "performance": "Leistung",
+        "performanceClicks": "Leistung und Klicks",
+        "engagement": "Interaktion",
+        "delivery": "Auslieferung",
+        "custom": "Benutzerdefiniert"
+      },
+      "customize": "Spalten anpassen"
     },
     "table": {
       "issues": "{count, plural, one {# Warnung} other {# Warnungen}}",
@@ -16758,44 +16746,27 @@
         "last30": "Letzte 30 Tage",
         "thisMonth": "Dieser Monat",
         "lastMonth": "Letzter Monat",
-        "custom": "Benutzerdefiniert"
+        "custom": "Benutzerdefiniert",
+        "todayAndYesterday": "Heute und gestern",
+        "last28": "Letzte 28 Tage",
+        "thisWeek": "Diese Woche",
+        "lastWeek": "Letzte Woche",
+        "maximum": "Maximal"
       },
-      "since": "Von",
-      "until": "Bis",
       "to": "bis",
       "timezone": "Zeitzone: {timezone}",
-      "timezoneUnknown": "unbekannt"
+      "timezoneUnknown": "unbekannt",
+      "compare": "Vergleichen",
+      "compareWith": "Mit dem vorherigen Zeitraum: {range}",
+      "invalid": "Wähle einen Zeitraum, der heute oder früher endet und in den letzten 37 Monaten liegt.",
+      "cancel": "Abbrechen",
+      "apply": "Aktualisieren"
     },
     "notices": {
       "readOnly": {
         "title": "Nur Lesezugriff",
-        "body": "Dein Meta-Profil hat in diesem Konto nur die Analystenrolle: Du kannst Berichte ansehen und exportieren, aber keine Anzeigen erstellen oder ändern. Bitte einen Admin des Unternehmens, dir in den Unternehmenseinstellungen von Meta Werbetreibenden- oder Admin-Zugriff auf dieses Konto zu geben, und nutze danach Aktualisieren.",
-        "action": "Unternehmenseinstellungen öffnen"
-      },
-      "reconnect": {
-        "title": "Werbekonto neu verbinden",
-        "body": "Meta akzeptiert den Zugriff auf dieses Konto nicht mehr. Die Daten können veraltet sein, und bis zur neuen Verbindung lässt sich nichts ändern.",
-        "action": "Neu verbinden"
-      },
-      "funding": {
-        "title": "Keine Zahlungsmethode",
-        "body": "Ohne Zahlungsmethode lässt Meta in diesem Konto weder Anzeigen erstellen noch einschalten. Füge eine im Meta Werbeanzeigenmanager hinzu.",
-        "action": "Zahlungseinstellungen öffnen"
-      },
-      "metaStatus": {
-        "title": "Das Konto ist bei Meta nicht aktiv",
-        "body": "Status bei Meta: {status}. Kläre das im Meta Werbeanzeigenmanager, um wieder auszuliefern."
-      },
-      "metaStatusLabel": {
-        "active": "aktiv",
-        "disabled": "deaktiviert",
-        "unsettled": "offener Betrag",
-        "pending_risk_review": "in Risikoprüfung",
-        "pending_settlement": "wartet auf Ausgleich",
-        "in_grace_period": "in Kulanzfrist",
-        "pending_closure": "wird geschlossen",
-        "closed": "geschlossen",
-        "unknown": "unbekannt"
+        "body": "Dein Meta Profil hat in diesem Konto nur die Analystenrolle: Du kannst Berichte ansehen und exportieren, aber keine Anzeigen erstellen oder ändern. Bitte eine Unternehmensadministration um Werbetreibenden oder Adminzugriff auf dieses Konto.",
+        "action": "In der Kontoübersicht sehen, was fehlt"
       }
     },
     "jobs": {
@@ -17117,7 +17088,278 @@
       "switchOnHint": "Schaltet Kampagne, Anzeigengruppe und Anzeigen dieser Veröffentlichung auf einmal ein.",
       "switchedOn": "Anzeige eingeschaltet. Meta prüft sie, bevor sie ausgeliefert wird."
     },
-    "loadFailed": "Konnte nicht geladen werden"
+    "loadFailed": "Konnte nicht geladen werden",
+    "topBar": {
+      "title": {
+        "campaign": "Kampagnen",
+        "adset": "Anzeigengruppen",
+        "ad": "Anzeigen"
+      },
+      "discard": "Entwürfe verwerfen",
+      "review": "Prüfen und veröffentlichen ({count})",
+      "draftsUnknown": "Die Entwürfe dieses Kontos konnten nicht geladen werden.",
+      "noDrafts": "Keine Entwürfe in diesem Konto.",
+      "more": "Weitere Optionen",
+      "overview": "Kontoübersicht",
+      "jobs": "Veröffentlichungsverlauf",
+      "tests": "A/B-Tests",
+      "connect": "Werbekonto verbinden",
+      "disconnect": "Konto trennen"
+    },
+    "views": {
+      "label": "Ansichten",
+      "all": "Alle",
+      "active": "Aktiv",
+      "issues": "Mit Problemen",
+      "delivered": "Hatten Auslieferung",
+      "search": "Suchen, um nach Name oder ID zu filtern"
+    },
+    "toolbar": {
+      "create": "Erstellen",
+      "publish": "Veröffentlichen",
+      "duplicate": "Duplizieren",
+      "edit": "Bearbeiten",
+      "editMenu": "Weitere Bearbeitungsoptionen",
+      "general": "Allgemein",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "findReplace": "Suchen und ersetzen",
+      "creative": "Werbemittel",
+      "delete": "Löschen",
+      "abTest": "A/B-Test",
+      "more": "Mehr",
+      "rules": "Automatisierte Regeln",
+      "export": "Exportieren",
+      "fields": {
+        "name": "Name",
+        "primaryText": "Primärer Text",
+        "headline": "Überschrift",
+        "description": "Beschreibung",
+        "link": "Website-URL"
+      },
+      "blockers": {
+        "permission": "Du hast keine Berechtigung für diese Aktion.",
+        "account": "Dieses Werbekonto nimmt gerade keine Änderungen an.",
+        "funding": "Füge in Meta eine Zahlungsmethode hinzu, um zu aktivieren.",
+        "selectSome": "Wähle mindestens ein Element aus.",
+        "selectOne": "Wähle genau ein Element aus.",
+        "noDrafts": "Wähle einen Entwurf zum Veröffentlichen aus.",
+        "publishedOnly": "Entwürfe sind nicht Teil dieser Aktion. Nimm die Entwürfe aus der Auswahl.",
+        "publishing": "Dieser Entwurf wird gerade veröffentlicht.",
+        "archived": "Archivierte oder gelöschte Elemente können nicht geändert werden.",
+        "tooMany": "Wähle höchstens 50 Elemente auf einmal aus.",
+        "testCount": "Wähle 2 bis 5 Elemente zum Vergleichen aus.",
+        "level": "Diese Aktion gilt nicht auf dieser Ebene.",
+        "draftRoot": "Um einen Entwurf zu duplizieren, nutze seine oberste Zeile: Die Kopie übernimmt Kampagne, Anzeigengruppe und Anzeigen zusammen."
+      }
+    },
+    "rename": {
+      "open": "{name} umbenennen",
+      "label": "Neuer Name",
+      "save": "Name speichern",
+      "cancel": "Abbrechen",
+      "required": "Gib einen Namen ein.",
+      "notAllowed": "Dieser Name kann hier nicht geändert werden."
+    },
+    "drafts": {
+      "label": "Entwurf",
+      "toggleHint": "Veröffentliche den Entwurf, um ihn zu aktivieren.",
+      "state": {
+        "editing": "Im Entwurf",
+        "publishing": "Wird veröffentlicht",
+        "failed": "Fehler beim Veröffentlichen",
+        "unknown": "Unbekannt"
+      },
+      "failedNoReason": "Die Veröffentlichung ist fehlgeschlagen. Öffne den Veröffentlichungsverlauf, um den Grund zu sehen.",
+      "loadFailed": "Die Entwürfe konnten nicht geladen werden: {message}",
+      "discardTitle": "Entwürfe verwerfen?",
+      "discardBody": "{count, plural, one {Das Entwurfselement dieses Kontos wird verworfen.} other {Die # Entwurfselemente dieses Kontos werden verworfen.}} Entwürfe, die bereits veröffentlicht werden, laufen weiter. Das lässt sich nicht rückgängig machen.",
+      "discarded": "{count, plural, one {# Entwurf verworfen} other {# Entwürfe verworfen}}",
+      "discardFailed": "Die Entwürfe konnten nicht verworfen werden"
+    },
+    "bulk": {
+      "title": "{field} bearbeiten",
+      "appliesTo": "{count, plural, one {Deine Änderung gilt für # Element.} other {Deine Änderungen gelten für # Elemente.}}",
+      "mode": "Art der Bearbeitung",
+      "modes": {
+        "set": "Alles ersetzen",
+        "replace": "Suchen und ersetzen"
+      },
+      "newValue": "Neuer Wert für {field}",
+      "valueRequired": "Gib den neuen Wert ein.",
+      "find": "Suchen",
+      "replace": "Ersetzen durch",
+      "findRequired": "Gib den zu suchenden Text ein.",
+      "matchCase": "Groß- und Kleinschreibung beachten",
+      "fieldNotForLevel": "Dieses Feld gibt es nur bei Anzeigen.",
+      "cancel": "Abbrechen",
+      "apply": "Anwenden",
+      "saving": "Wird angewendet...",
+      "close": "Schließen",
+      "resultsTitle": "Ergebnis der Bearbeitung",
+      "tally": "{ok} geändert, {failed} mit Fehler.",
+      "noAnswer": "Meta hat zu diesem Element nicht geantwortet.",
+      "switched": "{ok, plural, one {# Element geändert} other {# Elemente geändert}}{failed, plural, =0 {} other {, # mit Fehler}}",
+      "deleted": "{ok, plural, one {# Element gelöscht} other {# Elemente gelöscht}}{failed, plural, =0 {} other {, # mit Fehler}}",
+      "activateFailed": "Die Elemente konnten nicht aktiviert werden",
+      "pauseFailed": "Die Elemente konnten nicht deaktiviert werden"
+    },
+    "review": {
+      "title": "Prüfen und veröffentlichen",
+      "description": "Wähle die Entwürfe aus, die an Meta gehen. Jeder wird vor dem Veröffentlichen anhand der Regeln von Meta geprüft.",
+      "empty": "Keine Entwürfe in diesem Konto.",
+      "existingCampaign": "Bestehende Kampagne",
+      "inExistingCampaign": "In einer bestehenden Kampagne",
+      "counts": "{adSets, plural, one {# Anzeigengruppe} other {# Anzeigengruppen}} · {ads, plural, one {# Anzeige} other {# Anzeigen}}",
+      "validating": "Wird geprüft",
+      "started": "Veröffentlichung gestartet",
+      "failed": "Nicht veröffentlicht",
+      "alreadyPublishing": "Dieser Entwurf wird bereits veröffentlicht.",
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "publishing": "Wird veröffentlicht...",
+      "publish": "{count, plural, =0 {Veröffentlichen} other {Veröffentlichen (#)}}"
+    },
+    "connectCard": {
+      "button": "Mit Facebook fortfahren"
+    }
+  },
+  "adsReadiness": {
+    "title": "Bereit machen für Anzeigen",
+    "description": "Meta verlangt diese Punkte vor dem Veröffentlichen. Was die Meta API erlaubt, erledigst du hier; der Rest öffnet den passenden Meta Bildschirm, und wir prüfen selbst erneut, wenn du zurückkommst.",
+    "optional": "Optional",
+    "noPermission": "Dein Zugriff in Vozko erlaubt diese Aktion nicht.",
+    "pixelName": "Pixel {account}",
+    "loadError": "Das Konto konnte nicht geprüft werden: {message}",
+    "awaiting": "Wenn du bei Meta fertig bist, komm hierher zurück: Wir prüfen selbst erneut.",
+    "unchecked": "Wir konnten noch nicht bestätigen, ob dieses Konto Anzeigen schalten kann.",
+    "unknownHint": "Wir konnten diesen Punkt gerade nicht prüfen. Nutze Erneut prüfen.",
+    "states": {
+      "ready": "Bereit",
+      "missing": "Offen",
+      "unknown": "Nicht bestätigt"
+    },
+    "actions": {
+      "reconnect": "Neu verbinden",
+      "sync": "Kontodaten aktualisieren",
+      "create_pixel": "Pixel erstellen",
+      "portal": "Bei Meta öffnen"
+    },
+    "items": {
+      "connection": {
+        "title": "Verbindung zu Meta",
+        "missing": "Meta akzeptiert den Zugriff auf dieses Konto nicht mehr. Verbinde es neu, um fortzufahren."
+      },
+      "advertiser_role": {
+        "title": "Werbetreibendenrolle im Konto",
+        "missing": "Dein Profil kann dieses Konto nur ansehen. Bitte eine Unternehmensadministration in den Unternehmenseinstellungen, im Tab Werbekonten, um die Werbetreibenden oder Adminrolle."
+      },
+      "account_status": {
+        "title": "Konto bei Meta aktiv",
+        "missing": "Meta liefert keine Anzeigen dieses Kontos aus. Ist eine Zahlung offen, begleiche sie in der Abrechnung; wurde das Konto eingeschränkt, beantrage eine Überprüfung in der Kontoqualität."
+      },
+      "account_details": {
+        "title": "Währung und Zeitzone des Kontos",
+        "missing": "Wir kennen Währung oder Zeitzone des Kontos noch nicht. Aktualisiere die Kontodaten."
+      },
+      "payment_method": {
+        "title": "Zahlungsmethode hinzufügen",
+        "missing": "Ohne Zahlungsmethode erstellt Meta keine Anzeigen in diesem Konto und liefert keine aus. Nur Meta kann Karten und andere Zahlungsmethoden hinzufügen."
+      },
+      "page": {
+        "title": "Facebook Seite",
+        "missing": "Keine Seite, mit der dein Profil werben kann. Erstelle eine Seite oder bitte um Werbetreibendenzugriff auf eine Unternehmensseite."
+      },
+      "phone_verification": {
+        "title": "Telefonnummer verifizieren",
+        "unknown": "Meta gibt das nicht über die API heraus. Falls Meta danach fragt, verifiziere die Telefonnummer unter Autorisierungen und Verifizierungen."
+      },
+      "email_verification": {
+        "title": "E-Mail-Adresse verifizieren",
+        "unknown": "Meta gibt das nicht über die API heraus. Prüfe die E-Mail in den Kontaktdaten deines Meta Kontos."
+      },
+      "custom_audience_terms": {
+        "title": "Bedingungen für Custom Audiences",
+        "missing": "Nur nötig, um Zielgruppen aus Kundenlisten zu erstellen. Meta akzeptiert diese Bedingungen nur auf dem eigenen Bildschirm."
+      },
+      "pixel": {
+        "title": "Meta Pixel",
+        "missing": "Nur nötig für Websiteanzeigen mit Conversions. Erstelle das Pixel direkt hier."
+      }
+    },
+    "banner": {
+      "manager": {
+        "title": "Bereit machen für Anzeigen",
+        "body": "Bestätige vor dem Veröffentlichen einige Angaben in der 'Kontoübersicht'.",
+        "emptyBody": "Bestätige einige Angaben in der 'Kontoübersicht', um deine erste Werbekampagne zu veröffentlichen.",
+        "action": "Zur Kontoübersicht"
+      },
+      "wizard": {
+        "title": "Es fehlen erforderliche Kontoinformationen",
+        "body": "Wir müssen einige Angaben zu deinem Konto bestätigen, bevor du eine Anzeige veröffentlichen kannst. Bestätige diese Informationen in der Kontoübersicht, bevor du mit dem Erstellen beginnst, oder später.",
+        "action": "Zur Kontoübersicht"
+      },
+      "pending": "{count, plural, one {# offener Punkt} other {# offene Punkte}}"
+    },
+    "card": {
+      "ready": "Das Konto {account} ist bereit zum Veröffentlichen.",
+      "missing": "Dieses Werbekonto ist nicht mehr mit diesem Workspace verbunden."
+    }
+  },
+  "adsOverview": {
+    "header": {
+      "title": "Kontoübersicht",
+      "description": "Was das Konto zum Schalten von Anzeigen braucht, seine Daten und die Abrechnung."
+    },
+    "summary": {
+      "title": "Konto",
+      "name": "Name",
+      "id": "Meta ID",
+      "business": "Unternehmen",
+      "currency": "Währung",
+      "timezone": "Zeitzone",
+      "status": "Status",
+      "role": "Deine Rolle",
+      "activeCampaigns": "Aktive Kampagnen",
+      "spend7d": "Ausgaben der letzten 7 Tage",
+      "loading": "Wird geladen...",
+      "unavailable": "Nicht verfügbar"
+    },
+    "status": {
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "unsettled": "Zahlung offen",
+      "pending_risk_review": "In Risikoprüfung",
+      "pending_settlement": "Wartet auf Zahlungsausgleich",
+      "in_grace_period": "In Kulanzfrist",
+      "pending_closure": "Wird geschlossen",
+      "closed": "Geschlossen",
+      "unknown": "Unbekannt"
+    },
+    "roles": {
+      "admin": "Admin",
+      "advertiser": "Werbetreibende Person",
+      "read_only": "Nur Lesen"
+    },
+    "billing": {
+      "title": "Abrechnung und Zahlungen",
+      "paymentMethod": "Zahlungsmethode",
+      "noPaymentMethod": "Keine",
+      "paymentMethodHidden": "Hinterlegt; nur Kontoadmins sehen die Details",
+      "balance": "Offener Betrag",
+      "kind": "Abrechnungsart",
+      "prepay": "Vorausbezahlt",
+      "postpay": "Nachträglich bezahlt",
+      "amountSpent": "Ausgaben des Kontos",
+      "openBilling": "Abrechnung und Zahlungen bei Meta öffnen",
+      "unavailable": "Abrechnungsdetails sehen Personen, die in dem Konto werben."
+    },
+    "performance": {
+      "title": "Leistung",
+      "description": "Letzte 30 Tage im Vergleich zu den 30 Tagen davor, in der Zeitzone des Werbekontos.",
+      "noTimezone": "Die Zeitzone dieses Kontos ist unbekannt, daher lassen sich die Ergebnisse nicht nach Tagen trennen. Aktualisiere das Konto.",
+      "failed": "Die Leistung konnte nicht geladen werden: {message}"
+    }
   },
   "adsErrors": {
     "account_admin_required": "Nur ein Admin des Werbekontos kann das Ausgabenlimit ändern.",
@@ -17139,6 +17381,460 @@
     "object_locked": "Gelöschte oder archivierte Elemente können nicht geändert werden.",
     "video_not_ready": "Meta verarbeitet das Video noch. Versuche es gleich noch einmal.",
     "audience_terms_not_accepted": "Akzeptiere die Meta Bedingungen für Custom Audiences in diesem Werbekonto.",
-    "job_not_activatable": "Diese Veröffentlichung wurde bereits eingeschaltet oder nicht ausgeschaltet veröffentlicht."
+    "job_not_activatable": "Diese Veröffentlichung wurde bereits eingeschaltet oder nicht ausgeschaltet veröffentlicht.",
+    "draft_changed": "Jemand anderes hat diesen Entwurf geändert. Lade die neueste Version und versuche es erneut.",
+    "draft_publishing": "Dieser Entwurf wird gerade veröffentlicht und kann jetzt nicht geändert werden."
+  },
+  "adsReports": {
+    "header": {
+      "title": "Werbeberichte",
+      "description": "Erstelle, speichere und exportiere Berichte zu deinen Kampagnen, wie im Meta Werbeanzeigenmanager."
+    },
+    "sections": {
+      "label": "Bereiche",
+      "reports": "Berichte",
+      "exports": "Exporte"
+    },
+    "list": {
+      "search": "Suchen, um nach Name zu filtern",
+      "create": "Bericht erstellen",
+      "emptyTitle": "Keine Berichte",
+      "emptyBody": "Du hast noch keinen Bericht erstellt",
+      "noMatchTitle": "Keine Berichte gefunden",
+      "noMatchBody": "Kein Bericht in diesem Konto hat diesen Namen.",
+      "never": "Nie",
+      "columns": {
+        "name": "Name des Berichts",
+        "lastOpened": "Zuletzt geöffnet",
+        "updated": "Bearbeitet",
+        "created": "Erstellt"
+      },
+      "open": "Öffnen",
+      "rename": "Umbenennen",
+      "delete": "Löschen",
+      "exportsHistory": "Exportverlauf"
+    },
+    "rename": {
+      "title": "Bericht umbenennen",
+      "label": "Name des Berichts",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "done": "Bericht umbenannt",
+      "failed": "Der Bericht konnte nicht umbenannt werden"
+    },
+    "delete": {
+      "title": "Bericht löschen?",
+      "body": "Der Bericht \"{name}\" wird gelöscht. Das kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen",
+      "cancel": "Abbrechen",
+      "done": "Bericht gelöscht",
+      "failed": "Der Bericht konnte nicht gelöscht werden"
+    },
+    "templates": {
+      "title": "Vorgeschlagene Berichtsvorlagen",
+      "open": "Bericht ansehen",
+      "failed": "Die Vorlagen konnten nicht geladen werden: {message}",
+      "roi_snapshot": {
+        "title": "ROI-Momentaufnahme",
+        "description": "Ausgegebener Betrag, Ergebnisse und Kosten pro Ergebnis, um den Ertrag der Kampagnen zu sehen."
+      },
+      "reach_frequency": {
+        "title": "Reichweite und Frequenz",
+        "description": "Wie viele Personen deine Anzeigen gesehen haben und wie oft im Durchschnitt."
+      },
+      "overall_performance": {
+        "title": "Gesamtleistung",
+        "description": "Die wichtigsten Zahlen zu Auslieferung, Klicks und Ergebnissen."
+      },
+      "signups_summary": {
+        "title": "Zusammenfassung der Registrierungen",
+        "description": "Erzielte Registrierungen und was jede gekostet hat."
+      },
+      "age_gender": {
+        "title": "Alter und Geschlecht",
+        "description": "Ergebnisse nach Alter und Geschlecht der Personen, die die Anzeigen gesehen haben."
+      },
+      "engagement": {
+        "title": "Interaktionen",
+        "description": "Klicks, CTR und durch die Anzeigen begonnene Unterhaltungen."
+      },
+      "unknown": {
+        "title": "Berichtsvorlage",
+        "description": "Eine fertige Vorlage für den Start deines Berichts."
+      }
+    },
+    "editor": {
+      "back": "Alle Berichte",
+      "untitled": "Unbenannter Bericht",
+      "titleLabel": "Name des Berichts",
+      "save": "Speichern",
+      "refresh": "Aktualisieren",
+      "export": "Exportieren",
+      "customize": "Anpassen",
+      "viewLabel": "Ansicht",
+      "views": {
+        "pivot": "Pivot-Tabelle",
+        "trend": "Trend",
+        "bars": "Balken"
+      },
+      "saved": "Bericht gespeichert",
+      "saveFailed": "Der Bericht konnte nicht gespeichert werden",
+      "exported": "Bericht exportiert",
+      "noData": "Keine Daten zum Anzeigen",
+      "noDataBody": "Meta hat für diesen Zeitraum und diese Aufschlüsselungen keine Daten geliefert.",
+      "noRange": "Wähle einen gültigen Zeitraum, um die Daten zu sehen.",
+      "loadFailed": "Die Daten konnten nicht geladen werden",
+      "templateMissing": "Berichtsvorlage nicht gefunden",
+      "templateMissingBody": "Diese Vorlage gibt es nicht mehr. Geh zurück zur Liste und wähle eine andere.",
+      "reportMissing": "Der Bericht konnte nicht geöffnet werden",
+      "total": "Gesamt",
+      "object": {
+        "campaign": "Name der Kampagne",
+        "adset": "Name der Anzeigengruppe",
+        "ad": "Name der Anzeige"
+      },
+      "noMetrics": "Wähle unter Anpassen mindestens eine Kennzahl.",
+      "trendNoMetrics": "Keine der gewählten Kennzahlen hat eine Tagesreihe. Wähle unter Anpassen Ausgegebener Betrag, Impressionen, Link-Klicks, Ergebnisse oder Unterhaltungen.",
+      "readOnly": "Du kannst diesen Bericht ansehen, aber keine Änderungen speichern.",
+      "barsOf": "{metric} nach {dimension}",
+      "day": "Tag",
+      "exportedBody": "Die Datei wird auch unter Exporte gespeichert, damit du sie erneut herunterladen kannst.",
+      "exportFailed": "Der Bericht konnte nicht exportiert werden",
+      "exportDownloadFailed": "Der Bericht wurde exportiert, aber der Download ist fehlgeschlagen. Lade die Datei unter Exporte herunter."
+    },
+    "panel": {
+      "title": "Anpassen",
+      "close": "Schließen",
+      "tabs": {
+        "breakdowns": "Aufschlüsselungen",
+        "metrics": "Kennzahlen"
+      },
+      "level": "Ebene",
+      "levels": {
+        "campaign": "Kampagne",
+        "adset": "Anzeigengruppe",
+        "ad": "Anzeige"
+      },
+      "breakdowns": "Aufschlüsselungen",
+      "breakdownsHint": "Meta akzeptiert nur einige Kombinationen, etwa Alter mit Geschlecht oder Plattform mit Platzierung.",
+      "trendHint": "Im Trend erscheinen nur Kennzahlen mit einer Tagesreihe."
+    },
+    "metrics": {
+      "spend": "Ausgegebener Betrag",
+      "impressions": "Impressionen",
+      "reach": "Reichweite",
+      "frequency": "Frequenz",
+      "clicks": "Klicks (alle)",
+      "linkClicks": "Link-Klicks",
+      "ctr": "CTR (Link-Klickrate)",
+      "cpc": "CPC (Kosten pro Link-Klick)",
+      "cpm": "CPM (Kosten pro 1.000 Impressionen)",
+      "results": "Ergebnisse",
+      "costPerResult": "Kosten pro Ergebnis",
+      "conversations": "Begonnene Unterhaltungen",
+      "costPerConversation": "Kosten pro begonnener Unterhaltung",
+      "thruPlays": "ThruPlays",
+      "costPerThruPlay": "Kosten pro ThruPlay"
+    },
+    "unsaved": {
+      "title": "Du hast ungespeicherte Änderungen",
+      "body": "Wenn du jetzt gehst, gehen die Änderungen an diesem Bericht verloren.",
+      "discard": "Nicht speichern",
+      "cancel": "Abbrechen",
+      "save": "Speichern"
+    },
+    "exports": {
+      "columns": {
+        "name": "Name",
+        "period": "Zeitraum",
+        "rows": "Zeilen",
+        "size": "Größe",
+        "created": "Erstellt am"
+      },
+      "period": "{since} bis {until}",
+      "download": "Herunterladen",
+      "downloadFailed": "Der Export konnte nicht heruntergeladen werden",
+      "emptyTitle": "Keine Exporte",
+      "emptyBody": "Exportierte Berichte erscheinen hier, damit du sie erneut herunterladen kannst.",
+      "delete": {
+        "action": "Löschen",
+        "title": "Export löschen?",
+        "body": "Die Datei \"{name}\" wird gelöscht. Das kann nicht rückgängig gemacht werden.",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "done": "Export gelöscht",
+        "failed": "Der Export konnte nicht gelöscht werden"
+      }
+    }
+  },
+  "adsCreate": {
+    "title": "Erstellen",
+    "description": "Erstelle eine neue Kampagne oder füge einer bestehenden Kampagne eine Anzeigengruppe oder eine Anzeige hinzu.",
+    "tabs": {
+      "new": "Neue Kampagne erstellen",
+      "existing": "Neue Anzeigengruppe oder Anzeige"
+    },
+    "buyingTypeTitle": "Wähle eine Einkaufsart",
+    "buyingType": "Einkaufsart",
+    "auction": "Auktion",
+    "objectiveTitle": "Wähle ein Kampagnenziel",
+    "pickObjectiveHint": "Fahre mit der Maus über ein Ziel, um zu sehen, wofür es gedacht ist.",
+    "goodFor": "Geeignet für:",
+    "objectives": {
+      "OUTCOME_AWARENESS": {
+        "description": "Zeige deine Anzeigen den Personen, die sich am ehesten an sie erinnern.",
+        "goodFor": [
+          "Reichweite",
+          "Markenbekanntheit",
+          "Videoaufrufe",
+          "Bekanntheit des Ladenstandorts"
+        ]
+      },
+      "OUTCOME_TRAFFIC": {
+        "description": "Leite Personen zu einem Ziel, etwa deiner Website, App, deinem Instagram-Profil oder einer Facebook-Veranstaltung.",
+        "goodFor": [
+          "Link-Klicks",
+          "Landing Page-Aufrufe",
+          "Instagram-Profilbesuche",
+          "Messenger und WhatsApp",
+          "Anrufe"
+        ]
+      },
+      "OUTCOME_ENGAGEMENT": {
+        "description": "Erhalte mehr Nachrichten, Videoaufrufe, Beitragsinteraktionen, Seitenlikes oder Zusagen zu Veranstaltungen.",
+        "goodFor": [
+          "Nachrichten",
+          "Videoaufrufe",
+          "Beitragsinteraktionen",
+          "Seitenlikes",
+          "Zusagen zu Veranstaltungen"
+        ]
+      },
+      "OUTCOME_LEADS": {
+        "description": "Sammle Leads für dein Unternehmen oder deine Marke.",
+        "goodFor": [
+          "Sofortformulare",
+          "Messenger und WhatsApp",
+          "Conversions",
+          "Anrufe"
+        ]
+      },
+      "OUTCOME_APP_PROMOTION": {
+        "description": "Finde neue Personen, die deine App installieren und weiter nutzen.",
+        "goodFor": [
+          "App-Installationen",
+          "App-Events"
+        ]
+      },
+      "OUTCOME_SALES": {
+        "description": "Finde Personen, die wahrscheinlich dein Produkt oder deine Dienstleistung kaufen.",
+        "goodFor": [
+          "Conversions",
+          "Katalogverkäufe",
+          "Messenger und WhatsApp",
+          "Anrufe"
+        ]
+      }
+    },
+    "existingDescription": "Wähle die Kampagne und, wenn du möchtest, die Anzeigengruppe für das neue Element.",
+    "campaign": "Kampagne",
+    "adSetOptional": "Anzeigengruppe (optional)",
+    "noCampaigns": "Keine Kampagnen in diesem Konto gefunden.",
+    "noAdSets": "Keine Anzeigengruppen in dieser Kampagne gefunden.",
+    "search": "Nach Namen suchen",
+    "creates": {
+      "adSet_ad": "Erstellt eine neue Anzeigengruppe mit einer Anzeige in dieser Kampagne.",
+      "ad": "Erstellt eine neue Anzeige in dieser Anzeigengruppe."
+    },
+    "names": {
+      "campaign": "Neue Kampagne für {objective}",
+      "adSet": "Neue Anzeigengruppe für {objective}",
+      "ad": "Neue Anzeige für {objective}"
+    },
+    "cancel": "Abbrechen",
+    "continue": "Weiter",
+    "creating": "Wird erstellt...",
+    "noAccount": "Wähle ein verbundenes Werbekonto, um eine Kampagne zu erstellen."
+  },
+  "adsEditor": {
+    "noAccess": "Du hast keine Berechtigung, in diesem Workspace Anzeigen zu erstellen.",
+    "draftMissing": "Dieser Entwurf konnte nicht geöffnet werden: {message}",
+    "loadFailed": "Der Editor konnte nicht geladen werden: {message}",
+    "accountMissing": "Das Werbekonto dieses Elements ist nicht mehr verbunden.",
+    "objectMissing": "Diese Kampagne wurde im Konto nicht gefunden. Aktualisiere die Kontodaten und versuche es erneut.",
+    "nothingToEdit": "Wähle einen Entwurf oder ein Element in Kampagnen zum Bearbeiten.",
+    "toManager": "Zu Kampagnen",
+    "issuesTitle": "{count, plural, one {# Element braucht Aufmerksamkeit} other {# Elemente brauchen Aufmerksamkeit}}",
+    "publishingNote": "Dieser Entwurf wird gerade veröffentlicht. Er ist wieder bearbeitbar, wenn die Veröffentlichung fehlschlägt.",
+    "conflicts": {
+      "changed": "Dieser Entwurf wurde in einem anderen Tab oder von einer anderen Person geändert. Wir haben die neueste Version geladen: prüfe deine letzten Änderungen.",
+      "publishing": "Die Veröffentlichung dieses Entwurfs hat begonnen, er kann nicht mehr bearbeitet werden."
+    },
+    "autosave": {
+      "saved": "Als Entwurf gespeichert",
+      "pending": "Änderungen noch nicht gespeichert",
+      "saving": "Wird gespeichert...",
+      "error": "Speichern fehlgeschlagen: {message}",
+      "retry": "Erneut versuchen"
+    },
+    "status": {
+      "draft": "Im Entwurf",
+      "publishing": "Wird veröffentlicht",
+      "failed": "Fehler beim Veröffentlichen"
+    },
+    "tabs": {
+      "edit": "Bearbeiten",
+      "analyze": "Prüfen"
+    },
+    "tree": {
+      "label": "Elemente des Entwurfs",
+      "menu": "Aktionen für {name}",
+      "hasIssues": "Braucht Aufmerksamkeit",
+      "addAd": "Anzeige hinzufügen",
+      "duplicateAd": "Anzeige duplizieren",
+      "deleteAd": "Anzeige löschen",
+      "objectLabel": "Elemente der Kampagne"
+    },
+    "levels": {
+      "campaign": "Kampagne",
+      "adSet": "Anzeigengruppe",
+      "ad": "Anzeige",
+      "adNumbered": "Anzeige {index}"
+    },
+    "footer": {
+      "terms": "Mit einem Klick auf Veröffentlichen stimmst du den <link>Nutzungsbedingungen von Meta</link> zu.",
+      "close": "Schließen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "discard": "Entwurf verwerfen"
+    },
+    "closeDialog": {
+      "title": "Entwurfselemente veröffentlichen?",
+      "body": "Deine Änderungen wurden automatisch als Entwurf gespeichert. Veröffentliche jetzt oder schließe und mache später weiter."
+    },
+    "publish": {
+      "title": "Prüfen und veröffentlichen",
+      "description": "Vozko prüft den Entwurf mit Meta vor der Veröffentlichung.",
+      "saveFailed": "Der Entwurf konnte vor der Veröffentlichung nicht gespeichert werden: {message}"
+    },
+    "preview": {
+      "ad": "Anzeige",
+      "destination": "Ziel"
+    },
+    "destination": {
+      "chat": {
+        "whatsapp": "WhatsApp-Chat",
+        "messenger": "Messenger-Chat",
+        "instagram": "Instagram Direct-Chat"
+      },
+      "chatNoGreeting": "Keine Begrüßungsnachricht. Der Chat öffnet sich leer.",
+      "chatHint": "Das sieht die Person, nachdem sie auf den Button der Anzeige getippt hat.",
+      "website": "Website",
+      "websiteEmpty": "Füge den Link zur Website hinzu, um das Ziel zu sehen.",
+      "websiteHint": "Die Person öffnet diese Adresse, nachdem sie auf die Anzeige getippt hat.",
+      "formLoading": "Sofortformular wird geladen...",
+      "formEmpty": "Wähle ein Sofortformular, um das Ziel zu sehen.",
+      "app": "Die Person geht in den App Store, um deine App zu installieren.",
+      "post": "Die Person interagiert mit dem Beitrag, ohne Facebook oder Instagram zu verlassen.",
+      "none": "Diese Anzeige führt zu keinem anderen Ziel."
+    },
+    "analysis": {
+      "edit": "Bearbeiten",
+      "empty": "Nicht festgelegt",
+      "budgetStrategies": {
+        "campaign": "Advantage+ Kampagnenbudget",
+        "adSet": "Budget der Anzeigengruppe"
+      },
+      "budgetPlaces": {
+        "campaign": "In der Kampagne festgelegt",
+        "existingCampaign": "In der bestehenden Kampagne festgelegt",
+        "existingAdSet": "In der bestehenden Anzeigengruppe festgelegt"
+      },
+      "facts": {
+        "name": "Name",
+        "campaignName": "Kampagnenname",
+        "buyingType": "Einkaufsart",
+        "objective": "Ziel",
+        "specialCategory": "Spezielle Anzeigenkategorien",
+        "budgetStrategy": "Budgetstrategie",
+        "budget": "Budget",
+        "bidStrategy": "Gebotsstrategie",
+        "adSetName": "Name der Anzeigengruppe",
+        "destination": "Conversion-Ort",
+        "goal": "Leistungsziel",
+        "whatsAppNumber": "WhatsApp-Nummer",
+        "schedule": "Zeitplan",
+        "locations": "Orte",
+        "ages": "Alter",
+        "languages": "Sprachen",
+        "detailedTargeting": "Detailliertes Targeting",
+        "customAudiences": "Custom Audiences",
+        "placements": "Platzierungen",
+        "adName": "Anzeigenname",
+        "page": "Facebook-Seite",
+        "format": "Format",
+        "primaryText": "Primärer Text",
+        "headline": "Überschrift",
+        "callToAction": "Call to Action",
+        "link": "Website-URL",
+        "greeting": "Begrüßungsnachricht"
+      }
+    },
+    "failedNote": "Die letzte Veröffentlichung ist fehlgeschlagen: {message}. Korrigiere den Entwurf und veröffentliche erneut.",
+    "multi": {
+      "mixedValues": "Gemischte Werte",
+      "mixedStatus": "Gemischter Status",
+      "setForAll": "Einen Wert für alle festlegen",
+      "keepMixed": "Aktuellen Wert jeder {each} beibehalten",
+      "each": {
+        "campaign": "Kampagne",
+        "adset": "Anzeigengruppe",
+        "ad": "Anzeige"
+      },
+      "appliesTo": {
+        "campaign": "{count, plural, one {Deine Änderungen gelten für # Kampagne} other {Deine Änderungen gelten für # Kampagnen}}",
+        "adset": "{count, plural, one {Deine Änderungen gelten für # Anzeigengruppe} other {Deine Änderungen gelten für # Anzeigengruppen}}",
+        "ad": "{count, plural, one {Deine Änderungen gelten für # Anzeige} other {Deine Änderungen gelten für # Anzeigen}}"
+      },
+      "editEach": {
+        "campaign": "Jede Kampagne bearbeiten",
+        "adset": "Jede Anzeigengruppe bearbeiten",
+        "ad": "Jede Anzeige bearbeiten"
+      },
+      "crumbs": {
+        "campaign": "{count, plural, one {# Kampagne} other {# Kampagnen}}",
+        "adset": "{count, plural, one {# Anzeigengruppe} other {# Anzeigengruppen}}",
+        "ad": "{count, plural, one {# Anzeige} other {# Anzeigen}}"
+      },
+      "treeLabel": "Ausgewählte Elemente",
+      "activateAll": "Alle aktivieren",
+      "deactivateAll": "Alle deaktivieren",
+      "allOn": "Aktiv",
+      "allOff": "Deaktiviert",
+      "fixFields": "Korrigiere die markierten Felder, um zu speichern.",
+      "textTitle": "Anzeigentext",
+      "groups": {
+        "name": "Name",
+        "budgetBid": "Budget und Gebote",
+        "endDay": "Letzter Auslieferungstag",
+        "schedule": "Auslieferungszeiten",
+        "targeting": "Zielgruppe",
+        "placements": "Platzierungen",
+        "primaryText": "Primärer Text",
+        "headline": "Überschrift",
+        "description": "Beschreibung",
+        "link": "Website-URL"
+      },
+      "blockers": {
+        "missing": "Nicht alle Elemente haben dieses Feld. Bearbeite die Elemente einzeln.",
+        "budgetShape": "Die Budgets liegen auf unterschiedlichen Ebenen oder haben unterschiedliche Arten. Bearbeite die Elemente einzeln.",
+        "goal": "Die Leistungsziele unterscheiden sich, und die Gebotsstrategien hängen davon ab. Bearbeite die Elemente einzeln.",
+        "destination": "Die Elemente führen zu unterschiedlichen Zielen, und die Platzierungen hängen davon ab. Bearbeite die Elemente einzeln."
+      },
+      "loadFailed": "Nicht alle ausgewählten Elemente konnten geöffnet werden. Öffne jedes über die Links unten.",
+      "levelMismatch": "Die ausgewählten Elemente liegen nicht auf derselben Ebene. Öffne jedes über die Links unten.",
+      "notLoaded": "Dieses Element konnte nicht geladen werden.",
+      "invalidSelection": "Um Elemente gemeinsam zu bearbeiten, wähle unter Kampagnen 2 bis 50 veröffentlichte Elemente derselben Ebene aus."
+    }
   }
 }

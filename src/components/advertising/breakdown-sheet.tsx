@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { getAdLiveInsightsAction } from "@/app/actions/advertising";
 import {
   ElevatedSheet,
   ElevatedSheetContent,
@@ -11,63 +9,35 @@ import {
   ElevatedSheetHeader,
   ElevatedSheetTitle,
 } from "@/components/elevated-design/elevated-sheet";
-import { useAdsResource } from "@/components/advertising/wizard/use-ads-resource";
-import { useWizardLabels } from "@/components/advertising/wizard/use-wizard-labels";
-import { aggregateBreakdown } from "@/lib/advertising/live";
-import type { AdAttributionWindow, AdLevel, AdRange } from "@/lib/advertising/types";
+import { breakdownRunRequest, type BreakdownRunInput } from "@/lib/advertising/reports-run";
+import { MAX_LIVE_OBJECT_IDS } from "@/lib/advertising/report-query";
 
+import { useReportLabels } from "./reports/use-report-labels";
+import { useReportRun } from "./reports/use-report-run";
 import { useAdsFormat } from "./use-ads-format";
+import { useBreakdownLabel, useBreakdownValueLabel } from "./use-breakdown-labels";
 
-export interface BreakdownRequest {
-  group: string[];
-  level: AdLevel;
-  range: AdRange;
-  objectIds: string[];
-  windows: AdAttributionWindow[];
+export interface BreakdownRequest extends BreakdownRunInput {
   scope: "selection" | "all";
-}
-
-export function useBreakdownLabel() {
-  const t = useTranslations("adsManager.breakdown");
-  return (group: string[]) => group.map((breakdown) => (t.has(`groups.${breakdown}`) ? t(`groups.${breakdown}`) : breakdown)).join(" + ");
 }
 
 export function BreakdownSheet({
   request,
   accountId,
-  currency,
   onClose,
 }: {
   request: BreakdownRequest | null;
   accountId: string;
-  currency: string;
   onClose: () => void;
 }) {
   const t = useTranslations("adsManager.breakdown");
-  const labels = useWizardLabels();
   const fmt = useAdsFormat();
   const groupLabel = useBreakdownLabel();
-  const key = request ? JSON.stringify({ accountId, ...request }) : null;
-  const insights = useAdsResource(key, () =>
-    getAdLiveInsightsAction(accountId, {
-      level: request?.level ?? "campaign",
-      range: request?.range ?? { since: "", until: "" },
-      objectIds: request?.objectIds,
-      breakdowns: request?.group,
-      windows: request?.windows,
-    }),
-  );
-  const slices = useMemo(
-    () => (insights.status === "ready" && request ? aggregateBreakdown(insights.data.rows, request.group) : []),
-    [insights, request],
-  );
-
-  const valueLabel = (breakdown: string, value: string) => {
-    if (!value) return t("values.unknown");
-    if (breakdown === "publisher_platform") return labels.placement(value);
-    if (breakdown === "platform_position") return labels.position(value);
-    return t.has(`values.${value}`) ? t(`values.${value}`) : value;
-  };
+  const valueLabel = useBreakdownValueLabel();
+  const labels = useReportLabels();
+  const runRequest = request ? breakdownRunRequest(request) : null;
+  const run = useReportRun(accountId, runRequest);
+  const rows = run.status === "ready" ? run.data.rows : [];
 
   return (
     <ElevatedSheet open={!!request} onOpenChange={(open) => !open && onClose()}>
@@ -79,10 +49,11 @@ export function BreakdownSheet({
           </ElevatedSheetDescription>
         </ElevatedSheetHeader>
         <div className="flex-1 overflow-auto px-6 pb-6">
-          {insights.status === "error" ? <p className="text-sm text-destructive-ink">{t("failed", { message: insights.message })}</p> : null}
-          {insights.status === "loading" ? <div className="h-40 animate-pulse rounded-[--radius] bg-muted" /> : null}
-          {insights.status === "ready" && slices.length === 0 ? <p className="text-sm text-muted-foreground">{t("empty")}</p> : null}
-          {slices.length > 0 && request ? (
+          {request && !runRequest ? <p className="text-sm text-muted-foreground">{t("tooMany", { max: MAX_LIVE_OBJECT_IDS })}</p> : null}
+          {run.status === "error" ? <p className="text-sm text-destructive-ink">{t("failed", { message: run.message })}</p> : null}
+          {run.status === "loading" ? <div className="h-40 animate-pulse rounded-[--radius] bg-muted" /> : null}
+          {run.status === "ready" && rows.length === 0 ? <p className="text-sm text-muted-foreground">{t("empty")}</p> : null}
+          {rows.length > 0 && request ? (
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-border-strong bg-muted text-2xs font-semibold text-muted-foreground">
@@ -91,37 +62,45 @@ export function BreakdownSheet({
                       {t.has(`groups.${breakdown}`) ? t(`groups.${breakdown}`) : breakdown}
                     </th>
                   ))}
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.spend")}</th>
-                  <th scope="col" className="px-3 py-2">{t("columns.share")}</th>
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.impressions")}</th>
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.reach")}</th>
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.results")}</th>
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.costPerResult")}</th>
-                  <th scope="col" className="px-3 py-2 text-right">{t("columns.cpm")}</th>
+                  {run.status === "ready"
+                    ? run.data.metrics.map((metric, index) => [
+                        <th key={metric} scope="col" className="px-3 py-2 text-right">
+                          {labels.metric(metric)}
+                        </th>,
+                        index === 0 ? (
+                          <th key="share" scope="col" className="px-3 py-2">
+                            {t("columns.share")}
+                          </th>
+                        ) : null,
+                      ])
+                    : null}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {slices.map((slice) => (
-                  <tr key={slice.key}>
-                    {slice.values.map((value, index) => (
+                {rows.map((row) => (
+                  <tr key={row.key}>
+                    {row.dimensions.map((value, index) => (
                       <td key={request.group[index]} className="px-3 py-2 text-foreground">
                         {valueLabel(request.group[index], value)}
                       </td>
                     ))}
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.micros(slice.spend, currency)}</td>
-                    <td className="px-3 py-2">
-                      <span className="flex items-center gap-2">
-                        <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted" aria-hidden>
-                          <span className="block h-full bg-chart-1" style={{ width: `${slice.share * 100}%` }} />
-                        </span>
-                        <span className="text-xs tabular-nums text-muted-foreground">{fmt.percent(slice.share * 100)}</span>
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.count(slice.impressions)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.count(slice.reach)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.count(slice.results)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.micros(slice.costPerResult, currency)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmt.micros(slice.cpm, currency)}</td>
+                    {run.status === "ready"
+                      ? run.data.metrics.map((metric, index) => [
+                          <td key={metric} className="px-3 py-2 text-right tabular-nums">
+                            {labels.formatMetric(run.data, metric, row.values[metric])}
+                          </td>,
+                          index === 0 ? (
+                            <td key="share" className="px-3 py-2">
+                              <span className="flex items-center gap-2">
+                                <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted" aria-hidden>
+                                  <span className="block h-full bg-chart-1" style={{ width: `${row.share * 100}%` }} />
+                                </span>
+                                <span className="text-xs tabular-nums text-muted-foreground">{fmt.percent(row.share * 100)}</span>
+                              </span>
+                            </td>
+                          ) : null,
+                        ])
+                      : null}
                   </tr>
                 ))}
               </tbody>

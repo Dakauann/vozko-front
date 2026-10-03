@@ -54,6 +54,8 @@ export const screenPaths = {
   ads_overview: "/dashboard/advertising/overview",
   ads_manager: "/dashboard/advertising",
   ads_create: "/dashboard/advertising/new",
+  ads_editor: "/dashboard/advertising/editor",
+  ads_reports: "/dashboard/advertising/reports",
   ads_audiences: "/dashboard/advertising/audiences",
   ads_forms: "/dashboard/advertising/forms",
   ads_rules: "/dashboard/advertising/rules",

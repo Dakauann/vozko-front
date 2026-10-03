@@ -343,7 +343,50 @@
       "duplicate_ad": "Duplicate ad",
       "archive_ad": "Archive ad",
       "delete_ad": "Delete ad",
-      "ads_breakdown": "Results by audience and placement"
+      "ads_breakdown": "Results by audience and placement",
+      "ad_account_readiness": "What the ad account is missing",
+      "search_ad_interests": "Searching interests",
+      "estimate_ad_audience": "Estimating the audience",
+      "list_lead_forms": "Lead forms",
+      "save_ad_draft": "Save ad as draft",
+      "list_ad_drafts": "Ad drafts",
+      "publish_ad_draft": "Publish draft",
+      "edit_ad_text": "Edit ad text",
+      "create_lead_form": "Create lead form",
+      "connect_ad_account": "Connect ad account",
+      "ad_rule_history": "Automated rule history",
+      "bulk_change_ads": "Change end date or budget in bulk",
+      "bulk_edit_ads_text": "Edit texts in bulk",
+      "bulk_turn_off_ads": "Turn ads off in bulk",
+      "bulk_turn_on_ads": "Turn ads on in bulk",
+      "connect_ad_dataset": "Link WhatsApp to the dataset",
+      "create_ad_pixel": "Create pixel",
+      "create_ad_rule": "Create automated rule",
+      "create_ad_test": "Create A/B test",
+      "create_customer_list_audience": "Create customer list audience",
+      "create_lookalike_audience": "Create lookalike audience",
+      "create_saved_audience": "Save audience",
+      "delete_ad_audience": "Delete audience",
+      "delete_ad_rule": "Delete automated rule",
+      "edit_ad_set": "Edit ad set",
+      "export_ad_report": "Export report",
+      "get_ad_conversion_settings": "Conversion sending",
+      "get_ad_draft": "Read ad draft",
+      "list_ad_apps": "Apps to advertise",
+      "list_ad_audiences": "Audiences",
+      "list_ad_catalogs": "Product catalogs",
+      "list_ad_pixels": "Pixels",
+      "list_ad_reports": "Saved reports",
+      "list_ad_rules": "Automated rules",
+      "list_ad_tests": "A/B tests",
+      "list_page_posts": "Page posts",
+      "recent_ad_conversions": "Sent conversions",
+      "run_ad_report": "Ads report",
+      "run_saved_ad_report": "Run saved report",
+      "save_ad_conversion_settings": "Save conversion sending",
+      "set_ad_rule_status": "Turn rule on or off",
+      "set_ad_spend_cap": "Account spending limit",
+      "update_ad_draft": "Change ad draft"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -653,7 +696,58 @@
       "knowledgeBases": "Knowledge bases",
       "mcpCollections": "MCP collections",
       "scheduledMessage": "Scheduled message",
-      "bot_token": "Bot token"
+      "bot_token": "Bot token",
+      "objective": "Objective",
+      "ends": "Ends",
+      "status": "Status",
+      "draft": "Draft",
+      "ad": "Ad",
+      "meta_id": "Meta item",
+      "primaryText": "Primary text",
+      "headline": "Headline",
+      "link": "Link",
+      "questions": "Questions",
+      "privacy": "Privacy policy",
+      "thankYou": "Thank you screen",
+      "form": "Form",
+      "action": "Action",
+      "ages": "Ages",
+      "applies": "Applies to",
+      "audience": "Audience",
+      "audiences": "Custom audiences",
+      "bid": "Bid",
+      "breakdowns": "Breakdowns",
+      "budget_level": "Budget set on",
+      "changes": "Changed fields",
+      "checks": "Checked",
+      "confidence": "Confidence",
+      "conversions": "Conversions",
+      "country": "Country",
+      "dataset": "Dataset",
+      "day": "Day",
+      "excludes": "Excludes",
+      "field": "Field",
+      "includes": "Includes",
+      "items": "Items",
+      "kind": "Type",
+      "leads": "Leads",
+      "locations": "Locations",
+      "metrics": "Metrics",
+      "period": "Period",
+      "pixel": "Pixel",
+      "placements": "Placements",
+      "purchases": "Purchases",
+      "report": "Report",
+      "rule": "Rule",
+      "sending": "Sending",
+      "size": "Size",
+      "source": "Source",
+      "spent": "Already spent",
+      "starts": "Starts",
+      "test": "Test",
+      "versions": "Versions",
+      "view": "View",
+      "when": "When"
     },
     "attachments": {
       "legend": "Attached files",
@@ -2083,12 +2177,13 @@
       "sipTrunks": "Phone lines",
       "callQueues": "Queues",
       "callHistory": "History",
-      "adsManager": "Ads Manager",
-      "createAd": "Create ad",
+      "adsOverview": "Account overview",
+      "adsManager": "Campaigns",
       "adsAudiences": "Audiences",
       "adsForms": "Forms and leads",
       "adsRules": "Automated rules",
-      "adsConversions": "Pixels and conversions"
+      "adsConversions": "Events Manager",
+      "adsReports": "Ads Reporting"
     },
     "badges": {
       "new": "New",
@@ -16251,25 +16346,6 @@
     "leadCost": "Estimated lead cost: {amount} (ad spend that day ÷ conversations that day)",
     "leadCostHint": "Estimate: Meta reports spend per ad per day, not per click. On {day} the ad spent {spend} and brought {conversations, plural, one {# conversation} other {# conversations}}."
   },
-  "adsAccounts": {
-    "blockedTitle": "Accounts that can't advertise yet",
-    "reasons": {
-      "funding": "No payment method",
-      "readOnly": "Read only",
-      "reconnect": "Needs reconnecting",
-      "metaStatus": "Inactive on Meta",
-      "unknown": "Unavailable"
-    },
-    "fundingHint": "Meta only creates ads on accounts with a payment method. Add one on Meta, then click Check again.",
-    "addPayment": "Add payment method",
-    "readOnlyHint": "Your profile can only view this account. Ask an account admin on Meta for the Advertiser role or higher, then click Check again.",
-    "rolesLink": "See account roles on Meta",
-    "hints": {
-      "reconnect": "The Meta connection expired. Reconnect the account in the Ads manager.",
-      "metaStatus": "Meta doesn't allow advertising on this account right now. Check its status in Meta Ads Manager.",
-      "unknown": "We couldn't confirm yet whether this account can advertise. Refresh the account in the Ads manager."
-    }
-  },
   "adsRequirements": {
     "recheck": "Check again",
     "checking": "Checking...",
@@ -16280,6 +16356,10 @@
       "accept": "Read the terms and click I agree. The person accepting must be a Page admin.",
       "comeBack": "Come back here and click Check again.",
       "openButton": "Accept terms on Meta"
+    },
+    "notice": {
+      "show": "Show details",
+      "hide": "Hide details"
     }
   },
   "adsWizard": {
@@ -16287,17 +16367,6 @@
     "editDescription": "Build a new creative for this ad. When you save, Meta swaps the creative and reviews the ad again.",
     "saveCreative": "Save creative",
     "savingCreative": "Saving...",
-    "creativeUnavailable": "Could not load this ad's creative. Open the ad in the manager and try again.",
-    "title": "Create ad",
-    "description": "Campaign, ad set and ads in one flow, published straight to your Meta ad account.",
-    "back": "Back to Ads",
-    "noAccess": "You do not have permission to create ads in this workspace.",
-    "noAccountTitle": "No account ready to advertise",
-    "noAccountBody": "Connect an ad account that is active in Meta and has a payment method.",
-    "optionsError": "Could not load the ad options. Try again in a moment.",
-    "parentError": "Could not open the chosen campaign or ad set: {message}. Pick it again in the first step.",
-    "previous": "Back",
-    "next": "Continue",
     "cancel": "Cancel",
     "publish": "Publish",
     "publishPaused": "Publish turned off",
@@ -16309,19 +16378,9 @@
       "feed": "Feed",
       "story": "Stories"
     },
-    "autosave": "The draft is saved in this browser while you edit.",
-    "restored": "Draft restored ({when}).",
-    "discard": "Discard draft",
     "discardTitle": "Discard this draft?",
-    "discardBody": "Everything you filled in will be erased from this browser. Nothing was sent to Meta.",
+    "discardBody": "The draft and everything filled in it will be deleted. Nothing was sent to Meta.",
     "discardConfirm": "Discard",
-    "steps": {
-      "objective": "Objective",
-      "campaign": "Campaign",
-      "adSet": "Ad set",
-      "ads": "Ads",
-      "review": "Review"
-    },
     "job": {
       "title": "Publishing",
       "needsReview": "Meta did not confirm; check Ads Manager before trying again.",
@@ -16345,31 +16404,8 @@
       "openJobs": "See publishes"
     },
     "objective": {
-      "accountTitle": "Ad account",
-      "accountDescription": "Only active accounts with a payment method in Meta are listed.",
-      "startTitle": "Where to start",
-      "startDescription": "Build everything from scratch or reuse a campaign you already have.",
-      "modes": {
-        "new": {
-          "title": "New campaign",
-          "body": "You set the objective, campaign, ad set and ads."
-        },
-        "campaign": {
-          "title": "Use an existing campaign",
-          "body": "Creates a new ad set inside one of your campaigns."
-        },
-        "adSet": {
-          "title": "Add to an existing ad set",
-          "body": "Only creates new ads in an ad set that is already running."
-        }
-      },
       "campaign": "Campaign",
       "adSet": "Ad set",
-      "search": "Search by name",
-      "noCampaigns": "No campaigns found in this account.",
-      "noAdSets": "No ad sets found in this campaign.",
-      "pickCampaign": "Choose the campaign above.",
-      "pickAdSet": "Choose the campaign and the ad set above.",
       "title": "Campaign objective",
       "description": "What you want people to do when they see the ad. It shapes the options in the next steps.",
       "unavailable": "Not available in this account.",
@@ -16737,14 +16773,8 @@
       "creativeEditHint": "You are changing the creative of an existing ad. The Page, ad set and destination stay the same.",
       "identityTitle": "Identity",
       "identityDescription": "The Page and Instagram account shown on every ad.",
-      "title": "Ads",
       "description": "Description",
-      "tab": "Ad {index}",
-      "tabHasIssues": "has issues",
-      "add": "Add ad",
-      "duplicate": "Duplicate ad",
       "copySuffix": "(copy)",
-      "remove": "Remove this ad",
       "maxAds": "This ad set already has the maximum of 10 ads.",
       "flexibleOneAd": "With the Flexible format in this objective, Meta requires a new ad set with a single ad. To have more ads, change the format.",
       "nameTitle": "Ad name",
@@ -16850,8 +16880,7 @@
       "iceBreakersHint": "Up to 3 questions with up to 80 characters each.",
       "enhancementsTitle": "Automatic enhancements",
       "enhancements": "Advantage+ creative enhancements",
-      "enhancementsHint": "When on, Meta may adapt the ad for each person: crop or expand the image, adjust brightness and contrast, reorder the texts and switch the ad template. Leave it off if you want the ad exactly as you built it.",
-      "creativesHint": "Each ad has its own creative: media, text and button. After publishing, swap the creative in the manager from the ad menu (Swap creative). Uploaded and AI generated images are kept in the media library."
+      "enhancementsHint": "When on, Meta may adapt the ad for each person: crop or expand the image, adjust brightness and contrast, reorder the texts and switch the ad template. Leave it off if you want the ad exactly as you built it."
     },
     "media": {
       "chosenImage": "Image chosen",
@@ -16906,41 +16935,17 @@
       }
     },
     "review": {
-      "creativeCheck": "Meta checks the creative when you save. If something breaks the rules, we show here what to fix.",
-      "creativeNote": "The ad goes back to Meta's review after the change. Past metrics stay on the ad.",
-      "summaryTitle": "Summary",
-      "account": "Account",
-      "objective": "Objective",
-      "campaign": "Campaign",
-      "category": "Special category",
-      "adSet": "Ad set",
-      "destination": "Destination",
-      "page": "Page",
-      "budget": "Budget",
       "budgetDaily": "{amount} per day",
       "budgetLifetime": "{amount} in total",
-      "onCampaign": "on the campaign",
-      "onAdSet": "on the ad set",
-      "budgetOnExistingCampaign": "Set on the existing campaign",
-      "budgetOnExistingAdSet": "Set on the existing ad set",
-      "schedule": "Schedule",
       "startsOn": "starts on {day}",
       "startsNow": "starts when published",
       "endsOn": "ends on {day}",
       "noEnd": "no end date",
       "hours": "at chosen hours",
-      "locations": "Location",
-      "audience": "Audience",
       "ages": "{min} to {max} years",
-      "placements": "Placements",
       "placementsAuto": "Advantage+ (automatic)",
-      "ads": "Ads",
-      "adFallback": "Ad {index}",
-      "pausedTitle": "How to publish",
       "keepPaused": "Publish turned off",
       "keepPausedHint": "Creates everything in Meta but leaves it off so you can turn it on later from the manager. Without this, the ads go to review and start running once approved.",
-      "checkTitle": "Check",
-      "checkDescription": "We check everything against Meta's rules before publishing. Publish is only available with no pending issues.",
       "ready": "Everything is ready to publish.",
       "fix": "Fix",
       "feePerAd": "Fee per published ad",
@@ -16950,7 +16955,7 @@
       "spendNote": "Ad spend is charged by Meta to the ad account. The fee above is the only charge on your balance.",
       "blockers": {
         "title": "Why you cannot publish yet",
-        "account": "This account cannot create ads right now.",
+        "readinessUnchecked": "We could not confirm yet whether this account is ready to run ads. Use Check again.",
         "notValidated": "We have not checked this draft against Meta's rules yet.",
         "validating": "Checking against Meta's rules...",
         "validationFailed": "The check did not finish: {message}",
@@ -17183,19 +17188,6 @@
         "not_for_destination": "This format is not available for the chosen destination."
       }
     },
-    "draftChoice": {
-      "title": "You have a saved draft",
-      "saved": "Draft saved in this browser.",
-      "savedAt": "Saved {when} in this browser.",
-      "account": "Account",
-      "objective": "Objective",
-      "campaign": "Campaign",
-      "ads": "Ads",
-      "step": "Stopped at",
-      "continue": "Continue draft",
-      "startOver": "Start from scratch",
-      "startOverHint": "Starting from scratch deletes the saved draft. Nothing from it was sent to Meta."
-    },
     "previewNoteStory": "Approximate 9:16 story mockup. Meta covers the top 14% with the Page and the bottom 35% with the text and the button."
   },
   "adsManager": {
@@ -17225,7 +17217,6 @@
     "report": {
       "attribution": "Attribution window",
       "breakdown": "Breakdown",
-      "compare": "Compare with previous period",
       "export": "Export CSV",
       "exporting": "Exporting...",
       "exportFailed": "Could not export the report",
@@ -17267,14 +17258,9 @@
         "desktop": "Desktop"
       },
       "columns": {
-        "spend": "Amount spent",
-        "share": "Share of spend",
-        "impressions": "Impressions",
-        "reach": "Reach",
-        "results": "Results",
-        "costPerResult": "Cost per result",
-        "cpm": "CPM"
-      }
+        "share": "Share of spend"
+      },
+      "tooMany": "A breakdown takes up to {max} items at a time. Select fewer rows in the table and open it again."
     },
     "rowActions": {
       "open": "Actions for {name}",
@@ -17295,7 +17281,13 @@
         "ad": "Delete ad?"
       },
       "deleteBody": "{name} will be deleted on Meta along with everything inside it. This cannot be undone, and its results stop showing here. To only stop delivery, turn it off or archive it.",
-      "swapCreative": "Swap creative"
+      "swapCreative": "Swap creative",
+      "publish": "Publish",
+      "history": "View publishing history",
+      "deleteDraft": "Delete draft",
+      "deleteDraftBody": "The draft {name} will be deleted. Nothing was published in Meta, so there is nothing to stop there.",
+      "deleteManyTitle": "{count, plural, one {Delete # item?} other {Delete # items?}}",
+      "deleteManyBody": "{count, plural, one {The selected item will be deleted.} other {The # selected items will be deleted.}} Published items are deleted in Meta with everything inside them, and this cannot be undone. Drafts only disappear from here."
     },
     "duplicate": {
       "title": {
@@ -17320,7 +17312,8 @@
       "cancel": "Cancel",
       "submit": "Duplicate",
       "saving": "Duplicating...",
-      "done": "Copy of {name} created"
+      "done": "Copy of {name} created",
+      "draftFailed": "Could not duplicate the draft {name}"
     },
     "spendCap": {
       "blocker": {
@@ -17353,17 +17346,6 @@
       "removeBody": "Without a limit, the account can keep spending while ads are on."
     },
     "edit": {
-      "title": {
-        "campaign": "Edit campaign",
-        "adset": "Edit ad set",
-        "ad": "Edit ad"
-      },
-      "tabs": {
-        "campaign": "Campaign",
-        "adset": "Ad set",
-        "ad": "Ad"
-      },
-      "optionsFailed": "Could not load the options from Meta, so editing is blocked: {message}",
       "retry": "Try again",
       "locked": "This item is archived or deleted on Meta and can no longer be changed.",
       "basics": "Identification",
@@ -17487,7 +17469,6 @@
       "fixIssues": "Fix the highlighted fields and try again."
     },
     "abTests": {
-      "open": "A/B tests",
       "title": "A/B tests",
       "description": "Tests in this Meta ad account.",
       "refresh": "Refresh list",
@@ -17556,8 +17537,7 @@
     "header": {
       "title": "Ads",
       "description": "Meta campaigns, ad sets and ads, with the results that reached your inbox.",
-      "connect": "Connect ad account",
-      "create": "Create ad"
+      "connect": "Connect ad account"
     },
     "noAccess": "You do not have permission to see this workspace's ads.",
     "retry": "Try again",
@@ -17570,13 +17550,6 @@
       "failed": "Could not refresh the account",
       "updated": "Updated {when}",
       "never": "Not synced yet"
-    },
-    "spendBlocker": {
-      "readOnly": "Your profile can only view this ad account.",
-      "reconnect": "Reconnect the ad account to create ads.",
-      "funding": "Set up a payment method in Meta Ads Manager to create ads.",
-      "metaStatus": "Meta is not delivering ads for this account right now.",
-      "unknown": "This account cannot create ads right now."
     },
     "connect": {
       "errorTitle": "Could not connect",
@@ -17616,7 +17589,12 @@
       "limitHint": "Meta accepts up to 4 budget changes per hour.",
       "cancel": "Cancel",
       "save": "Save",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "dailyTitle": "Daily budget",
+      "lifetimeTitle": "Lifetime budget",
+      "dailyExplain": "On a given day, Meta may spend up to {day}, 75% more than the daily budget. In a week it spends at most {week}, 7 times the daily budget.",
+      "lifetimeExplain": "Meta never spends more than the lifetime budget over the whole schedule.",
+      "aboutDaily": "About daily budgets"
     },
     "errors": {
       "timezone": "This ad account's time zone is unknown, so results cannot be split by day. Refresh the account."
@@ -17631,18 +17609,18 @@
       "rangeBody": "Change the date range, the search or the selection to see more results.",
       "firstTitle": "You have no campaigns yet",
       "firstBody": "Create your first ad here. Campaigns created in Meta Ads Manager show up after Refresh.",
-      "firstBodyReadOnly": "This account's campaigns show up here."
-    },
-    "filters": {
-      "search": "Search by name or ID",
-      "campaignsSelected": "{count, plural, one {# campaign selected} other {# campaigns selected}}",
-      "adSetsSelected": "{count, plural, one {# ad set selected} other {# ad sets selected}}",
-      "clear": "Clear filter: {label}"
+      "firstBodyReadOnly": "This account's campaigns show up here.",
+      "viewBody": "Nothing in this view. Choose All or change the date range."
     },
     "tabs": {
       "campaign": "Campaigns",
       "adset": "Ad sets",
-      "ad": "Ads"
+      "ad": "Ads",
+      "adsetForCampaigns": "{count, plural, one {Ad sets for # campaign} other {Ad sets for # campaigns}}",
+      "adForCampaigns": "{count, plural, one {Ads for # campaign} other {Ads for # campaigns}}",
+      "adForAdSets": "{count, plural, one {Ads for # ad set} other {Ads for # ad sets}}",
+      "selected": "{count} selected",
+      "clear": "Clear {count} selected"
     },
     "columns": {
       "toggle": "On",
@@ -17679,7 +17657,17 @@
       "videoP50": "50% watched",
       "videoP75": "75% watched",
       "videoP100": "100% watched",
-      "avgWatchSeconds": "Average watch time"
+      "avgWatchSeconds": "Average watch time",
+      "menuWith": "Columns: {preset}",
+      "presetsTitle": "Presets",
+      "presets": {
+        "performance": "Performance",
+        "performanceClicks": "Performance and clicks",
+        "engagement": "Engagement",
+        "delivery": "Delivery",
+        "custom": "Custom"
+      },
+      "customize": "Customize columns"
     },
     "table": {
       "issues": "{count, plural, one {# alert} other {# alerts}}",
@@ -17756,44 +17744,27 @@
         "last30": "Last 30 days",
         "thisMonth": "This month",
         "lastMonth": "Last month",
-        "custom": "Custom"
+        "custom": "Custom",
+        "todayAndYesterday": "Today and yesterday",
+        "last28": "Last 28 days",
+        "thisWeek": "This week",
+        "lastWeek": "Last week",
+        "maximum": "Maximum"
       },
-      "since": "From",
-      "until": "To",
       "to": "to",
       "timezone": "Time zone: {timezone}",
-      "timezoneUnknown": "unknown"
+      "timezoneUnknown": "unknown",
+      "compare": "Compare",
+      "compareWith": "With the previous period: {range}",
+      "invalid": "Choose a period that ends today or earlier, within the last 37 months.",
+      "cancel": "Cancel",
+      "apply": "Update"
     },
     "notices": {
       "readOnly": {
         "title": "View-only access",
-        "body": "Your Meta profile only has the analyst role on this account: you can see and export reports, but you cannot create or change ads. Ask a business admin to give you advertiser or admin access to this account in Meta business settings, then use Refresh.",
-        "action": "Open business settings"
-      },
-      "reconnect": {
-        "title": "Reconnect the ad account",
-        "body": "Meta no longer accepts access to this account. Data may be out of date and nothing can change until you reconnect.",
-        "action": "Reconnect"
-      },
-      "funding": {
-        "title": "No payment method",
-        "body": "Without a payment method, Meta does not let this account create or turn on ads. Add one in Meta Ads Manager.",
-        "action": "Open payment settings"
-      },
-      "metaStatus": {
-        "title": "The account is not active on Meta",
-        "body": "Status on Meta: {status}. Resolve it in Meta Ads Manager to deliver again."
-      },
-      "metaStatusLabel": {
-        "active": "active",
-        "disabled": "disabled",
-        "unsettled": "unpaid balance",
-        "pending_risk_review": "under risk review",
-        "pending_settlement": "awaiting settlement",
-        "in_grace_period": "in grace period",
-        "pending_closure": "closing",
-        "closed": "closed",
-        "unknown": "unknown"
+        "body": "Your Meta profile only has the analyst role on this account: you can view and export reports, but not create or change ads. Ask a business admin for advertiser or admin access to this account.",
+        "action": "See what is missing in Account overview"
       }
     },
     "jobs": {
@@ -18115,7 +18086,278 @@
       "switchOnHint": "Turns on this publish's campaign, ad set and ads at once.",
       "switchedOn": "Ad turned on. Meta reviews it before it starts running."
     },
-    "loadFailed": "Could not load"
+    "loadFailed": "Could not load",
+    "topBar": {
+      "title": {
+        "campaign": "Campaigns",
+        "adset": "Ad sets",
+        "ad": "Ads"
+      },
+      "discard": "Discard drafts",
+      "review": "Review and publish ({count})",
+      "draftsUnknown": "Could not load this account's drafts.",
+      "noDrafts": "No drafts in this account.",
+      "more": "More options",
+      "overview": "Account overview",
+      "jobs": "Publishing history",
+      "tests": "A/B tests",
+      "connect": "Connect ad account",
+      "disconnect": "Disconnect account"
+    },
+    "views": {
+      "label": "Views",
+      "all": "All",
+      "active": "Active",
+      "issues": "With issues",
+      "delivered": "Had delivery",
+      "search": "Search to filter by name or ID"
+    },
+    "toolbar": {
+      "create": "Create",
+      "publish": "Publish",
+      "duplicate": "Duplicate",
+      "edit": "Edit",
+      "editMenu": "More edit options",
+      "general": "General",
+      "activate": "Turn on",
+      "deactivate": "Turn off",
+      "findReplace": "Find and replace",
+      "creative": "Creative",
+      "delete": "Delete",
+      "abTest": "A/B test",
+      "more": "More",
+      "rules": "Automated rules",
+      "export": "Export",
+      "fields": {
+        "name": "Name",
+        "primaryText": "Primary text",
+        "headline": "Headline",
+        "description": "Description",
+        "link": "Website URL"
+      },
+      "blockers": {
+        "permission": "You do not have permission for this action.",
+        "account": "This ad account does not accept changes right now.",
+        "funding": "Add a payment method in Meta to turn this on.",
+        "selectSome": "Select at least one item.",
+        "selectOne": "Select a single item.",
+        "noDrafts": "Select a draft to publish.",
+        "publishedOnly": "Drafts are not part of this action. Remove the drafts from the selection.",
+        "publishing": "This draft is being published.",
+        "archived": "Archived or deleted items cannot be changed.",
+        "tooMany": "Select at most 50 items at a time.",
+        "testCount": "Select 2 to 5 items to compare.",
+        "level": "This action does not apply at this level.",
+        "draftRoot": "To duplicate a draft, use its top row: the copy takes the campaign, ad set and ads together."
+      }
+    },
+    "rename": {
+      "open": "Rename {name}",
+      "label": "New name",
+      "save": "Save name",
+      "cancel": "Cancel",
+      "required": "Enter a name.",
+      "notAllowed": "This name cannot be changed here."
+    },
+    "drafts": {
+      "label": "Draft",
+      "toggleHint": "Publish the draft to turn it on.",
+      "state": {
+        "editing": "In draft",
+        "publishing": "Publishing",
+        "failed": "Publishing error",
+        "unknown": "Unknown"
+      },
+      "failedNoReason": "Publishing failed. Open the publishing history to see why.",
+      "loadFailed": "Could not load drafts: {message}",
+      "discardTitle": "Discard drafts?",
+      "discardBody": "{count, plural, one {The draft item in this account will be discarded.} other {The # draft items in this account will be discarded.}} Drafts already being published continue. This cannot be undone.",
+      "discarded": "{count, plural, one {# draft discarded} other {# drafts discarded}}",
+      "discardFailed": "Could not discard the drafts"
+    },
+    "bulk": {
+      "title": "Edit {field}",
+      "appliesTo": "{count, plural, one {Your edit will apply to # item.} other {Your edits will apply to # items.}}",
+      "mode": "How to edit",
+      "modes": {
+        "set": "Replace all",
+        "replace": "Find and replace"
+      },
+      "newValue": "New {field}",
+      "valueRequired": "Enter the new value.",
+      "find": "Find",
+      "replace": "Replace with",
+      "findRequired": "Enter the text to find.",
+      "matchCase": "Match case",
+      "fieldNotForLevel": "This field only exists on ads.",
+      "cancel": "Cancel",
+      "apply": "Apply",
+      "saving": "Applying...",
+      "close": "Close",
+      "resultsTitle": "Edit result",
+      "tally": "{ok} changed, {failed} with errors.",
+      "noAnswer": "Meta did not answer about this item.",
+      "switched": "{ok, plural, one {# item changed} other {# items changed}}{failed, plural, =0 {} other {, # with errors}}",
+      "deleted": "{ok, plural, one {# item deleted} other {# items deleted}}{failed, plural, =0 {} other {, # with errors}}",
+      "activateFailed": "Could not turn the items on",
+      "pauseFailed": "Could not turn the items off"
+    },
+    "review": {
+      "title": "Review and publish",
+      "description": "Choose the drafts that go to Meta. Each one is checked against Meta's rules before it is published.",
+      "empty": "No drafts in this account.",
+      "existingCampaign": "Existing campaign",
+      "inExistingCampaign": "In an existing campaign",
+      "counts": "{adSets, plural, one {# ad set} other {# ad sets}} · {ads, plural, one {# ad} other {# ads}}",
+      "validating": "Checking",
+      "started": "Publishing started",
+      "failed": "Not published",
+      "alreadyPublishing": "This draft is already being published.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "publishing": "Publishing...",
+      "publish": "{count, plural, =0 {Publish} other {Publish (#)}}"
+    },
+    "connectCard": {
+      "button": "Continue with Facebook"
+    }
+  },
+  "adsReadiness": {
+    "title": "Get ready to run ads",
+    "description": "Meta asks for these items before publishing. Whatever the Meta API allows, you do here; the rest opens the right Meta screen, and we check again by ourselves when you come back.",
+    "optional": "Optional",
+    "noPermission": "Your Vozko access does not allow this action.",
+    "pixelName": "{account} pixel",
+    "loadError": "Could not check the account: {message}",
+    "awaiting": "When you finish at Meta, come back here: we check again by ourselves.",
+    "unchecked": "We could not confirm yet whether this account is ready to run ads.",
+    "unknownHint": "We could not check this item right now. Use Check again.",
+    "states": {
+      "ready": "Ready",
+      "missing": "Missing",
+      "unknown": "Not confirmed"
+    },
+    "actions": {
+      "reconnect": "Reconnect",
+      "sync": "Refresh account data",
+      "create_pixel": "Create pixel",
+      "portal": "Open in Meta"
+    },
+    "items": {
+      "connection": {
+        "title": "Connection to Meta",
+        "missing": "Meta stopped accepting access to this account. Reconnect to continue."
+      },
+      "advertiser_role": {
+        "title": "Advertiser role on the account",
+        "missing": "Your profile can only view this account. Ask a business admin for the advertiser or admin role, in Business settings, on the ad accounts tab."
+      },
+      "account_status": {
+        "title": "Account active at Meta",
+        "missing": "Meta is not delivering ads from this account. If a payment is due, settle it in billing; if the account was restricted, request a review in Account Quality."
+      },
+      "account_details": {
+        "title": "Account currency and time zone",
+        "missing": "We do not have the account currency or time zone yet. Refresh the account data."
+      },
+      "payment_method": {
+        "title": "Add a payment method",
+        "missing": "Without a payment method, Meta neither creates nor delivers ads on this account. Only Meta can add cards and other payment methods."
+      },
+      "page": {
+        "title": "Facebook Page",
+        "missing": "No Page your profile can use to advertise. Create a Page or ask for advertiser access to a business Page."
+      },
+      "phone_verification": {
+        "title": "Verify phone number",
+        "unknown": "Meta does not expose this through the API. If Meta asks, verify the phone number in Authorizations and verifications."
+      },
+      "email_verification": {
+        "title": "Verify email address",
+        "unknown": "Meta does not expose this through the API. Check the email in your Meta account contact info."
+      },
+      "custom_audience_terms": {
+        "title": "Custom audience terms",
+        "missing": "Needed only to create audiences from customer lists. Meta only accepts these terms on its own screen."
+      },
+      "pixel": {
+        "title": "Meta pixel",
+        "missing": "Needed only for website ads with conversions. Create the pixel right here."
+      }
+    },
+    "banner": {
+      "manager": {
+        "title": "Get ready to run ads",
+        "body": "Confirm a few details in 'Account overview' before publishing.",
+        "emptyBody": "Confirm a few details in 'Account overview' to publish your first ad campaign.",
+        "action": "Go to Account overview"
+      },
+      "wizard": {
+        "title": "Some required account information is missing",
+        "body": "We need to confirm a few details about your account before you can publish an ad. Go to Account overview to confirm this information before you start creating, or do it later.",
+        "action": "Go to Account overview"
+      },
+      "pending": "{count, plural, one {# item pending} other {# items pending}}"
+    },
+    "card": {
+      "ready": "The {account} account is ready to publish.",
+      "missing": "This ad account is no longer connected to this workspace."
+    }
+  },
+  "adsOverview": {
+    "header": {
+      "title": "Account overview",
+      "description": "What the account needs to run ads, its details and billing."
+    },
+    "summary": {
+      "title": "Account",
+      "name": "Name",
+      "id": "Meta ID",
+      "business": "Business",
+      "currency": "Currency",
+      "timezone": "Time zone",
+      "status": "Status",
+      "role": "Your role",
+      "activeCampaigns": "Active campaigns",
+      "spend7d": "Amount spent in the last 7 days",
+      "loading": "Loading...",
+      "unavailable": "Unavailable"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "unsettled": "Payment due",
+      "pending_risk_review": "In risk review",
+      "pending_settlement": "Awaiting payment settlement",
+      "in_grace_period": "In grace period",
+      "pending_closure": "Closing",
+      "closed": "Closed",
+      "unknown": "Unknown"
+    },
+    "roles": {
+      "admin": "Admin",
+      "advertiser": "Advertiser",
+      "read_only": "Read only"
+    },
+    "billing": {
+      "title": "Billing and payments",
+      "paymentMethod": "Payment method",
+      "noPaymentMethod": "None",
+      "paymentMethodHidden": "Added; only account admins see the details",
+      "balance": "Balance due",
+      "kind": "Billing type",
+      "prepay": "Prepaid",
+      "postpay": "Postpaid",
+      "amountSpent": "Amount spent on the account",
+      "openBilling": "Open Billing and payments in Meta",
+      "unavailable": "Billing details show for people who advertise on the account."
+    },
+    "performance": {
+      "title": "Performance",
+      "description": "Last 30 days, compared with the 30 days before, in the ad account time zone.",
+      "noTimezone": "This account's time zone is unknown, so results cannot be split by day. Refresh the account.",
+      "failed": "Could not load performance: {message}"
+    }
   },
   "adsErrors": {
     "account_admin_required": "Only an ad account admin can change the spending limit.",
@@ -18137,6 +18379,460 @@
     "object_locked": "Deleted or archived items cannot be changed.",
     "video_not_ready": "Meta is still processing the video. Try again in a moment.",
     "audience_terms_not_accepted": "Accept Meta's custom audience terms on this ad account.",
-    "job_not_activatable": "This publish was already turned on or was not published switched off."
+    "job_not_activatable": "This publish was already turned on or was not published switched off.",
+    "draft_changed": "Someone else changed this draft. Load the latest version and try again.",
+    "draft_publishing": "This draft is being published and cannot change right now."
+  },
+  "adsReports": {
+    "header": {
+      "title": "Ads Reporting",
+      "description": "Build, save and export reports on your campaigns, as in Meta Ads Manager."
+    },
+    "sections": {
+      "label": "Sections",
+      "reports": "Reports",
+      "exports": "Exports"
+    },
+    "list": {
+      "search": "Search to filter by name",
+      "create": "Create report",
+      "emptyTitle": "No reports",
+      "emptyBody": "You haven't created any reports yet",
+      "noMatchTitle": "No reports found",
+      "noMatchBody": "No report in this account has that name.",
+      "never": "Never",
+      "columns": {
+        "name": "Report name",
+        "lastOpened": "Last opened",
+        "updated": "Edited",
+        "created": "Created"
+      },
+      "open": "Open",
+      "rename": "Rename",
+      "delete": "Delete",
+      "exportsHistory": "Export history"
+    },
+    "rename": {
+      "title": "Rename report",
+      "label": "Report name",
+      "save": "Save",
+      "cancel": "Cancel",
+      "done": "Report renamed",
+      "failed": "Couldn't rename the report"
+    },
+    "delete": {
+      "title": "Delete report?",
+      "body": "The report \"{name}\" will be deleted. This can't be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "done": "Report deleted",
+      "failed": "Couldn't delete the report"
+    },
+    "templates": {
+      "title": "Suggested report templates",
+      "open": "View report",
+      "failed": "Couldn't load the templates: {message}",
+      "roi_snapshot": {
+        "title": "ROI snapshot",
+        "description": "Amount spent, results and cost per result to see what your campaigns return."
+      },
+      "reach_frequency": {
+        "title": "Reach and frequency",
+        "description": "How many people saw your ads and how many times, on average."
+      },
+      "overall_performance": {
+        "title": "Overall performance",
+        "description": "The main delivery, click and result numbers."
+      },
+      "signups_summary": {
+        "title": "Sign-ups summary report",
+        "description": "Sign-ups generated and what each one cost."
+      },
+      "age_gender": {
+        "title": "Age and gender",
+        "description": "Results split by the age and gender of the people who saw the ads."
+      },
+      "engagement": {
+        "title": "Engagement",
+        "description": "Clicks, CTR and conversations started by the ads."
+      },
+      "unknown": {
+        "title": "Report template",
+        "description": "A ready-made template to start your report."
+      }
+    },
+    "editor": {
+      "back": "All reports",
+      "untitled": "Untitled report",
+      "titleLabel": "Report name",
+      "save": "Save",
+      "refresh": "Refresh",
+      "export": "Export",
+      "customize": "Customize",
+      "viewLabel": "View",
+      "views": {
+        "pivot": "Pivot table",
+        "trend": "Trend",
+        "bars": "Bars"
+      },
+      "saved": "Report saved",
+      "saveFailed": "Couldn't save the report",
+      "exported": "Report exported",
+      "noData": "No data to show",
+      "noDataBody": "Meta returned no data for this period and these breakdowns.",
+      "noRange": "Choose a valid date range to see the data.",
+      "loadFailed": "Couldn't load the data",
+      "templateMissing": "Report template not found",
+      "templateMissingBody": "This template no longer exists. Go back to the list and choose another one.",
+      "reportMissing": "Couldn't open the report",
+      "total": "Total",
+      "object": {
+        "campaign": "Campaign name",
+        "adset": "Ad set name",
+        "ad": "Ad name"
+      },
+      "noMetrics": "Choose at least one metric in Customize.",
+      "trendNoMetrics": "None of the chosen metrics has a daily series. In Customize, choose Amount spent, Impressions, Link clicks, Results or Conversations.",
+      "readOnly": "You can view this report, but you don't have permission to save changes.",
+      "barsOf": "{metric} by {dimension}",
+      "day": "Day",
+      "exportedBody": "The file is also saved in Exports so you can download it again.",
+      "exportFailed": "Could not export the report",
+      "exportDownloadFailed": "The report was exported, but the download failed. Download the file from Exports."
+    },
+    "panel": {
+      "title": "Customize",
+      "close": "Close",
+      "tabs": {
+        "breakdowns": "Breakdowns",
+        "metrics": "Metrics"
+      },
+      "level": "Level",
+      "levels": {
+        "campaign": "Campaign",
+        "adset": "Ad set",
+        "ad": "Ad"
+      },
+      "breakdowns": "Breakdowns",
+      "breakdownsHint": "Meta only accepts some combinations, such as Age with Gender or Platform with Placement.",
+      "trendHint": "In Trend, only the metrics with a daily series are shown."
+    },
+    "metrics": {
+      "spend": "Amount spent",
+      "impressions": "Impressions",
+      "reach": "Reach",
+      "frequency": "Frequency",
+      "clicks": "Clicks (all)",
+      "linkClicks": "Link clicks",
+      "ctr": "CTR (link click-through rate)",
+      "cpc": "CPC (cost per link click)",
+      "cpm": "CPM (cost per 1,000 impressions)",
+      "results": "Results",
+      "costPerResult": "Cost per result",
+      "conversations": "Messaging conversations started",
+      "costPerConversation": "Cost per conversation started",
+      "thruPlays": "ThruPlays",
+      "costPerThruPlay": "Cost per ThruPlay"
+    },
+    "unsaved": {
+      "title": "You have unsaved changes",
+      "body": "If you leave now, the changes to this report will be lost.",
+      "discard": "Don't save",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "exports": {
+      "columns": {
+        "name": "Name",
+        "period": "Period",
+        "rows": "Rows",
+        "size": "Size",
+        "created": "Created"
+      },
+      "period": "{since} to {until}",
+      "download": "Download",
+      "downloadFailed": "Could not download the export",
+      "emptyTitle": "No exports",
+      "emptyBody": "Reports you export show up here so you can download them again.",
+      "delete": {
+        "action": "Delete",
+        "title": "Delete export?",
+        "body": "The file \"{name}\" will be deleted. This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "done": "Export deleted",
+        "failed": "Could not delete the export"
+      }
+    }
+  },
+  "adsCreate": {
+    "title": "Create",
+    "description": "Create a new campaign or add an ad set or an ad to a campaign that already exists.",
+    "tabs": {
+      "new": "Create new campaign",
+      "existing": "New ad set or ad"
+    },
+    "buyingTypeTitle": "Choose a buying type",
+    "buyingType": "Buying type",
+    "auction": "Auction",
+    "objectiveTitle": "Choose a campaign objective",
+    "pickObjectiveHint": "Hover over an objective to see what it is for.",
+    "goodFor": "Good for:",
+    "objectives": {
+      "OUTCOME_AWARENESS": {
+        "description": "Show your ads to people who are most likely to remember them.",
+        "goodFor": [
+          "Reach",
+          "Brand awareness",
+          "Video views",
+          "Store location awareness"
+        ]
+      },
+      "OUTCOME_TRAFFIC": {
+        "description": "Send people to a destination, like your website, app, Instagram profile or Facebook event.",
+        "goodFor": [
+          "Link clicks",
+          "Landing page views",
+          "Instagram profile visits",
+          "Messenger and WhatsApp",
+          "Calls"
+        ]
+      },
+      "OUTCOME_ENGAGEMENT": {
+        "description": "Get more messages, video views, post engagement, Page likes or event responses.",
+        "goodFor": [
+          "Messages",
+          "Video views",
+          "Post engagement",
+          "Page likes",
+          "Event responses"
+        ]
+      },
+      "OUTCOME_LEADS": {
+        "description": "Collect leads for your business or brand.",
+        "goodFor": [
+          "Instant forms",
+          "Messenger and WhatsApp",
+          "Conversions",
+          "Calls"
+        ]
+      },
+      "OUTCOME_APP_PROMOTION": {
+        "description": "Find new people to install your app and continue using it.",
+        "goodFor": [
+          "App installs",
+          "App events"
+        ]
+      },
+      "OUTCOME_SALES": {
+        "description": "Find people likely to purchase your product or service.",
+        "goodFor": [
+          "Conversions",
+          "Catalog sales",
+          "Messenger and WhatsApp",
+          "Calls"
+        ]
+      }
+    },
+    "existingDescription": "Choose the campaign and, if you want, the ad set where the new item goes.",
+    "campaign": "Campaign",
+    "adSetOptional": "Ad set (optional)",
+    "noCampaigns": "No campaigns found in this account.",
+    "noAdSets": "No ad sets found in this campaign.",
+    "search": "Search by name",
+    "creates": {
+      "adSet_ad": "Creates a new ad set with one ad in this campaign.",
+      "ad": "Creates a new ad in this ad set."
+    },
+    "names": {
+      "campaign": "New {objective} campaign",
+      "adSet": "New {objective} ad set",
+      "ad": "New {objective} ad"
+    },
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "creating": "Creating...",
+    "noAccount": "Choose a connected ad account to create a campaign."
+  },
+  "adsEditor": {
+    "noAccess": "You do not have permission to create ads in this workspace.",
+    "draftMissing": "Could not open this draft: {message}",
+    "loadFailed": "Could not load the editor: {message}",
+    "accountMissing": "The ad account of this item is no longer connected.",
+    "objectMissing": "We could not find this campaign in the account. Refresh the account data and try again.",
+    "nothingToEdit": "Choose a draft or an item in Campaigns to edit.",
+    "toManager": "Go to Campaigns",
+    "issuesTitle": "{count, plural, one {# item needs attention} other {# items need attention}}",
+    "publishingNote": "This draft is being published. It becomes editable again if publishing fails.",
+    "conflicts": {
+      "changed": "This draft was changed in another tab or by someone else. We loaded the latest version: check your last changes.",
+      "publishing": "This draft started publishing and can no longer be edited."
+    },
+    "autosave": {
+      "saved": "Saved as draft",
+      "pending": "Changes not saved yet",
+      "saving": "Saving...",
+      "error": "Could not save: {message}",
+      "retry": "Try again"
+    },
+    "status": {
+      "draft": "In draft",
+      "publishing": "Publishing",
+      "failed": "Publishing failed"
+    },
+    "tabs": {
+      "edit": "Edit",
+      "analyze": "Review"
+    },
+    "tree": {
+      "label": "Draft items",
+      "menu": "Actions for {name}",
+      "hasIssues": "Needs attention",
+      "addAd": "Add ad",
+      "duplicateAd": "Duplicate ad",
+      "deleteAd": "Delete ad",
+      "objectLabel": "Campaign items"
+    },
+    "levels": {
+      "campaign": "Campaign",
+      "adSet": "Ad set",
+      "ad": "Ad",
+      "adNumbered": "Ad {index}"
+    },
+    "footer": {
+      "terms": "By clicking Publish, you agree to <link>Meta's Terms and Conditions</link>.",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "discard": "Discard draft"
+    },
+    "closeDialog": {
+      "title": "Publish draft items?",
+      "body": "Your changes were saved as a draft automatically. Publish now or close and continue later."
+    },
+    "publish": {
+      "title": "Review and publish",
+      "description": "Vozko checks the draft with Meta before publishing.",
+      "saveFailed": "Could not save the draft before publishing: {message}"
+    },
+    "preview": {
+      "ad": "Ad",
+      "destination": "Destination"
+    },
+    "destination": {
+      "chat": {
+        "whatsapp": "WhatsApp chat",
+        "messenger": "Messenger chat",
+        "instagram": "Instagram Direct chat"
+      },
+      "chatNoGreeting": "No greeting message. The chat opens empty.",
+      "chatHint": "This is what the person sees after tapping the ad button.",
+      "website": "Website",
+      "websiteEmpty": "Add the website link to see the destination.",
+      "websiteHint": "The person opens this address after tapping the ad.",
+      "formLoading": "Loading the instant form...",
+      "formEmpty": "Choose an instant form to see the destination.",
+      "app": "The person goes to the app store to install your app.",
+      "post": "The person engages with the post without leaving Facebook or Instagram.",
+      "none": "This ad does not lead to another destination."
+    },
+    "analysis": {
+      "edit": "Edit",
+      "empty": "Not set",
+      "budgetStrategies": {
+        "campaign": "Advantage+ campaign budget",
+        "adSet": "Ad set budget"
+      },
+      "budgetPlaces": {
+        "campaign": "Set on the campaign",
+        "existingCampaign": "Set on the existing campaign",
+        "existingAdSet": "Set on the existing ad set"
+      },
+      "facts": {
+        "name": "Name",
+        "campaignName": "Campaign name",
+        "buyingType": "Buying type",
+        "objective": "Objective",
+        "specialCategory": "Special ad categories",
+        "budgetStrategy": "Budget strategy",
+        "budget": "Budget",
+        "bidStrategy": "Bid strategy",
+        "adSetName": "Ad set name",
+        "destination": "Conversion location",
+        "goal": "Performance goal",
+        "whatsAppNumber": "WhatsApp number",
+        "schedule": "Schedule",
+        "locations": "Locations",
+        "ages": "Age",
+        "languages": "Languages",
+        "detailedTargeting": "Detailed targeting",
+        "customAudiences": "Custom audiences",
+        "placements": "Placements",
+        "adName": "Ad name",
+        "page": "Facebook Page",
+        "format": "Format",
+        "primaryText": "Primary text",
+        "headline": "Headline",
+        "callToAction": "Call to action",
+        "link": "Website URL",
+        "greeting": "Greeting message"
+      }
+    },
+    "failedNote": "The last publish failed: {message}. Fix the draft and publish again.",
+    "multi": {
+      "mixedValues": "Mixed values",
+      "mixedStatus": "Mixed statuses",
+      "setForAll": "Set one value for all",
+      "keepMixed": "Keep the current value of each {each}",
+      "each": {
+        "campaign": "campaign",
+        "adset": "ad set",
+        "ad": "ad"
+      },
+      "appliesTo": {
+        "campaign": "{count, plural, one {Your edits will apply to # campaign} other {Your edits will apply to # campaigns}}",
+        "adset": "{count, plural, one {Your edits will apply to # ad set} other {Your edits will apply to # ad sets}}",
+        "ad": "{count, plural, one {Your edits will apply to # ad} other {Your edits will apply to # ads}}"
+      },
+      "editEach": {
+        "campaign": "Edit each campaign",
+        "adset": "Edit each ad set",
+        "ad": "Edit each ad"
+      },
+      "crumbs": {
+        "campaign": "{count, plural, one {# Campaign} other {# Campaigns}}",
+        "adset": "{count, plural, one {# Ad set} other {# Ad sets}}",
+        "ad": "{count, plural, one {# Ad} other {# Ads}}"
+      },
+      "treeLabel": "Selected items",
+      "activateAll": "Turn all on",
+      "deactivateAll": "Turn all off",
+      "allOn": "On",
+      "allOff": "Off",
+      "fixFields": "Fix the highlighted fields to save.",
+      "textTitle": "Ad text",
+      "groups": {
+        "name": "Name",
+        "budgetBid": "Budget and bidding",
+        "endDay": "Last day of delivery",
+        "schedule": "Delivery hours",
+        "targeting": "Audience",
+        "placements": "Placements",
+        "primaryText": "Primary text",
+        "headline": "Headline",
+        "description": "Description",
+        "link": "Website URL"
+      },
+      "blockers": {
+        "missing": "Not every item has this field. Edit the items one by one.",
+        "budgetShape": "The budgets sit on different levels or are of different types. Edit the items one by one.",
+        "goal": "The performance goals differ, and bid strategies depend on them. Edit the items one by one.",
+        "destination": "The items lead to different destinations, and placements depend on them. Edit the items one by one."
+      },
+      "loadFailed": "Some of the selected items could not be opened. Open each one from the links below.",
+      "levelMismatch": "The selected items are not on the same level. Open each one from the links below.",
+      "notLoaded": "This item could not be loaded.",
+      "invalidSelection": "To edit items together, select 2 to 50 published items of the same level in Campaigns."
+    }
   }
 }

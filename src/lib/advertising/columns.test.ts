@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_COLUMNS, METRIC_COLUMNS, needsLiveData, nextSort, parseVisibleColumns, sortRows, toggleColumn } from "./columns";
+import {
+  COLUMN_PRESETS,
+  DEFAULT_COLUMNS,
+  METRIC_COLUMNS,
+  needsLiveData,
+  nextSort,
+  parseVisibleColumns,
+  presetColumns,
+  presetOf,
+  sortRows,
+  toggleColumn,
+} from "./columns";
 import type { AdMetrics, AdOutcome, AdRow } from "./types";
 
 const metrics = (overrides: Partial<AdMetrics> = {}): AdMetrics => ({
@@ -103,5 +114,36 @@ describe("nextSort", () => {
 
   it("starts names ascending", () => {
     expect(nextSort(null, "name")).toEqual({ key: "name", direction: "asc" });
+  });
+});
+
+describe("column presets", () => {
+  it("offers Meta's presets in Meta's order", () => {
+    expect(COLUMN_PRESETS).toEqual(["performance", "performanceClicks", "engagement", "delivery"]);
+  });
+
+  it("opens on Desempenho without any live column, so the table loads from the report alone", () => {
+    expect(DEFAULT_COLUMNS).toEqual(presetColumns("performance"));
+    expect(needsLiveData(presetColumns("performance"))).toBe(false);
+  });
+
+  it("keeps every preset in catalog order with known columns only", () => {
+    for (const preset of COLUMN_PRESETS) {
+      const columns = presetColumns(preset);
+      expect(columns).toEqual(METRIC_COLUMNS.filter((column) => columns.includes(column)));
+      expect(columns[0]).toBe("delivery");
+    }
+  });
+
+  it("names the preset the visible columns match, whatever order they come in", () => {
+    expect(presetOf(presetColumns("engagement"))).toBe("engagement");
+    expect(presetOf([...presetColumns("delivery")].reverse())).toBe("delivery");
+    expect(presetOf(toggleColumn(presetColumns("performance"), "ctr"))).toBeNull();
+  });
+
+  it("hands out a copy, so toggling never changes the preset", () => {
+    const columns = presetColumns("performance");
+    columns.pop();
+    expect(presetColumns("performance")).toEqual(DEFAULT_COLUMNS);
   });
 });

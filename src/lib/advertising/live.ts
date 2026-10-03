@@ -65,57 +65,6 @@ export function liveValue(live: AdLiveRow | null, column: LiveColumn): number | 
   }
 }
 
-export interface BreakdownSlice {
-  key: string;
-  values: string[];
-  spend: number;
-  impressions: number;
-  linkClicks: number;
-  results: number | null;
-  costPerResult: number | null;
-  cpm: number | null;
-  reach: number | null;
-  share: number;
-}
-
-function sliceKey(row: AdLiveRow, breakdowns: string[]): string[] {
-  return breakdowns.map((breakdown) => row.dimensions?.[breakdown] ?? "");
-}
-
-export function aggregateBreakdown(rows: AdLiveRow[] | null | undefined, breakdowns: string[]): BreakdownSlice[] {
-  const groups = new Map<string, AdLiveRow[]>();
-  for (const row of rows ?? []) {
-    if (isTotalRow(row)) continue;
-    const key = JSON.stringify(sliceKey(row, breakdowns));
-    groups.set(key, [...(groups.get(key) ?? []), row]);
-  }
-  const slices = Array.from(groups.entries()).map(([key, members]) => {
-    const spend = members.reduce((sum, row) => sum + row.metrics.spend, 0);
-    const impressions = members.reduce((sum, row) => sum + row.metrics.impressions, 0);
-    const linkClicks = members.reduce((sum, row) => sum + row.metrics.linkClicks, 0);
-    const actions = new Set(members.map((row) => row.metrics.resultAction));
-    const comparable = actions.size === 1 && members.every((row) => !row.metrics.mixedResults && row.metrics.resultAction);
-    const results = comparable ? members.reduce((sum, row) => sum + row.metrics.results, 0) : null;
-    const singleObject = new Set(members.map((row) => row.objectId)).size === 1;
-    return {
-      key,
-      values: JSON.parse(key) as string[],
-      spend,
-      impressions,
-      linkClicks,
-      results,
-      costPerResult: results ? Math.round(spend / results) : null,
-      cpm: impressions > 0 ? Math.round((spend / impressions) * 1000) : null,
-      reach: singleObject ? members[0].reach : null,
-      share: 0,
-    };
-  });
-  const totalSpend = slices.reduce((sum, slice) => sum + slice.spend, 0);
-  return slices
-    .map((slice) => ({ ...slice, share: totalSpend > 0 ? slice.spend / totalSpend : 0 }))
-    .sort((a, b) => b.spend - a.spend || a.key.localeCompare(b.key));
-}
-
 export function withLiveResults(row: ManagerRow): ManagerRow {
   const live = row.live?.metrics;
   return {

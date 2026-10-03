@@ -92,10 +92,6 @@ export function jobOutcome(status: string): JobOutcome {
   return "working";
 }
 
-export function publishedCampaignId(job: Pick<AdPublishJob, "progress">, existingCampaignId: string | undefined): string | null {
-  return job.progress?.campaignId || existingCampaignId || null;
-}
-
 export function canSwitchOnLater(job: Pick<AdPublishJob, "status" | "progress">): boolean {
   return job.status === "PUBLISHED" && job.progress?.activated !== true;
 }

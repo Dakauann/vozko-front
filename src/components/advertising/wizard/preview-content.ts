@@ -1,4 +1,4 @@
-import type { AdForm, MediaChoice, WizardForm } from "@/lib/advertising/draft";
+import type { AdForm, MediaChoice } from "@/lib/advertising/draft";
 import type { AdPage } from "@/lib/advertising/types";
 
 import type { AdPreviewContent, AdPreviewMedia } from "../ad-preview-card";
@@ -7,7 +7,7 @@ function previewMedia(media: MediaChoice | null): AdPreviewMedia | undefined {
   return media ? { kind: media.kind, url: media.url } : undefined;
 }
 
-export function previewContent(form: WizardForm, ad: AdForm | undefined, page: AdPage | undefined): AdPreviewContent {
+export function previewContent(destination: string, ad: AdForm | undefined, page: AdPage | undefined): AdPreviewContent {
   const flexible = ad?.format === "FLEXIBLE";
   const texts = (ad?.texts ?? []).map((text) => text.trim()).filter(Boolean);
   const headlines = (ad?.headlines ?? []).map((text) => text.trim()).filter(Boolean);
@@ -24,9 +24,11 @@ export function previewContent(form: WizardForm, ad: AdForm | undefined, page: A
     medias: ad?.medias.map((media) => ({ kind: media.kind, url: media.url })),
     textCount: texts.length,
     post: ad?.post ? { message: ad.post.message, pictureUrl: ad.post.pictureUrl } : undefined,
-    destination: form.destination,
+    destination,
     callToAction: ad?.callToAction,
     displayLink: ad?.displayLink,
+    link: ad?.link,
+    leadFormId: ad?.leadFormId,
     greeting: ad?.greeting,
     iceBreakers: ad?.iceBreakers,
   };

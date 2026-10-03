@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { aggregateBreakdown, liveById, liveValue, mergeLiveRows, withLiveResults } from "./live";
+import { liveById, liveValue, mergeLiveRows, withLiveResults } from "./live";
 import type { AdLiveRow, AdMetrics, AdRow } from "./types";
 
 const metrics = (overrides: Partial<AdMetrics> = {}): AdMetrics => ({
@@ -72,45 +72,6 @@ describe("mergeLiveRows", () => {
     expect(liveValue(value, "videoP100")).toBe(2);
     expect(liveValue(value, "avgWatchSeconds")).toBe(7.5);
     expect(liveValue(value, "costPerThruPlay")).toBe(2_000_000);
-  });
-});
-
-describe("aggregateBreakdown", () => {
-  it("sums slices across objects, largest spend first, with each share", () => {
-    const slices = aggregateBreakdown(
-      [
-        live("1", { dimensions: { age: "18-24" }, metrics: metrics({ spend: 1_000_000, impressions: 1000, results: 2 }) }),
-        live("2", { dimensions: { age: "18-24" }, metrics: metrics({ spend: 1_000_000, impressions: 1000, results: 2 }) }),
-        live("1", { dimensions: { age: "25-34" }, metrics: metrics({ spend: 6_000_000, impressions: 2000, results: 3 }) }),
-      ],
-      ["age"],
-    );
-    expect(slices.map((slice) => slice.values)).toEqual([["25-34"], ["18-24"]]);
-    expect(slices[1].spend).toBe(2_000_000);
-    expect(slices[1].results).toBe(4);
-    expect(slices[1].costPerResult).toBe(500_000);
-    expect(slices[0].share).toBe(0.75);
-  });
-
-  it("does not add reach across objects, since people overlap", () => {
-    const slices = aggregateBreakdown(
-      [live("1", { dimensions: { gender: "female" }, reach: 10 }), live("2", { dimensions: { gender: "female" }, reach: 20 })],
-      ["gender"],
-    );
-    expect(slices[0].reach).toBeNull();
-    expect(aggregateBreakdown([live("1", { dimensions: { gender: "male" }, reach: 10 })], ["gender"])[0].reach).toBe(10);
-  });
-
-  it("leaves results unknown when the slices count different things", () => {
-    const slices = aggregateBreakdown(
-      [
-        live("1", { dimensions: { age: "18-24" }, metrics: metrics({ results: 2 }) }),
-        live("2", { dimensions: { age: "18-24" }, metrics: metrics({ results: 2, resultAction: "lead" }) }),
-      ],
-      ["age"],
-    );
-    expect(slices[0].results).toBeNull();
-    expect(slices[0].costPerResult).toBeNull();
   });
 });
 

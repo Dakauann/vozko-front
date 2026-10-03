@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { accountIsReady, blockingItems, itemAction, readinessKey, readinessState } from "./readiness";
+import { accountIsReady, blockingItems, itemAction, metaPortalUrl, readinessKey, readinessState } from "./readiness";
 
 describe("accountIsReady", () => {
   it("is ready only when the server says so and nothing blocks", () => {
@@ -53,5 +53,15 @@ describe("itemAction", () => {
     expect(itemAction({ action: { kind: "portal", url: "https://facebook.com.evil.test/x" } })).toBeNull();
     expect(itemAction({ action: { kind: "portal", url: "not a url" } })).toBeNull();
     expect(itemAction({})).toBeNull();
+  });
+});
+
+describe("metaPortalUrl", () => {
+  it("keeps the account scoped Meta link and drops anything else", () => {
+    const scoped = "https://business.facebook.com/latest/billing_hub/payment_settings?business_id=777&asset_id=111";
+    expect(metaPortalUrl(scoped)).toBe(scoped);
+    expect(metaPortalUrl("https://adsmanager.facebook.com/adsmanager/manage/accounts?act=111")).not.toBeNull();
+    expect(metaPortalUrl("javascript:alert(1)")).toBeNull();
+    expect(metaPortalUrl(undefined)).toBeNull();
   });
 });

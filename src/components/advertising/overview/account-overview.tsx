@@ -4,17 +4,20 @@ import { useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { getAdsReportAction } from "@/app/actions/advertising";
+import { getAdsReportAction, getAdsTrendAction } from "@/app/actions/advertising";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { SquaresFour } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { civilToday, rangeForPreset } from "@/lib/advertising/date-range";
 import { deliveryKey } from "@/lib/advertising/delivery";
-import type { AdAccount, AdReport } from "@/lib/advertising/types";
+import { metaPortalUrl } from "@/lib/advertising/readiness";
+import type { AdAccount, AdReport, AdTrend } from "@/lib/advertising/types";
 
 import { AccountGate } from "../account-gate";
 import { AccountPicker } from "../account-picker";
+import { AdsKpiStrip } from "../ads-kpi-strip";
+import { AdsTrendChart } from "../ads-trend-chart";
 import { ReadinessCard } from "../readiness";
 import { SpendCapControl } from "../spend-cap-control";
 import { useAdReadiness, type AdReadinessState } from "../use-ad-readiness";
@@ -71,6 +74,31 @@ function AccountSummary({ account }: { account: AdAccount }) {
   );
 }
 
+function PerformanceSection({ account }: { account: AdAccount }) {
+  const t = useTranslations("adsOverview.performance");
+  const [now] = useState(() => new Date());
+  const today = civilToday(account.timezone, now);
+  const range = today ? rangeForPreset("last30", today) : null;
+  const key = range ? `${account.id}:${range.since}:${range.until}` : null;
+  const report = useAdsResource<AdReport>(key ? `overview-performance:${key}` : null, () =>
+    getAdsReportAction(account.id, { level: "campaign", range: range ?? { since: "", until: "" }, compare: true }),
+  );
+  const trend = useAdsResource<AdTrend>(key ? `overview-trend:${key}` : null, () => getAdsTrendAction(account.id, { range: range ?? { since: "", until: "" } }));
+  const data = report.status === "ready" ? report.data : null;
+
+  return (
+    <section className="space-y-3">
+      <div className="space-y-0.5">
+        <h2 className="font-display text-base font-semibold text-foreground">{t("title")}</h2>
+        <p className="text-sm text-muted-foreground">{range ? t("description") : t("noTimezone")}</p>
+      </div>
+      {report.status === "error" ? <p className="text-sm text-destructive-ink">{t("failed", { message: report.message })}</p> : null}
+      <AdsKpiStrip totals={data?.totals ?? null} outcome={data?.outcome ?? null} previous={data?.previous ?? null} loading={!!range && report.status === "loading"} />
+      <AdsTrendChart trend={trend.status === "ready" ? trend.data : null} loading={!!range && trend.status === "loading"} />
+    </section>
+  );
+}
+
 function BillingSummary({
   account,
   state,
@@ -85,6 +113,7 @@ function BillingSummary({
   const t = useTranslations("adsOverview.billing");
   const fmt = useAdsFormat();
   const billing = state.readiness?.billing;
+  const billingPortal = metaPortalUrl(billing?.portalUrl);
   const method = !account.hasFunding ? t("noPaymentMethod") : billing?.paymentMethod || t("paymentMethodHidden");
 
   return (
@@ -96,13 +125,12 @@ function BillingSummary({
         <Fact label={t("amountSpent")} value={fmt.minor(account.amountSpent ?? 0, account.currency)} />
       </dl>
       <SpendCapControl account={account} canUpdate={canUpdate} onSaved={onAccountUpdated} />
-      {billing ? (
-        <ExternalLink href={billing.portalUrl} onOpen={state.openPortal}>
+      {billingPortal ? (
+        <ExternalLink href={billingPortal} onOpen={state.openPortal}>
           {t("openBilling")}
         </ExternalLink>
-      ) : (
-        <p className="text-xs text-muted-foreground">{t("unavailable")}</p>
-      )}
+      ) : null}
+      {!billing ? <p className="text-xs text-muted-foreground">{t("unavailable")}</p> : null}
     </Panel>
   );
 }
@@ -120,12 +148,15 @@ function OverviewBody({
 }) {
   const readiness = useAdReadiness(account, onAccountUpdated);
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <ReadinessCard account={account} state={readiness} canCreate={canCreate} />
-      <div className="space-y-4">
-        <AccountSummary account={account} />
-        <BillingSummary account={account} state={readiness} canUpdate={canUpdate} onAccountUpdated={onAccountUpdated} />
+    <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <ReadinessCard account={account} state={readiness} canCreate={canCreate} />
+        <div className="space-y-4">
+          <AccountSummary account={account} />
+          <BillingSummary account={account} state={readiness} canUpdate={canUpdate} onAccountUpdated={onAccountUpdated} />
+        </div>
       </div>
+      <PerformanceSection account={account} />
     </div>
   );
 }

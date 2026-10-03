@@ -51,7 +51,7 @@ describe("sidebar access", () => {
     expect(meta.map((item) => [item.labelKey, item.href])).toEqual([
       ["nav.adsOverview", "/dashboard/advertising/overview"],
       ["nav.adsManager", "/dashboard/advertising"],
-      ["nav.createAd", "/dashboard/advertising/new"],
+      ["nav.adsReports", "/dashboard/advertising/reports"],
       ["nav.adsAudiences", "/dashboard/advertising/audiences"],
       ["nav.adsForms", "/dashboard/advertising/forms"],
       ["nav.adsRules", "/dashboard/advertising/rules"],
@@ -78,6 +78,12 @@ describe("sidebar access", () => {
     expect(ruleForPath("/dashboard/advertising/forms")).toEqual({ kind: "screen", screen: "ads_forms" });
     expect(ruleForPath("/dashboard/advertising/rules")).toEqual({ kind: "screen", screen: "ads_rules" });
     expect(ruleForPath("/dashboard/advertising/conversions")).toEqual({ kind: "screen", screen: "ads_conversions" });
+  });
+
+  it("gates the ads reports pages behind their own screen", () => {
+    for (const path of ["/dashboard/advertising/reports", "/dashboard/advertising/reports/new", "/dashboard/advertising/reports/abc"]) {
+      expect(ruleForPath(path)).toEqual({ kind: "screen", screen: "ads_reports" });
+    }
   });
 
   it("shows a Meta page exactly when its own page would open", () => {

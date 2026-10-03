@@ -7,11 +7,13 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PencilSimple } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DAILY_BUDGET_HELP_URL, dailySpendLimits } from "@/lib/advertising/manager-budget";
 import { inputToMinor, minorToInput } from "@/lib/advertising/money";
 import type { AdBudgetMinimum } from "@/lib/advertising/types";
 
 import { BudgetMinimumHint, useBudgetMinimum, type BudgetMinimumQuery } from "./budget-minimum";
 import { useAdsFormat } from "./use-ads-format";
+import { ExternalLink } from "./wizard/choice-row";
 
 export function BudgetCell({
   dailyBudget,
@@ -52,6 +54,7 @@ export function BudgetCell({
   if (!editable) return value;
 
   const parsed = inputToMinor(input, currency);
+  const limits = daily ? dailySpendLimits(parsed ?? current) : null;
 
   const openEditor = (next: boolean) => {
     if (saving) return;
@@ -88,8 +91,8 @@ export function BudgetCell({
           <PencilSimple className="mt-0.5 h-3.5 w-3.5 text-muted-foreground opacity-0 transition-opacity group-hover/budget:opacity-100 group-focus-visible/budget:opacity-100" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-72 space-y-3" onClick={(event) => event.stopPropagation()}>
-        <p className="text-sm font-semibold text-foreground">{t("edit")}</p>
+      <PopoverContent align="start" className="w-80 space-y-3" onClick={(event) => event.stopPropagation()}>
+        <p className="text-sm font-semibold text-foreground">{daily ? t("dailyTitle") : t("lifetimeTitle")}</p>
         <ElevatedInput
           label={t(daily ? "dailyLabel" : "lifetimeLabel", { currency })}
           inputMode="decimal"
@@ -103,7 +106,15 @@ export function BudgetCell({
           autoFocus
         />
         {daily ? <BudgetMinimumHint minimum={minimum} /> : null}
+        {limits ? (
+          <p className="text-xs text-muted-foreground">
+            {t("dailyExplain", { day: fmt.minor(limits.day, currency), week: fmt.minor(limits.week, currency) })}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("lifetimeExplain")}</p>
+        )}
         <p className="text-xs text-muted-foreground">{t("limitHint")}</p>
+        {daily ? <ExternalLink href={DAILY_BUDGET_HELP_URL}>{t("aboutDaily")}</ExternalLink> : null}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" title={t("cancel")} onClick={() => setOpen(false)} disabled={saving} />
           <Button

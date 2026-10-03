@@ -47,10 +47,6 @@ export function reportCsvPath(accountId: string, filters: ReportFilters): string
   return `${accountPath(accountId)}/report.csv?${reportQuery({ ...filters, compare: false })}`;
 }
 
-export function reportCsvFilename(filters: ReportFilters): string {
-  return `anuncios-${filters.level}-${filters.range.since}-${filters.range.until}.csv`;
-}
-
 export function liveInsightsPath(accountId: string, query: LiveQuery): string {
   const params = new URLSearchParams({ level: query.level, since: query.range.since, until: query.range.until });
   if (query.objectIds && query.objectIds.length <= MAX_LIVE_OBJECT_IDS) setList(params, "objectIds", query.objectIds);

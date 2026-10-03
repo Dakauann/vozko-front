@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
@@ -59,8 +59,11 @@ describe("ProposalPreview", () => {
     expect(screen.getByText("Promoção de inverno")).toBeTruthy();
     expect(document.querySelector('video[src="https://cdn/inverno.mp4"]')).toBeTruthy();
     expect(screen.getByText("Enviar mensagem no WhatsApp")).toBeTruthy();
-    expect(screen.getByText("Quanto custa?")).toBeTruthy();
     expect(screen.getByText(/50,00/)).toBeTruthy();
+    const destination = screen.getByRole("tab", { name: "Destino" });
+    fireEvent.mouseDown(destination);
+    expect(await screen.findByText("Quanto custa?")).toBeTruthy();
+    expect(screen.getByText("Oi! Quero saber mais")).toBeTruthy();
     expect(await screen.findByText(/R\$\s*2,50/)).toBeTruthy();
     expect(screen.queryByText(/US\$/)).toBeNull();
     expect(hasProposalPreview({ kind: "ad_creative", data: {} })).toBe(true);

@@ -5,6 +5,8 @@ import {
   accountWritePermissions,
   deliveryKey,
   deliveryTone,
+  isArchived,
+  isRemoved,
   jobIsTerminal,
   jobTone,
   manageBlockerKey,
@@ -157,5 +159,21 @@ describe("read-only accounts", () => {
   it("treats an account whose role is missing as read only", () => {
     const legacy = account({ canManage: undefined as unknown as boolean });
     expect(manageBlockerKey(legacy)).not.toBeNull();
+  });
+});
+
+describe("isRemoved and isArchived", () => {
+  it("treats a deleted object as removed and archived", () => {
+    expect(isRemoved({ status: "DELETED", effectiveStatus: "DELETED" })).toBe(true);
+    expect(isArchived({ status: "ACTIVE", effectiveStatus: "DELETED" })).toBe(true);
+  });
+
+  it("treats an archived object as archived but not removed", () => {
+    expect(isRemoved({ status: "ARCHIVED", effectiveStatus: "ARCHIVED" })).toBe(false);
+    expect(isArchived({ status: "ARCHIVED", effectiveStatus: "ACTIVE" })).toBe(true);
+  });
+
+  it("leaves a live object alone", () => {
+    expect(isArchived({ status: "PAUSED", effectiveStatus: "CAMPAIGN_PAUSED" })).toBe(false);
   });
 });

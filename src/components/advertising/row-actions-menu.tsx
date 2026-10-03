@@ -1,62 +1,90 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { Archive, Copy, DotsThreeVertical, Image as ImageGlyph, PencilSimple, PlusCircle, Trash } from "@/components/icons";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Archive,
+  ClockCounterClockwise,
+  Copy,
+  DotsThree,
+  Image as ImageGlyph,
+  PaperPlaneTilt,
+  PencilSimple,
+  PlusCircle,
+  Trash,
+} from "@/components/icons";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from "@/i18n/routing";
-import { wizardHref } from "@/lib/advertising/connect";
-import type { AdRow } from "@/lib/advertising/types";
+import { objectEditorHref } from "@/lib/advertising/connect";
+import type { TableRow } from "@/lib/advertising/manager-drafts";
+import {
+  addChildState,
+  archiveState,
+  deleteState,
+  duplicateState,
+  editState,
+  forRow,
+  isOffered,
+  publishState,
+  type ActionState,
+  type ToolbarContext,
+} from "@/lib/advertising/manager-toolbar";
 
-export interface RowActionPermissions {
-  canUpdate: boolean;
-  canCreate: boolean;
-  canDelete: boolean;
-}
+import type { BlockerText } from "./manager/use-blocker-text";
 
-export type RowAction = "edit" | "duplicate" | "archive" | "delete";
+export type RowAction = "edit" | "duplicate" | "archive" | "delete" | "addChild" | "publish" | "jobs";
 
-function isRemoved(row: AdRow): boolean {
-  return row.status === "DELETED" || row.effectiveStatus === "DELETED";
-}
-
-function isArchived(row: AdRow): boolean {
-  return row.status === "ARCHIVED" || row.effectiveStatus === "ARCHIVED" || isRemoved(row);
+function MenuEntry({
+  state,
+  icon,
+  label,
+  danger,
+  blockerText,
+  onSelect,
+}: {
+  state: ActionState;
+  icon: ReactNode;
+  label: string;
+  danger?: boolean;
+  blockerText: BlockerText;
+  onSelect: () => void;
+}) {
+  if (!isOffered(state)) return null;
+  const reason = blockerText(state);
+  return (
+    <DropdownMenuItem
+      disabled={!state.enabled}
+      onSelect={onSelect}
+      className={danger ? "items-start text-destructive-ink focus:text-destructive-ink" : "items-start"}
+    >
+      <span className="mr-2 mt-0.5 shrink-0">{icon}</span>
+      <span className="flex min-w-0 flex-col">
+        {label}
+        {reason ? <span className="text-2xs font-normal text-muted-foreground">{reason}</span> : null}
+      </span>
+    </DropdownMenuItem>
+  );
 }
 
 export function RowActionsMenu({
   row,
   accountId,
-  permissions,
+  context,
   busy,
-  blockedReason = null,
+  blockerText,
   onAction,
 }: {
-  row: AdRow;
+  row: TableRow;
   accountId: string;
-  permissions: RowActionPermissions;
+  context: ToolbarContext;
   busy: boolean;
-  blockedReason?: string | null;
-  onAction: (action: RowAction, row: AdRow) => void;
+  blockerText: BlockerText;
+  onAction: (action: RowAction, row: TableRow) => void;
 }) {
   const t = useTranslations("adsManager.rowActions");
-  const { canUpdate, canCreate, canDelete } = permissions;
-  const blocked = !!blockedReason;
-  const childHref =
-    row.level === "campaign"
-      ? wizardHref({ accountId, campaignId: row.metaId })
-      : row.level === "adset"
-        ? wizardHref({ accountId, adSetId: row.metaId })
-        : null;
-
-  if (!canUpdate && !canCreate && !canDelete) return null;
+  const single = forRow(context, row);
+  const edit = editState(single);
 
   return (
     <DropdownMenu>
@@ -66,59 +94,70 @@ export function RowActionsMenu({
           onClick={(event) => event.stopPropagation()}
           disabled={busy}
           aria-label={t("open", { name: row.name })}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
         >
-          <DotsThreeVertical className="h-4 w-4" weight="bold" aria-hidden />
+          <DotsThree className="h-4 w-4" weight="bold" aria-hidden />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52" onClick={(event) => event.stopPropagation()}>
-        {blocked ? (
-          <>
-            <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">{blockedReason}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
+      <DropdownMenuContent align="end" className="w-60" onClick={(event) => event.stopPropagation()}>
+        {row.draft ? (
+          <MenuEntry
+            state={publishState(single)}
+            icon={<PaperPlaneTilt className="h-4 w-4" aria-hidden />}
+            label={t("publish")}
+            blockerText={blockerText}
+            onSelect={() => onAction("publish", row)}
+          />
         ) : null}
-        {canUpdate ? (
-          <DropdownMenuItem disabled={blocked || isArchived(row)} onSelect={() => onAction("edit", row)}>
-            <PencilSimple className="mr-2 h-4 w-4" aria-hidden />
-            {t("edit")}
-          </DropdownMenuItem>
-        ) : null}
-        {canUpdate && !blocked && row.level === "ad" && !isArchived(row) ? (
+        <MenuEntry
+          state={edit}
+          icon={<PencilSimple className="h-4 w-4" aria-hidden />}
+          label={t("edit")}
+          blockerText={blockerText}
+          onSelect={() => onAction("edit", row)}
+        />
+        {!row.draft && row.level === "ad" && edit.enabled ? (
           <DropdownMenuItem asChild>
-            <Link href={wizardHref({ accountId, adId: row.metaId })}>
+            <Link href={objectEditorHref(accountId, row.metaId)}>
               <ImageGlyph className="mr-2 h-4 w-4" aria-hidden />
               {t("swapCreative")}
             </Link>
           </DropdownMenuItem>
         ) : null}
-        {canCreate ? (
-          <DropdownMenuItem disabled={blocked || isRemoved(row)} onSelect={() => onAction("duplicate", row)}>
-            <Copy className="mr-2 h-4 w-4" aria-hidden />
-            {t("duplicate")}
-          </DropdownMenuItem>
-        ) : null}
-        {canCreate && !blocked && childHref && !isArchived(row) ? (
-          <DropdownMenuItem asChild>
-            <Link href={childHref}>
-              <PlusCircle className="mr-2 h-4 w-4" aria-hidden />
-              {t(row.level === "campaign" ? "addAdSet" : "addAd")}
-            </Link>
-          </DropdownMenuItem>
-        ) : null}
-        {canUpdate || canDelete ? <DropdownMenuSeparator /> : null}
-        {canUpdate ? (
-          <DropdownMenuItem disabled={blocked || isArchived(row)} onSelect={() => onAction("archive", row)}>
-            <Archive className="mr-2 h-4 w-4" aria-hidden />
-            {t("archive")}
-          </DropdownMenuItem>
-        ) : null}
-        {canDelete ? (
-          <DropdownMenuItem disabled={blocked || isRemoved(row)} onSelect={() => onAction("delete", row)} className="text-destructive-ink focus:text-destructive-ink">
-            <Trash className="mr-2 h-4 w-4" aria-hidden />
-            {t("delete")}
-          </DropdownMenuItem>
-        ) : null}
+        <MenuEntry
+          state={duplicateState(single)}
+          icon={<Copy className="h-4 w-4" aria-hidden />}
+          label={t("duplicate")}
+          blockerText={blockerText}
+          onSelect={() => onAction("duplicate", row)}
+        />
+        <MenuEntry
+          state={addChildState(single)}
+          icon={<PlusCircle className="h-4 w-4" aria-hidden />}
+          label={t(row.level === "campaign" ? "addAdSet" : "addAd")}
+          blockerText={blockerText}
+          onSelect={() => onAction("addChild", row)}
+        />
+        <DropdownMenuItem onSelect={() => onAction("jobs", row)}>
+          <ClockCounterClockwise className="mr-2 h-4 w-4" aria-hidden />
+          {t("history")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <MenuEntry
+          state={archiveState(single)}
+          icon={<Archive className="h-4 w-4" aria-hidden />}
+          label={t("archive")}
+          blockerText={blockerText}
+          onSelect={() => onAction("archive", row)}
+        />
+        <MenuEntry
+          state={deleteState(single)}
+          icon={<Trash className="h-4 w-4" aria-hidden />}
+          label={row.draft ? t("deleteDraft") : t("delete")}
+          danger
+          blockerText={blockerText}
+          onSelect={() => onAction("delete", row)}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );

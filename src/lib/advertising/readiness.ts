@@ -33,12 +33,14 @@ export function blockingItems(readiness: Pick<AdReadiness, "blocking" | "items">
 
 export type ItemAction = { kind: "inApp"; key: AdInAppAction } | { kind: "portal"; url: string };
 
-function isMetaPortal(raw: string): boolean {
+export function metaPortalUrl(raw: string | undefined): string | null {
+  if (!raw) return null;
   try {
     const url = new URL(raw);
-    return url.protocol === "https:" && (url.hostname === "facebook.com" || url.hostname.endsWith(".facebook.com"));
+    const meta = url.protocol === "https:" && (url.hostname === "facebook.com" || url.hostname.endsWith(".facebook.com"));
+    return meta ? raw : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -48,6 +50,7 @@ export function itemAction(item: Pick<AdReadinessItem, "action">): ItemAction | 
   if (action.kind === "in_app" && (IN_APP_ACTIONS as (string | undefined)[]).includes(action.key)) {
     return { kind: "inApp", key: action.key as AdInAppAction };
   }
-  if (action.kind === "portal" && action.url && isMetaPortal(action.url)) return { kind: "portal", url: action.url };
+  const portal = action.kind === "portal" ? metaPortalUrl(action.url) : null;
+  if (portal) return { kind: "portal", url: portal };
   return null;
 }

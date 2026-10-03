@@ -65,6 +65,7 @@ export interface DashboardTableSelection<T> {
   label?: (count: number) => ReactNode;
   selectAllLabel?: string;
   selectRowLabel?: string;
+  hideSummary?: boolean;
 }
 
 export interface DashboardTableProps<T> {
@@ -246,7 +247,7 @@ export function DashboardTable<T>({
       )}
 
       {}
-      {hasSelection && selectedCount > 0 && (
+      {hasSelection && selectedCount > 0 && !selection!.hideSummary && (
         <div className="flex items-center gap-3 border-b border-border px-4 py-2">
           <span className="text-sm font-medium text-primary-ink">
             {selection!.label

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { createContext, useContext, useId, type ReactNode } from "react";
 
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import { ArrowSquareOut } from "@/components/icons";
@@ -69,6 +69,14 @@ export function CheckRow({
   );
 }
 
+type SectionFrame = "plain" | "card";
+
+const SectionFrameContext = createContext<SectionFrame>("plain");
+
+export function CardSections({ children }: { children: ReactNode }) {
+  return <SectionFrameContext.Provider value="card">{children}</SectionFrameContext.Provider>;
+}
+
 export function Section({
   title,
   description,
@@ -80,8 +88,9 @@ export function Section({
   actions?: ReactNode;
   children: ReactNode;
 }) {
+  const frame = useContext(SectionFrameContext);
   return (
-    <section className="space-y-3">
+    <section className={cn("space-y-3", frame === "card" && "rounded-[--radius] border border-border bg-card p-5 shadow-sm")}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="font-display text-base font-semibold tracking-[-0.01em] text-foreground">{title}</h3>
@@ -89,7 +98,7 @@ export function Section({
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
-      {children}
+      <SectionFrameContext.Provider value="plain">{children}</SectionFrameContext.Provider>
     </section>
   );
 }

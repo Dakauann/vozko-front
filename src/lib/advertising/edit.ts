@@ -2,7 +2,7 @@ import { addDays, civilToday, isDay, zonedDayStart } from "@/lib/advertising/dat
 import { LOWEST_COST, bidFromInput, parseRoas, type BidInput, type BudgetInput } from "@/lib/advertising/draft";
 import type { AdBid, AdBudget, AdDayPart, AdDraftTargeting, AdPlacements } from "@/lib/advertising/draft-types";
 import { inputToMinor, minorToInput } from "@/lib/advertising/money";
-import type { AdEditableObject, AdObjectEdit } from "@/lib/advertising/types";
+import type { AdEditableObject, AdLevel, AdObjectEdit } from "@/lib/advertising/types";
 
 export interface EditForm {
   name: string;
@@ -108,26 +108,64 @@ export function editInputProblems(form: EditForm, currency: string): EditInputPr
   return problems;
 }
 
+export type EditField = keyof EditForm;
+
+const EDIT_FIELDS: EditField[] = ["name", "budget", "bid", "endDay", "schedule", "targeting", "placements"];
+
+export type EditGroup = "name" | "budgetBid" | "endDay" | "schedule" | "targeting" | "placements";
+
+export const EDIT_GROUP_FIELDS: Record<EditGroup, EditField[]> = {
+  name: ["name"],
+  budgetBid: ["budget", "bid"],
+  endDay: ["endDay"],
+  schedule: ["schedule"],
+  targeting: ["targeting"],
+  placements: ["placements"],
+};
+
+const LEVEL_GROUPS: Record<AdLevel, EditGroup[]> = {
+  campaign: ["name", "budgetBid"],
+  adset: ["name", "budgetBid", "endDay", "schedule", "targeting", "placements"],
+  ad: ["name"],
+};
+
+export function editGroupsFor(level: AdLevel): EditGroup[] {
+  return [...LEVEL_GROUPS[level]];
+}
+
+export function fieldEdit(field: EditField, baseline: EditForm, current: EditForm, timezone: string, currency: string): AdObjectEdit {
+  switch (field) {
+    case "name":
+      return { name: current.name.trim() };
+    case "budget": {
+      const amount = current.budget ? inputToMinor(current.budget.input, currency) : null;
+      return amount !== null && baseline.budget ? { budget: { kind: baseline.budget.kind, amount } } : {};
+    }
+    case "bid":
+      return current.bid && baseline.bid ? { bid: bidFromInput(current.bid, currency) } : {};
+    case "endDay": {
+      const endAt = current.endDay ? endAtOf(current.endDay, timezone) : null;
+      return endAt ? { endAt } : {};
+    }
+    case "schedule":
+      return current.schedule.length > 0 ? { schedule: current.schedule } : {};
+    case "targeting":
+      return current.targeting ? { targeting: current.targeting } : {};
+    case "placements":
+      return current.placements ? { placements: current.placements } : {};
+  }
+}
+
+export function fieldChanged(field: EditField, original: EditForm, current: EditForm, timezone: string, currency: string): boolean {
+  const after = fieldEdit(field, original, current, timezone, currency);
+  return !editIsEmpty(after) && !sameValue(fieldEdit(field, original, original, timezone, currency), after);
+}
+
 export function buildObjectEdit(original: EditForm, current: EditForm, timezone: string, currency: string): AdObjectEdit {
-  const edit: AdObjectEdit = {};
-  const name = current.name.trim();
-  if (name !== original.name.trim()) edit.name = name;
-  if (current.budget && original.budget) {
-    const amount = inputToMinor(current.budget.input, currency);
-    if (amount !== null && amount !== inputToMinor(original.budget.input, currency)) edit.budget = { kind: original.budget.kind, amount };
-  }
-  if (current.bid && original.bid) {
-    const bid = bidFromInput(current.bid, currency);
-    if (!sameValue(bid, bidFromInput(original.bid, currency))) edit.bid = bid;
-  }
-  if (current.endDay && current.endDay !== original.endDay) {
-    const endAt = endAtOf(current.endDay, timezone);
-    if (endAt) edit.endAt = endAt;
-  }
-  if (current.schedule.length > 0 && !sameValue(current.schedule, original.schedule)) edit.schedule = current.schedule;
-  if (current.targeting && !sameValue(current.targeting, original.targeting)) edit.targeting = current.targeting;
-  if (current.placements && !sameValue(current.placements, original.placements)) edit.placements = current.placements;
-  return edit;
+  return EDIT_FIELDS.filter((field) => fieldChanged(field, original, current, timezone, currency)).reduce<AdObjectEdit>(
+    (edit, field) => ({ ...edit, ...fieldEdit(field, original, current, timezone, currency) }),
+    {},
+  );
 }
 
 export function editIsEmpty(edit: AdObjectEdit): boolean {

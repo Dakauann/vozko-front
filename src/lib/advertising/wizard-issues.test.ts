@@ -1,48 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  adHasIssues,
   adIndexOfIssue,
   issueMessageKey,
-  issuesForStep,
   issuesFromCreativeEdit,
   issuesFromExpected,
   issuesUnder,
-  stepOfIssue,
-  stepsFor,
 } from "./wizard-issues";
 
 describe("wizard issues", () => {
-  it("lists the steps for each mode", () => {
-    expect(stepsFor("new")).toEqual(["objective", "campaign", "adSet", "ads", "review"]);
-    expect(stepsFor("campaign")).toEqual(["objective", "adSet", "ads", "review"]);
-    expect(stepsFor("adSet")).toEqual(["objective", "ads", "review"]);
-    expect(stepsFor("creative")).toEqual(["ads", "review"]);
-  });
-
-  it("maps fields to steps", () => {
-    expect(stepOfIssue("campaign.objective", "new")).toBe("objective");
-    expect(stepOfIssue("adAccountId", "new")).toBe("objective");
-    expect(stepOfIssue("campaign.budget.amount", "new")).toBe("campaign");
-    expect(stepOfIssue("campaign.budget.amount", "campaign")).toBe("objective");
-    expect(stepOfIssue("adSet.targeting.age", "new")).toBe("adSet");
-    expect(stepOfIssue("adSet.targeting.age", "adSet")).toBe("objective");
-    expect(stepOfIssue("identity.pageId", "new")).toBe("ads");
-    expect(stepOfIssue("ads[1].creative.cards", "new")).toBe("ads");
-    expect(stepOfIssue("ads", "new")).toBe("ads");
-    expect(stepOfIssue("something", "new")).toBe("review");
-    expect(stepOfIssue("adSet.goal", "creative")).toBe("ads");
-    expect(stepOfIssue("adAccountId", "creative")).toBe("ads");
-  });
-
   it("finds the ad index of an issue", () => {
     expect(adIndexOfIssue("ads[3].creative.media")).toBe(3);
     expect(adIndexOfIssue("ads")).toBeNull();
-    expect(adHasIssues([{ field: "ads[1].name", code: "required" }], 1)).toBe(true);
-    expect(adHasIssues([{ field: "ads[1].name", code: "required" }], 0)).toBe(false);
   });
 
-  it("filters issues by prefix and step", () => {
+  it("filters issues by prefix", () => {
     const issues = [
       { field: "adSet.targeting.age", code: "invalid" },
       { field: "adSet.targetingX", code: "invalid" },
@@ -50,7 +22,6 @@ describe("wizard issues", () => {
     ];
     expect(issuesUnder(issues, "adSet.targeting")).toEqual([issues[0]]);
     expect(issuesUnder(issues, "ads[0].creative.cards")).toEqual([issues[2]]);
-    expect(issuesForStep(issues, "ads", "new")).toEqual([issues[2]]);
   });
 
   it("builds a translation key without indexes", () => {

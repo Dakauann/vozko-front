@@ -4,6 +4,8 @@ export const META_ADS_POPUP_SOURCE = "meta-ads-login";
 export const ADVERTISING_PATH = "/dashboard/advertising";
 export const ADVERTISING_NEW_PATH = "/dashboard/advertising/new";
 export const ADVERTISING_OVERVIEW_PATH = "/dashboard/advertising/overview";
+export const ADVERTISING_EDITOR_PATH = "/dashboard/advertising/editor";
+export const ADVERTISING_REPORTS_PATH = "/dashboard/advertising/reports";
 export const META_ADS_MANAGER_URL = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 
 const STATUSES: MetaAdsConnectStatus[] = ["connected", "partial", "error", "cancelled"];
@@ -49,12 +51,6 @@ export function pickAccountId(accountIds: string[], ...preferred: (string | null
   return accountIds[0] ?? null;
 }
 
-export type WizardEntry = { accountId: string } & ({ campaignId: string } | { adSetId: string } | { adId: string });
-
-export function wizardHref(entry: WizardEntry): string {
-  return `${ADVERTISING_NEW_PATH}?${new URLSearchParams(entry).toString()}`;
-}
-
 export interface ManagerFocus {
   accountId: string;
   campaignId?: string | null;
@@ -78,4 +74,24 @@ export function overviewHref(accountId: string): string {
 
 export function newAdHref(accountId: string | null | undefined): string {
   return accountId ? `${ADVERTISING_NEW_PATH}?${new URLSearchParams({ accountId }).toString()}` : ADVERTISING_NEW_PATH;
+}
+
+export function draftEditorHref(draftId: string): string {
+  return `${ADVERTISING_EDITOR_PATH}?${new URLSearchParams({ draft: draftId }).toString()}`;
+}
+
+export function objectEditorHref(accountId: string, metaId: string): string {
+  return `${ADVERTISING_EDITOR_PATH}?${new URLSearchParams({ object: metaId, account: accountId }).toString()}`;
+}
+
+export function objectsEditorHref(accountId: string, metaIds: string[]): string {
+  return `${ADVERTISING_EDITOR_PATH}?${new URLSearchParams({ objects: metaIds.join(","), account: accountId }).toString()}`;
+}
+
+export function reportHref(reportId: string): string {
+  return `${ADVERTISING_REPORTS_PATH}/${encodeURIComponent(reportId)}`;
+}
+
+export function reportTemplateHref(templateKey: string, accountId: string): string {
+  return `${ADVERTISING_REPORTS_PATH}/new?${new URLSearchParams({ template: templateKey, account: accountId }).toString()}`;
 }

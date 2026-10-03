@@ -9,7 +9,11 @@ import {
   editInputProblems,
   endAtOf,
   endDayOf,
+  EDIT_GROUP_FIELDS,
+  editGroupsFor,
   expandPlacements,
+  fieldChanged,
+  fieldEdit,
   manualPlacements,
   type EditForm,
 } from "./edit";
@@ -175,5 +179,28 @@ describe("editExpected", () => {
       budget: "too_many_changes",
     });
     expect(editExpected(undefined)).toEqual({});
+  });
+});
+
+describe("field helpers", () => {
+  const original = editFormOf(detail(), TZ, {}, "BRL");
+
+  it("offers the field groups each level can edit", () => {
+    expect(editGroupsFor("campaign")).toEqual(["name", "budgetBid"]);
+    expect(editGroupsFor("adset")).toEqual(["name", "budgetBid", "endDay", "schedule", "targeting", "placements"]);
+    expect(editGroupsFor("ad")).toEqual(["name"]);
+    expect(EDIT_GROUP_FIELDS.budgetBid).toEqual(["budget", "bid"]);
+  });
+
+  it("reports a field as changed only when its sendable value differs", () => {
+    expect(fieldChanged("budget", original, { ...original, budget: { kind: "DAILY", input: "50" } }, TZ, "BRL")).toBe(false);
+    expect(fieldChanged("budget", original, { ...original, budget: { kind: "DAILY", input: "abc" } }, TZ, "BRL")).toBe(false);
+    expect(fieldChanged("budget", original, { ...original, budget: { kind: "DAILY", input: "60" } }, TZ, "BRL")).toBe(true);
+    expect(fieldChanged("endDay", original, { ...original, endDay: "" }, TZ, "BRL")).toBe(false);
+  });
+
+  it("builds a field's edit from the current form even when it did not change", () => {
+    expect(fieldEdit("budget", original, original, TZ, "BRL")).toEqual({ budget: { kind: "DAILY", amount: 5000 } });
+    expect(fieldEdit("schedule", original, original, TZ, "BRL")).toEqual({});
   });
 });

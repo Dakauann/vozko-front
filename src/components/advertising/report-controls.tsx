@@ -1,16 +1,15 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import Button from "@/components/elevated-design/button";
-import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
-import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
-import { Broadcast, DownloadSimple, Warning } from "@/components/icons";
+import { Broadcast, CaretDown, Check, DownloadSimple, ListDashes, Target, Warning } from "@/components/icons";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { LiveFetch } from "@/lib/advertising/live";
 import type { AdAttributionWindow } from "@/lib/advertising/types";
 import { cn } from "@/lib/utils";
 
-import { useBreakdownLabel } from "./breakdown-sheet";
+import { useBreakdownLabel } from "./use-breakdown-labels";
 
 export const DEFAULT_WINDOW = "default";
 
@@ -37,14 +36,32 @@ export function LiveHint({ status }: { status: LiveFetch }) {
   );
 }
 
+export const TOOLBAR_CONTROL =
+  "inline-flex h-8 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+
+function MenuButton({ icon, label, disabled, children }: { icon: ReactNode; label: string; disabled: boolean; children: ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" disabled={disabled} className={TOOLBAR_CONTROL} aria-label={label}>
+          {icon}
+          <span className="max-md:sr-only">{label}</span>
+          <CaretDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="max-h-[70vh] w-60 overflow-y-auto">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function ReportControls({
   windowOptions,
   attribution,
   onAttribution,
   groups,
   onBreakdown,
-  comparing,
-  onCompare,
   exporting,
   onExport,
   optionsReady,
@@ -55,8 +72,6 @@ export function ReportControls({
   onAttribution: (choice: WindowChoice) => void;
   groups: string[][];
   onBreakdown: (group: string[]) => void;
-  comparing: boolean;
-  onCompare: (on: boolean) => void;
   exporting: boolean;
   onExport: () => void;
   optionsReady: boolean;
@@ -64,49 +79,34 @@ export function ReportControls({
 }) {
   const t = useTranslations("adsManager.report");
   const groupLabel = useBreakdownLabel();
+  const windows: WindowChoice[] = [DEFAULT_WINDOW, ...windowOptions];
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="w-48">
-        <ElevatedSelect
-          label={t("attribution")}
-          value={attribution}
-          disabled={!optionsReady || disabled}
-          onValueChange={(value) => onAttribution(value as WindowChoice)}
-        >
-          <ElevatedSelectItem value={DEFAULT_WINDOW}>{t("windows.default")}</ElevatedSelectItem>
-          {windowOptions.map((option) => (
-            <ElevatedSelectItem key={option} value={option}>
-              {t(`windows.${option}`)}
-            </ElevatedSelectItem>
-          ))}
-        </ElevatedSelect>
-      </div>
-      <div className="w-48">
-        <ElevatedSelect
-          label={t("breakdown")}
-          value=""
-          disabled={!optionsReady || disabled || groups.length === 0}
-          onValueChange={(value) => onBreakdown(value.split(","))}
-        >
-          {groups.map((group) => (
-            <ElevatedSelectItem key={group.join(",")} value={group.join(",")}>
-              {groupLabel(group)}
-            </ElevatedSelectItem>
-          ))}
-        </ElevatedSelect>
-      </div>
-      <ElevatedSwitch checked={comparing} disabled={disabled} onCheckedChange={onCompare} label={t("compare")} />
-      <Button
-        variant="ghost"
-        size="sm"
-        title={exporting ? t("exporting") : t("export")}
-        icon={<DownloadSimple className="h-4 w-4" />}
-        iconVisible
-        iconSide="left"
-        onClick={onExport}
-        disabled={exporting || disabled}
-      />
-    </div>
+    <>
+      <MenuButton
+        icon={<ListDashes className="h-4 w-4 text-muted-foreground" aria-hidden />}
+        label={t("breakdown")}
+        disabled={!optionsReady || disabled || groups.length === 0}
+      >
+        {groups.map((group) => (
+          <DropdownMenuItem key={group.join(",")} onSelect={() => onBreakdown(group)}>
+            {groupLabel(group)}
+          </DropdownMenuItem>
+        ))}
+      </MenuButton>
+      <MenuButton icon={<Target className="h-4 w-4 text-muted-foreground" aria-hidden />} label={t("attribution")} disabled={!optionsReady || disabled}>
+        <DropdownMenuLabel>{t("attribution")}</DropdownMenuLabel>
+        {windows.map((option) => (
+          <DropdownMenuItem key={option} onSelect={() => onAttribution(option)}>
+            <Check className={cn("mr-2 h-4 w-4", attribution === option ? "opacity-100" : "opacity-0")} aria-hidden />
+            {t(`windows.${option}`)}
+          </DropdownMenuItem>
+        ))}
+      </MenuButton>
+      <button type="button" onClick={onExport} disabled={exporting || disabled} className={TOOLBAR_CONTROL} aria-label={t("export")}>
+        <DownloadSimple className="h-4 w-4 text-muted-foreground" aria-hidden />
+        <span className="max-md:sr-only">{exporting ? t("exporting") : t("export")}</span>
+      </button>
+    </>
   );
 }

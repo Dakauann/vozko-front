@@ -19,6 +19,7 @@ import type {
   AdOptimizationGoal,
   AdPixelEvent,
   AdPlacements,
+  AdPagePost,
   AdPostPlatform,
   AdSetDraft,
   MetaAdDraft,
@@ -580,6 +581,8 @@ export interface CreativeSource {
   name: string;
   creative: AdCreativeDraftV2;
   previewUrl?: string;
+  mediaUrls?: Record<string, string>;
+  posts?: Record<string, AdPagePost>;
   pageId?: string;
   instagramUserId?: string;
 }
@@ -588,9 +591,16 @@ function choice(media: AdMediaRef | undefined, url = ""): MediaChoice | null {
   return media?.mediaId ? { kind: media.kind, mediaId: media.mediaId, url } : null;
 }
 
+function postChoice(id: string, platform: AdPostPlatform, source: CreativeSource): PostChoice {
+  const post = source.posts?.[id];
+  return { id, platform, message: post?.message, pictureUrl: post?.pictureUrl ?? source.previewUrl };
+}
+
 export function adFormFromCreative(source: CreativeSource): AdForm {
   const creative = source.creative;
   const base = emptyAdForm();
+  const urls = source.mediaUrls ?? {};
+  const resolved = (media: AdMediaRef | undefined, fallback = "") => choice(media, (media && urls[media.mediaId]) || fallback);
   const listOr = (values: string[] | undefined, fallback: string[]) => (values && values.length > 0 ? [...values] : fallback);
   const postId = creative.instagramMediaId || creative.postId;
   return {
@@ -600,11 +610,11 @@ export function adFormFromCreative(source: CreativeSource): AdForm {
     primaryText: creative.primaryText ?? "",
     headline: creative.headline ?? "",
     description: creative.description ?? "",
-    media: choice(creative.media, source.previewUrl),
+    media: resolved(creative.media, source.previewUrl),
     cards:
       creative.cards && creative.cards.length > 0
         ? creative.cards.map((card) => ({
-            media: choice(card.media),
+            media: resolved(card.media),
             headline: card.headline ?? "",
             description: card.description ?? "",
             link: card.link ?? "",
@@ -613,8 +623,8 @@ export function adFormFromCreative(source: CreativeSource): AdForm {
     texts: listOr(creative.texts, base.texts),
     headlines: listOr(creative.headlines, base.headlines),
     descriptions: listOr(creative.descriptions, base.descriptions),
-    medias: (creative.medias ?? []).map((media) => choice(media)).filter((media): media is MediaChoice => media !== null),
-    post: postId ? { id: postId, platform: creative.instagramMediaId ? "instagram" : "facebook", pictureUrl: source.previewUrl } : null,
+    medias: (creative.medias ?? []).map((media) => resolved(media)).filter((media): media is MediaChoice => media !== null),
+    post: postId ? postChoice(postId, creative.instagramMediaId ? "instagram" : "facebook", source) : null,
     instantExperienceId: creative.instantExperienceId ?? "",
     link: creative.link ?? "",
     displayLink: creative.displayLink ?? "",

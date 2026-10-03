@@ -1,8 +1,26 @@
-import type { AdRange } from "@/lib/advertising/types";
+import type { AdRange, AdReportPreset } from "@/lib/advertising/types";
 
-export type RangePreset = "today" | "yesterday" | "last7" | "last14" | "last30" | "thisMonth" | "lastMonth" | "custom";
+export type RangePreset = AdReportPreset;
 
-export const RANGE_PRESETS: RangePreset[] = ["today", "yesterday", "last7", "last14", "last30", "thisMonth", "lastMonth", "custom"];
+export const RANGE_PRESETS: RangePreset[] = [
+  "today",
+  "yesterday",
+  "todayAndYesterday",
+  "last7",
+  "last14",
+  "last28",
+  "last30",
+  "thisWeek",
+  "lastWeek",
+  "thisMonth",
+  "lastMonth",
+  "maximum",
+  "custom",
+];
+
+export const MAXIMUM_MONTHS = 37;
+
+const MONDAY = 1;
 
 export const DEFAULT_PRESET: RangePreset = "last30";
 
@@ -49,6 +67,23 @@ function firstOfMonth(day: string): string {
   return `${day.slice(0, 8)}01`;
 }
 
+function startOfWeek(day: string): string {
+  const weekday = fromDay(day).getUTCDay();
+  return addDays(day, -((weekday - MONDAY + 7) % 7));
+}
+
+function addMonths(day: string, amount: number): string {
+  const start = fromDay(day);
+  const target = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + amount, 1));
+  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  target.setUTCDate(Math.min(start.getUTCDate(), lastDay));
+  return toDay(target);
+}
+
+export function earliestDay(today: string): string {
+  return addMonths(today, -MAXIMUM_MONTHS);
+}
+
 export function rangeForPreset(preset: Exclude<RangePreset, "custom">, today: string): AdRange {
   switch (preset) {
     case "today":
@@ -57,23 +92,48 @@ export function rangeForPreset(preset: Exclude<RangePreset, "custom">, today: st
       const yesterday = addDays(today, -1);
       return { since: yesterday, until: yesterday };
     }
+    case "todayAndYesterday":
+      return { since: addDays(today, -1), until: today };
     case "last7":
       return { since: addDays(today, -6), until: today };
     case "last14":
       return { since: addDays(today, -13), until: today };
+    case "last28":
+      return { since: addDays(today, -27), until: today };
     case "last30":
       return { since: addDays(today, -29), until: today };
+    case "thisWeek":
+      return { since: startOfWeek(today), until: today };
+    case "lastWeek": {
+      const lastSunday = addDays(startOfWeek(today), -1);
+      return { since: startOfWeek(lastSunday), until: lastSunday };
+    }
     case "thisMonth":
       return { since: firstOfMonth(today), until: today };
     case "lastMonth": {
       const lastDay = addDays(firstOfMonth(today), -1);
       return { since: firstOfMonth(lastDay), until: lastDay };
     }
+    case "maximum":
+      return { since: earliestDay(today), until: today };
   }
 }
 
 export function validRange(range: AdRange): boolean {
   return isDay(range.since) && isDay(range.until) && range.since <= range.until;
+}
+
+export function resolveRange(preset: RangePreset, custom: AdRange, today: string | null): AdRange | null {
+  if (!today) return null;
+  if (preset !== "custom") return rangeForPreset(preset, today);
+  const inside = custom.since >= earliestDay(today) && custom.until <= today;
+  return validRange(custom) && inside ? custom : null;
+}
+
+export function previousRange(range: AdRange): AdRange | null {
+  if (!validRange(range)) return null;
+  const days = Math.round((fromDay(range.until).getTime() - fromDay(range.since).getTime()) / DAY_MS) + 1;
+  return { since: addDays(range.since, -days), until: addDays(range.since, -1) };
 }
 
 export function formatDay(day: string, locale: string): string {
@@ -129,4 +189,15 @@ export function relativeSince(iso: string | undefined, now: Date, locale: string
     amount = Math.floor(amount / size);
   }
   return null;
+}
+
+export function dayToLocalDate(day: string): Date | null {
+  const match = DAY_PATTERN.exec(day);
+  if (!match || !isDay(day)) return null;
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+export function localDateToDay(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

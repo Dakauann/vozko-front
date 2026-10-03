@@ -8,8 +8,8 @@ import { MAX_CONSECUTIVE_POLL_ERRORS, nextPollDelay } from "@/lib/image-generati
 import { jobOutcome } from "@/lib/advertising/publish";
 import type { AdPublishJob } from "@/lib/advertising/types";
 
-export function usePublishJob(onPublished: (job: AdPublishJob) => void) {
-  const [job, setJob] = useState<AdPublishJob | null>(null);
+export function usePublishJob(onPublished: (job: AdPublishJob) => void, initial: AdPublishJob | null = null) {
+  const [job, setJob] = useState<AdPublishJob | null>(initial);
   const [pollError, setPollError] = useState<string | null>(null);
   const [pollRun, setPollRun] = useState(0);
   const published = useRef(onPublished);

@@ -28,15 +28,23 @@ export function useAdReadiness(account: AdAccount | null | undefined, onAccountU
     onUpdatedRef.current = onAccountUpdated;
   }, [onAccountUpdated]);
 
-  const load = useCallback(async (id: string) => {
-    const result = await getAdReadinessAction(id);
+  const settle = useCallback((id: string, result: AdsResult<AdReadiness>) => {
     setLoaded({ accountId: id, result });
     if (!isAdsError(result)) onUpdatedRef.current(result.data.account);
   }, []);
 
+  const load = useCallback(async (id: string) => settle(id, await getAdReadinessAction(id)), [settle]);
+
   useEffect(() => {
-    if (accountId) void load(accountId);
-  }, [accountId, load]);
+    if (!accountId) return;
+    let cancelled = false;
+    void getAdReadinessAction(accountId).then((result) => {
+      if (!cancelled) settle(accountId, result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountId, settle]);
 
   const recheck = useCallback(async () => {
     if (!accountId || inFlight.current) return;

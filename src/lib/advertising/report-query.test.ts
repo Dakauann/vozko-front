@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_LIVE_OBJECT_IDS, liveInsightsPath, reportCsvFilename, reportCsvPath, reportQuery } from "./report-query";
+import { MAX_LIVE_OBJECT_IDS, liveInsightsPath, reportCsvPath, reportQuery } from "./report-query";
 
 const range = { since: "2026-09-01", until: "2026-09-30" };
 
@@ -22,10 +22,6 @@ describe("reportCsvPath", () => {
     expect(reportCsvPath("acc 1", { level: "ad", range, adSetIds: ["9"], search: "x", compare: true })).toBe(
       "/ads/accounts/acc%201/report.csv?since=2026-09-01&until=2026-09-30&level=ad&adSetIds=9&search=x",
     );
-  });
-
-  it("names the file after the level and the range", () => {
-    expect(reportCsvFilename({ level: "campaign", range })).toBe("anuncios-campaign-2026-09-01-2026-09-30.csv");
   });
 });
 

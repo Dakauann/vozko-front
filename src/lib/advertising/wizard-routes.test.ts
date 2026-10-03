@@ -4,6 +4,7 @@ import type { AdsOptions } from "./draft-types";
 import {
   callsToActionFor,
   canAddAd,
+  destinationOf,
   dynamicCreative,
   flexibleAllowed,
   formatsFor,
@@ -43,6 +44,12 @@ describe("routes", () => {
     expect(goalsFor(routes, "WEBSITE")).toEqual([]);
     expect(routesFor(null, "OUTCOME_LEADS")).toEqual([]);
     expect(routesFor(options, "")).toEqual([]);
+  });
+
+  it("reads a destination from a report row and rejects unknown ones", () => {
+    expect(destinationOf("WHATSAPP")).toBe("WHATSAPP");
+    expect(destinationOf("SOMETHING_NEW")).toBe("");
+    expect(destinationOf(undefined)).toBe("");
   });
 
   it("needs a pixel for conversion goals except on catalog", () => {

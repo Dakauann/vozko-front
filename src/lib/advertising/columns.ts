@@ -21,9 +21,35 @@ export type ReportColumn = (typeof REPORT_COLUMNS)[number];
 
 export const METRIC_COLUMNS = [...REPORT_COLUMNS, ...LIVE_COLUMNS] as const;
 
-export const DEFAULT_COLUMNS: MetricColumn[] = [...REPORT_COLUMNS];
-
 export type MetricColumn = ReportColumn | LiveColumn;
+
+export const COLUMN_PRESETS = ["performance", "performanceClicks", "engagement", "delivery"] as const;
+
+export type ColumnPreset = (typeof COLUMN_PRESETS)[number];
+
+const PRESET_COLUMNS: Record<ColumnPreset, readonly MetricColumn[]> = {
+  performance: ["delivery", "results", "costPerResult", "budget", "spend", "impressions", "crmConversations", "costPerLead", "roas"],
+  performanceClicks: ["delivery", "results", "costPerResult", "budget", "spend", "impressions", "linkClicks", "ctr", "cpm", "crmConversations"],
+  engagement: ["delivery", "results", "costPerResult", "spend", "impressions", "linkClicks", "ctr", "videoPlays", "thruPlays", "costPerThruPlay"],
+  delivery: ["delivery", "budget", "spend", "impressions", "cpm", "reach", "frequency"],
+};
+
+export function presetColumns(preset: ColumnPreset): MetricColumn[] {
+  const chosen = new Set(PRESET_COLUMNS[preset]);
+  return METRIC_COLUMNS.filter((column) => chosen.has(column));
+}
+
+export function presetOf(visible: MetricColumn[]): ColumnPreset | null {
+  const shown = new Set(visible);
+  return (
+    COLUMN_PRESETS.find((preset) => {
+      const columns = PRESET_COLUMNS[preset];
+      return columns.length === shown.size && columns.every((column) => shown.has(column));
+    }) ?? null
+  );
+}
+
+export const DEFAULT_COLUMNS: MetricColumn[] = presetColumns("performance");
 
 export type SortableColumn = "name" | MetricColumn;
 

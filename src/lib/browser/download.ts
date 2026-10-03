@@ -23,3 +23,9 @@ export function downloadTextFile(
 export function downloadCsv(csvText: string, filename: string): void {
     downloadTextFile(csvText, filename, "text/csv;charset=utf-8;");
 }
+
+export function filenameFromDisposition(header: string | null): string | null {
+    if (!header) return null;
+    const match = header.match(/filename="?([^";]+)"?/i);
+    return match?.[1] ?? null;
+}

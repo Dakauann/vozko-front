@@ -11,6 +11,8 @@ import {
   WhatsAppLogoColor,
   WhatsAppUnofficialLogo,
 } from "@/components/icons/channel-logos";
+import { AdReadinessCard } from "@/components/advertising/ad-readiness-card";
+import { ConnectAdAccountCard } from "@/components/advertising/connect-ad-account-card";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAccess } from "@/hooks/use-access";
 import { useInstagramConnect } from "@/hooks/use-instagram-connect";
@@ -81,6 +83,8 @@ const SECONDARY =
 export function ActionCardView({ card, live = false }: { card: ActionCard; live?: boolean }) {
   if (card.kind === "open_screen") return <NavigationCardView card={card} live={live} />;
   if (card.kind === "place_call") return <CallCardView card={card} />;
+  if (card.kind === "ad_readiness") return <AdReadinessCard adAccountId={card.adAccountId} />;
+  if (card.kind === "connect_ad_account") return <ConnectAdAccountCard />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;

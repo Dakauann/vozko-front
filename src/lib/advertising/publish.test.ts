@@ -8,7 +8,6 @@ import {
   jobSteps,
   needsStructureRefresh,
   publishBlockers,
-  publishedCampaignId,
   type ValidationState,
 } from "./publish";
 
@@ -82,14 +81,6 @@ describe("jobOutcome", () => {
     expect(jobOutcome("NEEDS_REVIEW")).toBe("needsReview");
     expect(jobOutcome("RUNNING")).toBe("working");
     expect(jobOutcome("SOMETHING")).toBe("working");
-  });
-});
-
-describe("publishedCampaignId", () => {
-  it("prefers the created campaign and falls back to the existing one", () => {
-    expect(publishedCampaignId({ progress: { campaignId: "c1" } }, "c0")).toBe("c1");
-    expect(publishedCampaignId({ progress: {} }, "c0")).toBe("c0");
-    expect(publishedCampaignId({ progress: {} }, undefined)).toBeNull();
   });
 });
 

@@ -511,9 +511,9 @@ export const campanhasNavItems: NavItem[] = [
     family: "meta",
   },
   {
-    icon: PlusCircle,
-    labelKey: "nav.createAd",
-    href: "/dashboard/advertising/new",
+    icon: ChartBar,
+    labelKey: "nav.adsReports",
+    href: "/dashboard/advertising/reports",
     family: "meta",
   },
   {

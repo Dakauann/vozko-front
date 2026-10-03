@@ -17,6 +17,8 @@ export const OBJECTIVES: AdObjective[] = [
   "OUTCOME_APP_PROMOTION",
 ];
 
+export const DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT", "WEBSITE", "ON_AD", "APP", "ON_POST", "CATALOG", "NONE"];
+
 export const MESSAGING_DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT"];
 
 export const ALL_FORMATS: AdCreativeFormat[] = ["IMAGE", "VIDEO", "CAROUSEL", "EXISTING_POST", "FLEXIBLE", "CATALOG", "COLLECTION"];
@@ -25,6 +27,10 @@ export const MAX_ADS = 10;
 
 export function isObjective(value: string | undefined | null): value is AdObjective {
   return !!value && (OBJECTIVES as string[]).includes(value);
+}
+
+export function destinationOf(value: string | undefined | null): AdDraftDestination | "" {
+  return value && (DESTINATIONS as string[]).includes(value) ? (value as AdDraftDestination) : "";
 }
 
 export function routesFor(options: AdsOptions | null, objective: AdObjective | ""): AdObjectiveRoute[] {
