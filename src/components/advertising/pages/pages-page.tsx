@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { isAdsError, listAdPagesAction } from "@/app/actions/advertising";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { WhatsappLogo } from "@/components/icons";
+import { Storefront } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
@@ -16,10 +16,10 @@ import type { AdAccount } from "@/lib/advertising/types";
 import { AccountGate } from "../account-gate";
 import { ReadOnlyNotice } from "../account-notices";
 import { AccountPicker } from "../account-picker";
-import { PageWhatsAppList } from "./page-whatsapp-list";
+import { PageAssetsList } from "./page-assets-list";
 
-export function PageWhatsAppPage() {
-  const t = useTranslations("adsWhatsApp");
+export function PagesPage() {
+  const t = useTranslations("adsPages");
   const { can, permissionsLoading } = useWorkspace();
   const searchParams = useSearchParams();
   const canRead = !permissionsLoading && can("ads", "read");
@@ -31,7 +31,7 @@ export function PageWhatsAppPage() {
     <DashboardPageHeader
       badge={t("header.title")}
       description={t("header.description")}
-      icon={<WhatsappLogo className="h-6 w-6" />}
+      icon={<Storefront className="h-6 w-6" />}
       actions={
         accounts.selected ? <AccountPicker accounts={accounts.accounts} value={accounts.selected.id} onChange={accounts.select} /> : null
       }
@@ -52,7 +52,7 @@ export function PageWhatsAppPage() {
 }
 
 function AccountPages({ account, canLink }: { account: AdAccount; canLink: boolean }) {
-  const t = useTranslations("adsWhatsApp");
+  const t = useTranslations("adsPages");
   const load = useCallback(() => listAdPagesAction(account.id), [account.id]);
   const pages = useKeyedLoad(account.id, load);
   const response = pages.latest;
@@ -67,5 +67,5 @@ function AccountPages({ account, canLink }: { account: AdAccount; canLink: boole
       </p>
     );
   }
-  return <PageWhatsAppList accountId={account.id} pages={response.data} canLink={canLink} onChanged={pages.reload} />;
+  return <PageAssetsList accountId={account.id} pages={response.data} canLink={canLink} checking={pages.loading} onChanged={pages.reload} />;
 }

@@ -15,6 +15,8 @@ import { accountWritePermissions } from "@/lib/advertising/delivery";
 import type { LeadForm } from "@/lib/advertising/forms";
 import type { AdAccount, AdPage } from "@/lib/advertising/types";
 
+import { missingPortal } from "@/lib/advertising/page-capabilities";
+
 import { LeadTermsNotice } from "../requirement-steps";
 import { AccountGate } from "../account-gate";
 import { ReadOnlyNotice } from "../account-notices";
@@ -94,6 +96,7 @@ function AccountForms({ account, permissions }: { account: AdAccount; permission
     return <FormLeadsView account={account} form={openForm} onBack={() => setOpenForm(null)} />;
   }
 
+  const termsPortal = missingPortal(page, "lead_forms");
   return (
     <div className="space-y-4">
       <div className="w-72 max-w-full">
@@ -105,7 +108,7 @@ function AccountForms({ account, permissions }: { account: AdAccount; permission
           ))}
         </ElevatedSelect>
       </div>
-      {!page.leadTermsAccepted ? <LeadTermsNotice pageName={page.name} checking={pagesLoad.loading} onRecheck={pagesLoad.reload} /> : null}
+      {termsPortal ? <LeadTermsNotice pageName={page.name} href={termsPortal} checking={pagesLoad.loading} onRecheck={pagesLoad.reload} /> : null}
       <FormsPanel key={page.pageId} account={account} page={page} permissions={permissions} onOpen={setOpenForm} />
     </div>
   );

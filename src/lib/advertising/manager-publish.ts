@@ -3,7 +3,7 @@ import { withBudgetMinimum } from "./issues";
 import { draftRowState, isEditableDraft } from "./manager-drafts";
 import { publishBlockers, type PublishBlocker, type ValidationState } from "./publish";
 import { readinessKey } from "./readiness";
-import type { AdReadiness, AdSavedDraft } from "./types";
+import type { AdPublishJob, AdReadiness, AdSavedDraft } from "./types";
 
 export type ReviewBlocker = PublishBlocker | "publishing";
 
@@ -54,4 +54,9 @@ export function validationDone(key: string, validation: AdDraftValidation): Vali
 
 export function draftOnlyBlockers(blockers: ReviewBlocker[]): ReviewBlocker[] {
   return blockers.filter((blocker) => blocker !== "readinessUnchecked" && readinessKey(blocker) === null);
+}
+
+export function acceptedPublishJob(draft: AdSavedDraft): AdPublishJob | null {
+  if (draft.state !== "publishing" && draft.state !== "published") return null;
+  return draft.job ?? null;
 }

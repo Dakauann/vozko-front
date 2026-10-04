@@ -44,6 +44,7 @@ import {
   type EditorNode,
 } from "@/lib/advertising/editor-tree";
 import { withBudgetMinimum } from "@/lib/advertising/issues";
+import { acceptedPublishJob } from "@/lib/advertising/manager-publish";
 import { jobPlan, publishBlockers, type ValidationState } from "@/lib/advertising/publish";
 import type { AdAccount, AdSavedDraft } from "@/lib/advertising/types";
 import { issuesFromExpected } from "@/lib/advertising/wizard-issues";
@@ -297,7 +298,14 @@ function DraftEditorBody({
     const result = await publishAdDraftAction(saved.id, autosave.savedVersion());
     setPublishing(false);
     if (isAdsError(result)) {
-      await syncVersion();
+      const latest = await getAdDraftAction(saved.id);
+      const accepted = isAdsError(latest) ? null : acceptedPublishJob(latest.data);
+      if (accepted) {
+        setServerState("publishing");
+        followJob(accepted);
+        return;
+      }
+      if (!isAdsError(latest)) autosave.adoptVersion(latest.data.version);
       if (result.code === "draft_publishing") {
         onConflict("publishing");
         return;

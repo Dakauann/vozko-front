@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
+import { missingPortal } from "@/lib/advertising/page-capabilities";
 import type { AdPage } from "@/lib/advertising/types";
 
 import { LeadTermsNotice } from "../requirement-steps";
@@ -16,6 +17,7 @@ export function IdentityFields({ instagramRequired = false }: { instagramRequire
   const t = useTranslations("adsWizard.identity");
   const { form, update, pages, page, issues } = useWizard();
   const list: AdPage[] = pages.status === "ready" ? pages.data : [];
+  const termsPortal = page && form.destination === "ON_AD" ? missingPortal(page, "lead_forms") : null;
 
   const choosePage = (pageId: string) => {
     const next = list.find((candidate) => candidate.pageId === pageId);
@@ -59,9 +61,7 @@ export function IdentityFields({ instagramRequired = false }: { instagramRequire
         </div>
       ) : null}
       {page && !page.instagramUserId ? <Hint>{t("noInstagram")}</Hint> : <Hint>{t("hint")}</Hint>}
-      {page && form.destination === "ON_AD" && !page.leadTermsAccepted ? (
-        <LeadTermsNotice pageName={page.name} checking={pages.status === "loading"} onRecheck={pages.reload} />
-      ) : null}
+      {page && termsPortal ? <LeadTermsNotice pageName={page.name} href={termsPortal} checking={pages.status === "loading"} onRecheck={pages.reload} /> : null}
       <FieldIssues issues={issues} field="identity" nested />
       <FieldIssues issues={issues} field="adSet.instagramUserId" />
     </div>

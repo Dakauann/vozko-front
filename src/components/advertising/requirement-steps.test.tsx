@@ -4,12 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import ptMessages from "@/i18n/messages/pt.json";
 
-import { LEAD_TERMS_URL, LeadTermsNotice } from "./requirement-steps";
+import { LeadTermsNotice } from "./requirement-steps";
+
+const LEAD_TERMS_URL = "https://www.facebook.com/ads/leadgen/tos";
 
 function renderNotice(checking: boolean, onRecheck = vi.fn()) {
   render(
     <NextIntlClientProvider locale="pt" messages={ptMessages}>
-      <LeadTermsNotice pageName="Vtk Tet" checking={checking} onRecheck={onRecheck} />
+      <LeadTermsNotice pageName="Vtk Tet" href={LEAD_TERMS_URL} checking={checking} onRecheck={onRecheck} />
     </NextIntlClientProvider>,
   );
   return onRecheck;

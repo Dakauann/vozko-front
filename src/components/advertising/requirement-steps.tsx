@@ -56,18 +56,16 @@ export function RequirementSteps({
   );
 }
 
-export function LeadTermsNotice({ pageName, checking, onRecheck }: { pageName: string; checking: boolean; onRecheck: () => void }) {
+export function LeadTermsNotice({ pageName, href, checking, onRecheck }: { pageName: string; href: string; checking: boolean; onRecheck: () => void }) {
   const t = useTranslations("adsRequirements.leadTerms");
   return (
     <RequirementSteps
       title={t("title", { page: pageName })}
       steps={[t("open"), t("choosePage", { page: pageName }), t("accept"), t("comeBack")]}
-      href={LEAD_TERMS_URL}
+      href={href}
       linkLabel={t("openButton")}
       checking={checking}
       onRecheck={onRecheck}
     />
   );
 }
-
-export const LEAD_TERMS_URL = "https://www.facebook.com/ads/leadgen/tos";

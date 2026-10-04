@@ -2599,7 +2599,7 @@
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
       "createWebchat": "Criar WebChat",
-      "adsWhatsApp": "WhatsApp das Páginas"
+      "adsPages": "Páginas"
     },
     "badges": {
       "new": "Novo",
@@ -19234,17 +19234,6 @@
       "pipelineDefault": "Funil padrão do workspace"
     }
   },
-  "adsWhatsApp": {
-    "linked": "Número vinculado",
-    "metaOnly": "Vinculada na Meta ao número {number}, que não está conectado a este workspace. Conecte esse número ao Vozko para usá-lo nos anúncios.",
-    "cannotLink": "Esta Página ainda não tem número vinculado. Peça a alguém que possa editar anúncios para vincular.",
-    "noPages": "Nenhuma Página foi compartilhada nesta conexão de anúncios. Conecte de novo e marque as Páginas na janela da Meta.",
-    "retry": "Tentar de novo",
-    "header": {
-      "title": "WhatsApp das Páginas",
-      "description": "O número de WhatsApp vinculado a cada Página, usado nos anúncios que abrem conversa no WhatsApp. Vincule aqui, sem sair do Vozko."
-    }
-  },
   "roleBuilder": {
     "galleryTitle": "Escolha um ponto de partida",
     "galleryDescription": "Comece por um modelo pronto e ajuste o que precisar, ou monte o cargo do zero.",
@@ -19361,6 +19350,39 @@
           "1": "Planos e recargas",
           "2": "Relatórios"
         }
+      }
+    }
+  },
+  "adsPages": {
+    "header": {
+      "title": "Páginas",
+      "description": "O que cada Página precisa para anunciar: WhatsApp, Instagram, Messenger e formulários de cadastro. O que dá para fazer pela API é feito aqui; o resto abre a tela certa da Meta."
+    },
+    "noPages": "Nenhuma Página foi compartilhada nesta conexão de anúncios. Conecte de novo e marque as Páginas na janela da Meta.",
+    "retry": "Tentar de novo",
+    "openAtMeta": "Abrir na Meta",
+    "connectWhatsApp": "Conectar um número de WhatsApp ao Vozko",
+    "cannotLink": "Peça a alguém que possa editar anúncios para vincular um número.",
+    "channels": {
+      "advertise": {
+        "title": "Anunciar por esta Página",
+        "missing": "Seu perfil não tem permissão de anunciar por esta Página. Um administrador do portfólio pode dar o acesso."
+      },
+      "whatsapp": {
+        "title": "WhatsApp",
+        "missing": "Nenhum número de WhatsApp deste workspace está vinculado. Sem ele, anúncios que abrem o WhatsApp não podem ser publicados."
+      },
+      "instagram": {
+        "title": "Instagram",
+        "missing": "Nenhuma conta do Instagram está conectada. Na Meta, troque para o perfil da Página e abra Configurações › Contas vinculadas › Instagram; depois verifique de novo aqui."
+      },
+      "messenger": {
+        "title": "Messenger",
+        "missing": "Messenger indisponível."
+      },
+      "lead_forms": {
+        "title": "Formulários de cadastro",
+        "missing": "A Página ainda não aceitou os termos de anúncios de cadastro da Meta. Só a Meta permite aceitar; depois verifique de novo aqui."
       }
     }
   }

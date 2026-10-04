@@ -1923,7 +1923,7 @@
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
       "createWebchat": "WebChat erstellen",
-      "adsWhatsApp": "WhatsApp der Seiten"
+      "adsPages": "Seiten"
     },
     "badges": {
       "new": "Neu",
@@ -18185,17 +18185,6 @@
       "pipelineDefault": "Standard-Funnel des Workspace"
     }
   },
-  "adsWhatsApp": {
-    "linked": "Verknüpfte Nummer",
-    "metaOnly": "Bei Meta mit {number} verknüpft, die nicht mit diesem Workspace verbunden ist. Verbinde diese Nummer mit Vozko, um sie in Anzeigen zu nutzen.",
-    "cannotLink": "Diese Seite hat noch keine verknüpfte Nummer. Bitte jemanden, der Anzeigen bearbeiten darf, eine zu verknüpfen.",
-    "noPages": "In dieser Anzeigenverbindung wurde keine Seite freigegeben. Verbinde dich erneut und wähle die Seiten im Meta-Fenster aus.",
-    "retry": "Erneut versuchen",
-    "header": {
-      "title": "WhatsApp der Seiten",
-      "description": "Die mit jeder Seite verknüpfte WhatsApp-Nummer für Anzeigen, die einen WhatsApp-Chat öffnen. Hier verknüpfen, ohne Vozko zu verlassen."
-    }
-  },
   "roleBuilder": {
     "galleryTitle": "Wählen Sie einen Ausgangspunkt",
     "galleryDescription": "Starten Sie mit einer fertigen Vorlage und passen Sie an, was nötig ist, oder bauen Sie die Rolle von Grund auf.",
@@ -18312,6 +18301,39 @@
           "1": "Tarife und Aufladungen",
           "2": "Berichte"
         }
+      }
+    }
+  },
+  "adsPages": {
+    "header": {
+      "title": "Seiten",
+      "description": "Was jede Seite für Anzeigen braucht: WhatsApp, Instagram, Messenger und Lead-Formulare. Was die API erlaubt, passiert hier; der Rest öffnet den richtigen Meta-Bildschirm."
+    },
+    "noPages": "In dieser Anzeigenverbindung wurde keine Seite freigegeben. Verbinde dich erneut und wähle die Seiten im Meta-Fenster aus.",
+    "retry": "Erneut versuchen",
+    "openAtMeta": "Bei Meta öffnen",
+    "connectWhatsApp": "Eine WhatsApp-Nummer mit Vozko verbinden",
+    "cannotLink": "Bitte jemanden, der Anzeigen bearbeiten darf, eine Nummer zu verknüpfen.",
+    "channels": {
+      "advertise": {
+        "title": "Mit dieser Seite werben",
+        "missing": "Dein Profil darf mit dieser Seite nicht werben. Ein Portfolio-Admin kann den Zugriff erteilen."
+      },
+      "whatsapp": {
+        "title": "WhatsApp",
+        "missing": "Keine WhatsApp-Nummer dieses Workspaces ist verknüpft. Ohne sie können Anzeigen, die WhatsApp öffnen, nicht veröffentlicht werden."
+      },
+      "instagram": {
+        "title": "Instagram",
+        "missing": "Kein Instagram-Konto ist verbunden. Wechsle bei Meta zum Profil der Seite und öffne Einstellungen › Verknüpfte Konten › Instagram; prüfe danach hier erneut."
+      },
+      "messenger": {
+        "title": "Messenger",
+        "missing": "Messenger nicht verfügbar."
+      },
+      "lead_forms": {
+        "title": "Lead-Formulare",
+        "missing": "Die Seite hat die Lead-Anzeigen-Bedingungen von Meta noch nicht akzeptiert. Nur Meta erlaubt das; prüfe danach hier erneut."
       }
     }
   }

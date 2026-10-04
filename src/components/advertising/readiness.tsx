@@ -21,6 +21,10 @@ const STATE_ICONS = {
   unknown: <Question className="h-4 w-4 text-muted-foreground" aria-hidden />,
 };
 
+export function ReadinessStateIcon({ state }: { state: string }) {
+  return STATE_ICONS[readinessState(state)];
+}
+
 export function ReadinessItemAction({
   item,
   account,
@@ -66,7 +70,9 @@ function ItemRow({ item, account, state, canCreate }: { item: AdReadinessItem; a
   const hint = status === "ready" ? null : t.has(hintKey) ? t(hintKey) : t("unknownHint");
   return (
     <li className="flex items-start gap-3 py-2.5">
-      <span className="mt-0.5 shrink-0">{STATE_ICONS[status]}</span>
+      <span className="mt-0.5 shrink-0">
+        <ReadinessStateIcon state={item.state} />
+      </span>
       <div className="min-w-0 flex-1 space-y-1">
         <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
           {t(`items.${key}.title`)}

@@ -321,7 +321,7 @@ export function RoleBuilder({ wsId, role, compact = false, onCancel, onSaved }: 
               className="w-full"
               error={nameError || undefined}
               maxLength={120}
-              autoFocus={editing || !presetsAvailable}
+              autoFocus
             />
             <ElevatedInput
               type="text"

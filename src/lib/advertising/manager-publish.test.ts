@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { draftOnlyBlockers, draftSummary, draftValidationKey, publishableDrafts, reviewBlockers, validationDone } from "./manager-publish";
+import { acceptedPublishJob, draftOnlyBlockers, draftSummary, draftValidationKey, publishableDrafts, reviewBlockers, validationDone } from "./manager-publish";
+import type { AdPublishJob } from "./types";
 import type { ValidationState } from "./publish";
 import type { DraftIssue } from "./wizard-issues";
 import { fixtureContent, fixtureDraft } from "./manager-test-fixtures";
@@ -90,5 +91,20 @@ describe("validationDone", () => {
 describe("draftOnlyBlockers", () => {
   it("leaves out what belongs to the account, which the dialog shows once on top", () => {
     expect(draftOnlyBlockers(["payment_method", "readinessUnchecked", "issues", "publishing"])).toEqual(["issues", "publishing"]);
+  });
+});
+
+describe("acceptedPublishJob", () => {
+  const job = { id: "job-1", status: "QUEUED" } as AdPublishJob;
+
+  it("finds the job the server accepted even when the answer never arrived", () => {
+    expect(acceptedPublishJob(fixtureDraft({ state: "publishing", job }))).toBe(job);
+    expect(acceptedPublishJob(fixtureDraft({ state: "published", job: { ...job, status: "PUBLISHED" } }))?.id).toBe("job-1");
+  });
+
+  it("never treats an old failed or missing job as accepted", () => {
+    expect(acceptedPublishJob(fixtureDraft({ state: "failed", job: { ...job, status: "FAILED" } }))).toBeNull();
+    expect(acceptedPublishJob(fixtureDraft({ state: "editing" }))).toBeNull();
+    expect(acceptedPublishJob(fixtureDraft({ state: "publishing" }))).toBeNull();
   });
 });

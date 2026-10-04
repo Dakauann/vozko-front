@@ -84,7 +84,7 @@ export type AdReadinessKey =
 
 export type AdReadinessState = "ready" | "missing" | "unknown";
 
-export type AdInAppAction = "reconnect" | "sync" | "create_pixel";
+export type AdInAppAction = "reconnect" | "sync" | "create_pixel" | "link_whatsapp" | "connect_whatsapp";
 
 export interface AdReadinessAction {
   kind: "in_app" | "portal" | string;
@@ -222,6 +222,14 @@ export interface AdNumber {
   number: string;
 }
 
+export type AdPageChannel = "advertise" | "whatsapp" | "instagram" | "messenger" | "lead_forms";
+
+export interface AdPageCapability {
+  channel: AdPageChannel;
+  state: "ready" | "missing" | string;
+  action?: AdReadinessAction;
+}
+
 export interface AdNumberLinkStart {
   status: "code_sent" | "linked";
   page?: AdPage;
@@ -238,6 +246,7 @@ export interface AdPage {
   leadTermsAccepted: boolean;
   numbers: AdNumber[] | null;
   linkable?: AdNumber[] | null;
+  capabilities?: AdPageCapability[];
 }
 
 export type AdLocationKind = "country" | "region" | "city";
@@ -376,7 +385,7 @@ export interface AdLiveInsights {
 
 export type AdAttributionWindow = "1d_view" | "1d_click" | "7d_click" | "28d_click";
 
-export type AdDraftState = "editing" | "publishing" | "failed";
+export type AdDraftState = "editing" | "publishing" | "published" | "failed";
 
 export interface AdDraftRow {
   key: string;

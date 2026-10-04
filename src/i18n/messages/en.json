@@ -2198,7 +2198,7 @@
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
       "createWebchat": "Create WebChat",
-      "adsWhatsApp": "Pages' WhatsApp"
+      "adsPages": "Pages"
     },
     "badges": {
       "new": "New",
@@ -19183,17 +19183,6 @@
       "pipelineDefault": "Workspace default funnel"
     }
   },
-  "adsWhatsApp": {
-    "linked": "Linked number",
-    "metaOnly": "Linked on Meta to {number}, which is not connected to this workspace. Connect that number to Vozko to use it in ads.",
-    "cannotLink": "This Page has no linked number yet. Ask someone who can edit ads to link one.",
-    "noPages": "No Page was shared in this ads connection. Connect again and tick the Pages in Meta's window.",
-    "retry": "Try again",
-    "header": {
-      "title": "Pages' WhatsApp",
-      "description": "The WhatsApp number linked to each Page, used by ads that open a WhatsApp chat. Link it here, without leaving Vozko."
-    }
-  },
   "roleBuilder": {
     "galleryTitle": "Choose a starting point",
     "galleryDescription": "Start from a ready-made template and adjust what you need, or build the role from scratch.",
@@ -19310,6 +19299,39 @@
           "1": "Plans and top-ups",
           "2": "Reports"
         }
+      }
+    }
+  },
+  "adsPages": {
+    "header": {
+      "title": "Pages",
+      "description": "What each Page needs to advertise: WhatsApp, Instagram, Messenger and lead forms. What the API allows is done here; the rest opens the right Meta screen."
+    },
+    "noPages": "No Page was shared in this ads connection. Connect again and tick the Pages in Meta's window.",
+    "retry": "Try again",
+    "openAtMeta": "Open on Meta",
+    "connectWhatsApp": "Connect a WhatsApp number to Vozko",
+    "cannotLink": "Ask someone who can edit ads to link a number.",
+    "channels": {
+      "advertise": {
+        "title": "Advertise with this Page",
+        "missing": "Your profile is not allowed to advertise with this Page. A portfolio admin can grant access."
+      },
+      "whatsapp": {
+        "title": "WhatsApp",
+        "missing": "No WhatsApp number of this workspace is linked. Without it, ads that open WhatsApp cannot be published."
+      },
+      "instagram": {
+        "title": "Instagram",
+        "missing": "No Instagram account is connected. On Meta, switch to the Page's profile and open Settings › Linked accounts › Instagram; then check again here."
+      },
+      "messenger": {
+        "title": "Messenger",
+        "missing": "Messenger unavailable."
+      },
+      "lead_forms": {
+        "title": "Lead forms",
+        "missing": "The Page has not accepted Meta's lead ads terms yet. Only Meta allows accepting them; then check again here."
       }
     }
   }
