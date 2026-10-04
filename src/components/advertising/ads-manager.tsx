@@ -225,10 +225,6 @@ export function AdsManager() {
   const setLevel = (next: AdLevel) => showView({ ...managerView, level: next, panel: null }, "push");
   const setSelection = (next: LevelSelection) => showView({ ...managerView, selection: next }, "replace");
 
-  useEffect(() => {
-    if (accountId && requestedAccount !== accountId) showView(managerView, "replace");
-  }, [accountId, requestedAccount, managerView, showView]);
-
   const createKey = createRequested && account && canCreate ? searchParams.toString() : null;
   if (createKey && createHandled !== createKey) {
     setCreateHandled(createKey);
