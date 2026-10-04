@@ -181,12 +181,33 @@ export interface Feature {
     capabilities: FeatureCapability[];
 }
 
+export type RolePresetKey =
+    | "operator"
+    | "supervisor"
+    | "manager"
+    | "sales"
+    | "analyst"
+    | "marketing"
+    | "automation"
+    | "finance";
+
+export interface RolePreset {
+    key: string;
+    name: string;
+    description: string;
+    highlights: string[];
+    capabilities: string[];
+    permissions: PermissionEntry[];
+}
+
 export interface CustomRole {
     id: string;
     workspaceId: string;
     name: string;
     description: string;
     permissions: PermissionEntry[];
+    presetKey?: string;
+    linked: boolean;
     createdAt: string;
     updatedAt: string;
 }

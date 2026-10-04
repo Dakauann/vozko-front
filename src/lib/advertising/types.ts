@@ -222,6 +222,11 @@ export interface AdNumber {
   number: string;
 }
 
+export interface AdNumberLinkStart {
+  status: "code_sent" | "linked";
+  page?: AdPage;
+}
+
 export interface AdPage {
   pageId: string;
   name: string;

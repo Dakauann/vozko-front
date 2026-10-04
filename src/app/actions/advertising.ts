@@ -22,6 +22,7 @@ import type {
   AdSplitTest,
   AdConversationOrigin,
   AdLocation,
+  AdNumberLinkStart,
   AdPage,
   AdPublishJob,
   AdReadiness,
@@ -71,13 +72,12 @@ export async function listAdPagesAction(accountId: string): Promise<AdsResult<Ad
   return settleAds(await apiClient<AdPage[]>(`${accountPath(accountId)}/pages`, { method: "GET" }), []);
 }
 
-export async function requestNumberLinkAction(accountId: string, pageId: string, number: string): Promise<AdsResult<null>> {
+export async function requestNumberLinkAction(accountId: string, pageId: string, number: string): Promise<AdsResult<AdNumberLinkStart>> {
   return settleAds(
-    await apiClient<null>(`${accountPath(accountId)}/pages/${encodeURIComponent(pageId)}/whatsapp-link/code`, {
+    await apiClient<AdNumberLinkStart>(`${accountPath(accountId)}/pages/${encodeURIComponent(pageId)}/whatsapp-link/code`, {
       method: "POST",
       body: JSON.stringify({ number }),
     }),
-    null,
   );
 }
 

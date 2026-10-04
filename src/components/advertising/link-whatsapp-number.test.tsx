@@ -42,7 +42,7 @@ describe("LinkWhatsAppNumber", () => {
   });
 
   it("asks Meta for the code, then links the number with the code the user types", async () => {
-    requestLink.mockResolvedValue({ data: null });
+    requestLink.mockResolvedValue({ data: { status: "code_sent" } });
     confirmLink.mockResolvedValue({ data: { ...page, whatsAppNumber: "+55 11 96546-7700" } });
     const onLinked = renderLink();
 
@@ -59,7 +59,7 @@ describe("LinkWhatsAppNumber", () => {
   });
 
   it("explains a code Meta did not accept and keeps the field to try again", async () => {
-    requestLink.mockResolvedValue({ data: null });
+    requestLink.mockResolvedValue({ data: { status: "code_sent" } });
     confirmLink.mockResolvedValue({ error: "refused", code: "page_link_refused", status: 409 });
     const onLinked = renderLink();
     fireEvent.click(screen.getByRole("button", { name: labels.sendCode }));
@@ -71,11 +71,28 @@ describe("LinkWhatsAppNumber", () => {
   });
 
   it("cannot confirm before a code is typed", async () => {
-    requestLink.mockResolvedValue({ data: null });
+    requestLink.mockResolvedValue({ data: { status: "code_sent" } });
     renderLink();
     fireEvent.click(screen.getByRole("button", { name: labels.sendCode }));
     await screen.findByLabelText(labels.code);
     expect(screen.getByRole("button", { name: labels.confirm })).toBeDisabled();
+  });
+
+  it("finishes at once when Meta says the number is already linked", async () => {
+    requestLink.mockResolvedValue({ data: { status: "linked", page: { ...page, numbers: page.linkable } } });
+    const onLinked = renderLink();
+    fireEvent.click(screen.getByRole("button", { name: labels.sendCode }));
+    expect(await screen.findByText(labels.linked)).toBeTruthy();
+    expect(onLinked).toHaveBeenCalled();
+    expect(screen.queryByLabelText(labels.code)).toBeNull();
+    expect(confirmLink).not.toHaveBeenCalled();
+  });
+
+  it("shows Meta's own answer when it refuses", async () => {
+    requestLink.mockResolvedValue({ error: "refused", code: "page_link_refused", status: 409, expected: { meta: "NUMBER_ALREADY_IN_USE" } });
+    renderLink();
+    fireEvent.click(screen.getByRole("button", { name: labels.sendCode }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(`${pt.adsErrors.page_link_refused} (Meta: NUMBER_ALREADY_IN_USE)`);
   });
 
   it("says when no number of the workspace can go on this page", () => {

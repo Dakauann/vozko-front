@@ -9,6 +9,7 @@ import type {
     PermissionEntry,
     PermissionRisk,
     ResourceAction,
+    RolePreset,
     ResourceAssignment,
     ResourceType,
     ScopeRule,
@@ -343,6 +344,7 @@ export async function setMemberPermissions(
 export async function fetchAvailablePermissions(): Promise<{
     permissions: AvailablePermission[];
     features: Feature[];
+    rolePresets: RolePreset[];
     error?: string;
 }> {
     const { data, error } = await apiClient<{
@@ -367,10 +369,18 @@ export async function fetchAvailablePermissions(): Promise<{
                 screens?: string[];
             }>;
         }>;
+        rolePresets?: Array<{
+            key: string;
+            name?: string;
+            description?: string;
+            highlights?: string[];
+            capabilities?: string[];
+            permissions?: PermissionEntry[];
+        }>;
     }>("/workspaces/permissions", { method: "GET" });
 
     if (error) {
-        return { permissions: [], features: [], error: error.message || "Failed to fetch permissions" };
+        return { permissions: [], features: [], rolePresets: [], error: error.message || "Failed to fetch permissions" };
     }
 
     const items = data?.permissions ?? [];
@@ -401,7 +411,16 @@ export async function fetchAvailablePermissions(): Promise<{
         })),
     }));
 
-    return { permissions, features };
+    const rolePresets: RolePreset[] = (data?.rolePresets ?? []).map((preset) => ({
+        key: preset.key,
+        name: preset.name ?? preset.key,
+        description: preset.description ?? "",
+        highlights: preset.highlights ?? [],
+        capabilities: preset.capabilities ?? [],
+        permissions: preset.permissions ?? [],
+    }));
+
+    return { permissions, features, rolePresets };
 }
 
 
@@ -476,7 +495,7 @@ export async function fetchCustomRoles(workspaceId: string): Promise<{
     roles: CustomRole[];
     error?: string;
 }> {
-    const { data, error } = await apiClient<{ roles?: CustomRole[] }>(
+    const { data, error } = await apiClient<{ roles?: Array<Omit<CustomRole, "linked"> & { linked?: boolean }> }>(
         `/workspaces/${workspaceId}/roles`,
         { method: "GET" },
     );
@@ -485,41 +504,55 @@ export async function fetchCustomRoles(workspaceId: string): Promise<{
         return { roles: [], error: error.message || "Failed to fetch roles" };
     }
 
-    return { roles: data?.roles ?? [] };
+    return { roles: (data?.roles ?? []).map(normalizeRole) };
+}
+
+function normalizeRole(role: Omit<CustomRole, "linked"> & { linked?: boolean }): CustomRole {
+    return { ...role, permissions: role.permissions ?? [], linked: role.linked ?? false };
 }
 
 export async function createCustomRole(
     workspaceId: string,
-    input: { name: string; description?: string; permissions: PermissionEntry[] }
+    input: {
+        name: string;
+        description?: string;
+        permissions: PermissionEntry[];
+        presetKey?: string;
+        linked?: boolean;
+    }
 ): Promise<{
     role: CustomRole | null;
     error?: string;
+    code?: string;
 }> {
-    const { data, error } = await apiClient<CustomRole>(`/workspaces/${workspaceId}/roles`, {
+    const { data, error } = await apiClient<Omit<CustomRole, "linked"> & { linked?: boolean }>(`/workspaces/${workspaceId}/roles`, {
         method: "POST",
         body: JSON.stringify({
             name: input.name,
             description: input.description,
             permissions: input.permissions,
+            presetKey: input.presetKey,
+            linked: input.linked,
         }),
     });
 
     if (error) {
-        return { role: null, error: error.message || "Failed to create role" };
+        return { role: null, error: error.message || "Failed to create role", code: error.code };
     }
 
-    return { role: data ?? null };
+    return { role: data ? normalizeRole(data) : null };
 }
 
 export async function updateCustomRole(
     workspaceId: string,
     roleId: string,
-    updates: { name?: string; description?: string; permissions?: PermissionEntry[] }
+    updates: { name?: string; description?: string; permissions?: PermissionEntry[]; linked?: boolean }
 ): Promise<{
     role: CustomRole | null;
     error?: string;
+    code?: string;
 }> {
-    const { data, error } = await apiClient<CustomRole>(
+    const { data, error } = await apiClient<Omit<CustomRole, "linked"> & { linked?: boolean }>(
         `/workspaces/${workspaceId}/roles/${roleId}`,
         {
             method: "PUT",
@@ -527,15 +560,16 @@ export async function updateCustomRole(
                 name: updates.name,
                 description: updates.description,
                 permissions: updates.permissions,
+                linked: updates.linked,
             }),
         },
     );
 
     if (error) {
-        return { role: null, error: error.message || "Failed to update role" };
+        return { role: null, error: error.message || "Failed to update role", code: error.code };
     }
 
-    return { role: data ?? null };
+    return { role: data ? normalizeRole(data) : null };
 }
 
 export async function deleteCustomRole(

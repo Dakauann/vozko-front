@@ -76,7 +76,6 @@ import {
   assignCustomRole,
   assignResource,
   cancelInvite,
-  createCustomRole,
   deleteCustomRole,
   fetchAvailablePermissions,
   fetchCustomRoles,
@@ -88,7 +87,6 @@ import {
   removeMember,
   setMemberPermissions,
   unassignResource,
-  updateCustomRole,
   updateMemberRole,
   updateWorkspace,
 } from "@/lib/workspace/client";
@@ -113,6 +111,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { useDepartment } from "@/contexts/department-context";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { RoleBuilder } from "@/components/workspace/role-builder";
+import { RoleOriginMarker, RoleTile } from "@/components/workspace/role-identity";
 
 export default function WorkspaceSettingsPage() {
   const t = useTranslations("workspaceSettings");
@@ -361,7 +361,12 @@ export default function WorkspaceSettingsPage() {
                 />
               </TabsContent>
               <TabsContent value="permissions">
-                <PermissionsTab wsId={wsId!} members={members} t={t} />
+                <PermissionsTab
+                  wsId={wsId!}
+                  members={members}
+                  customRoles={customRoles}
+                  t={t}
+                />
               </TabsContent>
               <TabsContent value="roles">
                 <RolesTab
@@ -390,12 +395,26 @@ export default function WorkspaceSettingsPage() {
 function RoleBadge({
   role,
   roleName,
+  customRole,
   t,
 }: {
   role: WorkspaceRole;
   roleName?: string;
+  customRole?: CustomRole;
   t: ReturnType<typeof useTranslations>;
 }) {
+  if (customRole) {
+    return (
+      <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-[--radius] border border-border bg-card py-0.5 pl-0.5 pr-2.5 text-xs font-semibold text-foreground">
+        <RoleTile presetKey={customRole.presetKey} size="sm" />
+        <span className="min-w-0 truncate">{roleName || customRole.name}</span>
+        <RoleOriginMarker
+          role={customRole}
+          className="hidden font-normal sm:inline-flex"
+        />
+      </span>
+    );
+  }
   const config: Record<string, { bg: string; icon: typeof Crown }> = {
     owner: {
       bg: "bg-warning text-warning-foreground",
@@ -426,6 +445,14 @@ function RoleBadge({
       {label}
     </span>
   );
+}
+
+function findCustomRole(
+  customRoles: CustomRole[],
+  member: Pick<WorkspaceMember, "role" | "roleId">,
+) {
+  if (member.role !== "member" || !member.roleId) return undefined;
+  return customRoles.find((role) => role.id === member.roleId);
 }
 
 function MemberAvatar({
@@ -610,6 +637,7 @@ function MembersTab({
                     <RoleBadge
                       role={member.role}
                       roleName={member.roleName}
+                      customRole={findCustomRole(customRoles, member)}
                       t={t}
                     />
 
@@ -782,71 +810,20 @@ function InvitesTab({
   );
 
   const [showCreateRole, setShowCreateRole] = React.useState(false);
-  const [roleName, setRoleName] = React.useState("");
-  const [roleDescription, setRoleDescription] = React.useState("");
-  const [savingRole, setSavingRole] = React.useState(false);
-  const [roleError, setRoleError] = React.useState("");
   const [localRoles, setLocalRoles] =
     React.useState<CustomRole[]>(initialRoles);
-
-  const [availablePerms, setAvailablePerms] = React.useState<
-    AvailablePermission[]
-  >([]);
-  const [loadingPerms, setLoadingPerms] = React.useState(false);
-
-  const {
-    permMap,
-    togglePermission,
-    toggleAllForResource,
-    resetPermMap,
-    getPermissionEntries,
-    hasAnyPermissions,
-  } = usePermissionMap(undefined, availablePerms);
-
-  React.useEffect(() => {
+  const [syncedRoles, setSyncedRoles] = React.useState(initialRoles);
+  if (syncedRoles !== initialRoles) {
+    setSyncedRoles(initialRoles);
     setLocalRoles(initialRoles);
-  }, [initialRoles]);
+  }
 
-  const loadAvailablePermissions = React.useCallback(async () => {
-    if (availablePerms.length > 0) return;
-    setLoadingPerms(true);
-    const result = await fetchAvailablePermissions();
-    if (!result.error) setAvailablePerms(result.permissions);
-    setLoadingPerms(false);
-  }, [availablePerms.length]);
-
-  React.useEffect(() => {
-    if (showCreateRole) loadAvailablePermissions();
-  }, [showCreateRole, loadAvailablePermissions]);
-
-  const handleCreateRole = async () => {
-    if (!roleName.trim()) return;
-    setSavingRole(true);
-    setRoleError("");
-
-    const permissions = getPermissionEntries() as PermissionEntry[];
-    const result = await createCustomRole(wsId, {
-      name: roleName.trim(),
-      description: roleDescription.trim() || undefined,
-      permissions,
-    });
-
-    if (result.error) {
-      setRoleError(result.error);
-      setSavingRole(false);
-      return;
+  const handleRoleCreated = async (role: CustomRole | null) => {
+    if (role) {
+      setLocalRoles((prev) => [...prev, role]);
+      setSelectedValue(`role:${role.id}`);
     }
-
-    if (result.role) {
-      setLocalRoles((prev) => [...prev, result.role!]);
-      setSelectedValue(`role:${result.role.id}`);
-    }
-
-    setRoleName("");
-    setRoleDescription("");
-    resetPermMap();
     setShowCreateRole(false);
-    setSavingRole(false);
     await onRefresh();
   };
 
@@ -991,130 +968,12 @@ function InvitesTab({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="rounded-[--radius] border border-border bg-muted p-4 space-y-4">
-                          <div className="flex items-center gap-3">
-                            <IconBox color="emerald" size="sm">
-                              <UserGear className="h-4 w-4" weight="fill" />
-                            </IconBox>
-                            <div className="flex-1">
-                              <h4 className="text-sm font-semibold text-foreground">
-                                {t("customRoles.createRole")}
-                              </h4>
-                              <p className="text-2xs text-muted-foreground">
-                                {t("customRoles.description")}
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowCreateRole(false);
-                                setRoleName("");
-                                setRoleDescription("");
-                                setRoleError("");
-                                resetPermMap();
-                              }}
-                              className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                            >
-                              <X className="h-4 w-4" weight="bold" />
-                            </button>
-                          </div>
-
-                          <div className="space-y-3">
-                            <ElevatedInput
-                              type="text"
-                              value={roleName}
-                              onChange={(e) => setRoleName(e.target.value)}
-                              label={t("customRoles.roleName")}
-                              variant="outline"
-                              controlSize="sm"
-                              className="w-full"
-                              autoFocus
-                            />
-                            <ElevatedInput
-                              type="text"
-                              value={roleDescription}
-                              onChange={(e) =>
-                                setRoleDescription(e.target.value)
-                              }
-                              label={t("customRoles.roleDescription")}
-                              variant="outline"
-                              controlSize="sm"
-                              className="w-full"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <h4 className="text-xs font-semibold text-foreground">
-                              {t("customRoles.rolePermissions")}
-                            </h4>
-                            {loadingPerms ? (
-                              <div className="flex h-20 items-center justify-center">
-                                <CircleNotch
-                                  className="h-6 w-6 animate-spin text-primary-ink"
-                                  weight="bold"
-                                />
-                              </div>
-                            ) : (
-                              <PermissionsEditor
-                                availablePermissions={availablePerms}
-                                permMap={permMap}
-                                onToggle={togglePermission}
-                                onToggleAll={toggleAllForResource}
-                                t={(key: string) => t(key)}
-                                compact
-                              />
-                            )}
-                          </div>
-
-                          {roleError && (
-                            <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-                              <X
-                                className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
-                                weight="bold"
-                              />
-                              <p className="text-xs text-destructive-ink">
-                                {roleError}
-                              </p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-1">
-                            <ElevatedButton
-                              onClick={() => {
-                                setShowCreateRole(false);
-                                setRoleName("");
-                                setRoleDescription("");
-                                setRoleError("");
-                                resetPermMap();
-                              }}
-                              variant="outline-subtle"
-                              title={t("customRoles.cancel")}
-                            />
-                            <div className="flex items-center gap-2">
-                              {hasAnyPermissions && (
-                                <span className="text-2xs text-muted-foreground">
-                                  {t("customRoles.permissionCount", {
-                                    count: getPermissionEntries().length,
-                                  })}
-                                </span>
-                              )}
-                              <ElevatedButton
-                                onClick={handleCreateRole}
-                                disabled={!roleName.trim() || savingRole}
-                                variant="primary"
-                                title={
-                                  savingRole
-                                    ? t("customRoles.saving")
-                                    : t("customRoles.save")
-                                }
-                                icon={
-                                  <Check className="h-4 w-4" weight="bold" />
-                                }
-                                iconVisible
-                              />
-                            </div>
-                          </div>
-                        </div>
+                        <RoleBuilder
+                          wsId={wsId}
+                          compact
+                          onCancel={() => setShowCreateRole(false)}
+                          onSaved={handleRoleCreated}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1352,10 +1211,12 @@ function InvitesTab({
 function PermissionsTab({
   wsId,
   members,
+  customRoles,
   t,
 }: {
   wsId: string;
   members: WorkspaceMember[];
+  customRoles: CustomRole[];
   t: ReturnType<typeof useTranslations>;
 }) {
   const { can, canAny } = useWorkspace();
@@ -1583,6 +1444,7 @@ function PermissionsTab({
               <RoleBadge
                 role={selectedMember.role}
                 roleName={selectedMember.roleName}
+                customRole={findCustomRole(customRoles, selectedMember)}
                 t={t}
               />
             </div>
@@ -1886,6 +1748,7 @@ function PermissionsTab({
                     <RoleBadge
                       role={member.role}
                       roleName={member.roleName}
+                      customRole={findCustomRole(customRoles, member)}
                       t={t}
                     />
                     <CaretRight
@@ -1926,6 +1789,7 @@ function PermissionsTab({
                     <RoleBadge
                       role={member.role}
                       roleName={member.roleName}
+                      customRole={findCustomRole(customRoles, member)}
                       t={t}
                     />
                     <CaretRight
@@ -1983,96 +1847,31 @@ function RolesTab({
   t: ReturnType<typeof useTranslations>;
 }) {
   const { can } = useWorkspace();
-  const tScope = useTranslations("departmentScope");
   const [editingRole, setEditingRole] = React.useState<CustomRole | null>(null);
   const [creating, setCreating] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [saving, setSaving] = React.useState(false);
   const [deleting, setDeleting] = React.useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null);
   const [error, setError] = React.useState("");
 
-  const [availablePerms, setAvailablePerms] = React.useState<
-    AvailablePermission[]
-  >([]);
-  const [loadingPerms, setLoadingPerms] = React.useState(false);
-
-  const {
-    permMap,
-    togglePermission,
-    toggleAllForResource,
-    resetPermMap,
-    getPermissionEntries,
-    hasAnyPermissions,
-  } = usePermissionMap(undefined, availablePerms);
-
-  const loadPerms = React.useCallback(async () => {
-    if (availablePerms.length > 0) return;
-    setLoadingPerms(true);
-    const result = await fetchAvailablePermissions();
-    if (!result.error) setAvailablePerms(result.permissions);
-    setLoadingPerms(false);
-  }, [availablePerms.length]);
-
   const openCreate = () => {
     setEditingRole(null);
     setCreating(true);
-    setName("");
-    setDescription("");
     setError("");
-    resetPermMap();
-    loadPerms();
   };
 
   const openEdit = (role: CustomRole) => {
     setEditingRole(role);
     setCreating(true);
-    setName(role.name);
-    setDescription(role.description ?? "");
     setError("");
-    resetPermMap(
-      role.permissions.map((p) => ({
-        resource: p.resource,
-        action: p.action,
-      })),
-    );
-    loadPerms();
   };
 
-  const handleSave = async () => {
-    if (!name.trim()) return;
-    setSaving(true);
-    setError("");
-
-    const permissions = getPermissionEntries() as PermissionEntry[];
-
-    if (editingRole) {
-      const result = await updateCustomRole(wsId, editingRole.id, {
-        name: name.trim(),
-        description: description.trim() || undefined,
-        permissions,
-      });
-      if (result.error) {
-        setError(result.error);
-        setSaving(false);
-        return;
-      }
-    } else {
-      const result = await createCustomRole(wsId, {
-        name: name.trim(),
-        description: description.trim() || undefined,
-        permissions,
-      });
-      if (result.error) {
-        setError(result.error);
-        setSaving(false);
-        return;
-      }
-    }
-    setSaving(false);
+  const closeBuilder = () => {
     setCreating(false);
     setEditingRole(null);
+  };
+
+  const handleSaved = async () => {
+    closeBuilder();
     await onRefresh();
   };
 
@@ -2093,131 +1892,13 @@ function RolesTab({
 
   if (creating) {
     return (
-      <div className="space-y-4">
-        <div>
-          <ElevatedContainer className="!p-4">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  setCreating(false);
-                  setEditingRole(null);
-                }}
-                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5" weight="bold" />
-              </button>
-              <IconBox color="emerald" size="sm">
-                <UserGear className="h-5 w-5" weight="fill" />
-              </IconBox>
-              <div>
-                <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                  {editingRole
-                    ? t("customRoles.editRole")
-                    : t("customRoles.createRole")}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {t("customRoles.description")}
-                </p>
-              </div>
-            </div>
-          </ElevatedContainer>
-        </div>
-
-        <div>
-          <ElevatedContainer className="!p-5 space-y-4">
-            <div className="space-y-3">
-              <ElevatedInput
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                label={t("customRoles.roleName")}
-                variant="outline"
-                controlSize="sm"
-                className="w-full"
-                autoFocus
-              />
-              <ElevatedInput
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                label={t("customRoles.roleDescription")}
-                variant="outline"
-                controlSize="sm"
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-foreground">
-                {t("customRoles.rolePermissions")}
-              </h4>
-              {
-}
-              <p className="text-xs text-muted-foreground">
-                {tScope("adminRoleCaption")}
-              </p>
-              {loadingPerms ? (
-                <div className="flex h-20 items-center justify-center">
-                  <CircleNotch
-                    className="h-6 w-6 animate-spin text-primary-ink"
-                    weight="bold"
-                  />
-                </div>
-              ) : (
-                <PermissionsEditor
-                  availablePermissions={availablePerms}
-                  permMap={permMap}
-                  onToggle={togglePermission}
-                  onToggleAll={toggleAllForResource}
-                  t={(key: string) => t(key)}
-                />
-              )}
-            </div>
-
-            {error && (
-              <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-                <X
-                  className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
-                  weight="bold"
-                />
-                <p className="text-xs text-destructive-ink">
-                  {error}
-                </p>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-1">
-              <ElevatedButton
-                onClick={() => {
-                  setCreating(false);
-                  setEditingRole(null);
-                }}
-                variant="outline-subtle"
-                title={t("customRoles.cancel")}
-              />
-              <div className="flex items-center gap-2">
-                {hasAnyPermissions && (
-                  <span className="text-2xs text-muted-foreground">
-                    {t("customRoles.permissionCount", {
-                      count: getPermissionEntries().length,
-                    })}
-                  </span>
-                )}
-                <ElevatedButton
-                  onClick={handleSave}
-                  disabled={!name.trim() || saving}
-                  variant="primary"
-                  title={
-                    saving ? t("customRoles.saving") : t("customRoles.save")
-                  }
-                  icon={<Check className="h-4 w-4" weight="bold" />}
-                  iconVisible
-                />
-              </div>
-            </div>
-          </ElevatedContainer>
-        </div>
-      </div>
+      <RoleBuilder
+        key={editingRole?.id ?? "new"}
+        wsId={wsId}
+        role={editingRole ?? undefined}
+        onCancel={closeBuilder}
+        onSaved={handleSaved}
+      />
     );
   }
 
@@ -2252,9 +1933,7 @@ function RolesTab({
             <div key={role.id}>
               <ElevatedContainer className="!p-4 transition-all hover:!border-border">
                 <div className="flex items-center gap-4">
-                  <IconBox color="emerald" size="sm">
-                    <UserGear className="h-5 w-5" weight="fill" />
-                  </IconBox>
+                  <RoleTile presetKey={role.presetKey} size="lg" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">
                       {role.name}
@@ -2264,12 +1943,13 @@ function RolesTab({
                         {role.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
                       <span className="text-2xs text-muted-foreground">
                         {t("customRoles.permissionCount", {
                           count: role.permissions.length,
                         })}
                       </span>
+                      <RoleOriginMarker role={role} />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

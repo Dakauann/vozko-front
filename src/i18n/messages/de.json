@@ -6504,7 +6504,10 @@
       "call_queues": "Anruf-Warteschlangen",
       "call_history": "Anrufverlauf",
       "ads": "Meta-Anzeigen",
-      "webchat_widgets": "WebChats"
+      "webchat_widgets": "WebChats",
+      "attendance_targets": "Serviceziele",
+      "reports": "Berichte",
+      "unofficial_whatsapp_campaigns": "WhatsApp-Kampagnen (inoffiziell)"
     },
     "actions": {
       "create": "Erstellen",
@@ -6563,7 +6566,10 @@
       "call_queues": "Telefon-Warteschlangen anlegen, festlegen, wer sie annimmt, und die Wartemusik wählen.",
       "call_history": "Die Anrufe sehen, an denen man beteiligt war, mit Ergebnis, Dauer, Weiterleitungen und Kosten; mit Berechtigung die des ganzen Teams.",
       "ads": "Kampagnen und Ergebnisse sehen, Anzeigen ein- und ausschalten, Budgets ändern, Anzeigen erstellen und Meta-Werbekonten verbinden.",
-      "webchat_widgets": "Die Chats erstellen und konfigurieren, die auf den Websites des Workspace erscheinen."
+      "webchat_widgets": "Die Chats erstellen und konfigurieren, die auf den Websites des Workspace erscheinen.",
+      "attendance_targets": "Die Serviceziele des Teams ansehen, festlegen und entfernen.",
+      "reports": "Berichte ansehen, herunterladen und anfordern.",
+      "unofficial_whatsapp_campaigns": "Kampagnen über per QR-Code verbundene WhatsApp-Nummern erstellen, verfolgen, starten und pausieren."
     },
     "customRoles": {
       "title": "Benutzerdefinierte Rollen",
@@ -18188,6 +18194,125 @@
     "header": {
       "title": "WhatsApp der Seiten",
       "description": "Die mit jeder Seite verknüpfte WhatsApp-Nummer für Anzeigen, die einen WhatsApp-Chat öffnen. Hier verknüpfen, ohne Vozko zu verlassen."
+    }
+  },
+  "roleBuilder": {
+    "galleryTitle": "Wählen Sie einen Ausgangspunkt",
+    "galleryDescription": "Starten Sie mit einer fertigen Vorlage und passen Sie an, was nötig ist, oder bauen Sie die Rolle von Grund auf.",
+    "blankTitle": "Von Grund auf beginnen",
+    "blankDescription": "Ohne Berechtigungen. Sie wählen jede einzeln.",
+    "permissionCount": "{count, plural, =0 {Keine Berechtigungen} one {# Berechtigung} other {# Berechtigungen}}",
+    "presetsUnavailable": "Rollenvorlagen sind gerade nicht verfügbar. Stellen Sie die Rolle über die Berechtigungen unten zusammen.",
+    "loadFailed": "Die verfügbaren Berechtigungen konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "selected": "Ausgewählt",
+    "risksLabel": "Was diese Vorlage umfasst",
+    "summaryTitle": "Was diese Rolle kann",
+    "summaryEmpty": "Noch nichts freigegeben. Wählen Sie eine Vorlage oder passen Sie die Berechtigungen an.",
+    "adjustPermissions": "Berechtigungen anpassen",
+    "viewPermissions": "Berechtigungen ansehen",
+    "basedOn": "Basiert auf {preset}",
+    "changes": "{count, plural, one {# Änderung} other {# Änderungen}}",
+    "restorePreset": "Vorlage wiederherstellen",
+    "matchesPreset": "Entspricht der Vorlage {preset}",
+    "linkedTo": "Verknüpft mit {preset}",
+    "applyPreset": "Vorlage anwenden",
+    "changeStart": "Ausgangspunkt wechseln",
+    "backToForm": "Zurück zum Formular",
+    "linkChoiceLabel": "Wie die Vorlage genutzt wird",
+    "linkOption": "Mit der Vorlage verknüpfen",
+    "linkOptionDescription": "Folgt der Vorlage und übernimmt ihre künftigen Änderungen. Die Berechtigungen sind schreibgeschützt.",
+    "linkUnavailable": "Diese Rolle kann nur mit der Vorlage verknüpft werden, aus der sie erstellt wurde.",
+    "copyOption": "Kopieren und anpassen",
+    "copyOptionDescription": "Eine Momentaufnahme der heutigen Berechtigungen, die Sie frei bearbeiten.",
+    "linkedNotice": "Die Berechtigungen folgen der Vorlage {preset}. Um etwas zu ändern, heben Sie die Verknüpfung auf.",
+    "unlinkToEdit": "Verknüpfung aufheben und bearbeiten",
+    "nameHint": "Geben Sie der Rolle einen Namen, um sie zu speichern.",
+    "zeroPermissionsHint": "Wählen Sie mindestens eine Berechtigung, um die Rolle zu speichern.",
+    "confirmReplaceTitle": "Berechtigungen ersetzen?",
+    "confirmReplaceDescription": "Ihre Änderungen an den Berechtigungen werden durch die Vorlage {preset} ersetzt.",
+    "confirmBlankDescription": "Ihre Änderungen an den Berechtigungen werden verworfen und die Rolle beginnt ohne Berechtigungen.",
+    "confirmReplace": "Ersetzen",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "errors": {
+      "nameTaken": "Es gibt bereits eine Rolle mit diesem Namen. Wählen Sie einen anderen Namen.",
+      "roleLinked": "Diese Rolle ist mit einer Vorlage verknüpft. Heben Sie die Verknüpfung auf, um die Berechtigungen zu bearbeiten.",
+      "unknownPreset": "Diese Rollenvorlage existiert nicht mehr. Wählen Sie einen anderen Ausgangspunkt."
+    },
+    "presets": {
+      "operator": {
+        "name": "Servicemitarbeiter",
+        "description": "Bearbeitet die eigenen Gespräche: antwortet, sendet Bilder und Dateien, nutzt Kurzbefehle und bewegt den Kunden durch den Funnel.",
+        "highlights": {
+          "0": "Antwortet Kunden",
+          "1": "Sendet Medien",
+          "2": "Sieht nur eigene Gespräche"
+        }
+      },
+      "supervisor": {
+        "name": "Service-Supervisor",
+        "description": "Begleitet das Team: sieht alle Gespräche, verteilt neu, schaltet die KI ein oder aus und verfolgt die Kennzahlen des Betriebs.",
+        "highlights": {
+          "0": "Sieht das ganze Team",
+          "1": "Verteilt Gespräche neu",
+          "2": "Servicekennzahlen"
+        }
+      },
+      "manager": {
+        "name": "Manager",
+        "description": "Führt den Betrieb: alles vom Supervisor, dazu Ziele, Berichte, Funnels, Verkaufschancen, Leads und Team-Einladungen.",
+        "highlights": {
+          "0": "Ziele und Berichte",
+          "1": "Funnels und Verkaufschancen",
+          "2": "Lädt das Team ein"
+        }
+      },
+      "sales": {
+        "name": "Vertrieb",
+        "description": "Betreut und verkauft: alles vom Servicemitarbeiter, dazu Verkaufschancen, Lead-Erfassung und das Wiedereröffnen von Gesprächen.",
+        "highlights": {
+          "0": "Verkaufschancen",
+          "1": "Erfasst Leads",
+          "2": "Öffnet Gespräche wieder"
+        }
+      },
+      "analyst": {
+        "name": "Analyst",
+        "description": "Verfolgt Ergebnisse, ohne etwas zu ändern: Gespräche, Funnels, Verkaufschancen, Kennzahlen, Kampagnen, Anzeigen und Berichte.",
+        "highlights": {
+          "0": "Nur Lesen",
+          "1": "Kennzahlen und Berichte",
+          "2": "Kampagnen und Anzeigen"
+        }
+      },
+      "marketing": {
+        "name": "Marketing",
+        "description": "Kümmert sich um Kampagnen, Nachrichtenvorlagen, soziale Netzwerke, Meta-Anzeigen und Links.",
+        "highlights": {
+          "0": "Kampagnen und Versand",
+          "1": "Instagram und Facebook",
+          "2": "Meta-Anzeigen"
+        }
+      },
+      "automation": {
+        "name": "KI- und Automatisierungsexperte",
+        "description": "Richtet KI-Agenten, Wissensdatenbanken, Automatisierungen und die von ihnen genutzten MCP-Server ein.",
+        "highlights": {
+          "0": "KI-Agenten",
+          "1": "Wissensdatenbanken",
+          "2": "Automatisierungen"
+        }
+      },
+      "finance": {
+        "name": "Finanzen",
+        "description": "Verfolgt Guthaben, Rechnungen und das Abonnement, bucht Tarife und Aufladungen und lädt Berichte herunter.",
+        "highlights": {
+          "0": "Guthaben und Rechnungen",
+          "1": "Tarife und Aufladungen",
+          "2": "Berichte"
+        }
+      }
     }
   }
 }

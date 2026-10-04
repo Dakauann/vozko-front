@@ -5984,7 +5984,10 @@
       "call_queues": "Colas de atención",
       "call_history": "Historial de llamadas",
       "ads": "Anuncios de Meta",
-      "webchat_widgets": "WebChats"
+      "webchat_widgets": "WebChats",
+      "attendance_targets": "Metas de atención",
+      "reports": "Informes",
+      "unofficial_whatsapp_campaigns": "Envíos WhatsApp (no oficial)"
     },
     "actions": {
       "create": "Crear",
@@ -6043,7 +6046,10 @@
       "call_queues": "Crear colas telefónicas, elegir quién atiende cada una y la música de espera.",
       "call_history": "Ver las llamadas en las que participó, con resultado, duración, transferencias y costo; con permiso, las de todo el equipo.",
       "ads": "Ver campañas y resultados, encender y apagar anuncios, cambiar presupuestos, crear anuncios y conectar cuentas publicitarias de Meta.",
-      "webchat_widgets": "Crear y configurar los chats que aparecen en los sitios del workspace."
+      "webchat_widgets": "Crear y configurar los chats que aparecen en los sitios del workspace.",
+      "attendance_targets": "Ver, definir y eliminar las metas de atención del equipo.",
+      "reports": "Ver, descargar y solicitar la generación de informes.",
+      "unofficial_whatsapp_campaigns": "Crear, seguir, iniciar y pausar envíos desde números de WhatsApp conectados por código QR."
     },
     "customRoles": {
       "title": "Roles Personalizados",
@@ -17691,6 +17697,125 @@
     "header": {
       "title": "WhatsApp de las Páginas",
       "description": "El número de WhatsApp vinculado a cada Página, usado en los anuncios que abren una conversación en WhatsApp. Vincúlalo aquí, sin salir de Vozko."
+    }
+  },
+  "roleBuilder": {
+    "galleryTitle": "Elige un punto de partida",
+    "galleryDescription": "Empieza con una plantilla lista y ajusta lo que necesites, o arma el cargo desde cero.",
+    "blankTitle": "Empezar desde cero",
+    "blankDescription": "Sin permisos. Tú eliges cada uno.",
+    "permissionCount": "{count, plural, =0 {Ningún permiso} one {# permiso} other {# permisos}}",
+    "presetsUnavailable": "Las plantillas de cargo no están disponibles ahora. Arma el cargo eligiendo los permisos de abajo.",
+    "loadFailed": "No fue posible cargar los permisos disponibles.",
+    "retry": "Intentar de nuevo",
+    "selected": "Seleccionado",
+    "risksLabel": "Lo que implica esta plantilla",
+    "summaryTitle": "Lo que este cargo puede hacer",
+    "summaryEmpty": "Todavía no hay nada habilitado. Elige una plantilla o ajusta los permisos.",
+    "adjustPermissions": "Ajustar permisos",
+    "viewPermissions": "Ver permisos",
+    "basedOn": "Basado en {preset}",
+    "changes": "{count, plural, one {# cambio} other {# cambios}}",
+    "restorePreset": "Restaurar plantilla",
+    "matchesPreset": "Coincide con la plantilla {preset}",
+    "linkedTo": "Vinculado a {preset}",
+    "applyPreset": "Aplicar una plantilla",
+    "changeStart": "Cambiar punto de partida",
+    "backToForm": "Volver al formulario",
+    "linkChoiceLabel": "Cómo usar la plantilla",
+    "linkOption": "Vincular a la plantilla",
+    "linkOptionDescription": "Sigue la plantilla y recibe sus cambios futuros. Los permisos quedan de solo lectura.",
+    "linkUnavailable": "Este cargo solo puede vincularse a la plantilla con la que fue creado.",
+    "copyOption": "Copiar y personalizar",
+    "copyOptionDescription": "Una copia de los permisos de hoy, que puedes editar a tu gusto.",
+    "linkedNotice": "Los permisos siguen la plantilla {preset}. Para cambiar alguno, desvincula el cargo.",
+    "unlinkToEdit": "Desvincular para editar",
+    "nameHint": "Ponle un nombre al cargo para guardarlo.",
+    "zeroPermissionsHint": "Elige al menos un permiso para guardar el cargo.",
+    "confirmReplaceTitle": "¿Reemplazar los permisos?",
+    "confirmReplaceDescription": "Los cambios que hiciste en los permisos se reemplazarán por los de la plantilla {preset}.",
+    "confirmBlankDescription": "Los cambios que hiciste en los permisos se descartarán y el cargo empezará sin permisos.",
+    "confirmReplace": "Reemplazar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "errors": {
+      "nameTaken": "Ya existe un cargo con este nombre. Elige otro nombre.",
+      "roleLinked": "Este cargo está vinculado a una plantilla. Desvincúlalo para editar los permisos.",
+      "unknownPreset": "Esta plantilla de cargo ya no existe. Elige otro punto de partida."
+    },
+    "presets": {
+      "operator": {
+        "name": "Agente de atención",
+        "description": "Atiende sus propias conversaciones: responde, envía imágenes y archivos, usa atajos y mueve al cliente por el embudo.",
+        "highlights": {
+          "0": "Responde a clientes",
+          "1": "Envía multimedia",
+          "2": "Solo ve sus conversaciones"
+        }
+      },
+      "supervisor": {
+        "name": "Supervisor de atención",
+        "description": "Acompaña al equipo: ve todas las conversaciones, redistribuye, activa o pausa la IA y sigue las métricas de la operación.",
+        "highlights": {
+          "0": "Ve a todo el equipo",
+          "1": "Redistribuye conversaciones",
+          "2": "Métricas de atención"
+        }
+      },
+      "manager": {
+        "name": "Gerente",
+        "description": "Conduce la operación: todo lo del supervisor, más metas, informes, embudos, oportunidades, leads e invitaciones al equipo.",
+        "highlights": {
+          "0": "Metas e informes",
+          "1": "Embudos y oportunidades",
+          "2": "Invita al equipo"
+        }
+      },
+      "sales": {
+        "name": "Vendedor",
+        "description": "Atiende y vende: todo lo del agente, más oportunidades, registro de leads y reapertura de conversaciones.",
+        "highlights": {
+          "0": "Oportunidades",
+          "1": "Registra leads",
+          "2": "Reabre conversaciones"
+        }
+      },
+      "analyst": {
+        "name": "Analista",
+        "description": "Sigue los resultados sin cambiar nada: conversaciones, embudos, oportunidades, métricas, campañas, anuncios e informes.",
+        "highlights": {
+          "0": "Solo lectura",
+          "1": "Métricas e informes",
+          "2": "Campañas y anuncios"
+        }
+      },
+      "marketing": {
+        "name": "Marketing",
+        "description": "Se encarga de campañas, plantillas de mensaje, redes sociales, anuncios de Meta y enlaces.",
+        "highlights": {
+          "0": "Campañas y envíos",
+          "1": "Instagram y Facebook",
+          "2": "Anuncios de Meta"
+        }
+      },
+      "automation": {
+        "name": "Especialista en IA y automatizaciones",
+        "description": "Configura agentes de IA, bases de conocimiento, automatizaciones y los servidores MCP que usan.",
+        "highlights": {
+          "0": "Agentes de IA",
+          "1": "Bases de conocimiento",
+          "2": "Automatizaciones"
+        }
+      },
+      "finance": {
+        "name": "Finanzas",
+        "description": "Sigue el saldo, las facturas y la suscripción, contrata planes y recargas y descarga informes.",
+        "highlights": {
+          "0": "Saldo y facturas",
+          "1": "Planes y recargas",
+          "2": "Informes"
+        }
+      }
     }
   }
 }

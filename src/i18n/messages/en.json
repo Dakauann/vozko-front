@@ -7356,7 +7356,10 @@
       "call_queues": "Call queues",
       "call_history": "Call history",
       "ads": "Meta ads",
-      "webchat_widgets": "WebChats"
+      "webchat_widgets": "WebChats",
+      "attendance_targets": "Service targets",
+      "reports": "Reports",
+      "unofficial_whatsapp_campaigns": "WhatsApp campaigns (unofficial)"
     },
     "actions": {
       "create": "Create",
@@ -7415,7 +7418,10 @@
       "call_queues": "Create phone queues, choose who answers each one and the hold music.",
       "call_history": "See the calls you took part in, with outcome, duration, transfers and cost; with permission, the whole team's.",
       "ads": "See campaigns and results, turn ads on and off, change budgets, create ads and connect Meta ad accounts.",
-      "webchat_widgets": "Create and configure the chats that appear on the workspace websites."
+      "webchat_widgets": "Create and configure the chats that appear on the workspace websites.",
+      "attendance_targets": "View, set and remove the team's service targets.",
+      "reports": "View, download and request reports.",
+      "unofficial_whatsapp_campaigns": "Create, track, start and pause campaigns sent from WhatsApp numbers linked by QR code."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -19186,6 +19192,125 @@
     "header": {
       "title": "Pages' WhatsApp",
       "description": "The WhatsApp number linked to each Page, used by ads that open a WhatsApp chat. Link it here, without leaving Vozko."
+    }
+  },
+  "roleBuilder": {
+    "galleryTitle": "Choose a starting point",
+    "galleryDescription": "Start from a ready-made template and adjust what you need, or build the role from scratch.",
+    "blankTitle": "Start from scratch",
+    "blankDescription": "No permissions. You pick each one.",
+    "permissionCount": "{count, plural, =0 {No permissions} one {# permission} other {# permissions}}",
+    "presetsUnavailable": "Role templates are not available right now. Build the role by choosing permissions below.",
+    "loadFailed": "We could not load the available permissions.",
+    "retry": "Try again",
+    "selected": "Selected",
+    "risksLabel": "What this template involves",
+    "summaryTitle": "What this role can do",
+    "summaryEmpty": "Nothing is enabled yet. Choose a template or adjust the permissions.",
+    "adjustPermissions": "Adjust permissions",
+    "viewPermissions": "View permissions",
+    "basedOn": "Based on {preset}",
+    "changes": "{count, plural, one {# change} other {# changes}}",
+    "restorePreset": "Restore template",
+    "matchesPreset": "Matches the {preset} template",
+    "linkedTo": "Linked to {preset}",
+    "applyPreset": "Apply a template",
+    "changeStart": "Change starting point",
+    "backToForm": "Back to the form",
+    "linkChoiceLabel": "How to use the template",
+    "linkOption": "Link to the template",
+    "linkOptionDescription": "Follows the template and receives its future changes. Permissions are read only.",
+    "linkUnavailable": "This role can only be linked to the template it was created from.",
+    "copyOption": "Copy and customize",
+    "copyOptionDescription": "A snapshot of today's permissions that you can edit freely.",
+    "linkedNotice": "Permissions follow the {preset} template. To change any of them, unlink the role.",
+    "unlinkToEdit": "Unlink to edit",
+    "nameHint": "Give the role a name to save it.",
+    "zeroPermissionsHint": "Choose at least one permission to save the role.",
+    "confirmReplaceTitle": "Replace the permissions?",
+    "confirmReplaceDescription": "The changes you made to the permissions will be replaced by the {preset} template.",
+    "confirmBlankDescription": "The changes you made to the permissions will be discarded and the role will start with no permissions.",
+    "confirmReplace": "Replace",
+    "cancel": "Cancel",
+    "close": "Close",
+    "errors": {
+      "nameTaken": "A role with this name already exists. Choose another name.",
+      "roleLinked": "This role is linked to a template. Unlink it to edit the permissions.",
+      "unknownPreset": "This role template no longer exists. Choose another starting point."
+    },
+    "presets": {
+      "operator": {
+        "name": "Service agent",
+        "description": "Handles their own conversations: replies, sends images and files, uses shortcuts and moves the customer through the funnel.",
+        "highlights": {
+          "0": "Replies to customers",
+          "1": "Sends media",
+          "2": "Sees only their own conversations"
+        }
+      },
+      "supervisor": {
+        "name": "Service supervisor",
+        "description": "Oversees the team: sees every conversation, reassigns, turns the AI on or off and follows the operation's metrics.",
+        "highlights": {
+          "0": "Sees the whole team",
+          "1": "Reassigns conversations",
+          "2": "Service metrics"
+        }
+      },
+      "manager": {
+        "name": "Manager",
+        "description": "Runs the operation: everything a supervisor does, plus targets, reports, funnels, deals, leads and team invitations.",
+        "highlights": {
+          "0": "Targets and reports",
+          "1": "Funnels and deals",
+          "2": "Invites the team"
+        }
+      },
+      "sales": {
+        "name": "Sales rep",
+        "description": "Serves and sells: everything an agent does, plus deals, lead registration and reopening conversations.",
+        "highlights": {
+          "0": "Deals",
+          "1": "Registers leads",
+          "2": "Reopens conversations"
+        }
+      },
+      "analyst": {
+        "name": "Analyst",
+        "description": "Follows results without changing anything: conversations, funnels, deals, metrics, campaigns, ads and reports.",
+        "highlights": {
+          "0": "Read only",
+          "1": "Metrics and reports",
+          "2": "Campaigns and ads"
+        }
+      },
+      "marketing": {
+        "name": "Marketing",
+        "description": "Handles campaigns, message templates, social networks, Meta ads and links.",
+        "highlights": {
+          "0": "Campaigns and broadcasts",
+          "1": "Instagram and Facebook",
+          "2": "Meta ads"
+        }
+      },
+      "automation": {
+        "name": "AI and automation specialist",
+        "description": "Sets up AI agents, knowledge bases, automations and the MCP servers they use.",
+        "highlights": {
+          "0": "AI agents",
+          "1": "Knowledge bases",
+          "2": "Automations"
+        }
+      },
+      "finance": {
+        "name": "Finance",
+        "description": "Follows balance, invoices and the subscription, buys plans and top-ups and downloads reports.",
+        "highlights": {
+          "0": "Balance and invoices",
+          "1": "Plans and top-ups",
+          "2": "Reports"
+        }
+      }
     }
   }
 }

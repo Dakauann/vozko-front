@@ -30,6 +30,7 @@ export function LinkWhatsAppNumber({ accountId, page, onLinked }: { accountId: s
     if (!isAdsError(result)) return null;
     if (result.expected?.code) return t("codeInvalid");
     if (result.expected?.number) return t("notLinkable");
+    if (result.expected?.meta) return `${errorText(result)} (Meta: ${result.expected.meta})`;
     return errorText(result);
   };
 
@@ -40,6 +41,11 @@ export function LinkWhatsAppNumber({ accountId, page, onLinked }: { accountId: s
     setBusy(false);
     if (isAdsError(result)) {
       setError(failureText(result));
+      return;
+    }
+    if (result.data.status === "linked") {
+      setStep("linked");
+      onLinked();
       return;
     }
     setCode("");

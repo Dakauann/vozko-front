@@ -7395,7 +7395,10 @@
       "call_queues": "Filas de atendimento",
       "call_history": "Histórico de chamadas",
       "ads": "Anúncios da Meta",
-      "webchat_widgets": "WebChats"
+      "webchat_widgets": "WebChats",
+      "attendance_targets": "Metas de atendimento",
+      "reports": "Relatórios",
+      "unofficial_whatsapp_campaigns": "Disparos WhatsApp (não oficial)"
     },
     "actions": {
       "create": "Criar",
@@ -7454,7 +7457,10 @@
       "call_queues": "Criar filas telefônicas, escolher quem atende cada uma e a música de espera.",
       "call_history": "Ver as ligações de que participou, com resultado, duração, transferências e custo; com permissão, as de toda a equipe.",
       "ads": "Ver campanhas e resultados, ligar e desligar anúncios, alterar orçamentos, criar anúncios e conectar contas de anúncios da Meta.",
-      "webchat_widgets": "Criar e configurar os chats que aparecem nos sites do workspace."
+      "webchat_widgets": "Criar e configurar os chats que aparecem nos sites do workspace.",
+      "attendance_targets": "Ver, definir e remover as metas de atendimento da equipe.",
+      "reports": "Ver, baixar e solicitar a geração de relatórios.",
+      "unofficial_whatsapp_campaigns": "Criar, acompanhar, iniciar e pausar disparos pelos números de WhatsApp conectados por QR Code."
     },
     "customRoles": {
       "title": "Cargos Personalizados",
@@ -19237,6 +19243,125 @@
     "header": {
       "title": "WhatsApp das Páginas",
       "description": "O número de WhatsApp vinculado a cada Página, usado nos anúncios que abrem conversa no WhatsApp. Vincule aqui, sem sair do Vozko."
+    }
+  },
+  "roleBuilder": {
+    "galleryTitle": "Escolha um ponto de partida",
+    "galleryDescription": "Comece por um modelo pronto e ajuste o que precisar, ou monte o cargo do zero.",
+    "blankTitle": "Começar do zero",
+    "blankDescription": "Sem nenhuma permissão. Você escolhe cada uma.",
+    "permissionCount": "{count, plural, =0 {Nenhuma permissão} one {# permissão} other {# permissões}}",
+    "presetsUnavailable": "Os modelos de cargo não estão disponíveis agora. Monte o cargo escolhendo as permissões abaixo.",
+    "loadFailed": "Não foi possível carregar as permissões disponíveis.",
+    "retry": "Tentar de novo",
+    "selected": "Selecionado",
+    "risksLabel": "O que este modelo envolve",
+    "summaryTitle": "O que este cargo pode fazer",
+    "summaryEmpty": "Nenhuma funcionalidade liberada ainda. Escolha um modelo ou ajuste as permissões.",
+    "adjustPermissions": "Ajustar permissões",
+    "viewPermissions": "Ver permissões",
+    "basedOn": "Baseado em {preset}",
+    "changes": "{count, plural, one {# alteração} other {# alterações}}",
+    "restorePreset": "Restaurar modelo",
+    "matchesPreset": "Corresponde ao modelo {preset}",
+    "linkedTo": "Vinculado a {preset}",
+    "applyPreset": "Aplicar um modelo",
+    "changeStart": "Trocar ponto de partida",
+    "backToForm": "Voltar ao formulário",
+    "linkChoiceLabel": "Como usar o modelo",
+    "linkOption": "Vincular ao modelo",
+    "linkOptionDescription": "Segue o modelo e recebe as mudanças futuras dele. As permissões ficam somente para leitura.",
+    "linkUnavailable": "Só é possível vincular este cargo ao modelo em que ele foi criado.",
+    "copyOption": "Copiar e personalizar",
+    "copyOptionDescription": "Uma cópia das permissões de hoje, que você edita à vontade.",
+    "linkedNotice": "As permissões seguem o modelo {preset}. Para mudar alguma, desvincule o cargo.",
+    "unlinkToEdit": "Desvincular para editar",
+    "nameHint": "Dê um nome ao cargo para salvar.",
+    "zeroPermissionsHint": "Escolha ao menos uma permissão para salvar o cargo.",
+    "confirmReplaceTitle": "Substituir as permissões?",
+    "confirmReplaceDescription": "As mudanças que você fez nas permissões serão trocadas pelas do modelo {preset}.",
+    "confirmBlankDescription": "As mudanças que você fez nas permissões serão descartadas e o cargo começará sem permissões.",
+    "confirmReplace": "Substituir",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "errors": {
+      "nameTaken": "Já existe um cargo com este nome. Escolha outro nome.",
+      "roleLinked": "Este cargo está vinculado a um modelo. Desvincule para editar as permissões.",
+      "unknownPreset": "Este modelo de cargo não existe mais. Escolha outro ponto de partida."
+    },
+    "presets": {
+      "operator": {
+        "name": "Operador de atendimento",
+        "description": "Atende as próprias conversas: responde, envia imagens e arquivos, usa atalhos e move o cliente pelo funil.",
+        "highlights": {
+          "0": "Responde clientes",
+          "1": "Envia mídia",
+          "2": "Vê só as próprias conversas"
+        }
+      },
+      "supervisor": {
+        "name": "Supervisor de atendimento",
+        "description": "Acompanha a equipe: vê todas as conversas, redistribui, liga ou pausa a IA e acompanha as métricas da operação.",
+        "highlights": {
+          "0": "Vê toda a equipe",
+          "1": "Redistribui conversas",
+          "2": "Métricas de atendimento"
+        }
+      },
+      "manager": {
+        "name": "Gerente",
+        "description": "Conduz a operação: tudo do supervisor, mais metas, relatórios, funis, oportunidades, leads e convites para a equipe.",
+        "highlights": {
+          "0": "Metas e relatórios",
+          "1": "Funis e oportunidades",
+          "2": "Convida a equipe"
+        }
+      },
+      "sales": {
+        "name": "Vendedor",
+        "description": "Atende e vende: tudo do operador, mais oportunidades, cadastro de leads e reabertura de conversas.",
+        "highlights": {
+          "0": "Oportunidades",
+          "1": "Cadastra leads",
+          "2": "Reabre conversas"
+        }
+      },
+      "analyst": {
+        "name": "Analista",
+        "description": "Acompanha resultados sem alterar nada: conversas, funis, oportunidades, métricas, campanhas, anúncios e relatórios.",
+        "highlights": {
+          "0": "Somente leitura",
+          "1": "Métricas e relatórios",
+          "2": "Campanhas e anúncios"
+        }
+      },
+      "marketing": {
+        "name": "Marketing",
+        "description": "Cuida de campanhas, modelos de mensagem, redes sociais, anúncios da Meta e links.",
+        "highlights": {
+          "0": "Campanhas e disparos",
+          "1": "Instagram e Facebook",
+          "2": "Anúncios da Meta"
+        }
+      },
+      "automation": {
+        "name": "Especialista em IA e automações",
+        "description": "Configura agentes de IA, bases de conhecimento, automações e os servidores MCP que eles usam.",
+        "highlights": {
+          "0": "Agentes de IA",
+          "1": "Bases de conhecimento",
+          "2": "Automações"
+        }
+      },
+      "finance": {
+        "name": "Financeiro",
+        "description": "Acompanha saldo, faturas e a assinatura, contrata planos e recargas e baixa relatórios.",
+        "highlights": {
+          "0": "Saldo e faturas",
+          "1": "Planos e recargas",
+          "2": "Relatórios"
+        }
+      }
     }
   }
 }
