@@ -9,6 +9,7 @@ import {
   editInputProblems,
   endAtOf,
   endDayOf,
+  startDayOf,
   EDIT_GROUP_FIELDS,
   editGroupsFor,
   expandPlacements,
@@ -63,6 +64,13 @@ const detail = (overrides: Partial<AdEditableObject> = {}): AdEditableObject => 
   creative: null,
   identity: null,
   ...overrides,
+});
+
+describe("start day", () => {
+  it("shows the day the object started, in the account timezone", () => {
+    expect(startDayOf("2026-10-04T02:27:00Z", TZ)).toBe("2026-10-03");
+    expect(startDayOf(null, TZ)).toBe("");
+  });
 });
 
 describe("end day", () => {

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
+import { announceDataChanged } from "@/lib/aichat/data-changed";
 import type { ActionCard, Approval, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
@@ -36,6 +37,7 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
       break;
     case "tool":
       h.onTool?.(p.name ?? "", p.summary ?? "", !!p.ok);
+      if (p.changed) announceDataChanged(p.changed);
       break;
     case "tool_start":
       h.onToolStart?.(p.name ?? "");

@@ -28,6 +28,13 @@ export function bidInputOf(bid: AdBid | null, currency: string): BidInput {
   };
 }
 
+export function startDayOf(iso: string | null | undefined, timezone: string): string {
+  if (!iso) return "";
+  const instant = Date.parse(iso);
+  if (Number.isNaN(instant)) return "";
+  return civilToday(timezone, new Date(instant)) ?? "";
+}
+
 export function endDayOf(iso: string | null | undefined, timezone: string): string {
   if (!iso) return "";
   const instant = Date.parse(iso);

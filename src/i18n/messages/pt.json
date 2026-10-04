@@ -338,7 +338,7 @@
       "list_ad_accounts": "Contas de anúncios",
       "ads_results": "Resultados dos anúncios",
       "generate_image": "Gerar imagem",
-      "update_ad_budget": "Alterar orçamento do anúncio",
+      "update_ad_budget": "Alterar orçamento",
       "list_ad_pages": "Páginas para anunciar",
       "search_ad_locations": "Buscando locais",
       "create_ad": "Criar anúncio",
@@ -18533,7 +18533,8 @@
     "draft_publishing": "Este rascunho está sendo publicado e não pode mudar agora.",
     "page_link_refused": "A Meta não confirmou o vínculo. Confira o código ou peça um novo.",
     "ad_post_missing": "A Meta ainda não criou a publicação deste anúncio nesta plataforma. Ela aparece depois que o anúncio é aprovado e veiculado lá.",
-    "comments_not_allowed": "Esta conexão com a Meta não tem permissão para ler estes comentários."
+    "comments_not_allowed": "Esta conexão com a Meta não tem permissão para ler estes comentários.",
+    "comments_need_reconnect": "Para ver os comentários, reconecte a conta de anúncios aceitando a leitura de comentários das Páginas e do Instagram."
   },
   "adsReports": {
     "header": {
@@ -18925,7 +18926,8 @@
         "headline": "Título",
         "callToAction": "Chamada para ação",
         "link": "URL do site",
-        "greeting": "Mensagem de boas-vindas"
+        "greeting": "Mensagem de boas-vindas",
+        "genders": "Gênero"
       }
     },
     "failedNote": "A última publicação falhou: {message}. Corrija o rascunho e publique de novo.",

@@ -102,6 +102,7 @@ function PublishedEditorBody({
   const [selectedId, setSelectedId] = useState(initialId);
   const [tab, setTab] = useState<EditorTab>("edit");
   const [swapForm, setSwapForm] = useState<WizardForm | null>(null);
+  const [actionsSlot, setActionsSlot] = useState<HTMLElement | null>(null);
   const detail = useAdsResource(`object:${selectedId}`, () => getAdEditableObjectAction(selectedId));
   const order = objectOrder(tree);
   const chain = objectChain(tree, selectedId);
@@ -170,6 +171,7 @@ function PublishedEditorBody({
           options={options}
           onSaved={saved}
           onCancel={() => setSwapForm(null)}
+          actionsSlot={actionsSlot}
         />
       );
     }
@@ -183,6 +185,7 @@ function PublishedEditorBody({
           canUpdate={canUpdate}
           onSaved={saved}
           onSwapCreative={liveForm ? () => setSwapForm(liveForm) : undefined}
+          actionsSlot={actionsSlot}
         />
       </CardSections>
     );
@@ -203,6 +206,7 @@ function PublishedEditorBody({
           onClose={() => router.push(managerHref({ accountId: account.id, campaignId: tree.campaign?.metaId }))}
           onBack={back ? () => select(back.metaId) : null}
           onNext={next ? () => select(next.metaId) : null}
+          status={<div ref={setActionsSlot} className="contents" />}
         />
       }
     >

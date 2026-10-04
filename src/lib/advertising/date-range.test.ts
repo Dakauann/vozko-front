@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatLongDay,
   MAXIMUM_MONTHS,
   RANGE_PRESETS,
   addDays,
@@ -153,5 +154,12 @@ describe("calendar days", () => {
     expect(date?.getDate()).toBe(3);
     expect(localDateToDay(new Date(2026, 0, 5))).toBe("2026-01-05");
     expect(dayToLocalDate("2026-02-30")).toBeNull();
+  });
+});
+
+describe("formatLongDay", () => {
+  it("writes a calendar day out in full, without shifting it across time zones", () => {
+    expect(formatLongDay("2026-10-03", "pt-BR")).toBe("3 de outubro de 2026");
+    expect(formatLongDay("not a day", "pt-BR")).toBe("not a day");
   });
 });

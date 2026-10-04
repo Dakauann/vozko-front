@@ -76,12 +76,19 @@ const CTA_ICON: Record<string, typeof WhatsappLogo> = {
   INSTAGRAM_MESSAGE: InstagramLogo,
 };
 
+const CTA_CHANNEL: Record<string, string> = {
+  WHATSAPP_MESSAGE: "WhatsApp",
+  MESSAGE_PAGE: "Messenger",
+  INSTAGRAM_MESSAGE: "Instagram",
+};
+
 interface CardModel {
   content: AdPreviewContent;
   spec: PreviewPlacementSpec;
   media: AdPreviewMedia | undefined;
   text: string;
   ctaLabel: string;
+  ctaChip: string;
   ctaIcon: typeof WhatsappLogo | undefined;
   fallback: string;
   pageName: string;
@@ -289,7 +296,7 @@ function FacebookFeed({ model }: { model: CardModel }) {
               {headline ? <p className="truncate text-sm font-semibold text-foreground">{headline}</p> : null}
               {description ? <p className="truncate text-xs text-muted-foreground">{description}</p> : null}
             </div>
-            <CtaButton label={model.ctaLabel} icon={model.ctaIcon} />
+            <CtaButton label={model.ctaChip} icon={model.ctaIcon} />
           </div>
         </>
       )}
@@ -504,12 +511,14 @@ export function AdPreviewCard({
   const t = useTranslations("adsWizard.preview");
   const tCta = useTranslations("adsWizard.cta");
   const cta = resolvedCallToAction(content.destination as AdDraftDestination | "", content.callToAction ?? "");
+  const ctaLabel = tCta.has(cta) ? tCta(cta) : cta;
   const model: CardModel = {
     content,
     spec: specOf(placement),
     media: mainMedia(content),
     text: content.format === "EXISTING_POST" ? (content.post?.message ?? "") : content.primaryText,
-    ctaLabel: tCta.has(cta) ? tCta(cta) : cta,
+    ctaLabel,
+    ctaChip: CTA_CHANNEL[cta] ?? ctaLabel,
     ctaIcon: CTA_ICON[cta],
     fallback: t("imageFallback"),
     pageName: content.pageName || t("pageFallback"),

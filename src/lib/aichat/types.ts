@@ -224,6 +224,7 @@ export interface ChatStreamEvent {
     name?: string;
     summary?: string;
     ok?: boolean;
+    changed?: string;
     id?: string;
     toolName?: string;
     args?: Record<string, unknown>;

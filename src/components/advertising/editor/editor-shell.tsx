@@ -229,7 +229,7 @@ export function EditorShell({
       <div className={cn("grid gap-4", aside ? "lg:grid-cols-[15rem_minmax(0,1fr)_22rem]" : "lg:grid-cols-[15rem_minmax(0,1fr)]")}>
         <aside className="lg:sticky lg:top-16 lg:self-start">{tree}</aside>
         <main className="min-w-0 space-y-4">{children}</main>
-        {aside ? <aside className="lg:sticky lg:top-16 lg:self-start">{aside}</aside> : null}
+        {aside ? <aside className="lg:sticky lg:top-16 lg:max-h-[calc(100dvh-10rem)] lg:self-start lg:overflow-y-auto">{aside}</aside> : null}
       </div>
       <footer className="sticky bottom-0 z-10 -mx-4 border-t border-border bg-background px-4 py-3 sm:mx-0 sm:px-0">{footer}</footer>
     </div>

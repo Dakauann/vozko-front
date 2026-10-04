@@ -136,6 +136,11 @@ export function previousRange(range: AdRange): AdRange | null {
   return { since: addDays(range.since, -days), until: addDays(range.since, -1) };
 }
 
+export function formatLongDay(day: string, locale: string): string {
+  if (!isDay(day)) return day;
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(fromDay(day));
+}
+
 export function formatDay(day: string, locale: string): string {
   if (!isDay(day)) return day;
   return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", timeZone: "UTC" }).format(fromDay(day));

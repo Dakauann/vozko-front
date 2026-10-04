@@ -18,6 +18,7 @@ import type { AdAccount, AdEditableObject, AdRow } from "@/lib/advertising/types
 
 import { AdImage } from "../ad-image";
 import { useBudgetMinimum } from "../budget-minimum";
+import { FooterSlot } from "../editor/editor-footer";
 import { IssueList } from "../field-issue";
 import { ObjectEditFields } from "./object-edit-fields";
 
@@ -28,6 +29,7 @@ export function ObjectEditForm({
   canUpdate,
   onSaved,
   onSwapCreative,
+  actionsSlot,
 }: {
   detail: AdEditableObject;
   account: AdAccount;
@@ -35,6 +37,7 @@ export function ObjectEditForm({
   canUpdate: boolean;
   onSaved: (row: AdRow) => void;
   onSwapCreative?: () => void;
+  actionsSlot?: HTMLElement | null;
 }) {
   const t = useTranslations("adsManager.edit");
   const labels = useWizardLabels();
@@ -153,6 +156,7 @@ export function ObjectEditForm({
         ) : null}
       </div>
 
+      <FooterSlot slot={actionsSlot}>
       <div className="flex flex-wrap items-center justify-end gap-2">
         {error ? (
           <p className="mr-auto flex items-center gap-1.5 text-sm text-destructive-ink" role="alert">
@@ -169,6 +173,7 @@ export function ObjectEditForm({
           disabled={disabled || problems.length > 0 || editIsEmpty(edit)}
         />
       </div>
+      </FooterSlot>
     </div>
   );
 }

@@ -57,6 +57,7 @@ describe("draftAnalysis", () => {
     expect(facts.budget).toEqual({ kind: "budget", budget: { kind: "DAILY", amount: 5000 } });
     expect(facts.locations).toEqual({ kind: "list", items: ["Brasil"] });
     expect(facts.ages).toEqual({ kind: "ages", min: 18, max: 65, advantage: true });
+    expect(facts.genders).toEqual({ kind: "genders", key: "all" });
     expect(facts.languages).toEqual({ kind: "empty" });
     expect(facts.placements).toEqual({ kind: "placements", platforms: null });
     expect(facts.schedule).toEqual({ kind: "dates", startDay: "", endDay: "", hours: false });
@@ -102,10 +103,18 @@ describe("objectAnalysis", () => {
   it("summarises a live ad set", () => {
     const detail: AdEditableObject = {
       ...base,
-      row: { metaId: "s1", level: "adset", name: "Conjunto", destinationType: "WHATSAPP", optimizationGoal: "CONVERSATIONS", endTime: "2026-12-01T03:00:00Z" } as AdRow,
+      row: {
+        metaId: "s1",
+        level: "adset",
+        name: "Conjunto",
+        destinationType: "WHATSAPP",
+        optimizationGoal: "CONVERSATIONS",
+        startTime: "2026-10-04T02:27:00Z",
+        endTime: "2026-12-01T03:00:00Z",
+      } as AdRow,
       budget: { kind: "DAILY", amount: 2500 },
       bid: { strategy: "COST_CAP", amount: 300 },
-      targeting: { locations: [{ kind: "city", key: "1", name: "Recife" }], ageMin: 21, ageMax: 40, advantageAudience: false },
+      targeting: { locations: [{ kind: "city", key: "1", name: "Recife" }], ageMin: 21, ageMax: 40, genders: [2], advantageAudience: false },
       placements: { automatic: false, platforms: ["instagram"] },
     };
     expect(Object.fromEntries(objectAnalysis(detail, "America/Sao_Paulo").map((item) => [item.key, item.value]))).toMatchObject({
@@ -113,8 +122,9 @@ describe("objectAnalysis", () => {
       destination: { kind: "label", group: "destination", value: "WHATSAPP" },
       budget: { kind: "budget", budget: { kind: "DAILY", amount: 2500 } },
       bidStrategy: { kind: "label", group: "bidStrategy", value: "COST_CAP" },
-      schedule: { kind: "dates", startDay: "", endDay: "2026-11-30", hours: false },
+      schedule: { kind: "dates", startDay: "2026-10-03", endDay: "2026-11-30", hours: false },
       locations: { kind: "list", items: ["Recife"] },
+      genders: { kind: "genders", key: "female" },
       placements: { kind: "placements", platforms: ["instagram"] },
     });
   });

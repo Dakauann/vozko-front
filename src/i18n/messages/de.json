@@ -338,7 +338,7 @@
       "list_ad_accounts": "Werbekonten",
       "ads_results": "Anzeigenergebnisse",
       "generate_image": "Bild generieren",
-      "update_ad_budget": "Anzeigenbudget ändern",
+      "update_ad_budget": "Budget ändern",
       "list_ad_pages": "Seiten für Anzeigen",
       "search_ad_locations": "Orte werden gesucht",
       "create_ad": "Anzeige erstellen",
@@ -17484,7 +17484,8 @@
     "draft_publishing": "Dieser Entwurf wird gerade veröffentlicht und kann jetzt nicht geändert werden.",
     "page_link_refused": "Meta hat die Verknüpfung nicht bestätigt. Prüfe den Code oder fordere einen neuen an.",
     "ad_post_missing": "Meta hat den Beitrag dieser Anzeige auf dieser Plattform noch nicht erstellt. Er erscheint, sobald die Anzeige genehmigt ist und dort ausgeliefert wird.",
-    "comments_not_allowed": "Diese Meta-Verbindung darf diese Kommentare nicht lesen."
+    "comments_not_allowed": "Diese Meta-Verbindung darf diese Kommentare nicht lesen.",
+    "comments_need_reconnect": "Um Kommentare zu sehen, verbinde das Werbekonto erneut und erlaube das Lesen von Kommentaren auf Seiten und Instagram."
   },
   "adsReports": {
     "header": {
@@ -17876,7 +17877,8 @@
         "headline": "Überschrift",
         "callToAction": "Call to Action",
         "link": "Website-URL",
-        "greeting": "Begrüßungsnachricht"
+        "greeting": "Begrüßungsnachricht",
+        "genders": "Geschlecht"
       }
     },
     "failedNote": "Die letzte Veröffentlichung ist fehlgeschlagen: {message}. Korrigiere den Entwurf und veröffentliche erneut.",

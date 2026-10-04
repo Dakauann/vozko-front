@@ -1,12 +1,17 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
 import { ArrowLeft, ArrowRight } from "@/components/icons";
 
 const META_ADS_TERMS_URL = "https://www.facebook.com/legal/self_service_ads_terms";
+
+export function FooterSlot({ slot, children }: { slot?: HTMLElement | null; children: ReactNode }) {
+  return slot ? createPortal(children, slot) : <>{children}</>;
+}
 
 export function EditorFooter({
   onClose,

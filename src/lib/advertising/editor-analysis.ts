@@ -9,7 +9,7 @@ import {
 } from "@/lib/advertising/draft";
 import type { AdBid, AdBudget, AdCreativeDraftV2, AdDraftDestination, AdDraftTargeting, AdPlacements } from "@/lib/advertising/draft-types";
 import { AD_SET_NODE, CAMPAIGN_NODE, adNode, type EditorNode } from "@/lib/advertising/editor-tree";
-import { endDayOf } from "@/lib/advertising/edit";
+import { endDayOf, startDayOf } from "@/lib/advertising/edit";
 import type { CreativeField } from "@/lib/advertising/manager-bulk";
 import type { AdEditableObject } from "@/lib/advertising/types";
 import { destinationOf, isMessaging, resolvedCallToAction, showsLink } from "@/lib/advertising/wizard-routes";
@@ -25,6 +25,7 @@ export type AnalysisValue =
   | { kind: "budgetElsewhere"; place: BudgetPlace }
   | { kind: "dates"; startDay: string; endDay: string; hours: boolean }
   | { kind: "ages"; min: number; max: number; advantage: boolean }
+  | { kind: "genders"; key: GenderKey }
   | { kind: "list"; items: string[] }
   | { kind: "placements"; platforms: string[] | null }
   | { kind: "empty" };
@@ -66,10 +67,23 @@ function bidStrategy(bid: AdBid | BidInput | null | undefined): AnalysisValue {
   return label("bidStrategy", bid?.strategy);
 }
 
+export type GenderKey = "all" | "male" | "female";
+
+const META_MALE = 1;
+const META_FEMALE = 2;
+
+export function genderKey(genders: number[] | undefined): GenderKey {
+  const chosen = new Set(genders ?? []);
+  if (chosen.size !== 1) return "all";
+  if (chosen.has(META_MALE)) return "male";
+  return chosen.has(META_FEMALE) ? "female" : "all";
+}
+
 export function audienceFacts(targeting: AdDraftTargeting): AnalysisFact[] {
   return [
     fact("locations", list(targeting.locations.map((location) => location.name))),
     fact("ages", { kind: "ages", min: targeting.ageMin, max: targeting.ageMax, advantage: targeting.advantageAudience }),
+    fact("genders", { kind: "genders", key: genderKey(targeting.genders) }),
     fact("languages", list((targeting.languages ?? []).map((item) => item.name))),
     fact("detailedTargeting", list([...(targeting.interests ?? []), ...(targeting.behaviors ?? [])].map((item) => item.name))),
     fact("customAudiences", list((targeting.customAudiences ?? []).map((item) => item.name))),
@@ -176,7 +190,14 @@ export function objectAnalysis(detail: AdEditableObject, timezone: string): Anal
     facts.push(fact("budget", budget(detail.budget)), fact("bidStrategy", bidStrategy(detail.bid)));
   }
   if (row.level === "adset") {
-    facts.push(fact("schedule", { kind: "dates", startDay: "", endDay: endDayOf(row.endTime, timezone), hours: (detail.schedule ?? []).length > 0 }));
+    facts.push(
+      fact("schedule", {
+        kind: "dates",
+        startDay: startDayOf(row.startTime, timezone),
+        endDay: endDayOf(row.endTime, timezone),
+        hours: (detail.schedule ?? []).length > 0,
+      }),
+    );
     if (detail.targeting) facts.push(...audienceFacts(detail.targeting));
     if (detail.placements) facts.push(placementsFact(detail.placements));
   }

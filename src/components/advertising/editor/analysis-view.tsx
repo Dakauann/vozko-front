@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { formatLongDay } from "@/lib/advertising/date-range";
 import { MAX_AGE } from "@/lib/advertising/draft";
 import type { AnalysisFact, AnalysisSection, AnalysisValue, LabelGroup } from "@/lib/advertising/editor-analysis";
 import type { MultiFact } from "@/lib/advertising/editor-multi";
@@ -58,8 +59,8 @@ function useValueText(currency: string) {
       case "budgetElsewhere":
         return t(`budgetPlaces.${value.place}`);
       case "dates": {
-        const start = value.startDay ? tReview("startsOn", { day: value.startDay }) : tReview("startsNow");
-        const end = value.endDay ? tReview("endsOn", { day: value.endDay }) : tReview("noEnd");
+        const start = value.startDay ? tReview("startsOn", { day: formatLongDay(value.startDay, fmt.tag) }) : tReview("startsNow");
+        const end = value.endDay ? tReview("endsOn", { day: formatLongDay(value.endDay, fmt.tag) }) : tReview("noEnd");
         return [start, end, value.hours ? tReview("hours") : ""].filter(Boolean).join(" · ");
       }
       case "ages": {
@@ -67,6 +68,8 @@ function useValueText(currency: string) {
         const ages = tReview("ages", { min: value.min, max });
         return value.advantage ? `${ages} · ${tAudience("advantage")}` : ages;
       }
+      case "genders":
+        return tAudience(`genders.${value.key}`);
       case "list":
         return value.items.join("; ");
       case "placements":

@@ -164,11 +164,11 @@ export function InsightsPanel(props: InsightsPanelProps) {
 
   return (
     <ElevatedSheet open={!!row} onOpenChange={(open) => !open && onClose()}>
-      <ElevatedSheetContent side="right" className="flex w-full flex-col sm:max-w-3xl">
+      <ElevatedSheetContent side="right" className="flex w-full flex-col overflow-x-hidden sm:max-w-3xl">
         {row ? (
           <>
             <ElevatedSheetHeader className="space-y-3">
-              <Breadcrumb>
+              <Breadcrumb className="pr-10">
                 <BreadcrumbList>
                   {crumbs.map((crumb, index) => (
                     <Fragment key={crumb.metaId}>
@@ -196,7 +196,7 @@ export function InsightsPanel(props: InsightsPanelProps) {
                 </TabsList>
               </Tabs>
             </ElevatedSheetHeader>
-            <div className="flex-1 overflow-auto px-6 pb-6">
+            <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6">
               {tab === "performance" ? <Performance account={account} row={row} range={range} /> : null}
               {tab === "budget" ? (
                 <Budget

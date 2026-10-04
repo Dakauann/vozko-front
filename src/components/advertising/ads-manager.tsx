@@ -82,6 +82,7 @@ import {
   type ToolbarContext,
 } from "@/lib/advertising/manager-toolbar";
 import { viewFromParams, viewToParams, type ManagerView } from "@/lib/advertising/manager-url";
+import { onDataChanged } from "@/lib/aichat/data-changed";
 import { filterRows, type QuickView } from "@/lib/advertising/manager-views";
 import { needsStructureRefresh } from "@/lib/advertising/publish";
 import type { AdBudgetMinimum, AdLevel, AdPublishJob, AdReport, AdRow, AdTestLevel, MetaAdsConnectResult } from "@/lib/advertising/types";
@@ -250,6 +251,15 @@ export function AdsManager() {
   const reload = useCallback(() => setReloadToken((token) => token + 1), []);
   const drafts = useAdDrafts(accountId, canRead, reload);
   const reloadDrafts = drafts.reload;
+
+  useEffect(
+    () =>
+      onDataChanged("ads", () => {
+        reload();
+        reloadDrafts();
+      }),
+    [reload, reloadDrafts],
+  );
 
   const options = useAdsResource(canRead ? "ads-options" : null, getAdsOptionsAction);
   const windowOptions = options.status === "ready" ? knownWindows(options.data.attributionWindows) : [];

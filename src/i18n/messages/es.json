@@ -338,7 +338,7 @@
       "list_ad_accounts": "Cuentas publicitarias",
       "ads_results": "Resultados de los anuncios",
       "generate_image": "Generar imagen",
-      "update_ad_budget": "Cambiar presupuesto del anuncio",
+      "update_ad_budget": "Cambiar presupuesto",
       "list_ad_pages": "Páginas para anunciar",
       "search_ad_locations": "Buscando ubicaciones",
       "create_ad": "Crear anuncio",
@@ -16987,7 +16987,8 @@
     "draft_publishing": "Este borrador se está publicando y no puede cambiar ahora.",
     "page_link_refused": "Meta no confirmó el vínculo. Revisa el código o pide uno nuevo.",
     "ad_post_missing": "Meta aún no creó la publicación de este anuncio en esta plataforma. Aparece cuando el anuncio se aprueba y se publica allí.",
-    "comments_not_allowed": "Esta conexión con Meta no tiene permiso para leer estos comentarios."
+    "comments_not_allowed": "Esta conexión con Meta no tiene permiso para leer estos comentarios.",
+    "comments_need_reconnect": "Para ver los comentarios, vuelve a conectar la cuenta publicitaria y permite leer los comentarios de las Páginas e Instagram."
   },
   "adsReports": {
     "header": {
@@ -17379,7 +17380,8 @@
         "headline": "Título",
         "callToAction": "Llamada a la acción",
         "link": "URL del sitio web",
-        "greeting": "Mensaje de bienvenida"
+        "greeting": "Mensaje de bienvenida",
+        "genders": "Género"
       }
     },
     "failedNote": "La última publicación falló: {message}. Corrige el borrador y vuelve a publicar.",

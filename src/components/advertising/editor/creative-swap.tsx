@@ -15,6 +15,7 @@ import { useAdsErrorText } from "../use-ads-error";
 import { AdStep } from "../wizard/ad-step";
 import { CardSections } from "../wizard/choice-row";
 import { WizardProvider, useWizardValue } from "../wizard/wizard-context";
+import { FooterSlot } from "./editor-footer";
 
 export function CreativeSwap({
   form,
@@ -24,6 +25,7 @@ export function CreativeSwap({
   options,
   onSaved,
   onCancel,
+  actionsSlot,
 }: {
   form: WizardForm;
   setForm: Dispatch<SetStateAction<WizardForm>>;
@@ -32,6 +34,7 @@ export function CreativeSwap({
   options: AdsOptions;
   onSaved: (row: AdRow) => void;
   onCancel: () => void;
+  actionsSlot?: HTMLElement | null;
 }) {
   const t = useTranslations("adsWizard");
   const errorText = useAdsErrorText();
@@ -75,10 +78,12 @@ export function CreativeSwap({
             {error}
           </p>
         ) : null}
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button variant="secondary" title={t("cancel")} onClick={onCancel} disabled={saving} />
-          <Button variant="primary" title={saving ? t("savingCreative") : t("saveCreative")} onClick={save} disabled={saving} />
-        </div>
+        <FooterSlot slot={actionsSlot}>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button variant="secondary" title={t("cancel")} onClick={onCancel} disabled={saving} />
+            <Button variant="primary" title={saving ? t("savingCreative") : t("saveCreative")} onClick={save} disabled={saving} />
+          </div>
+        </FooterSlot>
       </div>
     </WizardProvider>
   );

@@ -338,7 +338,7 @@
       "list_ad_accounts": "Ad accounts",
       "ads_results": "Ad results",
       "generate_image": "Generate image",
-      "update_ad_budget": "Change ad budget",
+      "update_ad_budget": "Change budget",
       "list_ad_pages": "Pages to advertise",
       "search_ad_locations": "Searching locations",
       "create_ad": "Create ad",
@@ -18482,7 +18482,8 @@
     "draft_publishing": "This draft is being published and cannot change right now.",
     "page_link_refused": "Meta did not confirm the link. Check the code or ask for a new one.",
     "ad_post_missing": "Meta has not created this ad's post on this platform yet. It appears once the ad is approved and delivers there.",
-    "comments_not_allowed": "This Meta connection is not allowed to read these comments."
+    "comments_not_allowed": "This Meta connection is not allowed to read these comments.",
+    "comments_need_reconnect": "To see comments, reconnect the ad account and allow reading comments from Pages and Instagram."
   },
   "adsReports": {
     "header": {
@@ -18874,7 +18875,8 @@
         "headline": "Headline",
         "callToAction": "Call to action",
         "link": "Website URL",
-        "greeting": "Greeting message"
+        "greeting": "Greeting message",
+        "genders": "Gender"
       }
     },
     "failedNote": "The last publish failed: {message}. Fix the draft and publish again.",
