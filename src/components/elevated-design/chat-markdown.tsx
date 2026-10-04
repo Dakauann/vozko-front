@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useRef, useState, type ReactNode } from "react";
+import { memo, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, Copy } from "@/components/icons";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -47,7 +47,8 @@ function CodeBlock({ language, children }: { language: string; children: ReactNo
   );
 }
 
-const components: Components = {
+function markdownComponents(onNavigate?: () => void): Components {
+  return {
   p: ({ children }) => <p className="my-2 leading-relaxed first:mt-0 last:mb-0">{children}</p>,
   h1: ({ children }) => <h1 className="mb-2 mt-4 text-lg font-semibold first:mt-0">{children}</h1>,
   h2: ({ children }) => <h2 className="mb-2 mt-4 text-base font-semibold first:mt-0">{children}</h2>,
@@ -62,6 +63,7 @@ const components: Components = {
       return (
         <Link
           href={link.path}
+          onClick={onNavigate}
           className="inline-flex items-center gap-1 font-medium text-primary-ink underline underline-offset-2 hover:text-primary-ink/80"
         >
           {children}
@@ -125,8 +127,10 @@ const components: Components = {
     return <CodeBlock language={language}>{children}</CodeBlock>;
   },
 };
+}
 
-function ChatMarkdownImpl({ content, className }: { content: string; className?: string }) {
+function ChatMarkdownImpl({ content, className, onNavigate }: { content: string; className?: string; onNavigate?: () => void }) {
+  const components = useMemo(() => markdownComponents(onNavigate), [onNavigate]);
   return (
     <div className={cn("text-sm leading-relaxed text-foreground", className)}>
       <ReactMarkdown

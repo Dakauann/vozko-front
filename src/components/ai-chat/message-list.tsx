@@ -82,6 +82,7 @@ import { ActionCardView } from "@/components/ai-chat/action-card";
 import { GeneratingImage } from "@/components/image-generation/generating-image";
 import { ImageModelSelect } from "@/components/image-generation/image-model-select";
 import { imageAttachments, isShownImage } from "@/lib/aichat/attachments";
+import { openDock } from "@/lib/aichat/dock-state";
 import { imagePlaceholderOf } from "@/lib/aichat/generating-image";
 import type { Approval, ChatChart, ChatImage, ChoiceField, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
 import {
@@ -408,7 +409,7 @@ export function MessageBubble({
         {hasSegs ? (
           layoutSegments(segs).map((block, i) => <SegmentView key={i} seg={block} labels={labels} onEditImage={onEditImage} />)
         ) : message.content ? (
-          <ChatMarkdown content={message.content} />
+          <ChatMarkdown content={message.content} onNavigate={openDock} />
         ) : null}
         {working ? (
           <span role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -444,7 +445,7 @@ function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleL
     default:
       return (
         <div className="text-sm">
-          <ChatMarkdown content={seg.text} />
+          <ChatMarkdown content={seg.text} onNavigate={openDock} />
           {seg.streaming ? <Cursor /> : null}
         </div>
       );

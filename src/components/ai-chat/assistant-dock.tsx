@@ -21,6 +21,7 @@ import { AssistantLauncher } from "./assistant-launcher";
 import { Composer } from "./composer";
 import { MessageBubble, useBubbleLabels } from "./message-list";
 import { useChatAttachments } from "./use-chat-attachments";
+import { useDockOpen } from "./use-dock-open";
 import { useChatConversation } from "./use-chat-conversation";
 import { useChatModel } from "./use-chat-model";
 import { useResizableSheet } from "./use-resizable-sheet";
@@ -58,7 +59,7 @@ function Dock() {
   const pathname = usePathname();
   const locale = useLocale();
   const starters = starterGroupsFor(can, pathname);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useDockOpen();
   const [input, setInput] = useState("");
   const { model, models, pricing, changeModel } = useChatModel();
   const chat = useChatConversation({
@@ -69,7 +70,7 @@ function Dock() {
   const labels = useBubbleLabels();
   const files = useChatAttachments();
   const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));
-  const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages);
+  const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages, `${open}:${chat.activeId ?? ""}`);
   const reduceMotion = useReducedMotion();
   const cardRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);

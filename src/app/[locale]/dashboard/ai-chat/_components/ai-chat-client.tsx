@@ -47,7 +47,7 @@ export function AIChatClient() {
     onThreadCreated: (thread) => setThreads((prev) => [thread, ...prev]),
     onTurnFinished: () => void refreshThreads(),
   });
-  const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages);
+  const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages, chat.activeId);
   const labels = useBubbleLabels();
   const files = useChatAttachments();
   const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));

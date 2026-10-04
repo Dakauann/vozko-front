@@ -20,6 +20,7 @@ import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import { Link, useRouter } from "@/i18n/routing";
+import { openDock } from "@/lib/aichat/dock-state";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import { CallCardView } from "@/components/ai-chat/call-card";
 import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
@@ -170,6 +171,7 @@ function NavigationCardView({ card, live }: { card: NavigationCard; live: boolea
   useEffect(() => {
     if (!live || !allowed || preference !== "on" || opened.current || !href) return;
     opened.current = true;
+    openDock();
     router.push(href);
   }, [live, allowed, preference, href, router]);
 
@@ -187,7 +189,7 @@ function NavigationCardView({ card, live }: { card: NavigationCard; live: boolea
           </div>
         </div>
         {decision.status === "allowed" ? (
-          <Link href={href} className={cn(PRIMARY, "self-start sm:self-auto")}>
+          <Link href={href} onClick={openDock} className={cn(PRIMARY, "self-start sm:self-auto")}>
             {t("open")}
           </Link>
         ) : (
