@@ -138,7 +138,7 @@ function Preview({ account, row, chain }: { account: AdAccount; row: AdRow; chai
   if (detail.status === "error") return <p className="text-sm text-destructive-ink">{detail.message}</p>;
   const form = creativeSwapForm(detail.data, account.id, chain.campaign ?? null, chain.adSet ?? null);
   if (!form) return <p className="text-sm text-muted-foreground">{t("noCreative")}</p>;
-  return <PublishedAdPreview accountId={account.id} form={form} />;
+  return <PublishedAdPreview accountId={account.id} form={form} adSetId={chain.adSet?.metaId ?? null} />;
 }
 
 export function InsightsPanel(props: InsightsPanelProps) {

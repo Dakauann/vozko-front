@@ -189,6 +189,8 @@ export interface AdsOptions {
   attributionWindows: string[] | null;
   pixelEvents: AdPixelEvent[];
   formats: AdCreativeFormat[];
+  videoOnlyPositions: Record<string, string[]>;
+  automaticPlatforms: string[];
 }
 
 export interface AdTargetingOption {

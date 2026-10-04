@@ -48,9 +48,12 @@ import { acceptedPublishJob } from "@/lib/advertising/manager-publish";
 import { jobPlan, publishBlockers, type ValidationState } from "@/lib/advertising/publish";
 import type { AdAccount, AdSavedDraft } from "@/lib/advertising/types";
 import { issuesFromExpected } from "@/lib/advertising/wizard-issues";
+import { videoOnlyPlacementsSkipped } from "@/lib/advertising/video-placements";
 
 import { AdPreviewPanel } from "../ad-preview-panel";
+import { VideoPlacementNotice } from "../video-placement-notice";
 import { CollapsibleNotice } from "../collapsible-notice";
+import { FundsBanner } from "../funds-banner";
 import { WizardReadinessBanner } from "../readiness";
 import { useAdReadiness } from "../use-ad-readiness";
 import { useAdsErrorText, type AdsErrorLike } from "../use-ads-error";
@@ -451,7 +454,9 @@ function DraftEditorBody({
           {t(`conflicts.${conflict}`)}
         </p>
       ) : null}
+      {editable ? <FundsBanner account={account} state={readiness} /> : null}
       {editable ? <WizardReadinessBanner account={account} state={readiness} canCreate /> : null}
+
       {issues.length > 0 && dialog !== "publish" ? (
         <CollapsibleNotice
           icon={<Warning className="h-5 w-5 shrink-0 text-destructive-ink" aria-hidden />}
@@ -499,6 +504,7 @@ function DraftEditorBody({
                   : undefined
               }
               destination={<AdDestinationPreview content={content} accountId={account.id} page={value.page} />}
+              notice={ad ? <VideoPlacementNotice skipped={videoOnlyPlacementsSkipped(form.placements, ad, options)} /> : null}
             />
           ) : undefined
         }

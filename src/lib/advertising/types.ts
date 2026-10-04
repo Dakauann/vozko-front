@@ -68,6 +68,23 @@ export interface AdAccount {
   lastSyncedAt?: string;
   spendCap?: number | null;
   amountSpent?: number | null;
+  funds?: AdFunds;
+}
+
+export type AdFundsKind = "prepaid" | "postpaid" | "unknown";
+
+export type AdFundsLevel = "ok" | "low" | "out" | "payment_failed" | "unknown";
+
+export interface AdFunds {
+  kind: AdFundsKind | string;
+  level: AdFundsLevel | string;
+  reason?: string;
+  limit: number | null;
+  spent: number;
+  room: number | null;
+  dailySpend: number;
+  daysLeft: number | null;
+  portalUrl: string;
 }
 
 export type AdReadinessKey =

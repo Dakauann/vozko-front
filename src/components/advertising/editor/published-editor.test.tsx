@@ -34,6 +34,8 @@ const options: AdsOptions = {
   attributionWindows: null,
   pixelEvents: [],
   formats: ["IMAGE"],
+  videoOnlyPositions: {},
+  automaticPlatforms: [],
 };
 
 function row(changes: Partial<AdRow>): AdRow {

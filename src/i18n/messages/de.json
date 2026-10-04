@@ -16063,7 +16063,9 @@
       "zoom": "{placement} vergrößern",
       "zoomHint": "Mit den Pfeiltasten zu den anderen Platzierungen wechseln.",
       "previousPlacement": "Zurück",
-      "nextPlacement": "Weiter"
+      "nextPlacement": "Weiter",
+      "videoOnlyTitle": "Deine Anzeige wird in {count, plural, one {# Platzierung} other {# Platzierungen}} nicht ausgeliefert",
+      "videoOnlyHint": "Diese Platzierungen zeigen nur Videos. Um dort zu laufen, nutze ein Video als Creative."
     },
     "issues": {
       "generic": {
@@ -16392,7 +16394,9 @@
         "reconnect": "Verbinde das Werbekonto neu, um das Ausgabenlimit zu ändern.",
         "readOnly": "Dein Profil hat nur Lesezugriff auf dieses Konto und kann das Ausgabenlimit nicht ändern.",
         "unknown": "Das Ausgabenlimit kann gerade nicht geändert werden.",
-        "adminRequired": "Nur ein Admin des Werbekontos kann das Ausgabenlimit ändern."
+        "adminRequired": "Nur ein Admin des Werbekontos kann das Ausgabenlimit ändern.",
+        "prepaid": "Bei einem Prepaid-Konto nutzt Meta das eingezahlte Guthaben als Ausgabenlimit. Um mehr auszugeben, zahle bei Meta ein.",
+        "billingUnknown": "Wir konnten die Abrechnung dieses Kontos bei Meta noch nicht lesen. Nutze Aktualisieren und versuche es erneut."
       },
       "label": "Ausgabenlimit:",
       "none": "kein Limit",
@@ -16708,7 +16712,9 @@
       "spend": "Ausgegebener Betrag",
       "impressions": "Impressionen",
       "linkClicks": "Link-Klicks",
+      "cpc": "CPC (Kosten pro Link-Klick)",
       "ctr": "CTR",
+      "clicks": "Klicks (alle)",
       "cpm": "CPM",
       "crmConversations": "Gespräche (CRM)",
       "costPerLead": "Kosten pro Lead",
@@ -17508,13 +17514,58 @@
       "postpay": "Nachträglich bezahlt",
       "amountSpent": "Ausgaben des Kontos",
       "openBilling": "Abrechnung und Zahlungen bei Meta öffnen",
-      "unavailable": "Abrechnungsdetails sehen Personen, die in dem Konto werben."
+      "unavailable": "Abrechnungsdetails sehen Personen, die in dem Konto werben.",
+      "fundsLeft": "Verfügbar für Anzeigen",
+      "fundsPace": "{days, plural, one {etwa # Tag} other {etwa # Tage}} beim Tempo der letzten 7 Tage"
     },
     "performance": {
       "title": "Leistung",
       "description": "Letzte 30 Tage im Vergleich zu den 30 Tagen davor, in der Zeitzone des Werbekontos.",
       "noTimezone": "Die Zeitzone dieses Kontos ist unbekannt, daher lassen sich die Ergebnisse nicht nach Tagen trennen. Aktualisiere das Konto.",
       "failed": "Die Leistung konnte nicht geladen werden: {message}"
+    }
+  },
+  "adsFunds": {
+    "notices": {
+      "funds_low": {
+        "title": "Das Guthaben dieses Werbekontos geht zur Neige",
+        "body": "Das Guthaben bei Meta reicht nur noch für {room} an Anzeigen. Ist es aufgebraucht, pausiert Meta alle Anzeigen dieses Kontos.",
+        "bodyWithDays": "Das Guthaben bei Meta reicht nur noch für {room} an Anzeigen, {days, plural, one {etwa # Tag} other {etwa # Tage}} beim aktuellen Tempo. Ist es aufgebraucht, pausiert Meta alle Anzeigen dieses Kontos."
+      },
+      "funds_out": {
+        "title": "Die Anzeigen dieses Kontos stehen still: das Guthaben bei Meta ist aufgebraucht",
+        "body": "Die Anzeigen stehen weiter auf Aktiv, aber Meta liefert nichts aus, bis du Guthaben einzahlst. Danach liefert Meta von selbst wieder aus."
+      },
+      "spend_limit_low": {
+        "title": "Das Ausgabenlimit des Kontos ist fast erreicht",
+        "body": "Das Konto kann nur noch {room} ausgeben, bevor das Limit erreicht ist. Dann stoppt Meta alle Anzeigen dieses Kontos."
+      },
+      "spend_limit_reached": {
+        "title": "Das Konto hat sein Ausgabenlimit erreicht",
+        "body": "Meta hat alle Anzeigen dieses Kontos gestoppt, auch wenn sie weiter auf Aktiv stehen. Erhöhe oder entferne das Limit, um wieder auszuliefern."
+      },
+      "payment_failed": {
+        "title": "Meta konnte dieses Werbekonto nicht belasten",
+        "body": "Die Anzeigen stehen still, bis der offene Betrag bei Meta bezahlt ist."
+      },
+      "grace_period": {
+        "title": "Zahlung bei Meta ausstehend",
+        "body": "Meta konnte dieses Konto nicht belasten. Die Anzeigen laufen noch eine kurze Kulanzfrist und stoppen, wenn nicht gezahlt wird."
+      },
+      "billing_unreadable": {
+        "title": "Wir konnten das Guthaben dieses Kontos bei Meta nicht lesen",
+        "body": "Prüfe die Abrechnung direkt bei Meta. Wir lesen sie bei jeder Synchronisierung neu."
+      },
+      "unknown": {
+        "title": "Meta meldet ein Abrechnungsproblem bei diesem Konto",
+        "body": "Prüfe die Abrechnung direkt bei Meta."
+      }
+    },
+    "actions": {
+      "addFunds": "Guthaben bei Meta einzahlen",
+      "pay": "Bei Meta bezahlen",
+      "adjustLimit": "Limit anpassen",
+      "openBilling": "Abrechnung bei Meta öffnen"
     }
   },
   "adsErrors": {
@@ -17543,7 +17594,9 @@
     "page_link_refused": "Meta hat die Verknüpfung nicht bestätigt. Prüfe den Code oder fordere einen neuen an.",
     "ad_post_missing": "Meta hat den Beitrag dieser Anzeige auf dieser Plattform noch nicht erstellt. Er erscheint, sobald die Anzeige genehmigt ist und dort ausgeliefert wird.",
     "comments_not_allowed": "Diese Meta-Verbindung darf diese Kommentare nicht lesen.",
-    "comments_need_reconnect": "Um Kommentare zu sehen, verbinde das Werbekonto erneut und erlaube das Lesen von Kommentaren auf Seiten und Instagram."
+    "comments_need_reconnect": "Um Kommentare zu sehen, verbinde das Werbekonto erneut und erlaube das Lesen von Kommentaren auf Seiten und Instagram.",
+    "prepaid_spend_cap": "Bei einem Prepaid-Konto nutzt Meta das eingezahlte Guthaben als Ausgabenlimit. Um mehr auszugeben, zahle bei Meta ein.",
+    "billing_unknown": "Wir konnten die Abrechnung dieses Kontos bei Meta nicht lesen. Nutze Aktualisieren und versuche es erneut."
   },
   "adsReports": {
     "header": {

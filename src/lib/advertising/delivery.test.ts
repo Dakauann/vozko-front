@@ -151,6 +151,13 @@ describe("read-only accounts", () => {
     expect(spendCapBlockerKey(readOnly)).toBe("readOnly");
   });
 
+  it("explains that a prepaid account takes its limit from its funds", () => {
+    const prepaid = account({ canSetSpendCap: false, role: "admin", funds: { kind: "prepaid", level: "ok", limit: 2635, spent: 125, room: 2510, dailySpend: 0, daysLeft: null, portalUrl: "" } });
+    expect(spendCapBlockerKey(prepaid)).toBe("prepaid");
+    const unread = account({ canSetSpendCap: false, role: "admin", funds: { kind: "unknown", level: "unknown", limit: null, spent: 0, room: null, dailySpend: 0, daysLeft: null, portalUrl: "" } });
+    expect(spendCapBlockerKey(unread)).toBe("billingUnknown");
+  });
+
   it("turns off every write permission of a blocked account", () => {
     const permissions = { canCreate: true, canUpdate: true, canDelete: false };
     expect(accountWritePermissions(permissions, readOnly)).toEqual({ canCreate: false, canUpdate: false, canDelete: false });

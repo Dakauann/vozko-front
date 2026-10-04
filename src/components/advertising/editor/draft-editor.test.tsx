@@ -44,6 +44,8 @@ const options: AdsOptions = {
   attributionWindows: null,
   pixelEvents: ["PURCHASE"],
   formats: ["IMAGE"],
+  videoOnlyPositions: {},
+  automaticPlatforms: [],
 };
 
 const context = { timezone: account.timezone, currency: account.currency };

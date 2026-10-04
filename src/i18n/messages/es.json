@@ -15566,7 +15566,9 @@
       "zoom": "Ampliar {placement}",
       "zoomHint": "Usa las flechas para ver las otras ubicaciones.",
       "previousPlacement": "Anterior",
-      "nextPlacement": "Siguiente"
+      "nextPlacement": "Siguiente",
+      "videoOnlyTitle": "Tu anuncio no se publicará en {count, plural, one {# ubicación} other {# ubicaciones}}",
+      "videoOnlyHint": "Estas ubicaciones solo muestran video. Para publicar en ellas, usa un video como creativo."
     },
     "issues": {
       "generic": {
@@ -15895,7 +15897,9 @@
         "reconnect": "Vuelve a conectar la cuenta publicitaria para cambiar el límite de gasto.",
         "readOnly": "Tu perfil solo tiene acceso de lectura a esta cuenta, así que no puede cambiar el límite de gasto.",
         "unknown": "El límite de gasto no se puede cambiar ahora.",
-        "adminRequired": "Solo un administrador de la cuenta publicitaria puede cambiar el límite de gasto."
+        "adminRequired": "Solo un administrador de la cuenta publicitaria puede cambiar el límite de gasto.",
+        "prepaid": "En una cuenta prepago, Meta usa los fondos agregados como límite de gasto. Para gastar más, agrega fondos en Meta.",
+        "billingUnknown": "Aún no pudimos leer la facturación de esta cuenta en Meta. Usa Actualizar e inténtalo de nuevo."
       },
       "label": "Límite de gasto:",
       "none": "sin límite",
@@ -16211,7 +16215,9 @@
       "spend": "Importe gastado",
       "impressions": "Impresiones",
       "linkClicks": "Clics en el enlace",
+      "cpc": "CPC (costo por clic en el enlace)",
       "ctr": "CTR",
+      "clicks": "Clics (todos)",
       "cpm": "CPM",
       "crmConversations": "Conversaciones (CRM)",
       "costPerLead": "Costo por lead",
@@ -17011,13 +17017,58 @@
       "postpay": "Pospago",
       "amountSpent": "Importe gastado en la cuenta",
       "openBilling": "Abrir Facturación y pagos en Meta",
-      "unavailable": "Los detalles de facturación se muestran a quien anuncia en la cuenta."
+      "unavailable": "Los detalles de facturación se muestran a quien anuncia en la cuenta.",
+      "fundsLeft": "Disponible para anuncios",
+      "fundsPace": "{days, plural, one {cerca de # día} other {cerca de # días}} al ritmo de los últimos 7 días"
     },
     "performance": {
       "title": "Rendimiento",
       "description": "Últimos 30 días, comparados con los 30 días anteriores, en la zona horaria de la cuenta publicitaria.",
       "noTimezone": "La zona horaria de esta cuenta es desconocida, así que no se pueden separar los resultados por día. Actualiza la cuenta.",
       "failed": "No se pudo cargar el rendimiento: {message}"
+    }
+  },
+  "adsFunds": {
+    "notices": {
+      "funds_low": {
+        "title": "Los fondos de esta cuenta publicitaria se están agotando",
+        "body": "Los fondos en Meta cubren solo {room} más en anuncios. Cuando se agoten, Meta pausa todos los anuncios de esta cuenta.",
+        "bodyWithDays": "Los fondos en Meta cubren solo {room} más en anuncios, {days, plural, one {cerca de # día} other {cerca de # días}} al ritmo actual. Cuando se agoten, Meta pausa todos los anuncios de esta cuenta."
+      },
+      "funds_out": {
+        "title": "Los anuncios de esta cuenta se detuvieron: se agotaron los fondos en Meta",
+        "body": "Los anuncios siguen como Activo, pero Meta no publica nada hasta que agregues fondos. Después de la recarga, vuelve a publicar sola."
+      },
+      "spend_limit_low": {
+        "title": "El límite de gasto de la cuenta está casi alcanzado",
+        "body": "La cuenta puede gastar solo {room} más antes del límite. Al alcanzarlo, Meta detiene todos los anuncios de esta cuenta."
+      },
+      "spend_limit_reached": {
+        "title": "La cuenta alcanzó su límite de gasto",
+        "body": "Meta detuvo todos los anuncios de esta cuenta, aunque sigan como Activo. Aumenta o quita el límite para volver a publicar."
+      },
+      "payment_failed": {
+        "title": "Meta no pudo cobrar esta cuenta publicitaria",
+        "body": "Los anuncios están detenidos hasta que se pague el saldo pendiente en Meta."
+      },
+      "grace_period": {
+        "title": "Pago pendiente en Meta",
+        "body": "Meta no pudo cobrar esta cuenta. Los anuncios siguen activos por un período de gracia corto y se detienen si no se hace el pago."
+      },
+      "billing_unreadable": {
+        "title": "No pudimos leer los fondos de esta cuenta en Meta",
+        "body": "Revisa la facturación directamente en Meta. La leemos de nuevo en cada sincronización."
+      },
+      "unknown": {
+        "title": "Meta indica un problema de facturación en esta cuenta",
+        "body": "Revisa la facturación directamente en Meta."
+      }
+    },
+    "actions": {
+      "addFunds": "Agregar fondos en Meta",
+      "pay": "Pagar en Meta",
+      "adjustLimit": "Ajustar el límite",
+      "openBilling": "Abrir la facturación en Meta"
     }
   },
   "adsErrors": {
@@ -17046,7 +17097,9 @@
     "page_link_refused": "Meta no confirmó el vínculo. Revisa el código o pide uno nuevo.",
     "ad_post_missing": "Meta aún no creó la publicación de este anuncio en esta plataforma. Aparece cuando el anuncio se aprueba y se publica allí.",
     "comments_not_allowed": "Esta conexión con Meta no tiene permiso para leer estos comentarios.",
-    "comments_need_reconnect": "Para ver los comentarios, vuelve a conectar la cuenta publicitaria y permite leer los comentarios de las Páginas e Instagram."
+    "comments_need_reconnect": "Para ver los comentarios, vuelve a conectar la cuenta publicitaria y permite leer los comentarios de las Páginas e Instagram.",
+    "prepaid_spend_cap": "En una cuenta prepago, Meta usa los fondos agregados como límite de gasto. Para gastar más, agrega fondos en Meta.",
+    "billing_unknown": "No pudimos leer la facturación de esta cuenta en Meta. Usa Actualizar e inténtalo de nuevo."
   },
   "adsReports": {
     "header": {

@@ -10,7 +10,9 @@ export const REPORT_COLUMNS = [
   "spend",
   "impressions",
   "linkClicks",
+  "cpc",
   "ctr",
+  "clicks",
   "cpm",
   "crmConversations",
   "costPerLead",
@@ -29,7 +31,7 @@ export type ColumnPreset = (typeof COLUMN_PRESETS)[number];
 
 const PRESET_COLUMNS: Record<ColumnPreset, readonly MetricColumn[]> = {
   performance: ["delivery", "results", "costPerResult", "budget", "spend", "impressions", "crmConversations", "costPerLead", "roas"],
-  performanceClicks: ["delivery", "results", "costPerResult", "budget", "spend", "impressions", "linkClicks", "ctr", "cpm", "crmConversations"],
+  performanceClicks: ["delivery", "results", "reach", "frequency", "costPerResult", "budget", "spend", "impressions", "cpm", "linkClicks", "cpc", "ctr", "clicks", "crmConversations"],
   engagement: ["delivery", "results", "costPerResult", "spend", "impressions", "linkClicks", "ctr", "videoPlays", "thruPlays", "costPerThruPlay"],
   delivery: ["delivery", "budget", "spend", "impressions", "cpm", "reach", "frequency"],
 };
@@ -101,6 +103,10 @@ export function sortValue(row: SortableRow, column: SortableColumn): string | nu
       return row.metrics.impressions;
     case "linkClicks":
       return row.metrics.linkClicks;
+    case "cpc":
+      return row.metrics.cpc;
+    case "clicks":
+      return row.metrics.clicks;
     case "ctr":
       return row.metrics.ctr;
     case "cpm":

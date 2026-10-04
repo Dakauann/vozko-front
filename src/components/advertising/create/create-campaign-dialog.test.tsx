@@ -35,6 +35,8 @@ const options: AdsOptions = {
   attributionWindows: null,
   pixelEvents: [],
   formats: ["IMAGE"],
+  videoOnlyPositions: {},
+  automaticPlatforms: [],
 };
 
 const campaignRow = { metaId: "c-1", level: "campaign", name: "Campanha viva", objective: "OUTCOME_ENGAGEMENT", dailyBudget: 0, lifetimeBudget: 0 } as AdRow;

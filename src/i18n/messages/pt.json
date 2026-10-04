@@ -17066,7 +17066,7 @@
       "GET_QUOTE": "Pedir orçamento",
       "INSTALL_MOBILE_APP": "Instalar agora",
       "WATCH_MORE": "Assistir mais",
-      "WHATSAPP_MESSAGE": "Enviar mensagem no WhatsApp",
+      "WHATSAPP_MESSAGE": "Enviar mensagem pelo WhatsApp",
       "MESSAGE_PAGE": "Enviar mensagem",
       "INSTAGRAM_MESSAGE": "Enviar mensagem no Instagram",
       "NO_BUTTON": "Sem botão"
@@ -17093,7 +17093,9 @@
       "zoom": "Ampliar {placement}",
       "zoomHint": "Use as setas para ver os outros posicionamentos.",
       "previousPlacement": "Anterior",
-      "nextPlacement": "Próximo"
+      "nextPlacement": "Próximo",
+      "videoOnlyTitle": "Seu anúncio não será veiculado em {count, plural, one {# posicionamento} other {# posicionamentos}}",
+      "videoOnlyHint": "Esses posicionamentos só exibem vídeo. Para veicular neles, use um vídeo como criativo."
     },
     "issues": {
       "generic": {
@@ -17422,7 +17424,9 @@
         "reconnect": "Reconecte a conta de anúncios para mudar o limite de gastos.",
         "readOnly": "Seu perfil só tem acesso de leitura a esta conta, então não pode mudar o limite de gastos.",
         "unknown": "O limite de gastos não pode ser mudado agora.",
-        "adminRequired": "Só um administrador da conta de anúncios pode mudar o limite de gastos."
+        "adminRequired": "Só um administrador da conta de anúncios pode mudar o limite de gastos.",
+        "prepaid": "Em conta pré-paga, a Meta usa os fundos adicionados como limite de gastos. Para gastar mais, adicione fundos na Meta.",
+        "billingUnknown": "Ainda não conseguimos ler a cobrança desta conta na Meta. Use Atualizar e tente de novo."
       },
       "label": "Limite de gastos:",
       "none": "sem limite",
@@ -17738,7 +17742,9 @@
       "spend": "Valor gasto",
       "impressions": "Impressões",
       "linkClicks": "Cliques no link",
+      "cpc": "CPC (custo por clique no link)",
       "ctr": "CTR",
+      "clicks": "Cliques (todos)",
       "cpm": "CPM",
       "crmConversations": "Conversas (CRM)",
       "costPerLead": "Custo por lead",
@@ -17801,9 +17807,9 @@
       "active": "Ativo",
       "scheduled": "Programado",
       "completed": "Concluído",
-      "off": "Desligado",
-      "campaign_off": "Campanha desligada",
-      "adset_off": "Conjunto desligado",
+      "off": "Desativado",
+      "campaign_off": "Campanha desativada",
+      "adset_off": "Conjunto de anúncios desativado",
       "in_review": "Em análise",
       "rejected": "Reprovado",
       "with_issues": "Com problemas",
@@ -17904,7 +17910,7 @@
       "imageFallback": "Imagem do anúncio",
       "conversationStart": "Início da conversa",
       "cta": {
-        "WHATSAPP": "Enviar mensagem no WhatsApp",
+        "WHATSAPP": "Enviar mensagem pelo WhatsApp",
         "MESSENGER": "Enviar mensagem",
         "INSTAGRAM_DIRECT": "Enviar mensagem no Instagram"
       }
@@ -18538,13 +18544,58 @@
       "postpay": "Pós-paga",
       "amountSpent": "Valor gasto na conta",
       "openBilling": "Abrir Cobrança e pagamentos na Meta",
-      "unavailable": "Os detalhes de cobrança aparecem para quem anuncia na conta."
+      "unavailable": "Os detalhes de cobrança aparecem para quem anuncia na conta.",
+      "fundsLeft": "Disponível para anúncios",
+      "fundsPace": "{days, plural, one {cerca de # dia} other {cerca de # dias}} no ritmo dos últimos 7 dias"
     },
     "performance": {
       "title": "Desempenho",
       "description": "Últimos 30 dias, comparados aos 30 dias anteriores, no fuso horário da conta de anúncios.",
       "noTimezone": "O fuso horário desta conta é desconhecido, então não dá para separar os resultados por dia. Atualize a conta.",
       "failed": "Não foi possível carregar o desempenho: {message}"
+    }
+  },
+  "adsFunds": {
+    "notices": {
+      "funds_low": {
+        "title": "Os fundos desta conta de anúncios estão acabando",
+        "body": "Os fundos na Meta pagam só mais {room} em anúncios. Quando acabarem, a Meta pausa todos os anúncios desta conta.",
+        "bodyWithDays": "Os fundos na Meta pagam só mais {room} em anúncios, {days, plural, one {cerca de # dia} other {cerca de # dias}} no ritmo atual. Quando acabarem, a Meta pausa todos os anúncios desta conta."
+      },
+      "funds_out": {
+        "title": "Os anúncios desta conta pararam: os fundos na Meta acabaram",
+        "body": "Os anúncios seguem como Ativo, mas a Meta não veicula nada até você adicionar fundos. Depois da recarga, ela volta a veicular sozinha."
+      },
+      "spend_limit_low": {
+        "title": "O limite de gastos da conta está quase no fim",
+        "body": "A conta pode gastar só mais {room} antes de atingir o limite. Ao atingir, a Meta para todos os anúncios desta conta."
+      },
+      "spend_limit_reached": {
+        "title": "A conta atingiu o limite de gastos",
+        "body": "A Meta parou todos os anúncios desta conta, embora eles sigam como Ativo. Aumente ou remova o limite para voltar a veicular."
+      },
+      "payment_failed": {
+        "title": "A Meta não conseguiu cobrar esta conta de anúncios",
+        "body": "Os anúncios estão parados até o pagamento do valor em aberto na Meta."
+      },
+      "grace_period": {
+        "title": "Pagamento pendente na Meta",
+        "body": "A Meta não conseguiu cobrar esta conta. Os anúncios seguem no ar por um período de carência curto e param se o pagamento não for feito."
+      },
+      "billing_unreadable": {
+        "title": "Não conseguimos ler os fundos desta conta na Meta",
+        "body": "Confira a cobrança direto na Meta. A leitura é refeita a cada sincronização."
+      },
+      "unknown": {
+        "title": "A Meta indica um problema de cobrança nesta conta",
+        "body": "Confira a cobrança direto na Meta."
+      }
+    },
+    "actions": {
+      "addFunds": "Adicionar fundos na Meta",
+      "pay": "Pagar na Meta",
+      "adjustLimit": "Ajustar o limite",
+      "openBilling": "Abrir a cobrança na Meta"
     }
   },
   "adsErrors": {
@@ -18573,7 +18624,9 @@
     "page_link_refused": "A Meta não confirmou o vínculo. Confira o código ou peça um novo.",
     "ad_post_missing": "A Meta ainda não criou a publicação deste anúncio nesta plataforma. Ela aparece depois que o anúncio é aprovado e veiculado lá.",
     "comments_not_allowed": "Esta conexão com a Meta não tem permissão para ler estes comentários.",
-    "comments_need_reconnect": "Para ver os comentários, reconecte a conta de anúncios aceitando a leitura de comentários das Páginas e do Instagram."
+    "comments_need_reconnect": "Para ver os comentários, reconecte a conta de anúncios aceitando a leitura de comentários das Páginas e do Instagram.",
+    "prepaid_spend_cap": "Em conta pré-paga, a Meta usa os fundos adicionados como limite de gastos. Para gastar mais, adicione fundos na Meta.",
+    "billing_unknown": "Não conseguimos ler a cobrança desta conta na Meta. Use Atualizar e tente de novo."
   },
   "adsReports": {
     "header": {

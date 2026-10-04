@@ -19,6 +19,7 @@ import { AccountGate } from "../account-gate";
 import { AccountPicker } from "../account-picker";
 import { AdsKpiStrip } from "../ads-kpi-strip";
 import { AdsTrendChart, type ChartSeries } from "../ads-trend-chart";
+import { FundsBanner } from "../funds-banner";
 import { ReadinessCard } from "../readiness";
 import { SpendCapControl } from "../spend-cap-control";
 import { useAdReadiness, type AdReadinessState } from "../use-ad-readiness";
@@ -138,7 +139,11 @@ function BillingSummary({
         {billing ? <Fact label={t("balance")} value={fmt.minor(billing.balance, account.currency)} /> : null}
         {billing ? <Fact label={t("kind")} value={billing.prepay ? t("prepay") : t("postpay")} /> : null}
         <Fact label={t("amountSpent")} value={fmt.minor(account.amountSpent ?? 0, account.currency)} />
+        {account.funds?.room != null ? <Fact label={t("fundsLeft")} value={fmt.minor(account.funds.room, account.currency)} /> : null}
       </dl>
+      {account.funds?.daysLeft != null ? (
+        <p className="text-xs text-muted-foreground">{t("fundsPace", { days: Math.max(1, Math.round(account.funds.daysLeft)) })}</p>
+      ) : null}
       <SpendCapControl account={account} canUpdate={canUpdate} onSaved={onAccountUpdated} />
       {billingPortal ? (
         <ExternalLink href={billingPortal} onOpen={state.openPortal}>
@@ -164,6 +169,7 @@ function OverviewBody({
   const readiness = useAdReadiness(account, onAccountUpdated);
   return (
     <div className="space-y-6">
+      <FundsBanner account={account} state={readiness} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <ReadinessCard account={account} state={readiness} canCreate={canCreate} />
         <div className="space-y-4">

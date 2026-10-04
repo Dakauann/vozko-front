@@ -119,11 +119,15 @@ export function accountWritePermissions<P extends { [K in keyof P]: boolean }>(p
   return Object.fromEntries(Object.keys(permissions).map((key) => [key, false])) as P;
 }
 
-export type SpendCapBlocker = ManageBlocker | "adminRequired";
+export type SpendCapBlocker = ManageBlocker | "adminRequired" | "prepaid" | "billingUnknown";
 
 export function spendCapBlockerKey(account: AdAccount): SpendCapBlocker | null {
   if (account.canSetSpendCap) return null;
-  return manageBlockerKey(account) ?? "adminRequired";
+  const blocked = manageBlockerKey(account);
+  if (blocked) return blocked;
+  if (account.funds?.kind === "prepaid") return "prepaid";
+  if (account.role === "admin") return "billingUnknown";
+  return "adminRequired";
 }
 
 export type ToggleBlocker = "locked" | "permission" | AccountNotice | "unknown";

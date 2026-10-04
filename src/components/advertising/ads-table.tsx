@@ -8,6 +8,7 @@ import { EmptyValue } from "@/components/elevated-design/empty-value";
 import type { MetricColumn, ReportColumn, RowSort, SortableColumn } from "@/lib/advertising/columns";
 import { manageBlockerKey, resultCount, resultKind } from "@/lib/advertising/delivery";
 import { isLiveColumn, liveValue, type LiveColumn, type ManagerRow } from "@/lib/advertising/live";
+import { shownCount, shownLinkRate } from "@/lib/advertising/metric-display";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
 import type { AdAccount, AdBudgetMinimum, AdLevel, AdMetrics, AdOutcome, AdPeriod, AdRow } from "@/lib/advertising/types";
 
@@ -42,7 +43,7 @@ function ResultValue({ metrics, fmt }: { metrics: AdMetrics; fmt: AdsFormat }) {
   if (!kind) return <Numeric><EmptyValue /></Numeric>;
   return (
     <span className="flex flex-col items-end">
-      <span className="text-sm tabular-nums text-foreground">{fmt.count(resultCount(metrics))}</span>
+      <span className="text-sm tabular-nums text-foreground">{fmt.count(shownCount(resultCount(metrics)))}</span>
       <span className="text-2xs text-muted-foreground">{t(kind)}</span>
     </span>
   );
@@ -52,17 +53,21 @@ function metricText(column: TotalColumn, metrics: AdMetrics, outcome: AdOutcome,
   const currency = metrics.currency;
   switch (column) {
     case "results":
-      return fmt.count(resultCount(metrics));
+      return fmt.count(shownCount(resultCount(metrics)));
     case "costPerResult":
       return fmt.micros(resultKind(metrics) ? metrics.costPerResult : null, currency);
     case "spend":
       return fmt.micros(metrics.spend, currency);
     case "impressions":
-      return fmt.count(metrics.impressions);
+      return fmt.count(shownCount(metrics.impressions));
     case "linkClicks":
-      return fmt.count(metrics.linkClicks);
+      return fmt.count(shownCount(metrics.linkClicks));
     case "ctr":
-      return fmt.percent(metrics.ctr);
+      return fmt.percent(shownLinkRate(metrics.ctr, metrics.linkClicks));
+    case "cpc":
+      return fmt.micros(metrics.cpc, currency);
+    case "clicks":
+      return fmt.count(shownCount(metrics.clicks));
     case "cpm":
       return fmt.micros(metrics.cpm, currency);
     case "crmConversations":
@@ -89,7 +94,7 @@ function liveText(column: LiveColumn, row: ManagerRow, currency: string, fmt: Ad
     case "avgWatchSeconds":
       return value === null ? fmt.empty : seconds(fmt.decimal(value, 1));
     default:
-      return fmt.count(value);
+      return fmt.count(shownCount(value));
   }
 }
 

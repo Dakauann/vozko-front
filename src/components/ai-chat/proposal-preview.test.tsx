@@ -58,7 +58,7 @@ describe("ProposalPreview", () => {
     });
     expect(screen.getAllByText("Promoção de inverno").length).toBeGreaterThan(0);
     expect(document.querySelector('video[src="https://cdn/inverno.mp4"]')).toBeTruthy();
-    expect(screen.getAllByText("Enviar mensagem no WhatsApp").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Enviar mensagem pelo WhatsApp").length).toBeGreaterThan(0);
     expect(screen.getByText(/50,00/)).toBeTruthy();
     const destination = screen.getByRole("tab", { name: "Destino" });
     fireEvent.mouseDown(destination);

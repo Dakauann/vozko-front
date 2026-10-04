@@ -131,7 +131,17 @@ function EnlargedPlacement({
   );
 }
 
-export function AdPreviewPanel({ content, title, destination }: { content: AdPreviewContent; title?: string; destination?: ReactNode }) {
+export function AdPreviewPanel({
+  content,
+  title,
+  destination,
+  notice,
+}: {
+  content: AdPreviewContent;
+  title?: string;
+  destination?: ReactNode;
+  notice?: ReactNode;
+}) {
   const t = useTranslations("adsWizard");
   const tEditor = useTranslations("adsEditor.preview");
   const [filter, setFilter] = useState<PlacementFilter>("all");
@@ -153,6 +163,7 @@ export function AdPreviewPanel({ content, title, destination }: { content: AdPre
       </div>
       {tab === "ad" ? (
         <>
+          {notice}
           <ElevatedPillToggle<PlacementFilter>
             size="sm"
             value={filter}

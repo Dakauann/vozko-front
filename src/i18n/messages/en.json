@@ -17054,7 +17054,9 @@
       "zoom": "Enlarge {placement}",
       "zoomHint": "Use the arrow keys to see the other placements.",
       "previousPlacement": "Previous",
-      "nextPlacement": "Next"
+      "nextPlacement": "Next",
+      "videoOnlyTitle": "Your ad won't run in {count, plural, one {# placement} other {# placements}}",
+      "videoOnlyHint": "These placements only show video. To run there, use a video as the creative."
     },
     "issues": {
       "generic": {
@@ -17383,7 +17385,9 @@
         "reconnect": "Reconnect the ad account to change the spending limit.",
         "readOnly": "Your profile can only view this account, so it cannot change the spending limit.",
         "unknown": "The spending limit cannot be changed right now.",
-        "adminRequired": "Only an ad account admin can change the spending limit."
+        "adminRequired": "Only an ad account admin can change the spending limit.",
+        "prepaid": "On a prepaid account, Meta uses the funds you added as the spending limit. To spend more, add funds in Meta.",
+        "billingUnknown": "We could not read this account's billing in Meta yet. Use Refresh and try again."
       },
       "label": "Spending limit:",
       "none": "no limit",
@@ -17699,7 +17703,9 @@
       "spend": "Amount spent",
       "impressions": "Impressions",
       "linkClicks": "Link clicks",
+      "cpc": "CPC (cost per link click)",
       "ctr": "CTR",
+      "clicks": "Clicks (all)",
       "cpm": "CPM",
       "crmConversations": "Conversations (CRM)",
       "costPerLead": "Cost per lead",
@@ -18499,13 +18505,58 @@
       "postpay": "Postpaid",
       "amountSpent": "Amount spent on the account",
       "openBilling": "Open Billing and payments in Meta",
-      "unavailable": "Billing details show for people who advertise on the account."
+      "unavailable": "Billing details show for people who advertise on the account.",
+      "fundsLeft": "Available for ads",
+      "fundsPace": "{days, plural, one {about # day} other {about # days}} at the last 7 days' pace"
     },
     "performance": {
       "title": "Performance",
       "description": "Last 30 days, compared with the 30 days before, in the ad account time zone.",
       "noTimezone": "This account's time zone is unknown, so results cannot be split by day. Refresh the account.",
       "failed": "Could not load performance: {message}"
+    }
+  },
+  "adsFunds": {
+    "notices": {
+      "funds_low": {
+        "title": "This ad account's funds are running low",
+        "body": "The funds in Meta cover only {room} more in ads. When they run out, Meta pauses every ad on this account.",
+        "bodyWithDays": "The funds in Meta cover only {room} more in ads, {days, plural, one {about # day} other {about # days}} at the current pace. When they run out, Meta pauses every ad on this account."
+      },
+      "funds_out": {
+        "title": "This account's ads stopped: the funds in Meta ran out",
+        "body": "The ads still show as Active, but Meta delivers nothing until you add funds. After the top up, Meta resumes delivery on its own."
+      },
+      "spend_limit_low": {
+        "title": "The account spending limit is almost reached",
+        "body": "The account can spend only {room} more before the limit. When it is reached, Meta stops every ad on this account."
+      },
+      "spend_limit_reached": {
+        "title": "The account reached its spending limit",
+        "body": "Meta stopped every ad on this account, even though they still show as Active. Raise or remove the limit to deliver again."
+      },
+      "payment_failed": {
+        "title": "Meta could not charge this ad account",
+        "body": "The ads are stopped until the amount due is paid in Meta."
+      },
+      "grace_period": {
+        "title": "Payment pending in Meta",
+        "body": "Meta could not charge this account. The ads keep running for a short grace period and stop if the payment is not made."
+      },
+      "billing_unreadable": {
+        "title": "We could not read this account's funds in Meta",
+        "body": "Check the billing directly in Meta. We read it again on every sync."
+      },
+      "unknown": {
+        "title": "Meta reports a billing problem on this account",
+        "body": "Check the billing directly in Meta."
+      }
+    },
+    "actions": {
+      "addFunds": "Add funds in Meta",
+      "pay": "Pay in Meta",
+      "adjustLimit": "Adjust the limit",
+      "openBilling": "Open billing in Meta"
     }
   },
   "adsErrors": {
@@ -18534,7 +18585,9 @@
     "page_link_refused": "Meta did not confirm the link. Check the code or ask for a new one.",
     "ad_post_missing": "Meta has not created this ad's post on this platform yet. It appears once the ad is approved and delivers there.",
     "comments_not_allowed": "This Meta connection is not allowed to read these comments.",
-    "comments_need_reconnect": "To see comments, reconnect the ad account and allow reading comments from Pages and Instagram."
+    "comments_need_reconnect": "To see comments, reconnect the ad account and allow reading comments from Pages and Instagram.",
+    "prepaid_spend_cap": "On a prepaid account, Meta uses the funds you added as the spending limit. To spend more, add funds in Meta.",
+    "billing_unknown": "We could not read this account's billing in Meta. Use Refresh and try again."
   },
   "adsReports": {
     "header": {

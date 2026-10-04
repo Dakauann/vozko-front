@@ -85,6 +85,7 @@ import { viewFromParams, viewToParams, type ManagerView } from "@/lib/advertisin
 import { onDataChanged } from "@/lib/aichat/data-changed";
 import { filterRows, type QuickView } from "@/lib/advertising/manager-views";
 import { needsStructureRefresh } from "@/lib/advertising/publish";
+import { syncIsStale } from "@/lib/advertising/freshness";
 import type { AdBudgetMinimum, AdLevel, AdPublishJob, AdReport, AdRow, AdTestLevel, MetaAdsConnectResult } from "@/lib/advertising/types";
 import { screenPaths } from "@/lib/navigation/routes";
 
@@ -111,6 +112,7 @@ import { useBlockerText } from "./manager/use-blocker-text";
 import { ViewsRow } from "./manager/views-row";
 import { PublishJobsSheet } from "./publish-jobs-sheet";
 import { PublishedNotice } from "./published-notice";
+import { FundsBanner } from "./funds-banner";
 import { ManagerReadinessBanner, useManagerReadinessEmptyState } from "./readiness";
 import { DEFAULT_WINDOW, LiveHint, ReportControls, knownWindows, type WindowChoice } from "./report-controls";
 import { RowActionsMenu, type RowAction } from "./row-actions-menu";
@@ -213,6 +215,7 @@ export function AdsManager() {
   const [createHandled, setCreateHandled] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewRequest | null>(null);
   const refreshedAfterPublish = useRef(false);
+  const refreshedOnOpen = useRef(new Set<string>());
 
   const showView = useCallback(
     (next: ManagerView, history: "push" | "replace") => {
@@ -433,6 +436,13 @@ export function AdsManager() {
     refreshedAfterPublish.current = true;
     syncAccount();
   }, [publishedMissing, syncAccount]);
+
+  const staleAccountId = account && syncIsStale(account.lastSyncedAt, new Date()) ? account.id : null;
+  useEffect(() => {
+    if (!staleAccountId || staleAccountId !== accountId || refreshedOnOpen.current.has(staleAccountId)) return;
+    refreshedOnOpen.current.add(staleAccountId);
+    syncAccount();
+  }, [staleAccountId, accountId, syncAccount]);
 
   const patchRow = useCallback((metaId: string, patch: Partial<AdRow> | null) => {
     setOverrides((map) => {
@@ -925,6 +935,7 @@ export function AdsManager() {
         />
       ) : null}
 
+      <FundsBanner account={account} state={readiness} />
       {report && !firstCampaign ? <ManagerReadinessBanner account={account} state={readiness} /> : null}
 
       {!today ? (

@@ -84,6 +84,10 @@ export function earliestDay(today: string): string {
   return addMonths(today, -MAXIMUM_MONTHS);
 }
 
+function lastDaysBefore(today: string, days: number): AdRange {
+  return { since: addDays(today, -days), until: addDays(today, -1) };
+}
+
 export function rangeForPreset(preset: Exclude<RangePreset, "custom">, today: string): AdRange {
   switch (preset) {
     case "today":
@@ -95,13 +99,13 @@ export function rangeForPreset(preset: Exclude<RangePreset, "custom">, today: st
     case "todayAndYesterday":
       return { since: addDays(today, -1), until: today };
     case "last7":
-      return { since: addDays(today, -6), until: today };
+      return lastDaysBefore(today, 7);
     case "last14":
-      return { since: addDays(today, -13), until: today };
+      return lastDaysBefore(today, 14);
     case "last28":
-      return { since: addDays(today, -27), until: today };
+      return lastDaysBefore(today, 28);
     case "last30":
-      return { since: addDays(today, -29), until: today };
+      return lastDaysBefore(today, 30);
     case "thisWeek":
       return { since: startOfWeek(today), until: today };
     case "lastWeek": {

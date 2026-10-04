@@ -37,9 +37,9 @@ describe("rangeForPreset", () => {
   it("builds inclusive civil-day ranges", () => {
     expect(rangeForPreset("today", today)).toEqual({ since: today, until: today });
     expect(rangeForPreset("yesterday", today)).toEqual({ since: "2026-03-14", until: "2026-03-14" });
-    expect(rangeForPreset("last7", today)).toEqual({ since: "2026-03-09", until: today });
-    expect(rangeForPreset("last14", today)).toEqual({ since: "2026-03-02", until: today });
-    expect(rangeForPreset("last30", today)).toEqual({ since: "2026-02-14", until: today });
+    expect(rangeForPreset("last7", today)).toEqual({ since: "2026-03-08", until: "2026-03-14" });
+    expect(rangeForPreset("last14", today)).toEqual({ since: "2026-03-01", until: "2026-03-14" });
+    expect(rangeForPreset("last30", today)).toEqual({ since: "2026-02-13", until: "2026-03-14" });
     expect(rangeForPreset("thisMonth", today)).toEqual({ since: "2026-03-01", until: today });
     expect(rangeForPreset("lastMonth", today)).toEqual({ since: "2026-02-01", until: "2026-02-28" });
   });
@@ -77,6 +77,15 @@ describe("relativeSince", () => {
 describe("Meta presets", () => {
   const today = "2026-10-03";
 
+  it("ends the last N days yesterday, like Meta, so today never mixes into them", () => {
+    expect(rangeForPreset("last30", "2026-10-04")).toEqual({ since: "2026-09-04", until: "2026-10-03" });
+    expect(rangeForPreset("last7", "2026-10-04")).toEqual({ since: "2026-09-27", until: "2026-10-03" });
+    expect(rangeForPreset("thisWeek", "2026-10-04").until).toBe("2026-10-04");
+    expect(rangeForPreset("thisMonth", "2026-10-04").until).toBe("2026-10-04");
+    expect(rangeForPreset("maximum", "2026-10-04").until).toBe("2026-10-04");
+  });
+
+
   it("lists the presets in Meta's order, ending with Personalizado", () => {
     expect(RANGE_PRESETS).toEqual([
       "today",
@@ -97,7 +106,7 @@ describe("Meta presets", () => {
 
   it("covers today and yesterday together and the 28 day window", () => {
     expect(rangeForPreset("todayAndYesterday", today)).toEqual({ since: "2026-10-02", until: today });
-    expect(rangeForPreset("last28", today)).toEqual({ since: "2026-09-06", until: today });
+    expect(rangeForPreset("last28", today)).toEqual({ since: "2026-09-05", until: "2026-10-02" });
   });
 
   it("starts weeks on Monday", () => {
@@ -119,7 +128,7 @@ describe("resolveRange", () => {
   const today = "2026-10-03";
 
   it("uses the preset when one is chosen", () => {
-    expect(resolveRange("last7", { since: "", until: "" }, today)).toEqual({ since: "2026-09-27", until: today });
+    expect(resolveRange("last7", { since: "", until: "" }, today)).toEqual({ since: "2026-09-26", until: "2026-10-02" });
   });
 
   it("accepts a custom range only when it is valid and inside the maximum window", () => {

@@ -49,7 +49,7 @@ const saved = (id: string, overrides: Partial<AdSavedReport> = {}): AdSavedRepor
 
 describe("reportRange", () => {
   it("resolves a preset against the account's today", () => {
-    expect(reportRange(definition({ datePreset: "last7" }), "2026-10-03")).toEqual({ since: "2026-09-27", until: "2026-10-03" });
+    expect(reportRange(definition({ datePreset: "last7" }), "2026-10-03")).toEqual({ since: "2026-09-26", until: "2026-10-02" });
   });
 
   it("uses the saved days for a valid custom range", () => {

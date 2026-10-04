@@ -30,6 +30,7 @@ import {
 import type { PublishBlocker, ValidationState } from "@/lib/advertising/publish";
 import type { AdAccount, AdSavedDraft } from "@/lib/advertising/types";
 
+import { FundsBanner } from "../funds-banner";
 import { WizardReadinessBanner } from "../readiness";
 import type { AdReadinessState } from "../use-ad-readiness";
 import { useAdsErrorText } from "../use-ads-error";
@@ -206,6 +207,7 @@ function ReviewBody({
         <ElevatedDialogDescription>{t("description")}</ElevatedDialogDescription>
       </ElevatedDialogHeader>
       <div className="max-h-[60vh] space-y-3 overflow-y-auto">
+        <FundsBanner account={account} state={readiness} />
         <WizardReadinessBanner account={account} state={readiness} canCreate={canCreate} defaultOpen />
         {drafts.length === 0 ? <p className="text-sm text-muted-foreground">{t("empty")}</p> : null}
         <ul className="divide-y divide-border">

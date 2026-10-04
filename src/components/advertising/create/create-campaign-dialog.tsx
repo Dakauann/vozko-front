@@ -29,6 +29,7 @@ import { choiceObjective, createdLevels, initialForm, type CreateChoice } from "
 import type { AdAccount } from "@/lib/advertising/types";
 import { routesFor } from "@/lib/advertising/wizard-routes";
 
+import { FundsBanner } from "../funds-banner";
 import { WizardReadinessBanner } from "../readiness";
 import { useAdReadiness } from "../use-ad-readiness";
 import { useAdsErrorText } from "../use-ads-error";
@@ -140,6 +141,7 @@ function CreateBody({ account, initialParent, onCancel }: { account: AdAccount; 
         </Tabs>
       </ElevatedDialogHeader>
       <ElevatedDialogBody className="space-y-5">
+        <FundsBanner account={account} state={readiness} />
         <WizardReadinessBanner account={account} state={readiness} canCreate />
         {options.status === "error" ? <p className="text-sm text-destructive-ink">{options.message}</p> : null}
         {existing ? (

@@ -199,7 +199,7 @@ function PublishedEditorBody({
       onTab={setTab}
       tree={<EditorTree entries={entries} label={t("tree.objectLabel")} />}
       aside={
-        tab === "edit" && previewForm ? <PublishedAdPreview accountId={account.id} form={previewForm} /> : undefined
+        tab === "edit" && previewForm ? <PublishedAdPreview accountId={account.id} form={previewForm} adSetId={adSetRow?.metaId ?? null} /> : undefined
       }
       footer={
         <EditorFooter

@@ -34,6 +34,8 @@ const options: AdsOptions = {
   attributionWindows: null,
   pixelEvents: ["PURCHASE"],
   formats: ["IMAGE"],
+  videoOnlyPositions: {},
+  automaticPlatforms: [],
 };
 
 describe("routes", () => {

@@ -118,6 +118,13 @@ describe("nextSort", () => {
 });
 
 describe("column presets", () => {
+  it("matches Meta's Desempenho e cliques with reach, frequency, link CPC and all clicks", () => {
+    const columns = presetColumns("performanceClicks");
+    for (const column of ["reach", "frequency", "cpc", "clicks", "linkClicks", "ctr", "cpm"] as const) {
+      expect(columns).toContain(column);
+    }
+  });
+
   it("offers Meta's presets in Meta's order", () => {
     expect(COLUMN_PRESETS).toEqual(["performance", "performanceClicks", "engagement", "delivery"]);
   });
