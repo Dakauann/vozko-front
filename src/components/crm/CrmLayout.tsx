@@ -1249,14 +1249,14 @@ export default function CrmLayout({
     async (entryId: string, entryType: EntryType, enabled: boolean) => {
       const result = await setConversationAutomationAction(entryType, entryId, enabled);
       if (result.error) {
-        toast.error(result.error);
+        toast.error(result.code === "nothing_to_return_to" ? tWindow("automationNothingToReturnTo") : result.error);
         return;
       }
       if (leavesViewerAfterHandBack(result.assignedUserId ?? "", canViewOthers)) {
         forgetEntry(entryId, entryType);
       }
     },
-    [canViewOthers, forgetEntry],
+    [canViewOthers, forgetEntry, tWindow],
   );
 
   const requestHandBack = useCallback(

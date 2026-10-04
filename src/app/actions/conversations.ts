@@ -189,7 +189,7 @@ export async function setConversationAutomationAction(
     );
 
     if (response.error) {
-        return { error: response.error.message, assignedUserId: null };
+        return { error: response.error.message, code: response.error.code ?? null, assignedUserId: null };
     }
-    return { error: null, assignedUserId: response.data?.assigned_user_id ?? "" };
+    return { error: null, code: null, assignedUserId: response.data?.assigned_user_id ?? "" };
 }

@@ -7661,7 +7661,8 @@
       "markOngoing": "Mark as ongoing",
       "markFinished": "Mark as finished",
       "automationOn": "AI is answering",
-      "automationOff": "AI is paused"
+      "automationOff": "AI is paused",
+      "automationNothingToReturnTo": "This channel has no active agent or workflow. Automation stays paused and the conversation stays with you."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"

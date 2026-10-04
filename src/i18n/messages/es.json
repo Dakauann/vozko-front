@@ -6289,7 +6289,8 @@
       "markOngoing": "Marcar en curso",
       "markFinished": "Marcar como finalizada",
       "automationOn": "La IA responde",
-      "automationOff": "IA en pausa"
+      "automationOff": "IA en pausa",
+      "automationNothingToReturnTo": "Este canal no tiene un agente ni un flujo activos. La automatización sigue en pausa y la conversación sigue contigo."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"

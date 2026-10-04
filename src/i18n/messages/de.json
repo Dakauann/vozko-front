@@ -6809,7 +6809,8 @@
       "markOngoing": "Als laufend markieren",
       "markFinished": "Als abgeschlossen markieren",
       "automationOn": "KI antwortet",
-      "automationOff": "KI pausiert"
+      "automationOff": "KI pausiert",
+      "automationNothingToReturnTo": "Dieser Kanal hat keinen aktiven Agenten oder Workflow. Die Automatisierung bleibt pausiert und das Gespräch bleibt bei Ihnen."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"
