@@ -392,8 +392,7 @@
       "set_ad_spend_cap": "Ausgabenlimit des Kontos",
       "update_ad_draft": "Anzeigenentwurf ändern",
       "swap_ad_creative": "Anzeigen-Creative austauschen",
-      "compose_creative": "Creative gestalten",
-      "list_creative_captures": "Screens für Creatives anzeigen"
+      "compose_creative": "Creative gestalten"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",

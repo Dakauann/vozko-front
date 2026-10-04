@@ -230,7 +230,6 @@ const TOOL_ICON: Record<string, Icon> = {
   edit_ad_text: NotePencil,
   swap_ad_creative: ImageGlyph,
   compose_creative: ImageGlyph,
-  list_creative_captures: ImageGlyph,
   list_page_posts: FileText,
   list_ad_apps: DeviceMobile,
   list_ad_catalogs: ListBullets,

@@ -392,8 +392,7 @@
       "set_ad_spend_cap": "Limite de gasto da conta",
       "update_ad_draft": "Alterar rascunho de anúncio",
       "swap_ad_creative": "Trocar criativo do anúncio",
-      "compose_creative": "Montar criativo",
-      "list_creative_captures": "Ver telas para criativos"
+      "compose_creative": "Montar criativo"
     },
     "threadsLegend": "Conversas",
     "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
