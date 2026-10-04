@@ -56,6 +56,7 @@ describe("sidebar access", () => {
       ["nav.adsForms", "/dashboard/advertising/forms"],
       ["nav.adsRules", "/dashboard/advertising/rules"],
       ["nav.adsConversions", "/dashboard/advertising/conversions"],
+      ["nav.adsWhatsApp", "/dashboard/advertising/whatsapp"],
     ]);
     const facebook = hrefs(campanhasNavItems.filter((item) => item.family === "facebook"));
     expect(facebook.filter((href) => href.startsWith("/dashboard/advertising"))).toEqual([]);
@@ -78,6 +79,7 @@ describe("sidebar access", () => {
     expect(ruleForPath("/dashboard/advertising/forms")).toEqual({ kind: "screen", screen: "ads_forms" });
     expect(ruleForPath("/dashboard/advertising/rules")).toEqual({ kind: "screen", screen: "ads_rules" });
     expect(ruleForPath("/dashboard/advertising/conversions")).toEqual({ kind: "screen", screen: "ads_conversions" });
+    expect(ruleForPath("/dashboard/advertising/whatsapp")).toEqual({ kind: "screen", screen: "ads_whatsapp" });
   });
 
   it("gates each website chat page by its own screen", () => {

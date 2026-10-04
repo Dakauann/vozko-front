@@ -25,6 +25,8 @@ import {
   listAssignableMembersAction,
   type AssignableMember,
 } from "@/app/actions/workspace";
+import { listDelegationTargetsAction } from "@/app/actions/conversations";
+import { ownerOf, type DelegationTarget } from "@/lib/conversations/delegation";
 
 const PAGE_SIZE = 20;
 const NO_DEPARTMENT = "__none__";
@@ -37,6 +39,7 @@ const STRINGS = {
     noDepartment: "Sem departamento",
     current: "Atual",
     handBack: "Devolver para",
+    automations: "Automações",
     adminHint:
       "Administradores aparecem quando participam da distribuição automática.",
   },
@@ -47,6 +50,7 @@ const STRINGS = {
     noDepartment: "No department",
     current: "Current",
     handBack: "Hand back to",
+    automations: "Automations",
     adminHint: "Admins appear when they take part in the automatic distribution.",
   },
   es: {
@@ -56,6 +60,7 @@ const STRINGS = {
     noDepartment: "Sin departamento",
     current: "Actual",
     handBack: "Devolver a",
+    automations: "Automatizaciones",
     adminHint:
       "Los administradores aparecen cuando participan en la distribución automática.",
   },
@@ -66,6 +71,7 @@ const STRINGS = {
     noDepartment: "Ohne Abteilung",
     current: "Aktuell",
     handBack: "Zurückgeben an",
+    automations: "Automatisierungen",
     adminHint:
       "Administratoren erscheinen, wenn sie an der automatischen Verteilung teilnehmen.",
   },
@@ -80,6 +86,8 @@ interface AssignMemberPickerProps {
   onAssign: (userId: string) => void;
   handBack?: HandBackTarget | null;
   onHandBack?: () => void;
+  canAssignMembers?: boolean;
+  onDelegate?: (target: DelegationTarget) => void;
 }
 
 function displayName(m: AssignableMember): string {
@@ -93,6 +101,8 @@ export default function AssignMemberPicker({
   onAssign,
   handBack,
   onHandBack,
+  canAssignMembers = true,
+  onDelegate,
 }: AssignMemberPickerProps) {
   const locale = useLocale();
   const tx: Strings = STRINGS[locale as keyof typeof STRINGS] ?? STRINGS.en;
@@ -104,6 +114,7 @@ export default function AssignMemberPicker({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [targets, setTargets] = useState<DelegationTarget[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
   const reqRef = useRef(0);
 
@@ -114,7 +125,7 @@ export default function AssignMemberPicker({
 
   const fetchPage = useCallback(
     async (pageToLoad: number, q: string, replace: boolean) => {
-      if (!workspaceId) return;
+      if (!workspaceId || !canAssignMembers) return;
       const reqId = ++reqRef.current;
       setLoading(true);
       const res = await listAssignableMembersAction(workspaceId, {
@@ -128,13 +139,24 @@ export default function AssignMemberPicker({
       setMembers((prev) => (replace ? res.members : [...prev, ...res.members]));
       setLoading(false);
     },
-    [workspaceId],
+    [workspaceId, canAssignMembers],
   );
 
   useEffect(() => {
     if (!open) return;
     fetchPage(1, query, true);
   }, [open, query, fetchPage]);
+
+  useEffect(() => {
+    if (!open || !onDelegate) return;
+    let current = true;
+    listDelegationTargetsAction(query).then((found) => {
+      if (current) setTargets(found);
+    });
+    return () => {
+      current = false;
+    };
+  }, [open, query, onDelegate]);
 
   const handleOpenChange = useCallback((next: boolean) => {
     setOpen(next);
@@ -193,6 +215,14 @@ export default function AssignMemberPicker({
       setOpen(false);
     },
     [onAssign],
+  );
+
+  const handleDelegate = useCallback(
+    (target: DelegationTarget) => {
+      onDelegate?.(target);
+      setOpen(false);
+    },
+    [onDelegate],
   );
 
   const handleHandBack = useCallback(() => {
@@ -256,7 +286,40 @@ export default function AssignMemberPicker({
                 </CommandItem>
               </CommandGroup>
             ) : null}
-            {members.length === 0 && !loading ? (
+            {onDelegate && targets.length > 0 ? (
+              <CommandGroup heading={tx.automations}>
+                {targets.map((target) => {
+                  const isAssigned = assignedUserId === ownerOf(target);
+                  return (
+                    <CommandItem
+                      key={`${target.kind}-${target.id}`}
+                      value={`automation-${target.kind}-${target.id}-${target.name}`}
+                      onSelect={() => handleDelegate(target)}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-lg px-2 py-2 text-xs",
+                        "data-[selected=true]:bg-muted data-[selected=true]:font-medium data-[selected=true]:text-foreground",
+                        isAssigned ? "text-primary-ink" : "text-foreground",
+                      )}
+                    >
+                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        {target.kind === "workflow" ? (
+                          <FlowArrow className="h-3.5 w-3.5" />
+                        ) : (
+                          <Robot className="h-3.5 w-3.5" />
+                        )}
+                      </span>
+                      <span className="flex-1 truncate">{target.name}</span>
+                      {isAssigned && (
+                        <span className="ml-auto flex-shrink-0 text-2xs font-semibold text-primary-ink">
+                          {tx.current}
+                        </span>
+                      )}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            ) : null}
+            {canAssignMembers && members.length === 0 && !loading ? (
               <CommandEmpty>{tx.empty}</CommandEmpty>
             ) : null}
             {groups.map((group) => (

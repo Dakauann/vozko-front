@@ -1922,7 +1922,8 @@
       "adsReports": "Werbeberichte",
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
-      "createWebchat": "WebChat erstellen"
+      "createWebchat": "WebChat erstellen",
+      "adsWhatsApp": "WhatsApp der Seiten"
     },
     "badges": {
       "new": "Neu",
@@ -6520,6 +6521,7 @@
       "call": "Anruf anfordern",
       "list_members": "Online-Mitglieder listen",
       "view_others": "Andere anzeigen",
+      "delegate": "An KI delegieren",
       "block": "Sperren",
       "roulette": "Zuweisungs-Roulette"
     },
@@ -6810,7 +6812,8 @@
       "markFinished": "Als abgeschlossen markieren",
       "automationOn": "KI antwortet",
       "automationOff": "KI pausiert",
-      "automationNothingToReturnTo": "Dieser Kanal hat keinen aktiven Agenten oder Workflow. Die Automatisierung bleibt pausiert und das Gespräch bleibt bei Ihnen."
+      "automationNothingToReturnTo": "Dieser Kanal hat keinen aktiven Agenten oder Workflow. Die Automatisierung bleibt pausiert und das Gespräch bleibt bei Ihnen.",
+      "automationUnusable": "Dieser Agent oder Workflow ist in diesem Workspace nicht aktiv. Wählen Sie einen anderen."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"
@@ -18174,6 +18177,17 @@
       "pipelineLabel": "Funnel für diesen Kanal",
       "pipelineHint": "Gespräche aus diesem Chat landen in der ersten Phase dieses Funnels.",
       "pipelineDefault": "Standard-Funnel des Workspace"
+    }
+  },
+  "adsWhatsApp": {
+    "linked": "Verknüpfte Nummer",
+    "metaOnly": "Bei Meta mit {number} verknüpft, die nicht mit diesem Workspace verbunden ist. Verbinde diese Nummer mit Vozko, um sie in Anzeigen zu nutzen.",
+    "cannotLink": "Diese Seite hat noch keine verknüpfte Nummer. Bitte jemanden, der Anzeigen bearbeiten darf, eine zu verknüpfen.",
+    "noPages": "In dieser Anzeigenverbindung wurde keine Seite freigegeben. Verbinde dich erneut und wähle die Seiten im Meta-Fenster aus.",
+    "retry": "Erneut versuchen",
+    "header": {
+      "title": "WhatsApp der Seiten",
+      "description": "Die mit jeder Seite verknüpfte WhatsApp-Nummer für Anzeigen, die einen WhatsApp-Chat öffnen. Hier verknüpfen, ohne Vozko zu verlassen."
     }
   }
 }

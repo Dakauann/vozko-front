@@ -115,7 +115,8 @@ import {
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
 import { WebchatBlockButton } from "@/components/webchat/webchat-block-button";
-import { setConversationAutomationAction } from "@/app/actions/conversations";
+import { delegateConversationAction, setConversationAutomationAction } from "@/app/actions/conversations";
+import type { DelegationTarget } from "@/lib/conversations/delegation";
 import { toast } from "sonner";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
@@ -1245,11 +1246,18 @@ export default function CrmLayout({
     [inbox],
   );
 
-  const switchAutomation = useCallback(
-    async (entryId: string, entryType: EntryType, enabled: boolean) => {
-      const result = await setConversationAutomationAction(entryType, entryId, enabled);
+  const settleOwnerChange = useCallback(
+    (
+      result: { error: string | null; code: string | null; assignedUserId: string | null },
+      entryId: string,
+      entryType: EntryType,
+    ) => {
       if (result.error) {
-        toast.error(result.code === "nothing_to_return_to" ? tWindow("automationNothingToReturnTo") : result.error);
+        const known: Record<string, string> = {
+          nothing_to_return_to: tWindow("automationNothingToReturnTo"),
+          automation_unusable: tWindow("automationUnusable"),
+        };
+        toast.error((result.code && known[result.code]) || result.error);
         return;
       }
       if (leavesViewerAfterHandBack(result.assignedUserId ?? "", canViewOthers)) {
@@ -1257,6 +1265,23 @@ export default function CrmLayout({
       }
     },
     [canViewOthers, forgetEntry, tWindow],
+  );
+
+  const switchAutomation = useCallback(
+    async (entryId: string, entryType: EntryType, enabled: boolean) => {
+      settleOwnerChange(await setConversationAutomationAction(entryType, entryId, enabled), entryId, entryType);
+    },
+    [settleOwnerChange],
+  );
+
+  const delegateTo = useCallback(
+    async (target: DelegationTarget) => {
+      if (!activeConversation) return;
+      const entryId = activeConversation.entry_id;
+      const entryType = activeConversation.entry_type as EntryType;
+      settleOwnerChange(await delegateConversationAction(entryType, entryId, target), entryId, entryType);
+    },
+    [activeConversation, settleOwnerChange],
   );
 
   const requestHandBack = useCallback(
@@ -1825,12 +1850,14 @@ export default function CrmLayout({
           </div>
         )}
 
-        {can("conversations", "assign") && currentWorkspace?.id && (
+        {(can("conversations", "assign") || can("conversations", "delegate")) && currentWorkspace?.id && (
           <AssignMemberPicker
             workspaceId={currentWorkspace.id}
             assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
             onlineUserIds={onlineUserIdSet}
             onAssign={handleAssignTo}
+            canAssignMembers={can("conversations", "assign")}
+            onDelegate={can("conversations", "delegate") ? delegateTo : undefined}
             handBack={currentInboxEntry ? handBackTarget(currentInboxEntry) : null}
             onHandBack={() =>
               requestHandBack(

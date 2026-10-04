@@ -2598,7 +2598,8 @@
       "adsReports": "Relatórios de Anúncios",
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
-      "createWebchat": "Criar WebChat"
+      "createWebchat": "Criar WebChat",
+      "adsWhatsApp": "WhatsApp das Páginas"
     },
     "badges": {
       "new": "Novo",
@@ -7411,6 +7412,7 @@
       "call": "Pedir ligação",
       "list_members": "Listar membros online",
       "view_others": "Ver de outros",
+      "delegate": "Delegar à IA",
       "block": "Bloquear",
       "roulette": "Roleta de atribuição"
     },
@@ -7701,7 +7703,8 @@
       "markFinished": "Marcar como finalizada",
       "automationOn": "IA respondendo",
       "automationOff": "IA pausada",
-      "automationNothingToReturnTo": "Este canal não tem agente nem fluxo ativo. A automação continua pausada e a conversa segue com você."
+      "automationNothingToReturnTo": "Este canal não tem agente nem fluxo ativo. A automação continua pausada e a conversa segue com você.",
+      "automationUnusable": "Esse agente ou fluxo não está ativo neste workspace. Escolha outro."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"
@@ -19223,6 +19226,17 @@
       "pipelineLabel": "Funil deste canal",
       "pipelineHint": "As conversas deste chat entram neste funil e na etapa inicial dele.",
       "pipelineDefault": "Funil padrão do workspace"
+    }
+  },
+  "adsWhatsApp": {
+    "linked": "Número vinculado",
+    "metaOnly": "Vinculada na Meta ao número {number}, que não está conectado a este workspace. Conecte esse número ao Vozko para usá-lo nos anúncios.",
+    "cannotLink": "Esta Página ainda não tem número vinculado. Peça a alguém que possa editar anúncios para vincular.",
+    "noPages": "Nenhuma Página foi compartilhada nesta conexão de anúncios. Conecte de novo e marque as Páginas na janela da Meta.",
+    "retry": "Tentar de novo",
+    "header": {
+      "title": "WhatsApp das Páginas",
+      "description": "O número de WhatsApp vinculado a cada Página, usado nos anúncios que abrem conversa no WhatsApp. Vincule aqui, sem sair do Vozko."
     }
   }
 }

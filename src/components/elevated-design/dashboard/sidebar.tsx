@@ -53,6 +53,7 @@ import {
   ChartBar,
   UsersThree,
   Pulse,
+  WhatsappLogo,
   X,
 } from "@/components/icons";
 import type { Icon, IconProps } from "@/components/icons";
@@ -557,6 +558,12 @@ export const campanhasNavItems: NavItem[] = [
     icon: Pulse,
     labelKey: "nav.adsConversions",
     href: "/dashboard/advertising/conversions",
+    family: "meta",
+  },
+  {
+    icon: WhatsappLogo,
+    labelKey: "nav.adsWhatsApp",
+    href: "/dashboard/advertising/whatsapp",
     family: "meta",
   },
   {

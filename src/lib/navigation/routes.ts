@@ -60,6 +60,7 @@ export const screenPaths = {
   ads_forms: "/dashboard/advertising/forms",
   ads_rules: "/dashboard/advertising/rules",
   ads_conversions: "/dashboard/advertising/conversions",
+  ads_whatsapp: "/dashboard/advertising/whatsapp",
   telegram_accounts: "/dashboard/telegram-accounts",
   telegram_connect: "/dashboard/telegram-accounts/connect",
   sip_trunks: "/dashboard/sip-trunks",

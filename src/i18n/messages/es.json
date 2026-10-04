@@ -1887,7 +1887,8 @@
       "adsReports": "Informes de anuncios",
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
-      "createWebchat": "Crear WebChat"
+      "createWebchat": "Crear WebChat",
+      "adsWhatsApp": "WhatsApp de las Páginas"
     },
     "badges": {
       "new": "Nuevo",
@@ -6000,6 +6001,7 @@
       "call": "Pedir llamada",
       "list_members": "Listar miembros en línea",
       "view_others": "Ver de otros",
+      "delegate": "Delegar a la IA",
       "block": "Bloquear",
       "roulette": "Ruleta de asignación"
     },
@@ -6290,7 +6292,8 @@
       "markFinished": "Marcar como finalizada",
       "automationOn": "La IA responde",
       "automationOff": "IA en pausa",
-      "automationNothingToReturnTo": "Este canal no tiene un agente ni un flujo activos. La automatización sigue en pausa y la conversación sigue contigo."
+      "automationNothingToReturnTo": "Este canal no tiene un agente ni un flujo activos. La automatización sigue en pausa y la conversación sigue contigo.",
+      "automationUnusable": "Ese agente o flujo no está activo en este workspace. Elige otro."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"
@@ -17677,6 +17680,17 @@
       "pipelineLabel": "Embudo de este canal",
       "pipelineHint": "Las conversaciones de este chat entran en este embudo, en su primera etapa.",
       "pipelineDefault": "Embudo predeterminado del workspace"
+    }
+  },
+  "adsWhatsApp": {
+    "linked": "Número vinculado",
+    "metaOnly": "Vinculada en Meta al número {number}, que no está conectado a este workspace. Conecta ese número a Vozko para usarlo en los anuncios.",
+    "cannotLink": "Esta Página aún no tiene un número vinculado. Pide a alguien que pueda editar anuncios que lo vincule.",
+    "noPages": "No se compartió ninguna Página en esta conexión de anuncios. Conecta de nuevo y marca las Páginas en la ventana de Meta.",
+    "retry": "Intentar de nuevo",
+    "header": {
+      "title": "WhatsApp de las Páginas",
+      "description": "El número de WhatsApp vinculado a cada Página, usado en los anuncios que abren una conversación en WhatsApp. Vincúlalo aquí, sin salir de Vozko."
     }
   }
 }

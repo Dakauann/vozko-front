@@ -10,7 +10,7 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { CheckCircle, WhatsappLogo } from "@/components/icons";
 import type { AdPage } from "@/lib/advertising/types";
 
-import { useAdsErrorText } from "../use-ads-error";
+import { useAdsErrorText } from "./use-ads-error";
 
 type Step = "choose" | "code" | "linked";
 

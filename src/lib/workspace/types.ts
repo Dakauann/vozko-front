@@ -64,6 +64,7 @@ export type ResourceAction =
     | "list_members"
     | "block"
     | "call"
+    | "delegate"
     | "transfer";
 
 export interface Workspace {

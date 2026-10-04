@@ -5,6 +5,9 @@ import type {
 } from '@/lib/conversations/events';
 
 import { apiClient } from '@/lib/api/browser-client';
+import { delegationTargets, type DelegationTarget } from '@/lib/conversations/delegation';
+import { listAgentsAction } from '@/app/actions/agents';
+import { listWorkflowsAction } from '@/app/actions/workflows';
 
 
 export async function requestCallPermissionAction(
@@ -185,6 +188,29 @@ export async function setConversationAutomationAction(
         {
             method: 'PATCH',
             body: JSON.stringify({ automationEnabled }),
+        },
+    );
+
+    if (response.error) {
+        return { error: response.error.message, code: response.error.code ?? null, assignedUserId: null };
+    }
+    return { error: null, code: null, assignedUserId: response.data?.assigned_user_id ?? "" };
+}
+
+export async function listDelegationTargetsAction(search: string) {
+    const [agents, workflows] = await Promise.all([
+        listAgentsAction({ search, pageSize: 20 }),
+        listWorkflowsAction({ search, status: 'active', pageSize: 20 }),
+    ]);
+    return delegationTargets(agents.agents, workflows.workflows);
+}
+
+export async function delegateConversationAction(entryType: string, entryId: string, target: DelegationTarget) {
+    const response = await apiClient<{ assigned_user_id?: string }>(
+        `/conversations/${entryType}/${entryId}/delegation`,
+        {
+            method: 'PUT',
+            body: JSON.stringify({ kind: target.kind, id: target.id }),
         },
     );
 

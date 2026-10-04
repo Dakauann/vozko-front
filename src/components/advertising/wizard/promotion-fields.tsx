@@ -11,7 +11,7 @@ import { needsPixel } from "@/lib/advertising/wizard-routes";
 
 import { useAdsFormat } from "../use-ads-format";
 import { ExternalLink, Hint, ResourceState } from "./choice-row";
-import { LinkWhatsAppNumber } from "./link-whatsapp-number";
+import { LinkWhatsAppNumber } from "../link-whatsapp-number";
 import { FieldIssues } from "./field-issues";
 import { readyData, useAdsResource } from "./use-ads-resource";
 import { useWizardLabels } from "./use-wizard-labels";

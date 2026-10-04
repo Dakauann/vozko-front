@@ -2197,7 +2197,8 @@
       "adsReports": "Ads Reporting",
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
-      "createWebchat": "Create WebChat"
+      "createWebchat": "Create WebChat",
+      "adsWhatsApp": "Pages' WhatsApp"
     },
     "badges": {
       "new": "New",
@@ -7372,6 +7373,7 @@
       "call": "Request call",
       "list_members": "List online members",
       "view_others": "View others",
+      "delegate": "Delegate to AI",
       "block": "Block",
       "roulette": "Assignment roulette"
     },
@@ -7662,7 +7664,8 @@
       "markFinished": "Mark as finished",
       "automationOn": "AI is answering",
       "automationOff": "AI is paused",
-      "automationNothingToReturnTo": "This channel has no active agent or workflow. Automation stays paused and the conversation stays with you."
+      "automationNothingToReturnTo": "This channel has no active agent or workflow. Automation stays paused and the conversation stays with you.",
+      "automationUnusable": "That agent or workflow is not active in this workspace. Pick another one."
     },
     "filterFacebook": "Messenger",
     "filterWebchat": "WebChat"
@@ -19172,6 +19175,17 @@
       "pipelineLabel": "Funnel for this channel",
       "pipelineHint": "Conversations from this chat enter this funnel at its first stage.",
       "pipelineDefault": "Workspace default funnel"
+    }
+  },
+  "adsWhatsApp": {
+    "linked": "Linked number",
+    "metaOnly": "Linked on Meta to {number}, which is not connected to this workspace. Connect that number to Vozko to use it in ads.",
+    "cannotLink": "This Page has no linked number yet. Ask someone who can edit ads to link one.",
+    "noPages": "No Page was shared in this ads connection. Connect again and tick the Pages in Meta's window.",
+    "retry": "Try again",
+    "header": {
+      "title": "Pages' WhatsApp",
+      "description": "The WhatsApp number linked to each Page, used by ads that open a WhatsApp chat. Link it here, without leaving Vozko."
     }
   }
 }
