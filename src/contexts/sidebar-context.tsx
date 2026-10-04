@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { useViewportWidth } from "@/hooks/use-viewport-width";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -70,6 +71,15 @@ export function useSidebar() {
   return React.useContext(SidebarContext);
 }
 
+const SPINE_BREAKPOINT = 768;
+
+export function useSpineWidth(): number {
+  const { isCollapsed } = useSidebar();
+  const viewport = useViewportWidth();
+  if (viewport < SPINE_BREAKPOINT) return 0;
+  return isCollapsed ? SPINE_WIDTH_RAIL : SPINE_WIDTH_OPEN;
+}
+
 export function DashboardMainContent({
   children,
   className,
@@ -77,28 +87,14 @@ export function DashboardMainContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { isCollapsed } = useSidebar();
-  const [isMd, setIsMd] = React.useState(false);
-
-  React.useEffect(() => {
-    const mql = window.matchMedia("(min-width: 768px)");
-    setIsMd(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMd(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
+  const spine = useSpineWidth();
 
   return (
     <motion.main
-      animate={{
-        marginLeft: isMd
-          ? isCollapsed
-            ? SPINE_WIDTH_RAIL
-            : SPINE_WIDTH_OPEN
-          : 0,
-      }}
+      animate={{ marginLeft: spine }}
       transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
-      className={cn("min-h-screen", className)}
+      style={{ paddingRight: "var(--assistant-sheet-w, 0px)" }}
+      className={cn("min-h-screen transition-[padding] duration-200 ease-[cubic-bezier(0.2,0,0,1)]", className)}
     >
       {children}
     </motion.main>

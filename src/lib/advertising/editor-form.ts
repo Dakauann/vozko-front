@@ -110,13 +110,14 @@ export function draftPostRefs(draft: MetaAdDraft): DraftPostRef[] {
 }
 
 export function creativeSwapForm(detail: AdEditableObject, accountId: string, campaign: AdRow | null, adSet: AdRow | null): WizardForm | null {
-  const { row, creative, identity } = detail;
+  const { row, creative, identity, mediaUrls } = detail;
   if (!creative) return null;
   return withCreativeEdit(emptyWizardForm(accountId), campaign ? parentFromRow(campaign) : null, adSet ? parentFromRow(adSet) : null, {
     metaId: row.metaId,
     name: row.name,
     creative,
     previewUrl: row.creative?.imageUrl ?? row.creative?.thumbnailUrl,
+    mediaUrls,
     pageId: identity?.pageId,
     instagramUserId: identity?.instagramUserId,
   });

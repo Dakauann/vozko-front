@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   adFormFromCreative,
+  applyAdChange,
+  cardChange,
+  creativeSwapEdit,
   ageMinOptions,
   bidFromInput,
   bidStrategiesFor,
@@ -11,6 +14,7 @@ import {
   cleanPlacements,
   duplicateAd,
   emptyAdForm,
+  emptyCard,
   emptyWizardForm,
   parseRoas,
   scheduleAvailable,
@@ -22,6 +26,7 @@ import {
   withSpecialCategory,
   type WizardForm,
 } from "./draft";
+import type { AdForm } from "./draft";
 import type { AdObjectiveRoute } from "./draft-types";
 
 const context = { timezone: "America/Sao_Paulo", currency: "BRL" };
@@ -320,5 +325,37 @@ describe("creative edit", () => {
       greeting: "Ola",
       iceBreakers: ["Preço?"],
     });
+  });
+});
+
+describe("cardChange", () => {
+  it("keeps every card that finished uploading, even when two finish from the same snapshot", () => {
+    const start: AdForm = { ...emptyAdForm(), format: "CAROUSEL", cards: [emptyCard(), emptyCard()] };
+    const first = cardChange(0, { media: { kind: "image", mediaId: "m1", url: "https://cdn/1.png" } });
+    const second = cardChange(1, { media: { kind: "image", mediaId: "m2", url: "https://cdn/2.png" } });
+    const after = applyAdChange(applyAdChange(start, first), second);
+    expect(after.cards.map((card) => card.media?.mediaId)).toEqual(["m1", "m2"]);
+  });
+
+  it("still takes a plain partial change", () => {
+    expect(applyAdChange(emptyAdForm(), { headline: "Oi" }).headline).toBe("Oi");
+  });
+});
+
+describe("creativeSwapEdit", () => {
+  const live = withCreativeEdit(emptyWizardForm("acc"), null, null, {
+    metaId: "ad-9",
+    name: "Anúncio antigo",
+    creative: { format: "IMAGE", primaryText: "Oi", media: { kind: "image", mediaId: "m1" } },
+  });
+
+  it("renames the ad when the name changed in the swap", () => {
+    const renamed = { ...live, ads: [{ ...live.ads[0], name: "Anúncio novo" }] };
+    expect(creativeSwapEdit(renamed)).toMatchObject({ name: "Anúncio novo", creative: { format: "IMAGE" } });
+  });
+
+  it("leaves the name alone when it did not change or was cleared", () => {
+    expect(creativeSwapEdit(live).name).toBeUndefined();
+    expect(creativeSwapEdit({ ...live, ads: [{ ...live.ads[0], name: "  " }] }).name).toBeUndefined();
   });
 });

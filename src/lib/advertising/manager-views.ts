@@ -1,4 +1,4 @@
-import { deliveryKey, rowIssues } from "./delivery";
+import { deliveryKey, isLive, rowIssues } from "./delivery";
 import type { TableRow } from "./manager-drafts";
 import type { AdRow } from "./types";
 
@@ -16,7 +16,7 @@ export function matchesView(row: TableRow, view: QuickView): boolean {
   if (row.draft) return view === "issues" && row.draft.state === "failed";
   switch (view) {
     case "active":
-      return deliveryKey(row.delivery) === "active";
+      return isLive(row.delivery);
     case "issues":
       return needsAttention(row);
     case "delivered":

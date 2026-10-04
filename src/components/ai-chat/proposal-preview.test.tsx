@@ -56,9 +56,9 @@ describe("ProposalPreview", () => {
       feeCurrency: "USD",
       accountName: "Conta principal",
     });
-    expect(screen.getByText("Promoção de inverno")).toBeTruthy();
+    expect(screen.getAllByText("Promoção de inverno").length).toBeGreaterThan(0);
     expect(document.querySelector('video[src="https://cdn/inverno.mp4"]')).toBeTruthy();
-    expect(screen.getByText("Enviar mensagem no WhatsApp")).toBeTruthy();
+    expect(screen.getAllByText("Enviar mensagem no WhatsApp").length).toBeGreaterThan(0);
     expect(screen.getByText(/50,00/)).toBeTruthy();
     const destination = screen.getByRole("tab", { name: "Destino" });
     fireEvent.mouseDown(destination);
@@ -93,5 +93,24 @@ describe("ProposalPreview", () => {
     expect(hasProposalPreview({ kind: "message", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "deal", data: {} })).toBe(false);
     expect(hasProposalPreview(undefined)).toBe(false);
+  });
+
+  it("shows the WhatsApp opening screen and whether Meta may change the creative", () => {
+    renderPreview("ad_creative", {
+      pageName: "Loja da Ana",
+      format: "IMAGE",
+      mediaUrl: "https://cdn/a.png",
+      mediaKind: "image",
+      primaryText: "Todos os canais",
+      destination: "WHATSAPP",
+      greeting: "Quero ver funcionando",
+      iceBreakers: ["Quanto custa?"],
+      enhancements: false,
+    });
+    expect(screen.getByText(ptMessages.aiChatPage.previews.ad.enhancementsOff)).toBeTruthy();
+    fireEvent.mouseDown(screen.getByRole("tab", { name: ptMessages.adsEditor.preview.destination }));
+    fireEvent.click(screen.getByRole("tab", { name: ptMessages.adsEditor.preview.destination }));
+    expect(screen.getByText("Quero ver funcionando")).toBeTruthy();
+    expect(screen.getByText("Quanto custa?")).toBeTruthy();
   });
 });

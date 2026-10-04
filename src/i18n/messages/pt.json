@@ -390,7 +390,10 @@
       "save_ad_conversion_settings": "Salvar envio de conversões",
       "set_ad_rule_status": "Ligar ou desligar regra",
       "set_ad_spend_cap": "Limite de gasto da conta",
-      "update_ad_draft": "Alterar rascunho de anúncio"
+      "update_ad_draft": "Alterar rascunho de anúncio",
+      "swap_ad_creative": "Trocar criativo do anúncio",
+      "compose_creative": "Montar criativo",
+      "list_creative_captures": "Ver telas para criativos"
     },
     "threadsLegend": "Conversas",
     "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
@@ -754,7 +757,8 @@
       "versions": "Versões",
       "view": "Visão",
       "when": "Quando",
-      "image_model": "Modelo de imagem"
+      "image_model": "Modelo de imagem",
+      "enhancements": "Melhorias Advantage+"
     },
     "attachments": {
       "legend": "Arquivos anexados",
@@ -847,7 +851,10 @@
         "account": "Conta de anúncios",
         "dailyBudget": "Orçamento diário",
         "fee": "Taxa por anúncio publicado",
-        "note": "Tudo é criado desligado e só é ligado no final. O anúncio passa pela análise da Meta antes de veicular."
+        "note": "Tudo é criado desligado e só é ligado no final. O anúncio passa pela análise da Meta antes de veicular.",
+        "enhancements": "Melhorias Advantage+",
+        "enhancementsOn": "Ligadas",
+        "enhancementsOff": "Desligadas"
       }
     },
     "navigation": {
@@ -17099,7 +17106,11 @@
       "share": "Compartilhar",
       "more": "mais",
       "reels": "Reels",
-      "follow": "Seguir"
+      "follow": "Seguir",
+      "zoom": "Ampliar {placement}",
+      "zoomHint": "Use as setas para ver os outros posicionamentos.",
+      "previousPlacement": "Anterior",
+      "nextPlacement": "Próximo"
     },
     "issues": {
       "generic": {
@@ -17410,7 +17421,7 @@
       },
       "deepCopyHint": "Sem essa opção, só o item escolhido é copiado.",
       "suffix": "Texto adicionado ao nome",
-      "defaultSuffix": " - Cópia",
+      "defaultSuffix": " (cópia)",
       "suffixPreview": "Nome da cópia: {name}",
       "parent": {
         "adset": "Campanha de destino",
@@ -17816,7 +17827,8 @@
       "pending_billing": "Pagamento pendente",
       "archived": "Arquivado",
       "deleted": "Excluído",
-      "unknown": "Desconhecido"
+      "unknown": "Desconhecido",
+      "preparing": "Preparando"
     },
     "kpi": {
       "spend": "Valor gasto",
@@ -18410,6 +18422,10 @@
         "meta": "Meta",
         "empty": "Nenhuma alteração neste período."
       }
+    },
+    "deliveryHint": {
+      "preparing": "Aprovado pela Meta. A Meta está encontrando o público e o lance certos antes das primeiras impressões; costuma levar 2 horas e pode chegar a 12.",
+      "in_review": "A Meta está analisando o anúncio. A Vozko confere a cada 2 minutos e atualiza assim que a análise terminar."
     }
   },
   "adsReadiness": {

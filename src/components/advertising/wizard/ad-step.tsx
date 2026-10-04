@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { Info } from "@/components/icons";
-import type { AdForm } from "@/lib/advertising/draft";
+import { applyAdChange, type AdChange } from "@/lib/advertising/draft";
 import { canAddAdTo } from "@/lib/advertising/editor-tree";
 import { dynamicCreative } from "@/lib/advertising/wizard-routes";
 
@@ -20,8 +20,8 @@ export function AdStep({ index }: { index: number }) {
   const editing = form.mode === "creative";
   const flexibleOnly = dynamicCreative(form.objective, form.ads.map((candidate) => candidate.format));
 
-  const setAd = (changes: Partial<AdForm>) =>
-    update((state) => ({ ...state, ads: state.ads.map((candidate, i) => (i === index ? { ...candidate, ...changes } : candidate)) }));
+  const setAd = (change: AdChange) =>
+    update((state) => ({ ...state, ads: state.ads.map((candidate, i) => (i === index ? applyAdChange(candidate, change) : candidate)) }));
 
   if (!ad) return null;
 

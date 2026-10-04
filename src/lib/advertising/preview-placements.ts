@@ -58,3 +58,9 @@ export function placementsFor(filter: PlacementFilter, format: string | undefine
 export function placementText(spec: PreviewPlacementSpec, text: string | undefined): ClippedText {
   return clipText(text, spec.limits.primaryText);
 }
+
+export function stepPlacement(list: PreviewPlacementSpec[], current: PreviewPlacementId, delta: number): PreviewPlacementId {
+  const index = list.findIndex((spec) => spec.id === current);
+  if (index < 0) return list[0].id;
+  return list[(index + delta + list.length) % list.length].id;
+}

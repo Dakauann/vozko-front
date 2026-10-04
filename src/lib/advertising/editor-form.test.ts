@@ -225,6 +225,23 @@ describe("creativeSwapForm", () => {
     expect(form?.ads[0]).toMatchObject({ name: "Anúncio", primaryText: "Oi", media: { kind: "image", mediaId: "m9", url: "https://cdn/a.jpg" } });
   });
 
+  it("shows every card of a published carousel with the address Meta gave for it", () => {
+    const carousel: AdEditableObject = {
+      ...detail,
+      creative: {
+        format: "CAROUSEL",
+        primaryText: "Oi",
+        cards: [
+          { media: { kind: "image", mediaId: "meta:h1" }, headline: "Um" },
+          { media: { kind: "image", mediaId: "meta:h2" }, headline: "Dois" },
+        ],
+      },
+      mediaUrls: { "meta:h1": "https://cdn.meta/h1.png", "meta:h2": "https://cdn.meta/h2.png" },
+    };
+    const cards = creativeSwapForm(carousel, "acc-1", campaignRow, adSetRow)?.ads[0].cards ?? [];
+    expect(cards.map((card) => card.media?.url)).toEqual(["https://cdn.meta/h1.png", "https://cdn.meta/h2.png"]);
+  });
+
   it("refuses an ad whose creative Meta did not return", () => {
     expect(creativeSwapForm({ ...detail, creative: null }, "acc-1", campaignRow, adSetRow)).toBeNull();
   });

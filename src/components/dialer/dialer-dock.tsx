@@ -231,7 +231,7 @@ function Dialer() {
             {...dragProps}
             dragConstraints={boundsRef}
             style={{ x: x, y: y }}
-            className="fixed inset-x-2 bottom-20 z-[60] sm:inset-x-auto sm:bottom-24 sm:right-12 sm:w-[300px]"
+            className="fixed inset-x-2 bottom-20 z-[60] sm:inset-x-auto sm:bottom-24 sm:right-[calc(3rem+var(--assistant-sheet-w,0px))] sm:w-[300px]"
           >
             <motion.section
               role="dialog"

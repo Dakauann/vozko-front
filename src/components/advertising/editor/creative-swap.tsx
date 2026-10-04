@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { isAdsError, updateAdObjectAction } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import { Warning } from "@/components/icons";
-import { buildCreative, type WizardForm } from "@/lib/advertising/draft";
+import { creativeSwapEdit, type WizardForm } from "@/lib/advertising/draft";
 import type { AdsOptions } from "@/lib/advertising/draft-types";
 import type { AdAccount, AdRow } from "@/lib/advertising/types";
 import { issuesFromCreativeEdit, type DraftIssue } from "@/lib/advertising/wizard-issues";
@@ -48,7 +48,7 @@ export function CreativeSwap({
     if (!ad || saving) return;
     setSaving(true);
     setError(null);
-    void updateAdObjectAction(form.editAdId, { creative: buildCreative(ad, form.destination) }).then((result) => {
+    void updateAdObjectAction(form.editAdId, creativeSwapEdit(form)).then((result) => {
       setSaving(false);
       if (isAdsError(result)) {
         if (result.expected) {

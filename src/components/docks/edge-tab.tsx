@@ -42,7 +42,7 @@ export const EdgeTab = forwardRef<HTMLButtonElement, EdgeTabProps>(function Edge
       data-busy={dataBusy}
       data-status={status}
       className={cn(
-        "group fixed right-0 z-[60] flex h-28 w-9 flex-col items-center justify-center gap-2 rounded-l-xl bg-card text-foreground shadow-lg transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:-translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group fixed right-[var(--assistant-sheet-w,0px)] z-[60] flex h-28 w-9 flex-col items-center justify-center gap-2 rounded-l-xl bg-card text-foreground shadow-lg transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:-translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         SLOT[slot],
         className,
       )}

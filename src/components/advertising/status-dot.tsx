@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { deliveryKey, deliveryTone, jobStatusKey, jobTone, type DeliveryTone } from "@/lib/advertising/delivery";
+import { deliveryHintKey, deliveryKey, deliveryTone, jobStatusKey, jobTone, type DeliveryTone } from "@/lib/advertising/delivery";
 import { cn } from "@/lib/utils";
 
 const DOT: Record<DeliveryTone, string> = {
@@ -22,9 +22,9 @@ const INK: Record<DeliveryTone, string> = {
   neutral: "text-muted-foreground",
 };
 
-export function StatusDot({ tone, children, className }: { tone: DeliveryTone; children: ReactNode; className?: string }) {
+export function StatusDot({ tone, children, className, hint }: { tone: DeliveryTone; children: ReactNode; className?: string; hint?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-sm", INK[tone], className)}>
+    <span title={hint} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-sm", INK[tone], hint && "cursor-help", className)}>
       <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT[tone])} aria-hidden />
       {children}
     </span>
@@ -32,8 +32,13 @@ export function StatusDot({ tone, children, className }: { tone: DeliveryTone; c
 }
 
 export function DeliveryStatus({ delivery }: { delivery: string }) {
-  const t = useTranslations("adsManager.delivery");
-  return <StatusDot tone={deliveryTone(delivery)}>{t(deliveryKey(delivery))}</StatusDot>;
+  const t = useTranslations("adsManager");
+  const hint = deliveryHintKey(delivery);
+  return (
+    <StatusDot tone={deliveryTone(delivery)} hint={hint ? t(`deliveryHint.${hint}`) : undefined}>
+      {t(`delivery.${deliveryKey(delivery)}`)}
+    </StatusDot>
+  );
 }
 
 export function JobStatus({ status }: { status: string }) {

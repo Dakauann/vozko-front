@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isLive,
+  deliveryHintKey,
   accountNotices,
   accountWritePermissions,
   deliveryKey,
@@ -175,5 +177,24 @@ describe("isRemoved and isArchived", () => {
 
   it("leaves a live object alone", () => {
     expect(isArchived({ status: "PAUSED", effectiveStatus: "CAMPAIGN_PAUSED" })).toBe(false);
+  });
+});
+
+describe("preparing delivery", () => {
+  it("reads an approved ad that has not delivered yet like Meta does", () => {
+    expect(deliveryKey("preparing")).toBe("preparing");
+    expect(deliveryTone("preparing")).toBe("info");
+    expect(deliveryHintKey("preparing")).toBe("preparing");
+    expect(deliveryHintKey("in_review")).toBe("in_review");
+    expect(deliveryHintKey("active")).toBeNull();
+  });
+});
+
+describe("isLive", () => {
+  it("counts approved ads that are on, delivering or still preparing", () => {
+    expect(isLive("active")).toBe(true);
+    expect(isLive("preparing")).toBe(true);
+    expect(isLive("in_review")).toBe(false);
+    expect(isLive("off")).toBe(false);
   });
 });

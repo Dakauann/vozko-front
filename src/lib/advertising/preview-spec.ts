@@ -17,6 +17,7 @@ export const TEXT_LIMITS = {
 
 export const PREVIEW_TILE_WIDTH = 280;
 export const PREVIEW_TILE_ZOOM = 0.55;
+export const PREVIEW_ENLARGED_ZOOM = 1.2;
 
 export interface ClippedText {
   text: string;

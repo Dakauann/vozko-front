@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PREVIEW_PLACEMENTS, placementText, placementsFor } from "./preview-placements";
+import { PREVIEW_PLACEMENTS, placementText, placementsFor, stepPlacement } from "./preview-placements";
 
 const ids = (specs: { id: string }[]) => specs.map((spec) => spec.id);
 
@@ -35,5 +35,23 @@ describe("placementText", () => {
   it("keeps Reels to a single short line", () => {
     const reels = PREVIEW_PLACEMENTS.find((spec) => spec.id === "instagram_reels")!;
     expect(placementText(reels, text).text.length).toBeLessThanOrEqual(40);
+  });
+});
+
+describe("stepPlacement", () => {
+  const list = placementsFor("all", "IMAGE");
+
+  it("moves to the next and previous placement", () => {
+    expect(stepPlacement(list, list[0].id, 1)).toBe(list[1].id);
+    expect(stepPlacement(list, list[1].id, -1)).toBe(list[0].id);
+  });
+
+  it("wraps around both ends", () => {
+    expect(stepPlacement(list, list[list.length - 1].id, 1)).toBe(list[0].id);
+    expect(stepPlacement(list, list[0].id, -1)).toBe(list[list.length - 1].id);
+  });
+
+  it("starts from the first placement when the current one is not in the list", () => {
+    expect(stepPlacement(list.slice(1), list[0].id, 1)).toBe(list[1].id);
   });
 });

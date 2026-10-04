@@ -390,7 +390,10 @@
       "save_ad_conversion_settings": "Save conversion sending",
       "set_ad_rule_status": "Turn rule on or off",
       "set_ad_spend_cap": "Account spending limit",
-      "update_ad_draft": "Change ad draft"
+      "update_ad_draft": "Change ad draft",
+      "swap_ad_creative": "Swap ad creative",
+      "compose_creative": "Compose creative",
+      "list_creative_captures": "List creative screens"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -754,7 +757,8 @@
       "versions": "Versions",
       "view": "View",
       "when": "When",
-      "image_model": "Image model"
+      "image_model": "Image model",
+      "enhancements": "Advantage+ enhancements"
     },
     "attachments": {
       "legend": "Attached files",
@@ -847,7 +851,10 @@
         "account": "Ad account",
         "dailyBudget": "Daily budget",
         "fee": "Fee per published ad",
-        "note": "Everything is created off and only turned on at the end. The ad goes through Meta's review before delivering."
+        "note": "Everything is created off and only turned on at the end. The ad goes through Meta's review before delivering.",
+        "enhancements": "Advantage+ enhancements",
+        "enhancementsOn": "On",
+        "enhancementsOff": "Off"
       }
     },
     "navigation": {
@@ -17048,7 +17055,11 @@
       "share": "Share",
       "more": "more",
       "reels": "Reels",
-      "follow": "Follow"
+      "follow": "Follow",
+      "zoom": "Enlarge {placement}",
+      "zoomHint": "Use the arrow keys to see the other placements.",
+      "previousPlacement": "Previous",
+      "nextPlacement": "Next"
     },
     "issues": {
       "generic": {
@@ -17359,7 +17370,7 @@
       },
       "deepCopyHint": "Without this, only the chosen item is copied.",
       "suffix": "Text added to the name",
-      "defaultSuffix": " - Copy",
+      "defaultSuffix": " (copy)",
       "suffixPreview": "Copy name: {name}",
       "parent": {
         "adset": "Target campaign",
@@ -17765,7 +17776,8 @@
       "pending_billing": "Payment pending",
       "archived": "Archived",
       "deleted": "Deleted",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "preparing": "Preparing"
     },
     "kpi": {
       "spend": "Amount spent",
@@ -18359,6 +18371,10 @@
         "meta": "Meta",
         "empty": "No changes in this period."
       }
+    },
+    "deliveryHint": {
+      "preparing": "Approved by Meta. Meta is matching it with the right audience and bid before the first impressions; this usually takes 2 hours and can take up to 12.",
+      "in_review": "Meta is reviewing the ad. Vozko checks every 2 minutes and updates as soon as the review ends."
     }
   },
   "adsReadiness": {

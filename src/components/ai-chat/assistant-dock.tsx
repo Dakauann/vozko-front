@@ -23,13 +23,13 @@ import { MessageBubble, useBubbleLabels } from "./message-list";
 import { useChatAttachments } from "./use-chat-attachments";
 import { useChatConversation } from "./use-chat-conversation";
 import { useChatModel } from "./use-chat-model";
-import { useResizableCard } from "./use-resizable-card";
+import { useResizableSheet } from "./use-resizable-sheet";
 import { useStickToBottom } from "./use-stick-to-bottom";
 import { starterGroupsFor } from "./starter-groups";
 import { StarterList } from "./starter-list";
 import { useVoiceMode } from "./voice/use-voice-mode";
 
-const CARD_SIZE_KEY = "assistant-dock:size";
+const SHEET_WIDTH_KEY = "assistant-dock:sheet-width";
 const FULL_CHAT_PATH = "/dashboard/ai-chat";
 
 export function AssistantDock() {
@@ -73,7 +73,7 @@ function Dock() {
   const reduceMotion = useReducedMotion();
   const cardRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
-  const card = useResizableCard(CARD_SIZE_KEY);
+  const card = useResizableSheet(SHEET_WIDTH_KEY, open);
   const { expanded, setExpanded } = card;
 
   const submit = useCallback(
@@ -123,7 +123,7 @@ function Dock() {
   }, [open, minimize, expanded, setExpanded]);
 
   const isEmpty = chat.messages.length === 0;
-  const sizeStyle = { "--card-w": `${card.size.width}px`, "--card-h": `${card.size.height}px` } as CSSProperties;
+  const sizeStyle: CSSProperties = card.pushing ? { width: card.width } : { left: 0 };
   const scope = context?.scope;
   const chips = scope
     ? [scope.period, scope.department, scope.member, scope.channel, scope.campaign].filter((v): v is string => Boolean(v))
@@ -149,30 +149,26 @@ function Dock() {
             role="dialog"
             aria-modal="false"
             aria-labelledby="assistant-dock-title"
-            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, x: 16 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, x: 12 }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 32 }}
             transition={{ duration: reduceMotion ? 0.12 : 0.22, ease: PANEL_EASE }}
             style={{ transformOrigin: "right center", ...sizeStyle }}
             className={cn(
-              "fixed z-[60] flex flex-col overflow-hidden rounded-2xl border border-border-strong bg-card shadow-lg",
-              expanded
-                ? "inset-2 sm:inset-4"
-                : "inset-x-2 bottom-20 top-14 sm:inset-x-auto sm:bottom-24 sm:right-6 sm:top-auto sm:h-[min(var(--card-h),calc(100dvh-10.5rem))] sm:w-[min(var(--card-w),calc(100vw-3rem))]",
+              "fixed bottom-0 right-0 top-12 z-[61] flex flex-col overflow-hidden border-t border-border-strong bg-card shadow-lg",
+              card.pushing && "border-l",
               card.resizing && "select-none",
             )}
           >
-            {!expanded ? (
+            {card.pushing ? (
               <button
                 type="button"
                 aria-label={td("resize")}
                 title={td("resize")}
                 {...card.handleProps}
-                className="group absolute left-0 top-0 z-10 hidden h-6 w-6 cursor-nwse-resize touch-none items-start justify-start p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:flex"
+                className="group absolute inset-y-0 left-0 z-10 w-2 cursor-ew-resize touch-none items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring flex"
               >
-                <svg aria-hidden viewBox="0 0 10 10" className="h-2.5 w-2.5 text-muted-foreground/60 transition-colors duration-DEFAULT group-hover:text-foreground">
-                  <path d="M1 9V1h8M1 5.5V5.5M5.5 1H5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                </svg>
+                <span aria-hidden className="h-10 w-1 rounded-full bg-border-strong transition-colors duration-DEFAULT group-hover:bg-primary" />
               </button>
             ) : null}
             <header

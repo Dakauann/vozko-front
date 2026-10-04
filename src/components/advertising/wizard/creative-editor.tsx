@@ -21,7 +21,9 @@ import {
   MAX_NAME,
   MAX_PRIMARY_TEXT,
   MIN_CAROUSEL_CARDS,
+  cardChange,
   emptyCard,
+  type AdChange,
   type AdForm,
   type CardForm,
 } from "@/lib/advertising/draft";
@@ -49,7 +51,7 @@ import { useWizard } from "./wizard-context";
 
 const TEXT_FORMATS: AdCreativeFormat[] = ["IMAGE", "VIDEO", "CAROUSEL", "CATALOG", "COLLECTION"];
 
-function TextFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function TextFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const { issues } = useWizard();
   return (
@@ -93,11 +95,10 @@ function TextFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange
   );
 }
 
-function CarouselCards({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function CarouselCards({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const { form, issues, canGenerate } = useWizard();
-  const setCard = (index: number, changes: Partial<CardForm>) =>
-    onChange({ cards: ad.cards.map((card, i) => (i === index ? { ...card, ...changes } : card)) });
+  const setCard = (index: number, changes: Partial<CardForm>) => onChange(cardChange(index, changes));
 
   return (
     <Section title={t("cardsTitle")} description={t("cardsDescription")}>
@@ -109,7 +110,7 @@ function CarouselCards({ ad, path, onChange }: { ad: AdForm; path: string; onCha
               {ad.cards.length > MIN_CAROUSEL_CARDS ? (
                 <button
                   type="button"
-                  onClick={() => onChange({ cards: ad.cards.filter((_, i) => i !== index) })}
+                  onClick={() => onChange((current) => ({ cards: current.cards.filter((_, i) => i !== index) }))}
                   aria-label={t("removeCard", { index: index + 1 })}
                   className="inline-flex h-7 w-7 items-center justify-center rounded-[--radius] text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
@@ -150,7 +151,7 @@ function CarouselCards({ ad, path, onChange }: { ad: AdForm; path: string; onCha
       {ad.cards.length < MAX_CAROUSEL_CARDS ? (
         <button
           type="button"
-          onClick={() => onChange({ cards: [...ad.cards, emptyCard()] })}
+          onClick={() => onChange((current) => ({ cards: [...current.cards, emptyCard()] }))}
           className="text-sm font-medium text-primary-ink hover:underline"
         >
           {t("addCard")}
@@ -161,7 +162,7 @@ function CarouselCards({ ad, path, onChange }: { ad: AdForm; path: string; onCha
   );
 }
 
-function FlexibleFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function FlexibleFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const { issues, canGenerate } = useWizard();
   return (
@@ -230,7 +231,7 @@ function FlexibleFields({ ad, path, onChange }: { ad: AdForm; path: string; onCh
   );
 }
 
-function CollectionFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function CollectionFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const { form, issues, canGenerate } = useWizard();
   const key = form.accountId && form.pageId ? `experiences:${form.accountId}:${form.pageId}` : null;
@@ -260,7 +261,7 @@ function CollectionFields({ ad, path, onChange }: { ad: AdForm; path: string; on
   );
 }
 
-function LeadFormField({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function LeadFormField({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const { form, issues } = useWizard();
   const key = form.accountId && form.pageId ? `forms:${form.accountId}:${form.pageId}` : null;
@@ -292,7 +293,7 @@ function LeadFormField({ ad, path, onChange }: { ad: AdForm; path: string; onCha
   );
 }
 
-function DestinationFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (changes: Partial<AdForm>) => void }) {
+function DestinationFields({ ad, path, onChange }: { ad: AdForm; path: string; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const labels = useWizardLabels();
   const { form, options, issues } = useWizard();
@@ -369,7 +370,7 @@ function DestinationFields({ ad, path, onChange }: { ad: AdForm; path: string; o
   );
 }
 
-export function CreativeEditor({ ad, index, onChange }: { ad: AdForm; index: number; onChange: (changes: Partial<AdForm>) => void }) {
+export function CreativeEditor({ ad, index, onChange }: { ad: AdForm; index: number; onChange: (change: AdChange) => void }) {
   const t = useTranslations("adsWizard.ads");
   const labels = useWizardLabels();
   const { form, page, issues, canGenerate } = useWizard();

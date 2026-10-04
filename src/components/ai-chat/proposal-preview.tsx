@@ -86,6 +86,7 @@ interface AdCreativePreviewData {
   currency?: string;
   fee?: number;
   accountName?: string;
+  enhancements?: boolean;
 }
 
 function text(value: unknown): string | undefined {
@@ -139,6 +140,7 @@ function AdCreativeProposalPreview({ data }: { data: AdCreativePreviewData }) {
       ? { label: t("dailyBudget"), value: fmt.minor(data.dailyBudget, data.currency) }
       : null,
     hasFee ? { label: t("fee"), value: formatMicrosAsBrl(data.fee, exchangeRate) ?? "…" } : null,
+    typeof data.enhancements === "boolean" ? { label: t("enhancements"), value: t(data.enhancements ? "enhancementsOn" : "enhancementsOff") } : null,
   ].filter((fact): fact is { label: string; value: string } => fact !== null);
   return (
     <div className="space-y-2">

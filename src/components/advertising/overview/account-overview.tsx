@@ -10,7 +10,7 @@ import { SquaresFour } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { civilToday, rangeForPreset } from "@/lib/advertising/date-range";
-import { deliveryKey } from "@/lib/advertising/delivery";
+import { isLive } from "@/lib/advertising/delivery";
 import { metaPortalUrl } from "@/lib/advertising/readiness";
 import { rowsFromTrend } from "@/lib/advertising/trend-series";
 import type { AdAccount, AdReport, AdTrend } from "@/lib/advertising/types";
@@ -58,7 +58,7 @@ function AccountSummary({ account }: { account: AdAccount }) {
     getAdsReportAction(account.id, { level: "campaign", range: rangeForPreset("last7", today ?? "") }),
   );
   const data = report.status === "ready" ? report.data : null;
-  const active = data ? (data.rows ?? []).filter((row) => deliveryKey(row.delivery) === "active").length : null;
+  const active = data ? (data.rows ?? []).filter((row) => isLive(row.delivery)).length : null;
   const pending = report.status === "error" ? t("summary.unavailable") : t("summary.loading");
   const status = t.has(`status.${account.metaStatus}`) ? t(`status.${account.metaStatus}`) : t("status.unknown");
   const role = t.has(`roles.${account.role}`) ? t(`roles.${account.role}`) : t("roles.read_only");

@@ -25,6 +25,7 @@ import type {
   MetaAdDraft,
 } from "@/lib/advertising/draft-types";
 import { inputToMinor } from "@/lib/advertising/money";
+import type { AdObjectEdit } from "@/lib/advertising/types";
 import { formatsFor, goalsFor, isMessaging, linkRequired, needsPixel, showsCallToAction, showsLink } from "@/lib/advertising/wizard-routes";
 
 export const MIN_AGE = 13;
@@ -130,6 +131,7 @@ export interface WizardForm {
   campaignParent: ParentSummary | null;
   adSetParent: ParentSummary | null;
   editAdId: string;
+  editAdName: string;
   objective: AdObjective | "";
   campaignName: string;
   specialCategory: AdDraftSpecialCategory;
@@ -168,6 +170,16 @@ export interface DraftContext {
 
 export function newAdId(): string {
   return `ad-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export type AdChange = Partial<AdForm> | ((ad: AdForm) => Partial<AdForm>);
+
+export function applyAdChange(ad: AdForm, change: AdChange): AdForm {
+  return { ...ad, ...(typeof change === "function" ? change(ad) : change) };
+}
+
+export function cardChange(index: number, changes: Partial<CardForm>): AdChange {
+  return (ad) => ({ cards: ad.cards.map((card, i) => (i === index ? { ...card, ...changes } : card)) });
 }
 
 export function emptyCard(): CardForm {
@@ -213,6 +225,7 @@ export function emptyWizardForm(accountId = ""): WizardForm {
     campaignParent: null,
     adSetParent: null,
     editAdId: "",
+    editAdName: "",
     objective: "",
     campaignName: "",
     specialCategory: "NONE",
@@ -646,8 +659,16 @@ export function withCreativeEdit(
     ...withParents(form, campaign, adSet),
     mode: "creative",
     editAdId: source.metaId,
+    editAdName: source.name,
     pageId: source.pageId ?? form.pageId,
     instagramUserId: source.instagramUserId ?? form.instagramUserId,
     ads: [adFormFromCreative(source)],
   };
+}
+
+export function creativeSwapEdit(form: WizardForm): AdObjectEdit {
+  const ad = form.ads[0];
+  const name = trimmed(ad.name);
+  const edit: AdObjectEdit = { creative: buildCreative(ad, form.destination) };
+  return name && name !== form.editAdName ? { ...edit, name } : edit;
 }

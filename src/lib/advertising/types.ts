@@ -29,6 +29,7 @@ export type AdMetaStatus =
 
 export type AdDelivery =
   | "active"
+  | "preparing"
   | "scheduled"
   | "completed"
   | "off"
@@ -332,6 +333,7 @@ export type AdEditableObject = {
   schedule: AdDayPart[] | null;
   creative: AdCreativeDraftV2 | null;
   identity: AdIdentity | null;
+  mediaUrls?: Record<string, string>;
 };
 
 export interface AdObjectEdit {

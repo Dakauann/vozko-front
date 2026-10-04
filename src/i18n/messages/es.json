@@ -390,7 +390,10 @@
       "save_ad_conversion_settings": "Guardar envío de conversiones",
       "set_ad_rule_status": "Activar o desactivar regla",
       "set_ad_spend_cap": "Límite de gasto de la cuenta",
-      "update_ad_draft": "Cambiar borrador de anuncio"
+      "update_ad_draft": "Cambiar borrador de anuncio",
+      "swap_ad_creative": "Cambiar creativo del anuncio",
+      "compose_creative": "Montar creativo",
+      "list_creative_captures": "Ver pantallas para creativos"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -754,7 +757,8 @@
       "versions": "Versiones",
       "view": "Vista",
       "when": "Cuándo",
-      "image_model": "Modelo de imagen"
+      "image_model": "Modelo de imagen",
+      "enhancements": "Mejoras Advantage+"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -847,7 +851,10 @@
         "account": "Cuenta publicitaria",
         "dailyBudget": "Presupuesto diario",
         "fee": "Tarifa por anuncio publicado",
-        "note": "Todo se crea apagado y solo se enciende al final. El anuncio pasa por la revisión de Meta antes de entregarse."
+        "note": "Todo se crea apagado y solo se enciende al final. El anuncio pasa por la revisión de Meta antes de entregarse.",
+        "enhancements": "Mejoras Advantage+",
+        "enhancementsOn": "Activadas",
+        "enhancementsOff": "Desactivadas"
       }
     },
     "navigation": {
@@ -15553,7 +15560,11 @@
       "share": "Compartir",
       "more": "más",
       "reels": "Reels",
-      "follow": "Seguir"
+      "follow": "Seguir",
+      "zoom": "Ampliar {placement}",
+      "zoomHint": "Usa las flechas para ver las otras ubicaciones.",
+      "previousPlacement": "Anterior",
+      "nextPlacement": "Siguiente"
     },
     "issues": {
       "generic": {
@@ -15864,7 +15875,7 @@
       },
       "deepCopyHint": "Sin esta opción, solo se copia el elemento elegido.",
       "suffix": "Texto añadido al nombre",
-      "defaultSuffix": " - Copia",
+      "defaultSuffix": " (copia)",
       "suffixPreview": "Nombre de la copia: {name}",
       "parent": {
         "adset": "Campaña de destino",
@@ -16270,7 +16281,8 @@
       "pending_billing": "Pago pendiente",
       "archived": "Archivado",
       "deleted": "Eliminado",
-      "unknown": "Desconocido"
+      "unknown": "Desconocido",
+      "preparing": "Preparando"
     },
     "kpi": {
       "spend": "Importe gastado",
@@ -16864,6 +16876,10 @@
         "meta": "Meta",
         "empty": "No hubo cambios en este período."
       }
+    },
+    "deliveryHint": {
+      "preparing": "Aprobado por Meta. Meta está buscando el público y la puja adecuados antes de las primeras impresiones; suele tardar 2 horas y puede llegar a 12.",
+      "in_review": "Meta está revisando el anuncio. Vozko lo consulta cada 2 minutos y lo actualiza en cuanto termina la revisión."
     }
   },
   "adsReadiness": {
