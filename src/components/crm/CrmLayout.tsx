@@ -114,6 +114,7 @@ import {
 } from "@/app/actions/conversations";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
+import { WebchatBlockButton } from "@/components/webchat/webchat-block-button";
 import { setConversationAutomationAction } from "@/app/actions/conversations";
 import { toast } from "sonner";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
@@ -239,6 +240,7 @@ const CHANNEL_BADGES: Record<
   },
   facebook: { className: "bg-[#0099FF]", Icon: MessengerLogo },
   telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
+  webchat: { className: "bg-[#0D9488]", Icon: ChatCircleDots },
   unofficial_whatsapp: { className: "bg-muted-foreground", Icon: WhatsappLogo },
 };
 
@@ -1838,6 +1840,14 @@ export default function CrmLayout({
             }
           />
         )}
+
+        {activeConversation.entry_type === "webchat" &&
+          can("conversations", "update") && (
+            <WebchatBlockButton
+              entryId={activeConversation.entry_id}
+              blocked={activeConversation.window_closed_reason === "contact_blocked"}
+            />
+          )}
 
         <div className="relative" ref={callDropdownRef}>
           {can("call_session", "use") &&

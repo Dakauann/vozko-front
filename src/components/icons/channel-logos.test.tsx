@@ -5,7 +5,7 @@ import { FILTERABLE_MESSAGE_CHANNELS } from "@/lib/conversations/types";
 
 describe("channel marks", () => {
   it("renders a mark for exactly the channels it claims to", () => {
-    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram"]) {
+    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat"]) {
       expect(hasChannelMark(channel), `${channel} should claim a mark`).toBe(true);
       expect(ChannelLogo({ channel }), `${channel} should render one`).not.toBeNull();
     }

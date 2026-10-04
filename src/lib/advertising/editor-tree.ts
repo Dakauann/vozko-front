@@ -71,9 +71,9 @@ export function canAddAdTo(form: WizardForm): boolean {
   return form.mode !== "creative" && canAddAd(form.objective, form.ads.map((ad) => ad.format));
 }
 
-export function withAdAdded(form: WizardForm, name: string): WizardForm {
+export function withAdAdded(form: WizardForm): WizardForm {
   if (!canAddAdTo(form)) return form;
-  const ad = { ...emptyAdForm(), name, format: formatsFor(form.destination)[0] };
+  const ad = { ...emptyAdForm(), format: formatsFor(form.destination)[0] };
   return { ...form, ads: [...form.ads, ad] };
 }
 

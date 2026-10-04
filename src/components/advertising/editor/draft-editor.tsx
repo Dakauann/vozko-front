@@ -62,7 +62,6 @@ import { previewContent } from "../wizard/preview-content";
 import { IssueLinks, useNodeLabel } from "../wizard/publish-check";
 import { useAdsResource } from "../wizard/use-ads-resource";
 import { usePublishJob } from "../wizard/use-publish-job";
-import { useWizardLabels } from "../wizard/use-wizard-labels";
 import { WizardProvider, useWizard, useWizardValue } from "../wizard/wizard-context";
 import { DraftAnalysisView } from "./analysis-view";
 import { AdDestinationPreview } from "./destination-preview";
@@ -182,10 +181,8 @@ function DraftEditorBody({
   const t = useTranslations("adsEditor");
   const tAds = useTranslations("adsWizard.ads");
   const tWizard = useTranslations("adsWizard");
-  const tCreate = useTranslations("adsCreate");
   const router = useRouter();
   const errorText = useAdsErrorText();
-  const labels = useWizardLabels();
   const nodeLabel = useNodeLabel();
   const context = { timezone: account.timezone, currency: account.currency };
   const [start] = useState(() => formFromDraft(saved.draft, { ...context, ...extras }));
@@ -239,7 +236,6 @@ function DraftEditorBody({
     canGenerate: editable,
   });
   const node = fitNode(selected, form);
-  const objective = labels.objective(form.objective || form.campaignParent?.objective);
   const managerLink = managerHref({ accountId: account.id });
 
   const goTo = (target: EditorNode) => {
@@ -348,7 +344,7 @@ function DraftEditorBody({
 
   const addAd = () => {
     const index = form.ads.length;
-    setForm((current) => withAdAdded(current, tCreate("names.ad", { objective })));
+    setForm((current) => withAdAdded(current));
     goTo(adNode(index));
   };
 

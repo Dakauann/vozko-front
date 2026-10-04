@@ -65,6 +65,7 @@ import {
   TelegramLogoColor,
   VoiceLogoColor,
   WhatsAppLogoColor,
+  WebchatLogoColor,
 } from "@/components/icons/channel-logos";
 
 import { EloMark } from "@/components/ai-chat/elo-mark";
@@ -413,6 +414,24 @@ export const campanhasNavItems: NavItem[] = [
         icon: LinkSimple,
         labelKey: "nav.connectTelegram",
         href: "/dashboard/telegram-accounts/connect",
+      },
+    ],
+  },
+  {
+    icon: ChatCircle,
+    labelKey: "nav.webchat",
+    href: "/dashboard/webchat",
+    family: "webchat",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.webchatWidgets",
+        href: "/dashboard/webchat",
+      },
+      {
+        icon: PlusCircle,
+        labelKey: "nav.createWebchat",
+        href: "/dashboard/webchat/new",
       },
     ],
   },
@@ -1231,6 +1250,7 @@ const familyBrandIcon: Record<string, NavIcon> = {
   instagram: InstagramLogoColor,
   facebook: FacebookLogoColor,
   telegram: TelegramLogoColor,
+  webchat: WebchatLogoColor,
   telephony: VoiceLogoColor,
   meta: MetaLogoColor,
 };

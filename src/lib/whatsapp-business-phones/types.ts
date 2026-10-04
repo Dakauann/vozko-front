@@ -100,6 +100,7 @@ export interface BusinessPhoneListParams {
     status?: BusinessPhoneStatus;
     qualityRating?: QualityRating;
     search?: string;
+    ownership?: "owned";
     page?: number;
     pageSize?: number;
 }

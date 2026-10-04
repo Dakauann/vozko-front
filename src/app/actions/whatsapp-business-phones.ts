@@ -64,6 +64,7 @@ export async function listBusinessPhonesAction(params?: BusinessPhoneListParams)
     if (params?.page) queryParams.set('page', String(params.page));
     if (params?.pageSize) queryParams.set('pageSize', String(params.pageSize));
     if (params?.search) queryParams.set('search', params.search);
+    if (params?.ownership) queryParams.set('ownership', params.ownership);
 
     const queryString = queryParams.toString();
     const endpoint = `/whatsapp/business-phones${queryString ? `?${queryString}` : ''}`;
@@ -366,6 +367,7 @@ export async function listBusinessPhonesAdminAction(params?: BusinessPhoneListPa
     if (params?.page) queryParams.set('page', String(params.page));
     if (params?.pageSize) queryParams.set('pageSize', String(params.pageSize));
     if (params?.search) queryParams.set('search', params.search);
+    if (params?.ownership) queryParams.set('ownership', params.ownership);
 
     const queryString = queryParams.toString();
     const endpoint = `/admin/whatsapp/business-phones${queryString ? `?${queryString}` : ''}`;

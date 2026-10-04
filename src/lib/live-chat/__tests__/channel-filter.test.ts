@@ -31,6 +31,16 @@ describe("channel filter table", () => {
         expect(entryTypeFor("facebook")).toBe("facebook");
     });
 
+    it("offers the website chat behind the webchat widgets read permission", () => {
+        expect(channelFilterSpec("webchat")).toEqual({
+            value: "webchat",
+            kind: "entry",
+            labelKey: "filterWebchat",
+            permission: { resource: "webchat_widgets", action: "read" },
+        });
+        expect(entryTypeFor("webchat")).toBe("webchat");
+    });
+
     it("keeps the two WhatsApp transports as distinct filters", () => {
         const values = CHANNEL_FILTERS.map((spec) => spec.value);
         expect(values).toContain("whatsapp");
@@ -89,6 +99,7 @@ describe("narrowing", () => {
             "facebook",
             "telegram",
             "unofficial_whatsapp",
+            "webchat",
         ];
         for (const filter of all) {
             const both =

@@ -93,6 +93,7 @@ export type OfferKind =
   | "connect_instagram"
   | "connect_facebook"
   | "connect_telegram"
+  | "create_webchat"
   | "top_up_balance"
   | "manage_subscription";
 
@@ -168,12 +169,25 @@ export interface SecretField {
   label: string;
 }
 
+export type ChoiceKind = "image_model";
+
+export interface ChoiceField {
+  key: string;
+  kind: ChoiceKind;
+}
+
+export interface Approval {
+  secrets?: Record<string, string>;
+  choices?: Record<string, string>;
+}
+
 export interface StoredProposal {
   id: string;
   toolName: string;
   fields: ProposalField[];
   preview?: ProposalPreview;
   secrets?: SecretField[];
+  choices?: ChoiceField[];
   status: ProposalStatus;
 }
 
@@ -185,6 +199,7 @@ export interface PendingAction {
   fields?: ProposalField[];
   preview?: ProposalPreview;
   secrets?: SecretField[];
+  choices?: ChoiceField[];
   status?: ProposalStatus;
 }
 
@@ -215,6 +230,7 @@ export interface ChatStreamEvent {
     fields?: ProposalField[];
     preview?: ProposalPreview;
     secrets?: SecretField[];
+    choices?: ChoiceField[];
     actionId?: string;
     tool?: string;
     content?: string;

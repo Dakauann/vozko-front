@@ -1,6 +1,6 @@
 import type { EntryType } from "./types";
 
-export const CONVERSATION_ENTRY_TYPES: readonly EntryType[] = ["whatsapp", "instagram", "facebook", "telegram", "unofficial_whatsapp"];
+export const CONVERSATION_ENTRY_TYPES: readonly EntryType[] = ["whatsapp", "instagram", "facebook", "telegram", "unofficial_whatsapp", "webchat"];
 
 const ENTRY_ID = /^[A-Za-z0-9_-]{1,64}$/;
 

@@ -1,4 +1,4 @@
-import type { PendingAction, ProposalField, SecretField, StoredProposal } from "./types";
+import type { Approval, PendingAction, ProposalField, StoredProposal } from "./types";
 
 export interface ProposalDictionary {
   label: (key: string) => string;
@@ -41,17 +41,33 @@ export function pendingFromStored(stored: StoredProposal | undefined): PendingAc
     fields: stored.fields,
     preview: stored.preview,
     secrets: stored.secrets,
+    choices: stored.choices,
     status: stored.status,
   };
 }
 
-export function secretsFilled(secrets: SecretField[] | undefined, values: Record<string, string>): boolean {
-  return (secrets ?? []).every((s) => (values[s.key] ?? "").trim() !== "");
+type CardInput = { key: string };
+
+function inputsFilled(inputs: CardInput[] | undefined, values: Record<string, string>): boolean {
+  return (inputs ?? []).every((input) => (values[input.key] ?? "").trim() !== "");
 }
 
-export function secretsPayload(secrets: SecretField[] | undefined, values: Record<string, string>): Record<string, string> | undefined {
-  if (!secrets || secrets.length === 0) return undefined;
-  return Object.fromEntries(secrets.map((s) => [s.key, values[s.key] ?? ""]));
+function inputsPayload(inputs: CardInput[] | undefined, values: Record<string, string>): Record<string, string> | undefined {
+  if (!inputs || inputs.length === 0) return undefined;
+  return Object.fromEntries(inputs.map((input) => [input.key, values[input.key] ?? ""]));
+}
+
+export function approvalReady(pending: PendingAction, secrets: Record<string, string>, choices: Record<string, string>): boolean {
+  return inputsFilled(pending.secrets, secrets) && inputsFilled(pending.choices, choices);
+}
+
+export function approvalPayload(pending: PendingAction, secrets: Record<string, string>, choices: Record<string, string>): Approval {
+  const approval: Approval = {};
+  const sentSecrets = inputsPayload(pending.secrets, secrets);
+  const sentChoices = inputsPayload(pending.choices, choices);
+  if (sentSecrets) approval.secrets = sentSecrets;
+  if (sentChoices) approval.choices = sentChoices;
+  return approval;
 }
 
 export function isOpenProposal(action: PendingAction | null | undefined): boolean {

@@ -4,7 +4,11 @@
     "failed": "Das Bild konnte nicht erstellt werden",
     "download": "Herunterladen",
     "downloading": "Wird heruntergeladen...",
-    "downloadFailed": "Das Bild konnte nicht heruntergeladen werden. Versuche es erneut."
+    "downloadFailed": "Das Bild konnte nicht heruntergeladen werden. Versuche es erneut.",
+    "model": "Bildmodell",
+    "modelHint": "Vom meistgenutzten zum am wenigsten genutzten.",
+    "modelsLoading": "Bildmodelle werden geladen...",
+    "modelsUnavailable": "Die Bildmodelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal."
   },
   "crmAnalysis": {
     "awaiting": "Wartet auf Analyse",
@@ -471,7 +475,8 @@
         "online": "Online",
         "offline": "Offline",
         "away": "Abwesend",
-        "facebook": "Messenger"
+        "facebook": "Messenger",
+        "webchat": "WebChat"
       }
     },
     "toolDenied": "keine Berechtigung",
@@ -747,7 +752,8 @@
       "test": "Test",
       "versions": "Versionen",
       "view": "Ansicht",
-      "when": "Wann"
+      "when": "Wann",
+      "image_model": "Bildmodell"
     },
     "attachments": {
       "legend": "Angehängte Dateien",
@@ -824,6 +830,11 @@
           "title": "Eine Facebook-Seite verbinden",
           "description": "Beantworten Sie Messenger und Kommentare der Seite hier.",
           "cta": "Seite verbinden"
+        },
+        "create_webchat": {
+          "title": "WebChat erstellen",
+          "description": "Bring einen Chat auf deine Website und betreue Besucher im selben Posteingang.",
+          "cta": "WebChat erstellen"
         }
       }
     },
@@ -1908,7 +1919,10 @@
       "adsForms": "Formulare und Leads",
       "adsRules": "Automatische Regeln",
       "adsConversions": "Events Manager",
-      "adsReports": "Werbeberichte"
+      "adsReports": "Werbeberichte",
+      "webchat": "WebChat",
+      "webchatWidgets": "WebChats",
+      "createWebchat": "WebChat erstellen"
     },
     "badges": {
       "new": "Neu",
@@ -1937,7 +1951,8 @@
       "unofficial-whatsapp": "WhatsApp",
       "facebook": "Facebook",
       "telephony": "Telefonie",
-      "meta": "Meta"
+      "meta": "Meta",
+      "webchat": "WebChat"
     },
     "pin": {
       "pin": "Anheften",
@@ -2061,8 +2076,7 @@
       "agents": "Agenten",
       "insuranceQuotes": "Versicherungsangebote",
       "orders": "Bestellungen",
-      "settings": "Einstellungen",
-      "support": "Support"
+      "settings": "Einstellungen"
     },
     "agents": {
       "title": "Agenten",
@@ -6488,7 +6502,8 @@
       "facebook_pages": "Facebook-Seiten",
       "call_queues": "Anruf-Warteschlangen",
       "call_history": "Anrufverlauf",
-      "ads": "Meta-Anzeigen"
+      "ads": "Meta-Anzeigen",
+      "webchat_widgets": "WebChats"
     },
     "actions": {
       "create": "Erstellen",
@@ -6545,7 +6560,8 @@
       "facebook_pages": "Facebook-Seiten verbinden, veröffentlichen, Kommentare moderieren und den Messenger einrichten.",
       "call_queues": "Telefon-Warteschlangen anlegen, festlegen, wer sie annimmt, und die Wartemusik wählen.",
       "call_history": "Die Anrufe sehen, an denen man beteiligt war, mit Ergebnis, Dauer, Weiterleitungen und Kosten; mit Berechtigung die des ganzen Teams.",
-      "ads": "Kampagnen und Ergebnisse sehen, Anzeigen ein- und ausschalten, Budgets ändern, Anzeigen erstellen und Meta-Werbekonten verbinden."
+      "ads": "Kampagnen und Ergebnisse sehen, Anzeigen ein- und ausschalten, Budgets ändern, Anzeigen erstellen und Meta-Werbekonten verbinden.",
+      "webchat_widgets": "Die Chats erstellen und konfigurieren, die auf den Websites des Workspace erscheinen."
     },
     "customRoles": {
       "title": "Benutzerdefinierte Rollen",
@@ -6685,7 +6701,6 @@
     "filterAll": "Alle Kanäle",
     "filterWhatsapp": "WhatsApp",
     "filterVoice": "VoIP",
-    "filterSupport": "Support",
     "filterAllCampaigns": "Alle Kampagnen",
     "filterStandard": "Standard",
     "filterOrganic": "Rezeptiv",
@@ -6796,7 +6811,8 @@
       "automationOn": "KI antwortet",
       "automationOff": "KI pausiert"
     },
-    "filterFacebook": "Messenger"
+    "filterFacebook": "Messenger",
+    "filterWebchat": "WebChat"
   },
   "adminWorkspaces": {
     "search": {
@@ -8469,7 +8485,8 @@
           "unofficial_whatsapp": "WhatsApp (Gerät)",
           "telegram": "Telegram",
           "instagram": "Instagram",
-          "facebook": "Messenger"
+          "facebook": "Messenger",
+          "webchat": "WebChat"
         },
         "campaignStatus": {
           "PENDING": "Ausstehend",
@@ -9162,7 +9179,8 @@
       "filters": "Filter",
       "clearFilters": "Filter zurücksetzen",
       "moreActions": "Weitere Aktionen",
-      "facebook": "Messenger"
+      "facebook": "Messenger",
+      "webchat": "WebChat"
     },
     "export": {
       "executive": {
@@ -10465,7 +10483,8 @@
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
       "unofficial_whatsapp": "WhatsApp (inoffiziell)",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "webchat": "WebChat"
     },
     "conversations": {
       "title": "Gespräche",
@@ -15611,12 +15630,23 @@
       "choosePageFirst": "Wähle oben die Seite, um die Nummern zu sehen.",
       "number": "WhatsApp-Nummer",
       "linkNumber": {
-        "title": "Mit dieser Seite ist noch keine WhatsApp-Nummer aus diesem Workspace verknüpft",
-        "openSettings": "Öffne die Seite in der Meta Business Suite und gehe zu Seiteneinstellungen › WhatsApp.",
-        "enterNumber": "Gib die WhatsApp-Nummer ein, die mit Vozko verbunden ist.",
-        "codeInInbox": "Meta sendet einen Bestätigungscode per WhatsApp an diese Nummer. Er kommt im Vozko-Posteingang an, in der Unterhaltung dieser Nummer. Kopiere den Code und bestätige ihn bei Meta.",
-        "recheck": "Komm hierher zurück und klicke auf Erneut prüfen.",
-        "openButton": "Seiteneinstellungen öffnen"
+        "title": "WhatsApp-Nummer mit dieser Seite verknüpfen",
+        "recheck": "Erneut prüfen",
+        "description": "Anzeigen, die WhatsApp öffnen, brauchen eine mit der Seite {page} verknüpfte Nummer. Erledige das hier, ohne Vozko zu verlassen.",
+        "number": "Nummer",
+        "publicNumber": "Die Nummer ist auf der Seite für alle sichtbar, die auf die Anzeige klicken.",
+        "sendCode": "Code senden",
+        "sending": "Wird gesendet...",
+        "code": "Bestätigungscode",
+        "codeHint": "Meta hat den Code per WhatsApp an {number} gesendet. Er kommt in der WhatsApp-App dieser Nummer auf dem Handy an.",
+        "confirm": "Verknüpfung bestätigen",
+        "confirming": "Wird bestätigt...",
+        "resend": "Neuen Code senden",
+        "linked": "Nummer mit der Seite verknüpft",
+        "linkedHint": "Meta kann einen Moment brauchen, bis die Nummer angezeigt wird. Wenn sie noch nicht auswählbar ist, prüfe erneut.",
+        "noneLinkable": "Keine Nummer dieses Workspaces kann mit dieser Seite verknüpft werden. Offizielle Nummern müssen im selben Business-Portfolio wie die Seite sein; verbinde eine WhatsApp-Nummer mit Vozko, um fortzufahren.",
+        "codeInvalid": "Gib den 4- bis 8-stelligen Code ein, der per WhatsApp angekommen ist.",
+        "notLinkable": "Diese Nummer kann nicht mit dieser Seite verknüpft werden."
       },
       "numberHint": "Es erscheinen nur Nummern dieses Workspaces, die in Meta mit der Seite verknüpft sind.",
       "numberKind": {
@@ -17383,7 +17413,8 @@
     "audience_terms_not_accepted": "Akzeptiere die Meta Bedingungen für Custom Audiences in diesem Werbekonto.",
     "job_not_activatable": "Diese Veröffentlichung wurde bereits eingeschaltet oder nicht ausgeschaltet veröffentlicht.",
     "draft_changed": "Jemand anderes hat diesen Entwurf geändert. Lade die neueste Version und versuche es erneut.",
-    "draft_publishing": "Dieser Entwurf wird gerade veröffentlicht und kann jetzt nicht geändert werden."
+    "draft_publishing": "Dieser Entwurf wird gerade veröffentlicht und kann jetzt nicht geändert werden.",
+    "page_link_refused": "Meta hat die Verknüpfung nicht bestätigt. Prüfe den Code oder fordere einen neuen an."
   },
   "adsReports": {
     "header": {
@@ -17647,9 +17678,7 @@
       "ad": "Erstellt eine neue Anzeige in dieser Anzeigengruppe."
     },
     "names": {
-      "campaign": "Neue Kampagne für {objective}",
-      "adSet": "Neue Anzeigengruppe für {objective}",
-      "ad": "Neue Anzeige für {objective}"
+      "campaign": "Neue Kampagne für {objective}"
     },
     "cancel": "Abbrechen",
     "continue": "Weiter",
@@ -17835,6 +17864,315 @@
       "levelMismatch": "Die ausgewählten Elemente liegen nicht auf derselben Ebene. Öffne jedes über die Links unten.",
       "notLoaded": "Dieses Element konnte nicht geladen werden.",
       "invalidSelection": "Um Elemente gemeinsam zu bearbeiten, wähle unter Kampagnen 2 bis 50 veröffentlichte Elemente derselben Ebene aus."
+    }
+  },
+  "webchat": {
+    "page": {
+      "title": "WebChat",
+      "description": "Bring einen Chat auf deine Website und betreue Besucher im selben Posteingang, mit KI oder mit deinem Team.",
+      "create": "Chat erstellen",
+      "searchPlaceholder": "Chats suchen...",
+      "refresh": "Aktualisieren",
+      "emptyTitle": "Noch kein WebChat",
+      "emptyDescription": "Ein WebChat ist ein Gesprächsfenster in der Ecke deiner Website. Nachrichten kommen wie bei jedem anderen Kanal im Posteingang an, und dein Agent oder deine Automation kann antworten.",
+      "noResultsTitle": "Keine Chats gefunden",
+      "noResultsDescription": "Versuche einen anderen Namen."
+    },
+    "stats": {
+      "total": "Gesamt",
+      "active": "Aktiv"
+    },
+    "table": {
+      "name": "Name",
+      "sites": "Erlaubte Websites",
+      "noSites": "Keine Websites",
+      "moreSites": "und {count} weitere",
+      "status": "Status",
+      "created": "Erstellt",
+      "open": "Öffnen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "paused": "Pausiert"
+    },
+    "pagination": {
+      "pageOf": "Seite {page} von {totalPages}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "common": {
+      "cancel": "Abbrechen"
+    },
+    "danger": {
+      "title": "Gefahrenbereich",
+      "description": "Wenn du den Chat löschst, verschwindet er von allen Websites. Bisherige Gespräche bleiben im Posteingang.",
+      "delete": "Chat löschen",
+      "deleteFailed": "Der Chat konnte nicht gelöscht werden",
+      "deleted": "{name} wurde gelöscht.",
+      "confirmTitle": "Diesen Chat löschen?",
+      "confirmDescription": "Der Chat {name} verschwindet sofort von allen Websites. Das kann nicht rückgängig gemacht werden."
+    },
+    "create": {
+      "back": "Zurück",
+      "title": "WebChat erstellen",
+      "description": "Gib ihm einen Namen, nenne die Websites, auf denen er erscheinen darf, und fertig. Danach kopierst du den Code in deine Website.",
+      "nameTitle": "Name des Chats",
+      "nameHelp": "Nur dein Team sieht diesen Namen. Nimm zum Beispiel den Namen der Website oder Marke.",
+      "nameLabel": "Name",
+      "departmentTitle": "Abteilung",
+      "departmentHelp": "Gespräche aus diesem Chat sind für alle sichtbar, die diese Abteilung betreuen.",
+      "actionTitle": "Erstellen",
+      "actionHelp": "Aussehen, Formular, Identitätsprüfung und Automation passt du auf dem nächsten Bildschirm an.",
+      "submit": "Chat erstellen",
+      "submitting": "Wird erstellt...",
+      "noPermission": "Du hast keine Berechtigung, WebChats zu erstellen.",
+      "errorTitle": "Der Chat konnte nicht erstellt werden",
+      "successTitle": "Chat erstellt",
+      "successBody": "{name} ist bereit. Kopiere den Code in deine Website.",
+      "note": "Der Chat öffnet sich nur auf den Websites, die du einträgst. Auf jeder anderen Adresse blockiert der Browser das Fenster, sodass niemand deinen Code auf eine andere Website kopieren kann.",
+      "factsTitle": "Was du bekommst",
+      "facts": {
+        "inbox": {
+          "title": "Derselbe Posteingang",
+          "description": "Gespräche von der Website landen neben WhatsApp, Instagram und den anderen Kanälen."
+        },
+        "automation": {
+          "title": "KI oder Team",
+          "description": "Ein Agent oder eine Automation antwortet sofort, und Besucher können nach einer Person fragen."
+        },
+        "leads": {
+          "title": "Echte Leads",
+          "description": "Wenn Besucher ihre Telefonnummer angeben, landet das Gespräch beim Lead mit dieser Nummer."
+        }
+      }
+    },
+    "origins": {
+      "title": "Erlaubte Websites",
+      "help": "Adressen, auf denen der Chat erscheinen darf. Gib nur die Domain ohne Pfad ein.",
+      "rowLabel": "Website {index}",
+      "placeholder": "https://www.deinshop.de",
+      "remove": "Website entfernen",
+      "add": "Website hinzufügen",
+      "count": "{count} von {max}",
+      "rules": "Nutze https://domain.de oder https://*.domain.de für alle Subdomains. http-Adressen gelten nur für localhost.",
+      "required": "Gib mindestens eine Website an.",
+      "tooMany": "Du kannst bis zu {max} Websites eintragen.",
+      "issue": {
+        "invalid": "Ungültige Adresse. Nutze nur die Domain, etwa https://www.deinshop.de, ohne Pfad.",
+        "insecure": "Nutze https. http-Adressen gelten nur für localhost.",
+        "duplicate": "Diese Website steht schon in der Liste."
+      }
+    },
+    "errors": {
+      "origins_required": "Gib mindestens eine Website an.",
+      "origin_invalid": "Eine der Websites ist ungültig. Nutze nur die Domain ohne Pfad.",
+      "origin_insecure": "Eine der Websites nutzt http. Nutze https, außer für localhost.",
+      "too_many_origins": "Du kannst bis zu 20 Websites eintragen.",
+      "name_required": "Gib einen Namen ein.",
+      "name_too_long": "Der Name darf bis zu 80 Zeichen haben.",
+      "color_invalid": "Nutze eine Farbe im Format #RRGGBB.",
+      "text_too_long": "Einer der Texte ist zu lang.",
+      "privacy_policy_invalid": "Der Link zur Datenschutzerklärung muss mit https:// beginnen.",
+      "country_code_invalid": "Die Ländervorwahl muss 1 bis 3 Ziffern haben.",
+      "reference_not_in_workspace": "Der gewählte Agent, die Automation, der Funnel oder die Abteilung gehört nicht zu diesem Workspace.",
+      "widget_not_found": "Dieser Chat existiert nicht mehr.",
+      "conversation_not_found": "Dieses Gespräch wurde nicht gefunden."
+    },
+    "detail": {
+      "description": "Installation, Aussehen und Regeln des Chats auf deiner Website.",
+      "back": "Zurück",
+      "loading": "Wird geladen...",
+      "notFound": "Chat nicht gefunden.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "Gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen"
+    },
+    "install": {
+      "title": "Installation",
+      "description": "Füge diesen Code in deine Website ein, damit der Chat erscheint.",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "missing": "Der Installationscode ist noch nicht verfügbar, weil die öffentliche Serveradresse nicht konfiguriert ist. Wende dich an den Vozko-Support.",
+      "steps": {
+        "copy": "Kopiere den Code oben.",
+        "paste": "Füge ihn vor {tag} auf jeder Seite ein, auf der der Chat erscheinen soll.",
+        "sites": "Prüfe, ob die Adresse der Website unter Erlaubte Websites steht.",
+        "test": "Öffne die Website und sende eine Testnachricht. Sie erscheint im Posteingang."
+      },
+      "pausedNote": "Dieser Chat ist pausiert. Der Button ist auf der Website ausgeblendet, bis du ihn wieder aktivierst."
+    },
+    "appearance": {
+      "title": "Aussehen",
+      "description": "Farben und Texte, die Besucher sehen.",
+      "accentColor": "Hauptfarbe",
+      "accentColorHex": "Farbcode",
+      "accentColorInvalid": "Nutze das Format #RRGGBB.",
+      "position": "Position des Buttons",
+      "positions": {
+        "right": "Rechte Ecke",
+        "left": "Linke Ecke"
+      },
+      "launcherLabel": {
+        "label": "Button-Text",
+        "hint": "Steht neben dem Symbol. Zum Beispiel: Schreib uns"
+      },
+      "teamName": {
+        "label": "Teamname",
+        "hint": "Steht oben im Chat und bei Antworten des Teams."
+      },
+      "assistantName": {
+        "label": "Name des Assistenten",
+        "hint": "Steht bei KI-Antworten, damit Besucher wissen, wer schreibt."
+      },
+      "welcomeTitle": {
+        "label": "Begrüßungstitel",
+        "hint": "Die erste Zeile, die Besucher beim Öffnen lesen."
+      },
+      "welcomeMessage": {
+        "label": "Begrüßungsnachricht",
+        "hint": "Bis zu 500 Zeichen. Sag, wie du helfen kannst."
+      }
+    },
+    "preview": {
+      "label": "Vorschau",
+      "online": "Antwortet meist innerhalb von Minuten",
+      "defaultTitle": "Hallo! Wie können wir helfen?",
+      "defaultMessage": "Schick uns deine Nachricht, wir antworten hier.",
+      "composer": "Nachricht schreiben...",
+      "defaultLauncher": "Schreib uns"
+    },
+    "intake": {
+      "title": "Was Besucher angeben",
+      "description": "Einmal abgefragt, vor der ersten Nachricht.",
+      "rules": {
+        "hidden": "Nicht fragen",
+        "optional": "Optional",
+        "required": "Pflicht"
+      },
+      "fields": {
+        "intakeName": "Name",
+        "intakeEmail": "E-Mail",
+        "intakePhone": "Telefon"
+      },
+      "phoneNote": "Wenn Besucher ihre Telefonnummer angeben, wird das Gespräch mit dem Lead mit derselben Nummer verknüpft. So ist, wer dir auf der Website und auf WhatsApp schreibt, im CRM dieselbe Person.",
+      "privacyPolicy": {
+        "label": "Link zur Datenschutzerklärung",
+        "hint": "Optional. Wenn gesetzt, müssen Besucher die Erklärung akzeptieren, bevor sie schreiben.",
+        "invalid": "Nutze einen https://-Link."
+      },
+      "countryCode": {
+        "label": "Standard-Ländervorwahl",
+        "hint": "Wird genutzt, wenn Besucher die Nummer ohne Ländervorwahl eingeben. 55 ist Brasilien.",
+        "invalid": "Nutze 1 bis 3 Ziffern."
+      }
+    },
+    "conversation": {
+      "title": "Gesprächsoptionen",
+      "description": "Was Besucher während des Gesprächs tun können.",
+      "humanRequest": {
+        "label": "\"Mit einer Person sprechen\" anzeigen",
+        "hint": "Während die KI antwortet, können Besucher nach einer Person fragen. Das Gespräch geht in die Warteschlange der Abteilung, und die Automation pausiert."
+      },
+      "attachments": {
+        "label": "Anhänge erlauben",
+        "hint": "Besucher können {types}-Dateien bis {size} MB senden."
+      }
+    },
+    "identity": {
+      "title": "Identitätsprüfung",
+      "description": "Für Websites mit Login. Dein Server signiert, wer der Besucher ist, und das Gespräch folgt der Person auf jedem Gerät.",
+      "modes": {
+        "off": {
+          "label": "Aus",
+          "hint": "Alle Besucher sind anonym, bis sie das Formular ausfüllen."
+        },
+        "optional": {
+          "label": "Optional",
+          "hint": "Angemeldete Besucher werden erkannt. Alle anderen schreiben anonym."
+        },
+        "required": {
+          "label": "Pflicht",
+          "hint": "Nur angemeldete Besucher können schreiben."
+        }
+      },
+      "secretTitle": "Signaturgeheimnis",
+      "reveal": "Geheimnis anzeigen",
+      "hide": "Ausblenden",
+      "rotate": "Neues Geheimnis erzeugen",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "secretHidden": "Das Geheimnis bleibt verborgen. Zeig es nur an, wenn du deinen Server einrichtest.",
+      "secretWarning": "Bewahre das Geheimnis nur auf deinem Server auf. Nie in den Website-Code.",
+      "revealFailed": "Das Geheimnis konnte nicht angezeigt werden",
+      "rotateFailed": "Es konnte kein neues Geheimnis erzeugt werden",
+      "rotated": "Neues Geheimnis erzeugt. Aktualisiere deinen Server.",
+      "rotateConfirmTitle": "Neues Geheimnis erzeugen?",
+      "rotateConfirmDescription": "Das aktuelle Geheimnis funktioniert sofort nicht mehr. Angemeldete Besucher werden erst wieder erkannt, wenn du deinen Server aktualisierst.",
+      "howTitle": "So richtest du es ein",
+      "how": {
+        "sign": "Signiere auf deinem Server ein HS256-JWT mit dem Geheimnis oben.",
+        "claims": "Nimm sub (die Benutzer-ID in deinem System) und exp (höchstens 24 Stunden in der Zukunft) auf. name, email und phone sind optional und füllen das Formular aus.",
+        "page": "Setze auf der Seite window.VozkoChat mit dem Token vor dem Installationscode."
+      },
+      "tokenPlaceholder": "Token von deinem Server"
+    },
+    "availability": {
+      "title": "Status",
+      "label": "Chat aktiv",
+      "activeHint": "Der Chat erscheint auf den erlaubten Websites.",
+      "pausedHint": "Der Chat ist pausiert und erscheint auf keiner Website. Bisherige Gespräche bleiben im Posteingang."
+    },
+    "block": {
+      "block": "Besucher sperren",
+      "unblock": "Besucher entsperren",
+      "blockHint": "Verhindert, dass dieser Besucher über den WebChat neue Nachrichten sendet.",
+      "unblockHint": "Der Besucher kann wieder Nachrichten senden.",
+      "blocked": "Besucher gesperrt",
+      "unblocked": "Besucher entsperrt",
+      "failed": "Die Sperre konnte nicht geändert werden",
+      "confirmTitle": "Diesen Besucher sperren?",
+      "confirmDescription": "Er kann keine Nachrichten mehr über den WebChat senden. Du kannst ihn jederzeit entsperren.",
+      "cancel": "Abbrechen"
+    },
+    "automation": {
+      "handlingTitle": "Nach dem Gespräch",
+      "enableAnalysisLabel": "Gespräche mit KI analysieren",
+      "enableAnalysisHint": "Ordnet jedes Gespräch ein, wenn es endet, sichtbar unter Metriken > Zielgruppe. Jede Analyse wird berechnet.",
+      "enableAutoStagingLabel": "Phase automatisch verschieben",
+      "enableAutoStagingHint": "Die KI wählt die Funnel-Phase, die am besten zum aktuellen Stand des Gesprächs passt.",
+      "enableAutoMemoryLabel": "Fakten zum Lead merken",
+      "enableAutoMemoryHint": "Speichert dauerhafte Fakten aus dem Gespräch im Gedächtnis des Leads.",
+      "title": "KI-Betreuung",
+      "agentLabel": "Zuständiger Agent",
+      "agentHint": "Der Agent beantwortet Nachrichten aus diesem Chat.",
+      "enableLabel": "Automatisch antworten",
+      "enableHint": "Wenn aktiv, beantwortet der Agent neue Nachrichten. Du kannst die Automation in einem einzelnen Gespräch pausieren, ohne diese Einstellung zu ändern.",
+      "enableRequiresAgent": "Wähle einen Agenten, um automatische Antworten zu aktivieren.",
+      "statusActive": "Aktiv",
+      "statusInactive": "Inaktiv",
+      "saving": "Wird gespeichert...",
+      "saved": "Gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen. Versuche es erneut.",
+      "activeNote": "Neue Nachrichten beantwortet dieser Agent. Der WebChat hat kein 24-Stunden-Fenster: Der Agent antwortet, solange der Besucher nicht gesperrt ist.",
+      "agentSearch": "Agent suchen...",
+      "agentEmpty": "Kein Agent gefunden.",
+      "agentInactive": "Inaktiv",
+      "modeLabel": "Wer antwortet",
+      "modeAgent": "Agent",
+      "modeWorkflow": "Automation",
+      "workflowLabel": "Zuständige Automation",
+      "workflowHint": "Die Automation startet bei jeder neuen Nachricht aus diesem Chat.",
+      "workflowSearch": "Automation suchen...",
+      "workflowEmpty": "Keine Automation gefunden.",
+      "enableRequiresWorkflow": "Wähle eine Automation, um sie zu aktivieren.",
+      "activeNoteWorkflow": "Neue Nachrichten starten diese Automation. Buttons und Listen erscheinen im Chat als anklickbare Optionen. WhatsApp-Vorlagenknoten werden in diesem Kanal ignoriert.",
+      "agent": "Agent",
+      "workflow": "Automation",
+      "none": "Manuell",
+      "pipelineLabel": "Funnel für diesen Kanal",
+      "pipelineHint": "Gespräche aus diesem Chat landen in der ersten Phase dieses Funnels.",
+      "pipelineDefault": "Standard-Funnel des Workspace"
     }
   }
 }

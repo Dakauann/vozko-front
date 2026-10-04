@@ -192,6 +192,7 @@ const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   instagram: "Instagram",
   facebook: "Messenger",
   telegram: "Telegram",
+  webchat: "WebChat",
 };
 
 const EMPTY_FILTERS: FilterState = {

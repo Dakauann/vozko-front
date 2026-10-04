@@ -77,6 +77,7 @@ export const LEAD_CHANNELS = [
     'telegram',
     'instagram',
     'facebook',
+    'webchat',
 ] as const;
 
 export type LeadChannel = (typeof LEAD_CHANNELS)[number];

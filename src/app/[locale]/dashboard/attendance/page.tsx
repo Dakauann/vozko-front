@@ -337,6 +337,7 @@ const CHANNEL_BAR: Record<string, string> = {
   instagram: "#e1306c",
   facebook: "#0866ff",
   telegram: "#229ed9",
+  webchat: "#0d9488",
   voice: "#8b5cf6",
 };
 
@@ -352,6 +353,8 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
       return tc("facebook");
     case "telegram":
       return tc("telegram");
+    case "webchat":
+      return tc("webchat");
     default:
       return channel;
   }
@@ -2395,6 +2398,12 @@ export default function AttendanceOpsPage() {
                         <span className="inline-flex items-center gap-1.5">
                           <ChannelTile channel="telegram" size="sm" className="h-5 w-5" />
                           {tc("telegram")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="webchat">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="webchat" size="sm" className="h-5 w-5" />
+                          {tc("webchat")}
                         </span>
                       </ElevatedSelectItem>
                     </ElevatedSelect>

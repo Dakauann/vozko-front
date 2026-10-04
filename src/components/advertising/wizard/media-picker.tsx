@@ -9,6 +9,7 @@ import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggl
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { Play, Plus, Sparkle, Trash, UploadSimple } from "@/components/icons";
 import { GeneratingImage } from "@/components/image-generation/generating-image";
+import { ImageModelSelect } from "@/components/image-generation/image-model-select";
 import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
 import { MediaDownloadButton } from "@/components/media/media-download-button";
 import { useImageGeneration, type ImageGenerationError } from "@/hooks/use-image-generation";
@@ -117,6 +118,7 @@ export function MediaPicker({
   const [mode, setMode] = useState<Mode>("upload");
   const [references, setReferences] = useState<ReferenceThumbnail[]>([]);
   const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState<string | null>(null);
   const [aspect, setAspect] = useState<ImageAspect>("square");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -172,13 +174,14 @@ export function MediaPicker({
 
   const generate = () => {
     const text = prompt.trim();
-    if (!text) return;
+    if (!text || !model) return;
     setError(null);
-    void generation.start(
-      text,
+    void generation.start({
+      model,
+      prompt: text,
       aspect,
-      references.map((item) => item.mediaId),
-    );
+      referenceMediaIds: references.map((item) => item.mediaId),
+    });
   };
 
   const shownError = error ?? (generation.error ? t(generationErrorKey(generation.error)) : null);
@@ -260,6 +263,7 @@ export function MediaPicker({
             onChange={setAspect}
             options={ASPECTS.map((option) => ({ value: option, label: t(`aspect.${option}`), disabled: generating }))}
           />
+          <ImageModelSelect value={model} onChange={setModel} disabled={generating} />
           <div className="space-y-1.5">
             <p className="text-xs font-semibold text-foreground">{t("references")}</p>
             {references.length > 0 ? (
@@ -300,7 +304,7 @@ export function MediaPicker({
             icon={<Sparkle className="h-4 w-4" />}
             iconVisible
             iconSide="left"
-            disabled={busy || prompt.trim() === ""}
+            disabled={busy || prompt.trim() === "" || !model}
             onClick={generate}
           />
         </div>

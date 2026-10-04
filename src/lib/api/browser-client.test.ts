@@ -161,4 +161,24 @@ describe("apiClient", () => {
     expect(result.error?.code).toBe("delete_not_permitted");
     expect(result.error?.expected).toEqual({ manageUrl: "https://business.facebook.com/latest/posts" });
   });
+
+  it("reads the code from the error field when the server sends a coded error with a message", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(422, { error: "origin_insecure", message: "webchat: origin must use https" }),
+    );
+
+    const result = await apiClient("/thing");
+
+    expect(result.error?.code).toBe("origin_insecure");
+    expect(result.error?.message).toBe("webchat: origin must use https");
+  });
+
+  it("leaves the code empty when the error field is the only message", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(400, { error: "Something went wrong" }));
+
+    const result = await apiClient("/thing");
+
+    expect(result.error?.code).toBeUndefined();
+    expect(result.error?.message).toBe("Something went wrong");
+  });
 });

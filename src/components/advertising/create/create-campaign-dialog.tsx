@@ -114,8 +114,6 @@ function CreateBody({ account, initialParent, onCancel }: { account: AdAccount; 
     const objectiveName = labels.objective(chosen ?? (choice.kind === "existing" ? choice.campaign.objective : ""));
     const form = initialForm(account.id, choice, chosen ? routesFor(optionsData, chosen) : [], {
       campaign: t("names.campaign", { objective: objectiveName }),
-      adSet: t("names.adSet", { objective: objectiveName }),
-      ad: t("names.ad", { objective: objectiveName }),
     });
     setCreating(true);
     setError(null);

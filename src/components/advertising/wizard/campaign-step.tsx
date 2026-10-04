@@ -8,6 +8,7 @@ import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { Lock } from "@/components/icons";
 import { LOWEST_COST, MAX_NAME, SPECIAL_CATEGORIES, isRestrictedCategory, withSpecialCategory } from "@/lib/advertising/draft";
 import type { AdDraftSpecialCategory } from "@/lib/advertising/draft-types";
+import { useSelectOnFocus } from "@/hooks/use-select-on-focus";
 
 import { BudgetFields } from "./budget-fields";
 import { Hint, Section } from "./choice-row";
@@ -17,6 +18,7 @@ import { useWizard } from "./wizard-context";
 
 export function CampaignStep() {
   const t = useTranslations("adsWizard.campaign");
+  const selectName = useSelectOnFocus();
   const { form, patch, update, account, issues } = useWizard();
 
   const toggleCampaignBudget = (on: boolean) => {
@@ -39,6 +41,7 @@ export function CampaignStep() {
           value={form.campaignName}
           maxLength={MAX_NAME}
           onChange={(event) => patch({ campaignName: event.target.value })}
+          {...selectName}
         />
         <Hint>{t("nameHint")}</Hint>
         <FieldIssues issues={issues} field="campaign.name" />

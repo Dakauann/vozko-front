@@ -62,6 +62,20 @@ describe("ActionCardView", () => {
     );
   });
 
+  it("sends the website chat card to the widget creation flow", () => {
+    permissions.allowed = true;
+    renderCard({
+      kind: "create_webchat",
+      balanceMicros: 0,
+      subscriptionActive: true,
+      status: { capability: "webchat", count: 0, canAdd: true },
+    });
+    expect(screen.getByText(actions.kinds.create_webchat.title)).toBeTruthy();
+    expect(screen.getByRole("link", { name: actions.kinds.create_webchat.cta }).getAttribute("href")).toBe(
+      "/dashboard/webchat/new",
+    );
+  });
+
   it("never offers the action without permission", () => {
     permissions.allowed = false;
     renderCard({

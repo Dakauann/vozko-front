@@ -43,7 +43,7 @@ async function advance(ms: number) {
 async function startGeneration() {
   const hook = renderHook(() => useImageGeneration());
   await act(async () => {
-    await hook.result.current.start("a red bike", "square");
+    await hook.result.current.start({ model: "openai/gpt-image-2", prompt: "a red bike", aspect: "square" });
   });
   return hook;
 }
@@ -70,7 +70,7 @@ describe("useImageGeneration", () => {
       .mockResolvedValueOnce({ data: finished });
     const { result } = await startGeneration();
 
-    expect(requestImageGeneration).toHaveBeenCalledWith("a red bike", "square", []);
+    expect(requestImageGeneration).toHaveBeenCalledWith({ model: "openai/gpt-image-2", prompt: "a red bike", aspect: "square" });
     expect(result.current.status).toBe("generating");
 
     await advance(1_499);
@@ -98,7 +98,7 @@ describe("useImageGeneration", () => {
     const onDone = vi.fn();
     const { result } = renderHook(() => useImageGeneration({ onDone }));
     await act(async () => {
-      await result.current.start("a red bike", "portrait");
+      await result.current.start({ model: "openai/gpt-image-2", prompt: "a red bike", aspect: "portrait" });
     });
     await advance(1_500);
 
@@ -236,10 +236,15 @@ describe("useImageGeneration", () => {
     getImageGeneration.mockResolvedValue({ data: job({ status: "running" }) });
     const { result } = renderHook(() => useImageGeneration());
     await act(async () => {
-      await result.current.start("a red bike", "story", ["ref-1", "ref-2"]);
+      await result.current.start({ model: "openai/gpt-image-2", prompt: "a red bike", aspect: "story", referenceMediaIds: ["ref-1", "ref-2"] });
     });
 
-    expect(requestImageGeneration).toHaveBeenCalledWith("a red bike", "story", ["ref-1", "ref-2"]);
+    expect(requestImageGeneration).toHaveBeenCalledWith({
+      model: "openai/gpt-image-2",
+      prompt: "a red bike",
+      aspect: "story",
+      referenceMediaIds: ["ref-1", "ref-2"],
+    });
   });
 
   it("stops polling when unmounted", async () => {
@@ -270,7 +275,7 @@ describe("useImageGeneration", () => {
     const { result } = renderHook(() => useImageGeneration());
     let started: Promise<void> = Promise.resolve();
     act(() => {
-      started = result.current.start("a red bike", "story");
+      started = result.current.start({ model: "openai/gpt-image-2", prompt: "a red bike", aspect: "story" });
     });
     act(() => result.current.reset());
     await act(async () => {

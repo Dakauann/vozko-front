@@ -64,7 +64,7 @@ describe("sidebar access", () => {
   it("lists Meta after every channel, since ads are not a channel", () => {
     const order = [...new Set(campanhasNavItems.map((item) => item.family))];
     const meta = order.indexOf("meta");
-    for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "telephony", "unofficial-whatsapp"]) {
+    for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "webchat", "telephony", "unofficial-whatsapp"]) {
       expect(order.indexOf(channel), `${channel} should come before Meta`).toBeLessThan(meta);
     }
     expect(order[meta + 1]).toBe("management");
@@ -78,6 +78,12 @@ describe("sidebar access", () => {
     expect(ruleForPath("/dashboard/advertising/forms")).toEqual({ kind: "screen", screen: "ads_forms" });
     expect(ruleForPath("/dashboard/advertising/rules")).toEqual({ kind: "screen", screen: "ads_rules" });
     expect(ruleForPath("/dashboard/advertising/conversions")).toEqual({ kind: "screen", screen: "ads_conversions" });
+  });
+
+  it("gates each website chat page by its own screen", () => {
+    expect(ruleForPath("/dashboard/webchat")).toEqual({ kind: "screen", screen: "webchat_widgets" });
+    expect(ruleForPath("/dashboard/webchat/new")).toEqual({ kind: "screen", screen: "webchat_new" });
+    expect(ruleForPath("/dashboard/webchat/abc")).toEqual({ kind: "screen", screen: "webchat_widget" });
   });
 
   it("gates the ads reports pages behind their own screen", () => {

@@ -179,12 +179,34 @@ export function VoiceLogoColor({ className }: IconProps) {
   );
 }
 
+export function WebchatLogoColor({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-4 w-4", className)}
+    >
+      <circle cx="12" cy="12" r="12" fill="#0D9488" />
+      <path
+        fill="#FFFFFF"
+        d="M8.2 6.5h7.6a2.3 2.3 0 0 1 2.3 2.3v4.6a2.3 2.3 0 0 1-2.3 2.3h-2.3l-3.45 3a.46.46 0 0 1-.77-.35v-2.65H8.2a2.3 2.3 0 0 1-2.3-2.3V8.8a2.3 2.3 0 0 1 2.3-2.3Z"
+      />
+      <circle cx="9.4" cy="11.1" r="0.8" fill="#0D9488" />
+      <circle cx="12" cy="11.1" r="0.8" fill="#0D9488" />
+      <circle cx="14.6" cy="11.1" r="0.8" fill="#0D9488" />
+    </svg>
+  );
+}
+
 const CHANNELS_WITH_MARKS = new Set([
   "whatsapp",
   "unofficial_whatsapp",
   "instagram",
   "facebook",
   "telegram",
+  "webchat",
 ]);
 
 export function hasChannelMark(channel: string | null | undefined): boolean {
@@ -197,6 +219,7 @@ const CHANNEL_LABELS: Record<string, string> = {
   instagram: "Instagram",
   facebook: "Messenger",
   telegram: "Telegram",
+  webchat: "WebChat",
 };
 
 export function channelLabel(channel: string | null | undefined): string | null {
@@ -219,6 +242,8 @@ export function ChannelLogo({
       return <WhatsAppLogoColor className={className} />;
     case "telegram":
       return <TelegramLogoColor className={className} />;
+    case "webchat":
+      return <WebchatLogoColor className={className} />;
     case "unofficial_whatsapp":
       return <WhatsAppUnofficialLogo className={className} />;
     default:

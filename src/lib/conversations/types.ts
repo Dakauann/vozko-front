@@ -67,13 +67,14 @@ export type EntryType =
     | 'instagram'
     | 'facebook'
     | 'telegram'
-    | 'unofficial_whatsapp';
+    | 'unofficial_whatsapp'
+    | 'webchat';
 
 export type CampaignType = 'whatsapp' | 'unofficial_whatsapp';
 
 export type ContainerKind = 'campaign' | undefined;
 
-export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp';
+export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp' | 'webchat';
 
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
@@ -81,6 +82,7 @@ export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'instagram',
     'facebook',
     'telegram',
+    'webchat',
 ] as const;
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
@@ -113,7 +115,8 @@ export const channelCapabilities = {
         const t = normalizeEntryType(entryType);
         return (
             t === 'whatsapp' ||
-            t === 'instagram' || t === 'facebook' || t === 'telegram' || t === 'unofficial_whatsapp'
+            t === 'instagram' || t === 'facebook' || t === 'telegram' || t === 'unofficial_whatsapp' ||
+            t === 'webchat'
         );
     },
 

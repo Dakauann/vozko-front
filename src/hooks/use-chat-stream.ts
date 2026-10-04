@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
-import type { ActionCard, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, Approval, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -50,7 +50,7 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
       if (ev.payload) h.onImage?.(ev.payload as unknown as ChatImage);
       break;
     case "tool_proposal":
-      h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary, fields: p.fields, preview: p.preview, secrets: p.secrets });
+      h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary, fields: p.fields, preview: p.preview, secrets: p.secrets, choices: p.choices });
       break;
     case "awaiting_approval":
       h.onAwaitingApproval?.(p.actionId ?? "");
@@ -150,8 +150,8 @@ export function useChatStream() {
   );
 
   const approve = useCallback(
-    (threadId: string, actionId: string, handlers: StreamHandlers, secrets?: Record<string, string>) =>
-      runStream(`${API_BASE}/chat/threads/${threadId}/actions/${actionId}/approve`, secrets ? { secrets } : {}, handlers),
+    (threadId: string, actionId: string, handlers: StreamHandlers, approval: Approval = {}) =>
+      runStream(`${API_BASE}/chat/threads/${threadId}/actions/${actionId}/approve`, approval, handlers),
     [runStream],
   );
 

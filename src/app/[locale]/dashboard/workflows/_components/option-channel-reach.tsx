@@ -18,6 +18,7 @@ const CHANNEL_NAMES: Record<string, string> = {
   instagram: "Instagram",
   facebook: "Messenger",
   telegram: "Telegram",
+  webchat: "WebChat",
 };
 
 function channelName(channel: string): string {

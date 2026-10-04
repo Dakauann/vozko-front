@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import pt from "@/i18n/messages/pt.json";
+import type { Approval } from "@/lib/aichat/types";
 
 import { MessageBubble, useBubbleLabels, type UIMessage } from "./message-list";
 
@@ -20,7 +21,7 @@ const message: UIMessage = {
   },
 };
 
-function Bubble({ onApprove }: { onApprove: (id: string, secrets?: Record<string, string>) => void }) {
+function Bubble({ onApprove }: { onApprove: (id: string, approval?: Approval) => void }) {
   const labels = useBubbleLabels();
   return <MessageBubble elo message={message} live={false} onApprove={onApprove} onReject={vi.fn()} labels={labels} />;
 }
@@ -49,6 +50,6 @@ describe("approval card with a protected field", () => {
     fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "s3nh4" } });
     expect(approve.disabled).toBe(false);
     fireEvent.click(approve);
-    expect(onApprove).toHaveBeenCalledWith("act-1", { password: "s3nh4" });
+    expect(onApprove).toHaveBeenCalledWith("act-1", { secrets: { password: "s3nh4" } });
   });
 });

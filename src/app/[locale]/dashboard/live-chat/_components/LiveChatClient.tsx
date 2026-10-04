@@ -64,6 +64,7 @@ interface LiveChatTranslations extends CrmTranslations {
   filterInstagram: string;
   filterFacebook: string;
   filterTelegram: string;
+  filterWebchat: string;
   filterUnofficialWhatsapp: string;
   filterWhatsapp: string;
   filterVoice: string;

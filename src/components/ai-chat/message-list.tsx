@@ -79,15 +79,16 @@ import { EloAvatar } from "./elo-mark";
 import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
 import { ActionCardView } from "@/components/ai-chat/action-card";
 import { GeneratingImage } from "@/components/image-generation/generating-image";
+import { ImageModelSelect } from "@/components/image-generation/image-model-select";
 import { imagePlaceholderOf } from "@/lib/aichat/generating-image";
-import type { ChatChart, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
+import type { Approval, ChatChart, ChoiceField, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
 import {
   humanizeFieldKey,
   isOpenProposal,
   pendingFromStored,
   proposalRows,
-  secretsFilled,
-  secretsPayload,
+  approvalPayload,
+  approvalReady,
   type ProposalDictionary,
 } from "@/lib/aichat/proposal";
 import { cn } from "@/lib/utils";
@@ -340,7 +341,7 @@ export function MessageBubble({
   elo?: boolean;
   message: UIMessage;
   live: boolean;
-  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
+  onApprove: (actionId: string, approval?: Approval) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
@@ -517,7 +518,7 @@ function ApprovalCard({
   labels,
 }: {
   pending: PendingAction;
-  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
+  onApprove: (actionId: string, approval?: Approval) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
@@ -570,12 +571,14 @@ function ApprovalActions({
   labels,
 }: {
   pending: PendingAction;
-  onApprove: (actionId: string, secrets?: Record<string, string>) => void;
+  onApprove: (actionId: string, approval?: Approval) => void;
   onReject: (actionId: string) => void;
   labels: BubbleLabels;
 }) {
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const [secrets, setSecrets] = useState<Record<string, string>>({});
+  const [choices, setChoices] = useState<Record<string, string>>({});
+  const choose = useCallback((key: string, value: string) => setChoices((prev) => ({ ...prev, [key]: value })), []);
   const asksSecrets = (pending.secrets ?? []).length > 0;
   return (
     <div className="mt-3 border-t border-border pt-3">
@@ -593,6 +596,13 @@ function ApprovalActions({
             />
           ))}
           <p className="text-xs text-muted-foreground">{labels.secretHint}</p>
+        </div>
+      ) : null}
+      {(pending.choices ?? []).length > 0 ? (
+        <div className="mb-3 grid gap-2">
+          {pending.choices?.map((field) => (
+            <CardChoice key={field.key} field={field} value={choices[field.key] ?? null} onChange={choose} disabled={busy !== null} />
+          ))}
         </div>
       ) : null}
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
@@ -614,10 +624,10 @@ function ApprovalActions({
           </button>
           <button
             type="button"
-            disabled={busy !== null || !secretsFilled(pending.secrets, secrets)}
+            disabled={busy !== null || !approvalReady(pending, secrets, choices)}
             onClick={() => {
               setBusy("approve");
-              onApprove(pending.id, secretsPayload(pending.secrets, secrets));
+              onApprove(pending.id, approvalPayload(pending, secrets, choices));
               setSecrets({});
             }}
             className="inline-flex items-center gap-1.5 rounded-[--radius] bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -631,6 +641,24 @@ function ApprovalActions({
       </div>
     </div>
   );
+}
+
+function CardChoice({
+  field,
+  value,
+  onChange,
+  disabled,
+}: {
+  field: ChoiceField;
+  value: string | null;
+  onChange: (key: string, value: string) => void;
+  disabled: boolean;
+}) {
+  const pick = useCallback((next: string) => onChange(field.key, next), [field.key, onChange]);
+  switch (field.kind) {
+    case "image_model":
+      return <ImageModelSelect value={value} onChange={pick} disabled={disabled} />;
+  }
 }
 
 function Cursor() {

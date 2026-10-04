@@ -4220,7 +4220,7 @@ function buildAvailableVariables(
       {
         template: "{{channel}}",
         description:
-          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, support, voice",
+          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, webchat, voice",
       },
       { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
       { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },

@@ -5,7 +5,7 @@ import type { AdObjectiveRoute } from "./draft-types";
 import { choiceObjective, createdLevels, initialForm, type CreateNames } from "./editor-create";
 
 const context = { timezone: "America/Sao_Paulo", currency: "BRL" };
-const names: CreateNames = { campaign: "Nova campanha de Leads", adSet: "Novo conjunto de anúncios de Leads", ad: "Novo anúncio de Leads" };
+const names: CreateNames = { campaign: "Nova campanha de Leads" };
 const leadRoutes: AdObjectiveRoute[] = [
   { destination: "ON_AD", goals: ["LEAD_GENERATION", "QUALITY_LEAD"] },
   { destination: "WHATSAPP", goals: ["CONVERSATIONS"] },
@@ -22,15 +22,16 @@ const adSet: ParentSummary = {
 };
 
 describe("initialForm", () => {
-  it("creates the whole tree of a new campaign with Meta's names and the first route", () => {
+  it("names only the campaign and leaves the optional names empty for their fallback", () => {
     const form = initialForm("acc-1", { kind: "new", objective: "OUTCOME_LEADS" }, leadRoutes, names);
     const draft = buildDraft(form, context);
     expect(draft.adAccountId).toBe("acc-1");
     expect(draft.campaign).toMatchObject({ name: names.campaign, objective: "OUTCOME_LEADS", specialCategory: "NONE" });
     expect(draft.campaign.existingId).toBeUndefined();
-    expect(draft.adSet).toMatchObject({ name: names.adSet, destination: "ON_AD", goal: "LEAD_GENERATION" });
+    expect(draft.adSet).toMatchObject({ destination: "ON_AD", goal: "LEAD_GENERATION" });
+    expect(draft.adSet.name).toBeUndefined();
     expect(draft.ads).toHaveLength(1);
-    expect(draft.ads[0].name).toBe(names.ad);
+    expect(draft.ads[0].name).toBeUndefined();
   });
 
   it("adds a new ad set and ad to an existing campaign", () => {
@@ -38,9 +39,10 @@ describe("initialForm", () => {
     const draft = buildDraft(form, context);
     expect(form.mode).toBe("campaign");
     expect(draft.campaign).toEqual({ existingId: "c-1", objective: "OUTCOME_LEADS" });
-    expect(draft.adSet).toMatchObject({ name: names.adSet, destination: "ON_AD", goal: "LEAD_GENERATION" });
+    expect(draft.adSet).toMatchObject({ destination: "ON_AD", goal: "LEAD_GENERATION" });
     expect(draft.adSet.existingId).toBeUndefined();
-    expect(draft.ads[0].name).toBe(names.ad);
+    expect(draft.adSet.name).toBeUndefined();
+    expect(draft.ads[0].name).toBeUndefined();
   });
 
   it("adds a new ad to an existing ad set", () => {
@@ -49,7 +51,7 @@ describe("initialForm", () => {
     expect(form.mode).toBe("adSet");
     expect(draft.campaign.existingId).toBe("c-1");
     expect(draft.adSet).toMatchObject({ existingId: "s-1", destination: "WHATSAPP", goal: "CONVERSATIONS" });
-    expect(draft.ads[0].name).toBe(names.ad);
+    expect(draft.ads[0].name).toBeUndefined();
   });
 });
 

@@ -48,11 +48,16 @@ export function EditorFooter({
           {onBack ? (
             <Button variant="ghost" title={t("back")} icon={<ArrowLeft className="h-4 w-4" />} iconVisible iconSide="left" onClick={onBack} />
           ) : null}
-          {onNext ? (
-            <Button variant="primary" title={t("next")} icon={<ArrowRight className="h-4 w-4" />} iconVisible iconSide="right" onClick={onNext} />
-          ) : (
-            finish
-          )}
+          <Button
+            variant={onNext ? "primary" : "secondary"}
+            title={t("next")}
+            icon={<ArrowRight className="h-4 w-4" />}
+            iconVisible
+            iconSide="right"
+            disabled={!onNext}
+            onClick={onNext ?? undefined}
+          />
+          {onNext ? null : finish}
         </div>
       </div>
     </div>

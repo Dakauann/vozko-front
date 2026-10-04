@@ -10,8 +10,6 @@ export type CreatedLevel = "campaign" | "adSet" | "ad";
 
 export interface CreateNames {
   campaign: string;
-  adSet: string;
-  ad: string;
 }
 
 export function choiceObjective(choice: CreateChoice): AdObjective | null {
@@ -25,18 +23,14 @@ export function createdLevels(choice: CreateChoice): CreatedLevel[] {
 }
 
 function named(form: WizardForm, names: CreateNames): WizardForm {
-  return { ...form, campaignName: names.campaign, adSetName: names.adSet, ads: form.ads.map((ad) => ({ ...ad, name: names.ad })) };
+  return { ...form, campaignName: names.campaign };
 }
 
 export function initialForm(accountId: string, choice: CreateChoice, routes: AdObjectiveRoute[], names: CreateNames): WizardForm {
   const empty = emptyWizardForm(accountId);
   if (choice.kind === "new") return named(withObjective(empty, choice.objective, routes), names);
   const objective = choiceObjective(choice);
-  if (choice.adSet) {
-    const form = withParents(empty, choice.campaign, choice.adSet);
-    return { ...form, ads: form.ads.map((ad) => ({ ...ad, name: names.ad })) };
-  }
+  if (choice.adSet) return withParents(empty, choice.campaign, choice.adSet);
   const form = withParents(empty, choice.campaign, null);
-  const routed = objective ? withObjective(form, objective, routes) : form;
-  return { ...routed, adSetName: names.adSet, ads: routed.ads.map((ad) => ({ ...ad, name: names.ad })) };
+  return objective ? withObjective(form, objective, routes) : form;
 }

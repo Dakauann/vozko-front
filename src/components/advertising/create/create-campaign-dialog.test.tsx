@@ -122,7 +122,7 @@ describe("CreateCampaignDialog", () => {
     expect(within(dialog).getByText("Formulários instantâneos")).toBeTruthy();
   });
 
-  it("creates the whole draft tree with Meta's names and opens the editor", async () => {
+  it("creates the whole draft tree named after the campaign and opens the editor", async () => {
     renderDialog();
     const dialog = await screen.findByRole("dialog");
     fireEvent.click(within(dialog).getByRole("radio", { name: "Leads" }));
@@ -132,8 +132,9 @@ describe("CreateCampaignDialog", () => {
     await waitFor(() => expect(createMock).toHaveBeenCalledTimes(1));
     const draft = createMock.mock.calls[0][0] as MetaAdDraft;
     expect(draft.campaign).toMatchObject({ name: "Nova campanha de Leads", objective: "OUTCOME_LEADS" });
-    expect(draft.adSet).toMatchObject({ name: "Novo conjunto de anúncios de Leads", destination: "ON_AD" });
-    expect(draft.ads[0].name).toBe("Novo anúncio de Leads");
+    expect(draft.adSet).toMatchObject({ destination: "ON_AD" });
+    expect(draft.adSet.name).toBeUndefined();
+    expect(draft.ads[0].name).toBeUndefined();
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/dashboard/advertising/editor?draft=d-9"));
   });
 
@@ -146,7 +147,7 @@ describe("CreateCampaignDialog", () => {
     const draft = createMock.mock.calls[0][0] as MetaAdDraft;
     expect(draft.campaign.existingId).toBe("c-1");
     expect(draft.adSet).toMatchObject({ existingId: "s-1", destination: "WHATSAPP" });
-    expect(draft.ads[0].name).toBe("Novo anúncio de Engajamento");
+    expect(draft.ads[0].name).toBeUndefined();
   });
 
   it("explains a failed creation and stays open", async () => {

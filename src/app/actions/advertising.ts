@@ -71,6 +71,25 @@ export async function listAdPagesAction(accountId: string): Promise<AdsResult<Ad
   return settleAds(await apiClient<AdPage[]>(`${accountPath(accountId)}/pages`, { method: "GET" }), []);
 }
 
+export async function requestNumberLinkAction(accountId: string, pageId: string, number: string): Promise<AdsResult<null>> {
+  return settleAds(
+    await apiClient<null>(`${accountPath(accountId)}/pages/${encodeURIComponent(pageId)}/whatsapp-link/code`, {
+      method: "POST",
+      body: JSON.stringify({ number }),
+    }),
+    null,
+  );
+}
+
+export async function confirmNumberLinkAction(accountId: string, pageId: string, number: string, code: string): Promise<AdsResult<AdPage>> {
+  return settleAds(
+    await apiClient<AdPage>(`${accountPath(accountId)}/pages/${encodeURIComponent(pageId)}/whatsapp-link`, {
+      method: "POST",
+      body: JSON.stringify({ number, code }),
+    }),
+  );
+}
+
 export async function searchAdLocationsAction(accountId: string, query: string): Promise<AdsResult<AdLocation[]>> {
   const params = new URLSearchParams({ q: query });
   return settleAds(await apiClient<AdLocation[]>(`${accountPath(accountId)}/locations?${params.toString()}`, { method: "GET" }), []);

@@ -4,7 +4,11 @@
     "failed": "The image could not be generated",
     "download": "Download",
     "downloading": "Downloading...",
-    "downloadFailed": "The image could not be downloaded. Try again."
+    "downloadFailed": "The image could not be downloaded. Try again.",
+    "model": "Image model",
+    "modelHint": "From most used to least used.",
+    "modelsLoading": "Loading image models...",
+    "modelsUnavailable": "The image models could not be loaded right now. Try again in a moment."
   },
   "crmAnalysis": {
     "awaiting": "Awaiting analysis",
@@ -471,7 +475,8 @@
         "online": "Online",
         "offline": "Offline",
         "away": "Away",
-        "facebook": "Messenger"
+        "facebook": "Messenger",
+        "webchat": "WebChat"
       }
     },
     "toolDenied": "no permission",
@@ -747,7 +752,8 @@
       "test": "Test",
       "versions": "Versions",
       "view": "View",
-      "when": "When"
+      "when": "When",
+      "image_model": "Image model"
     },
     "attachments": {
       "legend": "Attached files",
@@ -824,6 +830,11 @@
           "title": "Connect a Facebook Page",
           "description": "Answer the Page's Messenger and comments here.",
           "cta": "Connect Page"
+        },
+        "create_webchat": {
+          "title": "Create a WebChat",
+          "description": "Put a chat on your website and serve visitors in the same inbox.",
+          "cta": "Create WebChat"
         }
       }
     },
@@ -2183,7 +2194,10 @@
       "adsForms": "Forms and leads",
       "adsRules": "Automated rules",
       "adsConversions": "Events Manager",
-      "adsReports": "Ads Reporting"
+      "adsReports": "Ads Reporting",
+      "webchat": "WebChat",
+      "webchatWidgets": "WebChats",
+      "createWebchat": "Create WebChat"
     },
     "badges": {
       "new": "New",
@@ -2212,7 +2226,8 @@
       "unofficial-whatsapp": "WhatsApp",
       "facebook": "Facebook",
       "telephony": "Telephony",
-      "meta": "Meta"
+      "meta": "Meta",
+      "webchat": "WebChat"
     },
     "pin": {
       "pin": "Pin",
@@ -2347,8 +2362,7 @@
       "home": "Startseite",
       "agents": "Agenten",
       "orders": "Bestellungen",
-      "settings": "Einstellungen",
-      "support": "Support"
+      "settings": "Einstellungen"
     },
     "agents": {
       "title": "Agenten",
@@ -7340,7 +7354,8 @@
       "facebook_pages": "Facebook Pages",
       "call_queues": "Call queues",
       "call_history": "Call history",
-      "ads": "Meta ads"
+      "ads": "Meta ads",
+      "webchat_widgets": "WebChats"
     },
     "actions": {
       "create": "Create",
@@ -7397,7 +7412,8 @@
       "facebook_pages": "Connect Facebook Pages, publish, moderate comments and set up Messenger.",
       "call_queues": "Create phone queues, choose who answers each one and the hold music.",
       "call_history": "See the calls you took part in, with outcome, duration, transfers and cost; with permission, the whole team's.",
-      "ads": "See campaigns and results, turn ads on and off, change budgets, create ads and connect Meta ad accounts."
+      "ads": "See campaigns and results, turn ads on and off, change budgets, create ads and connect Meta ad accounts.",
+      "webchat_widgets": "Create and configure the chats that appear on the workspace websites."
     },
     "customRoles": {
       "title": "Custom Roles",
@@ -7537,7 +7553,6 @@
     "filterAll": "All Channels",
     "filterWhatsapp": "WhatsApp",
     "filterVoice": "VoIP",
-    "filterSupport": "Support",
     "filterAllCampaigns": "All Campaigns",
     "filterStandard": "Standard",
     "filterOrganic": "Receptive",
@@ -7648,7 +7663,8 @@
       "automationOn": "AI is answering",
       "automationOff": "AI is paused"
     },
-    "filterFacebook": "Messenger"
+    "filterFacebook": "Messenger",
+    "filterWebchat": "WebChat"
   },
   "tagGroupsPage": {
     "header": {
@@ -9587,7 +9603,8 @@
           "unofficial_whatsapp": "WhatsApp (device)",
           "telegram": "Telegram",
           "instagram": "Instagram",
-          "facebook": "Messenger"
+          "facebook": "Messenger",
+          "webchat": "WebChat"
         },
         "campaignStatus": {
           "PENDING": "Pending",
@@ -10325,7 +10342,8 @@
       "filters": "Filters",
       "clearFilters": "Clear filters",
       "moreActions": "More actions",
-      "facebook": "Messenger"
+      "facebook": "Messenger",
+      "webchat": "WebChat"
     },
     "export": {
       "executive": {
@@ -11628,7 +11646,8 @@
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
       "unofficial_whatsapp": "WhatsApp (unofficial)",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "webchat": "WebChat"
     },
     "conversations": {
       "title": "Conversations",
@@ -13473,7 +13492,7 @@
       "crm": {
         "rail": "Shared inbox",
         "title": "All your customer chats in one inbox.",
-        "lede": "WhatsApp, Instagram, Telegram and your website chat arrive in the same place, so nobody switches apps to answer one person.",
+        "lede": "WhatsApp, Instagram, Telegram and your WebChat arrive in the same place, so nobody switches apps to answer one person.",
         "aria": "An omnichannel inbox receives a conversation, a person opens it, an AI agent replies, the record is tagged and a human attendant takes over.",
         "inbox": "Inbox",
         "rows": [
@@ -16609,12 +16628,23 @@
       "choosePageFirst": "Choose the Page above to see the numbers.",
       "number": "WhatsApp number",
       "linkNumber": {
-        "title": "This Page has no WhatsApp number from this workspace linked yet",
-        "openSettings": "Open the Page in Meta Business Suite and go to Page settings › WhatsApp.",
-        "enterNumber": "Enter the WhatsApp number that is connected to Vozko.",
-        "codeInInbox": "Meta sends a confirmation code to that number over WhatsApp. It arrives in the Vozko inbox, in that number's conversation. Copy the code and confirm it on Meta.",
-        "recheck": "Come back here and click Check again.",
-        "openButton": "Open Page settings"
+        "title": "Link a WhatsApp number to this Page",
+        "recheck": "Check again",
+        "description": "Ads that open WhatsApp need a number linked to the Page {page}. Do it here, without leaving Vozko.",
+        "number": "Number",
+        "publicNumber": "The number becomes visible on the Page to anyone who clicks the ad.",
+        "sendCode": "Send code",
+        "sending": "Sending...",
+        "code": "Confirmation code",
+        "codeHint": "Meta sent the code by WhatsApp to {number}. It arrives in that number's WhatsApp app, on the phone.",
+        "confirm": "Confirm link",
+        "confirming": "Confirming...",
+        "resend": "Send another code",
+        "linked": "Number linked to the Page",
+        "linkedHint": "Meta may take a moment to show the number. If it is not available to pick yet, check again.",
+        "noneLinkable": "No number in this workspace can be linked to this Page. Official numbers must be in the same business portfolio as the Page; connect a WhatsApp number to Vozko to continue.",
+        "codeInvalid": "Type the 4 to 8 digit code that arrived on WhatsApp.",
+        "notLinkable": "This number cannot be linked to this Page."
       },
       "numberHint": "Only numbers from this workspace linked to the Page in Meta are listed.",
       "numberKind": {
@@ -18381,7 +18411,8 @@
     "audience_terms_not_accepted": "Accept Meta's custom audience terms on this ad account.",
     "job_not_activatable": "This publish was already turned on or was not published switched off.",
     "draft_changed": "Someone else changed this draft. Load the latest version and try again.",
-    "draft_publishing": "This draft is being published and cannot change right now."
+    "draft_publishing": "This draft is being published and cannot change right now.",
+    "page_link_refused": "Meta did not confirm the link. Check the code or ask for a new one."
   },
   "adsReports": {
     "header": {
@@ -18645,9 +18676,7 @@
       "ad": "Creates a new ad in this ad set."
     },
     "names": {
-      "campaign": "New {objective} campaign",
-      "adSet": "New {objective} ad set",
-      "ad": "New {objective} ad"
+      "campaign": "New {objective} campaign"
     },
     "cancel": "Cancel",
     "continue": "Continue",
@@ -18833,6 +18862,315 @@
       "levelMismatch": "The selected items are not on the same level. Open each one from the links below.",
       "notLoaded": "This item could not be loaded.",
       "invalidSelection": "To edit items together, select 2 to 50 published items of the same level in Campaigns."
+    }
+  },
+  "webchat": {
+    "page": {
+      "title": "WebChat",
+      "description": "Put a chat on your website and serve visitors in the same inbox, with AI or with your team.",
+      "create": "Create chat",
+      "searchPlaceholder": "Search chats...",
+      "refresh": "Refresh",
+      "emptyTitle": "No WebChat yet",
+      "emptyDescription": "A WebChat is a conversation window that sits in the corner of your site. Messages reach the inbox like any other channel, and your agent or automation can reply.",
+      "noResultsTitle": "No chats found",
+      "noResultsDescription": "Try a different name."
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Active"
+    },
+    "table": {
+      "name": "Name",
+      "sites": "Allowed sites",
+      "noSites": "No sites",
+      "moreSites": "and {count} more",
+      "status": "Status",
+      "created": "Created",
+      "open": "Open"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "pagination": {
+      "pageOf": "Page {page} of {totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "common": {
+      "cancel": "Cancel"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "description": "Deleting the chat removes it from every site. Past conversations stay in the inbox.",
+      "delete": "Delete chat",
+      "deleteFailed": "Could not delete the chat",
+      "deleted": "{name} was deleted.",
+      "confirmTitle": "Delete this chat?",
+      "confirmDescription": "The chat {name} disappears from every site right away. This cannot be undone."
+    },
+    "create": {
+      "back": "Back",
+      "title": "Create a WebChat",
+      "description": "Give it a name, list the sites where it may appear, and you are done. Then copy the code into your site.",
+      "nameTitle": "Chat name",
+      "nameHelp": "Only your team sees this name. Use something like the site or brand name.",
+      "nameLabel": "Name",
+      "departmentTitle": "Department",
+      "departmentHelp": "Conversations from this chat are visible to whoever serves this department.",
+      "actionTitle": "Create",
+      "actionHelp": "You can adjust the look, the form, identity verification and automation on the next screen.",
+      "submit": "Create chat",
+      "submitting": "Creating...",
+      "noPermission": "You do not have permission to create WebChats.",
+      "errorTitle": "Could not create the chat",
+      "successTitle": "Chat created",
+      "successBody": "{name} is ready. Copy the code into your site.",
+      "note": "The chat only opens on the sites you list. On any other address the browser blocks the window, so nobody can copy your code to another site.",
+      "factsTitle": "What you get",
+      "facts": {
+        "inbox": {
+          "title": "Same inbox",
+          "description": "Website conversations arrive next to WhatsApp, Instagram and the other channels."
+        },
+        "automation": {
+          "title": "AI or team",
+          "description": "An agent or automation replies right away, and the visitor can ask for a person."
+        },
+        "leads": {
+          "title": "Real leads",
+          "description": "When the visitor gives a phone number, the conversation joins the lead with that number."
+        }
+      }
+    },
+    "origins": {
+      "title": "Allowed sites",
+      "help": "Addresses where the chat may appear. Enter only the domain, without a path.",
+      "rowLabel": "Site {index}",
+      "placeholder": "https://www.yourstore.com",
+      "remove": "Remove site",
+      "add": "Add site",
+      "count": "{count} of {max}",
+      "rules": "Use https://domain.com, or https://*.domain.com for every subdomain. http addresses only work for localhost.",
+      "required": "Enter at least one site.",
+      "tooMany": "You can list up to {max} sites.",
+      "issue": {
+        "invalid": "Invalid address. Use only the domain, like https://www.yourstore.com, without a path.",
+        "insecure": "Use https. http addresses only work for localhost.",
+        "duplicate": "This site is already on the list."
+      }
+    },
+    "errors": {
+      "origins_required": "Enter at least one site.",
+      "origin_invalid": "One of the sites is invalid. Use only the domain, without a path.",
+      "origin_insecure": "One of the sites uses http. Use https, except for localhost.",
+      "too_many_origins": "You can list up to 20 sites.",
+      "name_required": "Enter a name.",
+      "name_too_long": "The name can have up to 80 characters.",
+      "color_invalid": "Use a colour in the #RRGGBB format.",
+      "text_too_long": "One of the texts is over the character limit.",
+      "privacy_policy_invalid": "The privacy policy link must start with https://.",
+      "country_code_invalid": "The country code must have 1 to 3 digits.",
+      "reference_not_in_workspace": "The chosen agent, automation, funnel or department does not belong to this workspace.",
+      "widget_not_found": "This chat no longer exists.",
+      "conversation_not_found": "This conversation was not found."
+    },
+    "detail": {
+      "description": "Installation, look and rules of the chat on your site.",
+      "back": "Back",
+      "loading": "Loading...",
+      "notFound": "Chat not found.",
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "saveFailed": "Could not save"
+    },
+    "install": {
+      "title": "Installation",
+      "description": "Paste this code into your site to show the chat.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "missing": "The install code is not available yet because the server public address is not configured. Contact Vozko support.",
+      "steps": {
+        "copy": "Copy the code above.",
+        "paste": "Paste it before {tag} on every page where the chat should appear.",
+        "sites": "Check that the site address is in Allowed sites.",
+        "test": "Open the site and send a test message. It shows up in the inbox."
+      },
+      "pausedNote": "This chat is paused. The button is hidden from the site until you turn it back on."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Colours and texts the visitor sees.",
+      "accentColor": "Main colour",
+      "accentColorHex": "Colour code",
+      "accentColorInvalid": "Use the #RRGGBB format.",
+      "position": "Button position",
+      "positions": {
+        "right": "Right corner",
+        "left": "Left corner"
+      },
+      "launcherLabel": {
+        "label": "Button text",
+        "hint": "Shown next to the icon. For example: Talk to us"
+      },
+      "teamName": {
+        "label": "Team name",
+        "hint": "Shown at the top of the chat and on team replies."
+      },
+      "assistantName": {
+        "label": "Assistant name",
+        "hint": "Shown on AI replies, so the visitor knows who is talking."
+      },
+      "welcomeTitle": {
+        "label": "Welcome title",
+        "hint": "First line the visitor reads when opening the chat."
+      },
+      "welcomeMessage": {
+        "label": "Welcome message",
+        "hint": "Up to 500 characters. Say how you can help."
+      }
+    },
+    "preview": {
+      "label": "Preview",
+      "online": "Usually replies in minutes",
+      "defaultTitle": "Hi! How can we help?",
+      "defaultMessage": "Send your message and we will reply here.",
+      "composer": "Write a message...",
+      "defaultLauncher": "Talk to us"
+    },
+    "intake": {
+      "title": "What the visitor provides",
+      "description": "Details asked once, before the first message.",
+      "rules": {
+        "hidden": "Do not ask",
+        "optional": "Optional",
+        "required": "Required"
+      },
+      "fields": {
+        "intakeName": "Name",
+        "intakeEmail": "Email",
+        "intakePhone": "Phone"
+      },
+      "phoneNote": "When the visitor gives a phone number, the conversation is linked to the lead with the same number. So whoever talks to you on the site and on WhatsApp is the same person in the CRM.",
+      "privacyPolicy": {
+        "label": "Privacy policy link",
+        "hint": "Optional. When set, the visitor must accept the policy before chatting.",
+        "invalid": "Use an https:// link."
+      },
+      "countryCode": {
+        "label": "Default country code",
+        "hint": "Used when the visitor types a phone without the country code. 55 is Brazil.",
+        "invalid": "Use 1 to 3 digits."
+      }
+    },
+    "conversation": {
+      "title": "Conversation options",
+      "description": "What the visitor can do during the conversation.",
+      "humanRequest": {
+        "label": "Show \"Talk to a person\"",
+        "hint": "While AI is answering, the visitor can ask for a person. The conversation goes to the department queue and automation pauses."
+      },
+      "attachments": {
+        "label": "Allow attachments",
+        "hint": "The visitor can send {types} files up to {size} MB."
+      }
+    },
+    "identity": {
+      "title": "Identity verification",
+      "description": "For sites with a login. Your server signs who the visitor is, and the conversation follows the person on any device.",
+      "modes": {
+        "off": {
+          "label": "Off",
+          "hint": "Every visitor is anonymous until they fill in the form."
+        },
+        "optional": {
+          "label": "Optional",
+          "hint": "Logged in visitors are recognised. Others chat anonymously."
+        },
+        "required": {
+          "label": "Required",
+          "hint": "Only logged in visitors can chat."
+        }
+      },
+      "secretTitle": "Signing secret",
+      "reveal": "Show secret",
+      "hide": "Hide",
+      "rotate": "Generate new secret",
+      "copy": "Copy",
+      "copied": "Copied",
+      "secretHidden": "The secret stays hidden. Show it only when setting up your server.",
+      "secretWarning": "Keep the secret on your server only. Never put it in the site code.",
+      "revealFailed": "Could not show the secret",
+      "rotateFailed": "Could not generate a new secret",
+      "rotated": "New secret generated. Update your server.",
+      "rotateConfirmTitle": "Generate a new secret?",
+      "rotateConfirmDescription": "The current secret stops working right away. Logged in visitors are no longer recognised until you update your server.",
+      "howTitle": "How to set it up",
+      "how": {
+        "sign": "On your server, sign an HS256 JWT with the secret above.",
+        "claims": "Include sub (the user id in your system) and exp (at most 24 hours ahead). name, email and phone are optional and fill in the form.",
+        "page": "On the page, set window.VozkoChat with the token before the install code."
+      },
+      "tokenPlaceholder": "token generated by your server"
+    },
+    "availability": {
+      "title": "Status",
+      "label": "Chat active",
+      "activeHint": "The chat shows on the allowed sites.",
+      "pausedHint": "The chat is paused and does not show on any site. Past conversations stay in the inbox."
+    },
+    "block": {
+      "block": "Block visitor",
+      "unblock": "Unblock visitor",
+      "blockHint": "Stops this visitor from sending new messages through the WebChat.",
+      "unblockHint": "The visitor can send messages again.",
+      "blocked": "Visitor blocked",
+      "unblocked": "Visitor unblocked",
+      "failed": "Could not change the block",
+      "confirmTitle": "Block this visitor?",
+      "confirmDescription": "They can no longer send messages through the WebChat. You can unblock them at any time.",
+      "cancel": "Cancel"
+    },
+    "automation": {
+      "handlingTitle": "After the conversation",
+      "enableAnalysisLabel": "Analyse conversations with AI",
+      "enableAnalysisHint": "Classifies each conversation when it stops, shown in Metrics > Audience. Each analysis is billed.",
+      "enableAutoStagingLabel": "Move the stage automatically",
+      "enableAutoStagingHint": "AI picks the funnel stage that best fits the current state of the conversation.",
+      "enableAutoMemoryLabel": "Remember lead facts",
+      "enableAutoMemoryHint": "Saves lasting facts from the conversation into the lead memory.",
+      "title": "AI service",
+      "agentLabel": "Responsible agent",
+      "agentHint": "The agent replies to messages from this chat.",
+      "enableLabel": "Reply automatically",
+      "enableHint": "When on, the agent replies to new messages. You can pause automation on a single conversation without changing this setting.",
+      "enableRequiresAgent": "Select an agent to turn on automatic replies.",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "saveFailed": "Could not save. Try again.",
+      "activeNote": "New messages will be answered by this agent. The WebChat has no 24 hour window: the agent replies as long as the visitor is not blocked.",
+      "agentSearch": "Search agent...",
+      "agentEmpty": "No agent found.",
+      "agentInactive": "Inactive",
+      "modeLabel": "Who replies",
+      "modeAgent": "Agent",
+      "modeWorkflow": "Automation",
+      "workflowLabel": "Responsible automation",
+      "workflowHint": "The automation runs on every new message from this chat.",
+      "workflowSearch": "Search automation...",
+      "workflowEmpty": "No automation found.",
+      "enableRequiresWorkflow": "Select an automation to turn it on.",
+      "activeNoteWorkflow": "New messages will trigger this automation. Buttons and lists show as clickable options in the chat. WhatsApp template nodes are ignored on this channel.",
+      "agent": "Agent",
+      "workflow": "Automation",
+      "none": "Manual",
+      "pipelineLabel": "Funnel for this channel",
+      "pipelineHint": "Conversations from this chat enter this funnel at its first stage.",
+      "pipelineDefault": "Workspace default funnel"
     }
   }
 }

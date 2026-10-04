@@ -7,7 +7,8 @@ export type ConversationEntryType =
     | 'instagram'
     | 'facebook'
     | 'telegram'
-    | 'unofficial_whatsapp';
+    | 'unofficial_whatsapp'
+    | 'webchat';
 
 export type VoiceEntryStatus =
     | 'PENDING'

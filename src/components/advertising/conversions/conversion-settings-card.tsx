@@ -33,7 +33,7 @@ import type { ConversionPermissions } from "./conversions-page";
 const PHONES_PAGE_SIZE = 100;
 const NO_PIXEL = "none";
 
-const loadPhones = () => listBusinessPhonesAction({ pageSize: PHONES_PAGE_SIZE });
+const loadPhones = () => listBusinessPhonesAction({ pageSize: PHONES_PAGE_SIZE, ownership: "owned" });
 
 export function ConversionSettingsCard({
   account,
@@ -158,15 +158,15 @@ function SettingsForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <ElevatedSwitch
-          checked={form.sendLeads}
-          disabled={!canUpdate}
+          checked={form.enabled && form.sendLeads}
+          disabled={!canUpdate || !form.enabled}
           onCheckedChange={(sendLeads) => patch({ sendLeads })}
           label={t("sendLeads")}
           description={t("sendLeadsHint")}
         />
         <ElevatedSwitch
-          checked={form.sendPurchases}
-          disabled={!canUpdate}
+          checked={form.enabled && form.sendPurchases}
+          disabled={!canUpdate || !form.enabled}
           onCheckedChange={(sendPurchases) => patch({ sendPurchases })}
           label={t("sendPurchases")}
           description={t("sendPurchasesHint")}

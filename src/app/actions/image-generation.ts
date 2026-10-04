@@ -1,19 +1,25 @@
 import { apiClient } from "@/lib/api/browser-client";
-import type { ImageAspect, ImageGenerationJob } from "@/lib/image-generation/types";
+import type { ImageGenerationInput, ImageGenerationJob, ImageModel } from "@/lib/image-generation/types";
 
 import { settleResult, type ActionResult } from "./action-result";
 
 const GENERATIONS_PATH = "/images/generations";
+const MODELS_PATH = "/images/models";
 
-export async function requestImageGenerationAction(
-  prompt: string,
-  aspect: ImageAspect,
-  referenceMediaIds: string[] = [],
-): Promise<ActionResult<ImageGenerationJob>> {
+export async function listImageModelsAction(): Promise<ActionResult<ImageModel[]>> {
+  return settleResult(await apiClient<ImageModel[]>(MODELS_PATH, { method: "GET" }));
+}
+
+export async function requestImageGenerationAction({
+  model,
+  prompt,
+  aspect,
+  referenceMediaIds = [],
+}: ImageGenerationInput): Promise<ActionResult<ImageGenerationJob>> {
   return settleResult(
     await apiClient<ImageGenerationJob>(GENERATIONS_PATH, {
       method: "POST",
-      body: JSON.stringify({ prompt, aspect, referenceMediaIds }),
+      body: JSON.stringify({ model, prompt, aspect, referenceMediaIds }),
     }),
   );
 }

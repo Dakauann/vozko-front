@@ -98,16 +98,16 @@ describe("issues in the tree", () => {
 });
 
 describe("ad operations", () => {
-  it("adds an ad named by the caller in a format the destination accepts", () => {
-    const next = withAdAdded(formWith(1, { destination: "ON_POST" }), "Novo anúncio de Leads");
+  it("adds an unnamed ad, which takes the campaign name, in a format the destination accepts", () => {
+    const next = withAdAdded(formWith(1, { destination: "ON_POST" }));
     expect(next.ads).toHaveLength(2);
-    expect(next.ads[1]).toMatchObject({ name: "Novo anúncio de Leads", format: "EXISTING_POST" });
+    expect(next.ads[1]).toMatchObject({ name: "", format: "EXISTING_POST" });
   });
 
   it("refuses to add past the Meta limit", () => {
     const full = formWith(MAX_ADS);
     expect(canAddAdTo(full)).toBe(false);
-    expect(withAdAdded(full, "x")).toBe(full);
+    expect(withAdAdded(full)).toBe(full);
     expect(canAddAdTo(formWith(1))).toBe(true);
   });
 

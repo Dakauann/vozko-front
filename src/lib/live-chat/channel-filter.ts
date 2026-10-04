@@ -7,7 +7,8 @@ export type ChannelFilter =
     | "instagram"
     | "facebook"
     | "telegram"
-    | "unofficial_whatsapp";
+    | "unofficial_whatsapp"
+    | "webchat";
 
 export type ChannelFilterKind = "all" | "campaign" | "entry";
 
@@ -49,6 +50,12 @@ export const CHANNEL_FILTERS: readonly ChannelFilterSpec[] = [
         kind: "entry",
         labelKey: "filterTelegram",
         permission: { resource: "telegram_accounts", action: "read" },
+    },
+    {
+        value: "webchat",
+        kind: "entry",
+        labelKey: "filterWebchat",
+        permission: { resource: "webchat_widgets", action: "read" },
     },
 ] as const;
 

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createChatThreadAction, getChatMessagesAction } from "@/app/actions/aichat";
 import { useChatStream } from "@/hooks/use-chat-stream";
-import type { ActionCard, ChatAttachment, ChatChart, ChatImage, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, Approval, ChatAttachment, ChatChart, ChatImage, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
 
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
 import { toolStartAspect } from "@/lib/aichat/generating-image";
@@ -185,7 +185,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
   );
 
   const resolveAction = useCallback(
-    async (actionId: string, kind: "approve" | "reject", model: string, secrets?: Record<string, string>) => {
+    async (actionId: string, kind: "approve" | "reject", model: string, approval?: Approval) => {
       if (!activeId) return;
       const threadId = activeId;
       const status = kind === "approve" ? "approved" : "rejected";
@@ -199,7 +199,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
           ...prev,
           { id: `a-${now}`, role: "assistant", content: "", model, createdAt: now, segments: [] },
         ]);
-        await approve(threadId, actionId, streamHandlers(approved), secrets);
+        await approve(threadId, actionId, streamHandlers(approved), approval);
         return;
       }
       await reject(threadId, actionId, {

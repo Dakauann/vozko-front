@@ -1,6 +1,6 @@
 "use client";
 
-import { InstagramLogo, MessengerLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
+import { ChatCircle, InstagramLogo, MessengerLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
 
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ const CHANNEL_TILES: Record<string, ChannelTileSpec> = {
     Glyph: MessengerLogo,
   },
   telegram: { plate: "bg-[#229ED9]", Glyph: TelegramLogo },
+  webchat: { plate: "bg-[#0D9488]", Glyph: ChatCircle },
   voice: { plate: "bg-[#8B5CF6]", Glyph: Phone },
 };
 

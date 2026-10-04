@@ -8,6 +8,7 @@ import {
   FacebookLogoColor,
   InstagramLogoColor,
   TelegramLogoColor,
+  WebchatLogoColor,
   WhatsAppLogoColor,
   WhatsAppUnofficialLogo,
 } from "@/components/icons/channel-logos";
@@ -62,6 +63,11 @@ const KINDS: Record<OfferKind, KindConfig> = {
     logo: <TelegramLogoColor className="h-6 w-6" />,
     resource: "telegram_accounts",
     href: "/dashboard/telegram-accounts/connect",
+  },
+  create_webchat: {
+    logo: <WebchatLogoColor className="h-6 w-6" />,
+    resource: "webchat_widgets",
+    href: "/dashboard/webchat/new",
   },
   top_up_balance: {
     logo: <Wallet weight="duotone" className="h-6 w-6 text-primary-ink" />,

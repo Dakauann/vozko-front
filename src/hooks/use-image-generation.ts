@@ -10,7 +10,7 @@ import {
   imageJobOutcome,
   nextPollDelay,
 } from "@/lib/image-generation/polling";
-import type { ImageAspect, ImageGenerationJob } from "@/lib/image-generation/types";
+import type { ImageGenerationInput, ImageGenerationJob } from "@/lib/image-generation/types";
 
 export type ImageGenerationStatus = "idle" | "generating" | "done" | "failed";
 
@@ -140,7 +140,7 @@ export function useImageGeneration(options: UseImageGenerationOptions = {}) {
   }, []);
 
   const start = useCallback(
-    async (prompt: string, aspect: ImageAspect, referenceMediaIds: string[] = []) => {
+    async (input: ImageGenerationInput) => {
       stop();
       const run: PollRun = {
         jobId: null,
@@ -161,7 +161,7 @@ export function useImageGeneration(options: UseImageGenerationOptions = {}) {
       runRef.current = run;
       setState({ status: "generating" });
 
-      const created = await requestImageGenerationAction(prompt, aspect, referenceMediaIds);
+      const created = await requestImageGenerationAction(input);
       if (run.cancelled) return;
       if (isActionError(created)) {
         run.settle(failure(created.code ?? REQUEST_FAILED, created.error));

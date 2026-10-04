@@ -232,7 +232,7 @@ export async function apiClient<T>(
         error: {
           message: body.message || body.error || `API error: ${response.statusText}`,
           status: response.status,
-          code: body.code,
+          code: body.code ?? (typeof body.error === "string" && body.message ? body.error : undefined),
           expected: body.expected,
         },
       };

@@ -635,7 +635,7 @@ function WebhookReference({
             <FieldRow name="entry_type" type="string">
               Um de <Mono>whatsapp</Mono>, <Mono>unofficial_whatsapp</Mono>,{" "}
               <Mono>instagram</Mono>, <Mono>facebook</Mono>, <Mono>telegram</Mono> ou{" "}
-              <Mono>support</Mono>.
+              <Mono>webchat</Mono>.
             </FieldRow>
             <FieldRow name="phone" type="string">
               Número em E.164 (<Mono>+5511998887777</Mono>). Alternativa ao par

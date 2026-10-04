@@ -4,7 +4,11 @@
     "failed": "No se pudo generar la imagen",
     "download": "Descargar",
     "downloading": "Descargando...",
-    "downloadFailed": "No se pudo descargar la imagen. Inténtalo de nuevo."
+    "downloadFailed": "No se pudo descargar la imagen. Inténtalo de nuevo.",
+    "model": "Modelo de imagen",
+    "modelHint": "Del más usado al menos usado.",
+    "modelsLoading": "Cargando modelos de imagen...",
+    "modelsUnavailable": "No se pudieron cargar los modelos de imagen ahora. Inténtalo de nuevo en unos instantes."
   },
   "crmAnalysis": {
     "awaiting": "Esperando análisis",
@@ -471,7 +475,8 @@
         "online": "En línea",
         "offline": "Desconectado",
         "away": "Ausente",
-        "facebook": "Messenger"
+        "facebook": "Messenger",
+        "webchat": "WebChat"
       }
     },
     "toolDenied": "sin permiso",
@@ -747,7 +752,8 @@
       "test": "Prueba",
       "versions": "Versiones",
       "view": "Vista",
-      "when": "Cuándo"
+      "when": "Cuándo",
+      "image_model": "Modelo de imagen"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -824,6 +830,11 @@
           "title": "Conectar una Página de Facebook",
           "description": "Responde el Messenger y los comentarios de la Página aquí.",
           "cta": "Conectar Página"
+        },
+        "create_webchat": {
+          "title": "Crear un WebChat",
+          "description": "Pon un chat en tu sitio y atiende a los visitantes en la misma bandeja de entrada.",
+          "cta": "Crear WebChat"
         }
       }
     },
@@ -1873,7 +1884,10 @@
       "adsForms": "Formularios y leads",
       "adsRules": "Reglas automáticas",
       "adsConversions": "Administrador de eventos",
-      "adsReports": "Informes de anuncios"
+      "adsReports": "Informes de anuncios",
+      "webchat": "WebChat",
+      "webchatWidgets": "WebChats",
+      "createWebchat": "Crear WebChat"
     },
     "badges": {
       "new": "Nuevo",
@@ -1902,7 +1916,8 @@
       "unofficial-whatsapp": "WhatsApp",
       "facebook": "Facebook",
       "telephony": "Telefonía",
-      "meta": "Meta"
+      "meta": "Meta",
+      "webchat": "WebChat"
     },
     "pin": {
       "pin": "Fijar",
@@ -2025,8 +2040,7 @@
       "home": "Inicio",
       "agents": "Agentes",
       "orders": "Pedidos",
-      "settings": "Configuración",
-      "support": "Soporte"
+      "settings": "Configuración"
     },
     "agents": {
       "title": "Agentes",
@@ -5968,7 +5982,8 @@
       "facebook_pages": "Páginas de Facebook",
       "call_queues": "Colas de atención",
       "call_history": "Historial de llamadas",
-      "ads": "Anuncios de Meta"
+      "ads": "Anuncios de Meta",
+      "webchat_widgets": "WebChats"
     },
     "actions": {
       "create": "Crear",
@@ -6025,7 +6040,8 @@
       "facebook_pages": "Conectar Páginas de Facebook, publicar, moderar comentarios y configurar Messenger.",
       "call_queues": "Crear colas telefónicas, elegir quién atiende cada una y la música de espera.",
       "call_history": "Ver las llamadas en las que participó, con resultado, duración, transferencias y costo; con permiso, las de todo el equipo.",
-      "ads": "Ver campañas y resultados, encender y apagar anuncios, cambiar presupuestos, crear anuncios y conectar cuentas publicitarias de Meta."
+      "ads": "Ver campañas y resultados, encender y apagar anuncios, cambiar presupuestos, crear anuncios y conectar cuentas publicitarias de Meta.",
+      "webchat_widgets": "Crear y configurar los chats que aparecen en los sitios del workspace."
     },
     "customRoles": {
       "title": "Roles Personalizados",
@@ -6165,7 +6181,6 @@
     "filterAll": "Todos los Canales",
     "filterWhatsapp": "WhatsApp",
     "filterVoice": "VoIP",
-    "filterSupport": "Soporte",
     "filterAllCampaigns": "Todas Campañas",
     "filterStandard": "Estándar",
     "filterOrganic": "Receptiva",
@@ -6276,7 +6291,8 @@
       "automationOn": "La IA responde",
       "automationOff": "IA en pausa"
     },
-    "filterFacebook": "Messenger"
+    "filterFacebook": "Messenger",
+    "filterWebchat": "WebChat"
   },
   "adminWorkspaces": {
     "search": {
@@ -7949,7 +7965,8 @@
           "unofficial_whatsapp": "WhatsApp (dispositivo)",
           "telegram": "Telegram",
           "instagram": "Instagram",
-          "facebook": "Messenger"
+          "facebook": "Messenger",
+          "webchat": "WebChat"
         },
         "campaignStatus": {
           "PENDING": "Pendiente",
@@ -8683,7 +8700,8 @@
       "filters": "Filtros",
       "clearFilters": "Limpiar filtros",
       "moreActions": "Más acciones",
-      "facebook": "Messenger"
+      "facebook": "Messenger",
+      "webchat": "WebChat"
     },
     "export": {
       "executive": {
@@ -9986,7 +10004,8 @@
       "whatsapp": "WhatsApp",
       "telegram": "Telegram",
       "unofficial_whatsapp": "WhatsApp (no oficial)",
-      "facebook": "Facebook"
+      "facebook": "Facebook",
+      "webchat": "WebChat"
     },
     "conversations": {
       "title": "Conversaciones",
@@ -15114,12 +15133,23 @@
       "choosePageFirst": "Elige la página arriba para ver los números.",
       "number": "Número de WhatsApp",
       "linkNumber": {
-        "title": "Esta Página aún no tiene un número de WhatsApp de este workspace vinculado",
-        "openSettings": "Abre la Página en Meta Business Suite y ve a Configuración de la Página › WhatsApp.",
-        "enterNumber": "Ingresa el número de WhatsApp que está conectado a Vozko.",
-        "codeInInbox": "Meta envía un código de confirmación por WhatsApp a ese número. Llega a la bandeja de entrada de Vozko, en la conversación de ese número. Copia el código y confírmalo en Meta.",
-        "recheck": "Vuelve aquí y haz clic en Verificar de nuevo.",
-        "openButton": "Abrir configuración de la Página"
+        "title": "Vincular un número de WhatsApp a esta Página",
+        "recheck": "Verificar de nuevo",
+        "description": "Los anuncios que abren WhatsApp necesitan un número vinculado a la Página {page}. Hazlo aquí, sin salir de Vozko.",
+        "number": "Número",
+        "publicNumber": "El número queda visible en la Página para quien haga clic en el anuncio.",
+        "sendCode": "Enviar código",
+        "sending": "Enviando...",
+        "code": "Código de confirmación",
+        "codeHint": "Meta envió el código por WhatsApp a {number}. Llega a la app de WhatsApp de ese número, en el teléfono.",
+        "confirm": "Confirmar vínculo",
+        "confirming": "Confirmando...",
+        "resend": "Enviar otro código",
+        "linked": "Número vinculado a la Página",
+        "linkedHint": "Meta puede tardar unos instantes en mostrar el número. Si aún no aparece para elegirlo, verifica de nuevo.",
+        "noneLinkable": "Ningún número de este workspace puede vincularse a esta Página. Los números oficiales deben estar en el mismo portafolio comercial que la Página; conecta un número de WhatsApp a Vozko para continuar.",
+        "codeInvalid": "Escribe el código de 4 a 8 números que llegó por WhatsApp.",
+        "notLinkable": "Este número no puede vincularse a esta Página."
       },
       "numberHint": "Solo aparecen números de este workspace vinculados a la página en Meta.",
       "numberKind": {
@@ -16886,7 +16916,8 @@
     "audience_terms_not_accepted": "Acepta los términos de públicos personalizados de Meta en esta cuenta publicitaria.",
     "job_not_activatable": "Esta publicación ya se encendió o no se hizo apagada.",
     "draft_changed": "Otra persona cambió este borrador. Carga la versión más reciente e inténtalo de nuevo.",
-    "draft_publishing": "Este borrador se está publicando y no puede cambiar ahora."
+    "draft_publishing": "Este borrador se está publicando y no puede cambiar ahora.",
+    "page_link_refused": "Meta no confirmó el vínculo. Revisa el código o pide uno nuevo."
   },
   "adsReports": {
     "header": {
@@ -17150,9 +17181,7 @@
       "ad": "Crea un nuevo anuncio en este conjunto de anuncios."
     },
     "names": {
-      "campaign": "Nueva campaña de {objective}",
-      "adSet": "Nuevo conjunto de anuncios de {objective}",
-      "ad": "Nuevo anuncio de {objective}"
+      "campaign": "Nueva campaña de {objective}"
     },
     "cancel": "Cancelar",
     "continue": "Continuar",
@@ -17338,6 +17367,315 @@
       "levelMismatch": "Los elementos seleccionados no son del mismo nivel. Abre cada uno con los enlaces de abajo.",
       "notLoaded": "No se pudo cargar este elemento.",
       "invalidSelection": "Para editar juntos, selecciona en Campañas de 2 a 50 elementos publicados del mismo nivel."
+    }
+  },
+  "webchat": {
+    "page": {
+      "title": "WebChat",
+      "description": "Pon un chat en tu sitio y atiende a los visitantes en la misma bandeja de entrada, con IA o con tu equipo.",
+      "create": "Crear chat",
+      "searchPlaceholder": "Buscar chat...",
+      "refresh": "Actualizar",
+      "emptyTitle": "Aún no hay WebChat",
+      "emptyDescription": "Un WebChat es una ventana de conversación en la esquina de tu sitio. Los mensajes llegan a la bandeja de entrada como cualquier otro canal, y tu agente o automatización pueden responder.",
+      "noResultsTitle": "No se encontraron chats",
+      "noResultsDescription": "Prueba con otro nombre."
+    },
+    "stats": {
+      "total": "Total",
+      "active": "Activos"
+    },
+    "table": {
+      "name": "Nombre",
+      "sites": "Sitios permitidos",
+      "noSites": "Ningún sitio",
+      "moreSites": "y {count} más",
+      "status": "Estado",
+      "created": "Creado",
+      "open": "Abrir"
+    },
+    "status": {
+      "active": "Activo",
+      "paused": "Pausado"
+    },
+    "pagination": {
+      "pageOf": "Página {page} de {totalPages}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "common": {
+      "cancel": "Cancelar"
+    },
+    "danger": {
+      "title": "Zona de peligro",
+      "description": "Eliminar el chat lo quita de todos los sitios. Las conversaciones anteriores siguen en la bandeja de entrada.",
+      "delete": "Eliminar chat",
+      "deleteFailed": "No se pudo eliminar el chat",
+      "deleted": "{name} fue eliminado.",
+      "confirmTitle": "¿Eliminar este chat?",
+      "confirmDescription": "El chat {name} desaparece de todos los sitios de inmediato. Esta acción no se puede deshacer."
+    },
+    "create": {
+      "back": "Volver",
+      "title": "Crear WebChat",
+      "description": "Dale un nombre, indica en qué sitios puede aparecer y listo. Después copias el código en tu sitio.",
+      "nameTitle": "Nombre del chat",
+      "nameHelp": "Solo tu equipo ve este nombre. Usa algo como el nombre del sitio o de la marca.",
+      "nameLabel": "Nombre",
+      "departmentTitle": "Departamento",
+      "departmentHelp": "Las conversaciones de este chat son visibles para quien atiende este departamento.",
+      "actionTitle": "Crear",
+      "actionHelp": "Podrás ajustar la apariencia, el formulario, la verificación de identidad y la automatización en la siguiente pantalla.",
+      "submit": "Crear chat",
+      "submitting": "Creando...",
+      "noPermission": "No tienes permiso para crear WebChats.",
+      "errorTitle": "No se pudo crear el chat",
+      "successTitle": "Chat creado",
+      "successBody": "{name} está listo. Copia el código en tu sitio.",
+      "note": "El chat solo se abre en los sitios que indiques. En cualquier otra dirección el navegador bloquea la ventana, así que nadie puede copiar tu código en otro sitio.",
+      "factsTitle": "Lo que obtienes",
+      "facts": {
+        "inbox": {
+          "title": "La misma bandeja",
+          "description": "Las conversaciones del sitio llegan junto a WhatsApp, Instagram y los demás canales."
+        },
+        "automation": {
+          "title": "IA o equipo",
+          "description": "Un agente o una automatización responden al instante, y el visitante puede pedir hablar con una persona."
+        },
+        "leads": {
+          "title": "Leads de verdad",
+          "description": "Cuando el visitante da su teléfono, la conversación entra en el lead con ese número."
+        }
+      }
+    },
+    "origins": {
+      "title": "Sitios permitidos",
+      "help": "Direcciones donde el chat puede aparecer. Indica solo el dominio, sin ruta.",
+      "rowLabel": "Sitio {index}",
+      "placeholder": "https://www.tutienda.com",
+      "remove": "Quitar sitio",
+      "add": "Agregar sitio",
+      "count": "{count} de {max}",
+      "rules": "Usa https://dominio.com, o https://*.dominio.com para todos los subdominios. Las direcciones http solo valen para localhost.",
+      "required": "Indica al menos un sitio.",
+      "tooMany": "Puedes indicar hasta {max} sitios.",
+      "issue": {
+        "invalid": "Dirección inválida. Usa solo el dominio, como https://www.tutienda.com, sin ruta.",
+        "insecure": "Usa https. Las direcciones http solo valen para localhost.",
+        "duplicate": "Este sitio ya está en la lista."
+      }
+    },
+    "errors": {
+      "origins_required": "Indica al menos un sitio.",
+      "origin_invalid": "Uno de los sitios no es válido. Usa solo el dominio, sin ruta.",
+      "origin_insecure": "Uno de los sitios usa http. Usa https, salvo para localhost.",
+      "too_many_origins": "Puedes indicar hasta 20 sitios.",
+      "name_required": "Indica un nombre.",
+      "name_too_long": "El nombre puede tener hasta 80 caracteres.",
+      "color_invalid": "Usa un color con el formato #RRGGBB.",
+      "text_too_long": "Uno de los textos supera el límite de caracteres.",
+      "privacy_policy_invalid": "El enlace de la política de privacidad debe empezar con https://.",
+      "country_code_invalid": "El código de país debe tener de 1 a 3 dígitos.",
+      "reference_not_in_workspace": "El agente, la automatización, el embudo o el departamento elegido no pertenece a este workspace.",
+      "widget_not_found": "Este chat ya no existe.",
+      "conversation_not_found": "No se encontró esta conversación."
+    },
+    "detail": {
+      "description": "Instalación, apariencia y reglas del chat en tu sitio.",
+      "back": "Volver",
+      "loading": "Cargando...",
+      "notFound": "Chat no encontrado.",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar"
+    },
+    "install": {
+      "title": "Instalación",
+      "description": "Pega este código en tu sitio para que aparezca el chat.",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "missing": "El código de instalación aún no está disponible porque la dirección pública del servidor no está configurada. Contacta al soporte de Vozko.",
+      "steps": {
+        "copy": "Copia el código de arriba.",
+        "paste": "Pégalo antes de {tag} en todas las páginas donde deba aparecer el chat.",
+        "sites": "Comprueba que la dirección del sitio esté en Sitios permitidos.",
+        "test": "Abre el sitio y envía un mensaje de prueba. Aparece en la bandeja de entrada."
+      },
+      "pausedNote": "Este chat está en pausa. El botón no aparece en el sitio hasta que lo vuelvas a activar."
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "description": "Colores y textos que ve el visitante.",
+      "accentColor": "Color principal",
+      "accentColorHex": "Código del color",
+      "accentColorInvalid": "Usa el formato #RRGGBB.",
+      "position": "Posición del botón",
+      "positions": {
+        "right": "Esquina derecha",
+        "left": "Esquina izquierda"
+      },
+      "launcherLabel": {
+        "label": "Texto del botón",
+        "hint": "Aparece junto al icono. Por ejemplo: Habla con nosotros"
+      },
+      "teamName": {
+        "label": "Nombre del equipo",
+        "hint": "Se muestra arriba del chat y en las respuestas del equipo."
+      },
+      "assistantName": {
+        "label": "Nombre del asistente",
+        "hint": "Se muestra en las respuestas de la IA, para que el visitante sepa quién habla."
+      },
+      "welcomeTitle": {
+        "label": "Título de bienvenida",
+        "hint": "La primera línea que el visitante lee al abrir el chat."
+      },
+      "welcomeMessage": {
+        "label": "Mensaje de bienvenida",
+        "hint": "Hasta 500 caracteres. Di cómo puedes ayudar."
+      }
+    },
+    "preview": {
+      "label": "Vista previa",
+      "online": "Suele responder en minutos",
+      "defaultTitle": "¡Hola! ¿Cómo podemos ayudarte?",
+      "defaultMessage": "Envía tu mensaje y te respondemos por aquí.",
+      "composer": "Escribe un mensaje...",
+      "defaultLauncher": "Habla con nosotros"
+    },
+    "intake": {
+      "title": "Lo que informa el visitante",
+      "description": "Datos que se piden una vez, antes del primer mensaje.",
+      "rules": {
+        "hidden": "No pedir",
+        "optional": "Opcional",
+        "required": "Obligatorio"
+      },
+      "fields": {
+        "intakeName": "Nombre",
+        "intakeEmail": "Correo",
+        "intakePhone": "Teléfono"
+      },
+      "phoneNote": "Cuando el visitante da su teléfono, la conversación se vincula al lead con el mismo número. Así, quien te escribe por el sitio y por WhatsApp es la misma persona en el CRM.",
+      "privacyPolicy": {
+        "label": "Enlace de la política de privacidad",
+        "hint": "Opcional. Si lo indicas, el visitante debe aceptar la política antes de conversar.",
+        "invalid": "Usa un enlace https://."
+      },
+      "countryCode": {
+        "label": "Código de país por defecto",
+        "hint": "Se usa cuando el visitante escribe el teléfono sin código de país. 55 es Brasil.",
+        "invalid": "Usa de 1 a 3 dígitos."
+      }
+    },
+    "conversation": {
+      "title": "Opciones de la conversación",
+      "description": "Lo que el visitante puede hacer durante la atención.",
+      "humanRequest": {
+        "label": "Mostrar \"Hablar con una persona\"",
+        "hint": "Mientras la IA atiende, el visitante puede pedir una persona. La conversación pasa a la cola del departamento y la automatización se pausa."
+      },
+      "attachments": {
+        "label": "Permitir adjuntos",
+        "hint": "El visitante puede enviar archivos {types} de hasta {size} MB."
+      }
+    },
+    "identity": {
+      "title": "Verificación de identidad",
+      "description": "Para sitios con inicio de sesión. Tu servidor firma quién es el visitante, y la conversación sigue a la persona en cualquier dispositivo.",
+      "modes": {
+        "off": {
+          "label": "Desactivada",
+          "hint": "Todo visitante es anónimo hasta completar el formulario."
+        },
+        "optional": {
+          "label": "Opcional",
+          "hint": "Los visitantes con sesión se reconocen. Los demás conversan como anónimos."
+        },
+        "required": {
+          "label": "Obligatoria",
+          "hint": "Solo los visitantes con sesión pueden conversar."
+        }
+      },
+      "secretTitle": "Secreto de firma",
+      "reveal": "Mostrar secreto",
+      "hide": "Ocultar",
+      "rotate": "Generar nuevo secreto",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "secretHidden": "El secreto permanece oculto. Muéstralo solo cuando configures tu servidor.",
+      "secretWarning": "Guarda el secreto solo en tu servidor. Nunca lo pongas en el código del sitio.",
+      "revealFailed": "No se pudo mostrar el secreto",
+      "rotateFailed": "No se pudo generar un nuevo secreto",
+      "rotated": "Nuevo secreto generado. Actualiza tu servidor.",
+      "rotateConfirmTitle": "¿Generar un nuevo secreto?",
+      "rotateConfirmDescription": "El secreto actual deja de funcionar al instante. Los visitantes con sesión dejan de ser reconocidos hasta que actualices tu servidor.",
+      "howTitle": "Cómo configurarlo",
+      "how": {
+        "sign": "En tu servidor, firma un JWT HS256 con el secreto de arriba.",
+        "claims": "Incluye sub (el id del usuario en tu sistema) y exp (como máximo 24 horas adelante). name, email y phone son opcionales y completan el formulario.",
+        "page": "En la página, define window.VozkoChat con el token antes del código de instalación."
+      },
+      "tokenPlaceholder": "token generado por tu servidor"
+    },
+    "availability": {
+      "title": "Estado",
+      "label": "Chat activo",
+      "activeHint": "El chat aparece en los sitios permitidos.",
+      "pausedHint": "El chat está en pausa y no aparece en ningún sitio. Las conversaciones anteriores siguen en la bandeja de entrada."
+    },
+    "block": {
+      "block": "Bloquear visitante",
+      "unblock": "Desbloquear visitante",
+      "blockHint": "Impide que este visitante envíe nuevos mensajes por el WebChat.",
+      "unblockHint": "El visitante vuelve a poder enviar mensajes.",
+      "blocked": "Visitante bloqueado",
+      "unblocked": "Visitante desbloqueado",
+      "failed": "No se pudo cambiar el bloqueo",
+      "confirmTitle": "¿Bloquear a este visitante?",
+      "confirmDescription": "Ya no podrá enviar mensajes por el WebChat. Puedes desbloquearlo cuando quieras.",
+      "cancel": "Cancelar"
+    },
+    "automation": {
+      "handlingTitle": "Después de la conversación",
+      "enableAnalysisLabel": "Analizar conversaciones con IA",
+      "enableAnalysisHint": "Clasifica cada conversación cuando se detiene, y aparece en Métricas > Audiencia. Cada análisis se cobra.",
+      "enableAutoStagingLabel": "Mover la etapa automáticamente",
+      "enableAutoStagingHint": "La IA elige la etapa del embudo que mejor se ajusta al estado actual de la conversación.",
+      "enableAutoMemoryLabel": "Memorizar datos del lead",
+      "enableAutoMemoryHint": "Guarda en la memoria del lead los datos duraderos que aparezcan en la conversación.",
+      "title": "Atención con IA",
+      "agentLabel": "Agente responsable",
+      "agentHint": "El agente responde a los mensajes de este chat.",
+      "enableLabel": "Responder automáticamente",
+      "enableHint": "Cuando está activo, el agente responde los mensajes nuevos. Puedes pausar la automatización en una conversación concreta sin cambiar esta configuración.",
+      "enableRequiresAgent": "Selecciona un agente para activar las respuestas automáticas.",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+      "activeNote": "Los mensajes nuevos los responderá este agente. El WebChat no tiene ventana de 24 horas: el agente responde mientras el visitante no esté bloqueado.",
+      "agentSearch": "Buscar agente...",
+      "agentEmpty": "No se encontró ningún agente.",
+      "agentInactive": "Inactivo",
+      "modeLabel": "Quién atiende",
+      "modeAgent": "Agente",
+      "modeWorkflow": "Automatización",
+      "workflowLabel": "Automatización responsable",
+      "workflowHint": "La automatización se ejecuta con cada mensaje nuevo de este chat.",
+      "workflowSearch": "Buscar automatización...",
+      "workflowEmpty": "No se encontró ninguna automatización.",
+      "enableRequiresWorkflow": "Selecciona una automatización para activarla.",
+      "activeNoteWorkflow": "Los mensajes nuevos dispararán esta automatización. Los botones y listas aparecen como opciones clicables en el chat. Los nodos de plantilla de WhatsApp se ignoran en este canal.",
+      "agent": "Agente",
+      "workflow": "Automatización",
+      "none": "Manual",
+      "pipelineLabel": "Embudo de este canal",
+      "pipelineHint": "Las conversaciones de este chat entran en este embudo, en su primera etapa.",
+      "pipelineDefault": "Embudo predeterminado del workspace"
     }
   }
 }

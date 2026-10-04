@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { expireOpen, humanizeFieldKey, isOpenProposal, pendingFromStored, proposalRows, secretsFilled, secretsPayload } from "./proposal";
+import { approvalPayload, approvalReady, expireOpen, humanizeFieldKey, isOpenProposal, pendingFromStored, proposalRows } from "./proposal";
+import type { PendingAction } from "./types";
 
 describe("humanizeFieldKey", () => {
   it("splits camelCase and snake_case into a sentence", () => {
@@ -76,15 +77,40 @@ describe("secret fields", () => {
     expect(pendingFromStored({ id: "a1", toolName: "create_phone_line", fields: [], secrets, status: "pending" })?.secrets).toEqual(secrets);
   });
 
-  it("is filled only when every protected field has a value", () => {
-    expect(secretsFilled(secrets, {})).toBe(false);
-    expect(secretsFilled(secrets, { password: "   " })).toBe(false);
-    expect(secretsFilled(secrets, { password: "s3nh4" })).toBe(true);
-    expect(secretsFilled(undefined, {})).toBe(true);
+  const pending: PendingAction = { id: "a1", toolName: "create_phone_line", secrets };
+
+  it("is ready only when every protected field has a value", () => {
+    expect(approvalReady(pending, {}, {})).toBe(false);
+    expect(approvalReady(pending, { password: "   " }, {})).toBe(false);
+    expect(approvalReady(pending, { password: "s3nh4" }, {})).toBe(true);
+    expect(approvalReady({ id: "a2", toolName: "x" }, {}, {})).toBe(true);
   });
 
   it("sends only the declared fields and nothing when none are asked", () => {
-    expect(secretsPayload(secrets, { password: "s3nh4", other: "x" })).toEqual({ password: "s3nh4" });
-    expect(secretsPayload(undefined, { password: "s3nh4" })).toBeUndefined();
+    expect(approvalPayload(pending, { password: "s3nh4", other: "x" }, {})).toEqual({ secrets: { password: "s3nh4" } });
+    expect(approvalPayload({ id: "a2", toolName: "x" }, { password: "s3nh4" }, {})).toEqual({});
+  });
+});
+
+describe("card choices", () => {
+  const choices = [{ key: "image_model", kind: "image_model" as const }];
+  const pending: PendingAction = { id: "a1", toolName: "generate_image", choices };
+
+  it("keeps the choices a stored proposal asks for", () => {
+    expect(pendingFromStored({ id: "a1", toolName: "generate_image", fields: [], choices, status: "pending" })?.choices).toEqual(choices);
+  });
+
+  it("is ready only once every choice is made", () => {
+    expect(approvalReady(pending, {}, {})).toBe(false);
+    expect(approvalReady(pending, {}, { image_model: "" })).toBe(false);
+    expect(approvalReady(pending, {}, { image_model: "openai/gpt-image-2" })).toBe(true);
+  });
+
+  it("sends the choices next to the secrets", () => {
+    const both: PendingAction = { ...pending, secrets: [{ key: "password", label: "Senha" }] };
+    expect(approvalPayload(both, { password: "s3nh4" }, { image_model: "openai/gpt-image-2", stray: "x" })).toEqual({
+      secrets: { password: "s3nh4" },
+      choices: { image_model: "openai/gpt-image-2" },
+    });
   });
 });

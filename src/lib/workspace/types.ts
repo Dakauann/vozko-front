@@ -39,6 +39,7 @@ export type ResourceType =
     | "ads"
     | "audience"
     | "telegram_accounts"
+    | "webchat_widgets"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
     | "mcp"

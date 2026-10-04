@@ -232,6 +232,7 @@ export interface AdPage {
   canAdvertise: boolean;
   leadTermsAccepted: boolean;
   numbers: AdNumber[] | null;
+  linkable?: AdNumber[] | null;
 }
 
 export type AdLocationKind = "country" | "region" | "city";

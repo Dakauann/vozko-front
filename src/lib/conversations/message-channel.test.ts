@@ -9,7 +9,7 @@ import {
 
 describe("FILTERABLE_MESSAGE_CHANNELS", () => {
     it("offers every messaging channel the product supports", () => {
-        for (const channel of ["whatsapp", "instagram", "facebook", "telegram"] as const) {
+        for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "webchat"] as const) {
             expect(FILTERABLE_MESSAGE_CHANNELS).toContain(channel);
         }
     });
@@ -26,6 +26,7 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
             instagram: true,
             facebook: true,
             telegram: true,
+            webchat: true,
         };
         for (const channel of Object.keys(covered) as MessageChannel[]) {
             expect(FILTERABLE_MESSAGE_CHANNELS).toContain(channel);
@@ -45,5 +46,14 @@ describe("channelCapabilities for Messenger", () => {
         expect(channelCapabilities.textLimit("facebook")).toBe(2000);
         expect(channelCapabilities.textLimit("instagram")).toBeNull();
         expect(channelCapabilities.textLimit("whatsapp")).toBeNull();
+    });
+});
+
+describe("channelCapabilities for the website chat", () => {
+    it("hands conversations to AI, with no calls, edits or timed window", () => {
+        expect(channelCapabilities.supportsAiHandling("webchat")).toBe(true);
+        expect(channelCapabilities.supportsCalling("webchat")).toBe(false);
+        expect(channelCapabilities.supportsMessageEditing("webchat")).toBe(false);
+        expect(channelCapabilities.hasTimedOutboundWindow("webchat")).toBe(false);
     });
 });
