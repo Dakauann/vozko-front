@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  isLive,
   deliveryHintKey,
   accountNotices,
   accountWritePermissions,
@@ -180,21 +179,12 @@ describe("isRemoved and isArchived", () => {
   });
 });
 
-describe("preparing delivery", () => {
-  it("reads an approved ad that has not delivered yet like Meta does", () => {
-    expect(deliveryKey("preparing")).toBe("preparing");
-    expect(deliveryTone("preparing")).toBe("info");
-    expect(deliveryHintKey("preparing")).toBe("preparing");
-    expect(deliveryHintKey("in_review")).toBe("in_review");
-    expect(deliveryHintKey("active")).toBeNull();
-  });
-});
-
-describe("isLive", () => {
-  it("counts approved ads that are on, delivering or still preparing", () => {
-    expect(isLive("active")).toBe(true);
-    expect(isLive("preparing")).toBe(true);
-    expect(isLive("in_review")).toBe(false);
-    expect(isLive("off")).toBe(false);
+describe("deliveryHintKey", () => {
+  it("explains a review and an approved ad that has not delivered yet, without inventing a status", () => {
+    expect(deliveryKey("preparing")).toBe("unknown");
+    expect(deliveryHintKey("in_review", false)).toBe("in_review");
+    expect(deliveryHintKey("active", false)).toBe("awaitingImpressions");
+    expect(deliveryHintKey("active", true)).toBeNull();
+    expect(deliveryHintKey("off", false)).toBeNull();
   });
 });

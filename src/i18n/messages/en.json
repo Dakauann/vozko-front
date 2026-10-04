@@ -17775,8 +17775,7 @@
       "pending_billing": "Payment pending",
       "archived": "Archived",
       "deleted": "Deleted",
-      "unknown": "Unknown",
-      "preparing": "Preparing"
+      "unknown": "Unknown"
     },
     "kpi": {
       "spend": "Amount spent",
@@ -18372,8 +18371,8 @@
       }
     },
     "deliveryHint": {
-      "preparing": "Approved by Meta. Meta is matching it with the right audience and bid before the first impressions; this usually takes 2 hours and can take up to 12.",
-      "in_review": "Meta is reviewing the ad. Vozko checks every 2 minutes and updates as soon as the review ends."
+      "in_review": "Meta is reviewing the ad. Vozko checks every 2 minutes and updates as soon as the review ends.",
+      "awaitingImpressions": "Approved and on, no impressions yet. Meta usually starts delivering within a few hours, 12 at most."
     }
   },
   "adsReadiness": {

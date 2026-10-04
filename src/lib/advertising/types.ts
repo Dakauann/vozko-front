@@ -29,7 +29,6 @@ export type AdMetaStatus =
 
 export type AdDelivery =
   | "active"
-  | "preparing"
   | "scheduled"
   | "completed"
   | "off"
@@ -176,6 +175,7 @@ export interface AdRow {
   status: string;
   effectiveStatus: string;
   delivery: AdDelivery | string;
+  delivered?: boolean;
   isOn: boolean;
   canToggle: boolean;
   objective?: string;

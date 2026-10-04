@@ -31,9 +31,9 @@ export function StatusDot({ tone, children, className, hint }: { tone: DeliveryT
   );
 }
 
-export function DeliveryStatus({ delivery }: { delivery: string }) {
+export function DeliveryStatus({ delivery, delivered = true }: { delivery: string; delivered?: boolean }) {
   const t = useTranslations("adsManager");
-  const hint = deliveryHintKey(delivery);
+  const hint = deliveryHintKey(delivery, delivered);
   return (
     <StatusDot tone={deliveryTone(delivery)} hint={hint ? t(`deliveryHint.${hint}`) : undefined}>
       {t(`delivery.${deliveryKey(delivery)}`)}

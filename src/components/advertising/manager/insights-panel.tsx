@@ -173,7 +173,7 @@ export function InsightsPanel(props: InsightsPanelProps) {
               <div className="flex items-center justify-between gap-3">
                 <ElevatedSheetTitle className="truncate text-xl">{row.name || row.metaId}</ElevatedSheetTitle>
                 <div className="flex shrink-0 items-center gap-3">
-                  <DeliveryStatus delivery={row.delivery} />
+                  <DeliveryStatus delivery={row.delivery} delivered={row.delivered} />
                   <RowSwitch row={row} account={account} permissions={permissions} busy={busy} onToggle={onToggle} />
                 </div>
               </div>

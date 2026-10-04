@@ -16280,8 +16280,7 @@
       "pending_billing": "Pago pendiente",
       "archived": "Archivado",
       "deleted": "Eliminado",
-      "unknown": "Desconocido",
-      "preparing": "Preparando"
+      "unknown": "Desconocido"
     },
     "kpi": {
       "spend": "Importe gastado",
@@ -16877,8 +16876,8 @@
       }
     },
     "deliveryHint": {
-      "preparing": "Aprobado por Meta. Meta está buscando el público y la puja adecuados antes de las primeras impresiones; suele tardar 2 horas y puede llegar a 12.",
-      "in_review": "Meta está revisando el anuncio. Vozko lo consulta cada 2 minutos y lo actualiza en cuanto termina la revisión."
+      "in_review": "Meta está revisando el anuncio. Vozko lo consulta cada 2 minutos y lo actualiza en cuanto termina la revisión.",
+      "awaitingImpressions": "Aprobado y activado, todavía sin impresiones. Meta suele empezar a entregar en unas horas, como máximo 12."
     }
   },
   "adsReadiness": {

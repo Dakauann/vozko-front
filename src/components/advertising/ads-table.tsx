@@ -157,7 +157,7 @@ export function AdsTable({
       sortKey: column,
       className: column === "delivery" || column === "budget" ? "whitespace-nowrap" : `${NUMERIC} whitespace-nowrap`,
       render: (row) => {
-        if (column === "delivery") return row.draft ? <DraftStatus draft={row.draft} /> : <DeliveryStatus delivery={row.delivery} />;
+        if (column === "delivery") return row.draft ? <DraftStatus draft={row.draft} /> : <DeliveryStatus delivery={row.delivery} delivered={row.delivered} />;
         if (column === "budget") {
           return (
             <BudgetCell

@@ -4,7 +4,6 @@ export type DeliveryTone = "healthy" | "warning" | "fault" | "info" | "neutral";
 
 const DELIVERY_TONES: Record<AdDelivery, DeliveryTone> = {
   active: "healthy",
-  preparing: "info",
   scheduled: "info",
   completed: "neutral",
   off: "neutral",
@@ -27,17 +26,13 @@ export function deliveryTone(delivery: string): DeliveryTone {
   return DELIVERY_TONES[deliveryKey(delivery)];
 }
 
-const LIVE_DELIVERIES: AdDelivery[] = ["active", "preparing"];
+export type DeliveryHint = "in_review" | "awaitingImpressions";
 
-export function isLive(delivery: string): boolean {
-  return LIVE_DELIVERIES.includes(deliveryKey(delivery));
-}
-
-const EXPLAINED_DELIVERIES: AdDelivery[] = ["preparing", "in_review"];
-
-export function deliveryHintKey(delivery: string): AdDelivery | null {
+export function deliveryHintKey(delivery: string, delivered: boolean): DeliveryHint | null {
   const key = deliveryKey(delivery);
-  return EXPLAINED_DELIVERIES.includes(key) ? key : null;
+  if (key === "in_review") return "in_review";
+  if (key === "active" && !delivered) return "awaitingImpressions";
+  return null;
 }
 
 export type ResultKind = "conversations" | "leads" | "linkClicks" | "landingPageViews" | "engagement" | "impressions";

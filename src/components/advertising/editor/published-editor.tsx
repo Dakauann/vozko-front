@@ -194,7 +194,7 @@ function PublishedEditorBody({
   return (
     <EditorShell
       breadcrumb={<EditorBreadcrumb crumbs={crumbs} />}
-      status={<EditorStatusLine status={null} detail={loaded ? <DeliveryStatus delivery={loaded.row.delivery} /> : null} />}
+      status={<EditorStatusLine status={null} detail={loaded ? <DeliveryStatus delivery={loaded.row.delivery} delivered={loaded.row.delivered} /> : null} />}
       tab={tab}
       onTab={setTab}
       tree={<EditorTree entries={entries} label={t("tree.objectLabel")} />}

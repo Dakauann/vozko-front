@@ -16777,8 +16777,7 @@
       "pending_billing": "Zahlung ausstehend",
       "archived": "Archiviert",
       "deleted": "Gelöscht",
-      "unknown": "Unbekannt",
-      "preparing": "Wird vorbereitet"
+      "unknown": "Unbekannt"
     },
     "kpi": {
       "spend": "Ausgegebener Betrag",
@@ -17374,8 +17373,8 @@
       }
     },
     "deliveryHint": {
-      "preparing": "Von Meta genehmigt. Meta sucht vor den ersten Impressionen die passende Zielgruppe und das passende Gebot; das dauert meist 2 Stunden, höchstens 12.",
-      "in_review": "Meta prüft die Anzeige. Vozko fragt alle 2 Minuten nach und aktualisiert, sobald die Prüfung abgeschlossen ist."
+      "in_review": "Meta prüft die Anzeige. Vozko fragt alle 2 Minuten nach und aktualisiert, sobald die Prüfung abgeschlossen ist.",
+      "awaitingImpressions": "Genehmigt und aktiv, noch keine Impressionen. Meta beginnt meist innerhalb weniger Stunden mit der Auslieferung, spätestens nach 12."
     }
   },
   "adsReadiness": {

@@ -17826,8 +17826,7 @@
       "pending_billing": "Pagamento pendente",
       "archived": "Arquivado",
       "deleted": "Excluído",
-      "unknown": "Desconhecido",
-      "preparing": "Preparando"
+      "unknown": "Desconhecido"
     },
     "kpi": {
       "spend": "Valor gasto",
@@ -18423,8 +18422,8 @@
       }
     },
     "deliveryHint": {
-      "preparing": "Aprovado pela Meta. A Meta está encontrando o público e o lance certos antes das primeiras impressões; costuma levar 2 horas e pode chegar a 12.",
-      "in_review": "A Meta está analisando o anúncio. A Vozko confere a cada 2 minutos e atualiza assim que a análise terminar."
+      "in_review": "A Meta está analisando o anúncio. A Vozko confere a cada 2 minutos e atualiza assim que a análise terminar.",
+      "awaitingImpressions": "Aprovado e ligado, ainda sem impressões. A Meta costuma começar a entregar em algumas horas, no máximo 12."
     }
   },
   "adsReadiness": {
