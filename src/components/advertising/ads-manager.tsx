@@ -74,12 +74,14 @@ import {
   duplicateState,
   editState,
   forRow,
+  insightsState,
   publishState,
   selectAt,
   switchState,
   type LevelSelection,
   type ToolbarContext,
 } from "@/lib/advertising/manager-toolbar";
+import { viewFromParams, viewToParams, type ManagerView } from "@/lib/advertising/manager-url";
 import { filterRows, type QuickView } from "@/lib/advertising/manager-views";
 import { needsStructureRefresh } from "@/lib/advertising/publish";
 import type { AdBudgetMinimum, AdLevel, AdPublishJob, AdReport, AdRow, AdTestLevel, MetaAdsConnectResult } from "@/lib/advertising/types";
@@ -96,6 +98,7 @@ import { DuplicateDialog } from "./duplicate-dialog";
 import { useIssueText } from "./field-issue";
 import { useLoadErrorState } from "./load-error-state";
 import { BulkEditDialog, type BulkEditRequest } from "./manager/bulk-edit-dialog";
+import { InsightsPanel } from "./manager/insights-panel";
 import { LevelTabs } from "./manager/level-tabs";
 import { ManagerTopBar } from "./manager/manager-top-bar";
 import { NameCell } from "./manager/name-cell";
@@ -140,10 +143,6 @@ function budgetError(result: { status?: number; code?: string; error: string }, 
   return result.error;
 }
 
-function focusedSelection(focusCampaign: string | null): LevelSelection {
-  return focusCampaign ? { ...EMPTY_SELECTION, campaign: new Set([focusCampaign]) } : EMPTY_SELECTION;
-}
-
 function requestedParent(params: URLSearchParams): CreateParent | undefined {
   const campaignId = params.get("campaignId") || undefined;
   const adSetId = params.get("adSetId") || undefined;
@@ -174,7 +173,6 @@ export function AdsManager() {
   const accounts = useAdAccounts({ enabled: canRead, requested: requestedAccount });
   const account = accounts.selected;
   const accountId = account?.id ?? null;
-  const focusCampaign = searchParams.get("campaign");
   const justPublished = searchParams.get("published") === "1";
   const publishedJobId = searchParams.get("job");
   const createRequested = searchParams.get("create") === "1";
@@ -184,9 +182,9 @@ export function AdsManager() {
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, SEARCH_DELAY_MS);
   const [view, setView] = useState<QuickView>("all");
-  const [level, setLevel] = useState<AdLevel>("campaign");
-  const [selection, setSelection] = useState<LevelSelection>(EMPTY_SELECTION);
-  const [selectionAccount, setSelectionAccount] = useState<string | null>(null);
+  const managerView = useMemo(() => viewFromParams(searchParams, accountId), [searchParams, accountId]);
+  const { level, selection } = managerView;
+  const focusCampaign = selection.campaign.size === 1 ? [...selection.campaign][0] : null;
   const [sort, setSort] = useState<RowSort | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<MetricColumn[]>(initialColumns);
   const [attribution, setAttribution] = useState<WindowChoice>(DEFAULT_WINDOW);
@@ -215,10 +213,21 @@ export function AdsManager() {
   const [review, setReview] = useState<ReviewRequest | null>(null);
   const refreshedAfterPublish = useRef(false);
 
-  if (selectionAccount !== accountId) {
-    setSelectionAccount(accountId);
-    setSelection(accountId && accountId === requestedAccount ? focusedSelection(focusCampaign) : EMPTY_SELECTION);
-  }
+  const showView = useCallback(
+    (next: ManagerView, history: "push" | "replace") => {
+      const query = viewToParams(new URLSearchParams(window.location.search), next, accountId).toString();
+      const url = query ? `${pathname}?${query}` : pathname;
+      if (history === "push") window.history.pushState(null, "", url);
+      else window.history.replaceState(null, "", url);
+    },
+    [accountId, pathname],
+  );
+  const setLevel = (next: AdLevel) => showView({ ...managerView, level: next, panel: null }, "push");
+  const setSelection = (next: LevelSelection) => showView({ ...managerView, selection: next }, "replace");
+
+  useEffect(() => {
+    if (accountId && requestedAccount !== accountId) showView(managerView, "replace");
+  }, [accountId, requestedAccount, managerView, showView]);
 
   const createKey = createRequested && account && canCreate ? searchParams.toString() : null;
   if (createKey && createHandled !== createKey) {
@@ -492,6 +501,12 @@ export function AdsManager() {
   const synced = relativeSince(account?.lastSyncedAt, now, fmt.tag);
 
   const selectedKeys = selection[level];
+  const insightsId = managerView.panel === "insights" && selectedKeys.size === 1 ? [...selectedKeys][0] : null;
+  const insightsRow = insightsId ? (publishedRows.find((row) => row.metaId === insightsId) ?? null) : null;
+  const insightsChain = {
+    campaign: insightsRow && insightsRow.level !== "campaign" ? levelRows("campaign").find((row) => row.metaId === insightsRow.campaignId) : undefined,
+    adSet: insightsRow?.level === "ad" ? levelRows("adset").find((row) => row.metaId === insightsRow.adSetId) : undefined,
+  };
   const selectedRows = rows.filter((row) => selectedKeys.has(row.metaId));
   const context: ToolbarContext = {
     level,
@@ -556,8 +571,14 @@ export function AdsManager() {
     });
   };
 
+  const openInsights = (target: AdLevel, nextSelection: LevelSelection) =>
+    showView({ level: target, selection: nextSelection, panel: "insights" }, "push");
+
   const runRowAction = (action: RowAction, row: TableRow) => {
     switch (action) {
+      case "insights":
+        if (insightsState(single(row)).enabled) openInsights(row.level, selectAt(selection, row.level, new Set([row.metaId])));
+        return;
       case "edit":
         if (editState(single(row)).enabled) openEditor(row);
         return;
@@ -588,12 +609,10 @@ export function AdsManager() {
       return;
     }
     if (row.level === "campaign") {
-      setSelection(selectAt(EMPTY_SELECTION, "campaign", new Set([row.metaId])));
-      setLevel("adset");
+      showView({ level: "adset", selection: selectAt(EMPTY_SELECTION, "campaign", new Set([row.metaId])), panel: null }, "push");
       return;
     }
-    setSelection((currentSelection) => selectAt(currentSelection, "adset", new Set([row.metaId])));
-    setLevel("ad");
+    showView({ level: "ad", selection: selectAt(selection, "adset", new Set([row.metaId])), panel: null }, "push");
   };
 
   const canRenameRow = (row: TableRow): boolean => {
@@ -677,7 +696,7 @@ export function AdsManager() {
       throw new Error(outcomes[0]?.message ?? "");
     }
     setDeleting(null);
-    setSelection((currentSelection) => selectAt(currentSelection, level, new Set()));
+    setSelection(selectAt(selection, level, new Set()));
     outcomeToast(outcomes, names, "deleted");
     reload();
     reloadDrafts();
@@ -927,7 +946,7 @@ export function AdsManager() {
           onLevel={setLevel}
           selected={{ campaign: selection.campaign.size, adset: selection.adset.size, ad: selection.ad.size }}
           counts={{ campaign: levelCount("campaign"), adset: levelCount("adset"), ad: levelCount("ad") }}
-          onClear={(target) => setSelection((currentSelection) => selectAt(currentSelection, target, new Set()))}
+          onClear={(target) => setSelection(selectAt(selection, target, new Set()))}
           aside={<AdsDateRangePicker value={rangeChoice} today={today} timezone={account.timezone} onApply={setRangeChoice} />}
         />
 
@@ -1004,7 +1023,7 @@ export function AdsManager() {
           visibleColumns={visibleColumns}
           sort={sort}
           onSort={(key: SortableColumn) => setSort((currentSort) => nextSort(currentSort, key))}
-          selection={{ selected: new Set(selectedKeys), onChange: (keys) => setSelection((currentSelection) => selectAt(currentSelection, level, keys)) }}
+          selection={{ selected: new Set(selectedKeys), onChange: (keys) => setSelection(selectAt(selection, level, keys)) }}
           permissions={permissions}
           pending={pending}
           loading={loading}
@@ -1042,6 +1061,27 @@ export function AdsManager() {
       </div>
 
       {jobsSheet}
+
+      <InsightsPanel
+        account={account}
+        row={insightsRow}
+        chain={insightsChain}
+        range={range}
+        permissions={permissions}
+        busy={!!insightsRow && pending.has(insightsRow.metaId)}
+        onToggle={toggleRow}
+        onBudget={saveBudget}
+        onOpen={(target, metaId) =>
+          openInsights(
+            target,
+            target === "campaign"
+              ? selectAt(EMPTY_SELECTION, "campaign", new Set([metaId]))
+              : selectAt(selectAt(EMPTY_SELECTION, "campaign", selection.campaign), "adset", new Set([metaId])),
+          )
+        }
+        onShowAdSets={(campaignId) => showView({ level: "adset", selection: selectAt(EMPTY_SELECTION, "campaign", new Set([campaignId])), panel: null }, "push")}
+        onClose={() => showView({ ...managerView, panel: null }, "push")}
+      />
 
       <AbTestsSheet open={testsOpen} accountId={account.id} refreshKey={testsRefresh} onOpenChange={setTestsOpen} />
 

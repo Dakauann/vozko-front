@@ -11,6 +11,10 @@ describe("reportQuery", () => {
     );
   });
 
+  it("narrows a trend to one ad", () => {
+    expect(reportQuery({ range, adIds: ["7"] })).toBe("since=2026-09-01&until=2026-09-30&adIds=7");
+  });
+
   it("asks for the previous period only when comparing", () => {
     expect(reportQuery({ level: "campaign", range, compare: true })).toContain("compare=1");
     expect(reportQuery({ level: "campaign", range, compare: false })).not.toContain("compare");

@@ -4,25 +4,33 @@ import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { ChannelAvatarImage } from "@/components/channels/channel-avatar-image";
-import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
-import { CaretUp, DotsThree, Globe, Image as ImageGlyph, InstagramLogo, MessengerLogo, Package, Play, WhatsappLogo } from "@/components/icons";
 import {
-  CAROUSEL_CARD_RATIO,
-  FEED_MEDIA_RATIO,
-  STORY_RATIO,
-  STORY_SAFE_ZONE,
-  TEXT_LIMITS,
-  clipText,
-  safeZoneInsets,
-  textLimitSet,
-} from "@/lib/advertising/preview-spec";
+  ArrowsClockwise,
+  Bookmark,
+  Camera,
+  CaretRight,
+  CaretUp,
+  ChatCircle,
+  DotsThree,
+  Globe,
+  Heart,
+  Image as ImageGlyph,
+  InstagramLogo,
+  MessengerLogo,
+  Package,
+  PaperPlaneTilt,
+  Play,
+  ThumbsUp,
+  WhatsappLogo,
+  X,
+} from "@/components/icons";
 import type { AdDraftDestination } from "@/lib/advertising/draft-types";
+import { PREVIEW_PLACEMENTS, placementText, type PreviewPlacementId, type PreviewPlacementSpec } from "@/lib/advertising/preview-placements";
+import { CAROUSEL_CARD_RATIO, FEED_MEDIA_RATIO, STORY_RATIO, STORY_SAFE_ZONE, TEXT_LIMITS, clipText, safeZoneInsets } from "@/lib/advertising/preview-spec";
 import { resolvedCallToAction } from "@/lib/advertising/wizard-routes";
 import { cn } from "@/lib/utils";
 
 import { AdImage } from "./ad-image";
-
-export type AdPreviewPlacement = "feed" | "story";
 
 export interface AdPreviewMedia {
   kind: "image" | "video";
@@ -68,6 +76,17 @@ const CTA_ICON: Record<string, typeof WhatsappLogo> = {
   INSTAGRAM_MESSAGE: InstagramLogo,
 };
 
+interface CardModel {
+  content: AdPreviewContent;
+  spec: PreviewPlacementSpec;
+  media: AdPreviewMedia | undefined;
+  text: string;
+  ctaLabel: string;
+  ctaIcon: typeof WhatsappLogo | undefined;
+  fallback: string;
+  pageName: string;
+}
+
 function mainMedia(content: AdPreviewContent): AdPreviewMedia | undefined {
   if (content.format === "EXISTING_POST") return content.post?.pictureUrl ? { kind: "image", url: content.post.pictureUrl } : undefined;
   if (content.format === "FLEXIBLE") return content.medias?.[0];
@@ -108,7 +127,7 @@ function ProductTiles({ count, columns }: { count: number; columns: string }) {
   );
 }
 
-function PrimaryText({ text, limit, inverse }: { text: string; limit: number; inverse?: boolean }) {
+function PrimaryText({ text, limit, more, inverse }: { text: string; limit: number; more: string; inverse?: boolean }) {
   const t = useTranslations("adsWizard.preview");
   const [expanded, setExpanded] = useState(false);
   const clipped = clipText(text, limit);
@@ -123,33 +142,39 @@ function PrimaryText({ text, limit, inverse }: { text: string; limit: number; in
         onClick={() => setExpanded(true)}
         className={cn("font-semibold hover:underline", inverse ? "text-card" : "text-muted-foreground")}
       >
-        {t("seeMore")}
+        {more}
       </button>
     </>
   );
 }
 
-function Header({ content, inverse }: { content: AdPreviewContent; inverse?: boolean }) {
+function PageAvatar({ content, name, size = "size-8" }: { content: AdPreviewContent; name: string; size?: string }) {
+  return (
+    <ChannelAvatarImage
+      url={content.pagePictureUrl}
+      name={name}
+      seed={content.pageName || "page"}
+      className={cn("shrink-0", size)}
+      textClassName="text-2xs"
+    />
+  );
+}
+
+function Header({ model, inverse, closable }: { model: CardModel; inverse?: boolean; closable?: boolean }) {
   const t = useTranslations("adsWizard.preview");
+  const tone = inverse ? "text-card" : "text-muted-foreground";
   return (
     <header className="flex items-center gap-2.5 px-3 py-2.5">
-      <ChannelAvatarImage
-        url={content.pagePictureUrl}
-        name={content.pageName || t("pageFallback")}
-        seed={content.pageName || "page"}
-        className="size-8"
-        textClassName="text-2xs"
-      />
+      <PageAvatar content={model.content} name={model.pageName} />
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-semibold", inverse ? "text-card" : "text-foreground")}>
-          {content.pageName || t("pageFallback")}
-        </p>
-        <p className={cn("flex items-center gap-1 text-2xs", inverse ? "text-card" : "text-muted-foreground")}>
+        <p className={cn("truncate text-sm font-semibold", inverse ? "text-card" : "text-foreground")}>{model.pageName}</p>
+        <p className={cn("flex items-center gap-1 text-2xs", tone)}>
           {t("sponsored")}
           {inverse ? null : <Globe className="h-3 w-3" aria-hidden />}
         </p>
       </div>
-      <DotsThree className={cn("h-5 w-5 shrink-0", inverse ? "text-card" : "text-muted-foreground")} weight="bold" aria-hidden />
+      <DotsThree className={cn("h-5 w-5 shrink-0", tone)} weight="bold" aria-hidden />
+      {closable ? <X className={cn("h-4 w-4 shrink-0", tone)} aria-hidden /> : null}
     </header>
   );
 }
@@ -209,98 +234,54 @@ function SafeZoneOverlay() {
   );
 }
 
-function StoryPreview({
-  content,
-  media,
-  text,
-  ctaLabel,
-  fallback,
-}: {
-  content: AdPreviewContent;
-  media: AdPreviewMedia | undefined;
-  text: string;
-  ctaLabel: string;
-  fallback: string;
-}) {
-  const t = useTranslations("adsWizard.preview");
-  const [safeZone, setSafeZone] = useState(false);
-  const limits = TEXT_LIMITS.story;
-  const insets = safeZoneInsets(STORY_SAFE_ZONE);
+function FormatMedia({ model, fill }: { model: CardModel; fill?: boolean }) {
+  if (model.content.format === "CATALOG") return <ProductTiles count={4} columns="grid-cols-2" />;
+  if (fill) return <MediaView media={model.media} fallback={model.fallback} />;
   return (
-    <div className="mx-auto w-full max-w-[16rem] space-y-2">
-      <figure
-        className="relative w-full overflow-hidden rounded-lg border border-border bg-foreground shadow-sm"
-        style={{ aspectRatio: STORY_RATIO }}
-        aria-label={t("label")}
-      >
-        <div className="absolute inset-0">
-          {content.format === "CATALOG" ? <ProductTiles count={4} columns="grid-cols-2" /> : <MediaView media={media} fallback={fallback} />}
-        </div>
-        <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-foreground/70 to-transparent pt-1.5">
-          <div className="mx-2 h-0.5 rounded-full bg-card/50">
-            <div className="h-full w-1/3 rounded-full bg-card" />
-          </div>
-          <Header content={content} inverse />
-        </div>
-        <div
-          className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end gap-2 bg-gradient-to-t from-foreground/80 to-transparent px-3 pb-4 text-center"
-          style={{ height: insets.bottom }}
-        >
-          {text.trim() ? (
-            <p className="line-clamp-3 text-xs text-card">
-              <PrimaryText text={text} limit={limits.primaryText} inverse />
-            </p>
-          ) : null}
-          <CaretUp className="h-4 w-4 text-card" weight="bold" aria-hidden />
-          <span className="inline-flex h-8 items-center rounded-full bg-card px-4 text-xs font-semibold text-foreground">{ctaLabel}</span>
-        </div>
-        {safeZone ? <SafeZoneOverlay /> : null}
-      </figure>
-      <ElevatedSwitch checked={safeZone} onCheckedChange={setSafeZone} label={t("showSafeZone")} description={t("safeZoneHint")} />
+    <div className="relative w-full bg-muted" style={{ aspectRatio: FEED_MEDIA_RATIO }}>
+      <MediaView media={model.media} fallback={model.fallback} />
     </div>
   );
 }
 
-export function AdPreviewCard({ content, placement = "feed" }: { content: AdPreviewContent; placement?: AdPreviewPlacement }) {
+function Notes({ content }: { content: AdPreviewContent }) {
   const t = useTranslations("adsWizard.preview");
-  const tCta = useTranslations("adsWizard.cta");
-  const cta = resolvedCallToAction(content.destination as AdDraftDestination | "", content.callToAction ?? "");
-  const ctaLabel = tCta.has(cta) ? tCta(cta) : cta;
-  const CtaIcon = CTA_ICON[cta];
-  const media = mainMedia(content);
-  const text = content.format === "EXISTING_POST" ? (content.post?.message ?? "") : content.primaryText;
-  const fallback = t("imageFallback");
-  const limits = TEXT_LIMITS[textLimitSet(placement, content.format)];
   const extras: ReactNode[] = [];
   if (content.format === "FLEXIBLE" && ((content.medias?.length ?? 0) > 1 || (content.textCount ?? 0) > 1)) {
     extras.push(t("flexibleNote", { medias: content.medias?.length ?? 0, texts: content.textCount ?? 0 }));
   }
   if (content.format === "CATALOG") extras.push(t("catalogNote"));
+  if (extras.length === 0) return null;
+  return (
+    <div className="space-y-1 border-t border-border px-3 py-2">
+      {extras.map((extra, index) => (
+        <p key={index} className="text-2xs text-muted-foreground">
+          {extra}
+        </p>
+      ))}
+    </div>
+  );
+}
 
-  if (placement === "story") {
-    return <StoryPreview content={content} media={media} text={text} ctaLabel={ctaLabel} fallback={fallback} />;
-  }
-
+function FacebookFeed({ model }: { model: CardModel }) {
+  const t = useTranslations("adsWizard.preview");
+  const { content, spec } = model;
+  const carousel = content.format === "CAROUSEL";
+  const limits = TEXT_LIMITS[carousel ? "carousel" : "feed"];
+  const primaryLimit = carousel ? TEXT_LIMITS.carousel.primaryText : spec.limits.primaryText;
   const headline = clipText(content.headline, limits.headline).text;
   const description = clipText(content.description, limits.description).text;
-
   return (
-    <figure className="w-full max-w-sm overflow-hidden rounded-lg border border-border bg-card shadow-sm" aria-label={t("label")}>
-      <Header content={content} />
+    <figure className="w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm" aria-label={t("label")}>
+      <Header model={model} closable />
       <p className="whitespace-pre-wrap break-words px-3 pb-2.5 text-sm text-foreground">
-        <PrimaryText text={text} limit={limits.primaryText} />
+        <PrimaryText text={model.text} limit={primaryLimit} more={t("seeMore")} />
       </p>
       {content.format === "CAROUSEL" ? (
-        <Carousel cards={content.cards ?? []} ctaLabel={ctaLabel} fallback={fallback} />
+        <Carousel cards={content.cards ?? []} ctaLabel={model.ctaLabel} fallback={model.fallback} />
       ) : (
         <>
-          {content.format === "CATALOG" ? (
-            <ProductTiles count={4} columns="grid-cols-2" />
-          ) : (
-            <div className="relative w-full bg-muted" style={{ aspectRatio: FEED_MEDIA_RATIO }}>
-              <MediaView media={media} fallback={fallback} />
-            </div>
-          )}
+          <FormatMedia model={model} />
           {content.format === "COLLECTION" ? <ProductTiles count={3} columns="grid-cols-3 border-t border-border" /> : null}
           <div className="flex items-center gap-3 border-t border-border bg-muted px-3 py-2.5">
             <div className="min-w-0 flex-1">
@@ -308,19 +289,234 @@ export function AdPreviewCard({ content, placement = "feed" }: { content: AdPrev
               {headline ? <p className="truncate text-sm font-semibold text-foreground">{headline}</p> : null}
               {description ? <p className="truncate text-xs text-muted-foreground">{description}</p> : null}
             </div>
-            <CtaButton label={ctaLabel} icon={CtaIcon} />
+            <CtaButton label={model.ctaLabel} icon={model.ctaIcon} />
           </div>
         </>
       )}
-      {extras.length > 0 ? (
-        <div className="space-y-1 border-t border-border px-3 py-2">
-          {extras.map((extra, index) => (
-            <p key={index} className="text-2xs text-muted-foreground">
-              {extra}
-            </p>
-          ))}
-        </div>
-      ) : null}
+      <div className="flex items-center justify-around border-t border-border px-3 py-2 text-2xs font-semibold text-muted-foreground" aria-hidden>
+        <span className="inline-flex items-center gap-1">
+          <ThumbsUp className="h-3.5 w-3.5" />
+          {t("like")}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <ChatCircle className="h-3.5 w-3.5" />
+          {t("comment")}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <PaperPlaneTilt className="h-3.5 w-3.5" />
+          {t("share")}
+        </span>
+      </div>
+      <Notes content={content} />
     </figure>
   );
+}
+
+function InstagramFeed({ model }: { model: CardModel }) {
+  const t = useTranslations("adsWizard.preview");
+  const { content, spec } = model;
+  const CtaIcon = model.ctaIcon;
+  return (
+    <figure className="w-full overflow-hidden rounded-lg border border-border bg-card shadow-sm" aria-label={t("label")}>
+      <header className="flex items-center gap-2.5 px-3 py-2">
+        <PageAvatar content={content} name={model.pageName} size="size-7" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-foreground">{model.pageName}</p>
+          <p className="text-2xs text-muted-foreground">{t("sponsored")}</p>
+        </div>
+        <DotsThree className="h-5 w-5 shrink-0 text-muted-foreground" weight="bold" aria-hidden />
+      </header>
+      {content.format === "CAROUSEL" ? (
+        <div className="relative w-full bg-muted" style={{ aspectRatio: CAROUSEL_CARD_RATIO }}>
+          <MediaView media={model.media} fallback={model.fallback} />
+        </div>
+      ) : (
+        <FormatMedia model={model} />
+      )}
+      <div className="flex items-center gap-1.5 border-b border-border px-3 py-2 text-xs font-semibold text-foreground">
+        {CtaIcon ? <CtaIcon className="h-3.5 w-3.5" aria-hidden /> : null}
+        <span className="min-w-0 flex-1 truncate">{model.ctaLabel}</span>
+        <CaretRight className="h-3.5 w-3.5" aria-hidden />
+      </div>
+      <div className="flex items-center gap-3 px-3 pt-2 text-foreground" aria-hidden>
+        <Heart className="h-4 w-4" />
+        <ChatCircle className="h-4 w-4" />
+        <ArrowsClockwise className="h-4 w-4" />
+        <PaperPlaneTilt className="h-4 w-4" />
+        <Bookmark className="ml-auto h-4 w-4" />
+      </div>
+      <p className="whitespace-pre-wrap break-words px-3 pb-3 pt-1.5 text-xs text-foreground">
+        <span className="mr-1 font-semibold">{model.pageName}</span>
+        <PrimaryText text={model.text} limit={spec.limits.primaryText} more={t("more")} />
+      </p>
+      <Notes content={content} />
+    </figure>
+  );
+}
+
+function Marketplace({ model }: { model: CardModel }) {
+  const t = useTranslations("adsWizard.preview");
+  const headline = clipText(model.content.headline || model.text, model.spec.limits.headline).text;
+  return (
+    <figure className="mx-auto w-3/4 overflow-hidden rounded-lg border border-border bg-card shadow-sm" aria-label={t("label")}>
+      <header className="flex items-center gap-2 px-2.5 py-2">
+        <PageAvatar content={model.content} name={model.pageName} size="size-7" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-foreground">{model.pageName}</p>
+          <p className="text-2xs text-muted-foreground">{t("sponsored")}</p>
+        </div>
+        <DotsThree className="h-4 w-4 shrink-0 text-muted-foreground" weight="bold" aria-hidden />
+      </header>
+      <div className="relative w-full bg-muted" style={{ aspectRatio: "1 / 1" }}>
+        <MediaView media={model.media} fallback={model.fallback} />
+      </div>
+      <p className="truncate px-2.5 py-2 text-xs text-foreground">{headline || " "}</p>
+    </figure>
+  );
+}
+
+function StoryFrame({ children, safeZone }: { children: ReactNode; safeZone: boolean }) {
+  const t = useTranslations("adsWizard.preview");
+  return (
+    <figure
+      className="relative w-full overflow-hidden rounded-lg border border-border bg-foreground shadow-sm"
+      style={{ aspectRatio: STORY_RATIO }}
+      aria-label={t("label")}
+    >
+      {children}
+      {safeZone ? <SafeZoneOverlay /> : null}
+    </figure>
+  );
+}
+
+function Story({ model, safeZone }: { model: CardModel; safeZone: boolean }) {
+  const t = useTranslations("adsWizard.preview");
+  const { spec } = model;
+  const caption = placementText(spec, model.text);
+  const CtaIcon = model.ctaIcon;
+  return (
+    <StoryFrame safeZone={safeZone}>
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full">
+          <FormatMedia model={model} />
+        </div>
+      </div>
+      <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-foreground/70 to-transparent pt-1.5">
+        <div className="mx-2 h-0.5 rounded-full bg-card/50">
+          <div className="h-full w-1/3 rounded-full bg-card" />
+        </div>
+        <Header model={model} inverse closable />
+      </div>
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 bg-gradient-to-t from-foreground/80 to-transparent px-3 pb-3 pt-8 text-center">
+        {caption.text ? (
+          <p className="text-xs text-card">
+            {caption.text}
+            {caption.clipped ? <span className="font-semibold">{`... ${t("more")}`}</span> : null}
+          </p>
+        ) : null}
+        {spec.platform === "instagram" ? (
+          <>
+            <CaretUp className="h-4 w-4 text-card" weight="bold" aria-hidden />
+            <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-[--radius] bg-card px-3 text-xs font-semibold text-foreground">
+              {CtaIcon ? <CtaIcon className="h-3.5 w-3.5" aria-hidden /> : null}
+              {model.ctaLabel}
+            </span>
+          </>
+        ) : (
+          <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-card/90 px-4 text-xs font-semibold text-foreground">
+            {CtaIcon ? <CtaIcon className="h-3.5 w-3.5" aria-hidden /> : null}
+            {model.ctaLabel}
+          </span>
+        )}
+        <span className="self-start text-2xs font-semibold text-card">{t("sponsored")}</span>
+      </div>
+    </StoryFrame>
+  );
+}
+
+function Reels({ model, safeZone }: { model: CardModel; safeZone: boolean }) {
+  const t = useTranslations("adsWizard.preview");
+  const { spec } = model;
+  const caption = placementText(spec, model.text);
+  const instagram = spec.platform === "instagram";
+  const CtaIcon = model.ctaIcon;
+  const actions = instagram ? [Heart, ChatCircle, PaperPlaneTilt, DotsThree] : [ThumbsUp, ChatCircle, PaperPlaneTilt];
+  return (
+    <StoryFrame safeZone={safeZone}>
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full">
+          <FormatMedia model={model} />
+        </div>
+      </div>
+      {instagram ? (
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3 pt-2.5 text-card">
+          <span className="text-sm font-semibold">{t("reels")}</span>
+          <Camera className="h-4 w-4" aria-hidden />
+        </div>
+      ) : null}
+      <div className="absolute bottom-16 right-2 flex flex-col items-center gap-3 text-card" aria-hidden>
+        {actions.map((Action, index) => (
+          <Action key={index} className="h-4 w-4" />
+        ))}
+      </div>
+      <div className="absolute inset-x-0 bottom-0 space-y-1.5 bg-gradient-to-t from-foreground/80 to-transparent px-3 pb-3 pt-10 pr-9 text-card">
+        <div className="flex items-center gap-1.5">
+          <PageAvatar content={model.content} name={model.pageName} size="size-6" />
+          <span className="min-w-0 truncate text-xs font-semibold">{model.pageName}</span>
+          {instagram ? <span className="rounded-sm border border-card/70 px-1 text-[0.625rem] font-semibold">{t("follow")}</span> : null}
+        </div>
+        {caption.text ? (
+          <p className="truncate text-2xs">
+            {caption.text}
+            {caption.clipped ? "..." : null}
+          </p>
+        ) : null}
+        <span
+          className={cn(
+            "flex h-7 w-full items-center justify-center gap-1.5 rounded-[--radius] text-2xs font-semibold",
+            instagram ? "bg-card/20 text-card" : "bg-card text-foreground",
+          )}
+        >
+          {CtaIcon ? <CtaIcon className="h-3.5 w-3.5" aria-hidden /> : null}
+          {model.ctaLabel}
+        </span>
+        <span className="block text-[0.625rem] font-semibold">{t("sponsored")}</span>
+      </div>
+    </StoryFrame>
+  );
+}
+
+const DEFAULT_PLACEMENT: PreviewPlacementId = "facebook_feed";
+
+function specOf(id: PreviewPlacementId): PreviewPlacementSpec {
+  return PREVIEW_PLACEMENTS.find((spec) => spec.id === id) ?? PREVIEW_PLACEMENTS[0];
+}
+
+export function AdPreviewCard({
+  content,
+  placement = DEFAULT_PLACEMENT,
+  safeZone = false,
+}: {
+  content: AdPreviewContent;
+  placement?: PreviewPlacementId;
+  safeZone?: boolean;
+}) {
+  const t = useTranslations("adsWizard.preview");
+  const tCta = useTranslations("adsWizard.cta");
+  const cta = resolvedCallToAction(content.destination as AdDraftDestination | "", content.callToAction ?? "");
+  const model: CardModel = {
+    content,
+    spec: specOf(placement),
+    media: mainMedia(content),
+    text: content.format === "EXISTING_POST" ? (content.post?.message ?? "") : content.primaryText,
+    ctaLabel: tCta.has(cta) ? tCta(cta) : cta,
+    ctaIcon: CTA_ICON[cta],
+    fallback: t("imageFallback"),
+    pageName: content.pageName || t("pageFallback"),
+  };
+  const shape = model.spec.shape;
+  if (shape === "story") return <Story model={model} safeZone={safeZone} />;
+  if (shape === "reels") return <Reels model={model} safeZone={safeZone} />;
+  if (shape === "marketplace") return <Marketplace model={model} />;
+  return model.spec.platform === "instagram" ? <InstagramFeed model={model} /> : <FacebookFeed model={model} />;
 }

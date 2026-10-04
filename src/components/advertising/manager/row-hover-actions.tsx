@@ -3,10 +3,19 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { Copy, PaperPlaneTilt, PencilSimple } from "@/components/icons";
+import { ChartLine, Copy, PaperPlaneTilt, PencilSimple } from "@/components/icons";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
-import { duplicateState, editState, forRow, isOffered, publishState, type ActionState, type ToolbarContext } from "@/lib/advertising/manager-toolbar";
+import {
+  duplicateState,
+  editState,
+  forRow,
+  insightsState,
+  isOffered,
+  publishState,
+  type ActionState,
+  type ToolbarContext,
+} from "@/lib/advertising/manager-toolbar";
 
 import type { RowAction } from "../row-actions-menu";
 import type { BlockerText } from "./use-blocker-text";
@@ -70,6 +79,13 @@ export function RowHoverActions({
           onClick={() => onAction("publish", row)}
         />
       ) : null}
+      <HoverAction
+        state={insightsState(single)}
+        icon={<ChartLine className="h-3.5 w-3.5" aria-hidden />}
+        label={t("insights")}
+        blockerText={blockerText}
+        onClick={() => onAction("insights", row)}
+      />
       <HoverAction
         state={editState(single)}
         icon={<PencilSimple className="h-3.5 w-3.5" aria-hidden />}

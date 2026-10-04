@@ -14907,11 +14907,7 @@
     "publishing": "Publicando...",
     "previewTitle": "Vista previa",
     "previewAd": "Vista previa del anuncio {index} de {total}",
-    "previewNote": "Simulación aproximada del feed: medio 4:5 y texto principal cortado en unos 125 caracteres con Ver más. Meta ajusta el recorte en cada ubicación.",
-    "placement": {
-      "feed": "Feed",
-      "story": "Stories"
-    },
+    "previewNote": "Vista aproximada de cada ubicación, con las proporciones de Meta. Meta corta el texto en cada una: el feed de Instagram, las Stories y los Reels muestran mucho menos que el feed de Facebook.",
     "discardTitle": "¿Descartar este borrador?",
     "discardBody": "Se eliminarán el borrador y todo lo que completaste en él. No se envió nada a Meta.",
     "discardConfirm": "Descartar",
@@ -15305,7 +15301,14 @@
         "instagram_required": "Para conversaciones en Instagram Direct, marca Instagram.",
         "facebook_required": "Para conversaciones en Messenger, marca Facebook o Messenger.",
         "platforms_required": "Marca al menos una plataforma."
-      }
+      },
+      "facebook_feed": "Feed de Facebook",
+      "instagram_feed": "Feed de Instagram",
+      "facebook_marketplace": "Facebook Marketplace",
+      "facebook_story": "Stories de Facebook",
+      "instagram_story": "Stories de Instagram",
+      "facebook_reels": "Reels de Facebook",
+      "instagram_reels": "Reels de Instagram"
     },
     "reach": {
       "range": "Público estimado: {lower} a {upper} personas",
@@ -15541,7 +15544,13 @@
       "seeMore": "Ver más",
       "safeZone": "Zona segura",
       "showSafeZone": "Mostrar zonas seguras",
-      "safeZoneHint": "Deja textos y logotipos dentro de la zona segura: 14% libre arriba, 35% abajo y 6% a los lados."
+      "safeZoneHint": "Deja textos y logotipos dentro de la zona segura: 14% libre arriba, 35% abajo y 6% a los lados.",
+      "like": "Me gusta",
+      "comment": "Comentar",
+      "share": "Compartir",
+      "more": "más",
+      "reels": "Reels",
+      "follow": "Seguir"
     },
     "issues": {
       "generic": {
@@ -15733,7 +15742,11 @@
         "not_for_destination": "Este formato no está disponible para el destino elegido."
       }
     },
-    "previewNoteStory": "Simulación aproximada de historia 9:16. Meta cubre el 14% superior con la página y el 35% inferior con el texto y el botón."
+    "placementFilter": {
+      "all": "Todas",
+      "feeds": "Feeds",
+      "vertical": "Stories y Reels"
+    }
   },
   "adsManager": {
     "budgetMinimum": {
@@ -15832,7 +15845,8 @@
       "deleteDraft": "Eliminar borrador",
       "deleteDraftBody": "Se eliminará el borrador {name}. No se publicó nada en Meta, así que no hay nada que detener allí.",
       "deleteManyTitle": "{count, plural, one {¿Eliminar # elemento?} other {¿Eliminar # elementos?}}",
-      "deleteManyBody": "{count, plural, one {Se eliminará el elemento seleccionado.} other {Se eliminarán los # elementos seleccionados.}} Los elementos publicados se eliminan en Meta con todo lo que contienen, y no se puede deshacer. Los borradores solo desaparecen de aquí."
+      "deleteManyBody": "{count, plural, one {Se eliminará el elemento seleccionado.} other {Se eliminarán los # elementos seleccionados.}} Los elementos publicados se eliminan en Meta con todo lo que contienen, y no se puede deshacer. Los borradores solo desaparecen de aquí.",
+      "insights": "Gráficos"
     },
     "duplicate": {
       "title": {
@@ -16765,6 +16779,50 @@
     },
     "connectCard": {
       "button": "Continuar con Facebook"
+    },
+    "insights": {
+      "range": "{since} a {until}",
+      "noCreative": "Meta no devolvió el creativo de este anuncio.",
+      "tabs": {
+        "performance": "Rendimiento",
+        "budget": "Presupuesto",
+        "actions": "Acciones",
+        "preview": "Vista previa",
+        "comments": "Comentarios"
+      },
+      "level": {
+        "campaign": "campaña",
+        "adset": "conjunto de anuncios",
+        "ad": "anuncio"
+      },
+      "budget": {
+        "unavailable": "Presupuesto no disponible aquí",
+        "goTo": "Abrir {level}",
+        "goToAdSets": "Ver los conjuntos de anuncios",
+        "onAdSets": "Esta campaña no tiene presupuesto propio: cada conjunto de anuncios tiene el suyo.",
+        "on": {
+          "campaign": "El presupuesto está en la campaña.",
+          "adset": "El presupuesto está en el conjunto de anuncios."
+        },
+        "unknown": "No se pudo saber dónde está el presupuesto. Actualiza la cuenta e inténtalo de nuevo."
+      },
+      "actions": {
+        "title": "{count, plural, one {# acción por hacer} other {# acciones por hacer}}",
+        "emptyTitle": "Nada por hacer",
+        "emptyBody": "Meta no señaló errores ni advertencias para este elemento."
+      },
+      "comments": {
+        "platform": {
+          "facebook": "Facebook",
+          "instagram": "Instagram"
+        },
+        "reload": "Actualizar",
+        "empty": "No se encontraron comentarios.",
+        "anonymous": "Persona sin nombre visible",
+        "likes": "{count, plural, one {# me gusta} other {# me gusta}}",
+        "replies": "{count, plural, one {# respuesta} other {# respuestas}}",
+        "note": "Los 100 comentarios más recientes de la publicación del anuncio, leídos directamente de Meta. Para responder, usa la bandeja de entrada."
+      }
     }
   },
   "adsReadiness": {
@@ -16927,7 +16985,9 @@
     "job_not_activatable": "Esta publicación ya se encendió o no se hizo apagada.",
     "draft_changed": "Otra persona cambió este borrador. Carga la versión más reciente e inténtalo de nuevo.",
     "draft_publishing": "Este borrador se está publicando y no puede cambiar ahora.",
-    "page_link_refused": "Meta no confirmó el vínculo. Revisa el código o pide uno nuevo."
+    "page_link_refused": "Meta no confirmó el vínculo. Revisa el código o pide uno nuevo.",
+    "ad_post_missing": "Meta aún no creó la publicación de este anuncio en esta plataforma. Aparece cuando el anuncio se aprueba y se publica allí.",
+    "comments_not_allowed": "Esta conexión con Meta no tiene permiso para leer estos comentarios."
   },
   "adsReports": {
     "header": {

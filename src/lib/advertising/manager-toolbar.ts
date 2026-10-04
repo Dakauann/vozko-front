@@ -118,6 +118,13 @@ export function editState(context: ToolbarContext): ActionState {
   ]);
 }
 
+export function insightsState({ selected }: ToolbarContext): ActionState {
+  return firstBlocker([
+    [selected.length !== 1, "selectOne"],
+    [hasDraft(selected), "publishedOnly"],
+  ]);
+}
+
 export function bulkEditState({ selected, permissions, manageBlocked }: ToolbarContext): ActionState {
   return firstBlocker([
     [selected.length === 0, "selectSome"],

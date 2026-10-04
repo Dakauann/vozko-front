@@ -15404,11 +15404,7 @@
     "publishing": "Wird veröffentlicht...",
     "previewTitle": "Vorschau",
     "previewAd": "Vorschau von Anzeige {index} von {total}",
-    "previewNote": "Ungefähre Feed Darstellung: Medien im Format 4:5 und Haupttext nach etwa 125 Zeichen mit Mehr ansehen gekürzt. Meta passt den Zuschnitt je Platzierung an.",
-    "placement": {
-      "feed": "Feed",
-      "story": "Stories"
-    },
+    "previewNote": "Ungefähre Vorschau jeder Platzierung in den Proportionen von Meta. Meta kürzt den Text je nach Platzierung: Instagram-Feed, Stories und Reels zeigen deutlich weniger als der Facebook-Feed.",
     "discardTitle": "Diesen Entwurf verwerfen?",
     "discardBody": "Der Entwurf und alles, was darin ausgefüllt wurde, werden gelöscht. Nichts wurde an Meta gesendet.",
     "discardConfirm": "Verwerfen",
@@ -15802,7 +15798,14 @@
         "instagram_required": "Für Gespräche über Instagram Direct markiere Instagram.",
         "facebook_required": "Für Gespräche über Messenger markiere Facebook oder Messenger.",
         "platforms_required": "Markiere mindestens eine Plattform."
-      }
+      },
+      "facebook_feed": "Facebook-Feed",
+      "instagram_feed": "Instagram-Feed",
+      "facebook_marketplace": "Facebook Marketplace",
+      "facebook_story": "Facebook Stories",
+      "instagram_story": "Instagram Stories",
+      "facebook_reels": "Facebook Reels",
+      "instagram_reels": "Instagram Reels"
     },
     "reach": {
       "range": "Geschätzte Zielgruppe: {lower} bis {upper} Personen",
@@ -16038,7 +16041,13 @@
       "seeMore": "Mehr ansehen",
       "safeZone": "Sicherer Bereich",
       "showSafeZone": "Sichere Bereiche zeigen",
-      "safeZoneHint": "Halte Texte und Logos im sicheren Bereich: oben 14%, unten 35% und seitlich je 6% frei."
+      "safeZoneHint": "Halte Texte und Logos im sicheren Bereich: oben 14%, unten 35% und seitlich je 6% frei.",
+      "like": "Gefällt mir",
+      "comment": "Kommentieren",
+      "share": "Teilen",
+      "more": "mehr",
+      "reels": "Reels",
+      "follow": "Folgen"
     },
     "issues": {
       "generic": {
@@ -16230,7 +16239,11 @@
         "not_for_destination": "Dieses Format ist für das gewählte Ziel des Klicks nicht verfügbar."
       }
     },
-    "previewNoteStory": "Ungefähre Story Darstellung im Format 9:16. Meta überdeckt die oberen 14% mit der Seite und die unteren 35% mit Text und Button."
+    "placementFilter": {
+      "all": "Alle",
+      "feeds": "Feeds",
+      "vertical": "Stories und Reels"
+    }
   },
   "adsManager": {
     "budgetMinimum": {
@@ -16329,7 +16342,8 @@
       "deleteDraft": "Entwurf löschen",
       "deleteDraftBody": "Der Entwurf {name} wird gelöscht. In Meta wurde nichts veröffentlicht, dort gibt es also nichts zu stoppen.",
       "deleteManyTitle": "{count, plural, one {# Element löschen?} other {# Elemente löschen?}}",
-      "deleteManyBody": "{count, plural, one {Das ausgewählte Element wird gelöscht.} other {Die # ausgewählten Elemente werden gelöscht.}} Veröffentlichte Elemente werden in Meta samt Inhalt gelöscht, und das lässt sich nicht rückgängig machen. Entwürfe verschwinden nur hier."
+      "deleteManyBody": "{count, plural, one {Das ausgewählte Element wird gelöscht.} other {Die # ausgewählten Elemente werden gelöscht.}} Veröffentlichte Elemente werden in Meta samt Inhalt gelöscht, und das lässt sich nicht rückgängig machen. Entwürfe verschwinden nur hier.",
+      "insights": "Diagramme"
     },
     "duplicate": {
       "title": {
@@ -17262,6 +17276,50 @@
     },
     "connectCard": {
       "button": "Mit Facebook fortfahren"
+    },
+    "insights": {
+      "range": "{since} bis {until}",
+      "noCreative": "Meta hat das Werbemittel dieser Anzeige nicht zurückgegeben.",
+      "tabs": {
+        "performance": "Leistung",
+        "budget": "Budget",
+        "actions": "Aktionen",
+        "preview": "Vorschau",
+        "comments": "Kommentare"
+      },
+      "level": {
+        "campaign": "Kampagne",
+        "adset": "Anzeigengruppe",
+        "ad": "Anzeige"
+      },
+      "budget": {
+        "unavailable": "Budget hier nicht verfügbar",
+        "goTo": "Zur {level}",
+        "goToAdSets": "Anzeigengruppen ansehen",
+        "onAdSets": "Diese Kampagne hat kein eigenes Budget: Jede Anzeigengruppe hat ihr eigenes.",
+        "on": {
+          "campaign": "Das Budget liegt bei der Kampagne.",
+          "adset": "Das Budget liegt bei der Anzeigengruppe."
+        },
+        "unknown": "Es ließ sich nicht feststellen, wo das Budget liegt. Aktualisiere das Konto und versuche es erneut."
+      },
+      "actions": {
+        "title": "{count, plural, one {# offene Aktion} other {# offene Aktionen}}",
+        "emptyTitle": "Nichts zu tun",
+        "emptyBody": "Meta hat für dieses Element keine Fehler oder Warnungen gemeldet."
+      },
+      "comments": {
+        "platform": {
+          "facebook": "Facebook",
+          "instagram": "Instagram"
+        },
+        "reload": "Aktualisieren",
+        "empty": "Keine Kommentare gefunden.",
+        "anonymous": "Person ohne sichtbaren Namen",
+        "likes": "{count, plural, one {# Like} other {# Likes}}",
+        "replies": "{count, plural, one {# Antwort} other {# Antworten}}",
+        "note": "Die 100 neuesten Kommentare zum Beitrag der Anzeige, direkt von Meta gelesen. Zum Antworten nutze den Posteingang."
+      }
     }
   },
   "adsReadiness": {
@@ -17424,7 +17482,9 @@
     "job_not_activatable": "Diese Veröffentlichung wurde bereits eingeschaltet oder nicht ausgeschaltet veröffentlicht.",
     "draft_changed": "Jemand anderes hat diesen Entwurf geändert. Lade die neueste Version und versuche es erneut.",
     "draft_publishing": "Dieser Entwurf wird gerade veröffentlicht und kann jetzt nicht geändert werden.",
-    "page_link_refused": "Meta hat die Verknüpfung nicht bestätigt. Prüfe den Code oder fordere einen neuen an."
+    "page_link_refused": "Meta hat die Verknüpfung nicht bestätigt. Prüfe den Code oder fordere einen neuen an.",
+    "ad_post_missing": "Meta hat den Beitrag dieser Anzeige auf dieser Plattform noch nicht erstellt. Er erscheint, sobald die Anzeige genehmigt ist und dort ausgeliefert wird.",
+    "comments_not_allowed": "Diese Meta-Verbindung darf diese Kommentare nicht lesen."
   },
   "adsReports": {
     "header": {

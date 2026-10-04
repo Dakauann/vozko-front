@@ -39,11 +39,13 @@ export function AdsKpiStrip({
   outcome,
   previous,
   loading,
+  columns = 8,
 }: {
   totals: AdMetrics | null;
   outcome: AdOutcome | null;
   previous: AdPeriod | null;
   loading: boolean;
+  columns?: 4 | 8;
 }) {
   const t = useTranslations("adsManager.kpi");
   const tResult = useTranslations("adsManager.results");
@@ -69,5 +71,5 @@ export function AdsKpiStrip({
     };
   });
 
-  return <InstrumentStrip instruments={instruments} loading={loading} columns={8} compact className="rounded-[--radius]" />;
+  return <InstrumentStrip instruments={instruments} loading={loading} columns={columns} compact className="rounded-[--radius]" />;
 }

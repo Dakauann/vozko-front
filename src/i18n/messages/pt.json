@@ -16453,11 +16453,7 @@
     "publishing": "Publicando...",
     "previewTitle": "Prévia",
     "previewAd": "Prévia do anúncio {index} de {total}",
-    "previewNote": "Simulação aproximada do feed: mídia 4:5 e texto principal cortado em cerca de 125 caracteres com Ver mais. A Meta ajusta o corte em cada posicionamento.",
-    "placement": {
-      "feed": "Feed",
-      "story": "Stories"
-    },
+    "previewNote": "Simulação aproximada de cada posicionamento, nas proporções da Meta. A Meta corta o texto em cada um: no feed do Instagram, nos Stories e nos Reels aparece bem menos que no feed do Facebook.",
     "discardTitle": "Descartar este rascunho?",
     "discardBody": "O rascunho e tudo o que foi preenchido nele serão apagados. Nada foi enviado para a Meta.",
     "discardConfirm": "Descartar",
@@ -16851,7 +16847,14 @@
         "instagram_required": "Para conversas no Instagram Direct, marque o Instagram.",
         "facebook_required": "Para conversas no Messenger, marque o Facebook ou o Messenger.",
         "platforms_required": "Marque pelo menos uma plataforma."
-      }
+      },
+      "facebook_feed": "Feed do Facebook",
+      "instagram_feed": "Feed do Instagram",
+      "facebook_marketplace": "Facebook Marketplace",
+      "facebook_story": "Stories do Facebook",
+      "instagram_story": "Stories do Instagram",
+      "facebook_reels": "Reels do Facebook",
+      "instagram_reels": "Reels do Instagram"
     },
     "reach": {
       "range": "Público estimado: {lower} a {upper} pessoas",
@@ -17087,7 +17090,13 @@
       "seeMore": "Ver mais",
       "safeZone": "Área segura",
       "showSafeZone": "Mostrar áreas seguras",
-      "safeZoneHint": "Deixe textos e logotipos dentro da área segura: 14% livres em cima, 35% embaixo e 6% nas laterais."
+      "safeZoneHint": "Deixe textos e logotipos dentro da área segura: 14% livres em cima, 35% embaixo e 6% nas laterais.",
+      "like": "Curtir",
+      "comment": "Comentar",
+      "share": "Compartilhar",
+      "more": "mais",
+      "reels": "Reels",
+      "follow": "Seguir"
     },
     "issues": {
       "generic": {
@@ -17279,7 +17288,11 @@
         "not_for_destination": "Este formato não está disponível para o destino escolhido."
       }
     },
-    "previewNoteStory": "Simulação aproximada de story 9:16. A Meta cobre os 14% de cima com a Página e os 35% de baixo com o texto e o botão."
+    "placementFilter": {
+      "all": "Todos",
+      "feeds": "Feeds",
+      "vertical": "Stories e Reels"
+    }
   },
   "adsManager": {
     "budgetMinimum": {
@@ -17378,7 +17391,8 @@
       "deleteDraft": "Excluir rascunho",
       "deleteDraftBody": "O rascunho {name} será excluído. Nada foi publicado na Meta, então não há nada para parar lá.",
       "deleteManyTitle": "{count, plural, one {Excluir # item?} other {Excluir # itens?}}",
-      "deleteManyBody": "{count, plural, one {O item selecionado será excluído.} other {Os # itens selecionados serão excluídos.}} Itens publicados são excluídos na Meta junto com tudo o que está dentro deles, e não dá para desfazer. Rascunhos somem só daqui."
+      "deleteManyBody": "{count, plural, one {O item selecionado será excluído.} other {Os # itens selecionados serão excluídos.}} Itens publicados são excluídos na Meta junto com tudo o que está dentro deles, e não dá para desfazer. Rascunhos somem só daqui.",
+      "insights": "Gráficos"
     },
     "duplicate": {
       "title": {
@@ -18311,6 +18325,50 @@
     },
     "connectCard": {
       "button": "Entrar com o Facebook"
+    },
+    "insights": {
+      "range": "{since} a {until}",
+      "noCreative": "A Meta não devolveu o criativo deste anúncio.",
+      "tabs": {
+        "performance": "Desempenho",
+        "budget": "Orçamento",
+        "actions": "Ações",
+        "preview": "Prévia",
+        "comments": "Comentários"
+      },
+      "level": {
+        "campaign": "campanha",
+        "adset": "conjunto de anúncios",
+        "ad": "anúncio"
+      },
+      "budget": {
+        "unavailable": "Orçamento não disponível aqui",
+        "goTo": "Abrir {level}",
+        "goToAdSets": "Ver os conjuntos de anúncios",
+        "onAdSets": "Esta campanha não tem orçamento próprio: cada conjunto de anúncios tem o seu.",
+        "on": {
+          "campaign": "O orçamento fica na campanha.",
+          "adset": "O orçamento fica no conjunto de anúncios."
+        },
+        "unknown": "Não foi possível saber onde fica o orçamento. Atualize a conta e tente de novo."
+      },
+      "actions": {
+        "title": "{count, plural, one {# ação a ser feita} other {# ações a serem feitas}}",
+        "emptyTitle": "Nada a ser feito",
+        "emptyBody": "A Meta não apontou erros nem avisos para este item."
+      },
+      "comments": {
+        "platform": {
+          "facebook": "Facebook",
+          "instagram": "Instagram"
+        },
+        "reload": "Atualizar",
+        "empty": "Nenhum comentário encontrado.",
+        "anonymous": "Pessoa sem nome visível",
+        "likes": "{count, plural, one {# curtida} other {# curtidas}}",
+        "replies": "{count, plural, one {# resposta} other {# respostas}}",
+        "note": "Os 100 comentários mais recentes da publicação do anúncio, lidos direto da Meta. Para responder, use a caixa de entrada."
+      }
     }
   },
   "adsReadiness": {
@@ -18473,7 +18531,9 @@
     "job_not_activatable": "Esta publicação já foi ligada ou não foi feita desligada.",
     "draft_changed": "Outra pessoa alterou este rascunho. Carregue a versão mais recente e tente de novo.",
     "draft_publishing": "Este rascunho está sendo publicado e não pode mudar agora.",
-    "page_link_refused": "A Meta não confirmou o vínculo. Confira o código ou peça um novo."
+    "page_link_refused": "A Meta não confirmou o vínculo. Confira o código ou peça um novo.",
+    "ad_post_missing": "A Meta ainda não criou a publicação deste anúncio nesta plataforma. Ela aparece depois que o anúncio é aprovado e veiculado lá.",
+    "comments_not_allowed": "Esta conexão com a Meta não tem permissão para ler estes comentários."
   },
   "adsReports": {
     "header": {

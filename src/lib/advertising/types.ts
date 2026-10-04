@@ -148,6 +148,17 @@ export interface AdCreative {
   thumbnailUrl?: string;
 }
 
+export type AdCommentPlatform = "facebook" | "instagram";
+
+export interface AdComment {
+  id: string;
+  message: string;
+  authorName: string;
+  createdAt: string | null;
+  likeCount: number;
+  replyCount: number;
+}
+
 export interface AdIssue {
   code: number;
   summary: string;

@@ -16402,11 +16402,7 @@
     "publishing": "Publishing...",
     "previewTitle": "Preview",
     "previewAd": "Preview of ad {index} of {total}",
-    "previewNote": "Approximate feed mockup: 4:5 media and primary text cut at about 125 characters with See more. Meta adjusts the crop in each placement.",
-    "placement": {
-      "feed": "Feed",
-      "story": "Stories"
-    },
+    "previewNote": "Approximate preview of each placement, in Meta's proportions. Meta cuts the text differently in each: Instagram feed, Stories and Reels show much less than the Facebook feed.",
     "discardTitle": "Discard this draft?",
     "discardBody": "The draft and everything filled in it will be deleted. Nothing was sent to Meta.",
     "discardConfirm": "Discard",
@@ -16800,7 +16796,14 @@
         "instagram_required": "For Instagram Direct conversations, check Instagram.",
         "facebook_required": "For Messenger conversations, check Facebook or Messenger.",
         "platforms_required": "Check at least one platform."
-      }
+      },
+      "facebook_feed": "Facebook Feed",
+      "instagram_feed": "Instagram Feed",
+      "facebook_marketplace": "Facebook Marketplace",
+      "facebook_story": "Facebook Stories",
+      "instagram_story": "Instagram Stories",
+      "facebook_reels": "Facebook Reels",
+      "instagram_reels": "Instagram Reels"
     },
     "reach": {
       "range": "Estimated audience: {lower} to {upper} people",
@@ -17036,7 +17039,13 @@
       "seeMore": "See more",
       "safeZone": "Safe zone",
       "showSafeZone": "Show safe zones",
-      "safeZoneHint": "Keep text and logos inside the safe zone: 14% free at the top, 35% at the bottom and 6% on each side."
+      "safeZoneHint": "Keep text and logos inside the safe zone: 14% free at the top, 35% at the bottom and 6% on each side.",
+      "like": "Like",
+      "comment": "Comment",
+      "share": "Share",
+      "more": "more",
+      "reels": "Reels",
+      "follow": "Follow"
     },
     "issues": {
       "generic": {
@@ -17228,7 +17237,11 @@
         "not_for_destination": "This format is not available for the chosen destination."
       }
     },
-    "previewNoteStory": "Approximate 9:16 story mockup. Meta covers the top 14% with the Page and the bottom 35% with the text and the button."
+    "placementFilter": {
+      "all": "All",
+      "feeds": "Feeds",
+      "vertical": "Stories and Reels"
+    }
   },
   "adsManager": {
     "budgetMinimum": {
@@ -17327,7 +17340,8 @@
       "deleteDraft": "Delete draft",
       "deleteDraftBody": "The draft {name} will be deleted. Nothing was published in Meta, so there is nothing to stop there.",
       "deleteManyTitle": "{count, plural, one {Delete # item?} other {Delete # items?}}",
-      "deleteManyBody": "{count, plural, one {The selected item will be deleted.} other {The # selected items will be deleted.}} Published items are deleted in Meta with everything inside them, and this cannot be undone. Drafts only disappear from here."
+      "deleteManyBody": "{count, plural, one {The selected item will be deleted.} other {The # selected items will be deleted.}} Published items are deleted in Meta with everything inside them, and this cannot be undone. Drafts only disappear from here.",
+      "insights": "Charts"
     },
     "duplicate": {
       "title": {
@@ -18260,6 +18274,50 @@
     },
     "connectCard": {
       "button": "Continue with Facebook"
+    },
+    "insights": {
+      "range": "{since} to {until}",
+      "noCreative": "Meta did not return this ad's creative.",
+      "tabs": {
+        "performance": "Performance",
+        "budget": "Budget",
+        "actions": "Actions",
+        "preview": "Preview",
+        "comments": "Comments"
+      },
+      "level": {
+        "campaign": "campaign",
+        "adset": "ad set",
+        "ad": "ad"
+      },
+      "budget": {
+        "unavailable": "Budget not available here",
+        "goTo": "Go to the {level}",
+        "goToAdSets": "See the ad sets",
+        "onAdSets": "This campaign has no budget of its own: each ad set has its own.",
+        "on": {
+          "campaign": "The budget is set on the campaign.",
+          "adset": "The budget is set on the ad set."
+        },
+        "unknown": "Could not tell where the budget is set. Refresh the account and try again."
+      },
+      "actions": {
+        "title": "{count, plural, one {# action to take} other {# actions to take}}",
+        "emptyTitle": "Nothing to do",
+        "emptyBody": "Meta reported no errors or warnings for this item."
+      },
+      "comments": {
+        "platform": {
+          "facebook": "Facebook",
+          "instagram": "Instagram"
+        },
+        "reload": "Refresh",
+        "empty": "No comments found.",
+        "anonymous": "Person without a visible name",
+        "likes": "{count, plural, one {# like} other {# likes}}",
+        "replies": "{count, plural, one {# reply} other {# replies}}",
+        "note": "The 100 most recent comments on the ad's post, read directly from Meta. To reply, use the inbox."
+      }
     }
   },
   "adsReadiness": {
@@ -18422,7 +18480,9 @@
     "job_not_activatable": "This publish was already turned on or was not published switched off.",
     "draft_changed": "Someone else changed this draft. Load the latest version and try again.",
     "draft_publishing": "This draft is being published and cannot change right now.",
-    "page_link_refused": "Meta did not confirm the link. Check the code or ask for a new one."
+    "page_link_refused": "Meta did not confirm the link. Check the code or ask for a new one.",
+    "ad_post_missing": "Meta has not created this ad's post on this platform yet. It appears once the ad is approved and delivers there.",
+    "comments_not_allowed": "This Meta connection is not allowed to read these comments."
   },
   "adsReports": {
     "header": {

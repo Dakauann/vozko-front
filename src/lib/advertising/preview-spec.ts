@@ -1,5 +1,3 @@
-export type PreviewPlacement = "feed" | "story";
-
 export interface SafeZone {
   top: number;
   bottom: number;
@@ -13,12 +11,12 @@ export const STORY_RATIO = "9 / 16";
 export const STORY_SAFE_ZONE: SafeZone = { top: 0.14, bottom: 0.35, side: 0.06 };
 
 export const TEXT_LIMITS = {
-  feed: { primaryText: 125, headline: 40, description: 30 },
+  feed: { headline: 40, description: 30 },
   carousel: { primaryText: 80, headline: 20, description: 18 },
-  story: { primaryText: 125, headline: 40, description: 30 },
 } as const;
 
-export type TextLimitSet = keyof typeof TEXT_LIMITS;
+export const PREVIEW_TILE_WIDTH = 280;
+export const PREVIEW_TILE_ZOOM = 0.55;
 
 export interface ClippedText {
   text: string;
@@ -34,11 +32,6 @@ export function clipText(value: string | undefined, limit: number): ClippedText 
   const lastSpace = cut.search(/\s\S*$/);
   const atWord = lastSpace >= Math.floor(limit * WORD_BREAK_FLOOR) ? cut.slice(0, lastSpace) : cut;
   return { text: atWord.replace(/[\s.,;:!?-]+$/, ""), clipped: true };
-}
-
-export function textLimitSet(placement: PreviewPlacement, format: string | undefined): TextLimitSet {
-  if (placement === "story") return "story";
-  return format === "CAROUSEL" ? "carousel" : "feed";
 }
 
 export function safeZoneInsets(zone: SafeZone): { top: string; bottom: string; left: string; right: string } {

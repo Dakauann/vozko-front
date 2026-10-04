@@ -14,6 +14,8 @@ import {
 } from "@/lib/advertising/report-query";
 import type {
   AdAccount,
+  AdComment,
+  AdCommentPlatform,
   AdCopyRequest,
   AdCreatedRef,
   AdEditableObject,
@@ -168,6 +170,11 @@ export async function downloadAdsReportCsvAction(accountId: string, filters: Rep
 
 export async function getAdEditableObjectAction(metaId: string): Promise<AdsResult<AdEditableObject>> {
   return settleAds(await apiClient<AdEditableObject>(objectPath(metaId), { method: "GET" }));
+}
+
+export async function listAdCommentsAction(metaId: string, platform: AdCommentPlatform): Promise<AdsResult<AdComment[]>> {
+  const params = new URLSearchParams({ platform });
+  return settleAds(await apiClient<AdComment[]>(`${objectPath(metaId)}/comments?${params.toString()}`, { method: "GET" }), []);
 }
 
 export async function updateAdObjectAction(metaId: string, edit: AdObjectEdit): Promise<AdsResult<AdRow>> {

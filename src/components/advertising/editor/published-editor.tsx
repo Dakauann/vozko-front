@@ -18,18 +18,15 @@ import { creativeSwapForm } from "@/lib/advertising/editor-form";
 import { objectChain, objectOrder, objectTree, type ObjectTree } from "@/lib/advertising/editor-tree";
 import type { AdAccount, AdEditableObject, AdRow } from "@/lib/advertising/types";
 
-import { AdPreviewPanel } from "../ad-preview-panel";
 import { ObjectEditForm } from "../edit/object-editor";
 import { DeliveryStatus } from "../status-dot";
 import { CardSections } from "../wizard/choice-row";
-import { previewContent } from "../wizard/preview-content";
 import { useAdsResource } from "../wizard/use-ads-resource";
 import { useStructureRows } from "../wizard/use-structure-rows";
-import { useAdPages } from "../wizard/wizard-context";
 import { AnalysisFacts } from "./analysis-view";
 import { CreativeSwap } from "./creative-swap";
-import { AdDestinationPreview } from "./destination-preview";
 import { EditorFooter } from "./editor-footer";
+import { PublishedAdPreview } from "./published-ad-preview";
 import { EditorBreadcrumb, EditorFailure, EditorShell, EditorStatusLine, EditorTree, TREE_LEVEL, type EditorTab, type TreeEntry } from "./editor-shell";
 
 export function PublishedEditor({ metaId, accountId }: { metaId: string; accountId: string }) {
@@ -106,7 +103,6 @@ function PublishedEditorBody({
   const [tab, setTab] = useState<EditorTab>("edit");
   const [swapForm, setSwapForm] = useState<WizardForm | null>(null);
   const detail = useAdsResource(`object:${selectedId}`, () => getAdEditableObjectAction(selectedId));
-  const pages = useAdPages(account.id);
   const order = objectOrder(tree);
   const chain = objectChain(tree, selectedId);
   const [campaignRow, adSetRow] = chain;
@@ -136,8 +132,6 @@ function PublishedEditorBody({
   const isAd = loaded?.row.level === "ad";
   const liveForm = loaded && isAd ? creativeSwapForm(loaded, account.id, campaignRow ?? null, adSetRow ?? null) : null;
   const previewForm = swapForm ?? liveForm;
-  const page = pages.status === "ready" ? pages.data.find((candidate) => candidate.pageId === previewForm?.pageId) : undefined;
-  const content = previewForm ? previewContent(previewForm.destination, previewForm.ads[0], page) : null;
 
   const saved = (row: AdRow) => {
     setSwapForm(null);
@@ -202,9 +196,7 @@ function PublishedEditorBody({
       onTab={setTab}
       tree={<EditorTree entries={entries} label={t("tree.objectLabel")} />}
       aside={
-        tab === "edit" && content ? (
-          <AdPreviewPanel content={content} destination={<AdDestinationPreview content={content} accountId={account.id} page={page} />} />
-        ) : undefined
+        tab === "edit" && previewForm ? <PublishedAdPreview accountId={account.id} form={previewForm} /> : undefined
       }
       footer={
         <EditorFooter

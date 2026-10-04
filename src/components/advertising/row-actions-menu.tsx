@@ -33,7 +33,7 @@ import {
 
 import type { BlockerText } from "./manager/use-blocker-text";
 
-export type RowAction = "edit" | "duplicate" | "archive" | "delete" | "addChild" | "publish" | "jobs";
+export type RowAction = "insights" | "edit" | "duplicate" | "archive" | "delete" | "addChild" | "publish" | "jobs";
 
 function MenuEntry({
   state,

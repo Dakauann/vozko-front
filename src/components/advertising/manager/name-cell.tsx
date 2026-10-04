@@ -5,9 +5,10 @@ import { useTranslations } from "next-intl";
 
 import { Check, Image as ImageGlyph, PencilSimple, Warning, X } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { isRejected, rowIssues } from "@/lib/advertising/delivery";
+import { isRejected, rowIssues, type IssueEntry } from "@/lib/advertising/delivery";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
 import type { AdRow } from "@/lib/advertising/types";
+import { cn } from "@/lib/utils";
 
 import { AdImage } from "../ad-image";
 
@@ -23,6 +24,19 @@ function RejectionNote({ row }: { row: AdRow }) {
     <span className="line-clamp-2 text-2xs text-destructive-ink" title={reason || undefined}>
       {reason ? t("rejectedReason", { reason }) : t("rejectedNoReason")}
     </span>
+  );
+}
+
+export function RowIssueList({ issues, className }: { issues: IssueEntry[]; className?: string }) {
+  return (
+    <ul className={cn("space-y-1.5", className)}>
+      {issues.map((issue, index) => (
+        <li key={index} className="text-xs">
+          {issue.title ? <span className="block font-semibold">{issue.title}</span> : null}
+          {issue.message ? <span className="block">{issue.message}</span> : null}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -45,14 +59,7 @@ function IssuesBadge({ row }: { row: AdRow }) {
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs">
-          <ul className="space-y-1.5">
-            {issues.map((issue, index) => (
-              <li key={index} className="text-xs">
-                {issue.title ? <span className="block font-semibold">{issue.title}</span> : null}
-                {issue.message ? <span className="block">{issue.message}</span> : null}
-              </li>
-            ))}
-          </ul>
+          <RowIssueList issues={issues} />
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

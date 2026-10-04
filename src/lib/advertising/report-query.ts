@@ -5,6 +5,7 @@ export interface ReportFilters {
   range: AdRange;
   campaignIds?: string[];
   adSetIds?: string[];
+  adIds?: string[];
   search?: string;
   compare?: boolean;
 }
@@ -38,6 +39,7 @@ export function reportQuery(filters: Partial<Pick<ReportFilters, "level">> & Omi
   if (filters.level) params.set("level", filters.level);
   setList(params, "campaignIds", filters.campaignIds);
   setList(params, "adSetIds", filters.adSetIds);
+  setList(params, "adIds", filters.adIds);
   if (filters.search?.trim()) params.set("search", filters.search.trim());
   if (filters.compare) params.set("compare", "1");
   return params.toString();

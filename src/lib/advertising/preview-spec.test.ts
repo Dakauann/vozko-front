@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { STORY_SAFE_ZONE, TEXT_LIMITS, clipText, safeZoneInsets, textLimitSet } from "./preview-spec";
+import { STORY_SAFE_ZONE, clipText, safeZoneInsets } from "./preview-spec";
 
 describe("clipText", () => {
   it("keeps text within the limit untouched", () => {
@@ -14,21 +14,6 @@ describe("clipText", () => {
 
   it("cuts mid word when the last space is too early", () => {
     expect(clipText("Supercalifragilisticexpialidocious", 10)).toEqual({ text: "Supercalif", clipped: true });
-  });
-
-  it("matches Meta's feed truncation of primary text", () => {
-    const long = "a ".repeat(100);
-    const clipped = clipText(long, TEXT_LIMITS.feed.primaryText);
-    expect(clipped.clipped).toBe(true);
-    expect(clipped.text.length).toBeLessThanOrEqual(125);
-  });
-});
-
-describe("textLimitSet", () => {
-  it("picks carousel limits only in the feed", () => {
-    expect(textLimitSet("feed", "CAROUSEL")).toBe("carousel");
-    expect(textLimitSet("feed", "IMAGE")).toBe("feed");
-    expect(textLimitSet("story", "CAROUSEL")).toBe("story");
   });
 });
 

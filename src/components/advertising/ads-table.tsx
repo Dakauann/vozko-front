@@ -3,11 +3,9 @@
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { DashboardTable, type DashboardTableColumn, type DashboardTableEmptyState } from "@/components/elevated-design/table/dashboard-table";
-import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import type { MetricColumn, ReportColumn, RowSort, SortableColumn } from "@/lib/advertising/columns";
-import { manageBlockerKey, resultCount, resultKind, toggleBlockerKey } from "@/lib/advertising/delivery";
+import { manageBlockerKey, resultCount, resultKind } from "@/lib/advertising/delivery";
 import { isLiveColumn, liveValue, type LiveColumn, type ManagerRow } from "@/lib/advertising/live";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
 import { EMPTY_VALUE } from "@/lib/advertising/money";
@@ -15,6 +13,7 @@ import type { AdAccount, AdBudgetMinimum, AdLevel, AdMetrics, AdOutcome, AdPerio
 
 import { BudgetCell } from "./budget-cell";
 import { DraftStatus } from "./manager/draft-status";
+import { RowSwitch } from "./manager/row-switch";
 import { DeliveryStatus } from "./status-dot";
 import { useAdsFormat, type AdsFormat } from "./use-ads-format";
 
@@ -133,8 +132,6 @@ export function AdsTable({
 }) {
   const t = useTranslations("adsManager.columns");
   const tTable = useTranslations("adsManager.table");
-  const tToggle = useTranslations("adsManager.toggleBlocker");
-  const tDrafts = useTranslations("adsManager.drafts");
   const writable = manageBlockerKey(account) === null;
   const fmt = useAdsFormat();
   const currency = totals?.currency ?? "";
@@ -146,24 +143,7 @@ export function AdsTable({
       key: "toggle",
       header: t("toggle"),
       className: "w-16",
-      render: (row) => {
-        const blocker = row.draft ? null : toggleBlockerKey(row, account, permissions);
-        const reason = row.draft ? tDrafts("toggleHint") : blocker ? tToggle(blocker) : "";
-        const locked = !!row.draft || !!blocker;
-        return (
-          <TooltipWrapper content={reason} enabled={locked}>
-            <span onClick={(event) => event.stopPropagation()} className="inline-flex" tabIndex={locked ? 0 : undefined}>
-              <ElevatedSwitch
-                checked={row.isOn}
-                disabled={locked || pending.has(row.metaId)}
-                onCheckedChange={(on) => onToggle(row, on)}
-                aria-label={tTable(row.isOn ? "turnOff" : "turnOn", { name: row.name })}
-                aria-description={reason || undefined}
-              />
-            </span>
-          </TooltipWrapper>
-        );
-      },
+      render: (row) => <RowSwitch row={row} account={account} permissions={permissions} busy={pending.has(row.metaId)} onToggle={onToggle} />,
     };
     const name: DashboardTableColumn<TableRow> = {
       key: "name",
@@ -196,7 +176,7 @@ export function AdsTable({
       },
     }));
     return [toggle, name, ...metrics];
-  }, [t, tTable, tToggle, tDrafts, account, writable, level, visibleColumns, permissions, pending, onToggle, onBudget, renderName, fmt, currency]);
+  }, [t, tTable, account, writable, level, visibleColumns, permissions, pending, onToggle, onBudget, renderName, fmt, currency]);
 
   const footerCell = (column: MetricColumn) => {
     if (column === "delivery" || column === "budget") return null;

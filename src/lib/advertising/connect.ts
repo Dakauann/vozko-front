@@ -61,7 +61,7 @@ export interface ManagerFocus {
 
 export function managerHref(focus: ManagerFocus): string {
   const params = new URLSearchParams({ account: focus.accountId });
-  if (focus.campaignId) params.set("campaign", focus.campaignId);
+  if (focus.campaignId) params.set("selected_campaign_ids", focus.campaignId);
   if (focus.published) params.set("published", "1");
   if (focus.jobId) params.set("job", focus.jobId);
   if (focus.jobs) params.set("jobs", "1");

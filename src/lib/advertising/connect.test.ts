@@ -43,7 +43,7 @@ describe("pickAccountId", () => {
 describe("managerHref", () => {
   it("points the manager at the account and the published campaign", () => {
     expect(managerHref({ accountId: "a 1", campaignId: "c1", published: true })).toBe(
-      "/dashboard/advertising?account=a+1&campaign=c1&published=1",
+      "/dashboard/advertising?account=a+1&selected_campaign_ids=c1&published=1",
     );
     expect(managerHref({ accountId: "a1", jobs: true })).toBe("/dashboard/advertising?account=a1&jobs=1");
   });

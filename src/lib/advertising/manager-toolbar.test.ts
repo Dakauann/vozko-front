@@ -14,6 +14,7 @@ import {
   deleteState,
   duplicateState,
   editState,
+  insightsState,
   forRow,
   isOffered,
   publishState,
@@ -98,6 +99,15 @@ describe("editState", () => {
     expect(editState(context([published(), published({ metaId: "2", status: "ARCHIVED" })]))).toEqual({ enabled: false, reason: "archived" });
     const many = Array.from({ length: MAX_BULK_OBJECTS + 1 }, (_, index) => published({ metaId: String(index) }));
     expect(editState(context(many))).toEqual({ enabled: false, reason: "tooMany" });
+  });
+});
+
+describe("insightsState", () => {
+  it("charts one live object, whatever the account blockers, and hides itself on drafts", () => {
+    expect(insightsState(context([]))).toEqual({ enabled: false, reason: "selectOne" });
+    expect(insightsState(context([published(), published({ metaId: "2" })]))).toEqual({ enabled: false, reason: "selectOne" });
+    expect(insightsState(context([draft()]))).toEqual({ enabled: false, reason: "publishedOnly" });
+    expect(insightsState(context([published()], { manageBlocked: true, permissions: { ...allowed, canUpdate: false } }))).toEqual({ enabled: true });
   });
 });
 
