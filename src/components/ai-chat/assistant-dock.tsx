@@ -109,7 +109,7 @@ function Dock() {
     stopVoice();
     setOpen(false);
     requestAnimationFrame(() => launcherRef.current?.focus());
-  }, [stopVoice]);
+  }, [stopVoice, setOpen]);
 
   useEffect(() => {
     if (!open) return;
