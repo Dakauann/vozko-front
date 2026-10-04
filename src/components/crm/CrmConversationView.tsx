@@ -77,6 +77,7 @@ import {
   UnsupportedNotice,
 } from "@/components/crm/MetaMessageParts";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 import type { FunnelStages } from "@/app/actions/stages";
 import { MessageMedia } from "./message-media";
@@ -797,7 +798,7 @@ function EntryMetadataPanel({
                       Nome
                     </p>
                     <p className="text-xs font-semibold text-foreground truncate">
-                      {conversation.lead_name || "—"}
+                      {conversation.lead_name || <EmptyValue />}
                     </p>
                   </div>
                 </div>
@@ -814,7 +815,7 @@ function EntryMetadataPanel({
                       Telefone
                     </p>
                     <p className="text-xs font-semibold text-foreground truncate">
-                      {conversation.lead_number || "—"}
+                      {conversation.lead_number || <EmptyValue />}
                     </p>
                   </div>
                 </div>

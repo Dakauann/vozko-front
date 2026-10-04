@@ -43,6 +43,7 @@ import {
   vozYAxis,
 } from "@/components/charts/vozko";
 import { ShareRows } from "@/components/charts/share-rows";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ChartSkeleton,
   SectionNotice,
@@ -1102,9 +1103,10 @@ type RankingColumn = {
 };
 
 function Missing({ reason }: { reason?: string }) {
+  const empty = useEmptyValue();
   return (
     <span className="text-muted-foreground" title={reason} aria-label={reason}>
-      —
+      {empty}
     </span>
   );
 }

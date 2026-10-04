@@ -1,61 +1,76 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 
 import { vozGrid, vozLineMark, vozXAxis, vozYAxis, VOZ_SERIES } from "@/components/charts/vozko";
 import { ChartBar, Table } from "@/components/icons";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { formatDay } from "@/lib/advertising/date-range";
-import type { AdTrend } from "@/lib/advertising/types";
+import { metricFormat, type TrendMetric, type TrendRow } from "@/lib/advertising/trend-series";
 
 import { useAdsFormat } from "./use-ads-format";
 
-const MICROS_PER_UNIT = 1_000_000;
+export interface ChartSeries {
+  metric: TrendMetric;
+  mark: "line" | "bar";
+  axis: "left" | "right";
+}
 
-export function AdsTrendChart({ trend, loading }: { trend: AdTrend | null; loading: boolean }) {
+export function AdsTrendChart({
+  rows,
+  series,
+  currency,
+  loading,
+  title,
+  subtitle,
+  toolbar,
+}: {
+  rows: TrendRow[];
+  series: ChartSeries[];
+  currency: string;
+  loading: boolean;
+  title: string;
+  subtitle: string;
+  toolbar?: ReactNode;
+}) {
   const t = useTranslations("adsManager.trend");
   const fmt = useAdsFormat();
   const [asTable, setAsTable] = useState(false);
-  const currency = trend?.currency ?? "";
-  const points = useMemo(() => trend?.points ?? [], [trend]);
 
-  const rows = useMemo(
-    () =>
-      points.map((point) => ({
-        day: point.day,
-        label: formatDay(point.day, fmt.tag),
-        spend: point.spend / MICROS_PER_UNIT,
-        results: point.results,
-      })),
-    [points, fmt.tag],
-  );
+  const show = (metric: TrendMetric, value: number | null | undefined) => {
+    const format = metricFormat(metric);
+    if (format === "micros") return fmt.micros(value ?? null, currency);
+    if (format === "percent") return fmt.percent(value ?? null);
+    return fmt.count(value ?? null);
+  };
+
+  const data = useMemo(() => rows.map((row) => ({ label: row.label, ...row.values })), [rows]);
 
   const config = useMemo<ChartConfig>(
-    () => ({
-      spend: { label: t("spend"), color: VOZ_SERIES[0] },
-      results: { label: t("results"), color: VOZ_SERIES[1] },
-    }),
-    [t],
+    () => Object.fromEntries(series.map(({ metric }, index) => [metric, { label: t(`metrics.${metric}`), color: VOZ_SERIES[index % VOZ_SERIES.length] }])),
+    [series, t],
   );
 
   return (
     <figure className="rounded-[--radius] border border-border bg-card shadow-sm">
-      <figcaption className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+      <figcaption className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2.5">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-foreground">{t("title")}</p>
-          <p className="truncate text-xs text-muted-foreground">{t("subtitle")}</p>
+          <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setAsTable((value) => !value)}
-          aria-pressed={asTable}
-          className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-2 py-1 text-2xs font-semibold text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {asTable ? <ChartBar className="h-3 w-3" weight="bold" /> : <Table className="h-3 w-3" weight="bold" />}
-          {asTable ? t("showChart") : t("showTable")}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {toolbar}
+          <button
+            type="button"
+            onClick={() => setAsTable((value) => !value)}
+            aria-pressed={asTable}
+            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-2 py-1 text-2xs font-semibold text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {asTable ? <ChartBar className="h-3 w-3" weight="bold" /> : <Table className="h-3 w-3" weight="bold" />}
+            {asTable ? t("showChart") : t("showTable")}
+          </button>
+        </div>
       </figcaption>
       <div className="p-3">
         {loading ? (
@@ -67,17 +82,23 @@ export function AdsTrendChart({ trend, loading }: { trend: AdTrend | null; loadi
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 bg-card">
                 <tr className="border-b border-border-strong">
-                  <th scope="col" className="px-2 py-1.5 text-2xs font-semibold text-muted-foreground">{t("day")}</th>
-                  <th scope="col" className="px-2 py-1.5 text-right text-2xs font-semibold text-muted-foreground">{t("spend")}</th>
-                  <th scope="col" className="px-2 py-1.5 text-right text-2xs font-semibold text-muted-foreground">{t("results")}</th>
+                  <th scope="col" className="px-2 py-1.5 text-2xs font-semibold text-muted-foreground">{t("period")}</th>
+                  {series.map(({ metric }) => (
+                    <th key={metric} scope="col" className="px-2 py-1.5 text-right text-2xs font-semibold text-muted-foreground">
+                      {t(`metrics.${metric}`)}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {points.map((point) => (
-                  <tr key={point.day}>
-                    <td className="px-2 py-1.5 tabular-nums text-foreground">{formatDay(point.day, fmt.tag)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-foreground">{fmt.micros(point.spend, currency)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-foreground">{fmt.count(point.results)}</td>
+                {rows.map((row) => (
+                  <tr key={row.key}>
+                    <td className="px-2 py-1.5 tabular-nums text-foreground">{row.label}</td>
+                    {series.map(({ metric }) => (
+                      <td key={metric} className="px-2 py-1.5 text-right tabular-nums text-foreground">
+                        {show(metric, row.values[metric])}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -85,16 +106,20 @@ export function AdsTrendChart({ trend, loading }: { trend: AdTrend | null; loadi
           </div>
         ) : (
           <ChartContainer config={config} className="aspect-auto h-56 w-full">
-            <ComposedChart data={rows} margin={{ left: 4, right: 4, top: 8 }}>
+            <ComposedChart data={data} margin={{ left: 4, right: 4, top: 8 }}>
               <CartesianGrid {...vozGrid} />
               <XAxis dataKey="label" {...vozXAxis} interval="preserveStartEnd" minTickGap={16} />
-              <YAxis
-                yAxisId="spend"
-                {...vozYAxis}
-                width={64}
-                tickFormatter={(value: number) => fmt.micros(value * MICROS_PER_UNIT, currency)}
-              />
-              <YAxis yAxisId="results" orientation="right" {...vozYAxis} allowDecimals={false} />
+              {series.map(({ metric, axis }) => (
+                <YAxis
+                  key={metric}
+                  yAxisId={metric}
+                  orientation={axis}
+                  {...vozYAxis}
+                  width={64}
+                  allowDecimals={metricFormat(metric) !== "count"}
+                  tickFormatter={(value: number) => show(metric, value)}
+                />
+              ))}
               <ChartTooltip
                 content={
                   <ChartTooltipContent
@@ -104,19 +129,20 @@ export function AdsTrendChart({ trend, loading }: { trend: AdTrend | null; loadi
                           <span className="h-2 w-2 rounded-[2px]" style={{ background: item.color }} />
                           {config[String(name)]?.label ?? name}
                         </span>
-                        <span className="readout font-semibold text-foreground">
-                          {name === "spend"
-                            ? fmt.micros(Number(value) * MICROS_PER_UNIT, currency)
-                            : fmt.count(Number(value))}
-                        </span>
+                        <span className="readout font-semibold text-foreground">{show(name as TrendMetric, Number(value))}</span>
                       </div>
                     )}
                   />
                 }
               />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar yAxisId="results" dataKey="results" fill="var(--color-results)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Line yAxisId="spend" dataKey="spend" type="monotone" stroke="var(--color-spend)" {...vozLineMark} />
+              {series.length > 1 ? <ChartLegend content={<ChartLegendContent />} /> : null}
+              {series.map(({ metric, mark }) =>
+                mark === "bar" ? (
+                  <Bar key={metric} yAxisId={metric} dataKey={metric} fill={`var(--color-${metric})`} radius={[4, 4, 0, 0]} maxBarSize={28} />
+                ) : (
+                  <Line key={metric} yAxisId={metric} dataKey={metric} type="monotone" stroke={`var(--color-${metric})`} {...vozLineMark} />
+                ),
+              )}
             </ComposedChart>
           </ChartContainer>
         )}

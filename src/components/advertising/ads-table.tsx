@@ -4,11 +4,11 @@ import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { DashboardTable, type DashboardTableColumn, type DashboardTableEmptyState } from "@/components/elevated-design/table/dashboard-table";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import type { MetricColumn, ReportColumn, RowSort, SortableColumn } from "@/lib/advertising/columns";
 import { manageBlockerKey, resultCount, resultKind } from "@/lib/advertising/delivery";
 import { isLiveColumn, liveValue, type LiveColumn, type ManagerRow } from "@/lib/advertising/live";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdAccount, AdBudgetMinimum, AdLevel, AdMetrics, AdOutcome, AdPeriod, AdRow } from "@/lib/advertising/types";
 
 import { BudgetCell } from "./budget-cell";
@@ -39,7 +39,7 @@ function Numeric({ children }: { children: ReactNode }) {
 function ResultValue({ metrics, fmt }: { metrics: AdMetrics; fmt: AdsFormat }) {
   const t = useTranslations("adsManager.results");
   const kind = resultKind(metrics);
-  if (!kind) return <Numeric>{EMPTY_VALUE}</Numeric>;
+  if (!kind) return <Numeric><EmptyValue /></Numeric>;
   return (
     <span className="flex flex-col items-end">
       <span className="text-sm tabular-nums text-foreground">{fmt.count(resultCount(metrics))}</span>
@@ -87,7 +87,7 @@ function liveText(column: LiveColumn, row: ManagerRow, currency: string, fmt: Ad
     case "costPerThruPlay":
       return fmt.micros(value, currency);
     case "avgWatchSeconds":
-      return value === null ? EMPTY_VALUE : seconds(fmt.decimal(value, 1));
+      return value === null ? fmt.empty : seconds(fmt.decimal(value, 1));
     default:
       return fmt.count(value);
   }
@@ -170,7 +170,7 @@ export function AdsTable({
             />
           );
         }
-        if (row.draft) return <Numeric>{EMPTY_VALUE}</Numeric>;
+        if (row.draft) return <Numeric><EmptyValue /></Numeric>;
         if (isLiveColumn(column)) return <Numeric>{liveText(column, row, row.metrics.currency || currency, fmt, seconds)}</Numeric>;
         return metricValue(column, row.metrics, row.outcome, fmt);
       },
@@ -180,7 +180,7 @@ export function AdsTable({
 
   const footerCell = (column: MetricColumn) => {
     if (column === "delivery" || column === "budget") return null;
-    if (isLiveColumn(column)) return <Numeric>{EMPTY_VALUE}</Numeric>;
+    if (isLiveColumn(column)) return <Numeric><EmptyValue /></Numeric>;
     if (!totals || !outcome) return null;
     const before = previous ? metricText(column, previous.totals, previous.outcome, fmt) : null;
     return (

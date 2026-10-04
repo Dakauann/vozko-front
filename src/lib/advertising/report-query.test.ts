@@ -11,6 +11,12 @@ describe("reportQuery", () => {
     );
   });
 
+  it("scopes a report to given objects and groups a trend by week", () => {
+    expect(reportQuery({ level: "adset", range, objectIds: ["s1"], compare: true })).toBe("since=2026-09-01&until=2026-09-30&level=adset&objectIds=s1&compare=1");
+    expect(reportQuery({ range, granularity: "week" })).toBe("since=2026-09-01&until=2026-09-30&granularity=week");
+    expect(reportQuery({ range, granularity: "day" })).toBe("since=2026-09-01&until=2026-09-30");
+  });
+
   it("narrows a trend to one ad", () => {
     expect(reportQuery({ range, adIds: ["7"] })).toBe("since=2026-09-01&until=2026-09-30&adIds=7");
   });

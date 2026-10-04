@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { getAdEditableObjectAction, getAdsTrendAction } from "@/app/actions/advertising";
+import { getAdEditableObjectAction } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import {
   ElevatedSheet,
@@ -18,20 +18,21 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from 
 import { formatDay } from "@/lib/advertising/date-range";
 import { rowIssues } from "@/lib/advertising/delivery";
 import { creativeSwapForm } from "@/lib/advertising/editor-form";
-import { budgetHome, insightsTabs, trendScope, type InsightsTab } from "@/lib/advertising/manager-insights";
+import { budgetHome, insightsTabs, type InsightsTab } from "@/lib/advertising/manager-insights";
 import type { TableRow } from "@/lib/advertising/manager-drafts";
-import type { AdAccount, AdBudgetMinimum, AdLevel, AdRange, AdRow, AdTrend } from "@/lib/advertising/types";
+import type { AdAccount, AdBudgetMinimum, AdLevel, AdRange, AdRow } from "@/lib/advertising/types";
 
-import { AdsKpiStrip } from "../ads-kpi-strip";
-import { AdsTrendChart } from "../ads-trend-chart";
 import { BudgetCell } from "../budget-cell";
 import { PublishedAdPreview } from "../editor/published-ad-preview";
 import { DeliveryStatus } from "../status-dot";
 import { useAdsFormat } from "../use-ads-format";
 import { useAdsResource } from "../wizard/use-ads-resource";
 import { AdComments } from "./ad-comments";
+import { InsightsHistory } from "./insights-history";
+import { InsightsPerformance } from "./insights-performance";
 import { RowIssueList } from "./name-cell";
 import { RowSwitch } from "./row-switch";
+import { SyncFreshness } from "./sync-freshness";
 
 export interface InsightsChain {
   campaign?: AdRow;
@@ -50,18 +51,9 @@ export interface InsightsPanelProps {
   onOpen: (level: AdLevel, metaId: string) => void;
   onShowAdSets: (campaignId: string) => void;
   onClose: () => void;
-}
-
-function Performance({ account, row, range }: { account: AdAccount; row: AdRow; range: AdRange | null }) {
-  const key = range ? `insights-trend:${account.id}:${row.metaId}:${range.since}:${range.until}` : null;
-  const trend = useAdsResource<AdTrend>(key, () => getAdsTrendAction(account.id, { range: range ?? { since: "", until: "" }, ...trendScope(row) }));
-  return (
-    <div className="space-y-4">
-      <AdsKpiStrip totals={row.metrics} outcome={row.outcome} previous={null} loading={false} columns={4} />
-      {trend.status === "error" ? <p className="text-sm text-destructive-ink">{trend.message}</p> : null}
-      <AdsTrendChart trend={trend.status === "ready" ? trend.data : null} loading={trend.status === "loading"} />
-    </div>
-  );
+  synced: string | null;
+  syncing: boolean;
+  onSync: () => void;
 }
 
 function Budget({
@@ -185,7 +177,10 @@ export function InsightsPanel(props: InsightsPanelProps) {
                   <RowSwitch row={row} account={account} permissions={permissions} busy={busy} onToggle={onToggle} />
                 </div>
               </div>
-              <ElevatedSheetDescription>{range ? t("range", { since: formatDay(range.since, fmt.tag), until: formatDay(range.until, fmt.tag) }) : null}</ElevatedSheetDescription>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <ElevatedSheetDescription>{range ? t("range", { since: formatDay(range.since, fmt.tag), until: formatDay(range.until, fmt.tag) }) : null}</ElevatedSheetDescription>
+                <SyncFreshness synced={props.synced} syncing={props.syncing} onSync={props.onSync} />
+              </div>
               <Tabs value={tab} onValueChange={(value) => setTab(value as InsightsTab)}>
                 <TabsList>
                   {tabs.map((value) => (
@@ -197,7 +192,8 @@ export function InsightsPanel(props: InsightsPanelProps) {
               </Tabs>
             </ElevatedSheetHeader>
             <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6">
-              {tab === "performance" ? <Performance account={account} row={row} range={range} /> : null}
+              {tab === "performance" ? <InsightsPerformance account={account} row={row} range={range} /> : null}
+              {tab === "history" ? <InsightsHistory account={account} row={row} range={range} /> : null}
               {tab === "budget" ? (
                 <Budget
                   account={account}

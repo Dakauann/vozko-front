@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import {
@@ -80,8 +81,9 @@ import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/propos
 import { ActionCardView } from "@/components/ai-chat/action-card";
 import { GeneratingImage } from "@/components/image-generation/generating-image";
 import { ImageModelSelect } from "@/components/image-generation/image-model-select";
+import { imageAttachments, isShownImage } from "@/lib/aichat/attachments";
 import { imagePlaceholderOf } from "@/lib/aichat/generating-image";
-import type { Approval, ChatChart, ChoiceField, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
+import type { Approval, ChatChart, ChatImage, ChoiceField, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
 import {
   humanizeFieldKey,
   isOpenProposal,
@@ -93,6 +95,7 @@ import {
 } from "@/lib/aichat/proposal";
 import { cn } from "@/lib/utils";
 
+import { AttachmentChip } from "./attachment-chip";
 import { ChatChartView } from "./chat-chart";
 import { ChatImageView } from "./chat-image";
 import { isThinkingBetweenSteps, layoutSegments, type Block, type Segment } from "./segments";
@@ -336,6 +339,7 @@ export function MessageBubble({
   live,
   onApprove,
   onReject,
+  onEditImage,
   labels,
 }: {
   elo?: boolean;
@@ -343,23 +347,37 @@ export function MessageBubble({
   live: boolean;
   onApprove: (actionId: string, approval?: Approval) => void;
   onReject: (actionId: string) => void;
+  onEditImage?: (image: ChatImage) => void;
   labels: BubbleLabels;
 }) {
   if (message.role === "user") {
+    const attachments = message.attachments ?? [];
+    const images = imageAttachments(attachments);
+    const files = attachments.filter((file) => !isShownImage(file));
     return (
-      <div className="flex justify-end">
+      <div className="flex flex-col items-end gap-1.5">
+        {images.length > 0 ? (
+          <ul className="flex max-w-[85%] flex-wrap justify-end gap-1.5">
+            {images.map((image) => (
+              <li key={image.mediaId}>
+                <a
+                  href={image.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-[--radius] border border-border bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Image src={image.url} alt={image.name} width={192} height={128} unoptimized className="h-32 w-auto max-w-[12rem] object-cover" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <div className="rounded-lg max-w-[85%] whitespace-pre-wrap break-words border border-border bg-muted px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
           {message.content}
-          {message.attachments && message.attachments.length > 0 ? (
+          {files.length > 0 ? (
             <ul className="mt-2 flex flex-wrap gap-1.5 whitespace-normal">
-              {message.attachments.map((file) => (
-                <li
-                  key={file.mediaId}
-                  className="flex max-w-full items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-1 text-xs"
-                >
-                  <FileText className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                  <span className="truncate">{file.name}</span>
-                </li>
+              {files.map((file) => (
+                <AttachmentChip key={file.mediaId} name={file.name} attachment={file} className="max-w-full bg-card" />
               ))}
             </ul>
           ) : null}
@@ -386,7 +404,7 @@ export function MessageBubble({
       <div className="min-w-0 flex-1 space-y-2 pt-0.5">
         {elo ? <p className="text-xs font-semibold text-foreground">Elo</p> : null}
         {hasSegs ? (
-          layoutSegments(segs).map((block, i) => <SegmentView key={i} seg={block} labels={labels} />)
+          layoutSegments(segs).map((block, i) => <SegmentView key={i} seg={block} labels={labels} onEditImage={onEditImage} />)
         ) : message.content ? (
           <ChatMarkdown content={message.content} />
         ) : null}
@@ -409,7 +427,7 @@ export function MessageBubble({
   );
 }
 
-function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
+function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleLabels; onEditImage?: (image: ChatImage) => void }) {
   switch (seg.kind) {
     case "thinking":
       return <ThinkingBlock text={seg.text} streaming={seg.streaming} labels={labels} />;
@@ -420,7 +438,7 @@ function SegmentView({ seg, labels }: { seg: Block; labels: BubbleLabels }) {
     case "card":
       return <ActionCardView card={seg.card} live={seg.live} />;
     case "image":
-      return <ChatImageView image={seg.image} />;
+      return <ChatImageView image={seg.image} onEdit={onEditImage} />;
     default:
       return (
         <div className="text-sm">

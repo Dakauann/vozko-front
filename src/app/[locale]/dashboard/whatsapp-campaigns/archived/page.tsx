@@ -17,6 +17,7 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -154,7 +155,7 @@ export default function ArchivedWhatsAppCampaignsPage() {
           <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.successRate != null
               ? `${row.metrics.successRate.toFixed(1)}%`
-              : "—"}
+              : <EmptyValue />}
           </span>
         ),
       },

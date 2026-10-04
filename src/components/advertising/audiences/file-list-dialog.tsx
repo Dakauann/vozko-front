@@ -19,6 +19,7 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { FileCsv, UploadSimple, WarningCircle } from "@/components/icons";
 import {
   MATCH_KEYS,
@@ -29,7 +30,6 @@ import {
   type CustomerListResult,
 } from "@/lib/advertising/audiences";
 import { issuesAt, type ExpectedIssues } from "@/lib/advertising/issues";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdAccount } from "@/lib/advertising/types";
 import { emptyCrmFilter } from "@/lib/crm/board";
 
@@ -208,7 +208,7 @@ export function FileListDialog({
                       <tr key={rowIndex} className="border-b border-border last:border-0">
                         {preview.headers.map((_, column) => (
                           <td key={column} className="max-w-56 truncate px-3 py-1.5 text-xs text-foreground">
-                            {row[column] || EMPTY_VALUE}
+                            {row[column] || <EmptyValue />}
                           </td>
                         ))}
                       </tr>

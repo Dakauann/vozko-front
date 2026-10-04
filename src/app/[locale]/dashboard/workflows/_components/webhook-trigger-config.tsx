@@ -459,7 +459,7 @@ function ConfigShell({
           </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
             Um sistema externo inicia este fluxo com uma requisição HTTP. O corpo
-            precisa dizer sobre qual conversa o fluxo vai rodar — por{" "}
+            precisa dizer sobre qual conversa o fluxo vai rodar: por{" "}
             <Mono>entry_id</Mono> + <Mono>entry_type</Mono>, ou por{" "}
             <Mono>phone</Mono>. A referência abaixo monta a chamada pronta.
           </p>
@@ -591,7 +591,7 @@ function WebhookReference({
           )}
           {hasSecret && !revealSecret && (
             <p className="text-2xs leading-relaxed text-muted-foreground">
-              <Mono>{secretPlaceholder}</Mono> é um marcador — use “Incluir
+              <Mono>{secretPlaceholder}</Mono> é um marcador. Use “Incluir
               segredo” para copiar o comando já preenchido.
             </p>
           )}
@@ -668,7 +668,7 @@ function WebhookReference({
               chamada repetida é ignorada por 6 h. A chave vem de{" "}
               <Mono>X-Idempotency-Key</Mono> (ou <Mono>X-Webhook-Id</Mono> /{" "}
               <Mono>X-Event-Id</Mono>); sem esses cabeçalhos ela é o hash do
-              corpo — então dois disparos legítimos de corpo idêntico contam como
+              corpo, então dois disparos legítimos de corpo idêntico contam como
               um só. Envie um deles para controlar isso.
             </p>
           </div>
@@ -861,7 +861,7 @@ const ERROR_RESPONSES: StatusResponse[] = [
     code: "409",
     status: "",
     tone: "client",
-    meaning: "O fluxo não está ativo — use Ativar no editor.",
+    meaning: "O fluxo não está ativo. Use Ativar no editor.",
   },
   {
     code: "422",
@@ -898,7 +898,7 @@ function StatusRow({ code, status, tone, meaning }: StatusResponse) {
         {status && (
           <>
             <Mono>{status}</Mono>
-            {" — "}
+            {": "}
           </>
         )}
         {meaning}

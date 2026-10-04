@@ -1,5 +1,9 @@
+import type { ChatAttachment, ChatImage } from "./types";
+
 export const MAX_ATTACHMENTS = 5;
 export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
+const IMAGE_KIND = "image";
 
 export type AttachmentProblem = "tooMany" | "tooLarge" | "empty";
 
@@ -24,9 +28,28 @@ export function mediaTypeFor(file: FileLike): string {
   return "document";
 }
 
+export function roomProblem(current: number): AttachmentProblem | null {
+  return current >= MAX_ATTACHMENTS ? "tooMany" : null;
+}
+
 export function attachmentProblem(current: number, file: FileLike): AttachmentProblem | null {
-  if (current >= MAX_ATTACHMENTS) return "tooMany";
+  const room = roomProblem(current);
+  if (room) return room;
   if (file.size === 0) return "empty";
   if (file.size > MAX_ATTACHMENT_BYTES) return "tooLarge";
   return null;
+}
+
+type ShownImage = ChatAttachment & { url: string };
+
+export function isShownImage(attachment: ChatAttachment): attachment is ShownImage {
+  return attachment.kind === IMAGE_KIND && Boolean(attachment.url);
+}
+
+export function imageAttachments(attachments: ChatAttachment[]): ShownImage[] {
+  return attachments.filter(isShownImage);
+}
+
+export function attachmentOfImage(image: ChatImage): ChatAttachment {
+  return { mediaId: image.mediaId, name: image.alt, kind: IMAGE_KIND, url: image.url };
 }

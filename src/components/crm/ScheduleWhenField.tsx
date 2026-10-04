@@ -171,7 +171,7 @@ export default function ScheduleWhenField({ when }: { when: ScheduleWhen }) {
                 <p className="text-2xs text-muted-foreground">
                     {t("dialog.deliverySummary", { when: deliverySummary })}
                     {when.margin !== null
-                        ? ` — ${t("dialog.marginSuffix", { margin: formatDuration(when.margin) })}`
+                        ? ` · ${t("dialog.marginSuffix", { margin: formatDuration(when.margin) })}`
                         : ""}
                 </p>
             )}

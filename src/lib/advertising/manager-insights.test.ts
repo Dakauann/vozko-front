@@ -13,8 +13,8 @@ const row = (overrides: Partial<Parameters<typeof budgetHome>[0]> = {}): Paramet
 
 describe("insightsTabs", () => {
   it("adds the preview and the comments only for ads, like Meta", () => {
-    expect(insightsTabs("campaign")).toEqual(["performance", "budget", "actions"]);
-    expect(insightsTabs("ad")).toEqual(["performance", "budget", "actions", "preview", "comments"]);
+    expect(insightsTabs("campaign")).toEqual(["performance", "budget", "actions", "history"]);
+    expect(insightsTabs("ad")).toEqual(["performance", "budget", "actions", "history", "preview", "comments"]);
   });
 });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState, type ReactNode } from "react";
-import { CaretDown, FunnelSimple, X } from "@/components/icons";
+import { ArrowRight, CaretDown, FunnelSimple, X } from "@/components/icons";
 
 import {
   Popover,
@@ -187,7 +187,7 @@ function FieldControl({
               onChange(withBound(value, field, "gte", e.target.value))
             }
           />
-          <span className="text-xs text-muted-foreground">–</span>
+          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
           <ElevatedInput
             type="number"
             inputMode="numeric"

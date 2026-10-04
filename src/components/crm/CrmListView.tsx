@@ -35,6 +35,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import ElevatedButton from "@/components/elevated-design/button";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -46,6 +47,7 @@ import type { FunnelStages } from "@/app/actions/stages";
 import { getCrmEntriesAction, crmBulkAction } from "@/app/actions/crm-board";
 import { getBatchEntryStagesAction } from "@/app/actions/stages";
 import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
+import { emptyValue } from "@/lib/format/empty-value";
 import { encodeFilterParam, type CrmBoardEntry, type CrmBulkActionType, type CrmFilter } from "@/lib/crm/board";
 import type { EntryStage, EntryType, Label, Stage } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
@@ -53,7 +55,7 @@ import { cn } from "@/lib/utils";
 const PAGE_SIZE = 20;
 
 interface ChannelMeta {
-  label: string;
+  label: React.ReactNode;
   icon: React.ReactNode;
   tile: string;
 }
@@ -68,7 +70,7 @@ function channelMeta(entryType: string): ChannelMeta {
       };
     default:
       return {
-        label: entryType || "—",
+        label: entryType || <EmptyValue />,
         icon: <ChatCircleDots weight="fill" className="h-3.5 w-3.5 text-white" />,
         tile: "bg-foreground/80 text-background",
       };
@@ -76,7 +78,7 @@ function channelMeta(entryType: string): ChannelMeta {
 }
 
 function OwnerCell({ name }: { name: string | null }) {
-  if (!name) return <span className="text-sm text-muted-foreground">—</span>;
+  if (!name) return <EmptyValue className="text-sm" />;
   return (
     <span className="inline-flex items-center gap-2">
       <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold uppercase text-foreground">
@@ -88,9 +90,9 @@ function OwnerCell({ name }: { name: string | null }) {
 }
 
 function formatDate(value: string | undefined | null, locale: string): string {
-  if (!value) return "—";
+  if (!value) return emptyValue(locale);
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return emptyValue(locale);
   return new Intl.DateTimeFormat(locale === "pt" ? "pt-BR" : "en-US", {
     day: "2-digit",
     month: "short",
@@ -523,7 +525,7 @@ export default function CrmListView({
       const failed = result?.failed?.length ?? 0;
       if (result?.truncated) {
         toast.warning(
-          `${ok} de ${result.matched ?? ok} atualizada(s) — limite por operação. Repita para continuar.`,
+          `${ok} de ${result.matched ?? ok} atualizada(s), limite por operação. Repita para continuar.`,
         );
       } else if (failed > 0) {
         toast.warning(`${ok} atualizada(s), ${failed} falhou(aram)`);
@@ -563,7 +565,7 @@ export default function CrmListView({
           return (
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-medium text-foreground">
-                {name || number || "—"}
+                {name || number || <EmptyValue />}
               </span>
               {name && number ? (
                 <span className="truncate font-mono text-xs text-muted-foreground">
@@ -604,7 +606,7 @@ export default function CrmListView({
           return (
             <div className="flex items-center gap-2">
               <span className="max-w-[240px] truncate text-sm text-muted-foreground">
-                {preview || "—"}
+                {preview || <EmptyValue />}
               </span>
               {unread > 0 ? (
                 <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-[--radius] bg-primary px-1.5 text-2xs font-semibold text-primary-foreground">
@@ -620,7 +622,7 @@ export default function CrmListView({
         header: "Etapa",
         render: (row) => {
           const es = stageByEntry[row.EntryID];
-          if (!es) return <span className="text-sm text-muted-foreground">—</span>;
+          if (!es) return <EmptyValue className="text-sm" />;
           return (
             <span className="inline-flex items-center gap-1.5">
               <span

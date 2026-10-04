@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { attachmentProblem, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS, mediaTypeFor } from "./attachments";
+import { attachmentOfImage, attachmentProblem, imageAttachments, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS, mediaTypeFor, roomProblem } from "./attachments";
 
 function file(name: string, type: string, size = 10): { name: string; type: string; size: number } {
   return { name, type, size };
@@ -29,5 +29,25 @@ describe("attachmentProblem", () => {
   it("refuses files over the upload limit and empty files", () => {
     expect(attachmentProblem(0, file("big.pdf", "application/pdf", MAX_ATTACHMENT_BYTES + 1))).toBe("tooLarge");
     expect(attachmentProblem(0, file("empty.csv", "text/csv", 0))).toBe("empty");
+  });
+});
+
+describe("roomProblem", () => {
+  it("refuses another file once the message is full", () => {
+    expect(roomProblem(MAX_ATTACHMENTS - 1)).toBeNull();
+    expect(roomProblem(MAX_ATTACHMENTS)).toBe("tooMany");
+  });
+});
+
+describe("imageAttachments", () => {
+  it("keeps only images that can be shown", () => {
+    const logo = { mediaId: "m1", name: "logo.png", kind: "image", url: "https://cdn/logo.png" };
+    expect(imageAttachments([logo, { mediaId: "m2", name: "lista.csv", kind: "document", url: "https://cdn/lista.csv" }, { mediaId: "m3", name: "old.png", kind: "image" }])).toEqual([logo]);
+  });
+});
+
+describe("attachmentOfImage", () => {
+  it("attaches a generated image as an image reference", () => {
+    expect(attachmentOfImage({ mediaId: "m1", url: "https://cdn/card.png", alt: "card verde" })).toEqual({ mediaId: "m1", name: "card verde", kind: "image", url: "https://cdn/card.png" });
   });
 });

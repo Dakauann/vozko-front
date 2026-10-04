@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ClipboardEvent, type DragEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
   CaretDown,
-  CircleNotch,
-  FileText,
   Microphone,
   MicrophoneSlash,
   PaperPlaneTilt,
@@ -27,7 +25,8 @@ import type { ListenFailure } from "@/lib/voice/browser-speech";
 import { appendDictation, speechLang } from "@/lib/voice/speech-text";
 import { cn } from "@/lib/utils";
 
-import { useChatAttachments } from "./use-chat-attachments";
+import { AttachmentChip } from "./attachment-chip";
+import type { ChatAttachments } from "./use-chat-attachments";
 import type { VoiceMode } from "./voice/use-voice-mode";
 import { VoiceStrip } from "./voice/voice-strip";
 
@@ -68,6 +67,7 @@ export function Composer({
   showScrollDown,
   onScrollDown,
   voice,
+  files,
 }: {
   docked: boolean;
   spacious?: boolean;
@@ -86,12 +86,13 @@ export function Composer({
   showScrollDown: boolean;
   onScrollDown: () => void;
   voice?: VoiceMode;
+  files: ChatAttachments;
 }) {
   const reduceMotion = useReducedMotion();
   const t = useTranslations("aiChatPage");
-  const files = useChatAttachments();
   const callActive = useCallActive();
   const [dictationFailure, setDictationFailure] = useState<ListenFailure | null>(null);
+  const [dropping, setDropping] = useState(false);
   const dictation = useDictation(input, setInput, setDictationFailure);
   const voiceOn = voice !== undefined && voice.phase !== "off";
   const voiceFailure = voice?.failure ?? dictationFailure;
@@ -130,6 +131,31 @@ export function Composer({
   }, [input, spacious]);
   const canSend = Boolean(input.trim()) && Boolean(model) && !files.uploading && !streaming && !disabled;
 
+  const acceptsFiles = !streaming && !disabled;
+
+  const dropFiles = {
+    onDragOver: (e: DragEvent<HTMLDivElement>) => {
+      if (!acceptsFiles || !e.dataTransfer.types.includes("Files")) return;
+      e.preventDefault();
+      setDropping(true);
+    },
+    onDragLeave: (e: DragEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
+    },
+    onDrop: (e: DragEvent<HTMLDivElement>) => {
+      setDropping(false);
+      if (!acceptsFiles || e.dataTransfer.files.length === 0) return;
+      e.preventDefault();
+      files.add(e.dataTransfer.files);
+    },
+  };
+
+  const pasteFiles = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (!acceptsFiles || e.clipboardData.files.length === 0) return;
+    e.preventDefault();
+    files.add(e.clipboardData.files);
+  };
+
   const submit = () => {
     if (!canSend) return;
     if (onSend(files.ready)) files.clear();
@@ -166,12 +192,21 @@ export function Composer({
 
         {voice ? <VoiceStrip voice={voice} /> : null}
 
-        <div className="rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring">
+        <div
+          {...dropFiles}
+          className={cn("relative rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring", dropping && "ring-2 ring-ring")}
+        >
+          {dropping ? (
+            <p className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card/90 text-sm font-medium text-foreground">
+              {t("attachments.drop")}
+            </p>
+          ) : null}
           <textarea
             ref={textarea}
             disabled={disabled}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onPaste={pasteFiles}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault();
@@ -191,16 +226,7 @@ export function Composer({
           {files.items.length > 0 ? (
             <ul className="flex flex-wrap gap-1.5 px-3 pb-2" aria-label={t("attachments.legend")}>
               {files.items.map((item) => (
-                <li
-                  key={item.key}
-                  className="flex max-w-[14rem] items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-1 text-xs text-foreground"
-                >
-                  {item.uploading ? (
-                    <CircleNotch className="h-3.5 w-3.5 flex-shrink-0 animate-spin text-muted-foreground" aria-label={t("attachments.uploading")} />
-                  ) : (
-                    <FileText className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                  )}
-                  <span className="truncate">{item.name}</span>
+                <AttachmentChip key={item.key} name={item.name} attachment={item.attachment} uploadingLabel={t("attachments.uploading")} className="bg-muted">
                   <button
                     type="button"
                     onClick={() => files.remove(item.key)}
@@ -209,7 +235,7 @@ export function Composer({
                   >
                     <X className="h-3 w-3" />
                   </button>
-                </li>
+                </AttachmentChip>
               ))}
             </ul>
           ) : null}

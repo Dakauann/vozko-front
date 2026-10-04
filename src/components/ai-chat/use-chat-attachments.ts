@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { uploadMediaAction } from "@/app/actions/medias";
-import { attachmentProblem, mediaTypeFor, type AttachmentProblem } from "@/lib/aichat/attachments";
+import { attachmentProblem, mediaTypeFor, roomProblem, type AttachmentProblem } from "@/lib/aichat/attachments";
 import type { ChatAttachment } from "@/lib/aichat/types";
 
 export interface DraftAttachment {
@@ -25,13 +25,13 @@ export function useChatAttachments() {
     form.append("mediaType", mediaTypeFor(file));
     form.append("media", file);
     form.append("description", file.name);
-    const { mediaId } = await uploadMediaAction(form);
+    const { mediaId, mediaUrl } = await uploadMediaAction(form);
     if (!mediaId) {
       setError("upload");
       setItems((prev) => prev.filter((item) => item.key !== key));
       return;
     }
-    const attachment: ChatAttachment = { mediaId, name: file.name, kind: mediaTypeFor(file) };
+    const attachment: ChatAttachment = { mediaId, name: file.name, kind: mediaTypeFor(file), url: mediaUrl ?? undefined };
     setItems((prev) => prev.map((item) => (item.key === key ? { ...item, uploading: false, attachment } : item)));
   }, []);
 
@@ -55,6 +55,21 @@ export function useChatAttachments() {
     [items.length, upload],
   );
 
+  const attach = useCallback(
+    (attachment: ChatAttachment) => {
+      setError(null);
+      if (items.some((item) => item.attachment?.mediaId === attachment.mediaId)) return;
+      const problem = roomProblem(items.length);
+      if (problem) {
+        setError(problem);
+        return;
+      }
+      counter.current += 1;
+      setItems((prev) => [...prev, { key: `${counter.current}-${attachment.mediaId}`, name: attachment.name, uploading: false, attachment }]);
+    },
+    [items],
+  );
+
   const remove = useCallback((key: string) => {
     setItems((prev) => prev.filter((item) => item.key !== key));
   }, []);
@@ -67,5 +82,7 @@ export function useChatAttachments() {
   const ready = items.flatMap((item) => (item.attachment ? [item.attachment] : []));
   const uploading = items.some((item) => item.uploading);
 
-  return { items, ready, uploading, error, add, remove, clear };
+  return { items, ready, uploading, error, add, attach, remove, clear };
 }
+
+export type ChatAttachments = ReturnType<typeof useChatAttachments>;

@@ -2,7 +2,8 @@
 
 import { Plus, TrashSimple, MagnifyingGlass, ChatsCircle, List } from "@/components/icons";
 import { useLocale, useTranslations } from "next-intl";
-import type { ChatAttachment, ChatThread } from "@/lib/aichat/types";
+import { attachmentOfImage } from "@/lib/aichat/attachments";
+import type { ChatAttachment, ChatImage, ChatThread } from "@/lib/aichat/types";
 import { deleteChatThreadAction, listChatThreadsAction } from "@/app/actions/aichat";
 import { useCallback, useEffect, useState } from "react";
 
@@ -14,6 +15,7 @@ import { starterGroupsFor } from "@/components/ai-chat/starter-groups";
 import { cn } from "@/lib/utils";
 import { Composer } from "@/components/ai-chat/composer";
 import { MessageBubble, useBubbleLabels } from "@/components/ai-chat/message-list";
+import { useChatAttachments } from "@/components/ai-chat/use-chat-attachments";
 import { useChatConversation } from "@/components/ai-chat/use-chat-conversation";
 import { useVoiceMode } from "@/components/ai-chat/voice/use-voice-mode";
 import { speechLang } from "@/lib/voice/speech-text";
@@ -47,6 +49,8 @@ export function AIChatClient() {
   });
   const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages);
   const labels = useBubbleLabels();
+  const files = useChatAttachments();
+  const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));
 
   useEffect(() => {
     let cancelled = false;
@@ -175,12 +179,12 @@ export function AIChatClient() {
             </div>
           ) : (
             <div className="mx-auto flex max-w-3xl flex-col gap-8 py-6 sm:py-8">
-              {chat.messages.map((m, i) => <MessageBubble elo key={m.id} message={m} live={chat.streaming && i === chat.messages.length - 1} onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)} onReject={(id) => void chat.resolveAction(id, "reject", model)} labels={labels} />)}
+              {chat.messages.map((m, i) => <MessageBubble elo key={m.id} message={m} live={chat.streaming && i === chat.messages.length - 1} onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)} onReject={(id) => void chat.resolveAction(id, "reject", model)} onEditImage={editImage} labels={labels} />)}
             </div>
           )}
         </div>
         <div id="elo-page-composer" className="shrink-0 bg-card pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <Composer docked spacious placeholder={t("eloPlaceholder")} input={input} setInput={setInput} onSend={handleSend} onStop={chat.stop} streaming={chat.streaming} disabled={chat.loadingThread} model={model} models={models} pricing={pricing} onModelChange={changeModel} error={chat.error} showScrollDown={showScrollDown} onScrollDown={scrollToBottom} voice={voice} />
+          <Composer docked spacious placeholder={t("eloPlaceholder")} input={input} setInput={setInput} onSend={handleSend} onStop={chat.stop} streaming={chat.streaming} disabled={chat.loadingThread} model={model} models={models} pricing={pricing} onModelChange={changeModel} error={chat.error} showScrollDown={showScrollDown} onScrollDown={scrollToBottom} voice={voice} files={files} />
           <p className="mx-auto max-w-3xl px-4 text-center text-2xs leading-relaxed text-muted-foreground">{t("disclaimer")}</p>
         </div>
       </section>

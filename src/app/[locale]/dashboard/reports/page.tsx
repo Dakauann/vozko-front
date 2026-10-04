@@ -22,6 +22,7 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -202,7 +203,7 @@ export default function ReportsPage() {
               {job.sizeBytes ? ` · ${formatBytes(job.sizeBytes, locale)}` : ""}
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">—</span>
+            <EmptyValue className="text-sm" />
           ),
       },
       {
@@ -219,7 +220,7 @@ export default function ReportsPage() {
         header: t("table.expiresAt"),
         render: (job) => (
           <span className="text-sm text-muted-foreground">
-            {job.expiresAt ? new Date(job.expiresAt).toLocaleDateString() : "—"}
+            {job.expiresAt ? new Date(job.expiresAt).toLocaleDateString() : <EmptyValue />}
           </span>
         ),
       },

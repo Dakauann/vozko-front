@@ -4,6 +4,7 @@ import {
   CampaignStatusChip,
   MetricCell,
 } from "@/components/campaigns/CampaignStatusChip";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import type { DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
 import type { UnofficialWhatsAppCampaign } from "@/lib/unofficial-whatsapp-campaigns/types";
 import { cn } from "@/lib/utils";
@@ -30,7 +31,7 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
                 row.instanceSessionLive ? "bg-healthy" : "bg-destructive",
               )}
             />
-            <span className="truncate">{row.instanceLabel || "—"}</span>
+            <span className="truncate">{row.instanceLabel || <EmptyValue />}</span>
           </span>
         </div>
       ),
@@ -91,7 +92,7 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
         <span className="text-sm font-semibold tabular-nums text-foreground">
           {row.metrics?.successRate != null
             ? `${row.metrics.successRate.toFixed(1)}%`
-            : "—"}
+            : <EmptyValue />}
         </span>
       ),
     },

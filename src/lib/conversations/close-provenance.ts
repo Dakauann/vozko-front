@@ -83,8 +83,8 @@ export function resolveCloseProvenance(
   if (source || reason) {
     return {
       short: source || reason,
-      by: source || "—",
-      reasonLabel: reason || "—",
+      by: source,
+      reasonLabel: reason,
       isSilence: false,
       source: source || "",
       reason: reason || "",

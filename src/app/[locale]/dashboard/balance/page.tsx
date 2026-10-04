@@ -33,6 +33,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   DashboardTable,
   type DashboardTableColumn,
@@ -351,7 +352,7 @@ export default function BalancePage() {
         header: t("table.description"),
         render: (row) => (
           <p className="text-sm text-foreground max-w-[260px] truncate">
-            {row.description || "—"}
+            {row.description || <EmptyValue />}
           </p>
         ),
       },

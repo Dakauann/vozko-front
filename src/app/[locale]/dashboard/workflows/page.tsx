@@ -26,6 +26,7 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -260,7 +261,7 @@ export default function WorkflowsPage() {
               ? [row.triggerType]
               : [];
           if (effective.length === 0) {
-            return <span className="text-sm text-muted-foreground">—</span>;
+            return <EmptyValue className="text-sm" />;
           }
           return (
             <span className="flex flex-wrap gap-1">

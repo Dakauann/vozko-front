@@ -11,7 +11,8 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { Link, usePathname } from "@/i18n/routing";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
-import type { ChatAttachment } from "@/lib/aichat/types";
+import { attachmentOfImage } from "@/lib/aichat/attachments";
+import type { ChatAttachment, ChatImage } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 import { speechLang } from "@/lib/voice/speech-text";
 
@@ -19,6 +20,7 @@ import { useAssistantContext } from "./assistant-context";
 import { AssistantLauncher } from "./assistant-launcher";
 import { Composer } from "./composer";
 import { MessageBubble, useBubbleLabels } from "./message-list";
+import { useChatAttachments } from "./use-chat-attachments";
 import { useChatConversation } from "./use-chat-conversation";
 import { useChatModel } from "./use-chat-model";
 import { useResizableCard } from "./use-resizable-card";
@@ -65,6 +67,8 @@ function Dock() {
     createError: tc("createError"),
   });
   const labels = useBubbleLabels();
+  const files = useChatAttachments();
+  const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));
   const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages);
   const reduceMotion = useReducedMotion();
   const cardRef = useRef<HTMLElement>(null);
@@ -242,6 +246,7 @@ function Dock() {
                       live={chat.streaming && i === chat.messages.length - 1}
                       onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)}
                       onReject={(id) => void chat.resolveAction(id, "reject", model)}
+                      onEditImage={editImage}
                       labels={labels}
                     />
                   ))}
@@ -264,6 +269,7 @@ function Dock() {
               showScrollDown={showScrollDown}
               onScrollDown={scrollToBottom}
               voice={voice}
+              files={files}
             />
             <p className="px-4 pb-2.5 text-center text-2xs text-muted-foreground">{td("footnote")}</p>
           </motion.section>

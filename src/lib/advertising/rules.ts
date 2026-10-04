@@ -1,4 +1,5 @@
-import { currencyOffset, formatCount, formatMinor, formatPercent, inputToMinor, minorToInput, EMPTY_VALUE } from "@/lib/advertising/money";
+import { currencyOffset, formatCount, formatMinor, formatPercent, inputToMinor, minorToInput } from "@/lib/advertising/money";
+import { emptyValue } from "@/lib/format/empty-value";
 
 export type RuleEntity = "CAMPAIGN" | "ADSET" | "AD";
 
@@ -105,11 +106,11 @@ export function ruleValueToInput(value: number, metric: RuleMetric, currency: st
 }
 
 export function formatRuleValue(value: number, metric: RuleMetric, currency: string, tag: string): string {
-  if (!Number.isFinite(value)) return EMPTY_VALUE;
+  if (!Number.isFinite(value)) return emptyValue(tag);
   switch (metricUnit(metric)) {
     case "money": {
       const offset = currencyOffset(currency);
-      return offset ? formatMinor(Math.round(value * offset), currency, tag) : EMPTY_VALUE;
+      return offset ? formatMinor(Math.round(value * offset), currency, tag) : emptyValue(tag);
     }
     case "percent":
       return formatPercent(value, tag);

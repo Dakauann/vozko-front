@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import Link from "next/link";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
@@ -584,7 +585,7 @@ export default function WhatsAppTemplateDetailPage() {
                   <p className="mt-0.5 text-sm text-muted-foreground">
                     {t("detail.language")}: {template.language} • ID:{" "}
                     <span className="font-mono">
-                      {template.externalId || "—"}
+                      {template.externalId || <EmptyValue />}
                     </span>
                   </p>
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">

@@ -13,6 +13,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from "@/components/icons";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { useEffect, useRef, useState } from "react";
 
 import type { Analysis } from "@/lib/analysis/types";
@@ -90,9 +91,9 @@ const DISPOSITION_LABELS: Record<string, string> = {
   pending: "Pendente",
 };
 
-const UNKNOWN_SENTIMENT = { label: "—", icon: SmileyMeh, tile: "tile-muted" } as const;
-const UNKNOWN_INTEREST = { label: "—", tile: "tile-muted" } as const;
-const UNKNOWN_QUALIFICATION = { label: "—", icon: Target, tile: "tile-muted", bar: "bg-muted" } as const;
+const UNKNOWN_SENTIMENT = { icon: SmileyMeh, tile: "tile-muted" } as const;
+const UNKNOWN_INTEREST = { tile: "tile-muted" } as const;
+const UNKNOWN_QUALIFICATION = { icon: Target, tile: "tile-muted", bar: "bg-muted" } as const;
 
 const NEXT_ACTION_LABELS: Record<string, string> = {
   schedule_callback: "Agendar retorno",
@@ -112,6 +113,7 @@ export default function ConversationAnalysisPanel({
   const [expanded, setExpanded] = useState(false);
   const lastFetchedRef = useRef<string | null>(null);
   const { latestAnalysisUpdate } = useCrm();
+  const empty = useEmptyValue();
 
   useEffect(() => {
     const key = `${entryId}:${entryType}`;
@@ -150,9 +152,9 @@ export default function ConversationAnalysisPanel({
   const analysis = withLiveRead(savedAnalysis, liveRead, { entryId, entryType });
   if (loading || !analysis) return null;
 
-  const sentiment = SENTIMENT_CONFIG[analysis.sentiment] ?? UNKNOWN_SENTIMENT;
-  const interest = INTEREST_CONFIG[analysis.interest] ?? UNKNOWN_INTEREST;
-  const qualification = QUALIFICATION_CONFIG[analysis.qualification] ?? UNKNOWN_QUALIFICATION;
+  const sentiment = SENTIMENT_CONFIG[analysis.sentiment] ?? { ...UNKNOWN_SENTIMENT, label: empty };
+  const interest = INTEREST_CONFIG[analysis.interest] ?? { ...UNKNOWN_INTEREST, label: empty };
+  const qualification = QUALIFICATION_CONFIG[analysis.qualification] ?? { ...UNKNOWN_QUALIFICATION, label: empty };
   const SentimentIcon = sentiment.icon;
   const QualIcon = qualification.icon;
 

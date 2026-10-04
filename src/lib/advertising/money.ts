@@ -1,4 +1,4 @@
-export const EMPTY_VALUE = "\u2014";
+import { emptyValue } from "@/lib/format/empty-value";
 
 const MICROS_PER_UNIT = 1_000_000;
 
@@ -35,16 +35,16 @@ function currencyFormatter(currency: string, locale: string, fractionDigits?: nu
 }
 
 export function formatMicros(micros: number | null | undefined, currency: string, locale = "pt-BR"): string {
-  if (micros === null || micros === undefined || !Number.isFinite(micros)) return EMPTY_VALUE;
+  if (micros === null || micros === undefined || !Number.isFinite(micros)) return emptyValue(locale);
   const formatter = currencyFormatter(currency, locale);
-  return formatter ? formatter.format(micros / MICROS_PER_UNIT) : EMPTY_VALUE;
+  return formatter ? formatter.format(micros / MICROS_PER_UNIT) : emptyValue(locale);
 }
 
 export function formatMinor(minor: number | null | undefined, currency: string, locale = "pt-BR"): string {
-  if (minor === null || minor === undefined || !Number.isFinite(minor)) return EMPTY_VALUE;
+  if (minor === null || minor === undefined || !Number.isFinite(minor)) return emptyValue(locale);
   const offset = currencyOffset(currency);
   const formatter = currencyFormatter(currency, locale, currencyFractionDigits(currency));
-  if (!offset || !formatter) return EMPTY_VALUE;
+  if (!offset || !formatter) return emptyValue(locale);
   return formatter.format(minor / offset);
 }
 
@@ -75,21 +75,21 @@ export function inputToMinor(raw: string, currency: string): number | null {
 }
 
 export function formatCount(value: number | null | undefined, locale = "pt-BR"): string {
-  if (value === null || value === undefined || !Number.isFinite(value)) return EMPTY_VALUE;
+  if (value === null || value === undefined || !Number.isFinite(value)) return emptyValue(locale);
   return new Intl.NumberFormat(locale).format(value);
 }
 
 export function formatPercent(value: number | null | undefined, locale = "pt-BR"): string {
-  if (value === null || value === undefined || !Number.isFinite(value)) return EMPTY_VALUE;
+  if (value === null || value === undefined || !Number.isFinite(value)) return emptyValue(locale);
   return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}%`;
 }
 
 export function formatRoas(value: number | null | undefined, locale = "pt-BR"): string {
-  if (value === null || value === undefined || !Number.isFinite(value)) return EMPTY_VALUE;
+  if (value === null || value === undefined || !Number.isFinite(value)) return emptyValue(locale);
   return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}x`;
 }
 
 export function formatDecimal(value: number | null | undefined, locale = "pt-BR", digits = 2): string {
-  if (value === null || value === undefined || !Number.isFinite(value)) return EMPTY_VALUE;
+  if (value === null || value === undefined || !Number.isFinite(value)) return emptyValue(locale);
   return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
 }

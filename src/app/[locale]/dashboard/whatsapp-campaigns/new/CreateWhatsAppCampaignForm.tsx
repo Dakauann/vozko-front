@@ -2482,7 +2482,7 @@ export default function CreateWhatsAppCampaignForm({
                       {totalPages > 1 && (
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-xs text-warning-ink">
-                            {start + 1}–
+                            {start + 1} →{" "}
                             {Math.min(
                               start + SKIPPED_PAGE_SIZE,
                               skippedLines.length,

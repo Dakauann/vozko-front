@@ -121,6 +121,7 @@ import { fetchDepartments } from "@/lib/department/client";
 import type { Department } from "@/lib/department/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { cn } from "@/lib/utils";
 import { ChannelTile } from "@/components/channels/channel-tile";
@@ -845,7 +846,7 @@ function CloseOriginCell({
   const s = system ?? 0;
   if (h + a + s === 0) {
     return (
-      <span className="text-xs tabular-nums text-muted-foreground">—</span>
+      <EmptyValue className="text-xs tabular-nums" />
     );
   }
   return (
@@ -1883,7 +1884,7 @@ function StageDetailTable({
                     f.stuck > 0 ? "text-warning-ink" : "text-muted-foreground",
                   )}
                 >
-                  {f.stuck > 0 ? fmt.num(f.stuck) : "—"}
+                  {f.stuck > 0 ? fmt.num(f.stuck) : <EmptyValue />}
                 </td>
               </tr>
               {f.stages.map((s) => (
@@ -1935,7 +1936,7 @@ function StageDetailTable({
                         : tl("stuckAfterDefault", { days: s.stuck_after_days })
                     }
                   >
-                    {s.stuck > 0 ? fmt.num(s.stuck) : "—"}
+                    {s.stuck > 0 ? fmt.num(s.stuck) : <EmptyValue />}
                   </td>
                 </tr>
               ))}

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
@@ -38,6 +38,28 @@ describe("generated images in the chat", () => {
       </NextIntlClientProvider>,
     );
     expect(screen.getByRole("button", { name: ptMessages.imageGeneration.download })).toBeTruthy();
+  });
+
+  it("puts the image back in the composer to edit it", () => {
+    const onEdit = vi.fn();
+    render(
+      <NextIntlClientProvider locale="pt" messages={ptMessages}>
+        <ChatImageView image={image} onEdit={onEdit} />
+      </NextIntlClientProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.aiChatPage.image.edit }));
+    expect(onEdit).toHaveBeenCalledWith(image);
+  });
+
+  it("shows the images the user attached in their message", () => {
+    renderBubble({
+      id: "u-1",
+      role: "user",
+      content: "use o logo",
+      createdAt: "2026-10-04T12:00:00Z",
+      attachments: [{ mediaId: "m-2", name: "logo.png", kind: "image", url: "https://cdn.example.com/logo.png" }],
+    } as UIMessage);
+    expect(screen.getByRole("img", { name: "logo.png" }).getAttribute("src")).toBe("https://cdn.example.com/logo.png");
   });
 });
 

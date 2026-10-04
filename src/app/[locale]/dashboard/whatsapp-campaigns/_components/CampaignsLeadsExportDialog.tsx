@@ -13,6 +13,7 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { DownloadSimple, Info } from "@/components/icons";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { useExportEntries } from "@/hooks/use-export-entries";
@@ -43,6 +44,7 @@ export function CampaignsLeadsExportDialog({
   disabled,
 }: CampaignsLeadsExportDialogProps) {
   const t = useTranslations("campaignsSummary");
+  const empty = useEmptyValue();
   const tStatus = useTranslations("whatsappCampaignsPage");
   const { toast } = useToast();
   const { exporting, exportEntries } = useExportEntries();
@@ -120,8 +122,8 @@ export function CampaignsLeadsExportDialog({
             <ElevatedDialogDescription>
               {from || to
                 ? t("export.descriptionFiltered", {
-                    from: from || "—",
-                    to: to || "—",
+                    from: from || empty,
+                    to: to || empty,
                   })
                 : t("export.descriptionAllTime")}
             </ElevatedDialogDescription>

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  EMPTY_VALUE,
   currencyOffset,
   formatDecimal,
   formatCount,
@@ -33,9 +32,9 @@ describe("formatMicros", () => {
   });
 
   it("shows a dash for unknown values, never zero", () => {
-    expect(formatMicros(null, "BRL")).toBe(EMPTY_VALUE);
-    expect(formatMicros(undefined, "BRL")).toBe(EMPTY_VALUE);
-    expect(formatMicros(1_000_000, "")).toBe(EMPTY_VALUE);
+    expect(formatMicros(null, "BRL")).toBe("n/d");
+    expect(formatMicros(undefined, "BRL")).toBe("n/d");
+    expect(formatMicros(1_000_000, "")).toBe("n/d");
   });
 });
 
@@ -73,9 +72,9 @@ describe("inputToMinor", () => {
 
 describe("number formats", () => {
   it("keeps null as a dash", () => {
-    expect(formatCount(null)).toBe(EMPTY_VALUE);
-    expect(formatPercent(null)).toBe(EMPTY_VALUE);
-    expect(formatRoas(null)).toBe(EMPTY_VALUE);
+    expect(formatCount(null)).toBe("n/d");
+    expect(formatPercent(null)).toBe("n/d");
+    expect(formatRoas(null)).toBe("n/d");
   });
 
   it("formats counts, percentages and ROAS", () => {
@@ -89,6 +88,7 @@ describe("formatDecimal", () => {
   it("formats with fixed digits and leaves unknown values empty", () => {
     expect(formatDecimal(1.5, "pt-BR")).toBe("1,50");
     expect(formatDecimal(7.25, "en-US", 1)).toBe("7.3");
-    expect(formatDecimal(null)).toBe(EMPTY_VALUE);
+    expect(formatDecimal(null)).toBe("n/d");
+    expect(formatCount(null, "en-US")).toBe("n/a");
   });
 });

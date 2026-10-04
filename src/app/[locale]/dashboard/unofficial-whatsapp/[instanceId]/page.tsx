@@ -27,6 +27,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { DepartmentAssignmentCard } from "@/components/dashboard/DepartmentAssignmentCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
 import { UnofficialWhatsAppAutomationPanel } from "@/components/unofficial-whatsapp/automation-panel";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
@@ -295,19 +296,20 @@ export default function UnofficialWhatsAppInstancePage() {
 
 function SessionPanel({ instance }: { instance: UnofficialWhatsAppInstance }) {
   const t = useTranslations("unofficialWhatsapp");
+  const empty = useEmptyValue();
 
   const facts: Array<{ label: string; value: string }> = [
     {
       label: t("detail.connectedAt"),
-      value: instance.connectedAt ? new Date(instance.connectedAt).toLocaleString() : "—",
+      value: instance.connectedAt ? new Date(instance.connectedAt).toLocaleString() : empty,
     },
     {
       label: t("detail.lastChecked"),
-      value: instance.lastPolledAt ? new Date(instance.lastPolledAt).toLocaleString() : "—",
+      value: instance.lastPolledAt ? new Date(instance.lastPolledAt).toLocaleString() : empty,
     },
     {
       label: t("detail.platform"),
-      value: instance.platform || "—",
+      value: instance.platform || empty,
     },
   ];
 

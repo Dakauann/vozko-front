@@ -1,13 +1,13 @@
 import type { TrendFilters } from "./report-query";
 import type { AdLevel, AdRow } from "./types";
 
-export type InsightsTab = "performance" | "budget" | "actions" | "preview" | "comments";
+export type InsightsTab = "performance" | "budget" | "actions" | "history" | "preview" | "comments";
 
 export type BudgetHome = { kind: "own" } | { kind: "children" } | { kind: "parent"; level: AdLevel; metaId: string } | { kind: "unknown" };
 
 type BudgetRow = Pick<AdRow, "dailyBudget" | "lifetimeBudget">;
 
-const BASE_TABS: InsightsTab[] = ["performance", "budget", "actions"];
+const BASE_TABS: InsightsTab[] = ["performance", "budget", "actions", "history"];
 
 const AD_TABS: InsightsTab[] = [...BASE_TABS, "preview", "comments"];
 

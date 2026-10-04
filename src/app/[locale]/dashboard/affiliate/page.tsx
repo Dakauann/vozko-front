@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AffiliateProfileWithStats } from "@/lib/affiliate/types";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { cn } from "@/lib/utils";
 import { getMyAffiliateAction } from "@/app/actions/affiliate";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
@@ -249,6 +250,7 @@ function AffiliateDashboard({
   onCopy: (link: string) => void;
 }) {
   const t = useTranslations("affiliatePage");
+  const empty = useEmptyValue();
   const { affiliate, stats } = profile;
 
   const referralUrl = useMemo(
@@ -292,7 +294,7 @@ function AffiliateDashboard({
         icon={<Handshake className="h-5 w-5" weight="fill" />}
         badge={t("header.badge")}
         description={t("dashboard.description", {
-          brand: affiliate.brandName || affiliate.code || "—",
+          brand: affiliate.brandName || affiliate.code || empty,
         })}
       />
 

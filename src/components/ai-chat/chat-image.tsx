@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import { ArrowSquareOut } from "@/components/icons";
+import { ArrowSquareOut, PencilSimple } from "@/components/icons";
 import { MediaDownloadButton } from "@/components/media/media-download-button";
 import type { ChatImage } from "@/lib/aichat/types";
 
-export function ChatImageView({ image }: { image: ChatImage }) {
+export function ChatImageView({ image, onEdit }: { image: ChatImage; onEdit?: (image: ChatImage) => void }) {
   const t = useTranslations("aiChatPage.image");
   return (
     <figure className="max-w-sm space-y-1.5">
@@ -30,6 +30,16 @@ export function ChatImageView({ image }: { image: ChatImage }) {
       <figcaption className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="line-clamp-1">{image.alt}</span>
         <span className="flex shrink-0 items-start gap-3">
+          {onEdit ? (
+            <button
+              type="button"
+              onClick={() => onEdit(image)}
+              className="inline-flex shrink-0 items-center gap-1 font-semibold text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <PencilSimple className="h-3.5 w-3.5" aria-hidden />
+              {t("edit")}
+            </button>
+          ) : null}
           <MediaDownloadButton mediaId={image.mediaId} description={image.alt} />
           <a
             href={image.url}

@@ -13,6 +13,7 @@ import {
 import { useCallback, useEffect, useState, useTransition } from "react";
 
 import Button from "@/components/elevated-design/button";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { CampaignConfirmModal } from "@/components/campaigns/CampaignConfirmModal";
 import CrmDialog from "@/components/crm/CrmDialog";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
@@ -362,7 +363,7 @@ export default function UnofficialCampaignDetail({
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span>
-                    {t("detail.number")}: {campaign.instanceLabel || "—"}
+                    {t("detail.number")}: {campaign.instanceLabel || <EmptyValue />}
                   </span>
                   <span className="text-muted-foreground">•</span>
                   <span>

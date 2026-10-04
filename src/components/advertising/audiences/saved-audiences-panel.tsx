@@ -12,7 +12,6 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
 import { AUDIENCE_MAX_AGE, genderChoiceOf, type SavedAudience } from "@/lib/advertising/audiences";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdAccount } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 
@@ -39,13 +38,13 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
 
   const ages = (audience: SavedAudience) => {
     const { ageMin, ageMax } = audience.targeting;
-    if (!ageMin || !ageMax) return EMPTY_VALUE;
+    if (!ageMin || !ageMax) return fmt.empty;
     return ageMax >= AUDIENCE_MAX_AGE ? t("agesPlus", { min: ageMin, max: ageMax }) : t("ages", { min: ageMin, max: ageMax });
   };
 
   const places = (audience: SavedAudience) => {
     const names = (audience.targeting.locations ?? []).map((location) => location.name).filter(Boolean);
-    return names.length > 0 ? names.join(", ") : EMPTY_VALUE;
+    return names.length > 0 ? names.join(", ") : fmt.empty;
   };
 
   const saved = (audience: SavedAudience, created: boolean) => {

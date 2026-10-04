@@ -31,6 +31,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import Link from "next/link";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
@@ -156,6 +157,7 @@ function AttendanceGlance({
   const tl = useTranslations("metricsOps.attendance.labels");
   const tc = useTranslations("metricsOps.common");
   const locale = useLocale();
+  const empty = useEmptyValue();
   const tag = locale === "pt" ? "pt-BR" : locale;
 
   const kpis = overview.kpis;
@@ -164,7 +166,7 @@ function AttendanceGlance({
     (v ?? 0).toLocaleString(tag);
   const mins = (v: number | null | undefined) =>
     v == null
-      ? "—"
+      ? empty
       : v < 1
         ? `${Math.round(v * 60)}s`
         : `${v.toLocaleString(tag, { maximumFractionDigits: 1 })} ${tc("minUnit")}`;
@@ -352,6 +354,7 @@ function AttendanceGlance({
 function UserDashboard() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
+  const empty = useEmptyValue();
   const { currentWorkspace, can, canAny, permissionsLoading } = useWorkspace();
 
   const [waCampaigns, setWaCampaigns] = useState<WhatsAppCampaign[]>([]);
@@ -488,7 +491,7 @@ function UserDashboard() {
       });
       list.push({
         legend: t("avgResponseLabel"),
-        value: avgResponseTime > 0 ? `${avgResponseTime} min` : "—",
+        value: avgResponseTime > 0 ? `${avgResponseTime} min` : empty,
         helper:
           avgResponseTime > 0
             ? t("avgResponsePerAttendant")
@@ -504,6 +507,7 @@ function UserDashboard() {
     avgResponseTime,
     canReadMembers,
     canReadWaCampaigns,
+    empty,
     runningWa.length,
     t,
     totalOpenWindows,

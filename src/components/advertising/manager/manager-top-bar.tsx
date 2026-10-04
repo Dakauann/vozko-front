@@ -4,15 +4,15 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
-import { ArrowClockwise, ClockCounterClockwise, DotsThree, Plugs, SquaresFour, TestTube, Trash } from "@/components/icons";
+import { ClockCounterClockwise, DotsThree, Plugs, SquaresFour, TestTube, Trash } from "@/components/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { Link } from "@/i18n/routing";
 import { overviewHref } from "@/lib/advertising/connect";
 import type { AdAccount, AdLevel } from "@/lib/advertising/types";
-import { cn } from "@/lib/utils";
 
 import { AccountPicker } from "../account-picker";
+import { SyncFreshness } from "./sync-freshness";
 
 export interface TopBarMenu {
   canConnect: boolean;
@@ -53,7 +53,6 @@ export function ManagerTopBar({
   menu: TopBarMenu;
 }) {
   const t = useTranslations("adsManager.topBar");
-  const tSync = useTranslations("adsManager.sync");
   const count = drafts?.count ?? null;
   const draftBlocker = drafts ? (drafts.blocker ?? (count === null ? t("draftsUnknown") : count === 0 ? t("noDrafts") : null)) : null;
 
@@ -70,21 +69,7 @@ export function ManagerTopBar({
         {account ? <AccountPicker accounts={accounts} value={account.id} onChange={onSelectAccount} className="w-64" /> : null}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {onSync ? (
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-muted-foreground">{synced ? tSync("updated", { when: synced }) : tSync("never")}</span>
-            <button
-              type="button"
-              onClick={onSync}
-              disabled={syncing}
-              aria-label={tSync("action")}
-              title={tSync("action")}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-            >
-              <ArrowClockwise className={cn("h-4 w-4", syncing && "animate-spin")} aria-hidden />
-            </button>
-          </div>
-        ) : null}
+        {onSync ? <SyncFreshness synced={synced} syncing={syncing} onSync={onSync} /> : null}
         {drafts
           ? withReason(
               <Button variant="ghost" size="sm" title={t("discard")} onClick={drafts.onDiscard} disabled={!!draftBlocker} />,

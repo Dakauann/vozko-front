@@ -35,6 +35,7 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
 import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
 import { useTemplateComposer } from "@/hooks/use-template-composer";
@@ -59,6 +60,7 @@ export function StartOfficialConversationDialog({
     onStarted: (entryId: string, entryType: string) => void;
 }) {
     const t = useTranslations("whatsappOutreach");
+    const empty = useEmptyValue();
     const tTemplates = useTranslations("whatsappTemplates");
     const { can } = useWorkspace();
     const canCreateTemplate = can("whatsapp_templates", "create");
@@ -189,12 +191,12 @@ export function StartOfficialConversationDialog({
             newBody,
         );
         return {
-            template_name: newName || "—",
+            template_name: newName || empty,
             language: "pt_BR",
             category: "UTILITY",
             components: [{ type: "BODY", text: rendered }] as TemplateMessageMetadata["components"],
         };
-    }, [newBody, newBodySlots, newExamples, newName]);
+    }, [empty, newBody, newBodySlots, newExamples, newName]);
 
     const applyStarter = useCallback(
         (choice: TemplateStarter) => {
@@ -418,7 +420,7 @@ export function StartOfficialConversationDialog({
                                         <div className="flex items-baseline justify-between gap-3">
                                             <span className="text-xs text-muted-foreground">{t("cost.label")}</span>
                                             <span className="readout text-sm font-semibold text-foreground">
-                                                {priceLabel ?? "—"}
+                                                {priceLabel ?? <EmptyValue />}
                                             </span>
                                         </div>
                                         {quote && !quote.affordable && (

@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listAffiliateEarningsAction } from "@/app/actions/affiliate";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   DashboardTable,
   type DashboardTableColumn,
@@ -152,7 +153,7 @@ export default function AffiliateEarningsPage() {
         header: t("table.purpose"),
         render: (row) => (
           <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {row.purpose || "—"}
+            {row.purpose || <EmptyValue />}
           </span>
         ),
       },

@@ -791,7 +791,7 @@ export function NodeConfigPanel({
           <div className="flex-1 space-y-3 overflow-y-auto p-3 pl-6">
             {outputBranches.length === 0 ? (
               <div className="flex h-full items-center justify-center px-2 text-center text-xs text-muted-foreground">
-                Nó final — sem saídas
+                Nó final, sem saídas
               </div>
             ) : (
               outputBranches.map((branch) => (

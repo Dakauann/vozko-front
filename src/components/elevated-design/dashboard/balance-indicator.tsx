@@ -37,6 +37,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import Image from "next/image";
 import type { Invoice } from "@/lib/invoices/types";
 import { PlansCarousel } from "@/components/plans/plans-carousel";
@@ -545,7 +546,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                             minute: "2-digit",
                           },
                         )
-                      : "—"}
+                      : <EmptyValue />}
                   </span>
                   <Button
                     className="!min-h-0 min-w-0 !px-0 !py-0 text-xs font-medium text-primary-ink shadow-none hover:bg-transparent"

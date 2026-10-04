@@ -6,11 +6,12 @@ export interface ReportFilters {
   campaignIds?: string[];
   adSetIds?: string[];
   adIds?: string[];
+  objectIds?: string[];
   search?: string;
   compare?: boolean;
 }
 
-export type TrendFilters = Omit<ReportFilters, "level" | "search" | "compare">;
+export type TrendFilters = Omit<ReportFilters, "level" | "search" | "compare" | "objectIds"> & { granularity?: "day" | "week" | "month" };
 
 export interface LiveQuery {
   level: AdLevel;
@@ -34,12 +35,14 @@ function setList(params: URLSearchParams, key: string, values: string[] | undefi
   if (values?.length) params.set(key, values.join(","));
 }
 
-export function reportQuery(filters: Partial<Pick<ReportFilters, "level">> & Omit<ReportFilters, "level">): string {
+export function reportQuery(filters: Partial<Pick<ReportFilters, "level">> & Omit<ReportFilters, "level"> & { granularity?: string }): string {
   const params = new URLSearchParams({ since: filters.range.since, until: filters.range.until });
   if (filters.level) params.set("level", filters.level);
   setList(params, "campaignIds", filters.campaignIds);
   setList(params, "adSetIds", filters.adSetIds);
   setList(params, "adIds", filters.adIds);
+  setList(params, "objectIds", filters.objectIds);
+  if (filters.granularity && filters.granularity !== "day") params.set("granularity", filters.granularity);
   if (filters.search?.trim()) params.set("search", filters.search.trim());
   if (filters.compare) params.set("compare", "1");
   return params.toString();

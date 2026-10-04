@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ClipboardEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { uploadMediaAction } from "@/app/actions/medias";
 import Button from "@/components/elevated-design/button";
 import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
-import { Play, Plus, Sparkle, Trash, UploadSimple } from "@/components/icons";
+import { PencilSimple, Play, Plus, Sparkle, Trash, UploadSimple } from "@/components/icons";
 import { GeneratingImage } from "@/components/image-generation/generating-image";
 import { ImageModelSelect } from "@/components/image-generation/image-model-select";
 import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
@@ -15,6 +15,7 @@ import { MediaDownloadButton } from "@/components/media/media-download-button";
 import { useImageGeneration, type ImageGenerationError } from "@/hooks/use-image-generation";
 import type { MediaChoice } from "@/lib/advertising/draft";
 import type { AdMediaKind } from "@/lib/advertising/draft-types";
+import { withReference } from "@/lib/image-generation/references";
 import { MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/image-generation/types";
 
 import { AdImage } from "../ad-image";
@@ -162,11 +163,22 @@ export function MediaPicker({
       setError(result.error ?? t("uploadFailed"));
       return;
     }
-    setReferences((current) =>
-      current.some((item) => item.mediaId === result.mediaId) || current.length >= MAX_REFERENCE_IMAGES
-        ? current
-        : [...current, { mediaId: result.mediaId, url: result.url }],
-    );
+    setReferences((current) => withReference(current, { mediaId: result.mediaId, url: result.url }));
+  };
+
+  const pasteReferences = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const images = Array.from(event.clipboardData.files).filter((file) => kindOf(file) === "image");
+    if (images.length === 0 || !canAddReference) return;
+    event.preventDefault();
+    void images.reduce((chain, file) => chain.then(() => addReference(file)), Promise.resolve());
+  };
+
+  const editWithAi = (image: MediaChoice) => {
+    setReferences((current) => withReference(current, { mediaId: image.mediaId, url: image.url }));
+    setPrompt("");
+    setError(null);
+    setMode("generate");
+    onChange(null);
   };
 
   const removeReference = (mediaId: string) =>
@@ -196,6 +208,17 @@ export function MediaPicker({
             <MediaDownloadButton mediaId={value.mediaId} description={prompt.trim() || t("chosenImage")} className="text-xs" />
           ) : null}
         </span>
+        {generates && value.kind === "image" ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            title={t("editWithAi")}
+            icon={<PencilSimple className="h-4 w-4" />}
+            iconVisible
+            iconSide="left"
+            onClick={() => editWithAi(value)}
+          />
+        ) : null}
         <Button
           variant="ghost"
           size="sm"
@@ -253,6 +276,7 @@ export function MediaPicker({
             value={prompt}
             maxLength={MAX_PROMPT}
             onChange={(event) => setPrompt(event.target.value)}
+            onPaste={pasteReferences}
             disabled={generating}
             autoResize
             maxHeight={200}

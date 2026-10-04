@@ -18,7 +18,7 @@ vi.mock("./use-chat-conversation", () => ({ useChatConversation: () => ({
   error: null, ask: mocks.ask, selectThread: mocks.select, newChat: mocks.create, stop: vi.fn(), resolveAction: vi.fn(),
 }) }));
 vi.mock("./use-chat-model", () => ({ useChatModel: () => ({ model: "test", models: ["test"], pricing: [], changeModel: vi.fn() }) }));
-vi.mock("./use-chat-attachments", () => ({ useChatAttachments: () => ({ items: [], ready: [], uploading: false, error: null, clear: vi.fn(), add: vi.fn(), remove: vi.fn() }) }));
+vi.mock("./use-chat-attachments", () => ({ useChatAttachments: () => ({ items: [], ready: [], uploading: false, error: null, clear: vi.fn(), add: vi.fn(), attach: vi.fn(), remove: vi.fn() }) }));
 vi.mock("./use-stick-to-bottom", () => ({ useStickToBottom: () => ({ scrollRef: { current: null }, onScroll: vi.fn(), showScrollDown: false, scrollToBottom: vi.fn() }) }));
 vi.mock("@/components/elevated-design/ai-model-selector", () => ({ AIModelSelector: () => <span>Test model</span> }));
 

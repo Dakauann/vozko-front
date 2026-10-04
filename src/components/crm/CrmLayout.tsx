@@ -135,6 +135,7 @@ import {
 } from "@/lib/conversations/types";
 import CrmConnectedUsers from "./CrmConnectedUsers";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import ElevatedButton from "../elevated-design/button";
 import { useTranslations } from "next-intl";
 import CrmConversationInfosPanel from "./CrmConversationInfosPanel";
@@ -1802,13 +1803,13 @@ export default function CrmLayout({
                       <div className="text-2xs text-muted-foreground">
                         Encerrada por{" "}
                         <span className="font-medium text-foreground">
-                          {currentConversationStatusMeta.provenance.by}
+                          {currentConversationStatusMeta.provenance.by || <EmptyValue />}
                         </span>
                       </div>
                       <div className="text-2xs text-muted-foreground">
                         Motivo:{" "}
                         <span className="font-medium text-foreground">
-                          {currentConversationStatusMeta.provenance.reasonLabel}
+                          {currentConversationStatusMeta.provenance.reasonLabel || <EmptyValue />}
                         </span>
                       </div>
                       {currentConversationStatusMeta.provenance.isSilence ? (

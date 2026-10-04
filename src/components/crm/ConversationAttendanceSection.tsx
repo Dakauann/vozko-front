@@ -18,6 +18,7 @@ import {
   UserMinus,
   UserPlus,
 } from "@/components/icons";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -320,6 +321,7 @@ export default function ConversationAttendanceSection({
   const tSummary = useTranslations("crmContactPanel.attendance");
   const t = useTranslations("crmContactPanel.activity");
   const locale = useLocale();
+  const empty = useEmptyValue();
   const localeTag = LOCALE_TAG[locale] ?? "en-US";
   const { currentWorkspace } = useWorkspace();
   const { capture: outcomeCapture } = useOutcomeCapture(currentWorkspace?.id);
@@ -528,7 +530,7 @@ export default function ConversationAttendanceSection({
   if (summary.closeProvenance) {
     summaryRows.push({
       label: tSummary("closedBy"),
-      value: `${summary.closeProvenance.by} · ${summary.closeProvenance.reasonLabel}`,
+      value: `${summary.closeProvenance.by || empty} · ${summary.closeProvenance.reasonLabel || empty}`,
     });
     const outcome = closeOutcomeLabel(closeOutcome, outcomeCapture, (key) =>
       tSummary(`reservedOutcome.${key}`),

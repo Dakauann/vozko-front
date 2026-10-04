@@ -1,10 +1,8 @@
 import { X } from "@/components/icons";
 import { AdImage } from "@/components/advertising/ad-image";
+import type { ImageReference } from "@/lib/image-generation/references";
 
-export interface ReferenceThumbnail {
-  mediaId: string;
-  url: string;
-}
+export type ReferenceThumbnail = ImageReference;
 
 export function ReferenceThumbnails({
   items,

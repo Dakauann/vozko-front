@@ -46,6 +46,7 @@ import type {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
@@ -187,6 +188,7 @@ export default function BeginnerAgentWizard({
   const tForm = useTranslations("agents.form");
   const tWizard = useTranslations("agents.new.beginner");
   const tEdit = useTranslations("agents.edit");
+  const empty = useEmptyValue();
   const { toast } = useToast();
   const [isSubmitting, startSubmitting] = useTransition();
 
@@ -827,26 +829,26 @@ export default function BeginnerAgentWizard({
             <div className="space-y-3">
               <ReviewRow
                 label={tWizard("fields.name.label")}
-                value={currentValues.name || "—"}
+                value={currentValues.name || empty}
               />
               <ReviewRow
                 label={tWizard("fields.description.label")}
-                value={currentValues.description || "—"}
+                value={currentValues.description || empty}
               />
               <ReviewRow
                 label={tWizard("fields.messagingModel.label")}
-                value={currentValues.messagingModel || "—"}
+                value={currentValues.messagingModel || empty}
               />
               <ReviewRow
                 label={tWizard("fields.initialMessage.label")}
-                value={currentValues.initialMessage || "—"}
+                value={currentValues.initialMessage || empty}
               />
               <ReviewRow
                 label={tWizard("fields.businessPhone.label")}
                 value={
                   phones.find((p) => p.id === currentValues.businessPhoneId)
                     ?.displayPhoneNumber ??
-                  (currentValues.businessPhoneId || "—")
+                  (currentValues.businessPhoneId || empty)
                 }
               />
               <ReviewRow
@@ -855,7 +857,7 @@ export default function BeginnerAgentWizard({
                   templates.find(
                     (t) => t.id === currentValues.whatsappTemplateId,
                   )?.name ??
-                  (currentValues.whatsappTemplateId || "—")
+                  (currentValues.whatsappTemplateId || empty)
                 }
               />
             </div>

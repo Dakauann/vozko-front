@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 
 import { ArrowDown, ArrowUp, Minus } from "@/components/icons";
 import type { Delta } from "@/lib/advertising/compare";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import { cn } from "@/lib/utils";
 
 import { useAdsFormat } from "./use-ads-format";
@@ -22,7 +21,7 @@ export function DeltaBadge({ delta, previous }: { delta: Delta | null; previous:
   if (!delta) {
     return (
       <span className="flex items-center gap-1 text-xs text-muted-foreground" title={t("previous", { value: previous })}>
-        <span aria-hidden>{EMPTY_VALUE}</span>
+        <span aria-hidden>{fmt.empty}</span>
         <span className="sr-only">{t("noBaseline")}</span>
       </span>
     );

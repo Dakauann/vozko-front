@@ -12,6 +12,7 @@ export interface ChatAttachment {
   mediaId: string;
   name: string;
   kind: string;
+  url?: string;
 }
 
 export interface ChatMessage {

@@ -19,7 +19,6 @@ import {
   type AutomatedRule,
   type RuleWords,
 } from "./rules";
-import { EMPTY_VALUE } from "./money";
 
 const plain = (value: string) => value.replace(/\s/g, " ");
 
@@ -178,6 +177,6 @@ describe("rule builder", () => {
   it("previews a half finished rule without throwing", () => {
     const sentence = previewRule(emptyRuleBuilder(), "BRL");
     expect(Number.isNaN(sentence.conditions[0].value)).toBe(true);
-    expect(formatRuleValue(sentence.conditions[0].value, "spent", "BRL", "pt-BR")).toBe(EMPTY_VALUE);
+    expect(formatRuleValue(sentence.conditions[0].value, "spent", "BRL", "pt-BR")).toBe("n/d");
   });
 });

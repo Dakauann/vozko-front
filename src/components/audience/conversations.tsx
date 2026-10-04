@@ -9,6 +9,7 @@ import { BlockChart, RadialProfileChart } from "@/components/charts/composition-
 import { ChartLegend, DataChart, type ChartDatum } from "@/components/charts/dense-charts";
 import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
 import { EmptyState, Panel, Skeleton } from "@/components/audience/shared";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { ChartLineUp, ChatsCircle } from "@/components/icons";
 import type { CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
 
@@ -58,6 +59,7 @@ export function CommentAnalysisConversations({
 }) {
   const narrow = layout === "narrow";
   const t = useTranslations("audience.conversations");
+  const empty = useEmptyValue();
   const tDisp = useTranslations("audience.enums.disposition");
   const tInterest = useTranslations("audience.enums.interest");
   const tQual = useTranslations("audience.enums.qualification");
@@ -190,7 +192,7 @@ export function CommentAnalysisConversations({
     () => [
       {
         label: t("objectiveReached"),
-        value: rate === null ? "—" : `${nf1.format(rate)}%`,
+        value: rate === null ? empty : `${nf1.format(rate)}%`,
         detail: rate === null ? t("nothingAnalysed") : deltaDetail(rateDelta),
         tone: deltaTone(rateDelta),
         tooltip: t("objectiveTooltip"),
@@ -203,7 +205,7 @@ export function CommentAnalysisConversations({
       },
       {
         label: t("attendanceQuality"),
-        value: analysed > 0 ? nf.format(Math.round(stats?.attendanceQualityAvg ?? 0)) : "—",
+        value: analysed > 0 ? nf.format(Math.round(stats?.attendanceQualityAvg ?? 0)) : empty,
         detail:
           analysed > 0
             ? `${t("range", { min: stats?.attendanceQualityMin ?? 0, max: stats?.attendanceQualityMax ?? 0 })} · ${deltaDetail(qualityDelta)}`
@@ -212,13 +214,13 @@ export function CommentAnalysisConversations({
       },
       {
         label: t("coverage"),
-        value: queued > 0 ? `${nf1.format((analysed / queued) * 100)}%` : "—",
+        value: queued > 0 ? `${nf1.format((analysed / queued) * 100)}%` : empty,
         detail: t("coverageDetail", { analysed: nf.format(analysed), queued: nf.format(queued) }),
         tone: queued > 0 && analysed / queued < 0.9 ? "warning" : undefined,
         tooltip: t("coverageTooltip"),
       },
     ],
-    [analysed, queued, needsHuman, rate, rateDelta, qualityDelta, stats, t, nf, nf1, deltaDetail],
+    [analysed, queued, needsHuman, rate, rateDelta, qualityDelta, stats, t, nf, nf1, deltaDetail, empty],
   );
   const trendOption = useMemo<EChartsOption>(() => ({
     animationDuration: 250,

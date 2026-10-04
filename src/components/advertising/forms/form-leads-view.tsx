@@ -8,11 +8,11 @@ import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
 import { ArrowClockwise, ArrowLeft, ArrowSquareOut, ClipboardText, Warning } from "@/components/icons";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "@/i18n/routing";
 import { humanizeKey, leadContact, type FormLead, type LeadForm } from "@/lib/advertising/forms";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdAccount } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 import { cn } from "@/lib/utils";
@@ -57,24 +57,24 @@ export function FormLeadsView({ account, form, onBack }: { account: AdAccount; f
     {
       key: "name",
       header: t("columns.name"),
-      render: (lead) => <span className="text-sm font-medium text-foreground">{lead.leadName || leadContact(lead.answers).name || EMPTY_VALUE}</span>,
+      render: (lead) => <span className="text-sm font-medium text-foreground">{lead.leadName || leadContact(lead.answers).name || fmt.empty}</span>,
     },
     {
       key: "phone",
       header: t("columns.phone"),
-      render: (lead) => <span className="whitespace-nowrap text-sm tabular-nums">{leadContact(lead.answers).phone ?? EMPTY_VALUE}</span>,
+      render: (lead) => <span className="whitespace-nowrap text-sm tabular-nums">{leadContact(lead.answers).phone ?? fmt.empty}</span>,
     },
     {
       key: "email",
       header: t("columns.email"),
-      render: (lead) => <span className="text-sm">{leadContact(lead.answers).email ?? EMPTY_VALUE}</span>,
+      render: (lead) => <span className="text-sm">{leadContact(lead.answers).email ?? fmt.empty}</span>,
     },
     {
       key: "answers",
       header: t("columns.answers"),
       render: (lead) => {
         const others = leadContact(lead.answers).others;
-        if (others.length === 0) return <span className="text-sm text-muted-foreground">{EMPTY_VALUE}</span>;
+        if (others.length === 0) return <EmptyValue className="text-sm" />;
         return (
           <dl className="space-y-0.5 text-xs">
             {others.map((answer) => (

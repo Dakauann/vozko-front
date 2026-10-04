@@ -40,6 +40,7 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import Image from "next/image";
 import { PanelSection } from "@/components/dashboard/PanelSection";
@@ -633,7 +634,7 @@ export default function ProfilePage() {
                         weight="fill"
                       />
                     )}
-                    {user?.name || "—"}
+                    {user?.name || <EmptyValue />}
                   </span>
                 </motion.div>
               )}
@@ -644,7 +645,7 @@ export default function ProfilePage() {
                 {t("info.email")}
               </span>
               <span className="text-sm font-medium text-foreground truncate ml-4 max-w-[260px]">
-                {user?.email || "—"}
+                {user?.email || <EmptyValue />}
               </span>
             </div>
             <div className="h-px bg-border" />

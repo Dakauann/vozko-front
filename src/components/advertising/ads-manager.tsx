@@ -1087,6 +1087,9 @@ export function AdsManager() {
         }
         onShowAdSets={(campaignId) => showView({ level: "adset", selection: selectAt(EMPTY_SELECTION, "campaign", new Set([campaignId])), panel: null }, "push")}
         onClose={() => showView({ ...managerView, panel: null }, "push")}
+        synced={synced}
+        syncing={syncing}
+        onSync={syncAccount}
       />
 
       <AbTestsSheet open={testsOpen} accountId={account.id} refreshKey={testsRefresh} onOpenChange={setTestsOpen} />

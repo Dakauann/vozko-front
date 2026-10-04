@@ -62,6 +62,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -1616,7 +1617,7 @@ export default function AdminFinancialDashboard() {
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-xs text-muted-foreground truncate max-w-[200px]">
-                        {tx.description || "—"}
+                        {tx.description || <EmptyValue />}
                       </td>
                       <td className="py-3 pr-4 text-right whitespace-nowrap">
                         <span

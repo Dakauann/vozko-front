@@ -31,6 +31,7 @@ import { listStagesAction } from "@/app/actions/stages";
 import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
 import { useListQueryState } from "@/hooks/use-list-query-state";
 import type { SavedView } from "@/lib/crm/saved-views";
+import { emptyValue } from "@/lib/format/empty-value";
 import { emptyLeadFilter, isEmptyLeadFilter } from "@/lib/leads/filters";
 import {
   LEAD_PAGE_SIZES,
@@ -41,6 +42,7 @@ import {
 } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
 import { EditableLeadName } from "@/components/leads/EditableLeadName";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 function formatDate(
@@ -48,9 +50,9 @@ function formatDate(
   locale: string,
   withTime = true,
 ): string {
-  if (!value) return "—";
+  if (!value) return emptyValue(locale);
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return emptyValue(locale);
   return new Intl.DateTimeFormat(locale === "pt" ? "pt-BR" : locale, {
     day: "2-digit",
     month: "short",
@@ -64,6 +66,7 @@ const DEFAULT_SORTS = [{ key: "createdAt" as LeadSortKey, direction: "desc" as c
 function LeadsPageContent() {
   const t = useTranslations("leadsPage");
   const locale = useLocale();
+  const empty = useEmptyValue();
 
   const query = useListQueryState<LeadSortKey>({
     sortKeys: LEAD_SORT_KEYS,
@@ -230,7 +233,7 @@ function LeadsPageContent() {
           <EditableLeadName
             leadId={row.id}
             name={row.name}
-            fallback="—"
+            fallback={empty}
             canEdit={canRenameLead}
             onRenamed={(next) =>
               setItems((prev) =>
@@ -317,7 +320,7 @@ function LeadsPageContent() {
         ),
       },
     ],
-    [t, locale, canRenameLead],
+    [t, locale, canRenameLead, empty],
   );
 
   const isFiltered = !isEmptyLeadFilter(filter) || search.trim() !== "";

@@ -8,6 +8,7 @@ import {
   Clock,
   MapPin,
   Palette,
+  ArrowRight,
   ArrowsClockwise,
   PencilSimple,
   Plus,
@@ -590,9 +591,7 @@ export default function CalendarPage() {
                       onChange={(e) => setFormStartTime(e.target.value)}
                       className="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm flex-1 min-w-0"
                     />
-                    <span className="text-xs text-muted-foreground font-medium">
-                      –
-                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
                     <input
                       type="datetime-local"
                       value={formEndTime}
@@ -882,7 +881,7 @@ function AgendaEventCard({
         <p className="text-xs text-muted-foreground mt-0.5">
           {event.allDay
             ? "Dia inteiro"
-            : `${formatTimeShort(start)} – ${formatTimeShort(end)}`}
+            : `${formatTimeShort(start)} → ${formatTimeShort(end)}`}
         </p>
         {event.location && (
           <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">

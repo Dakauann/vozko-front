@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { ReportLabelTexts } from "@/lib/advertising/reports-run";
 import type { AdLevel, AdReportMetric, AdReportRun } from "@/lib/advertising/types";
 
@@ -30,7 +29,7 @@ export function useReportLabels() {
         case "count":
           return fmt.count(amount);
       }
-      return EMPTY_VALUE;
+      return fmt.empty;
     };
     const exportTexts = (level: AdLevel): ReportLabelTexts => ({
       object: t(`editor.object.${level}`),

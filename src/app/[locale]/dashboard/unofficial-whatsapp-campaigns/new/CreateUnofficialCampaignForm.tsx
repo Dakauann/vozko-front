@@ -160,7 +160,7 @@ export default function CreateUnofficialCampaignForm({
       value: instance.id,
       label: instance.sessionLive
         ? instance.displayName
-        : `${instance.displayName} — ${t("form.numberOffline")}`,
+        : `${instance.displayName} · ${t("form.numberOffline")}`,
     }),
     [t],
   );

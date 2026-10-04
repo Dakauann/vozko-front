@@ -44,8 +44,8 @@
     "applyToWeekdays": "Repetir de seg a sex",
     "inactiveNotice": "O horário só afeta o resgate, que age no modo \"última vez online\" com o resgate ligado. Como ele está desligado agora, esta escala fica guardada mas não muda nada ainda.",
     "summaryAlwaysOpen": "24 horas",
-    "summaryEveryDay": "Todos os dias, {start}–{end}",
-    "summaryWeekdays": "Seg–Sex, {start}–{end}",
+    "summaryEveryDay": "Todos os dias, das {start} às {end}",
+    "summaryWeekdays": "Seg a Sex, das {start} às {end}",
     "summaryCustom": "{count} dias abertos",
     "workspaceDescription": "Fora do horário o resgate não roda, e o prazo do atendente só corre nos minutos em que a operação está aberta.",
     "workspaceOffHint": "Sem horário definido: a roleta e o resgate funcionam 24 horas por dia.",
@@ -400,7 +400,8 @@
     "starterAgentTools": "Revisar as ferramentas de um agente",
     "conversationLegend": "Conversa",
     "image": {
-      "open": "Abrir em tamanho real"
+      "open": "Abrir em tamanho real",
+      "edit": "Editar"
     },
     "chart": {
       "other": "Outros",
@@ -765,7 +766,8 @@
         "tooLarge": "Cada arquivo pode ter no máximo 25 MB.",
         "empty": "Esse arquivo está vazio.",
         "upload": "Não foi possível enviar o arquivo. Tente de novo."
-      }
+      },
+      "drop": "Solte para anexar"
     },
     "decided": {
       "approved": "Aprovado",
@@ -3163,7 +3165,7 @@
             "maxChunks": "Máx. Trechos",
             "maxChunksDesc": "Número máximo de trechos retornados (padrão: 5).",
             "minScore": "Pontuação Mín.",
-            "minScoreDesc": "Limiar mínimo de similaridade cosseno (0–1, padrão: 0,3).",
+            "minScoreDesc": "Limiar mínimo de similaridade cosseno (0 a 1, padrão: 0,3).",
             "numCandidates": "Candidatos",
             "numCandidatesDesc": "Candidatos ANN avaliados antes da filtragem (padrão: 10).",
             "contextWindow": "Janela de Contexto",
@@ -4148,7 +4150,7 @@
       },
       "validation": {
         "phoneRequired": "Número de telefone é obrigatório",
-        "phoneInvalid": "Insira um número de telefone válido (10–15 dígitos)",
+        "phoneInvalid": "Insira um número de telefone válido (de 10 a 15 dígitos)",
         "parameterRequired": "Este parâmetro é obrigatório",
         "businessPhoneRequired": "Selecione um telefone comercial para enviar",
         "codeTooLong": "O código não pode ter mais de {max} caracteres."
@@ -6371,11 +6373,11 @@
     "sections": {
       "scope": {
         "title": "Escopo desta política",
-        "content": "Esta política se aplica à plataforma {brandName}, operada pela {brandLegalName}, inscrita no CNPJ {brandCnpj}, e a todos os sites, aplicações e interfaces disponibilizados em {siteUrl}.\n\nA {brandName} é uma plataforma de comunicação empresarial: empresas contratam o serviço para conversar com seus próprios clientes por WhatsApp, Instagram, Telegram e chat ao vivo, com apoio de agentes de inteligência artificial, CRM e campanhas.\n\nIsso significa que existem dois grupos de pessoas cujos dados aparecem na plataforma, e esta política trata dos dois de forma separada:\n\n• Usuários da plataforma — pessoas que possuem conta e acessam o sistema (administradores, gestores e atendentes das empresas contratantes).\n• Contatos — pessoas que conversam com uma empresa contratante através de um dos canais conectados, sem necessariamente ter qualquer relação com a {brandLegalName}."
+        "content": "Esta política se aplica à plataforma {brandName}, operada pela {brandLegalName}, inscrita no CNPJ {brandCnpj}, e a todos os sites, aplicações e interfaces disponibilizados em {siteUrl}.\n\nA {brandName} é uma plataforma de comunicação empresarial: empresas contratam o serviço para conversar com seus próprios clientes por WhatsApp, Instagram, Telegram e chat ao vivo, com apoio de agentes de inteligência artificial, CRM e campanhas.\n\nIsso significa que existem dois grupos de pessoas cujos dados aparecem na plataforma, e esta política trata dos dois de forma separada:\n\n• Usuários da plataforma: pessoas que possuem conta e acessam o sistema (administradores, gestores e atendentes das empresas contratantes).\n• Contatos: pessoas que conversam com uma empresa contratante através de um dos canais conectados, sem necessariamente ter qualquer relação com a {brandLegalName}."
       },
       "roles": {
         "title": "Nossos dois papéis: controlador e operador",
-        "content": "Esta é a seção mais importante desta política. A {brandLegalName} atua em dois papéis distintos, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018):\n\n1. Como CONTROLADORA, quando decidimos as finalidades e os meios do tratamento. É o caso dos dados de cadastro, autenticação, faturamento, suporte e segurança dos usuários da plataforma. Nesses casos, respondemos diretamente pelo tratamento e é a nós que o titular deve se dirigir.\n\n2. Como OPERADORA, quando tratamos dados pessoais por conta e ordem de uma empresa contratante. É o caso do conteúdo das conversas, dos contatos importados, dos registros de atendimento e de tudo que a empresa contratante decide coletar e armazenar em seu workspace. Nesse cenário, a empresa contratante é a controladora: é ela quem define por que e como aqueles dados são tratados, e é a ela que o titular deve se dirigir em primeiro lugar.\n\nSe você conversou com uma empresa por WhatsApp, Instagram, Telegram ou chat e quer saber por que seus dados estão sendo tratados, quem responde é aquela empresa, não a {brandLegalName}. Ainda assim, se você nos procurar, encaminharemos sua solicitação à controladora responsável e informaremos você a respeito — ver a seção 13."
+        "content": "Esta é a seção mais importante desta política. A {brandLegalName} atua em dois papéis distintos, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018):\n\n1. Como CONTROLADORA, quando decidimos as finalidades e os meios do tratamento. É o caso dos dados de cadastro, autenticação, faturamento, suporte e segurança dos usuários da plataforma. Nesses casos, respondemos diretamente pelo tratamento e é a nós que o titular deve se dirigir.\n\n2. Como OPERADORA, quando tratamos dados pessoais por conta e ordem de uma empresa contratante. É o caso do conteúdo das conversas, dos contatos importados, dos registros de atendimento e de tudo que a empresa contratante decide coletar e armazenar em seu workspace. Nesse cenário, a empresa contratante é a controladora: é ela quem define por que e como aqueles dados são tratados, e é a ela que o titular deve se dirigir em primeiro lugar.\n\nSe você conversou com uma empresa por WhatsApp, Instagram, Telegram ou chat e quer saber por que seus dados estão sendo tratados, quem responde é aquela empresa, não a {brandLegalName}. Ainda assim, se você nos procurar, encaminharemos sua solicitação à controladora responsável e informaremos você a respeito (ver a seção 13)."
       },
       "controllerData": {
         "title": "Dados que tratamos como controladora",
@@ -6387,7 +6389,7 @@
       },
       "lawfulBasis": {
         "title": "Bases legais",
-        "content": "Como controladora, tratamos dados pessoais com fundamento nas seguintes bases legais previstas no art. 7º da LGPD:\n\n• Execução de contrato (inciso V): para criar e manter contas, disponibilizar as funcionalidades contratadas, faturar e prestar suporte.\n• Cumprimento de obrigação legal ou regulatória (inciso II): para atender obrigações fiscais, contábeis e determinações de autoridades competentes.\n• Legítimo interesse (inciso IX): para garantir a segurança da plataforma, prevenir fraude e abuso, e melhorar a estabilidade e o desempenho do serviço, sempre com avaliação do impacto sobre seus direitos.\n• Consentimento (inciso I): apenas quando solicitado de forma específica e destacada, como no envio de comunicações de marketing, e sempre revogável.\n\nComo operadora, não definimos a base legal: ela é determinada pela empresa contratante, que declara possuir fundamento adequado para o tratamento que nos instrui a realizar — incluindo, quando aplicável, o consentimento do contato para receber mensagens."
+        "content": "Como controladora, tratamos dados pessoais com fundamento nas seguintes bases legais previstas no art. 7º da LGPD:\n\n• Execução de contrato (inciso V): para criar e manter contas, disponibilizar as funcionalidades contratadas, faturar e prestar suporte.\n• Cumprimento de obrigação legal ou regulatória (inciso II): para atender obrigações fiscais, contábeis e determinações de autoridades competentes.\n• Legítimo interesse (inciso IX): para garantir a segurança da plataforma, prevenir fraude e abuso, e melhorar a estabilidade e o desempenho do serviço, sempre com avaliação do impacto sobre seus direitos.\n• Consentimento (inciso I): apenas quando solicitado de forma específica e destacada, como no envio de comunicações de marketing, e sempre revogável.\n\nComo operadora, não definimos a base legal: ela é determinada pela empresa contratante, que declara possuir fundamento adequado para o tratamento que nos instrui a realizar, incluindo, quando aplicável, o consentimento do contato para receber mensagens."
       },
       "howWeUse": {
         "title": "Como usamos os dados",
@@ -6399,7 +6401,7 @@
       },
       "channels": {
         "title": "Canais de terceiros",
-        "content": "A plataforma se conecta a canais operados por terceiros. Ao utilizá-los, os dados também transitam pela infraestrutura desses provedores, sujeitos às políticas deles:\n\n• WhatsApp Business Platform, Instagram e demais serviços da Meta Platforms, Inc.\n• Telegram Messenger.\n\nQuando uma empresa contratante conecta uma conta desses canais, a autorização é concedida diretamente ao provedor, e as regras da plataforma de origem passam a se aplicar ao tráfego de mensagens — inclusive suas exigências de consentimento, janelas de atendimento e políticas de conteúdo.\n\nNão controlamos as práticas de privacidade desses provedores. Recomendamos a leitura das políticas de privacidade de cada um."
+        "content": "A plataforma se conecta a canais operados por terceiros. Ao utilizá-los, os dados também transitam pela infraestrutura desses provedores, sujeitos às políticas deles:\n\n• WhatsApp Business Platform, Instagram e demais serviços da Meta Platforms, Inc.\n• Telegram Messenger.\n\nQuando uma empresa contratante conecta uma conta desses canais, a autorização é concedida diretamente ao provedor, e as regras da plataforma de origem passam a se aplicar ao tráfego de mensagens, inclusive suas exigências de consentimento, janelas de atendimento e políticas de conteúdo.\n\nNão controlamos as práticas de privacidade desses provedores. Recomendamos a leitura das políticas de privacidade de cada um."
       },
       "subprocessors": {
         "title": "Suboperadores e transferência internacional",
@@ -6419,7 +6421,7 @@
       },
       "rights": {
         "title": "Direitos do titular",
-        "content": "Nos termos do art. 18 da LGPD, você pode solicitar a qualquer momento:\n\n• Confirmação da existência de tratamento e acesso aos dados.\n• Correção de dados incompletos, inexatos ou desatualizados.\n• Anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a lei.\n• Portabilidade a outro fornecedor, observados os segredos comercial e industrial.\n• Eliminação dos dados tratados com base em consentimento.\n• Informação sobre as entidades com as quais compartilhamos dados.\n• Informação sobre a possibilidade de não fornecer consentimento e as consequências da negativa.\n• Revogação do consentimento.\n• Revisão de decisões automatizadas que afetem seus interesses.\n\nComo exercer: escreva para {dpoEmail}. Responderemos no prazo legal. Poderemos solicitar informações adicionais para confirmar sua identidade, exclusivamente para evitar a divulgação indevida de dados a terceiros.\n\nSe a solicitação disser respeito a dados que tratamos como operadora — por exemplo, uma conversa que você teve com uma empresa que usa a plataforma — encaminharemos o pedido à empresa controladora e informaremos você sobre o encaminhamento."
+        "content": "Nos termos do art. 18 da LGPD, você pode solicitar a qualquer momento:\n\n• Confirmação da existência de tratamento e acesso aos dados.\n• Correção de dados incompletos, inexatos ou desatualizados.\n• Anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a lei.\n• Portabilidade a outro fornecedor, observados os segredos comercial e industrial.\n• Eliminação dos dados tratados com base em consentimento.\n• Informação sobre as entidades com as quais compartilhamos dados.\n• Informação sobre a possibilidade de não fornecer consentimento e as consequências da negativa.\n• Revogação do consentimento.\n• Revisão de decisões automatizadas que afetem seus interesses.\n\nComo exercer: escreva para {dpoEmail}. Responderemos no prazo legal. Poderemos solicitar informações adicionais para confirmar sua identidade, exclusivamente para evitar a divulgação indevida de dados a terceiros.\n\nSe a solicitação disser respeito a dados que tratamos como operadora (por exemplo, uma conversa que você teve com uma empresa que usa a plataforma), encaminharemos o pedido à empresa controladora e informaremos você sobre o encaminhamento."
       },
       "cookies": {
         "title": "Cookies e tecnologias similares",
@@ -6435,7 +6437,7 @@
       },
       "changes": {
         "title": "Alterações desta política",
-        "content": "Podemos atualizar esta política para refletir mudanças na plataforma, na legislação ou em nossos fornecedores.\n\nQuando a alteração for relevante — por exemplo, uma nova finalidade de tratamento ou uma nova categoria de suboperador — comunicaremos os usuários da plataforma por e-mail ou por aviso dentro do produto, com antecedência razoável antes de a mudança entrar em vigor.\n\nA data da última atualização está indicada no topo desta página. Versões anteriores podem ser solicitadas pelo e-mail {dpoEmail}."
+        "content": "Podemos atualizar esta política para refletir mudanças na plataforma, na legislação ou em nossos fornecedores.\n\nQuando a alteração for relevante (por exemplo, uma nova finalidade de tratamento ou uma nova categoria de suboperador), comunicaremos os usuários da plataforma por e-mail ou por aviso dentro do produto, com antecedência razoável antes de a mudança entrar em vigor.\n\nA data da última atualização está indicada no topo desta página. Versões anteriores podem ser solicitadas pelo e-mail {dpoEmail}."
       }
     },
     "meta": {
@@ -6452,7 +6454,7 @@
     "backHome": "Voltar",
     "questions": "Dúvidas sobre estes termos?",
     "contactUs": "Falar com o suporte",
-    "intro": "Estes termos regem o uso da plataforma {brandName}. As seções 5, 6 e 7 definem o que você pode enviar, sob quais regras e quem responde pelo consentimento de quem recebe — leia-as com atenção antes de disparar qualquer mensagem.",
+    "intro": "Estes termos regem o uso da plataforma {brandName}. As seções 5, 6 e 7 definem o que você pode enviar, sob quais regras e quem responde pelo consentimento de quem recebe. Leia-as com atenção antes de disparar qualquer mensagem.",
     "sections": {
       "agreement": {
         "title": "Contratação e aceite",
@@ -6468,7 +6470,7 @@
       },
       "plans": {
         "title": "Planos, saldo e faturamento",
-        "content": "O uso da plataforma depende de plano contratado e, em determinados recursos, de saldo disponível.\n\n• Recursos cobrados por consumo — como mensagens, disparos, minutos de chamadas de WhatsApp, transcrição de áudio e uso de modelos de inteligência artificial — são debitados do saldo conforme a tabela vigente.\n• Sem saldo suficiente, os recursos dependentes de consumo são interrompidos até a recomposição, sem que isso caracterize falha do serviço.\n• Valores pagos por consumo já realizado não são reembolsáveis.\n• Reajustes e alterações de preço serão comunicados com antecedência mínima de 30 dias, e você poderá encerrar o contrato antes da vigência do novo valor.\n• Tributos aplicáveis são acrescidos na forma da legislação.\n\nO inadimplemento autoriza a suspensão do acesso após comunicação prévia, nos termos da seção 13."
+        "content": "O uso da plataforma depende de plano contratado e, em determinados recursos, de saldo disponível.\n\n• Recursos cobrados por consumo (como mensagens, disparos, minutos de chamadas de WhatsApp, transcrição de áudio e uso de modelos de inteligência artificial) são debitados do saldo conforme a tabela vigente.\n• Sem saldo suficiente, os recursos dependentes de consumo são interrompidos até a recomposição, sem que isso caracterize falha do serviço.\n• Valores pagos por consumo já realizado não são reembolsáveis.\n• Reajustes e alterações de preço serão comunicados com antecedência mínima de 30 dias, e você poderá encerrar o contrato antes da vigência do novo valor.\n• Tributos aplicáveis são acrescidos na forma da legislação.\n\nO inadimplemento autoriza a suspensão do acesso após comunicação prévia, nos termos da seção 13."
       },
       "acceptableUse": {
         "title": "Uso aceitável",
@@ -6476,7 +6478,7 @@
       },
       "channelRules": {
         "title": "Regras dos canais de terceiros",
-        "content": "A plataforma se conecta a canais operados por terceiros — entre eles WhatsApp Business Platform e Instagram, da Meta Platforms, Inc., e o Telegram.\n\nAo conectar uma conta, você passa a estar vinculado também às políticas do provedor daquele canal, que se aplicam diretamente a você e que podem mudar sem a nossa participação. Isso inclui, conforme o canal:\n\n• Exigências de consentimento prévio do destinatário.\n• Regras de janela de atendimento e de uso de modelos de mensagem aprovados.\n• Políticas de conteúdo e de categorias de negócio vedadas.\n• Limites de volume e qualidade, incluindo classificações de qualidade do número.\n\nO provedor do canal pode, a seu exclusivo critério, limitar, suspender ou banir um número ou conta. Não temos ingerência sobre essa decisão e não respondemos por ela. Recomendamos que você mantenha canais alternativos de contato com seus clientes.\n\nRestrições conhecidas de plataforma são apresentadas na interface quando aplicável, e não constituem defeito do serviço."
+        "content": "A plataforma se conecta a canais operados por terceiros, entre eles WhatsApp Business Platform e Instagram, da Meta Platforms, Inc., e o Telegram.\n\nAo conectar uma conta, você passa a estar vinculado também às políticas do provedor daquele canal, que se aplicam diretamente a você e que podem mudar sem a nossa participação. Isso inclui, conforme o canal:\n\n• Exigências de consentimento prévio do destinatário.\n• Regras de janela de atendimento e de uso de modelos de mensagem aprovados.\n• Políticas de conteúdo e de categorias de negócio vedadas.\n• Limites de volume e qualidade, incluindo classificações de qualidade do número.\n\nO provedor do canal pode, a seu exclusivo critério, limitar, suspender ou banir um número ou conta. Não temos ingerência sobre essa decisão e não respondemos por ela. Recomendamos que você mantenha canais alternativos de contato com seus clientes.\n\nRestrições conhecidas de plataforma são apresentadas na interface quando aplicável, e não constituem defeito do serviço."
       },
       "contactConsent": {
         "title": "Consentimento dos contatos e responsabilidade",
@@ -11061,7 +11063,7 @@
         "mosaicHint": "Altura do funil = participação no total em etapas. Largura do bloco = participação na etapa. A faixa âmbar na base é a parte travada.",
         "aiContainmentRate": "Taxa de resolução pela IA",
         "aiHandoffRate": "Taxa de transferência",
-        "statusRadialHint": "Distância do centro = proporção das conversas do período (0–100%)",
+        "statusRadialHint": "Distância do centro = proporção das conversas do período (de 0 a 100%)",
         "stageBlockHint": "Área do bloco = volume de conversas da etapa",
         "deptBlockHint": "Área do bloco = volume de conversas do departamento"
       },
@@ -12753,7 +12755,7 @@
       },
       "over": {
         "title": "Acima do limite incluído",
-        "description": "Este workspace tem {used} números conectados e {limit} incluídos. Nada foi desconectado — novos números só poderão ser conectados após ajustar o limite."
+        "description": "Este workspace tem {used} números conectados e {limit} incluídos. Nada foi desconectado. Novos números só poderão ser conectados após ajustar o limite."
       }
     },
     "capacity": {
@@ -12852,7 +12854,7 @@
     },
     "panel": {
       "title": "{count} mensagem(ns) agendada(s)",
-      "failedAt": "Falhou — era para {when}",
+      "failedAt": "Falhou, era para {when}",
       "mediaOnly": "Anexo sem texto",
       "cancel": "Cancelar agendamento",
       "reuse": "Tentar de novo",
@@ -13012,7 +13014,7 @@
       "rejected": "A Meta recusou este modelo. Revise o texto e tente novamente.",
       "submitted": {
         "title": "Modelo {name} enviado para aprovação",
-        "description": "A Meta analisa cada modelo antes de liberar o envio, o que costuma levar de 24 a 48 horas. Assim que for aprovado, ele aparece na lista de modelos e pode ser enviado — você não precisa refazer nada aqui."
+        "description": "A Meta analisa cada modelo antes de liberar o envio, o que costuma levar de 24 a 48 horas. Assim que for aprovado, ele aparece na lista de modelos e pode ser enviado, e você não precisa refazer nada aqui."
       },
       "phoneLabel": "Criar na conta do número",
       "phoneHint": "O modelo pertence à conta WhatsApp Business do número escolhido, e só pode ser enviado a partir dele.",
@@ -14036,7 +14038,7 @@
     "miniHint": "Os minigráficos mostram observações diárias; autores não devem ser somados entre os dias.",
     "activity": "Atividade da audiência",
     "activityHint": "Volume diário de comentários por posicionamento",
-    "radialHint": "Distância do centro = proporção dos comentários analisados (0–100%)",
+    "radialHint": "Distância do centro = proporção dos comentários analisados (de 0 a 100%)",
     "dailyScore": "Aceitação diária",
     "scoreMethod": "Como essa pontuação é calculada",
     "intent": "Intenção dos comentários",
@@ -17009,7 +17011,7 @@
       "generatingTitle": "Gerando sua imagem",
       "generatingHint": "Costuma levar de 20 segundos a 1 minuto. Pode continuar preenchendo o anúncio enquanto isso.",
       "references": "Imagens de referência",
-      "referencesHint": "Opcional. Até {max} imagens para a IA seguir o estilo ou editar.",
+      "referencesHint": "Opcional. Até {max} imagens, como seu logo ou um print da sua tela, para a IA seguir. Você também pode colar uma imagem no campo da descrição.",
       "addReference": "Adicionar referência",
       "removeReference": "Remover referência",
       "generationErrors": {
@@ -17026,7 +17028,8 @@
         "already_generating": "Uma imagem com essa descrição e formato acabou de ser gerada. Aguarde alguns segundos e tente de novo.",
         "reference_unavailable": "Uma das imagens de referência não está mais disponível. Troque as referências e tente de novo.",
         "invalid_request": "Confira as imagens de referência: só imagens, sem repetir."
-      }
+      },
+      "editWithAi": "Editar com IA"
     },
     "review": {
       "budgetDaily": "{amount} por dia",
@@ -17832,12 +17835,20 @@
     "trend": {
       "title": "Gasto e resultados por dia",
       "subtitle": "Dias no fuso horário da conta de anúncios",
-      "spend": "Valor gasto",
-      "results": "Resultados",
-      "day": "Dia",
       "showChart": "Ver gráfico",
       "showTable": "Ver tabela",
-      "empty": "Sem dados neste período."
+      "empty": "Sem dados neste período.",
+      "period": "Período",
+      "metrics": {
+        "results": "Resultados",
+        "costPerResult": "Custo por resultado",
+        "spend": "Valor gasto",
+        "impressions": "Impressões",
+        "linkClicks": "Cliques no link",
+        "cpm": "CPM",
+        "ctr": "CTR",
+        "conversations": "Conversas (Meta)"
+      }
     },
     "range": {
       "label": "Período",
@@ -18334,7 +18345,8 @@
         "budget": "Orçamento",
         "actions": "Ações",
         "preview": "Prévia",
-        "comments": "Comentários"
+        "comments": "Comentários",
+        "history": "Histórico"
       },
       "level": {
         "campaign": "campanha",
@@ -18368,6 +18380,35 @@
         "likes": "{count, plural, one {# curtida} other {# curtidas}}",
         "replies": "{count, plural, one {# resposta} other {# respostas}}",
         "note": "Os 100 comentários mais recentes da publicação do anúncio, lidos direto da Meta. Para responder, use a caixa de entrada."
+      },
+      "performance": {
+        "metric": "Métrica do gráfico",
+        "by": {
+          "day": "{metric} por dia",
+          "week": "{metric} por semana",
+          "month": "{metric} por mês",
+          "hour": "{metric} por hora do dia"
+        },
+        "granularity": {
+          "day": "Dia",
+          "week": "Semana",
+          "month": "Mês",
+          "hour": "Hora"
+        },
+        "hourNote": "Soma do período em cada hora, no fuso da conta, direto da Meta"
+      },
+      "history": {
+        "columns": {
+          "activity": "Atividade",
+          "details": "Detalhes da atividade",
+          "item": "Item alterado",
+          "actor": "Alterado por",
+          "when": "Data e hora"
+        },
+        "change": "De {from} para {to}",
+        "noDetails": "Sem detalhes",
+        "meta": "Meta",
+        "empty": "Nenhuma alteração neste período."
       }
     }
   },
@@ -19436,7 +19477,7 @@
       },
       "instagram": {
         "title": "Instagram",
-        "missing": "Nenhuma conta do Instagram está conectada. Na Meta, troque para o perfil da Página e abra Configurações › Contas vinculadas › Instagram; depois verifique de novo aqui."
+        "missing": "Nenhuma conta do Instagram está conectada a esta Página. Em Abrir na Meta, clique em Conectar o Instagram, logo abaixo do nome da Página, e entre na conta; depois verifique de novo aqui."
       },
       "messenger": {
         "title": "Messenger",

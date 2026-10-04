@@ -12,18 +12,24 @@ import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { civilToday, rangeForPreset } from "@/lib/advertising/date-range";
 import { deliveryKey } from "@/lib/advertising/delivery";
 import { metaPortalUrl } from "@/lib/advertising/readiness";
+import { rowsFromTrend } from "@/lib/advertising/trend-series";
 import type { AdAccount, AdReport, AdTrend } from "@/lib/advertising/types";
 
 import { AccountGate } from "../account-gate";
 import { AccountPicker } from "../account-picker";
 import { AdsKpiStrip } from "../ads-kpi-strip";
-import { AdsTrendChart } from "../ads-trend-chart";
+import { AdsTrendChart, type ChartSeries } from "../ads-trend-chart";
 import { ReadinessCard } from "../readiness";
 import { SpendCapControl } from "../spend-cap-control";
 import { useAdReadiness, type AdReadinessState } from "../use-ad-readiness";
 import { useAdsFormat } from "../use-ads-format";
 import { ExternalLink } from "../wizard/choice-row";
 import { useAdsResource } from "../wizard/use-ads-resource";
+
+const OVERVIEW_SERIES: ChartSeries[] = [
+  { metric: "spend", mark: "line", axis: "left" },
+  { metric: "results", mark: "bar", axis: "right" },
+];
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
@@ -76,6 +82,8 @@ function AccountSummary({ account }: { account: AdAccount }) {
 
 function PerformanceSection({ account }: { account: AdAccount }) {
   const t = useTranslations("adsOverview.performance");
+  const tTrend = useTranslations("adsManager.trend");
+  const fmt = useAdsFormat();
   const [now] = useState(() => new Date());
   const today = civilToday(account.timezone, now);
   const range = today ? rangeForPreset("last30", today) : null;
@@ -94,7 +102,14 @@ function PerformanceSection({ account }: { account: AdAccount }) {
       </div>
       {report.status === "error" ? <p className="text-sm text-destructive-ink">{t("failed", { message: report.message })}</p> : null}
       <AdsKpiStrip totals={data?.totals ?? null} outcome={data?.outcome ?? null} previous={data?.previous ?? null} loading={!!range && report.status === "loading"} />
-      <AdsTrendChart trend={trend.status === "ready" ? trend.data : null} loading={!!range && trend.status === "loading"} />
+      <AdsTrendChart
+        rows={trend.status === "ready" ? rowsFromTrend(trend.data.points ?? [], "day", fmt.tag) : []}
+        series={OVERVIEW_SERIES}
+        currency={trend.status === "ready" ? trend.data.currency : ""}
+        loading={!!range && trend.status === "loading"}
+        title={tTrend("title")}
+        subtitle={tTrend("subtitle")}
+      />
     </section>
   );
 }

@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { AgentListItem } from "@/lib/agents/types";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   DashboardTable,
   type DashboardTableColumn,
@@ -80,7 +81,7 @@ export default function ArchivedAgentsPage() {
         header: t("card.provider"),
         render: (row) => (
           <span className="text-sm text-muted-foreground">
-            {row.provider || "—"}
+            {row.provider || <EmptyValue />}
           </span>
         ),
       },
@@ -89,7 +90,7 @@ export default function ArchivedAgentsPage() {
         header: t("card.model"),
         render: (row) => (
           <span className="text-sm text-muted-foreground truncate max-w-[150px] block">
-            {row.messagingModel || "—"}
+            {row.messagingModel || <EmptyValue />}
           </span>
         ),
       },

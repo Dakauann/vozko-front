@@ -4,6 +4,7 @@ import * as React from "react";
 
 import {
   ArrowLeft,
+  ArrowRight,
   CalendarBlank,
   CalendarCheck,
   CircleNotch,
@@ -381,7 +382,7 @@ function EventCard({
 
   const timeStr = event.allDay
     ? "All day"
-    : `${formatTimeShort(start)} – ${formatTimeShort(end)}`;
+    : `${formatTimeShort(start)} → ${formatTimeShort(end)}`;
 
   const dateStr = start.toLocaleDateString([], {
     month: "short",
@@ -606,9 +607,7 @@ function EventForm({
                   className="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm flex-1 min-w-0"
                   required
                 />
-                <span className="text-xs text-muted-foreground font-medium">
-                  –
-                </span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
                 <input
                   type="datetime-local"
                   value={endTime}

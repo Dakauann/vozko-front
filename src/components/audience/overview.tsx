@@ -122,7 +122,7 @@ export function CommentAnalysisOverview({ stats, trend, loading, layout = "page"
             <div className="min-w-0 flex-1 space-y-2">
               <span className="text-2xs text-muted-foreground">{td("dailyScore")}</span>
               <Sparkline points={orderedTrend.map((point) => ({ date: point.bucketDate, value: point.analyzed > 0 ? point.acceptanceScore : null }))} label={td("dailyScore")} domain={[0, 100]} color={scoreColor} />
-              <p className="text-2xs tabular-nums text-muted-foreground">0–100</p>
+              <p className="text-2xs tabular-nums text-muted-foreground">0 → 100</p>
             </div>
           </div>
           {analyzed < 30 ? <p className="mt-2 text-2xs text-muted-foreground">{t("score.smallSample", { count: analyzed })}</p> : null}

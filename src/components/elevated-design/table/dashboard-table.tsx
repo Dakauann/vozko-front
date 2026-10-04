@@ -507,7 +507,7 @@ export function DashboardTable<T>({
             <p className="text-xs text-muted-foreground">
               {paginationText?.showing ?? "Mostrando"}{" "}
               <span className="font-semibold text-foreground">
-                {from}–{to}
+                {from} → {to}
               </span>{" "}
               {paginationText?.of ?? "de"}{" "}
               <span className="font-semibold text-foreground">

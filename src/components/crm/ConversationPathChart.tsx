@@ -18,6 +18,7 @@ import type { Analysis } from "@/lib/analysis/types";
 import { messageMix } from "@/lib/conversations/message-mix";
 import type { ConversationMessage } from "@/lib/conversations/types";
 import { vozGrid, vozXAxis, vozYAxis } from "@/components/charts/vozko";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { cn } from "@/lib/utils";
 
 const STAGE_HUE = {
@@ -89,6 +90,7 @@ export default function ConversationPathChart({
 }) {
   const t = useTranslations("crmContactPanel.pathChart");
   const locale = useLocale();
+  const empty = useEmptyValue();
   const tag =
     locale === "pt"
       ? "pt-BR"
@@ -232,7 +234,7 @@ export default function ConversationPathChart({
             value={
               threadStats.spanMs != null
                 ? formatDuration(threadStats.spanMs, t)
-                : "—"
+                : empty
             }
           />
           {threadStats.lastAt != null ? (

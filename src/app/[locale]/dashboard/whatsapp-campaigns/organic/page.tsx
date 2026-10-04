@@ -17,6 +17,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitcher";
 import {
@@ -208,7 +209,7 @@ export default function OrganicCampaignsPage() {
           <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.successRate != null
               ? `${row.metrics.successRate.toFixed(1)}%`
-              : "—"}
+              : <EmptyValue />}
           </span>
         ),
       },

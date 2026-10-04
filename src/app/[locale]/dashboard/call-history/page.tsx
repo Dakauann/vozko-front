@@ -15,6 +15,7 @@ import {
 } from "@/components/icons";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
@@ -71,6 +72,7 @@ function chosen<T extends string>(value: T | typeof ANY): T | undefined {
 export default function CallHistoryPage() {
   const t = useTranslations("callHistory");
   const format = useFormatter();
+  const empty = useEmptyValue();
   const now = useNow({ updateInterval: RELATIVE_TIME_REFRESH_MS });
   const { can, currentWorkspace } = useWorkspace();
   const seesTeam = can("call_history", "view_others");
@@ -127,11 +129,11 @@ export default function CallHistoryPage() {
 
   const chargeLabel = useCallback(
     (micros: number | undefined) => {
-      if (micros === undefined) return "—";
+      if (micros === undefined) return empty;
       if (micros <= 0) return t("table.noCharge");
       return formatMicrosAsBrl(micros, exchangeRate) ?? "…";
     },
-    [exchangeRate, t],
+    [empty, exchangeRate, t],
   );
 
   const columns = useMemo<DashboardTableColumn<CallSummary>[]>(
@@ -174,7 +176,7 @@ export default function CallHistoryPage() {
           const handler = row.answeredBy?.name ?? row.placedBy?.name;
           return (
             <div className="flex flex-col">
-              <span className="text-sm text-foreground">{handler || "—"}</span>
+              <span className="text-sm text-foreground">{handler || <EmptyValue />}</span>
               {row.transfers > 0 ? (
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <ArrowsLeftRight className="h-3 w-3" aria-hidden />
@@ -195,7 +197,7 @@ export default function CallHistoryPage() {
         header: t("table.duration"),
         className: "text-right",
         render: (row) => (
-          <span className="readout text-sm tabular-nums text-foreground">{row.talkSeconds > 0 ? formatCallDuration(row.talkSeconds) : "—"}</span>
+          <span className="readout text-sm tabular-nums text-foreground">{row.talkSeconds > 0 ? formatCallDuration(row.talkSeconds) : <EmptyValue />}</span>
         ),
       },
       {

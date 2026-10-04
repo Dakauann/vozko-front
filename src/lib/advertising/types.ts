@@ -212,13 +212,20 @@ export interface AdReport {
   previous?: AdPeriod | null;
 }
 
-export interface AdTrendPoint {
+export interface AdTrendPoint extends AdMetrics {
   day: string;
-  spend: number;
-  impressions: number;
-  linkClicks: number;
-  results: number;
-  conversations: number;
+}
+
+export interface AdActivity {
+  eventType: string;
+  label: string;
+  at: string;
+  actorName: string;
+  objectId: string;
+  objectName: string;
+  objectType: string;
+  from: string;
+  to: string;
 }
 
 export interface AdTrend {

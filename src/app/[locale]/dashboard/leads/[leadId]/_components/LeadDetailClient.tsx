@@ -19,14 +19,16 @@ import { useTranslations, useLocale } from "next-intl"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import type { LeadDetailResponse, CampaignHistoryItem } from "@/lib/leads/types"
+import { emptyValue } from "@/lib/format/empty-value"
 import { cn } from "@/lib/utils"
 import Button from "@/components/elevated-design/button"
 import ElevatedContainer from "@/components/elevated-design/elevated-container"
+import { EmptyValue } from "@/components/elevated-design/empty-value"
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets"
 import { getLeadCampaignHistoryAction } from "@/app/actions/leads"
 
 function fmt(value: string | undefined | null, locale: string): string {
-  if (!value) return "—"
+  if (!value) return emptyValue(locale)
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
   return new Intl.DateTimeFormat(locale === "pt" ? "pt-BR" : "en-US", {
@@ -56,7 +58,7 @@ function InfoRow({
         <span>{label}</span>
       </div>
       <span className={cn("text-sm font-medium text-foreground", mono && "font-mono")}>
-        {value ?? "—"}
+        {value ?? <EmptyValue />}
       </span>
     </div>
   )

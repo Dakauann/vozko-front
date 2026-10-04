@@ -14,6 +14,7 @@ import {
 } from "@/lib/advertising/report-query";
 import type {
   AdAccount,
+  AdActivity,
   AdComment,
   AdCommentPlatform,
   AdCopyRequest,
@@ -27,6 +28,7 @@ import type {
   AdNumberLinkStart,
   AdPage,
   AdPublishJob,
+  AdRange,
   AdReadiness,
   AdReport,
   AdRow,
@@ -166,6 +168,11 @@ export async function downloadAdsCsv(path: string): Promise<AdsResult<null>> {
 
 export async function downloadAdsReportCsvAction(accountId: string, filters: ReportFilters): Promise<AdsResult<null>> {
   return downloadAdsCsv(reportCsvPath(accountId, filters));
+}
+
+export async function listAdHistoryAction(metaId: string, range: AdRange, locale: string): Promise<AdsResult<AdActivity[]>> {
+  const params = new URLSearchParams({ since: range.since, until: range.until, locale });
+  return settleAds(await apiClient<AdActivity[]>(`${objectPath(metaId)}/history?${params.toString()}`, { method: "GET" }), []);
 }
 
 export async function getAdEditableObjectAction(metaId: string): Promise<AdsResult<AdEditableObject>> {

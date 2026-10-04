@@ -33,6 +33,7 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -56,6 +57,7 @@ const CATEGORY_TONE: Record<string, string> = {
 
 export default function WhatsAppCampaignsPage() {
   const t = useTranslations("whatsappCampaignsPage");
+  const empty = useEmptyValue();
   const { can, currentWorkspace } = useWorkspace();
   const { currentDepartment } = useDepartment();
   const router = useRouter();
@@ -178,9 +180,9 @@ export default function WhatsAppCampaignsPage() {
       if (key === "MARKETING") return t("messageType.marketing");
       if (key === "UTILITY") return t("messageType.utility");
       if (key === "AUTHENTICATION") return t("messageType.authentication");
-      return category || "—";
+      return category || empty;
     },
-    [t],
+    [empty, t],
   );
 
   const columns = useMemo<DashboardTableColumn<WhatsAppCampaign>[]>(
@@ -222,7 +224,7 @@ export default function WhatsAppCampaignsPage() {
           const cat = (row.templateCategory || "").toUpperCase();
           if (!cat) {
             return (
-              <span className="text-sm text-muted-foreground">—</span>
+              <EmptyValue className="text-sm" />
             );
           }
           return (
@@ -298,7 +300,7 @@ export default function WhatsAppCampaignsPage() {
           <span className="text-sm font-semibold tabular-nums text-foreground">
             {row.metrics?.successRate != null
               ? `${row.metrics.successRate.toFixed(1)}%`
-              : "—"}
+              : <EmptyValue />}
           </span>
         ),
       },

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useLocale } from "next-intl";
 
 import { localeTagFor } from "@/components/dashboard/attendance/primitives";
+import { emptyValue } from "@/lib/format/empty-value";
 import { formatCount, formatDecimal, formatMicros, formatMinor, formatPercent, formatRoas } from "@/lib/advertising/money";
 
 export function useAdsFormat() {
@@ -12,6 +13,7 @@ export function useAdsFormat() {
   return useMemo(
     () => ({
       tag,
+      empty: emptyValue(tag),
       micros: (value: number | null | undefined, currency: string) => formatMicros(value, currency, tag),
       minor: (value: number | null | undefined, currency: string) => formatMinor(value, currency, tag),
       count: (value: number | null | undefined) => formatCount(value, tag),

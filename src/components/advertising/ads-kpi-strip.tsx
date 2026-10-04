@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
 import { deltaOf, type MetricDirection } from "@/lib/advertising/compare";
 import { resultCount, resultKind } from "@/lib/advertising/delivery";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import type { AdMetrics, AdOutcome, AdPeriod } from "@/lib/advertising/types";
 
 import { DeltaBadge } from "./delta-badge";
@@ -63,7 +62,7 @@ export function AdsKpiStrip({
     const before = comparable ? spec.value(previous.totals, previous.outcome) : null;
     return {
       label: t(spec.key),
-      value: totals && outcome ? show(spec, current) : EMPTY_VALUE,
+      value: totals && outcome ? show(spec, current) : fmt.empty,
       tooltip: spec.tooltip ? t(spec.tooltip) : undefined,
       detail:
         spec.key === "results" ? (kind ? tResult(kind) : totals?.mixedResults ? tResult("mixed") : undefined) : undefined,

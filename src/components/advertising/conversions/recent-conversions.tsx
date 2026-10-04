@@ -8,7 +8,6 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { ArrowClockwise, ChartLineUp } from "@/components/icons";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { conversionStatusKey, eventKey, knownReason, type ConversionRecord } from "@/lib/advertising/conversions";
-import { EMPTY_VALUE } from "@/lib/advertising/money";
 import { formatWhen } from "@/lib/advertising/when";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +30,7 @@ export function RecentConversions() {
   const reasonText = (record: ConversionRecord) => {
     const known = knownReason(record.reason);
     if (known) return t(`reasons.${known}`);
-    return record.reason || EMPTY_VALUE;
+    return record.reason || fmt.empty;
   };
 
   const columns: DashboardTableColumn<ConversionRecord>[] = [
@@ -40,7 +39,7 @@ export function RecentConversions() {
       header: t("columns.deal"),
       render: (record) => (
         <span className="font-mono text-xs text-muted-foreground" title={record.opportunityId}>
-          {record.opportunityId ? record.opportunityId.slice(0, 8) : EMPTY_VALUE}
+          {record.opportunityId ? record.opportunityId.slice(0, 8) : fmt.empty}
         </span>
       ),
     },
@@ -49,7 +48,7 @@ export function RecentConversions() {
       header: t("columns.event"),
       render: (record) => {
         const key = eventKey(record.eventName);
-        return <span className="text-sm text-foreground">{key === "other" ? record.eventName || EMPTY_VALUE : t(`events.${key}`)}</span>;
+        return <span className="text-sm text-foreground">{key === "other" ? record.eventName || fmt.empty : t(`events.${key}`)}</span>;
       },
     },
     {
@@ -59,7 +58,7 @@ export function RecentConversions() {
         const key = conversionStatusKey(record.status);
         return (
           <div className="min-w-0">
-            <StatusDot tone={STATUS_TONE[key]}>{key === "unknown" ? record.status || EMPTY_VALUE : t(`statuses.${key}`)}</StatusDot>
+            <StatusDot tone={STATUS_TONE[key]}>{key === "unknown" ? record.status || fmt.empty : t(`statuses.${key}`)}</StatusDot>
             {key !== "sent" && record.reason ? <p className="max-w-72 text-2xs text-muted-foreground">{reasonText(record)}</p> : null}
           </div>
         );

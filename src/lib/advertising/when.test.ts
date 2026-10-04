@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { EMPTY_VALUE } from "./money";
 import { formatWhen } from "./when";
 
 describe("formatWhen", () => {
@@ -9,8 +8,8 @@ describe("formatWhen", () => {
   });
 
   it("shows the empty mark for missing, broken or zero dates", () => {
-    expect(formatWhen(undefined, "pt-BR")).toBe(EMPTY_VALUE);
-    expect(formatWhen("nope", "pt-BR")).toBe(EMPTY_VALUE);
-    expect(formatWhen("0001-01-01T00:00:00Z", "pt-BR")).toBe(EMPTY_VALUE);
+    expect(formatWhen(undefined, "pt-BR")).toBe("n/d");
+    expect(formatWhen("nope", "pt-BR")).toBe("n/d");
+    expect(formatWhen("0001-01-01T00:00:00Z", "pt-BR")).toBe("n/d");
   });
 });

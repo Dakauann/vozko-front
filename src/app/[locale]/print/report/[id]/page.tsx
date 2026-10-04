@@ -335,7 +335,7 @@ function PrintHeader({
   const scope = [filters?.workspaceName, filters?.departmentLabel, filters?.channelLabel]
     .filter(Boolean)
     .join(" · ");
-  const period = [filters?.dateFrom, filters?.dateTo].filter(Boolean).join(" — ");
+  const period = [filters?.dateFrom, filters?.dateTo].filter(Boolean).join(" → ");
 
   return (
     <header className="space-y-1 border-b border-border pb-3">

@@ -41,11 +41,11 @@
   "workingHours": {
     "title": "Arbeitszeiten",
     "weekLabel": "Woche",
-    "applyToWeekdays": "Mo–Fr übernehmen",
+    "applyToWeekdays": "Mo bis Fr übernehmen",
     "inactiveNotice": "Die Arbeitszeiten wirken nur auf die Rückholung, die im Modus „zuletzt online“ mit aktivierter Rückholung greift. Das ist derzeit aus, der Plan wird also gespeichert, ändert aber noch nichts.",
     "summaryAlwaysOpen": "24 Stunden",
-    "summaryEveryDay": "Täglich, {start}–{end}",
-    "summaryWeekdays": "Mo–Fr, {start}–{end}",
+    "summaryEveryDay": "Täglich, {start} bis {end}",
+    "summaryWeekdays": "Mo bis Fr, {start} bis {end}",
     "summaryCustom": "{count} geöffnete Tage",
     "workspaceDescription": "Außerhalb dieser Zeiten läuft die Rückholung nicht, und die Frist zählt nur die Minuten, in denen der Betrieb geöffnet ist.",
     "workspaceOffHint": "Keine Zeiten gesetzt: Roulette und Rückholung laufen rund um die Uhr.",
@@ -400,7 +400,8 @@
     "starterAgentTools": "Die Werkzeuge eines Agenten prüfen",
     "conversationLegend": "Unterhaltung",
     "image": {
-      "open": "In voller Größe öffnen"
+      "open": "In voller Größe öffnen",
+      "edit": "Bearbeiten"
     },
     "chart": {
       "other": "Sonstige",
@@ -765,7 +766,8 @@
         "tooLarge": "Jede Datei darf höchstens 25 MB groß sein.",
         "empty": "Diese Datei ist leer.",
         "upload": "Die Datei konnte nicht hochgeladen werden. Versuch es noch einmal."
-      }
+      },
+      "drop": "Zum Anhängen ablegen"
     },
     "decided": {
       "approved": "Genehmigt",
@@ -2937,7 +2939,7 @@
             "maxChunks": "Max. Abschnitte",
             "maxChunksDesc": "Maximale Anzahl zurückgegebener Abschnitte (Standard: 5).",
             "minScore": "Min. Punktzahl",
-            "minScoreDesc": "Minimaler Kosinus-Ähnlichkeitsschwellenwert (0–1, Standard: 0,3).",
+            "minScoreDesc": "Minimaler Kosinus-Ähnlichkeitsschwellenwert (0 bis 1, Standard: 0,3).",
             "numCandidates": "Kandidaten",
             "numCandidatesDesc": "ANN-Kandidaten, die vor der Filterung ausgewertet werden (Standard: 10).",
             "contextWindow": "Kontextfenster",
@@ -4426,7 +4428,7 @@
       },
       "validation": {
         "phoneRequired": "Telefonnummer ist erforderlich",
-        "phoneInvalid": "Geben Sie eine gültige Telefonnummer ein (10–15 Ziffern)",
+        "phoneInvalid": "Geben Sie eine gültige Telefonnummer ein (10 bis 15 Ziffern)",
         "parameterRequired": "Dieser Parameter ist erforderlich",
         "businessPhoneRequired": "Wählen Sie ein Geschäftstelefon zum Senden",
         "codeTooLong": "Der Code darf höchstens {max} Zeichen lang sein."
@@ -6074,11 +6076,11 @@
     "sections": {
       "scope": {
         "title": "Scope of this policy",
-        "content": "This policy applies to the {brandName} platform, operated by {brandLegalName}, registered under CNPJ {brandCnpj}, and to all sites, applications and interfaces made available at {siteUrl}.\n\n{brandName} is a business communication platform: companies subscribe in order to talk to their own customers over WhatsApp, Instagram, Telegram and live chat, supported by AI agents, a CRM and campaign tooling.\n\nThat means two distinct groups of people appear in the platform, and this policy addresses them separately:\n\n• Platform users — people who hold an account and sign in (administrators, managers and agents of subscribing companies).\n• Contacts — people who talk to a subscribing company through a connected channel, without necessarily having any relationship with {brandLegalName}."
+        "content": "This policy applies to the {brandName} platform, operated by {brandLegalName}, registered under CNPJ {brandCnpj}, and to all sites, applications and interfaces made available at {siteUrl}.\n\n{brandName} is a business communication platform: companies subscribe in order to talk to their own customers over WhatsApp, Instagram, Telegram and live chat, supported by AI agents, a CRM and campaign tooling.\n\nThat means two distinct groups of people appear in the platform, and this policy addresses them separately:\n\n• Platform users: people who hold an account and sign in (administrators, managers and agents of subscribing companies).\n• Contacts: people who talk to a subscribing company through a connected channel, without necessarily having any relationship with {brandLegalName}."
       },
       "roles": {
         "title": "Our two roles: controller and processor",
-        "content": "This is the most important section of this policy. {brandLegalName} acts in two distinct roles under the Brazilian General Data Protection Law (Law 13.709/2018):\n\n1. As CONTROLLER, when we determine the purposes and means of processing. This covers registration, authentication, billing, support and security data for platform users. In these cases we are directly answerable and the data subject should contact us.\n\n2. As PROCESSOR, when we process personal data on behalf of and under the instructions of a subscribing company. This covers conversation content, imported contacts, service records and everything the subscribing company chooses to collect and store in its workspace. Here the subscribing company is the controller: it decides why and how that data is processed, and the data subject should approach it first.\n\nIf you spoke to a company over WhatsApp, Instagram, Telegram or chat and want to know why your data is processed, that company answers, not {brandLegalName}. Even so, if you contact us we will forward your request to the responsible controller and tell you that we have done so — see section 13."
+        "content": "This is the most important section of this policy. {brandLegalName} acts in two distinct roles under the Brazilian General Data Protection Law (Law 13.709/2018):\n\n1. As CONTROLLER, when we determine the purposes and means of processing. This covers registration, authentication, billing, support and security data for platform users. In these cases we are directly answerable and the data subject should contact us.\n\n2. As PROCESSOR, when we process personal data on behalf of and under the instructions of a subscribing company. This covers conversation content, imported contacts, service records and everything the subscribing company chooses to collect and store in its workspace. Here the subscribing company is the controller: it decides why and how that data is processed, and the data subject should approach it first.\n\nIf you spoke to a company over WhatsApp, Instagram, Telegram or chat and want to know why your data is processed, that company answers, not {brandLegalName}. Even so, if you contact us we will forward your request to the responsible controller and tell you that we have done so (see section 13)."
       },
       "controllerData": {
         "title": "Data we process as controller",
@@ -6090,7 +6092,7 @@
       },
       "lawfulBasis": {
         "title": "Lawful bases",
-        "content": "As controller, we process personal data on the following lawful bases under article 7 of the LGPD:\n\n• Performance of a contract (item V): to create and maintain accounts, deliver contracted features, bill and provide support.\n• Compliance with a legal or regulatory obligation (item II): to meet tax and accounting obligations and orders from competent authorities.\n• Legitimate interests (item IX): to secure the platform, prevent fraud and abuse, and improve service stability and performance, always weighed against your rights.\n• Consent (item I): only where requested specifically and prominently, such as marketing communications, and always revocable.\n\nAs processor, we do not determine the lawful basis: it is set by the subscribing company, which represents that it holds an adequate basis for the processing it instructs us to perform — including, where applicable, the contact's consent to receive messages."
+        "content": "As controller, we process personal data on the following lawful bases under article 7 of the LGPD:\n\n• Performance of a contract (item V): to create and maintain accounts, deliver contracted features, bill and provide support.\n• Compliance with a legal or regulatory obligation (item II): to meet tax and accounting obligations and orders from competent authorities.\n• Legitimate interests (item IX): to secure the platform, prevent fraud and abuse, and improve service stability and performance, always weighed against your rights.\n• Consent (item I): only where requested specifically and prominently, such as marketing communications, and always revocable.\n\nAs processor, we do not determine the lawful basis: it is set by the subscribing company, which represents that it holds an adequate basis for the processing it instructs us to perform, including, where applicable, the contact's consent to receive messages."
       },
       "howWeUse": {
         "title": "How we use data",
@@ -6102,7 +6104,7 @@
       },
       "channels": {
         "title": "Third-party channels",
-        "content": "The platform connects to channels operated by third parties. When you use them, data also travels through those providers' infrastructure, subject to their policies:\n\n• WhatsApp Business Platform, Instagram and other Meta Platforms, Inc. services.\n• Telegram Messenger.\n\nWhen a subscribing company connects an account on these channels, authorisation is granted directly to the provider, and the originating platform's rules then apply to message traffic — including its consent requirements, service windows and content policies.\n\nWe do not control these providers' privacy practices. We recommend reading each provider's privacy policy."
+        "content": "The platform connects to channels operated by third parties. When you use them, data also travels through those providers' infrastructure, subject to their policies:\n\n• WhatsApp Business Platform, Instagram and other Meta Platforms, Inc. services.\n• Telegram Messenger.\n\nWhen a subscribing company connects an account on these channels, authorisation is granted directly to the provider, and the originating platform's rules then apply to message traffic, including its consent requirements, service windows and content policies.\n\nWe do not control these providers' privacy practices. We recommend reading each provider's privacy policy."
       },
       "subprocessors": {
         "title": "Sub-processors and international transfers",
@@ -6122,7 +6124,7 @@
       },
       "rights": {
         "title": "Your rights",
-        "content": "Under article 18 of the LGPD you may request at any time:\n\n• Confirmation that processing exists, and access to the data.\n• Correction of incomplete, inaccurate or outdated data.\n• Anonymisation, blocking or deletion of unnecessary or excessive data, or data processed unlawfully.\n• Portability to another provider, subject to commercial and industrial secrecy.\n• Deletion of data processed on the basis of consent.\n• Information about the entities with which we share data.\n• Information about the option not to give consent and the consequences of refusal.\n• Withdrawal of consent.\n• Review of automated decisions affecting your interests.\n\nHow to exercise them: write to {dpoEmail}. We will respond within the statutory deadline. We may request additional information to confirm your identity, solely to avoid disclosing data to the wrong person.\n\nIf the request concerns data we process as processor — for example a conversation you had with a company that uses the platform — we will forward it to the controlling company and tell you that we have done so."
+        "content": "Under article 18 of the LGPD you may request at any time:\n\n• Confirmation that processing exists, and access to the data.\n• Correction of incomplete, inaccurate or outdated data.\n• Anonymisation, blocking or deletion of unnecessary or excessive data, or data processed unlawfully.\n• Portability to another provider, subject to commercial and industrial secrecy.\n• Deletion of data processed on the basis of consent.\n• Information about the entities with which we share data.\n• Information about the option not to give consent and the consequences of refusal.\n• Withdrawal of consent.\n• Review of automated decisions affecting your interests.\n\nHow to exercise them: write to {dpoEmail}. We will respond within the statutory deadline. We may request additional information to confirm your identity, solely to avoid disclosing data to the wrong person.\n\nIf the request concerns data we process as processor (for example a conversation you had with a company that uses the platform), we will forward it to the controlling company and tell you that we have done so."
       },
       "cookies": {
         "title": "Cookies and similar technologies",
@@ -6138,7 +6140,7 @@
       },
       "changes": {
         "title": "Changes to this policy",
-        "content": "We may update this policy to reflect changes in the platform, in the law or in our suppliers.\n\nWhere a change is material — for example a new processing purpose or a new category of sub-processor — we will notify platform users by email or by an in-product notice, a reasonable time before the change takes effect.\n\nThe date of the last update is shown at the top of this page. Previous versions can be requested at {dpoEmail}."
+        "content": "We may update this policy to reflect changes in the platform, in the law or in our suppliers.\n\nWhere a change is material (for example a new processing purpose or a new category of sub-processor), we will notify platform users by email or by an in-product notice, a reasonable time before the change takes effect.\n\nThe date of the last update is shown at the top of this page. Previous versions can be requested at {dpoEmail}."
       }
     },
     "meta": {
@@ -6155,7 +6157,7 @@
     "backHome": "Zurück",
     "questions": "Fragen zu diesen Bedingungen?",
     "contactUs": "Support kontaktieren",
-    "intro": "These terms govern use of the {brandName} platform. Sections 5, 6 and 7 define what you may send, under whose rules, and who answers for the consent of the person receiving it — read them before sending any message.",
+    "intro": "These terms govern use of the {brandName} platform. Sections 5, 6 and 7 define what you may send, under whose rules, and who answers for the consent of the person receiving it. Read them before sending any message.",
     "sections": {
       "agreement": {
         "title": "Contratação e aceite",
@@ -6171,7 +6173,7 @@
       },
       "plans": {
         "title": "Planos, saldo e faturamento",
-        "content": "O uso da plataforma depende de plano contratado e, em determinados recursos, de saldo disponível.\n\n• Recursos cobrados por consumo — como mensagens, disparos, minutos de chamadas de WhatsApp, transcrição de áudio e uso de modelos de inteligência artificial — são debitados do saldo conforme a tabela vigente.\n• Sem saldo suficiente, os recursos dependentes de consumo são interrompidos até a recomposição, sem que isso caracterize falha do serviço.\n• Valores pagos por consumo já realizado não são reembolsáveis.\n• Reajustes e alterações de preço serão comunicados com antecedência mínima de 30 dias, e você poderá encerrar o contrato antes da vigência do novo valor.\n• Tributos aplicáveis são acrescidos na forma da legislação.\n\nO inadimplemento autoriza a suspensão do acesso após comunicação prévia, nos termos da seção 13."
+        "content": "O uso da plataforma depende de plano contratado e, em determinados recursos, de saldo disponível.\n\n• Recursos cobrados por consumo (como mensagens, disparos, minutos de chamadas de WhatsApp, transcrição de áudio e uso de modelos de inteligência artificial) são debitados do saldo conforme a tabela vigente.\n• Sem saldo suficiente, os recursos dependentes de consumo são interrompidos até a recomposição, sem que isso caracterize falha do serviço.\n• Valores pagos por consumo já realizado não são reembolsáveis.\n• Reajustes e alterações de preço serão comunicados com antecedência mínima de 30 dias, e você poderá encerrar o contrato antes da vigência do novo valor.\n• Tributos aplicáveis são acrescidos na forma da legislação.\n\nO inadimplemento autoriza a suspensão do acesso após comunicação prévia, nos termos da seção 13."
       },
       "acceptableUse": {
         "title": "Uso aceitável",
@@ -6179,7 +6181,7 @@
       },
       "channelRules": {
         "title": "Regras dos canais de terceiros",
-        "content": "A plataforma se conecta a canais operados por terceiros — entre eles WhatsApp Business Platform e Instagram, da Meta Platforms, Inc., e o Telegram.\n\nAo conectar uma conta, você passa a estar vinculado também às políticas do provedor daquele canal, que se aplicam diretamente a você e que podem mudar sem a nossa participação. Isso inclui, conforme o canal:\n\n• Exigências de consentimento prévio do destinatário.\n• Regras de janela de atendimento e de uso de modelos de mensagem aprovados.\n• Políticas de conteúdo e de categorias de negócio vedadas.\n• Limites de volume e qualidade, incluindo classificações de qualidade do número.\n\nO provedor do canal pode, a seu exclusivo critério, limitar, suspender ou banir um número ou conta. Não temos ingerência sobre essa decisão e não respondemos por ela. Recomendamos que você mantenha canais alternativos de contato com seus clientes.\n\nRestrições conhecidas de plataforma são apresentadas na interface quando aplicável, e não constituem defeito do serviço."
+        "content": "A plataforma se conecta a canais operados por terceiros, entre eles WhatsApp Business Platform e Instagram, da Meta Platforms, Inc., e o Telegram.\n\nAo conectar uma conta, você passa a estar vinculado também às políticas do provedor daquele canal, que se aplicam diretamente a você e que podem mudar sem a nossa participação. Isso inclui, conforme o canal:\n\n• Exigências de consentimento prévio do destinatário.\n• Regras de janela de atendimento e de uso de modelos de mensagem aprovados.\n• Políticas de conteúdo e de categorias de negócio vedadas.\n• Limites de volume e qualidade, incluindo classificações de qualidade do número.\n\nO provedor do canal pode, a seu exclusivo critério, limitar, suspender ou banir um número ou conta. Não temos ingerência sobre essa decisão e não respondemos por ela. Recomendamos que você mantenha canais alternativos de contato com seus clientes.\n\nRestrições conhecidas de plataforma são apresentadas na interface quando aplicável, e não constituem defeito do serviço."
       },
       "contactConsent": {
         "title": "Consentimento dos contatos e responsabilidade",
@@ -7317,7 +7319,7 @@
     },
     "sections": {
       "identity": "Identität",
-      "identityDescription": "Wie der Plan im öffentlichen Katalog erscheint — für die Kundschaft, die entscheidet.",
+      "identityDescription": "Wie der Plan im öffentlichen Katalog erscheint, für die Kundschaft, die entscheidet.",
       "capacity": "Kapazität und Preis",
       "capacityDescription": "Was die monatliche Gebühr enthält und was sie kostet."
     },
@@ -8432,7 +8434,7 @@
     },
     "header": {
       "badge": "Leads",
-      "description": "Alle Leads des Workspace – mit Suche, erweiterten Filtern und Memories."
+      "description": "Alle Leads des Workspace, mit Suche, erweiterten Filtern und Memories."
     },
     "summary": {
       "total": "Leads gesamt",
@@ -9847,7 +9849,7 @@
         "mosaicHint": "Funnel-Höhe = Anteil an allen Phasen. Blockbreite = Anteil am Funnel. Das bernsteinfarbene Band am Fuß ist der festgefahrene Teil.",
         "aiContainmentRate": "KI-Lösungsquote",
         "aiHandoffRate": "Übergabequote",
-        "statusRadialHint": "Abstand vom Zentrum = Anteil der Konversationen im Zeitraum (0–100%)",
+        "statusRadialHint": "Abstand vom Zentrum = Anteil der Konversationen im Zeitraum (0 bis 100 %)",
         "stageBlockHint": "Blockfläche = Konversationsvolumen der Phase",
         "deptBlockHint": "Blockfläche = Konversationsvolumen der Abteilung"
       },
@@ -11283,7 +11285,7 @@
       "saving": "Speichern...",
       "saved": "Gespeichert",
       "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
-      "activeNote": "Neue Nachrichten werden von diesem Agenten beantwortet. Im Bot-Modus gibt es kein 24-Stunden-Fenster – der Agent kann jederzeit antworten, solange der Kontakt ihn nicht blockiert hat. Im Business-Konto-Modus erlaubt Telegram Antworten nur innerhalb von 24 Stunden nach der letzten Nachricht des Kontakts.",
+      "activeNote": "Neue Nachrichten werden von diesem Agenten beantwortet. Im Bot-Modus gibt es kein 24-Stunden-Fenster: Der Agent kann jederzeit antworten, solange der Kontakt ihn nicht blockiert hat. Im Business-Konto-Modus erlaubt Telegram Antworten nur innerhalb von 24 Stunden nach der letzten Nachricht des Kontakts.",
       "agentSearch": "Agenten suchen...",
       "agentEmpty": "Kein Agent gefunden.",
       "agentInactive": "Inaktiv",
@@ -11305,12 +11307,12 @@
     },
     "business": {
       "title": "Business-Konto (optional)",
-      "description": "Verbinde diesen Bot mit deinem persönlichen Telegram-Konto, um unter deinem eigenen Namen und Bild zu antworten. Der Kontakt sieht keinen Bot – er sieht dich.",
+      "description": "Verbinde diesen Bot mit deinem persönlichen Telegram-Konto, um unter deinem eigenen Namen und Bild zu antworten. Der Kontakt sieht keinen Bot, er sieht dich.",
       "step1": "Das Konto benötigt Telegram Premium.",
       "step2": "Öffne in der App Einstellungen → Telegram Business → Chatbots.",
       "step3": "Gib den Benutzernamen dieses Bots an:",
       "step4": "Erteile die Berechtigung „Nachrichten beantworten“. Ohne sie wird nichts gesendet.",
-      "tradeoff": "Im Bot-Modus gibt es kein Zeitlimit für Antworten. Im Business-Konto-Modus erlaubt Telegram Antworten nur innerhalb von 24 Stunden nach der letzten Nachricht des Kontakts – danach schweigt die Automatisierung, bis er erneut schreibt.",
+      "tradeoff": "Im Bot-Modus gibt es kein Zeitlimit für Antworten. Im Business-Konto-Modus erlaubt Telegram Antworten nur innerhalb von 24 Stunden nach der letzten Nachricht des Kontakts. Danach schweigt die Automatisierung, bis er erneut schreibt.",
       "paired": "Mit einem persönlichen Konto verbunden. Antworten gehen unter dessen Namen und Bild raus.",
       "pairedTo": "Mit {username} verbunden. Antworten gehen unter Namen und Bild dieses Kontos raus.",
       "noReplyRight": "Die Berechtigung „Nachrichten beantworten“ wurde nicht erteilt. Die Verbindung wirkt aktiv, aber es wird nie eine Antwort gesendet. Erteile sie in der App unter Einstellungen → Telegram Business → Chatbots.",
@@ -11653,7 +11655,7 @@
       "phoneHint": "Mit Länder- und Vorwahl, nur Ziffern. z. B. 5511999999999",
       "nameLabel": "Name (optional)",
       "namePlaceholder": "Wie dieser Kontakt heißen soll",
-      "risk": "Eine von dir begonnene Unterhaltung ist Kaltakquise. Sie ist der häufigste Grund für die Sperrung inoffizieller Nummern, und eine Sperrung können wir nicht rückgängig machen. Wir prüfen vorher, ob die Nummer bei WhatsApp existiert — das Risiko, jemanden anzuschreiben, der sich nicht gemeldet hat, trägst du.",
+      "risk": "Eine von dir begonnene Unterhaltung ist Kaltakquise. Sie ist der häufigste Grund für die Sperrung inoffizieller Nummern, und eine Sperrung können wir nicht rückgängig machen. Wir prüfen vorher, ob die Nummer bei WhatsApp existiert. Das Risiko, jemanden anzuschreiben, der sich nicht gemeldet hat, trägst du.",
       "submit": "Unterhaltung öffnen",
       "opening": "Wird geöffnet...",
       "cancel": "Abbrechen",
@@ -11675,7 +11677,7 @@
       },
       "over": {
         "title": "Über dem enthaltenen Limit",
-        "description": "Dieser Workspace hat {used} Nummern verbunden und {limit} enthalten. Es wurde nichts getrennt — neue Nummern können erst nach Anpassung des Limits verbunden werden."
+        "description": "Dieser Workspace hat {used} Nummern verbunden und {limit} enthalten. Es wurde nichts getrennt. Neue Nummern können erst nach Anpassung des Limits verbunden werden."
       }
     },
     "capacity": {
@@ -11786,7 +11788,7 @@
     },
     "panel": {
       "title": "{count} geplante Nachricht(en)",
-      "failedAt": "Fehlgeschlagen — war für {when} geplant",
+      "failedAt": "Fehlgeschlagen, war für {when} geplant",
       "mediaOnly": "Anhang ohne Text",
       "cancel": "Planung abbrechen",
       "reuse": "Erneut versuchen",
@@ -11946,7 +11948,7 @@
       "rejected": "Meta hat diese Vorlage abgelehnt. Überarbeiten Sie den Text und versuchen Sie es erneut.",
       "submitted": {
         "title": "Vorlage {name} zur Genehmigung eingereicht",
-        "description": "Meta prüft jede Vorlage vor dem Versand, was in der Regel 24 bis 48 Stunden dauert. Nach der Genehmigung erscheint sie in der Vorlagenliste und kann gesendet werden — hier muss nichts wiederholt werden."
+        "description": "Meta prüft jede Vorlage vor dem Versand, was in der Regel 24 bis 48 Stunden dauert. Nach der Genehmigung erscheint sie in der Vorlagenliste und kann gesendet werden, hier muss nichts wiederholt werden."
       },
       "phoneLabel": "Erstellen im Konto von",
       "phoneHint": "Die Vorlage gehört zum WhatsApp-Business-Konto der gewählten Nummer und kann nur von dieser gesendet werden.",
@@ -12969,7 +12971,7 @@
     "miniHint": "Minidiagramme zeigen tägliche Beobachtungen; Autoren dürfen nicht über Tage addiert werden.",
     "activity": "Publikumsaktivität",
     "activityHint": "Tägliches Kommentarvolumen nach Haltung",
-    "radialHint": "Abstand vom Mittelpunkt = Anteil analysierter Kommentare (0–100 %)",
+    "radialHint": "Abstand vom Mittelpunkt = Anteil analysierter Kommentare (0 bis 100 %)",
     "dailyScore": "Tägliche Akzeptanz",
     "scoreMethod": "So wird dieser Wert berechnet",
     "intent": "Kommentarabsicht",
@@ -15960,7 +15962,7 @@
       "generatingTitle": "Dein Bild wird erstellt",
       "generatingHint": "Das dauert meist 20 Sekunden bis 1 Minute. Du kannst die Anzeige währenddessen weiter ausfüllen.",
       "references": "Referenzbilder",
-      "referencesHint": "Optional. Bis zu {max} Bilder, deren Stil die KI übernimmt oder die sie bearbeitet.",
+      "referencesHint": "Optional. Bis zu {max} Bilder, etwa dein Logo oder ein Screenshot deiner App, an denen sich die KI orientiert. Du kannst auch ein Bild in die Beschreibung einfügen.",
       "addReference": "Referenz hinzufügen",
       "removeReference": "Referenz entfernen",
       "generationErrors": {
@@ -15977,7 +15979,8 @@
         "already_generating": "Ein Bild mit dieser Beschreibung und diesem Format wurde gerade erstellt. Warte einige Sekunden und versuche es erneut.",
         "reference_unavailable": "Eines der Referenzbilder ist nicht mehr verfügbar. Ändere die Referenzen und versuche es erneut.",
         "invalid_request": "Prüfe die Referenzbilder: nur Bilder, keine Wiederholungen."
-      }
+      },
+      "editWithAi": "Mit KI bearbeiten"
     },
     "review": {
       "budgetDaily": "{amount} pro Tag",
@@ -16783,12 +16786,20 @@
     "trend": {
       "title": "Ausgaben und Ergebnisse pro Tag",
       "subtitle": "Tage in der Zeitzone des Werbekontos",
-      "spend": "Ausgegebener Betrag",
-      "results": "Ergebnisse",
-      "day": "Tag",
       "showChart": "Diagramm anzeigen",
       "showTable": "Tabelle anzeigen",
-      "empty": "Keine Daten in diesem Zeitraum."
+      "empty": "Keine Daten in diesem Zeitraum.",
+      "period": "Zeitraum",
+      "metrics": {
+        "results": "Ergebnisse",
+        "costPerResult": "Kosten pro Ergebnis",
+        "spend": "Ausgegebener Betrag",
+        "impressions": "Impressionen",
+        "linkClicks": "Link-Klicks",
+        "cpm": "CPM",
+        "ctr": "CTR",
+        "conversations": "Unterhaltungen (Meta)"
+      }
     },
     "range": {
       "label": "Zeitraum",
@@ -17285,7 +17296,8 @@
         "budget": "Budget",
         "actions": "Aktionen",
         "preview": "Vorschau",
-        "comments": "Kommentare"
+        "comments": "Kommentare",
+        "history": "Verlauf"
       },
       "level": {
         "campaign": "Kampagne",
@@ -17319,6 +17331,35 @@
         "likes": "{count, plural, one {# Like} other {# Likes}}",
         "replies": "{count, plural, one {# Antwort} other {# Antworten}}",
         "note": "Die 100 neuesten Kommentare zum Beitrag der Anzeige, direkt von Meta gelesen. Zum Antworten nutze den Posteingang."
+      },
+      "performance": {
+        "metric": "Diagramm-Kennzahl",
+        "by": {
+          "day": "{metric} pro Tag",
+          "week": "{metric} pro Woche",
+          "month": "{metric} pro Monat",
+          "hour": "{metric} nach Tageszeit"
+        },
+        "granularity": {
+          "day": "Tag",
+          "week": "Woche",
+          "month": "Monat",
+          "hour": "Stunde"
+        },
+        "hourNote": "Summe des Zeitraums je Stunde, in der Zeitzone des Kontos, direkt von Meta"
+      },
+      "history": {
+        "columns": {
+          "activity": "Aktivität",
+          "details": "Details",
+          "item": "Geändertes Element",
+          "actor": "Geändert von",
+          "when": "Datum und Uhrzeit"
+        },
+        "change": "Von {from} zu {to}",
+        "noDetails": "Keine Details",
+        "meta": "Meta",
+        "empty": "Keine Änderungen in diesem Zeitraum."
       }
     }
   },
@@ -18387,7 +18428,7 @@
       },
       "instagram": {
         "title": "Instagram",
-        "missing": "Kein Instagram-Konto ist verbunden. Wechsle bei Meta zum Profil der Seite und öffne Einstellungen › Verknüpfte Konten › Instagram; prüfe danach hier erneut."
+        "missing": "Mit dieser Seite ist kein Instagram-Konto verbunden. Klicke unter Bei Meta öffnen direkt unter dem Seitennamen auf Instagram verbinden und melde dich im Konto an; prüfe danach hier erneut."
       },
       "messenger": {
         "title": "Messenger",

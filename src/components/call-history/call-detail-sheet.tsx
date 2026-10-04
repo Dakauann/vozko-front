@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 
 import { DownloadSimple, PhoneIncoming, PhoneOutgoing, SpinnerGap, Waveform, WhatsappLogo, XCircle } from "@/components/icons";
 import Button from "@/components/elevated-design/button";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ElevatedSheet,
   ElevatedSheetContent,
@@ -129,16 +130,16 @@ function CallDetailBody({ call, chargeLabel }: { call: CallDetail; chargeLabel: 
           <CallOutcomeBadge outcome={call.outcome} />
         </Fact>
         <Fact label={t("detail.talk")}>
-          <span className="readout tabular-nums">{call.talkSeconds > 0 ? formatCallDuration(call.talkSeconds) : "—"}</span>
+          <span className="readout tabular-nums">{call.talkSeconds > 0 ? formatCallDuration(call.talkSeconds) : <EmptyValue />}</span>
         </Fact>
         <Fact label={t("detail.ring")}>
           <span className="readout tabular-nums">{formatCallDuration(call.ringSeconds)}</span>
         </Fact>
         <Fact label={t("detail.charge")}>{chargeLabel(call.charge?.amountMicros)}</Fact>
         <Fact label={call.direction === "inbound" ? t("detail.from") : t("detail.placedBy")}>
-          {call.direction === "inbound" ? formatPhoneForDisplay(call.contact.number) : call.placedBy?.name || "—"}
+          {call.direction === "inbound" ? formatPhoneForDisplay(call.contact.number) : call.placedBy?.name || <EmptyValue />}
         </Fact>
-        <Fact label={t("detail.answeredBy")}>{call.answeredBy?.name || "—"}</Fact>
+        <Fact label={t("detail.answeredBy")}>{call.answeredBy?.name || <EmptyValue />}</Fact>
       </dl>
 
       {call.handlers.length > 1 ? (
