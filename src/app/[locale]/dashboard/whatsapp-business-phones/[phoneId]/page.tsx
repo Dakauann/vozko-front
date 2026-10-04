@@ -72,6 +72,10 @@ import { VerificationDialog } from "@/app/[locale]/dashboard/whatsapp-business-p
 import { RegisterPhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/RegisterPhoneDialog";
 import { ReleasePhoneDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ReleasePhoneDialog";
 import { ConfirmActionDialog } from "@/app/[locale]/dashboard/whatsapp-business-phones/_components/ConfirmActionDialog";
+import {
+  NumberAutomationOwnedElsewhere,
+  NumberAutomationPanel,
+} from "@/components/whatsapp/number-automation-panel";
 
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
@@ -132,7 +136,7 @@ export default function BusinessPhoneDetailPage() {
   const params = useParams();
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
-  const { can } = useWorkspace();
+  const { can, currentWorkspace } = useWorkspace();
   const canManage = can("business_phones", "update");
   const isSystemAdmin = user?.role === "admin";
 
@@ -845,6 +849,16 @@ export default function BusinessPhoneDetailPage() {
                 )}
               </div>
             </ElevatedContainer>
+          </div>
+        )}
+
+        {isConnected && !isSystemAdmin && (
+          <div>
+            {phone.ownerWorkspaceId === currentWorkspace?.id ? (
+              <NumberAutomationPanel phoneId={phone.id} />
+            ) : (
+              <NumberAutomationOwnedElsewhere />
+            )}
           </div>
         )}
 

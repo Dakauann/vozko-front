@@ -392,7 +392,9 @@
       "set_ad_spend_cap": "Limite de gasto da conta",
       "update_ad_draft": "Alterar rascunho de anúncio",
       "swap_ad_creative": "Trocar criativo do anúncio",
-      "compose_creative": "Montar criativo"
+      "compose_creative": "Montar criativo",
+      "number_automation": "Atendimento do número",
+      "configure_number_automation": "Configurar atendimento do número"
     },
     "threadsLegend": "Conversas",
     "greeting": "Olá, sou a Elo. Vamos trabalhar em quê?",
@@ -757,7 +759,10 @@
       "view": "Visão",
       "when": "Quando",
       "image_model": "Modelo de imagem",
-      "enhancements": "Melhorias Advantage+"
+      "enhancements": "Melhorias Advantage+",
+      "analysis": "Analisar conversas",
+      "autoStaging": "Mover etapa sozinho",
+      "autoMemory": "Memorizar fatos"
     },
     "attachments": {
       "legend": "Arquivos anexados",
@@ -2531,9 +2536,6 @@
       "aiChat": "Elo",
       "archivedAgents": "Agentes Arquivados",
       "archivedWhatsappCampaigns": "Arquivados",
-      "organicCampaigns": "Receptivas",
-      "organicCampaignsList": "Lista",
-      "createOrganicCampaign": "Nova Receptiva",
       "stageGroups": "Funil",
       "leads": "Leads",
       "plans": "Planos",
@@ -5274,6 +5276,44 @@
       "noWorkspace": "Selecione um workspace antes de conectar o WhatsApp Business.",
       "detailPhoneId": "Phone ID",
       "detailWabaId": "WABA ID"
+    },
+    "automation": {
+      "title": "Atendimento com IA",
+      "modeLabel": "Quem atende",
+      "modeAgent": "Agente",
+      "modeWorkflow": "Automação",
+      "agentLabel": "Agente responsável",
+      "agentHint": "O agente responde quem procura este número, inclusive quem chega por anúncio. Conversas de campanhas seguem a própria campanha.",
+      "agentSearch": "Buscar agente...",
+      "agentEmpty": "Nenhum agente encontrado.",
+      "agentInactive": "Inativo",
+      "workflowLabel": "Automação responsável",
+      "workflowHint": "A automação é disparada a cada nova mensagem receptiva deste número.",
+      "workflowSearch": "Buscar automação...",
+      "workflowEmpty": "Nenhuma automação encontrada.",
+      "enableLabel": "Responder automaticamente",
+      "enableHint": "Quando ativo, novas mensagens são atendidas automaticamente. Você pode pausar a automação em uma conversa específica sem alterar esta configuração.",
+      "enableRequiresAgent": "Selecione um agente para ativar as respostas automáticas.",
+      "enableRequiresWorkflow": "Selecione uma automação para ativá-la.",
+      "statusActive": "Ativo",
+      "statusInactive": "Inativo",
+      "activeNote": "Novas conversas receptivas deste número serão respondidas por este agente, dentro da janela de 24 horas do WhatsApp.",
+      "activeNoteWorkflow": "Novas mensagens receptivas deste número dispararão esta automação.",
+      "pipelineLabel": "Funil deste número",
+      "pipelineHint": "As conversas receptivas deste número entram neste funil e na etapa inicial dele.",
+      "pipelineDefault": "Funil padrão do workspace",
+      "handlingTitle": "Depois da conversa",
+      "enableAnalysisLabel": "Analisar conversas com IA",
+      "enableAnalysisHint": "Classifica cada conversa quando ela para, e aparece em Métricas > Audiência. Gera cobrança por análise.",
+      "enableAutoStagingLabel": "Mover a etapa automaticamente",
+      "enableAutoStagingHint": "A IA escolhe a etapa do funil mais adequada ao estado atual da conversa.",
+      "enableAutoMemoryLabel": "Memorizar fatos do lead",
+      "enableAutoMemoryHint": "Registra na memória do lead os fatos duráveis que aparecerem na conversa.",
+      "saving": "Salvando...",
+      "saved": "Salvo",
+      "saveFailed": "Não foi possível salvar. Tente novamente.",
+      "loadFailed": "Não foi possível carregar o atendimento deste número.",
+      "ownedElsewhere": "Este número pertence a outro workspace, que define quem atende as conversas receptivas. Aqui você pode usá-lo em campanhas."
     }
   },
   "campaignsSummary": {
@@ -5361,50 +5401,6 @@
     "campaignType": {
       "standard": "Padrão",
       "organic": "Receptiva"
-    },
-    "organic": {
-      "badge": "Receptiva",
-      "newBadge": "Nova Campanha Receptiva",
-      "title": "Criar campanha receptiva",
-      "description": "Campanha receptiva recebe automaticamente entradas quando números desconhecidos enviam mensagens para o telefone comercial selecionado.",
-      "backButton": "Voltar para Disparos WhatsApp",
-      "loading": "Carregando dados...",
-      "loadError": "Não foi possível carregar os dados necessários.",
-      "form": {
-        "campaignName": "Nome da campanha",
-        "campaignNamePlaceholder": "Ex: Atendimento receptivo",
-        "businessPhone": "Telefone Business",
-        "searchBusinessPhone": "Buscar número de telefone...",
-        "noBusinessPhones": "Nenhum telefone conectado disponível",
-        "businessPhoneDescription": "Mensagens recebidas neste número criarão entradas automaticamente.",
-        "enableAgent": "Habilitar respostas do agente",
-        "enableAgentDescription": "Quando ativado, as mensagens recebidas serão respondidas pelo agente de IA.",
-        "agent": "Agente de IA",
-        "agentPlaceholder": "Selecione um agente",
-        "searchAgent": "Buscar agente...",
-        "noAgents": "Nenhum agente disponível",
-        "responseMode": "Modo de resposta",
-        "modeAgent": "Agente IA",
-        "modeWorkflow": "Automação",
-        "workflow": "Automação",
-        "searchWorkflow": "Buscar automação...",
-        "noWorkflows": "Nenhum automação ativo disponível",
-        "loadingWorkflows": "Carregando automações...",
-        "enableAnalysis": "Habilitar análise de conversas",
-        "enableAnalysisDescription": "Análise automática de conversas por IA.",
-        "enableAutoStaging": "Gerenciamento automático de tags",
-        "enableAutoTaggingDescription": "IA move leads para tags adequadas automaticamente.",
-        "preferAudio": "Preferir respostas em áudio",
-        "preferAudioDescription": "Agente responde com voz em vez de texto.",
-        "aiModel": "Modelo de IA",
-        "aiModelDescription": "Modelo usado para análise e classificação automática.",
-        "create": "Criar campanha receptiva",
-        "creating": "Criando...",
-        "success": "Campanha receptiva criada com sucesso",
-        "error": "Erro ao criar campanha receptiva",
-        "nameRequired": "Nome da campanha é obrigatório",
-        "businessPhoneRequired": "Telefone business é obrigatório"
-      }
     },
     "stats": {
       "total": "Total de campanhas",
@@ -9788,18 +9784,6 @@
         "Métricas em tempo real: entregues, lidas, respondidas e falhas",
         "Respostas automáticas de IA e análise de qualificação de leads por conversa",
         "Organize por departamentos e atribua agentes e automações específicos"
-      ]
-    },
-    "whatsappCampaignsOrganic": {
-      "badge": "RECEPTIVAS",
-      "title": "Campanhas Receptivas de WhatsApp",
-      "subtitle": "Atenda conversas recebidas no seu número com agente de IA ou automação, sem lista de contatos",
-      "dismissButton": "Prosseguir",
-      "features": [
-        "Respondem automaticamente às mensagens recebidas no seu número WhatsApp",
-        "Agente de IA ou automação conduz a conversa, sem disparo de templates",
-        "Métricas e histórico das conversas recebidas em tempo real",
-        "Organize por departamentos e atribua agentes específicos"
       ]
     },
     "workflows": {

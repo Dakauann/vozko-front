@@ -11,7 +11,7 @@ import type {
 } from "@/lib/whatsapp-campaigns/types";
 
 import EditWhatsAppCampaignPage from "./_components/EditWhatsAppCampaignPage";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 
 interface WhatsAppCampaignEditPageProps {
   params: Promise<{
@@ -43,6 +43,7 @@ export default function WhatsAppCampaignEdit({
   params,
 }: WhatsAppCampaignEditPageProps) {
   const { campaignId } = use(params);
+  const router = useRouter();
   const [state, setState] = useState<PageState>({ loading: true });
 
   useEffect(() => {
@@ -65,32 +66,35 @@ export default function WhatsAppCampaignEdit({
         return;
       }
 
-      if (campaign.type !== "organic") {
-        const entriesResult = await listWhatsAppCampaignEntriesAction(
-          campaignId,
-          {
-            page: 1,
-            pageSize: 1000,
-          },
-        );
-        if (cancelled) return;
+      if (campaign.type === "organic") {
+        router.replace(`/dashboard/whatsapp-business-phones/${campaign.businessPhoneId}`);
+        return;
+      }
 
-        if (!campaign.phoneNumbers || campaign.phoneNumbers.length === 0) {
-          const { entries } = entriesResult;
-          if (entries && entries.length > 0) {
-            campaign.phoneNumbers = entries.map(
-              (entry): WhatsAppCampaignPhoneNumber => ({
-                id: entry.entry?.id || entry.leadId,
-                number: entry.number,
-                name: entry.name,
-                variables: entry.entry?.variables,
-                metadata: entry.metadata,
-                status: entry.entry?.status,
-                createdAt: entry.entry?.createdAt,
-                updatedAt: entry.entry?.updatedAt,
-              }),
-            );
-          }
+      const entriesResult = await listWhatsAppCampaignEntriesAction(
+        campaignId,
+        {
+          page: 1,
+          pageSize: 1000,
+        },
+      );
+      if (cancelled) return;
+
+      if (!campaign.phoneNumbers || campaign.phoneNumbers.length === 0) {
+        const { entries } = entriesResult;
+        if (entries && entries.length > 0) {
+          campaign.phoneNumbers = entries.map(
+            (entry): WhatsAppCampaignPhoneNumber => ({
+              id: entry.entry?.id || entry.leadId,
+              number: entry.number,
+              name: entry.name,
+              variables: entry.entry?.variables,
+              metadata: entry.metadata,
+              status: entry.entry?.status,
+              createdAt: entry.entry?.createdAt,
+              updatedAt: entry.entry?.updatedAt,
+            }),
+          );
         }
       }
 
@@ -100,7 +104,7 @@ export default function WhatsAppCampaignEdit({
     return () => {
       cancelled = true;
     };
-  }, [campaignId]);
+  }, [campaignId, router]);
 
   if (state.loading) return <PageLoader />;
   if (state.notFound) notFound();
@@ -118,10 +122,7 @@ export default function WhatsAppCampaignEdit({
 
   return (
     <main className="w-full space-y-6">
-      <EditWhatsAppCampaignPage
-        campaign={campaign}
-        organic={campaign.type === "organic"}
-      />
+      <EditWhatsAppCampaignPage campaign={campaign} />
     </main>
   );
 }

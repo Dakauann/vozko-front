@@ -10,12 +10,10 @@ import { useTranslations } from "next-intl";
 
 interface EditWhatsAppCampaignPageProps {
   campaign: WhatsAppCampaign;
-  organic?: boolean;
 }
 
 export default function EditWhatsAppCampaignPage({
   campaign,
-  organic = false,
 }: EditWhatsAppCampaignPageProps) {
   const router = useRouter();
   const t = useTranslations("whatsappCampaignsPage.edit");
@@ -41,7 +39,6 @@ export default function EditWhatsAppCampaignPage({
         <CreateWhatsAppCampaignForm
           mode="edit"
           initialCampaign={campaign}
-          organic={organic}
         />
       </div>
     </div>

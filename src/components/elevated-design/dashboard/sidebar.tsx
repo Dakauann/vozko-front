@@ -40,7 +40,6 @@ import {
   Headset,
   ClockCounterClockwise,
   Tag,
-  Leaf,
   CurrencyDollar,
   Receipt,
   Scales,
@@ -314,24 +313,6 @@ export const campanhasNavItems: NavItem[] = [
         icon: Archive,
         labelKey: "nav.archivedWhatsappCampaigns",
         href: "/dashboard/whatsapp-campaigns/archived",
-      },
-    ],
-  },
-  {
-    icon: Leaf,
-    labelKey: "nav.organicCampaigns",
-    href: "/dashboard/whatsapp-campaigns/organic",
-    family: "whatsapp",
-    children: [
-      {
-        icon: ClipboardText,
-        labelKey: "nav.organicCampaignsList",
-        href: "/dashboard/whatsapp-campaigns/organic",
-      },
-      {
-        icon: PlusCircle,
-        labelKey: "nav.createOrganicCampaign",
-        href: "/dashboard/whatsapp-campaigns/new-organic",
       },
     ],
   },

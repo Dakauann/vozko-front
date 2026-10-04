@@ -163,6 +163,8 @@ const TOOL_ICON: Record<string, Icon> = {
   move_deal: ArrowRight,
   link_deal: Handshake,
   list_business_phones: DeviceMobile,
+  number_automation: DeviceMobile,
+  configure_number_automation: DeviceMobile,
   create_template: EnvelopeSimple,
   preview_campaign_import: FileCsv,
   create_campaign: Megaphone,

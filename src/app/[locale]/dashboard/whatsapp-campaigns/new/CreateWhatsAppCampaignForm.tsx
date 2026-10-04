@@ -207,36 +207,6 @@ const createWhatsAppCampaignSchema = (t: (key: string) => string) => {
     });
 };
 
-const createOrganicCampaignSchema = (t: (key: string) => string) => {
-  return z.object({
-    name: z.string().trim().min(3, t("validation.nameRequired")),
-    templateId: z.string().optional().default(""),
-    businessPhoneId: z.string().min(1, t("validation.businessPhoneRequired")),
-    agentId: z.string().optional().nullable(),
-    workflowId: z.string().optional().nullable(),
-    enableAgentResponses: z.boolean().default(false),
-    preferAudio: z.boolean().default(false),
-    enableAnalysis: z.boolean().default(false),
-    enableAutoStaging: z.boolean().default(false),
-    enableAutoMemory: z.boolean().default(false),
-    aiModel: z.string().optional().default(""),
-    scheduledStart: z.string().optional().nullable(),
-    phoneNumbers: z
-      .array(
-        z.object({
-          number: z.string(),
-          name: z.string().optional(),
-          variables: z.array(z.string()).optional(),
-          metadata: z
-            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
-            .optional(),
-        }),
-      )
-      .optional()
-      .default([]),
-  });
-};
-
 type WhatsAppCampaignFormValues = z.infer<
   ReturnType<typeof createWhatsAppCampaignSchema>
 >;
@@ -246,7 +216,6 @@ type WhatsAppCampaignFormProps = {
   initialCampaign?: WhatsAppCampaign | null;
   aiModels?: string[];
   modelPricing?: ModelPricingInfo[];
-  organic?: boolean;
 };
 
 const FieldError = ({ message }: { message?: string }) => {
@@ -329,7 +298,6 @@ export default function CreateWhatsAppCampaignForm({
   initialCampaign,
   aiModels: aiModelsProp,
   modelPricing: modelPricingProp,
-  organic = false,
 }: WhatsAppCampaignFormProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -412,13 +380,7 @@ export default function CreateWhatsAppCampaignForm({
     };
   }, []);
 
-  const campaignSchema = useMemo(
-    () =>
-      organic
-        ? createOrganicCampaignSchema(t)
-        : createWhatsAppCampaignSchema(t),
-    [t, organic],
-  );
+  const campaignSchema = useMemo(() => createWhatsAppCampaignSchema(t), [t]);
 
   const {
     control,
@@ -1461,7 +1423,7 @@ export default function CreateWhatsAppCampaignForm({
   }, [templateVariables, metadataFields]);
 
   const onSubmit = (data: WhatsAppCampaignFormValues) => {
-    if (mode === "create" && !organic && !templateInfoConfirmed) {
+    if (mode === "create" && !templateInfoConfirmed) {
       toast({
         title: t("toast.validationError"),
         description: t("validation.confirmTemplateFirst"),
@@ -1557,7 +1519,7 @@ export default function CreateWhatsAppCampaignForm({
       templateVariables.length > 0 || requiredCampaignVars.length > 0 || agentRequiredVarNames.length > 0;
     const actualMissingCount = hasVarsToCheck ? missingPhones.length : 0;
 
-    if (!organic && hasVarsToCheck && actualMissingCount > 0) {
+    if (hasVarsToCheck && actualMissingCount > 0) {
       toast({
         title: t("validation.missingVariablesTitle"),
         description: t("validation.cannotSubmitMissingVars", {
@@ -1580,8 +1542,7 @@ export default function CreateWhatsAppCampaignForm({
 
         const payload = {
           name: data.name,
-          ...(organic ? { type: "organic" as const } : {}),
-          templateId: organic ? "" : data.templateId,
+          templateId: data.templateId,
           businessPhoneId: data.businessPhoneId,
           agentId: agentResponsesEnabled ? data.agentId || null : null,
           workflowId: workflowEnabled ? data.workflowId || null : null,
@@ -1604,13 +1565,11 @@ export default function CreateWhatsAppCampaignForm({
               ? data.aiModel || undefined
               : undefined,
           scheduledStart:
-            !organic && scheduleEnabled && data.scheduledStart
+            scheduleEnabled && data.scheduledStart
               ? data.scheduledStart
               : undefined,
           ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
-          phoneNumbers: organic
-            ? []
-            : (data.phoneNumbers ?? []).map((pn) => {
+          phoneNumbers: (data.phoneNumbers ?? []).map((pn) => {
                 let varsArray: string[] | undefined;
                 if (pn.variables) {
                   if (Array.isArray(pn.variables)) {
@@ -1793,7 +1752,7 @@ export default function CreateWhatsAppCampaignForm({
       <div
         className={cn(
           "grid gap-6 lg:items-start",
-          !organic && "lg:grid-cols-[minmax(0,1fr)_360px]",
+          "lg:grid-cols-[minmax(0,1fr)_360px]",
         )}
       >
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-basic-info">
@@ -1861,95 +1820,93 @@ export default function CreateWhatsAppCampaignForm({
               </p>
             </div>
 
-            {!organic && (
-              <div>
-                <Controller
-                  name="templateId"
-                  control={control}
-                  render={({ field }) => (
-                    <ElevatedCommandSelect
-                      label={t("basicInfo.template")}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={!selectedBusinessPhoneId}
-                      options={templateOptions}
-                      searchPlaceholder={t("basicInfo.searchTemplate")}
-                      emptyMessage={
-                        !selectedBusinessPhoneId
-                          ? t("basicInfo.selectPhoneFirst")
-                          : templateSelect.isLoading
-                            ? t("basicInfo.loadingTemplates")
-                            : t("basicInfo.noTemplates")
-                      }
-                      onSearch={templateSelect.onSearch}
-                      onScrollEnd={templateSelect.onScrollEnd}
-                      onOpenChange={templateSelect.onOpenChange}
-                      isLoading={templateSelect.isLoading}
-                    />
-                  )}
-                />
-                <FieldError message={errors.templateId?.message} />
+            <div>
+              <Controller
+                name="templateId"
+                control={control}
+                render={({ field }) => (
+                  <ElevatedCommandSelect
+                    label={t("basicInfo.template")}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={!selectedBusinessPhoneId}
+                    options={templateOptions}
+                    searchPlaceholder={t("basicInfo.searchTemplate")}
+                    emptyMessage={
+                      !selectedBusinessPhoneId
+                        ? t("basicInfo.selectPhoneFirst")
+                        : templateSelect.isLoading
+                          ? t("basicInfo.loadingTemplates")
+                          : t("basicInfo.noTemplates")
+                    }
+                    onSearch={templateSelect.onSearch}
+                    onScrollEnd={templateSelect.onScrollEnd}
+                    onOpenChange={templateSelect.onOpenChange}
+                    isLoading={templateSelect.isLoading}
+                  />
+                )}
+              />
+              <FieldError message={errors.templateId?.message} />
 
-                {selectedTemplateMissingMedia &&
-                  isAdmin &&
-                  selectedTemplate && (
-                    <div className="mt-3 rounded-lg border border-border bg-muted p-4">
-                      <div className="flex items-start gap-3">
-                        <ImageSquare
-                          className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
-                          weight="fill"
+              {selectedTemplateMissingMedia &&
+                isAdmin &&
+                selectedTemplate && (
+                  <div className="mt-3 rounded-lg border border-border bg-muted p-4">
+                    <div className="flex items-start gap-3">
+                      <ImageSquare
+                        className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
+                        weight="fill"
+                      />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-warning-ink">
+                          {t("media.missingTitle")}
+                        </h4>
+                        <p className="text-xs text-warning-ink mt-1">
+                          {t("media.missingDescription")}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          title={t("media.configureButton")}
+                          icon={
+                            <ImageSquare className="h-4 w-4" weight="bold" />
+                          }
+                          iconVisible
+                          iconSide="left"
+                          onClick={() => setMediaModalOpen(true)}
+                          className="mt-3"
                         />
-                        <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-warning-ink">
-                            {t("media.missingTitle")}
-                          </h4>
-                          <p className="text-xs text-warning-ink mt-1">
-                            {t("media.missingDescription")}
-                          </p>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            title={t("media.configureButton")}
-                            icon={
-                              <ImageSquare className="h-4 w-4" weight="bold" />
-                            }
-                            iconVisible
-                            iconSide="left"
-                            onClick={() => setMediaModalOpen(true)}
-                            className="mt-3"
-                          />
-                        </div>
                       </div>
                     </div>
-                  )}
-
-                {selectedTemplate && templateVariables.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
-                    <h4 className="text-sm font-semibold text-healthy-ink mb-2">
-                      {t("basicInfo.templateVariables")}
-                    </h4>
-                    <p className="text-xs text-healthy-ink mb-3">
-                      {t("basicInfo.templateVariablesDescription")}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {templateVariables.map((varPlaceholder, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center rounded-md bg-healthy px-2 py-1 text-xs font-medium text-healthy-foreground"
-                        >
-                          {varPlaceholder}
-                        </span>
-                      ))}
-                    </div>
-
-                    <p className="text-xs text-healthy-ink border-t border-healthy/20 pt-3">
-                      A prévia do template fica no painel da direita com um
-                      contato aleatório desta campanha.
-                    </p>
                   </div>
                 )}
-              </div>
-            )}
+
+              {selectedTemplate && templateVariables.length > 0 && (
+                <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
+                  <h4 className="text-sm font-semibold text-healthy-ink mb-2">
+                    {t("basicInfo.templateVariables")}
+                  </h4>
+                  <p className="text-xs text-healthy-ink mb-3">
+                    {t("basicInfo.templateVariablesDescription")}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {templateVariables.map((varPlaceholder, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center rounded-md bg-healthy px-2 py-1 text-xs font-medium text-healthy-foreground"
+                      >
+                        {varPlaceholder}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-healthy-ink border-t border-healthy/20 pt-3">
+                    A prévia do template fica no painel da direita com um
+                    contato aleatório desta campanha.
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div data-tour="wc-response-mode">
               <p className="text-sm font-medium text-foreground mb-2">
@@ -2056,86 +2013,82 @@ export default function CreateWhatsAppCampaignForm({
               )}
             </div>
 
-            {(campaignToolsAvailable || !organic) && (
-              <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                {campaignToolsAvailable && (
-                  <div data-tour="wc-analysis">
-                    <Controller
-                      name="enableAnalysis"
-                      control={control}
-                      render={({ field }) => (
-                        <ElevatedSwitch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          label={t("basicInfo.enableAnalysis")}
-                          description={t("basicInfo.enableAnalysisDescription")}
-                        />
-                      )}
-                    />
-                  </div>
-                )}
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+              {campaignToolsAvailable && (
+                <div data-tour="wc-analysis">
+                  <Controller
+                    name="enableAnalysis"
+                    control={control}
+                    render={({ field }) => (
+                      <ElevatedSwitch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        label={t("basicInfo.enableAnalysis")}
+                        description={t("basicInfo.enableAnalysisDescription")}
+                      />
+                    )}
+                  />
+                </div>
+              )}
 
-                {campaignToolsAvailable && (
-                  <div>
-                    <Controller
-                      name="enableAutoStaging"
-                      control={control}
-                      render={({ field }) => (
-                        <ElevatedSwitch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          label={t("basicInfo.enableAutoStaging")}
-                          description={t("basicInfo.enableAutoTaggingDescription")}
-                        />
-                      )}
-                    />
-                  </div>
-                )}
+              {campaignToolsAvailable && (
+                <div>
+                  <Controller
+                    name="enableAutoStaging"
+                    control={control}
+                    render={({ field }) => (
+                      <ElevatedSwitch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        label={t("basicInfo.enableAutoStaging")}
+                        description={t("basicInfo.enableAutoTaggingDescription")}
+                      />
+                    )}
+                  />
+                </div>
+              )}
 
-                {campaignToolsAvailable && (
-                  <div>
-                    <Controller
-                      name="enableAutoMemory"
-                      control={control}
-                      render={({ field }) => (
-                        <ElevatedSwitch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          label={t("basicInfo.enableAutoMemory")}
-                          description={t("basicInfo.enableAutoMemoryDescription")}
-                        />
-                      )}
-                    />
-                  </div>
-                )}
+              {campaignToolsAvailable && (
+                <div>
+                  <Controller
+                    name="enableAutoMemory"
+                    control={control}
+                    render={({ field }) => (
+                      <ElevatedSwitch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        label={t("basicInfo.enableAutoMemory")}
+                        description={t("basicInfo.enableAutoMemoryDescription")}
+                      />
+                    )}
+                  />
+                </div>
+              )}
 
-                {campaignToolsAvailable &&
-                  (mode === "edit" && initialCampaign?.id ? (
-                    <DealAutomationSetting
-                      channel={{ entryType: "whatsapp", kind: "campaign", containerId: initialCampaign.id }}
-                    />
-                  ) : (
-                    <DealAutomationDraft value={dealPipelineId} onChange={setDealPipelineId} />
-                  ))}
+              {campaignToolsAvailable &&
+                (mode === "edit" && initialCampaign?.id ? (
+                  <DealAutomationSetting
+                    channel={{ entryType: "whatsapp", kind: "campaign", containerId: initialCampaign.id }}
+                  />
+                ) : (
+                  <DealAutomationDraft value={dealPipelineId} onChange={setDealPipelineId} />
+                ))}
 
-                {!organic && (
-                  <div data-tour="wc-show-template-in-crm">
-                    <Controller
-                      name="showTemplateInCrm"
-                      control={control}
-                      render={({ field }) => (
-                        <ElevatedSwitch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          label={t("basicInfo.showTemplateInCrm")}
-                          description={t("basicInfo.showTemplateInCrmDescription")}
-                        />
-                      )}
+              <div data-tour="wc-show-template-in-crm">
+                <Controller
+                  name="showTemplateInCrm"
+                  control={control}
+                  render={({ field }) => (
+                    <ElevatedSwitch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      label={t("basicInfo.showTemplateInCrm")}
+                      description={t("basicInfo.showTemplateInCrmDescription")}
                     />
-                  </div>
-                )}
+                  )}
+                />
               </div>
-            )}
+            </div>
 
             {campaignToolsAvailable &&
               (enableAnalysis || enableAutoStaging || enableAutoMemory) && (
@@ -2160,675 +2113,669 @@ export default function CreateWhatsAppCampaignForm({
                 </div>
               )}
 
-            {!organic && (
-              <div data-tour="wc-schedule">
-                <div className="flex items-center gap-3 mb-2">
-                  <ElevatedSwitch
-                    onCheckedChange={(checked) => {
-                      setScheduleEnabled(checked);
-                      if (!checked) {
-                        setValue("scheduledStart", null);
-                      }
-                    }}
-                    label={t("basicInfo.scheduleToggle")}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mb-3">
-                  {t("basicInfo.scheduleDescription")}
-                </p>
-
-                {scheduleEnabled && (
-                  <div>
-                    <Controller
-                      name="scheduledStart"
-                      control={control}
-                      render={({ field }) => {
-                        const toLocalDatetime = (
-                          iso: string | null | undefined,
-                        ) => {
-                          if (!iso) return "";
-                          const date = new Date(iso);
-                          if (isNaN(date.getTime())) return "";
-                          const pad = (n: number) => String(n).padStart(2, "0");
-                          return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-                        };
-
-                        const now = new Date();
-                        const minDate = new Date(now.getTime() + 5 * 60 * 1000);
-                        const maxDate = new Date(now);
-                        maxDate.setFullYear(maxDate.getFullYear() + 1);
-
-                        return (
-                          <ElevatedInput
-                            icon={
-                              <CalendarCheck
-                                className="h-5 w-5"
-                                weight="fill"
-                              />
-                            }
-                            label={t("basicInfo.scheduledStartLabel")}
-                            type="datetime-local"
-                            value={toLocalDatetime(field.value)}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (!val) {
-                                field.onChange(null);
-                                return;
-                              }
-                              const date = new Date(val);
-                              field.onChange(date.toISOString());
-                            }}
-                            min={toLocalDatetime(minDate.toISOString())}
-                            max={toLocalDatetime(maxDate.toISOString())}
-                            controlSize="default"
-                          />
-                        );
-                      }}
-                    />
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      {t("basicInfo.scheduleHint")}
-                    </p>
-                  </div>
-                )}
+            <div data-tour="wc-schedule">
+              <div className="flex items-center gap-3 mb-2">
+                <ElevatedSwitch
+                  onCheckedChange={(checked) => {
+                    setScheduleEnabled(checked);
+                    if (!checked) {
+                      setValue("scheduledStart", null);
+                    }
+                  }}
+                  label={t("basicInfo.scheduleToggle")}
+                />
               </div>
-            )}
+              <p className="text-xs text-muted-foreground mb-3">
+                {t("basicInfo.scheduleDescription")}
+              </p>
+
+              {scheduleEnabled && (
+                <div>
+                  <Controller
+                    name="scheduledStart"
+                    control={control}
+                    render={({ field }) => {
+                      const toLocalDatetime = (
+                        iso: string | null | undefined,
+                      ) => {
+                        if (!iso) return "";
+                        const date = new Date(iso);
+                        if (isNaN(date.getTime())) return "";
+                        const pad = (n: number) => String(n).padStart(2, "0");
+                        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                      };
+
+                      const now = new Date();
+                      const minDate = new Date(now.getTime() + 5 * 60 * 1000);
+                      const maxDate = new Date(now);
+                      maxDate.setFullYear(maxDate.getFullYear() + 1);
+
+                      return (
+                        <ElevatedInput
+                          icon={
+                            <CalendarCheck
+                              className="h-5 w-5"
+                              weight="fill"
+                            />
+                          }
+                          label={t("basicInfo.scheduledStartLabel")}
+                          type="datetime-local"
+                          value={toLocalDatetime(field.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (!val) {
+                              field.onChange(null);
+                              return;
+                            }
+                            const date = new Date(val);
+                            field.onChange(date.toISOString());
+                          }}
+                          min={toLocalDatetime(minDate.toISOString())}
+                          max={toLocalDatetime(maxDate.toISOString())}
+                          controlSize="default"
+                        />
+                      );
+                    }}
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {t("basicInfo.scheduleHint")}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </ElevatedContainer>
 
-        {!organic && (
-          <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                Prévia do template
-              </h3>
-              <Button
-                type="button"
-                variant="secondary"
-                title="Trocar contato"
-                onClick={() => {
-                  const validIndices = phoneNumbersSnapshot
-                    .map((phone, idx) => ({ phone, idx }))
-                    .filter(({ phone }) => !!phone?.number?.trim())
-                    .map(({ idx }) => idx);
-                  if (!validIndices.length) return;
-                  const nextIndex =
-                    validIndices[
-                      Math.floor(Math.random() * validIndices.length)
-                    ];
-                  setPreviewEntryIndex(nextIndex);
-                }}
-              />
-            </div>
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              Prévia do template
+            </h3>
+            <Button
+              type="button"
+              variant="secondary"
+              title="Trocar contato"
+              onClick={() => {
+                const validIndices = phoneNumbersSnapshot
+                  .map((phone, idx) => ({ phone, idx }))
+                  .filter(({ phone }) => !!phone?.number?.trim())
+                  .map(({ idx }) => idx);
+                if (!validIndices.length) return;
+                const nextIndex =
+                  validIndices[
+                    Math.floor(Math.random() * validIndices.length)
+                  ];
+                setPreviewEntryIndex(nextIndex);
+              }}
+            />
+          </div>
 
-            {!selectedTemplate ? (
-              <p className="text-sm text-muted-foreground">
-                Selecione um template para visualizar a mensagem.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
-                  <p>
-                    <strong>Contato de teste:</strong>{" "}
-                    {previewEntry?.name?.trim() || t("noName")}
-                  </p>
-                  <p>
-                    <strong>Número:</strong> {previewEntry?.number || "-"}
-                  </p>
-                </div>
+          {!selectedTemplate ? (
+            <p className="text-sm text-muted-foreground">
+              Selecione um template para visualizar a mensagem.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+                <p>
+                  <strong>Contato de teste:</strong>{" "}
+                  {previewEntry?.name?.trim() || t("noName")}
+                </p>
+                <p>
+                  <strong>Número:</strong> {previewEntry?.number || "-"}
+                </p>
+              </div>
 
-                <div className="bg-[#e5ddd5] rounded-[--radius] p-3">
-                  <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-                    {selectedTemplate.components.find(
-                      (c) => c.type === "HEADER",
-                    )?.text && (
-                      <div className="px-3 py-2 border-b border-border">
-                        <p className="text-sm font-semibold text-foreground whitespace-pre-wrap">
-                          {renderTemplateText(
-                            selectedTemplate.components.find(
-                              (c) => c.type === "HEADER",
-                            )?.text,
-                          )}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="px-3 py-2">
-                      <p className="text-sm text-foreground whitespace-pre-wrap">
+              <div className="bg-[#e5ddd5] rounded-[--radius] p-3">
+                <div className="bg-card rounded-lg shadow-sm overflow-hidden">
+                  {selectedTemplate.components.find(
+                    (c) => c.type === "HEADER",
+                  )?.text && (
+                    <div className="px-3 py-2 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground whitespace-pre-wrap">
                         {renderTemplateText(
                           selectedTemplate.components.find(
-                            (c) => c.type === "BODY",
+                            (c) => c.type === "HEADER",
                           )?.text,
                         )}
                       </p>
                     </div>
+                  )}
 
-                    {selectedTemplate.components.find(
-                      (c) => c.type === "FOOTER",
-                    )?.text && (
-                      <div className="px-3 py-1">
-                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                          {renderTemplateText(
-                            selectedTemplate.components.find(
-                              (c) => c.type === "FOOTER",
-                            )?.text,
-                          )}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTemplate.components.find(
-                      (c) => c.type === "BUTTONS",
-                    )?.buttons?.length ? (
-                      <div className="border-t border-border">
-                        {selectedTemplate.components
-                          .find((c) => c.type === "BUTTONS")
-                          ?.buttons?.map((button, index) => (
-                            <div
-                              key={index}
-                              className="w-full px-3 py-2 text-sm font-medium text-[#00a884] text-center border-b border-border last:border-b-0"
-                            >
-                              {button.text}
-                            </div>
-                          ))}
-                      </div>
-                    ) : null}
+                  <div className="px-3 py-2">
+                    <p className="text-sm text-foreground whitespace-pre-wrap">
+                      {renderTemplateText(
+                        selectedTemplate.components.find(
+                          (c) => c.type === "BODY",
+                        )?.text,
+                      )}
+                    </p>
                   </div>
-                </div>
 
-                <div ref={templateConfirmRef}>
-                  <GrainBackground
-                    palette={"alert"}
-                    seed={20000}
-                    className={cn(
-                      "rounded-lg border p-3 transition-shadow",
-                      highlightTemplateConfirm &&
-                        !templateInfoConfirmed &&
-                        "ring-2 ring-destructive-ink",
-                    )}
-                    data-tour="wc-confirm-template"
-                  >
-                    <ElevatedSwitch
-                      checked={templateInfoConfirmed}
-                      onCheckedChange={(checked) => {
-                        setTemplateInfoConfirmed(checked);
-                        if (checked) setHighlightTemplateConfirm(false);
-                      }}
-                      label={t("validation.confirmTemplateLabel")}
-                    />
-                    {mode === "create" && !templateInfoConfirmed ? (
-                      <p className="mt-2 text-xs text-destructive-ink">
-                        {t("validation.confirmTemplateRequired")}
+                  {selectedTemplate.components.find(
+                    (c) => c.type === "FOOTER",
+                  )?.text && (
+                    <div className="px-3 py-1">
+                      <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+                        {renderTemplateText(
+                          selectedTemplate.components.find(
+                            (c) => c.type === "FOOTER",
+                          )?.text,
+                        )}
                       </p>
-                    ) : null}
-                  </GrainBackground>
-                </div>
-              </div>
-            )}
-          </ElevatedContainer>
-        )}
-      </div>
+                    </div>
+                  )}
 
-      {!organic && (
-        <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
-              {t("contacts.title")}
-            </h2>
-            <div className="flex items-center gap-2" data-tour="wc-csv-buttons">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleCsvUpload}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                title={t("contacts.downloadExample")}
-                icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
-                iconVisible
-                iconSide="left"
-                onClick={handleDownloadCsvExample}
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                title={t("contacts.uploadCsv")}
-                icon={<UploadSimple className="h-4 w-4" weight="bold" />}
-                iconVisible
-                iconSide="left"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isLoadingCsv}
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                title={t("contacts.addContact")}
-                icon={<Plus className="h-4 w-4" weight="bold" />}
-                iconVisible
-                iconSide="left"
-                onClick={() =>
-                  append({ number: "", name: "", variables: [], metadata: {} })
-                }
-              />
-            </div>
-          </div>
-
-          {isLoadingCsv && (
-            <div className="mb-4">
-              <ProgressBar
-                progress={loadingProgress}
-                label={t("contacts.importing")}
-              />
-            </div>
-          )}
-
-          {csvError && (
-            <div className="mb-4 rounded-lg border border-border bg-muted p-3">
-              <p className="text-sm text-destructive-ink">{csvError}</p>
-            </div>
-          )}
-
-          {skippedLines.length > 0 && (
-            <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 text-left"
-                onClick={() => {
-                  setSkippedLinesOpen(!skippedLinesOpen);
-                  setSkippedPage(0);
-                }}
-              >
-                <Warning
-                  className="h-5 w-5 flex-shrink-0 text-warning-ink"
-                  weight="bold"
-                />
-                <span className="flex-1 text-sm font-semibold text-warning-ink">
-                  {t("csv.skippedTitle", { count: skippedLines.length })}
-                </span>
-                <CaretDown
-                  className={`h-4 w-4 text-warning-ink transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
-                  weight="bold"
-                />
-              </button>
-              {skippedLinesOpen &&
-                (() => {
-                  const totalPages = Math.ceil(
-                    skippedLines.length / SKIPPED_PAGE_SIZE,
-                  );
-                  const start = skippedPage * SKIPPED_PAGE_SIZE;
-                  const pageItems = skippedLines.slice(
-                    start,
-                    start + SKIPPED_PAGE_SIZE,
-                  );
-                  return (
-                    <div className="mt-3">
-                      <div className="max-h-60 space-y-1.5 overflow-y-auto">
-                        {pageItems.map((sl) => (
+                  {selectedTemplate.components.find(
+                    (c) => c.type === "BUTTONS",
+                  )?.buttons?.length ? (
+                    <div className="border-t border-border">
+                      {selectedTemplate.components
+                        .find((c) => c.type === "BUTTONS")
+                        ?.buttons?.map((button, index) => (
                           <div
-                            key={sl.line}
-                            className="rounded-lg bg-warning px-3 py-2 text-xs text-warning-foreground"
+                            key={index}
+                            className="w-full px-3 py-2 text-sm font-medium text-[#00a884] text-center border-b border-border last:border-b-0"
                           >
-                            <span className="font-semibold">
-                              {t("csv.skippedLineLabel", { line: sl.line })}
-                            </span>{" "}
-                            <span className="break-all font-mono text-warning-ink">
-                              {sl.rawContent}
-                            </span>
+                            {button.text}
                           </div>
                         ))}
-                      </div>
-                      {totalPages > 1 && (
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-xs text-warning-ink">
-                            {start + 1} →{" "}
-                            {Math.min(
-                              start + SKIPPED_PAGE_SIZE,
-                              skippedLines.length,
-                            )}{" "}
-                            / {skippedLines.length.toLocaleString()}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              disabled={skippedPage === 0}
-                              onClick={() => setSkippedPage((p) => p - 1)}
-                              className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
-                            >
-                              <CaretLeft className="h-4 w-4" weight="bold" />
-                            </button>
-                            <span className="text-xs text-warning-ink">
-                              {skippedPage + 1} / {totalPages.toLocaleString()}
-                            </span>
-                            <button
-                              type="button"
-                              disabled={skippedPage >= totalPages - 1}
-                              onClick={() => setSkippedPage((p) => p + 1)}
-                              className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
-                            >
-                              <CaretRight className="h-4 w-4" weight="bold" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  );
-                })()}
-            </div>
-          )}
-
-          {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
-            missingVariablesCount > 0 && (
-              <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
-                <div className="flex items-start gap-3">
-                  <Warning
-                    className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
-                    weight="bold"
-                  />
-                  <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-warning-ink">
-                      {t("validation.missingVariablesTitle")}
-                    </h4>
-                    <p className="text-sm text-warning-ink mt-1">
-                      {t("validation.missingVariablesDescription", {
-                        count: missingVariablesCount,
-                      })}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowOnlyMissingVars(true);
-                        setCurrentPage(0);
-                      }}
-                      className="mt-2 text-sm font-medium text-warning-ink hover:text-warning-ink underline"
-                    >
-                      {t("validation.showMissingVariables")}
-                    </button>
-                  </div>
+                  ) : null}
                 </div>
               </div>
-            )}
 
-          <div className="mb-4 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <MagnifyingGlass
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                weight="bold"
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(0);
-                }}
-                placeholder={t("contacts.searchPlaceholder")}
-                className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-healthy focus:border-transparent"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+              <div ref={templateConfirmRef}>
+                <GrainBackground
+                  palette={"alert"}
+                  seed={20000}
+                  className={cn(
+                    "rounded-lg border p-3 transition-shadow",
+                    highlightTemplateConfirm &&
+                      !templateInfoConfirmed &&
+                      "ring-2 ring-destructive-ink",
+                  )}
+                  data-tour="wc-confirm-template"
                 >
-                  <X className="h-4 w-4" weight="bold" />
-                </button>
-              )}
-            </div>
-
-            {(templateVariables.length > 0 ||
-              requiredCampaignVars.length > 0) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setShowOnlyMissingVars(!showOnlyMissingVars);
-                  setCurrentPage(0);
-                }}
-                className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                  showOnlyMissingVars
-                    ? "bg-warning border-warning text-warning-foreground"
-                    : "bg-card border-border text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <Warning
-                  className="h-4 w-4"
-                  weight={showOnlyMissingVars ? "fill" : "bold"}
-                />
-                {t("contacts.filterMissingVars")}
-                {missingVariablesCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-muted text-warning-ink">
-                    {missingVariablesCount}
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
-
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {t("contacts.total")}: <strong>{fields.length}</strong>
-              {(searchQuery || showOnlyMissingVars) && (
-                <span className="ml-2 text-muted-foreground">
-                  ({t("contacts.showing")} {filteredFields.length})
-                </span>
-              )}
-            </p>
-            {(searchQuery || showOnlyMissingVars) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  setShowOnlyMissingVars(false);
-                  setCurrentPage(0);
-                }}
-                className="text-sm text-healthy-ink hover:text-healthy-ink font-medium"
-              >
-                {t("contacts.clearFilters")}
-              </button>
-            )}
-          </div>
-
-          {metadataFields.length > 0 && (
-            <div className="mb-4 space-y-2" data-tour="wc-metadata">
-              <h3 className="text-sm font-semibold text-foreground">
-                {t("contacts.metadataFields")}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {metadataFields.map((field) => (
-                  <div
-                    key={field.key}
-                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
-                      field.required ? "bg-muted" : "bg-muted"
-                    }`}
-                  >
-                    <span
-                      className={`text-sm ${field.required ? "text-warning-ink font-medium" : "text-healthy-ink"}`}
-                    >
-                      {field.label}
-                      {field.required ? " *" : ""}
-                    </span>
-                    {!field.required && (
-                      <button
-                        type="button"
-                        onClick={() => removeMetadataField(field.key)}
-                        className="text-healthy-ink hover:text-healthy-ink"
-                      >
-                        <X className="h-3 w-3" weight="bold" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  <ElevatedSwitch
+                    checked={templateInfoConfirmed}
+                    onCheckedChange={(checked) => {
+                      setTemplateInfoConfirmed(checked);
+                      if (checked) setHighlightTemplateConfirm(false);
+                    }}
+                    label={t("validation.confirmTemplateLabel")}
+                  />
+                  {mode === "create" && !templateInfoConfirmed ? (
+                    <p className="mt-2 text-xs text-destructive-ink">
+                      {t("validation.confirmTemplateRequired")}
+                    </p>
+                  ) : null}
+                </GrainBackground>
               </div>
             </div>
           )}
+        </ElevatedContainer>
+      </div>
 
-          <div className="mb-4 flex items-center gap-2">
-            <ElevatedInput
-              label={t("contacts.newMetadataField")}
-              value={newFieldKey}
-              onChange={(e) => setNewFieldKey(e.target.value)}
-              controlSize="sm"
-              placeholder={t("contacts.metadataFieldPlaceholder")}
+      <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
+            {t("contacts.title")}
+          </h2>
+          <div className="flex items-center gap-2" data-tour="wc-csv-buttons">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleCsvUpload}
+              className="hidden"
             />
             <Button
               type="button"
               variant="secondary"
-              title={t("contacts.addField")}
+              title={t("contacts.downloadExample")}
+              icon={<DownloadSimple className="h-4 w-4" weight="bold" />}
+              iconVisible
+              iconSide="left"
+              onClick={handleDownloadCsvExample}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              title={t("contacts.uploadCsv")}
+              icon={<UploadSimple className="h-4 w-4" weight="bold" />}
+              iconVisible
+              iconSide="left"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoadingCsv}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              title={t("contacts.addContact")}
               icon={<Plus className="h-4 w-4" weight="bold" />}
               iconVisible
-              onClick={addMetadataField}
-              disabled={!newFieldKey}
+              iconSide="left"
+              onClick={() =>
+                append({ number: "", name: "", variables: [], metadata: {} })
+              }
             />
           </div>
+        </div>
 
-          <div className="space-y-3">
-            {paginatedFields.map(({ field, originalIndex }, index) => {
-              const hasVariables = templateVariables.length > 0;
-              const hasMetadata = metadataFields.length > 0;
-              const isMissingVars =
-                (hasVariables || requiredCampaignVars.length > 0) &&
-                hasMissingVariables(phoneNumbersSnapshot[originalIndex] || {});
+        {isLoadingCsv && (
+          <div className="mb-4">
+            <ProgressBar
+              progress={loadingProgress}
+              label={t("contacts.importing")}
+            />
+          </div>
+        )}
 
-              const numberSpan =
-                hasVariables || hasMetadata ? "col-span-3" : "col-span-5";
-              const nameSpan =
-                hasVariables || hasMetadata ? "col-span-2" : "col-span-6";
-              const variablesSpan = hasVariables
-                ? hasMetadata
-                  ? "col-span-3"
-                  : "col-span-6"
-                : "";
-              const metadataSpan = hasMetadata
-                ? hasVariables
-                  ? "col-span-3"
-                  : "col-span-4"
-                : "";
+        {csvError && (
+          <div className="mb-4 rounded-lg border border-border bg-muted p-3">
+            <p className="text-sm text-destructive-ink">{csvError}</p>
+          </div>
+        )}
 
-              return (
-                <div
-                  key={field.id}
-                  className={`grid grid-cols-12 gap-3 items-start rounded-lg p-2 -mx-2 ${
-                    isMissingVars
-                      ? "bg-muted border border-border"
-                      : ""
-                  }`}
-                >
-                  <div className={numberSpan}>
-                    <ElevatedInput
-                      label={index === 0 ? t("contacts.number") : undefined}
-                      {...register(`phoneNumbers.${originalIndex}.number`)}
-                      controlSize="sm"
-                      placeholder="558499999999"
-                    />
-                    <FieldError
-                      message={
-                        errors.phoneNumbers?.[originalIndex]?.number?.message
-                      }
-                    />
-                  </div>
-                  <div className={nameSpan}>
-                    <ElevatedInput
-                      label={index === 0 ? t("contacts.name") : undefined}
-                      {...register(`phoneNumbers.${originalIndex}.name`)}
-                      controlSize="sm"
-                      placeholder={t("contacts.namePlaceholder")}
-                    />
-                    <FieldError
-                      message={
-                        errors.phoneNumbers?.[originalIndex]?.name?.message
-                      }
-                    />
-                  </div>
-                  {hasVariables && (
-                    <div className={variablesSpan}>
-                      <div className="flex gap-2">
-                        {templateVariables.map((varPlaceholder, varIdx) => (
-                          <div key={`var-${varIdx}`} className="flex-1">
-                            <ElevatedInput
-                              label={index === 0 ? varPlaceholder : undefined}
-                              {...register(
-                                `phoneNumbers.${originalIndex}.variables.${varIdx}`,
-                              )}
-                              controlSize="sm"
-                              placeholder={varPlaceholder}
-                            />
-                            <FieldError
-                              message={
-                                errors.phoneNumbers?.[originalIndex]
-                                  ?.variables?.[varIdx]?.message
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
+        {skippedLines.length > 0 && (
+          <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 text-left"
+              onClick={() => {
+                setSkippedLinesOpen(!skippedLinesOpen);
+                setSkippedPage(0);
+              }}
+            >
+              <Warning
+                className="h-5 w-5 flex-shrink-0 text-warning-ink"
+                weight="bold"
+              />
+              <span className="flex-1 text-sm font-semibold text-warning-ink">
+                {t("csv.skippedTitle", { count: skippedLines.length })}
+              </span>
+              <CaretDown
+                className={`h-4 w-4 text-warning-ink transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
+                weight="bold"
+              />
+            </button>
+            {skippedLinesOpen &&
+              (() => {
+                const totalPages = Math.ceil(
+                  skippedLines.length / SKIPPED_PAGE_SIZE,
+                );
+                const start = skippedPage * SKIPPED_PAGE_SIZE;
+                const pageItems = skippedLines.slice(
+                  start,
+                  start + SKIPPED_PAGE_SIZE,
+                );
+                return (
+                  <div className="mt-3">
+                    <div className="max-h-60 space-y-1.5 overflow-y-auto">
+                      {pageItems.map((sl) => (
+                        <div
+                          key={sl.line}
+                          className="rounded-lg bg-warning px-3 py-2 text-xs text-warning-foreground"
+                        >
+                          <span className="font-semibold">
+                            {t("csv.skippedLineLabel", { line: sl.line })}
+                          </span>{" "}
+                          <span className="break-all font-mono text-warning-ink">
+                            {sl.rawContent}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                  {hasMetadata && (
-                    <div className={metadataSpan}>
-                      <div className="flex gap-2">
-                        {metadataFields.map((metaField) => (
-                          <ElevatedInput
-                            key={metaField.key}
-                            label={index === 0 ? metaField.label : undefined}
-                            {...register(
-                              `phoneNumbers.${originalIndex}.metadata.${metaField.key}`,
-                            )}
-                            controlSize="sm"
-                            placeholder={metaField.label}
-                          />
-                        ))}
+                    {totalPages > 1 && (
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-xs text-warning-ink">
+                          {start + 1} →{" "}
+                          {Math.min(
+                            start + SKIPPED_PAGE_SIZE,
+                            skippedLines.length,
+                          )}{" "}
+                          / {skippedLines.length.toLocaleString()}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={skippedPage === 0}
+                            onClick={() => setSkippedPage((p) => p - 1)}
+                            className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
+                          >
+                            <CaretLeft className="h-4 w-4" weight="bold" />
+                          </button>
+                          <span className="text-xs text-warning-ink">
+                            {skippedPage + 1} / {totalPages.toLocaleString()}
+                          </span>
+                          <button
+                            type="button"
+                            disabled={skippedPage >= totalPages - 1}
+                            onClick={() => setSkippedPage((p) => p + 1)}
+                            className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
+                          >
+                            <CaretRight className="h-4 w-4" weight="bold" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <div className="col-span-1 flex items-end justify-end">
-                    {fields.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => remove(originalIndex)}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive-ink transition-colors hover:bg-muted"
-                      >
-                        <Trash className="h-4 w-4" weight="bold" />
-                      </button>
                     )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })()}
           </div>
+        )}
 
-          {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
-                disabled={currentPage === 0}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <CaretLeft className="h-4 w-4" weight="bold" />
-                {t("contacts.previous")}
-              </button>
-              <span className="text-sm text-muted-foreground">
-                {t("contacts.page", {
-                  current: currentPage + 1,
-                  total: totalPages,
-                })}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages - 1, p + 1))
-                }
-                disabled={currentPage === totalPages - 1}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {t("contacts.next")}
-                <CaretRight className="h-4 w-4" weight="bold" />
-              </button>
+        {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
+          missingVariablesCount > 0 && (
+            <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
+              <div className="flex items-start gap-3">
+                <Warning
+                  className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
+                  weight="bold"
+                />
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-warning-ink">
+                    {t("validation.missingVariablesTitle")}
+                  </h4>
+                  <p className="text-sm text-warning-ink mt-1">
+                    {t("validation.missingVariablesDescription", {
+                      count: missingVariablesCount,
+                    })}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOnlyMissingVars(true);
+                      setCurrentPage(0);
+                    }}
+                    className="mt-2 text-sm font-medium text-warning-ink hover:text-warning-ink underline"
+                  >
+                    {t("validation.showMissingVariables")}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
-        </ElevatedContainer>
-      )}
+
+        <div className="mb-4 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <MagnifyingGlass
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              weight="bold"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(0);
+              }}
+              placeholder={t("contacts.searchPlaceholder")}
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-healthy focus:border-transparent"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+              >
+                <X className="h-4 w-4" weight="bold" />
+              </button>
+            )}
+          </div>
+
+          {(templateVariables.length > 0 ||
+            requiredCampaignVars.length > 0) && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowOnlyMissingVars(!showOnlyMissingVars);
+                setCurrentPage(0);
+              }}
+              className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                showOnlyMissingVars
+                  ? "bg-warning border-warning text-warning-foreground"
+                  : "bg-card border-border text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Warning
+                className="h-4 w-4"
+                weight={showOnlyMissingVars ? "fill" : "bold"}
+              />
+              {t("contacts.filterMissingVars")}
+              {missingVariablesCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-muted text-warning-ink">
+                  {missingVariablesCount}
+                </span>
+              )}
+            </button>
+          )}
+        </div>
+
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {t("contacts.total")}: <strong>{fields.length}</strong>
+            {(searchQuery || showOnlyMissingVars) && (
+              <span className="ml-2 text-muted-foreground">
+                ({t("contacts.showing")} {filteredFields.length})
+              </span>
+            )}
+          </p>
+          {(searchQuery || showOnlyMissingVars) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setShowOnlyMissingVars(false);
+                setCurrentPage(0);
+              }}
+              className="text-sm text-healthy-ink hover:text-healthy-ink font-medium"
+            >
+              {t("contacts.clearFilters")}
+            </button>
+          )}
+        </div>
+
+        {metadataFields.length > 0 && (
+          <div className="mb-4 space-y-2" data-tour="wc-metadata">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("contacts.metadataFields")}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {metadataFields.map((field) => (
+                <div
+                  key={field.key}
+                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
+                    field.required ? "bg-muted" : "bg-muted"
+                  }`}
+                >
+                  <span
+                    className={`text-sm ${field.required ? "text-warning-ink font-medium" : "text-healthy-ink"}`}
+                  >
+                    {field.label}
+                    {field.required ? " *" : ""}
+                  </span>
+                  {!field.required && (
+                    <button
+                      type="button"
+                      onClick={() => removeMetadataField(field.key)}
+                      className="text-healthy-ink hover:text-healthy-ink"
+                    >
+                      <X className="h-3 w-3" weight="bold" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-4 flex items-center gap-2">
+          <ElevatedInput
+            label={t("contacts.newMetadataField")}
+            value={newFieldKey}
+            onChange={(e) => setNewFieldKey(e.target.value)}
+            controlSize="sm"
+            placeholder={t("contacts.metadataFieldPlaceholder")}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            title={t("contacts.addField")}
+            icon={<Plus className="h-4 w-4" weight="bold" />}
+            iconVisible
+            onClick={addMetadataField}
+            disabled={!newFieldKey}
+          />
+        </div>
+
+        <div className="space-y-3">
+          {paginatedFields.map(({ field, originalIndex }, index) => {
+            const hasVariables = templateVariables.length > 0;
+            const hasMetadata = metadataFields.length > 0;
+            const isMissingVars =
+              (hasVariables || requiredCampaignVars.length > 0) &&
+              hasMissingVariables(phoneNumbersSnapshot[originalIndex] || {});
+
+            const numberSpan =
+              hasVariables || hasMetadata ? "col-span-3" : "col-span-5";
+            const nameSpan =
+              hasVariables || hasMetadata ? "col-span-2" : "col-span-6";
+            const variablesSpan = hasVariables
+              ? hasMetadata
+                ? "col-span-3"
+                : "col-span-6"
+              : "";
+            const metadataSpan = hasMetadata
+              ? hasVariables
+                ? "col-span-3"
+                : "col-span-4"
+              : "";
+
+            return (
+              <div
+                key={field.id}
+                className={`grid grid-cols-12 gap-3 items-start rounded-lg p-2 -mx-2 ${
+                  isMissingVars
+                    ? "bg-muted border border-border"
+                    : ""
+                }`}
+              >
+                <div className={numberSpan}>
+                  <ElevatedInput
+                    label={index === 0 ? t("contacts.number") : undefined}
+                    {...register(`phoneNumbers.${originalIndex}.number`)}
+                    controlSize="sm"
+                    placeholder="558499999999"
+                  />
+                  <FieldError
+                    message={
+                      errors.phoneNumbers?.[originalIndex]?.number?.message
+                    }
+                  />
+                </div>
+                <div className={nameSpan}>
+                  <ElevatedInput
+                    label={index === 0 ? t("contacts.name") : undefined}
+                    {...register(`phoneNumbers.${originalIndex}.name`)}
+                    controlSize="sm"
+                    placeholder={t("contacts.namePlaceholder")}
+                  />
+                  <FieldError
+                    message={
+                      errors.phoneNumbers?.[originalIndex]?.name?.message
+                    }
+                  />
+                </div>
+                {hasVariables && (
+                  <div className={variablesSpan}>
+                    <div className="flex gap-2">
+                      {templateVariables.map((varPlaceholder, varIdx) => (
+                        <div key={`var-${varIdx}`} className="flex-1">
+                          <ElevatedInput
+                            label={index === 0 ? varPlaceholder : undefined}
+                            {...register(
+                              `phoneNumbers.${originalIndex}.variables.${varIdx}`,
+                            )}
+                            controlSize="sm"
+                            placeholder={varPlaceholder}
+                          />
+                          <FieldError
+                            message={
+                              errors.phoneNumbers?.[originalIndex]
+                                ?.variables?.[varIdx]?.message
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {hasMetadata && (
+                  <div className={metadataSpan}>
+                    <div className="flex gap-2">
+                      {metadataFields.map((metaField) => (
+                        <ElevatedInput
+                          key={metaField.key}
+                          label={index === 0 ? metaField.label : undefined}
+                          {...register(
+                            `phoneNumbers.${originalIndex}.metadata.${metaField.key}`,
+                          )}
+                          controlSize="sm"
+                          placeholder={metaField.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="col-span-1 flex items-end justify-end">
+                  {fields.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(originalIndex)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive-ink transition-colors hover:bg-muted"
+                    >
+                      <Trash className="h-4 w-4" weight="bold" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+              disabled={currentPage === 0}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CaretLeft className="h-4 w-4" weight="bold" />
+              {t("contacts.previous")}
+            </button>
+            <span className="text-sm text-muted-foreground">
+              {t("contacts.page", {
+                current: currentPage + 1,
+                total: totalPages,
+              })}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((p) => Math.min(totalPages - 1, p + 1))
+              }
+              disabled={currentPage === totalPages - 1}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t("contacts.next")}
+              <CaretRight className="h-4 w-4" weight="bold" />
+            </button>
+          </div>
+        )}
+      </ElevatedContainer>
 
       <div className="flex items-center justify-between" data-tour="wc-submit">
         <Link href="/dashboard/whatsapp-campaigns">

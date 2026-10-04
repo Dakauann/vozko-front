@@ -1,3 +1,4 @@
+import type { NumberAutomation, NumberAutomationConfig } from '@/lib/whatsapp-business-phones/automation';
 import type {
     BusinessPhoneListMeta,
     BusinessPhoneListParams,
@@ -419,4 +420,23 @@ export async function getWhatsAppOnboardingConfigAction(): Promise<{
         return { config: null, error: response.error.message };
     }
     return { config: response.data ?? null, error: null };
+}
+
+function numberAutomationPath(phoneId: string) {
+    return `/whatsapp/business-phones/${phoneId}/automation`;
+}
+
+export async function getNumberAutomationAction(phoneId: string) {
+    const response = await apiClient<NumberAutomation>(numberAutomationPath(phoneId), { method: 'GET' });
+    if (response.error) return { error: response.error.message, status: response.error.status };
+    return { account: response.data };
+}
+
+export async function updateNumberAutomationAction(phoneId: string, config: NumberAutomationConfig) {
+    const response = await apiClient<NumberAutomation>(numberAutomationPath(phoneId), {
+        method: 'PUT',
+        body: JSON.stringify(config),
+    });
+    if (response.error) return { error: response.error.message, status: response.error.status };
+    return { account: response.data };
 }

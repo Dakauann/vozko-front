@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
         : false,
   },
   productionBrowserSourceMaps: false,
+  async redirects() {
+    return ["/:locale(pt|en|es|de)/dashboard", "/dashboard"].map((prefix) => ({
+      source: `${prefix}/whatsapp-campaigns/:retired(organic|new-organic)`,
+      destination: `${prefix}/whatsapp-business-phones`,
+      permanent: true,
+    }));
+  },
   images: {
     localPatterns: [
       {

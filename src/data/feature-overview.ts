@@ -65,22 +65,6 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     seed: 77,
   },
 
-  whatsappCampaignsOrganic: {
-    features: [
-      { icon: ChatCircle, textKey: "whatsappCampaignsOrganic.features.0" },
-      { icon: Brain, textKey: "whatsappCampaignsOrganic.features.1" },
-      { icon: Monitor, textKey: "whatsappCampaignsOrganic.features.2" },
-      { icon: Buildings, textKey: "whatsappCampaignsOrganic.features.3" },
-    ],
-    palette: [
-      { colors: ["#06b6d4", "#0891b2"], weight: 40 },
-      { colors: ["#0e7490", "#155e75"], weight: 30 },
-      { colors: ["#22d3ee", "#67e8f9"], weight: 20 },
-      { colors: ["#cffafe", "#a5f3fc"], weight: 10 },
-    ],
-    seed: 78,
-  },
-
   campaigns: {
     features: [
       { icon: PhoneCall, textKey: "campaigns.features.0" },

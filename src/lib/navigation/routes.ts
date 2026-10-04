@@ -25,8 +25,6 @@ export const screenPaths = {
   whatsapp_campaigns: "/dashboard/whatsapp-campaigns",
   whatsapp_campaigns_archived: "/dashboard/whatsapp-campaigns/archived",
   whatsapp_campaign_new: "/dashboard/whatsapp-campaigns/new",
-  organic_campaigns: "/dashboard/whatsapp-campaigns/organic",
-  organic_campaign_new: "/dashboard/whatsapp-campaigns/new-organic",
   whatsapp_campaign_detail: "/dashboard/whatsapp-campaigns/[campaignId]",
   whatsapp_campaign_edit: "/dashboard/whatsapp-campaigns/[campaignId]/edit",
   whatsapp_campaign_crm: "/dashboard/whatsapp-campaigns/[campaignId]/crm",

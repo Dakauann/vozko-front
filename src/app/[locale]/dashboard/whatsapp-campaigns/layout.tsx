@@ -8,19 +8,7 @@ export default function WhatsAppCampaignsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <FeaturePageLayout
-      featureKey="whatsappCampaigns"
-      variants={[
-        {
-          match: "/whatsapp-campaigns/organic",
-          featureKey: "whatsappCampaignsOrganic",
-        },
-        {
-          match: "/whatsapp-campaigns/new-organic",
-          featureKey: "whatsappCampaignsOrganic",
-        },
-      ]}
-    >
+    <FeaturePageLayout featureKey="whatsappCampaigns">
       {children}
     </FeaturePageLayout>
   );
