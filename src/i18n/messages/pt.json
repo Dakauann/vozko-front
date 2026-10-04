@@ -17657,6 +17657,10 @@
       "updated": "Atualizado {when}",
       "never": "Ainda não sincronizada"
     },
+    "todaySpend": {
+      "body": "Os {amount} gastos hoje não entram neste período, que termina ontem, como na Meta.",
+      "action": "Ver hoje"
+    },
     "connect": {
       "errorTitle": "Não foi possível conectar",
       "partialTitle": "Conexão parcial",

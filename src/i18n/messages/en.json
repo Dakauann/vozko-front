@@ -17618,6 +17618,10 @@
       "updated": "Updated {when}",
       "never": "Not synced yet"
     },
+    "todaySpend": {
+      "body": "The {amount} spent today is not in this period, which ends yesterday, as in Meta.",
+      "action": "See today"
+    },
     "connect": {
       "errorTitle": "Could not connect",
       "partialTitle": "Partially connected",

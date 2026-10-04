@@ -29,6 +29,7 @@ export function accountStorageKey(workspaceId: string): string {
 }
 
 export const COLUMNS_STORAGE_KEY = "advertising:columns";
+export const RANGE_STORAGE_KEY = "advertising:range";
 
 export function readStored(key: string): string | null {
   try {

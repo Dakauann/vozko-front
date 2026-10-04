@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatLongDay,
+  leavesOutToday,
+  storedPreset,
+  DEFAULT_PRESET,
   MAXIMUM_MONTHS,
   RANGE_PRESETS,
   addDays,
@@ -170,5 +173,29 @@ describe("formatLongDay", () => {
   it("writes a calendar day out in full, without shifting it across time zones", () => {
     expect(formatLongDay("2026-10-03", "pt-BR")).toBe("3 de outubro de 2026");
     expect(formatLongDay("not a day", "pt-BR")).toBe("not a day");
+  });
+});
+
+describe("leavesOutToday", () => {
+  it("flags the ranges that end before today, so today's spend is pointed out", () => {
+    expect(leavesOutToday(rangeForPreset("last30", "2026-10-04"), "2026-10-04")).toBe(true);
+    expect(leavesOutToday(rangeForPreset("yesterday", "2026-10-04"), "2026-10-04")).toBe(true);
+    expect(leavesOutToday(rangeForPreset("today", "2026-10-04"), "2026-10-04")).toBe(false);
+    expect(leavesOutToday(rangeForPreset("maximum", "2026-10-04"), "2026-10-04")).toBe(false);
+    expect(leavesOutToday(null, "2026-10-04")).toBe(false);
+    expect(leavesOutToday(rangeForPreset("last30", "2026-10-04"), null)).toBe(false);
+  });
+});
+
+describe("storedPreset", () => {
+  it("brings back the last preset the person picked", () => {
+    expect(storedPreset("today")).toBe("today");
+    expect(storedPreset("last7")).toBe("last7");
+  });
+
+  it("falls back to Meta's default for nothing, junk or a custom range whose dates go stale", () => {
+    expect(storedPreset(null)).toBe(DEFAULT_PRESET);
+    expect(storedPreset("forever")).toBe(DEFAULT_PRESET);
+    expect(storedPreset("custom")).toBe(DEFAULT_PRESET);
   });
 });

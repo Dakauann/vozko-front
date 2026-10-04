@@ -16627,6 +16627,10 @@
       "updated": "Aktualisiert {when}",
       "never": "Noch nicht synchronisiert"
     },
+    "todaySpend": {
+      "body": "Die heute ausgegebenen {amount} sind nicht in diesem Zeitraum, der wie bei Meta gestern endet.",
+      "action": "Heute ansehen"
+    },
     "connect": {
       "errorTitle": "Verbindung fehlgeschlagen",
       "partialTitle": "Teilweise verbunden",

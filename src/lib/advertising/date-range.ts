@@ -123,6 +123,15 @@ export function rangeForPreset(preset: Exclude<RangePreset, "custom">, today: st
   }
 }
 
+export function storedPreset(raw: string | null): RangePreset {
+  const preset = RANGE_PRESETS.find((candidate) => candidate === raw);
+  return preset && preset !== "custom" ? preset : DEFAULT_PRESET;
+}
+
+export function leavesOutToday(range: AdRange | null, today: string | null): boolean {
+  return !!range && !!today && range.until < today;
+}
+
 export function validRange(range: AdRange): boolean {
   return isDay(range.since) && isDay(range.until) && range.since <= range.until;
 }

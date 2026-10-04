@@ -45,8 +45,8 @@ import {
   type RowSort,
   type SortableColumn,
 } from "@/lib/advertising/columns";
-import { ADVERTISING_PATH, COLUMNS_STORAGE_KEY, draftEditorHref, objectEditorHref, objectsEditorHref, readStored, writeStored } from "@/lib/advertising/connect";
-import { DEFAULT_PRESET, civilToday, relativeSince, resolveRange } from "@/lib/advertising/date-range";
+import { ADVERTISING_PATH, COLUMNS_STORAGE_KEY, RANGE_STORAGE_KEY, draftEditorHref, objectEditorHref, objectsEditorHref, readStored, writeStored } from "@/lib/advertising/connect";
+import { DEFAULT_PRESET, civilToday, leavesOutToday, relativeSince, resolveRange, storedPreset } from "@/lib/advertising/date-range";
 import { manageBlockerKey, spendBlockerKey } from "@/lib/advertising/delivery";
 import { issuesUnder, withBudgetMinimum } from "@/lib/advertising/issues";
 import { liveById, mergeLiveRows, withLiveResults, type LiveFetch } from "@/lib/advertising/live";
@@ -93,6 +93,7 @@ import { AbTestDialog } from "./ab-test-dialog";
 import { AbTestsSheet } from "./ab-tests-sheet";
 import { AdsColumnsMenu } from "./ads-columns-menu";
 import { AdsDateRangePicker, type RangeChoice } from "./ads-date-range-picker";
+import { TodaySpendHint } from "./manager/today-spend-hint";
 import { AdsTable } from "./ads-table";
 import { BreakdownSheet, type BreakdownRequest } from "./breakdown-sheet";
 import { CreateCampaignDialog, type CreateParent } from "./create/create-campaign-dialog";
@@ -134,6 +135,11 @@ interface LoadedData {
 
 interface ReviewRequest {
   preselected: string[] | null;
+}
+
+function initialRange(): RangeChoice {
+  const preset = typeof window === "undefined" ? DEFAULT_PRESET : storedPreset(readStored(RANGE_STORAGE_KEY));
+  return { preset, custom: { since: "", until: "" }, comparing: false };
 }
 
 function initialColumns(): MetricColumn[] {
@@ -181,7 +187,7 @@ export function AdsManager() {
   const createRequested = searchParams.get("create") === "1";
 
   const [now, setNow] = useState(() => new Date());
-  const [rangeChoice, setRangeChoice] = useState<RangeChoice>({ preset: DEFAULT_PRESET, custom: { since: "", until: "" }, comparing: false });
+  const [rangeChoice, setRangeChoice] = useState<RangeChoice>(initialRange);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, SEARCH_DELAY_MS);
   const [view, setView] = useState<QuickView>("all");
@@ -396,6 +402,11 @@ export function AdsManager() {
       writeStored(COLUMNS_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
+  };
+
+  const chooseRange = (choice: RangeChoice) => {
+    writeStored(RANGE_STORAGE_KEY, choice.preset);
+    setRangeChoice(choice);
   };
 
   const choosePreset = (preset: ColumnPreset) => {
@@ -964,8 +975,17 @@ export function AdsManager() {
           selected={{ campaign: selection.campaign.size, adset: selection.adset.size, ad: selection.ad.size }}
           counts={{ campaign: levelCount("campaign"), adset: levelCount("adset"), ad: levelCount("ad") }}
           onClear={(target) => setSelection(selectAt(selection, target, new Set()))}
-          aside={<AdsDateRangePicker value={rangeChoice} today={today} timezone={account.timezone} onApply={setRangeChoice} />}
+          aside={<AdsDateRangePicker value={rangeChoice} today={today} timezone={account.timezone} onApply={chooseRange} />}
         />
+        {today && leavesOutToday(range, today) ? (
+          <TodaySpendHint
+            accountId={account.id}
+            today={today}
+            currency={account.currency}
+            reloadToken={reloadToken}
+            onShowToday={() => chooseRange({ ...rangeChoice, preset: "today" })}
+          />
+        ) : null}
 
         <SelectionToolbar
           states={{
