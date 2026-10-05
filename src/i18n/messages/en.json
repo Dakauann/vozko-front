@@ -1239,8 +1239,8 @@
           "automation_released": "Automation paused, team queue",
           "automation_taken_over": "Taken over by pausing automation",
           "automation_resumed": "Handed back to automation",
-          "inbound_outreach": "Reply to outreach",
-          "outreach_sent": "Outreach sent"
+          "inbound_outreach": "Reply to the agent's outreach",
+          "outreach_sent": "On sending a message"
         }
       },
       "aiSessionEnd": {

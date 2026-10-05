@@ -1239,8 +1239,8 @@
           "automation_released": "Automatización pausada, cola del equipo",
           "automation_taken_over": "Asumida al pausar la automatización",
           "automation_resumed": "Devuelta a la automatización",
-          "inbound_outreach": "Respuesta a envío",
-          "outreach_sent": "Envío realizado"
+          "inbound_outreach": "Respuesta al envío del agente",
+          "outreach_sent": "Al enviar un mensaje"
         }
       },
       "aiSessionEnd": {

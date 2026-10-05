@@ -1239,8 +1239,8 @@
           "automation_released": "Automação pausada, fila da equipe",
           "automation_taken_over": "Assumida ao pausar a automação",
           "automation_resumed": "Devolvida para a automação",
-          "inbound_outreach": "Resposta a disparo",
-          "outreach_sent": "Disparo enviado"
+          "inbound_outreach": "Resposta ao envio do atendente",
+          "outreach_sent": "Ao enviar mensagem"
         }
       },
       "aiSessionEnd": {
