@@ -41,6 +41,7 @@ import {
   getExchangeRateAction,
   getPricingAuditLogAction,
   updateDefaultPricingItemAction,
+  updateDefaultPricingItemCostAction,
   updateExchangeRateAction,
 } from "@/app/actions/pricing";
 import {
@@ -58,12 +59,14 @@ import {
   microsToUsdNumber,
 } from "@/lib/pricing/money";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { Icon } from "@/components/icons";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { useToast } from "@/hooks/use-toast";
+import { auditChangeOf } from "@/lib/pricing/audit";
 import { useTranslations } from "next-intl";
 const CATEGORY_ICONS: Record<string, Icon> = {
   tts: SpeakerHigh,
@@ -96,6 +99,14 @@ function formatDate(value?: string | null) {
 }
 
 
+type AmountField = "price" | "cost";
+
+const AMOUNT_FIELDS: AmountField[] = ["price", "cost"];
+
+function amountOf(item: PricingItem, field: AmountField): number {
+  return field === "cost" ? item.costMicros : item.priceMicros;
+}
+
 export default function AdminPricingPage() {
   const t = useTranslations("adminPricing");
   const { toast } = useToast();
@@ -109,7 +120,7 @@ export default function AdminPricingPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState("defaults");
 
-  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editing, setEditing] = React.useState<{ id: string; field: AmountField } | null>(null);
   const [editValueBrl, setEditValueBrl] = React.useState("");
   const [saving, setSaving] = React.useState(false);
 
@@ -152,7 +163,29 @@ export default function AdminPricingPage() {
     loadData();
   }, [loadData]);
 
-  const handleSaveItem = async (item: PricingItem) => {
+  const startEditing = (item: PricingItem, field: AmountField) => {
+    if (rateNumber == null) return;
+    setEditing({ id: item.id, field });
+    setEditValueBrl(usdMicrosToBrlInput(amountOf(item, field), rateNumber));
+  };
+
+  const saveAmount = (item: PricingItem, field: AmountField, micros: number) =>
+    field === "cost"
+      ? updateDefaultPricingItemCostAction({
+          category: item.category,
+          service: item.service,
+          metric: item.metric,
+          costMicros: micros,
+        })
+      : updateDefaultPricingItemAction({
+          category: item.category,
+          service: item.service,
+          metric: item.metric,
+          priceMicros: micros,
+          currency: item.currency,
+        });
+
+  const handleSaveItem = async (item: PricingItem, field: AmountField) => {
     if (rateNumber == null) {
       toast({
         title: t("form.error.exchangeRateRequired"),
@@ -172,13 +205,7 @@ export default function AdminPricingPage() {
     }
     setSaving(true);
     try {
-      const result = await updateDefaultPricingItemAction({
-        category: item.category,
-        service: item.service,
-        metric: item.metric,
-        priceMicros: newMicros,
-        currency: item.currency,
-      });
+      const result = await saveAmount(item, field, newMicros);
       if (result.error) {
         toast({
           title: t("form.error.saveFailed"),
@@ -187,13 +214,13 @@ export default function AdminPricingPage() {
         });
       } else {
         toast({
-          title: t("form.success.saved"),
+          title: field === "cost" ? t("form.success.costSaved") : t("form.success.saved"),
           description: t("form.success.savedDetail", {
             brl: formatBrlCurrency(brl),
             usd: formatUsdCurrency(microsToUsdNumber(newMicros)),
           }),
         });
-        setEditingId(null);
+        setEditing(null);
         loadData();
       }
     } catch {
@@ -248,15 +275,7 @@ export default function AdminPricingPage() {
   }, [defaults]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-        <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
-      </div>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   if (error) {
@@ -326,7 +345,7 @@ export default function AdminPricingPage() {
                         })}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("defaults.conversionNote")}
+                        {t("defaults.conversionNote")} {t("defaults.costNote")}
                       </p>
                     </div>
                   </div>
@@ -377,21 +396,13 @@ export default function AdminPricingPage() {
                             <th className="px-6 py-3 text-2xs font-semibold text-muted-foreground text-right">
                               {t("table.priceBrl")}
                             </th>
-                            <th className="px-4 py-3 w-12" />
+                            <th className="px-6 py-3 text-2xs font-semibold text-muted-foreground text-right">
+                              {t("table.costBrl")}
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border/30">
                           {items.map((item) => {
-                            const isEditing = editingId === item.id;
-                            const brlDisplay =
-                              rateNumber != null
-                                ? formatBrlCurrency(
-                                    usdMicrosToBrl(item.priceMicros, rateNumber),
-                                  )
-                                : null;
-                            const usdDisplay = formatUsdCurrency(
-                              microsToUsdNumber(item.priceMicros),
-                            );
                             return (
                               <tr
                                 key={`${item.category}-${item.service}-${item.metric}`}
@@ -411,119 +422,23 @@ export default function AdminPricingPage() {
                                 <td className="px-6 py-3.5 text-sm text-muted-foreground">
                                   {t(`metrics.${item.metric}`)}
                                 </td>
-                                <td className="px-6 py-3.5 text-right">
-                                  {isEditing ? (
-                                    <div className="flex flex-col items-end gap-1">
-                                      <div className="flex items-center justify-end gap-2">
-                                        <ElevatedInput
-                                          value={editValueBrl}
-                                          onChange={(e) =>
-                                            setEditValueBrl(e.target.value)
-                                          }
-                                          type="text"
-                                          inputMode="decimal"
-                                          min="0"
-                                          className="w-36 text-right"
-                                          placeholder="0,00"
-                                          label={t("table.priceBrl")}
-                                        />
-                                        <Button
-                                          variant="primary"
-                                          title=""
-                                          icon={
-                                            saving ? (
-                                              <CircleNotch
-                                                className="h-4 w-4 animate-spin"
-                                                weight="bold"
-                                              />
-                                            ) : (
-                                              <FloppyDisk
-                                                className="h-4 w-4"
-                                                weight="fill"
-                                              />
-                                            )
-                                          }
-                                          iconVisible
-                                          className="!px-2.5"
-                                          onClick={() => handleSaveItem(item)}
-                                          disabled={saving || rateNumber == null}
-                                        />
-                                        <Button
-                                          variant="outline"
-                                          title=""
-                                          icon={
-                                            <X
-                                              className="h-4 w-4"
-                                              weight="bold"
-                                            />
-                                          }
-                                          iconVisible
-                                          className="!px-2.5"
-                                          onClick={() => setEditingId(null)}
-                                        />
-                                      </div>
-                                      {rateNumber != null &&
-                                      parseAmount(editValueBrl) != null ? (
-                                        <p className="text-2xs tabular-nums text-muted-foreground">
-                                          ≈{" "}
-                                          {formatUsdCurrency(
-                                            microsToUsdNumber(
-                                              parseBrlToUsdMicros(
-                                                editValueBrl,
-                                                rateNumber,
-                                              ),
-                                            ),
-                                          )}{" "}
-                                          {t("defaults.storedAsUsd")}
-                                        </p>
-                                      ) : null}
-                                    </div>
-                                  ) : item.priceMicros === 0 ? (
-                                    <div className="text-right">
-                                      <span className="text-sm font-semibold text-muted-foreground">
-                                        {t("defaults.unpriced")}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <div className="text-right">
-                                      <span className="text-sm font-semibold text-foreground tabular-nums">
-                                        {brlDisplay ?? usdDisplay}
-                                      </span>
-                                      {brlDisplay ? (
-                                        <p className="text-2xs tabular-nums text-muted-foreground">
-                                          ≈ {usdDisplay}
-                                        </p>
-                                      ) : null}
-                                    </div>
-                                  )}
-                                </td>
-                                <td className="px-4 py-3.5">
-                                  {!isEditing && (
-                                    <Button
-                                      variant="outline"
-                                      title=""
-                                      icon={
-                                        <PencilSimple
-                                          className="h-4 w-4"
-                                          weight="bold"
-                                        />
-                                      }
-                                      iconVisible
-                                      className="!px-2.5"
-                                      disabled={rateNumber == null}
-                                      onClick={() => {
-                                        if (rateNumber == null) return;
-                                        setEditingId(item.id);
-                                        setEditValueBrl(
-                                          usdMicrosToBrlInput(
-                                            item.priceMicros,
-                                            rateNumber,
-                                          ),
-                                        );
-                                      }}
-                                    />
-                                  )}
-                                </td>
+                                {AMOUNT_FIELDS.map((field) => (
+                                  <AmountCell
+                                    key={field}
+                                    micros={amountOf(item, field)}
+                                    rateNumber={rateNumber}
+                                    emptyLabel={field === "cost" ? t("defaults.noCost") : t("defaults.unpriced")}
+                                    inputLabel={field === "cost" ? t("table.costBrl") : t("table.priceBrl")}
+                                    storedAsUsdLabel={t("defaults.storedAsUsd")}
+                                    editing={editing?.id === item.id && editing.field === field}
+                                    value={editValueBrl}
+                                    saving={saving}
+                                    onChange={setEditValueBrl}
+                                    onEdit={() => startEditing(item, field)}
+                                    onSave={() => handleSaveItem(item, field)}
+                                    onCancel={() => setEditing(null)}
+                                  />
+                                ))}
                               </tr>
                             );
                           })}
@@ -696,6 +611,7 @@ export default function AdminPricingPage() {
                         {auditLog.map((entry) => {
                           const Icon =
                             CATEGORY_ICONS[entry.category] ?? Lightning;
+                          const change = auditChangeOf(entry);
                           return (
                             <tr key={entry.id} className="transition-colors hover:bg-muted">
                               <td className="px-6 py-4">
@@ -721,6 +637,7 @@ export default function AdminPricingPage() {
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                       {entry.category} · {entry.metric}
+                                      {change.kind === "cost" ? ` · ${t("audit.costChange")}` : ""}
                                     </p>
                                   </div>
                                 </div>
@@ -733,7 +650,7 @@ export default function AdminPricingPage() {
                                       <p>
                                         {formatBrlCurrency(
                                           usdMicrosToBrl(
-                                            entry.oldPriceMicros,
+                                            change.oldMicros,
                                             rateNumber,
                                           ),
                                         )}
@@ -742,7 +659,7 @@ export default function AdminPricingPage() {
                                         ≈{" "}
                                         {formatUsdCurrency(
                                           microsToUsdNumber(
-                                            entry.oldPriceMicros,
+                                            change.oldMicros,
                                           ),
                                         )}
                                       </p>
@@ -751,7 +668,7 @@ export default function AdminPricingPage() {
                                     <p>
                                       {entry.currency === "USD" ? "$" : "R$"}{" "}
                                       {microsToUsdDisplay(
-                                        entry.oldPriceMicros,
+                                        change.oldMicros,
                                       )}
                                     </p>
                                   )}
@@ -765,7 +682,7 @@ export default function AdminPricingPage() {
                                       <p>
                                         {formatBrlCurrency(
                                           usdMicrosToBrl(
-                                            entry.newPriceMicros,
+                                            change.newMicros,
                                             rateNumber,
                                           ),
                                         )}
@@ -774,7 +691,7 @@ export default function AdminPricingPage() {
                                         ≈{" "}
                                         {formatUsdCurrency(
                                           microsToUsdNumber(
-                                            entry.newPriceMicros,
+                                            change.newMicros,
                                           ),
                                         )}
                                       </p>
@@ -783,7 +700,7 @@ export default function AdminPricingPage() {
                                     <p>
                                       {entry.currency === "USD" ? "$" : "R$"}{" "}
                                       {microsToUsdDisplay(
-                                        entry.newPriceMicros,
+                                        change.newMicros,
                                       )}
                                     </p>
                                   )}
@@ -913,5 +830,116 @@ function ResultRow({
         {value}
       </span>
     </div>
+  );
+}
+
+function AmountCell({
+  micros,
+  rateNumber,
+  emptyLabel,
+  inputLabel,
+  storedAsUsdLabel,
+  editing,
+  value,
+  saving,
+  onChange,
+  onEdit,
+  onSave,
+  onCancel,
+}: {
+  micros: number;
+  rateNumber: number | null;
+  emptyLabel: string;
+  inputLabel: string;
+  storedAsUsdLabel: string;
+  editing: boolean;
+  value: string;
+  saving: boolean;
+  onChange: (value: string) => void;
+  onEdit: () => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const brlDisplay =
+    rateNumber != null ? formatBrlCurrency(usdMicrosToBrl(micros, rateNumber)) : null;
+  const usdDisplay = formatUsdCurrency(microsToUsdNumber(micros));
+
+  if (editing) {
+    return (
+      <td className="px-6 py-3.5 text-right">
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center justify-end gap-2">
+            <ElevatedInput
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              type="text"
+              inputMode="decimal"
+              min="0"
+              className="w-36 text-right"
+              placeholder="0,00"
+              label={inputLabel}
+            />
+            <Button
+              variant="primary"
+              title=""
+              icon={
+                saving ? (
+                  <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
+                ) : (
+                  <FloppyDisk className="h-4 w-4" weight="fill" />
+                )
+              }
+              iconVisible
+              className="!px-2.5"
+              onClick={onSave}
+              disabled={saving || rateNumber == null}
+            />
+            <Button
+              variant="outline"
+              title=""
+              icon={<X className="h-4 w-4" weight="bold" />}
+              iconVisible
+              className="!px-2.5"
+              onClick={onCancel}
+            />
+          </div>
+          {rateNumber != null && parseAmount(value) != null ? (
+            <p className="text-2xs tabular-nums text-muted-foreground">
+              ≈ {formatUsdCurrency(microsToUsdNumber(parseBrlToUsdMicros(value, rateNumber)))}{" "}
+              {storedAsUsdLabel}
+            </p>
+          ) : null}
+        </div>
+      </td>
+    );
+  }
+
+  return (
+    <td className="px-6 py-3.5 text-right">
+      <div className="flex items-center justify-end gap-3">
+        {micros === 0 ? (
+          <span className="text-sm font-semibold text-muted-foreground">{emptyLabel}</span>
+        ) : (
+          <div className="text-right">
+            <span className="text-sm font-semibold text-foreground tabular-nums">
+              {brlDisplay ?? usdDisplay}
+            </span>
+            {brlDisplay ? (
+              <p className="text-2xs tabular-nums text-muted-foreground">≈ {usdDisplay}</p>
+            ) : null}
+          </div>
+        )}
+        <Button
+          variant="outline"
+          title=""
+          aria-label={inputLabel}
+          icon={<PencilSimple className="h-4 w-4" weight="bold" />}
+          iconVisible
+          className="!px-2.5"
+          disabled={rateNumber == null}
+          onClick={onEdit}
+        />
+      </div>
+    </td>
   );
 }

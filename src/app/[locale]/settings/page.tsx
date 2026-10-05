@@ -38,6 +38,7 @@ import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import { useEffect, useState } from "react";
 
 import type { ActiveSession } from "@/app/actions/auth";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -280,27 +281,7 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background pt-20 pb-12">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <main className="w-full space-y-6">
-            <div>
-              <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
-                <div className="flex flex-col items-center gap-4">
-                  <CircleNotch
-                    className="h-8 w-8 animate-spin text-primary-ink"
-                    weight="bold"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Carregando configurações...
-                  </p>
-                </div>
-              </ElevatedContainer>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
+    return <ScreenLoader fit="viewport" label="Carregando configurações..." />;
   }
 
   const roleBadge = user?.role ? getRoleBadge(user.role) : null;

@@ -2,6 +2,8 @@ import type { WorkingHoursSpec } from "@/lib/working-hours/types";
 
 export type RouletteMode = "online" | "last_seen";
 
+export type MetaPayer = "vozko" | "client";
+
 export type OutcomeSpec = {
     code: string;
     label: string;
@@ -23,6 +25,7 @@ export type WorkspaceConfig = {
     workspaceId: string;
     campaignSpamProtectionDays: number;
     includedUnofficialWhatsAppInstances?: number;
+    metaPayer?: MetaPayer;
     skipAdminAssignment: boolean;
     autoCloseEnabled: boolean;
     autoCloseIdleAfterHours: number;

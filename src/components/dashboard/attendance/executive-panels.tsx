@@ -47,10 +47,12 @@ import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ChartSkeleton,
   SectionNotice,
+  MemberActivityLink,
   Surface,
   UnavailableNote,
   type MetricsFmt,
 } from "@/components/dashboard/attendance/primitives";
+import { hasMemberActivity } from "@/lib/attendance/member-activity";
 import {
   memberClassTone,
   toneColor,
@@ -1117,12 +1119,14 @@ function RankingRows({
   muted,
   te,
   showClass,
+  onSelectMember,
 }: {
   rows: RankedMember[];
   columns: RankingColumn[];
   muted?: boolean;
   showClass: boolean;
   te: (key: string, values?: Record<string, string>) => string;
+  onSelectMember?: (row: RankedMember) => void;
 }) {
   return (
     <>
@@ -1132,7 +1136,15 @@ function RankingRows({
           className={cn("border-t border-border", muted && "text-muted-foreground")}
         >
           <td className="px-2 py-2 text-muted-foreground">{index + 1}</td>
-          <td className="px-2 py-2">{row.display_name}</td>
+          <td className="px-2 py-2">
+            {onSelectMember && hasMemberActivity(row) ? (
+              <MemberActivityLink onClick={() => onSelectMember(row)}>
+                {row.display_name}
+              </MemberActivityLink>
+            ) : (
+              row.display_name
+            )}
+          </td>
           {columns.map((column) => {
             const value = column.value(row);
             return (
@@ -1172,6 +1184,7 @@ export function TeamRankingTable({
   rankMetric,
   onRankMetricChange,
   onConfigureSchedule,
+  onSelectMember,
 }: {
   ranking: OverviewTeamRanking | undefined;
   loading: boolean;
@@ -1179,6 +1192,7 @@ export function TeamRankingTable({
   rankMetric: string;
   onRankMetricChange: (value: string) => void;
   onConfigureSchedule?: () => void;
+  onSelectMember?: (row: RankedMember) => void;
 }) {
   const { te } = useExecutiveTranslations();
 
@@ -1327,7 +1341,7 @@ export function TeamRankingTable({
             </tr>
           </thead>
           <tbody>
-            <RankingRows rows={ranking.members} columns={columns} te={te} showClass />
+            <RankingRows rows={ranking.members} columns={columns} te={te} showClass onSelectMember={onSelectMember} />
             <tr className="border-t-2 border-border font-semibold">
               <td className="px-2 py-2" />
               <td className="px-2 py-2">{te("teamTotal")}</td>
@@ -1352,7 +1366,7 @@ export function TeamRankingTable({
                     {te("adjacents")}
                   </td>
                 </tr>
-                <RankingRows rows={ranking.adjacent} columns={columns} muted te={te} showClass={false} />
+                <RankingRows rows={ranking.adjacent} columns={columns} muted te={te} showClass={false} onSelectMember={onSelectMember} />
                 <tr className="border-t border-border font-semibold text-muted-foreground">
                   <td className="px-2 py-2" />
                   <td className="px-2 py-2">{te("adjacentTotal")}</td>

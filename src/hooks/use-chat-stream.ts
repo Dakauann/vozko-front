@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
 import { announceDataChanged } from "@/lib/aichat/data-changed";
+import { browserTimezone } from "@/lib/working-hours/types";
 import type { ActionCard, Approval, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
@@ -147,7 +148,7 @@ export function useChatStream() {
 
   const send = useCallback(
     (threadId: string, content: string, model: string, handlers: StreamHandlers, view?: ChatView, attachments: string[] = []) =>
-      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model, view, attachments }, handlers),
+      runStream(`${API_BASE}/chat/threads/${threadId}/messages`, { content, model, view, attachments, timezone: browserTimezone() }, handlers),
     [runStream],
   );
 

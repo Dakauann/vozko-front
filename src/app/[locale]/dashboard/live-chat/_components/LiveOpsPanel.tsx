@@ -52,7 +52,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { format, subDays } from "date-fns";
+import { presetRange, type PeriodPreset } from "@/lib/attendance/period";
 import { useLocale, useTranslations } from "next-intl";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedButton from "@/components/elevated-design/button";
@@ -100,7 +100,7 @@ const LOCALE_TAG: Record<string, string> = {
   de: "de-DE",
 };
 
-type DatePreset = "7d" | "30d" | "90d";
+type DatePreset = PeriodPreset;
 
 type OpsFilterOption = {
   value: string;
@@ -952,13 +952,7 @@ export default function LiveOpsPanel({
   const teamRows = heightBand === "cramped" ? 5 : heightBand === "tight" ? 6 : 8;
   const dense = heightBand !== "roomy";
 
-  const range = useMemo(() => {
-    const days = preset === "7d" ? 6 : preset === "30d" ? 29 : 89;
-    return {
-      dateFrom: format(subDays(new Date(), days), "yyyy-MM-dd"),
-      dateTo: format(new Date(), "yyyy-MM-dd"),
-    };
-  }, [preset]);
+  const range = useMemo(() => presetRange(preset), [preset]);
 
   const memberNames = useMemo(() => {
     const map: Record<string, string> = {};

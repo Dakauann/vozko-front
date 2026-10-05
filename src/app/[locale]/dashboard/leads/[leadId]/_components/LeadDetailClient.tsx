@@ -11,6 +11,7 @@ import {
   Users,
   WhatsappLogo,
 } from "@/components/icons"
+import { ScreenLoader } from "@/components/brand/screen-loader"
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection"
 import { useWorkspace } from "@/contexts/workspace-context"
 import React, { useCallback, useEffect, useRef, useState } from "react"
@@ -185,11 +186,7 @@ export default function LeadDetailClient({
   useEffect(() => { fetchLead() }, [fetchLead])
 
   if (loading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Clock weight="bold" className="h-8 w-8 animate-spin text-primary-ink" />
-      </div>
-    )
+    return <ScreenLoader fit="screen" />
   }
 
   if (error || !lead) {

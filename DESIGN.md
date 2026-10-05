@@ -495,13 +495,28 @@ page header's empty right band (`CircuitTracesWide` in
 greeting (both `CircuitBoard`, the routing type) — not queue rows, not
 toolbars.
 
-**The pulse exception.** The traces carry a slow current — a bright dash
-sweeping the lead lines' own geometry (`.vz-trace-pulse`, 8s linear, dash
-16/84 over `pathLength=100`, offset −200/cycle so the loop is seamless).
-This is a USER-DIRECTED exception to "nothing in the periphery loops"
-(2026-08-24), scoped to stay one: only the ornament may loop, and under
-`prefers-reduced-motion` the pulse overlay removes itself entirely, leaving
-the static art.
+**The current exception.** The traces carry electricity: a small point of
+light races each route's own geometry while the route itself never changes
+shape. Each spark is a radiating orb, not a dash: a radial-gradient bloom
+(r = 4.5x the stroke), a halo (1.6x) and a solid hot core (0.7x), moved along
+the wire by SVG `animateMotion`, with two round-capped trails (30 and 10 units
+of `pathLength=100`) lighting the wire behind it. Light mode burns
+`--primary`; dark burns near-white mint inside an `--ornament` halo. All
+layers are one-shot SMIL animations (`begin="indefinite"`, 0.6s: 0.45s
+crossing on an accelerating spline, then the spark dissipates at the
+terminal). Nothing loops on its own clock: `CircuitSvg` runs one scheduler per
+ornament that discharges a random trace (never the same one twice running)
+after a random quiet of 0.8 to 3s, divided by `speed`, via `beginElement()`.
+Between discharges nothing animates. It stays small and infrequent on
+purpose: periphery, not a focal point. USER-DIRECTED (2026-08-24 for the
+loop; 2026-10-05 for fast light on a fixed shape replacing the slow pulse and
+the 24s regrowth, for real radiance that is round rather than squared, for
+keeping it small, and for random, rarer discharges). The glow is a gradient
+fill, never a blur filter, so a frame costs a transform and a small repaint.
+The scheduler stops while the ornament is off screen, the tab is hidden or the
+viewer prefers reduced motion, and under `prefers-reduced-motion` the sparks
+are also removed, leaving the static art. Only the ornament and the loader
+may animate unprompted.
 
 **The AI launcher exception.** The assistant's launcher (`AssistantLauncher`,
 `.vz-ai-launcher` in `globals.css`) is the one element allowed to glow: a single
@@ -512,8 +527,25 @@ rainbow; the face stays `bg-card` with a `border-border-strong` edge and the
 glyph carries the colour. Under `prefers-reduced-motion` the sweep and bars stop
 and a static lit arc remains. Every AI entry point uses this one launcher: the app-wide assistant as a tab on
 the middle of the right edge (peeking 22px, glyph showing, on hover devices; full
-tab on touch), and the workflow copilot as the round corner button. Do not add
-glow anywhere else.
+tab on touch), and the workflow copilot as the round corner button. The
+circuit spark (above) is the only other glow. Do not add glow anywhere else.
+
+**The loader is the trace, working.** Waiting has one look product-wide:
+`ScreenLoader` (`src/components/brand/screen-loader.tsx`), USER-DIRECTED
+(2026-10-05) as a single global loader, never a per-page skeleton. Its mark is
+the ornament's own grammar at icon scale: a rising route of orthogonal runs and
+45° bends with a faint parallel run beneath, and three square pads (the board's
+trace terminals, the same square as the Elo header's mark). A short
+`--ornament` current climbs the route on a 2.4s cycle and each pad fills as the
+current reaches it; the route and resting pads stay `--border-strong`. No glow,
+no spinner. It fades in after 180ms so quick loads never flash. The page never
+changes the mark, only its fit: `viewport` (the whole window, for gates before
+the chrome exists: `DashboardGate`), `screen` (the content area under the bar:
+the dashboard `loading.tsx` and `RouteGate`'s permission wait), `fill` (a
+panel, drawer or dialog body) and `inline` (a compact row). Under
+`prefers-reduced-motion` the current and pads hold still, fully lit. Action
+spinners inside buttons (saving, sending) stay spinners: the loader means
+"this place is arriving", not "your action is running".
 
 ## Components
 

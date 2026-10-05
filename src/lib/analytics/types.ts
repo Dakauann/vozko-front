@@ -1,3 +1,5 @@
+import type { MetaPayer } from "@/lib/workspace/workspace-config/types";
+
 export type AnalyticsGranularity = "hour" | "day" | "week" | "month" | "total";
 
 export type AnalyticsSortDirection = "asc" | "desc";
@@ -251,6 +253,25 @@ export type MetaServiceMessageCostSortField =
     | "netBillableSends"
     | "workspaceName";
 
+export interface Money {
+    usdMicros: number;
+    brlMicros: number | null;
+}
+
+export interface MetaCostRates {
+    usdToBrlMicros: number;
+}
+
+export interface WorkspaceMetaEconomics {
+    metaPayer: MetaPayer;
+    paidByClient: Money;
+    templateCost: Money;
+    serviceCost: Money | null;
+    vozkoMetaCost: Money | null;
+    realMargin: Money | null;
+    serviceExceedsPrice: boolean;
+}
+
 export interface WorkspaceMetaServiceMessageCost {
     workspaceId: string;
     workspaceName: string;
@@ -259,6 +280,13 @@ export interface WorkspaceMetaServiceMessageCost {
     netBillableSends: number;
     metaConfirmed: number;
     ratio?: number | null;
+    economics?: WorkspaceMetaEconomics;
+}
+
+export interface MetaServiceMessageAnswers {
+    charged: number;
+    free: number;
+    noAnswer: number;
 }
 
 export interface MetaServiceMessageCostTotals {
@@ -269,6 +297,33 @@ export interface MetaServiceMessageCostTotals {
     metaConfirmed: number;
     metaAnswered: number;
     unattributedServiceMessages: number;
+    unlinkedServiceMessages?: number;
+    answers?: MetaServiceMessageAnswers;
+    confirmedServiceCost?: Money | null;
+    serviceCostMissing?: number;
+    paidByClients?: Money;
+    vozkoMetaCost?: Money | null;
+    realMargin?: Money | null;
+}
+
+export type MetaNumberChargeState = "charging" | "free" | "no_answer";
+
+export interface MetaNumberServiceCost {
+    phoneId: string;
+    displayPhoneNumber: string;
+    provider: string;
+    workspaceName: string;
+    serviceMessages: number;
+    answered: number;
+    charged: number;
+    firstChargedAt?: string;
+    state: MetaNumberChargeState;
+}
+
+export interface MetaUnlinkedServiceMessages {
+    phoneNumberId: string;
+    displayPhoneNumber: string;
+    messages: number;
 }
 
 export interface PaginatedMetaServiceMessageCost {
@@ -285,6 +340,9 @@ export interface MetaServiceMessageCostReport {
     totals: MetaServiceMessageCostTotals;
     workspaces: PaginatedMetaServiceMessageCost;
     inferredOnly: boolean;
+    rates?: MetaCostRates;
+    numbers?: MetaNumberServiceCost[];
+    unlinked?: MetaUnlinkedServiceMessages[];
 }
 
 export interface GetMetaServiceMessageCostParams {
@@ -296,4 +354,46 @@ export interface GetMetaServiceMessageCostParams {
     pageSize?: number;
     sortBy?: MetaServiceMessageCostSortField;
     sortOrder?: AnalyticsSortDirection;
+}
+
+export type MetaInvoiceCheckState = "matched" | "check" | "unavailable";
+
+export type MetaInvoiceUnavailableReason =
+    | "dialog360"
+    | "no_token"
+    | "meta_unreadable";
+
+export type MetaInvoiceCurrency = "USD" | "BRL";
+
+export interface MetaInvoiceAccount {
+    wabaId: string;
+    name: string;
+    provider: string;
+    ourTemplates: number;
+    metaTemplates: number;
+    metaChargedTemplates: number;
+    metaChargedService: number;
+    metaFreeService: number;
+    difference: number;
+    differencePct?: number;
+    state: MetaInvoiceCheckState;
+    reason?: MetaInvoiceUnavailableReason;
+}
+
+export interface MetaInvoiceTotals {
+    metaChargedService: number;
+    metaFreeService: number;
+    unavailableAccounts: number;
+    idleAccounts: number;
+}
+
+export interface MetaInvoiceCheckReport {
+    period: AnalyticsPeriod;
+    totals: MetaInvoiceTotals;
+    accounts: MetaInvoiceAccount[];
+}
+
+export interface GetMetaInvoiceCheckParams {
+    startDate?: string;
+    endDate?: string;
 }

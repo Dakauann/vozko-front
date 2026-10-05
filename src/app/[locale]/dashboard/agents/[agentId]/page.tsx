@@ -11,6 +11,7 @@ import type {
   AgentOptions,
   AgentToolDefinition,
 } from "@/lib/agents/types";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 
 import AgentDetail from "./_components/AgentDetail";
 import { notFound } from "next/navigation";
@@ -28,18 +29,6 @@ interface PageState {
   agent?: Agent;
   options?: AgentOptions | null;
   tools?: AgentToolDefinition[];
-}
-
-function PageLoader() {
-  return (
-    <main className="flex w-full items-center justify-center py-24">
-      <div
-        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-        role="status"
-        aria-label="Loading"
-      />
-    </main>
-  );
 }
 
 export default function AgentDetailPage({ params }: AgentDetailPageProps) {
@@ -77,7 +66,7 @@ export default function AgentDetailPage({ params }: AgentDetailPageProps) {
     };
   }, [agentId]);
 
-  if (state.loading) return <PageLoader />;
+  if (state.loading) return <ScreenLoader fit="screen" />;
   if (state.notFound) notFound();
   if (state.error) {
     return (

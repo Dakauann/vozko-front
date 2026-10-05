@@ -4,7 +4,6 @@ import {
   ArrowRight,
   ChartLineUp,
   CheckCircle,
-  CircleNotch,
   Copy,
   CurrencyDollar,
   Handshake,
@@ -17,6 +16,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AffiliateProfileWithStats } from "@/lib/affiliate/types";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
@@ -84,14 +84,7 @@ export default function AffiliatePage() {
   }, [reload]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (notFound) {

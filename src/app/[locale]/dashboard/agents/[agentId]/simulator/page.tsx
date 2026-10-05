@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import { getAgentByIdAction, getAgentToolsAction } from "@/app/actions/agents";
 import type { Agent, AgentToolDefinition } from "@/lib/agents/types";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { ArrowLeft } from "@/components/icons";
 import Link from "next/link";
 import SimulatorClient from "./_components/SimulatorClient";
@@ -50,15 +51,7 @@ export default function AgentSimulatorPage({ params }: SimulatorPageProps) {
     useEffect(() => load(), [load]);
 
     if (state.loading) {
-        return (
-            <main className="flex w-full items-center justify-center py-24">
-                <div
-                    className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-                    role="status"
-                    aria-label={t("loading")}
-                />
-            </main>
-        );
+        return <ScreenLoader fit="screen" label={t("loading")} />;
     }
 
     if (state.error !== undefined || !state.agent) {

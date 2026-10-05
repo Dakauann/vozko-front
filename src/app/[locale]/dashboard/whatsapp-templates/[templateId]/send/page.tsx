@@ -27,6 +27,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -296,17 +297,7 @@ export default function SendWhatsAppTemplatePage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <CircleNotch
-            className="h-8 w-8 animate-spin text-healthy-ink"
-            weight="bold"
-          />
-          <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        </div>
-      </div>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   if (error || !template) {

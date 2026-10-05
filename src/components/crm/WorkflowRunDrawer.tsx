@@ -17,6 +17,7 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { FlowArrow } from "@/components/icons";
 
 import {
@@ -317,13 +318,7 @@ export function WorkflowRunDrawer({
           </div>
 
           {state.loading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-                role="status"
-                aria-label="Carregando fluxo"
-              />
-            </div>
+            <ScreenLoader fit="fill" className="absolute inset-0" />
           )}
           {state.error && !state.loading && (
             <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-muted-foreground">

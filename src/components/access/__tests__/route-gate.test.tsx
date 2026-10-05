@@ -66,12 +66,12 @@ describe("RouteGate", () => {
     expect(screen.getByText("Visualizar etapas existentes")).toBeTruthy();
   });
 
-  it("shows a skeleton, never the page, while loading", () => {
+  it("shows the screen loader, never the page, while loading", () => {
     workspace.permissionsLoading = true;
     workspace.permissionsMap = { stages: new Set(["read"]) };
     const { container } = render(<RouteGate>{page}</RouteGate>);
     expect(screen.queryByText("page content")).toBeNull();
-    expect(container.querySelector("[aria-busy='true']")).toBeTruthy();
+    expect(container.querySelector("[role='status'][data-fit='screen']")).toBeTruthy();
   });
 
   it("denies routes nobody registered", () => {

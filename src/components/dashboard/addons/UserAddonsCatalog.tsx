@@ -41,6 +41,7 @@ import type {
   WorkspaceEntitlement,
 } from "@/lib/workspace-addon/types";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { cn } from "@/lib/utils";
@@ -236,12 +237,7 @@ export default function UserAddonsCatalog() {
   }
 
   if (loading || permissionsLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch className="h-8 w-8 animate-spin text-primary-ink" weight="bold" />
-        <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
-      </div>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   if (!currentWorkspace) {

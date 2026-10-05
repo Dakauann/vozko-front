@@ -8,6 +8,7 @@ import {
   CaretDown,
   Gear,
   List as ListIcon,
+  Pulse,
   SignOut,
 } from "@/components/icons";
 import { Link } from "@/i18n/routing";
@@ -16,6 +17,7 @@ import { BalanceIndicator } from "@/components/elevated-design/dashboard/balance
 import { BrandLogo } from "@/components/brand-logo";
 import { CalendarSheet } from "@/components/elevated-design/dashboard/calendar-sheet";
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
+import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -45,6 +47,7 @@ export function DashboardNavbar({
   const { isCollapsed, toggleCollapsed, setMobileOpen } = useSidebar();
   const [showUserMenu, setShowUserMenu] = React.useState(false);
   const [showCalendar, setShowCalendar] = React.useState(false);
+  const [showActivity, setShowActivity] = React.useState(false);
   const userMenuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -133,6 +136,7 @@ export function DashboardNavbar({
         </button>
 
         <CalendarSheet open={showCalendar} onOpenChange={setShowCalendar} />
+        <MemberActivitySheet subject={showActivity ? { mode: "self" } : null} onOpenChange={setShowActivity} />
 
         <ThemeToggle />
         <LanguageSwitcher tone="light" size="sm" />
@@ -219,6 +223,20 @@ export function DashboardNavbar({
                     />
                     <span>{t("userMenu.settings")}</span>
                   </Link>
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-[--radius] px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setShowActivity(true);
+                    }}
+                  >
+                    <Pulse
+                      className="h-4 w-4 text-muted-foreground"
+                      weight="regular"
+                    />
+                    <span>{t("userMenu.myActivity")}</span>
+                  </button>
                 </div>
 
                 <div className="border-t border-border p-1">

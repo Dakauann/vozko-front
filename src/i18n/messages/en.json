@@ -1,4 +1,7 @@
 {
+  "screenLoader": {
+    "label": "Loading…"
+  },
   "imageGeneration": {
     "generating": "Generating image",
     "failed": "The image could not be generated",
@@ -392,9 +395,10 @@
       "set_ad_spend_cap": "Account spending limit",
       "update_ad_draft": "Change ad draft",
       "swap_ad_creative": "Swap ad creative",
-      "compose_creative": "Compose creative",
       "number_automation": "Number inbound service",
-      "configure_number_automation": "Configure number inbound service"
+      "configure_number_automation": "Configure number inbound service",
+      "load_skill": "Read skill",
+      "member_activity": "Member activity"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -496,7 +500,6 @@
       "fullscreen": "Full screen",
       "exitFullscreen": "Exit full screen",
       "resize": "Drag to resize",
-      "newChat": "New analysis",
       "openFull": "Open in chat",
       "groups": {
         "start": {
@@ -1235,7 +1238,9 @@
           "automation_handoff_rr": "Transferred by automation (roulette)",
           "automation_released": "Automation paused, team queue",
           "automation_taken_over": "Taken over by pausing automation",
-          "automation_resumed": "Handed back to automation"
+          "automation_resumed": "Handed back to automation",
+          "inbound_outreach": "Reply to outreach",
+          "outreach_sent": "Outreach sent"
         }
       },
       "aiSessionEnd": {
@@ -2029,7 +2034,8 @@
       "user": "User",
       "settings": "Settings",
       "profile": "My Profile",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "myActivity": "My activity"
     }
   },
   "calendarSheet": {
@@ -5368,7 +5374,8 @@
       "saved": "Saved",
       "saveFailed": "Could not save. Please try again.",
       "loadFailed": "Could not load the inbound service of this number.",
-      "ownedElsewhere": "This number belongs to another workspace, which decides who answers inbound conversations. Here you can use it in campaigns."
+      "ownedElsewhere": "This number belongs to another workspace, which decides who answers inbound conversations. Here you can use it in campaigns.",
+      "withoutOwner": "This number has no owner workspace yet, so nobody decides who answers and new contacts are not received. Assign an owner to set up AI service."
     }
   },
   "campaignsSummary": {
@@ -7020,6 +7027,16 @@
         "save": "Save",
         "saving": "Saving...",
         "success": "Number allowance updated"
+      },
+      "metaPayer": {
+        "title": "Who pays Meta",
+        "description": "Only changes the margin shown in Meta cost. Never changes what the client is charged.",
+        "vozko": "Vozko",
+        "client": "Client",
+        "notSet": "Not set yet.",
+        "saving": "Saving",
+        "success": "Who pays Meta was updated.",
+        "notSaved": "The change was not saved. Try again."
       }
     },
     "error": {
@@ -7524,7 +7541,8 @@
         "changes_automation": "Allows changing how AI agents and automations respond to customers.",
         "connects_accounts": "Allows connecting and disconnecting the company's channels and integrations."
       }
-    }
+    },
+    "viewActivity": "View activity"
   },
   "workspaceInvites": {
     "loading": "Loading invites...",
@@ -7887,7 +7905,8 @@
       "service": "Service",
       "metric": "Metric",
       "price": "Price",
-      "priceBrl": "Price (BRL)"
+      "priceBrl": "Price (BRL)",
+      "costBrl": "Meta cost (R$)"
     },
     "defaults": {
       "rateBannerLabel": "System exchange rate",
@@ -7896,7 +7915,9 @@
       "editRateLink": "Change rate",
       "rateMissing": "Exchange rate is required before editing default prices.",
       "storedAsUsd": "stored as USD",
-      "unpriced": "Not priced"
+      "unpriced": "Not priced",
+      "noCost": "No cost set",
+      "costNote": "The cost is what Meta charges Vozko: it feeds Meta cost and margin, never what the client pays."
     },
     "services": {
       "whatsapp": {
@@ -7948,7 +7969,8 @@
       "newPrice": "New Price",
       "changedBy": "Changed By",
       "empty": "No audit entries found.",
-      "loadMore": "Load More"
+      "loadMore": "Load More",
+      "costChange": "cost"
     },
     "form": {
       "error": {
@@ -7960,7 +7982,8 @@
       "success": {
         "saved": "Price updated successfully.",
         "savedDetail": "{brl} (≈ {usd})",
-        "rateSaved": "Exchange rate updated successfully."
+        "rateSaved": "Exchange rate updated successfully.",
+        "costSaved": "Cost updated successfully."
       }
     },
     "button": {
@@ -11299,6 +11322,64 @@
         "allMembers": "Whole team",
         "allChannels": "All channels",
         "greeting": "What do you want to understand about attendance?"
+      },
+      "memberActivity": {
+        "title": "Member activity",
+        "myTitle": "My activity",
+        "open": "View activity",
+        "subtitle": "Panel presence and attendance in the period",
+        "timezone": "Times in {timezone}",
+        "note": "Connected means the Vozko panel was open. It does not prove work: a forgotten open tab also counts as connected.",
+        "outOfScope": "This member is not in your departments",
+        "outOfScopeHint": "You can only see the activity of people in your departments.",
+        "groups": {
+          "presence": "Presence",
+          "work": "Attendance"
+        },
+        "kpi": {
+          "connected": "Time connected",
+          "connectedShort": "Panel open in the period",
+          "onCall": "On call",
+          "onCallShort": "Time on calls",
+          "usualStart": "Usual start",
+          "usualStartShort": "Typical time of the first sign in",
+          "received": "Conversations received",
+          "receivedShort": "{count} received while offline",
+          "receivedHint": "Conversations assigned to this member in the period, from any source",
+          "resolved": "Resolved",
+          "resolvedShort": "Conversations finished in the period",
+          "frt": "First response",
+          "frtShort": "Average time to reply"
+        },
+        "offlineNotice": {
+          "title": "{count} roulette conversations arrived while the member was offline",
+          "message": "The roulette should only hand conversations to connected people. Review the distribution settings."
+        },
+        "receivedBy": "Received by source",
+        "timeline": {
+          "title": "Timeline",
+          "subtitle": "Sessions with the panel open, day by day, in {timezone}",
+          "connected": "Connected",
+          "onCall": "On call",
+          "connectedNow": "Connected now",
+          "session": "{start} to {end}",
+          "sessionOpen": "Since {start}, still connected",
+          "sessionOnCall": "{onCall} on call",
+          "empty": "No days in the period"
+        },
+        "flags": {
+          "late_start": "Started late",
+          "no_presence": "No presence",
+          "possible_forgotten_tab": "Possible forgotten tab"
+        },
+        "heatmap": {
+          "title": "Connected hours",
+          "subtitle": "Minutes connected by weekday and hour",
+          "weekday": "Day",
+          "hour": "Hour",
+          "minutes": "Minutes",
+          "cell": "{weekday}, {hour}h: {minutes} min connected"
+        }
       }
     }
   },
@@ -14396,45 +14477,129 @@
     }
   },
   "metaCosts": {
-    "title": "Meta cost per customer",
-    "subtitle": "Cost per workspace, based on service messages sent against billable sends.",
-    "serviceMessages": "Service messages",
-    "serviceMessagesInferred": "Upper bound, not yet confirmed by Meta",
-    "serviceMessagesConfirmed": "Confirmed by Meta",
-    "billableSends": "Billable sends",
-    "billableSendsHint": "Debits minus refunds",
-    "perSend": "Per billable send",
-    "perSendHint": "{count} workspaces",
-    "noticeInferred": "Our own count, not Meta billing. Treat it as an upper bound.",
-    "noticeCoverage": "Meta has answered for {percent}% of this period.",
-    "noticeConfirmed": "Confirmed by Meta: {count} charged as service messages.",
-    "noticeUnattributed": "{count} messages with no number attributed.",
+    "title": "Meta cost",
+    "subtitle": "What Vozko pays Meta for sends and service messages, what each client paid and the margin left, in reais. Service is the count Meta reported as charged times the cost set on the plan or in Rates.",
+    "periodLabel": "Period",
+    "providerLabel": "Provider",
     "currentMonth": "This month",
     "previousMonth": "Last month",
     "customPeriod": "Custom",
     "start": "Start",
     "end": "End",
-    "searchPlaceholder": "Search workspace",
-    "providerMeta": "Meta direct",
+    "providerMeta": "Meta",
     "providerDialog360": "360dialog",
     "providerAll": "All",
     "providerUnattributed": "No number",
-    "order": "Order",
+    "exchangeRate": "Period exchange rate: <b>{rate}</b> per US$",
+    "exchangeRateChange": "Change",
+    "loadError": "Could not load the report.",
+    "serviceCostMissingTitle": "Service message cost not set",
+    "serviceCostMissingBody": "Meta charged service messages for {count, plural, one {# client} other {# clients}} with no cost set on the plan or in Rates, so cost and margin have no value. The cost never changes what the client pays.",
+    "serviceCostMissingAction": "Set the cost in Rates",
+    "summaryLabel": "Period summary",
+    "serviceMessages": "Service messages",
+    "answeredShare": "{percent} answered by Meta",
+    "metaChargedService": "Service charged by Meta",
+    "metaChargedServiceDetail": "{count, plural, one {# message charged} other {# messages charged}}",
+    "vozkoMetaCost": "Vozko's Meta cost",
+    "vozkoMetaCostDetail": "Sends and service of clients whose Meta bill Vozko pays",
+    "realMargin": "Real margin",
+    "realMarginDetail": "Paid by clients minus Vozko's Meta cost",
+    "paidByClients": "Paid by clients",
+    "paidByClientsDetail": "What clients paid in the period",
+    "safetyTitle": "Billing safety",
+    "safetySubtitle": "What could make a cost disappear or be charged wrongly",
+    "webhookTitle": "Webhook signature",
+    "webhookStatus": "Rejected without key",
+    "webhookBody": "Webhooks without a valid signature are rejected.",
+    "unlinkedTitle": "No workspace",
+    "unlinkedCount": "{count, plural, one {# message} other {# messages}}",
+    "unlinkedBody": "Messages that could not be linked to a client. Nobody is charged for them.",
+    "unlinkedNone": "Every service message was linked to a client.",
+    "unlinkedLink": "See numbers",
+    "answersTitle": "Meta's answer",
+    "answersSubtitle": "Each service message, by what Meta reported in the webhook",
+    "answersAria": "{charged} charged, {free} free, {noAnswer} no answer",
+    "answersEmpty": "No service messages in the period.",
+    "answerCharged": "Charged",
+    "answerChargedHint": "charged by Meta",
+    "answerFree": "Free",
+    "answerNoAnswer": "No answer",
+    "answerFreeHint": "service window or number still free",
+    "answerNoAnswerHint": "no information from Meta",
+    "numbersTitle": "Numbers",
+    "numbersSubtitle": "When Meta started charging each number",
+    "numbersCaption": "Numbers with service messages in the period and those that could not be linked to a client.",
+    "numbersEmptyTitle": "No numbers in the period",
+    "numbersEmptyDescription": "No number sent a service message with these filters.",
+    "colNumber": "Number",
     "colWorkspace": "Workspace",
+    "colMetaCharge": "Meta charging",
     "colServiceMessages": "Service messages",
-    "colBillableSends": "Billable sends",
-    "colPerSend": "Service per billable send",
-    "caption": "Service messages sent against billable template sends, for the selected period and provider.",
+    "colCharged": "Charged",
+    "numberState": {
+      "charging": "Charging since {date}",
+      "free": "Free in the period",
+      "noAnswer": "No answer from Meta",
+      "unlinked": "No workspace"
+    },
+    "clientsTitle": "Clients",
+    "clientsSubtitle": "Meta cost, what the client paid and the real margin",
+    "caption": "Service messages against billed sends, Meta cost, what the client paid and the real margin, for the selected period and provider.",
+    "searchPlaceholder": "Search workspace",
+    "order": "Order",
+    "colPayer": "Who pays Meta",
+    "colBillableSends": "Sends",
+    "colPerSend": "Service per send",
+    "colMetaCost": "Meta cost",
+    "colPaidByClient": "Paid by client",
+    "colRealMargin": "Real margin",
+    "payerVozko": "Vozko",
+    "payerClient": "Client",
+    "paidByClientLabel": "Paid by the client",
+    "serviceCostSub": "{cost} in service",
+    "costsOnClient": "{templates} in sends and {service} in service on their account",
+    "noMetaCostForVozko": "no Meta cost for Vozko",
+    "serviceExceedsPrice": "Service exceeds the price",
     "confirmedSuffix": "conf.",
     "noSends": "no sends",
     "workspaces": "Workspaces",
     "page": "Page",
-    "emptyTitle": "No workspace in this period",
-    "emptyDescription": "None sent a service message or bought a billable send with these filters.",
+    "emptyTitle": "No workspaces in the period",
+    "emptyDescription": "None sent a service message or bought a charged send with these filters.",
     "showing": "Showing",
     "of": "of",
     "items": "workspaces",
-    "loadError": "The report could not be loaded."
+    "invoiceTitle": "Meta invoice check",
+    "invoiceSubtitle": "Our count of sends next to Meta's count on each WhatsApp account. Meta does not report amounts for accounts Vozko pays for, only counts.",
+    "invoiceCaption": "Sends per WhatsApp account by our count and by Meta's pricing analytics, and the service messages Meta charged.",
+    "invoiceLoading": "Asking Meta",
+    "invoiceError": "Could not reach Meta.",
+    "invoiceEmptyTitle": "No accounts to check",
+    "invoiceEmptyDescription": "No WhatsApp account in the period.",
+    "invoiceChargedService": "Service charged by Meta",
+    "invoiceFreeService": "Free service",
+    "invoiceUnavailable": "Unavailable accounts",
+    "invoiceIdle": "Accounts with no sends in the period",
+    "colAccount": "WhatsApp account",
+    "colOurTemplates": "Sends: our count",
+    "colMetaTemplates": "Sends: Meta",
+    "metaChargedTemplates": "{count} charged",
+    "colMetaService": "Service at Meta",
+    "metaServiceSplit": "{charged} charged · {free} free",
+    "colDifference": "Difference",
+    "colStatus": "Status",
+    "wabaId": "WABA {id}",
+    "invoiceState": {
+      "matched": "As expected",
+      "check": "Check",
+      "unavailable": "Unavailable"
+    },
+    "invoiceReason": {
+      "dialog360": "Unavailable: 360dialog",
+      "noToken": "Unavailable: no token",
+      "metaUnreadable": "Unavailable: Meta did not allow reading"
+    }
   },
   "reports": {
     "badge": "Reports",

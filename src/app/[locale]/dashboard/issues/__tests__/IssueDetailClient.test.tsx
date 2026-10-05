@@ -143,11 +143,11 @@ describe("IssueDetailClient", () => {
     useAuthMock.mockReturnValue({ user: mockUser });
   });
 
-  it("shows loading spinner initially", () => {
+  it("shows the screen loader initially", () => {
     getIssueMock.mockReturnValue(new Promise(() => {}));
     listResponsesMock.mockReturnValue(new Promise(() => {}));
     render(<IssueDetailClient issueId="issue-1" />);
-    expect(document.querySelector(".animate-spin")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
   });
 
   it("renders issue details after load", async () => {

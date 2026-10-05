@@ -96,17 +96,18 @@ export function ReadoutBar({
 
 export interface Instrument {
   label: string;
-  value: string;
+  value: ReactNode;
   detail?: string;
   tooltip?: string;
   tone?: ReadoutTone;
   chart?: ReactNode;
 }
 
-const STRIP_COLUMNS: Record<2 | 3 | 4 | 8, string> = {
+const STRIP_COLUMNS: Record<2 | 3 | 4 | 5 | 8, string> = {
   2: "grid-cols-2",
   3: "sm:grid-cols-2 xl:grid-cols-3",
   4: "sm:grid-cols-2 lg:grid-cols-4",
+  5: "sm:grid-cols-2 lg:grid-cols-5",
   8: "grid-cols-2 sm:grid-cols-4 xl:grid-cols-8",
 };
 
@@ -119,7 +120,7 @@ export function InstrumentStrip({
 }: {
   instruments: Instrument[];
   loading?: boolean;
-  columns?: 2 | 3 | 4 | 8;
+  columns?: 2 | 3 | 4 | 5 | 8;
   compact?: boolean;
   className?: string;
 }) {

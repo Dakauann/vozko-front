@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { Agent } from "@/lib/agents/types";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { ArrowLeft } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import { getAgentByIdAction } from "@/app/actions/agents";
@@ -35,15 +36,7 @@ export default function EditAgentLoader({
     }, [agentId]);
 
     if (state.loading) {
-        return (
-            <main className="flex w-full items-center justify-center py-24">
-                <div
-                    className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-                    role="status"
-                    aria-label={tAgents("loading")}
-                />
-            </main>
-        );
+        return <ScreenLoader fit="screen" />;
     }
 
     if (state.error || !state.agent) {

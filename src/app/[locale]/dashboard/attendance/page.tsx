@@ -62,14 +62,12 @@ import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import { format, subDays } from "date-fns";
 import {
   Fragment,
   useCallback,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -96,6 +94,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { useInView } from "@/hooks/use-in-view";
 import { attendanceSectionsKey } from "@/lib/attendance/sections";
+import { presetRange, type PeriodPreset } from "@/lib/attendance/period";
 import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
 import { useToast } from "@/hooks/use-toast";
@@ -120,7 +119,6 @@ import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-p
 import { fetchDepartments } from "@/lib/department/client";
 import type { Department } from "@/lib/department/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
-import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { cn } from "@/lib/utils";
@@ -138,8 +136,12 @@ import {
   ChartSkeleton,
   Chapter,
   EmptyChart,
+  KpiGroup,
+  MemberActivityLink,
+  PresenceBadge,
   SectionTitle,
   Surface,
+  type KpiTile,
   useActorKindLabel,
   useMetricsFmt,
   usePresenceLabel,
@@ -155,27 +157,20 @@ import {
   TrendSection,
 } from "@/components/dashboard/attendance/executive-panels";
 import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
+import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
+import { hasMemberActivity, memberActivitySubject } from "@/lib/attendance/member-activity";
+import { useAuth } from "@/contexts/auth-context";
 import { usePublishAssistantContext } from "@/components/ai-chat/assistant-context";
 import type { ChatView } from "@/lib/aichat/types";
 
 const ATTENDANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "pdf"];
 
-type DatePreset = "7d" | "30d" | "90d" | "custom";
+type DatePreset = PeriodPreset | "custom";
 
 const DEFAULT_TARGET_CURRENCY = "BRL";
 
 
-type KpiDef = {
-  key: string;
-  label: string;
-  short: string;
-  value: string;
-  hint: string;
-  icon: typeof CheckCircle;
-  bg: string;
-  muted?: boolean;
-  visual?: ReactNode;
-};
+
 
 function KpiStrip({
   kpis,
@@ -190,7 +185,7 @@ function KpiStrip({
   const ts = useTranslations("metricsOps.attendance.sections");
   const tc = useTranslations("metricsOps.common");
   const fmt = useMetricsFmt();
-  const cards: KpiDef[] = [
+  const cards: KpiTile[] = [
     {
       key: "finished",
       label: t("finished"),
@@ -280,57 +275,6 @@ function KpiStrip({
 }
 
 const TIME_KPIS = new Set(["tme", "tma", "frt"]);
-
-function KpiGroup({
-  title,
-  cards,
-  loading,
-}: {
-  title: string;
-  cards: KpiDef[];
-  loading: boolean;
-}) {
-  return (
-    <section aria-label={title} className="min-w-0">
-      <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{title}</h3>
-      <dl
-        className={cn(
-          "grid gap-px overflow-hidden rounded-[--radius] border border-border bg-border",
-          "grid-cols-2 [&>*:last-child:nth-child(odd)]:col-span-2",
-          cards.length > 3
-            ? "sm:grid-cols-5 sm:[&>*:last-child:nth-child(odd)]:col-span-1"
-            : "sm:grid-cols-3 sm:[&>*:last-child:nth-child(odd)]:col-span-1",
-        )}
-        style={{ boxShadow: softSurfaceShadow }}
-      >
-        {cards.map((c) => (
-          <div key={c.key} title={c.hint} className="min-w-0 bg-card px-4 py-3">
-            <dt className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
-                  c.bg,
-                )}
-              >
-                <c.icon className="h-4 w-4" weight="fill" />
-              </span>
-              <span className="truncate text-xs font-semibold text-muted-foreground">
-                {c.label}
-              </span>
-            </dt>
-            <dd className="mt-2 flex items-center justify-between gap-1">
-              <span className="readout truncate font-display text-[1.75rem] leading-none font-semibold tracking-tight text-foreground">
-                {c.value}
-              </span>
-              {!loading ? c.visual : null}
-            </dd>
-            <dd className="mt-1.5 truncate text-xs text-muted-foreground">{c.short}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
-}
 
 const CHANNEL_BAR: Record<string, string> = {
   whatsapp: "#25d366",
@@ -1307,15 +1251,16 @@ function DepartmentDetailTable({
 function TeamDetailTable({
   rows,
   loading,
+  onSelectMember,
 }: {
   rows: MemberRow[] | undefined;
   loading: boolean;
+  onSelectMember: (row: MemberRow) => void;
 }) {
   const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
   const fmt = useMetricsFmt();
   const actorKindLabel = useActorKindLabel();
-  const presenceLabel = usePresenceLabel();
 
   if (loading) return <ChartSkeleton height={200} />;
   if (!rows?.length) {
@@ -1384,7 +1329,13 @@ function TeamDetailTable({
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-medium text-foreground">
-                      {m.display_name}
+                      {hasMemberActivity(m) ? (
+                        <MemberActivityLink onClick={() => onSelectMember(m)}>
+                          {m.display_name}
+                        </MemberActivityLink>
+                      ) : (
+                        m.display_name
+                      )}
                     </p>
                     {m.email ? (
                       <p className="truncate text-2xs text-muted-foreground">
@@ -1405,19 +1356,7 @@ function TeamDetailTable({
                 </span>
               </td>
               <td className="px-2 py-2.5">
-                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span
-                    className={cn(
-                      "h-1.5 w-1.5 rounded-full",
-                      m.presence === "online"
-                        ? "bg-healthy"
-                        : m.presence === "on_call"
-                          ? "bg-muted"
-                          : "bg-muted",
-                    )}
-                  />
-                  {presenceLabel(m.presence)}
-                </span>
+                <PresenceBadge presence={m.presence} />
               </td>
               <td className="px-2 py-2.5 text-right tabular-nums text-muted-foreground">
                 {fmt.mins(m.avg_response_mins)}
@@ -2060,10 +1999,8 @@ export default function AttendanceOpsPage() {
   );
 
   const [preset, setPreset] = useState<DatePreset>("7d");
-  const [dateFrom, setDateFrom] = useState(() =>
-    format(subDays(new Date(), 6), "yyyy-MM-dd"),
-  );
-  const [dateTo, setDateTo] = useState(() => format(new Date(), "yyyy-MM-dd"));
+  const [dateFrom, setDateFrom] = useState(() => presetRange("7d").dateFrom);
+  const [dateTo, setDateTo] = useState(() => presetRange("7d").dateTo);
   const [departmentId, setDepartmentId] = useState("all");
   const [memberId, setMemberId] = useState("all");
   const [channel, setChannel] = useState("all");
@@ -2072,6 +2009,8 @@ export default function AttendanceOpsPage() {
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [rankMetric, setRankMetric] = useState("resolved");
   const [targetsOpen, setTargetsOpen] = useState(false);
+  const [activityMember, setActivityMember] = useState<MemberRow | null>(null);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const sectionParams = useMemo<AttendanceOverviewParams>(
@@ -2175,9 +2114,9 @@ export default function AttendanceOpsPage() {
       setFiltersOpen(true);
       return;
     }
-    const days = p === "7d" ? 6 : p === "30d" ? 29 : 89;
-    setDateFrom(format(subDays(new Date(), days), "yyyy-MM-dd"));
-    setDateTo(format(new Date(), "yyyy-MM-dd"));
+    const range = presetRange(p);
+    setDateFrom(range.dateFrom);
+    setDateTo(range.dateTo);
   }, []);
 
   const exportReport = useCallback(async (format: ReportFormat) => {
@@ -2790,6 +2729,7 @@ export default function AttendanceOpsPage() {
                 rankMetric={rankMetric}
                 onRankMetricChange={setRankMetric}
                 onConfigureSchedule={() => router.push(`/${locale}/dashboard/workspace`)}
+                onSelectMember={setActivityMember}
               />
             </SectionState>
           </Chapter>
@@ -2813,6 +2753,7 @@ export default function AttendanceOpsPage() {
                   <TeamDetailTable
                     rows={team?.by_member}
                     loading={teamQuery.isPending}
+                    onSelectMember={setActivityMember}
                   />
                 </Surface>
               </div>
@@ -2870,6 +2811,15 @@ export default function AttendanceOpsPage() {
             </Surface>
           </div>
         </>
+
+      <MemberActivitySheet
+        subject={activityMember ? memberActivitySubject(activityMember.actor_id, user?.id ?? "") : null}
+        name={activityMember?.display_name}
+        presence={activityMember?.presence}
+        onOpenChange={(open) => {
+          if (!open) setActivityMember(null);
+        }}
+      />
 
       {canWriteTargets ? (
         <TargetsDialog

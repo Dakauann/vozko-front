@@ -20,6 +20,7 @@ import {
   UserCircle,
 } from "@/components/icons";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -262,12 +263,7 @@ function AdminAffiliatesTable() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <CircleNotch
-              className="h-8 w-8 animate-spin text-primary-ink"
-              weight="bold"
-            />
-          </div>
+          <ScreenLoader fit="fill" />
         ) : error ? (
           <div className="rounded-[--radius] border border-border bg-muted px-4 py-6 text-center text-sm text-destructive-ink">
             {error}
@@ -522,14 +518,7 @@ export default function AdminAffiliatesPage() {
   const t = useTranslations("adminAffiliates");
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (!isSystemAdmin(user?.role)) {

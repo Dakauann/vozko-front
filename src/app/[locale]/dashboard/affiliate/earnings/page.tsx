@@ -2,7 +2,6 @@
 
 import {
   CheckCircle,
-  CircleNotch,
   Clock,
   CurrencyDollar,
   XCircle,
@@ -14,6 +13,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listAffiliateEarningsAction } from "@/app/actions/affiliate";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
@@ -225,12 +225,7 @@ export default function AffiliateEarningsPage() {
       ) : null}
 
       {loading && rows.length === 0 ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <CircleNotch
-            className="h-8 w-8 animate-spin text-primary-ink"
-            weight="bold"
-          />
-        </div>
+        <ScreenLoader fit="fill" className="min-h-[30vh]" />
       ) : (
         <DashboardTable<AffiliateEarning>
           data={rows}

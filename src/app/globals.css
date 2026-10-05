@@ -633,54 +633,58 @@ input:-webkit-autofill:active {
     mask-image: linear-gradient(135deg, hsl(0 0% 0%) 0%, transparent 70%);
   }
 
-  /*
-    The pulse in the traces.
+  .vz-glow-hot { stop-color: hsl(var(--primary)); stop-opacity: 0.95; }
+  .vz-glow-mid { stop-color: hsl(var(--primary)); stop-opacity: 0.32; }
+  .vz-glow-edge { stop-color: hsl(var(--primary)); stop-opacity: 0; }
+  .vz-spark-core { fill: hsl(var(--primary)); }
+  .vz-spark-trail { stroke: hsl(var(--primary)); }
+  .vz-spark-trail-far { opacity: 0.35; }
+  .vz-spark-bloom { opacity: 0.45; }
 
-    A user-directed exception (2026-08-24) to "nothing in the periphery
-    loops": the trace ornament carries a slow current — a short bright dash
-    travelling the line's own geometry, the way signal moves through a
-    circuit. It stays an exception, not a precedent: only the ornament may
-    loop, it is slow (8s per circuit), and it disappears entirely under
-    prefers-reduced-motion, leaving the static art.
-
-    Mechanics: the pulse is an overlay of the same path with pathLength=100
-    normalised, dashed 16/84, and its offset swept by -200 per cycle — a
-    multiple of the dash period, so the loop has no visible seam.
-  */
-  @keyframes vz-trace-pulse {
-    from {
-      stroke-dashoffset: var(--trace-phase, 0);
-    }
-    to {
-      stroke-dashoffset: calc(var(--trace-phase, 0) - 100);
-    }
-  }
-
-  .vz-trace-pulse {
-    stroke-dasharray: 16 84;
-    animation: vz-trace-pulse 8s linear infinite;
-  }
-
-  @keyframes vz-trace-charge {
-    0%, 75%, 100% { opacity: 0.04; }
-    28% { opacity: 0.95; }
-    48% { opacity: 0.28; }
-  }
-
-  .vz-trace-energize { animation: vz-trace-charge 6s ease-in-out infinite; }
-  @keyframes vz-circuit-grow { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes vz-circuit-retire { from { opacity: 1; } to { opacity: 0; } }
-  .vz-circuit-grow { animation: vz-circuit-grow 1.2s ease-out both; }
-  .vz-circuit-retire { animation: vz-circuit-retire 0.8s ease-out both; }
+  .dark .vz-glow-hot { stop-color: hsl(155 100% 94%); stop-opacity: 1; }
+  .dark .vz-glow-mid { stop-color: hsl(var(--ornament)); stop-opacity: 0.75; }
+  .dark .vz-spark-bloom { opacity: 0.7; }
+  .dark .vz-glow-edge { stop-color: hsl(var(--ornament)); }
+  .dark .vz-spark-core { fill: hsl(150 100% 97%); }
+  .dark .vz-spark-trail { stroke: hsl(158 85% 72%); }
+  .dark .vz-spark-trail-far { stroke: hsl(var(--ornament)); }
 
   @media (prefers-reduced-motion: reduce) {
-    .vz-trace-pulse,
-    .vz-trace-energize {
-      animation: none;
-      opacity: 0;
-    }
-    .vz-circuit-grow { animation: none; }
-    .vz-circuit-retire { display: none; }
+    .vz-spark { display: none; }
+  }
+
+  @keyframes vz-loader-appear {
+    from { opacity: 0; transform: translateY(2px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes vz-loader-current {
+    0% { stroke-dashoffset: 22; }
+    80%, 100% { stroke-dashoffset: -100; }
+  }
+  @keyframes vz-loader-pad {
+    0%, 14% { fill: hsl(var(--ornament)); stroke: hsl(var(--ornament)); }
+    42%, 100% { fill: hsl(var(--card)); stroke: hsl(var(--border-strong)); }
+  }
+
+  .vz-loader { animation: vz-loader-appear 320ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both; }
+  .vz-loader-route { stroke: hsl(var(--border-strong)); }
+  .vz-loader-route-pad { fill: hsl(var(--border-strong)); opacity: 0.55; }
+  .vz-loader-current {
+    stroke: hsl(var(--ornament));
+    stroke-dasharray: 22 200;
+    stroke-dashoffset: 22;
+    animation: vz-loader-current 2.4s linear infinite;
+  }
+  .vz-loader-pad {
+    fill: hsl(var(--card));
+    stroke: hsl(var(--border-strong));
+    animation: vz-loader-pad 2.4s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vz-loader { animation: none; }
+    .vz-loader-current { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; opacity: 0.6; }
+    .vz-loader-pad { animation: none; fill: hsl(var(--ornament)); stroke: hsl(var(--ornament)); }
   }
 
   /*

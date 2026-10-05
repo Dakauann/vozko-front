@@ -20,6 +20,7 @@ import Link from "next/link";
 import { acceptInviteAction } from "@/app/actions/workspace";
 import { CircuitTraces } from "@/components/brand/circuit";
 import { LightPool } from "@/components/brand/light-pool";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { useAuth } from "@/contexts/auth-context";
 import { useTranslations } from "next-intl";
 
@@ -119,10 +120,7 @@ function InviteContent() {
 
           {}
           {(state === "checking" || authLoading) && (
-            <div className="flex flex-col items-center gap-3 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border border-border-strong border-t-transparent" />
-              <p className="text-sm text-muted-foreground">{t("checking")}</p>
-            </div>
+            <ScreenLoader fit="fill" label={t("checking")} />
           )}
 
           {}

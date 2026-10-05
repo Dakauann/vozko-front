@@ -5,7 +5,9 @@ import type {
     GetCallAnalyticsParams,
     GetPlanContractionsParams,
     GetProfitReportParams,
+    GetMetaInvoiceCheckParams,
     GetMetaServiceMessageCostParams,
+    MetaInvoiceCheckReport,
     PlanContractionsReport,
     ProfitReport,
     MetaServiceMessageCostReport,
@@ -25,9 +27,15 @@ export type {
     PlanContractionsReport,
     ProfitReport,
     RecentSpending,
+    MetaCostRates,
+    MetaInvoiceAccount,
+    MetaInvoiceCheckReport,
+    MetaNumberServiceCost,
     MetaServiceMessageCostReport,
     MetaServiceMessageCostSortField,
     MetaServiceMessageCostTotals,
+    MetaUnlinkedServiceMessages,
+    Money,
     ServiceMessageProvider,
     WorkspaceFinancialSnapshot,
     WorkspaceMetaServiceMessageCost,
@@ -108,5 +116,12 @@ export async function getPlanContractionsAction(
 ): Promise<AnalyticsActionResult<PlanContractionsReport>> {
     return fetchAnalytics<PlanContractionsReport>(
         `/admin/analytics/contractions${buildQueryString(params as unknown as Record<string, unknown>)}`,
+    );
+}
+export async function getMetaInvoiceCheckAction(
+    params: GetMetaInvoiceCheckParams,
+): Promise<AnalyticsActionResult<MetaInvoiceCheckReport>> {
+    return fetchAnalytics<MetaInvoiceCheckReport>(
+        `/admin/analytics/meta-invoice-check${buildQueryString(params as unknown as Record<string, unknown>)}`,
     );
 }

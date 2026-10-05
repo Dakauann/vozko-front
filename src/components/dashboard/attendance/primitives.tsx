@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import Button from "@/components/elevated-design/button";
-import { Info, WarningCircle } from "@/components/icons";
+import { Info, WarningCircle, type Icon } from "@/components/icons";
 import { ProgressPanel } from "@/components/ui/progress-panel";
 
 export const ATTENDANCE_COLORS = {
@@ -373,5 +373,92 @@ export function SectionError({
       </span>
       <Button variant="secondary" title={t("retry")} onClick={onRetry} disabled={retrying} />
     </div>
+  );
+}
+
+export type KpiTile = {
+  key: string;
+  label: string;
+  short: string;
+  value: string;
+  hint: string;
+  icon: Icon;
+  bg: string;
+  muted?: boolean;
+  visual?: ReactNode;
+};
+
+export function KpiGroup({
+  title,
+  cards,
+  loading,
+}: {
+  title: string;
+  cards: KpiTile[];
+  loading: boolean;
+}) {
+  return (
+    <section aria-label={title} className="min-w-0">
+      <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{title}</h3>
+      <dl
+        className={cn(
+          "grid gap-px overflow-hidden rounded-[--radius] border border-border bg-border",
+          "grid-cols-2 [&>*:last-child:nth-child(odd)]:col-span-2",
+          cards.length > 3
+            ? "sm:grid-cols-5 sm:[&>*:last-child:nth-child(odd)]:col-span-1"
+            : "sm:grid-cols-3 sm:[&>*:last-child:nth-child(odd)]:col-span-1",
+        )}
+        style={{ boxShadow: softSurfaceShadow }}
+      >
+        {cards.map((c) => (
+          <div key={c.key} title={c.hint} className="min-w-0 bg-card px-4 py-3">
+            <dt className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
+                  c.bg,
+                )}
+              >
+                <c.icon className="h-4 w-4" weight="fill" />
+              </span>
+              <span className="truncate text-xs font-semibold text-muted-foreground">
+                {c.label}
+              </span>
+            </dt>
+            <dd className="mt-2 flex items-center justify-between gap-1">
+              <span className="readout truncate font-display text-[1.75rem] leading-none font-semibold tracking-tight text-foreground">
+                {c.value}
+              </span>
+              {!loading ? c.visual : null}
+            </dd>
+            <dd className="mt-1.5 truncate text-xs text-muted-foreground">{c.short}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+export function PresenceBadge({ presence }: { presence: string }) {
+  const presenceLabel = usePresenceLabel();
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className={cn("h-1.5 w-1.5 rounded-full", presence === "online" ? "bg-healthy" : "bg-muted")} />
+      {presenceLabel(presence)}
+    </span>
+  );
+}
+
+export function MemberActivityLink({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  const t = useTranslations("metricsOps.attendance.memberActivity");
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={t("open")}
+      className="max-w-full truncate rounded-sm text-left underline-offset-2 hover:text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {children}
+    </button>
   );
 }

@@ -1,4 +1,7 @@
 {
+  "screenLoader": {
+    "label": "Wird geladen…"
+  },
   "imageGeneration": {
     "generating": "Bild wird erstellt",
     "failed": "Das Bild konnte nicht erstellt werden",
@@ -392,9 +395,10 @@
       "set_ad_spend_cap": "Ausgabenlimit des Kontos",
       "update_ad_draft": "Anzeigenentwurf ändern",
       "swap_ad_creative": "Anzeigen-Creative austauschen",
-      "compose_creative": "Creative gestalten",
       "number_automation": "Service der Nummer",
-      "configure_number_automation": "Service der Nummer einrichten"
+      "configure_number_automation": "Service der Nummer einrichten",
+      "load_skill": "Fähigkeit lesen",
+      "member_activity": "Aktivität des Mitglieds"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -496,7 +500,6 @@
       "fullscreen": "Vollbild",
       "exitFullscreen": "Vollbild beenden",
       "resize": "Zum Ändern der Größe ziehen",
-      "newChat": "Neue Analyse",
       "openFull": "Im Chat öffnen",
       "groups": {
         "start": {
@@ -1235,7 +1238,9 @@
           "automation_handoff_rr": "Von der Automatisierung übergeben (Roulette)",
           "automation_released": "Automatisierung pausiert, Team-Warteschlange",
           "automation_taken_over": "Übernommen durch Pausieren der Automatisierung",
-          "automation_resumed": "An die Automatisierung zurückgegeben"
+          "automation_resumed": "An die Automatisierung zurückgegeben",
+          "inbound_outreach": "Antwort auf Versand",
+          "outreach_sent": "Versand gesendet"
         }
       },
       "aiSessionEnd": {
@@ -1742,7 +1747,8 @@
       "user": "Benutzer",
       "settings": "Einstellungen",
       "profile": "Mein Profil",
-      "logout": "Abmelden"
+      "logout": "Abmelden",
+      "myActivity": "Meine Aktivität"
     }
   },
   "calendarSheet": {
@@ -3781,7 +3787,8 @@
       "saved": "Gespeichert",
       "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
       "loadFailed": "Der eingehende Service dieser Nummer konnte nicht geladen werden.",
-      "ownedElsewhere": "Diese Nummer gehört einem anderen Workspace, der festlegt, wer eingehende Gespräche beantwortet. Hier kannst du sie für Kampagnen nutzen."
+      "ownedElsewhere": "Diese Nummer gehört einem anderen Workspace, der festlegt, wer eingehende Gespräche beantwortet. Hier kannst du sie für Kampagnen nutzen.",
+      "withoutOwner": "Diese Nummer hat noch keinen besitzenden Workspace. Daher legt niemand fest, wer antwortet, und neue Kontakte werden nicht empfangen. Weise einen Besitzer zu, um den KI-Service einzurichten."
     }
   },
   "knowledgeBase": {
@@ -6679,7 +6686,8 @@
         "changes_automation": "Erlaubt Änderungen am Verhalten von KI-Agenten und Automationen im Kundenservice.",
         "connects_accounts": "Erlaubt das Verbinden und Trennen von Kanälen und Integrationen des Unternehmens."
       }
-    }
+    },
+    "viewActivity": "Aktivität ansehen"
   },
   "workspaceInvites": {
     "loading": "Einladungen werden geladen...",
@@ -7077,7 +7085,8 @@
       "service": "Dienst",
       "metric": "Metrik",
       "price": "Preis",
-      "priceBrl": "Preis (R$)"
+      "priceBrl": "Preis (R$)",
+      "costBrl": "Meta-Kosten (R$)"
     },
     "defaults": {
       "rateBannerLabel": "System Wechselkurs",
@@ -7086,7 +7095,9 @@
       "editRateLink": "Kurs ändern",
       "rateMissing": "Wechselkurs erforderlich, bevor Standardpreise bearbeitet werden.",
       "storedAsUsd": "als USD gespeichert",
-      "unpriced": "Kein Preis"
+      "unpriced": "Kein Preis",
+      "noCost": "Keine Kosten festgelegt",
+      "costNote": "Die Kosten sind das, was Meta Vozko berechnet: Sie fließen in Meta-Kosten und Marge ein, nie in das, was der Kunde zahlt."
     },
     "services": {
       "whatsapp": {
@@ -7138,7 +7149,8 @@
       "newPrice": "Neuer Preis",
       "changedBy": "Geändert Von",
       "empty": "Keine Audit-Einträge gefunden.",
-      "loadMore": "Mehr Laden"
+      "loadMore": "Mehr Laden",
+      "costChange": "Kosten"
     },
     "form": {
       "error": {
@@ -7150,7 +7162,8 @@
       "success": {
         "saved": "Preis erfolgreich aktualisiert.",
         "savedDetail": "{brl} (≈ {usd})",
-        "rateSaved": "Wechselkurs erfolgreich aktualisiert."
+        "rateSaved": "Wechselkurs erfolgreich aktualisiert.",
+        "costSaved": "Kosten erfolgreich aktualisiert."
       }
     },
     "button": {
@@ -10143,6 +10156,64 @@
         "allMembers": "Ganzes Team",
         "allChannels": "Alle Kanäle",
         "greeting": "Was möchtest du über den Kundenservice verstehen?"
+      },
+      "memberActivity": {
+        "title": "Mitgliedsaktivität",
+        "myTitle": "Meine Aktivität",
+        "open": "Aktivität ansehen",
+        "subtitle": "Anwesenheit im Panel und Betreuung im Zeitraum",
+        "timezone": "Zeiten in {timezone}",
+        "note": "Verbunden bedeutet, dass das Vozko Panel geöffnet war. Das beweist keine Arbeit: Ein vergessener offener Tab zählt ebenfalls als verbunden.",
+        "outOfScope": "Dieses Mitglied ist nicht in deinen Abteilungen",
+        "outOfScopeHint": "Du siehst nur die Aktivität von Personen aus deinen Abteilungen.",
+        "groups": {
+          "presence": "Anwesenheit",
+          "work": "Betreuung"
+        },
+        "kpi": {
+          "connected": "Verbundene Zeit",
+          "connectedShort": "Panel im Zeitraum geöffnet",
+          "onCall": "Im Gespräch",
+          "onCallShort": "Zeit in Anrufen",
+          "usualStart": "Üblicher Beginn",
+          "usualStartShort": "Typische Uhrzeit der ersten Anmeldung",
+          "received": "Erhaltene Gespräche",
+          "receivedShort": "{count} offline erhalten",
+          "receivedHint": "Gespräche, die diesem Mitglied im Zeitraum zugewiesen wurden, aus jeder Quelle",
+          "resolved": "Gelöst",
+          "resolvedShort": "Im Zeitraum abgeschlossene Gespräche",
+          "frt": "Erste Antwort",
+          "frtShort": "Durchschnittliche Zeit bis zur Antwort"
+        },
+        "offlineNotice": {
+          "title": "{count} Roulette Gespräche kamen an, während das Mitglied offline war",
+          "message": "Das Roulette sollte Gespräche nur an verbundene Personen geben. Prüfe die Verteilungseinstellungen."
+        },
+        "receivedBy": "Erhalten nach Quelle",
+        "timeline": {
+          "title": "Zeitachse",
+          "subtitle": "Sitzungen mit geöffnetem Panel, Tag für Tag, in {timezone}",
+          "connected": "Verbunden",
+          "onCall": "Im Gespräch",
+          "connectedNow": "Jetzt verbunden",
+          "session": "{start} bis {end}",
+          "sessionOpen": "Seit {start}, noch verbunden",
+          "sessionOnCall": "{onCall} im Gespräch",
+          "empty": "Keine Tage im Zeitraum"
+        },
+        "flags": {
+          "late_start": "Spät begonnen",
+          "no_presence": "Keine Anwesenheit",
+          "possible_forgotten_tab": "Möglicher vergessener Tab"
+        },
+        "heatmap": {
+          "title": "Verbundene Zeiten",
+          "subtitle": "Verbundene Minuten nach Wochentag und Stunde",
+          "weekday": "Tag",
+          "hour": "Stunde",
+          "minutes": "Minuten",
+          "cell": "{weekday}, {hour} Uhr: {minutes} Min. verbunden"
+        }
       }
     }
   },
@@ -11757,6 +11828,16 @@
         "save": "Speichern",
         "saving": "Wird gespeichert...",
         "success": "Nummernkontingent aktualisiert"
+      },
+      "metaPayer": {
+        "title": "Wer zahlt Meta",
+        "description": "Ändert nur die in Meta-Kosten gezeigte Marge. Ändert nie, was dem Kunden berechnet wird.",
+        "vozko": "Vozko",
+        "client": "Kunde",
+        "notSet": "Noch nicht festgelegt.",
+        "saving": "Wird gespeichert",
+        "success": "Wer zahlt Meta wurde aktualisiert.",
+        "notSaved": "Die Änderung wurde nicht gespeichert. Bitte erneut versuchen."
       }
     }
   },
@@ -13387,45 +13468,129 @@
     }
   },
   "metaCosts": {
-    "title": "Meta-Kosten pro Kunde",
-    "subtitle": "Kosten pro Arbeitsbereich, basierend auf gesendeten Servicenachrichten und abgerechneten Sendungen.",
-    "serviceMessages": "Servicenachrichten",
-    "serviceMessagesInferred": "Obergrenze, von Meta noch nicht bestätigt",
-    "serviceMessagesConfirmed": "Von Meta bestätigt",
-    "billableSends": "Abgerechnete Sendungen",
-    "billableSendsHint": "Abbuchungen abzüglich Erstattungen",
-    "perSend": "Pro abgerechneter Sendung",
-    "perSendHint": "{count} Arbeitsbereiche",
-    "noticeInferred": "Unsere eigene Zählung, nicht die Abrechnung von Meta. Als Obergrenze behandeln.",
-    "noticeCoverage": "Meta hat für {percent}% dieses Zeitraums geantwortet.",
-    "noticeConfirmed": "Von Meta bestätigt: {count} als Servicenachricht berechnet.",
-    "noticeUnattributed": "{count} Nachrichten ohne zugeordnete Nummer.",
+    "title": "Meta-Kosten",
+    "subtitle": "Was Vozko Meta für Sendungen und Servicenachrichten zahlt, was jeder Kunde bezahlt hat und die verbleibende Marge, in Real. Service ist die von Meta als berechnet gemeldete Anzahl mal die im Plan oder in Tarifen festgelegten Kosten.",
+    "periodLabel": "Zeitraum",
+    "providerLabel": "Anbieter",
     "currentMonth": "Aktueller Monat",
     "previousMonth": "Vormonat",
-    "customPeriod": "Zeitraum",
+    "customPeriod": "Benutzerdefiniert",
     "start": "Beginn",
     "end": "Ende",
-    "searchPlaceholder": "Arbeitsbereich suchen",
-    "providerMeta": "Meta direkt",
+    "providerMeta": "Meta",
     "providerDialog360": "360dialog",
     "providerAll": "Alle",
     "providerUnattributed": "Ohne Nummer",
-    "order": "Reihenfolge",
+    "exchangeRate": "Wechselkurs des Zeitraums: <b>{rate}</b> pro US$",
+    "exchangeRateChange": "Ändern",
+    "loadError": "Der Bericht konnte nicht geladen werden.",
+    "serviceCostMissingTitle": "Kosten für Servicenachrichten nicht festgelegt",
+    "serviceCostMissingBody": "Meta hat Servicenachrichten für {count, plural, one {# Kunden} other {# Kunden}} berechnet, ohne Kosten im Plan oder in Tarifen, daher haben Kosten und Marge keinen Wert. Die Kosten ändern nie, was der Kunde zahlt.",
+    "serviceCostMissingAction": "Kosten in Tarifen festlegen",
+    "summaryLabel": "Zusammenfassung des Zeitraums",
+    "serviceMessages": "Servicenachrichten",
+    "answeredShare": "{percent} mit Antwort von Meta",
+    "metaChargedService": "Von Meta berechneter Service",
+    "metaChargedServiceDetail": "{count, plural, one {# Nachricht berechnet} other {# Nachrichten berechnet}}",
+    "vozkoMetaCost": "Meta-Kosten von Vozko",
+    "vozkoMetaCostDetail": "Sendungen und Service von Kunden, deren Meta-Rechnung Vozko zahlt",
+    "realMargin": "Reale Marge",
+    "realMarginDetail": "Von Kunden bezahlt minus Meta-Kosten von Vozko",
+    "paidByClients": "Von Kunden bezahlt",
+    "paidByClientsDetail": "Was Kunden im Zeitraum bezahlt haben",
+    "safetyTitle": "Abrechnungssicherheit",
+    "safetySubtitle": "Was Kosten verschwinden oder falsch berechnen lassen kann",
+    "webhookTitle": "Webhook-Signatur",
+    "webhookStatus": "Ohne Schlüssel abgelehnt",
+    "webhookBody": "Webhooks ohne gültige Signatur werden abgelehnt.",
+    "unlinkedTitle": "Ohne Arbeitsbereich",
+    "unlinkedCount": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
+    "unlinkedBody": "Nachrichten, die keinem Kunden zugeordnet werden konnten. Niemandem berechnet.",
+    "unlinkedNone": "Alle Servicenachrichten wurden einem Kunden zugeordnet.",
+    "unlinkedLink": "Nummern ansehen",
+    "answersTitle": "Antwort von Meta",
+    "answersSubtitle": "Jede Servicenachricht, laut Metas Angabe im Webhook",
+    "answersAria": "{charged} berechnet, {free} kostenlos, {noAnswer} ohne Antwort",
+    "answersEmpty": "Keine Servicenachrichten im Zeitraum.",
+    "answerCharged": "Berechnet",
+    "answerChargedHint": "von Meta berechnet",
+    "answerFree": "Kostenlos",
+    "answerNoAnswer": "Ohne Antwort",
+    "answerFreeHint": "Servicefenster oder Nummer noch kostenlos",
+    "answerNoAnswerHint": "keine Angabe von Meta",
+    "numbersTitle": "Nummern",
+    "numbersSubtitle": "Seit wann Meta jede Nummer berechnet",
+    "numbersCaption": "Nummern mit Servicenachrichten im Zeitraum und solche, die keinem Kunden zugeordnet werden konnten.",
+    "numbersEmptyTitle": "Keine Nummern im Zeitraum",
+    "numbersEmptyDescription": "Keine Nummer hat mit diesen Filtern Servicenachrichten gesendet.",
+    "colNumber": "Nummer",
     "colWorkspace": "Arbeitsbereich",
+    "colMetaCharge": "Berechnung durch Meta",
     "colServiceMessages": "Servicenachrichten",
-    "colBillableSends": "Abgerechnete Sendungen",
-    "colPerSend": "Service pro abgerechneter Sendung",
-    "caption": "Gesendete Servicenachrichten gegenüber abgerechneten Vorlagensendungen, für den gewählten Zeitraum und Anbieter.",
+    "colCharged": "Berechnet",
+    "numberState": {
+      "charging": "Berechnet seit {date}",
+      "free": "Kostenlos im Zeitraum",
+      "noAnswer": "Keine Antwort von Meta",
+      "unlinked": "Ohne Arbeitsbereich"
+    },
+    "clientsTitle": "Kunden",
+    "clientsSubtitle": "Meta-Kosten, was der Kunde bezahlt hat und die echte Marge",
+    "caption": "Servicenachrichten gegenüber berechneten Sendungen, Meta-Kosten, was der Kunde bezahlt hat und die echte Marge, für Zeitraum und Anbieter.",
+    "searchPlaceholder": "Arbeitsbereich suchen",
+    "order": "Reihenfolge",
+    "colPayer": "Wer zahlt Meta",
+    "colBillableSends": "Versände",
+    "colPerSend": "Service pro Versand",
+    "colMetaCost": "Meta-Kosten",
+    "colPaidByClient": "Vom Kunden bezahlt",
+    "colRealMargin": "Reale Marge",
+    "payerVozko": "Vozko",
+    "payerClient": "Kunde",
+    "paidByClientLabel": "Vom Kunden bezahlt",
+    "serviceCostSub": "{cost} für Service",
+    "costsOnClient": "{templates} für Sendungen und {service} für Service auf seinem Konto",
+    "noMetaCostForVozko": "keine Meta-Kosten für Vozko",
+    "serviceExceedsPrice": "Service übersteigt den Preis",
     "confirmedSuffix": "best.",
-    "noSends": "keine Sendungen",
+    "noSends": "keine Versände",
     "workspaces": "Arbeitsbereiche",
     "page": "Seite",
-    "emptyTitle": "Kein Arbeitsbereich in diesem Zeitraum",
-    "emptyDescription": "Keiner hat mit diesen Filtern eine Servicenachricht gesendet oder eine abgerechnete Sendung gekauft.",
+    "emptyTitle": "Keine Arbeitsbereiche im Zeitraum",
+    "emptyDescription": "Keiner hat mit diesen Filtern Servicenachrichten gesendet oder berechnete Versände gekauft.",
     "showing": "Zeige",
     "of": "von",
-    "items": "Arbeitsbereiche",
-    "loadError": "Der Bericht konnte nicht geladen werden."
+    "items": "Arbeitsbereichen",
+    "invoiceTitle": "Abgleich mit der Meta-Rechnung",
+    "invoiceSubtitle": "Unsere Zählung der Sendungen neben der Zählung von Meta für jedes WhatsApp-Konto. Meta nennt für Konten, die Vozko bezahlt, keine Beträge, nur Anzahlen.",
+    "invoiceCaption": "Sendungen je WhatsApp-Konto nach unserer Zählung und nach der Preisanalyse von Meta, sowie die von Meta berechneten Servicenachrichten.",
+    "invoiceLoading": "Meta wird abgefragt",
+    "invoiceError": "Meta konnte nicht abgefragt werden.",
+    "invoiceEmptyTitle": "Keine Konten zum Abgleichen",
+    "invoiceEmptyDescription": "Kein WhatsApp-Konto im Zeitraum.",
+    "invoiceChargedService": "Von Meta berechneter Service",
+    "invoiceFreeService": "Kostenloser Service",
+    "invoiceUnavailable": "Nicht verfügbare Konten",
+    "invoiceIdle": "Konten ohne Sendungen im Zeitraum",
+    "colAccount": "WhatsApp-Konto",
+    "colOurTemplates": "Sendungen: unsere Zählung",
+    "colMetaTemplates": "Sendungen: Meta",
+    "metaChargedTemplates": "{count} berechnet",
+    "colMetaService": "Service bei Meta",
+    "metaServiceSplit": "{charged} berechnet · {free} kostenlos",
+    "colDifference": "Differenz",
+    "colStatus": "Status",
+    "wabaId": "WABA {id}",
+    "invoiceState": {
+      "matched": "Wie erwartet",
+      "check": "Prüfen",
+      "unavailable": "Nicht verfügbar"
+    },
+    "invoiceReason": {
+      "dialog360": "Nicht verfügbar: 360dialog",
+      "noToken": "Nicht verfügbar: kein Token",
+      "metaUnreadable": "Nicht verfügbar: Meta erlaubte kein Lesen"
+    }
   },
   "crm": {
     "messageSender": {

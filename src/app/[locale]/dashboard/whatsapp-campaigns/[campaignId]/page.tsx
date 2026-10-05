@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { AccessDenied } from "@/components/ui/access-denied";
 import WhatsAppCampaignDetail from "./_components/WhatsAppCampaignDetail";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
@@ -25,18 +26,6 @@ interface PageState {
   campaign?: WhatsAppCampaign;
   agentName?: string;
   templateName?: string;
-}
-
-function PageLoader() {
-  return (
-    <main className="flex w-full items-center justify-center py-24">
-      <div
-        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-        role="status"
-        aria-label="Loading"
-      />
-    </main>
-  );
 }
 
 export default function WhatsAppCampaignDetailPage({
@@ -87,7 +76,7 @@ export default function WhatsAppCampaignDetailPage({
     };
   }, [campaignId]);
 
-  if (state.loading) return <PageLoader />;
+  if (state.loading) return <ScreenLoader fit="screen" />;
   if (state.notFound) notFound();
   if (state.error) {
     if (state.error.includes("Insufficient permissions")) {

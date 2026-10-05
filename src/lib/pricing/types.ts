@@ -26,6 +26,8 @@ export interface PricingAuditEntry {
     metric: string;
     oldPriceMicros: number;
     newPriceMicros: number;
+    oldCostMicros: number;
+    newCostMicros: number;
     currency: string;
     changedBy: string;
     changedAt: string;

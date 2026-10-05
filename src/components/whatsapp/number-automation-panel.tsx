@@ -82,3 +82,13 @@ export function NumberAutomationOwnedElsewhere() {
     </ElevatedContainer>
   );
 }
+
+export function NumberAutomationWithoutOwner() {
+  const t = useTranslations("whatsappBusinessPhones.automation");
+  return (
+    <ElevatedContainer className="space-y-1 p-6">
+      <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">{t("title")}</h3>
+      <p className="max-w-md text-sm text-muted-foreground">{t("withoutOwner")}</p>
+    </ElevatedContainer>
+  );
+}

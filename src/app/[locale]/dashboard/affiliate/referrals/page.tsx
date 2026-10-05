@@ -1,6 +1,7 @@
 "use client";
 
-import { CircleNotch, UsersFour } from "@/components/icons";
+import { UsersFour } from "@/components/icons";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
@@ -112,12 +113,7 @@ export default function AffiliateReferralsPage() {
       ) : null}
 
       {loading && rows.length === 0 ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <CircleNotch
-            className="h-8 w-8 animate-spin text-primary-ink"
-            weight="bold"
-          />
-        </div>
+        <ScreenLoader fit="fill" className="min-h-[30vh]" />
       ) : (
         <DashboardTable<AffiliateReferral>
           data={rows}

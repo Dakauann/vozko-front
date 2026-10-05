@@ -34,6 +34,17 @@ export async function updateDefaultPricingItemAction(
     return { item: response.data ?? null };
 }
 
+export async function updateDefaultPricingItemCostAction(
+    item: { category: string; service: string; metric: string; costMicros: number }
+): Promise<{ item: PricingItem | null; error?: string }> {
+    const response = await apiClient<PricingItem>("/admin/pricing/defaults/cost", {
+        method: "PUT",
+        body: JSON.stringify(item),
+    });
+
+    if (response.error) return { item: null, error: response.error.message };
+    return { item: response.data ?? null };
+}
 
 export async function getExchangeRateAction(): Promise<{
     item: PublicExchangeRate | null;

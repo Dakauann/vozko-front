@@ -53,12 +53,12 @@ import {
   Lightning,
   Package,
   Receipt,
-  Spinner,
   Users,
 } from "@/components/icons";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -1005,11 +1005,8 @@ export default function AdminFinancialDashboard() {
           </div>
 
           {loading ? (
-            <div
-              className="flex items-center justify-center"
-              style={{ height: 340 }}
-            >
-              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+            <div style={{ height: 340 }}>
+              <ScreenLoader fit="fill" />
             </div>
           ) : profitSeries.length === 0 ? (
             <div
@@ -1107,11 +1104,8 @@ export default function AdminFinancialDashboard() {
             </p>
           </div>
           {loading ? (
-            <div
-              className="flex items-center justify-center"
-              style={{ height: 280 }}
-            >
-              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+            <div style={{ height: 280 }}>
+              <ScreenLoader fit="fill" />
             </div>
           ) : serviceRevenuePie.length === 0 ? (
             <div
@@ -1213,11 +1207,8 @@ export default function AdminFinancialDashboard() {
             </p>
           </div>
           {loading ? (
-            <div
-              className="flex items-center justify-center"
-              style={{ height: 280 }}
-            >
-              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+            <div style={{ height: 280 }}>
+              <ScreenLoader fit="fill" />
             </div>
           ) : serviceProfitBar.length === 0 ? (
             <div
@@ -1393,11 +1384,8 @@ export default function AdminFinancialDashboard() {
           </div>
 
           {loading ? (
-            <div
-              className="flex items-center justify-center"
-              style={{ height: 260 }}
-            >
-              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+            <div style={{ height: 260 }}>
+              <ScreenLoader fit="fill" />
             </div>
           ) : contractionsSeries.length === 0 ? (
             <div
@@ -1470,11 +1458,8 @@ export default function AdminFinancialDashboard() {
           </div>
 
           {loading ? (
-            <div
-              className="flex items-center justify-center"
-              style={{ height: 260 }}
-            >
-              <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+            <div style={{ height: 260 }}>
+              <ScreenLoader fit="fill" />
             </div>
           ) : recentContractions.length === 0 ? (
             <div

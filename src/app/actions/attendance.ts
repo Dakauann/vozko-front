@@ -7,13 +7,20 @@ import type {
     WindowStatsResponse,
 } from '@/lib/attendance/types';
 
-import { apiClient } from "@/lib/api/browser-client";
+import { apiClient, type ApiResult } from "@/lib/api/browser-client";
 import {
     AttendanceSectionError,
     sectionQueryParams,
     type AttendanceSection,
     type AttendanceSectionPayloads,
 } from "@/lib/attendance/sections";
+import {
+    memberActivityPath,
+    memberActivityQuery,
+    type MemberActivityReport,
+    type MemberActivitySubject,
+} from "@/lib/attendance/member-activity";
+import type { PeriodRange } from "@/lib/attendance/period";
 
 
 const EMPTY_ATTENDANTS: AttendantStats[] = [];
@@ -120,13 +127,27 @@ export async function fetchAttendanceSection<S extends AttendanceSection>(
     const query = new URLSearchParams(sectionQueryParams(section, params)).toString();
     const url = `/attendance/overview/${section}${query ? `?${query}` : ''}`;
 
-    const response = await apiClient<AttendanceSectionPayloads[S]>(url, { method: 'GET', signal });
+    const response = await apiClient<AttendanceSectionPayloads[S]>(url, { method: "GET", signal });
+    return requireSectionData(response, `attendance section ${section}`);
+}
 
+export async function fetchMemberActivity(
+    subject: MemberActivitySubject,
+    period: PeriodRange,
+    timezone: string,
+    signal?: AbortSignal,
+): Promise<MemberActivityReport> {
+    const url = `${memberActivityPath(subject)}?${memberActivityQuery(period, timezone)}`;
+    const response = await apiClient<MemberActivityReport>(url, { method: "GET", signal });
+    return requireSectionData(response, "member activity");
+}
+
+function requireSectionData<T>(response: ApiResult<T>, what: string): T {
     if (response.error) {
         throw new AttendanceSectionError(response.error.message, response.error.status);
     }
     if (!response.data) {
-        throw new AttendanceSectionError(`attendance section ${section} came back empty`);
+        throw new AttendanceSectionError(`${what} came back empty`);
     }
     return response.data;
 }

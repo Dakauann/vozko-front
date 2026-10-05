@@ -16,7 +16,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartBar, ChartLine, ChartPie, Spinner } from "@/components/icons";
+import { ScreenLoader } from "@/components/brand/screen-loader";
+import { ChartBar, ChartLine, ChartPie } from "@/components/icons";
 import {
   VozAreaGradient,
   vozGrid,
@@ -122,11 +123,8 @@ interface ChartLoadingStateProps {
 export const ChartLoadingState: React.FC<ChartLoadingStateProps> = ({
   height = 300,
 }) => (
-  <div
-    className="flex items-center justify-center"
-    style={{ height: `${height}px` }}
-  >
-    <Spinner className="h-8 w-8 animate-spin text-primary-ink" />
+  <div style={{ height: `${height}px` }}>
+    <ScreenLoader fit="fill" className="min-h-0" />
   </div>
 );
 

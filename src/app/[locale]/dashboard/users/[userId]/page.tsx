@@ -7,7 +7,6 @@ import {
   Buildings,
   CalendarCheck,
   CheckCircle,
-  CircleNotch,
   Clock,
   Crown,
   EnvelopeSimple,
@@ -19,6 +18,7 @@ import {
   XCircle,
 } from "@/components/icons";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Image from "next/image";
@@ -143,14 +143,7 @@ export default function AdminUserDetailPage() {
   }, [loadData]);
 
   if (loading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (error || !user) {

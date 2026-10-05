@@ -1,25 +1,18 @@
 "use client";
 
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useLocale, useTranslations } from "next-intl";
 
-import {
-    ArrowDown,
-    ArrowUp,
-    ChatCircle,
-    Info,
-    PaperPlaneTilt,
-    Scales,
-    Warning,
-} from "@/components/icons";
+import { ArrowDown, ArrowUp, ChatCircle, PaperPlaneTilt, Scales } from "@/components/icons";
 import {
     DashboardTable,
     type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import {
+    getMetaInvoiceCheckAction,
     getMetaServiceMessageCostAction,
+    type MetaInvoiceCheckReport,
     type MetaServiceMessageCostReport,
     type MetaServiceMessageCostSortField,
     type WorkspaceMetaServiceMessageCost,
@@ -27,11 +20,31 @@ import {
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { InstrumentStrip } from "@/components/console/page-shapes";
+import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
+import { InstrumentStrip, type Instrument } from "@/components/console/page-shapes";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "@/i18n/routing";
+import {
+    formatExchangeRate,
+    formatMoneyBrl,
+    formatShare,
+    intlLocale,
+    marginTone,
+    numberTableRows,
+    shareOf,
+} from "@/lib/analytics/meta-costs";
 import { cn } from "@/lib/utils";
+
+import { MetaCostAnswers } from "./meta-costs/meta-cost-answers";
+import { MetaCostInvoice } from "./meta-costs/meta-cost-invoice";
+import { MetaCostNumbers } from "./meta-costs/meta-cost-numbers";
+import { Amount, RatioBar, SectionTitle, StatusChip } from "./meta-costs/meta-cost-parts";
+import { MetaCostSafety } from "./meta-costs/meta-cost-safety";
 
 const SEARCH_DEBOUNCE_MS = 400;
 const PAGE_SIZE = 20;
+const PRICING_HREF = "/dashboard/pricing";
+const NUMBERS_ANCHOR = "meta-cost-numbers";
 
 type PeriodPreset = "current" | "previous" | "custom";
 type ProviderFilter = "meta" | "dialog360" | "all" | "unattributed";
@@ -58,63 +71,24 @@ function monthRange(offset: number): { startDate: string; endDate: string } {
     return { startDate: start.toISOString(), endDate: end.toISOString() };
 }
 
-function RatioBar({
-    ratio,
-    format,
-    noSendsLabel,
-}: {
-    ratio: number | null | undefined;
-    format: (value: number) => string;
-    noSendsLabel: string;
-}) {
-    if (ratio === null || ratio === undefined) {
-        return (
-            <div className="flex items-center justify-end gap-1.5">
-                <Warning className="h-3.5 w-3.5 text-warning" weight="fill" />
-                <span className="text-xs font-semibold text-warning">{noSendsLabel}</span>
-            </div>
-        );
-    }
-
-    const overParity = ratio >= 1;
-    const width = Math.min(ratio / 2, 1) * 100;
-
-    return (
-        <div className="flex items-center justify-end gap-2.5">
-            <div className="relative hidden h-1.5 w-20 overflow-hidden rounded-full bg-muted sm:block">
-                <div
-                    className={cn(
-                        "absolute inset-y-0 left-0 rounded-full",
-                        overParity ? "bg-warning" : "bg-primary-ink/60",
-                    )}
-                    style={{ width: `${width}%` }}
-                />
-                {}
-                <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
-            </div>
-            <span
-                className={cn(
-                    "w-12 text-right text-sm font-semibold tabular-nums",
-                    overParity ? "text-warning" : "text-foreground",
-                )}
-            >
-                {format(ratio)}
-            </span>
-        </div>
-    );
-}
+type InvoiceState = {
+    key: string;
+    report: MetaInvoiceCheckReport | null;
+    error: string | null;
+};
 
 export default function MetaServiceCostDashboard() {
     const t = useTranslations("metaCosts");
     const locale = useLocale();
+    const empty = useEmptyValue();
 
     const integer = useMemo(
-        () => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
+        () => new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 0 }),
         [locale],
     );
     const ratioFormat = useMemo(
         () =>
-            new Intl.NumberFormat(locale, {
+            new Intl.NumberFormat(intlLocale(locale), {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
             }),
@@ -124,6 +98,7 @@ export default function MetaServiceCostDashboard() {
     const [report, setReport] = useState<MetaServiceMessageCostReport | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [answeredKey, setAnsweredKey] = useState<string | null>(null);
+    const [invoice, setInvoice] = useState<InvoiceState | null>(null);
 
     const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("current");
     const [customStart, setCustomStart] = useState("");
@@ -188,6 +163,29 @@ export default function MetaServiceCostDashboard() {
         };
     }, [params, requestKey]);
 
+    const invoiceKey = useMemo(() => JSON.stringify(range), [range]);
+    const reportReady = report !== null;
+
+    useEffect(() => {
+        if (!reportReady) return;
+        let cancelled = false;
+
+        getMetaInvoiceCheckAction(range).then((result) => {
+            if (cancelled) return;
+            setInvoice({
+                key: invoiceKey,
+                report: result.data ?? null,
+                error: result.error ?? null,
+            });
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [reportReady, range, invoiceKey]);
+
+    const invoiceLoading = invoice?.key !== invoiceKey;
+
     const handleSort = useCallback(
         (key: string) => {
             const field = key as MetaServiceMessageCostSortField;
@@ -198,47 +196,59 @@ export default function MetaServiceCostDashboard() {
         [sortBy, sortOrder],
     );
 
+    const providerLabel = useCallback(
+        (value: string) =>
+            PROVIDER_KEYS[value as ProviderFilter] ? t(PROVIDER_KEYS[value as ProviderFilter]) : value,
+        [t],
+    );
+
     const totals = report?.totals;
+    const rates = report?.rates ?? null;
     const meta = report?.workspaces;
     const rows = report?.workspaces.items ?? [];
+    const exchangeRate = formatExchangeRate(rates, locale);
 
-    const coveragePct = useMemo(() => {
-        if (!totals || totals.serviceMessages <= 0) return null;
-        return Math.floor((totals.metaAnswered / totals.serviceMessages) * 100);
-    }, [totals]);
+    const brl = useCallback(
+        (value: Parameters<typeof formatMoneyBrl>[0]) => formatMoneyBrl(value, locale),
+        [locale],
+    );
 
-    const instruments = useMemo(
-        () => [
+    const numberRows = useMemo(() => numberTableRows(report), [report]);
+
+    const instruments: Instrument[] = useMemo(() => {
+        const answeredShare = totals ? formatShare(shareOf(totals.metaAnswered, totals.serviceMessages), locale) : null;
+        return [
             {
                 label: t("serviceMessages"),
-                value: integer.format(totals?.serviceMessages ?? 0),
-                detail: report?.inferredOnly
-                    ? t("serviceMessagesInferred")
-                    : t("serviceMessagesConfirmed"),
-                tone: "warning" as const,
+                value: totals ? integer.format(totals.serviceMessages) : <EmptyValue />,
+                detail: t("answeredShare", { percent: answeredShare ?? empty }),
             },
             {
-                label: t("billableSends"),
-                value: integer.format(totals?.netBillableSends ?? 0),
-                detail: t("billableSendsHint"),
+                label: t("metaChargedService"),
+                value: <Amount value={brl(totals?.confirmedServiceCost)} />,
+                detail: totals?.answers
+                    ? t("metaChargedServiceDetail", { count: totals.answers.charged })
+                    : undefined,
+                tone: (totals?.serviceCostMissing ?? 0) > 0 ? "warning" : "default",
             },
             {
-                label: t("perSend"),
-                value:
-                    totals?.ratio === null || totals?.ratio === undefined
-                        ? t("noSends")
-                        : ratioFormat.format(totals.ratio),
-                detail: t("perSendHint", {
-                    count: integer.format(totals?.workspacesCovered ?? 0),
-                }),
-                tone:
-                    totals?.ratio !== null && totals?.ratio !== undefined && totals.ratio >= 1
-                        ? ("fault" as const)
-                        : ("default" as const),
+                label: t("vozkoMetaCost"),
+                value: <Amount value={brl(totals?.vozkoMetaCost)} />,
+                detail: t("vozkoMetaCostDetail"),
             },
-        ],
-        [t, integer, ratioFormat, totals, report?.inferredOnly],
-    );
+            {
+                label: t("realMargin"),
+                value: <Amount value={brl(totals?.realMargin)} />,
+                detail: t("realMarginDetail"),
+                tone: marginTone(totals?.realMargin),
+            },
+            {
+                label: t("paidByClients"),
+                value: <Amount value={brl(totals?.paidByClients)} />,
+                detail: t("paidByClientsDetail"),
+            },
+        ];
+    }, [t, locale, integer, totals, empty, brl]);
 
     const columns: DashboardTableColumn<WorkspaceMetaServiceMessageCost>[] = useMemo(
         () => [
@@ -248,22 +258,26 @@ export default function MetaServiceCostDashboard() {
                 sortKey: "workspaceName",
                 render: (row) => (
                     <div className="min-w-0">
-                        <p className="truncate font-semibold text-foreground">
-                            {row.workspaceName}
-                        </p>
+                        <p className="truncate font-semibold text-foreground">{row.workspaceName}</p>
                         {row.providers.length > 0 && (
                             <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                                {row.providers
-                                    .map((p) =>
-                                        PROVIDER_KEYS[p as ProviderFilter]
-                                            ? t(PROVIDER_KEYS[p as ProviderFilter])
-                                            : p,
-                                    )
-                                    .join(" · ")}
+                                {row.providers.map(providerLabel).join(" · ")}
                             </p>
                         )}
                     </div>
                 ),
+            },
+            {
+                header: t("colPayer"),
+                key: "metaPayer",
+                render: (row) =>
+                    row.economics?.metaPayer === "vozko" ? (
+                        <StatusChip tone="brand">{t("payerVozko")}</StatusChip>
+                    ) : row.economics?.metaPayer === "client" ? (
+                        <StatusChip tone="default">{t("payerClient")}</StatusChip>
+                    ) : (
+                        <EmptyValue />
+                    ),
             },
             {
                 header: t("colServiceMessages"),
@@ -287,9 +301,7 @@ export default function MetaServiceCostDashboard() {
                 sortKey: "netBillableSends",
                 className: "text-right",
                 render: (row) => (
-                    <span className="tabular-nums text-muted-foreground">
-                        {integer.format(row.netBillableSends)}
-                    </span>
+                    <span className="tabular-nums text-foreground">{integer.format(row.netBillableSends)}</span>
                 ),
             },
             {
@@ -298,41 +310,69 @@ export default function MetaServiceCostDashboard() {
                 sortKey: "ratio",
                 className: "text-right",
                 render: (row) => (
-                    <RatioBar
-                        ratio={row.ratio}
-                        format={(v) => ratioFormat.format(v)}
-                        noSendsLabel={t("noSends")}
-                    />
+                    <RatioBar ratio={row.ratio} format={(v) => ratioFormat.format(v)} noSendsLabel={t("noSends")} />
                 ),
             },
+            {
+                header: t("colMetaCost"),
+                key: "vozkoMetaCost",
+                className: "text-right",
+                render: (row) => {
+                    const economics = row.economics;
+                    if (!economics) return <EmptyValue />;
+                    if (economics.metaPayer === "client") {
+                        return (
+                            <div>
+                                <span className="text-muted-foreground">{t("paidByClientLabel")}</span>
+                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                    {t("costsOnClient", {
+                                        templates: brl(economics.templateCost) ?? empty,
+                                        service: brl(economics.serviceCost) ?? empty,
+                                    })}
+                                </p>
+                            </div>
+                        );
+                    }
+                    return (
+                        <div>
+                            <Amount value={brl(economics.vozkoMetaCost)} />
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                {t("serviceCostSub", { cost: brl(economics.serviceCost) ?? empty })}
+                            </p>
+                        </div>
+                    );
+                },
+            },
+            {
+                header: t("colPaidByClient"),
+                key: "paidByClient",
+                className: "text-right",
+                render: (row) => <Amount value={brl(row.economics?.paidByClient)} />,
+            },
+            {
+                header: t("colRealMargin"),
+                key: "realMargin",
+                className: "text-right",
+                render: (row) => {
+                    const economics = row.economics;
+                    if (!economics) return <EmptyValue />;
+                    return (
+                        <div>
+                            <Amount value={brl(economics.realMargin)} tone={marginTone(economics.realMargin)} />
+                            {economics.serviceExceedsPrice ? (
+                                <div className="mt-1">
+                                    <StatusChip tone="fault">{t("serviceExceedsPrice")}</StatusChip>
+                                </div>
+                            ) : economics.metaPayer === "client" ? (
+                                <p className="mt-0.5 text-xs text-muted-foreground">{t("noMetaCostForVozko")}</p>
+                            ) : null}
+                        </div>
+                    );
+                },
+            },
         ],
-        [t, integer, ratioFormat],
+        [t, integer, ratioFormat, providerLabel, brl, empty],
     );
-
-    const notice = useMemo(() => {
-        if (!report) return null;
-        const parts: string[] = [];
-        if (report.inferredOnly) {
-            parts.push(t("noticeInferred"));
-            if (coveragePct !== null && coveragePct > 0) {
-                parts.push(t("noticeCoverage", { percent: coveragePct }));
-            }
-        } else {
-            parts.push(
-                t("noticeConfirmed", {
-                    count: integer.format(totals?.metaConfirmed ?? 0),
-                }),
-            );
-        }
-        if ((totals?.unattributedServiceMessages ?? 0) > 0) {
-            parts.push(
-                t("noticeUnattributed", {
-                    count: integer.format(totals?.unattributedServiceMessages ?? 0),
-                }),
-            );
-        }
-        return parts.join(" ");
-    }, [report, t, integer, coveragePct, totals]);
 
     return (
         <div className="space-y-6">
@@ -340,114 +380,157 @@ export default function MetaServiceCostDashboard() {
                 <h1 className="font-display text-2xl font-semibold tracking-[0.01em] text-foreground">
                     {t("title")}
                 </h1>
-                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                    {t("subtitle")}
-                </p>
+                <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted-foreground">{t("subtitle")}</p>
             </header>
 
-            <InstrumentStrip instruments={instruments} loading={loading && !report} columns={3} />
-
-            {notice && (
-                <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted px-4 py-3">
-                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" weight="duotone" />
-                    <p className="text-xs leading-relaxed text-muted-foreground">{notice}</p>
-                </div>
-            )}
-
-            {error && (
-                <div className="flex items-start gap-3 rounded-[--radius] border border-destructive/40 bg-destructive/5 px-4 py-3">
-                    <Warning className="mt-0.5 h-4 w-4 shrink-0 text-destructive" weight="fill" />
-                    <p className="text-sm text-destructive">{error || t("loadError")}</p>
-                </div>
-            )}
-
-            <DashboardTable
-                data={rows}
-                columns={columns}
-                rowKey={(row) => row.workspaceId}
-                loading={loading}
-                caption={t("caption")}
-                sorting={{
-                    sorts: [{ key: sortBy, direction: sortOrder }],
-                    onToggle: (key) => handleSort(key),
-                }}
-                stats={[
-                    {
-                        label: t("workspaces"),
-                        value: integer.format(meta?.total_items ?? 0),
-                        icon: <ChatCircle className="h-4 w-4" weight="fill" />,
-                    },
-                    {
-                        label: t("page"),
-                        value: `${meta?.page ?? 1}/${Math.max(meta?.total_pages ?? 1, 1)}`,
-                        icon: <PaperPlaneTilt className="h-4 w-4" weight="fill" />,
-                    },
-                ]}
-                toolbar={
-                    <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                    <ElevatedPillToggle
+                        size="md"
+                        value={periodPreset}
+                        onChange={(next) => {
+                            setPeriodPreset(next);
+                            setPage(1);
+                        }}
+                        aria-label={t("periodLabel")}
+                        options={PERIOD_PRESETS.map((preset) => ({
+                            value: preset,
+                            label: t(PERIOD_KEYS[preset]),
+                        }))}
+                    />
+                    {periodPreset === "custom" && (
                         <div className="flex flex-wrap items-center gap-2">
-                            <ElevatedPillToggle
-                                size="md"
-                                value={periodPreset}
-                                onChange={(next) => {
-                                    setPeriodPreset(next);
+                            <ElevatedDatePicker
+                                id="meta-cost-start"
+                                label={t("start")}
+                                value={customStart}
+                                onChange={(v) => {
+                                    setCustomStart(v);
                                     setPage(1);
                                 }}
-                                aria-label={t("customPeriod")}
-                                options={PERIOD_PRESETS.map((preset) => ({
-                                    value: preset,
-                                    label: t(PERIOD_KEYS[preset]),
-                                }))}
+                                inputClassName="min-w-[150px]"
                             />
-                            {periodPreset === "custom" && (
-                                <div className="flex items-center gap-2">
-                                    <ElevatedDatePicker
-                                        id="meta-cost-start"
-                                        label={t("start")}
-                                        value={customStart}
-                                        onChange={(v) => {
-                                            setCustomStart(v);
-                                            setPage(1);
-                                        }}
-                                        inputClassName="min-w-[150px]"
-                                    />
-                                    <ElevatedDatePicker
-                                        id="meta-cost-end"
-                                        label={t("end")}
-                                        value={customEnd}
-                                        onChange={(v) => {
-                                            setCustomEnd(v);
-                                            setPage(1);
-                                        }}
-                                        inputClassName="min-w-[150px]"
-                                        minDate={
-                                            customStart ? new Date(`${customStart}T00:00:00`) : undefined
-                                        }
-                                    />
-                                </div>
-                            )}
+                            <ElevatedDatePicker
+                                id="meta-cost-end"
+                                label={t("end")}
+                                value={customEnd}
+                                onChange={(v) => {
+                                    setCustomEnd(v);
+                                    setPage(1);
+                                }}
+                                inputClassName="min-w-[150px]"
+                                minDate={customStart ? new Date(`${customStart}T00:00:00`) : undefined}
+                            />
                         </div>
+                    )}
+                </div>
+                <ElevatedPillToggle
+                    size="md"
+                    value={provider}
+                    onChange={(next) => {
+                        setProvider(next);
+                        setPage(1);
+                    }}
+                    aria-label={t("providerLabel")}
+                    options={PROVIDER_CHOICES.map((p) => ({
+                        value: p,
+                        label: t(PROVIDER_KEYS[p]),
+                    }))}
+                />
+                <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm tabular-nums text-muted-foreground">
+                    <span>
+                        {t.rich("exchangeRate", {
+                            rate: exchangeRate ?? empty,
+                            b: (chunks) => (
+                                <b className={cn("font-semibold", exchangeRate ? "text-foreground" : "text-muted-foreground")}>
+                                    {chunks}
+                                </b>
+                            ),
+                        })}
+                    </span>
+                    <Link
+                        href={PRICING_HREF}
+                        className="font-semibold text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                        {t("exchangeRateChange")}
+                    </Link>
+                </div>
+            </div>
 
-                        <div className="flex flex-wrap items-center gap-2">
+            {(totals?.serviceCostMissing ?? 0) > 0 ? (
+                <Alert variant="warning">
+                    <AlertTitle>{t("serviceCostMissingTitle")}</AlertTitle>
+                    <AlertDescription>
+                        {t("serviceCostMissingBody", { count: totals?.serviceCostMissing ?? 0 })}{" "}
+                        <Link
+                            href={PRICING_HREF}
+                            className="font-semibold text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                            {t("serviceCostMissingAction")}
+                        </Link>
+                    </AlertDescription>
+                </Alert>
+            ) : null}
+
+            {error ? (
+                <Alert variant="destructive">
+                    <AlertDescription>{error || t("loadError")}</AlertDescription>
+                </Alert>
+            ) : null}
+
+            <section aria-label={t("summaryLabel")}>
+                <InstrumentStrip instruments={instruments} loading={loading && !report} columns={5} />
+            </section>
+
+            <MetaCostSafety
+                unlinkedMessages={totals?.unlinkedServiceMessages ?? null}
+                numbersAnchorId={NUMBERS_ANCHOR}
+            />
+
+            <MetaCostAnswers
+                answers={totals?.answers ?? null}
+                loading={loading}
+            />
+
+            <MetaCostNumbers
+                anchorId={NUMBERS_ANCHOR}
+                rows={numberRows}
+                loading={loading && !report}
+                providerLabel={providerLabel}
+            />
+
+            <section aria-labelledby="meta-cost-clients" className="grid gap-3">
+                <SectionTitle id="meta-cost-clients" title={t("clientsTitle")} subtitle={t("clientsSubtitle")} />
+                <DashboardTable
+                    data={rows}
+                    columns={columns}
+                    rowKey={(row) => row.workspaceId}
+                    loading={loading}
+                    caption={t("caption")}
+                    sorting={{
+                        sorts: [{ key: sortBy, direction: sortOrder }],
+                        onToggle: (key) => handleSort(key),
+                    }}
+                    stats={[
+                        {
+                            label: t("workspaces"),
+                            value: integer.format(meta?.total_items ?? 0),
+                            icon: <ChatCircle className="h-4 w-4" weight="fill" />,
+                        },
+                        {
+                            label: t("page"),
+                            value: `${meta?.page ?? 1}/${Math.max(meta?.total_pages ?? 1, 1)}`,
+                            icon: <PaperPlaneTilt className="h-4 w-4" weight="fill" />,
+                        },
+                    ]}
+                    toolbar={
+                        <div className="flex w-full flex-wrap items-center gap-2">
                             <ElevatedInput
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 variant="search"
                                 placeholder={t("searchPlaceholder")}
                                 className="w-full lg:max-w-xs"
-                            />
-                            <ElevatedPillToggle
-                                size="md"
-                                value={provider}
-                                onChange={(next) => {
-                                    setProvider(next);
-                                    setPage(1);
-                                }}
-                                aria-label={t("providerAll")}
-                                options={PROVIDER_CHOICES.map((p) => ({
-                                    value: p,
-                                    label: t(PROVIDER_KEYS[p]),
-                                }))}
                             />
                             <button
                                 type="button"
@@ -465,29 +548,35 @@ export default function MetaServiceCostDashboard() {
                                 {t("order")}
                             </button>
                         </div>
-                    </div>
-                }
-                emptyState={{
-                    icon: <Scales className="h-8 w-8 text-muted-foreground" weight="fill" />,
-                    title: t("emptyTitle"),
-                    description: t("emptyDescription"),
-                }}
-                pagination={
-                    meta
-                        ? {
-                            currentPage: meta.page,
-                            totalPages: Math.max(meta.total_pages, 1),
-                            pageSize: meta.page_size,
-                            totalItems: meta.total_items,
-                            onPageChange: setPage,
-                        }
-                        : undefined
-                }
-                paginationText={{
-                    showing: t("showing"),
-                    of: t("of"),
-                    items: t("items"),
-                }}
+                    }
+                    emptyState={{
+                        icon: <Scales className="h-8 w-8 text-muted-foreground" weight="fill" />,
+                        title: t("emptyTitle"),
+                        description: t("emptyDescription"),
+                    }}
+                    pagination={
+                        meta
+                            ? {
+                                  currentPage: meta.page,
+                                  totalPages: Math.max(meta.total_pages, 1),
+                                  pageSize: meta.page_size,
+                                  totalItems: meta.total_items,
+                                  onPageChange: setPage,
+                              }
+                            : undefined
+                    }
+                    paginationText={{
+                        showing: t("showing"),
+                        of: t("of"),
+                        items: t("items"),
+                    }}
+                />
+            </section>
+
+            <MetaCostInvoice
+                report={invoice?.key === invoiceKey ? invoice.report : null}
+                error={invoice?.key === invoiceKey ? invoice.error : null}
+                loading={invoiceLoading}
             />
         </div>
     );

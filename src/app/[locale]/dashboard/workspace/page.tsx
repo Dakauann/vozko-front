@@ -15,6 +15,7 @@ import {
   MagnifyingGlass,
   PencilSimple,
   Plus,
+  Pulse,
   Shield,
   ShieldCheck,
   ShieldPlus,
@@ -46,6 +47,8 @@ import {
 } from "@/components/elevated-design/elevated-select";
 import { UnassignedMembersNotice } from "@/components/departments/unassigned-members-notice";
 import { membersWithoutDepartment } from "@/lib/department/coverage";
+import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
+import { memberActivitySubject, type MemberActivitySubject } from "@/lib/attendance/member-activity";
 import PermissionsEditor, {
   usePermissionMap,
 } from "@/components/elevated-design/permissions-editor";
@@ -92,6 +95,7 @@ import {
 } from "@/lib/workspace/client";
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { WorkspaceConfigTab } from "@/components/dashboard/workspace/WorkspaceConfigTab";
 import ElevatedButton from "@/components/elevated-design/button";
@@ -188,14 +192,7 @@ export default function WorkspaceSettingsPage() {
   ).length;
 
   if (!currentWorkspace) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   return (
@@ -321,15 +318,7 @@ export default function WorkspaceSettingsPage() {
           </TabsList>
 
           {isLoading ? (
-            <div className="flex h-48 items-center justify-center">
-              <div className="flex flex-col items-center gap-3">
-                <CircleNotch
-                  className="h-8 w-8 animate-spin text-primary-ink"
-                  weight="bold"
-                />
-                <p className="text-sm text-muted-foreground">{t("loading")}</p>
-              </div>
-            </div>
+            <ScreenLoader fit="fill" label={t("loading")} className="min-h-48" />
           ) : (
             <>
               {isOwner && wsId && (
@@ -502,7 +491,9 @@ function MembersTab({
   onRefresh: () => Promise<void>;
   t: ReturnType<typeof useTranslations>;
 }) {
-  const { can } = useWorkspace();
+  const { can, permissionsLoading } = useWorkspace();
+  const canReadAttendance = !permissionsLoading && can("attendance", "read");
+  const [activityFor, setActivityFor] = React.useState<{ subject: MemberActivitySubject; name: string } | null>(null);
   const [changingRole, setChangingRole] = React.useState<string | null>(null);
   const [removing, setRemoving] = React.useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = React.useState<string | null>(null);
@@ -641,6 +632,23 @@ function MembersTab({
                       t={t}
                     />
 
+                    {canReadAttendance && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActivityFor({
+                            subject: memberActivitySubject(member.userId, currentUserId),
+                            name: member.username || member.email,
+                          })
+                        }
+                        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        title={t("viewActivity")}
+                        aria-label={t("viewActivity")}
+                      >
+                        <Pulse className="h-4 w-4" weight="bold" />
+                      </button>
+                    )}
+
                     {(canChangeRole || canRemove) && (
                       <div className="flex items-center gap-2">
                         {canChangeRole && (
@@ -701,6 +709,14 @@ function MembersTab({
           })}
         </div>
       )}
+
+      <MemberActivitySheet
+        subject={activityFor?.subject ?? null}
+        name={activityFor?.name}
+        onOpenChange={(open) => {
+          if (!open) setActivityFor(null);
+        }}
+      />
 
       <ElevatedDialog
         open={!!confirmRemove}
@@ -1505,12 +1521,7 @@ function PermissionsTab({
                 </ElevatedContainer>
 
                 {isLoadingPerms ? (
-                  <div className="flex h-32 items-center justify-center">
-                    <CircleNotch
-                      className="h-8 w-8 animate-spin text-primary-ink"
-                      weight="bold"
-                    />
-                  </div>
+                  <ScreenLoader fit="fill" />
                 ) : (
                   <PermissionsEditor
                     availablePermissions={availablePerms}
@@ -1523,12 +1534,7 @@ function PermissionsTab({
                 )}
               </div>
             ) : isLoadingPerms ? (
-              <div className="flex h-32 items-center justify-center">
-                <CircleNotch
-                  className="h-8 w-8 animate-spin text-primary-ink"
-                  weight="bold"
-                />
-              </div>
+              <ScreenLoader fit="fill" />
             ) : (
               <div className="space-y-4">
                 <PermissionsEditor
@@ -2319,14 +2325,7 @@ function DepartmentsTab({
   }, [availableMembers, memberSearch]);
 
   if (loading) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <CircleNotch
-          className="h-6 w-6 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="fill" className="min-h-32" />;
   }
 
   return (

@@ -26,6 +26,7 @@ import {
   WhatsappLogo,
   X,
 } from "@/components/icons";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { channelPlate } from "@/components/channels/channel-tile";
 import type { Icon } from "@/components/icons";
 import {
@@ -46,7 +47,7 @@ import {
   listWorkspaceInvitesAction,
 } from "@/app/actions/workspace";
 import {
-  getWorkspaceConfigAction,
+  adminGetWorkspaceConfigAction,
   adminUpdateWorkspaceConfigAction,
 } from "@/app/actions/workspace-config";
 import {
@@ -56,6 +57,7 @@ import {
   adminListPlansAction,
 } from "@/app/actions/workspace-plan";
 import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
+import { MetaPayerControl } from "@/components/admin/workspaces/meta-payer-control";
 import type {
   PlanDefinition,
   WorkspaceSubscriptionDetails,
@@ -233,7 +235,7 @@ export default function AdminWorkspaceDetailPage() {
         listMembersAction(workspaceId),
         listWorkspaceInvitesAction(workspaceId),
         getResolvedPricingAction(workspaceId),
-        getWorkspaceConfigAction(workspaceId),
+        adminGetWorkspaceConfigAction(workspaceId),
         adminGetWorkspaceSubscriptionAction(workspaceId),
         adminListPlansAction(false),
       ]);
@@ -470,15 +472,7 @@ export default function AdminWorkspaceDetailPage() {
     : "bg-muted text-muted-foreground";
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-        <p className="text-sm text-muted-foreground mt-3">{t("loading")}</p>
-      </div>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   if (error || !workspace) {
@@ -703,6 +697,12 @@ export default function AdminWorkspaceDetailPage() {
                 />
               </div>
             </div>
+
+            <MetaPayerControl
+              workspaceId={workspaceId}
+              config={wsConfig}
+              onSaved={setWsConfig}
+            />
 
             {}
             <div

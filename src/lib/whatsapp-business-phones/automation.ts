@@ -40,3 +40,19 @@ export function withNumberAutomation(
 ): NumberAutomationConfig {
     return { ...numberAutomationConfig(automation), ...patch };
 }
+
+export type NumberAutomationView = "configure" | "ownedElsewhere" | "noOwner" | "hidden";
+
+export function numberAutomationView({
+    connected,
+    ownerWorkspaceId,
+    currentWorkspaceId,
+}: {
+    connected: boolean;
+    ownerWorkspaceId?: string | null;
+    currentWorkspaceId?: string | null;
+}): NumberAutomationView {
+    if (!connected) return "hidden";
+    if (!ownerWorkspaceId) return "noOwner";
+    return ownerWorkspaceId === currentWorkspaceId ? "configure" : "ownedElsewhere";
+}

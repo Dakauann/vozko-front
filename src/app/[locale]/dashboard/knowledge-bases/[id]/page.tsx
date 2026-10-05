@@ -15,6 +15,7 @@ import type {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { apiClient } from "@/lib/api/browser-client";
@@ -210,14 +211,7 @@ export default function KnowledgeBaseDetailPage() {
   });
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (error || !knowledgeBase) {

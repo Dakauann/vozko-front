@@ -1,6 +1,7 @@
 "use client";
 
-import { CircleNotch, Package } from "@/components/icons";
+import { Package } from "@/components/icons";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import {
   PlanEstimatesPanel,
   PlanPricingTable,
@@ -142,12 +143,7 @@ export default function AffiliatePlansPage() {
       ) : null}
 
       {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <CircleNotch
-            className="h-8 w-8 animate-spin text-primary-ink"
-            weight="bold"
-          />
-        </div>
+        <ScreenLoader fit="fill" className="min-h-[30vh]" />
       ) : forbidden ? (
         <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-10 text-center">
           <Package

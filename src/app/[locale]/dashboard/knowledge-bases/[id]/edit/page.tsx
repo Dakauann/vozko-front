@@ -1,9 +1,10 @@
 "use client";
 
-import { CircleNotch, Files } from "@/components/icons";
+import { Files } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import type { KnowledgeBase } from "@/lib/knowledge-base/types";
@@ -41,14 +42,7 @@ export default function EditKnowledgeBasePage() {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (error || !knowledgeBase) {

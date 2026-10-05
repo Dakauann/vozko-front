@@ -186,7 +186,7 @@ function Dock() {
                 {!isEmpty ? (
                   <button type="button" onClick={chat.newChat} disabled={chat.streaming} className={HEADER_ICON_BUTTON}>
                     <Plus weight="bold" className="h-3 w-3" />
-                    <span className="max-sm:sr-only">{td("newChat")}</span>
+                    <span className="max-sm:sr-only">{tc("newChat")}</span>
                   </button>
                 ) : null}
                 {chat.activeId ? (

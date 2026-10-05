@@ -6,7 +6,6 @@ import {
   ChatCircle,
   Info,
   Robot,
-  Spinner,
   User,
   Waveform,
   WhatsappLogo,
@@ -29,6 +28,7 @@ import type {
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { cn } from "@/lib/utils";
 import { getEntryConversationAction } from "@/app/actions/leads";
 import { motion } from "framer-motion";
@@ -622,10 +622,7 @@ export default function EntryConversationDialog({
 
         <div className="flex-1 min-h-0 -mx-7 px-7 py-4 flex flex-col gap-3">
           {isPending && !loaded ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Spinner className="h-8 w-8 animate-spin mb-3" />
-              <p className="text-sm">{translations?.loading ?? t("loading")}</p>
-            </div>
+            <ScreenLoader fit="fill" label={translations?.loading ?? t("loading")} />
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-12 text-destructive-ink">
               <X weight="bold" className="h-8 w-8 mb-3" />

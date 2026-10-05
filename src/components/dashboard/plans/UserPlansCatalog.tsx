@@ -28,6 +28,7 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import { useLocale, useTranslations } from "next-intl";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import {
   AffiliateBrandChip,
@@ -515,15 +516,7 @@ export default function UserPlansCatalog() {
     : t("subscription.noneDescription");
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <CircleNotch
-          className="h-8 w-8 animate-spin text-primary-ink"
-          weight="bold"
-        />
-        <p className="mt-3 text-sm text-muted-foreground">{t("loading")}</p>
-      </div>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   if (!currentWorkspace) {

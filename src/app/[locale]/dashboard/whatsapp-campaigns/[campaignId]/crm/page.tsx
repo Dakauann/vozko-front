@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import CrmLayout from "@/components/crm/CrmLayout";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { getWhatsAppCampaignByIdAction } from "@/app/actions/whatsapp-campaigns";
@@ -20,18 +21,6 @@ interface PageState {
   error?: string;
   notFound?: boolean;
   campaign?: WhatsAppCampaign;
-}
-
-function PageLoader() {
-  return (
-    <main className="flex w-full items-center justify-center py-24">
-      <div
-        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-        role="status"
-        aria-label="Loading"
-      />
-    </main>
-  );
 }
 
 export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
@@ -61,7 +50,7 @@ export default function WhatsAppCampaignCrmPage({ params }: CrmPageProps) {
     };
   }, [campaignId]);
 
-  if (state.loading) return <PageLoader />;
+  if (state.loading) return <ScreenLoader fit="screen" />;
   if (state.notFound) notFound();
   if (state.error) {
     return (

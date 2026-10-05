@@ -75,7 +75,9 @@ import { ConfirmActionDialog } from "@/app/[locale]/dashboard/whatsapp-business-
 import {
   NumberAutomationOwnedElsewhere,
   NumberAutomationPanel,
+  NumberAutomationWithoutOwner,
 } from "@/components/whatsapp/number-automation-panel";
+import { numberAutomationView } from "@/lib/whatsapp-business-phones/automation";
 
 function statusTone(status: BusinessPhoneStatus): string {
   switch (status) {
@@ -441,6 +443,11 @@ export default function BusinessPhoneDetailPage() {
   }
 
   const isConnected = phone.status === "CONNECTED";
+  const automationView = numberAutomationView({
+    connected: isConnected,
+    ownerWorkspaceId: phone.ownerWorkspaceId,
+    currentWorkspaceId: currentWorkspace?.id,
+  });
   const isVerified = phone.codeVerificationStatus === "VERIFIED";
   const isDialog360 = phone.provider === "dialog360";
   const phoneNumber = phone.displayPhoneNumber;
@@ -852,13 +859,11 @@ export default function BusinessPhoneDetailPage() {
           </div>
         )}
 
-        {isConnected && !isSystemAdmin && (
+        {automationView !== "hidden" && (
           <div>
-            {phone.ownerWorkspaceId === currentWorkspace?.id ? (
-              <NumberAutomationPanel phoneId={phone.id} />
-            ) : (
-              <NumberAutomationOwnedElsewhere />
-            )}
+            {automationView === "configure" && <NumberAutomationPanel phoneId={phone.id} />}
+            {automationView === "ownedElsewhere" && <NumberAutomationOwnedElsewhere />}
+            {automationView === "noOwner" && <NumberAutomationWithoutOwner />}
           </div>
         )}
 

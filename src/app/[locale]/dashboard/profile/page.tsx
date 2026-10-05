@@ -36,6 +36,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import type { ActiveSession } from "@/app/actions/auth";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -440,21 +441,7 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return (
-      <main className="w-full space-y-6">
-        <div>
-          <ElevatedContainer className="flex items-center justify-center py-20 border border-border bg-card">
-            <div className="flex flex-col items-center gap-4">
-              <CircleNotch
-                className="h-8 w-8 animate-spin text-primary-ink"
-                weight="bold"
-              />
-              <p className="text-sm text-muted-foreground">{t("loading")}</p>
-            </div>
-          </ElevatedContainer>
-        </div>
-      </main>
-    );
+    return <ScreenLoader fit="screen" label={t("loading")} />;
   }
 
   const roleBadge = user?.role ? getRoleBadge(user.role) : null;

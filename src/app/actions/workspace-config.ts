@@ -1,4 +1,5 @@
 import type {
+    MetaPayer,
     OutcomeCaptureSpec,
     RouletteMode,
     WorkspaceConfig
@@ -59,11 +60,27 @@ export async function adminUpdateWorkspaceConfigAction(
     data: {
         campaignSpamProtectionDays?: number;
         includedUnofficialWhatsAppInstances?: number;
+        metaPayer?: MetaPayer;
     }
 ): Promise<{ config: WorkspaceConfig | null; error?: string }> {
     const response = await apiClient<WorkspaceConfig>(`/admin/workspaces/${workspaceId}/config`, {
         method: 'PUT',
         body: JSON.stringify(data),
+    });
+
+    if (response.error) {
+        return { config: null, error: response.error.message };
+    }
+
+    return { config: response.data ?? null };
+}
+
+export async function adminGetWorkspaceConfigAction(workspaceId: string): Promise<{
+    config: WorkspaceConfig | null;
+    error?: string;
+}> {
+    const response = await apiClient<WorkspaceConfig>(`/admin/workspaces/${workspaceId}/config`, {
+        method: 'GET',
     });
 
     if (response.error) {

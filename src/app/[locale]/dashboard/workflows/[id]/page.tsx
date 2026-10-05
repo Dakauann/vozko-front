@@ -13,6 +13,7 @@ import type {
   Workflow,
 } from "@/lib/workflows/types";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { WorkflowEditor } from "../_components/workflow-editor";
 import { notFound } from "next/navigation";
 
@@ -33,12 +34,8 @@ interface PageState {
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
-      <div
-        className="h-8 w-8 animate-spin rounded-full border border-muted border-t-primary"
-        role="status"
-        aria-label="Loading"
-      />
+    <div className="-m-6 flex min-h-[calc(100vh-3rem)] p-6">
+      <ScreenLoader fit="fill" />
     </div>
   );
 }

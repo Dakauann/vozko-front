@@ -21,6 +21,7 @@ import {
 } from "@/app/actions/issues";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
@@ -232,11 +233,7 @@ export default function IssueDetailClient({ issueId }: IssueDetailClientProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <SpinnerGap className="h-8 w-8 animate-spin text-primary-ink" />
-      </div>
-    );
+    return <ScreenLoader fit="screen" />;
   }
 
   if (error && !issue) {

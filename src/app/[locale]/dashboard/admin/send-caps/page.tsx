@@ -8,6 +8,7 @@ import { adminListSendCapsAction } from "@/app/actions/send-caps";
 import { describeSendCapError } from "@/components/admin/send-caps/send-cap-errors";
 import { SendCapLimitDialog } from "@/components/admin/send-caps/send-cap-limit-dialog";
 import { SendCapUnlockDialog } from "@/components/admin/send-caps/send-cap-unlock-dialog";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
@@ -15,7 +16,7 @@ import {
     DashboardTable,
     type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowsClockwise, CheckCircle, CircleNotch, LockKey, Plus, Prohibit, Warning } from "@/components/icons";
+import { ArrowsClockwise, CheckCircle, LockKey, Plus, Prohibit, Warning } from "@/components/icons";
 import { AccessDenied } from "@/components/ui/access-denied";
 import { useAuth } from "@/contexts/auth-context";
 import { isSystemAdmin } from "@/lib/auth/roles";
@@ -291,11 +292,7 @@ export default function AdminSendCapsPage() {
     const { user, isLoading } = useAuth();
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-32">
-                <CircleNotch className="h-8 w-8 animate-spin text-primary-ink" weight="bold" />
-            </div>
-        );
+        return <ScreenLoader fit="screen" />;
     }
 
     if (!isSystemAdmin(user?.role)) {
