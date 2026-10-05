@@ -156,7 +156,7 @@ function Dock() {
             transition={{ duration: reduceMotion ? 0.12 : 0.22, ease: PANEL_EASE }}
             style={{ transformOrigin: "right center", ...sizeStyle }}
             className={cn(
-              "fixed bottom-0 right-0 top-12 z-[61] flex flex-col overflow-hidden border-t border-border-strong bg-card shadow-lg",
+              "fixed bottom-0 right-0 top-[var(--dashboard-header-h)] z-[61] flex flex-col overflow-hidden border-t border-border-strong bg-card shadow-lg",
               card.pushing && "border-l",
               card.resizing && "select-none",
             )}

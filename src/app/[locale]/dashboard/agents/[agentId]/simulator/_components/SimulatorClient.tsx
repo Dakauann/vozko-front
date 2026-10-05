@@ -141,7 +141,7 @@ export default function SimulatorClient({ agent, toolCatalog }: SimulatorClientP
     );
 
     return (
-        <div className="-m-3 flex h-[calc(100dvh-3rem)] flex-col overflow-hidden border-y border-border bg-card sm:-m-6">
+        <div className="-m-3 flex h-[calc(100dvh_-_var(--dashboard-header-h))] flex-col overflow-hidden border-y border-border bg-card sm:-m-6">
             {}
             <header className="flex shrink-0 items-center gap-3 border-b border-border px-3 py-2 sm:px-4">
                 <Link

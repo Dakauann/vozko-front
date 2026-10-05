@@ -141,7 +141,7 @@ export function AIChatClient() {
   );
 
   return (
-    <div className="-m-3 flex h-[calc(100dvh-3rem)] min-h-0 overflow-hidden bg-card sm:-m-6">
+    <div className="-m-3 flex h-[calc(100dvh_-_var(--dashboard-header-h))] min-h-0 overflow-hidden bg-card sm:-m-6">
       <aside aria-label={t("threadsLegend")} className="hidden w-60 shrink-0 flex-col border-r border-border bg-background lg:flex xl:w-64">
         <h2 className="flex h-[73px] shrink-0 items-center border-b border-border px-4 text-sm font-semibold">{t("threadsLegend")}</h2>
         {history}

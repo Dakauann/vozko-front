@@ -1533,7 +1533,7 @@ export function WorkflowEditor({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh_-_var(--dashboard-header-h))] overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card flex-shrink-0">
         <ElevatedButton
           variant="ghost"

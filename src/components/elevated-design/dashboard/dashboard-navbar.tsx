@@ -75,7 +75,7 @@ export function DashboardNavbar({
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2",
+        "fixed inset-x-0 top-[var(--campaign-strip-h,0px)] z-40 flex h-12 items-center gap-2",
         "border-b border-sidebar-border bg-sidebar pl-1.5 pr-3 shadow-sm",
         className,
       )}

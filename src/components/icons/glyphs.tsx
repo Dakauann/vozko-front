@@ -911,6 +911,15 @@ export const Heart: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const Ribbon: Icon = /*#__PURE__*/ glyph(
+  "Ribbon",
+  <>
+    <path d="M9.4 7.3C8.6 5.4 9.8 2.75 12 2.75s3.4 2.65 2.6 4.55" />
+    <path stroke={ACCENT} d="M14.6 7.3 7.25 20.5l-1.5-1.75" />
+    <path d="M9.4 7.3l2.05 3.7m1.3 2.35 4 7.15 1.5-1.75" />
+  </>,
+);
+
 export const ThumbsUp: Icon = /*#__PURE__*/ glyph(
   "ThumbsUp",
   <>

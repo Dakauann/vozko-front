@@ -1677,6 +1677,13 @@
       "passwordTooShort": "La contraseña debe tener al menos 8 caracteres"
     }
   },
+  "campaignStrip": {
+    "dismiss": "Cerrar aviso",
+    "pinkOctober": {
+      "title": "Octubre Rosa",
+      "message": "Prevenir también es cuidar. Hazte tus exámenes y anima a quienes quieres."
+    }
+  },
   "dashboardNavbar": {
     "breadcrumbs": {
       "dashboard": "Dashboard",

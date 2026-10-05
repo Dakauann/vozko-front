@@ -1667,7 +1667,7 @@ export function DashboardSidebar({
         transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
         suppressHydrationWarning
         className={cn(
-          "fixed bottom-0 left-0 top-12 z-30 hidden flex-shrink-0",
+          "fixed bottom-0 left-0 top-[var(--dashboard-header-h)] z-30 hidden flex-shrink-0",
           "overflow-hidden border-r border-sidebar-border bg-sidebar md:flex",
           className,
         )}

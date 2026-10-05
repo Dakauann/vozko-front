@@ -113,6 +113,7 @@ export {
   Hash,
   Suporte as Headset,
   Heart,
+  Ribbon,
   Hourglass,
   Hourglass as HourglassMedium,
   IdCard as IdentificationBadge,

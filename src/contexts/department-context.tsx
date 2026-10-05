@@ -24,6 +24,7 @@ interface DepartmentContextType {
   departments: Department[];
   currentDepartment: Department | null;
   isLoading: boolean;
+  isResolved: boolean;
   switchDepartment: (department: Department | null) => void;
   refreshDepartments: () => Promise<void>;
   isLocked: boolean;
@@ -36,6 +37,12 @@ const DepartmentContext = createContext<DepartmentContextType | undefined>(
 
 const DEPT_COOKIE_NAME = "departmentId";
 const DEPT_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
+
+const NO_WORKSPACE_KEY = "no-workspace";
+
+function departmentFetchKey(workspaceId: string, userId: string): string {
+  return `${workspaceId}:${userId}`;
+}
 
 function getDepartmentIdFromCookie(): string | null {
   if (typeof document === "undefined") return null;
@@ -103,6 +110,7 @@ export function DepartmentProvider({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [scope, setScope] = useState<DepartmentScope>(NO_DEPARTMENT_SCOPE);
+  const [resolvedKey, setResolvedKey] = useState<string | null>(null);
   const requestRef = useRef<Promise<void> | null>(null);
   const lastFetchKeyRef = useRef<string | null>(null);
 
@@ -121,10 +129,11 @@ export function DepartmentProvider({
       setScope(NO_DEPARTMENT_SCOPE);
       clearDepartmentCookieClient();
       lastFetchKeyRef.current = null;
+      setResolvedKey(NO_WORKSPACE_KEY);
       return;
     }
 
-    const fetchKey = `${currentWorkspace.id}:${user.id}`;
+    const fetchKey = departmentFetchKey(currentWorkspace.id, user.id);
     if (lastFetchKeyRef.current === fetchKey && requestRef.current) {
       return requestRef.current;
     }
@@ -163,6 +172,7 @@ export function DepartmentProvider({
         });
       } finally {
         setIsLoading(false);
+        setResolvedKey(fetchKey);
         requestRef.current = null;
       }
     })();
@@ -201,6 +211,13 @@ export function DepartmentProvider({
 
   const isLocked = !isPrivileged && departments.length > 0;
 
+  const currentKey =
+    currentWorkspace?.id && user?.id
+      ? departmentFetchKey(currentWorkspace.id, user.id)
+      : NO_WORKSPACE_KEY;
+  const isResolved =
+    !wsLoading && resolvedKey === currentKey && !(isLocked && !currentDepartment);
+
   useEffect(() => {
     if (isLocked && !currentDepartment && departments.length > 0) {
       const id = getDepartmentIdFromCookie();
@@ -214,6 +231,7 @@ export function DepartmentProvider({
       departments,
       currentDepartment,
       isLoading,
+      isResolved,
       switchDepartment,
       refreshDepartments,
       isLocked,
@@ -223,6 +241,7 @@ export function DepartmentProvider({
       departments,
       currentDepartment,
       isLoading,
+      isResolved,
       switchDepartment,
       refreshDepartments,
       isLocked,
@@ -244,6 +263,7 @@ export function useDepartment() {
       departments: [],
       currentDepartment: null,
       isLoading: false,
+      isResolved: true,
       switchDepartment: () => {},
       refreshDepartments: async () => {},
       isLocked: false,

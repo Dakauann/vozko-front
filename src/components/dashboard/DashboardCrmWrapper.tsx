@@ -1,5 +1,6 @@
 "use client";
 
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { CrmProvider } from "@/contexts/crm-context";
 import { useAuth } from "@/contexts/auth-context";
 import { useDepartment } from "@/contexts/department-context";
@@ -15,8 +16,10 @@ export default function DashboardCrmWrapper({
 }: DashboardCrmWrapperProps) {
   const { user } = useAuth();
   const { currentWorkspace } = useWorkspace();
-  const { currentDepartment } = useDepartment();
+  const { currentDepartment, isResolved } = useDepartment();
   const crmScopeKey = `${currentWorkspace?.id ?? "no-workspace"}:${currentDepartment?.id ?? "all-departments"}`;
+
+  if (!isResolved) return <ScreenLoader />;
 
   return (
     <CrmProvider key={crmScopeKey} token={user?.id ?? ""} enabled>

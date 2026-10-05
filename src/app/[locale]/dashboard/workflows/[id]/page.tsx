@@ -34,7 +34,7 @@ interface PageState {
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh-3rem)] p-6">
+    <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] p-6">
       <ScreenLoader fit="fill" />
     </div>
   );
@@ -101,7 +101,7 @@ export default function EditWorkflowPage({ params }: EditWorkflowPageProps) {
 
   if (state.error) {
     return (
-      <div className="-m-6 flex min-h-[calc(100vh-3rem)] items-center justify-center p-6">
+      <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] items-center justify-center p-6">
         <p className="text-muted-foreground">{state.error}</p>
       </div>
     );

@@ -2385,6 +2385,13 @@
       "theme": "Tema"
     }
   },
+  "campaignStrip": {
+    "dismiss": "Fechar aviso",
+    "pinkOctober": {
+      "title": "Outubro Rosa",
+      "message": "Prevenção também é cuidado. Faça seus exames e incentive quem você ama."
+    }
+  },
   "dashboardNavbar": {
     "breadcrumbs": {
       "dashboard": "Dashboard",

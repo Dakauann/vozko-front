@@ -11,6 +11,7 @@ import {
 import DashboardCrmWrapper from "@/components/dashboard/DashboardCrmWrapper";
 import DashboardGate from "@/components/dashboard/DashboardGate";
 import { DashboardNavbar } from "@/components/elevated-design/dashboard/dashboard-navbar";
+import { CampaignStrip } from "@/components/elevated-design/dashboard/campaign-strip/campaign-strip";
 import { DepartmentProvider } from "@/contexts/department-context";
 import { ActiveCallHost } from "@/components/calls/active-call-host";
 import { IncomingCallHost } from "@/components/calls/incoming-call-host";
@@ -25,13 +26,13 @@ import { WorkspaceProvider } from "@/contexts/workspace-context";
 
 function SidebarFallback() {
   return (
-    <aside className="fixed bottom-0 left-0 top-12 z-30 hidden w-[208px] border-r border-border bg-card md:block" />
+    <aside className="fixed bottom-0 left-0 top-[var(--dashboard-header-h)] z-30 hidden w-[208px] border-r border-border bg-card md:block" />
   );
 }
 
 function NavbarFallback() {
   return (
-    <div className="fixed inset-x-0 top-0 z-40 h-12 border-b border-border bg-card" />
+    <div className="fixed inset-x-0 top-[var(--campaign-strip-h,0px)] z-40 h-12 border-b border-border bg-card" />
   );
 }
 
@@ -46,6 +47,8 @@ export default function DashboardLayout({
         <DepartmentProvider>
           <SidebarProvider>
             <div className="min-h-screen bg-background">
+              <CampaignStrip />
+
               <Suspense fallback={<NavbarFallback />}>
                 <DashboardNavbar
                   translationsNamespace="dashboardNavbar"
@@ -64,7 +67,7 @@ export default function DashboardLayout({
                 />
               </Suspense>
 
-              <DashboardMainContent className="pt-12">
+              <DashboardMainContent className="pt-[var(--dashboard-header-h)]">
                 <DashboardCrmWrapper>
                   {
 }

@@ -846,6 +846,7 @@ input:-webkit-autofill:active {
 */
 @layer base {
   :root {
+    --dashboard-header-h: calc(3rem + var(--campaign-strip-h, 0px));
     /* Canvas → sheet. The canvas keeps the 4-point step below the white sheet
        (elevation separates on its own; no doubled border+shadow), recast from
        the blue 214 band into the brand's graphite 200-206 band so both themes

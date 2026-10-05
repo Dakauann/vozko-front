@@ -1985,6 +1985,13 @@
       "passwordTooShort": "Password must be at least 8 characters"
     }
   },
+  "campaignStrip": {
+    "dismiss": "Dismiss notice",
+    "pinkOctober": {
+      "title": "Pink October",
+      "message": "Prevention is care too. Get screened and encourage the people you love."
+    }
+  },
   "dashboardNavbar": {
     "breadcrumbs": {
       "dashboard": "Dashboard",
