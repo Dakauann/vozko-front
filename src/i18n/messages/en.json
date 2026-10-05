@@ -1235,7 +1235,9 @@
           "automation_handoff_rr": "Transferred by automation (roulette)",
           "automation_released": "Automation paused, team queue",
           "automation_taken_over": "Taken over by pausing automation",
-          "automation_resumed": "Handed back to automation"
+          "automation_resumed": "Handed back to automation",
+          "outreach_sent": "On sending a message",
+          "inbound_outreach": "Reply to the agent's outreach"
         }
       },
       "aiSessionEnd": {

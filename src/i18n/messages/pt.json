@@ -1235,7 +1235,9 @@
           "automation_handoff_rr": "Transferida pela automação (roleta)",
           "automation_released": "Automação pausada, fila da equipe",
           "automation_taken_over": "Assumida ao pausar a automação",
-          "automation_resumed": "Devolvida para a automação"
+          "automation_resumed": "Devolvida para a automação",
+          "outreach_sent": "Ao enviar mensagem",
+          "inbound_outreach": "Resposta ao envio do atendente"
         }
       },
       "aiSessionEnd": {
