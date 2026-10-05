@@ -21,6 +21,7 @@ const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
 const SLOW_ENDPOINTS: { prefix: string; timeoutMs: number }[] = [
   { prefix: "/attendance/", timeoutMs: 30_000 },
+  { prefix: "/admin/analytics/meta-invoice-check", timeoutMs: 60_000 },
 ];
 
 function requestTimeoutMs(endpoint: string, isFormData: boolean): number {

@@ -37,6 +37,20 @@ describe("apiClient timeouts per endpoint", () => {
     expect(result.error?.code).toBe("timeout");
   });
 
+  it("waits up to a minute for the Meta invoice check, which asks Meta per account", async () => {
+    const { apiClient } = await import("@/lib/api/browser-client");
+    const promise = apiClient("/admin/analytics/meta-invoice-check?startDate=x", { method: "GET" });
+    let settled = false;
+    void promise.then(() => (settled = true));
+
+    await vi.advanceTimersByTimeAsync(59_000);
+    expect(settled).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(2_000);
+    const result = await promise;
+    expect(result.error?.code).toBe("timeout");
+  });
+
   it("uses the short timeout for image generation, which is queued", async () => {
     const { apiClient } = await import("@/lib/api/browser-client");
     const promise = apiClient("/images/generations", { method: "POST", body: "{}" });
