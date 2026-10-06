@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
     isCompleteSendCapCode,
+    parseSendCapCycleDay,
     parseSendCapLimit,
     sendCapUsageRatio,
 } from "@/lib/balance/send-cap-types";
@@ -36,5 +37,19 @@ describe("sendCapUsageRatio", () => {
         expect(sendCapUsageRatio({ used: 50, limit: 100 })).toBe(0.5);
         expect(sendCapUsageRatio({ used: 130, limit: 100 })).toBe(1);
         expect(sendCapUsageRatio({ used: -3, limit: 100 })).toBe(0);
+    });
+});
+
+describe("parseSendCapCycleDay", () => {
+    it.each([
+        ["1", 1],
+        [" 15 ", 15],
+        ["31", 31],
+    ])("accepts the day %s", (raw, expected) => {
+        expect(parseSendCapCycleDay(raw)).toBe(expected);
+    });
+
+    it.each(["", "0", "32", "-1", "1.5", "dia 5"])("rejects %s", (raw) => {
+        expect(parseSendCapCycleDay(raw)).toBeNull();
     });
 });

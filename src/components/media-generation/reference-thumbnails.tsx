@@ -1,6 +1,6 @@
 import { X } from "@/components/icons";
 import { AdImage } from "@/components/advertising/ad-image";
-import type { ImageReference } from "@/lib/image-generation/references";
+import type { ImageReference } from "@/lib/media-generation/references";
 
 export type ReferenceThumbnail = ImageReference;
 

@@ -16,6 +16,9 @@ import {
   ClipboardText,
   DeviceMobile,
   Files,
+  FilmStrip,
+  Image as ImageIcon,
+  Palette,
   SquaresFour,
   Sparkle,
   Package,
@@ -62,6 +65,7 @@ import {
   FacebookLogoColor,
   InstagramLogoColor,
   MetaLogoColor,
+  StudioLogoColor,
   TelegramLogoColor,
   VoiceLogoColor,
   WhatsAppLogoColor,
@@ -498,6 +502,24 @@ export const campanhasNavItems: NavItem[] = [
         href: "/dashboard/whatsapp-business-phones/manage",
       },
     ],
+  },
+  {
+    icon: Palette,
+    labelKey: "nav.studioProjects",
+    href: "/dashboard/studio",
+    family: "studio",
+  },
+  {
+    icon: ImageIcon,
+    labelKey: "nav.studioNewImage",
+    href: "/dashboard/studio?new=image",
+    family: "studio",
+  },
+  {
+    icon: FilmStrip,
+    labelKey: "nav.studioNewVideo",
+    href: "/dashboard/studio?new=video",
+    family: "studio",
   },
   {
     icon: SquaresFour,
@@ -1232,7 +1254,7 @@ const familyBadgeKey: Record<string, string> = {
   "unofficial-whatsapp": "families.badges.unofficial",
 };
 
-const familyBrandIcon: Record<string, NavIcon> = {
+const familyIcon: Record<string, NavIcon> = {
   whatsapp: WhatsAppLogoColor,
   "unofficial-whatsapp": WhatsAppLogoColor,
   instagram: InstagramLogoColor,
@@ -1241,6 +1263,7 @@ const familyBrandIcon: Record<string, NavIcon> = {
   webchat: WebchatLogoColor,
   telephony: VoiceLogoColor,
   meta: MetaLogoColor,
+  studio: StudioLogoColor,
 };
 
 function groupByFamily(
@@ -1371,8 +1394,8 @@ function GroupedNavItems({
                   aria-expanded={familyOpen}
                   className="legend group/family flex w-full items-center gap-1.5 rounded-[--radius] px-1 py-0.5 text-left transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  {familyBrandIcon[group.family] &&
-                    React.createElement(familyBrandIcon[group.family], {
+                  {familyIcon[group.family] &&
+                    React.createElement(familyIcon[group.family], {
                       className: "h-3 w-3 flex-shrink-0",
                     })}
                   <span className="min-w-0 truncate">

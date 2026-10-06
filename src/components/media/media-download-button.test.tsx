@@ -17,7 +17,7 @@ function renderButton() {
       <MediaDownloadButton mediaId="m-1" description="Pizza artesanal na mesa" />
     </NextIntlClientProvider>,
   );
-  fireEvent.click(screen.getByRole("button", { name: ptMessages.imageGeneration.download }));
+  fireEvent.click(screen.getByRole("button", { name: ptMessages.mediaGeneration.download }));
 }
 
 describe("MediaDownloadButton", () => {
@@ -39,7 +39,7 @@ describe("MediaDownloadButton", () => {
     fetchMediaFile.mockResolvedValue({ data: null, error: "Download failed with status 404" });
     renderButton();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(ptMessages.imageGeneration.downloadFailed);
+    expect(await screen.findByRole("alert")).toHaveTextContent(ptMessages.mediaGeneration.downloadFailed);
     expect(downloadBlob).not.toHaveBeenCalled();
   });
 });

@@ -2,24 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { isActionError, type ActionError } from "@/app/actions/action-result";
-import { getImageGenerationAction, requestImageGenerationAction } from "@/app/actions/image-generation";
+import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
+import { getMediaGenerationAction, requestMediaGenerationAction } from "@/app/actions/media-generation";
 import {
   CLIENT_TIMEOUT_MS,
   MAX_CONSECUTIVE_POLL_ERRORS,
-  imageJobOutcome,
+  mediaJobOutcome,
   nextPollDelay,
-} from "@/lib/image-generation/polling";
-import type { ImageGenerationInput, ImageGenerationJob } from "@/lib/image-generation/types";
+} from "@/lib/media-generation/polling";
+import type { MediaGenerationInput, MediaGenerationJob, MediaJobStatus } from "@/lib/media-generation/types";
 
-export type ImageGenerationStatus = "idle" | "generating" | "done" | "failed";
+export type MediaGenerationStatus = "idle" | "generating" | "done" | "failed";
 
-export interface ImageGenerationResult {
+export interface MediaGenerationResult {
   mediaId: string;
   mediaUrl: string;
 }
 
-export interface ImageGenerationError {
+export interface MediaGenerationError {
   code: string;
   message: string;
 }
@@ -29,10 +29,12 @@ export const TIMED_OUT = "timed_out";
 export const REQUEST_FAILED = "request_failed";
 
 type Settled =
-  | { status: "done"; result: ImageGenerationResult }
-  | { status: "failed"; error: ImageGenerationError };
+  | { status: "done"; result: MediaGenerationResult }
+  | { status: "failed"; error: MediaGenerationError };
 
-type GenerationState = { status: "idle" | "generating" } | Settled;
+type PendingJobStatus = Exclude<MediaJobStatus, "done" | "failed">;
+
+type GenerationState = { status: "idle" } | { status: "generating"; settling: boolean; jobStatus: PendingJobStatus | null } | Settled;
 
 interface PollRun {
   jobId: string | null;
@@ -43,10 +45,11 @@ interface PollRun {
   inFlight: boolean;
   cancelled: boolean;
   settle: (settled: Settled) => void;
+  progress: (jobStatus: PendingJobStatus) => void;
 }
 
-interface UseImageGenerationOptions {
-  onDone?: (result: ImageGenerationResult) => void;
+interface UseMediaGenerationOptions {
+  onDone?: (result: MediaGenerationResult) => void;
 }
 
 function failure(code: string, message: string = code): Settled {
@@ -72,8 +75,8 @@ function scheduleNext(run: PollRun) {
   run.timer = setTimeout(() => void poll(run), run.delay);
 }
 
-function follow(run: PollRun, job: ImageGenerationJob) {
-  const outcome = imageJobOutcome(job);
+function followJob(run: PollRun, job: MediaGenerationJob) {
+  const outcome = mediaJobOutcome(job);
   if (outcome.kind === "done") {
     run.settle({ status: "done", result: { mediaId: outcome.mediaId, mediaUrl: outcome.mediaUrl } });
     return;
@@ -82,6 +85,7 @@ function follow(run: PollRun, job: ImageGenerationJob) {
     run.settle(failure(outcome.code));
     return;
   }
+  run.progress(job.status as PendingJobStatus);
   scheduleNext(run);
 }
 
@@ -98,7 +102,7 @@ async function poll(run: PollRun) {
   run.timer = null;
   if (run.cancelled || run.inFlight || run.jobId === null || pageHidden()) return;
   run.inFlight = true;
-  const result = await getImageGenerationAction(run.jobId);
+  const result = await getMediaGenerationAction(run.jobId);
   run.inFlight = false;
   if (run.cancelled) return;
   if (isActionError(result)) {
@@ -106,7 +110,7 @@ async function poll(run: PollRun) {
     return;
   }
   run.errors = 0;
-  follow(run, result.data);
+  followJob(run, result.data);
 }
 
 function resume(run: PollRun) {
@@ -115,7 +119,7 @@ function resume(run: PollRun) {
   void poll(run);
 }
 
-export function useImageGeneration(options: UseImageGenerationOptions = {}) {
+export function useMediaGeneration(options: UseMediaGenerationOptions = {}) {
   const [state, setState] = useState<GenerationState>({ status: "idle" });
   const runRef = useRef<PollRun | null>(null);
   const onDone = useRef(options.onDone);
@@ -139,8 +143,8 @@ export function useImageGeneration(options: UseImageGenerationOptions = {}) {
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, []);
 
-  const start = useCallback(
-    async (input: ImageGenerationInput) => {
+  const follow = useCallback(
+    async (request: () => Promise<ActionResult<MediaGenerationJob>>) => {
       stop();
       const run: PollRun = {
         jobId: null,
@@ -157,21 +161,28 @@ export function useImageGeneration(options: UseImageGenerationOptions = {}) {
           setState(settled);
           if (settled.status === "done") onDone.current?.(settled.result);
         },
+        progress: (jobStatus) => {
+          if (runRef.current !== run) return;
+          const settling = jobStatus === "settling";
+          setState((current) => (current.status === "generating" && current.jobStatus === jobStatus ? current : { status: "generating", settling, jobStatus }));
+        },
       };
       runRef.current = run;
-      setState({ status: "generating" });
+      setState({ status: "generating", settling: false, jobStatus: null });
 
-      const created = await requestImageGenerationAction(input);
+      const created = await request();
       if (run.cancelled) return;
       if (isActionError(created)) {
         run.settle(failure(created.code ?? REQUEST_FAILED, created.error));
         return;
       }
       run.jobId = created.data.id;
-      follow(run, created.data);
+      followJob(run, created.data);
     },
     [stop],
   );
+
+  const start = useCallback((input: MediaGenerationInput) => follow(() => requestMediaGenerationAction(input)), [follow]);
 
   const reset = useCallback(() => {
     stop();
@@ -180,8 +191,11 @@ export function useImageGeneration(options: UseImageGenerationOptions = {}) {
 
   return {
     start,
+    follow,
     reset,
     status: state.status,
+    settling: state.status === "generating" && state.settling,
+    jobStatus: state.status === "generating" ? state.jobStatus : null,
     result: state.status === "done" ? state.result : undefined,
     error: state.status === "failed" ? state.error : undefined,
   };

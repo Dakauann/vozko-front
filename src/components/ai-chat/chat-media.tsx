@@ -3,11 +3,36 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import { ArrowSquareOut, PencilSimple } from "@/components/icons";
+import { ArrowSquareOut, CircleNotch, Palette, PencilSimple } from "@/components/icons";
+import { AudioPlayer } from "@/components/media/audio-player";
 import { MediaDownloadButton } from "@/components/media/media-download-button";
-import type { ChatImage } from "@/lib/aichat/types";
+import { SoundVideo } from "@/components/media/sound-video";
+import { useAccess } from "@/hooks/use-access";
+import { useOpenInStudio } from "@/hooks/use-open-in-studio";
+import { chatMediaKind } from "@/lib/aichat/chat-media";
+import type { ChatMedia } from "@/lib/aichat/types";
 
-export function ChatImageView({ image, onEdit }: { image: ChatImage; onEdit?: (image: ChatImage) => void }) {
+function OpenInStudioButton({ media }: { media: ChatMedia }) {
+  const t = useTranslations("studio.openFromMedia");
+  const { decideScreen } = useAccess();
+  const { open, opening } = useOpenInStudio();
+  if (decideScreen(chatMediaKind(media) === "image" ? "studio_image" : "studio_video").status !== "allowed") return null;
+  const busy = opening === media.mediaId;
+  return (
+    <button
+      type="button"
+      onClick={() => void open(media)}
+      disabled={busy}
+      aria-busy={busy}
+      className="inline-flex shrink-0 items-center gap-1 font-semibold text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+    >
+      {busy ? <CircleNotch className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Palette className="h-3.5 w-3.5" aria-hidden />}
+      {t("action")}
+    </button>
+  );
+}
+
+function ChatImage({ image, onEdit }: { image: ChatMedia; onEdit?: (image: ChatMedia) => void }) {
   const t = useTranslations("aiChatPage.image");
   return (
     <figure className="max-w-sm space-y-1.5">
@@ -40,6 +65,7 @@ export function ChatImageView({ image, onEdit }: { image: ChatImage; onEdit?: (i
               {t("edit")}
             </button>
           ) : null}
+          <OpenInStudioButton media={image} />
           <MediaDownloadButton mediaId={image.mediaId} description={image.alt} />
           <a
             href={image.url}
@@ -54,4 +80,43 @@ export function ChatImageView({ image, onEdit }: { image: ChatImage; onEdit?: (i
       </figcaption>
     </figure>
   );
+}
+
+function MediaCaption({ media }: { media: ChatMedia }) {
+  return (
+    <figcaption className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+      <span className="line-clamp-1">{media.alt}</span>
+      <span className="flex shrink-0 items-start gap-3">
+        <OpenInStudioButton media={media} />
+        <MediaDownloadButton mediaId={media.mediaId} description={media.alt} className="shrink-0" />
+      </span>
+    </figcaption>
+  );
+}
+
+export function ChatMediaView({ media, onEdit }: { media: ChatMedia; onEdit?: (image: ChatMedia) => void }) {
+  const kind = chatMediaKind(media);
+  if (kind === "audio") {
+    return (
+      <figure className="max-w-sm space-y-1.5">
+        <AudioPlayer url={media.url} label={media.alt} downloadable={false} />
+        <MediaCaption media={media} />
+      </figure>
+    );
+  }
+  if (kind === "video") {
+    return (
+      <figure className="max-w-sm space-y-1.5">
+        <SoundVideo
+          src={media.url}
+          label={media.alt}
+          controls
+          className="overflow-hidden rounded-[--radius] border border-border bg-muted"
+          videoClassName="h-auto max-h-[28rem] object-contain"
+        />
+        <MediaCaption media={media} />
+      </figure>
+    );
+  }
+  return <ChatImage image={media} onEdit={onEdit} />;
 }

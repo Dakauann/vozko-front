@@ -18,11 +18,14 @@ describe("tool segments", () => {
     expect(out[1]).toMatchObject({ name: "attendance_trend", running: true });
   });
 
-  it("keeps the requested image aspect from start to finish", () => {
+  it("keeps the frame of the media being made from start to finish", () => {
     const running = startTool([], "generate_image", "story");
-    expect(running).toEqual([{ kind: "tool", name: "generate_image", summary: "", ok: true, running: true, aspect: "story" }]);
+    expect(running).toEqual([{ kind: "tool", name: "generate_image", summary: "", ok: true, running: true, frame: "story" }]);
     expect(finishTool(running, "generate_image", "error", false)).toEqual([
-      { kind: "tool", name: "generate_image", summary: "error", ok: false, aspect: "story" },
+      { kind: "tool", name: "generate_image", summary: "error", ok: false, frame: "story" },
+    ]);
+    expect(finishTool(startTool([], "generate_music", "audio"), "generate_music", "ok", true)).toEqual([
+      { kind: "tool", name: "generate_music", summary: "ok", ok: true, frame: "audio" },
     ]);
   });
 

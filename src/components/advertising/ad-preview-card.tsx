@@ -24,10 +24,12 @@ import {
   WhatsappLogo,
   X,
 } from "@/components/icons";
+import { SoundVideo } from "@/components/media/sound-video";
 import type { AdDraftDestination } from "@/lib/advertising/draft-types";
 import { PREVIEW_PLACEMENTS, placementText, type PreviewPlacementId, type PreviewPlacementSpec } from "@/lib/advertising/preview-placements";
 import { CAROUSEL_CARD_RATIO, FEED_MEDIA_RATIO, STORY_RATIO, STORY_SAFE_ZONE, TEXT_LIMITS, clipText, safeZoneInsets } from "@/lib/advertising/preview-spec";
 import { resolvedCallToAction } from "@/lib/advertising/wizard-routes";
+import { firstFrameSrc } from "@/lib/media/first-frame";
 import { cn } from "@/lib/utils";
 
 import { AdImage } from "./ad-image";
@@ -92,6 +94,7 @@ interface CardModel {
   ctaIcon: typeof WhatsappLogo | undefined;
   fallback: string;
   pageName: string;
+  playable: boolean;
 }
 
 function mainMedia(content: AdPreviewContent): AdPreviewMedia | undefined {
@@ -102,7 +105,7 @@ function mainMedia(content: AdPreviewContent): AdPreviewMedia | undefined {
   return content.imageUrl ? { kind: "image", url: content.imageUrl } : undefined;
 }
 
-function MediaView({ media, fallback }: { media: AdPreviewMedia | undefined; fallback: string }) {
+function MediaView({ media, fallback, playable }: { media: AdPreviewMedia | undefined; fallback: string; playable: boolean }) {
   if (!media) {
     return (
       <span className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-xs text-muted-foreground">
@@ -111,10 +114,11 @@ function MediaView({ media, fallback }: { media: AdPreviewMedia | undefined; fal
       </span>
     );
   }
+  if (media.kind === "video" && playable) return <SoundVideo src={media.url} autoPlay className="h-full w-full" />;
   if (media.kind === "video") {
     return (
       <span className="relative block h-full w-full">
-        <video src={media.url} muted playsInline loop preload="metadata" className="h-full w-full object-cover" />
+        <video src={firstFrameSrc(media.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
         <Play className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-card" weight="fill" aria-hidden />
       </span>
     );
@@ -200,14 +204,14 @@ function CtaButton({ label, icon: Icon, compact }: { label: string; icon?: typeo
   );
 }
 
-function Carousel({ cards, ctaLabel, fallback }: { cards: AdPreviewCardItem[]; ctaLabel: string; fallback: string }) {
+function Carousel({ cards, ctaLabel, fallback, playable }: { cards: AdPreviewCardItem[]; ctaLabel: string; fallback: string; playable: boolean }) {
   const limits = TEXT_LIMITS.carousel;
   return (
     <ul className="flex snap-x gap-2 overflow-x-auto px-3 pb-3">
       {cards.map((card, index) => (
         <li key={index} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-lg border border-border bg-card">
           <div className="relative w-full bg-muted" style={{ aspectRatio: CAROUSEL_CARD_RATIO }}>
-            <MediaView media={card.media} fallback={fallback} />
+            <MediaView media={card.media} fallback={fallback} playable={playable} />
           </div>
           <div className="flex items-center gap-2 border-t border-border bg-muted px-2.5 py-2">
             <div className="min-w-0 flex-1">
@@ -243,10 +247,10 @@ function SafeZoneOverlay() {
 
 function FormatMedia({ model, fill }: { model: CardModel; fill?: boolean }) {
   if (model.content.format === "CATALOG") return <ProductTiles count={4} columns="grid-cols-2" />;
-  if (fill) return <MediaView media={model.media} fallback={model.fallback} />;
+  if (fill) return <MediaView media={model.media} fallback={model.fallback} playable={model.playable} />;
   return (
     <div className="relative w-full bg-muted" style={{ aspectRatio: FEED_MEDIA_RATIO }}>
-      <MediaView media={model.media} fallback={model.fallback} />
+      <MediaView media={model.media} fallback={model.fallback} playable={model.playable} />
     </div>
   );
 }
@@ -285,7 +289,7 @@ function FacebookFeed({ model }: { model: CardModel }) {
         <PrimaryText text={model.text} limit={primaryLimit} more={t("seeMore")} />
       </p>
       {content.format === "CAROUSEL" ? (
-        <Carousel cards={content.cards ?? []} ctaLabel={model.ctaLabel} fallback={model.fallback} />
+        <Carousel cards={content.cards ?? []} ctaLabel={model.ctaLabel} fallback={model.fallback} playable={model.playable} />
       ) : (
         <>
           <FormatMedia model={model} />
@@ -335,7 +339,7 @@ function InstagramFeed({ model }: { model: CardModel }) {
       </header>
       {content.format === "CAROUSEL" ? (
         <div className="relative w-full bg-muted" style={{ aspectRatio: CAROUSEL_CARD_RATIO }}>
-          <MediaView media={model.media} fallback={model.fallback} />
+          <MediaView media={model.media} fallback={model.fallback} playable={model.playable} />
         </div>
       ) : (
         <FormatMedia model={model} />
@@ -375,7 +379,7 @@ function Marketplace({ model }: { model: CardModel }) {
         <DotsThree className="h-4 w-4 shrink-0 text-muted-foreground" weight="bold" aria-hidden />
       </header>
       <div className="relative w-full bg-muted" style={{ aspectRatio: "1 / 1" }}>
-        <MediaView media={model.media} fallback={model.fallback} />
+        <MediaView media={model.media} fallback={model.fallback} playable={model.playable} />
       </div>
       <p className="truncate px-2.5 py-2 text-xs text-foreground">{headline || " "}</p>
     </figure>
@@ -503,10 +507,12 @@ export function AdPreviewCard({
   content,
   placement = DEFAULT_PLACEMENT,
   safeZone = false,
+  playable = false,
 }: {
   content: AdPreviewContent;
   placement?: PreviewPlacementId;
   safeZone?: boolean;
+  playable?: boolean;
 }) {
   const t = useTranslations("adsWizard.preview");
   const tCta = useTranslations("adsWizard.cta");
@@ -522,6 +528,7 @@ export function AdPreviewCard({
     ctaIcon: CTA_ICON[cta],
     fallback: t("imageFallback"),
     pageName: content.pageName || t("pageFallback"),
+    playable,
   };
   const shape = model.spec.shape;
   if (shape === "story") return <Story model={model} safeZone={safeZone} />;

@@ -2,17 +2,6 @@
   "screenLoader": {
     "label": "Loading…"
   },
-  "imageGeneration": {
-    "generating": "Generating image",
-    "failed": "The image could not be generated",
-    "download": "Download",
-    "downloading": "Downloading...",
-    "downloadFailed": "The image could not be downloaded. Try again.",
-    "model": "Image model",
-    "modelHint": "From most used to least used.",
-    "modelsLoading": "Loading image models...",
-    "modelsUnavailable": "The image models could not be loaded right now. Try again in a moment."
-  },
   "crmAnalysis": {
     "awaiting": "Awaiting analysis",
     "awaitingHint": "This conversation is still going. The AI analyses it once it has been quiet for a few minutes; nothing is being analysed yet.",
@@ -395,10 +384,14 @@
       "set_ad_spend_cap": "Account spending limit",
       "update_ad_draft": "Change ad draft",
       "swap_ad_creative": "Swap ad creative",
+      "get_ad_creative": "View ad creative",
       "number_automation": "Number inbound service",
       "configure_number_automation": "Configure number inbound service",
       "load_skill": "Read skill",
-      "member_activity": "Member activity"
+      "member_activity": "Member activity",
+      "generate_music": "Generate music",
+      "generate_voiceover": "Generate voice-over",
+      "render_video": "Build video"
     },
     "threadsLegend": "Conversations",
     "greeting": "Hi, I’m Elo. What are we working on?",
@@ -609,6 +602,9 @@
     "yes": "Yes",
     "no": "No",
     "fields": {
+      "script": "Script",
+      "sound": "Sound",
+      "below": "Below it",
       "name": "Name",
       "description": "Description",
       "initialMessage": "Opening message",
@@ -765,7 +761,12 @@
       "enhancements": "Advantage+ enhancements",
       "analysis": "Analyze conversations",
       "autoStaging": "Move stage automatically",
-      "autoMemory": "Remember facts"
+      "autoMemory": "Remember facts",
+      "music": "Music",
+      "voice": "Voice-over",
+      "scenes": "Scenes",
+      "music_model": "Music model",
+      "voice_model": "Voice-over model"
     },
     "attachments": {
       "legend": "Attached files",
@@ -862,6 +863,14 @@
         "enhancements": "Advantage+ enhancements",
         "enhancementsOn": "On",
         "enhancementsOff": "Off"
+      },
+      "videoPlan": {
+        "scenes": "{count, plural, one {# scene} other {# scenes}}",
+        "total": "Total: {seconds}",
+        "seconds": "{seconds} s",
+        "scene": "Scene {index}",
+        "music": "Music",
+        "voice": "Voice-over"
       }
     },
     "navigation": {
@@ -2221,7 +2230,10 @@
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
       "createWebchat": "Create WebChat",
-      "adsPages": "Pages"
+      "adsPages": "Pages",
+      "studioProjects": "Projects",
+      "studioNewImage": "New image",
+      "studioNewVideo": "New video"
     },
     "badges": {
       "new": "New",
@@ -2251,7 +2263,8 @@
       "facebook": "Facebook",
       "telephony": "Telephony",
       "meta": "Meta",
-      "webchat": "WebChat"
+      "webchat": "WebChat",
+      "studio": "Studio"
     },
     "pin": {
       "pin": "Pin",
@@ -8210,8 +8223,7 @@
     },
     "header": {
       "badge": "Monthly send limits",
-      "description": "Official templates billed by Meta, per workspace and per month.",
-      "descriptionWithMonth": "Official templates billed by Meta, per workspace. Usage counted since the start of {month}."
+      "description": "Official templates billed by Meta, per workspace, in monthly cycles."
     },
     "actions": {
       "refresh": "Refresh",
@@ -8237,6 +8249,8 @@
       "workspace": "Workspace",
       "usage": "Usage this month",
       "usageValue": "{used} of {limit}",
+      "cycle": "Cycle",
+      "cycleValue": "Day {day} · renews {renews}",
       "remaining": "Remaining",
       "status": "Status",
       "updated": "Last change",
@@ -8251,6 +8265,8 @@
       "searchPlaceholder": "Search workspace by name",
       "limit": "Sends per month",
       "createHint": "Once the limit is reached, sends fail and the user is told to contact the administration.",
+      "cycleDay": "Renewal day",
+      "cycleDayHint": "The cycle runs from this day to the same day next month. In shorter months, days 29 to 31 use the month's last day.",
       "editHint": "Current limit: {current}. Here you can only keep or lower it.",
       "raiseNeedsUnlock": "Raising the limit requires an unlock with the code.",
       "raiseForbidden": "Raising the limit requires an unlock, which only authorized administration can do."
@@ -8261,6 +8277,8 @@
       "removeCap": "Remove the limit",
       "removeCapHint": "The workspace sends again with no monthly restriction.",
       "newLimit": "New monthly limit",
+      "cycleDay": "Renewal day",
+      "cycleDayHint": "Changing the day restarts the count from the new cycle.",
       "code": "Unlock code",
       "codeHint": "The administration's 4 digit code.",
       "confirmRaise": "Unlock",
@@ -8272,6 +8290,7 @@
       "unlock_required": "Raising or removing the limit requires an unlock with the code.",
       "invalid_unlock_code": "Invalid unlock code.",
       "invalid_limit": "The limit must be a positive whole number.",
+      "invalid_cycle_day": "The renewal day must be between 1 and 31.",
       "send_cap_not_found": "This workspace has no monthly limit.",
       "workspace_not_found": "Workspace not found.",
       "invalid_body": "Invalid data. Check the fields.",
@@ -17114,7 +17133,7 @@
       },
       "uploadHint": {
         "image": "JPG or PNG, at least 1080 px on the shorter side.",
-        "video": "MP4 or MOV. Videos can only be uploaded, not generated.",
+        "video": "MP4 or MOV. Videos with sound made by Elo are in the library.",
         "any": "JPG or PNG image, or MP4 or MOV video."
       },
       "uploading": "Uploading...",
@@ -17150,9 +17169,28 @@
         "insufficient_funds": "The balance ran out before the image started generating, so nothing was charged. Add balance and try again.",
         "already_generating": "An image with this description and format was just generated. Wait a few seconds and try again.",
         "reference_unavailable": "One of the reference images is no longer available. Change the references and try again.",
-        "invalid_request": "Check the reference images: images only, no repeats."
+        "invalid_request": "Check the reference images: images only, no repeats.",
+        "cost_unreported": "The provider did not report the cost of the generation, so nothing was delivered or charged. Try again."
       },
-      "editWithAi": "Edit with AI"
+      "editWithAi": "Edit with AI",
+      "modeLibrary": "Library",
+      "library": {
+        "loading": "Loading the library...",
+        "failed": "The library could not be loaded right now.",
+        "retry": "Try again",
+        "empty": {
+          "image": "No images in the library yet.",
+          "video": "No videos in the library yet. Videos with sound made by Elo show up here.",
+          "any": "No images or videos in the library yet."
+        },
+        "label": {
+          "image": "Library images",
+          "video": "Library videos",
+          "any": "Library images and videos"
+        },
+        "pickImage": "Choose this image",
+        "pickVideo": "Choose this video"
+      }
     },
     "review": {
       "budgetDaily": "{amount} per day",
@@ -19674,6 +19712,1391 @@
       "lead_forms": {
         "title": "Lead forms",
         "missing": "The Page has not accepted Meta's lead ads terms yet. Only Meta allows accepting them; then check again here."
+      }
+    }
+  },
+  "mediaPlayer": {
+    "audio": "Audio",
+    "video": "Video",
+    "play": "Play",
+    "pause": "Pause",
+    "position": "Audio position",
+    "speed": "Playback speed",
+    "download": "Download audio",
+    "mute": "Turn sound off",
+    "unmute": "Turn sound on"
+  },
+  "mediaGeneration": {
+    "model": {
+      "image": "Image model",
+      "music": "Music model",
+      "voice": "Voice-over model"
+    },
+    "modelHint": "From most used to least used.",
+    "recommendedModel": "{name} (recommended)",
+    "modelsLoading": {
+      "image": "Loading image models...",
+      "music": "Loading music models...",
+      "voice": "Loading voice-over models..."
+    },
+    "modelsUnavailable": {
+      "image": "The image models could not be loaded right now. Try again in a moment.",
+      "music": "The music models could not be loaded right now. Try again in a moment.",
+      "voice": "The voice-over models could not be loaded right now. Try again in a moment."
+    },
+    "generating": {
+      "image": "Generating image",
+      "music": "Generating music",
+      "voice": "Generating voice-over",
+      "video": "Building video",
+      "cutout": "Removing the background",
+      "captions": "Generating captions",
+      "denoise": "Cleaning up the audio"
+    },
+    "failed": {
+      "image": "The image could not be generated",
+      "music": "The music could not be generated",
+      "voice": "The voice-over could not be generated",
+      "video": "The video could not be built",
+      "cutout": "The background could not be removed",
+      "captions": "The captions could not be generated",
+      "denoise": "The audio could not be cleaned up"
+    },
+    "finalizing": "Finishing",
+    "download": "Download",
+    "downloading": "Downloading...",
+    "downloadFailed": "The file could not be downloaded. Try again."
+  },
+  "studio": {
+    "page": {
+      "title": "Studio",
+      "description": "Create images and videos for your ads and save everything to the media library.",
+      "createImage": "New image",
+      "createVideo": "New video",
+      "refresh": "Refresh"
+    },
+    "tabs": {
+      "image": "Images",
+      "video": "Videos"
+    },
+    "kinds": {
+      "image": "Image",
+      "video": "Video"
+    },
+    "table": {
+      "name": "Name",
+      "kind": "Type",
+      "updated": "Edited",
+      "open": "Open",
+      "rename": "Rename",
+      "archive": "Archive"
+    },
+    "stats": {
+      "total": "Projects"
+    },
+    "empty": {
+      "image": {
+        "title": "No images yet",
+        "description": "Start from a ready size for Instagram and Facebook or pick a custom size."
+      },
+      "video": {
+        "title": "No videos yet",
+        "description": "Start from a square, portrait or vertical format and build the video on the timeline."
+      }
+    },
+    "list": {
+      "failed": "The projects could not be loaded.",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "pageOf": "Page {page} of {totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "create": {
+      "title": "New project",
+      "description": "Choose the type, the size and a name. You can change the size later.",
+      "kind": "Type",
+      "size": "Size",
+      "aspect": "Format",
+      "name": "Name",
+      "defaultName": {
+        "image": "Untitled image",
+        "video": "Untitled video"
+      },
+      "custom": "Custom size",
+      "width": "Width (px)",
+      "height": "Height (px)",
+      "dimensions": "{width} × {height} px",
+      "sizeHint": "Between {min} and {max} px on each side.",
+      "submit": "Create and open",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "failed": "The project could not be created."
+    },
+    "presets": {
+      "instagram_post": "Instagram post",
+      "instagram_portrait": "Portrait post",
+      "instagram_story": "Story and Reels",
+      "facebook_link": "Facebook link",
+      "youtube_thumbnail": "YouTube thumbnail",
+      "presentation": "Presentation 16:9",
+      "x_post": "X post",
+      "pinterest_pin": "Pinterest pin",
+      "facebook_cover": "Facebook cover",
+      "linkedin_banner": "LinkedIn banner",
+      "flyer_a4": "A4 flyer"
+    },
+    "aspects": {
+      "square": "Square 1:1",
+      "portrait": "Portrait 4:5",
+      "story": "Vertical 9:16",
+      "landscape": "Landscape 16:9"
+    },
+    "rename": {
+      "title": "Rename project",
+      "name": "Name",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "done": "Project renamed",
+      "failed": "The project could not be renamed."
+    },
+    "archive": {
+      "title": "Archive project",
+      "description": "\"{name}\" leaves the Studio list. Media you already exported stays in the library.",
+      "confirm": "Archive",
+      "cancel": "Cancel",
+      "done": "Project archived",
+      "failed": "The project could not be archived."
+    },
+    "issues": {
+      "nameRequired": "Enter a name.",
+      "nameTooLarge": "Use up to {max} characters.",
+      "canvasOutOfRange": "Each side must be between {min} and {max} px.",
+      "document": "The project document is not valid ({field}: {code})."
+    },
+    "editor": {
+      "back": "Projects",
+      "loading": "Opening the project",
+      "loadFailed": "The project could not be opened.",
+      "notFound": "This project no longer exists or was archived.",
+      "invalid": "The editor cannot open this project document ({field}: {code}).",
+      "retry": "Try again",
+      "status": {
+        "saved": "Saved",
+        "saving": "Saving...",
+        "unsaved": "Unsaved changes",
+        "conflict": "Version conflict",
+        "error": "Could not save"
+      },
+      "retrySave": "Save again",
+      "conflict": {
+        "title": "This project was saved somewhere else",
+        "description": "Another tab or another person saved a newer version while you were editing. Nothing was overwritten.",
+        "reload": "Reload",
+        "reloadHint": "Opens the saved version and discards your unsaved changes.",
+        "keepMine": "Keep my version",
+        "keepMineHint": "Saves your version on top of the newer one."
+      }
+    },
+    "image": {
+      "canvas": {
+        "editText": "Edit text"
+      },
+      "clipboard": {
+        "imageFailed": "Could not paste the image. Try uploading the file from the Uploads panel."
+      },
+      "toolbar": {
+        "label": "Editor tools",
+        "undo": "Undo (Ctrl+Z)",
+        "redo": "Redo (Ctrl+Shift+Z)",
+        "resize": "Resize",
+        "resizeLabel": "Resize, current size {width} × {height} px",
+        "view": "View",
+        "rulers": "Rulers",
+        "snapping": "Snapping and smart guides",
+        "selectionTools": "Selection actions",
+        "position": "Position",
+        "order": "Order",
+        "align": "Align",
+        "distribute": "Distribute",
+        "zoom": "Zoom",
+        "zoomIn": "Zoom in (Ctrl++)",
+        "zoomOut": "Zoom out (Ctrl+-)",
+        "zoomLevel": "Zoom at {percent}%",
+        "fit": "Fit to screen (Ctrl+0)"
+      },
+      "rail": {
+        "label": "Editor panels",
+        "text": "Text",
+        "elements": "Elements",
+        "uploads": "Uploads",
+        "ai": "AI",
+        "layers": "Layers"
+      },
+      "panels": {
+        "text": {
+          "title": "Text styles",
+          "hint": "Click to add. Double click a text to edit it.",
+          "add": {
+            "heading": "Add a heading",
+            "subheading": "Add a subheading",
+            "body": "Add body text"
+          },
+          "defaults": {
+            "heading": "Your heading",
+            "subheading": "Your subheading",
+            "body": "Write your text here"
+          }
+        },
+        "elements": {
+          "title": "Elements",
+          "shapes": "Shapes and lines",
+          "icons": "Icons",
+          "search": "Search icons",
+          "noIcons": "No icons found.",
+          "shape": {
+            "rect": "Rectangle",
+            "rounded": "Rounded rectangle",
+            "ellipse": "Ellipse",
+            "triangle": "Triangle",
+            "star": "Star",
+            "line": "Line",
+            "arrow": "Arrow",
+            "doubleArrow": "Double arrow"
+          }
+        },
+        "uploads": {
+          "title": "Uploads and library",
+          "hint": "Upload images or use the ones already in your media library.",
+          "upload": "Upload images"
+        },
+        "ai": {
+          "title": "AI",
+          "hint": "Create images from a description and remove backgrounds.",
+          "generateTitle": "Generate image",
+          "prompt": "Description",
+          "promptPlaceholder": "E.g. photo of an iced coffee on a wooden table, natural light",
+          "aspect": "Format",
+          "references": "References",
+          "fromSelection": "From selection",
+          "fromLibrary": "From library",
+          "uploadReference": "Upload reference",
+          "removeReference": "Remove reference",
+          "referenceFailed": "One of the selected images could not be used as a reference.",
+          "referencesHint": "Optional. Up to {max} images to guide the style or the product.",
+          "costNote": "Generating images uses the workspace balance. The result lands in the design as a new layer.",
+          "generate": "Generate image",
+          "removeBackgroundTitle": "Remove background"
+        },
+        "layers": {
+          "title": "Layers",
+          "hint": "Drag to reorder. Double click to rename.",
+          "empty": "The design has no layers yet.",
+          "rowLabel": "{name}, layer {position} of {total}",
+          "rename": "Rename layer",
+          "lock": "Lock",
+          "unlock": "Unlock",
+          "hide": "Hide",
+          "show": "Show",
+          "group": "Group ({count})",
+          "ungroup": "Ungroup",
+          "keyboardHint": "Keyboard: Alt+arrows change the order, F2 renames.",
+          "resize": "Resize the layers panel",
+          "clipped": "Clipped to the layer below",
+          "groupName": "Group",
+          "renameGroup": "Rename group",
+          "expand": "Expand {name}",
+          "collapse": "Collapse {name}",
+          "blendMode": "Blend mode",
+          "opacity": "Opacity",
+          "opacityShort": "Op.",
+          "clip": "Create clipping mask",
+          "unclip": "Release clipping mask"
+        }
+      },
+      "layerKinds": {
+        "image": "Image",
+        "text": "Text",
+        "icon": "Icon",
+        "shape": {
+          "rect": "Rectangle",
+          "ellipse": "Ellipse",
+          "line": "Line",
+          "arrow": "Arrow",
+          "triangle": "Triangle",
+          "star": "Star"
+        }
+      },
+      "media": {
+        "uploading": "Uploading...",
+        "uploadHint": "JPG or PNG. The image is also saved to the library.",
+        "uploadFailedWith": "Could not upload the image: {reason}",
+        "notImage": "Upload a JPG or PNG image.",
+        "insertFailed": "Could not open this image. Try another one.",
+        "library": "Library",
+        "reload": "Refresh library",
+        "loading": "Loading the library...",
+        "libraryFailed": "Could not load the library right now.",
+        "empty": "No images in the library yet.",
+        "pick": "Use this image"
+      },
+      "actions": {
+        "copy": "Copy",
+        "paste": "Paste",
+        "duplicate": "Duplicate",
+        "group": "Group",
+        "ungroup": "Ungroup",
+        "lock": "Lock",
+        "unlock": "Unlock",
+        "hide": "Hide",
+        "show": "Show",
+        "delete": "Delete",
+        "selectAll": "Select all",
+        "crop": "Crop image",
+        "editText": "Edit text",
+        "order": {
+          "front": "Bring to front",
+          "forward": "Bring forward",
+          "backward": "Send backward",
+          "back": "Send to back"
+        },
+        "align": {
+          "left": "Left",
+          "center": "Center",
+          "right": "Right",
+          "top": "Top",
+          "middle": "Middle",
+          "bottom": "Bottom"
+        },
+        "distribute": {
+          "horizontal": "Distribute horizontally",
+          "vertical": "Distribute vertically"
+        },
+        "copyStyle": "Copy style",
+        "pasteStyle": "Paste style"
+      },
+      "resize": {
+        "hint": "Elements are repositioned to fit the new size.",
+        "dimensions": "{width} × {height} px",
+        "custom": "Custom size",
+        "width": "Width (px)",
+        "height": "Height (px)",
+        "outOfRange": "Each side must be between {min} and {max} px.",
+        "apply": "Resize"
+      },
+      "export": {
+        "open": "Export",
+        "title": "Export image",
+        "format": "Format",
+        "scale": "Size",
+        "quality": "JPG quality",
+        "transparent": "Transparent background",
+        "jpegWhite": "JPG has no transparency, so the background comes out white.",
+        "loadingAssets": "Loading the design's images and fonts...",
+        "download": "Download",
+        "save": "Save to library",
+        "saved": "Image saved to the library",
+        "openSaved": "Open the image",
+        "errors": {
+          "notReady": "An image or font in the design did not load. Remove or replace the broken element before exporting.",
+          "font": "One of the fonts did not load, so the export was cancelled. Try again.",
+          "asset": "One of the design's images did not load, so the export was cancelled.",
+          "timeout": "The export took too long and was cancelled. Try again.",
+          "render": "Could not create the image. Try again.",
+          "upload": "The image was created but not saved to the library: {reason}"
+        }
+      },
+      "jobs": {
+        "running": {
+          "generate": "Generating image...",
+          "edit": "Editing with AI...",
+          "cutout": "Removing the background..."
+        },
+        "finalizing": "Finishing...",
+        "dismiss": "Dismiss",
+        "errors": {
+          "too_many_jobs": "Two jobs are already running in this workspace. Wait for one to finish and try again.",
+          "generation_failed": "The job failed. Try again or change the description.",
+          "storage_failed": "The result was created but we could not store it. Contact support.",
+          "timed_out": "It took longer than expected and was stopped. Try again.",
+          "enqueue_failed": "Could not start right now. Try again in a moment.",
+          "poll_failed": "We lost contact with the job. Check your connection and try again.",
+          "insufficient_balance": "Not enough balance. Add balance and try again.",
+          "insufficient_funds": "The balance ran out before it started, so nothing was charged. Add balance and try again.",
+          "no_subscription": "This feature needs an active subscription.",
+          "already_generating": "This same request was just made. Wait a few seconds.",
+          "reference_unavailable": "One of the reference images is no longer available.",
+          "invalid_request": "The request was not accepted. Check the image and the references.",
+          "cost_unreported": "The provider did not report the cost, so nothing was delivered or charged. Try again.",
+          "result_unavailable": "The result is ready but could not be opened in the editor. It is in your library.",
+          "unknown": "Could not finish. Try again."
+        },
+        "failed": {
+          "generate": "The image was not generated",
+          "edit": "The AI edit failed",
+          "cutout": "The background was not removed"
+        }
+      },
+      "removeBackground": {
+        "run": "Remove background",
+        "hint": "Free. The background turns transparent and the layer is updated.",
+        "locked": "Unlock the image to remove its background.",
+        "pickImage": "Select an image in the design to remove its background."
+      },
+      "inspector": {
+        "label": "Properties",
+        "canvasTitle": "Design",
+        "selectionTitle": "{count} elements",
+        "lockedHint": "Element locked. Unlock it to edit.",
+        "types": {
+          "image": "Image",
+          "text": "Text",
+          "shape": "Shape",
+          "icon": "Icon"
+        },
+        "transform": {
+          "title": "Position and size",
+          "x": "Horizontal position",
+          "y": "Vertical position",
+          "width": "Width",
+          "widthShort": "W",
+          "height": "Height",
+          "heightShort": "H",
+          "rotation": "Rotation",
+          "rotationShort": "Rot",
+          "opacity": "Opacity",
+          "multiple": "{count} elements selected. Use Position to align them."
+        },
+        "text": {
+          "title": "Text",
+          "font": "Font",
+          "weight": "Weight",
+          "size": "Size",
+          "bold": "Bold",
+          "italic": "Italic",
+          "align": "Alignment",
+          "aligns": {
+            "left": "Left",
+            "center": "Center",
+            "right": "Right"
+          },
+          "color": "Color",
+          "lineHeight": "Line height",
+          "letterSpacing": "Letter spacing",
+          "weights": {
+            "100": "Thin",
+            "200": "Extra light",
+            "300": "Light",
+            "400": "Regular",
+            "500": "Medium",
+            "600": "Semibold",
+            "700": "Bold",
+            "800": "Extra bold",
+            "900": "Black"
+          },
+          "effects": "Text effects",
+          "curve": "Curve",
+          "highlight": "Text background",
+          "highlightColor": "Background color",
+          "highlightRadius": "Corners",
+          "highlightCurved": "Curved text has no background. Set the curve to zero to use one."
+        },
+        "shape": {
+          "title": "Shape",
+          "lineTitle": "Line",
+          "fill": "Fill",
+          "none": "No color",
+          "border": "Border",
+          "borderColor": "Border color",
+          "strokeWidth": "Thickness",
+          "color": "Color",
+          "radius": "Rounded corners",
+          "dash": "Dashed",
+          "heads": "Heads",
+          "headStart": "Arrow head at the start",
+          "headStartShort": "Start",
+          "headEnd": "Arrow head at the end",
+          "headEndShort": "End"
+        },
+        "icon": {
+          "title": "Icon",
+          "color": "Color"
+        },
+        "image": {
+          "title": "Image",
+          "crop": "Crop",
+          "cropHint": "Drag the frame and its handles to pick the area. Enter applies, Esc cancels.",
+          "cropDone": "Done",
+          "cropReset": "Reset",
+          "cropCancel": "Cancel",
+          "flip": "Flip",
+          "flipX": "Flip horizontally",
+          "flipY": "Flip vertically",
+          "radius": "Rounded corners",
+          "replace": "Replace image",
+          "replaceUpload": "Upload a new image",
+          "filters": "Adjustments",
+          "resetFilters": "Reset",
+          "presets": "Filters",
+          "presetNames": {
+            "vivid": "Vivid",
+            "soft": "Soft",
+            "faded": "Faded",
+            "dramatic": "Dramatic",
+            "bright": "Bright"
+          },
+          "filter": {
+            "brightness": "Brightness",
+            "contrast": "Contrast",
+            "saturation": "Saturation",
+            "blur": "Blur"
+          },
+          "editWithAi": "Edit with AI",
+          "editPrompt": "What to change",
+          "editPlaceholder": "E.g. replace the background with a beach at sunset",
+          "editRun": "Generate edited version",
+          "editHint": "Uses the workspace balance. The edited version lands as a new layer above this one.",
+          "cropTitle": "Cropping the image",
+          "frame": "Frame",
+          "frames": {
+            "none": "None",
+            "ellipse": "Circle",
+            "triangle": "Triangle",
+            "star": "Star"
+          }
+        },
+        "outline": {
+          "title": "Outline",
+          "toggle": "Show outline",
+          "color": "Color",
+          "width": "Thickness"
+        },
+        "shadow": {
+          "title": "Shadow",
+          "toggle": "Show shadow",
+          "color": "Color",
+          "blur": "Blur",
+          "blurShort": "Blur",
+          "x": "Horizontal offset",
+          "y": "Vertical offset"
+        },
+        "arrange": {
+          "title": "Arrange",
+          "align": "Align",
+          "distribute": "Distribute",
+          "order": "Order",
+          "edit": "Edit"
+        },
+        "canvas": {
+          "background": "Background",
+          "transparent": "Transparent background",
+          "transparentHint": "The checkerboard marks transparency. PNG exports can keep it transparent.",
+          "color": "Color",
+          "size": "Size: {width} × {height} px",
+          "tipsTitle": "Shortcuts",
+          "tipSelect": "Shift+click or drag on empty space to select several.",
+          "tipPan": "Hold Space and drag to move around.",
+          "tipZoom": "Ctrl+mouse wheel zooms at the cursor.",
+          "tipEdit": "Double click edits a text or crops an image."
+        },
+        "gradient": {
+          "toggle": "Gradient",
+          "from": "Start",
+          "to": "End",
+          "angle": "Angle"
+        }
+      },
+      "icons": {
+        "star": "Star",
+        "heart": "Heart",
+        "fire": "Fire",
+        "sparkle": "Sparkle",
+        "lightning": "Lightning",
+        "confetti": "Confetti",
+        "crown": "Crown",
+        "check-circle": "Check",
+        "seal-check": "Verified seal",
+        "shield-check": "Security shield",
+        "thumbs-up": "Thumbs up",
+        "smiley": "Smile",
+        "smiley-wink": "Wink",
+        "megaphone": "Megaphone",
+        "tag": "Price tag",
+        "currency-dollar": "Money",
+        "storefront": "Store",
+        "package": "Package",
+        "target": "Target",
+        "lightbulb": "Light bulb",
+        "arrow-right": "Right arrow",
+        "arrow-up-right": "Up arrow",
+        "play-circle": "Play",
+        "camera": "Camera",
+        "video-camera": "Video camera",
+        "image": "Image",
+        "paint-brush": "Brush",
+        "palette": "Palette",
+        "chat-circle": "Chat",
+        "phone": "Phone",
+        "envelope": "Envelope",
+        "whatsapp-logo": "WhatsApp",
+        "instagram-logo": "Instagram",
+        "facebook-logo": "Facebook",
+        "map-pin": "Location",
+        "globe": "Globe",
+        "clock": "Clock",
+        "timer": "Timer",
+        "hourglass": "Hourglass",
+        "calendar": "Calendar",
+        "bell": "Bell",
+        "users": "People",
+        "key": "Key",
+        "leaf": "Leaf",
+        "sun": "Sun",
+        "moon": "Moon"
+      },
+      "blend": {
+        "normal": "Normal",
+        "multiply": "Multiply",
+        "screen": "Screen",
+        "overlay": "Overlay",
+        "darken": "Darken",
+        "lighten": "Lighten",
+        "color-dodge": "Color dodge",
+        "color-burn": "Color burn",
+        "hard-light": "Hard light",
+        "soft-light": "Soft light",
+        "difference": "Difference",
+        "exclusion": "Exclusion",
+        "hue": "Hue",
+        "saturation": "Saturation",
+        "color": "Color",
+        "luminosity": "Luminosity"
+      }
+    },
+    "video": {
+      "dismiss": "Dismiss notice",
+      "toolbar": {
+        "label": "Editor tools",
+        "undo": "Undo",
+        "redo": "Redo",
+        "split": "Split",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "rippleDelete": "Delete and close the gap",
+        "aspect": "Video format",
+        "aspects": {
+          "square": "Square 1:1",
+          "portrait": "Portrait 4:5",
+          "story": "Vertical 9:16",
+          "landscape": "Landscape 16:9"
+        },
+        "safeArea": "Safe area"
+      },
+      "export": {
+        "button": "Export",
+        "exporting": "Exporting",
+        "title": "Export video",
+        "hint": "The video is saved, rendered as MP4 and stored in the media library.",
+        "start": "Export now",
+        "phase": {
+          "saving": "Saving the project",
+          "rasterizing": "Preparing overlays ({done} of {total})",
+          "submitting": "Sending to the queue",
+          "queued": "Queued",
+          "rendering": "Rendering",
+          "finalizing": "Finishing"
+        },
+        "done": "Video ready",
+        "result": "Exported video",
+        "inLibrary": "The video is already in the media library.",
+        "fileName": "studio video",
+        "useInAd": "Use in an ad",
+        "again": "Export again",
+        "retry": "Try again",
+        "close": "Close",
+        "errors": {
+          "empty": "Add at least one clip before exporting.",
+          "unsaved": "The project was not saved. Check the connection and try again.",
+          "raster_failed": "An overlay could not be prepared. Check the texts and images.",
+          "upload_failed": "An overlay could not be uploaded. Try again.",
+          "too_many_jobs": "Too many jobs are already running. Wait for one to finish and try again.",
+          "not_rasterized": "An overlay changed during the export. Try again.",
+          "invalid": "The project has something the server does not accept. Check the clips and try again.",
+          "conflict": "The project was saved somewhere else. Pick a version in the notice above and export again.",
+          "insufficient_funds": "Not enough balance to export.",
+          "timed_out": "The export took too long. Try again.",
+          "generation_failed": "The render failed. Try again.",
+          "storage_failed": "The video could not be saved to the library. Try again.",
+          "enqueue_failed": "The export could not be queued. Try again.",
+          "unknown": "The export failed. Try again.",
+          "changed": "The project changed during the export. Export again."
+        },
+        "outdated": {
+          "title": "This video does not include your latest changes",
+          "description": "It was exported before the changes you made on the timeline afterwards.",
+          "action": "Export current version"
+        }
+      },
+      "notices": {
+        "noRoom": "There is no room for that on the timeline.",
+        "nothingToSplit": "There is no clip under the playhead to split.",
+        "unsupportedMedia": "This file type cannot go into the video.",
+        "uploadFailed": "The file could not be uploaded.",
+        "tooManyTracks": "The project already has the maximum number of tracks.",
+        "captionsUnreadable": "The captions were generated but could not be read.",
+        "captionsEmpty": "No speech was found in that part.",
+        "clipGone": "The clip was removed before the processing finished.",
+        "clipLocked": "The clip is on a locked track and was not replaced.",
+        "linkNeedsTwo": "Select two or more clips to link.",
+        "markerTaken": "There is already a marker at this point.",
+        "keyframeOutside": "Move the playhead inside the clip to add or change keyframes.",
+        "keyframeLimit": "This video already has the maximum number of keyframes.",
+        "rangeMissing": "Mark an in point (I) and an out point (O) first.",
+        "nothingToRelink": "No clips share the same media and start to link.",
+        "pasteFailed": "The pasted image could not be uploaded.",
+        "locked": "The clip is on a locked track.",
+        "outOfRange": "That value is out of range.",
+        "sourcePending": "Wait for the media to load and try again.",
+        "invalid": "The project does not accept that change."
+      },
+      "preview": {
+        "label": "Preview",
+        "selection": "Selected clip. Drag to move, use the handles to resize and rotate."
+      },
+      "transport": {
+        "start": "Go to start",
+        "end": "Go to end",
+        "play": "Play",
+        "pause": "Pause",
+        "space": "Space"
+      },
+      "timeline": {
+        "label": "Timeline",
+        "noTracks": "Add a track to start.",
+        "playhead": "Playhead",
+        "clipDescription": "{label}, starts at {start}, lasts {duration}",
+        "clipTypes": {
+          "video": "Video",
+          "image": "Image",
+          "overlay": "Overlay",
+          "audio": "Audio",
+          "text": "Text",
+          "icon": "Icon",
+          "shapes": {
+            "rect": "Rectangle",
+            "ellipse": "Ellipse",
+            "line": "Line",
+            "arrow": "Arrow",
+            "triangle": "Triangle",
+            "star": "Star"
+          }
+        },
+        "track": {
+          "name": "Track name",
+          "renameHint": "Double click to rename",
+          "visualName": "Video {index}",
+          "audioName": "Audio {index}",
+          "show": "Show {name}",
+          "hide": "Hide {name}",
+          "mute": "Mute {name}",
+          "unmute": "Unmute {name}",
+          "lock": "Lock {name}",
+          "unlock": "Unlock {name}",
+          "remove": "Remove {name}",
+          "main": "Main",
+          "solo": "Solo {name}",
+          "unsolo": "Stop solo on {name}",
+          "soloMark": "S"
+        },
+        "linked": "Linked",
+        "bar": {
+          "label": "Timeline tools",
+          "timecode": "Playhead time",
+          "snapping": "Snapping",
+          "magnetic": "Magnetic main track",
+          "linkedSelection": "Linked selection",
+          "link": "Link clips",
+          "unlink": "Unlink",
+          "marker": "Add marker",
+          "addVisual": "New video track",
+          "addAudio": "New audio track",
+          "trackHeight": "Track height",
+          "heights": {
+            "compact": "S",
+            "normal": "M",
+            "tall": "L"
+          },
+          "zoomOut": "Zoom out",
+          "zoomIn": "Zoom in",
+          "zoom": "Timeline zoom",
+          "zoomValue": "{value} pixels per second",
+          "modes": {
+            "move": "Move",
+            "insert": "Insert",
+            "overwrite": "Overwrite",
+            "ripple": "Ripple trim",
+            "roll": "Roll",
+            "slip": "Slip",
+            "slide": "Slide"
+          },
+          "tools": "Tools",
+          "zoomFit": "Fit everything",
+          "toolNames": {
+            "select": "Selection",
+            "blade": "Blade",
+            "ripple": "Ripple edit",
+            "roll": "Roll edit",
+            "slip": "Slip",
+            "slide": "Slide"
+          }
+        },
+        "markers": {
+          "named": "{label}, at {time}",
+          "unnamed": "Marker at {time}",
+          "title": "Marker at {time}",
+          "label": "Name",
+          "goTo": "Go to",
+          "remove": "Remove"
+        },
+        "gapSelected": "Gap selected",
+        "overview": {
+          "label": "Project overview",
+          "window": "Visible range"
+        },
+        "menu": {
+          "focus": "Focus",
+          "cut": "Cut",
+          "copy": "Copy",
+          "paste": "Paste",
+          "pasteInsert": "Paste as insert",
+          "duplicate": "Duplicate",
+          "split": "Split at the playhead",
+          "delete": "Delete",
+          "rippleDelete": "Delete and close the gap",
+          "enable": "Enable clip",
+          "disable": "Disable clip",
+          "link": "Link",
+          "unlink": "Unlink",
+          "relink": "Relink",
+          "selectForward": "Select forward",
+          "selectForwardAll": "Select forward on every track",
+          "properties": "Properties",
+          "closeGaps": "Close every gap on the track",
+          "addMarker": "Add a marker here"
+        }
+      },
+      "inspector": {
+        "label": "Properties",
+        "projectTitle": "Project",
+        "selectionTitle": "Selection",
+        "clipTitle": {
+          "video": "Video clip",
+          "image": "Image clip",
+          "overlay": "Overlay",
+          "audio": "Audio clip"
+        },
+        "project": "Video",
+        "background": "Background color",
+        "length": "Length",
+        "clips": "Clips",
+        "tracks": "Tracks",
+        "empty": "Select a clip on the timeline or in the preview to edit it.",
+        "multiple": "{count} clips",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "locked": "This track is locked. Unlock it to edit.",
+        "timing": "Timing",
+        "start": "Start",
+        "duration": "Duration",
+        "trimIn": "Trim start",
+        "sourceLength": "Original file",
+        "frame": "Framing",
+        "fit": "Fit",
+        "fits": {
+          "cover": "Fill",
+          "contain": "Fit whole"
+        },
+        "x": "Position X",
+        "y": "Position Y",
+        "width": "Width",
+        "height": "Height",
+        "rotation": "Rotation",
+        "opacity": "Opacity",
+        "sound": "Sound",
+        "volume": "Volume",
+        "fades": "Fades",
+        "fadeIn": "Fade in",
+        "fadeOut": "Fade out",
+        "fadesVisualHint": "The picture appears and disappears gradually.",
+        "fadesAudioHint": "The sound rises and falls gradually.",
+        "linked": "Video and audio linked",
+        "unlink": "Unlink",
+        "mixed": "Mixed",
+        "scrubHint": "Drag the field name sideways to adjust",
+        "scrubTip": "Drag a field name sideways or use the arrow keys to adjust. With several clips, the change is added to each one.",
+        "keyHint": "There is a keyframe here. Changing the value updates it.",
+        "interpolatedHint": "Value calculated between keyframes. Changing it creates a new keyframe here.",
+        "lockedSome": "Some clips are on locked tracks and will not change.",
+        "multipleEditHint": "Fields show what the clips have in common. A typed value applies to all of them.",
+        "groupStart": "Group start",
+        "fadesMixedHint": "Picture and sound fade in and out gradually.",
+        "notices": {
+          "locked": "The clips are on locked tracks. Nothing changed.",
+          "keyframeLimit": "This would pass the keyframe limit. Nothing changed.",
+          "keyframeOutside": "Move the playhead inside every selected clip to change an animated property.",
+          "outOfRange": "The animation would go past the position, size or time limits. Nothing changed.",
+          "sourcePending": "Still reading the file length. Try again in a moment.",
+          "noRoom": "There is no room on the timeline for this. Nothing changed.",
+          "invalid": "This change would leave a clip invalid (for example, empty text). Nothing changed.",
+          "copied": "Animation copied. Select another clip, place the playhead and paste.",
+          "noKeys": "This clip has no keyframes to copy.",
+          "clipboardEmpty": "Copy the animation of a clip before pasting."
+        }
+      },
+      "layer": {
+        "title": {
+          "image": "Image",
+          "text": "Text",
+          "shape": "Shape",
+          "icon": "Icon"
+        },
+        "text": "Text",
+        "font": "Font",
+        "weight": "Weight",
+        "size": "Size",
+        "align": "Alignment",
+        "aligns": {
+          "left": "Left",
+          "center": "Center",
+          "right": "Right"
+        },
+        "lineHeight": "Line height",
+        "letterSpacing": "Letter spacing",
+        "italic": "Italic",
+        "icon": "Icon",
+        "fill": "Color",
+        "lineColor": "Line color",
+        "outline": "Outline",
+        "lineWidth": "Thickness",
+        "outlineWidth": "Outline thickness",
+        "radius": "Rounding",
+        "dashed": "Dashed",
+        "arrowStart": "Head at start",
+        "arrowEnd": "Head at end",
+        "shadow": "Shadow",
+        "shadowColor": "Shadow color",
+        "shadowBlur": "Shadow blur",
+        "invalid": "That value is not accepted. The text cannot be empty."
+      },
+      "panels": {
+        "label": "Panels",
+        "tabs": {
+          "media": "Media",
+          "ai": "AI",
+          "elements": "Text",
+          "captions": "Captions",
+          "process": "Process"
+        },
+        "titles": {
+          "media": "Media",
+          "ai": "Generate with AI",
+          "elements": "Text and elements",
+          "captions": "Auto captions",
+          "process": "Process"
+        }
+      },
+      "media": {
+        "upload": "Upload a file",
+        "uploading": "Uploading...",
+        "filter": "Media type",
+        "filters": {
+          "all": "All",
+          "video": "Videos",
+          "image": "Images",
+          "audio": "Audio"
+        },
+        "hint": "Drag onto a track or use the plus button to place it at the playhead.",
+        "loading": "Loading the library...",
+        "failed": "The library could not be loaded.",
+        "retry": "Try again",
+        "empty": "Nothing here yet. Upload a file or generate one with AI.",
+        "add": "Add {name} at the playhead",
+        "addHint": "Add at the playhead"
+      },
+      "jobs": {
+        "errors": {
+          "insufficient_funds": "Not enough balance",
+          "too_many_jobs": "Too many jobs are already running",
+          "timed_out": "It took too long",
+          "invalid_request": "The request was not accepted",
+          "wrong_type": "This file type does not work for that",
+          "not_image": "Pick an image",
+          "cost_unreported": "The cost was not reported"
+        }
+      },
+      "ai": {
+        "kinds": "Generation type",
+        "placement": "The result goes to the library and lands at the playhead on the right track.",
+        "music": {
+          "tab": "Music",
+          "prompt": "Describe the music",
+          "placeholder": "E.g. upbeat modern track for a store ad",
+          "generate": "Generate music"
+        },
+        "voice": {
+          "tab": "Voice-over",
+          "prompt": "Script",
+          "placeholder": "Write exactly what the voice should say",
+          "generate": "Generate voice-over",
+          "exact": "The voice reads the text as written.",
+          "voice": "Voice"
+        },
+        "image": {
+          "tab": "Image",
+          "prompt": "Describe the image",
+          "placeholder": "E.g. product on a light background with soft light",
+          "generate": "Generate image"
+        }
+      },
+      "elements": {
+        "text": "Text",
+        "shapes": "Shapes",
+        "icons": "Icons",
+        "presets": {
+          "heading": "Add a heading",
+          "subheading": "Add a subheading",
+          "body": "Add body text"
+        },
+        "samples": {
+          "heading": "Your heading",
+          "subheading": "Your subheading",
+          "body": "Your text here"
+        },
+        "shapeNames": {
+          "rect": "Rectangle",
+          "ellipse": "Ellipse",
+          "triangle": "Triangle",
+          "star": "Star",
+          "line": "Line",
+          "arrow": "Arrow",
+          "doubleArrow": "Double arrow"
+        },
+        "styles": "Ready styles",
+        "styleNames": {
+          "headline": "Bold title",
+          "caption": "Caption",
+          "cta": "Call to action",
+          "lowerThird": "Lower third",
+          "tag": "Tag"
+        },
+        "styleSamples": {
+          "headline": "Unmissable offer",
+          "caption": "Your text here",
+          "cta": "Talk to us",
+          "lowerThird": "Name and role",
+          "tag": "New"
+        }
+      },
+      "picker": {
+        "none": "No clip works for this yet.",
+        "option": "{track}, from {start} to {end}"
+      },
+      "captions": {
+        "description": "Transcribes the speech of a clip and creates a track of synced captions.",
+        "source": "Clip with speech",
+        "generate": "Generate captions",
+        "done": "Captions added on a new track.",
+        "styleHint": "Each caption is a regular text: change font, color and position in the properties panel.",
+        "trackName": "Captions"
+      },
+      "process": {
+        "denoise": {
+          "title": "Clean up audio",
+          "description": "Reduces background noise and evens out the volume of an audio clip.",
+          "source": "Audio clip",
+          "run": "Clean up audio",
+          "done": "Clean audio swapped into the clip."
+        },
+        "cutout": {
+          "title": "Remove background",
+          "description": "Cuts the subject out of an image clip and leaves the background transparent.",
+          "source": "Image clip",
+          "run": "Remove background",
+          "done": "Cut out image swapped into the clip."
+        }
+      },
+      "motion": {
+        "title": "Entrance and exit animation",
+        "entrance": "Entrance animation",
+        "exit": "Exit animation",
+        "hint": "Slides start or end off their position and fade at the same time.",
+        "presets": {
+          "none": "None",
+          "fade": "Fade",
+          "slideUp": "Slide up",
+          "slideDown": "Slide down",
+          "slideLeft": "Slide left",
+          "slideRight": "Slide right",
+          "custom": "Custom"
+        },
+        "durationIn": "Entrance length",
+        "durationOut": "Exit length"
+      },
+      "keyframes": {
+        "title": "Keyframes",
+        "properties": {
+          "x": "Position X",
+          "y": "Position Y",
+          "scale": "Scale",
+          "rotation": "Rotation",
+          "opacity": "Opacity"
+        },
+        "animate": "Animate {name}",
+        "stopAnimating": "Stop animating {name}",
+        "previous": "Previous {name} keyframe",
+        "next": "Next {name} keyframe",
+        "addKey": "Add a {name} keyframe at the playhead",
+        "removeKey": "Remove the {name} keyframe at the playhead",
+        "easing": "Easing of the {name} keyframe",
+        "easings": {
+          "linear": "Linear",
+          "hold": "Hold",
+          "easeIn": "Ease in",
+          "easeOut": "Ease out",
+          "easeInOut": "Ease in and out"
+        },
+        "outside": "The playhead is outside the clip. Move it inside to edit keyframes.",
+        "hint": "While a property is animated, changing it here or in the preview records a keyframe at the playhead.",
+        "confirmTitle": "Stop animating {name}?",
+        "confirmDescription": "The keyframes of this property are deleted and the current value stays fixed.",
+        "confirm": "Stop animating",
+        "cancel": "Cancel",
+        "jump": "Go to the keyframe at {time}",
+        "add": "Add keyframe",
+        "remove": "Remove keyframe",
+        "previousMoment": "Previous keyframe",
+        "nextMoment": "Next keyframe",
+        "state": {
+          "none": "No animation. Place the playhead where it starts and click the diamond.",
+          "key": "On a keyframe. Changing position, size, rotation or opacity adjusts this point.",
+          "between": "Between keyframes. Changing a value here creates a new keyframe.",
+          "outside": "The playhead is outside the clip.",
+          "outsideMany": "The playhead must be inside every selected clip.",
+          "apart": "The selected clips do not overlap in time. Use a ready animation or select a single clip."
+        },
+        "goToClip": "Go to clip",
+        "howItWorks": "How does it work?",
+        "coachTitle": "Animate in two steps",
+        "coachStep1": "Place the playhead where the animation starts and click the diamond.",
+        "coachStep2": "Move the playhead, then change position, size or opacity.",
+        "coachDone": "Done, the video animates between the two.",
+        "coachDismiss": "Got it",
+        "easingMoment": "Easing of this keyframe",
+        "easingAll": "Easing of the whole animation",
+        "easingHints": {
+          "linear": "Constant speed",
+          "hold": "Stays still and jumps at the next keyframe",
+          "easeIn": "Starts slow and speeds up",
+          "easeOut": "Starts fast and slows down",
+          "easeInOut": "Starts and ends slowly"
+        },
+        "presetsTitle": "Ready animations",
+        "presetApply": "Apply {name}",
+        "presetHint": "Hover to preview. Clicking writes keyframes across the whole clip and replaces the animation of the same properties.",
+        "presets": {
+          "kenBurns": "Slow zoom",
+          "enterLeft": "Enter from left",
+          "slideUp": "Slide up",
+          "fadeIn": "Appear",
+          "fadeOut": "Disappear",
+          "pulse": "Pulse",
+          "spin": "Spin",
+          "wobble": "Wobble"
+        },
+        "copy": "Copy animation",
+        "paste": "Paste animation",
+        "advanced": "Advanced",
+        "advancedHint": "Animate each property separately, with its own stopwatch and navigation.",
+        "advancedSingle": "Select a single clip to animate each property separately.",
+        "pathLabel": "Animation path",
+        "pathPad": "Position at {time}. Click to go there or drag to move it.",
+        "lanes": "Keyframe lanes",
+        "keyAt": "{name} keyframe at {time} ms"
+      },
+      "focus": {
+        "label": "Focus",
+        "title": "Focus: {name}",
+        "solo": "Solo",
+        "zoom": "Zoom",
+        "leave": "Exit"
+      },
+      "shortcuts": {
+        "open": "Shortcuts",
+        "title": "Editor shortcuts",
+        "rows": {
+          "playPause": "Play or pause",
+          "shuttle": "Back, stop, forward",
+          "frame": "One frame",
+          "second": "One second",
+          "startEnd": "Start and end",
+          "select": "Selection tool",
+          "blade": "Blade tool",
+          "trim": "Cycle trim tools",
+          "slip": "Slip content",
+          "slide": "Slide between neighbours",
+          "split": "Split at the playhead",
+          "cutAll": "Cut every track at the playhead",
+          "delete": "Delete",
+          "rippleDelete": "Delete and close the gap",
+          "duplicate": "Duplicate",
+          "copyPaste": "Copy, cut, paste",
+          "pasteInsert": "Paste as insert",
+          "nudge": "Nudge one frame",
+          "nudgeTen": "Nudge ten frames",
+          "selectForward": "Select forward on the track",
+          "selectForwardAll": "Select forward on every track",
+          "selectAfter": "Select after the playhead",
+          "selectBefore": "Select before the playhead",
+          "markInOut": "Mark in and out",
+          "clearRange": "Clear in and out",
+          "lift": "Lift the range and leave a gap",
+          "extract": "Extract the range and close the gap",
+          "disable": "Enable or disable a clip",
+          "marker": "Add a marker",
+          "markerJump": "Go to a marker",
+          "keyJump": "Go to a keyframe",
+          "keyToggle": "Add or remove a keyframe",
+          "snapping": "Snapping",
+          "zoom": "Zoom",
+          "zoomFit": "Fit everything",
+          "focus": "Focus on a clip",
+          "leaveFocus": "Leave focus or the tool",
+          "undo": "Undo and redo",
+          "insertDrag": "Drag as insert",
+          "overwriteDrag": "Drag as overwrite",
+          "rippleTrimDrag": "Ripple trim",
+          "forwardClick": "Select the section forward"
+        }
+      }
+    },
+    "openFromMedia": {
+      "action": "Open in Studio",
+      "failed": "Could not open in Studio",
+      "unreadable": "The media could not be read. Try again in a moment.",
+      "defaultName": "Elo creative"
+    }
+  },
+  "tourStudioImage": {
+    "steps": {
+      "panels": {
+        "badge": "Panels",
+        "title": "Everything to build your design",
+        "subtitle": "Pick a panel on the left to add text, shapes, icons and images.",
+        "f0": "Heading, subheading and body text presets",
+        "f1": "Shapes, lines, arrows and searchable icons",
+        "f2": "Upload images or use the ones in your library",
+        "f3": "Layers: reorder, rename, lock and hide"
+      },
+      "canvas": {
+        "badge": "Canvas",
+        "title": "Edit right on the canvas",
+        "subtitle": "Drag, resize and rotate. Guides appear when an element snaps to the center, the edges or another element.",
+        "f0": "Shift+click or drag on empty space to select several",
+        "f1": "Double click a text to type",
+        "f2": "Double click an image to crop"
+      },
+      "inspector": {
+        "badge": "Properties",
+        "title": "Fine tune every detail",
+        "subtitle": "The right panel changes with what is selected.",
+        "f0": "Font, colors, outline, shadow and filters",
+        "f1": "Align, distribute, group and change the order"
+      },
+      "ai": {
+        "badge": "AI",
+        "title": "Generate images with AI",
+        "subtitle": "Describe what you need and the image lands in the design as a new layer.",
+        "f0": "Choose the model and the format",
+        "f1": "Use images from the design or the library as references"
+      },
+      "removeBackground": {
+        "badge": "Remove background",
+        "title": "Take the background out of a photo",
+        "subtitle": "Select an image and remove its background in a few seconds, free of charge.",
+        "f0": "The background becomes transparent",
+        "f1": "The layer is updated in place"
+      },
+      "export": {
+        "badge": "Export",
+        "title": "Download or save to the library",
+        "subtitle": "Export as PNG or JPG, at normal or double size.",
+        "f0": "Transparent PNG when the design has no background",
+        "f1": "Save to the library to use in ads"
+      },
+      "layers": {
+        "badge": "Layers",
+        "title": "Layers always at hand",
+        "subtitle": "Organize like in Photoshop: drag to reorder or into groups, hide, lock and rename.",
+        "f0": "Blend mode, opacity and clipping mask",
+        "f1": "Shift selects a range, Ctrl adds or removes a layer"
+      }
+    }
+  },
+  "tourStudioVideo": {
+    "steps": {
+      "media": {
+        "badge": "Media",
+        "title": "Your media",
+        "subtitle": "Videos, images and audio from the library, ready for the timeline.",
+        "f0": "Upload files straight from your computer",
+        "f1": "Drag onto a track or add at the playhead"
+      },
+      "ai": {
+        "badge": "AI",
+        "title": "Generate with AI",
+        "subtitle": "Create music, voice-overs and images without leaving the editor.",
+        "f0": "Music from a description",
+        "f1": "Voice-over with the voice you choose",
+        "f2": "Images in the video format"
+      },
+      "timeline": {
+        "badge": "Timeline",
+        "title": "Build the video",
+        "subtitle": "Video, overlay and audio tracks, with zoom and a playhead.",
+        "f0": "Drag clips in time and between tracks",
+        "f1": "Snap to the playhead and clip edges (N key)",
+        "f2": "The blade (B) cuts with a click and Shift cuts every track; see every shortcut under the ? button"
+      },
+      "trim": {
+        "badge": "Editing",
+        "title": "Trim and split",
+        "subtitle": "Pull the edges of a clip to trim it and press S to split at the playhead.",
+        "f0": "Trim handles on both ends",
+        "f1": "Split at the playhead with S",
+        "f2": "Duplicate with Ctrl+D and delete closing the gap with Shift+Delete"
+      },
+      "captions": {
+        "badge": "Captions",
+        "title": "Auto captions",
+        "subtitle": "Transcribe the speech and get a track of editable captions.",
+        "f0": "One caption per piece of speech",
+        "f1": "Clean up audio and remove backgrounds in Process"
+      },
+      "inspector": {
+        "badge": "Properties",
+        "title": "Tune every detail",
+        "subtitle": "Timing, framing, volume, fades and text style.",
+        "f0": "Exact values in seconds and percent",
+        "f1": "Move and resize right in the preview"
+      },
+      "export": {
+        "badge": "Export",
+        "title": "Export as MP4",
+        "subtitle": "The video renders in the queue and goes to the media library.",
+        "f0": "Follow the progress until it is ready",
+        "f1": "Use the video in an ad"
       }
     }
   }

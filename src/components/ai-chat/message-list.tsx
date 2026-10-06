@@ -68,6 +68,8 @@ import {
   Wrench,
   GraduationCap,
   Image as ImageGlyph,
+  FilmStrip,
+  Waveform,
   CurrencyDollar,
   Archive,
   ChartPie,
@@ -80,12 +82,13 @@ import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { EloAvatar } from "./elo-mark";
 import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
 import { ActionCardView } from "@/components/ai-chat/action-card";
-import { GeneratingImage } from "@/components/image-generation/generating-image";
-import { ImageModelSelect } from "@/components/image-generation/image-model-select";
+import { GeneratingMedia } from "@/components/media-generation/generating-media";
+import { MediaModelSelect } from "@/components/media-generation/media-model-select";
 import { imageAttachments, isShownImage } from "@/lib/aichat/attachments";
 import { openDock } from "@/lib/aichat/dock-state";
-import { imagePlaceholderOf } from "@/lib/aichat/generating-image";
-import type { Approval, ChatChart, ChatImage, ChoiceField, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
+import { mediaPlaceholderOf } from "@/lib/aichat/generating-media";
+import type { Approval, ChatChart, ChatMedia, ChoiceField, ChoiceKind, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
+import type { ModelKind } from "@/lib/media-generation/types";
 import {
   humanizeFieldKey,
   isOpenProposal,
@@ -99,7 +102,7 @@ import { cn } from "@/lib/utils";
 
 import { AttachmentChip } from "./attachment-chip";
 import { ChatChartView } from "./chat-chart";
-import { ChatImageView } from "./chat-image";
+import { ChatMediaView } from "./chat-media";
 import { isThinkingBetweenSteps, layoutSegments, type Block, type Segment } from "./segments";
 
 const TOOL_ICON: Record<string, Icon> = {
@@ -216,6 +219,9 @@ const TOOL_ICON: Record<string, Icon> = {
   list_ad_pages: Megaphone,
   search_ad_locations: MagnifyingGlass,
   generate_image: ImageGlyph,
+  generate_music: Waveform,
+  generate_voiceover: Microphone,
+  render_video: FilmStrip,
   create_ad: Megaphone,
   turn_on_ad: Play,
   turn_off_ad: Pause,
@@ -234,6 +240,7 @@ const TOOL_ICON: Record<string, Icon> = {
   publish_ad_draft: Megaphone,
   edit_ad_text: NotePencil,
   swap_ad_creative: ImageGlyph,
+  get_ad_creative: ImageGlyph,
   load_skill: GraduationCap,
   list_page_posts: FileText,
   list_ad_apps: DeviceMobile,
@@ -289,7 +296,7 @@ export function hydrate(m: ChatMessage): UIMessage {
     segments.push({ kind: "tool", name: tool.name, summary: tool.summary, ok: tool.ok });
     if (tool.chart) segments.push({ kind: "chart", chart: tool.chart });
     if (tool.card) segments.push({ kind: "card", card: tool.card });
-    if (tool.image) segments.push({ kind: "image", image: tool.image });
+    if (tool.image) segments.push({ kind: "media", media: tool.image });
   }
   if (m.content) segments.push({ kind: "text", text: m.content });
   return { ...m, segments, pending };
@@ -354,7 +361,7 @@ export function MessageBubble({
   live: boolean;
   onApprove: (actionId: string, approval?: Approval) => void;
   onReject: (actionId: string) => void;
-  onEditImage?: (image: ChatImage) => void;
+  onEditImage?: (image: ChatMedia) => void;
   labels: BubbleLabels;
 }) {
   if (message.role === "user") {
@@ -434,7 +441,7 @@ export function MessageBubble({
   );
 }
 
-function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleLabels; onEditImage?: (image: ChatImage) => void }) {
+function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleLabels; onEditImage?: (image: ChatMedia) => void }) {
   switch (seg.kind) {
     case "thinking":
       return <ThinkingBlock text={seg.text} streaming={seg.streaming} labels={labels} />;
@@ -444,8 +451,8 @@ function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleL
       return <ChartGrid charts={seg.charts} />;
     case "card":
       return <ActionCardView card={seg.card} live={seg.live} />;
-    case "image":
-      return <ChatImageView image={seg.image} onEdit={onEditImage} />;
+    case "media":
+      return <ChatMediaView media={seg.media} onEdit={onEditImage} />;
     default:
       return (
         <div className="text-sm">
@@ -458,12 +465,17 @@ function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleL
 
 function ToolStep({ seg, labels }: { seg: Extract<Block, { kind: "tool" }>; labels: BubbleLabels }) {
   const line = <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
-  const placeholder = imagePlaceholderOf(seg);
+  const placeholder = mediaPlaceholderOf(seg);
   if (!placeholder) return line;
   return (
     <div className="space-y-1.5">
       {line}
-      <GeneratingImage aspect={placeholder.aspect} failed={placeholder.failed} className="w-full max-w-sm" />
+      <GeneratingMedia
+        kind={placeholder.kind}
+        frame={placeholder.frame}
+        failed={placeholder.failed}
+        className={placeholder.frame === "audio" ? undefined : "w-full max-w-sm"}
+      />
     </div>
   );
 }
@@ -668,6 +680,12 @@ function ApprovalActions({
   );
 }
 
+const CHOICE_MODEL_KIND: Record<ChoiceKind, ModelKind> = {
+  image_model: "image",
+  music_model: "music",
+  voice_model: "voice",
+};
+
 function CardChoice({
   field,
   value,
@@ -680,10 +698,9 @@ function CardChoice({
   disabled: boolean;
 }) {
   const pick = useCallback((next: string) => onChange(field.key, next), [field.key, onChange]);
-  switch (field.kind) {
-    case "image_model":
-      return <ImageModelSelect value={value} onChange={pick} disabled={disabled} />;
-  }
+  const kind = CHOICE_MODEL_KIND[field.kind];
+  if (!kind) return null;
+  return <MediaModelSelect kind={kind} value={value} onChange={pick} preferred={field.default} disabled={disabled} />;
 }
 
 function Cursor() {

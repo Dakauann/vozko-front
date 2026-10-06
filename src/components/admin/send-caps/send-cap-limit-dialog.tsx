@@ -14,7 +14,12 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { adminSetSendCapAction } from "@/app/actions/send-caps";
 import { adminListAllWorkspacesAction } from "@/app/actions/workspace";
-import { parseSendCapLimit, type SendCapItem } from "@/lib/balance/send-cap-types";
+import {
+    SEND_CAP_DEFAULT_CYCLE_DAY,
+    parseSendCapCycleDay,
+    parseSendCapLimit,
+    type SendCapItem,
+} from "@/lib/balance/send-cap-types";
 import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
 
@@ -49,10 +54,12 @@ export function SendCapLimitDialog({
     const [results, setResults] = useState<PickedWorkspace[]>([]);
     const [searchError, setSearchError] = useState<string | null>(null);
     const [limitText, setLimitText] = useState(item ? String(item.limit) : "");
+    const [cycleDayText, setCycleDayText] = useState(String(SEND_CAP_DEFAULT_CYCLE_DAY));
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const limit = parseSendCapLimit(limitText);
+    const cycleDay = editing ? item.cycleDay : parseSendCapCycleDay(cycleDayText);
     const raising = editing && limit !== null && limit > item.limit;
 
     useEffect(() => {
@@ -73,10 +80,12 @@ export function SendCapLimitDialog({
     }, [editing, search]);
 
     const handleSave = async () => {
-        if (!workspace || limit === null) return;
+        if (!workspace || limit === null || cycleDay === null) return;
         setSaving(true);
         setError(null);
-        const result = await adminSetSendCapAction(workspace.id, limit);
+        const result = editing
+            ? await adminSetSendCapAction(workspace.id, limit)
+            : await adminSetSendCapAction(workspace.id, limit, cycleDay);
         setSaving(false);
         if (result.error) {
             setError(describeSendCapError(t, result.error));
@@ -152,6 +161,18 @@ export function SendCapLimitDialog({
                         />
                     </SendCapField>
 
+                    {!editing && (
+                        <SendCapField label={t("limitDialog.cycleDay")} hint={t("limitDialog.cycleDayHint")}>
+                            <ElevatedInput
+                                inputMode="numeric"
+                                aria-label={t("limitDialog.cycleDay")}
+                                value={cycleDayText}
+                                onChange={(e) => setCycleDayText(e.target.value)}
+                                className={cn(cycleDay === null && "ring-1 ring-destructive")}
+                            />
+                        </SendCapField>
+                    )}
+
                     {raising ? (
                         <div className="space-y-2 rounded-lg bg-muted p-3 text-xs text-warning-ink">
                             <p>{canUnlock ? t("limitDialog.raiseNeedsUnlock") : t("limitDialog.raiseForbidden")}</p>
@@ -173,7 +194,7 @@ export function SendCapLimitDialog({
                     <Button
                         title={saving ? t("actions.saving") : t("actions.save")}
                         variant="primary"
-                        disabled={saving || !workspace || limit === null || raising}
+                        disabled={saving || !workspace || limit === null || cycleDay === null || raising}
                         onClick={() => void handleSave()}
                     />
                 </ElevatedDialogFooter>

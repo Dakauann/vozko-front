@@ -51,9 +51,9 @@ describe("apiClient timeouts per endpoint", () => {
     expect(result.error?.code).toBe("timeout");
   });
 
-  it("uses the short timeout for image generation, which is queued", async () => {
+  it("uses the short timeout for media generation, which is queued", async () => {
     const { apiClient } = await import("@/lib/api/browser-client");
-    const promise = apiClient("/images/generations", { method: "POST", body: "{}" });
+    const promise = apiClient("/media/generations", { method: "POST", body: "{}" });
 
     await vi.advanceTimersByTimeAsync(11_000);
     const result = await promise;

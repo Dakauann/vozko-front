@@ -6,13 +6,16 @@ import {
   customQuestion,
   customQuestionKey,
   emptyFormBuilder,
+  formBuilderFromForm,
   hasContactQuestion,
   humanizeKey,
+  introLines,
   leadContact,
   moveQuestion,
   questionKey,
   standardQuestion,
   toggleStandard,
+  type LeadForm,
 } from "./forms";
 
 describe("customQuestionKey", () => {
@@ -130,5 +133,65 @@ describe("buildFormDraft thank-you screen", () => {
   it("starts the button text from the given default", () => {
     expect(emptyFormBuilder("Visit website").thankYouButtonText).toBe("Visit website");
     expect(emptyFormBuilder().thankYouButtonText).toBe("");
+  });
+});
+
+describe("formBuilderFromForm", () => {
+  const created: LeadForm = {
+    metaId: "701",
+    pageId: "55",
+    name: "Vozko",
+    status: "ACTIVE",
+    leadsCount: 0,
+    intro: {
+      title: "Conheça a plataforma",
+      style: "LIST",
+      content: ["Todos os canais", "IA que responde"],
+    },
+    questions: [
+      { type: "FULL_NAME" },
+      {
+        type: "CUSTOM",
+        key: "plano",
+        label: "Qual plano?",
+        options: ["Start", "Pro"],
+      },
+    ],
+    privacyUrl: "https://vozkoia.com/pt/privacy-policy",
+    thankYouTitle: "Recebemos seu contato",
+    thankYouButtonText: "Falar no WhatsApp",
+    thankYouUrl: "https://wa.me/5511900000000",
+    higherIntent: true,
+  };
+
+  it("shows a created form the way the builder previews it", () => {
+    const state = formBuilderFromForm(created);
+    expect(state.introOn).toBe(true);
+    expect(introLines(state)).toEqual(["Todos os canais", "IA que responde"]);
+    expect(state.questions.map((q) => [q.type, q.label, q.options])).toEqual([
+      ["FULL_NAME", "", []],
+      ["CUSTOM", "Qual plano?", ["Start", "Pro"]],
+    ]);
+    expect([state.thankYouTitle, state.thankYouButtonText, state.thankYouUrl, state.higherIntent]).toEqual([
+      "Recebemos seu contato",
+      "Falar no WhatsApp",
+      "https://wa.me/5511900000000",
+      true,
+    ]);
+  });
+
+  it("keeps a paragraph intro as one paragraph and a form without intro without one", () => {
+    const paragraph = formBuilderFromForm({
+      ...created,
+      intro: { title: "Oi", style: "PARAGRAPH", content: ["Linha 1\nLinha 2"] },
+    });
+    expect(introLines(paragraph)).toEqual(["Linha 1\nLinha 2"]);
+    const plain = formBuilderFromForm({
+      ...created,
+      intro: undefined,
+      questions: null,
+    });
+    expect(plain.introOn).toBe(false);
+    expect(plain.questions).toEqual([]);
   });
 });

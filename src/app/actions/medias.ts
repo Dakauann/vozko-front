@@ -1,6 +1,8 @@
 import { Media } from '@/lib/medias/types';
 import { apiClient, fetchWithRefresh, getApiBaseUrl, scopeHeaders } from '@/lib/api/browser-client';
 
+import { isActionError, settleResult, type ActionResult } from './action-result';
+
 export async function getMediaAction(mediaId: string): Promise<Media | null> {
     const response = await apiClient<Media>(`/medias/${mediaId}`, {
         method: 'GET',
@@ -13,16 +15,13 @@ export async function getMediaAction(mediaId: string): Promise<Media | null> {
     return response.data || null;
 }
 
+export async function listLibraryAction(): Promise<ActionResult<Media[]>> {
+    return settleResult(await apiClient<Media[]>('/medias', { method: 'GET' }), []);
+}
+
 export async function listMediasAction(): Promise<{ medias: Media[] }> {
-    const response = await apiClient<Media[]>('/medias', {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { medias: [] };
-    }
-
-    return { medias: response.data ?? [] };
+    const result = await listLibraryAction();
+    return { medias: isActionError(result) ? [] : result.data };
 }
 
 

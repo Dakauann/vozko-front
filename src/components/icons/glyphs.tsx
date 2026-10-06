@@ -1065,6 +1065,14 @@ export const SpeakerHigh: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const SpeakerSlash: Icon = /*#__PURE__*/ glyph(
+  "SpeakerSlash",
+  <>
+    <path d="M3.75 9.5h3l4.5-3.75v12.5L6.75 14.5h-3V9.5Z" />
+    <path stroke={ACCENT} d="m15.5 9.5 5 5m0-5-5 5" />
+  </>,
+);
+
 export const Waveform: Icon = /*#__PURE__*/ glyph(
   "Waveform",
   <>

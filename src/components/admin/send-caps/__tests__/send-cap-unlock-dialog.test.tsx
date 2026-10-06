@@ -24,6 +24,9 @@ const item: SendCapItem = {
     level: "reached",
     updatedBy: "admin-1",
     updatedAt: "2026-09-20T10:00:00Z",
+    cycleDay: 1,
+    cycleStart: "2026-10-01T03:00:00Z",
+    renewsAt: "2026-11-01T03:00:00Z",
 };
 
 function renderDialog(onUnlocked = vi.fn()) {
@@ -67,7 +70,7 @@ describe("SendCapUnlockDialog", () => {
         fireEvent.click(ui.confirm());
 
         await waitFor(() => expect(onUnlocked).toHaveBeenCalled());
-        expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000 }, "1234");
+        expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 1 }, "1234");
     });
 
     it("shows the translated refusal and clears the code on a wrong code", async () => {
@@ -93,5 +96,33 @@ describe("SendCapUnlockDialog", () => {
         fireEvent.click(screen.getByRole("button", { name: t.unlockDialog.confirmRemove }));
 
         await waitFor(() => expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "remove" }, "1234"));
+    });
+});
+
+describe("SendCapUnlockDialog cycle day", () => {
+    beforeEach(() => {
+        unlockAction.mockReset();
+    });
+
+    it("starts from the current day and sends a moved one", async () => {
+        unlockAction.mockResolvedValue({ change: { workspaceId: "ws-1", limit: 5000, cycleDay: 15 } });
+        const ui = renderDialog();
+        const day = screen.getByLabelText(t.unlockDialog.cycleDay);
+        expect(day).toHaveValue("1");
+
+        fireEvent.change(ui.limit(), { target: { value: "5000" } });
+        fireEvent.change(day, { target: { value: "15" } });
+        fireEvent.change(ui.code(), { target: { value: "1234" } });
+        fireEvent.click(ui.confirm());
+
+        await waitFor(() => expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 15 }, "1234"));
+    });
+
+    it("keeps the unlock disabled while the day is outside the month", () => {
+        const ui = renderDialog();
+        fireEvent.change(ui.limit(), { target: { value: "5000" } });
+        fireEvent.change(screen.getByLabelText(t.unlockDialog.cycleDay), { target: { value: "32" } });
+        fireEvent.change(ui.code(), { target: { value: "1234" } });
+        expect(ui.confirm()).toBeDisabled();
     });
 });

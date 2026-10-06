@@ -1,17 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { DownloadSimple, File as FileIcon, Image as ImageIcon, Pause, Play, SpeakerHigh, Spinner, X } from "@/components/icons";
+import { DownloadSimple, File as FileIcon, Image as ImageIcon, Play, SpeakerHigh, Spinner, X } from "@/components/icons";
 import { getConversationMediaAction } from "@/app/actions/conversations";
+import { AudioPlayer, MEDIA_CARD_CLASS } from "@/components/media/audio-player";
 import { mediaFrame, type FramedMedia, type MediaFrame } from "@/lib/conversations/media-frame";
 import { placeholderDataUrl } from "@/lib/conversations/media-placeholder";
 import type { EntryType, MediaLayout, MediaType } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
 import DocumentPreview from "./DocumentPreview";
-
-const CARD_CLASS = "mb-1 flex h-[60px] w-[260px] max-w-full items-center gap-3 rounded-[--radius] bg-muted px-3";
 
 function useMediaUrl(url?: string, mediaId?: string, entryType?: EntryType, entryId?: string) {
   const [fetchedUrl, setFetchedUrl] = useState<string | null>(null);
@@ -51,134 +50,6 @@ function DownloadButton({ url, className }: { url: string; className?: string })
     >
       <DownloadSimple weight="bold" className="h-3.5 w-3.5" />
     </a>
-  );
-}
-
-const WAVEFORM_BARS = Array.from({ length: 32 }, (_, i) => 0.35 + 0.65 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6)));
-
-function formatTime(seconds: number) {
-  if (!seconds || !Number.isFinite(seconds)) return "0:00";
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function AudioPlayer({ url }: { url: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [speed, setSpeed] = useState(1);
-
-  const cycleSpeed = useCallback(() => {
-    setSpeed((prev) => {
-      const next = prev === 1 ? 1.5 : prev === 1.5 ? 2 : 1;
-      if (audioRef.current) audioRef.current.playbackRate = next;
-      return next;
-    });
-  }, []);
-
-  const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (isPlaying) audio.pause();
-    else void audio.play();
-  }, [isPlaying]);
-
-  const handleSeek = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const bar = progressBarRef.current;
-      const audio = audioRef.current;
-      if (!bar || !audio || !duration) return;
-      const rect = bar.getBoundingClientRect();
-      audio.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * duration;
-    },
-    [duration],
-  );
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-      setCurrentTime(0);
-    };
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      if (audio.duration) setProgress(audio.currentTime / audio.duration);
-    };
-    const onLoaded = () => setDuration(audio.duration);
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-    audio.addEventListener("ended", onEnded);
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.addEventListener("durationchange", onLoaded);
-    return () => {
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
-      audio.removeEventListener("ended", onEnded);
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      audio.removeEventListener("durationchange", onLoaded);
-    };
-  }, []);
-
-  const played = Math.round(progress * WAVEFORM_BARS.length);
-
-  return (
-    <div className={cn(CARD_CLASS, "gap-2.5")}>
-      <audio ref={audioRef} src={url} preload="metadata">
-        <track kind="captions" />
-      </audio>
-      <button
-        type="button"
-        onClick={togglePlay}
-        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105 active:scale-95"
-      >
-        {isPlaying ? <Pause weight="fill" className="h-4 w-4" /> : <Play weight="fill" className="ml-0.5 h-4 w-4" />}
-      </button>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div ref={progressBarRef} onClick={handleSeek} className="flex h-6 cursor-pointer items-center gap-[2px]">
-          {WAVEFORM_BARS.map((h, i) => (
-            <span
-              key={i}
-              className={cn("w-[2px] flex-1 rounded-full transition-colors", i < played ? "bg-primary" : "bg-muted-foreground/30")}
-              style={{ height: `${Math.round(h * 100)}%` }}
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-2xs font-medium tabular-nums text-muted-foreground">
-            {formatTime(isPlaying || currentTime ? currentTime : duration)}
-          </span>
-          <button
-            type="button"
-            onClick={cycleSpeed}
-            className="rounded-[--radius] bg-card px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-muted-foreground shadow-sm transition-colors hover:text-foreground"
-            aria-label="Velocidade de reprodução"
-          >
-            {speed}×
-          </button>
-        </div>
-      </div>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        download
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary-ink"
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Download audio"
-      >
-        <DownloadSimple weight="bold" className="h-3.5 w-3.5" />
-      </a>
-    </div>
   );
 }
 
@@ -280,7 +151,7 @@ function FrameStatus({ type, loading }: { type: MediaType; loading: boolean }) {
 
 function CardStatus({ type, loading }: { type: MediaType; loading: boolean }) {
   return (
-    <div className={CARD_CLASS}>
+    <div className={MEDIA_CARD_CLASS}>
       {loading ? <Spinner className="h-4 w-4 animate-spin text-muted-foreground" /> : UNAVAILABLE_ICON[type]}
       <span className="text-xs text-muted-foreground">{loading ? "Carregando mídia..." : "Mídia não disponível"}</span>
     </div>
@@ -396,7 +267,7 @@ export function MessageMedia({
   return (
     <div
       onClick={() => setDocumentPreviewOpened((prev) => !prev)}
-      className={cn(CARD_CLASS, "cursor-pointer transition-colors hover:bg-border/70")}
+      className={cn(MEDIA_CARD_CLASS, "cursor-pointer transition-colors hover:bg-border/70")}
     >
       <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <FileIcon weight="fill" className="h-5 w-5" />

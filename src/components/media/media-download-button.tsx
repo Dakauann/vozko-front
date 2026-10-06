@@ -20,7 +20,7 @@ export function MediaDownloadButton({
   description: string;
   className?: string;
 }) {
-  const t = useTranslations("imageGeneration");
+  const t = useTranslations("mediaGeneration");
   const [state, setState] = useState<DownloadState>("idle");
 
   const download = async () => {

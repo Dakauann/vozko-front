@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getAdPublishJobAction, isAdsError } from "@/app/actions/advertising";
 import { jobIsTerminal } from "@/lib/advertising/delivery";
-import { MAX_CONSECUTIVE_POLL_ERRORS, nextPollDelay } from "@/lib/image-generation/polling";
+import { MAX_CONSECUTIVE_POLL_ERRORS, nextPollDelay } from "@/lib/media-generation/polling";
 import { jobOutcome } from "@/lib/advertising/publish";
 import type { AdPublishJob } from "@/lib/advertising/types";
 

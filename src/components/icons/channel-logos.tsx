@@ -200,6 +200,26 @@ export function WebchatLogoColor({ className }: IconProps) {
   );
 }
 
+export function StudioLogoColor({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-4 w-4", className)}
+    >
+      <circle cx="12" cy="12" r="12" fill="#EA580C" />
+      <rect x="5.2" y="6.6" width="11.6" height="9.4" rx="1.6" fill="#FFFFFF" />
+      <path d="M6.8 14.4 9.6 11l2 2.2 1.1-1.2 1.7 2.4Z" fill="#EA580C" />
+      <circle cx="13.6" cy="9.1" r="1" fill="#EA580C" />
+      <circle cx="16.6" cy="16.2" r="4" fill="#EA580C" />
+      <circle cx="16.6" cy="16.2" r="3" fill="#FFFFFF" />
+      <path d="M15.6 14.6 18.2 16.2 15.6 17.8Z" fill="#EA580C" />
+    </svg>
+  );
+}
+
 const CHANNELS_WITH_MARKS = new Set([
   "whatsapp",
   "unofficial_whatsapp",

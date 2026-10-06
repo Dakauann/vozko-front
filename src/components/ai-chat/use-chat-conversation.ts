@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createChatThreadAction, getChatMessagesAction } from "@/app/actions/aichat";
 import { useChatStream } from "@/hooks/use-chat-stream";
-import type { ActionCard, Approval, ChatAttachment, ChatChart, ChatImage, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, Approval, ChatAttachment, ChatChart, ChatMedia, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
 
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
-import { toolStartAspect } from "@/lib/aichat/generating-image";
+import { toolStartFrame } from "@/lib/aichat/generating-media";
 import { expireOpen } from "@/lib/aichat/proposal";
 
 import { hydrate, type UIMessage } from "./message-list";
@@ -78,12 +78,12 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
           }
           return segs;
         }),
-      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name, toolStartAspect(name, approved))),
+      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name, toolStartFrame(name, approved))),
       onTool: (name: string, summary: string, ok: boolean) =>
         patchSegments((segs) => finishTool(segs, name, summary, ok)),
       onChart: (chart: ChatChart) => patchSegments((segs) => [...segs, { kind: "chart", chart }]),
       onCard: (card: ActionCard) => patchSegments((segs) => [...segs, { kind: "card", card, live: true }]),
-      onImage: (image: ChatImage) => patchSegments((segs) => [...segs, { kind: "image", image }]),
+      onImage: (media: ChatMedia) => patchSegments((segs) => [...segs, { kind: "media", media }]),
       onDelta: (text: string) =>
         patchSegments((segs) => {
           const last = segs[segs.length - 1];

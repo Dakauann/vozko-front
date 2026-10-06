@@ -144,10 +144,13 @@ export interface ToolActivity {
   ok: boolean;
   chart?: ChatChart;
   card?: ActionCard;
-  image?: ChatImage;
+  image?: ChatMedia;
 }
 
-export interface ChatImage {
+export type ChatMediaKind = "image" | "audio" | "video";
+
+export interface ChatMedia {
+  kind?: ChatMediaKind;
   url: string;
   mediaId: string;
   alt: string;
@@ -170,11 +173,12 @@ export interface SecretField {
   label: string;
 }
 
-export type ChoiceKind = "image_model";
+export type ChoiceKind = "image_model" | "music_model" | "voice_model";
 
 export interface ChoiceField {
   key: string;
   kind: ChoiceKind;
+  default?: string;
 }
 
 export interface Approval {

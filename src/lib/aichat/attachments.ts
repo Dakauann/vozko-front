@@ -1,4 +1,4 @@
-import type { ChatAttachment, ChatImage } from "./types";
+import type { ChatAttachment, ChatMedia } from "./types";
 
 export const MAX_ATTACHMENTS = 5;
 export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
@@ -50,6 +50,6 @@ export function imageAttachments(attachments: ChatAttachment[]): ShownImage[] {
   return attachments.filter(isShownImage);
 }
 
-export function attachmentOfImage(image: ChatImage): ChatAttachment {
+export function attachmentOfImage(image: ChatMedia): ChatAttachment {
   return { mediaId: image.mediaId, name: image.alt, kind: IMAGE_KIND, url: image.url };
 }

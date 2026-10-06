@@ -201,6 +201,7 @@ export {
   SmileyWink,
   Sparkle,
   SpeakerHigh,
+  SpeakerSlash,
   Spinner,
   Spinner as SpinnerGap,
   Square,

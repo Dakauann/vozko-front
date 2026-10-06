@@ -101,7 +101,7 @@ function EnlargedPlacement({
             <DialogDescription className="sr-only">{t("zoomHint")}</DialogDescription>
             <div className="flex justify-center rounded-[--radius] bg-muted p-3">
               <div style={{ width: PREVIEW_TILE_WIDTH, zoom: PREVIEW_ENLARGED_ZOOM }}>
-                <AdPreviewCard content={content} placement={spec.id} safeZone={safeZone} />
+                <AdPreviewCard content={content} placement={spec.id} safeZone={safeZone} playable />
               </div>
             </div>
             {placements.length > 1 ? (

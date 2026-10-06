@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { estimatedProgress } from "@/lib/image-generation/progress";
+import { estimatedProgress } from "@/lib/media-generation/progress";
 
 const TICK_MS = 500;
 

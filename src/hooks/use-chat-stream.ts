@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
 import { announceDataChanged } from "@/lib/aichat/data-changed";
 import { browserTimezone } from "@/lib/working-hours/types";
-import type { ActionCard, Approval, ChatChart, ChatImage, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
+import type { ActionCard, Approval, ChatChart, ChatMedia, ChatStreamEvent, ChatView, PendingAction } from "@/lib/aichat/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -17,7 +17,7 @@ export interface StreamHandlers {
   onTool?: (name: string, summary: string, ok: boolean) => void;
   onChart?: (chart: ChatChart) => void;
   onCard?: (card: ActionCard) => void;
-  onImage?: (image: ChatImage) => void;
+  onImage?: (image: ChatMedia) => void;
   onProposal?: (action: PendingAction) => void;
   onAwaitingApproval?: (actionId: string) => void;
   onDone?: () => void;
@@ -50,7 +50,7 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
       if (ev.payload) h.onCard?.(ev.payload as unknown as ActionCard);
       break;
     case "image":
-      if (ev.payload) h.onImage?.(ev.payload as unknown as ChatImage);
+      if (ev.payload) h.onImage?.(ev.payload as unknown as ChatMedia);
       break;
     case "tool_proposal":
       h.onProposal?.({ id: p.id ?? "", toolName: p.toolName ?? "", args: p.args, summary: p.summary, fields: p.fields, preview: p.preview, secrets: p.secrets, choices: p.choices });

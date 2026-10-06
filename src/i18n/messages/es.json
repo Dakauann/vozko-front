@@ -2,17 +2,6 @@
   "screenLoader": {
     "label": "Cargando…"
   },
-  "imageGeneration": {
-    "generating": "Generando imagen",
-    "failed": "No se pudo generar la imagen",
-    "download": "Descargar",
-    "downloading": "Descargando...",
-    "downloadFailed": "No se pudo descargar la imagen. Inténtalo de nuevo.",
-    "model": "Modelo de imagen",
-    "modelHint": "Del más usado al menos usado.",
-    "modelsLoading": "Cargando modelos de imagen...",
-    "modelsUnavailable": "No se pudieron cargar los modelos de imagen ahora. Inténtalo de nuevo en unos instantes."
-  },
   "crmAnalysis": {
     "awaiting": "Esperando análisis",
     "awaitingHint": "Esta conversación sigue en curso. La IA la analiza cuando pase unos minutos sin mensajes; todavía no se está analizando nada.",
@@ -395,10 +384,14 @@
       "set_ad_spend_cap": "Límite de gasto de la cuenta",
       "update_ad_draft": "Cambiar borrador de anuncio",
       "swap_ad_creative": "Cambiar creativo del anuncio",
+      "get_ad_creative": "Ver creativo del anuncio",
       "number_automation": "Atención del número",
       "configure_number_automation": "Configurar atención del número",
       "load_skill": "Consultar habilidad",
-      "member_activity": "Actividad del miembro"
+      "member_activity": "Actividad del miembro",
+      "generate_music": "Generar música",
+      "generate_voiceover": "Generar locución",
+      "render_video": "Montar video"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -609,6 +602,9 @@
     "yes": "Sí",
     "no": "No",
     "fields": {
+      "script": "Guion",
+      "sound": "Sonido",
+      "below": "Debajo",
       "name": "Nombre",
       "description": "Descripción",
       "initialMessage": "Mensaje inicial",
@@ -765,7 +761,12 @@
       "enhancements": "Mejoras Advantage+",
       "analysis": "Analizar conversaciones",
       "autoStaging": "Mover etapa sola",
-      "autoMemory": "Memorizar datos"
+      "autoMemory": "Memorizar datos",
+      "music": "Música",
+      "voice": "Locución",
+      "scenes": "Escenas",
+      "music_model": "Modelo de música",
+      "voice_model": "Modelo de locución"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -862,6 +863,14 @@
         "enhancements": "Mejoras Advantage+",
         "enhancementsOn": "Activadas",
         "enhancementsOff": "Desactivadas"
+      },
+      "videoPlan": {
+        "scenes": "{count, plural, one {# escena} other {# escenas}}",
+        "total": "Total: {seconds}",
+        "seconds": "{seconds} s",
+        "scene": "Escena {index}",
+        "music": "Música",
+        "voice": "Locución"
       }
     },
     "navigation": {
@@ -1911,7 +1920,10 @@
       "webchat": "WebChat",
       "webchatWidgets": "WebChats",
       "createWebchat": "Crear WebChat",
-      "adsPages": "Páginas"
+      "adsPages": "Páginas",
+      "studioProjects": "Proyectos",
+      "studioNewImage": "Nueva imagen",
+      "studioNewVideo": "Nuevo video"
     },
     "badges": {
       "new": "Nuevo",
@@ -1941,7 +1953,8 @@
       "facebook": "Facebook",
       "telephony": "Telefonía",
       "meta": "Meta",
-      "webchat": "WebChat"
+      "webchat": "WebChat",
+      "studio": "Estudio"
     },
     "pin": {
       "pin": "Fijar",
@@ -10943,8 +10956,7 @@
     },
     "header": {
       "badge": "Límites mensuales de envío",
-      "description": "Plantillas oficiales cobradas por Meta, por workspace y por mes.",
-      "descriptionWithMonth": "Plantillas oficiales cobradas por Meta, por workspace. Uso contado desde el inicio de {month}."
+      "description": "Plantillas oficiales cobradas por Meta, por workspace, en ciclos mensuales."
     },
     "actions": {
       "refresh": "Actualizar",
@@ -10970,6 +10982,8 @@
       "workspace": "Workspace",
       "usage": "Uso del mes",
       "usageValue": "{used} de {limit}",
+      "cycle": "Ciclo",
+      "cycleValue": "Día {day} · renueva el {renews}",
       "remaining": "Restante",
       "status": "Estado",
       "updated": "Último cambio",
@@ -10984,6 +10998,8 @@
       "searchPlaceholder": "Buscar workspace por nombre",
       "limit": "Envíos por mes",
       "createHint": "Al alcanzar el límite, los envíos fallan y se indica al usuario que hable con la administración.",
+      "cycleDay": "Día de renovación",
+      "cycleDayHint": "El ciclo va de este día al mismo día del mes siguiente. En meses más cortos, los días 29 a 31 usan el último día del mes.",
       "editHint": "Límite actual: {current}. Aquí solo se puede mantener o reducir.",
       "raiseNeedsUnlock": "Aumentar el límite requiere desbloqueo con código.",
       "raiseForbidden": "Aumentar el límite requiere un desbloqueo que solo la administración autorizada puede hacer."
@@ -10994,6 +11010,8 @@
       "removeCap": "Quitar el límite",
       "removeCapHint": "El workspace vuelve a enviar sin restricción mensual.",
       "newLimit": "Nuevo límite mensual",
+      "cycleDay": "Día de renovación",
+      "cycleDayHint": "Cambiar el día reinicia el conteo desde el nuevo ciclo.",
       "code": "Código de desbloqueo",
       "codeHint": "Código de 4 dígitos de la administración.",
       "confirmRaise": "Desbloquear",
@@ -11005,6 +11023,7 @@
       "unlock_required": "Aumentar o quitar el límite requiere desbloqueo con código.",
       "invalid_unlock_code": "Código de desbloqueo inválido.",
       "invalid_limit": "El límite debe ser un número entero positivo.",
+      "invalid_cycle_day": "El día de renovación debe estar entre 1 y 31.",
       "send_cap_not_found": "Este workspace no tiene límite mensual.",
       "workspace_not_found": "Workspace no encontrado.",
       "invalid_body": "Datos inválidos. Revisa los campos.",
@@ -15626,7 +15645,7 @@
       },
       "uploadHint": {
         "image": "JPG o PNG, con al menos 1080 px en el lado menor.",
-        "video": "MP4 o MOV. Los videos solo se pueden subir, no generar.",
+        "video": "MP4 o MOV. Los videos con sonido hechos por Elo están en la biblioteca.",
         "any": "Imagen JPG o PNG, o video MP4 o MOV."
       },
       "uploading": "Subiendo...",
@@ -15662,9 +15681,28 @@
         "insufficient_funds": "El saldo se agotó antes de empezar a generar la imagen, así que no se cobró nada. Agrega saldo e inténtalo de nuevo.",
         "already_generating": "Se acaba de generar una imagen con esta descripción y formato. Espera unos segundos e inténtalo de nuevo.",
         "reference_unavailable": "Una de las imágenes de referencia ya no está disponible. Cambia las referencias e inténtalo de nuevo.",
-        "invalid_request": "Revisa las imágenes de referencia: solo imágenes, sin repetir."
+        "invalid_request": "Revisa las imágenes de referencia: solo imágenes, sin repetir.",
+        "cost_unreported": "El proveedor no informó el costo de la generación, así que no se entregó ni se cobró nada. Inténtalo de nuevo."
       },
-      "editWithAi": "Editar con IA"
+      "editWithAi": "Editar con IA",
+      "modeLibrary": "Biblioteca",
+      "library": {
+        "loading": "Cargando la biblioteca...",
+        "failed": "No se pudo cargar la biblioteca ahora.",
+        "retry": "Intentar de nuevo",
+        "empty": {
+          "image": "Todavía no hay imágenes en la biblioteca.",
+          "video": "Todavía no hay videos en la biblioteca. Los videos con sonido hechos por Elo aparecen aquí.",
+          "any": "Todavía no hay imágenes ni videos en la biblioteca."
+        },
+        "label": {
+          "image": "Imágenes de la biblioteca",
+          "video": "Videos de la biblioteca",
+          "any": "Imágenes y videos de la biblioteca"
+        },
+        "pickImage": "Elegir esta imagen",
+        "pickVideo": "Elegir este video"
+      }
     },
     "review": {
       "budgetDaily": "{amount} por día",
@@ -18186,6 +18224,1391 @@
       "lead_forms": {
         "title": "Formularios de registro",
         "missing": "La Página aún no aceptó los términos de anuncios de registro de Meta. Solo Meta permite aceptarlos; luego verifica de nuevo aquí."
+      }
+    }
+  },
+  "mediaPlayer": {
+    "audio": "Audio",
+    "video": "Video",
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "position": "Posición del audio",
+    "speed": "Velocidad de reproducción",
+    "download": "Descargar audio",
+    "mute": "Desactivar sonido",
+    "unmute": "Activar sonido"
+  },
+  "mediaGeneration": {
+    "model": {
+      "image": "Modelo de imagen",
+      "music": "Modelo de música",
+      "voice": "Modelo de locución"
+    },
+    "modelHint": "Del más usado al menos usado.",
+    "recommendedModel": "{name} (recomendado)",
+    "modelsLoading": {
+      "image": "Cargando modelos de imagen...",
+      "music": "Cargando modelos de música...",
+      "voice": "Cargando modelos de locución..."
+    },
+    "modelsUnavailable": {
+      "image": "No se pudieron cargar los modelos de imagen ahora. Inténtalo de nuevo en unos instantes.",
+      "music": "No se pudieron cargar los modelos de música ahora. Inténtalo de nuevo en unos instantes.",
+      "voice": "No se pudieron cargar los modelos de locución ahora. Inténtalo de nuevo en unos instantes."
+    },
+    "generating": {
+      "image": "Generando imagen",
+      "music": "Generando música",
+      "voice": "Generando locución",
+      "video": "Montando video",
+      "cutout": "Quitando el fondo",
+      "captions": "Generando subtítulos",
+      "denoise": "Limpiando el audio"
+    },
+    "failed": {
+      "image": "No se pudo generar la imagen",
+      "music": "No se pudo generar la música",
+      "voice": "No se pudo generar la locución",
+      "video": "No se pudo montar el video",
+      "cutout": "No se pudo quitar el fondo",
+      "captions": "No se pudieron generar los subtítulos",
+      "denoise": "No se pudo limpiar el audio"
+    },
+    "finalizing": "Finalizando",
+    "download": "Descargar",
+    "downloading": "Descargando...",
+    "downloadFailed": "No se pudo descargar el archivo. Inténtalo de nuevo."
+  },
+  "studio": {
+    "page": {
+      "title": "Estudio",
+      "description": "Crea imágenes y videos para tus anuncios y guarda todo en la biblioteca de medios.",
+      "createImage": "Nueva imagen",
+      "createVideo": "Nuevo video",
+      "refresh": "Actualizar"
+    },
+    "tabs": {
+      "image": "Imágenes",
+      "video": "Videos"
+    },
+    "kinds": {
+      "image": "Imagen",
+      "video": "Video"
+    },
+    "table": {
+      "name": "Nombre",
+      "kind": "Tipo",
+      "updated": "Editado",
+      "open": "Abrir",
+      "rename": "Renombrar",
+      "archive": "Archivar"
+    },
+    "stats": {
+      "total": "Proyectos"
+    },
+    "empty": {
+      "image": {
+        "title": "Todavía no hay imágenes",
+        "description": "Empieza con un tamaño listo para Instagram y Facebook o elige un tamaño propio."
+      },
+      "video": {
+        "title": "Todavía no hay videos",
+        "description": "Empieza con un formato cuadrado, retrato o vertical y arma el video en la línea de tiempo."
+      }
+    },
+    "list": {
+      "failed": "No se pudieron cargar los proyectos.",
+      "retry": "Intentar de nuevo"
+    },
+    "pagination": {
+      "pageOf": "Página {page} de {totalPages}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "create": {
+      "title": "Nuevo proyecto",
+      "description": "Elige el tipo, el tamaño y un nombre. Puedes cambiar el tamaño después.",
+      "kind": "Tipo",
+      "size": "Tamaño",
+      "aspect": "Formato",
+      "name": "Nombre",
+      "defaultName": {
+        "image": "Imagen sin título",
+        "video": "Video sin título"
+      },
+      "custom": "Tamaño propio",
+      "width": "Ancho (px)",
+      "height": "Alto (px)",
+      "dimensions": "{width} × {height} px",
+      "sizeHint": "Entre {min} y {max} px por lado.",
+      "submit": "Crear y abrir",
+      "creating": "Creando...",
+      "cancel": "Cancelar",
+      "failed": "No se pudo crear el proyecto."
+    },
+    "presets": {
+      "instagram_post": "Publicación de Instagram",
+      "instagram_portrait": "Publicación vertical",
+      "instagram_story": "Historias y Reels",
+      "facebook_link": "Enlace de Facebook",
+      "youtube_thumbnail": "Miniatura de YouTube",
+      "presentation": "Presentación 16:9",
+      "x_post": "Post de X",
+      "pinterest_pin": "Pin de Pinterest",
+      "facebook_cover": "Portada de Facebook",
+      "linkedin_banner": "Banner de LinkedIn",
+      "flyer_a4": "Folleto A4"
+    },
+    "aspects": {
+      "square": "Cuadrado 1:1",
+      "portrait": "Retrato 4:5",
+      "story": "Vertical 9:16",
+      "landscape": "Horizontal 16:9"
+    },
+    "rename": {
+      "title": "Renombrar proyecto",
+      "name": "Nombre",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "done": "Proyecto renombrado",
+      "failed": "No se pudo renombrar el proyecto."
+    },
+    "archive": {
+      "title": "Archivar proyecto",
+      "description": "\"{name}\" sale de la lista del Estudio. Los medios ya exportados siguen en la biblioteca.",
+      "confirm": "Archivar",
+      "cancel": "Cancelar",
+      "done": "Proyecto archivado",
+      "failed": "No se pudo archivar el proyecto."
+    },
+    "issues": {
+      "nameRequired": "Escribe un nombre.",
+      "nameTooLarge": "Usa hasta {max} caracteres.",
+      "canvasOutOfRange": "Cada lado debe tener entre {min} y {max} px.",
+      "document": "El documento del proyecto no es válido ({field}: {code})."
+    },
+    "editor": {
+      "back": "Proyectos",
+      "loading": "Abriendo el proyecto",
+      "loadFailed": "No se pudo abrir el proyecto.",
+      "notFound": "Este proyecto ya no existe o fue archivado.",
+      "invalid": "El editor no puede abrir el documento de este proyecto ({field}: {code}).",
+      "retry": "Intentar de nuevo",
+      "status": {
+        "saved": "Guardado",
+        "saving": "Guardando...",
+        "unsaved": "Cambios sin guardar",
+        "conflict": "Versión en conflicto",
+        "error": "No se pudo guardar"
+      },
+      "retrySave": "Guardar de nuevo",
+      "conflict": {
+        "title": "Este proyecto se guardó en otro lugar",
+        "description": "Otra pestaña u otra persona guardó una versión más nueva mientras editabas. No se sobrescribió nada.",
+        "reload": "Recargar",
+        "reloadHint": "Abre la versión guardada y descarta tus cambios sin guardar.",
+        "keepMine": "Mantener mi versión",
+        "keepMineHint": "Guarda tu versión encima de la más nueva."
+      }
+    },
+    "image": {
+      "canvas": {
+        "editText": "Editar texto"
+      },
+      "clipboard": {
+        "imageFailed": "No se pudo pegar la imagen. Prueba a subir el archivo desde el panel Subidas."
+      },
+      "toolbar": {
+        "label": "Herramientas del editor",
+        "undo": "Deshacer (Ctrl+Z)",
+        "redo": "Rehacer (Ctrl+Shift+Z)",
+        "resize": "Cambiar tamaño",
+        "resizeLabel": "Cambiar tamaño, tamaño actual {width} × {height} px",
+        "view": "Ver",
+        "rulers": "Reglas",
+        "snapping": "Ajuste y guías inteligentes",
+        "selectionTools": "Acciones de la selección",
+        "position": "Posición",
+        "order": "Orden",
+        "align": "Alinear",
+        "distribute": "Distribuir",
+        "zoom": "Zoom",
+        "zoomIn": "Acercar (Ctrl++)",
+        "zoomOut": "Alejar (Ctrl+-)",
+        "zoomLevel": "Zoom al {percent}%",
+        "fit": "Ajustar a la pantalla (Ctrl+0)"
+      },
+      "rail": {
+        "label": "Paneles del editor",
+        "text": "Texto",
+        "elements": "Elementos",
+        "uploads": "Subidas",
+        "ai": "IA",
+        "layers": "Capas"
+      },
+      "panels": {
+        "text": {
+          "title": "Estilos de texto",
+          "hint": "Haz clic para añadir. Doble clic en el texto para editarlo.",
+          "add": {
+            "heading": "Añadir un título",
+            "subheading": "Añadir un subtítulo",
+            "body": "Añadir un cuerpo de texto"
+          },
+          "defaults": {
+            "heading": "Tu título",
+            "subheading": "Tu subtítulo",
+            "body": "Escribe tu texto aquí"
+          }
+        },
+        "elements": {
+          "title": "Elementos",
+          "shapes": "Formas y líneas",
+          "icons": "Iconos",
+          "search": "Buscar iconos",
+          "noIcons": "No se encontraron iconos.",
+          "shape": {
+            "rect": "Rectángulo",
+            "rounded": "Rectángulo redondeado",
+            "ellipse": "Elipse",
+            "triangle": "Triángulo",
+            "star": "Estrella",
+            "line": "Línea",
+            "arrow": "Flecha",
+            "doubleArrow": "Flecha doble"
+          }
+        },
+        "uploads": {
+          "title": "Subidas y biblioteca",
+          "hint": "Sube imágenes o usa las que ya están en tu biblioteca de medios.",
+          "upload": "Subir imágenes"
+        },
+        "ai": {
+          "title": "IA",
+          "hint": "Crea imágenes a partir de una descripción y quita fondos.",
+          "generateTitle": "Generar imagen",
+          "prompt": "Descripción",
+          "promptPlaceholder": "Ej.: foto de un café helado sobre una mesa de madera, luz natural",
+          "aspect": "Formato",
+          "references": "Referencias",
+          "fromSelection": "De la selección",
+          "fromLibrary": "De la biblioteca",
+          "uploadReference": "Subir referencia",
+          "removeReference": "Quitar referencia",
+          "referenceFailed": "No se pudo usar una de las imágenes seleccionadas como referencia.",
+          "referencesHint": "Opcional. Hasta {max} imágenes para guiar el estilo o el producto.",
+          "costNote": "Generar imágenes usa el saldo del workspace. El resultado entra en el diseño como una nueva capa.",
+          "generate": "Generar imagen",
+          "removeBackgroundTitle": "Quitar fondo"
+        },
+        "layers": {
+          "title": "Capas",
+          "hint": "Arrastra para reordenar. Doble clic para renombrar.",
+          "empty": "El diseño todavía no tiene capas.",
+          "rowLabel": "{name}, capa {position} de {total}",
+          "rename": "Renombrar capa",
+          "lock": "Bloquear",
+          "unlock": "Desbloquear",
+          "hide": "Ocultar",
+          "show": "Mostrar",
+          "group": "Grupo ({count})",
+          "ungroup": "Desagrupar",
+          "keyboardHint": "Teclado: Alt+flechas cambian el orden, F2 renombra.",
+          "resize": "Cambiar el tamaño del panel de capas",
+          "clipped": "Recortada en la capa de abajo",
+          "groupName": "Grupo",
+          "renameGroup": "Renombrar grupo",
+          "expand": "Expandir {name}",
+          "collapse": "Contraer {name}",
+          "blendMode": "Modo de fusión",
+          "opacity": "Opacidad",
+          "opacityShort": "Op.",
+          "clip": "Crear máscara de recorte",
+          "unclip": "Soltar máscara de recorte"
+        }
+      },
+      "layerKinds": {
+        "image": "Imagen",
+        "text": "Texto",
+        "icon": "Icono",
+        "shape": {
+          "rect": "Rectángulo",
+          "ellipse": "Elipse",
+          "line": "Línea",
+          "arrow": "Flecha",
+          "triangle": "Triángulo",
+          "star": "Estrella"
+        }
+      },
+      "media": {
+        "uploading": "Subiendo...",
+        "uploadHint": "JPG o PNG. La imagen también queda guardada en la biblioteca.",
+        "uploadFailedWith": "No se pudo subir la imagen: {reason}",
+        "notImage": "Sube una imagen JPG o PNG.",
+        "insertFailed": "No se pudo abrir esta imagen. Prueba con otra.",
+        "library": "Biblioteca",
+        "reload": "Actualizar biblioteca",
+        "loading": "Cargando la biblioteca...",
+        "libraryFailed": "No se pudo cargar la biblioteca ahora.",
+        "empty": "Todavía no hay imágenes en la biblioteca.",
+        "pick": "Usar esta imagen"
+      },
+      "actions": {
+        "copy": "Copiar",
+        "paste": "Pegar",
+        "duplicate": "Duplicar",
+        "group": "Agrupar",
+        "ungroup": "Desagrupar",
+        "lock": "Bloquear",
+        "unlock": "Desbloquear",
+        "hide": "Ocultar",
+        "show": "Mostrar",
+        "delete": "Eliminar",
+        "selectAll": "Seleccionar todo",
+        "crop": "Recortar imagen",
+        "editText": "Editar texto",
+        "order": {
+          "front": "Traer al frente",
+          "forward": "Traer adelante",
+          "backward": "Enviar atrás",
+          "back": "Enviar al fondo"
+        },
+        "align": {
+          "left": "A la izquierda",
+          "center": "Al centro",
+          "right": "A la derecha",
+          "top": "Arriba",
+          "middle": "En medio",
+          "bottom": "Abajo"
+        },
+        "distribute": {
+          "horizontal": "Distribuir en horizontal",
+          "vertical": "Distribuir en vertical"
+        },
+        "copyStyle": "Copiar estilo",
+        "pasteStyle": "Pegar estilo"
+      },
+      "resize": {
+        "hint": "Los elementos se reubican para caber en el nuevo tamaño.",
+        "dimensions": "{width} × {height} px",
+        "custom": "Tamaño personalizado",
+        "width": "Ancho (px)",
+        "height": "Alto (px)",
+        "outOfRange": "Cada lado debe estar entre {min} y {max} px.",
+        "apply": "Cambiar tamaño"
+      },
+      "export": {
+        "open": "Exportar",
+        "title": "Exportar imagen",
+        "format": "Formato",
+        "scale": "Tamaño",
+        "quality": "Calidad del JPG",
+        "transparent": "Fondo transparente",
+        "jpegWhite": "JPG no admite transparencia, así que el fondo sale blanco.",
+        "loadingAssets": "Cargando las imágenes y fuentes del diseño...",
+        "download": "Descargar",
+        "save": "Guardar en la biblioteca",
+        "saved": "Imagen guardada en la biblioteca",
+        "openSaved": "Abrir la imagen",
+        "errors": {
+          "notReady": "Una imagen o fuente del diseño no cargó. Quita o reemplaza el elemento con problemas antes de exportar.",
+          "font": "Una de las fuentes no cargó, así que la exportación se canceló. Inténtalo de nuevo.",
+          "asset": "Una de las imágenes del diseño no cargó, así que la exportación se canceló.",
+          "timeout": "La exportación tardó demasiado y se canceló. Inténtalo de nuevo.",
+          "render": "No se pudo crear la imagen. Inténtalo de nuevo.",
+          "upload": "La imagen se creó, pero no se guardó en la biblioteca: {reason}"
+        }
+      },
+      "jobs": {
+        "running": {
+          "generate": "Generando imagen...",
+          "edit": "Editando con IA...",
+          "cutout": "Quitando el fondo..."
+        },
+        "finalizing": "Finalizando...",
+        "dismiss": "Descartar",
+        "errors": {
+          "too_many_jobs": "Ya hay dos procesos en curso en este workspace. Espera a que termine uno e inténtalo de nuevo.",
+          "generation_failed": "El proceso falló. Inténtalo de nuevo o cambia la descripción.",
+          "storage_failed": "El resultado se generó, pero no pudimos guardarlo. Contacta con soporte.",
+          "timed_out": "Tardó más de lo esperado y se interrumpió. Inténtalo de nuevo.",
+          "enqueue_failed": "No se pudo empezar ahora. Inténtalo de nuevo en unos instantes.",
+          "poll_failed": "Perdimos el contacto con el proceso. Revisa tu conexión e inténtalo de nuevo.",
+          "insufficient_balance": "Saldo insuficiente. Añade saldo e inténtalo de nuevo.",
+          "insufficient_funds": "El saldo se agotó antes de empezar, así que no se cobró nada. Añade saldo e inténtalo de nuevo.",
+          "no_subscription": "Esta función requiere una suscripción activa.",
+          "already_generating": "Esta misma solicitud se acaba de hacer. Espera unos segundos.",
+          "reference_unavailable": "Una de las imágenes de referencia ya no está disponible.",
+          "invalid_request": "La solicitud no se aceptó. Revisa la imagen y las referencias.",
+          "cost_unreported": "El proveedor no informó el costo, así que no se entregó ni se cobró nada. Inténtalo de nuevo.",
+          "result_unavailable": "El resultado está listo, pero no pudimos abrirlo en el editor. Está en tu biblioteca.",
+          "unknown": "No se pudo completar. Inténtalo de nuevo."
+        },
+        "failed": {
+          "generate": "La imagen no se generó",
+          "edit": "La edición con IA falló",
+          "cutout": "No se quitó el fondo"
+        }
+      },
+      "removeBackground": {
+        "run": "Quitar fondo",
+        "hint": "Gratis. El fondo queda transparente y la capa se actualiza.",
+        "locked": "Desbloquea la imagen para quitar el fondo.",
+        "pickImage": "Selecciona una imagen del diseño para quitar el fondo."
+      },
+      "inspector": {
+        "label": "Propiedades",
+        "canvasTitle": "Diseño",
+        "selectionTitle": "{count} elementos",
+        "lockedHint": "Elemento bloqueado. Desbloquéalo para editar.",
+        "types": {
+          "image": "Imagen",
+          "text": "Texto",
+          "shape": "Forma",
+          "icon": "Icono"
+        },
+        "transform": {
+          "title": "Posición y tamaño",
+          "x": "Posición horizontal",
+          "y": "Posición vertical",
+          "width": "Ancho",
+          "widthShort": "An",
+          "height": "Alto",
+          "heightShort": "Al",
+          "rotation": "Rotación",
+          "rotationShort": "Rot",
+          "opacity": "Opacidad",
+          "multiple": "{count} elementos seleccionados. Usa Posición para alinearlos."
+        },
+        "text": {
+          "title": "Texto",
+          "font": "Fuente",
+          "weight": "Grosor",
+          "size": "Tamaño",
+          "bold": "Negrita",
+          "italic": "Cursiva",
+          "align": "Alineación",
+          "aligns": {
+            "left": "Izquierda",
+            "center": "Centro",
+            "right": "Derecha"
+          },
+          "color": "Color",
+          "lineHeight": "Interlineado",
+          "letterSpacing": "Espaciado",
+          "weights": {
+            "100": "Fina",
+            "200": "Extraligera",
+            "300": "Ligera",
+            "400": "Normal",
+            "500": "Media",
+            "600": "Seminegrita",
+            "700": "Negrita",
+            "800": "Extranegrita",
+            "900": "Black"
+          },
+          "effects": "Efectos de texto",
+          "curve": "Curvar",
+          "highlight": "Fondo del texto",
+          "highlightColor": "Color del fondo",
+          "highlightRadius": "Esquinas",
+          "highlightCurved": "El texto curvado no lleva fondo. Pon la curva en cero para usarlo."
+        },
+        "shape": {
+          "title": "Forma",
+          "lineTitle": "Línea",
+          "fill": "Relleno",
+          "none": "Sin color",
+          "border": "Borde",
+          "borderColor": "Color del borde",
+          "strokeWidth": "Grosor",
+          "color": "Color",
+          "radius": "Esquinas redondeadas",
+          "dash": "Discontinua",
+          "heads": "Puntas",
+          "headStart": "Punta de flecha al inicio",
+          "headStartShort": "Inicio",
+          "headEnd": "Punta de flecha al final",
+          "headEndShort": "Final"
+        },
+        "icon": {
+          "title": "Icono",
+          "color": "Color"
+        },
+        "image": {
+          "title": "Imagen",
+          "crop": "Recortar",
+          "cropHint": "Arrastra el marco y sus tiradores para elegir el área. Enter aplica, Esc cancela.",
+          "cropDone": "Aplicar",
+          "cropReset": "Restablecer",
+          "cropCancel": "Cancelar",
+          "flip": "Voltear",
+          "flipX": "Voltear en horizontal",
+          "flipY": "Voltear en vertical",
+          "radius": "Esquinas redondeadas",
+          "replace": "Reemplazar imagen",
+          "replaceUpload": "Subir nueva imagen",
+          "filters": "Ajustes",
+          "resetFilters": "Restablecer",
+          "presets": "Filtros",
+          "presetNames": {
+            "vivid": "Vívido",
+            "soft": "Suave",
+            "faded": "Desvaído",
+            "dramatic": "Dramático",
+            "bright": "Claro"
+          },
+          "filter": {
+            "brightness": "Brillo",
+            "contrast": "Contraste",
+            "saturation": "Saturación",
+            "blur": "Desenfoque"
+          },
+          "editWithAi": "Editar con IA",
+          "editPrompt": "Qué cambiar",
+          "editPlaceholder": "Ej.: cambia el fondo por una playa al atardecer",
+          "editRun": "Generar versión editada",
+          "editHint": "Usa el saldo del workspace. La versión editada entra como nueva capa encima de esta.",
+          "cropTitle": "Recortando la imagen",
+          "frame": "Marco",
+          "frames": {
+            "none": "Ninguno",
+            "ellipse": "Círculo",
+            "triangle": "Triángulo",
+            "star": "Estrella"
+          }
+        },
+        "outline": {
+          "title": "Contorno",
+          "toggle": "Mostrar contorno",
+          "color": "Color",
+          "width": "Grosor"
+        },
+        "shadow": {
+          "title": "Sombra",
+          "toggle": "Mostrar sombra",
+          "color": "Color",
+          "blur": "Desenfoque",
+          "blurShort": "Desenf.",
+          "x": "Desplazamiento horizontal",
+          "y": "Desplazamiento vertical"
+        },
+        "arrange": {
+          "title": "Organizar",
+          "align": "Alinear",
+          "distribute": "Distribuir",
+          "order": "Orden",
+          "edit": "Editar"
+        },
+        "canvas": {
+          "background": "Fondo",
+          "transparent": "Fondo transparente",
+          "transparentHint": "El ajedrezado indica transparencia. En PNG el fondo puede salir transparente.",
+          "color": "Color",
+          "size": "Tamaño: {width} × {height} px",
+          "tipsTitle": "Atajos",
+          "tipSelect": "Shift+clic o arrastra en el vacío para seleccionar varios.",
+          "tipPan": "Mantén Espacio y arrastra para mover el lienzo.",
+          "tipZoom": "Ctrl+rueda del ratón acerca en el punto del cursor.",
+          "tipEdit": "Doble clic edita un texto o recorta una imagen."
+        },
+        "gradient": {
+          "toggle": "Degradado",
+          "from": "Inicio",
+          "to": "Fin",
+          "angle": "Ángulo"
+        }
+      },
+      "icons": {
+        "star": "Estrella",
+        "heart": "Corazón",
+        "fire": "Fuego",
+        "sparkle": "Brillo",
+        "lightning": "Rayo",
+        "confetti": "Confeti",
+        "crown": "Corona",
+        "check-circle": "Confirmado",
+        "seal-check": "Sello verificado",
+        "shield-check": "Escudo de seguridad",
+        "thumbs-up": "Pulgar arriba",
+        "smiley": "Sonrisa",
+        "smiley-wink": "Guiño",
+        "megaphone": "Megáfono",
+        "tag": "Etiqueta de precio",
+        "currency-dollar": "Dinero",
+        "storefront": "Tienda",
+        "package": "Paquete",
+        "target": "Objetivo",
+        "lightbulb": "Bombilla",
+        "arrow-right": "Flecha a la derecha",
+        "arrow-up-right": "Flecha hacia arriba",
+        "play-circle": "Reproducir",
+        "camera": "Cámara",
+        "video-camera": "Videocámara",
+        "image": "Imagen",
+        "paint-brush": "Pincel",
+        "palette": "Paleta",
+        "chat-circle": "Conversación",
+        "phone": "Teléfono",
+        "envelope": "Sobre",
+        "whatsapp-logo": "WhatsApp",
+        "instagram-logo": "Instagram",
+        "facebook-logo": "Facebook",
+        "map-pin": "Ubicación",
+        "globe": "Globo",
+        "clock": "Reloj",
+        "timer": "Cronómetro",
+        "hourglass": "Reloj de arena",
+        "calendar": "Calendario",
+        "bell": "Campana",
+        "users": "Personas",
+        "key": "Llave",
+        "leaf": "Hoja",
+        "sun": "Sol",
+        "moon": "Luna"
+      },
+      "blend": {
+        "normal": "Normal",
+        "multiply": "Multiplicar",
+        "screen": "Trama",
+        "overlay": "Superponer",
+        "darken": "Oscurecer",
+        "lighten": "Aclarar",
+        "color-dodge": "Sobreexponer color",
+        "color-burn": "Subexponer color",
+        "hard-light": "Luz fuerte",
+        "soft-light": "Luz suave",
+        "difference": "Diferencia",
+        "exclusion": "Exclusión",
+        "hue": "Tono",
+        "saturation": "Saturación",
+        "color": "Color",
+        "luminosity": "Luminosidad"
+      }
+    },
+    "video": {
+      "dismiss": "Cerrar aviso",
+      "toolbar": {
+        "label": "Herramientas del editor",
+        "undo": "Deshacer",
+        "redo": "Rehacer",
+        "split": "Dividir",
+        "duplicate": "Duplicar",
+        "delete": "Eliminar",
+        "rippleDelete": "Eliminar y cerrar el hueco",
+        "aspect": "Formato del video",
+        "aspects": {
+          "square": "Cuadrado 1:1",
+          "portrait": "Retrato 4:5",
+          "story": "Vertical 9:16",
+          "landscape": "Horizontal 16:9"
+        },
+        "safeArea": "Zona segura"
+      },
+      "export": {
+        "button": "Exportar",
+        "exporting": "Exportando",
+        "title": "Exportar video",
+        "hint": "El video se guarda, se renderiza en MP4 y queda en la biblioteca de medios.",
+        "start": "Exportar ahora",
+        "phase": {
+          "saving": "Guardando el proyecto",
+          "rasterizing": "Preparando superposiciones ({done} de {total})",
+          "submitting": "Enviando a la cola",
+          "queued": "En cola",
+          "rendering": "Renderizando",
+          "finalizing": "Finalizando"
+        },
+        "done": "Video listo",
+        "result": "Video exportado",
+        "inLibrary": "El video ya está en la biblioteca de medios.",
+        "fileName": "video del estudio",
+        "useInAd": "Usar en un anuncio",
+        "again": "Exportar de nuevo",
+        "retry": "Intentar de nuevo",
+        "close": "Cerrar",
+        "errors": {
+          "empty": "Agrega al menos un clip antes de exportar.",
+          "unsaved": "El proyecto no se guardó. Revisa la conexión e intenta de nuevo.",
+          "raster_failed": "No se pudo preparar una superposición. Revisa los textos y las imágenes.",
+          "upload_failed": "No se pudo subir una superposición. Intenta de nuevo.",
+          "too_many_jobs": "Ya hay demasiados procesos en curso. Espera a que uno termine e intenta de nuevo.",
+          "not_rasterized": "Una superposición cambió durante la exportación. Intenta de nuevo.",
+          "invalid": "El proyecto tiene algo que el servidor no acepta. Revisa los clips e intenta de nuevo.",
+          "conflict": "El proyecto se guardó en otro lugar. Elige una versión en el aviso de arriba y exporta de nuevo.",
+          "insufficient_funds": "Saldo insuficiente para exportar.",
+          "timed_out": "La exportación tardó demasiado. Intenta de nuevo.",
+          "generation_failed": "El renderizado falló. Intenta de nuevo.",
+          "storage_failed": "No se pudo guardar el video en la biblioteca. Intenta de nuevo.",
+          "enqueue_failed": "La exportación no entró en la cola. Intenta de nuevo.",
+          "unknown": "La exportación falló. Intenta de nuevo.",
+          "changed": "El proyecto cambió durante la exportación. Exporta de nuevo."
+        },
+        "outdated": {
+          "title": "Este video no tiene tus últimos cambios",
+          "description": "Se exportó antes de lo que cambiaste después en la línea de tiempo.",
+          "action": "Exportar versión actual"
+        }
+      },
+      "notices": {
+        "noRoom": "No hay espacio para eso en la línea de tiempo.",
+        "nothingToSplit": "No hay ningún clip bajo el cursor para dividir.",
+        "unsupportedMedia": "Este tipo de archivo no puede ir en el video.",
+        "uploadFailed": "No se pudo subir el archivo.",
+        "tooManyTracks": "El proyecto ya tiene el máximo de pistas.",
+        "captionsUnreadable": "Los subtítulos se generaron, pero no se pudieron leer.",
+        "captionsEmpty": "No se encontró habla en ese tramo.",
+        "clipGone": "El clip se eliminó antes de que terminara el proceso.",
+        "clipLocked": "El clip está en una pista bloqueada y no se reemplazó.",
+        "linkNeedsTwo": "Selecciona dos o más clips para vincular.",
+        "markerTaken": "Ya hay un marcador en este punto.",
+        "keyframeOutside": "Lleva el cursor dentro del clip para crear o cambiar fotogramas clave.",
+        "keyframeLimit": "Este video ya tiene el máximo de fotogramas clave.",
+        "rangeMissing": "Marca primero la entrada (I) y la salida (O).",
+        "nothingToRelink": "Ningún clip comparte el mismo medio y el mismo inicio para vincular.",
+        "pasteFailed": "No se pudo subir la imagen pegada.",
+        "locked": "El clip está en una pista bloqueada.",
+        "outOfRange": "Ese valor está fuera de lo permitido.",
+        "sourcePending": "Espera a que cargue el medio e intenta de nuevo.",
+        "invalid": "El proyecto no acepta ese cambio."
+      },
+      "preview": {
+        "label": "Vista previa",
+        "selection": "Clip seleccionado. Arrastra para moverlo y usa las asas para cambiar el tamaño y girarlo."
+      },
+      "transport": {
+        "start": "Ir al inicio",
+        "end": "Ir al final",
+        "play": "Reproducir",
+        "pause": "Pausar",
+        "space": "Espacio"
+      },
+      "timeline": {
+        "label": "Línea de tiempo",
+        "noTracks": "Agrega una pista para empezar.",
+        "playhead": "Cursor de reproducción",
+        "clipDescription": "{label}, empieza en {start}, dura {duration}",
+        "clipTypes": {
+          "video": "Video",
+          "image": "Imagen",
+          "overlay": "Superposición",
+          "audio": "Audio",
+          "text": "Texto",
+          "icon": "Ícono",
+          "shapes": {
+            "rect": "Rectángulo",
+            "ellipse": "Elipse",
+            "line": "Línea",
+            "arrow": "Flecha",
+            "triangle": "Triángulo",
+            "star": "Estrella"
+          }
+        },
+        "track": {
+          "name": "Nombre de la pista",
+          "renameHint": "Haz doble clic para cambiar el nombre",
+          "visualName": "Video {index}",
+          "audioName": "Audio {index}",
+          "show": "Mostrar {name}",
+          "hide": "Ocultar {name}",
+          "mute": "Silenciar {name}",
+          "unmute": "Activar el sonido de {name}",
+          "lock": "Bloquear {name}",
+          "unlock": "Desbloquear {name}",
+          "remove": "Quitar {name}",
+          "main": "Principal",
+          "solo": "Escuchar solo {name}",
+          "unsolo": "Dejar de escuchar solo {name}",
+          "soloMark": "S"
+        },
+        "linked": "Vinculado",
+        "bar": {
+          "label": "Herramientas de la línea de tiempo",
+          "timecode": "Tiempo del cursor",
+          "snapping": "Ajuste",
+          "magnetic": "Pista principal magnética",
+          "linkedSelection": "Selección vinculada",
+          "link": "Vincular clips",
+          "unlink": "Desvincular",
+          "marker": "Agregar marcador",
+          "addVisual": "Nueva pista de video",
+          "addAudio": "Nueva pista de audio",
+          "trackHeight": "Altura de las pistas",
+          "heights": {
+            "compact": "P",
+            "normal": "M",
+            "tall": "G"
+          },
+          "zoomOut": "Alejar",
+          "zoomIn": "Acercar",
+          "zoom": "Zoom de la línea de tiempo",
+          "zoomValue": "{value} píxeles por segundo",
+          "modes": {
+            "move": "Mover",
+            "insert": "Insertar",
+            "overwrite": "Sobrescribir",
+            "ripple": "Recorte en cascada",
+            "roll": "Mover corte",
+            "slip": "Desplazar contenido",
+            "slide": "Deslizar"
+          },
+          "tools": "Herramientas",
+          "zoomFit": "Ajustar todo",
+          "toolNames": {
+            "select": "Selección",
+            "blade": "Cuchilla",
+            "ripple": "Recorte en cascada",
+            "roll": "Mover corte",
+            "slip": "Desplazar contenido",
+            "slide": "Deslizar clip"
+          }
+        },
+        "markers": {
+          "named": "{label}, en {time}",
+          "unnamed": "Marcador en {time}",
+          "title": "Marcador en {time}",
+          "label": "Nombre",
+          "goTo": "Ir",
+          "remove": "Quitar"
+        },
+        "gapSelected": "Hueco seleccionado",
+        "overview": {
+          "label": "Vista general del proyecto",
+          "window": "Tramo visible"
+        },
+        "menu": {
+          "focus": "Enfocar",
+          "cut": "Cortar",
+          "copy": "Copiar",
+          "paste": "Pegar",
+          "pasteInsert": "Pegar insertando",
+          "duplicate": "Duplicar",
+          "split": "Dividir en el cursor",
+          "delete": "Eliminar",
+          "rippleDelete": "Eliminar y cerrar el hueco",
+          "enable": "Activar clip",
+          "disable": "Desactivar clip",
+          "link": "Vincular",
+          "unlink": "Desvincular",
+          "relink": "Volver a vincular",
+          "selectForward": "Seleccionar hacia adelante",
+          "selectForwardAll": "Seleccionar hacia adelante en todas las pistas",
+          "properties": "Propiedades",
+          "closeGaps": "Cerrar todos los huecos de la pista",
+          "addMarker": "Agregar marcador aquí"
+        }
+      },
+      "inspector": {
+        "label": "Propiedades",
+        "projectTitle": "Proyecto",
+        "selectionTitle": "Selección",
+        "clipTitle": {
+          "video": "Clip de video",
+          "image": "Clip de imagen",
+          "overlay": "Superposición",
+          "audio": "Clip de audio"
+        },
+        "project": "Video",
+        "background": "Color de fondo",
+        "length": "Duración",
+        "clips": "Clips",
+        "tracks": "Pistas",
+        "empty": "Selecciona un clip en la línea de tiempo o en la vista previa para editarlo.",
+        "multiple": "{count} clips",
+        "duplicate": "Duplicar",
+        "delete": "Eliminar",
+        "locked": "Esta pista está bloqueada. Desbloquéala para editar.",
+        "timing": "Tiempo",
+        "start": "Inicio",
+        "duration": "Duración",
+        "trimIn": "Recorte inicial",
+        "sourceLength": "Archivo original",
+        "frame": "Encuadre",
+        "fit": "Ajuste",
+        "fits": {
+          "cover": "Rellenar",
+          "contain": "Encajar completo"
+        },
+        "x": "Posición X",
+        "y": "Posición Y",
+        "width": "Ancho",
+        "height": "Alto",
+        "rotation": "Rotación",
+        "opacity": "Opacidad",
+        "sound": "Sonido",
+        "volume": "Volumen",
+        "fades": "Transiciones",
+        "fadeIn": "Entrada",
+        "fadeOut": "Salida",
+        "fadesVisualHint": "La imagen aparece y desaparece poco a poco.",
+        "fadesAudioHint": "El sonido sube y baja poco a poco.",
+        "linked": "Video y audio vinculados",
+        "unlink": "Desvincular",
+        "mixed": "Mixto",
+        "scrubHint": "Arrastra el nombre del campo hacia los lados para ajustar",
+        "scrubTip": "Arrastra el nombre de un campo hacia los lados o usa las flechas para ajustar. Con varios clips, el ajuste se suma a cada uno.",
+        "keyHint": "Hay un fotograma clave aquí. Cambiar el valor lo actualiza.",
+        "interpolatedHint": "Valor calculado entre fotogramas clave. Cambiarlo crea un nuevo fotograma clave aquí.",
+        "lockedSome": "Algunos clips están en pistas bloqueadas y no cambiarán.",
+        "multipleEditHint": "Los campos muestran lo que los clips tienen en común. Un valor escrito se aplica a todos.",
+        "groupStart": "Inicio del grupo",
+        "fadesMixedHint": "La imagen y el sonido aparecen y desaparecen poco a poco.",
+        "notices": {
+          "locked": "Los clips están en pistas bloqueadas. No se cambió nada.",
+          "keyframeLimit": "Esto superaría el límite de fotogramas clave. No se cambió nada.",
+          "keyframeOutside": "Lleva el cursor dentro de todos los clips seleccionados para cambiar una propiedad animada.",
+          "outOfRange": "La animación superaría los límites de posición, tamaño o tiempo. No se cambió nada.",
+          "sourcePending": "Todavía estamos leyendo la duración del archivo. Inténtalo de nuevo en un momento.",
+          "noRoom": "No hay espacio en la línea de tiempo para esto. No se cambió nada.",
+          "invalid": "Este cambio dejaría un clip inválido (por ejemplo, un texto vacío). No se cambió nada.",
+          "copied": "Animación copiada. Selecciona otro clip, coloca el cursor y pega.",
+          "noKeys": "Este clip no tiene fotogramas clave para copiar.",
+          "clipboardEmpty": "Copia la animación de un clip antes de pegar."
+        }
+      },
+      "layer": {
+        "title": {
+          "image": "Imagen",
+          "text": "Texto",
+          "shape": "Forma",
+          "icon": "Ícono"
+        },
+        "text": "Texto",
+        "font": "Fuente",
+        "weight": "Grosor",
+        "size": "Tamaño",
+        "align": "Alineación",
+        "aligns": {
+          "left": "Izquierda",
+          "center": "Centro",
+          "right": "Derecha"
+        },
+        "lineHeight": "Altura de línea",
+        "letterSpacing": "Espaciado entre letras",
+        "italic": "Cursiva",
+        "icon": "Ícono",
+        "fill": "Color",
+        "lineColor": "Color de la línea",
+        "outline": "Contorno",
+        "lineWidth": "Grosor",
+        "outlineWidth": "Grosor del contorno",
+        "radius": "Redondeo",
+        "dashed": "Discontinua",
+        "arrowStart": "Punta al inicio",
+        "arrowEnd": "Punta al final",
+        "shadow": "Sombra",
+        "shadowColor": "Color de la sombra",
+        "shadowBlur": "Desenfoque de la sombra",
+        "invalid": "Ese valor no se acepta. El texto no puede quedar vacío."
+      },
+      "panels": {
+        "label": "Paneles",
+        "tabs": {
+          "media": "Medios",
+          "ai": "IA",
+          "elements": "Texto",
+          "captions": "Subtítulos",
+          "process": "Procesar"
+        },
+        "titles": {
+          "media": "Medios",
+          "ai": "Generar con IA",
+          "elements": "Texto y elementos",
+          "captions": "Subtítulos automáticos",
+          "process": "Procesar"
+        }
+      },
+      "media": {
+        "upload": "Subir archivo",
+        "uploading": "Subiendo...",
+        "filter": "Tipo de medio",
+        "filters": {
+          "all": "Todo",
+          "video": "Videos",
+          "image": "Imágenes",
+          "audio": "Audios"
+        },
+        "hint": "Arrastra a una pista o usa el botón de más para ponerlo en el cursor.",
+        "loading": "Cargando la biblioteca...",
+        "failed": "No se pudo cargar la biblioteca.",
+        "retry": "Intentar de nuevo",
+        "empty": "Todavía no hay nada aquí. Sube un archivo o genera uno con IA.",
+        "add": "Agregar {name} en el cursor",
+        "addHint": "Agregar en el cursor"
+      },
+      "jobs": {
+        "errors": {
+          "insufficient_funds": "Saldo insuficiente",
+          "too_many_jobs": "Ya hay demasiados procesos en curso",
+          "timed_out": "Tardó demasiado",
+          "invalid_request": "La solicitud no fue aceptada",
+          "wrong_type": "Este tipo de archivo no sirve para eso",
+          "not_image": "Elige una imagen",
+          "cost_unreported": "No se informó el costo"
+        }
+      },
+      "ai": {
+        "kinds": "Tipo de generación",
+        "placement": "El resultado va a la biblioteca y entra en el cursor, en la pista correcta.",
+        "music": {
+          "tab": "Música",
+          "prompt": "Describe la música",
+          "placeholder": "Ej.: pista animada y moderna para el anuncio de una tienda",
+          "generate": "Generar música"
+        },
+        "voice": {
+          "tab": "Locución",
+          "prompt": "Guion",
+          "placeholder": "Escribe exactamente lo que debe decir la voz",
+          "generate": "Generar locución",
+          "exact": "La voz lee el texto tal como está escrito.",
+          "voice": "Voz"
+        },
+        "image": {
+          "tab": "Imagen",
+          "prompt": "Describe la imagen",
+          "placeholder": "Ej.: producto sobre fondo claro con luz suave",
+          "generate": "Generar imagen"
+        }
+      },
+      "elements": {
+        "text": "Texto",
+        "shapes": "Formas",
+        "icons": "Íconos",
+        "presets": {
+          "heading": "Agregar título",
+          "subheading": "Agregar subtítulo",
+          "body": "Agregar texto"
+        },
+        "samples": {
+          "heading": "Tu título",
+          "subheading": "Tu subtítulo",
+          "body": "Tu texto aquí"
+        },
+        "shapeNames": {
+          "rect": "Rectángulo",
+          "ellipse": "Elipse",
+          "triangle": "Triángulo",
+          "star": "Estrella",
+          "line": "Línea",
+          "arrow": "Flecha",
+          "doubleArrow": "Flecha doble"
+        },
+        "styles": "Estilos listos",
+        "styleNames": {
+          "headline": "Título fuerte",
+          "caption": "Subtítulo",
+          "cta": "Botón de acción",
+          "lowerThird": "Rótulo de nombre",
+          "tag": "Etiqueta"
+        },
+        "styleSamples": {
+          "headline": "Oferta imperdible",
+          "caption": "Tu texto aquí",
+          "cta": "Habla con nosotros",
+          "lowerThird": "Nombre y cargo",
+          "tag": "Novedad"
+        }
+      },
+      "picker": {
+        "none": "Todavía ningún clip sirve para esto.",
+        "option": "{track}, de {start} a {end}"
+      },
+      "captions": {
+        "description": "Transcribe el habla de un clip y crea una pista de subtítulos sincronizados.",
+        "source": "Clip con habla",
+        "generate": "Generar subtítulos",
+        "done": "Subtítulos agregados en una pista nueva.",
+        "styleHint": "Cada subtítulo es un texto normal: cambia la fuente, el color y la posición en el panel de propiedades.",
+        "trackName": "Subtítulos"
+      },
+      "process": {
+        "denoise": {
+          "title": "Limpiar audio",
+          "description": "Reduce el ruido de fondo y equilibra el volumen de un clip de audio.",
+          "source": "Clip de audio",
+          "run": "Limpiar audio",
+          "done": "Audio limpio reemplazado en el clip."
+        },
+        "cutout": {
+          "title": "Quitar fondo",
+          "description": "Recorta el sujeto de un clip de imagen y deja el fondo transparente.",
+          "source": "Clip de imagen",
+          "run": "Quitar fondo",
+          "done": "Imagen recortada reemplazada en el clip."
+        }
+      },
+      "motion": {
+        "title": "Animación de entrada y salida",
+        "entrance": "Animación de entrada",
+        "exit": "Animación de salida",
+        "hint": "Deslizar empieza o termina fuera de la posición y aparece poco a poco.",
+        "presets": {
+          "none": "Ninguna",
+          "fade": "Aparecer",
+          "slideUp": "Deslizar hacia arriba",
+          "slideDown": "Deslizar hacia abajo",
+          "slideLeft": "Deslizar a la izquierda",
+          "slideRight": "Deslizar a la derecha",
+          "custom": "Personalizada"
+        },
+        "durationIn": "Tiempo de entrada",
+        "durationOut": "Tiempo de salida"
+      },
+      "keyframes": {
+        "title": "Fotogramas clave",
+        "properties": {
+          "x": "Posición X",
+          "y": "Posición Y",
+          "scale": "Escala",
+          "rotation": "Rotación",
+          "opacity": "Opacidad"
+        },
+        "animate": "Animar {name}",
+        "stopAnimating": "Dejar de animar {name}",
+        "previous": "Fotograma clave anterior de {name}",
+        "next": "Siguiente fotograma clave de {name}",
+        "addKey": "Agregar fotograma clave de {name} en el cursor",
+        "removeKey": "Quitar el fotograma clave de {name} en el cursor",
+        "easing": "Suavizado del fotograma clave de {name}",
+        "easings": {
+          "linear": "Lineal",
+          "hold": "Mantener",
+          "easeIn": "Acelerar",
+          "easeOut": "Desacelerar",
+          "easeInOut": "Suave"
+        },
+        "outside": "El cursor está fuera del clip. Llévalo dentro para editar los fotogramas clave.",
+        "hint": "Con la animación activa, cambiar un valor aquí o en la vista previa graba un fotograma clave en el cursor.",
+        "confirmTitle": "¿Dejar de animar {name}?",
+        "confirmDescription": "Se borran los fotogramas clave de esta propiedad y el valor actual queda fijo.",
+        "confirm": "Dejar de animar",
+        "cancel": "Cancelar",
+        "jump": "Ir al fotograma clave en {time}",
+        "add": "Añadir fotograma clave",
+        "remove": "Quitar fotograma clave",
+        "previousMoment": "Fotograma clave anterior",
+        "nextMoment": "Siguiente fotograma clave",
+        "state": {
+          "none": "Sin animación. Coloca el cursor donde empieza y haz clic en el rombo.",
+          "key": "En un fotograma clave. Cambiar posición, tamaño, rotación u opacidad ajusta este punto.",
+          "between": "Entre fotogramas clave. Cambiar un valor aquí crea un nuevo fotograma clave.",
+          "outside": "El cursor está fuera del clip.",
+          "outsideMany": "El cursor debe estar dentro de todos los clips seleccionados.",
+          "apart": "Los clips seleccionados no coinciden en el tiempo. Usa una animación lista o selecciona un solo clip."
+        },
+        "goToClip": "Ir al clip",
+        "howItWorks": "¿Cómo funciona?",
+        "coachTitle": "Animar en dos pasos",
+        "coachStep1": "Coloca el cursor donde empieza la animación y haz clic en el rombo.",
+        "coachStep2": "Mueve el cursor y cambia posición, tamaño u opacidad.",
+        "coachDone": "Listo, el video se anima entre los dos.",
+        "coachDismiss": "Entendido",
+        "easingMoment": "Suavizado de este fotograma clave",
+        "easingAll": "Suavizado de toda la animación",
+        "easingHints": {
+          "linear": "Velocidad constante",
+          "hold": "Se queda quieto y cambia de golpe en el siguiente fotograma clave",
+          "easeIn": "Empieza lento y acelera",
+          "easeOut": "Empieza rápido y frena",
+          "easeInOut": "Empieza y termina lento"
+        },
+        "presetsTitle": "Animaciones listas",
+        "presetApply": "Aplicar {name}",
+        "presetHint": "Pasa el ratón para verla. Al hacer clic se graban fotogramas clave en todo el clip y se reemplaza la animación de las mismas propiedades.",
+        "presets": {
+          "kenBurns": "Zoom lento",
+          "enterLeft": "Entrar por la izquierda",
+          "slideUp": "Deslizar hacia arriba",
+          "fadeIn": "Aparecer",
+          "fadeOut": "Desaparecer",
+          "pulse": "Latir",
+          "spin": "Girar",
+          "wobble": "Balancear"
+        },
+        "copy": "Copiar animación",
+        "paste": "Pegar animación",
+        "advanced": "Avanzado",
+        "advancedHint": "Anima cada propiedad por separado, con su propio cronómetro y navegación.",
+        "advancedSingle": "Selecciona un solo clip para animar cada propiedad por separado.",
+        "pathLabel": "Trayectoria de la animación",
+        "pathPad": "Posición en {time}. Haz clic para ir o arrastra para moverla.",
+        "lanes": "Pistas de fotogramas clave",
+        "keyAt": "Fotograma clave de {name} en {time} ms"
+      },
+      "focus": {
+        "label": "Foco",
+        "title": "Foco: {name}",
+        "solo": "Solo",
+        "zoom": "Zoom",
+        "leave": "Salir"
+      },
+      "shortcuts": {
+        "open": "Atajos",
+        "title": "Atajos del editor",
+        "rows": {
+          "playPause": "Reproducir o pausar",
+          "shuttle": "Atrás, parar, adelante",
+          "frame": "Un fotograma",
+          "second": "Un segundo",
+          "startEnd": "Inicio y final",
+          "select": "Herramienta Selección",
+          "blade": "Herramienta Cuchilla",
+          "trim": "Alternar herramientas de recorte",
+          "slip": "Desplazar contenido",
+          "slide": "Deslizar entre vecinos",
+          "split": "Dividir en el cursor",
+          "cutAll": "Cortar todas las pistas en el cursor",
+          "delete": "Eliminar",
+          "rippleDelete": "Eliminar y cerrar el hueco",
+          "duplicate": "Duplicar",
+          "copyPaste": "Copiar, cortar, pegar",
+          "pasteInsert": "Pegar insertando",
+          "nudge": "Mover un fotograma",
+          "nudgeTen": "Mover diez fotogramas",
+          "selectForward": "Seleccionar hacia adelante en la pista",
+          "selectForwardAll": "Seleccionar hacia adelante en todas",
+          "selectAfter": "Seleccionar después del cursor",
+          "selectBefore": "Seleccionar antes del cursor",
+          "markInOut": "Marcar entrada y salida",
+          "clearRange": "Borrar entrada y salida",
+          "lift": "Quitar el tramo y dejar el hueco",
+          "extract": "Quitar el tramo y cerrar el hueco",
+          "disable": "Activar o desactivar clip",
+          "marker": "Agregar marcador",
+          "markerJump": "Ir al marcador",
+          "keyJump": "Ir al fotograma clave",
+          "keyToggle": "Agregar o quitar fotograma clave",
+          "snapping": "Ajuste",
+          "zoom": "Zoom",
+          "zoomFit": "Ajustar todo",
+          "focus": "Enfocar el clip",
+          "leaveFocus": "Salir del foco o de la herramienta",
+          "undo": "Deshacer y rehacer",
+          "insertDrag": "Arrastrar insertando",
+          "overwriteDrag": "Arrastrar sobrescribiendo",
+          "rippleTrimDrag": "Recorte en cascada",
+          "forwardClick": "Seleccionar el tramo hacia adelante"
+        }
+      }
+    },
+    "openFromMedia": {
+      "action": "Abrir en el Estudio",
+      "failed": "No se pudo abrir en el Estudio",
+      "unreadable": "No se pudo leer el archivo. Inténtalo de nuevo en unos instantes.",
+      "defaultName": "Creativo de Elo"
+    }
+  },
+  "tourStudioImage": {
+    "steps": {
+      "panels": {
+        "badge": "Paneles",
+        "title": "Todo para armar tu diseño",
+        "subtitle": "Elige un panel a la izquierda para añadir textos, formas, iconos e imágenes.",
+        "f0": "Plantillas de título, subtítulo y cuerpo de texto",
+        "f1": "Formas, líneas, flechas e iconos con búsqueda",
+        "f2": "Sube imágenes o usa las de tu biblioteca",
+        "f3": "Capas: reordena, renombra, bloquea y oculta"
+      },
+      "canvas": {
+        "badge": "Lienzo",
+        "title": "Edita directo en el lienzo",
+        "subtitle": "Arrastra, cambia el tamaño y gira. Las guías aparecen cuando un elemento encaja en el centro, en los bordes o en otro elemento.",
+        "f0": "Shift+clic o arrastra en el vacío para seleccionar varios",
+        "f1": "Doble clic en un texto para escribir",
+        "f2": "Doble clic en una imagen para recortar"
+      },
+      "inspector": {
+        "badge": "Propiedades",
+        "title": "Ajusta cada detalle",
+        "subtitle": "El panel de la derecha cambia según lo que esté seleccionado.",
+        "f0": "Fuente, colores, contorno, sombra y filtros",
+        "f1": "Alinear, distribuir, agrupar y cambiar el orden"
+      },
+      "ai": {
+        "badge": "IA",
+        "title": "Genera imágenes con IA",
+        "subtitle": "Describe lo que necesitas y la imagen entra en el diseño como una nueva capa.",
+        "f0": "Elige el modelo y el formato",
+        "f1": "Usa imágenes del diseño o de la biblioteca como referencia"
+      },
+      "removeBackground": {
+        "badge": "Quitar fondo",
+        "title": "Quita el fondo de una foto",
+        "subtitle": "Selecciona una imagen y quita el fondo en pocos segundos, sin costo.",
+        "f0": "El fondo queda transparente",
+        "f1": "La capa se actualiza en su lugar"
+      },
+      "export": {
+        "badge": "Exportar",
+        "title": "Descarga o guarda en la biblioteca",
+        "subtitle": "Exporta en PNG o JPG, en tamaño normal o doble.",
+        "f0": "PNG con fondo transparente cuando el diseño no tiene fondo",
+        "f1": "Guarda en la biblioteca para usar en anuncios"
+      },
+      "layers": {
+        "badge": "Capas",
+        "title": "Las capas siempre a mano",
+        "subtitle": "Organiza como en Photoshop: arrastra para reordenar o meter en grupos, oculta, bloquea y renombra.",
+        "f0": "Modo de fusión, opacidad y máscara de recorte",
+        "f1": "Shift selecciona un rango, Ctrl añade o quita una capa"
+      }
+    }
+  },
+  "tourStudioVideo": {
+    "steps": {
+      "media": {
+        "badge": "Medios",
+        "title": "Tus medios",
+        "subtitle": "Videos, imágenes y audios de la biblioteca, listos para la línea de tiempo.",
+        "f0": "Sube archivos directo desde tu computadora",
+        "f1": "Arrastra a una pista o agrégalos en el cursor"
+      },
+      "ai": {
+        "badge": "IA",
+        "title": "Genera con IA",
+        "subtitle": "Crea música, locuciones e imágenes sin salir del editor.",
+        "f0": "Música a partir de una descripción",
+        "f1": "Locución con la voz que elijas",
+        "f2": "Imágenes en el formato del video"
+      },
+      "timeline": {
+        "badge": "Línea de tiempo",
+        "title": "Arma el video",
+        "subtitle": "Pistas de video, superposiciones y audio, con zoom y cursor de reproducción.",
+        "f0": "Arrastra clips en el tiempo y entre pistas",
+        "f1": "Ajuste al cursor y a los bordes de los clips (tecla N)",
+        "f2": "La cuchilla (B) corta con un clic y Shift corta todas las pistas; mira todos los atajos en el botón ?"
+      },
+      "trim": {
+        "badge": "Edición",
+        "title": "Recorta y divide",
+        "subtitle": "Tira de los bordes de un clip para recortarlo y pulsa S para dividir en el cursor.",
+        "f0": "Asas de recorte en ambos extremos",
+        "f1": "Dividir en el cursor con S",
+        "f2": "Duplicar con Ctrl+D y eliminar cerrando el hueco con Shift+Delete"
+      },
+      "captions": {
+        "badge": "Subtítulos",
+        "title": "Subtítulos automáticos",
+        "subtitle": "Transcribe el habla y obtén una pista de subtítulos editables.",
+        "f0": "Un subtítulo por tramo de habla",
+        "f1": "Limpia el audio y quita fondos en Procesar"
+      },
+      "inspector": {
+        "badge": "Propiedades",
+        "title": "Ajusta cada detalle",
+        "subtitle": "Tiempo, encuadre, volumen, transiciones y estilo del texto.",
+        "f0": "Valores exactos en segundos y porcentaje",
+        "f1": "Mueve y cambia el tamaño directo en la vista previa"
+      },
+      "export": {
+        "badge": "Exportar",
+        "title": "Exporta en MP4",
+        "subtitle": "El video se renderiza en la cola y va a la biblioteca de medios.",
+        "f0": "Sigue el progreso hasta que esté listo",
+        "f1": "Usa el video en un anuncio"
       }
     }
   }

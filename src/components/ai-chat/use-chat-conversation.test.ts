@@ -52,6 +52,6 @@ describe("approving an image generation", () => {
     });
 
     const live = result.current.messages[result.current.messages.length - 1];
-    expect(live.segments).toEqual([{ kind: "tool", name: "generate_image", summary: "", ok: true, running: true, aspect: "story" }]);
+    expect(live.segments).toEqual([{ kind: "tool", name: "generate_image", summary: "", ok: true, running: true, frame: "story" }]);
   });
 });

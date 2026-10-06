@@ -7,20 +7,23 @@ import { uploadMediaAction } from "@/app/actions/medias";
 import Button from "@/components/elevated-design/button";
 import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
-import { PencilSimple, Play, Plus, Sparkle, Trash, UploadSimple } from "@/components/icons";
-import { GeneratingImage } from "@/components/image-generation/generating-image";
-import { ImageModelSelect } from "@/components/image-generation/image-model-select";
-import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
+import { PencilSimple, Play, Plus, Sparkle, Stack, Trash, UploadSimple } from "@/components/icons";
+import { GeneratingMedia } from "@/components/media-generation/generating-media";
+import { MediaModelSelect } from "@/components/media-generation/media-model-select";
+import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/media-generation/reference-thumbnails";
 import { MediaDownloadButton } from "@/components/media/media-download-button";
-import { useImageGeneration, type ImageGenerationError } from "@/hooks/use-image-generation";
+import { useMediaGeneration, type MediaGenerationError } from "@/hooks/use-media-generation";
+import { useMediaLibrary } from "@/hooks/use-media-library";
 import type { MediaChoice } from "@/lib/advertising/draft";
 import type { AdMediaKind } from "@/lib/advertising/draft-types";
-import { withReference } from "@/lib/image-generation/references";
-import { MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/image-generation/types";
+import { libraryChoices } from "@/lib/advertising/library-media";
+import { firstFrameSrc } from "@/lib/media/first-frame";
+import { withReference } from "@/lib/media-generation/references";
+import { MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/media-generation/types";
 
 import { AdImage } from "../ad-image";
 
-type Mode = "upload" | "generate";
+type Mode = "upload" | "library" | "generate";
 export type MediaAccept = AdMediaKind | "any";
 
 const ASPECTS: ImageAspect[] = ["square", "portrait", "story"];
@@ -44,9 +47,10 @@ const GENERATION_ERROR_CODES = new Set([
   "already_generating",
   "reference_unavailable",
   "invalid_request",
+  "cost_unreported",
 ]);
 
-function generationErrorKey(error: ImageGenerationError): string {
+function generationErrorKey(error: MediaGenerationError): string {
   return `generationErrors.${GENERATION_ERROR_CODES.has(error.code) ? error.code : "unknown"}`;
 }
 
@@ -61,7 +65,7 @@ export function MediaThumb({ media, className }: { media: MediaChoice; className
     <span className={className ?? "relative block h-16 w-16 shrink-0 overflow-hidden rounded-[--radius] bg-muted"}>
       {media.kind === "video" ? (
         <>
-          <video src={media.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+          <video src={firstFrameSrc(media.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
           <Play className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-card" weight="fill" aria-hidden />
         </>
       ) : (
@@ -75,18 +79,51 @@ const PREVIEW_WIDTH: Record<ImageAspect, string> = {
   square: "w-40",
   portrait: "w-36",
   story: "w-28",
+  landscape: "w-48",
 };
 
-function GeneratingPreview({ aspect }: { aspect: ImageAspect }) {
+function GeneratingPreview({ aspect, settling }: { aspect: ImageAspect; settling: boolean }) {
   const t = useTranslations("adsWizard.media");
   return (
     <div role="status" aria-live="polite" className="flex items-center gap-4 rounded-[--radius] border border-border bg-muted p-3">
-      <GeneratingImage aspect={aspect} className={`${PREVIEW_WIDTH[aspect]} shrink-0 bg-background px-3`} />
+      <GeneratingMedia kind="image" frame={aspect} settling={settling} className={`${PREVIEW_WIDTH[aspect]} shrink-0 bg-background px-3`} />
       <div className="space-y-1">
         <p className="text-sm font-semibold text-foreground">{t("generatingTitle")}</p>
         <p className="text-xs text-muted-foreground">{t("generatingHint")}</p>
       </div>
     </div>
+  );
+}
+
+function LibraryPane({ accept, onPick }: { accept: MediaAccept; onPick: (media: MediaChoice) => void }) {
+  const t = useTranslations("adsWizard.media.library");
+  const library = useMediaLibrary();
+  if (library.status === "loading") return <p className="text-xs text-muted-foreground">{t("loading")}</p>;
+  if (library.status === "failed") {
+    return (
+      <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-destructive-ink">
+        {t("failed")}
+        <Button variant="ghost" size="sm" title={t("retry")} onClick={library.reload} />
+      </div>
+    );
+  }
+  const choices = libraryChoices(library.medias, accept);
+  if (choices.length === 0) return <p className="text-xs text-muted-foreground">{t(`empty.${accept}`)}</p>;
+  return (
+    <ul className="grid max-h-64 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-5" aria-label={t(`label.${accept}`)}>
+      {choices.map((choice) => (
+        <li key={choice.mediaId}>
+          <button
+            type="button"
+            onClick={() => onPick(choice)}
+            aria-label={t(choice.kind === "video" ? "pickVideo" : "pickImage")}
+            className="block w-full rounded-[--radius] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <MediaThumb media={choice} className="relative block aspect-square w-full overflow-hidden rounded-[--radius] bg-muted" />
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -123,7 +160,7 @@ export function MediaPicker({
   const [aspect, setAspect] = useState<ImageAspect>("square");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const generation = useImageGeneration({
+  const generation = useMediaGeneration({
     onDone: ({ mediaId, mediaUrl }) => onChange({ kind: "image", mediaId, url: mediaUrl }),
   });
   const generating = generation.status === "generating";
@@ -189,6 +226,7 @@ export function MediaPicker({
     if (!text || !model) return;
     setError(null);
     void generation.start({
+      kind: "image",
       model,
       prompt: text,
       aspect,
@@ -234,19 +272,20 @@ export function MediaPicker({
 
   return (
     <div className="space-y-3">
-      {generates ? (
-        <ElevatedPillToggle<Mode>
-          size="sm"
-          value={mode}
-          onChange={setMode}
-          options={[
-            { value: "upload", label: t("modeUpload"), icon: <UploadSimple className="h-3.5 w-3.5" /> },
-            { value: "generate", label: t("modeGenerate"), icon: <Sparkle className="h-3.5 w-3.5" /> },
-          ]}
-        />
-      ) : null}
+      <ElevatedPillToggle<Mode>
+        size="sm"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "upload", label: t("modeUpload"), icon: <UploadSimple className="h-3.5 w-3.5" /> },
+          { value: "library", label: t("modeLibrary"), icon: <Stack className="h-3.5 w-3.5" /> },
+          ...(generates ? [{ value: "generate" as const, label: t("modeGenerate"), icon: <Sparkle className="h-3.5 w-3.5" /> }] : []),
+        ]}
+      />
 
-      {mode === "upload" || !generates ? (
+      {mode === "library" ? (
+        <LibraryPane accept={accept} onPick={onChange} />
+      ) : mode === "upload" || !generates ? (
         <div className="space-y-1.5">
           <input
             ref={inputRef}
@@ -287,7 +326,7 @@ export function MediaPicker({
             onChange={setAspect}
             options={ASPECTS.map((option) => ({ value: option, label: t(`aspect.${option}`), disabled: generating }))}
           />
-          <ImageModelSelect value={model} onChange={setModel} disabled={generating} />
+          <MediaModelSelect kind="image" value={model} onChange={setModel} disabled={generating} />
           <div className="space-y-1.5">
             <p className="text-xs font-semibold text-foreground">{t("references")}</p>
             {references.length > 0 ? (
@@ -320,7 +359,7 @@ export function MediaPicker({
             />
             <p className="text-xs text-muted-foreground">{t("referencesHint", { max: MAX_REFERENCE_IMAGES })}</p>
           </div>
-          {generating ? <GeneratingPreview aspect={aspect} /> : null}
+          {generating ? <GeneratingPreview aspect={aspect} settling={generation.settling} /> : null}
           <p className="text-xs text-muted-foreground">{t("costNote")}</p>
           <Button
             variant="secondary"

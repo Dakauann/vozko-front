@@ -12,7 +12,7 @@ import { Link, usePathname } from "@/i18n/routing";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
 import { attachmentOfImage } from "@/lib/aichat/attachments";
-import type { ChatAttachment, ChatImage } from "@/lib/aichat/types";
+import type { ChatAttachment, ChatMedia } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 import { speechLang } from "@/lib/voice/speech-text";
 
@@ -69,7 +69,7 @@ function Dock() {
   });
   const labels = useBubbleLabels();
   const files = useChatAttachments();
-  const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));
+  const editImage = (image: ChatMedia) => files.attach(attachmentOfImage(image));
   const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages, `${open}:${chat.activeId ?? ""}`);
   const reduceMotion = useReducedMotion();
   const cardRef = useRef<HTMLElement>(null);

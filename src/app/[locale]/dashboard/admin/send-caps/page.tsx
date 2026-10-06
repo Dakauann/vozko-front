@@ -120,6 +120,18 @@ function AdminSendCaps() {
                 ),
             },
             {
+                header: t("table.cycle"),
+                key: "cycle",
+                render: (item) => (
+                    <span className="text-sm text-muted-foreground">
+                        {t("table.cycleValue", {
+                            day: item.cycleDay,
+                            renews: format.dateTime(new Date(item.renewsAt), { dateStyle: "short", timeZone: "America/Sao_Paulo" }),
+                        })}
+                    </span>
+                ),
+            },
+            {
                 header: t("table.remaining"),
                 key: "remaining",
                 className: "text-right",
@@ -178,17 +190,7 @@ function AdminSendCaps() {
                 <DashboardPageHeader
                     icon={<LockKey className="h-6 w-6" weight="fill" />}
                     badge={t("header.badge")}
-                    description={
-                        listing
-                            ? t("header.descriptionWithMonth", {
-                                  month: format.dateTime(new Date(listing.monthStart), {
-                                      month: "long",
-                                      year: "numeric",
-                                      timeZone: "America/Sao_Paulo",
-                                  }),
-                              })
-                            : t("header.description")
-                    }
+                    description={t("header.description")}
                 />
             </motion.div>
 

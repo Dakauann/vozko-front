@@ -17,6 +17,7 @@ import { adminUnlockSendCapAction } from "@/app/actions/send-caps";
 import {
     SEND_CAP_CODE_LENGTH,
     isCompleteSendCapCode,
+    parseSendCapCycleDay,
     parseSendCapLimit,
     type SendCapItem,
     type SendCapUnlockTarget,
@@ -38,15 +39,17 @@ export function SendCapUnlockDialog({
 
     const [removeCap, setRemoveCap] = useState(false);
     const [limitText, setLimitText] = useState("");
+    const [cycleDayText, setCycleDayText] = useState(String(item.cycleDay));
     const [code, setCode] = useState("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const limit = parseSendCapLimit(limitText);
+    const cycleDay = parseSendCapCycleDay(cycleDayText);
     const target: SendCapUnlockTarget | null = removeCap
         ? { kind: "remove" }
-        : limit !== null
-          ? { kind: "raise", limit }
+        : limit !== null && cycleDay !== null
+          ? { kind: "raise", limit, cycleDay }
           : null;
     const ready = target !== null && isCompleteSendCapCode(code);
 
@@ -89,15 +92,25 @@ export function SendCapUnlockDialog({
                     </div>
 
                     {!removeCap && (
-                        <SendCapField label={t("unlockDialog.newLimit")}>
-                            <ElevatedInput
-                                autoFocus
-                                inputMode="numeric"
-                                value={limitText}
-                                onChange={(e) => setLimitText(e.target.value)}
-                                placeholder={String(item.limit * 2)}
-                            />
-                        </SendCapField>
+                        <>
+                            <SendCapField label={t("unlockDialog.newLimit")}>
+                                <ElevatedInput
+                                    autoFocus
+                                    inputMode="numeric"
+                                    value={limitText}
+                                    onChange={(e) => setLimitText(e.target.value)}
+                                    placeholder={String(item.limit * 2)}
+                                />
+                            </SendCapField>
+                            <SendCapField label={t("unlockDialog.cycleDay")} hint={t("unlockDialog.cycleDayHint")}>
+                                <ElevatedInput
+                                    inputMode="numeric"
+                                    aria-label={t("unlockDialog.cycleDay")}
+                                    value={cycleDayText}
+                                    onChange={(e) => setCycleDayText(e.target.value)}
+                                />
+                            </SendCapField>
+                        </>
                     )}
 
                     <SendCapField label={t("unlockDialog.code")} hint={t("unlockDialog.codeHint")}>

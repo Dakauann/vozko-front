@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { imageJobOutcome, isTerminalImageJob, nextPollDelay } from "./polling";
-import type { ImageGenerationJob } from "./types";
+import { mediaJobOutcome, isTerminalMediaJob, nextPollDelay } from "./polling";
+import type { MediaGenerationJob } from "./types";
 
-function job(overrides: Partial<ImageGenerationJob>): ImageGenerationJob {
+function job(overrides: Partial<MediaGenerationJob>): MediaGenerationJob {
   return {
     id: "job-1",
+    kind: "image",
     status: "queued",
     prompt: "a red bike",
     aspect: "square",
@@ -16,14 +17,15 @@ function job(overrides: Partial<ImageGenerationJob>): ImageGenerationJob {
   };
 }
 
-describe("isTerminalImageJob", () => {
+describe("isTerminalMediaJob", () => {
   it("treats only done and failed as terminal", () => {
-    expect(isTerminalImageJob("done")).toBe(true);
-    expect(isTerminalImageJob("failed")).toBe(true);
-    expect(isTerminalImageJob("queued")).toBe(false);
-    expect(isTerminalImageJob("running")).toBe(false);
-    expect(isTerminalImageJob("cancelled")).toBe(false);
-    expect(isTerminalImageJob("")).toBe(false);
+    expect(isTerminalMediaJob("done")).toBe(true);
+    expect(isTerminalMediaJob("failed")).toBe(true);
+    expect(isTerminalMediaJob("queued")).toBe(false);
+    expect(isTerminalMediaJob("running")).toBe(false);
+    expect(isTerminalMediaJob("settling")).toBe(false);
+    expect(isTerminalMediaJob("cancelled")).toBe(false);
+    expect(isTerminalMediaJob("")).toBe(false);
   });
 });
 
@@ -43,9 +45,9 @@ describe("nextPollDelay", () => {
   });
 });
 
-describe("imageJobOutcome", () => {
+describe("mediaJobOutcome", () => {
   it("returns the media of a finished job", () => {
-    expect(imageJobOutcome(job({ status: "done", mediaId: "m1", mediaUrl: "https://cdn/m1.png" }))).toEqual({
+    expect(mediaJobOutcome(job({ status: "done", mediaId: "m1", mediaUrl: "https://cdn/m1.png" }))).toEqual({
       kind: "done",
       mediaId: "m1",
       mediaUrl: "https://cdn/m1.png",
@@ -53,26 +55,34 @@ describe("imageJobOutcome", () => {
   });
 
   it("fails a finished job without a media id", () => {
-    expect(imageJobOutcome(job({ status: "done", mediaUrl: "https://cdn/m1.png" }))).toEqual({ kind: "failed", code: "missing_media" });
+    expect(mediaJobOutcome(job({ status: "done", mediaUrl: "https://cdn/m1.png" }))).toEqual({ kind: "failed", code: "missing_media" });
   });
 
   it("fails a finished job without a media url", () => {
-    expect(imageJobOutcome(job({ status: "done", mediaId: "m1" }))).toEqual({ kind: "failed", code: "missing_media" });
+    expect(mediaJobOutcome(job({ status: "done", mediaId: "m1" }))).toEqual({ kind: "failed", code: "missing_media" });
   });
 
   it("carries the failure code of a failed job", () => {
-    expect(imageJobOutcome(job({ status: "failed", failureCode: "storage_failed" }))).toEqual({ kind: "failed", code: "storage_failed" });
+    expect(mediaJobOutcome(job({ status: "failed", failureCode: "storage_failed" }))).toEqual({ kind: "failed", code: "storage_failed" });
   });
 
   it("marks a failed job without a code as an unknown failure", () => {
-    expect(imageJobOutcome(job({ status: "failed" }))).toEqual({ kind: "failed", code: "unknown" });
+    expect(mediaJobOutcome(job({ status: "failed" }))).toEqual({ kind: "failed", code: "unknown" });
   });
 
   it("keeps queued, running and unrecognised jobs pending", () => {
-    expect(imageJobOutcome(job({ status: "queued" }))).toEqual({ kind: "pending" });
-    expect(imageJobOutcome(job({ status: "running" }))).toEqual({ kind: "pending" });
-    expect(imageJobOutcome(job({ status: "archived" as ImageGenerationJob["status"], mediaId: "m1", mediaUrl: "u" }))).toEqual({
+    expect(mediaJobOutcome(job({ status: "queued" }))).toEqual({ kind: "pending", settling: false });
+    expect(mediaJobOutcome(job({ status: "running" }))).toEqual({ kind: "pending", settling: false });
+    expect(mediaJobOutcome(job({ status: "archived" as MediaGenerationJob["status"], mediaId: "m1", mediaUrl: "u" }))).toEqual({
       kind: "pending",
+      settling: false,
+    });
+  });
+
+  it("keeps a settling job pending and never hands out its media", () => {
+    expect(mediaJobOutcome(job({ status: "settling", mediaId: "m1", mediaUrl: "https://cdn/m1.m4a" }))).toEqual({
+      kind: "pending",
+      settling: true,
     });
   });
 });

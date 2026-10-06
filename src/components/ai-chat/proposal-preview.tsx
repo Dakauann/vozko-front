@@ -8,13 +8,18 @@ import { channelLabel, ChannelLogo } from "@/components/icons/channel-logos";
 import type { AdPreviewContent, AdPreviewMedia } from "@/components/advertising/ad-preview-card";
 import { AdPreviewPanel } from "@/components/advertising/ad-preview-panel";
 import { useAdsFormat } from "@/components/advertising/use-ads-format";
-import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/image-generation/reference-thumbnails";
+import { MediaThumb } from "@/components/advertising/wizard/media-picker";
+import { MEDIA_FRAME_CLASS } from "@/components/media-generation/generating-media";
+import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/media-generation/reference-thumbnails";
+import { AudioPlayer } from "@/components/media/audio-player";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { ProposalPreview as Preview } from "@/lib/aichat/types";
+import { parseVideoPlan, type VideoPlanTrack } from "@/lib/aichat/video-plan";
 import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
 import type { TemplateComponent } from "@/lib/whatsapp-templates/types";
+import { cn } from "@/lib/utils";
 
 interface TemplatePreviewData {
   name: string;
@@ -176,11 +181,50 @@ function ImageReferencesPreview({ data }: { data: { references?: unknown } }) {
   );
 }
 
+function VideoPlanTrackView({ label, track }: { label: string; track: VideoPlanTrack }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-2xs font-medium text-muted-foreground">{label}</p>
+      <AudioPlayer url={track.url} label={label} downloadable={false} className="mb-0 bg-card" />
+    </div>
+  );
+}
+
+function VideoPlanPreview({ data }: { data: unknown }) {
+  const t = useTranslations("aiChatPage.previews.videoPlan");
+  const locale = useLocale();
+  const plan = parseVideoPlan(data);
+  if (!plan) return null;
+  const seconds = (value: number) => t("seconds", { seconds: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value) });
+  return (
+    <div className="space-y-3 rounded-lg border border-border bg-muted p-3">
+      <p className="flex items-baseline justify-between gap-2 text-2xs font-medium text-muted-foreground">
+        <span>{t("scenes", { count: plan.scenes.length })}</span>
+        <span className="tabular-nums text-foreground">{t("total", { seconds: seconds(plan.totalSeconds) })}</span>
+      </p>
+      <ol className="flex gap-2 overflow-x-auto pb-1" aria-label={t("scenes", { count: plan.scenes.length })}>
+        {plan.scenes.map((scene, index) => (
+          <li key={`${scene.mediaId}-${index}`} className="w-16 shrink-0 space-y-1">
+            <MediaThumb media={scene} className={cn("relative block w-full overflow-hidden rounded-[--radius] bg-card", MEDIA_FRAME_CLASS[plan.aspect])} />
+            <span className="block text-center text-2xs tabular-nums text-muted-foreground">
+              <span className="sr-only">{t("scene", { index: index + 1 })} </span>
+              {seconds(scene.seconds)}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {plan.music ? <VideoPlanTrackView label={t("music")} track={plan.music} /> : null}
+      {plan.voice ? <VideoPlanTrackView label={t("voice")} track={plan.voice} /> : null}
+    </div>
+  );
+}
+
 const RENDERERS: Record<string, (data: unknown) => ReactNode> = {
   whatsapp_template: (data) => <TemplateProposalPreview data={data as TemplatePreviewData} />,
   message: (data) => <MessageProposalPreview data={data as MessagePreviewData} />,
   ad_creative: (data) => <AdCreativeProposalPreview data={(data ?? {}) as AdCreativePreviewData} />,
   image_references: (data) => <ImageReferencesPreview data={(data ?? {}) as { references?: unknown }} />,
+  video_plan: (data) => <VideoPlanPreview data={data} />,
 };
 
 export function hasProposalPreview(preview: Preview | undefined): preview is Preview {

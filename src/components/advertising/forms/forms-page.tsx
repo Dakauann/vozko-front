@@ -93,7 +93,7 @@ function AccountForms({ account, permissions }: { account: AdAccount; permission
   }
 
   if (openForm) {
-    return <FormLeadsView account={account} form={openForm} onBack={() => setOpenForm(null)} />;
+    return <FormLeadsView account={account} page={page} form={openForm} onBack={() => setOpenForm(null)} />;
   }
 
   const termsPortal = missingPortal(page, "lead_forms");

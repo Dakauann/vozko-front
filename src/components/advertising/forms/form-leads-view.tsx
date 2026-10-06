@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { listFormLeadsAction, syncLeadFormAction } from "@/app/actions/advertising-forms";
@@ -12,16 +12,17 @@ import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "@/i18n/routing";
-import { humanizeKey, leadContact, type FormLead, type LeadForm } from "@/lib/advertising/forms";
-import type { AdAccount } from "@/lib/advertising/types";
+import { formBuilderFromForm, humanizeKey, leadContact, type FormLead, type LeadForm } from "@/lib/advertising/forms";
+import type { AdAccount, AdPage } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
 import { cn } from "@/lib/utils";
 
 import { useAdsFormat } from "../use-ads-format";
+import { FormPreview } from "./form-preview";
 
 const PAGE_SIZE = 20;
 
-export function FormLeadsView({ account, form, onBack }: { account: AdAccount; form: LeadForm; onBack: () => void }) {
+export function FormLeadsView({ account, page: adPage, form, onBack }: { account: AdAccount; page: AdPage; form: LeadForm; onBack: () => void }) {
   const t = useTranslations("adsForms.leads");
   const fmt = useAdsFormat();
   const { toast } = useToast();
@@ -29,6 +30,7 @@ export function FormLeadsView({ account, form, onBack }: { account: AdAccount; f
   const [syncing, setSyncing] = useState(false);
   const load = useCallback(() => listFormLeadsAction(form.metaId, PAGE_SIZE, (page - 1) * PAGE_SIZE), [form.metaId, page]);
   const leads = useKeyedLoad(`${form.metaId}:${page}`, load);
+  const shape = useMemo(() => formBuilderFromForm(form), [form]);
 
   const response = leads.latest;
   const data = response && !isAdsError(response) ? response.data : null;
@@ -134,28 +136,31 @@ export function FormLeadsView({ account, form, onBack }: { account: AdAccount; f
           </button>
         </div>
       ) : null}
-      <DashboardTable
-        data={items}
-        columns={columns}
-        rowKey={(lead) => lead.metaId}
-        loading={leads.loading}
-        pagination={
-          total > PAGE_SIZE
-            ? {
-                currentPage: page,
-                totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-                pageSize: PAGE_SIZE,
-                totalItems: total,
-                onPageChange: setPage,
-              }
-            : undefined
-        }
-        emptyState={{
-          icon: <ClipboardText className="h-7 w-7 text-muted-foreground" />,
-          title: t("emptyTitle"),
-          description: t("emptyBody"),
-        }}
-      />
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <DashboardTable
+          data={items}
+          columns={columns}
+          rowKey={(lead) => lead.metaId}
+          loading={leads.loading}
+          pagination={
+            total > PAGE_SIZE
+              ? {
+                  currentPage: page,
+                  totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+                  pageSize: PAGE_SIZE,
+                  totalItems: total,
+                  onPageChange: setPage,
+                }
+              : undefined
+          }
+          emptyState={{
+            icon: <ClipboardText className="h-7 w-7 text-muted-foreground" />,
+            title: t("emptyTitle"),
+            description: t("emptyBody"),
+          }}
+        />
+        <FormPreview state={shape} page={adPage} />
+      </div>
     </div>
   );
 }

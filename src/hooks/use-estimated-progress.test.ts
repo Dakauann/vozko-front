@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { estimatedProgress, TYPICAL_GENERATION_MS } from "@/lib/image-generation/progress";
+import { estimatedProgress, TYPICAL_GENERATION_MS } from "@/lib/media-generation/progress";
 
 import { useEstimatedProgress } from "./use-estimated-progress";
 

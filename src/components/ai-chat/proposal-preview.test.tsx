@@ -57,7 +57,10 @@ describe("ProposalPreview", () => {
       accountName: "Conta principal",
     });
     expect(screen.getAllByText("Promoção de inverno").length).toBeGreaterThan(0);
-    expect(document.querySelector('video[src="https://cdn/inverno.mp4"]')).toBeTruthy();
+    const tile = document.querySelector('video[src="https://cdn/inverno.mp4#t=0.001"]') as HTMLVideoElement;
+    expect(tile.muted).toBe(true);
+    expect(tile.autoplay).toBe(false);
+    expect(screen.queryByRole("button", { name: ptMessages.mediaPlayer.unmute })).toBeNull();
     expect(screen.getAllByText("Enviar mensagem pelo WhatsApp").length).toBeGreaterThan(0);
     expect(screen.getByText(/50,00/)).toBeTruthy();
     const destination = screen.getByRole("tab", { name: "Destino" });
@@ -88,7 +91,35 @@ describe("ProposalPreview", () => {
     expect(thumbs.map((img) => img.getAttribute("src"))).toEqual(["https://cdn/m-1.png", "https://cdn/m-2.jpg"]);
   });
 
+  it("shows the scenes of a video plan with their seconds, the total and the sound tracks", () => {
+    renderPreview("video_plan", {
+      aspect: "story",
+      scenes: [
+        { mediaId: "img-1", url: "https://cdn.example.com/pao.jpg", kind: "image", seconds: 4 },
+        { mediaId: "vid-1", url: "https://cdn.example.com/forno.mp4", kind: "video", seconds: 6.5 },
+      ],
+      music: { mediaId: "aud-1", url: "https://cdn.example.com/samba.m4a" },
+      voice: { mediaId: "aud-2", url: "https://cdn.example.com/locucao.m4a" },
+    });
+    const strip = screen.getByRole("list", { name: "2 cenas" });
+    expect(strip.querySelectorAll("li")).toHaveLength(2);
+    expect(strip.querySelector("img")?.getAttribute("src")).toBe("https://cdn.example.com/pao.jpg");
+    expect(strip.querySelector("video")?.getAttribute("src")).toBe("https://cdn.example.com/forno.mp4#t=0.001");
+    expect(strip.querySelector("li")?.className).toContain("w-16");
+    expect(screen.getByText("4 s")).toBeTruthy();
+    expect(screen.getByText("6,5 s")).toBeTruthy();
+    expect(screen.getByText("Total: 10,5 s")).toBeTruthy();
+    expect(screen.getByRole("group", { name: ptMessages.aiChatPage.previews.videoPlan.music })).toBeTruthy();
+    expect(screen.getByRole("group", { name: ptMessages.aiChatPage.previews.videoPlan.voice })).toBeTruthy();
+  });
+
+  it("draws nothing for a video plan it cannot read", () => {
+    renderPreview("video_plan", { aspect: "story", scenes: [{ mediaId: "img-1", url: "", kind: "image", seconds: 4 }] });
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
   it("only claims kinds it can draw", () => {
+    expect(hasProposalPreview({ kind: "video_plan", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "image_references", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "message", data: {} })).toBe(true);
     expect(hasProposalPreview({ kind: "deal", data: {} })).toBe(false);

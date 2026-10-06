@@ -7,6 +7,9 @@ export interface SendCapItem {
     used: number;
     remaining: number;
     level: SendCapLevel;
+    cycleDay: number;
+    cycleStart: string;
+    renewsAt: string;
     updatedBy: string;
     updatedAt: string;
     unlockedBy?: string;
@@ -14,7 +17,6 @@ export interface SendCapItem {
 }
 
 export interface SendCapListing {
-    monthStart: string;
     canUnlock: boolean;
     items: SendCapItem[];
 }
@@ -22,10 +24,11 @@ export interface SendCapListing {
 export interface SendCapChange {
     workspaceId: string;
     limit: number | null;
+    cycleDay: number | null;
 }
 
 export type SendCapUnlockTarget =
-    | { kind: "raise"; limit: number }
+    | { kind: "raise"; limit: number; cycleDay: number }
     | { kind: "remove" };
 
 export interface SendCapActionError {
@@ -49,4 +52,13 @@ export function parseSendCapLimit(raw: string): number | null {
 export function sendCapUsageRatio(item: Pick<SendCapItem, "used" | "limit">): number {
     if (item.limit <= 0) return 1;
     return Math.min(1, Math.max(0, item.used / item.limit));
+}
+
+export const SEND_CAP_DEFAULT_CYCLE_DAY = 1;
+
+export function parseSendCapCycleDay(raw: string): number | null {
+    const trimmed = raw.trim();
+    if (!/^\d{1,2}$/.test(trimmed)) return null;
+    const day = Number(trimmed);
+    return day >= 1 && day <= 31 ? day : null;
 }

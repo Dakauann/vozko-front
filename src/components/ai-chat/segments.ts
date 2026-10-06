@@ -1,24 +1,24 @@
-import type { ActionCard, ChatChart, ChatImage } from "@/lib/aichat/types";
-import type { ImageAspect } from "@/lib/image-generation/types";
+import type { ActionCard, ChatChart, ChatMedia } from "@/lib/aichat/types";
+import type { MediaFrame } from "@/lib/media-generation/types";
 
 export type Segment =
   | { kind: "thinking"; text: string; streaming?: boolean }
-  | { kind: "tool"; name: string; summary: string; ok: boolean; running?: boolean; aspect?: ImageAspect }
+  | { kind: "tool"; name: string; summary: string; ok: boolean; running?: boolean; frame?: MediaFrame }
   | { kind: "chart"; chart: ChatChart }
   | { kind: "card"; card: ActionCard; live?: boolean }
-  | { kind: "image"; image: ChatImage }
+  | { kind: "media"; media: ChatMedia }
   | { kind: "text"; text: string; streaming?: boolean };
 
-export function startTool(segs: Segment[], name: string, aspect?: ImageAspect): Segment[] {
-  return [...segs, { kind: "tool", name, summary: "", ok: true, running: true, ...(aspect ? { aspect } : {}) }];
+export function startTool(segs: Segment[], name: string, frame?: MediaFrame): Segment[] {
+  return [...segs, { kind: "tool", name, summary: "", ok: true, running: true, ...(frame ? { frame } : {}) }];
 }
 
 export function finishTool(segs: Segment[], name: string, summary: string, ok: boolean): Segment[] {
   const index = segs.findIndex((s) => s.kind === "tool" && s.running && s.name === name);
   if (index < 0) return [...segs, { kind: "tool", name, summary, ok }];
   const started = segs[index];
-  const aspect = started.kind === "tool" ? started.aspect : undefined;
-  const settled: Segment = { kind: "tool", name, summary, ok, ...(aspect ? { aspect } : {}) };
+  const frame = started.kind === "tool" ? started.frame : undefined;
+  const settled: Segment = { kind: "tool", name, summary, ok, ...(frame ? { frame } : {}) };
   return segs.map((s, i) => (i === index ? settled : s));
 }
 

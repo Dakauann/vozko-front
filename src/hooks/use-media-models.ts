@@ -3,28 +3,27 @@
 import { useEffect, useState } from "react";
 
 import { isActionError } from "@/app/actions/action-result";
-import { listImageModelsAction } from "@/app/actions/image-generation";
-import type { ImageModel } from "@/lib/image-generation/types";
+import { listMediaModelsAction } from "@/app/actions/media-generation";
+import type { MediaModel, ModelKind } from "@/lib/media-generation/types";
 
-export type ImageModelsState = { status: "loading" } | { status: "failed" } | { status: "ready"; models: ImageModel[] };
+export type MediaModelsState = { status: "loading" } | { status: "failed" } | { status: "ready"; models: MediaModel[] };
 
-export function useImageModels(): ImageModelsState {
-  const [state, setState] = useState<ImageModelsState>({ status: "loading" });
+type Loaded = { kind: ModelKind; state: Exclude<MediaModelsState, { status: "loading" }> };
+
+export function useMediaModels(kind: ModelKind): MediaModelsState {
+  const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void listImageModelsAction().then((result) => {
+    void listMediaModelsAction(kind).then((result) => {
       if (cancelled) return;
-      if (isActionError(result) || result.data.length === 0) {
-        setState({ status: "failed" });
-        return;
-      }
-      setState({ status: "ready", models: result.data });
+      const failed = isActionError(result) || result.data.length === 0;
+      setLoaded({ kind, state: failed ? { status: "failed" } : { status: "ready", models: result.data } });
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [kind]);
 
-  return state;
+  return loaded?.kind === kind ? loaded.state : { status: "loading" };
 }

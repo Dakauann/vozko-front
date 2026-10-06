@@ -47,8 +47,14 @@ export interface LeadForm {
   name: string;
   status: FormStatus | string;
   locale?: string;
+  intro?: FormIntro;
   questions: FormQuestion[] | null;
   privacyUrl?: string;
+  thankYouTitle?: string;
+  thankYouBody?: string;
+  thankYouUrl?: string;
+  thankYouButtonText?: string;
+  higherIntent?: boolean;
   leadsCount: number;
   createdTime?: string;
 }
@@ -140,6 +146,31 @@ export function emptyFormBuilder(buttonText = ""): FormBuilderState {
     thankYouUrl: "",
     thankYouButtonText: buttonText,
     higherIntent: false,
+  };
+}
+
+export function formBuilderFromForm(form: LeadForm): FormBuilderState {
+  const intro = form.intro;
+  const paragraph = intro?.style === "PARAGRAPH";
+  return {
+    ...emptyFormBuilder(form.thankYouButtonText ?? ""),
+    name: form.name,
+    introOn: intro !== undefined,
+    introTitle: intro?.title ?? "",
+    introStyle: intro?.style ?? "PARAGRAPH",
+    introParagraph: paragraph ? intro.content.join("\n") : "",
+    introItems: intro && !paragraph ? intro.content : [""],
+    questions: (form.questions ?? []).map((question) => ({
+      id: questionId(),
+      type: question.type,
+      label: question.label ?? "",
+      options: question.options ?? [],
+    })),
+    privacyUrl: form.privacyUrl ?? "",
+    thankYouTitle: form.thankYouTitle ?? "",
+    thankYouBody: form.thankYouBody ?? "",
+    thankYouUrl: form.thankYouUrl ?? "",
+    higherIntent: form.higherIntent ?? false,
   };
 }
 

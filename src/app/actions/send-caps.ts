@@ -20,10 +20,11 @@ export async function adminListSendCapsAction(): Promise<{
 export async function adminSetSendCapAction(
     workspaceId: string,
     limit: number,
+    cycleDay?: number,
 ): Promise<{ change: SendCapChange | null; error?: SendCapActionError }> {
     const response = await apiClient<SendCapChange>(`/admin/send-caps/${encodeURIComponent(workspaceId)}`, {
         method: "PUT",
-        body: JSON.stringify({ limit }),
+        body: JSON.stringify({ limit, cycleDay }),
     });
     if (response.error) {
         return { change: null, error: { message: response.error.message, code: response.error.code } };
@@ -36,7 +37,7 @@ export async function adminUnlockSendCapAction(
     target: SendCapUnlockTarget,
     code: string,
 ): Promise<{ change: SendCapChange | null; error?: SendCapActionError }> {
-    const body = target.kind === "remove" ? { removeCap: true, code } : { limit: target.limit, code };
+    const body = target.kind === "remove" ? { removeCap: true, code } : { limit: target.limit, cycleDay: target.cycleDay, code };
     const response = await apiClient<SendCapChange>(
         `/admin/send-caps/${encodeURIComponent(workspaceId)}/unlock`,
         { method: "POST", body: JSON.stringify(body) },

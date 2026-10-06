@@ -3,7 +3,7 @@
 import { Plus, TrashSimple, MagnifyingGlass, ChatsCircle, List } from "@/components/icons";
 import { useLocale, useTranslations } from "next-intl";
 import { attachmentOfImage } from "@/lib/aichat/attachments";
-import type { ChatAttachment, ChatImage, ChatThread } from "@/lib/aichat/types";
+import type { ChatAttachment, ChatMedia, ChatThread } from "@/lib/aichat/types";
 import { deleteChatThreadAction, listChatThreadsAction } from "@/app/actions/aichat";
 import { useCallback, useEffect, useState } from "react";
 
@@ -50,7 +50,7 @@ export function AIChatClient() {
   const { scrollRef, onScroll, showScrollDown, scrollToBottom } = useStickToBottom(chat.messages, chat.activeId);
   const labels = useBubbleLabels();
   const files = useChatAttachments();
-  const editImage = (image: ChatImage) => files.attach(attachmentOfImage(image));
+  const editImage = (image: ChatMedia) => files.attach(attachmentOfImage(image));
 
   useEffect(() => {
     let cancelled = false;

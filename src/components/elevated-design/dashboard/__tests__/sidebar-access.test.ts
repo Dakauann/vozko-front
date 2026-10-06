@@ -94,6 +94,18 @@ describe("sidebar access", () => {
     }
   });
 
+  it("groups the Studio under its own family, gated by the project list screen", () => {
+    const studio = campanhasNavItems.filter((item) => item.family === "studio");
+    expect(studio.map((item) => [item.labelKey, item.href])).toEqual([
+      ["nav.studioProjects", "/dashboard/studio"],
+      ["nav.studioNewImage", "/dashboard/studio?new=image"],
+      ["nav.studioNewVideo", "/dashboard/studio?new=video"],
+    ]);
+    for (const item of studio) expect(ruleForPath(item.href)).toEqual({ kind: "screen", screen: "studio" });
+    expect(ruleForPath("/dashboard/studio/image/p-1")).toEqual({ kind: "screen", screen: "studio_image" });
+    expect(ruleForPath("/dashboard/studio/video/p-1")).toEqual({ kind: "screen", screen: "studio_video" });
+  });
+
   it("shows a Meta page exactly when its own page would open", () => {
     const rules = find(campanhasNavItems, "nav.adsRules");
     expect(navItemVisible(rules, () => false)).toBe(false);
