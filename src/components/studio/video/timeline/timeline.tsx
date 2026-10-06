@@ -313,7 +313,7 @@ export function Timeline() {
 
   return (
     <TimelineGeometryContext.Provider value={geometry}>
-      <section aria-label={t("label")} data-tour="studio-video-timeline" className="flex h-full min-h-0 flex-col bg-card text-foreground">
+      <section aria-label={t("label")} data-tour="studio-video-timeline" className="flex h-full min-h-0 select-none flex-col bg-card text-foreground [&_input]:select-text [&_textarea]:select-text">
         <TimelineBar onAddTrack={addLane} />
         {focusClip ? <FocusStrip clip={focusClip} /> : null}
         <TimelineOverview

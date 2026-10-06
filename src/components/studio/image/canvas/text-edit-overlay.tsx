@@ -82,7 +82,7 @@ function TextEditor({ layer, canvas, viewport, onDone }: TextEditorProps) {
           }
         }}
         spellCheck={false}
-        className="pointer-events-auto block w-full resize-none overflow-hidden whitespace-pre-wrap break-words border-0 bg-transparent p-0 outline outline-2 outline-offset-2 outline-primary"
+        className="pointer-events-auto block w-full select-text resize-none overflow-hidden whitespace-pre-wrap break-words border-0 bg-transparent p-0 outline outline-2 outline-offset-2 outline-primary"
         style={{
           font: cssFontOf(layer.fontId ?? DEFAULT_FONT_ID, layer.fontWeight || DEFAULT_FONT_WEIGHT, Boolean(layer.italic), fontPx),
           lineHeight: layer.lineHeight || DEFAULT_LINE_HEIGHT,

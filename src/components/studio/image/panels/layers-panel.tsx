@@ -19,7 +19,7 @@ import { LayerThumb } from "./layer-thumb";
 const TYPE_ICONS: Record<LayerType, typeof Image> = { image: Image, text: TextT, shape: Square, icon: Star };
 const DRAG_TYPE = "application/x-vozko-studio-item";
 const INDENT_PX = 12;
-const ROW_CLASS = "group relative flex h-8 items-center gap-1.5 pr-1 text-xs transition-colors";
+const ROW_CLASS = "group relative flex h-8 select-none items-center gap-1.5 pr-1 text-xs transition-colors";
 
 function rowState(selected: boolean, dropping: DropPosition | null) {
   return cn(
@@ -162,7 +162,7 @@ function LayerRow({ row, layer, selected, onSelect }: { row: LayerRowEntry; laye
               if (event.key === "Enter") event.currentTarget.blur();
               if (event.key === "Escape") setRenaming(false);
             }}
-            className={cn(FIELD_CLASS, "h-6")}
+            className={cn(FIELD_CLASS, "h-6 select-text")}
           />
         ) : (
           <button
@@ -243,7 +243,7 @@ function GroupHeader({ row, collapsed, selected, members }: { row: GroupRow; col
               if (event.key === "Enter") event.currentTarget.blur();
               if (event.key === "Escape") setRenaming(false);
             }}
-            className={cn(FIELD_CLASS, "h-6")}
+            className={cn(FIELD_CLASS, "h-6 select-text")}
           />
         ) : (
           <button

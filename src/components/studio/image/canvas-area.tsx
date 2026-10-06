@@ -30,7 +30,7 @@ export function CanvasArea() {
   const paste = actions.edit.find((a) => a.id === "paste");
 
   return (
-    <div className="relative min-h-0 min-w-0 flex-1" data-tour="studio-image-canvas">
+    <div className="relative min-h-0 min-w-0 flex-1 select-none" data-tour="studio-image-canvas">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="absolute inset-0">

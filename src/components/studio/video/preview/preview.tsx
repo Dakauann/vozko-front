@@ -71,7 +71,7 @@ export function Preview() {
 
   return (
     <section aria-label={t("label")} className="flex h-full min-w-0 flex-col bg-muted">
-      <div ref={container} className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden" data-tour="studio-video-preview">
+      <div ref={container} className="relative flex min-h-0 flex-1 select-none items-center justify-center overflow-hidden" data-tour="studio-video-preview">
         {frame.width > 0 ? (
           <div
             ref={frameRef}

@@ -238,7 +238,7 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
       }}
       {...handlers}
       className={cn(
-        "group absolute flex flex-col overflow-hidden rounded-[6px] border bg-card text-foreground shadow-sm outline-none transition-[border-color,box-shadow]",
+        "group absolute flex select-none flex-col overflow-hidden rounded-[6px] border bg-card text-foreground shadow-sm outline-none transition-[border-color,box-shadow]",
         selected ? "z-[3] border-primary ring-2 ring-primary/30" : "z-[1] border-border-strong",
         clip.disabled && "opacity-40",
         bodyCursor,
