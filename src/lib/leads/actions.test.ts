@@ -17,6 +17,7 @@ import {
   isTerminalRun,
   leadActionErrorMessage,
   leadActionPreviewProgress,
+  leadActionPreviewSelected,
   parseLeadActionPreview,
   parseLeadActionRun,
   parseLeadActionStart,
@@ -170,6 +171,19 @@ describe("lead action answers", () => {
     expect(parseLeadActionStart({ action: "send_unofficial", send: review })?.send?.eligible).toBe(38);
     expect(parseLeadActionStart({ action: "send_template", send: review })?.action).toBe("send_template");
     expect(parseLeadActionStart({ action: "send_template", run: RUN })).toBeNull();
+  });
+});
+
+describe("leadActionPreviewSelected", () => {
+  it("counts hand-picked leads, whose preview carries no confirmable count", () => {
+    const picked = parseLeadActionPreview({ ...PREVIEW, status: "done", result: { ...PREVIEW.result, matched: 1, expectedCount: 0, selected: 1, eligible: 1 } });
+    expect(leadActionPreviewSelected(picked)).toBe(1);
+  });
+
+  it("is zero without a preview or when nothing was selected", () => {
+    const none = parseLeadActionPreview({ ...PREVIEW, status: "done", result: { ...PREVIEW.result, matched: 0, expectedCount: 0, selected: 0, eligible: 0 } });
+    expect(leadActionPreviewSelected(null)).toBe(0);
+    expect(leadActionPreviewSelected(none)).toBe(0);
   });
 });
 

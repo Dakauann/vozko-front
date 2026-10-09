@@ -337,6 +337,10 @@ export function leadActionPreviewProgress(preview: LeadActionPreview | null): Le
   return total > 0 ? { done: Math.min(selected, total), total } : null;
 }
 
+export function leadActionPreviewSelected(preview: LeadActionPreview | null): number {
+  return preview?.result.selected ?? 0;
+}
+
 export function isTerminalRun(status: LeadActionRunStatus): boolean {
   return status === "done" || status === "failed";
 }

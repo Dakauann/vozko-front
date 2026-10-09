@@ -17,7 +17,7 @@ import {
 import { PaperPlaneTilt } from "@/components/icons";
 import { TypedCountConfirm } from "@/components/leads/bulk/PreviewStateBox";
 import { useLeadActionPreview } from "@/components/leads/bulk/use-lead-action-preview";
-import type { LeadActionRequest, LeadSelection } from "@/lib/leads/actions";
+import { leadActionPreviewSelected, type LeadActionRequest, type LeadSelection } from "@/lib/leads/actions";
 import { typedCountMatches } from "@/lib/leads/bulk-selection";
 import { sendBudgetView, sendChannelOf, type LeadSendAction } from "@/lib/leads/sends";
 
@@ -155,7 +155,7 @@ export function LeadSendDialogFrame({
     !refusal &&
     quote !== undefined &&
     !quote.splitRequired &&
-    (preview.preview?.result.expectedCount ?? 0) > 0;
+    leadActionPreviewSelected(preview.preview) > 0;
 
   const budget = prepared ? sendBudgetView(prepared) : null;
   const everyone = selection.mode === "everyone";
