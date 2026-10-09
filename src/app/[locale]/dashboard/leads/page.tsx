@@ -2,19 +2,12 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  DownloadSimple,
-  MagnifyingGlass,
-  Plus,
-  Sliders,
-  UploadSimple,
-  Users,
-} from "@/components/icons";
+import { MagnifyingGlass, Users } from "@/components/icons";
 import { useTranslations } from "next-intl";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { DashboardTable } from "@/components/elevated-design/table/dashboard-table";
-import Button from "@/components/elevated-design/button";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import CustomFieldManager from "@/components/crm/CustomFieldManager";
 import { LeadColumnsMenu } from "@/components/leads/LeadColumnsMenu";
 import { LeadRowActions } from "@/components/leads/LeadRowActions";
@@ -31,11 +24,11 @@ import { downloadLeadImportTemplate } from "@/lib/leads/template";
 import LeadSavedViews from "./_components/LeadSavedViews";
 import { LeadsToolbar } from "@/components/leads/LeadsToolbar";
 import { LeadStatsStrip } from "@/components/leads/LeadStatsStrip";
-import { LeadViewToggle } from "@/components/leads/LeadViewToggle";
+import { LeadsHeaderActions } from "@/components/leads/LeadsHeaderActions";
 import { LeadsMapView } from "@/components/leads/map/LeadsMapView";
 import { useLeadAreas } from "@/hooks/use-lead-map";
 import { useLeadSection } from "@/hooks/use-lead-section";
-import { LEAD_MAP_VIEW_PARAMS, LEAD_VIEWS, leadMapsKey, type LeadView } from "@/lib/leads/map-view";
+import { LEAD_MAP_VIEW_PARAMS, LEAD_VIEWS, defaultLeadView, leadMapsKey, leadViewOf, type LeadView } from "@/lib/leads/map-view";
 import { useLeadBulk } from "@/components/leads/bulk/use-lead-bulk";
 import { usePublishLeadsAssistantContext } from "@/components/leads/use-leads-assistant-context";
 import { RetryNotice } from "@/components/elevated-design/retry-notice";
@@ -46,6 +39,7 @@ import { listLeadsQueryAction } from "@/app/actions/leads";
 import { useLeadPresentation } from "@/hooks/use-lead-presentation";
 import { useMayPlaceCalls } from "@/hooks/use-call-readiness";
 import { useListQueryState } from "@/hooks/use-list-query-state";
+import { usePermissionVerdict } from "@/hooks/use-settled-permission";
 import type { SavedView } from "@/lib/crm/saved-views";
 import { codedErrorMessage } from "@/lib/api/coded-error";
 import { isEmptyLeadFilter } from "@/lib/leads/filters";
@@ -67,6 +61,8 @@ type SheetTarget = { mode: "closed" } | { mode: "new" } | { mode: "edit"; leadId
 
 function LeadsPageContent() {
   const t = useTranslations("leadsPage");
+  const addressVerdict = usePermissionVerdict("leads", "read_addresses");
+  const readsAddresses = addressVerdict === true;
 
   const query = useListQueryState<LeadSortKey, LeadView>({
     sortKeys: LEAD_SORT_KEYS,
@@ -74,7 +70,7 @@ function LeadsPageContent() {
     defaultPageSize: 20,
     pageSizes: LEAD_PAGE_SIZES,
     views: LEAD_VIEWS,
-    defaultView: "table",
+    defaultView: defaultLeadView(addressVerdict),
     viewScopedParams: LEAD_MAP_VIEW_PARAMS,
   });
 
@@ -84,9 +80,8 @@ function LeadsPageContent() {
   const mayPlaceCalls = useMayPlaceCalls();
   const canCreateLead = can("leads", "create");
   const canManageFields = can("leads", "configure");
-  const readsAddresses = can("leads", "read_addresses");
   const leadAreas = useLeadAreas({ enabled: readsAddresses });
-  const view: LeadView = readsAddresses && query.view === "map" ? "map" : "table";
+  const view = leadViewOf(query.viewChosen ? query.view : undefined, addressVerdict);
   const [importDialog, setImportDialog] = useState<{ open: boolean; jobId: string | null }>({ open: false, jobId: null });
   const [fieldsOpen, setFieldsOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetTarget>({ mode: "closed" });
@@ -113,7 +108,7 @@ function LeadsPageContent() {
   const [quietReload] = useState(createQuietReloadGate);
 
   useEffect(() => {
-    if (view === "map") return;
+    if (view !== "table") return;
     let cancelled = false;
     const quiet = quietReload.quiet(listRequest);
 
@@ -188,7 +183,7 @@ function LeadsPageContent() {
 
   const isFiltered = !isEmptyLeadFilter(filter) || search.trim() !== "";
   const mapSummary = useLeadSection("summary", { filter, q: search }, { enabled: view === "map" && search !== "" });
-  const resultCount = view === "map" ? mapSummary.data?.total ?? null : loading || error ? null : totalItems;
+  const resultCount = view === "map" ? mapSummary.data?.total ?? null : view === "table" && !loading && !error ? totalItems : null;
   const pickPlace = useCallback((next: typeof filter) => query.setFilterAndSearch(next, ""), [query]);
 
   const editableFields = useMemo(() => readableFields(fieldDefinitions.definitions), [fieldDefinitions.definitions]);
@@ -210,60 +205,29 @@ function LeadsPageContent() {
   });
   const pageKeys = useMemo(() => items.map((item) => item.id), [items]);
 
+  const openImport = useCallback(() => setImportDialog({ open: true, jobId: null }), []);
+
   const headerActions =
-    canCreateLead || canManageFields ? (
-      <div className="flex flex-wrap items-center gap-2">
-        {canCreateLead ? (
-          <Button
-            variant="primary"
-            size="sm"
-            icon={<Plus weight="bold" />}
-            iconVisible
-            title={t("header.newLead")}
-            onClick={() => setSheet({ mode: "new" })}
-          />
-        ) : null}
-        {canCreateLead ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<UploadSimple weight="bold" />}
-            iconVisible
-            title={t("import.action")}
-            onClick={() => setImportDialog({ open: true, jobId: null })}
-          />
-        ) : null}
-        {canCreateLead ? (
+    canCreateLead || canManageFields || readsAddresses ? (
+      <LeadsHeaderActions
+        view={view ?? defaultLeadView(addressVerdict)}
+        showViewToggle={readsAddresses}
+        onViewChange={query.setView}
+        canCreate={canCreateLead}
+        canManageFields={canManageFields}
+        imports={
           <LeadImportsStatus
             onOpen={(jobId) => setImportDialog({ open: true, jobId })}
             onImported={reload}
             visibleJobId={importDialog.open ? importDialog.jobId : null}
           />
-        ) : null}
-        {canCreateLead ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<DownloadSimple weight="bold" />}
-            iconVisible
-            title={t("import.template")}
-            onClick={downloadLeadImportTemplate}
-          />
-        ) : null}
-        {canManageFields ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<Sliders weight="bold" />}
-            iconVisible
-            title={t("header.fields")}
-            onClick={() => setFieldsOpen(true)}
-          />
-        ) : null}
-      </div>
+        }
+        onCreate={() => setSheet({ mode: "new" })}
+        onImport={openImport}
+        onDownloadTemplate={downloadLeadImportTemplate}
+        onManageFields={() => setFieldsOpen(true)}
+      />
     ) : undefined;
-
-  const viewToggle = readsAddresses ? <LeadViewToggle value={view} onChange={query.setView} /> : undefined;
 
   const leadsToolbar = (
     <LeadsToolbar
@@ -293,6 +257,7 @@ function LeadsPageContent() {
     <main className="w-full space-y-4">
       <div>
         <DashboardPageHeader
+          layout="inline"
           icon={<Users className="h-6 w-6" weight="fill" />}
           badge={t("header.badge")}
           description={t("header.description")}
@@ -334,7 +299,11 @@ function LeadsPageContent() {
       <div>
         <DashboardTable<LeadListItem>
           body={
-            view === "map" ? (
+            view === null ? (
+              <div className="flex min-h-[520px] w-full items-center justify-center">
+                <ScreenLoader fit="fill" />
+              </div>
+            ) : view === "map" ? (
               <LeadsMapView
                 filter={filter}
                 search={search}
@@ -347,7 +316,7 @@ function LeadsPageContent() {
                 classification={classification}
                 fields={fieldDefinitions.definitions}
                 canCreateLead={canCreateLead}
-                onImport={() => setImportDialog({ open: true, jobId: null })}
+                onImport={openImport}
                 onCreateLead={() => setSheet({ mode: "new" })}
               />
             ) : undefined
@@ -359,7 +328,6 @@ function LeadsPageContent() {
               onFilterChange={query.setFilter}
             />
           }
-          headerRight={viewToggle}
           data={items}
           columns={columns}
           rowKey={(row) => row.id}

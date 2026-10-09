@@ -3,7 +3,7 @@ import { produce } from "immer";
 import { captionsFromText, captionWindow } from "../captions";
 import { newIconLayer, STUDIO_LIMITS, VIDEO_ASPECT_SIZES, VIDEO_ASPECTS, type Clip, type Fit, type Layer, type TrackKind, type VideoAspect, type VideoDocument } from "../document";
 import { duplicateGroup, magnetize, moveGroup, placeStack, splitAt, trimLinked, withLinked } from "../edits";
-import { KEYFRAME_PROPERTIES, keyframeFault, type Easing, type KeyframeProperty, type Keyframes } from "../keyframes";
+import { KEYFRAME_PROPERTIES, KEYFRAME_RANGES, keyframeFault, type Easing, type KeyframeProperty, type Keyframes } from "../keyframes";
 import { KEYFRAME_PRESETS, withPreset, type KeyframePresetId } from "../keyframe-presets";
 import { addMarker } from "../markers";
 import { DEFAULT_OVERLAY_MS, overlayClip, sizedMediaClips, type MediaClipType } from "../media-clips";
@@ -88,6 +88,7 @@ export interface VideoOperation extends AgentBox, AgentStyle {
   effect?: MotionPreset;
   property?: KeyframeProperty;
   keys?: AgentKey[];
+  blur?: number;
   volume?: number;
   fade_in_ms?: number;
   fade_out_ms?: number;
@@ -451,6 +452,13 @@ function clipPatch(clip: Clip, op: VideoOperation): { ok: true; patch: ClipPatch
   if (op.fit !== undefined) {
     if (clip.type !== "video" && clip.type !== "image") return { ok: false, reason: "fit só vale para vídeos e imagens" };
     patch.fit = op.fit;
+  }
+  if (op.blur !== undefined) {
+    const [low, high] = KEYFRAME_RANGES.blur;
+    if (clip.type === "audio") return { ok: false, reason: "um áudio não tem imagem para desfocar" };
+    if (op.blur < low || op.blur > high) return { ok: false, reason: `blur vai de ${low} a ${high} px` };
+    if (clip.keyframes?.blur) return { ok: false, reason: "o desfoque deste clipe está animado; mude as chaves com animate property blur" };
+    patch.blur = op.blur > 0 ? op.blur : undefined;
   }
   if (hasBox(op)) {
     if (clip.type === "audio") return { ok: false, reason: "um áudio não tem posição na tela" };

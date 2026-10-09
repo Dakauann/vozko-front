@@ -80,10 +80,18 @@ describe("useListQueryState view", () => {
     expect(url.searchParams.get("filter")).toBe(encodeFilterParam(filter));
   });
 
+  it("tells a view the URL names apart from the default one", () => {
+    expect(renderState("").result.current.viewChosen).toBe(false);
+    expect(renderState("view=globe").result.current.viewChosen).toBe(false);
+    expect(renderState("view=table").result.current.viewChosen).toBe(true);
+    expect(renderState("view=map").result.current.viewChosen).toBe(true);
+  });
+
   it("has no view for a list that declares none", () => {
     location.search = "view=map";
     const { result } = renderHook(() => useListQueryState<"createdAt">({ sortKeys: ["createdAt"] }));
     expect(result.current.view).toBeUndefined();
+    expect(result.current.viewChosen).toBe(false);
   });
 });
 

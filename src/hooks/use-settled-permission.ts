@@ -10,7 +10,7 @@ interface SettledPermission {
   allowed: boolean;
 }
 
-export function useSettledPermission(resource: ResourceType, action: ResourceAction): boolean {
+export function usePermissionVerdict(resource: ResourceType, action: ResourceAction): boolean | null {
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
   const [settled, setSettled] = useState<SettledPermission | null>(null);
@@ -22,5 +22,9 @@ export function useSettledPermission(resource: ResourceType, action: ResourceAct
     }
   }
 
-  return Boolean(workspaceId) && settled?.workspaceId === workspaceId && settled.allowed;
+  return workspaceId && settled?.workspaceId === workspaceId ? settled.allowed : null;
+}
+
+export function useSettledPermission(resource: ResourceType, action: ResourceAction): boolean {
+  return usePermissionVerdict(resource, action) === true;
 }

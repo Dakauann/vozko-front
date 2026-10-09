@@ -8797,7 +8797,8 @@
       "badge": "Leads",
       "description": "Tu base de personas, con teléfonos, direcciones, familias y ubicación.",
       "newLead": "Nuevo lead",
-      "fields": "Campos"
+      "fields": "Campos",
+      "moreActions": "Más acciones"
     },
     "summary": {
       "total": "Total",
@@ -21007,6 +21008,7 @@
         "height": "Alto",
         "rotation": "Rotación",
         "opacity": "Opacidad",
+        "blur": "Desenfoque",
         "sound": "Sonido",
         "volume": "Volumen",
         "fades": "Transiciones",
@@ -21254,7 +21256,8 @@
           "y": "Posición Y",
           "scale": "Escala",
           "rotation": "Rotación",
-          "opacity": "Opacidad"
+          "opacity": "Opacidad",
+          "blur": "Desenfoque"
         },
         "animate": "Animar {name}",
         "stopAnimating": "Dejar de animar {name}",

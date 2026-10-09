@@ -23,6 +23,7 @@ import { MapFailure } from "@/components/maps/MapStatus";
 import { MapPlaceSearch, placeFilterOf, type Place } from "@/components/maps/MapPlaceSearch";
 import { MapSummary } from "@/components/maps/MapSummary";
 import { useInView } from "@/hooks/use-in-view";
+import { useViewportFill } from "@/hooks/use-viewport-fill";
 import {
   leadAreasKey,
   useLeadMapDistricts,
@@ -154,13 +155,15 @@ export function LeadsMapView({
   const workspaceId = currentWorkspace?.id ?? "";
   const sends = useLeadSendGate();
   const [inViewRef, inView] = useInView<HTMLDivElement>();
+  const { ref: fillRef, height: frameHeight } = useViewportFill<HTMLDivElement>();
   const frame = useRef<HTMLDivElement | null>(null);
   const attachFrame = useCallback(
     (node: HTMLDivElement | null) => {
       frame.current = node;
       inViewRef(node);
+      fillRef(node);
     },
-    [inViewRef],
+    [inViewRef, fillRef],
   );
 
   const params = useMemo(() => ({ filter, q: search }), [filter, search]);
@@ -505,7 +508,7 @@ export function LeadsMapView({
 
   return (
     <div className={cn("flex flex-col", className)}>
-      <div ref={attachFrame} className="relative h-[520px] w-full overflow-hidden max-sm:h-[70vh]">
+      <div ref={attachFrame} style={{ height: frameHeight }} className="relative min-h-[520px] w-full overflow-hidden">
         {body}
         {empty && availability !== "unavailable" ? (
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">

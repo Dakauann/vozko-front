@@ -39,6 +39,24 @@ function run(ops: VideoOperation[], base: VideoDocument = doc()) {
   return planBatch(base, ops, (d, op) => applyVideoOperation(d, op, ctx), VIDEO_ID_FIELDS);
 }
 
+describe("blur", () => {
+  it("blurs a clip, animates its blur with any curve and refuses sound or a blur out of range", () => {
+    const blurred = done([{ op: "update_clip", clip_id: "a", blur: 12 }]);
+    expect(findClip(blurred, "a")?.clip.blur).toBe(12);
+    const animated = done([{ op: "animate", clip_id: "b", property: "blur", keys: [{ at_ms: 0, value: 24, easing: "cubic-bezier(0.05,0.7,0.1,1)" }, { at_ms: 600, value: 0 }] }]);
+    expect(findClip(animated, "b")?.clip.keyframes?.blur?.map((k) => k.value)).toEqual([24, 0]);
+    const audio = run([{ op: "update_clip", clip_id: "m", blur: 4 }]);
+    expect(audio.ok).toBe(false);
+    if (!audio.ok) expect(audio.reason).toContain("áudio");
+    const far = run([{ op: "update_clip", clip_id: "a", blur: 300 }]);
+    expect(far.ok).toBe(false);
+    if (!far.ok) expect(far.reason).toContain("de 0 a 100");
+    const keyed = run([{ op: "update_clip", clip_id: "b", blur: 3 }], animated);
+    expect(keyed.ok).toBe(false);
+    if (!keyed.ok) expect(keyed.reason).toContain("animate");
+  });
+});
+
 function done(ops: VideoOperation[], base?: VideoDocument): VideoDocument {
   const plan = run(ops, base);
   if (!plan.ok) throw new Error(`${plan.op}: ${plan.reason}`);

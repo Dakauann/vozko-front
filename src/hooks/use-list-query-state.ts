@@ -27,6 +27,7 @@ export interface ListQueryState<K extends string = string, V extends string = st
   page: number;
   pageSize: number;
   view: V | undefined;
+  viewChosen: boolean;
 
   setView: (view: V, filter?: CrmFilter) => void;
   setFilter: (filter: CrmFilter) => void;
@@ -83,7 +84,9 @@ export function useListQueryState<K extends string = string, V extends string = 
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const view = parseListView(searchParams.get("view"), views, defaultView);
+  const rawView = searchParams.get("view");
+  const view = parseListView(rawView, views, defaultView);
+  const viewChosen = views?.some((known) => known === rawView) ?? false;
   const fallbackView = parseListView(null, views, defaultView);
 
   const filterParam = useMemo(
@@ -248,6 +251,7 @@ export function useListQueryState<K extends string = string, V extends string = 
     page,
     pageSize,
     view,
+    viewChosen,
     setView,
     setFilter,
     setFilterAndSorts,

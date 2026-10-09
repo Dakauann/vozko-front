@@ -67,6 +67,8 @@ vi.mock("@/components/leads/sends/LeadSendDialog", () => ({
 vi.mock("@/contexts/workspace-context", () => ({ useWorkspace: () => ({ currentWorkspace: { id: "ws1" } }) }));
 const onScreen = { current: true };
 vi.mock("@/hooks/use-in-view", () => ({ useInView: () => [() => undefined, onScreen.current] }));
+const viewportFill = vi.hoisted(() => ({ ref: vi.fn(), height: "640px" as string | undefined }));
+vi.mock("@/hooks/use-viewport-fill", () => ({ useViewportFill: () => viewportFill }));
 vi.mock("@/components/leads/LeadCall", () => ({ LeadCallButton: () => null }));
 vi.mock("@/components/leads/sends/LeadSendButton", () => ({ LeadSendButton: () => null }));
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), message: vi.fn() }));
@@ -236,6 +238,21 @@ describe("LeadsMapView", () => {
     expect(actions.fetchLeadMapDistricts).not.toHaveBeenCalled();
     expect(actions.fetchLeadMapLayer).not.toHaveBeenCalled();
     expect(fetchLeadSection).not.toHaveBeenCalled();
+  });
+
+  it("fills the viewport left under the page controls with the map frame", () => {
+    viewportFill.ref.mockReset();
+    renderView();
+    const frame = screen.getByTestId("lead-map").parentElement;
+    expect(frame).toHaveStyle({ height: "640px" });
+    expect(viewportFill.ref).toHaveBeenCalledWith(frame);
+  });
+
+  it("keeps the minimum map height until the frame is measured", () => {
+    viewportFill.height = undefined;
+    renderView();
+    expect(screen.getByTestId("lead-map").parentElement).toHaveClass("min-h-[520px]");
+    viewportFill.height = "640px";
   });
 
   it("frames the map where the server says the leads are", async () => {

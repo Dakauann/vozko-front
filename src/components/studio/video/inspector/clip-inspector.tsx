@@ -17,6 +17,7 @@ import {
   moveSelectionTo,
   selectionStart,
   sharedValue,
+  shownBlur,
   shownTransform,
   trimSelectionEnd,
   type Shared,

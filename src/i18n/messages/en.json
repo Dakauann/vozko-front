@@ -10510,7 +10510,8 @@
       "badge": "Leads",
       "description": "Your base of people, with phones, addresses, families and location.",
       "newLead": "New lead",
-      "fields": "Fields"
+      "fields": "Fields",
+      "moreActions": "More actions"
     },
     "summary": {
       "total": "Total",
@@ -22496,6 +22497,7 @@
         "height": "Height",
         "rotation": "Rotation",
         "opacity": "Opacity",
+        "blur": "Blur",
         "sound": "Sound",
         "volume": "Volume",
         "fades": "Fades",
@@ -22743,7 +22745,8 @@
           "y": "Position Y",
           "scale": "Scale",
           "rotation": "Rotation",
-          "opacity": "Opacity"
+          "opacity": "Opacity",
+          "blur": "Blur"
         },
         "animate": "Animate {name}",
         "stopAnimating": "Stop animating {name}",

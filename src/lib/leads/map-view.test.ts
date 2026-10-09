@@ -10,6 +10,8 @@ import type { GeoSummary } from "@/lib/maps/types";
 
 import {
   LEAD_VIEWS,
+  defaultLeadView,
+  leadViewOf,
   addressPositions,
   areaIdsOf,
   bboxParam,
@@ -93,6 +95,42 @@ const classification: CustomFieldDefinition = {
 describe("lead views", () => {
   it("offers the table and the map, table first", () => {
     expect(LEAD_VIEWS).toEqual(["table", "map"]);
+  });
+});
+
+describe("leadViewOf", () => {
+  it("opens the map for a viewer who reads addresses when the URL names no view", () => {
+    expect(leadViewOf(undefined, true)).toBe("map");
+  });
+
+  it("opens the table for a viewer who does not read addresses", () => {
+    expect(leadViewOf(undefined, false)).toBe("table");
+  });
+
+  it("lets a view the URL names win for a viewer who reads addresses", () => {
+    expect(leadViewOf("table", true)).toBe("table");
+    expect(leadViewOf("map", true)).toBe("map");
+  });
+
+  it("refuses the map to a viewer who does not read addresses even when the URL asks for it", () => {
+    expect(leadViewOf("map", false)).toBe("table");
+  });
+
+  it("waits while the address permission is not settled, so neither view loads too early", () => {
+    expect(leadViewOf(undefined, null)).toBeNull();
+    expect(leadViewOf("map", null)).toBeNull();
+  });
+
+  it("opens a table the URL names without waiting for the address permission", () => {
+    expect(leadViewOf("table", null)).toBe("table");
+  });
+});
+
+describe("defaultLeadView", () => {
+  it("is the map only for a viewer known to read addresses", () => {
+    expect(defaultLeadView(true)).toBe("map");
+    expect(defaultLeadView(false)).toBe("table");
+    expect(defaultLeadView(null)).toBe("table");
   });
 });
 

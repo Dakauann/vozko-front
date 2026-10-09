@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { emptyImageDocument, type ImageDocument } from "@/lib/studio/document";
+import { emptyArtboard, emptyImageDocument, imageDocument, type ImageDocument } from "@/lib/studio/document";
 import type { StudioProject } from "@/lib/studio/project";
 
 const getProject = vi.fn();
@@ -40,7 +40,7 @@ async function opened() {
   return hook;
 }
 
-const red = { ...emptyImageDocument({ width: 1080, height: 1080 }), canvas: { width: 1080, height: 1080, background: "#ff0000" } };
+const red = imageDocument([{ ...emptyArtboard({ width: 1080, height: 1080 }, "#ff0000"), id: "artboard-1" }]);
 
 describe("useStudioProject", () => {
   beforeEach(() => {

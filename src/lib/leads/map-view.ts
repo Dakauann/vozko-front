@@ -21,6 +21,17 @@ export const LEAD_VIEWS = ['table', 'map'] as const;
 
 export type LeadView = (typeof LEAD_VIEWS)[number];
 
+export function defaultLeadView(readsAddresses: boolean | null): LeadView {
+    return readsAddresses === true ? 'map' : 'table';
+}
+
+export function leadViewOf(chosen: LeadView | undefined, readsAddresses: boolean | null): LeadView | null {
+    if (chosen === 'table') return 'table';
+    if (readsAddresses === null) return null;
+    if (!readsAddresses) return 'table';
+    return chosen ?? defaultLeadView(readsAddresses);
+}
+
 export type LeadMapSection = 'summary' | 'districts' | 'viewport' | 'layer' | 'point' | 'left-out';
 
 export interface LeadMapParams {

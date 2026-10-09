@@ -74,7 +74,7 @@ export function LeadImportsStatus({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button type="button" variant="secondary" size="sm" className="gap-1.5 [&_svg]:size-3.5">
+        <Button type="button" variant="secondary" className="gap-1.5 [&_svg]:size-3.5">
           <Queue className="text-muted-foreground" aria-hidden />
           {t("status.button")}
           {running > 0 ? (

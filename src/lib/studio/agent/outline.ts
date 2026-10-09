@@ -110,6 +110,7 @@ export interface OutlineClip {
   animated?: string[];
   linked?: string;
   disabled?: boolean;
+  blur?: number;
   box?: OutlineBox;
   style?: OutlineStyle;
   keyframes?: Record<string, { at_ms: number; value: number; easing: string }[]>;
@@ -273,6 +274,7 @@ export function outlineClip(clip: Clip, ctx: OutlineContext): OutlineClip {
     ...(animatedProperties(clip.keyframes) ? { animated: animatedProperties(clip.keyframes) } : {}),
     ...(clip.linkId ? { linked: clip.linkId } : {}),
     ...(clip.disabled ? { disabled: true } : {}),
+    ...(clip.blur ? { blur: clip.blur } : {}),
   };
   if (ctx.detail === "full") {
     if (clip.type !== "audio") line.box = boxOf(clip.transform);
