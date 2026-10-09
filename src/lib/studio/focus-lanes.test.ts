@@ -14,7 +14,8 @@ describe("focus lanes", () => {
   it("stacks one lane per property", () => {
     expect(keyLaneTop("x", 20)).toBe(0);
     expect(keyLaneTop("opacity", 20)).toBe(80);
-    expect(keyLanesHeight(20)).toBe(100);
+    expect(keyLaneTop("blur", 20)).toBe(100);
+    expect(keyLanesHeight(20)).toBe(120);
   });
 
   it("maps key times to pixels and back", () => {

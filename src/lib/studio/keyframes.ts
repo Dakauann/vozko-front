@@ -11,7 +11,11 @@ export type Bezier = readonly [number, number, number, number];
 
 export const BEZIER_Y_RANGE = [-1, 2] as const;
 
-export const KEYFRAME_PROPERTIES = ["x", "y", "scale", "rotation", "opacity"] as const;
+export const TRANSFORM_PROPERTIES = ["x", "y", "scale", "rotation", "opacity"] as const;
+
+export const KEYFRAME_PROPERTIES = [...TRANSFORM_PROPERTIES, "blur"] as const;
+
+export type TransformProperty = (typeof TRANSFORM_PROPERTIES)[number];
 
 export type KeyframeProperty = (typeof KEYFRAME_PROPERTIES)[number];
 
@@ -35,7 +39,13 @@ export const KEYFRAME_RANGES: Record<KeyframeProperty, readonly [number, number]
   scale: [0.05, 5],
   rotation: [-3600, 3600],
   opacity: [0, 1],
+  blur: [0, 100],
 };
+
+export function animatedBlur(staticBlur: number | undefined, k: Keyframes | undefined, localMs: number): number {
+  const frames = k?.blur ?? [];
+  return Math.max(0, frames.length === 0 ? (staticBlur ?? 0) : valueAt(frames, localMs));
+}
 
 const BACK_PULL = 1.70158;
 const BACK_PULL_IN_OUT = BACK_PULL * 1.525;

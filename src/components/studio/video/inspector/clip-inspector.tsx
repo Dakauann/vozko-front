@@ -8,7 +8,7 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { LinkSimple } from "@/components/icons";
 import { STUDIO_LIMITS, type Clip, type Fit, type Transform } from "@/lib/studio/document";
 import { keyState, localTime, type KeyState } from "@/lib/studio/keyframe-edit";
-import type { KeyframeProperty } from "@/lib/studio/keyframes";
+import { KEYFRAME_RANGES, type KeyframeProperty } from "@/lib/studio/keyframes";
 import {
   commonFields,
   editSelection,
@@ -79,6 +79,7 @@ export function ClipInspector({ locations }: ClipInspectorProps) {
   const patchGesture = { onGestureStart: editor.gesture.onStart, onGestureEnd: editor.gesture.onCommit };
   const fit = valueOf(sharedValue(clips, (clip) => clip.fit ?? "cover"));
   const opacity = shown((transform) => Math.round(transform.opacity * 100));
+  const blur = valueOf(sharedValue(clips, (clip) => Math.round(shownBlur(clip, playheadMs) * 10) / 10));
   const volume = valueOf(sharedValue(clips, (clip) => Math.round(clip.volume * 100)));
   const start = selectionStart(clips);
 
@@ -197,6 +198,21 @@ export function ClipInspector({ locations }: ClipInspectorProps) {
             onStart={editor.gesture.onStart}
             onCommit={editor.gesture.onCommit}
             {...marker("opacity")}
+          />
+          <NumberField
+            label={t("blur")}
+            unit="px"
+            decimals={1}
+            step={0.5}
+            min={KEYFRAME_RANGES.blur[0]}
+            max={KEYFRAME_RANGES.blur[1]}
+            value={blur}
+            disabled={locked}
+            onCommit={(v) => editor.blur(() => v)}
+            onNudge={(delta) => editor.blur((current) => current + delta)}
+            onGestureStart={editor.gesture.onStart}
+            onGestureEnd={editor.gesture.onCommit}
+            {...marker("blur")}
           />
           <p className="text-2xs text-muted-foreground">{t("scrubTip")}</p>
         </InspectorSection>

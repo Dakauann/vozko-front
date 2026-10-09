@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useStore } from "zustand";
 
 import type { Clip, Transform, VideoDocument } from "@/lib/studio/document";
-import { applyToSelection, transformPatch, type PatchBuilder, type SelectionEdit, type SourceDurations } from "@/lib/studio/selection-edit";
+import { applyToSelection, blurPatch, transformPatch, type PatchBuilder, type SelectionEdit, type SourceDurations } from "@/lib/studio/selection-edit";
 import { hasSourceTime } from "@/lib/studio/timeline";
 
 import { useVideoEditor } from "../editor-context";
@@ -15,6 +15,7 @@ export interface SelectionEditor {
   run: (edit: (doc: VideoDocument) => SelectionEdit) => boolean;
   patch: (build: PatchBuilder) => boolean;
   transform: (change: (shown: Transform) => Partial<Transform>) => boolean;
+  blur: (change: (shown: number) => number) => boolean;
   gesture: { onStart: () => void; onCommit: () => void };
   playheadMs: () => number;
 }
@@ -38,6 +39,7 @@ export function useSelectionEditor(ids: readonly string[]): SelectionEditor {
       run,
       patch,
       transform: (change) => patch((clip) => transformPatch(clip, change, playheadMs())),
+      blur: (change) => patch((clip) => blurPatch(clip, change, playheadMs())),
       gesture: { onStart: () => store.getState().beginTransaction(), onCommit: () => store.getState().commitTransaction() },
       playheadMs,
     };

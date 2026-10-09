@@ -3,6 +3,7 @@ import {
   animatedTransform,
   KEYFRAME_PROPERTIES,
   KEYFRAME_RANGES,
+  TRANSFORM_PROPERTIES,
   removeKeyframe,
   setKeyframe,
   valueAt,
@@ -15,7 +16,7 @@ import type { ClipPatch } from "./timeline";
 
 export const KEY_TOLERANCE_MS = 17;
 
-type KeyedClip = Pick<Clip, "transform" | "keyframes" | "durationMs">;
+type KeyedClip = Pick<Clip, "transform" | "keyframes" | "durationMs" | "blur">;
 
 export function framesOf(clip: Pick<Clip, "keyframes">, property: KeyframeProperty): readonly Keyframe[] {
   return clip.keyframes?.[property] ?? [];
@@ -30,13 +31,21 @@ export function localTime(clip: Pick<Clip, "startMs" | "durationMs">, playheadMs
   return local >= 0 && local <= clip.durationMs ? local : null;
 }
 
-export function staticValue(transform: Transform, property: KeyframeProperty): number {
-  return property === "scale" ? 1 : transform[property];
+export function staticValue(clip: Pick<Clip, "transform" | "blur">, property: KeyframeProperty): number {
+  if (property === "scale") return 1;
+  if (property === "blur") return clip.blur ?? 0;
+  return clip.transform[property];
 }
 
 export function propertyValue(clip: KeyedClip, property: KeyframeProperty, localMs: number): number {
   const frames = framesOf(clip, property);
-  return frames.length === 0 ? staticValue(clip.transform, property) : valueAt(frames, localMs);
+  return frames.length === 0 ? staticValue(clip, property) : valueAt(frames, localMs);
+}
+
+function staticPatch(clip: KeyedClip, property: KeyframeProperty, value: number): ClipPatch {
+  if (property === "blur") return { blur: value > 0 ? value : undefined };
+  if (property === "scale") return { transform: { ...clip.transform, w: clip.transform.w * value, h: clip.transform.h * value } };
+  return { transform: { ...clip.transform, [property]: value } };
 }
 
 export function keyAt(frames: readonly Keyframe[], localMs: number): Keyframe | null {
@@ -70,8 +79,7 @@ export function toggleAnimation(clip: KeyedClip, property: KeyframeProperty, loc
   const keyframes: Keyframes = { ...clip.keyframes };
   delete keyframes[property];
   const rest = Object.keys(keyframes).length > 0 ? keyframes : undefined;
-  const transform = property === "scale" ? { ...clip.transform, w: clip.transform.w * current, h: clip.transform.h * current } : { ...clip.transform, [property]: current };
-  return { keyframes: rest, transform };
+  return { keyframes: rest, ...staticPatch(clip, property, current) };
 }
 
 export function toggleKeyAt(clip: KeyedClip, property: KeyframeProperty, localMs: number): ClipPatch {
@@ -144,6 +152,12 @@ export function editTransform(clip: KeyedClip, edited: Transform, localMs: numbe
   return { patch, outside };
 }
 
+export function editBlur(clip: KeyedClip, value: number, localMs: number | null): TransformEdit {
+  if (!isAnimated(clip, "blur")) return { patch: staticPatch(clip, "blur", clampValue("blur", value)), outside: false };
+  if (localMs === null) return { patch: {}, outside: true };
+  return { patch: { keyframes: setPropertyKey(clip, "blur", localMs, value) }, outside: false };
+}
+
 export type MomentState = "outside" | "none" | "key" | "between";
 
 export type KeyState = "static" | "key" | "interpolated";
@@ -155,9 +169,13 @@ function keysAtMoment(clip: Pick<Clip, "keyframes">, localMs: number): { propert
   });
 }
 
+function momentProperties(clip: Pick<Clip, "keyframes">): KeyframeProperty[] {
+  return KEYFRAME_PROPERTIES.filter((property) => (TRANSFORM_PROPERTIES as readonly string[]).includes(property) || isAnimated(clip, property));
+}
+
 export function recordMoment(clip: KeyedClip, localMs: number): ClipPatch | null {
   let keyframes = clip.keyframes;
-  for (const property of KEYFRAME_PROPERTIES) {
+  for (const property of momentProperties(clip)) {
     const next = setPropertyKey({ ...clip, keyframes }, property, localMs, propertyValue(clip, property, localMs));
     if (next === keyframes) return null;
     keyframes = next;

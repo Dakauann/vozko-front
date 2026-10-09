@@ -6,6 +6,7 @@ const PROPERTY_HINTS: Record<KeyframeProperty, string> = {
   scale: "1 é o tamanho atual do clipe",
   rotation: "em graus",
   opacity: "0 é invisível e 1 é opaco",
+  blur: "desfoque em pixels do quadro; 0 é nítido",
 };
 
 export function keyframeFaultText(fault: KeyframeFault): string {

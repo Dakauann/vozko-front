@@ -1,7 +1,7 @@
 import { clampClipTransform } from "./clip-transform";
 import type { Clip, Transform, VideoDocument } from "./document";
-import { editTransform, keyTimes, localTime, momentEasing, momentState, recordMoment, removeMoment, setAllEasing, setMomentEasing, type MomentState } from "./keyframe-edit";
-import { animatedTransform, KEYFRAME_PROPERTIES, type Easing } from "./keyframes";
+import { editBlur, editTransform, keyTimes, localTime, momentEasing, momentState, recordMoment, removeMoment, setAllEasing, setMomentEasing, type MomentState } from "./keyframe-edit";
+import { animatedBlur, animatedTransform, KEYFRAME_PROPERTIES, KEYFRAME_RANGES, type Easing } from "./keyframes";
 import { findClip, hasSourceTime, moveClipsBy, trimClipEnd, updateClip, type ClipLocation, type ClipPatch } from "./timeline";
 import { documentIssue } from "./validate";
 
@@ -94,9 +94,22 @@ export function applyToSelection(doc: VideoDocument, clipIds: readonly string[],
   });
 }
 
+function clipTime(clip: Pick<Clip, "startMs" | "durationMs">, playheadMs: number): number {
+  return Math.min(Math.max(0, playheadMs - clip.startMs), clip.durationMs);
+}
+
 export function shownTransform(clip: Pick<Clip, "transform" | "keyframes" | "startMs" | "durationMs">, playheadMs: number): Transform {
-  const local = Math.min(Math.max(0, playheadMs - clip.startMs), clip.durationMs);
-  return animatedTransform(clip.transform, clip.keyframes, local);
+  return animatedTransform(clip.transform, clip.keyframes, clipTime(clip, playheadMs));
+}
+
+export function shownBlur(clip: Pick<Clip, "blur" | "keyframes" | "startMs" | "durationMs">, playheadMs: number): number {
+  return animatedBlur(clip.blur, clip.keyframes, clipTime(clip, playheadMs));
+}
+
+export function blurPatch(clip: Clip, change: (shown: number) => number, playheadMs: number): ClipPatch | Refusal {
+  const [low, high] = KEYFRAME_RANGES.blur;
+  const edit = editBlur(clip, Math.min(high, Math.max(low, change(shownBlur(clip, playheadMs)))), localTime(clip, playheadMs));
+  return edit.outside ? "keyframeOutside" : edit.patch;
 }
 
 export function transformPatch(clip: Clip, change: (shown: Transform) => Partial<Transform>, playheadMs: number): ClipPatch | Refusal {

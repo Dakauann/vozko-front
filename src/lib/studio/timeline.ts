@@ -5,7 +5,7 @@ import { newStudioId, STUDIO_LIMITS, type Clip, type ClipType, type Track, type 
 
 export type TrackPatch = Partial<Pick<Track, "name" | "hidden" | "locked" | "muted">>;
 
-export type ClipPatch = Partial<Pick<Clip, "volume" | "fadeInMs" | "fadeOutMs" | "fit" | "transform" | "layer" | "motionIn" | "motionOut" | "linkId" | "keyframes">>;
+export type ClipPatch = Partial<Pick<Clip, "volume" | "fadeInMs" | "fadeOutMs" | "fit" | "transform" | "layer" | "motionIn" | "motionOut" | "linkId" | "keyframes" | "blur">>;
 
 export interface ClipLocation {
   track: Track;

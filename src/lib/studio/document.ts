@@ -249,6 +249,7 @@ export interface Clip {
   motionOut?: Motion;
   keyframes?: Keyframes;
   disabled?: boolean;
+  blur?: number;
 }
 
 export const MOTION_EDGES = ["left", "right", "top", "bottom"] as const;

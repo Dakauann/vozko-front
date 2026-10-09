@@ -24,6 +24,7 @@ export function KeyDiamond({ filled, className }: { filled: boolean; className?:
 
 function formatValue(property: KeyframeProperty, value: number): string {
   if (property === "rotation") return `${value.toFixed(1)}°`;
+  if (property === "blur") return `${value.toFixed(1)} px`;
   return `${(value * 100).toFixed(1)}%`;
 }
 

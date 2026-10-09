@@ -1,5 +1,5 @@
 import type { Clip, Fit, Layer, Transform, VideoDocument } from "./document";
-import { animatedTransform } from "./keyframes";
+import { animatedBlur, animatedTransform } from "./keyframes";
 import { motionOffset, movedTransform } from "./motion";
 import { clipEnd } from "./timeline";
 
@@ -91,6 +91,7 @@ export interface VisualItem {
   fit: Fit;
   active: boolean;
   opacity: number;
+  blurPx: number;
   sourceMs: number;
   startMs: number;
   endMs: number;
@@ -118,6 +119,7 @@ export function visualPlan(doc: VideoDocument, ms: number, premountMs: number = 
         fit: clip.type === "overlay" ? "contain" : (clip.fit ?? "cover"),
         active,
         opacity: active ? transform.opacity * fadeLevel(clip, localMs) : 0,
+        blurPx: animatedBlur(clip.blur, clip.keyframes, localMs),
         sourceMs: clip.type === "video" ? clip.trimInMs + localMs : 0,
         startMs: clip.startMs,
         endMs: end,

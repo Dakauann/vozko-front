@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { KEYFRAME_LIMITS, KEYFRAME_PROPERTIES, type Keyframes } from "./keyframes";
+import { KEYFRAME_LIMITS, TRANSFORM_PROPERTIES, type Keyframes } from "./keyframes";
 import { keyState, momentEasing, momentState, recordMoment, removeMoment, setAllEasing, setMomentEasing } from "./keyframe-edit";
 
 const box = { x: 0.5, y: 0.4, w: 0.4, h: 0.2, rotation: 10, opacity: 0.8 };
@@ -19,7 +19,7 @@ describe("keyframe moments", () => {
   it("records every property at the playhead with its current value", () => {
     const patch = recordMoment(still, 500);
     expect(patch).not.toBeNull();
-    for (const property of KEYFRAME_PROPERTIES) expect(patch?.keyframes?.[property]?.map((f) => f.atMs)).toEqual([500]);
+    for (const property of TRANSFORM_PROPERTIES) expect(patch?.keyframes?.[property]?.map((f) => f.atMs)).toEqual([500]);
     expect(patch?.keyframes?.x?.[0].value).toBe(0.5);
     expect(patch?.keyframes?.scale?.[0].value).toBe(1);
     expect(patch?.keyframes?.rotation?.[0].value).toBe(10);

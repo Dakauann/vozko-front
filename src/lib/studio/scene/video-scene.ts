@@ -24,13 +24,18 @@ function overlayNode(item: VisualItem, width: number, height: number): SceneNode
     opacity: item.opacity,
     visible: item.active,
     ...(item.layer.blendMode && item.layer.blendMode !== "normal" ? { blend: item.layer.blendMode } : {}),
+    ...blurOf(item),
   };
+}
+
+function blurOf(item: VisualItem): { blurPx?: number } {
+  return item.blurPx > 0 ? { blurPx: item.blurPx } : {};
 }
 
 function mediaNode(item: VisualItem, width: number, height: number): SceneNode | null {
   if (!item.assetId) return null;
   const source = item.type === "video" ? { kind: "video" as const, clipId: item.clipId, assetId: item.assetId, sourceMs: item.sourceMs } : { kind: "image" as const, assetId: item.assetId };
-  return { id: item.clipId, source, box: boxOf(item, width, height), fit: item.fit, opacity: item.opacity, visible: item.active };
+  return { id: item.clipId, source, box: boxOf(item, width, height), fit: item.fit, opacity: item.opacity, visible: item.active, ...blurOf(item) };
 }
 
 export function videoScene(doc: VideoDocument, items: readonly VisualItem[]): Scene {

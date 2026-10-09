@@ -33,7 +33,7 @@ import {
 } from "./document";
 import { upgradeImageDocument } from "./artboards";
 import { isFontId } from "./fonts";
-import { keyframesIssue } from "./keyframes";
+import { KEYFRAME_RANGES, keyframesIssue } from "./keyframes";
 import { LAYER_RANGES } from "./layer-ranges";
 import { isValidPath } from "./vector-path";
 
@@ -135,7 +135,7 @@ const motionSpec: ObjectSpec = { object: { edge: "string", durationMs: "int" } }
 const keyframeTrackSpec: ArraySpec = { array: { object: { atMs: "int", value: "number", easing: "string" } } };
 
 const keyframesSpec: PointerSpec = {
-  pointer: { object: { x: keyframeTrackSpec, y: keyframeTrackSpec, scale: keyframeTrackSpec, rotation: keyframeTrackSpec, opacity: keyframeTrackSpec } },
+  pointer: { object: { x: keyframeTrackSpec, y: keyframeTrackSpec, scale: keyframeTrackSpec, rotation: keyframeTrackSpec, opacity: keyframeTrackSpec, blur: keyframeTrackSpec } },
 };
 
 const clipSpec: ObjectSpec = {
@@ -157,6 +157,7 @@ const clipSpec: ObjectSpec = {
     motionOut: { pointer: motionSpec },
     keyframes: keyframesSpec,
     disabled: "bool",
+    blur: "number",
   },
 };
 
@@ -456,7 +457,8 @@ export function clipIssue(c: Clip, kind: Track["kind"], durationMs: number): Iss
   if (!within(c.volume, 0, STUDIO_LIMITS.maxVolume)) return "out_of_range";
   if ((c.linkId ?? "") !== "" && !isValidToken(c.linkId ?? "")) return "invalid";
   const assetId = (c.assetId ?? "").trim();
-  if (kind === "audio") return c.type !== "audio" || assetId === "" || c.motionIn || c.motionOut || c.keyframes ? "invalid" : null;
+  if (kind === "audio") return c.type !== "audio" || assetId === "" || c.motionIn || c.motionOut || c.keyframes || (c.blur ?? 0) !== 0 ? "invalid" : null;
+  if (c.blur !== undefined && !within(c.blur, KEYFRAME_RANGES.blur[0], KEYFRAME_RANGES.blur[1])) return "out_of_range";
   switch (c.type) {
     case "video":
     case "image":
