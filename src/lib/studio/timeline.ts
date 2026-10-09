@@ -1,6 +1,6 @@
 import { produce, type Draft } from "immer";
 
-import { KEYFRAME_LIMITS, keyframeCount, keyframesInRange, shiftKeyframes } from "./keyframes";
+import { keyframeCount, keyframesInRange, shiftKeyframes } from "./keyframes";
 import { newStudioId, STUDIO_LIMITS, type Clip, type ClipType, type Track, type TrackKind, type VideoDocument } from "./document";
 
 export type TrackPatch = Partial<Pick<Track, "name" | "hidden" | "locked" | "muted">>;
@@ -39,12 +39,13 @@ export function findClip(doc: VideoDocument, clipId: string): ClipLocation | nul
   return null;
 }
 
-export function timelineKeyframeCount(doc: VideoDocument): number {
-  return doc.tracks.reduce((total, track) => track.clips.reduce((sum, c) => sum + keyframeCount(c.keyframes), total), 0);
+export function isClipPickable(doc: VideoDocument, clipId: string): boolean {
+  const found = findClip(doc, clipId);
+  return found !== null && !found.track.locked;
 }
 
-function keyframesFit(doc: VideoDocument, added: number): boolean {
-  return added <= 0 || timelineKeyframeCount(doc) + added <= KEYFRAME_LIMITS.perTimeline;
+export function timelineKeyframeCount(doc: VideoDocument): number {
+  return doc.tracks.reduce((total, track) => track.clips.reduce((sum, c) => sum + keyframeCount(c.keyframes), total), 0);
 }
 
 export function clipCount(doc: VideoDocument): number {
@@ -106,7 +107,7 @@ function clampMotions(clip: Draft<Clip>) {
       delete clip[key];
       continue;
     }
-    motion.durationMs = durationMs;
+    if (motion.durationMs !== durationMs) clip[key] = { ...motion, durationMs };
     room -= durationMs;
   }
 }
@@ -137,12 +138,7 @@ function freshClip(clip: Clip): Clip {
   return copy;
 }
 
-export function tracksAllowed(kind: TrackKind): number {
-  return kind === "visual" ? STUDIO_LIMITS.maxVisualTracks : STUDIO_LIMITS.maxAudioTracks;
-}
-
-export function addTrack(doc: VideoDocument, kind: TrackKind, atIndex: number = doc.tracks.length): { document: VideoDocument; trackId: string | null } {
-  if (doc.tracks.filter((t) => t.kind === kind).length >= tracksAllowed(kind)) return { document: doc, trackId: null };
+export function addTrack(doc: VideoDocument, kind: TrackKind, atIndex: number = doc.tracks.length): { document: VideoDocument; trackId: string } {
   const trackId = newStudioId("t");
   const document = produce(doc, (draft) => {
     draft.tracks.splice(Math.max(0, Math.min(atIndex, draft.tracks.length)), 0, { id: trackId, kind, clips: [] });
@@ -169,6 +165,34 @@ export function moveTrack(doc: VideoDocument, trackId: string, toIndex: number):
   });
 }
 
+export type LaneDirection = "up" | "down";
+
+function laneStep(kind: TrackKind, direction: LaneDirection): 1 | -1 {
+  return (kind === "visual") === (direction === "up") ? 1 : -1;
+}
+
+export function shiftTarget(tracks: readonly Track[], trackId: string, direction: LaneDirection): number | null {
+  const index = tracks.findIndex((t) => t.id === trackId);
+  if (index < 0) return null;
+  const { kind } = tracks[index];
+  const step = laneStep(kind, direction);
+  let target = index + step;
+  while (target >= 0 && target < tracks.length && tracks[target].kind !== kind) target += step;
+  return target < 0 || target >= tracks.length ? null : target;
+}
+
+export function shiftTrack(doc: VideoDocument, trackId: string, direction: LaneDirection): VideoDocument {
+  const target = shiftTarget(doc.tracks, trackId, direction);
+  return target === null ? doc : moveTrack(doc, trackId, target);
+}
+
+export function addTrackNextTo(doc: VideoDocument, trackId: string, direction: LaneDirection): { document: VideoDocument; trackId: string } | null {
+  const index = doc.tracks.findIndex((t) => t.id === trackId);
+  if (index < 0) return null;
+  const { kind } = doc.tracks[index];
+  return addTrack(doc, kind, laneStep(kind, direction) > 0 ? index + 1 : index);
+}
+
 export function updateTrack(doc: VideoDocument, trackId: string, patch: TrackPatch): VideoDocument {
   return produce(doc, (draft) => {
     const track = draft.tracks.find((t) => t.id === trackId);
@@ -182,8 +206,6 @@ export function insertClip(doc: VideoDocument, trackId: string, clip: Clip): { d
     track &&
     !track.locked &&
     trackAccepts(track.kind, clip.type) &&
-    clipCount(doc) < STUDIO_LIMITS.maxClips &&
-    keyframesFit(doc, keyframeCount(clip.keyframes)) &&
     clip.durationMs >= STUDIO_LIMITS.minClipMs &&
     isRangeFree(track, clip.startMs, clip.durationMs);
   if (!fits) return { document: doc, clipId: null };
@@ -218,6 +240,37 @@ export function moveClipToward(doc: VideoDocument, clipId: string, hoveredTrackI
   const hovered = doc.tracks.find((t) => t.id === hoveredTrackId);
   const trackId = hovered && !hovered.locked && trackAccepts(hovered.kind, found.clip.type) ? hovered.id : found.track.id;
   return moveClip(doc, clipId, trackId, startMs);
+}
+
+export type EdgeBlock =
+  | { kind: "neighbour"; clipId: string; ms: number }
+  | { kind: "source"; ms: number }
+  | { kind: "video"; ms: number }
+  | { kind: "minimum"; ms: number }
+  | { kind: "locked"; trackId: string };
+
+export function edgeBlock(doc: VideoDocument, clipId: string, edge: "start" | "end", requestedMs: number, sourceDurationMs?: number): EdgeBlock | null {
+  const found = findClip(doc, clipId);
+  if (!found) return null;
+  const { clip, track } = found;
+  if (track.locked) return { kind: "locked", trackId: track.id };
+  const others = track.clips.filter((c) => c.id !== clip.id);
+  if (edge === "end") {
+    if (requestedMs < clip.startMs + STUDIO_LIMITS.minClipMs) return { kind: "minimum", ms: clip.startMs + STUDIO_LIMITS.minClipMs };
+    const next = others.filter((c) => c.startMs >= clipEnd(clip)).sort((a, b) => a.startMs - b.startMs)[0];
+    const limits: Exclude<EdgeBlock, { kind: "locked" | "minimum" }>[] = [{ kind: "video", ms: STUDIO_LIMITS.maxVideoMs }];
+    if (next) limits.push({ kind: "neighbour", clipId: next.id, ms: next.startMs });
+    if (hasSourceTime(clip.type) && sourceDurationMs !== undefined) limits.push({ kind: "source", ms: clip.startMs + sourceDurationMs - clip.trimInMs });
+    const tightest = limits.reduce((best, limit) => (limit.ms < best.ms ? limit : best));
+    return tightest.ms < requestedMs ? tightest : null;
+  }
+  if (requestedMs > clipEnd(clip) - STUDIO_LIMITS.minClipMs) return { kind: "minimum", ms: clipEnd(clip) - STUDIO_LIMITS.minClipMs };
+  const previous = others.filter((c) => clipEnd(c) <= clip.startMs).sort((a, b) => clipEnd(b) - clipEnd(a))[0];
+  const limits: Exclude<EdgeBlock, { kind: "locked" | "minimum" }>[] = [{ kind: "video", ms: 0 }];
+  if (previous) limits.push({ kind: "neighbour", clipId: previous.id, ms: clipEnd(previous) });
+  if (hasSourceTime(clip.type)) limits.push({ kind: "source", ms: clip.startMs - clip.trimInMs });
+  const tightest = limits.reduce((best, limit) => (limit.ms > best.ms ? limit : best));
+  return tightest.ms > requestedMs ? tightest : null;
 }
 
 export function trimClipStart(doc: VideoDocument, clipId: string, startMs: number): VideoDocument {
@@ -262,7 +315,7 @@ export function trimClipEnd(doc: VideoDocument, clipId: string, endMs: number, s
 export function splitClip(doc: VideoDocument, clipId: string, atMs: number): { document: VideoDocument; clipId: string | null } {
   const found = findClip(doc, clipId);
   const at = Math.round(atMs);
-  if (!found || found.track.locked || clipCount(doc) >= STUDIO_LIMITS.maxClips) return { document: doc, clipId: null };
+  if (!found || found.track.locked) return { document: doc, clipId: null };
   const { clip } = found;
   if (at - clip.startMs < STUDIO_LIMITS.minClipMs || clipEnd(clip) - at < STUDIO_LIMITS.minClipMs) return { document: doc, clipId: null };
   const right: Clip = {
@@ -275,7 +328,6 @@ export function splitClip(doc: VideoDocument, clipId: string, atMs: number): { d
     keyframes: keyframesInRange(shiftKeyframes(clip.keyframes, clip.startMs - at), 0, clipEnd(clip) - at),
   };
   const leftKeyframes = keyframesInRange(clip.keyframes, 0, at - clip.startMs);
-  if (!keyframesFit(doc, keyframeCount(leftKeyframes) + keyframeCount(right.keyframes) - keyframeCount(clip.keyframes))) return { document: doc, clipId: null };
   if (!right.keyframes) delete right.keyframes;
   const document = produce(doc, (draft) => {
     const { track, clip: left } = locate(draft, clipId)!;
@@ -350,7 +402,6 @@ export function duplicateClips(doc: VideoDocument, clipIds: readonly string[]): 
 export function updateClip(doc: VideoDocument, clipId: string, patch: ClipPatch): VideoDocument {
   const found = findClip(doc, clipId);
   if (!found || found.track.locked) return doc;
-  if ("keyframes" in patch && !keyframesFit(doc, keyframeCount(patch.keyframes) - keyframeCount(found.clip.keyframes))) return doc;
   return produce(doc, (draft) => {
     const target = locate(draft, clipId)!.clip;
     Object.assign(target, patch);
@@ -427,7 +478,7 @@ export function placeClip(doc: VideoDocument, clip: Clip, options: PlaceOptions 
   const startMs = Math.max(0, Math.round(clip.startMs));
   const durationMs = Math.min(Math.round(clip.durationMs), STUDIO_LIMITS.maxVideoMs - startMs);
   const rejected: Placement = { document: doc, clipId: null, trackId: null };
-  if (durationMs < STUDIO_LIMITS.minClipMs || clipCount(doc) >= STUDIO_LIMITS.maxClips) return rejected;
+  if (durationMs < STUDIO_LIMITS.minClipMs) return rejected;
   const placed = { ...clip, startMs, durationMs };
   const target = placementOrder(doc, placed, options.preferTrackId).find((t) => isRangeFree(t, startMs, durationMs));
   if (target) {
@@ -435,7 +486,6 @@ export function placeClip(doc: VideoDocument, clip: Clip, options: PlaceOptions 
     return result.clipId ? { document: result.document, clipId: result.clipId, trackId: target.id } : rejected;
   }
   const added = addTrack(doc, trackAccepts("audio", placed.type) ? "audio" : "visual");
-  if (!added.trackId) return rejected;
   const result = insertClip(added.document, added.trackId, placed);
   return result.clipId ? { document: result.document, clipId: result.clipId, trackId: added.trackId } : rejected;
 }
@@ -509,9 +559,8 @@ export function insertCaptionTrack(
     cursor = endMs;
   }
   const rejected = { document: doc, trackId: null };
-  if (clips.length === 0 || clipCount(doc) + clips.length > STUDIO_LIMITS.maxClips) return rejected;
+  if (clips.length === 0) return rejected;
   const added = addTrack(doc, "visual");
-  if (!added.trackId) return rejected;
   const trackId = added.trackId;
   const document = produce(added.document, (draft) => {
     const track = draft.tracks.find((t) => t.id === trackId)!;

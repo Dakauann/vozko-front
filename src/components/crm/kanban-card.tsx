@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { TargetAndTransition, Transition, Variants } from "framer-motion";
 import { cn, readableInkFor } from "@/lib/utils";
+import { initials } from "@/lib/format/initials";
 
 
 export const kanbanCardVariants: Variants = {
@@ -243,10 +244,4 @@ export function CardLabelChip({ name, color }: { name: string; color: string }) 
 }
 
 
-export function initials(name?: string | null): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
+export { initials };

@@ -1,10 +1,10 @@
 export type ModelKind = "image" | "music" | "voice";
 
-export type ProcessingKind = "cutout" | "captions" | "denoise";
+export type ProcessingKind = "cutout" | "captions" | "denoise" | "proxy";
 
 export type MediaKind = ModelKind | "video" | ProcessingKind;
 
-export const PROCESSING_KINDS: readonly ProcessingKind[] = ["cutout", "captions", "denoise"];
+export const PROCESSING_KINDS: readonly ProcessingKind[] = ["cutout", "captions", "denoise", "proxy"];
 
 export const IMAGE_ASPECTS = ["square", "portrait", "story", "landscape"] as const;
 

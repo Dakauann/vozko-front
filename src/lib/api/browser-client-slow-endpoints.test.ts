@@ -51,6 +51,29 @@ describe("apiClient timeouts per endpoint", () => {
     expect(result.error?.code).toBe("timeout");
   });
 
+  it("waits up to two minutes while a send from leads is prepared, reviewed, started or cancelled", async () => {
+    const { apiClient } = await import("@/lib/api/browser-client");
+    for (const path of ["/leads/actions", "/leads/actions/sends/review", "/leads/actions/sends/start", "/leads/actions/sends/cancel"]) {
+      const promise = apiClient(path, { method: "POST", body: "{}" });
+      let settled = false;
+      void promise.then(() => (settled = true));
+
+      await vi.advanceTimersByTimeAsync(119_000);
+      expect(settled, path).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(2_000);
+      expect((await promise).error?.code).toBe("timeout");
+    }
+  });
+
+  it("keeps the short timeout for the other lead action calls", async () => {
+    const { apiClient } = await import("@/lib/api/browser-client");
+    const promise = apiClient("/leads/actions/preview", { method: "POST", body: "{}" });
+
+    await vi.advanceTimersByTimeAsync(11_000);
+    expect((await promise).error?.code).toBe("timeout");
+  });
+
   it("uses the short timeout for media generation, which is queued", async () => {
     const { apiClient } = await import("@/lib/api/browser-client");
     const promise = apiClient("/media/generations", { method: "POST", body: "{}" });

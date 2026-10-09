@@ -2,7 +2,10 @@
 
 import { createStore, type StoreApi } from "zustand/vanilla";
 
+import type { MediaGenerationError } from "@/hooks/use-media-generation";
+import type { MediaGenerationJob, ModelKind, Voice } from "@/lib/media-generation/types";
 import type { KeyframeProperty } from "@/lib/studio/keyframes";
+import type { SourceWindow } from "@/lib/studio/caption-cues";
 import { DEFAULT_PX_PER_SECOND } from "@/lib/studio/timeline-view";
 import type { Gap } from "@/lib/studio/tools";
 
@@ -51,9 +54,43 @@ export interface KeyRef {
   atMs: number;
 }
 
+export type VideoJobPurpose = "captions" | "denoise" | "cutout" | "music" | "voice" | "image";
+
+export interface VideoJobTarget {
+  clipId?: string;
+  trackId?: string;
+  atMs?: number;
+  durationMs?: number;
+  window?: SourceWindow;
+}
+
+export type VideoJobState = "running" | "done" | "failed";
+
+export interface VideoJob {
+  id: string;
+  purpose: VideoJobPurpose;
+  target: VideoJobTarget;
+  created: MediaGenerationJob | null;
+  state: VideoJobState;
+  settling: boolean;
+  error: MediaGenerationError | null;
+  byAgent: boolean;
+}
+
+export interface AiDraft {
+  prompt: string;
+  model: string | null;
+  voice: Voice;
+  trackId: string | null;
+  durationMs: number | null;
+}
+
+export const EMPTY_AI_DRAFT: AiDraft = { prompt: "", model: null, voice: "nova", trackId: null, durationMs: null };
+
 export interface VideoViewState {
   playheadMs: number;
   playing: boolean;
+  agentFollowing: boolean;
   rate: number;
   pxPerSecond: number;
   snapping: boolean;
@@ -75,6 +112,10 @@ export interface VideoViewState {
   scrollRequest: number | null;
   focus: FocusState | null;
   selectedKeys: KeyRef[];
+  jobs: VideoJob[];
+  aiKind: ModelKind;
+  aiDrafts: Partial<Record<ModelKind, AiDraft>>;
+  clipPicks: Partial<Record<VideoJobPurpose, string>>;
 }
 
 export type VideoViewStore = StoreApi<VideoViewState>;
@@ -83,6 +124,7 @@ export function createVideoViewStore(): VideoViewStore {
   return createStore<VideoViewState>()(() => ({
     playheadMs: 0,
     playing: false,
+    agentFollowing: false,
     rate: 0,
     pxPerSecond: DEFAULT_PX_PER_SECOND,
     snapping: true,
@@ -104,5 +146,9 @@ export function createVideoViewStore(): VideoViewStore {
     scrollRequest: null,
     focus: null,
     selectedKeys: [],
+    jobs: [],
+    aiKind: "music",
+    aiDrafts: {},
+    clipPicks: {},
   }));
 }

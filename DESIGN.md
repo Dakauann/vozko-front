@@ -527,8 +527,28 @@ rainbow; the face stays `bg-card` with a `border-border-strong` edge and the
 glyph carries the colour. Under `prefers-reduced-motion` the sweep and bars stop
 and a static lit arc remains. Every AI entry point uses this one launcher: the app-wide assistant as a tab on
 the middle of the right edge (peeking 22px, glyph showing, on hover devices; full
-tab on touch), and the workflow copilot as the round corner button. The
-circuit spark (above) is the only other glow. Do not add glow anywhere else.
+tab on touch), and the workflow copilot as the round corner button. One
+extension carries the same sweep: the assistant dock's featured starter card
+when Elo works live on the screen (`.vz-ai-card`, the Estúdio's "Editar este
+vídeo" and "Editar esta arte" cards), so the place where she edits reads as the
+same signal as the launcher. USER-DIRECTED (2026-10-08). Same ring and halo
+classes, same speed, halo raised on hover and keyboard focus. Every other
+starter card stays flat. The circuit spark (above) is the only other glow.
+Do not add glow anywhere else.
+
+**The dock empty state.** The current screen's subject is one featured card
+(questions visible, no accordion); every other subject is a topic chip under
+"Outros assuntos", whose questions open below the chips one topic at a time.
+The active chip takes the solid selection lane.
+
+**Elo's activity panel in the Estúdio.** While Elo acts or follows queued
+jobs, one panel sits inside the top right corner of the canvas or the video
+preview (12px inset), never over the page header. It is the third and last
+place the AI glow appears (`.vz-ai-card`, the same rule as the launcher): it
+marks Elo working, and it goes away when she stops. The top row carries her
+current action, a step bar for batches, and Stop only while she is acting.
+Below a hairline, "Na fila" lists her running jobs, one row each, with a
+pulsing primary dot and the state on the right. No other studio surface glows.
 
 **The loader is the trace, working.** Waiting has one look product-wide:
 `ScreenLoader` (`src/components/brand/screen-loader.tsx`), USER-DIRECTED

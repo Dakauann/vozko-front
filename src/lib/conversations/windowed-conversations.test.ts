@@ -7,6 +7,7 @@ import {
   emptyWindowConversations,
   incomingUnreadIds,
   openWindowConversation,
+  patchWindowLead,
   windowConversation,
 } from "@/lib/conversations/windowed-conversations";
 import { windowKey } from "@/lib/conversations/window-deck";
@@ -165,6 +166,51 @@ describe("subscribed", () => {
     expect(c.lead_number).toBe("+5511999");
     expect(c.window_open).toBe(true);
     expect(c.unread_count).toBe(2);
+  });
+
+  it("remembers which lead the conversation belongs to and its version", () => {
+    let state = opened();
+    const event = subscribed("e1", "Ana");
+    if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+    state = applyWindowEvent(state, { ...event, payload: { ...event.payload, lead_id: "lead-1", lead_version: 3 } });
+
+    expect(windowConversation(state, A)!.conversation).toMatchObject({ lead_id: "lead-1", lead_version: 3 });
+  });
+});
+
+describe("patchWindowLead", () => {
+  function withLeads() {
+    let state = opened();
+    for (const [entryId, leadId] of [["e1", "lead-1"], ["e2", "lead-2"]] as const) {
+      const event = subscribed(entryId, entryId === "e1" ? "Ana" : "Bruno");
+      if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+      state = applyWindowEvent(state, { ...event, payload: { ...event.payload, lead_id: leadId, lead_version: 3 } });
+    }
+    return state;
+  }
+
+  it("patches the windows of the lead only", () => {
+    const state = withLeads();
+    const next = patchWindowLead(state, "lead-1", { lead_name: "Ana Paula", lead_version: 4 });
+
+    expect(windowConversation(next, A)!.conversation.lead_name).toBe("Ana Paula");
+    expect(windowConversation(next, B)).toBe(windowConversation(state, B));
+  });
+
+  it("returns the same state when no window holds the lead or the version is older", () => {
+    const state = withLeads();
+    expect(patchWindowLead(state, "lead-9", { lead_name: "X", lead_version: 9 })).toBe(state);
+    expect(patchWindowLead(state, "lead-1", { lead_name: "X", lead_version: 2 })).toBe(state);
+  });
+
+  it("keeps a newer lead when an older subscribed answer arrives late", () => {
+    const state = patchWindowLead(withLeads(), "lead-1", { lead_name: "Ana Paula", lead_version: 5 });
+    const event = subscribed("e1", "Ana");
+    if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+
+    const next = applyWindowEvent(state, { ...event, payload: { ...event.payload, lead_id: "lead-1", lead_version: 4 } });
+
+    expect(windowConversation(next, A)!.conversation).toMatchObject({ lead_name: "Ana Paula", lead_version: 5, unread_count: 2 });
   });
 });
 

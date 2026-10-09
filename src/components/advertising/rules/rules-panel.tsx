@@ -11,7 +11,7 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { ArrowClockwise, ClockCounterClockwise, Lightning, Plus, Trash } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { actionChoiceOf, type AutomatedRule } from "@/lib/advertising/rules";
 import type { AdAccount } from "@/lib/advertising/types";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,6 @@ import { useRuleSentence } from "./use-rule-sentence";
 
 export function RulesPanel({ account, permissions }: { account: AdAccount; permissions: RulePermissions }) {
   const t = useTranslations("adsRules");
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const sentence = useRuleSentence(account.currency);
   const load = useCallback(() => listRulesAction(account.id), [account.id]);
@@ -62,7 +61,7 @@ export function RulesPanel({ account, permissions }: { account: AdAccount; permi
     markPending(metaId, false);
     if (isAdsError(outcome)) {
       patchRule(metaId, { status: previous });
-      toast({ title: t("toggle.failed", { name: rule.name }), description: outcome.error, variant: "destructive" });
+      toast.error(t("toggle.failed", { name: rule.name }), { description: outcome.error });
     }
   };
 
@@ -72,16 +71,16 @@ export function RulesPanel({ account, permissions }: { account: AdAccount; permi
     const outcome = await deleteRuleAction(target.metaId, account.id);
     setDeleting(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("delete.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("delete.done", { name: target.name }) });
+    toast(t("delete.done", { name: target.name }));
     list.update((current) => (isAdsError(current) ? current : { data: current.data.filter((rule) => rule.metaId !== target.metaId) }));
   };
 
   const created = (name: string) => {
     setBuilding(false);
-    toast({ title: t("builder.created", { name }) });
+    toast(t("builder.created", { name }));
     list.reload();
   };
 

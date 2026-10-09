@@ -10,7 +10,7 @@ import { captureKeyframes, keyframeClipboardAction, pastePatch, presetPatch } fr
 import { seekInside, selectionEasing, selectionKeyTimes, selectionMoment, setSelectionEasing, toggleSelectionMoment } from "@/lib/studio/selection-edit";
 import { cn } from "@/lib/utils";
 
-import { useVideoEditor, useViewState } from "../editor-context";
+import { usePanelPlayhead, useVideoEditor } from "../editor-context";
 import { ToolButton } from "../tool-button";
 import { EasingPicker } from "./easing-picker";
 import { InspectorSection } from "./fields";
@@ -74,7 +74,7 @@ function Coach() {
 export function AnimationFields({ clips, disabled, editor }: AnimationFieldsProps) {
   const t = useTranslations("studio.video.keyframes");
   const { playback } = useVideoEditor();
-  const playheadMs = useViewState((s) => s.playheadMs);
+  const playheadMs = usePanelPlayhead();
   const coachOpen = useKeyframeUi((s) => s.coachOpen);
   const hasClipboard = useKeyframeUi((s) => s.clipboard !== null);
   const moment = selectionMoment(clips, playheadMs);

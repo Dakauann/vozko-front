@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { STUDIO_LIMITS, type Track, type TrackKind } from "@/lib/studio/document";
@@ -37,7 +37,19 @@ import { Ruler } from "./ruler";
 import { TimelineBar } from "./timeline-bar";
 import { TimelineClip } from "./timeline-clip";
 import { TimelineContextMenu, type MenuTarget } from "./timeline-context-menu";
-import { DRAG_SLOP_PX, EDGE_SCROLL_PX, HEADER_WIDTH, MEDIA_DRAG_TYPE, RULER_HEIGHT, TimelineGeometryContext, readDraggedMedia, type TimelineGeometry } from "./timeline-geometry";
+import {
+  createTimelineScroll,
+  DRAG_SLOP_PX,
+  EDGE_SCROLL_PX,
+  HEADER_WIDTH,
+  MEDIA_DRAG_TYPE,
+  RULER_HEIGHT,
+  TimelineGeometryContext,
+  readDraggedMedia,
+  useScrollLeft,
+  type TimelineGeometry,
+  type TimelineScrollStore,
+} from "./timeline-geometry";
 import { TimelineOverview } from "./timeline-overview";
 import { TrackHeader } from "./track-header";
 
@@ -56,6 +68,10 @@ function signedSmpte(ms: number): string {
   return `${ms < 0 ? "-" : "+"}${formatSmpte(Math.abs(ms))}`;
 }
 
+function AtScroll({ scroll, children }: { scroll: TimelineScrollStore; children: (scrollLeft: number) => ReactNode }) {
+  return <>{children(useScrollLeft(scroll))}</>;
+}
+
 export function Timeline() {
   const t = useTranslations("studio.video.timeline");
   const { store, view, playback, commands } = useVideoEditor();
@@ -71,7 +87,8 @@ export function Timeline() {
   const focus = useViewState((s) => s.focus);
   const scroller = useRef<HTMLDivElement>(null);
   const lanesRef = useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = useState({ width: 0, scrollLeft: 0 });
+  const [scroll] = useState(createTimelineScroll);
+  const [width, setWidth] = useState(0);
   const [marquee, setMarquee] = useState<Marquee | null>(null);
   const [dropLane, setDropLane] = useState<string | null>(null);
   const [bladeHover, setBladeHover] = useState<{ trackId: string; ms: number } | null>(null);
@@ -95,25 +112,28 @@ export function Timeline() {
   );
   const heightOf = useCallback((kind: TrackKind) => heights[kind], [heights]);
   const tops = useMemo(() => stackTops(lanes.map(heightOfTrack)), [lanes, heightOfTrack]);
-  const lanesWidth = Math.max(0, viewport.width - HEADER_WIDTH);
+  const lanesWidth = Math.max(0, width - HEADER_WIDTH);
   const contentWidth = contentWidthPx(document.durationMs, STUDIO_LIMITS.maxVideoMs, pxPerSecond, lanesWidth);
 
   useEffect(() => {
     const element = scroller.current;
     if (!element) return;
+    const scrolled = () => scroll.setState({ scrollLeft: element.scrollLeft });
     const measure = () => {
-      setViewport({ width: element.clientWidth, scrollLeft: element.scrollLeft });
-      view.setState({ viewportPx: Math.max(0, element.clientWidth - HEADER_WIDTH) });
+      const viewportPx = Math.max(0, element.clientWidth - HEADER_WIDTH);
+      setWidth(element.clientWidth);
+      scroll.setState({ scrollLeft: element.scrollLeft, viewportPx });
+      view.setState({ viewportPx });
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
-    element.addEventListener("scroll", measure, { passive: true });
+    element.addEventListener("scroll", scrolled, { passive: true });
     return () => {
       observer.disconnect();
-      element.removeEventListener("scroll", measure);
+      element.removeEventListener("scroll", scrolled);
     };
-  }, [view]);
+  }, [view, scroll]);
 
   useLayoutEffect(() => {
     const element = scroller.current;
@@ -149,7 +169,7 @@ export function Timeline() {
     () =>
       view.subscribe((state, previous) => {
         const element = scroller.current;
-        if (!element || !state.playing || state.playheadMs === previous.playheadMs) return;
+        if (!element || (!state.playing && !state.agentFollowing) || state.playheadMs === previous.playheadMs) return;
         const next = followScroll(msToPx(state.playheadMs, state.pxPerSecond), element.scrollLeft, element.clientWidth - HEADER_WIDTH);
         if (next !== null) element.scrollLeft = next;
       }),
@@ -209,8 +229,8 @@ export function Timeline() {
   }, []);
 
   const geometry = useMemo<TimelineGeometry>(
-    () => ({ pxPerSecond, heightOf, scrollLeft: viewport.scrollLeft, viewportPx: lanesWidth, laneAt, timeAt, autoScroll }),
-    [pxPerSecond, heightOf, viewport.scrollLeft, lanesWidth, laneAt, timeAt, autoScroll],
+    () => ({ pxPerSecond, heightOf, scroll, laneAt, timeAt, autoScroll }),
+    [pxPerSecond, heightOf, scroll, laneAt, timeAt, autoScroll],
   );
 
   const snappedTime = (clientX: number) => {
@@ -292,9 +312,7 @@ export function Timeline() {
 
   const addLane = (kind: Track["kind"]) => {
     const { document: current, apply } = store.getState();
-    const result = addTrack(current, kind);
-    if (!result.trackId) commands.notify("tooManyTracks", "error");
-    else apply(() => result.document);
+    apply(() => addTrack(current, kind).document);
   };
 
   const scrollTo = (left: number) => {
@@ -313,39 +331,47 @@ export function Timeline() {
 
   return (
     <TimelineGeometryContext.Provider value={geometry}>
-      <section aria-label={t("label")} data-tour="studio-video-timeline" className="flex h-full min-h-0 select-none flex-col bg-card text-foreground [&_input]:select-text [&_textarea]:select-text">
+      <section aria-label={t("label")} data-tour="studio-video-timeline" data-studio-timeline className="flex h-full min-h-0 select-none flex-col bg-card text-foreground [&_input]:select-text [&_textarea]:select-text">
         <TimelineBar onAddTrack={addLane} />
         {focusClip ? <FocusStrip clip={focusClip} /> : null}
-        <TimelineOverview
-          tracks={document.tracks}
-          durationMs={document.durationMs}
-          pxPerSecond={pxPerSecond}
-          scrollLeft={viewport.scrollLeft}
-          viewportPx={lanesWidth}
-          markers={document.markers ?? []}
-          range={range}
-          onScroll={scrollTo}
-          onSeek={(ms) => playback.seek(ms)}
-          onZoomRange={zoomRange}
-        />
+        <AtScroll scroll={scroll}>
+          {(scrollLeft) => (
+            <TimelineOverview
+              tracks={document.tracks}
+              durationMs={document.durationMs}
+              pxPerSecond={pxPerSecond}
+              scrollLeft={scrollLeft}
+              viewportPx={lanesWidth}
+              markers={document.markers ?? []}
+              range={range}
+              onScroll={scrollTo}
+              onSeek={(ms) => playback.seek(ms)}
+              onZoomRange={zoomRange}
+            />
+          )}
+        </AtScroll>
         <div ref={scroller} className="relative min-h-0 flex-1 overflow-auto overscroll-contain">
           <div className="relative" style={{ width: HEADER_WIDTH + contentWidth, minHeight: "100%" }}>
             <div className="sticky top-0 z-30 flex border-b border-border-strong bg-card" style={{ height: RULER_HEIGHT }}>
               <div className="sticky left-0 z-40 flex shrink-0 items-center border-r border-border-strong bg-card px-2" style={{ width: HEADER_WIDTH }}>
                 <TimelineTimecode />
               </div>
-              <Ruler
-                width={contentWidth}
-                pxPerSecond={pxPerSecond}
-                scrollLeft={viewport.scrollLeft}
-                viewportWidth={lanesWidth}
-                durationMs={document.durationMs}
-                markers={document.markers ?? []}
-                range={range}
-                onSeek={(ms) => playback.seek(ms)}
-                onScrubStart={() => playback.pause()}
-                timeAt={timeAt}
-              />
+              <AtScroll scroll={scroll}>
+                {(scrollLeft) => (
+                  <Ruler
+                    width={contentWidth}
+                    pxPerSecond={pxPerSecond}
+                    scrollLeft={scrollLeft}
+                    viewportWidth={lanesWidth}
+                    durationMs={document.durationMs}
+                    markers={document.markers ?? []}
+                    range={range}
+                    onSeek={(ms) => playback.seek(ms)}
+                    onScrubStart={() => playback.pause()}
+                    timeAt={timeAt}
+                  />
+                )}
+              </AtScroll>
             </div>
             <div className="relative flex">
               <div className="sticky left-0 z-20 shrink-0 border-r border-border-strong bg-card" style={{ width: HEADER_WIDTH }}>
@@ -365,6 +391,7 @@ export function Timeline() {
               <TimelineContextMenu target={menuTarget}>
                 <div
                   ref={lanesRef}
+                  data-studio-lanes
                   data-tour="studio-video-trim"
                   className="relative"
                   style={{ width: contentWidth, height: totalHeight, cursor: tool === "blade" && !focus ? BLADE_CURSOR : undefined }}

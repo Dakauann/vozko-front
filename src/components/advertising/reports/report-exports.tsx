@@ -9,7 +9,7 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { DownloadSimple, FileCsv, Trash } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { formatDay } from "@/lib/advertising/date-range";
 import { exportsForAccount, reportStamp } from "@/lib/advertising/reports";
 import type { AdAccount, AdReportExport } from "@/lib/advertising/types";
@@ -24,7 +24,6 @@ import type { ReportPermissions } from "./use-report-permissions";
 export function ReportExports({ account, permissions }: { account: AdAccount; permissions: ReportPermissions }) {
   const t = useTranslations("adsReports.exports");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const list = useKeyedLoad("ad-report-exports", listAdReportExportsAction);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -38,7 +37,7 @@ export function ReportExports({ account, permissions }: { account: AdAccount; pe
     setDownloading(entry.id);
     const outcome = await downloadAdReportExportAction(entry);
     setDownloading(null);
-    if (isAdsError(outcome)) toast({ title: t("downloadFailed"), description: outcome.error, variant: "destructive" });
+    if (isAdsError(outcome)) toast.error(t("downloadFailed"), { description: outcome.error });
   };
 
   const confirmDelete = async () => {
@@ -47,10 +46,10 @@ export function ReportExports({ account, permissions }: { account: AdAccount; pe
     const outcome = await deleteAdReportExportAction(target.id);
     setDeleting(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("delete.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("delete.done") });
+    toast(t("delete.done"));
     list.update((current) => (isAdsError(current) ? current : { data: current.data.filter((entry) => entry.id !== target.id) }));
   };
 

@@ -84,7 +84,7 @@ vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({ can: () => true, permissionsLoading: false, currentWorkspace: { id: "ws-1" } }),
 }));
 
-vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: () => undefined }) }));
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }));
 
 vi.mock("@/app/actions/advertising", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/app/actions/advertising")>();

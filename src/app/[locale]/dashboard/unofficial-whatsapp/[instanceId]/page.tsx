@@ -32,7 +32,7 @@ import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-
 import { UnofficialWhatsAppAutomationPanel } from "@/components/unofficial-whatsapp/automation-panel";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -40,7 +40,6 @@ export default function UnofficialWhatsAppInstancePage() {
   const t = useTranslations("unofficialWhatsapp");
   const params = useParams();
   const router = useRouter();
-  const { toast } = useToast();
   const { can } = useWorkspace();
 
   const instanceId = String(params?.instanceId ?? "");
@@ -74,13 +73,13 @@ export default function UnofficialWhatsAppInstancePage() {
       setInstance({ ...instance, ...(payload as Partial<UnofficialWhatsAppInstance>) });
       const result = await updateInstanceAction(instance.id, payload);
       if (result.error) {
-        toast({ title: t("detail.saveFailed"), description: result.error, variant: "destructive" });
+        toast.error(t("detail.saveFailed"), { description: result.error });
         void load();
         return;
       }
       if (result.instance) setInstance(result.instance);
     },
-    [instance, toast, t, load],
+    [instance, t, load],
   );
 
   const runAction = useCallback(
@@ -88,14 +87,11 @@ export default function UnofficialWhatsAppInstancePage() {
       setBusy(true);
       const result = await action();
       setBusy(false);
-      toast({
-        title: label,
-        description: result.error ?? success,
-        variant: result.error ? "destructive" : undefined,
-      });
+      const notify = result.error ? toast.error : toast;
+      notify(label, { description: result.error ?? success });
       void load();
     },
-    [toast, load],
+    [load],
   );
 
   if (loading) {

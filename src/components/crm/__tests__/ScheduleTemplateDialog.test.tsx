@@ -138,6 +138,32 @@ describe("ScheduleTemplateDialog", () => {
         );
     });
 
+    it("shows why the quote was refused", async () => {
+        quoteAction.mockResolvedValue({ quote: null, error: { code: "forbidden", message: "forbidden" } });
+        renderDialog();
+        await waitFor(() =>
+            expect(screen.getByText(ptMessages.whatsappOutreach.errors.forbidden)).toBeInTheDocument(),
+        );
+    });
+
+    it("announces an unavailable quote and asks again on retry", async () => {
+        quoteAction.mockResolvedValueOnce({ quote: null, error: { code: "quote_unavailable", message: "x" } });
+        quoteAction.mockResolvedValueOnce({
+            quote: { category: "UTILITY", priceMicros: 50_000, balanceMicros: 0, affordable: false },
+            error: null,
+        });
+        renderDialog();
+        await waitFor(() =>
+            expect(screen.getByRole("status")).toHaveTextContent(ptMessages.whatsappOutreach.errors.quote_unavailable),
+        );
+        fireEvent.click(screen.getByRole("button", { name: ptMessages.common.tryAgain }));
+        await waitFor(() =>
+            expect(screen.getByText(copy.templateDialog.insufficientNow)).toBeInTheDocument(),
+        );
+        expect(screen.queryByText(ptMessages.whatsappOutreach.errors.quote_unavailable)).not.toBeInTheDocument();
+        expect(quoteAction).toHaveBeenCalledTimes(2);
+    });
+
     it("explains a refusal from the send rules", async () => {
         scheduleAction.mockResolvedValue({
             scheduledMessage: null,

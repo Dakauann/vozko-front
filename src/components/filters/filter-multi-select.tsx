@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export interface FilterMultiSelectOption {
@@ -47,9 +48,10 @@ export function FilterMultiSelect({
   onClear,
   searchPlaceholder,
   emptyMessage,
-  clearLabel = "Limpar",
+  clearLabel,
   className,
 }: FilterMultiSelectProps) {
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
   const count = selected.length;
   const active = count > 0;
@@ -98,7 +100,7 @@ export function FilterMultiSelect({
               onClick={onClear}
               className="text-2xs font-medium text-primary-ink transition-colors hover:text-[hsl(var(--primary-hover))]"
             >
-              {clearLabel}
+              {clearLabel ?? t("clear")}
             </button>
           ) : null}
         </div>
@@ -146,7 +148,10 @@ export function FilterMultiSelect({
                       )}
                     >
                       {isSelected ? (
-                        <Check weight="bold" className="h-2.5 w-2.5 text-white" />
+                        <Check
+                          weight="bold"
+                          className="h-2.5 w-2.5 text-primary-foreground"
+                        />
                       ) : null}
                     </span>
                   </CommandItem>

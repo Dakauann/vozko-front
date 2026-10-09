@@ -34,9 +34,9 @@ function currencyFormatter(currency: string, locale: string, fractionDigits?: nu
   }
 }
 
-export function formatMicros(micros: number | null | undefined, currency: string, locale = "pt-BR"): string {
+export function formatMicros(micros: number | null | undefined, currency: string, locale = "pt-BR", fractionDigits?: number): string {
   if (micros === null || micros === undefined || !Number.isFinite(micros)) return emptyValue(locale);
-  const formatter = currencyFormatter(currency, locale);
+  const formatter = currencyFormatter(currency, locale, fractionDigits);
   return formatter ? formatter.format(micros / MICROS_PER_UNIT) : emptyValue(locale);
 }
 

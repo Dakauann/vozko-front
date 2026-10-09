@@ -1,7 +1,7 @@
-import { apiClient, fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
+import { apiClient } from "@/lib/api/browser-client";
+import { downloadApiFile } from "@/lib/api/download-file";
 import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
 import { settleAds } from "@/app/actions/advertising-result";
-import { downloadBlob, filenameFromDisposition } from "@/lib/browser/download";
 import {
   accountPath,
   liveInsightsPath,
@@ -147,23 +147,9 @@ export async function getAdLiveInsightsAction(accountId: string, query: LiveQuer
 }
 
 export async function downloadAdsCsv(path: string): Promise<AdsResult<null>> {
-  try {
-    const response = await fetchWithRefresh(() =>
-      fetch(`${getApiBaseUrl()}${path}`, {
-        method: "GET",
-        credentials: "include",
-        headers: { Accept: "text/csv", ...scopeHeaders() },
-      }),
-    );
-    if (!response.ok) {
-      const body = (await response.json().catch(() => ({}))) as { message?: string; code?: string };
-      return { error: body.message || response.statusText, code: body.code, status: response.status };
-    }
-    downloadBlob(await response.blob(), filenameFromDisposition(response.headers.get("Content-Disposition")) ?? DEFAULT_CSV_NAME);
-    return { data: null };
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Network error" };
-  }
+  const { error } = await downloadApiFile(path, DEFAULT_CSV_NAME, { accept: "text/csv" });
+  if (!error) return { data: null };
+  return { error: error.message ?? "", code: error.code, status: error.status, expected: error.expected };
 }
 
 export async function downloadAdsReportCsvAction(accountId: string, filters: ReportFilters): Promise<AdsResult<null>> {

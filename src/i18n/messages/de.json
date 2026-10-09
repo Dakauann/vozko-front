@@ -2,6 +2,293 @@
   "screenLoader": {
     "label": "Wird geladen…"
   },
+  "leadMap": {
+    "mapLabel": "Lead-Karte",
+    "loading": "Karte wird geladen…",
+    "retry": "Erneut versuchen",
+    "styleError": "Die Grundkarte konnte nicht geladen werden.",
+    "styleConfigError": "Die konfigurierte Adresse der Grundkarte ist ungültig. Informiere die Plattformverwaltung.",
+    "renderError": "Dein Browser konnte die Karte nicht darstellen.",
+    "controls": {
+      "marker": "Kartenmarkierung",
+      "zoom": "Zoom",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "resetBearing": "Norden wieder nach oben drehen",
+      "attribution": "Kartennachweise anzeigen"
+    },
+    "precision": {
+      "exact": "Genauer Standort",
+      "address": "Hausnummer",
+      "street": "Straße",
+      "postalCode": "Postleitzahl",
+      "district": "Stadtteil",
+      "city": "Stadt",
+      "unknown": "Unbekannte Genauigkeit"
+    },
+    "legend": {
+      "title": "Kartenlegende",
+      "count": "{count, number}",
+      "districts": "Nach Stadtteil",
+      "districtsHint": "Kreise nach Anzahl der Leads je Stadtteil, ungefähre eingeschlossen.",
+      "selected": "Ausgewählt",
+      "area": "Gezeichnete Fläche",
+      "ibgeCredit": "Quelle: IBGE, CNEFE 2022",
+      "heatHint": "Die Heatmap zählt nur Leads mit Hausposition; ungefähre Leads stehen in der Ansicht Nach Stadtteil.",
+      "approximate": "Ungefähr (PLZ, Stadtteil oder Stadt)",
+      "less": "Weniger",
+      "more": "Mehr",
+      "precise": "Hausposition"
+    },
+    "draw": {
+      "toolbar": "Fläche zeichnen",
+      "polygon": "Polygon",
+      "rectangle": "Rechteck",
+      "circle": "Radius",
+      "cancel": "Zeichnen abbrechen",
+      "hint": {
+        "polygon": "Klicke, um jede Ecke zu setzen. Klicke auf den ersten Punkt oder drücke Enter zum Schließen. Esc bricht ab.",
+        "rectangle": "Klicke auf eine Ecke und dann auf die gegenüberliegende Ecke. Esc bricht ab.",
+        "circle": "Klicke auf den Mittelpunkt und dann auf den Radius. Esc bricht ab."
+      },
+      "invalid": "Diese Fläche kann nicht verwendet werden. Zeichne sie erneut, ohne dass sich Linien kreuzen.",
+      "unavailable": "Die Zeichenwerkzeuge wurden nicht geladen. Lade die Seite neu."
+    },
+    "summary": {
+      "loading": "Kartenzahlen werden geladen.",
+      "failed": "Die Kartenzahlen konnten nicht geladen werden.",
+      "visible": "{count, plural, =0 {Keine Leads in diesem Kartenausschnitt.} one {# Lead in diesem Kartenausschnitt.} other {# Leads in diesem Kartenausschnitt.}}",
+      "total": "{count, plural, =0 {Keine Leads im Filter.} one {# Lead im Filter.} other {# Leads im Filter.}}",
+      "onMap": "{count, plural, =0 {Keiner auf der Karte.} other {# auf der Karte.}}",
+      "approximate": "{count, plural, other {# ungefähr.}}",
+      "withoutAddress": "{count, plural, other {# ohne Adresse.}}",
+      "notFound": "{count, plural, other {# nicht gefunden.}}",
+      "pending": "{count, plural, other {# warten auf Verortung.}}",
+      "quotaExceeded": "{count, plural, other {# durch das Verortungslimit angehalten.}}",
+      "refused": "{count, plural, other {# vom Standortanbieter abgelehnt.}}",
+      "visibleApproximate": "{count, plural, other {# mit ungefährer Position in diesem Kartenausschnitt.}}"
+    },
+    "panel": {
+      "expand": "Kartenbereich öffnen",
+      "collapse": "Kartenbereich einklappen",
+      "title": "Kartenübersicht",
+      "inFilter": "In diesem Filter",
+      "inArea": "In diesem Gebiet",
+      "leadsInFilter": "{count, plural, one {Lead in diesem Filter} other {Leads in diesem Filter}}",
+      "leadsInArea": "{count, plural, one {Lead in {name}} other {Leads in {name}}}",
+      "leadsInAreas": "{count, plural, one {Lead} other {Leads}} in {areas, plural, one {# Gebiet} other {# Gebieten}}",
+      "colouredBy": "Eingefärbt nach {field}",
+      "leadsColumn": "Leads",
+      "notInformed": "Nicht angegeben",
+      "offMap": "Nicht auf der Karte in diesem Filter",
+      "districts": "Stadtteile",
+      "districtsColumn": "alle Leads",
+      "summaryFailed": "Die Zahlen für diesen Filter konnten nicht geladen werden.",
+      "colourFailed": "Die Zahlen nach {field} konnten nicht geladen werden.",
+      "offMapRows": {
+        "approximate": "Ungefähr (PLZ, Stadtteil, Stadt)",
+        "withoutAddress": "Ohne Adresse",
+        "notFound": "Adresse nicht gefunden",
+        "pending": "Warten auf Standort",
+        "quotaExceeded": "Durch das Standortlimit gestoppt",
+        "refused": "Vom Standortanbieter abgelehnt"
+      },
+      "offMapActions": {
+        "approximate": "Die ungefähren Leads in der Tabelle auflisten",
+        "withoutAddress": "Die Leads ohne Adresse in der Tabelle auflisten",
+        "notFound": "Die nicht gefundenen Adressen in der Tabelle auflisten",
+        "pending": "Die Leads, die auf einen Standort warten, in der Tabelle auflisten",
+        "quotaExceeded": "Die durch das Limit gestoppten Leads in der Tabelle auflisten",
+        "refused": "Die abgelehnten Adressen in der Tabelle auflisten"
+      },
+      "offMapActionLabel": "{label} {count}. {action}",
+      "leftOut": {
+        "summary": "{count, plural, one {# ungefährer Lead liegt} other {# ungefähre Leads liegen}} außerhalb {areas, plural, one {des gezeichneten Gebiets} other {der gezeichneten Gebiete}}.",
+        "none": "Kein ungefährer Lead liegt außerhalb {areas, plural, one {des gezeichneten Gebiets} other {der gezeichneten Gebiete}}.",
+        "list": "In der Tabelle auflisten",
+        "listAll": "Die {count, number} ungefähren Leads außerhalb des Gebiets in der Tabelle auflisten",
+        "byDistrict": "Nach Stadtteil ansehen",
+        "districtsLabel": "Ungefähre Leads außerhalb des Gebiets, nach Stadtteil",
+        "districtAction": "Die {count, number} ungefähren Leads aus {name} außerhalb des Gebiets in der Tabelle auflisten",
+        "failed": "Die ungefähren Leads außerhalb des Gebiets konnten nicht gezählt werden."
+      }
+    },
+    "empty": {
+      "title": "Noch keine Leads auf der Karte",
+      "description": "Leads erscheinen hier, sobald ihre Adresse verortet ist. Beginne damit, Adressen zu erfassen.",
+      "count": "{count, number}",
+      "counts": {
+        "total": "Leads",
+        "withoutAddress": "Ohne Adresse",
+        "approximate": "Ungefähr",
+        "pending": "Wartend",
+        "notFound": "Nicht gefunden",
+        "quotaExceeded": "Durch das Limit gestoppt",
+        "refused": "Vom Anbieter abgelehnt"
+      },
+      "actions": {
+        "importAddresses": "Adressen importieren",
+        "requestAddress": "Adresse per WhatsApp anfragen",
+        "createLead": "Lead anlegen"
+      },
+      "reasons": {
+        "importForbidden": "Du darfst keine Leads anlegen.",
+        "nobodyWithoutAddress": "Alle Leads in diesem Filter haben bereits eine Adresse."
+      }
+    },
+    "miniMap": {
+      "label": "Adresskarte",
+      "pin": "Position der Adresse",
+      "noPosition": "Diese Adresse hat noch keine Kartenposition",
+      "dragHint": "Ziehe die Markierung, um die Position zu korrigieren",
+      "keyboardHint": "Oder fokussiere die Markierung und verschiebe sie mit den Pfeiltasten (Umschalt verschiebt weiter). Enter bestätigt, Esc macht rückgängig.",
+      "pinNudged": "Markierung verschoben. Enter bestätigt, Esc macht rückgängig.",
+      "pinConfirmed": "Neue Position bestätigt.",
+      "pinReverted": "Verschiebung rückgängig gemacht."
+    },
+    "layerMode": {
+      "label": "Kartenebene",
+      "districts": "Nach Stadtteil",
+      "heat": "Heatmap",
+      "points": "Punkte"
+    },
+    "colorBy": {
+      "label": "Einfärben nach",
+      "none": "Keine",
+      "trigger": "Einfärben nach: <b>{field}</b>"
+    },
+    "unavailable": "Die Lead-Karte ist gerade nicht verfügbar. Versuche es später erneut.",
+    "layerFailed": "Die Punkte für diesen Kartenausschnitt konnten nicht geladen werden.",
+    "districtList": {
+      "label": "Stadtteile im Filter",
+      "empty": "Noch kein Stadtteil hat einen Punkt auf der Karte.",
+      "failed": "Die Stadtteile konnten nicht geladen werden.",
+      "selectAll": "Alle aus diesem Stadtteil auswählen",
+      "more": "Mehr Stadtteile anzeigen",
+      "hint": "Mit den Pfeiltasten durch die Stadtteile gehen. Enter zeigt den Stadtteil auf der Karte.",
+      "radius": {
+        "label": "Umkreis um {name}",
+        "visibleLabel": "Umkreis:",
+        "meters": "{value, number} m",
+        "kilometers": "{value, number} km"
+      },
+      "radiusFrom": {
+        "toggle": "Radius um eine Adresse oder CEP",
+        "hint": "Gib eine CEP ein, oder die Stadt mit Bundesstaat (das Viertel ist optional). Mittelpunkt ist der IBGE-Referenzpunkt.",
+        "zipCode": "CEP",
+        "district": "Viertel",
+        "city": "Stadt",
+        "state": "Bundesstaat",
+        "radius": "Radius",
+        "submit": "Radiusbereich erstellen",
+        "searching": "Punkt wird gesucht…",
+        "empty": "Gib eine CEP ein, oder die Stadt mit Bundesstaat.",
+        "failed": "Der Punkt dieser Adresse wurde nicht gefunden.",
+        "errors": {
+          "reference_query_invalid": "Gib eine gültige CEP ein, oder die Stadt mit Bundesstaat.",
+          "reference_not_loaded": "Die IBGE-Adressbasis ist für diesen Bundesstaat noch nicht geladen.",
+          "reference_point_not_found": "Diese CEP oder Adresse ist nicht in der IBGE-Basis.",
+          "reference_unavailable": "Die Adressbasis ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
+          "reference_point_unavailable": "Die Adressbasis ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
+          "forbidden": "Du darfst vollständige Adressen nicht sehen."
+        }
+      }
+    },
+    "peek": {
+      "label": "Leads an diesem Punkt",
+      "close": "Vorschau schließen",
+      "loading": "Leads an diesem Punkt werden geladen.",
+      "failed": "Die Leads an diesem Punkt konnten nicht geladen werden.",
+      "people": "{count, plural, one {# Person an diesem Punkt} other {# Personen an diesem Punkt}}",
+      "more": "{count, plural, one {Und # weitere Person an diesem Punkt.} other {Und # weitere Personen an diesem Punkt.}}",
+      "open": "Öffnen",
+      "template": "Vorlage",
+      "selectHint": "Umschalt + Klick auf den Punkt fügt diese Leads der Auswahl hinzu.",
+      "precisionSource": "{precision} · {source}",
+      "approximate": "Ungefähre Position ({place})",
+      "approximatePlace": {
+        "district": "Stadtteil {name}",
+        "postal_code": "PLZ {name}",
+        "city": "Stadt {name}"
+      },
+      "approximateKind": {
+        "district": "nach Stadtteil",
+        "postal_code": "nach PLZ",
+        "city": "nach Stadt"
+      },
+      "peopleAddress": "{count, plural, one {# Person an dieser Adresse} other {# Personen an dieser Adresse}}"
+    },
+    "source": {
+      "manual": "manueller Pin",
+      "lead_pin": "vom Lead gesendet",
+      "import": "importiert",
+      "reference": "IBGE",
+      "provider": "externer Anbieter"
+    },
+    "areas": {
+      "proposedName": "Gebiet gezeichnet am {date}",
+      "saved": "Gebiet gespeichert und dem Filter hinzugefügt.",
+      "failed": "Das Gebiet konnte nicht gespeichert werden.",
+      "errors": {
+        "area_limit_reached": "Der Workspace hat das Limit gespeicherter Gebiete erreicht. Lösche ein Gebiet, bevor du ein weiteres zeichnest.",
+        "area_shape_invalid": "Dieses Gebiet ist ungültig. Zeichne es erneut, ohne Linien zu kreuzen.",
+        "area_name_required": "Das Gebiet braucht einen Namen.",
+        "area_name_too_long": "Der Name des Gebiets ist zu lang.",
+        "area_forbidden": "Du kannst dieses Gebiet nicht ändern.",
+        "lead_addresses_forbidden": "Du darfst keine Adressen sehen.",
+        "lead_areas_unavailable": "Gebiete sind gerade nicht verfügbar. Versuche es später erneut.",
+        "area_not_found": "Dieses Gebiet gibt es nicht mehr. Aktualisiere die Liste der Gebiete.",
+        "area_visibility_invalid": "Wähle, ob das Gebiet privat oder geteilt ist."
+      },
+      "radiusName": "Umkreis von {radius} um {name}",
+      "manager": {
+        "trigger": "Gebiete",
+        "triggerLabel": "Gespeicherte Gebiete: {count, number}",
+        "title": "Gespeicherte Gebiete",
+        "description": "Wende ein Gebiet auf den Filter an, oder benenne, teile und lösche die, die du erstellt hast.",
+        "empty": "Keine gespeicherten Gebiete. Zeichne auf der Karte, um eines zu erstellen.",
+        "apply": "{name} auf den Filter anwenden",
+        "remove": "{name} aus dem Filter nehmen",
+        "shared": "Geteilt",
+        "private": "Privat",
+        "rename": "Umbenennen",
+        "renameArea": "{name} umbenennen",
+        "renameLabel": "Neuer Name für {name}",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "share": "Mit dem Workspace teilen",
+        "shareArea": "{name} mit dem Workspace teilen",
+        "unshare": "Nur für mich behalten",
+        "unshareArea": "{name} nur für mich behalten",
+        "delete": "Löschen",
+        "deleteArea": "{name} löschen",
+        "deleteTitle": "Das Gebiet {name} löschen?",
+        "deleteDescription": "Filter und gespeicherte Ansichten mit diesem Gebiet funktionieren nicht mehr, bis das Gebiet daraus entfernt wird.",
+        "deleteConfirm": "Gebiet löschen",
+        "readOnly": "Nur die Person, die das Gebiet erstellt hat, kann es ändern.",
+        "renamed": "Gebiet umbenannt.",
+        "sharedDone": "Gebiet mit dem Workspace geteilt.",
+        "privateDone": "Das Gebiet gehört jetzt nur dir.",
+        "deleted": "Gebiet gelöscht.",
+        "updateFailed": "Das Gebiet konnte nicht geändert werden.",
+        "deleteFailed": "Das Gebiet konnte nicht gelöscht werden."
+      }
+    },
+    "selection": {
+      "inArea": "{count, plural, one {# Lead im gezeichneten Gebiet} other {# Leads im gezeichneten Gebiet}}",
+      "partial": "Nur die ersten {count, number} Leads an diesem Punkt wurden der Auswahl hinzugefügt.",
+      "failed": "Die Leads an diesem Punkt konnten nicht hinzugefügt werden."
+    },
+    "viewportFailed": "Die Karte konnte für diesen Filter nicht geöffnet werden.",
+    "providers": {
+      "opencage": "OpenCage"
+    },
+    "focus": {
+      "unplaced": "Dieser Lead hat noch keine Position auf der Karte.",
+      "failed": "Dieser Lead konnte nicht auf der Karte geöffnet werden.",
+      "dismiss": "Hinweis schließen"
+    }
+  },
   "crmAnalysis": {
     "awaiting": "Wartet auf Analyse",
     "awaitingHint": "Dieses Gespräch läuft noch. Die KI analysiert es, sobald einige Minuten lang nichts mehr kommt; es wird noch nichts analysiert.",
@@ -391,7 +678,24 @@
       "member_activity": "Aktivität des Mitglieds",
       "generate_music": "Musik erzeugen",
       "generate_voiceover": "Sprecher erzeugen",
-      "render_video": "Video erstellen"
+      "render_video": "Video erstellen",
+      "studio_read": "Projekt lesen",
+      "studio_look": "Ergebnis ansehen",
+      "studio_edit_video": "Video bearbeiten",
+      "studio_edit_image": "Design bearbeiten",
+      "studio_start_job": "In die Warteschlange stellen",
+      "studio_jobs": "Warteschlange prüfen",
+      "studio_generate_music": "Musik für das Video erstellen",
+      "studio_generate_voiceover": "Sprechertext für das Video erstellen",
+      "studio_generate_image": "Bild für das Projekt erstellen",
+      "studio_ask": "Fragen",
+      "diagnose_access": "Zugriff prüfen",
+      "explain_permission": "Berechtigung erklären",
+      "open_screen": "Bildschirm öffnen",
+      "lead_geo_summary": "Leads nach Ort",
+      "prepare_lead_action": "Sammelaktion für Leads",
+      "start_lead_send": "Versand an Leads starten",
+      "cancel_lead_send": "Vorbereiteten Versand verwerfen"
     },
     "threadsLegend": "Unterhaltungen",
     "greeting": "Hallo, ich bin Elo. Woran arbeiten wir?",
@@ -596,6 +900,41 @@
             "best": "Welche Anzeige hat diesen Monat die günstigsten Gespräche gebracht?",
             "create": "Erstelle eine WhatsApp-Anzeige für meine Aktion"
           }
+        },
+        "studioVideo": {
+          "title": "Dieses Video bearbeiten",
+          "items": {
+            "captions": "Untertitle das Gesprochene in diesem Video",
+            "tighten": "Schneide die Pausen raus und halte das Video unter 20 Sekunden",
+            "title": "Erstelle einen animierten Einstieg mit dem Markennamen",
+            "music": "Lege passende Hintergrundmusik unter das Video",
+            "review": "Sieh dir das Video an und sag mir, was besser werden kann"
+          }
+        },
+        "studioImage": {
+          "title": "Dieses Design bearbeiten",
+          "items": {
+            "compose": "Baue ein Angebotsdesign mit Titel, Preis und Handlungsaufruf",
+            "tidy": "Richte die Elemente dieses Designs aus und ordne sie",
+            "cutout": "Entferne den Hintergrund vom Produktfoto",
+            "review": "Sieh dir das Design an und schlage Verbesserungen vor"
+          }
+        }
+      },
+      "otherTopics": "Weitere Themen",
+      "modes": {
+        "label": "Ausführungsmodus",
+        "ask": {
+          "title": "Fragen",
+          "hint": "Elo fragt vor jeder Bearbeitung und jeder Generierung nach deiner Freigabe."
+        },
+        "edit": {
+          "title": "Selbst bearbeiten",
+          "hint": "Bearbeitungen gehen direkt ins Projekt. Kostenpflichtige Generierungen brauchen deine Freigabe."
+        },
+        "full": {
+          "title": "Vollzugriff",
+          "hint": "Bearbeitungen und Generierungen laufen direkt mit dem empfohlenen Modell. Generierungen werden vom Guthaben abgebucht."
         }
       }
     },
@@ -766,7 +1105,15 @@
       "voice": "Sprecher",
       "scenes": "Szenen",
       "music_model": "Musikmodell",
-      "voice_model": "Sprechermodell"
+      "voice_model": "Sprechermodell",
+      "skipped": "Übersprungen",
+      "parts": "Versände",
+      "capRemaining": "Restliches Monatslimit",
+      "estimatedDays": "Geschätzte Tage",
+      "next": "Nächster Schritt",
+      "recipients": "Empfangen",
+      "counted": "Unter den Empfängern",
+      "entries": "Leads im Versand"
     },
     "attachments": {
       "legend": "Angehängte Dateien",
@@ -871,6 +1218,14 @@
         "scene": "Szene {index}",
         "music": "Musik",
         "voice": "Sprecher"
+      },
+      "leadAction": {
+        "counting": "Leads werden gezählt: Die Zahlen können sich noch ändern.",
+        "partial": "Teilzählung, erstellt beim Anlegen des Vorschlags.",
+        "expired": "Teilzählung: Das Endergebnis ist nicht mehr verfügbar. Beim Freigeben wird erneut gezählt.",
+        "failed": "Diese Freigabe wird abgelehnt. Bitten Sie Elo, sie erneut vorzuschlagen.",
+        "cancel": "Angehaltene Versände, die gelöscht werden",
+        "entries": "{count, plural, =1 {# Lead} other {# Leads}}"
       }
     },
     "navigation": {
@@ -909,6 +1264,73 @@
       },
       "downloadingHint": "Der Browser meldet keinen Fortschritt. Wir warten bis zu 2 Minuten und hören zu, sobald es bereit ist.",
       "interruptHint": "Sprich jederzeit, um zu unterbrechen."
+    },
+    "ask": {
+      "label": "Frage von Elo",
+      "options": "Antworten",
+      "orType": "Oder schreib eine andere Antwort."
+    },
+    "subjects": {
+      "skill": {
+        "agentes-de-atendimento-ia": "KI-Serviceagenten",
+        "alcance-e-reconhecimento": "Reichweite und Bekanntheit",
+        "anuncios-para-site": "Anzeigen für Websites",
+        "anuncios-para-whatsapp": "Anzeigen zu WhatsApp",
+        "base-de-conhecimento": "Wissensdatenbank",
+        "campanhas-de-whatsapp": "WhatsApp-Kampagnen",
+        "catalogo-e-app": "Katalog und App",
+        "criativo-com-a-marca": "Markengerechte Kreativs",
+        "criativos-que-performam": "Kreativs mit Leistung",
+        "design-de-imagem": "Bilddesign",
+        "edicao-de-video": "Videobearbeitung",
+        "estrategia-de-campanha": "Kampagnenstrategie",
+        "formularios-de-cadastro": "Lead-Formulare",
+        "funil-e-qualificacao": "Funnel und Qualifizierung",
+        "impulsionar-publicacao": "Beitrag bewerben",
+        "legendas-e-texto": "Untertitel und Bildschirmtext",
+        "lgpd-no-marketing": "Datenschutz im Marketing",
+        "mensagens-instagram-e-messenger": "Instagram Direct und Messenger",
+        "metricas-de-atendimento": "Servicekennzahlen",
+        "modelos-do-whatsapp": "WhatsApp-Vorlagen",
+        "motion-design": "Motion Design",
+        "nicho-advocacia": "Kanzleien",
+        "nicho-imobiliario": "Immobilien",
+        "nicho-medicina": "Arztpraxen",
+        "nicho-odontologia": "Zahnarztpraxen",
+        "otimizacao-e-diagnostico": "Optimierung und Diagnose",
+        "politicas-de-anuncios": "Werberichtlinien",
+        "publico-e-segmentacao": "Zielgruppe und Targeting",
+        "remarketing": "Retargeting",
+        "testes-e-atribuicao": "Tests und Attribution",
+        "video-com-som": "Video mit Ton",
+        "formatos-e-zonas-seguras": "Formate und sichere Zonen",
+        "carrossel-e-miniatura": "Karussells und Thumbnails",
+        "anuncio-ugc-e-depoimento": "UGC-Anzeigen und Testimonials",
+        "oferta-e-preco": "Angebote und Preise",
+        "explicativo-e-dados": "Erklärvideos und Daten",
+        "pecas-por-segmento": "Inhalte nach Branche"
+      }
+    },
+    "cost": {
+      "label": "Kosten dieser Unterhaltung",
+      "tooltip": "Bisher von deinem Guthaben für dieses Gespräch abgebucht, zu den Preisen deines Tarifs: Elos Nutzung in jeder Antwort und die Bild-, Musik-, Sprach- und Videogenerierungen, die sie hier gestartet hat. Aktualisiert sich, während Elo arbeitet.",
+      "unavailable": "Die genauen Kosten dieser Unterhaltung sind nicht verfügbar. Unterhaltungen, die vor der Kostenerfassung pro Unterhaltung begonnen haben, haben keine Summe.",
+      "tokens": "{count} Tokens",
+      "usage": {
+        "calls": "Modellaufrufe",
+        "input": "Eingabe-Tokens",
+        "cacheRead": "Aus dem Cache gelesen",
+        "cacheWrite": "In den Cache geschrieben",
+        "output": "Ausgabe-Tokens",
+        "reasoning": "Davon Denken"
+      }
+    },
+    "toolFields": {
+      "prepare_lead_action": {
+        "leads": "Leads",
+        "changes": "Werden geändert",
+        "budget": "Versandlimit"
+      }
     }
   },
   "leadMemories": {
@@ -1285,7 +1707,29 @@
     "dealOwnerAI": "KI-Agent",
     "dealOwnerWorkflow": "Workflow",
     "dealOwnerSystem": "System",
-    "dealOwnerTeam": "Team"
+    "dealOwnerTeam": "Team",
+    "lead": {
+      "district": "Stadtteil",
+      "city": "Stadt",
+      "state": "Bundesstaat",
+      "noOwner": "Niemand verantwortlich",
+      "family": "Familie",
+      "familyCount": "{count, plural, =0 {keine Angehörigen} one {# Angehörige Person} other {# Angehörige}}",
+      "referredCount": "{count, plural, one {hat # Person empfohlen} other {hat # Personen empfohlen}}",
+      "openRecord": "Vollständigen Datensatz öffnen",
+      "loadFailed": "Der Datensatz dieses Kontakts konnte nicht geladen werden.",
+      "editArea": "Stadtteil und Stadt bearbeiten",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "areaSaved": "Stadtteil aktualisiert",
+      "areaFailed": "Der Stadtteil konnte nicht gespeichert werden",
+      "editOwner": "Verantwortliche Person ändern",
+      "ownerSaved": "Verantwortliche Person aktualisiert",
+      "ownerFailed": "Die verantwortliche Person konnte nicht geändert werden",
+      "record": "Datensatz",
+      "messages": "Nachrichten",
+      "optedOut": "Möchte keine Nachrichten"
+    }
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -1443,6 +1887,19 @@
       "published_ad": "Veröffentlichte Anzeige"
     },
     "footer": "Preise in BRL. Werte können je nach Wechselkurs variieren. Pläne können jederzeit geändert werden."
+  },
+  "dashboardTable": {
+    "emptyTitle": "Keine Einträge gefunden",
+    "emptyDescription": "Passe die Filter an oder füge neue Einträge hinzu.",
+    "showing": "Zeige",
+    "of": "von",
+    "items": "Einträgen",
+    "perPage": "Pro Seite",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "selectAll": "Alle Zeilen dieser Seite auswählen",
+    "selectRow": "Zeile auswählen",
+    "selected": "{count} ausgewählt"
   },
   "common": {
     "groupConversation": "Gruppe",
@@ -1920,6 +2377,7 @@
       "adminOverview": "Umsatz",
       "adminMetaCosts": "Meta-Kosten",
       "adminSendCaps": "Versandlimits",
+      "adminGeocoding": "Geokodierung",
       "whatsapp": "WhatsApp",
       "instagramChannel": "Instagram",
       "campaigns": "Kampagnen",
@@ -1945,6 +2403,7 @@
       "sipTrunks": "Telefonleitungen",
       "callQueues": "Warteschlangen",
       "callHistory": "Verlauf",
+      "callLists": "Anruflisten",
       "adsOverview": "Kontoübersicht",
       "adsManager": "Kampagnen",
       "adsAudiences": "Zielgruppen",
@@ -3223,7 +3682,8 @@
         "error": "Fehler beim Aktualisieren",
         "activated": "Agent aktiviert",
         "deactivated": "Agent deaktiviert",
-        "updated": "wurde erfolgreich aktualisiert."
+        "updated": "wurde erfolgreich aktualisiert.",
+        "idCopied": "ID kopiert"
       }
     }
   },
@@ -4026,7 +4486,9 @@
       "template_authentication_code_too_long": "Der Code darf höchstens 15 Zeichen lang sein.",
       "template_access_denied": "Dieser Workspace hat keinen Zugriff auf diese Vorlage.",
       "template_header_media_outside_storage": "Die Kopfzeilen-Medien müssen eine Datei aus der Medienbibliothek des Workspace sein.",
-      "template_phone_outside_workspace": "Diese WhatsApp-Nummer gehört nicht zu diesem Workspace."
+      "template_phone_outside_workspace": "Diese WhatsApp-Nummer gehört nicht zu diesem Workspace.",
+      "template_send_params_mismatch": "Die Variablenwerte passen nicht zur Vorlage. Prüfe sie und versuche es erneut.",
+      "template_quote_out_of_range": "Die Kosten dieses Versands konnten nicht berechnet werden: Menge oder Betrag liegt über dem Limit."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -5160,7 +5622,8 @@
         "started": "Kampagne erfolgreich gestartet",
         "paused": "Kampagne pausiert",
         "stopped": "Kampagne gestoppt",
-        "deleted": "Kampagne gelöscht"
+        "deleted": "Kampagne gelöscht",
+        "updatedName": "{name} aktualisiert"
       },
       "confirmDelete": "Sind Sie sicher, dass Sie diese Kampagne löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
       "reset": {
@@ -6453,10 +6916,12 @@
       "departments": "Abteilungen"
     },
     "configTab": {
-      "description": "Workspace-Richtlinien: Zuweisung und Gesprächsabschluss.",
+      "description": "Workspace-Richtlinien: Zuweisung, Gesprächsabschluss und Verortung von Adressen.",
       "sections": {
-        "attendance": "Betreuung"
-      }
+        "attendance": "Betreuung",
+        "leads": "Leads"
+      },
+      "managerDescription": "Adressverortung dieses Workspace."
     },
     "roles": {
       "owner": "Eigentümer",
@@ -6707,7 +7172,96 @@
         "connects_accounts": "Erlaubt das Verbinden und Trennen von Kanälen und Integrationen des Unternehmens."
       }
     },
-    "viewActivity": "Aktivität ansehen"
+    "viewActivity": "Aktivität ansehen",
+    "geocoding": {
+      "title": "Verortung von Adressen",
+      "description": "Wie Lead-Adressen zu Positionen auf der Karte werden.",
+      "status": {
+        "loading": "Wird geladen",
+        "unavailable": "Nicht verfügbar",
+        "reference": "Nur IBGE-Referenz",
+        "provider": "Externer Anbieter aktiv",
+        "ceilingReached": "Monatsobergrenze erreicht",
+        "noCeiling": "Monatsobergrenze ist null",
+        "providerMissing": "Externer Anbieter nicht verfügbar",
+        "providerPaused": "Anbieter pausiert",
+        "providerPauseUnknown": "Anbieter wartet"
+      },
+      "loading": "Verortung von Adressen wird geladen…",
+      "loadFailed": "Die Verortung von Adressen konnte nicht geladen werden.",
+      "saved": "Verortung von Adressen aktualisiert.",
+      "saveFailed": "Speichern fehlgeschlagen.",
+      "reference": {
+        "label": "Referenzdaten",
+        "hint": "Immer aktiv. Verortet Adressen über CEP, Stadtteil und Stadt mit öffentlichen Daten, ohne Adressen außerhalb unserer Server zu senden."
+      },
+      "provider": {
+        "label": "Externer Anbieter ({provider})",
+        "labelNone": "Externer Anbieter",
+        "hint": "Nur genutzt, wenn die Referenz nicht die Straßenebene erreicht und die Adresse eine Straße hat. Wenn aktiv, werden Lead-Adressen an den Anbieter gesendet, der angewiesen ist, die Anfragen nicht zu speichern.",
+        "readOnly": "Nur der Workspace-Inhaber oder ein Plattform-Admin kann den externen Anbieter ein- oder ausschalten.",
+        "notConfigured": "Dieser Server hat keinen Zugang zu einem externen Anbieter.",
+        "stamp": {
+          "on": "Eingeschaltet von <name>{person}</name> am {date}",
+          "off": "Ausgeschaltet von <name>{person}</name> am {date}"
+        },
+        "never": "In diesem Workspace nie eingeschaltet."
+      },
+      "usage": {
+        "title": "Externe Anfragen in diesem Zyklus",
+        "count": "{used, number} von {ceiling, number}",
+        "today": "Heute: {used, number} von {share, number}",
+        "renews": "Der Zyklus erneuert sich am {date}.",
+        "off": "Mit ausgeschaltetem Anbieter werden keine externen Anfragen gestellt.",
+        "none": "Monatsobergrenze ist null: Es werden keine externen Anfragen gestellt.",
+        "reached": "Monatsobergrenze erreicht. Die übrigen Adressen behalten bis zum nächsten Zyklus die Referenzposition.",
+        "todayReached": "Tagesanteil erreicht. Die Anfragen gehen morgen weiter."
+      },
+      "ceiling": {
+        "label": "Monatliche Obergrenze für Anfragen",
+        "hint": "0 schaltet externe Anfragen für diesen Workspace aus.",
+        "readOnly": "Nur Plattform-Admins ändern die Monatsobergrenze.",
+        "save": "Obergrenze speichern",
+        "invalid": "Gib eine ganze Zahl ohne Nachkommastellen ein.",
+        "stamp": "Obergrenze festgelegt von <name>{person}</name> am {date}"
+      },
+      "confirm": {
+        "enable": {
+          "title": "Externen Anbieter einschalten?",
+          "description": "Die Lead-Adressen dieses Workspaces werden an {provider} gesendet, wenn die Referenz nicht die Straßenebene erreicht. Die Anfragen zählen zur Monatsobergrenze des Workspaces.",
+          "confirm": "Anbieter einschalten"
+        },
+        "cancel": "Abbrechen"
+      },
+      "errors": {
+        "geocoding_forbidden": "Nur der Workspace-Inhaber oder ein Plattform-Admin kann diese Einstellung ändern.",
+        "geocoding_ceiling_forbidden": "Nur ein Plattform-Admin kann die Monatsobergrenze ändern.",
+        "geocoding_change_empty": "Es gibt nichts zu speichern.",
+        "geocoding_provider_unknown": "Diesen Anbieter gibt es nicht.",
+        "geocoding_ceiling_invalid": "Die Obergrenze liegt außerhalb des erlaubten Bereichs.",
+        "geocoding_provider_not_configured": "Dieser Server hat keinen Zugang zu diesem Anbieter.",
+        "geocoding_settings_unreadable": "Die Einstellung konnte nicht gelesen werden. Versuche es erneut.",
+        "geocoding_unavailable": "Die Verortung von Adressen ist auf diesem Server nicht verfügbar.",
+        "invalid_body": "Der Server hat die Anfrage abgelehnt. Lade die Seite neu und versuche es erneut.",
+        "unknown": "Versuche es gleich noch einmal."
+      },
+      "pause": {
+        "title": "Der externe Anbieter ist für alle Workspaces pausiert",
+        "unknownTitle": "Der Status des externen Anbieters konnte nicht bestätigt werden",
+        "since": "Pausiert seit {since}.",
+        "until": "Bis {until} wird keine kostenpflichtige externe Anfrage gestellt und nichts von der Obergrenze verbraucht.",
+        "unknown": "Solange der Status nicht bestätigt ist, wird keine kostenpflichtige externe Anfrage gestellt und nichts von der Obergrenze verbraucht.",
+        "reference": "In der Zwischenzeit nutzen Positionen die kostenlose Referenz (den Punkt der CEP, des Stadtteils oder der Stadt).",
+        "reasons": {
+          "key_rejected": "Der Anbieter hat den Zugangsschlüssel der Plattform abgelehnt.",
+          "account_quota_spent": "Das Kontingent des Plattformkontos beim Anbieter ist aufgebraucht.",
+          "key_disabled": "Der Zugangsschlüssel der Plattform wurde beim Anbieter deaktiviert.",
+          "account_refused": "Der Anbieter hat das Plattformkonto abgelehnt.",
+          "queries_refused": "Der Anbieter hat mehrere verschiedene Adressen nacheinander abgelehnt, ein Hinweis auf ein Problem in der Anbindung an den Anbieter und nicht in Ihren Adressen.",
+          "other": "Der Anbieter hat die Anfragen der Plattform abgelehnt."
+        }
+      }
+    }
   },
   "workspaceInvites": {
     "loading": "Einladungen werden geladen...",
@@ -8115,6 +8669,18 @@
       "textResponse": "Textantwort",
       "noMatch": "Keine Übereinstimmung",
       "error": "Fehler"
+    },
+    "updateLead": {
+      "empty": "Keine Lead-Daten",
+      "more": "+{count, plural, one {# Feld} other {# Felder}}",
+      "customField": "Feld {key}",
+      "keysTitle": "Benutzerdefinierte Lead-Felder",
+      "keysHelp": "Klicke auf ein Feld, um seinen Schlüssel unten hinzuzufügen. Sensible Felder werden nie von Workflows geschrieben.",
+      "keysEmpty": "Dieser Workspace hat keine benutzerdefinierten Lead-Felder.",
+      "keysFailed": "Die benutzerdefinierten Felder konnten nicht geladen werden.",
+      "keysRetry": "Erneut versuchen",
+      "keyAdded": "hinzugefügt",
+      "keySensitive": "sensibel"
     }
   },
   "mcpPage": {
@@ -8379,66 +8945,324 @@
       "save": "Namen speichern",
       "cancel": "Abbrechen",
       "saved": "Name aktualisiert",
-      "cleared": "Name entfernt, der Kontakt erscheint wieder mit seiner Nummer"
+      "cleared": "Name entfernt, der Kontakt erscheint wieder mit seiner Nummer",
+      "failed": "Der Name konnte nicht gespeichert werden",
+      "conflict": "Jemand anderes hat den Namen in \"{name}\" geändert. Speichern Sie erneut, um Ihren zu verwenden, oder brechen Sie ab, um den aktuellen zu behalten.",
+      "conflictOther": "Jemand anderes hat diesen Lead während Ihrer Bearbeitung geändert. Speichern Sie erneut, um Ihren Namen zu übernehmen, oder brechen Sie ab."
+    },
+    "errors": {
+      "version_required": "Die Version dieses Leads konnte nicht bestätigt werden. Laden Sie die Seite neu und versuchen Sie es erneut.",
+      "lead_name_too_long": "Der Name ist zu lang.",
+      "lead_not_found": "Dieser Lead existiert nicht mehr.",
+      "forbidden": "Sie haben keine Berechtigung, diesen Lead zu ändern.",
+      "lead_commands_unavailable": "Die Bearbeitung von Leads ist gerade nicht verfügbar. Versuchen Sie es gleich noch einmal.",
+      "invalid_body": "Der Server hat die Anfrage abgelehnt. Laden Sie die Seite neu und versuchen Sie es erneut.",
+      "lead_identity_taken": "Diese Nummer gehört bereits zu einem anderen Lead.",
+      "lead_identity_in_use": "Diese Nummer hat bereits Unterhaltungen und kann nicht geändert werden.",
+      "lead_number_invalid": "Ungültige WhatsApp-Nummer.",
+      "lead_identity_required": "Gib den Namen oder die WhatsApp-Nummer an.",
+      "lead_nickname_too_long": "Der Spitzname ist zu lang.",
+      "lead_email_invalid": "Ungültige E-Mail.",
+      "lead_birth_date_invalid": "Ungültiges Geburtsdatum.",
+      "lead_owner_invalid": "Ungültige verantwortliche Person.",
+      "lead_owner_outside_workspace": "Diese Person gehört nicht zum Workspace.",
+      "lead_owner_out_of_reach": "Du kannst dieser Person keine Leads zuweisen.",
+      "lead_phone_invalid": "Ungültige Telefonnummer.",
+      "lead_phone_label_invalid": "Ungültiger Telefontyp.",
+      "lead_phone_limit": "Ein Lead hat höchstens 6 Kontakttelefone.",
+      "lead_phone_repeats_identity": "Diese Nummer ist bereits das WhatsApp des Leads.",
+      "lead_phone_repeated": "Diese Nummer ist bei diesem Lead doppelt.",
+      "lead_phone_unknown": "Diese Nummer gehört nicht mehr zu diesem Lead. Lade neu und versuche es erneut.",
+      "lead_address_invalid": "Unvollständige Adresse: gib die CEP oder die Stadt mit dem Bundesstaat an.",
+      "lead_address_label_invalid": "Ungültiger Adresstyp.",
+      "lead_address_limit": "Ein Lead hat höchstens 5 Adressen.",
+      "lead_address_primary": "Wähle genau eine Hauptadresse.",
+      "lead_address_unknown": "Diese Adresse gehört nicht mehr zu diesem Lead. Lade neu und versuche es erneut.",
+      "lead_no_primary_address": "Dieser Lead hat keine Hauptadresse zum Kopieren.",
+      "lead_addresses_forbidden": "Du darfst keine Adressen ändern.",
+      "lead_relation_kind_invalid": "Ungültige Verwandtschaft.",
+      "lead_relation_self": "Ein Lead kann nicht mit sich selbst verwandt sein.",
+      "lead_relative_not_found": "Dieser Lead existiert nicht mehr.",
+      "lead_relation_exists": "Diese Leads sind bereits verknüpft.",
+      "lead_relation_not_found": "Diese Verknüpfung wurde bereits entfernt.",
+      "custom_field_unknown_key": "Dieses benutzerdefinierte Feld existiert nicht mehr. Lade neu.",
+      "custom_field_value_type": "Ungültiger Wert für dieses Feld.",
+      "custom_field_value_not_in_options": "Wähle eine der Optionen des Feldes.",
+      "custom_field_value_required": "Pflichtfeld.",
+      "custom_field_sensitive_forbidden": "Du darfst keine sensiblen Felder ändern.",
+      "version_conflict": "Jemand anderes hat diesen Lead geändert, während du bearbeitet hast.",
+      "lead_opt_out_source_invalid": "Die angegebene Herkunft ist ungültig."
     }
   },
   "leadsPage": {
     "import": {
       "action": "Importieren",
-      "title": "Leads importieren",
-      "description": "Lade eine Kontaktliste hoch. Die Datei wird in deinem Browser gelesen. Vor deiner Bestätigung wird nichts gesendet.",
-      "chooseFile": "CSV-Datei wählen",
       "template": "Vorlage herunterladen",
-      "empty": "Wähle eine CSV- oder TXT-Datei, um zu starten.",
+      "title": "Leads importieren",
+      "description": "Die Datei wird auf dem Server gelesen und der Import läuft im Hintergrund weiter. Du kannst dieses Fenster schließen.",
+      "steps": {
+        "file": "Datei",
+        "columns": "Spalten",
+        "importing": "Import läuft"
+      },
+      "file": {
+        "choose": "Tabelle auswählen",
+        "uploading": "Tabelle wird hochgeladen...",
+        "limits": "CSV oder TSV bis {megabytes} MB und {rows} Zeilen. Die erste Zeile enthält die Spaltennamen.",
+        "rows": "{count, plural, one {# Zeile} other {# Zeilen}}",
+        "templateHint": "Die Vorlage enthält die häufigsten Spalten: WhatsApp, Name, Telefonnummern, Adresse und Familie. Eine Spalte mit WhatsApp oder Name genügt.",
+        "loading": "Import wird geladen..."
+      },
       "mapping": {
         "title": "Spalten der Datei",
-        "detected": "Kopfzeile erkannt. Prüfe, ob jede Spalte im richtigen Feld landet.",
-        "noHeader": "Keine Kopfzeile. Die Spalten stehen in der Reihenfolge der Datei.",
-        "column": "Spalte {index}",
-        "number": "Telefon",
-        "name": "Name",
-        "age": "Alter",
+        "recognised": "{count, number} von {total, plural, one {# Spalte erkannt} other {# Spalten erkannt}}",
+        "help": "Jede Spalte geht in ein Feld des Leads. Prüfe die Vorschläge; wähle Nicht importieren, um eine Spalte zu überspringen.",
         "none": "Nicht importieren",
-        "onlyThese": "Ein Lead speichert Telefon, Name und Alter. Alle anderen Spalten werden ignoriert."
+        "column": "Spalte {index}",
+        "choose": "Ziel der Spalte {column}",
+        "sensitive": "Sensibles Feld",
+        "nothingMapped": "Wähle für mindestens eine Spalte ein Ziel."
       },
-      "summary": {
-        "counts": "{valid} gültige Kontakte · {invalid} ungültig · {duplicates} in der Datei doppelt",
-        "tooMany": "Maximal {max} Kontakte pro Import. Teile die Datei und sende sie in Teilen.",
-        "rejectedTitle": "Zeilen, die übersprungen werden ({count})"
+      "groups": {
+        "identity": "Identifikation",
+        "phones": "Kontakttelefone",
+        "contact": "Kontakt",
+        "address": "Adresse",
+        "owner": "Verantwortlich",
+        "consent": "Einwilligung",
+        "custom": "Benutzerdefinierte Felder",
+        "family": "Familie",
+        "other": "Sonstige"
       },
-      "reasons": {
-        "invalid": "ungültige Nummer",
-        "duplicate": "doppelt"
+      "fields": {
+        "number": "WhatsApp (Haupt)",
+        "phone_mobile": "Telefon · Mobil",
+        "phone_landline": "Telefon · Privat",
+        "phone_work": "Telefon · Geschäftlich",
+        "phone_message": "Telefon · Nachrichten",
+        "phone_other": "Telefon · Andere",
+        "name": "Name",
+        "nickname": "Spitzname",
+        "email": "E-Mail",
+        "birth_date": "Geburtsdatum",
+        "zip_code": "CEP",
+        "street": "Straße",
+        "street_number": "Hausnummer",
+        "complement": "Zusatz",
+        "district": "Stadtteil",
+        "city": "Stadt",
+        "state": "Bundesstaat",
+        "latitude": "Breitengrad",
+        "longitude": "Längengrad",
+        "owner_email": "Verantwortlich (E-Mail)",
+        "consent_date": "Datum der Einwilligung",
+        "consent_purpose": "Zweck der Einwilligung",
+        "relative_number": "Familie · WhatsApp des Angehörigen",
+        "relation_kind": "Familie · Verwandtschaft",
+        "custom": "Feld: {label}",
+        "unknown": "Feld {key}"
+      },
+      "requires": {
+        "leads_read_addresses": "Erfordert die Berechtigung, Adressen zu sehen",
+        "leads_assign": "Erfordert die Berechtigung, Verantwortliche zuzuweisen",
+        "leads_read_sensitive": "Erfordert die Berechtigung, sensible Felder zu sehen",
+        "leads_update": "Erfordert die Berechtigung, Leads zu bearbeiten",
+        "other": "Erfordert eine Berechtigung, die du nicht hast"
+      },
+      "permissions": {
+        "leads_create": "Leads anzulegen",
+        "leads_update": "Leads zu bearbeiten",
+        "leads_assign": "Verantwortliche zuzuweisen",
+        "leads_read_addresses": "Adressen zu sehen",
+        "leads_read_sensitive": "sensible Felder zu sehen",
+        "media_read": "die Medienbibliothek zu sehen",
+        "other": "eine Aktion auszuführen, für die dir die Berechtigung fehlt"
       },
       "existing": {
-        "label": "Bereits vorhandene Kontakte",
-        "fillEmpty": "Leeren Namen und Alter ergänzen",
-        "skip": "Unverändert lassen",
-        "neverOverwrites": "Ein Import ersetzt niemals einen bereits gesetzten Namen."
+        "label": "Bereits vorhandene Leads",
+        "fillEmpty": "Nur Leeres ergänzen",
+        "skip": "Nichts ändern",
+        "fillEmptyLocked": "Vorhandene Leads zu ergänzen erfordert die Berechtigung, Leads zu bearbeiten.",
+        "neverOverwrites": "Der Import ersetzt nie einen ausgefüllten Wert, auch keine vom Team gesetzte Adresse oder Markierung."
       },
-      "confirm": "Importieren",
-      "importing": "Importiere...",
+      "dryRun": {
+        "run": "Import simulieren",
+        "again": "Erneut simulieren",
+        "running": "Tabelle wird geprüft...",
+        "analyzing": "{processed} von {total} Zeilen geprüft",
+        "title": "Simulation",
+        "help": "Noch wurde nichts gespeichert. Prüfe die Zahlen und importiere.",
+        "stale": "Die Spalten wurden nach der Simulation geändert. Simuliere erneut, um zu importieren."
+      },
+      "start": {
+        "action": "{count, plural, one {# Zeile} other {# Zeilen}} importieren",
+        "starting": "Wird gestartet..."
+      },
+      "progress": {
+        "title": "Import läuft",
+        "rows": "{processed} von {total}",
+        "label": "Fortschritt des Imports",
+        "stages": {
+          "rows": "Zeilen werden gespeichert",
+          "links": "Angehörige werden verknüpft",
+          "seed": "Unterhaltungen werden geöffnet"
+        }
+      },
+      "counts": {
+        "planned": {
+          "created": "Neue Leads",
+          "enriched": "Bereits vorhanden, erhalten Adresse, Telefon oder Feld",
+          "unchanged": "Bereits vorhanden, ohne Änderung",
+          "skipped": "Bereits vorhanden, bleiben unverändert",
+          "conflicting": "Anderer Wert bereits gespeichert (bleibt)",
+          "blocked": "Bereits vorhanden und gesperrt",
+          "links": "Familienverbindungen",
+          "rejected": "Abgelehnte Zeilen"
+        },
+        "done": {
+          "created": "Angelegte Leads",
+          "enriched": "Bereits vorhanden, Adresse oder Telefon ergänzt",
+          "unchanged": "Bereits vorhanden, ohne Änderung",
+          "skipped": "Bereits vorhanden, blieben unverändert",
+          "conflicting": "Anderer Wert bereits gespeichert (bleibt)",
+          "blocked": "Bereits vorhanden und gesperrt",
+          "links": "Angelegte Familienverbindungen",
+          "rejected": "Übersprungene Zeilen"
+        }
+      },
+      "addresses": {
+        "title": "Adressen",
+        "added": "Hinzugefügte Adressen",
+        "located": "Mit Position aus der Tabelle",
+        "pending": "Warten auf Platzierung auf der Karte",
+        "help": "Adressen ohne Breiten- und Längengrad kommen in die Warteschlange der Kartenplatzierung.",
+        "filled": "Ergänzte vorhandene Adressen",
+        "noAddress": "Zeilen ohne Adresse in der Datei"
+      },
+      "issues": {
+        "title": "Probleme nach Grund ({count})"
+      },
+      "reasons": {
+        "invalid": "Ungültige WhatsApp-Nummer",
+        "duplicate": "In der Datei wiederholt",
+        "identity_required": "Weder WhatsApp-Nummer noch Name",
+        "name_too_long": "Name zu lang",
+        "nickname_too_long": "Spitzname zu lang",
+        "email_invalid": "Ungültige E-Mail",
+        "birth_date_invalid": "Ungültiges Geburtsdatum",
+        "phone_invalid": "Ungültige Kontakttelefonnummer",
+        "phone_limit": "Mehr Telefonnummern, als ein Lead aufnehmen kann",
+        "address_invalid": "Unvollständige oder ungültige Adresse",
+        "coordinates_invalid": "Ungültiger Breiten- oder Längengrad",
+        "coordinates_outside_brazil": "Koordinaten außerhalb Brasiliens",
+        "owner_not_found": "Verantwortliche Person nicht gefunden",
+        "owner_out_of_reach": "Verantwortliche Person außerhalb deiner Reichweite",
+        "consent_date_invalid": "Ungültiges Einwilligungsdatum",
+        "consent_purpose_too_long": "Einwilligungszweck zu lang",
+        "custom_field_invalid": "Ungültiger Wert für das benutzerdefinierte Feld",
+        "custom_field_required": "Benutzerdefiniertes Pflichtfeld leer",
+        "relative_number_invalid": "Ungültige WhatsApp-Nummer des Angehörigen",
+        "relation_kind_invalid": "Verwandtschaft nicht erkannt",
+        "relative_not_found": "Angehörige Person weder in der Datei noch im Bestand",
+        "relation_self": "Die angehörige Person ist dieselbe Person",
+        "relation_exists": "Familienverbindung bestand bereits",
+        "contact_ambiguous": "Telefonnummer wird von zu vielen Leads geteilt, um die Person zu finden",
+        "lead_changing": "Lead wird gerade von jemand anderem geändert",
+        "record_invalid": "Ungültiger Datensatz",
+        "other": "Anderer Grund"
+      },
+      "rejections": {
+        "notice": "{count, plural, one {# Problem} other {# Probleme}} in Zeilen der Tabelle. Die Datei enthält die Zeile und den Grund jedes Problems, ohne die Daten zu wiederholen.",
+        "download": "Zeilen mit Problemen herunterladen",
+        "downloading": "Wird heruntergeladen...",
+        "failed": "Die Datei konnte nicht heruntergeladen werden"
+      },
+      "seed": {
+        "queued": "{count, plural, one {# Unterhaltung wird im Hintergrund angelegt und erscheint} other {# Unterhaltungen werden im Hintergrund angelegt und erscheinen}} gleich im Posteingang.",
+        "scriptedQueued": "{count, plural, one {# davon erhält} other {# davon erhalten}} eine geschriebene Beispielunterhaltung.",
+        "errors": {
+          "seed_forbidden": "Die Leads wurden importiert, aber du darfst keine Unterhaltungen im inoffiziellen WhatsApp öffnen.",
+          "seed_unavailable": "Die Leads wurden importiert, aber Unterhaltungen zu öffnen ist gerade nicht verfügbar.",
+          "seed_failed": "Die Leads wurden importiert, aber ihre Unterhaltungen konnten nicht angelegt werden. Prüfe, ob im inoffiziellen WhatsApp eine Nummer verbunden ist.",
+          "script_forbidden": "Die Unterhaltungen wurden angelegt, aber nur ein Plattformadministrator kann Beispielunterhaltungen schreiben."
+        },
+        "unconfirmed": "{count, plural, one {# Unterhaltung wurde möglicherweise nicht erstellt} other {# Unterhaltungen wurden möglicherweise nicht erstellt}}: Der Versand wurde unterbrochen und nicht wiederholt, um doppelte Unterhaltungen zu vermeiden."
+      },
+      "failure": {
+        "title": "Der Import wurde angehalten",
+        "stalled": "Der Server hat dreimal versucht fortzufahren und es nicht geschafft. Bereits gespeicherte Stapel bleiben.",
+        "file_unavailable": "Die Datei des Imports kann nicht mehr gelesen werden. Lade die Tabelle erneut hoch.",
+        "forbidden": "Während des Imports wurde eine nötige Berechtigung entzogen.",
+        "internal": "Der Import konnte nicht fortgesetzt werden. Bereits gespeicherte Stapel bleiben.",
+        "interrupted": "Der Import wurde mittendrin unterbrochen. Bereits gespeicherte Stapel bleiben.",
+        "unknown": "Der Import konnte nicht fortgesetzt werden."
+      },
+      "gone": "Dieser Import existiert nicht mehr. Er wird {days, plural, one {# Tag} other {# Tage}} nach dem Hochladen gelöscht.",
+      "goneNoLimit": "Dieser Import existiert nicht mehr. Importe werden einige Tage nach dem Hochladen gelöscht.",
+      "pollFailed": "Der Import kann gerade nicht verfolgt werden.",
+      "retry": "Erneut versuchen",
+      "close": "Schließen",
+      "closeBackground": "Schließen und im Hintergrund weiterlaufen lassen",
       "cancel": "Abbrechen",
       "done": "Fertig",
-      "result": {
-        "created": "Leads erstellt",
-        "matched": "Bereits vorhanden",
-        "skipped": "{invalid} Zeilen mit ungültiger Nummer und {duplicates} doppelte Zeilen wurden übersprungen.",
-        "blocked": "{count} der vorhandenen Kontakte sind blockiert und werden von Kampagnen nicht erreicht.",
-        "inboxSeedQueued": "{count} Konversationen werden im Hintergrund angelegt und erscheinen in Kürze im Postfach.",
-        "inboxSeedFailed": "Die Leads wurden importiert, ihre Konversationen konnten aber nicht angelegt werden. Prüfen Sie, ob eine inoffizielle WhatsApp-Nummer verbunden ist.",
-        "scriptedSeedQueued": "Für {count} davon wird eine Beispielunterhaltung geschrieben.",
-        "scriptedSeedFailed": "Die Unterhaltungen wurden angelegt, aber es wurden keine Beispielnachrichten hineingeschrieben."
+      "another": "Neuer Import",
+      "changeFile": "Datei wechseln",
+      "errorTitle": "Import nicht möglich",
+      "generic": "Versuche es gleich noch einmal.",
+      "errors": {
+        "lead_import_empty": "Die Tabelle hat keine Zeilen oder keine Zeile mit den Spaltennamen.",
+        "lead_import_unsupported_file": "Die Datei ist keine CSV- oder TSV-Tabelle.",
+        "lead_import_mapping_invalid": "Die Spaltenzuordnung kann nicht verwendet werden.",
+        "lead_import_forbidden": "Dieser Import erfordert die Berechtigung, {permission}.",
+        "lead_import_not_found": "Dieser Import existiert nicht mehr.",
+        "lead_import_file_unavailable": "Die Datei des Imports kann nicht mehr gelesen werden. Lade die Tabelle erneut hoch.",
+        "lead_import_running": "In diesem Workspace läuft bereits ein anderer Import. Warte, bis er fertig ist.",
+        "lead_import_not_ready": "Der Import hat seinen Zustand geändert. Aktualisiere und versuche es erneut.",
+        "lead_import_file_too_large": "Die Datei ist größer als {megabytes} MB. Teile die Tabelle und lade sie in Teilen hoch.",
+        "lead_import_too_many_rows": "Die Tabelle hat mehr als {rows} Zeilen. Teile die Tabelle und lade sie in Teilen hoch.",
+        "lead_import_unavailable": "Der Lead-Import ist auf diesem Server nicht verfügbar.",
+        "lead_import_rate_limited": "Zu viele Uploads in kurzer Zeit. Warte eine Minute und versuche es erneut.",
+        "lead_import_unreadable": "Die Antwort des Servers konnte nicht gelesen werden.",
+        "invalid_body": "Der Server hat die Anfrage abgelehnt.",
+        "timeout": "Der Upload hat zu lange gedauert. Versuche es erneut.",
+        "lead_import_file_too_large_unknown": "Die Datei ist größer als die maximal zulässige Größe. Teile die Tabelle und lade sie in Teilen hoch.",
+        "lead_import_too_many_rows_unknown": "Die Tabelle hat mehr Zeilen als maximal zulässig. Teile die Tabelle und lade sie in Teilen hoch."
       },
-      "error": {
-        "title": "Import nicht möglich",
-        "generic": "Bitte versuche es gleich noch einmal."
+      "mappingRules": {
+        "unknown_column": "Die Spalte {column} ist nicht mehr in der Tabelle.",
+        "unknown_field": "Das für die Spalte {column} gewählte Feld existiert nicht mehr.",
+        "repeated": "Das Feld {field} ist mehr als einer Spalte zugeordnet.",
+        "too_many_phones": "Höchstens vier Spalten mit Kontakttelefon pro Import.",
+        "identity_required": "Wähle eine Spalte mit WhatsApp oder Name.",
+        "needs_pair": "Ordne auch die Spalte {field} zu.",
+        "policy": "Wähle, was mit bereits vorhandenen Leads geschehen soll.",
+        "script": "Die Beispielunterhaltung braucht die erste Nachricht und Unterhaltung im Posteingang öffnen."
+      },
+      "status": {
+        "button": "Importe",
+        "running": "{count, plural, one {# läuft} other {# laufen}}",
+        "title": "Letzte Importe",
+        "uploaded": "Wartet auf die Spalten",
+        "analyzing": "Simulation läuft",
+        "analyzed": "Simulation fertig",
+        "importing": "{processed} von {total} importiert",
+        "done": "Fertig: {created, number} angelegt",
+        "failed": "Angehalten",
+        "gone": "Gelöscht",
+        "pollFailed": "Keine Aktualisierung",
+        "dismiss": "{file} ausblenden"
+      },
+      "toast": {
+        "done": "Import von {file} abgeschlossen",
+        "doneDescription": "{created, plural, one {# Lead angelegt} other {# Leads angelegt}} und {enriched, number} ergänzt.",
+        "failed": "Der Import von {file} wurde angehalten",
+        "analyzed": "Simulation von {file} fertig",
+        "open": "Öffnen"
       },
       "seedInbox": {
         "label": "Konversation im Postfach öffnen",
         "help": "Legt für jede importierte Nummer eine leere inoffizielle WhatsApp-Konversation an, damit die Leads im Postfach erscheinen, ohne dass jemand zuerst schreiben muss. Es wird nichts gesendet."
       },
-      "recognisedColumns": "Die Vorlage enthält die drei Spalten, die der Import speichert: telefone (Telefon), nome (Name) und idade (Alter). Nur die Telefonnummer ist Pflicht. Alle weiteren Spalten der Datei werden ignoriert.",
       "seedConversations": {
         "label": "Beispielunterhaltungen anlegen",
         "adminOnly": "nur Admin",
@@ -8455,7 +9279,6 @@
         "contextPlaceholder": "Technischer Pflegekurs, Anmeldung offen",
         "maxMessages": "Länge der Unterhaltung",
         "messageCount": "{count} Nachrichten",
-        "unnamedRows": "{count} Zeilen haben keinen Namen und bekommen stattdessen eine leere Unterhaltung, weil die erste Nachricht den Namen verwendet.",
         "costNotice": "Nur die ersten {max} Kontakte des Imports bekommen eine Beispielunterhaltung, der Rest eine leere. Die KI wird vom Guthaben des Workspace abgerechnet.",
         "invalid": "Schreibe die erste Nachricht und verwende in allen Varianten dieselben Variablen.",
         "mediaTitle": "Anhang der ersten Nachricht",
@@ -8471,22 +9294,59 @@
         "mediaUpload": "Datei hochladen",
         "mediaUploading": "Wird hochgeladen...",
         "mediaRemove": "Datei entfernen",
-        "mediaFailed": "Die Datei konnte nicht hochgeladen werden"
+        "mediaFailed": "Die Datei konnte nicht hochgeladen werden",
+        "kept": "Das Skript der Beispielunterhaltung wurde mit der Simulation gespeichert und wird beim Import verwendet.",
+        "writeNew": "Anderes Skript schreiben",
+        "rewrite": "Das gespeicherte Skript gilt nur für die vorherige Simulation. Schreibe es erneut, um noch einmal zu simulieren.",
+        "costNoticeNoLimit": "Nur die ersten Kontakte des Imports bekommen eine Beispielunterhaltung, der Rest eine leere. Die KI wird vom Guthaben des Workspace abgerechnet.",
+        "savedMedia": "Mit der Simulation gespeicherte Datei"
+      },
+      "placement": {
+        "title": "Platzierung der Adressen",
+        "rows": {
+          "precise": "Haus- oder Straßenposition (genaue CEP)",
+          "approximate": "Ungefähr (grobe CEP, Viertel oder Stadt)",
+          "pending": "Warten auf Platzierung",
+          "notLocated": "Nicht gefunden",
+          "noAddress": "Keine Adresse in der Datei"
+        },
+        "source": "Platziert mit der IBGE-Adressbasis (CNEFE 2022) auf unseren Servern. Ein externer Anbieter wird nur genutzt, wenn der Workspace ihn aktiviert hat."
       }
     },
     "header": {
       "badge": "Leads",
-      "description": "Alle Leads des Workspace, mit Suche, erweiterten Filtern und Memories."
+      "description": "Deine Personenbasis, mit Telefonen, Adressen, Familien und Standort.",
+      "newLead": "Neuer Lead",
+      "fields": "Felder"
     },
     "summary": {
-      "total": "Leads gesamt",
-      "withWhatsApp": "Mit WhatsApp",
+      "total": "Gesamt",
       "windowOpen": "Fenster offen",
-      "withMemory": "Mit Memories",
-      "blocked": "Blockiert"
+      "blocked": "Blockiert",
+      "onMap": "Auf der Karte",
+      "approximate": "Ungefähr",
+      "withoutAddress": "Ohne Adresse",
+      "birthdaysToday": "Geburtstage heute",
+      "apply": "Nur diese Leads zeigen",
+      "remove": "Diesen Filter entfernen",
+      "loading": "Zahlen werden geladen",
+      "failed": "Die Zahlen für diesen Filter konnten nicht geladen werden."
     },
     "search": {
-      "placeholder": "Nach Name, Telefon oder Memory suchen..."
+      "placeholder": "Nach Name, Telefon, Stadtteil oder Stadt suchen",
+      "label": "Leads suchen",
+      "clear": "Suche löschen",
+      "groups": {
+        "leads": "Leads",
+        "districts": "Stadtteile",
+        "cities": "Städte"
+      },
+      "searchLeads": "Leads mit «{query}» suchen",
+      "leadsCount": "{count, plural, one {# Lead} other {# Leads}}",
+      "suggestionsFailed": "Stadtteile und Städte können gerade nicht vorgeschlagen werden",
+      "results": "{count, plural, =0 {Keine Leads gefunden} one {# Lead gefunden} other {# Leads gefunden}}",
+      "emptyTitle": "Keine Leads für «{query}»",
+      "emptyHint": "Prüfe die Schreibweise oder suche nach Telefon, Stadtteil oder Stadt."
     },
     "filters": {
       "label": "Filter",
@@ -8510,7 +9370,11 @@
         "engagement": "Aktivität",
         "campaigns": "Kampagnen",
         "crm": "CRM",
-        "memories": "Memories"
+        "memories": "Memories",
+        "address": "Adresse",
+        "family": "Familie",
+        "owner": "Verantwortlich",
+        "custom": "Benutzerdefinierte Felder"
       },
       "fields": {
         "name": "Name",
@@ -8531,7 +9395,30 @@
         "memoryAuthor": "Memory-Autor",
         "memoryText": "Memory-Inhalt",
         "memoryCount": "Anzahl Memories",
-        "memoryUpdatedAt": "Memory aktualisiert am"
+        "memoryUpdatedAt": "Memory aktualisiert am",
+        "email": "E-Mail",
+        "nickname": "Spitzname",
+        "birthday": "Geburtstag",
+        "birthDate": "Geburtsdatum",
+        "source": "Herkunft",
+        "hasIdentity": "WhatsApp-Nummer",
+        "optedOut": "Nachrichtenempfang",
+        "whatsappOptIn": "WhatsApp-Einwilligung",
+        "city": "Stadt",
+        "district": "Stadtteil",
+        "state": "Bundesstaat",
+        "hasAddress": "Adresse",
+        "geoPrecision": "Standortgenauigkeit",
+        "geoStatus": "Standortstatus",
+        "relationKind": "Beziehung",
+        "relativesCount": "Anzahl Angehörige",
+        "referredCount": "Anzahl Empfehlungen",
+        "owner": "Verantwortlich",
+        "area": "Gebiet",
+        "zip": "Postleitzahl",
+        "referredBy": "Empfohlen von",
+        "geoPlacement": "Position auf der Karte",
+        "areaApproximate": "Ungefähr im Gebiet"
       },
       "options": {
         "channel": {
@@ -8570,6 +9457,54 @@
         "windowOpen": {
           "true": "Offen",
           "false": "Geschlossen"
+        },
+        "cityOf": "{city} ({state})",
+        "districtOf": "{district} ({city})",
+        "ownerUnnamed": "Ohne Namen",
+        "birthday": {
+          "today": "Heute",
+          "this_week": "Diese Woche",
+          "this_month": "Diesen Monat"
+        },
+        "hasIdentity": {
+          "true": "Mit Nummer",
+          "false": "Ohne Nummer"
+        },
+        "optedOut": {
+          "true": "Möchte keine Nachrichten",
+          "false": "Nimmt Nachrichten an"
+        },
+        "whatsappOptIn": {
+          "true": "Mit Einwilligung",
+          "false": "Ohne Einwilligung"
+        },
+        "hasAddress": {
+          "true": "Mit Adresse",
+          "false": "Ohne Adresse"
+        },
+        "geoStatus": {
+          "pending": "Wartet auf Standort",
+          "located": "Lokalisiert",
+          "approximate": "Ungefähr",
+          "not_found": "Nicht gefunden",
+          "ambiguous": "Mehrdeutige Adresse",
+          "unavailable": "Dienst nicht verfügbar",
+          "quota_exceeded": "Abfragelimit erreicht",
+          "refused": "Vom Anbieter abgelehnt"
+        },
+        "ownerPresence": {
+          "true": "Mit Verantwortlichem",
+          "false": "Ohne Verantwortlichen"
+        },
+        "leadUnknown": "Lead nicht gefunden",
+        "geoPlacement": {
+          "on_map": "Auf der Karte",
+          "approximate": "Ungefähr (PLZ, Stadtteil, Stadt)",
+          "without_address": "Ohne Adresse",
+          "not_found": "Adresse nicht gefunden",
+          "pending": "Warten auf Standort",
+          "quota_exceeded": "Durch das Standortlimit gestoppt",
+          "refused": "Vom Standortanbieter abgelehnt"
         }
       },
       "chips": {
@@ -8583,6 +9518,24 @@
         "isEmpty": "hat kein",
         "isTrue": "ja",
         "isFalse": "nein"
+      },
+      "failed": "Die Optionen konnten nicht geladen werden.",
+      "facetsFailed": "Die Filterzahlen wurden nicht geladen.",
+      "optionsFailed": "Einige Filteroptionen wurden nicht geladen.",
+      "customFailed": "Die benutzerdefinierten Felder wurden nicht geladen.",
+      "zip": {
+        "placeholder": "00000-000; mehrere mit Komma trennen",
+        "invalid": "Keine Postleitzahl: {values}",
+        "tooMany": "Bis zu {max} Postleitzahlen pro Filter.",
+        "remove": "Postleitzahl {value} entfernen"
+      },
+      "referredBy": {
+        "placeholder": "Name oder Telefon des Leads",
+        "searching": "Suche läuft...",
+        "failed": "Die Lead-Suche ist fehlgeschlagen. Bitte erneut versuchen.",
+        "none": "Kein Lead gefunden.",
+        "tooMany": "Bis zu {max} Leads pro Filter.",
+        "remove": "{name} entfernen"
       }
     },
     "views": {
@@ -8617,7 +9570,23 @@
       "createdAt": "Erstellt am",
       "campaigns": "Kampagnen",
       "memories": "Memories",
-      "blocked": "Blockiert"
+      "blocked": "Blockiert",
+      "phones": "Telefone",
+      "district": "Stadtteil",
+      "city": "Stadt",
+      "owner": "Verantwortlich",
+      "family": "Familie",
+      "noName": "kein Name erfasst",
+      "noWhatsApp": "ohne WhatsApp",
+      "contactPhones": "{count, plural, one {# Kontakttelefon} other {# Kontakttelefone}}",
+      "relatives": "{count, plural, one {# Angehörige(r)} other {# Angehörige}}",
+      "edit": "Lead bearbeiten",
+      "columns": "Spalten",
+      "columnsTitle": "Optionale Spalten",
+      "rowActions": "Aktionen für {name}",
+      "rowActionsUnnamed": "Aktionen für den Lead ohne Namen",
+      "referrals": "Empfehlungen",
+      "referred": "{count, plural, one {# Empfehlung} other {# Empfehlungen}}"
     },
     "window": {
       "open": "Offen",
@@ -8627,19 +9596,466 @@
       "whatsapp": "WhatsApp",
       "sms": "SMS"
     },
-    "campaignHistory": {
-      "title": "Kampagnenverlauf",
-      "noCampaigns": "Dieser Lead nimmt an keinen Kampagnen teil.",
-      "entries": "Einträge",
-      "status": "Status",
-      "date": "Datum"
-    },
     "pagination": {
       "page": "Seite",
       "of": "von"
     },
     "error": {
       "title": "Fehler beim Laden der Leads"
+    },
+    "owner": {
+      "ai": "KI-Agent",
+      "workflow": "Workflow",
+      "system": "System",
+      "removed": "Entferntes Mitglied",
+      "member": "Teammitglied",
+      "label": "Verantwortlich",
+      "none": "Niemand verantwortlich",
+      "search": "Verantwortliche suchen...",
+      "empty": "Keine Mitglieder",
+      "membersFailed": "Das Team konnte nicht geladen werden."
+    },
+    "errors": {
+      "lead_filter_invalid": "Dieser Filter ist ungültig. Prüfe die Felder und versuche es erneut.",
+      "lead_filter_address_forbidden": "Du darfst nicht nach Postleitzahl oder Kartenposition filtern.",
+      "custom_field_filter_sensitive_forbidden": "Du darfst nicht nach einem sensiblen Feld filtern.",
+      "custom_field_filter_unknown_key": "Ein benutzerdefiniertes Feld in diesem Filter existiert nicht mehr.",
+      "custom_field_filter_operator": "Ein benutzerdefiniertes Feld in diesem Filter akzeptiert diese Bedingung nicht.",
+      "custom_field_filter_value": "Ein Wert in diesem Filter passt nicht zum Typ des benutzerdefinierten Felds.",
+      "saved_view_forbidden": "Du darfst diese Ansicht nicht speichern.",
+      "area_too_many": "Dieser Filter hat zu viele Gebiete. Entferne ein Gebiet aus dem Filter und versuche es erneut.",
+      "area_not_found": "Eines der Gebiete im Filter existiert nicht mehr oder du kannst es nicht sehen. Entferne es aus dem Filter.",
+      "lead_search_too_short": "Gib in mindestens einem Suchwort 2 Buchstaben ein."
+    },
+    "view": {
+      "label": "Anzeigen als",
+      "table": "Tabelle",
+      "map": "Karte"
+    },
+    "selection": {
+      "selectedCount": "{count, plural, =1 {# ausgewählt} other {# ausgewählt}}",
+      "selectAllMatching": "Alle {count, number} im Filter auswählen",
+      "selectEveryone": "Alle {count, number} Leads des Workspace auswählen",
+      "counting": "Leads werden gezählt",
+      "allMatchingSelected": "Alle {count, number} Leads im Filter ausgewählt",
+      "everyoneSelected": "Alle {count, number} Leads des Workspace ausgewählt",
+      "quantitySelected": "Die ersten {count, number} Leads des Filters ausgewählt",
+      "clearSelection": "Auswahl leeren",
+      "modes": "Weitere Auswahlen",
+      "quantity": "Anzahl auswählen",
+      "quantityNeedsFilter": "Wende einen Filter oder eine Suche an, um eine Anzahl zu wählen.",
+      "everyone": "Alle Leads des Workspace",
+      "everyoneHint": "Ignoriert den Filter. Du bestätigst durch Eintippen der Gesamtzahl.",
+      "quantityTitle": "Anzahl auswählen",
+      "quantityHint": "Die ersten Leads des Filters, in der aktuellen Reihenfolge der Liste ({sort}).",
+      "quantityLabel": "Anzahl der Leads",
+      "quantityApply": "Auswählen",
+      "cancel": "Abbrechen",
+      "countFailed": "Die Leads des Workspace konnten nicht gezählt werden. Versuche es erneut.",
+      "sortLabel": "{field}, {direction}",
+      "sortDefault": "erstellt am, neueste zuerst",
+      "sortKeys": {
+        "createdAt": "erstellt am",
+        "updatedAt": "aktualisiert am",
+        "lastActivityAt": "letzte Aktivität",
+        "name": "Name",
+        "number": "Telefon",
+        "age": "Alter",
+        "campaigns": "Kampagnen",
+        "memories": "Erinnerungen",
+        "lastMemoryAt": "letzte Erinnerung"
+      },
+      "sortDirections": {
+        "asc": "aufsteigend",
+        "desc": "absteigend"
+      },
+      "selectPage": "Die Leads dieser Seite auswählen",
+      "selectRow": "Lead auswählen",
+      "invalidFilter": "Ungültiger Filterlink. Die Liste zeigt alle Leads, und Massenaktionen bleiben aus, bis du den Filter leerst.",
+      "inFilter": "{count, plural, one {# Lead im Filter} other {# Leads im Filter}}"
+    },
+    "bulk": {
+      "actions": {
+        "send_template": "Vorlage senden",
+        "send_message": "Nachricht",
+        "call_list": "Anrufliste",
+        "classify": "Klassifizieren",
+        "assign_owner": "Zuweisen",
+        "export": "Exportieren",
+        "meta_audience": "Meta-Zielgruppe",
+        "block": "Sperren"
+      },
+      "more": "Mehr",
+      "actionsMenu": "Aktionen",
+      "clear": "Auswahl leeren",
+      "blockers": {
+        "empty": "Wähle zuerst Leads aus.",
+        "invalidFilter": "Der Filterlink ist ungültig. Leere den Filter, um mit der Auswahl zu arbeiten.",
+        "noFields": "Kein benutzerdefiniertes Feld, das du ausfüllen kannst.",
+        "permissionBulkEdit": "Du darfst Leads nicht gesammelt bearbeiten.",
+        "permissionAssign": "Du darfst keine Leads zuweisen.",
+        "permissionBlock": "Du darfst keine Leads sperren.",
+        "permissionExport": "Du darfst keine Leads exportieren.",
+        "permissionMetaAudience": "Du darfst keine Meta-Zielgruppen erstellen.",
+        "permissionCallList": "Du darfst keine Anruflisten erstellen.",
+        "checkingAccess": "Deine Berechtigungen werden geprüft.",
+        "permissionSendTemplate": "Du darfst keine Vorlagenversände aus Leads erstellen.",
+        "permissionSendUnofficial": "Du darfst keine inoffiziellen Versände aus Leads erstellen.",
+        "checkingNumbers": "Die verbundenen Nummern werden geprüft.",
+        "numbersUnavailable": "Die verbundenen Nummern konnten nicht geprüft werden.",
+        "noOfficialNumber": "Keine offizielle Nummer verbunden",
+        "noUnofficialNumber": "Keine inoffizielle Nummer verbunden",
+        "noDialableLine": "Keine Telefonleitung zum Anrufen verfügbar"
+      },
+      "dialog": {
+        "title": {
+          "classify": "Leads klassifizieren",
+          "assign_owner": "Verantwortlichen zuweisen",
+          "block": "Leads sperren oder entsperren",
+          "export": "Leads exportieren",
+          "meta_audience": "Meta-Zielgruppe erstellen",
+          "call_list": "Anrufliste erstellen"
+        },
+        "selection": {
+          "ids": "{count, plural, =1 {# ausgewählter Lead} other {# ausgewählte Leads}}",
+          "all_matching": "Alle {count, number} Leads im Filter",
+          "first_n": "Die ersten {count, number} Leads des Filters",
+          "everyone": "Alle Leads des Workspace"
+        },
+        "classify": {
+          "field": "Feld",
+          "mode": "Feldwert",
+          "set": "Wert setzen",
+          "clear": "Feld leeren"
+        },
+        "block": {
+          "mode": "Sperre",
+          "block": "Sperren",
+          "unblock": "Entsperren"
+        },
+        "export": {
+          "hint": "Die CSV-Datei enthält Name, Telefone, Stadtteil, Stadt und die benutzerdefinierten Felder, die du sehen kannst.",
+          "addresses": "Vollständige Adresse einschließen",
+          "sensitive": "Sensible Felder einschließen"
+        },
+        "audience": {
+          "loadingAccounts": "Konten werden geladen",
+          "accountsFailed": "Die Werbekonten konnten nicht geladen werden.",
+          "noAccounts": "Kein Werbekonto verbunden."
+        },
+        "callList": {
+          "name": "Name der Liste",
+          "defaultName": "Liste vom {date}",
+          "phone": "Anzurufende Nummer",
+          "identity": "WhatsApp des Leads",
+          "contact": "Kontakttelefon",
+          "label": "Telefonart",
+          "hint": "Gesperrte Leads, Leads, die nicht angerufen werden wollen, und Leads ohne die gewählte Nummer bleiben draußen, mit Grund."
+        },
+        "previewing": "Es wird berechnet, wie viele Leads die Aktion erreicht...",
+        "previewWaiting": "Fülle die Felder aus, um zu sehen, wie viele Leads die Aktion erreicht.",
+        "counts": {
+          "selected": "In der Auswahl",
+          "number": "{count, number}",
+          "eligible": {
+            "edit": "Werden geändert",
+            "export": "Zeilen in der Datei",
+            "meta_audience": "An Meta gesendet",
+            "call_list": "Gehen in den Aufbau"
+          }
+        },
+        "changed": "Die Auswahl hat sich seit der Zählung geändert: es waren {previous, number}, jetzt sind es {count, number}. Prüfe und bestätige erneut.",
+        "typeCount": "Tippe {count, number} zur Bestätigung",
+        "cancel": "Abbrechen",
+        "applying": "Wird angewendet...",
+        "apply": {
+          "classify": "Klassifizieren",
+          "assign_owner": "Zuweisen",
+          "block": "Anwenden",
+          "export": "Exportieren",
+          "meta_audience": "Zielgruppe erstellen",
+          "call_list": "Liste erstellen"
+        },
+        "retry": "Erneut versuchen",
+        "previewProgress": "Leads werden gezählt: {done, number} von {total, number}..."
+      },
+      "skipped": {
+        "unchanged": "Haben diesen Wert schon",
+        "gone": "Gibt es nicht mehr",
+        "other": "Übersprungen"
+      },
+      "failures": {
+        "stalled": "Die Aktion ist mittendrin stehen geblieben. Bereits gespeicherte Stapel bleiben; versuche es erneut.",
+        "forbidden": "Du hast die Berechtigung für diese Aktion verloren.",
+        "invalid": "Der Server hat die Parameter dieser Aktion abgelehnt.",
+        "internal": "Die Aktion ist auf dem Server fehlgeschlagen. Versuche es erneut.",
+        "snapshot_lost": "Die eingefrorene Auswahl ist vor dem Ende abgelaufen. Wähle neu aus und wiederhole.",
+        "unknown": "Die Aktion wurde nicht beendet. Prüfe die Leads und versuche es erneut."
+      },
+      "runQueued": "Aktion läuft. Wir melden uns, wenn sie fertig ist.",
+      "runDone": "Fertig: {changed, plural, =1 {# Lead geändert} other {# Leads geändert}}, {skipped, number} übersprungen.",
+      "runLost": "Die Aktion konnte nicht verfolgt werden. Lade die Seite neu, um das Ergebnis zu sehen.",
+      "exportQueued": "Die Datei wird erstellt. Der Download startet, sobald sie fertig ist.",
+      "exportDone": "Datei mit {count, number} Leads ist fertig.",
+      "exportEmpty": "Kein Lead ist in der Datei gelandet.",
+      "exportFailed": "Die Datei konnte nicht erstellt werden. Versuche es erneut.",
+      "audienceQueued": "Die Zielgruppe wird bei Meta aufgebaut. Wir melden uns, wenn sie fertig ist.",
+      "audienceDone": "Zielgruppe bei Meta mit {matched, number} Leads erstellt.",
+      "audienceLost": "Die Zielgruppe konnte nicht verfolgt werden. Prüfe die Zielgruppenliste unter Anzeigen.",
+      "callListQueued": "Liste erstellt. Die Kontakte werden aufgebaut.",
+      "callListOpen": "Liste öffnen",
+      "errors": {
+        "forbidden": "Du darfst diese Aktion für Leads nicht ausführen.",
+        "lead_action_unknown": "Unbekannte Aktion. Lade die Seite neu und versuche es erneut.",
+        "lead_action_params_ambiguous": "Die Parameter passen nicht zur gewählten Aktion.",
+        "lead_action_key_required": "Wähle das Feld zum Klassifizieren.",
+        "lead_action_value_required": "Gib den Feldwert an.",
+        "lead_action_owner_required": "Wähle den Verantwortlichen.",
+        "lead_action_blocked_required": "Wähle zwischen Sperren und Entsperren.",
+        "lead_action_format_unsupported": "Dateiformat nicht unterstützt.",
+        "lead_action_ad_account_required": "Wähle das Werbekonto.",
+        "lead_action_name_required": "Gib der Zielgruppe einen Namen.",
+        "lead_action_requirement_unknown": "Diese Aktion ist auf dem Server nicht eingerichtet.",
+        "lead_action_workspace_required": "Wähle einen Workspace, bevor du mit Leads arbeitest.",
+        "lead_action_actor_required": "Melde dich erneut an, um fortzufahren.",
+        "idempotency_key_required": "Die Anfrage wurde ohne Kennung gesendet. Lade die Seite neu und versuche es erneut.",
+        "idempotency_key_reused": "Diese Anfrage wurde schon mit anderen Daten verwendet. Schließe das Fenster und beginne neu.",
+        "lead_action_not_a_run": "Diese Aktion hat keinen Fortschritt zum Verfolgen.",
+        "lead_action_run_not_found": "Wir haben diese Aktion nicht gefunden, oder du kannst sie nicht sehen.",
+        "lead_action_preview_not_found": "Die Vorschau ist abgelaufen. Schließe das Fenster und öffne es erneut.",
+        "lead_action_claim_lost": "Ein anderer Lauf hat diese Aktion übernommen. Warte auf das Ergebnis.",
+        "lead_actions_unavailable": "Massenaktionen für Leads sind gerade nicht verfügbar.",
+        "lead_action_selection_too_large": "Die Auswahl liegt über dem Limit dieser Aktion. Grenze den Filter ein.",
+        "lead_action_selection_empty": "Kein Lead in dieser Auswahl.",
+        "lead_action_mode_unsupported": "Diese Aktion akzeptiert diese Art von Auswahl nicht. Für eine Meta-Zielgruppe nutze ausgewählte Leads oder den ganzen Filter.",
+        "lead_action_in_progress": "Eine Aktion mit dieser Anfrage läuft bereits.",
+        "lead_action_phone_unavailable": "Diese Nummer kann in diesem Workspace keine Kontakte sperren.",
+        "lead_action_snapshot_lost": "Die eingefrorene Auswahl ist abgelaufen. Wähle neu aus und wiederhole.",
+        "lead_action_audience_not_found": "Wir haben diese Zielgruppe im Aufbau nicht gefunden.",
+        "lead_owner_out_of_reach": "Du kannst dieser Person keine Leads zuweisen.",
+        "report_forbidden": "Du darfst diese Datei nicht sehen.",
+        "reports_unavailable": "Berichte sind gerade nicht verfügbar.",
+        "audience_sensitive_filter": "Der Filter nutzt ein sensibles Feld, das keine Meta-Zielgruppe werden darf.",
+        "no_customers_matched": "Kein Lead der Auswahl hat eine Telefonnummer, die Meta akzeptiert.",
+        "audience_terms_not_accepted": "Akzeptiere die Bedingungen für benutzerdefinierte Zielgruppen von Meta in diesem Werbekonto.",
+        "reconnect_required": "Verbinde das Meta-Konto erneut, um die Zielgruppe zu erstellen.",
+        "not_found": "Das Werbekonto ist nicht verfügbar."
+      },
+      "runResumed": "Eine zuvor gestartete Massenaktion wird weiter verfolgt. Wir melden uns, wenn sie fertig ist."
+    },
+    "assistant": {
+      "greeting": "Was möchten Sie über diese Leads wissen oder mit ihnen tun?",
+      "description": "Elo sieht den Filter dieser Ansicht und wie viele Leads Sie ausgewählt haben. Sammelaktionen warten immer auf Ihre Freigabe.",
+      "all": "Alle Leads",
+      "filtered": "{count, plural, =1 {Filter mit # Bedingung} other {Filter mit # Bedingungen}}",
+      "selected": "{count, plural, =1 {# Lead ausgewählt} other {# Leads ausgewählt}}"
+    }
+  },
+  "leadSends": {
+    "title": {
+      "send_template": "Vorlage an {count, plural, =1 {# Lead} other {# Leads}} senden",
+      "send_unofficial": "Nachricht an {count, plural, =1 {# Lead} other {# Leads}} senden"
+    },
+    "titlePending": {
+      "send_template": "Vorlage senden",
+      "send_unofficial": "Inoffizielle Nachricht"
+    },
+    "steps": {
+      "label": "Schritte des Versands",
+      "template": "Vorlage",
+      "message": "Nachricht",
+      "variables": "Variablen",
+      "review": "Prüfen"
+    },
+    "name": {
+      "label": "Name des Versands",
+      "template": "{template} · {date}",
+      "message": "Nachricht · {date}"
+    },
+    "department": {
+      "label": "Abteilung des Versands",
+      "required": "Wählen Sie die Abteilung des Versands.",
+      "value": "Abteilung {name}",
+      "loading": "Die Abteilungen werden geladen.",
+      "failed": "Die Abteilungen konnten nicht geladen werden."
+    },
+    "template": {
+      "from": "Senden von",
+      "loadingPhones": "Offizielle Nummern werden geladen...",
+      "phonesFailed": "Die offiziellen Nummern konnten nicht geladen werden.",
+      "noPhones": "Keine offizielle Nummer verbunden. Verbinden Sie eine Nummer unter offizielles WhatsApp, um Vorlagen zu senden.",
+      "label": "Vorlage",
+      "search": "Vorlage suchen",
+      "empty": "Keine Vorlage gefunden.",
+      "pickPhone": "Wählen Sie zuerst die Nummer.",
+      "noTemplates": "Keine genehmigte Vorlage auf dieser Nummer.",
+      "previewLabel": "Vorschau",
+      "previewEmpty": "Wählen Sie eine Vorlage, um die Vorschau zu sehen.",
+      "summary": "Senden von {phone} · Vorlage {template}",
+      "summaryCategory": "Senden von {phone} · Vorlage {template} ({category})"
+    },
+    "message": {
+      "instance": "Inoffizielle Nummer",
+      "search": "Nummer suchen",
+      "empty": "Keine inoffizielle Nummer gefunden.",
+      "content": "Nachricht",
+      "previewEmpty": "Schreiben Sie die Nachricht, um die Vorschau zu sehen.",
+      "summary": "Senden von {instance}",
+      "incomplete": "Vervollständigen Sie die Nachricht: Text in jeder Variante, dieselben Variablen in jeder und das Medium, wenn der Typ es verlangt.",
+      "instancesFailed": "Die inoffiziellen Nummern konnten nicht geladen werden."
+    },
+    "bindings": {
+      "title": "Variablen",
+      "hint": "Jede Variable kommt aus einem Lead-Feld oder einem festen Text. Leads ohne Wert für eine Variable werden übersprungen und in der Prüfung gezeigt.",
+      "none": "Diese Nachricht hat keine Variablen.",
+      "source": "Quelle der Variable {slot}",
+      "literalValue": "Text der Variable {slot}",
+      "sources": {
+        "literal": "Fester Text",
+        "firstName": "Vorname",
+        "name": "Vollständiger Name",
+        "nickname": "Spitzname",
+        "district": "Stadtteil der Hauptadresse",
+        "city": "Stadt der Hauptadresse",
+        "ownerName": "Verantwortlich für den Lead"
+      },
+      "custom": "Feld: {label}",
+      "literalSummary": "Fester Text: {value}"
+    },
+    "quote": {
+      "checking": "Auswahl und Kosten werden geprüft...",
+      "waiting": "Wählen Sie für jede Variable die Quelle, um Empfänger und Kosten zu sehen.",
+      "selected": "{count, plural, =1 {# Lead in der Auswahl} other {# Leads in der Auswahl}}",
+      "estimate": "Geschätzte Kosten, wenn alle sie erhalten: {amount}",
+      "daily": "Bis zu {cap, number} pro Tag: etwa {days, plural, =1 {# Tag} other {# Tage}}",
+      "dailyNone": "Kein Tageslimit auf dieser Nummer.",
+      "splitRequired": "Die Auswahl übersteigt {max, number} Leads, das Limit eines Versands.",
+      "split": "In {parts, number} Versände mit bis zu {max, number} Leads aufteilen"
+    },
+    "review": {
+      "preparing": "Der Versand wird vorbereitet: Die Auswahl wird eingefroren und die Empfänger werden gezählt...",
+      "howItArrives": "So kommt die Nachricht an",
+      "selected": "Ausgewählt",
+      "receive": "Erhalten sie",
+      "skipped": {
+        "no_identity": "Ohne WhatsApp",
+        "blocked": "Gesperrt",
+        "opted_out": "Möchten keine Nachrichten",
+        "cooldown": "Haben vor Kurzem einen Versand erhalten",
+        "missing_variable": "Kein Wert für eine Variable",
+        "already_in_running_campaign": "Schon in einem anderen laufenden Versand",
+        "over_cap": "Außerhalb des Limits dieses Versands",
+        "other": "Aus einem anderen Grund übersprungen"
+      },
+      "countedLead": "Unter den Empfängern:",
+      "counted": {
+        "window_open": "{count, plural, =1 {# hat} other {# haben}} ein offenes Fenster (die Vorlage wird trotzdem berechnet)",
+        "no_consent_recorded": "{count, plural, =1 {# hat} other {# haben}} keine erfasste Einwilligung"
+      },
+      "cost": "Geschätzte Kosten",
+      "costLine": "{count, number} × {unit} · Guthaben {balance}",
+      "capRemaining": "Monatslimit: noch {count, number}",
+      "capNone": "Kein Monatslimit",
+      "charged": "Die Vorlage wird beim Senden berechnet, auch wenn die Person nicht antwortet.",
+      "pace": "Tempo des Versands",
+      "paceNone": "Kein Tageslimit: Der Versand folgt dem Abstand zwischen den Nachrichten.",
+      "budget": {
+        "unaffordable": "Das Guthaben deckt {fits, number} der {count, number} Empfänger.",
+        "over_cap": "Das Monatslimit deckt {fits, number} der {count, number} Empfänger.",
+        "firstN": "Nur an die ersten {fits, number} senden",
+        "send_pricing_unavailable": "Der Preis dieser Vorlage kann gerade nicht berechnet werden. Versuchen Sie es später erneut.",
+        "send_nothing_eligible": "Niemand in dieser Auswahl kann den Versand erhalten."
+      },
+      "parts": "Aufgeteilt in {count, number} Versände",
+      "stopped": "Versand vorbereitet und angehalten: Nichts geht raus, bis Sie bestätigen. Danach verfolgen Sie ihn unter Broadcasts.",
+      "cooldownDays": "Haben {days, plural, =1 {am letzten Tag} other {in den letzten # Tagen}} einen Versand erhalten",
+      "missingSlot": "{field} für die Variable '{{'{slot}'}}'",
+      "missingSlotUnnamed": "Kein Wert für die Variable '{{'{slot}'}}'",
+      "missingOverlap": "Ein Lead, dem mehrere Variablen fehlen, zählt bei jeder davon.",
+      "missingField": {
+        "firstName": "Ohne Vorname",
+        "name": "Ohne vollständigen Namen",
+        "nickname": "Ohne Spitznamen",
+        "district": "Ohne Stadtteil",
+        "city": "Ohne Stadt",
+        "ownerName": "Ohne verantwortliche Person",
+        "custom": "Ohne {label}"
+      }
+    },
+    "actions": {
+      "back": "Zurück",
+      "next": "Weiter",
+      "review": "Prüfen",
+      "preparing": "Wird vorbereitet...",
+      "send": "An {count, plural, =1 {# Lead} other {# Leads}} senden",
+      "sending": "Wird gesendet..."
+    },
+    "done": "Versand an {count, plural, =1 {# Lead} other {# Leads}} gestartet. Verfolgen Sie ihn unter Broadcasts.",
+    "cancelFailed": "Der vorbereitete Versand wurde nicht gelöscht und bleibt unter Broadcasts angehalten. Löschen Sie ihn dort.",
+    "leftBehind": "Ein zuvor vorbereiteter Versand ist möglicherweise unter Broadcasts angehalten geblieben. Prüfen und löschen Sie ihn dort.",
+    "blockers": {
+      "checkingAccess": "Ihre Berechtigungen werden geprüft.",
+      "permissionSendTemplate": "Sie haben keine Berechtigung, Vorlagen aus Leads zu senden.",
+      "permissionSendUnofficial": "Sie haben keine Berechtigung, inoffizielle Nachrichten aus Leads zu senden.",
+      "checkingNumbers": "Die verbundenen Nummern werden geprüft.",
+      "numbersUnavailable": "Die verbundenen Nummern konnten nicht geprüft werden.",
+      "noOfficialNumber": "Keine offizielle Nummer verbunden",
+      "noUnofficialNumber": "Keine inoffizielle Nummer verbunden"
+    },
+    "campaign": {
+      "fromLeads": "Aus Leads vorbereiteter Versand. Er startet nur aus der Prüfung des Versands auf der Lead-Seite; hier angehalten, kann er nicht gestartet werden. Löschen Sie ihn und bereiten Sie ihn bei Bedarf neu vor.",
+      "contentLocked": "Aus Leads vorbereiteter Versand: Nummer und Nachricht können nicht geändert werden. Name, Takt und Antworten bleiben bearbeitbar. Um zu ändern, was gesendet wird, löschen Sie ihn und bereiten Sie ihn auf der Lead-Seite neu vor.",
+      "templateLocked": "Aus Leads vorbereiteter Versand: Nummer und Vorlage können nicht geändert werden. Um zu ändern, was gesendet wird, löschen Sie ihn und bereiten Sie ihn auf der Lead-Seite neu vor.",
+      "contactsLocked": "Die Kontakte dieses Versands stammen aus der Lead-Auswahl und ändern sich hier nicht. Wer ihn erhält, sehen Sie auf der Seite des Versands."
+    },
+    "errors": {
+      "forbidden": "Sie haben keine Berechtigung für diesen Versand.",
+      "send_creation_scope_missing": "Es ist unklar, wer den Versand erstellt. Melden Sie sich erneut an und versuchen Sie es noch einmal.",
+      "send_department_forbidden": "Sie können in dieser Abteilung keine Versände erstellen.",
+      "send_department_required": "Wählen Sie die Abteilung des Versands.",
+      "send_header_variable_unsupported": "Diese Vorlage hat eine Variable in der Kopfzeile, die noch nicht an eine Auswahl gesendet werden kann. Wählen Sie eine andere Vorlage.",
+      "send_named_parameters_unsupported": "Diese Vorlage verwendet benannte Variablen. Für eine Auswahl verwenden Sie Vorlagen mit nummerierten Variablen.",
+      "send_bindings_mismatch": "Jede Variable braucht eine Quelle. Prüfen Sie die Variablen.",
+      "send_binding_unknown": "Eine der gewählten Quellen für die Variablen wird nicht akzeptiert.",
+      "send_binding_literal_empty": "Füllen Sie den festen Text jeder Variable aus.",
+      "send_binding_field_unknown": "Ein für eine Variable gewähltes Feld existiert nicht mehr.",
+      "send_binding_sensitive": "Sensible Felder dürfen nicht in eine Nachricht.",
+      "send_first_n_invalid": "Die Anzahl muss zwischen 1 und der Zahl der Empfänger liegen.",
+      "send_incomplete": "Nicht alle Teile dieses Versands wurden gefunden. Bereiten Sie ihn erneut vor.",
+      "send_not_from_selection": "Dieser Versand wurde nicht aus Leads vorbereitet.",
+      "send_message_invalid": "Die Nachricht ist unvollständig. Prüfen Sie Text, Medium und Optionen.",
+      "send_selection_empty": "Kein Lead in dieser Auswahl.",
+      "send_selection_over_campaign_cap": "Ein Versand umfasst bis zu 150.000 Leads. Teilen Sie ihn auf mehrere Versände auf oder grenzen Sie den Filter ein.",
+      "send_selection_too_large": "Die Auswahl übersteigt 10 Versände mit 150.000 Leads. Grenzen Sie den Filter ein.",
+      "send_nothing_eligible": "Niemand in dieser Auswahl kann den Versand erhalten.",
+      "send_already_started": "Dieser Versand hat schon begonnen und kann nicht mehr abgebrochen werden.",
+      "send_selection_locked": "Ein aus Leads vorbereiteter Versand kann nicht geändert werden. Brechen Sie ihn ab und bereiten Sie ihn neu vor.",
+      "send_start_from_leads": "Dieser Versand wurde aus Leads vorbereitet: Senden Sie ihn aus seiner Prüfung auf der Lead-Seite.",
+      "send_preparing": "Der Versand wird noch vorbereitet. Versuchen Sie es gleich noch einmal.",
+      "send_template_unavailable": "Die Vorlage ist nicht genehmigt oder kann gerade nicht gesendet werden.",
+      "send_template_phone_mismatch": "Die Vorlage gehört nicht zu dieser Nummer.",
+      "send_phone_unavailable": "Diese offizielle Nummer kann für diesen Workspace nicht senden.",
+      "send_instance_unavailable": "Die inoffizielle Nummer ist nicht verbunden oder kann gerade nicht senden.",
+      "send_campaign_not_found": "Der vorbereitete Versand wurde nicht gefunden. Bereiten Sie ihn erneut vor.",
+      "send_pricing_unavailable": "Der Preis dieser Vorlage kann gerade nicht berechnet werden. Versuchen Sie es später erneut.",
+      "unaffordable": "Das Guthaben deckt diesen Versand nicht.",
+      "over_cap": "Der Versand übersteigt das monatliche Versandlimit des Workspace.",
+      "NO_ACTIVE_SUBSCRIPTION": "Dieser Workspace hat kein aktives Abonnement für Versände.",
+      "lead_sends_unavailable": "Versände aus Leads sind gerade nicht verfügbar.",
+      "campaign_automation_unavailable": "Versände sind gerade nicht verfügbar. Versuchen Sie es gleich noch einmal.",
+      "campaign_idempotency_unavailable": "Versände sind gerade nicht verfügbar. Versuchen Sie es gleich noch einmal.",
+      "campaign_lead_targets_unavailable": "Versände sind gerade nicht verfügbar. Versuchen Sie es gleich noch einmal.",
+      "lead_action_send_params_required": "Die Angaben zum Versand fehlen.",
+      "lead_action_send_phone_required": "Wählen Sie die offizielle Nummer.",
+      "lead_action_send_template_required": "Wählen Sie die Vorlage.",
+      "lead_action_send_instance_required": "Wählen Sie die inoffizielle Nummer.",
+      "lead_action_send_message_required": "Schreiben Sie die Nachricht.",
+      "lead_action_send_pacing_invalid": "Abstand und Tageslimit dürfen nicht negativ sein.",
+      "timeout": "Der Server hat zu lange gebraucht. Versuchen Sie es erneut: Der Versand wird nicht doppelt erstellt."
+    },
+    "selection": {
+      "summary": "Auswahl: {items}",
+      "search": "Suche: „{text}“"
     }
   },
   "featurePages": {
@@ -9182,6 +10598,73 @@
       "manage": "Verwalten",
       "session": "Sitzung",
       "outbound": "Kontaktieren"
+    },
+    "bulk": {
+      "selectedCount": "{count, plural, =1 {# ausgewählt} other {# ausgewählt}}",
+      "selectAllMatching": "Alle {count} aus dem Filter auswählen",
+      "selectEveryone": "Alle {count} Unterhaltungen auswählen",
+      "counting": "Unterhaltungen werden gezählt",
+      "allMatchingSelected": "Alle {count} Unterhaltungen aus dem Filter sind ausgewählt",
+      "everyoneSelected": "Alle {count} Unterhaltungen, die du siehst, sind ausgewählt",
+      "clearSelection": "Auswahl aufheben",
+      "confirmTitle": "{count, plural, =1 {Auf # Unterhaltung anwenden?} other {Auf # Unterhaltungen anwenden?}}",
+      "confirmAllMatching": "Die Aktion gilt für alle Unterhaltungen, die dem aktuellen Filter entsprechen, auch für die, die nicht auf dieser Seite stehen.",
+      "confirmEveryone": "Kein Filter ist aktiv: Die Aktion gilt für alle Unterhaltungen, die du sehen kannst.",
+      "confirmChanged": "Die Auswahl hat sich seit der Zählung geändert: Es waren {previous}, jetzt sind es {count}. Bestätige erneut, um sie anzuwenden.",
+      "confirm": "Anwenden",
+      "confirmEveryoneAction": "Auf alle anwenden",
+      "cancel": "Abbrechen",
+      "updated": "{count, plural, =1 {# Unterhaltung aktualisiert} other {# Unterhaltungen aktualisiert}}",
+      "partial": "{succeeded} von {eligible} Unterhaltungen aktualisiert. {failed, plural, =1 {# konnte nicht geändert werden.} other {# konnten nicht geändert werden.}}",
+      "truncated": "{succeeded} von {matched} Unterhaltungen aktualisiert: Die Aktion hat das Limit pro Vorgang erreicht. Wiederhole sie, um fortzufahren.",
+      "moveStage": "Phase verschieben",
+      "moveStageHeading": "In Phase verschieben",
+      "searchStage": "Phase suchen...",
+      "noStages": "Keine Phasen",
+      "moveFunnel": "In einen anderen Funnel verschieben…",
+      "addLabel": "Markieren",
+      "addLabelHeading": "Label hinzufügen",
+      "searchLabel": "Label suchen...",
+      "noLabels": "Keine Labels",
+      "removeLabel": "Label entfernen",
+      "clear": "Leeren",
+      "quantitySelected": "Die ersten {count} Gespräche des Filters ausgewählt",
+      "unknownPick": "Der Typ einer gewählten Unterhaltung ist nicht mehr bekannt. Lade die Liste neu und wähle erneut."
+    },
+    "list": {
+      "columns": {
+        "contact": "Kontakt",
+        "channel": "Kanal",
+        "lastMessage": "Letzte Nachricht",
+        "stage": "Phase",
+        "owner": "Verantwortlich",
+        "updated": "Aktualisiert"
+      },
+      "owner": {
+        "ai": "KI",
+        "workflow": "Workflow",
+        "assigned": "Zugewiesen"
+      },
+      "stats": {
+        "conversations": "Gespräche"
+      },
+      "sort": {
+        "newest": "Neueste zuerst",
+        "oldest": "Älteste zuerst"
+      },
+      "selectPage": "Alle Gespräche dieser Seite auswählen",
+      "selectRow": "Gespräch auswählen",
+      "pagination": {
+        "showing": "Zeige",
+        "of": "von",
+        "items": "Gesprächen"
+      },
+      "empty": {
+        "failedTitle": "Konnte nicht geladen werden",
+        "retry": "Erneut versuchen",
+        "title": "Keine Gespräche",
+        "description": "Passe die Filter an, um andere Gespräche zu sehen."
+      }
     }
   },
   "metricsOps": {
@@ -11509,6 +12992,71 @@
       "internal_error": "Interner Fehler beim Verarbeiten des Limits. Versuche es erneut."
     }
   },
+  "adminGeocoding": {
+    "header": {
+      "badge": "Adress-Geokodierung",
+      "description": "Nutzung des externen Anbieters und Adressabdeckung jedes Workspaces im monatlichen Zyklus von Brasília."
+    },
+    "stats": {
+      "workspaces": "Workspaces",
+      "cycle": "Aktueller Zyklus",
+      "cycleValue": "{start} bis {end}"
+    },
+    "search": {
+      "placeholder": "Workspace nach Namen suchen"
+    },
+    "actions": {
+      "refresh": "Aktualisieren",
+      "showDetails": "Details anzeigen",
+      "hideDetails": "Details ausblenden"
+    },
+    "table": {
+      "workspace": "Workspace",
+      "provider": "Anbieter",
+      "usage": "Nutzung im Zyklus",
+      "address": "Mit Adresse",
+      "onMap": "Auf der Karte",
+      "details": "Details"
+    },
+    "provider": {
+      "none": "Nur Referenzdaten",
+      "active": "Aktiv",
+      "since": "Aktiv seit {date}"
+    },
+    "usage": {
+      "value": "{used, number} von {ceiling, number}",
+      "meter": "Nutzung des Monatslimits",
+      "off": "Anbieter aus",
+      "none": "Limit bei null, keine Abfragen erlaubt",
+      "today": "Heute: {count, number}",
+      "defaultCeiling": "Standardlimit"
+    },
+    "share": {
+      "value": "{share, number, percent}",
+      "of": "{count, number} von {total, number} Leads"
+    },
+    "details": {
+      "history": "Anbieterabfragen pro Zyklus",
+      "historyTotal": "{count, number} in den letzten 12 Zyklen",
+      "coverage": "Adressstatus"
+    },
+    "empty": {
+      "title": "Kein Workspace mit Leads oder Geokodierung",
+      "filteredTitle": "Kein Workspace mit diesem Namen",
+      "description": "Hier erscheinen Workspaces mit Leads, mit konfiguriertem Anbieter oder mit erfasster Nutzung."
+    },
+    "errors": {
+      "title": "Geokodierung konnte nicht geladen werden",
+      "forbidden": "Nur ein Plattform-Admin kann die Nutzung aller Workspaces sehen.",
+      "unavailable": "Die Adress-Geokodierung ist auf diesem Server nicht verfügbar.",
+      "busy": "Die Abfrage ist gerade ausgelastet. Versuche es gleich noch einmal.",
+      "slow": "Die Abfrage hat zu lange gedauert. Versuche es gleich noch einmal.",
+      "default": "Die Geokodierungsnutzung konnte nicht gelesen werden."
+    },
+    "pagination": {
+      "items": "Workspaces"
+    }
+  },
   "adminAffiliates": {
     "header": {
       "badge": "Affiliates",
@@ -12011,7 +13559,6 @@
       "window_already_open": "Diese Unterhaltung ist bereits offen. Antworten Sie kostenfrei im Chat.",
       "send_in_progress": "Dieser Versand läuft bereits. Warten Sie auf die Bestätigung.",
       "within_spam_window": "Dieser Kontakt wurde von dieser Nummer erst kürzlich angeschrieben. Warten Sie das im Workspace festgelegte Intervall ab.",
-      "rate_limited": "Zu viele Unterhaltungen in kurzer Zeit begonnen. Versuchen Sie es gleich erneut.",
       "insufficient_balance": "Zu wenig Guthaben, um diese Vorlage zu senden.",
       "monthly_send_cap_reached": "Dieser Workspace hat sein monatliches Versandlimit erreicht. Wende dich an die Administration.",
       "pricing_unavailable": "Für diese Vorlagenkategorie ist kein Preis hinterlegt. Wenden Sie sich an die Workspace-Verwaltung.",
@@ -12024,6 +13571,11 @@
       "not_found": "Nummer oder Vorlage nicht gefunden.",
       "idempotency_key_required": "Der Versand konnte nicht bestätigt werden. Schließen und öffnen Sie das Fenster erneut.",
       "billing_unavailable": "Die Abrechnung ist derzeit nicht verfügbar. Der Versand wurde vorsorglich abgelehnt.",
+      "lead_opted_out": "Dieser Kontakt möchte keine Nachrichten erhalten. Der Versand wurde abgelehnt.",
+      "quote_out_of_range": "Die Kosten dieses Versands konnten nicht berechnet werden. Wenden Sie sich an die Workspace-Verwaltung.",
+      "quote_unavailable": "Die Kosten konnten gerade nicht berechnet werden. Versuchen Sie es gleich erneut.",
+      "conversation_not_found": "Unterhaltung nicht gefunden. Sie wurde möglicherweise entfernt.",
+      "send_outcome_unknown": "WhatsApp hat die Vorlage möglicherweise zugestellt. Prüfen Sie die Unterhaltung, bevor Sie erneut senden.",
       "send_failed": "Die Vorlage konnte nicht gesendet werden."
     },
     "create": {
@@ -13634,6 +15186,24 @@
       "durable": "trägt",
       "noCatalogue": "In diesem Workspace ist kein Ergebnis hinterlegt. Bitten Sie eine Administration, die Liste anzulegen.",
       "title": "Wie ging es aus?"
+    },
+    "locationMessage": {
+      "mapLabel": "Karte des gesendeten Standorts",
+      "caption": "Standort · {place}",
+      "coordinates": "{latitude}, {longitude}",
+      "accept": "Als Standort von {name} verwenden",
+      "acceptUnnamed": "Als Standort des Leads verwenden",
+      "accepting": "Standort wird gespeichert…",
+      "accepted": "Standort im Datensatz von {name} gespeichert.",
+      "acceptedUnnamed": "Standort im Datensatz des Leads gespeichert.",
+      "failed": "Dieser Standort konnte nicht verwendet werden.",
+      "errors": {
+        "lead_location_not_found": "Diese Nachricht ist kein Standort dieses Leads.",
+        "lead_not_found": "Dieser Lead existiert nicht mehr.",
+        "forbidden": "Du darfst den Standort dieses Leads nicht ändern.",
+        "version_conflict": "Der Datensatz dieses Leads hat sich gerade geändert. Versuche es erneut.",
+        "lead_locations_unavailable": "Lead-Standorte sind gerade nicht verfügbar. Versuche es gleich noch einmal."
+      }
     }
   },
   "reports": {
@@ -13665,7 +15235,8 @@
       "attendance_overview": "Betreuung",
       "conversation_entries": "Gespräche",
       "balance_transactions": "Guthaben-Transaktionen",
-      "opportunities": "Opportunities"
+      "opportunities": "Opportunities",
+      "leads": "Leads"
     },
     "status": {
       "queued": "In der Warteschlange",
@@ -14362,12 +15933,48 @@
         "no_call_slots": "Alle Anrufkanäle sind belegt. Versuche es gleich noch einmal.",
         "insufficient_balance": "Guthaben reicht nicht zum Anrufen.",
         "already_in_call": "Du bist bereits in einem Gespräch.",
-        "dial_failed": "Der Anruf konnte nicht gestartet werden."
+        "dial_failed": "Der Anruf konnte nicht gestartet werden.",
+        "lead_not_dialable": "Dieser Lead kann unter dieser Nummer nicht angerufen werden.",
+        "lead_blocked": "Dieser Lead ist für Anrufe gesperrt.",
+        "number_required": "Gib eine Nummer ein, um anzurufen.",
+        "call_service_offline": "Telefonie ist offline. Verbindung wird wiederhergestellt…",
+        "call_list_item_unavailable": "Dieser Kontakt ist nicht mehr für dich reserviert. Nimm den nächsten aus der Liste.",
+        "microphone_unsupported": "Dieser Browser gibt keinen Zugriff auf ein Mikrofon. Nutze einen aktuellen Browser zum Telefonieren.",
+        "microphone_denied": "Der Mikrofonzugriff wurde verweigert. Erlaube das Mikrofon für diese Seite in den Browsereinstellungen.",
+        "microphone_not_found": "Kein Mikrofon gefunden. Schließe eins an und versuche es erneut.",
+        "microphone_busy": "Eine andere App verwendet das Mikrofon. Schließe sie und versuche es erneut.",
+        "microphone_failed": "Das Mikrofon konnte für den Anruf nicht geöffnet werden.",
+        "call_audio_unsupported": "Der Ton dieses Browsers funktioniert nicht mit Anrufen. Versuche einen anderen Browser."
       },
       "tabIncoming": "Anruf",
-      "tabRinging": "Wählt"
+      "tabRinging": "Wählt",
+      "callHeldBy": {
+        "call_list": "Der laufende Anruf wird in der Anrufliste angezeigt."
+      }
     },
     "dragHint": "Zum Verschieben ziehen, Doppelklick setzt zurück",
+    "dialTargets": {
+      "call": "Anrufen",
+      "callNumber": "{number} anrufen",
+      "reasons": {
+        "noPermission": "Du darfst nicht über die Telefonleitungen anrufen.",
+        "connecting": "Verbindung zum Anrufdienst wird hergestellt…",
+        "busy": "Du bist bereits in einem Anruf.",
+        "checking": "Nummern und Leitungen werden geprüft…",
+        "forbidden": "Du darfst die Nummern dieses Leads nicht sehen.",
+        "linesForbidden": "Du darfst die Telefonleitungen nicht sehen.",
+        "lead_not_found": "Lead nicht gefunden.",
+        "unavailable": "Nummern und Leitungen konnten gerade nicht geprüft werden.",
+        "blocked": "Die Nummer dieses Leads ist gesperrt.",
+        "opted_out": "Dieser Lead möchte nicht kontaktiert werden.",
+        "invalid_number": "Keine Leitung kann die Nummer dieses Leads wählen.",
+        "no_number": "Dieser Lead hat keine Nummer zum Anrufen.",
+        "number_not_held": "Diese Nummer gehört nicht zum Lead.",
+        "unauthorized": "Du darfst über diese Leitungen nicht anrufen.",
+        "no_dialable_trunk": "Keine Telefonleitung verbunden.",
+        "refused": "Dieser Lead kann gerade nicht angerufen werden."
+      }
+    },
     "assistantCard": {
       "title": "Anruf",
       "via": "Über die Leitung {trunk}",
@@ -14375,10 +15982,7 @@
       "call": "Anrufen",
       "openDialer": "Im Wählfeld öffnen",
       "started": "Anruf gestartet. Verfolge ihn in der Anrufkarte.",
-      "handedOver": "Nummer an das Wählfeld übergeben. Wähle eine Leitung und rufe an.",
-      "noPermission": "Du darfst nicht über Telefonleitungen anrufen.",
-      "connecting": "Verbindung zum Anrufdienst wird hergestellt…",
-      "busy": "Du bist bereits in einem Anruf."
+      "handedOver": "Nummer an das Wählfeld übergeben. Wähle eine Leitung und rufe an."
     },
     "transfer": {
       "open": "Weiterleiten",
@@ -14636,6 +16240,231 @@
         "balance_check_error": "das Guthaben konnte nicht geprüft werden",
         "interrupted": "durch einen Serverfehler unterbrochen"
       }
+    }
+  },
+  "callLists": {
+    "page": {
+      "title": "Anruflisten",
+      "description": "Leads, die der Reihe nach angerufen werden. Die gewählten Mitglieder nehmen den nächsten, rufen an und erfassen das Ergebnis.",
+      "refresh": "Aktualisieren",
+      "emptyTitle": "Keine Anruflisten",
+      "emptyDescription": "Wähle unter Leads die Personen aus und wähle Anrufliste, um eine zu erstellen.",
+      "emptyFiltered": "Keine Liste mit diesem Status.",
+      "goToLeads": "Zu den Leads",
+      "errorTitle": "Die Listen konnten nicht geladen werden",
+      "retry": "Erneut versuchen"
+    },
+    "filters": {
+      "status": "Status",
+      "any": "Alle"
+    },
+    "stats": {
+      "lists": "Listen"
+    },
+    "table": {
+      "name": "Liste",
+      "assignees": "Wer anruft",
+      "progress": "Fortschritt",
+      "status": "Status",
+      "createdAt": "Erstellt am",
+      "progressValue": "{closed, number} von {total, number} abgeschlossen",
+      "building": "{selected, number} Leads werden geprüft"
+    },
+    "status": {
+      "building": "Im Aufbau",
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "archived": "Archiviert",
+      "failed": "Nicht aufgebaut"
+    },
+    "failures": {
+      "no_callable_lead": "Kein Lead der Auswahl kann unter der gewählten Nummer angerufen werden.",
+      "build_failed": "Der Aufbau ist mehrmals fehlgeschlagen. Erstelle die Liste unter Leads neu.",
+      "unknown": "Die Liste konnte nicht aufgebaut werden."
+    },
+    "progress": {
+      "label": "Fortschritt der Liste",
+      "total": "In der Liste",
+      "open": "Offen",
+      "closed": "Abgeschlossen",
+      "skipped": "Draußen geblieben",
+      "percent": "{percent}% abgeschlossen",
+      "called": "Angerufen",
+      "callbacks": "Rückruf"
+    },
+    "skipped": {
+      "blocked": "Gesperrt",
+      "opted_out": "Wollen nicht angerufen werden",
+      "no_number": "Ohne die gewählte Nummer",
+      "number_not_held": "Nummer gehört nicht zum Lead",
+      "invalid_number": "Ungültige Nummer",
+      "gone": "Existieren nicht mehr",
+      "other": "Andere Gründe"
+    },
+    "phone": {
+      "identity": "Ruft das WhatsApp des Leads an",
+      "contact": "Ruft das Kontakttelefon an: {label}"
+    },
+    "assignees": {
+      "title": "Wer anruft",
+      "description": "Nur diese Mitglieder nehmen Kontakte aus dieser Liste. Alle müssen über die Telefonleitungen anrufen dürfen.",
+      "label": "Anrufende Mitglieder",
+      "add": "Mitglied hinzufügen",
+      "search": "Mitglied suchen",
+      "empty": "Kein Mitglied gefunden",
+      "membersFailed": "Die Mitglieder konnten nicht geladen werden.",
+      "noMembersPermission": "Du darfst die Mitglieder des Workspace nicht sehen.",
+      "remove": "{name} entfernen",
+      "none": "Wähle mindestens ein Mitglied.",
+      "button": "Wer anruft ({count, number})",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "cancel": "Abbrechen",
+      "saved": "Wer diese Liste anruft, wurde aktualisiert."
+    },
+    "actions": {
+      "menu": "Aktionen für die Liste {name}",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "archive": "Archivieren",
+      "restore": "Reaktivieren",
+      "delete": "Löschen",
+      "updated": "Liste aktualisiert.",
+      "deleted": "Liste gelöscht."
+    },
+    "confirm": {
+      "deleteTitle": "Die Liste {name} löschen?",
+      "deleteDescription": "Die Liste und ihr Fortschritt verlassen den Workspace. Die getätigten Anrufe bleiben im Anrufverlauf.",
+      "deleteConfirm": "Liste löschen",
+      "archiveTitle": "Die Liste {name} archivieren?",
+      "archiveDescription": "Aus einer archivierten Liste nimmt niemand neue Kontakte. Du kannst sie später reaktivieren.",
+      "archiveConfirm": "Archivieren",
+      "cancel": "Abbrechen"
+    },
+    "worker": {
+      "back": "Anruflisten",
+      "description": "{count, plural, =1 {1 Lead in der Liste} other {# Leads in der Liste}} · erstellt am {date}",
+      "notFound": "Liste nicht gefunden, oder du gehörst nicht zu den Anrufenden.",
+      "loadFailed": "Die Liste konnte nicht geladen werden.",
+      "building": "Die Liste wird aufgebaut: Die {selected, number} Leads der Auswahl werden geprüft. Diese Seite aktualisiert sich selbst.",
+      "paused": "Diese Liste ist pausiert. Niemand nimmt neue Kontakte, bis sie fortgesetzt wird.",
+      "archived": "Diese Liste ist archiviert. Niemand nimmt neue Kontakte aus ihr.",
+      "notAssignee": "Du gehörst nicht zu den Anrufenden dieser Liste. Wer Listen verwaltet, kann dich unter Wer anruft hinzufügen.",
+      "cannotWork": "Du darfst keine Anruflisten bearbeiten.",
+      "checking": "Deine Berechtigungen werden geprüft."
+    },
+    "next": {
+      "title": "Nächster",
+      "reservedUntil": "für dich reserviert bis {time}",
+      "expired": "die Reservierung ist abgelaufen",
+      "start": "Nächsten nehmen",
+      "loading": "Der nächste Kontakt wird gesucht...",
+      "empty": "Gerade niemand in der Warteschlange.",
+      "emptyHint": "Geplante Rückrufe und Kontakte von Mitgliedern, die aufgehört haben, kommen von selbst zurück in die Warteschlange.",
+      "more": "Einige Kontakte wurden übersprungen. Nimm den nächsten erneut, um weiterzumachen.",
+      "refused": "{count, plural, =1 {1 Kontakt übersprungen} other {# Kontakte übersprungen}}, weil der Lead gerade nicht angerufen werden kann.",
+      "noName": "Lead ohne Namen",
+      "family": "Familie",
+      "familyCount": "{count, plural, =0 {Keine Angehörigen erfasst} =1 {1 Angehörige Person erfasst} other {# Angehörige erfasst}}",
+      "lastInteraction": "Letzte Interaktion",
+      "lastInteractionValue": "Gespräch vom {date}",
+      "noInteraction": "Kein Gespräch, das du öffnen kannst",
+      "number": "Nummer",
+      "line": "Leitung",
+      "openLead": "Lead öffnen",
+      "openConversation": "Unterhaltung öffnen"
+    },
+    "call": {
+      "call": "Anrufen",
+      "again": "Erneut anrufen",
+      "inDialer": "Der Anruf ist im Wählfeld geöffnet.",
+      "ended": "Anruf beendet",
+      "technical": "Das technische Ergebnis stammt aus dem Anrufprotokoll und wird nicht eingetippt.",
+      "stamped": "Der Anruf wurde bei diesem Kontakt erfasst.",
+      "lostStamped": "Die Verbindung ist abgebrochen, der Anruf wurde aber bei diesem Kontakt erfasst. Erfasse das Ergebnis.",
+      "lostNotStamped": "Die Verbindung ist abgebrochen, bevor der Anruf erfasst wurde. Ruf erneut an oder gib den Kontakt frei.",
+      "notStarted": "Der Anruf hat nicht begonnen. Der Kontakt bleibt für dich reserviert: Ruf erneut an oder gib ihn frei."
+    },
+    "outcome": {
+      "title": "Wie ist es gelaufen?",
+      "callback": "Zurückrufen",
+      "callbackAt": "Zurückrufen am",
+      "note": "Notiz",
+      "noCatalogue": "In diesem Workspace sind keine Ergebnisse eingerichtet. Bitte eine Administratorin oder einen Administrator, die Ergebnisliste anzulegen.",
+      "loading": "Ergebnisse werden geladen..."
+    },
+    "save": "Speichern und weiter",
+    "saving": "Wird gespeichert...",
+    "release": "Freigeben",
+    "releasing": "Wird freigegeben...",
+    "saveOnly": "Speichern",
+    "saved": "Ergebnis gespeichert.",
+    "released": "Kontakt zurück in die Warteschlange gelegt.",
+    "blockers": {
+      "notCalled": "Ruf an, bevor du das Ergebnis erfasst.",
+      "callLive": "Beende den Anruf, bevor du speicherst.",
+      "noOutcome": "Wähle, wie es gelaufen ist.",
+      "callbackTime": "Wähle, wann zurückgerufen wird."
+    },
+    "queue": {
+      "title": "Warteschlange",
+      "description": "In der Reihenfolge der Warteschlange: zuerst fällige Rückrufe, dann die Warteschlange, dann später geplante Rückrufe.",
+      "tabs": {
+        "pending": "Offen",
+        "reserved": "Im Gespräch",
+        "closed": "Abgeschlossen"
+      },
+      "empty": {
+        "pending": "Kein offener Kontakt.",
+        "reserved": "Gerade niemand im Gespräch.",
+        "closed": "Noch kein abgeschlossener Kontakt."
+      },
+      "loadMore": "Mehr laden",
+      "loadingMore": "Wird geladen...",
+      "callbackAt": "zurückrufen {date}",
+      "recheck": "erneut prüfen {date}",
+      "reservedBy": "mit {name}",
+      "reservedByYou": "mit dir",
+      "attempts": "{count, plural, =1 {1 Versuch} other {# Versuche}}",
+      "callbackDisposition": "Später zurückrufen",
+      "refusedDisposition": "Draußen: {reason}"
+    },
+    "errors": {
+      "forbidden": "Dafür fehlt dir die Berechtigung in den Anruflisten.",
+      "call_list_not_assignee": "Du gehörst nicht zu den Mitgliedern, die diese Liste anrufen.",
+      "call_list_not_found": "Anrufliste nicht gefunden.",
+      "call_list_item_not_found": "Dieser Kontakt ist nicht mehr in der Liste.",
+      "call_list_building": "Die Liste wird noch aufgebaut. Warte einen Moment.",
+      "call_list_not_active": "Die Liste ist nicht aktiv.",
+      "call_list_status_transition": "Die Liste kann nicht in diesen Status wechseln.",
+      "call_list_reservation_held": "Du hältst schon einen Kontakt aus einer anderen Liste. Erfasse zuerst das Ergebnis oder gib ihn frei.",
+      "call_list_item_taken": "Jemand anderes hat diesen Kontakt übernommen.",
+      "call_list_item_not_reserved": "Dieser Kontakt ist nicht für dich reserviert.",
+      "call_list_item_closed": "Dieser Kontakt ist bereits abgeschlossen.",
+      "call_list_item_not_called": "Ruf den Kontakt an, bevor du das Ergebnis erfasst.",
+      "call_list_call_not_the_items": "Der erfasste Anruf ist nicht dein Anruf bei diesem Kontakt.",
+      "call_list_item_mismatch": "Der Anruf passt nicht zu Lead und Nummer dieses Kontakts.",
+      "call_list_selection_too_large": "Die Auswahl übersteigt das Limit von 100.000 Leads pro Liste. Grenze den Filter ein.",
+      "call_list_selection_empty": "Kein Lead in dieser Auswahl.",
+      "call_list_assignee_cannot_work": "Eines der gewählten Mitglieder darf keine Anruflisten bearbeiten.",
+      "call_list_no_outcomes": "In diesem Workspace sind keine Ergebnisse eingerichtet. Bitte eine Administratorin oder einen Administrator, die Ergebnisliste anzulegen.",
+      "call_list_disposition_required": "Wähle, wie es gelaufen ist.",
+      "call_list_disposition_unknown": "Dieses Ergebnis ist nicht mehr im Katalog des Workspace. Wähle ein anderes.",
+      "call_list_disposition_reserved": "Dieses Ergebnis ist dem System vorbehalten.",
+      "call_list_callback_time": "Wähle einen künftigen Zeitpunkt innerhalb von 90 Tagen für den Rückruf.",
+      "call_list_note_too_long": "Die Notiz ist länger als 2.000 Zeichen.",
+      "call_list_status_invalid": "Unbekannter Status.",
+      "call_list_items_query_invalid": "Diese Seite der Warteschlange konnte nicht gelesen werden.",
+      "call_list_nothing_to_change": "Nichts zu ändern.",
+      "call_list_name_required": "Gib der Liste einen Namen.",
+      "call_list_name_too_long": "Der Name ist länger als 120 Zeichen.",
+      "call_list_assignees_required": "Wähle mindestens ein Mitglied, das anruft.",
+      "call_list_too_many_assignees": "Eine Liste nimmt bis zu 100 Mitglieder auf.",
+      "call_list_phone_choice_invalid": "Wähle das WhatsApp des Leads oder eine Art von Kontakttelefon.",
+      "call_list_build_claim_lost": "Ein anderer Prozess hat den Aufbau dieser Liste übernommen.",
+      "call_lists_unavailable": "Anruflisten sind gerade nicht verfügbar.",
+      "lead_action_call_list_required": "Fülle Namen, Anrufende und Nummer der Liste aus.",
+      "generic": "Konnte nicht abgeschlossen werden. Versuche es erneut."
     }
   },
   "callQueues": {
@@ -18760,7 +20589,8 @@
       "video": "Video wird erstellt",
       "cutout": "Hintergrund wird entfernt",
       "captions": "Untertitel werden erstellt",
-      "denoise": "Audio wird bereinigt"
+      "denoise": "Audio wird bereinigt",
+      "proxy": "Bearbeitungskopie wird vorbereitet..."
     },
     "failed": {
       "image": "Das Bild konnte nicht erstellt werden",
@@ -18769,7 +20599,8 @@
       "video": "Das Video konnte nicht erstellt werden",
       "cutout": "Der Hintergrund konnte nicht entfernt werden",
       "captions": "Die Untertitel konnten nicht erstellt werden",
-      "denoise": "Das Audio konnte nicht bereinigt werden"
+      "denoise": "Das Audio konnte nicht bereinigt werden",
+      "proxy": "Die Bearbeitungskopie konnte nicht vorbereitet werden"
     },
     "finalizing": "Wird abgeschlossen",
     "download": "Herunterladen",
@@ -18997,7 +20828,8 @@
           "referencesHint": "Optional. Bis zu {max} Bilder, um Stil oder Produkt vorzugeben.",
           "costNote": "Das Erzeugen von Bildern nutzt das Guthaben des Workspace. Das Ergebnis kommt als neue Ebene ins Design.",
           "generate": "Bild erzeugen",
-          "removeBackgroundTitle": "Hintergrund entfernen"
+          "removeBackgroundTitle": "Hintergrund entfernen",
+          "ceiling": "Bis zu {count} gleichzeitig. Warte, bis einer fertig ist, um einen weiteren zu starten."
         },
         "layers": {
           "title": "Ebenen",
@@ -19022,7 +20854,8 @@
           "opacity": "Deckkraft",
           "opacityShort": "Deck.",
           "clip": "Schnittmaske erstellen",
-          "unclip": "Schnittmaske lösen"
+          "unclip": "Schnittmaske lösen",
+          "familyRowLabel": "{name}, Gerüst mit {count, plural, one {# untergeordneten Element} other {# untergeordneten Elementen}}, Ebene {position} von {total}"
         }
       },
       "layerKinds": {
@@ -19084,7 +20917,12 @@
           "vertical": "Vertikal verteilen"
         },
         "copyStyle": "Stil kopieren",
-        "pasteStyle": "Stil einfügen"
+        "pasteStyle": "Stil einfügen",
+        "scaffold": "Gerüst erstellen",
+        "release": "Gerüst auflösen",
+        "leave": "Aus dem Gerüst lösen",
+        "selectParent": "Übergeordnetes Element auswählen",
+        "selectChildren": "Untergeordnete Elemente auswählen"
       },
       "resize": {
         "hint": "Die Elemente werden an die neue Größe angepasst.",
@@ -19115,7 +20953,13 @@
           "timeout": "Der Export hat zu lange gedauert und wurde abgebrochen. Versuche es erneut.",
           "render": "Das Bild konnte nicht erstellt werden. Versuche es erneut.",
           "upload": "Das Bild wurde erstellt, aber nicht in der Mediathek gespeichert: {reason}"
-        }
+        },
+        "scope": "Exportieren",
+        "scopeActive": "Diese Zeichenfläche",
+        "scopeAll": "Alle ({count})",
+        "scopeAllHint": "Eine Datei pro Zeichenfläche, nach ihr benannt.",
+        "downloadZip": "ZIP herunterladen",
+        "savedMany": "{count} Bilder in der Bibliothek gespeichert"
       },
       "jobs": {
         "running": {
@@ -19158,7 +21002,7 @@
         "label": "Eigenschaften",
         "canvasTitle": "Design",
         "selectionTitle": "{count} Elemente",
-        "lockedHint": "Element gesperrt. Zum Bearbeiten entsperren.",
+        "lockedHint": "Element gesperrt: Es lässt sich auf der Arbeitsfläche weder auswählen noch bearbeiten. Zum Bearbeiten entsperren.",
         "types": {
           "image": "Bild",
           "text": "Text",
@@ -19227,7 +21071,9 @@
           "headStart": "Pfeilspitze am Anfang",
           "headStartShort": "Anfang",
           "headEnd": "Pfeilspitze am Ende",
-          "headEndShort": "Ende"
+          "headEndShort": "Ende",
+          "points": "Zacken",
+          "inner": "Innenradius"
         },
         "icon": {
           "title": "Symbol",
@@ -19314,7 +21160,16 @@
           "toggle": "Verlauf",
           "from": "Anfang",
           "to": "Ende",
-          "angle": "Winkel"
+          "angle": "Winkel",
+          "kind": "Art",
+          "linear": "Linear",
+          "radial": "Radial",
+          "via": "Mitte",
+          "viaNone": "Keine",
+          "centerX": "Horizontale Mitte",
+          "centerY": "Vertikale Mitte",
+          "radius": "Radius",
+          "radiusShort": "Radius"
         }
       },
       "icons": {
@@ -19382,6 +21237,23 @@
         "saturation": "Sättigung",
         "color": "Farbe",
         "luminosity": "Luminanz"
+      },
+      "artboards": {
+        "untitled": "Zeichenfläche {number}",
+        "add": "Neue Zeichenfläche",
+        "rename": "Zeichenfläche umbenennen",
+        "rowLabel": "Zeichenfläche {name}, {width} × {height} px",
+        "expand": "Ebenen von {name} zeigen",
+        "collapse": "Ebenen von {name} ausblenden",
+        "duplicate": "Zeichenfläche duplizieren",
+        "duplicateAs": "In einem anderen Format duplizieren",
+        "show": "Auf der Arbeitsfläche zeigen",
+        "delete": "Zeichenfläche löschen",
+        "name": "Name",
+        "title": "Zeichenfläche",
+        "tip": "Ziehe den Namen, um die Zeichenfläche zu verschieben. N und Umschalt+N wechseln zwischen ihnen, Umschalt+1 zeigt alle.",
+        "duplicateShort": "Duplizieren",
+        "addShort": "Neu"
       }
     },
     "video": {
@@ -19407,15 +21279,12 @@
         "button": "Exportieren",
         "exporting": "Wird exportiert",
         "title": "Video exportieren",
-        "hint": "Das Video wird gespeichert, als MP4 gerendert und in der Medienbibliothek abgelegt.",
+        "hint": "Das Video wird in diesem Browser als MP4 erstellt und in der Mediathek gespeichert.",
         "start": "Jetzt exportieren",
         "phase": {
           "saving": "Projekt wird gespeichert",
-          "rasterizing": "Überlagerungen werden vorbereitet ({done} von {total})",
-          "submitting": "Wird an die Warteschlange gesendet",
-          "queued": "In der Warteschlange",
-          "rendering": "Wird gerendert",
-          "finalizing": "Wird abgeschlossen"
+          "encoding": "Video wird in diesem Browser erstellt",
+          "uploading": "Wird in der Mediathek gespeichert"
         },
         "done": "Video fertig",
         "result": "Exportiertes Video",
@@ -19428,19 +21297,13 @@
         "errors": {
           "empty": "Füge vor dem Export mindestens einen Clip hinzu.",
           "unsaved": "Das Projekt wurde nicht gespeichert. Prüfe die Verbindung und versuche es erneut.",
-          "raster_failed": "Eine Überlagerung konnte nicht vorbereitet werden. Prüfe Texte und Bilder.",
-          "upload_failed": "Eine Überlagerung konnte nicht hochgeladen werden. Versuche es erneut.",
-          "too_many_jobs": "Es laufen bereits zu viele Aufträge. Warte, bis einer fertig ist, und versuche es erneut.",
-          "not_rasterized": "Eine Überlagerung hat sich während des Exports geändert. Versuche es erneut.",
-          "invalid": "Das Projekt enthält etwas, das der Server nicht akzeptiert. Prüfe die Clips und versuche es erneut.",
-          "conflict": "Das Projekt wurde woanders gespeichert. Wähle oben im Hinweis eine Version und exportiere erneut.",
-          "insufficient_funds": "Nicht genug Guthaben für den Export.",
-          "timed_out": "Der Export hat zu lange gedauert. Versuche es erneut.",
-          "generation_failed": "Das Rendern ist fehlgeschlagen. Versuche es erneut.",
-          "storage_failed": "Das Video konnte nicht in der Bibliothek gespeichert werden. Versuche es erneut.",
-          "enqueue_failed": "Der Export konnte nicht in die Warteschlange. Versuche es erneut.",
-          "unknown": "Der Export ist fehlgeschlagen. Versuche es erneut.",
-          "changed": "Das Projekt hat sich während des Exports geändert. Exportiere erneut."
+          "no_encoder": "Dieser Browser kann kein Video erstellen. Nutze Chrome, Edge oder Safari 26 oder neuer.",
+          "undecodable": "Ein Video im Projekt kann von diesem Browser nicht gelesen werden. Nutze Chrome oder Edge oder ersetze das Video.",
+          "stalled": "Die Videoerstellung ist hängen geblieben. Versuche es erneut.",
+          "too_large": "Das Video ist größer als 95 MB. Kürze das Projekt und exportiere erneut.",
+          "renderer_off": "Die Darstellung über die Grafikkarte ist in diesem Browser ausgeschaltet oder nicht verfügbar.",
+          "upload_failed": "Das Video konnte nicht in der Mediathek gespeichert werden. Prüfe die Verbindung und versuche es erneut.",
+          "failed": "Der Export ist fehlgeschlagen. Versuche es erneut."
         },
         "outdated": {
           "title": "Dieses Video enthält deine letzten Änderungen nicht",
@@ -19453,7 +21316,6 @@
         "nothingToSplit": "Unter dem Abspielkopf liegt kein Clip zum Teilen.",
         "unsupportedMedia": "Dieser Dateityp kann nicht ins Video.",
         "uploadFailed": "Die Datei konnte nicht hochgeladen werden.",
-        "tooManyTracks": "Das Projekt hat bereits die maximale Anzahl an Spuren.",
         "captionsUnreadable": "Die Untertitel wurden erstellt, konnten aber nicht gelesen werden.",
         "captionsEmpty": "In diesem Abschnitt wurde keine Sprache gefunden.",
         "clipGone": "Der Clip wurde entfernt, bevor die Verarbeitung fertig war.",
@@ -19468,7 +21330,11 @@
         "locked": "Der Clip liegt auf einer gesperrten Spur.",
         "outOfRange": "Dieser Wert liegt außerhalb des Erlaubten.",
         "sourcePending": "Warte, bis das Medium geladen ist, und versuche es erneut.",
-        "invalid": "Das Projekt akzeptiert diese Änderung nicht."
+        "invalid": "Das Projekt akzeptiert diese Änderung nicht.",
+        "tooManyJobs": "Das Limit gleichzeitiger Aufträge ist erreicht. Warte, bis einer fertig ist.",
+        "captionsPlaced": "Untertitel auf einer neuen Spur hinzugefügt.",
+        "captionsFileUnreadable": "Diese Datei enthält keine SRT- oder VTT-Untertitel. Nichts wurde geändert.",
+        "captionsInvalid": "Die Untertitel passen nicht ins Projekt: Ein Untertitel ist länger als ein Text sein darf oder das Projekt würde zu groß. Nichts wurde geändert."
       },
       "preview": {
         "label": "Vorschau",
@@ -19517,7 +21383,12 @@
           "main": "Haupt",
           "solo": "{name} solo hören",
           "unsolo": "Solo von {name} beenden",
-          "soloMark": "S"
+          "soloMark": "S",
+          "options": "Optionen für {name}",
+          "addAbove": "Neue Spur darüber",
+          "addBelow": "Neue Spur darunter",
+          "moveUp": "Nach oben verschieben",
+          "moveDown": "Nach unten verschieben"
         },
         "linked": "Verknüpft",
         "bar": {
@@ -19691,13 +21562,17 @@
         "lineWidth": "Stärke",
         "outlineWidth": "Konturstärke",
         "radius": "Abrundung",
-        "dashed": "Gestrichelt",
         "arrowStart": "Spitze am Anfang",
         "arrowEnd": "Spitze am Ende",
         "shadow": "Schatten",
         "shadowColor": "Schattenfarbe",
         "shadowBlur": "Schattenweichheit",
-        "invalid": "Dieser Wert wird nicht akzeptiert. Der Text darf nicht leer sein."
+        "invalid": "Dieser Wert wird nicht akzeptiert. Der Text darf nicht leer sein.",
+        "points": "Zacken",
+        "inner": "Innenradius",
+        "shadowX": "Schatten X",
+        "shadowY": "Schatten Y",
+        "gradientVia": "Mittelfarbe"
       },
       "panels": {
         "label": "Bereiche",
@@ -19737,17 +21612,22 @@
       "jobs": {
         "errors": {
           "insufficient_funds": "Nicht genug Guthaben",
-          "too_many_jobs": "Es laufen bereits zu viele Aufträge",
+          "too_many_jobs": "Es laufen bereits zu viele Generierungen",
           "timed_out": "Es hat zu lange gedauert",
           "invalid_request": "Die Anfrage wurde nicht akzeptiert",
           "wrong_type": "Dieser Dateityp passt dafür nicht",
           "not_image": "Wähle ein Bild",
           "cost_unreported": "Die Kosten wurden nicht gemeldet"
-        }
+        },
+        "placed": "Fertig, es ist im Projekt",
+        "ceiling": "Bis zu {count} gleichzeitig. Warte, bis einer fertig ist, um einen weiteren zu starten.",
+        "list": "Aufträge in der Warteschlange",
+        "dismiss": "Ausblenden",
+        "byElo": "Elo"
       },
       "ai": {
         "kinds": "Art der Erstellung",
-        "placement": "Das Ergebnis landet in der Bibliothek und am Abspielkopf auf der passenden Spur.",
+        "placement": "Das Ergebnis landet in der Mediathek und am Abspielkopf. Wähle Spur und Länge oder lass beides automatisch. Musik und Sprachaufnahme werden nie länger als das Erzeugte.",
         "music": {
           "tab": "Musik",
           "prompt": "Beschreibe die Musik",
@@ -19767,7 +21647,10 @@
           "prompt": "Beschreibe das Bild",
           "placeholder": "Z. B. Produkt auf hellem Hintergrund mit weichem Licht",
           "generate": "Bild erstellen"
-        }
+        },
+        "track": "Spur",
+        "duration": "Länge",
+        "auto": "Automatisch"
       },
       "elements": {
         "text": "Text",
@@ -19818,7 +21701,15 @@
         "generate": "Untertitel erstellen",
         "done": "Untertitel auf einer neuen Spur hinzugefügt.",
         "styleHint": "Jeder Untertitel ist ein normaler Text: Schrift, Farbe und Position im Eigenschaftenbereich ändern.",
-        "trackName": "Untertitel"
+        "trackName": "Untertitel",
+        "fileTitle": "Untertiteldatei",
+        "fileDescription": "Fertige Untertitel aus einer SRT- oder VTT-Datei einfügen. Die Zeiten zählen ab dem gewählten Clip oder ab dem Anfang des Videos.",
+        "alignTo": "Zeiten ab",
+        "alignStart": "Anfang des Videos",
+        "importFile": "SRT oder VTT importieren",
+        "libraryFiles": "Untertitel in der Mediathek",
+        "place": "Einfügen",
+        "placeFile": "{name} vom {when} einfügen"
       },
       "process": {
         "denoise": {
@@ -19927,12 +21818,13 @@
         "copy": "Animation kopieren",
         "paste": "Animation einfügen",
         "advanced": "Erweitert",
-        "advancedHint": "Jede Eigenschaft einzeln animieren, mit eigener Stoppuhr und Navigation.",
+        "advancedHint": "Jede Eigenschaft einzeln animieren, mit eigener Stoppuhr, Navigation und eigenem Verlauf. Klicke auf eine Eigenschaft, um ihren Verlauf zu wählen.",
         "advancedSingle": "Wähle einen einzelnen Clip, um Eigenschaften einzeln zu animieren.",
         "pathLabel": "Animationspfad",
         "pathPad": "Position bei {time}. Klicken, um hinzuspringen, oder ziehen, um sie zu verschieben.",
         "lanes": "Keyframe Spuren",
-        "keyAt": "Keyframe von {name} bei {time} ms"
+        "keyAt": "Keyframe von {name} bei {time} ms",
+        "easingProperty": "Verlauf der ganzen Animation von {name}"
       },
       "focus": {
         "label": "Fokus",
@@ -19995,6 +21887,201 @@
       "failed": "Konnte nicht im Studio geöffnet werden",
       "unreadable": "Die Datei konnte nicht gelesen werden. Versuche es gleich noch einmal.",
       "defaultName": "Elo Creative"
+    },
+    "agent": {
+      "title": "Elo im Studio",
+      "greeting": {
+        "video": "Sollen wir dieses Video gemeinsam schneiden?",
+        "image": "Sollen wir dieses Design gemeinsam gestalten?"
+      },
+      "description": {
+        "video": "Ich schneide, untertitle, animiere Texte und lege Musik direkt in die Zeitleiste. Du siehst meinen Cursor und kannst jeden Schritt mit Strg+Z rückgängig machen.",
+        "image": "Ich baue das Layout, schreibe die Texte, richte die Elemente aus und entferne Hintergründe direkt auf der Fläche. Du siehst meinen Cursor und kannst jeden Schritt mit Strg+Z rückgängig machen."
+      },
+      "cursorLabel": "Elo: {action}",
+      "actions": {
+        "read": "Liest das Projekt",
+        "look": "Prüft das Ergebnis",
+        "working": "Arbeitet",
+        "add_media": "Fügt Medien ein",
+        "add_text": "Schreibt Text",
+        "add_shape": "Zeichnet eine Form",
+        "add_captions": "Fügt Untertitel ein",
+        "move_clip": "Verschiebt einen Clip",
+        "trim_clip": "Schneidet",
+        "slip_clip": "Passt den Ausschnitt an",
+        "split_clip": "Teilt einen Clip",
+        "delete_clips": "Löscht",
+        "duplicate_clips": "Dupliziert",
+        "update_clip": "Passt an",
+        "animate": "Animiert",
+        "motion_preset": "Wendet eine Animation an",
+        "entrance": "Erstellt einen Einstieg",
+        "exit": "Erstellt einen Ausstieg",
+        "add_track": "Erstellt eine Spur",
+        "move_track": "Verschiebt eine Spur",
+        "update_track": "Passt eine Spur an",
+        "remove_track": "Entfernt eine Spur",
+        "add_marker": "Setzt eine Marke",
+        "set_canvas": "Passt das Format an",
+        "seek": "Springt zur Stelle",
+        "select": "Wählt aus",
+        "add_image": "Fügt ein Bild ein",
+        "update_layer": "Passt eine Ebene an",
+        "delete_layers": "Löscht Ebenen",
+        "duplicate_layers": "Dupliziert Ebenen",
+        "order_layers": "Ordnet neu",
+        "align_layers": "Richtet aus",
+        "distribute_layers": "Verteilt",
+        "group_layers": "Gruppiert",
+        "ungroup_layers": "Löst die Gruppe",
+        "set_hidden": "Blendet aus",
+        "set_locked": "Sperrt",
+        "replace_image": "Tauscht das Bild",
+        "job_captions": "Erstellt Untertitel",
+        "job_denoise": "Bereinigt den Ton",
+        "job_cutout": "Entfernt den Hintergrund",
+        "job_music": "Erstellt Musik",
+        "job_voice": "Erstellt einen Sprechertext",
+        "job_image": "Erstellt ein Bild",
+        "job_edit": "Mit KI bearbeiten",
+        "update_artboard": "Passt die Zeichenfläche an",
+        "add_artboard": "Erstellt eine Zeichenfläche",
+        "duplicate_artboard": "Erstellt eine Version",
+        "delete_artboard": "Löscht die Zeichenfläche",
+        "move_to_artboard": "Verschiebt auf eine andere Zeichenfläche"
+      },
+      "stop": "Stoppen",
+      "progress": "{step} von {total}",
+      "queue": {
+        "title": "In der Warteschlange",
+        "following": "{count, plural, one {# Auftrag} other {# Aufträge}} in der Warteschlange",
+        "running": "Wird erstellt",
+        "settling": "Wird abgeschlossen"
+      }
+    },
+    "vectors": {
+      "title": "Vektorformen",
+      "names": {
+        "diagonalBand": "Diagonales Band",
+        "diagonalSplit": "Diagonaler Schnitt",
+        "arch": "Bogen",
+        "ribbon": "Banner",
+        "chevron": "Winkel",
+        "wave": "Welle",
+        "blob": "Organische Form",
+        "speechBubble": "Sprechblase",
+        "heart": "Herz",
+        "swoosh": "Schwung",
+        "tornPaper": "Gerissenes Papier",
+        "cornerBracket": "Eckwinkel",
+        "squiggle": "Schlangenlinie",
+        "burst": "Explosion",
+        "seal": "Siegel"
+      },
+      "edit": {
+        "node": "Punkt {index}",
+        "handle": "Griff von Punkt {index}"
+      },
+      "hints": {
+        "pen": "Klicke für Punkte und ziehe für Kurven. Shift rastet in 45 Grad ein, Alt löst den Griff. Klicke auf den ersten Punkt zum Schließen. Rücktaste entfernt den letzten Punkt, Enter oder Esc beendet.",
+        "draw": "Zeichne mit der Maus, einem Stift oder dem Finger. Endet der Strich nahe am Anfang, wird die Form geschlossen.",
+        "edit": "Ziehe Punkte und Griffe. Doppelklick auf einen Punkt wechselt zwischen Kurve und Ecke; auf der Kontur fügt er einen Punkt hinzu. Entf löscht den Punkt, Alt löst die Griffe, Shift sperrt die Bewegung. Enter oder Esc beendet."
+      },
+      "tools": {
+        "label": "Werkzeuge",
+        "select": "Auswählen",
+        "pen": "Zeichenstift",
+        "draw": "Bleistift"
+      },
+      "inspector": {
+        "editPoints": "Punkte bearbeiten",
+        "convert": "In Vektor umwandeln",
+        "convertHint": "Wird zu einer Vektorform mit bearbeitbaren Punkten.",
+        "fillRule": "Überlappungen aussparen",
+        "fillRuleHint": "Wo sich die Form kreuzt, bleibt sie offen, wie die Mitte eines O."
+      },
+      "svg": {
+        "import": "SVG importieren",
+        "imported": "{count, plural, one {# Form importiert} other {# Formen importiert}}",
+        "skipped": "{count, plural, one {# nicht unterstütztes Element wurde ausgelassen} other {# nicht unterstützte Elemente wurden ausgelassen}} (Text, Bilder oder Filter).",
+        "invalid": "Diese Datei ist kein gültiges SVG.",
+        "empty": "Das SVG enthält keine Formen zum Importieren.",
+        "tooLarge": "Das SVG ist zu groß für das Projekt.",
+        "copy": "Als SVG kopieren",
+        "copied": "SVG kopiert",
+        "copyFailed": "Kopieren nicht möglich. Wähle Formen aus und versuche es erneut."
+      },
+      "trace": {
+        "title": "Bild vektorisieren",
+        "hint": "Macht aus dem Foto oder Logo bearbeitbare Vektorformen über dem Bild.",
+        "mode": "Modus",
+        "modes": {
+          "color": "Farben",
+          "grayscale": "Graustufen",
+          "bw": "Schwarzweiß"
+        },
+        "colors": "Farben",
+        "threshold": "Schwelle",
+        "detail": "Detail",
+        "noise": "Flecken ignorieren",
+        "ignoreWhite": "Weiß ignorieren",
+        "run": "Vektorisieren",
+        "running": "Wird vektorisiert…",
+        "groupName": "{name} vektorisiert",
+        "done": "{count, plural, one {Bild in # Form vektorisiert} other {Bild in # Formen vektorisiert}}",
+        "nothing": "Mit diesen Einstellungen gibt es keine Formen zum Vektorisieren.",
+        "failed": "Dieses Bild konnte nicht vektorisiert werden.",
+        "tooLarge": "Das Ergebnis ist zu groß. Nutze weniger Farben, weniger Detail oder ignoriere größere Flecken."
+      },
+      "stroke": {
+        "dash": "Linie",
+        "dashes": {
+          "solid": "Durchgehend",
+          "dashed": "Gestrichelt",
+          "dotted": "Gepunktet",
+          "dashDot": "Strich Punkt",
+          "long": "Lange Striche",
+          "custom": "Benutzerdefiniert"
+        },
+        "dashOffset": "Versatz",
+        "caps": "Enden",
+        "cap": {
+          "butt": "Gerades Ende",
+          "round": "Rundes Ende",
+          "square": "Eckiges Ende"
+        },
+        "joins": "Ecken",
+        "join": {
+          "miter": "Spitze Ecke",
+          "round": "Runde Ecke",
+          "bevel": "Abgeschrägte Ecke"
+        },
+        "miterLimit": "Gehrungsgrenze"
+      },
+      "ops": {
+        "title": "Formen",
+        "union": "Formen vereinen",
+        "subtract": "Obere Formen abziehen",
+        "intersect": "Schnittmenge behalten",
+        "exclude": "Überlappung ausschließen",
+        "flatten": "Zu einem Pfad zusammenfügen",
+        "release": "In Teile trennen",
+        "reverse": "Richtung umkehren",
+        "issues": {
+          "too_few": "Wähle mindestens zwei Formen zum Kombinieren aus.",
+          "unsupported": "Nur Formen und Vektorpfade können teilnehmen. Linien, Pfeile, Texte, Symbole und Bilder bleiben außen vor.",
+          "locked": "Entsperre zuerst die ausgewählten Ebenen.",
+          "empty": "Die Formen überlappen sich nicht, das Ergebnis wäre leer.",
+          "failed": "Diese Kombination ließ sich nicht berechnen. Vereinfache die Formen und versuche es erneut.",
+          "too_large": "Das Ergebnis wäre zu groß für das Projekt.",
+          "invalid": "Das Ergebnis passt nicht zu den Projektregeln, daher wurde nichts geändert.",
+          "unchanged": "Der Pfad ist bereits so einfach wie möglich."
+        },
+        "simplify": "Vereinfachen",
+        "points": "{count, plural, one {# Punkt} other {# Punkte}}",
+        "outline": "Kontur in Fläche umwandeln"
+      }
     }
   },
   "tourStudioImage": {
@@ -20107,6 +22194,733 @@
         "f0": "Fortschritt verfolgen, bis es fertig ist",
         "f1": "Das Video in einer Anzeige verwenden"
       }
+    }
+  },
+  "selection": {
+    "errors": {
+      "forbidden": "Du hast keine Berechtigung für diese Massenaktion.",
+      "unknown_action": "Unbekannte Massenaktion. Lade die Seite neu und versuche es erneut.",
+      "invalid_filter": "Der aktuelle Filter kann für diese Auswahl nicht verwendet werden. Prüfe die Filter und versuche es erneut.",
+      "selection_unknown_mode": "Unbekannte Auswahlart. Lade die Seite neu und versuche es erneut.",
+      "selection_empty": "Nichts ist ausgewählt.",
+      "selection_ambiguous": "Die Auswahl mischt einzeln gewählte Einträge und einen Filter. Hebe die Auswahl auf und wähle erneut.",
+      "selection_too_many_ids": "Zu viele einzeln gewählte Einträge. Nutze die Option, alle aus dem Filter auszuwählen.",
+      "selection_filter_required": "Diese Auswahl braucht einen aktiven Filter.",
+      "selection_limit_required": "Gib an, wie viele Einträge die Auswahl enthalten soll.",
+      "selection_everyone_unconfirmed": "Bestätige die Gesamtzahl, bevor die Aktion auf alle Einträge angewendet wird.",
+      "selection_fingerprint_mismatch": "Der Filter hat sich seit der Zählung geändert. Wähle erneut aus, um neu zu zählen.",
+      "selection_invalid_count": "Die bestätigte Anzahl ist ungültig. Wähle erneut aus, um neu zu zählen.",
+      "selection_changed": "Die Auswahl hat sich seit der Zählung geändert. Prüfe die neue Gesamtzahl und bestätige erneut.",
+      "selection_mode_unsupported": "Diese Auswahlart wird für diese Aktion nicht akzeptiert.",
+      "selection_unavailable": "Die Auswahl per Filter ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
+      "selection_invalid_page": "Ungültige Seitenanfrage. Lade die Seite neu und versuche es erneut.",
+      "selection_scope_denied": "Die gewählte Abteilung liegt außerhalb deines Zugriffs. Wechsle die Abteilung und versuche es erneut.",
+      "busy": "Zu viele Zählungen laufen gerade. Versuche es gleich noch einmal.",
+      "default": "Die Massenaktion konnte nicht abgeschlossen werden. Versuche es erneut.",
+      "selection_invalid_ids": "Ein ausgewählter Eintrag ist ungültig. Leere die Auswahl und wähle neu.",
+      "selection_unknown_sort": "Die aktuelle Reihenfolge der Liste passt nicht zu einer Auswahl nach Anzahl. Ändere die Reihenfolge und versuche es erneut.",
+      "selection_count_required": "Bestätige die Zählung, bevor du die Aktion anwendest."
+    }
+  },
+  "customFields": {
+    "saveFailed": "Das Feld konnte nicht gespeichert werden.",
+    "deleteFailed": "Das Feld konnte nicht gelöscht werden.",
+    "errors": {
+      "custom_field_not_found": "Dieses Feld existiert nicht mehr. Lade die Liste neu.",
+      "custom_field_key_exists": "Für dieses Objekt gibt es bereits ein Feld mit diesem Schlüssel.",
+      "custom_field_role_taken": "Ein anderes Feld dieses Objekts ist bereits das Klassifizierungsfeld.",
+      "custom_field_workspace_required": "Workspace nicht erkannt. Lade die Seite neu und versuche es erneut.",
+      "custom_field_invalid_object_type": "Benutzerdefinierte Felder gelten nur für Verkaufschancen und Leads.",
+      "custom_field_key_required": "Gib den Schlüssel des Felds an.",
+      "custom_field_label_required": "Gib eine Bezeichnung für das Feld an.",
+      "custom_field_invalid_type": "Ungültiger Feldtyp.",
+      "custom_field_options_required": "Auswahlfelder brauchen mindestens eine Option.",
+      "custom_field_sensitivity_choice_missing": "Gib an, ob dieses Feld sensible Daten enthält.",
+      "custom_field_legal_basis_required": "Ein sensibles Feld braucht eine Rechtsgrundlage (LGPD).",
+      "custom_field_legal_basis_too_long": "Die Rechtsgrundlage ist zu lang. Kürze den Text.",
+      "custom_field_sensitive_unsupported_object": "Nur Lead-Felder dürfen sensible Daten enthalten.",
+      "custom_field_invalid_tone": "Ungültige Optionsfarbe.",
+      "custom_field_tone_unknown_option": "Eine Farbe wurde einer Option zugewiesen, die das Feld nicht hat.",
+      "custom_field_invalid_role": "Unbekannte Feldrolle.",
+      "custom_field_role_requires_select": "Das Klassifizierungsfeld muss ein Auswahlfeld sein.",
+      "custom_field_invalid_definition": "Die Felddefinition ist ungültig. Prüfe sie und versuche es erneut."
+    },
+    "title": "Benutzerdefinierte Felder",
+    "descriptionOpportunity": "Lege fest, welche Eigenschaften deine Deals erfassen.",
+    "descriptionLead": "Lege fest, was das Team zu jedem Lead erfasst.",
+    "loading": "Wird geladen...",
+    "empty": "Noch keine benutzerdefinierten Felder.",
+    "newField": "Neues Feld",
+    "editField": "Feld bearbeiten",
+    "editAction": "Feld bearbeiten",
+    "deleteAction": "Feld löschen",
+    "label": "Bezeichnung",
+    "labelPlaceholder": "Z. B. Segment, Schule, Interesse",
+    "type": "Typ",
+    "types": {
+      "text": "Text",
+      "number": "Zahl",
+      "date": "Datum",
+      "boolean": "Ja/Nein",
+      "select": "Auswahl",
+      "multiselect": "Mehrfachauswahl"
+    },
+    "options": "Optionen",
+    "optionLabel": "Option {index}",
+    "optionPlaceholder": "Option {index}",
+    "optionTone": "Farbe von {option}",
+    "addOption": "Option hinzufügen",
+    "removeOption": "Option entfernen",
+    "tones": {
+      "none": "Ohne Farbe",
+      "chart-1": "Tinte",
+      "chart-2": "Indigo",
+      "chart-3": "Bernstein",
+      "chart-4": "Blau",
+      "chart-5": "Magenta",
+      "neutral": "Leerer Ring"
+    },
+    "required": "Pflichtfeld",
+    "sensitive": {
+      "question": "Enthält dieses Feld sensible Daten?",
+      "hint": "Politische Meinung, Religion, Gesundheit und die übrigen Daten aus Art. 5, II LGPD. Nur Personen mit Berechtigung sehen, filtern und exportieren diese Werte.",
+      "yes": "Ja, sensible Daten",
+      "no": "Nein",
+      "choiceMissing": "Gib an, ob das Feld sensible Daten enthält, bevor du speicherst.",
+      "legalBasis": "Rechtsgrundlage (LGPD)",
+      "legalBasisHint": "Z. B. Einwilligung der betroffenen Person für einen genannten Zweck oder der zutreffende Fall aus Art. 11, II.",
+      "badge": "Sensibel"
+    },
+    "role": {
+      "classification": "Als Lead-Klassifizierung verwenden",
+      "classificationHint": "Die Klassifizierung erscheint als Spalte in der Lead-Liste und färbt die Karte. Nur ein Feld kann diese Rolle haben.",
+      "badge": "Klassifizierung"
+    },
+    "preset": {
+      "title": "Fertige Klassifizierung",
+      "description": "Erstellt das Feld Klassifizierung mit Positiv, Negativ, Zu gewinnen und Keine Angabe, mit Farben und als sensible Daten markiert. Du schreibst vor dem Speichern die Rechtsgrundlage, die der Workspace hat.",
+      "action": "Vorlage Klassifizierung verwenden",
+      "label": "Klassifizierung",
+      "options": {
+        "positive": "Positiv",
+        "negative": "Negativ",
+        "toWin": "Zu gewinnen",
+        "notInformed": "Keine Angabe"
+      },
+      "legalBasisExample": "Z. B. Einwilligung der betroffenen Person, ihre Haltung zu erfassen, um die Beziehung zu ihr zu organisieren."
+    },
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "cancel": "Abbrechen",
+    "created": "Feld erstellt.",
+    "updated": "Feld aktualisiert.",
+    "deleted": "Feld gelöscht.",
+    "keyFailed": "Der Feldschlüssel konnte nicht erzeugt werden. Verwende Buchstaben oder Zahlen in der Bezeichnung.",
+    "input": {
+      "none": "Keine",
+      "yes": "Ja",
+      "no": "Nein"
+    },
+    "loadFailed": "Die Felder konnten nicht geladen werden.",
+    "delete": {
+      "title": "Feld {label} löschen?",
+      "description": "Das Feld verschwindet aus allen Datensätzen und die ausgefüllten Werte werden gelöscht. Das lässt sich nicht rückgängig machen.",
+      "descriptionSensitive": "Das Feld verschwindet aus allen Datensätzen und die ausgefüllten Werte, die sensible Daten sind, werden gelöscht. Das lässt sich nicht rückgängig machen.",
+      "confirm": "Feld und Werte löschen"
+    }
+  },
+  "leadSheet": {
+    "titleNew": "Neuer Lead",
+    "titleEdit": "Lead bearbeiten",
+    "description": "Nur der Name oder die WhatsApp-Nummer ist Pflicht.",
+    "loading": "Lead wird geladen...",
+    "loadFailed": "Dieser Lead konnte nicht geöffnet werden.",
+    "retry": "Erneut versuchen",
+    "save": "Lead speichern",
+    "saving": "Wird gespeichert...",
+    "cancel": "Abbrechen",
+    "created": "Lead erfasst.",
+    "updated": "Lead aktualisiert.",
+    "failed": "Der Lead konnte nicht gespeichert werden.",
+    "reviewFields": "Prüfe die markierten Felder.",
+    "issues": {
+      "phone": "Gib die Nummer an oder entferne diese Zeile.",
+      "address": "Fülle die Adresse aus oder entferne diesen Block.",
+      "generic": "Prüfe dieses Feld."
+    },
+    "identity": {
+      "title": "Identifikation",
+      "name": "Vollständiger Name",
+      "nickname": "Spitzname",
+      "birthDate": "Geburtsdatum",
+      "email": "E-Mail"
+    },
+    "phones": {
+      "title": "WhatsApp und Telefone",
+      "whatsapp": "WhatsApp (Haupt)",
+      "whatsappHint": "Die Nummer, die mit dem Team schreibt. Die anderen Telefone dienen zum Anrufen und Suchen.",
+      "openHolder": "Den Lead mit dieser Nummer öffnen",
+      "addAsContact": "Als Kontakttelefon speichern",
+      "label": "Typ",
+      "number": "Telefon",
+      "labels": {
+        "mobile": "Mobil",
+        "landline": "Privat",
+        "work": "Geschäftlich",
+        "message": "Nachrichten",
+        "other": "Sonstiges"
+      },
+      "add": "Telefon hinzufügen",
+      "remove": "Telefon entfernen",
+      "sharedHint": "Festnetznummern können von der Familie geteilt werden."
+    },
+    "addresses": {
+      "title": "Adressen",
+      "addressN": "Adresse {index}",
+      "label": "Typ",
+      "labels": {
+        "home": "Privat",
+        "work": "Arbeit",
+        "other": "Sonstige"
+      },
+      "primary": "Haupt",
+      "makePrimary": "Als Hauptadresse",
+      "remove": "Adresse entfernen",
+      "add": "Adresse hinzufügen",
+      "empty": "Keine Adresse erfasst.",
+      "zipCode": "CEP",
+      "street": "Straße",
+      "number": "Hausnummer",
+      "complement": "Zusatz",
+      "district": "Stadtteil",
+      "city": "Stadt",
+      "state": "Bundesstaat",
+      "cepHint": "Gib die CEP ein, um Straße, Stadtteil, Stadt und Bundesstaat auszufüllen.",
+      "cepSearching": "CEP wird gesucht",
+      "cepFound": "Adresse aus der CEP ausgefüllt. Prüfe die Hausnummer.",
+      "cepNotFound": "CEP nicht gefunden. Fülle die Adresse von Hand aus.",
+      "cepInvalid": "Ungültige CEP. Verwende alle 8 Ziffern.",
+      "cepUnavailable": "Die CEP-Suche ist gerade nicht verfügbar. Fülle die Adresse von Hand aus.",
+      "positionHint": "Die Kartenposition wird nach dem Speichern ermittelt.",
+      "restricted": "Du siehst nur Stadtteil und Stadt. Vollständige Adressen sehen nur Personen mit Berechtigung für Adressen.",
+      "pin": {
+        "title": "Position auf der Karte",
+        "hint": "Ziehe die Markierung zum Haus. Die Position wird sofort als manueller Pin gespeichert.",
+        "saving": "Position wird gespeichert…",
+        "saved": "Position gespeichert.",
+        "failed": "Die Position konnte nicht gespeichert werden.",
+        "unsaved": "Speichere den Lead, um diese Adresse auf der Karte zu platzieren.",
+        "notLocated": "Diese Adresse wurde noch nicht gefunden. Zoome in die Karte und tippe auf das Haus oder ziehe die Markierung dorthin.",
+        "errors": {
+          "lead_location_invalid": "Die Position muss in Brasilien liegen. Ziehe die Markierung zurück.",
+          "lead_address_not_found": "Diese Adresse gibt es bei diesem Lead nicht mehr. Schließe den Lead und öffne ihn erneut.",
+          "forbidden": "Du darfst die Position dieser Adresse nicht ändern."
+        },
+        "previewTitle": "Vorschau des Orts nach CEP",
+        "cepPreview": "Ungefährer Punkt der CEP (Quelle: {source}). Speichere den Lead, um die Markierung auf das Haus zu setzen.",
+        "notLocatedFromCep": "Diese Adresse wurde noch nicht verortet. Die Markierung beginnt am Punkt der CEP: zieh sie bis zum Haus.",
+        "unsavedPlace": "Ziehe die Markierung zum Haus, oder wähle die Straße oder die CEP, um sie dorthin zu setzen. Die Position wird mit der Adresse gespeichert.",
+        "unsavedFromAddress": "Die Markierung steht am ungefähren Punkt der Adresse. Ziehe sie zum Haus: Die Position wird mit der Adresse gespeichert.",
+        "unsavedMoved": "Position von Hand gesetzt. Sie wird mit der Adresse gespeichert.",
+        "unsavedReset": "Zurück zum Punkt der Adresse"
+      },
+      "keepPin": "Position der Stecknadel behalten",
+      "keepPinHint": "Die Adresse hat sich geändert. Beim Speichern wird die von Hand gesetzte Position neu berechnet, außer du behältst sie.",
+      "suggest": {
+        "cities": "Vorgeschlagene Städte",
+        "districts": "Vorgeschlagene Stadtteile",
+        "streets": "Vorgeschlagene Straßen"
+      }
+    },
+    "family": {
+      "title": "Familie",
+      "loading": "Wird geladen...",
+      "loadFailed": "Die Familie konnte nicht geladen werden.",
+      "empty": "Keine Angehörigen verknüpft.",
+      "loadMore": "Mehr laden",
+      "kind": "Verwandtschaft",
+      "search": "Name oder Telefon",
+      "searching": "Leads werden gesucht...",
+      "searchFailed": "Leads konnten gerade nicht gesucht werden.",
+      "matches": "Gefundene Leads:",
+      "numberHeld": "Diese Nummer ist bereits erfasst bei:",
+      "linkAs": "Als {kind} verknüpfen",
+      "createNew": "\"{text}\" als neuen Lead erfassen",
+      "sameAddress": "Gleiche Adresse",
+      "sameAddressUnavailable": "Erfasse eine Hauptadresse, um sie zu kopieren.",
+      "createForbidden": "Neue Angehörige zu erfassen erfordert die Berechtigung, Leads zu erfassen.",
+      "linkForbidden": "Angehörige zu verknüpfen erfordert die Berechtigung, Leads zu bearbeiten.",
+      "willLink": "wird beim Speichern verknüpft",
+      "willCreate": "wird beim Speichern erfasst",
+      "willCreateSameAddress": "wird mit derselben Adresse erfasst",
+      "willUnlink": "wird beim Speichern getrennt",
+      "remove": "Entfernen",
+      "unlink": "Trennen",
+      "undo": "Rückgängig",
+      "unnamed": "ohne Namen",
+      "noWhatsApp": "ohne WhatsApp",
+      "kinds": {
+        "spouse": "Ehepartner(in)",
+        "partner": "Lebenspartner(in)",
+        "parent": "Elternteil",
+        "child": "Kind",
+        "sibling": "Geschwister",
+        "grandparent": "Großelternteil",
+        "grandchild": "Enkelkind",
+        "uncle_aunt": "Onkel oder Tante",
+        "nephew_niece": "Neffe oder Nichte",
+        "cousin": "Cousin(e)",
+        "in_law": "Angeheiratet",
+        "relative": "Andere Verwandte",
+        "referred": "Von diesem Lead empfohlen",
+        "referred_by": "Hat diesen Lead empfohlen"
+      }
+    },
+    "owner": {
+      "title": "Verantwortlich",
+      "none": "Niemand verantwortlich",
+      "readOnly": "Nur wer Leads zuweisen darf, ändert die verantwortliche Person."
+    },
+    "customFields": {
+      "title": "Benutzerdefinierte Felder",
+      "empty": "Keine benutzerdefinierten Lead-Felder.",
+      "loadFailed": "Die benutzerdefinierten Felder konnten nicht geladen werden.",
+      "sensitive": "Sensible Daten: nur Personen mit Berechtigung sehen diesen Wert.",
+      "hiddenSensitive": "{count, plural, one {# sensibles Feld ist} other {# sensible Felder sind}} für dich ausgeblendet.",
+      "manage": "Felder verwalten",
+      "loading": "Die benutzerdefinierten Felder werden geladen..."
+    },
+    "consent": {
+      "title": "Einwilligung",
+      "optIn": "Hat zugestimmt, WhatsApp-Nachrichten zu erhalten",
+      "source": "über: {source}",
+      "sources": {
+        "form": "Formular",
+        "import": "Import",
+        "manual": "manuelle Erfassung",
+        "conversation_request": "Anfrage in der Unterhaltung",
+        "other": "andere Quelle"
+      },
+      "optedOut": "Möchte seit dem {date} keine Nachrichten.",
+      "hint": "Eine eingehende Nachricht zählt nicht als Einwilligung."
+    },
+    "conflict": {
+      "title": "Jemand anderes hat diesen Lead geändert, während du bearbeitet hast.",
+      "changed": "Außerdem geändert: {fields}.",
+      "reapply": "Meine Änderungen erneut anwenden",
+      "discard": "Meine verwerfen",
+      "rebased": "Die neuen Werte wurden mit deinen Änderungen in den Feldern geladen, die nur du geändert hast, und in denen, die du behalten wolltest. Prüfe sie und speichere.",
+      "overlapHint": "Ihr habt beide diese Felder geändert. Der neue Wert bleibt, außer du wählst, deinen zu behalten.",
+      "theirs": "Neuer Wert:",
+      "mine": "Dein Wert:",
+      "keepMine": "Meinen Wert behalten",
+      "keepMineOf": "Meinen Wert für {field} behalten",
+      "optedIn": "hat dem Empfang von Nachrichten zugestimmt",
+      "notOptedIn": "keine Einwilligung"
+    },
+    "fields": {
+      "number": "WhatsApp",
+      "name": "Name",
+      "nickname": "Spitzname",
+      "email": "E-Mail",
+      "birthDate": "Geburtsdatum",
+      "whatsappOptIn": "Einwilligung",
+      "owner": "Verantwortlich",
+      "phones": "Telefone",
+      "addresses": "Adressen",
+      "relations": "Familie und Empfehlungen",
+      "blocked": "Sperre",
+      "optedOut": "Wunsch, keine Nachrichten zu erhalten",
+      "optOutSource": "Herkunft des Wunsches",
+      "profilePictureUrl": "Foto",
+      "age": "Alter",
+      "customField": "Benutzerdefiniertes Feld",
+      "other": "Anderes Feld"
+    },
+    "duplicates": {
+      "title": "Könnte dieselbe Person sein wie:",
+      "unnamed": "Lead ohne Namen",
+      "open": "Lead öffnen",
+      "done": "Fertig",
+      "reasons": {
+        "shared_phone": "gleiches Telefon",
+        "same_name_and_address": "gleicher Name und gleiche Adresse",
+        "other": "anderer Grund"
+      }
+    },
+    "followUp": {
+      "owner": "Der Lead wurde gespeichert, aber die verantwortliche Person wurde nicht gesetzt: {reason}",
+      "relative": "Der Lead wurde gespeichert, aber {name} wurde nicht verknüpft: {reason}",
+      "unlink": "Der Lead wurde gespeichert, aber eine angehörige Person wurde nicht getrennt: {reason}"
+    },
+    "linkOffers": {
+      "title": "Diese Nummern gehören schon anderen Leads:",
+      "item": "Die Nummer von {name} ist schon erfasst.",
+      "open": "Lead öffnen",
+      "link": "Als {kind} verknüpfen",
+      "linked": "Verknüpft",
+      "failed": "Dieser Lead konnte nicht verknüpft werden."
+    }
+  },
+  "leadDetail": {
+    "back": "Leads",
+    "loadFailed": "Dieser Lead konnte nicht geöffnet werden.",
+    "notFound": "Dieser Lead existiert nicht mehr oder ist für dich nicht verfügbar.",
+    "noWhatsApp": "kein WhatsApp",
+    "unnamed": "Lead ohne Namen",
+    "owner": "Verantwortlich: {name}",
+    "noOwner": "Niemand verantwortlich",
+    "blocked": "Gesperrt",
+    "optedOut": "Möchte keine Nachrichten",
+    "actions": {
+      "edit": "Bearbeiten",
+      "sendTemplate": "Vorlage senden",
+      "sendMessage": "Nachricht",
+      "more": "Weitere Aktionen",
+      "block": "Sperren",
+      "unblock": "Entsperren",
+      "optOut": "Möchte keine Nachrichten",
+      "anonymize": "Anonymisieren"
+    },
+    "cancel": "Abbrechen",
+    "block": {
+      "title": "Diesen Lead sperren?",
+      "description": "Nachrichten dieses Leads werden ignoriert und Kampagnen erreichen ihn nicht mehr. Du kannst jederzeit entsperren.",
+      "confirm": "Sperren",
+      "blocked": "Lead gesperrt",
+      "unblocked": "Lead entsperrt",
+      "failed": "Die Sperre konnte nicht geändert werden"
+    },
+    "optOut": {
+      "title": "Festhalten, dass keine Nachrichten gewünscht sind?",
+      "description": "Kampagnen, Automationen, aus einem Gespräch oder von Elo gesendete Vorlagen und geplante Vorlagen werden diesem Lead nicht mehr gesendet. Nur eine neu erfasste Einwilligung hebt das auf.",
+      "sourceLabel": "Wer hat das entschieden?",
+      "sources": {
+        "lead_request": "Der Lead hat darum gebeten",
+        "operator": "Entscheidung des Teams"
+      },
+      "confirm": "Festhalten",
+      "done": "Erfasst: möchte keine Nachrichten",
+      "failed": "Konnte nicht erfasst werden"
+    },
+    "anonymize": {
+      "title": "Diesen Lead anonymisieren?",
+      "description": "Löscht Name, Telefonnummern, Adressen, Familie, Erinnerungen und Bearbeitungsverlauf und maskiert die Nummer in Anrufen und Sendungen. Das lässt sich nicht rückgängig machen.",
+      "confirm": "Anonymisieren",
+      "done": "Lead anonymisiert",
+      "failed": "Der Lead konnte nicht anonymisiert werden"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "family": "Familie",
+      "timeline": "Zeitleiste",
+      "deals": "Geschäfte",
+      "memories": "Erinnerungen",
+      "campaigns": "Kampagnen"
+    },
+    "contact": {
+      "title": "Kontakt",
+      "phones": "{count, plural, =0 {keine Kontaktnummern} one {# Kontaktnummer} other {# Kontaktnummern}}",
+      "whatsapp": "WhatsApp (Haupt)",
+      "email": "E-Mail",
+      "birthDate": "Geburtsdatum",
+      "age": "{age, plural, one {# Jahr} other {# Jahre}}",
+      "nickname": "Spitzname",
+      "source": "Herkunft",
+      "sources": {
+        "manual": "Manuell erfasst",
+        "import": "Import",
+        "channel": "Gespräch"
+      },
+      "since": "{source} am {date}"
+    },
+    "address": {
+      "title": "Hauptadresse",
+      "empty": "Keine Adresse erfasst.",
+      "add": "Adresse hinzufügen",
+      "restricted": "Du siehst nur Stadtteil und Stadt. Die vollständige Adresse sehen nur Personen mit Berechtigung für Adressen.",
+      "zipCode": "PLZ {zipCode}",
+      "geoStatus": {
+        "pending": "Wartet auf Verortung",
+        "located": "Verortet",
+        "approximate": "Ungefährer Standort",
+        "not_found": "Adresse nicht gefunden",
+        "ambiguous": "Adresse nicht eindeutig",
+        "unavailable": "Standort nicht verfügbar",
+        "quota_exceeded": "Verortungslimit erreicht",
+        "refused": "Adresse vom Anbieter abgelehnt"
+      },
+      "positionSource": "{source} · {date}",
+      "providerSource": "{source} ({provider})",
+      "queuedNote": {
+        "pending": "Genauere Position wird gesucht",
+        "unavailable": "Genauere Position derzeit nicht verfügbar",
+        "quota_exceeded": "Obergrenze erreicht: genauere Position im nächsten Zyklus"
+      },
+      "showOnMap": "Auf der Lead-Karte zeigen"
+    },
+    "customFields": {
+      "title": "Benutzerdefinierte Felder",
+      "empty": "Keine benutzerdefinierten Lead-Felder.",
+      "loadFailed": "Die benutzerdefinierten Felder konnten nicht geladen werden.",
+      "sensitive": "Sensible Daten. Rechtsgrundlage: {basis}",
+      "sensitiveNoBasis": "Sensible Daten",
+      "hiddenSensitive": "{count, plural, one {# sensibles Feld ist} other {# sensible Felder sind}} für dich ausgeblendet.",
+      "loading": "Die benutzerdefinierten Felder werden geladen..."
+    },
+    "consent": {
+      "title": "Einwilligung",
+      "whatsapp": "WhatsApp",
+      "granted": "Hat Nachrichten zugestimmt",
+      "grantedDetail": "{source} am {date}",
+      "none": "Keine Einwilligung erfasst",
+      "optedOut": "Möchte keine Nachrichten",
+      "optedOutDetail": "am {date}",
+      "optedOutBy": {
+        "lead_request": "auf Wunsch des Leads, am {date}",
+        "operator": "auf Entscheidung des Teams, am {date}"
+      },
+      "hint": "Eine eingehende Nachricht zählt nicht als Einwilligung.",
+      "purpose": "Zweck"
+    },
+    "family": {
+      "title": "Familie und Empfehlungen",
+      "count": "{count, plural, one {# Verknüpfung} other {# Verknüpfungen}}",
+      "empty": "Keine Angehörigen oder Empfehlungen verknüpft.",
+      "add": "Angehörige hinzufügen",
+      "loadMore": "Mehr laden",
+      "loadingMore": "Wird geladen..."
+    },
+    "campaigns": {
+      "title": "Kampagnen",
+      "empty": "Dieser Lead war noch in keiner Kampagne.",
+      "entries": "{count, plural, one {# Eintrag} other {# Einträge}}",
+      "status": "Status",
+      "date": "Datum",
+      "entry": "Eintrag",
+      "lastActivity": "Letzte Aktivität: {date}",
+      "window": "24h-Fenster",
+      "windowOpen": "Offen",
+      "windowClosed": "Geschlossen",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "voice": "Sprache"
+      },
+      "showEntries": "Einträge anzeigen",
+      "hideEntries": "Einträge ausblenden"
+    },
+    "relativeInstant": {
+      "today": "heute, {time}",
+      "yesterday": "gestern, {time}"
+    },
+    "anonymizedElsewhere": "Dieser Lead wurde anonymisiert und kann nicht mehr geöffnet werden.",
+    "timeline": {
+      "title": "Zeitleiste",
+      "legend": "alles über {name} an einem Ort",
+      "legendUnnamed": "alles über diesen Lead an einem Ort",
+      "empty": "Mit diesem Lead ist noch nichts passiert.",
+      "addMemory": "Erinnerung erfassen",
+      "loadMore": "Mehr laden",
+      "loadingMore": "Wird geladen...",
+      "openConversation": "Unterhaltung öffnen",
+      "untitledCampaign": "ohne Namen",
+      "otherChannel": "einem anderen Kanal",
+      "conversation": "Unterhaltung über {channel} begonnen",
+      "campaign": {
+        "sent": "Kampagne \"{title}\" gesendet",
+        "delivered": "Kampagne \"{title}\" zugestellt",
+        "read": "Kampagne \"{title}\" gelesen",
+        "failed": "Kampagne \"{title}\" wurde nicht zugestellt"
+      },
+      "call": {
+        "outbound": "Ausgehender Anruf",
+        "inbound": "Eingehender Anruf",
+        "other": "Anruf",
+        "answered": "angenommen, {duration}",
+        "missed": "nicht angenommen",
+        "callbackAt": "Rückruf am {when}"
+      },
+      "deal": "Geschäft \"{title}\" erstellt",
+      "dealUntitled": "Geschäft erstellt",
+      "untitledDeal": "ohne Namen",
+      "dealEvent": {
+        "stage_moved": "Geschäft \"{title}\" nach {to} verschoben",
+        "won": "Geschäft \"{title}\" gewonnen",
+        "lost": "Geschäft \"{title}\" verloren",
+        "reopened": "Geschäft \"{title}\" wieder geöffnet",
+        "other": "Geschäft \"{title}\" geändert",
+        "from": "vorher in {from}"
+      },
+      "memory": "Erinnerung ({category}): {text}",
+      "memoryUncategorized": "Erinnerung: {text}",
+      "by": "von {actor}",
+      "wholeRecord": "den Datensatz",
+      "record": {
+        "created": "{actor} hat den Lead angelegt",
+        "updated": "{actor} hat {fields} geändert",
+        "renamed": "{actor} hat den Namen geändert",
+        "blocked": "{actor} hat den Lead gesperrt",
+        "unblocked": "{actor} hat den Lead entsperrt",
+        "owner_changed": "{actor} hat den Verantwortlichen geändert",
+        "opted_out": "{actor} hat erfasst, dass der Lead keine Nachrichten möchte",
+        "incoming_merged": "Eingehende Daten haben {fields} aktualisiert",
+        "relation_added": "{actor} hat ein Familienmitglied oder eine Empfehlung verknüpft",
+        "relation_removed": "{actor} hat ein Familienmitglied oder eine Empfehlung gelöst",
+        "identity_promoted": "Eine Kontaktnummer wurde zur WhatsApp-Nummer des Leads",
+        "imported": "{actor} hat den Lead importiert",
+        "import_enriched": "Ein Import hat {fields} ergänzt",
+        "anonymized": "{actor} hat den Lead anonymisiert",
+        "profile_from_conversation": "Eine Unterhaltung hat {fields} aktualisiert",
+        "profile_from_workflow": "Ein Workflow hat {fields} aktualisiert",
+        "profile_from_form": "Ein Formular hat {fields} aktualisiert",
+        "other": "{actor} hat {fields} geändert",
+        "location_pinned": "{actor} hat die Position einer Adresse auf der Karte festgelegt",
+        "location_accepted": "{actor} hat den vom Lead gesendeten Standort als Position übernommen"
+      }
+    },
+    "deals": {
+      "title": "Geschäfte",
+      "description": "Anliegen und Chancen dieses Leads in den Pipelines, auf die Sie Zugriff haben.",
+      "add": "Neues Anliegen",
+      "opening": "Wird geöffnet...",
+      "empty": "Noch keine Geschäfte mit diesem Lead.",
+      "forbidden": "Sie haben keinen Zugriff auf die Geschäfte dieses Workspace.",
+      "untitled": "Geschäft ohne Titel",
+      "status": {
+        "open": "Offen",
+        "won": "Gewonnen",
+        "lost": "Verloren"
+      },
+      "owner": "Verantwortlich: {name}",
+      "noOwner": "Ohne Verantwortlichen",
+      "createdAt": "Erstellt am {date}",
+      "loadMore": "Mehr laden",
+      "loadingMore": "Wird geladen..."
+    },
+    "sharedNumber": {
+      "row": "auch bei <names></names>",
+      "sheet": "Diese Nummer ist auch bei <names></names> hinterlegt.",
+      "others": "weiteren"
+    }
+  },
+  "dealActors": {
+    "ai": "KI-Agent",
+    "workflow": "Workflow",
+    "system": "System",
+    "unknownMember": "Entferntes Mitglied"
+  },
+  "opportunityHistory": {
+    "title": "Verlauf",
+    "loading": "Wird geladen...",
+    "loadFailed": "Der Verlauf konnte nicht geladen werden.",
+    "empty": "Für diese Verkaufschance gibt es noch keine Einträge.",
+    "removedStage": "entfernte Phase",
+    "events": {
+      "created": "{actor} hat die Verkaufschance erstellt",
+      "stage_moved": "{actor} hat sie von {from} nach {to} verschoben",
+      "won": "{actor} hat sie als gewonnen markiert ({value})",
+      "lost": "{actor} hat sie als verloren markiert",
+      "reopened": "{actor} hat die Verkaufschance wieder geöffnet",
+      "value_changed": "{actor} hat den Wert auf {value} geändert",
+      "owner_changed": "{actor} hat den Verantwortlichen geändert",
+      "linked": "{actor} hat ein Gespräch verknüpft",
+      "other": "{actor} hat die Verkaufschance geändert"
+    }
+  },
+  "opportunityLinkedConversations": {
+    "title": "Verknüpfte Gespräche",
+    "empty": "Mit dieser Verkaufschance ist kein Gespräch verknüpft.",
+    "unnamed": "Kontakt ohne Namen",
+    "open": "Gespräch öffnen",
+    "openWith": "Gespräch mit {name} öffnen",
+    "unlink": "Verknüpfung lösen",
+    "unlinkWith": "Verknüpfung des Gesprächs mit {name} lösen"
+  },
+  "opportunityDrawer": {
+    "createTitle": "Neue Verkaufschance",
+    "editTitle": "Verkaufschance bearbeiten",
+    "createDescription": "Erfassen Sie eine neue Verkaufschance in der Pipeline.",
+    "editDescription": "Aktualisieren Sie die Daten, verschieben Sie die Phase oder erfassen Sie Gewinn oder Verlust.",
+    "title": "Titel",
+    "titlePlaceholder": "Z. B. Vertrag Acme, 10 Lizenzen",
+    "value": "Wert (R$)",
+    "valuePlaceholder": "0,00",
+    "valueRequired": "Für Gewonnen erforderlich",
+    "stage": "Phase",
+    "stageWon": "gewonnen",
+    "stageLost": "verloren",
+    "lostReason": "Verlustgrund",
+    "lostReasonPlaceholder": "Z. B. Preis, Wettbewerber, kein Budget...",
+    "required": "Erforderlich",
+    "owner": "Verantwortlich",
+    "ownerSearch": "Verantwortliche suchen...",
+    "ownerEmpty": "Keine Mitglieder",
+    "ownerYou": "Sie",
+    "source": "Herkunft",
+    "sourcePlaceholder": "Z. B. WhatsApp, Empfehlung, Anzeige...",
+    "customFields": "Benutzerdefinierte Felder",
+    "createdBy": "Erstellt von",
+    "wonAt": "Gewonnen am",
+    "lostAt": "Verloren am",
+    "closedBy": "{date} von {name}",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "create": "Erstellen",
+    "lostReasonMissing": "Geben Sie den Verlustgrund an, um sie in eine Verlustphase zu verschieben.",
+    "wonValueMissing": "Geben Sie den Wert der Verkaufschance an, um sie als gewonnen zu markieren.",
+    "conflict": "Diese Verkaufschance wurde gerade geändert. Laden Sie neu, um die aktuelle Version zu sehen.",
+    "saveFailed": "Die Verkaufschance konnte nicht gespeichert werden.",
+    "updated": "Verkaufschance aktualisiert.",
+    "createFailed": "Die Verkaufschance konnte nicht erstellt werden.",
+    "created": "Verkaufschance erstellt.",
+    "deleteFailed": "Die Verkaufschance konnte nicht gelöscht werden.",
+    "deleted": "Verkaufschance gelöscht.",
+    "unlinkFailed": "Die Unterhaltung konnte nicht getrennt werden.",
+    "openFailed": "Die Geschäfts-Pipeline konnte nicht geöffnet werden.",
+    "fromConversation": {
+      "label": "Verkaufschance erstellen",
+      "hint": "Verkaufschance aus dieser Unterhaltung erstellen",
+      "created": "Verkaufschance erstellt und mit der Unterhaltung verknüpft.",
+      "viewBoard": "In der Pipeline ansehen"
+    }
+  },
+  "adminBalancePage": {
+    "form": {
+      "error": {
+        "exchangeRateNotLoaded": "Der Wechselkurs ist noch nicht geladen. Versuchen Sie es gleich noch einmal."
+      }
+    }
+  },
+  "places": {
+    "searching": "Orte werden gesucht…",
+    "empty": "Kein Ort in der Adressbasis gefunden.",
+    "notLoaded": "Für diesen Bundesstaat ist die Adressbasis noch nicht geladen.",
+    "notLoadedWith": "Für diesen Bundesstaat ist die Adressbasis noch nicht geladen. Bundesstaaten mit Basis: {states}.",
+    "failed": "Orte konnten gerade nicht gesucht werden.",
+    "results": "{count, plural, =0 {Kein Ort gefunden} one {# Ort gefunden} other {# Orte gefunden}}",
+    "groups": {
+      "city": "Städte",
+      "district": "Stadtteile",
+      "street": "Straßen",
+      "cep": "CEPs",
+      "recent": "Zuletzt"
+    },
+    "errors": {
+      "place_query_invalid": "Gib 2 bis 60 Buchstaben oder 5 bis 8 Ziffern einer CEP ein.",
+      "place_scope_invalid": "Wähle zuerst den Bundesstaat und die Stadt.",
+      "reference_unavailable": "Die Adressbasis ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
+      "place_search_unavailable": "Die Ortssuche ist auf diesem Server nicht verfügbar.",
+      "place_answer_unreadable": "Die Ortssuche hat in einem unerwarteten Format geantwortet.",
+      "forbidden": "Du darfst vollständige Adressen nicht sehen."
+    },
+    "mapSearch": {
+      "label": "Ort auf der Karte suchen",
+      "placeholder": "Stadt, Stadtteil, Straße oder CEP",
+      "clear": "Suche leeren",
+      "filter": "Nach diesem Ort filtern: {place}"
     }
   }
 }

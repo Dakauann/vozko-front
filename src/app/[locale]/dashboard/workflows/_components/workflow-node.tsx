@@ -77,6 +77,7 @@ import {
 } from "./message-node-primitives";
 import {
   MediaNodePreview,
+  renderActionContentPreview,
   renderConditionContentPreview,
   renderMessageContentPreview,
 } from "./node-previews";
@@ -412,6 +413,9 @@ function renderNodeContent(
 
   const conditionPreview = renderConditionContentPreview(nodeType, config);
   if (conditionPreview !== undefined) return conditionPreview;
+
+  const actionPreview = renderActionContentPreview(nodeType, config);
+  if (actionPreview !== undefined) return actionPreview;
 
   switch (nodeType) {
     case "trigger_first_message":

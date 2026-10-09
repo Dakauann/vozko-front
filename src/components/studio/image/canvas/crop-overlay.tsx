@@ -8,6 +8,8 @@ import { loadAssetImage, useLoadedImage } from "@/components/studio/canvas/asset
 import { clampCropBox } from "@/lib/studio/crop";
 import type { PixelBox } from "@/lib/studio/geometry";
 
+import { layerOf } from "@/lib/studio/artboards";
+
 import { useEditorUi, useImageDoc, useImageEditor } from "../editor-state";
 
 const CROP_COLOR = "#6366f1";
@@ -33,7 +35,7 @@ export function CropOverlay() {
   const { commands } = useImageEditor();
   const crop = useEditorUi((s) => s.crop);
   const scale = useEditorUi((s) => s.viewport.scale);
-  const layer = useImageDoc((s) => s.document.layers.find((l) => l.id === crop?.layerId));
+  const layer = useImageDoc((s) => (crop ? layerOf(s.document, crop.layerId) : undefined));
   const loaded = useLoadedImage(layer?.assetId ?? null, loadAssetImage);
   const box = useRef<Konva.Rect>(null);
   const transformer = useRef<Konva.Transformer>(null);

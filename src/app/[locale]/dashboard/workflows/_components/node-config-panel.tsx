@@ -96,6 +96,8 @@ import { receivesCalls } from "@/lib/sip-trunks/types";
 import { listMembersAction } from "@/app/actions/workspace";
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
+import { normalizeKeyValueMap } from "@/lib/workflows/key-value";
+import { UpdateLeadFieldKeys } from "./update-lead-config";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import type { PipelineObjectType } from "@/lib/crm/pipelines";
 import { listStagesAction } from "@/app/actions/stages";
@@ -724,6 +726,13 @@ export function NodeConfigPanel({
               <HandOffRulesSummary workspaceId={workspaceId} />
             )}
 
+            {nodeType === "action_update_lead" && (
+              <UpdateLeadFieldKeys
+                value={config.custom_fields}
+                onChange={(next) => updateField("custom_fields", next)}
+              />
+            )}
+
             {templateParams.length > 0 && (
               <TemplateParamsSection
                 params={templateParams}
@@ -945,39 +954,6 @@ function formatMemberLabel(member: WorkspaceMember): string {
   }
 
   return username || email || member.userId;
-}
-
-function normalizeKeyValueMap(value: unknown): Record<string, string> {
-  if (!value) {
-    return {};
-  }
-
-  if (typeof value === "string") {
-    try {
-      const parsed = JSON.parse(value) as Record<string, unknown>;
-      return Object.fromEntries(
-        Object.entries(parsed).map(([key, entryValue]) => [
-          key,
-          entryValue == null ? "" : String(entryValue),
-        ]),
-      );
-    } catch {
-      return {};
-    }
-  }
-
-  if (typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(
-        ([key, entryValue]) => [
-          key,
-          entryValue == null ? "" : String(entryValue),
-        ],
-      ),
-    );
-  }
-
-  return {};
 }
 
 function KeyValueField({

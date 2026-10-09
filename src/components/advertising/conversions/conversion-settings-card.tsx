@@ -16,7 +16,7 @@ import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { CheckCircle, ShieldCheck, Warning, WhatsappLogo } from "@/components/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   sameSettings,
   settingsForAccount,
@@ -97,7 +97,6 @@ function SettingsForm({
   onSaved: () => void;
 }) {
   const t = useTranslations("adsConversions.settings");
-  const { toast } = useToast();
   const [form, setForm] = useState<ConversionSettings>(() => settingsForAccount(saved, account.id));
   const [phoneId, setPhoneId] = useState("");
   const [connecting, setConnecting] = useState(false);
@@ -119,11 +118,11 @@ function SettingsForm({
     const outcome = await connectConversionDatasetAction(phoneId);
     setConnecting(false);
     if (isAdsError(outcome)) {
-      toast({ title: t("dataset.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("dataset.failed"), { description: outcome.error });
       return;
     }
     patch({ datasetId: outcome.data.datasetId });
-    toast({ title: t("dataset.connected"), description: t("dataset.saveHint") });
+    toast(t("dataset.connected"), { description: t("dataset.saveHint") });
   };
 
   const save = async () => {
@@ -132,11 +131,11 @@ function SettingsForm({
     setSaving(false);
     if (isAdsError(outcome)) {
       setExpected(outcome.expected ?? {});
-      if (!outcome.expected) toast({ title: t("saveFailed"), description: outcome.error, variant: "destructive" });
+      if (!outcome.expected) toast.error(t("saveFailed"), { description: outcome.error });
       return;
     }
     setExpected({});
-    toast({ title: t("saved") });
+    toast(t("saved"));
     onSaved();
   };
 

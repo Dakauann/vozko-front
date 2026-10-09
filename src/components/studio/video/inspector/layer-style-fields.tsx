@@ -3,16 +3,29 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import type { Layer, TextAlign } from "@/lib/studio/document";
+import { takesArrowheads } from "@/lib/studio/arrowheads";
+import { STAR_DEFAULTS, type Layer, type Shadow, type TextAlign } from "@/lib/studio/document";
+import { DEFAULT_SHADOW } from "@/lib/studio/layer-effects";
+import { clampTo, LAYER_RANGES, type Range } from "@/lib/studio/layer-ranges";
 import { DEFAULT_FONT_ID, FONT_IDS, STUDIO_FONTS, nearestFontWeight, type FontId } from "@/lib/studio/fonts";
 import { sharedValue, type Shared } from "@/lib/studio/selection-edit";
 
 import { IconGrid } from "../icon-grid";
 import { ColorField, FieldGrid, InspectorSection, NumberField, SelectField, ToggleField } from "./fields";
+import { BlendField, GradientFields, isGradiented, takesGradient, TextEffectFields, type LayerChange } from "./layer-effect-fields";
+import { StrokeStyleFields } from "./stroke-style-fields";
 
-const DEFAULT_SHADOW = { color: "#000000", blur: 12, x: 0, y: 4 };
+export type { LayerChange } from "./layer-effect-fields";
 
-export type LayerChange = (layer: Layer) => Partial<Layer>;
+const SHADOW_NUMBERS: { key: "blur" | "x" | "y"; label: "shadowBlur" | "shadowX" | "shadowY"; range: Range }[] = [
+  { key: "blur", label: "shadowBlur", range: LAYER_RANGES.shadowBlur },
+  { key: "x", label: "shadowX", range: LAYER_RANGES.shadowOffset },
+  { key: "y", label: "shadowY", range: LAYER_RANGES.shadowOffset },
+];
+
+function shadowOf(layer: Layer): Shadow {
+  return layer.shadow ?? DEFAULT_SHADOW;
+}
 
 interface LayerStyleFieldsProps {
   layers: readonly Layer[];
@@ -48,8 +61,13 @@ export function LayerStyleFields({ layers, disabled, onChange }: LayerStyleField
   const fontFamily: FontId = fontId ?? DEFAULT_FONT_ID;
   const stroked = all(isStroked);
   const filled = all((layer) => !isStroked(layer));
+  const outlined = first.type !== "icon" && (stroked || all((layer) => (layer.strokeWidth ?? 0) > 0));
+  const headed = outlined && all(takesArrowheads);
+  const gradientable = all(takesGradient);
+  const solid = filled && !(gradientable && isGradiented(layers));
   const text = shared((layer) => layer.text ?? "");
   const shadowed = shared((layer) => Boolean(layer.shadow));
+  const setShadow = (build: (shadow: Shadow) => Partial<Shadow>) => change((layer) => ({ shadow: { ...shadowOf(layer), ...build(shadowOf(layer)) } }));
   const textId = `text-${first.id}`;
 
   return (
@@ -144,7 +162,7 @@ export function LayerStyleFields({ layers, disabled, onChange }: LayerStyleField
       {first.type === "icon" ? <IconGrid label={t("icon")} value={shared((layer) => layer.iconId) ?? undefined} disabled={disabled} onPick={(iconId) => set({ iconId })} /> : null}
 
       <FieldGrid>
-        {filled ? <ColorField label={t("fill")} value={shared((layer) => layer.fill ?? "#000000")} disabled={disabled} onChange={(fill) => set({ fill })} /> : null}
+        {solid ? <ColorField label={t("fill")} value={shared((layer) => layer.fill ?? "#000000")} disabled={disabled} onChange={(fill) => set({ fill })} /> : null}
         {first.type !== "icon" && (stroked || filled) ? (
           <>
             <ColorField label={stroked ? t("lineColor") : t("outline")} value={shared((layer) => layer.stroke ?? "#000000")} disabled={disabled} onChange={(stroke) => set({ stroke })} />
@@ -172,37 +190,63 @@ export function LayerStyleFields({ layers, disabled, onChange }: LayerStyleField
             onNudge={(delta) => change((layer) => ({ radius: Math.min(1, Math.max(0, (layer.radius ?? 0) + delta / 100)) }))}
           />
         ) : null}
+        {first.type === "shape" && all((layer) => layer.shape === "star") ? (
+          <>
+            <NumberField
+              label={t("points")}
+              min={LAYER_RANGES.starPoints[0]}
+              max={LAYER_RANGES.starPoints[1]}
+              value={shared((layer) => layer.points || STAR_DEFAULTS.points)}
+              disabled={disabled}
+              onCommit={(v) => set({ points: Math.round(v) })}
+              onNudge={(delta) => change((layer) => ({ points: Math.min(LAYER_RANGES.starPoints[1], Math.max(LAYER_RANGES.starPoints[0], (layer.points || STAR_DEFAULTS.points) + delta)) }))}
+            />
+            <NumberField
+              label={t("inner")}
+              unit="%"
+              min={LAYER_RANGES.starInner[0] * 100}
+              max={LAYER_RANGES.starInner[1] * 100}
+              value={shared((layer) => Math.round((layer.inner || STAR_DEFAULTS.inner) * 100))}
+              disabled={disabled}
+              onCommit={(v) => set({ inner: v / 100 })}
+              onNudge={(delta) => change((layer) => ({ inner: Math.min(LAYER_RANGES.starInner[1], Math.max(LAYER_RANGES.starInner[0], (layer.inner || STAR_DEFAULTS.inner) + delta / 100)) }))}
+            />
+          </>
+        ) : null}
       </FieldGrid>
 
-      {first.type === "shape" ? <ToggleField label={t("dashed")} checked={shared((layer) => Boolean(layer.dash))} disabled={disabled} onChange={(dash) => set({ dash })} /> : null}
-      {stroked ? (
+      {gradientable ? <GradientFields layers={layers} disabled={disabled} change={change} /> : null}
+      {first.type === "text" ? <TextEffectFields layers={layers} disabled={disabled} change={change} /> : null}
+
+      {outlined ? <StrokeStyleFields layers={layers} withCaps={first.type === "shape"} disabled={disabled} onPatch={set} /> : null}
+      {headed ? (
         <div className="flex gap-4">
           <ToggleField label={t("arrowStart")} checked={shared((layer) => Boolean(layer.arrowStart))} disabled={disabled} onChange={(arrowStart) => set({ arrowStart })} />
           <ToggleField label={t("arrowEnd")} checked={shared((layer) => Boolean(layer.arrowEnd))} disabled={disabled} onChange={(arrowEnd) => set({ arrowEnd })} />
         </div>
       ) : null}
 
-      <ToggleField label={t("shadow")} checked={shadowed} disabled={disabled} onChange={(on) => change((layer) => ({ shadow: on ? (layer.shadow ?? DEFAULT_SHADOW) : undefined }))} />
+      <ToggleField label={t("shadow")} checked={shadowed} disabled={disabled} onChange={(on) => change((layer) => ({ shadow: on ? shadowOf(layer) : undefined }))} />
       {shadowed ? (
         <FieldGrid>
-          <ColorField
-            label={t("shadowColor")}
-            value={shared((layer) => layer.shadow?.color ?? DEFAULT_SHADOW.color)}
-            disabled={disabled}
-            onChange={(color) => change((layer) => ({ shadow: { ...(layer.shadow ?? DEFAULT_SHADOW), color } }))}
-          />
-          <NumberField
-            label={t("shadowBlur")}
-            unit="px"
-            min={0}
-            max={200}
-            value={shared((layer) => layer.shadow?.blur ?? DEFAULT_SHADOW.blur)}
-            disabled={disabled}
-            onCommit={(blur) => change((layer) => ({ shadow: { ...(layer.shadow ?? DEFAULT_SHADOW), blur } }))}
-            onNudge={(delta) => change((layer) => ({ shadow: { ...(layer.shadow ?? DEFAULT_SHADOW), blur: Math.min(200, Math.max(0, (layer.shadow?.blur ?? DEFAULT_SHADOW.blur) + delta)) } }))}
-          />
+          <ColorField label={t("shadowColor")} value={shared((layer) => shadowOf(layer).color)} disabled={disabled} onChange={(color) => setShadow(() => ({ color }))} />
+          {SHADOW_NUMBERS.map(({ key, label, range }) => (
+            <NumberField
+              key={key}
+              label={t(label)}
+              unit="px"
+              min={range[0]}
+              max={range[1]}
+              value={shared((layer) => shadowOf(layer)[key])}
+              disabled={disabled}
+              onCommit={(value) => setShadow(() => ({ [key]: value }))}
+              onNudge={(delta) => setShadow((shadow) => ({ [key]: clampTo(shadow[key] + delta, range) }))}
+            />
+          ))}
         </FieldGrid>
       ) : null}
+
+      <BlendField layers={layers} disabled={disabled} change={change} />
     </InspectorSection>
   );
 }

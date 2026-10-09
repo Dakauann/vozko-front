@@ -10,7 +10,7 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { Archive, ArrowClockwise, ClipboardText, Eye, Plus } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { LeadForm } from "@/lib/advertising/forms";
 import type { AdAccount, AdPage } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
@@ -36,7 +36,6 @@ export function FormsPanel({
 }) {
   const t = useTranslations("adsForms");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const load = useCallback(() => listLeadFormsAction(account.id, page.pageId), [account.id, page.pageId]);
   const list = useKeyedLoad(`${account.id}:${page.pageId}`, load);
@@ -49,7 +48,7 @@ export function FormsPanel({
 
   const created = (form: LeadForm) => {
     setBuilding(false);
-    toast({ title: t("builder.created", { name: form.name }) });
+    toast(t("builder.created", { name: form.name }));
     list.reload();
   };
 
@@ -59,10 +58,10 @@ export function FormsPanel({
     const outcome = await archiveLeadFormAction(target.metaId, account.id);
     setArchiving(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("archive.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("archive.failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("archive.done", { name: target.name }) });
+    toast(t("archive.done", { name: target.name }));
     list.update((current) =>
       isAdsError(current)
         ? current

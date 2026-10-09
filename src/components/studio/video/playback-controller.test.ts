@@ -12,10 +12,10 @@ function doc(): VideoDocument {
   return d;
 }
 
-function setup() {
+function setup({ latency = 0, lead = 0 } = {}) {
   let now = 100;
   const callbacks: (() => void)[] = [];
-  const audio: PlaybackAudio = { now: () => now, prepare: vi.fn(async () => undefined), play: vi.fn(), stop: vi.fn() };
+  const audio: PlaybackAudio = { heard: () => now - latency, startsAt: () => now + lead, prepare: vi.fn(async () => undefined), play: vi.fn(), update: vi.fn(), stop: vi.fn() };
   const frames: FrameScheduler = {
     request: (callback) => callbacks.push(callback),
     cancel: (handle) => {
@@ -38,9 +38,39 @@ describe("PlaybackController", () => {
     const { controller, view, audio, tick } = setup();
     controller.seek(1000);
     await controller.play();
-    expect(audio.play).toHaveBeenCalledWith(expect.anything(), 1000, expect.any(Function), { soloTrackIds: [] });
+    expect(audio.play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [] });
+    const positionAt = vi.mocked(audio.play).mock.calls[0][1];
+    expect(positionAt(100)).toBe(1000);
     tick(0.5);
     expect(view.getState()).toMatchObject({ playing: true, playheadMs: 1500 });
+  });
+
+  it("shows the frame of the sound reaching the speakers, not the one being scheduled", async () => {
+    const { controller, view, audio, tick } = setup({ latency: 0.1, lead: 0.05 });
+    controller.seek(1000);
+    await controller.play();
+    const positionAt = vi.mocked(audio.play).mock.calls[0][1];
+    expect(positionAt(100.05)).toBe(1000);
+    tick(0.1);
+    expect(view.getState().playheadMs).toBe(1000);
+    tick(0.15);
+    expect(view.getState().playheadMs).toBe(1100);
+    expect(controller.position()).toBeCloseTo(1100);
+  });
+
+  it("updates the sound after an edit without restarting it or moving the picture", async () => {
+    const { controller, view, audio, tick } = setup();
+    await controller.play();
+    tick(1);
+    const stops = vi.mocked(audio.stop).mock.calls.length;
+    controller.documentChanged();
+    expect(audio.play).toHaveBeenCalledTimes(1);
+    expect(audio.stop).toHaveBeenCalledTimes(stops);
+    expect(audio.update).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [] });
+    const positionAt = vi.mocked(audio.update).mock.calls[0][1];
+    expect(positionAt(101.5)).toBe(1500);
+    tick(0.5);
+    expect(view.getState().playheadMs).toBe(1500);
   });
 
   it("stops at the end of the timeline", async () => {

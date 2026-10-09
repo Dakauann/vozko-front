@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useRef, useState } from "react";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import Button from "@/components/elevated-design/button";
-import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
   ElevatedDialog,
   ElevatedDialogBody,
@@ -14,618 +14,607 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
+import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
+import { Check, DownloadSimple, FileCsv, UploadSimple } from "@/components/icons";
+import { ImportCountsSummary } from "@/components/leads/imports/ImportCountsSummary";
+import { ImportMappingList } from "@/components/leads/imports/ImportMappingList";
 import {
-  ElevatedSelect,
-  ElevatedSelectItem,
-} from "@/components/elevated-design/elevated-select";
-import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
-import { CheckCircle, DownloadSimple, UploadSimple, Users } from "@/components/icons";
-import { useToast } from "@/hooks/use-toast";
-import { useWorkspace } from "@/contexts/workspace-context";
-import { useAuth } from "@/contexts/auth-context";
+  EMPTY_SEED_DRAFT,
+  ImportSeedOptions,
+  seedDraftOf,
+  seedScriptBlocks,
+  seedScriptOf,
+  type SeedDraft,
+} from "@/components/leads/imports/ImportSeedOptions";
 import {
-  importLeadsAction,
-  LEAD_IMPORT_MAX_ROWS,
-  type LeadImportResult,
-} from "@/app/actions/leads";
+  importErrorColumn,
+  importErrorMessage,
+  importFailureLabel,
+  isMappingRefusal,
+  type ImportTranslator,
+} from "@/components/leads/imports/import-messages";
+import { useLeadImportLimits, useLeadImportTracker, useTrackedImport } from "@/components/leads/imports/use-lead-imports";
+import { Notice as SystemNotice } from "@/components/ui/notice";
+import { ProgressTrack } from "@/components/ui/progress-panel";
+import {
+  downloadLeadImportRejectionsAction,
+  dryRunLeadImportAction,
+  startLeadImportAction,
+  uploadLeadImportAction,
+} from "@/app/actions/lead-imports";
+import type { CodedRefusal } from "@/lib/api/coded-error";
+import {
+  assignImportField,
+  defaultImportPolicy,
+  importColumnsBody,
+  importIssueTotal,
+  initialImportMapping,
+  isLeadImportActive,
+  LEAD_IMPORT_ACCEPT,
+  leadImportPercent,
+  leadImportStep,
+  type LeadImportJob,
+  type LeadImportLimits,
+  type LeadImportPolicy,
+  type LeadImportStep,
+} from "@/lib/leads/imports";
 import { downloadLeadImportTemplate } from "@/lib/leads/template";
-import { readDelimitedFile } from "@/lib/csv/parse";
-import {
-  buildLeadImportRows,
-  countRowsWithoutName,
-  MAX_SEEDED_CONVERSATIONS,
-  readLeadImportFile,
-  type LeadColumnMap,
-  type LeadImportFile,
-} from "@/lib/leads/import";
-import {
-  MessageVariantsEditor,
-  placeholdersIn,
-  variantsAgree,
-} from "@/components/unofficial-whatsapp/message-variants-editor";
-import {
-  CampaignMediaPicker,
-  MEDIA_ACCEPT,
-} from "@/components/campaigns/CampaignMediaPicker";
 import { cn } from "@/lib/utils";
 
-const REJECTED_PREVIEW = 15;
+interface ImportDraft {
+  jobId: string;
+  mapping: string[];
+  policy: LeadImportPolicy;
+  seed: SeedDraft;
+  dirty: boolean;
+}
 
-const NO_COLUMN = "none";
+type Busy = "upload" | "dryRun" | "start" | "download" | null;
 
-const MAX_SEED_VARIANTS = 10;
+const STEP_ORDER: LeadImportStep[] = ["file", "columns", "importing"];
 
-const SEED_MESSAGE_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
+function draftFor(job: LeadImportJob): ImportDraft {
+  const seedInbox = job.options.seedInbox && (job.settings?.seedInbox ?? false);
+  const scripted = seedInbox && job.options.seedConversations && (job.settings?.seedConversations ?? false);
+  const stored = scripted ? job.settings?.seedScript : undefined;
+  return {
+    jobId: job.id,
+    mapping: initialImportMapping(job),
+    policy: defaultImportPolicy(job),
+    seed: {
+      ...EMPTY_SEED_DRAFT,
+      ...(stored ? seedDraftOf(stored) : {}),
+      seedInbox,
+      seedConversations: scripted,
+      savedScript: !scripted || stored ? null : job.status === "failed" ? "stale" : "kept",
+    },
+    dirty: false,
+  };
+}
 
-const NAME_PLACEHOLDER = 1;
-
-const SEED_CONTEXT_MAX = 600;
-
-const SEED_MEDIA_KINDS = ["image", "video", "audio", "document", "sticker"] as const;
-
-type SeedMediaKind = (typeof SEED_MEDIA_KINDS)[number];
+function staleSeed(seed: SeedDraft): SeedDraft {
+  return seed.savedScript === "kept" ? { ...seed, savedScript: "stale" } : seed;
+}
 
 export function ImportLeadsDialog({
   open,
   onOpenChange,
-  onImported,
+  jobId,
+  onJobIdChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImported: () => void;
+  jobId: string | null;
+  onJobIdChange: (id: string | null) => void;
 }) {
-  const t = useTranslations("leadsPage.import");
-  const { toast } = useToast();
-  const { can } = useWorkspace();
-  const { user } = useAuth();
-  const isSystemAdmin = user?.role === "admin";
-  const canSeedInbox = can("unofficial_whatsapp_instances", "send");
+  const t = useTranslations("leadsPage.import") as unknown as ImportTranslator;
+  const format = useFormatter();
+  const locale = useLocale();
+  const tracker = useLeadImportTracker();
+  const tracked = useTrackedImport(tracker, jobId);
+  const limits = useLeadImportLimits(tracker);
+  const job = tracked?.job ?? null;
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [file, setFile] = useState<LeadImportFile | null>(null);
-  const [map, setMap] = useState<LeadColumnMap>({ number: 0, name: 1, age: null });
-  const [onExisting, setOnExisting] = useState<"fill_empty" | "skip">("fill_empty");
-  const [seedInbox, setSeedInbox] = useState(false);
-  const [seedConversations, setSeedConversations] = useState(false);
-  const [bodies, setBodies] = useState<string[]>([""]);
-  const [seedContext, setSeedContext] = useState("");
-  const [mediaKind, setMediaKind] = useState<SeedMediaKind>("image");
-  const [mediaId, setMediaId] = useState<string | undefined>(undefined);
-  const [mediaName, setMediaName] = useState<string | undefined>(undefined);
-  const [maxMessages, setMaxMessages] = useState(4);
-  const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<LeadImportResult | null>(null);
+  const [busy, setBusy] = useState<Busy>(null);
+  const [refused, setRefused] = useState<{ jobId: string | null; error: CodedRefusal } | null>(null);
+  const [draft, setDraft] = useState<ImportDraft | null>(null);
 
-  const parsed = useMemo(
-    () => (file ? buildLeadImportRows(file, map) : null),
-    [file, map],
-  );
+  if (job && draft?.jobId !== job.id) setDraft(draftFor(job));
+  const current = job && draft?.jobId === job.id ? draft : null;
 
-  const tooManyRows = (parsed?.rows.length ?? 0) > LEAD_IMPORT_MAX_ROWS;
+  const n = (value: number) => format.number(value);
+  const errorContext = {
+    headers: job?.preview.headers ?? [],
+    fields: job?.fields ?? [],
+    formatNumber: n,
+    limits,
+  };
+  const describe = (error: CodedRefusal) => importErrorMessage(t, error, errorContext);
+  const refusal = refused && refused.jobId === jobId ? refused.error : null;
+  const setRefusal = (error: CodedRefusal | null) => setRefused(error ? { jobId, error } : null);
 
-  const canScript = isSystemAdmin && canSeedInbox && seedInbox;
-  const trimmedBodies = bodies.map((b) => b.trim()).filter(Boolean);
-  const scriptIsValid =
-    trimmedBodies.length > 0 && variantsAgree(trimmedBodies);
-  const scriptUsesName = trimmedBodies.some((b) =>
-    placeholdersIn(b).includes(NAME_PLACEHOLDER),
-  );
-  const scriptOn = canScript && seedConversations;
-  const unnamedRows =
-    scriptOn && scriptUsesName ? countRowsWithoutName(parsed?.rows ?? []) : 0;
-  const scriptBlocksImport = scriptOn && !scriptIsValid;
+  const step: LeadImportStep | "loading" | "gone" =
+    !jobId || !tracked ? "file" : tracked.gone ? "gone" : job ? leadImportStep(job) : "loading";
 
-  const canImport =
-    !importing &&
-    !tooManyRows &&
-    !scriptBlocksImport &&
-    (parsed?.rows.length ?? 0) > 0;
+  const analyzing = job?.status === "analyzing";
+  const editable = step === "columns" && !analyzing && busy === null;
 
-  const reset = () => {
-    setFileName(null);
-    setFile(null);
-    setMap({ number: 0, name: 1, age: null });
-    setResult(null);
-    setImporting(false);
-    setSeedInbox(false);
-    setSeedConversations(false);
-    setBodies([""]);
-    setSeedContext("");
-    setMaxMessages(4);
-    setMediaKind("image");
-    setMediaId(undefined);
-    setMediaName(undefined);
+  const refuse = (error: CodedRefusal, inline: boolean) => {
+    setRefusal(error);
+    if (!inline) toast.error(t("errorTitle"), { description: describe(error) });
   };
 
-  const close = (next: boolean) => {
-    if (!next) reset();
-    onOpenChange(next);
+  const edit = (patch: Partial<ImportDraft>) => {
+    if (!current || !editable) return;
+    setDraft({ ...current, ...patch, seed: staleSeed(patch.seed ?? current.seed), dirty: true });
+    setRefusal(null);
   };
 
-  const pickFile = async (picked: File) => {
-    setResult(null);
-    setFileName(picked.name);
-    const text = await readDelimitedFile(picked);
-    const read = readLeadImportFile(text);
-    setFile(read);
-    setMap(read.guess);
-  };
-
-  const downloadTemplate = downloadLeadImportTemplate;
-
-  const runImport = async () => {
-    if (!parsed || parsed.rows.length === 0) return;
-    setImporting(true);
-
-    const { result: outcome, error } = await importLeadsAction(
-      parsed.rows,
-      onExisting,
-      seedInbox,
-      scriptOn
-        ? {
-            bodies: trimmedBodies,
-            maxMessages,
-            ...(seedContext.trim() ? { context: seedContext.trim() } : {}),
-            ...(mediaId ? { attachment: { mediaId, kind: mediaKind } } : {}),
-          }
-        : undefined,
-    );
-    setImporting(false);
-
-    if (error || !outcome) {
-      toast({
-        title: t("error.title"),
-        description: error ?? t("error.generic"),
-        variant: "destructive",
-      });
+  const pickFile = async (file: File) => {
+    setBusy("upload");
+    setRefusal(null);
+    const outcome = await uploadLeadImportAction(file);
+    setBusy(null);
+    if ("error" in outcome) {
+      refuse(outcome.error, false);
       return;
     }
-
-    setResult(outcome);
-    onImported();
+    tracker.track(outcome.job);
+    onJobIdChange(outcome.job.id);
   };
 
-  const columnLabel = (index: number) =>
-    file?.headers?.[index]?.trim() || t("mapping.column", { index: index + 1 });
+  const simulate = async () => {
+    if (!job || !current) return;
+    setBusy("dryRun");
+    setRefusal(null);
+    const script = seedScriptOf(current.seed, job.options);
+    const outcome = await dryRunLeadImportAction(job.id, {
+      columns: importColumnsBody(current.mapping),
+      onExisting: current.policy,
+      seedInbox: job.options.seedInbox && current.seed.seedInbox,
+      ...(script ? { seedConversations: script } : {}),
+    });
+    setBusy(null);
+    if ("error" in outcome) {
+      refuse(outcome.error, isMappingRefusal(outcome.error));
+      return;
+    }
+    setDraft({ ...current, dirty: false });
+    tracker.track(outcome.job);
+  };
 
-  const columnOptions = Array.from({ length: file?.columnCount ?? 0 }, (_, i) => i);
+  const start = async () => {
+    if (!job) return;
+    setBusy("start");
+    setRefusal(null);
+    const outcome = await startLeadImportAction(job.id);
+    setBusy(null);
+    if ("error" in outcome) {
+      refuse(outcome.error, false);
+      return;
+    }
+    tracker.track(outcome.job);
+  };
+
+  const downloadRejections = async () => {
+    if (!job) return;
+    setBusy("download");
+    const { error } = await downloadLeadImportRejectionsAction(job.id, locale);
+    setBusy(null);
+    if (error) toast.error(t("rejections.failed"), { description: describe(error) });
+  };
+
+  const restart = () => {
+    setRefusal(null);
+    onJobIdChange(null);
+  };
+
+  const changeFile = () => {
+    if (job) tracker.forget(job.id);
+    restart();
+  };
+
+  const simulated = Boolean(job && current && job.status === "analyzed" && job.dryRun && !current.dirty);
+  const nothingMapped = Boolean(current && importColumnsBody(current.mapping).length === 0);
+  const scriptBlocks = Boolean(job && current && seedScriptBlocks(current.seed, job.options));
+  const failedBeforeStart = job?.status === "failed" && !job.startedAt;
+  const stepIndex = step === "done" ? STEP_ORDER.length : Math.max(0, STEP_ORDER.indexOf(step === "loading" || step === "gone" ? "file" : step));
+
+  const footer = () => {
+    if (step === "file" || step === "loading" || step === "gone") {
+      return (
+        <>
+          {step === "gone" ? <Button variant="secondary" title={t("another")} onClick={restart} /> : null}
+          <Button variant="ghost" title={t("cancel")} onClick={() => onOpenChange(false)} disabled={busy === "upload"} />
+        </>
+      );
+    }
+    if (step === "columns" && job) {
+      const primary = simulated ? (
+        <Button
+          variant="primary"
+          title={busy === "start" ? t("start.starting") : t("start.action", { count: job.dryRun?.rows ?? job.totalRows })}
+          onClick={start}
+          disabled={busy !== null}
+        />
+      ) : (
+        <Button
+          variant="primary"
+          title={analyzing || busy === "dryRun" ? t("dryRun.running") : job.dryRun || failedBeforeStart ? t("dryRun.again") : t("dryRun.run")}
+          onClick={simulate}
+          disabled={busy !== null || analyzing || nothingMapped || scriptBlocks}
+        />
+      );
+      return (
+        <>
+          <Button variant="ghost" title={t("changeFile")} onClick={changeFile} disabled={busy !== null} />
+          <Button variant="ghost" title={analyzing ? t("closeBackground") : t("close")} onClick={() => onOpenChange(false)} />
+          {primary}
+        </>
+      );
+    }
+    if (step === "importing" && job && isLeadImportActive(job.status)) {
+      return <Button variant="secondary" title={t("closeBackground")} onClick={() => onOpenChange(false)} />;
+    }
+    return (
+      <>
+        <Button variant="ghost" title={t("another")} onClick={restart} />
+        <Button variant="primary" title={t("done")} onClick={() => onOpenChange(false)} />
+      </>
+    );
+  };
 
   return (
-    <ElevatedDialog open={open} onOpenChange={close}>
-      <ElevatedDialogContent className="max-w-2xl">
+    <ElevatedDialog open={open} onOpenChange={onOpenChange}>
+      <ElevatedDialogContent className="max-w-4xl">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
           <ElevatedDialogDescription>{t("description")}</ElevatedDialogDescription>
+          <ImportSteps current={stepIndex} />
         </ElevatedDialogHeader>
 
         <ElevatedDialogBody>
-          {result ? (
-            <ImportSummary result={result} />
-          ) : (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  icon={<UploadSimple weight="bold" />}
-                  iconVisible
-                  title={fileName ?? t("chooseFile")}
-                  onClick={() => inputRef.current?.click()}
-                />
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept=".csv,.txt,text/csv,text/plain"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const picked = e.target.files?.[0];
-                    if (picked) await pickFile(picked);
-                    e.target.value = "";
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={<DownloadSimple weight="bold" />}
-                  iconVisible
-                  title={t("template")}
-                  onClick={downloadTemplate}
+          {step === "file" ? (
+            <FileStep
+              uploading={busy === "upload"}
+              limits={limits}
+              onChoose={() => inputRef.current?.click()}
+              error={refusal ? describe(refusal) : null}
+            />
+          ) : null}
+          <input
+            ref={inputRef}
+            type="file"
+            accept={LEAD_IMPORT_ACCEPT}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (file) void pickFile(file);
+            }}
+          />
+
+          {step === "loading" ? (
+            tracked?.pollError ? (
+              <PollNotice onRetry={() => jobId && tracker.retry(jobId)} />
+            ) : (
+              <p className="text-sm text-muted-foreground" role="status">
+                {t("file.loading")}
+              </p>
+            )
+          ) : null}
+
+          {step === "gone" ? (
+            <Notice
+              tone="warning"
+              text={limits ? t("gone", { days: limits.retentionDays }) : t("goneNoLimit")}
+            />
+          ) : null}
+
+          {job && current && step !== "file" && step !== "loading" && step !== "gone" ? (
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+              <div className="space-y-3">
+                <div className="flex min-w-0 items-center gap-2 text-sm text-foreground">
+                  <FileCsv className="h-4 w-4 shrink-0 text-muted-foreground" weight="fill" aria-hidden />
+                  <span className="truncate font-medium">{job.fileName}</span>
+                  <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                    {t("file.rows", { count: job.totalRows })}
+                  </span>
+                </div>
+                <ImportMappingList
+                  job={job}
+                  mapping={current.mapping}
+                  onAssign={(index, field) => edit({ mapping: assignImportField(current.mapping, index, field, job.fields) })}
+                  errorColumn={importErrorColumn(refusal)}
+                  disabled={!editable}
                 />
               </div>
 
-              <p className="text-xs text-muted-foreground">
-                {t("recognisedColumns")}
-              </p>
-
-              {file ? (
-                <>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-foreground">
-                      {t("mapping.title")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {file.headers ? t("mapping.detected") : t("mapping.noHeader")}
-                    </p>
-                    <div className="grid gap-2 sm:grid-cols-3">
+              <div className="space-y-4">
+                {step === "columns" ? (
+                  <>
+                    <div className="space-y-1.5">
                       <ElevatedSelect
-                        label={t("mapping.number")}
-                        value={String(map.number)}
-                        onValueChange={(v) => setMap({ ...map, number: Number(v) })}
+                        label={t("existing.label")}
+                        value={current.policy}
+                        onValueChange={(value) => edit({ policy: value as LeadImportPolicy })}
+                        disabled={!editable}
                       >
-                        {columnOptions.map((i) => (
-                          <ElevatedSelectItem key={i} value={String(i)}>
-                            {columnLabel(i)}
-                          </ElevatedSelectItem>
-                        ))}
-                      </ElevatedSelect>
-
-                      <ElevatedSelect
-                        label={t("mapping.name")}
-                        value={map.name === null ? NO_COLUMN : String(map.name)}
-                        onValueChange={(v) =>
-                          setMap({ ...map, name: v === NO_COLUMN ? null : Number(v) })
-                        }
-                      >
-                        <ElevatedSelectItem value={NO_COLUMN}>
-                          {t("mapping.none")}
+                        <ElevatedSelectItem
+                          value="fill_empty"
+                          disabled={!job.options.fillEmpty}
+                          description={job.options.fillEmpty ? undefined : t("existing.fillEmptyLocked")}
+                        >
+                          {t("existing.fillEmpty")}
                         </ElevatedSelectItem>
-                        {columnOptions.map((i) => (
-                          <ElevatedSelectItem key={i} value={String(i)}>
-                            {columnLabel(i)}
-                          </ElevatedSelectItem>
-                        ))}
+                        <ElevatedSelectItem value="skip">{t("existing.skip")}</ElevatedSelectItem>
                       </ElevatedSelect>
-
-                      <ElevatedSelect
-                        label={t("mapping.age")}
-                        value={map.age === null ? NO_COLUMN : String(map.age)}
-                        onValueChange={(v) =>
-                          setMap({ ...map, age: v === NO_COLUMN ? null : Number(v) })
-                        }
-                      >
-                        <ElevatedSelectItem value={NO_COLUMN}>
-                          {t("mapping.none")}
-                        </ElevatedSelectItem>
-                        {columnOptions.map((i) => (
-                          <ElevatedSelectItem key={i} value={String(i)}>
-                            {columnLabel(i)}
-                          </ElevatedSelectItem>
-                        ))}
-                      </ElevatedSelect>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">{t("mapping.onlyThese")}</p>
-                  </div>
-
-                  <div className="rounded-[--radius] border border-border bg-card px-3 py-2">
-                    <p className="text-sm text-foreground">
-                      {t("summary.counts", {
-                        valid: parsed?.rows.length ?? 0,
-                        invalid: parsed?.invalid ?? 0,
-                        duplicates: parsed?.duplicates ?? 0,
-                      })}
-                    </p>
-
-                    {tooManyRows ? (
-                      <p className="mt-1 text-xs font-semibold text-destructive-ink">
-                        {t("summary.tooMany", { max: LEAD_IMPORT_MAX_ROWS })}
+                      <p className="text-xs text-muted-foreground">
+                        {job.options.fillEmpty ? t("existing.neverOverwrites") : t("existing.fillEmptyLocked")}
                       </p>
-                    ) : null}
-
-                    {parsed && parsed.rejected.length > 0 ? (
-                      <details className="mt-2">
-                        <summary className="cursor-pointer text-xs font-medium text-foreground">
-                          {t("summary.rejectedTitle", { count: parsed.rejected.length })}
-                        </summary>
-                        <ul className="mt-2 space-y-1">
-                          {parsed.rejected.slice(0, REJECTED_PREVIEW).map((item) => (
-                            <li
-                              key={item.line}
-                              className="flex gap-2 text-2xs text-muted-foreground"
-                            >
-                              <span className="shrink-0 tabular-nums">#{item.line}</span>
-                              <span className="min-w-0 flex-1 truncate font-mono">
-                                {item.raw}
-                              </span>
-                              <span className="shrink-0 text-warning-ink">
-                                {t(`reasons.${item.reason}`)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                        {parsed.rejected.length > REJECTED_PREVIEW ? (
-                          <p className="mt-1 text-2xs text-muted-foreground">
-                            +{parsed.rejected.length - REJECTED_PREVIEW}
-                          </p>
-                        ) : null}
-                      </details>
-                    ) : null}
-                  </div>
-
-                  <ElevatedSelect
-                    label={t("existing.label")}
-                    value={onExisting}
-                    onValueChange={(v) => setOnExisting(v as "fill_empty" | "skip")}
-                  >
-                    <ElevatedSelectItem value="fill_empty">
-                      {t("existing.fillEmpty")}
-                    </ElevatedSelectItem>
-                    <ElevatedSelectItem value="skip">
-                      {t("existing.skip")}
-                    </ElevatedSelectItem>
-                  </ElevatedSelect>
-                  <p className="text-xs text-muted-foreground">{t("existing.neverOverwrites")}</p>
-
-                  {canSeedInbox ? (
-                    <div className="space-y-3">
-                      <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
-                        <Checkbox
-                          className="mt-0.5"
-                          checked={seedInbox}
-                          onCheckedChange={(next) => {
-                            const on = next === true;
-                            setSeedInbox(on);
-                            if (!on) setSeedConversations(false);
-                          }}
-                        />
-                        <span>
-                          {t("seedInbox.label")}
-                          <span className="mt-0.5 block text-xs text-muted-foreground">
-                            {t("seedInbox.help")}
-                          </span>
-                        </span>
-                      </label>
-
-                      {canScript ? (
-                        <div className="space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
-                          <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
-                            <Checkbox
-                              className="mt-0.5"
-                              checked={seedConversations}
-                              onCheckedChange={(next) =>
-                                setSeedConversations(next === true)
-                              }
-                            />
-                            <span>
-                              <span className="flex flex-wrap items-center gap-2">
-                                {t("seedConversations.label")}
-                                <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                  {t("seedConversations.adminOnly")}
-                                </span>
-                              </span>
-                              <span className="mt-0.5 block text-xs text-muted-foreground">
-                                {t("seedConversations.help")}
-                              </span>
-                            </span>
-                          </label>
-
-                          {seedConversations ? (
-                            <div className="space-y-3 border-t border-border pt-3">
-                              <MessageVariantsEditor
-                                bodies={bodies}
-                                onChange={setBodies}
-                                max={MAX_SEED_VARIANTS}
-                                disabled={importing}
-                                rows={3}
-                                labels={{
-                                  title: t("seedConversations.variantsTitle"),
-                                  help: t("seedConversations.variantsHelp"),
-                                  addVariant: t("seedConversations.addVariant"),
-                                  removeVariant: t(
-                                    "seedConversations.removeVariant",
-                                  ),
-                                  variantLabel: (index) =>
-                                    t("seedConversations.variantLabel", { index }),
-                                  bodyPlaceholder: t(
-                                    "seedConversations.bodyPlaceholder",
-                                  ),
-                                  mismatch: t("seedConversations.variantsMismatch"),
-                                  variablesDetected: () =>
-                                    t("seedConversations.nameVariable"),
-                                }}
-                              />
-
-                              <ElevatedInput
-                                label={t("seedConversations.contextLabel")}
-                                value={seedContext}
-                                onChange={(e) => setSeedContext(e.target.value)}
-                                disabled={importing}
-                                controlSize="sm"
-                                maxLength={SEED_CONTEXT_MAX}
-                                placeholder={t(
-                                  "seedConversations.contextPlaceholder",
-                                )}
-                              />
-
-                              <div className="space-y-2 border-t border-border pt-3">
-                                <p className="text-sm font-medium text-foreground">
-                                  {t("seedConversations.mediaTitle")}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {t("seedConversations.mediaHelp")}
-                                </p>
-                                <ElevatedSelect
-                                  label={t("seedConversations.mediaKind")}
-                                  value={mediaKind}
-                                  onValueChange={(v) => {
-                                    setMediaKind(v as SeedMediaKind);
-                                    setMediaId(undefined);
-                                    setMediaName(undefined);
-                                  }}
-                                >
-                                  {SEED_MEDIA_KINDS.map((kind) => (
-                                    <ElevatedSelectItem key={kind} value={kind}>
-                                      {t(`seedConversations.mediaKinds.${kind}`)}
-                                    </ElevatedSelectItem>
-                                  ))}
-                                </ElevatedSelect>
-                                <CampaignMediaPicker
-                                  kind={mediaKind}
-                                  mediaId={mediaId}
-                                  fileName={mediaName}
-                                  accept={MEDIA_ACCEPT[mediaKind] ?? "*/*"}
-                                  disabled={importing}
-                                  onChange={(next) => {
-                                    setMediaId(next.mediaId);
-                                    setMediaName(next.fileName);
-                                  }}
-                                  labels={{
-                                    upload: t("seedConversations.mediaUpload"),
-                                    uploading: t("seedConversations.mediaUploading"),
-                                    remove: t("seedConversations.mediaRemove"),
-                                    failed: t("seedConversations.mediaFailed"),
-                                  }}
-                                />
-                              </div>
-
-                              <ElevatedSelect
-                                label={t("seedConversations.maxMessages")}
-                                value={String(maxMessages)}
-                                onValueChange={(v) => setMaxMessages(Number(v))}
-                              >
-                                {SEED_MESSAGE_OPTIONS.map((n) => (
-                                  <ElevatedSelectItem key={n} value={String(n)}>
-                                    {t("seedConversations.messageCount", {
-                                      count: n,
-                                    })}
-                                  </ElevatedSelectItem>
-                                ))}
-                              </ElevatedSelect>
-
-                              {unnamedRows > 0 ? (
-                                <p className="text-xs text-warning-ink">
-                                  {t("seedConversations.unnamedRows", {
-                                    count: unnamedRows,
-                                  })}
-                                </p>
-                              ) : null}
-
-                              <p className="text-2xs text-muted-foreground">
-                                {t("seedConversations.costNotice", {
-                                  max: MAX_SEEDED_CONVERSATIONS,
-                                })}
-                              </p>
-
-                              {scriptBlocksImport ? (
-                                <p className="text-xs font-semibold text-destructive-ink">
-                                  {t("seedConversations.invalid")}
-                                </p>
-                              ) : null}
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
                     </div>
-                  ) : null}
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">{t("empty")}</p>
-              )}
+
+                    <ImportSeedOptions
+                      options={job.options}
+                      draft={current.seed}
+                      onChange={(seed) => edit({ seed })}
+                      disabled={!editable}
+                      maxSeeded={limits?.maxSeededConversations ?? null}
+                    />
+
+                    {nothingMapped ? <p className="text-xs text-warning-ink">{t("mapping.nothingMapped")}</p> : null}
+
+                    {refusal ? <Notice tone="fault" text={describe(refusal)} /> : null}
+
+                    {failedBeforeStart ? (
+                      <Notice tone="fault" title={t("failure.title")} text={importFailureLabel(t, job.failureCode)} />
+                    ) : null}
+
+                    {analyzing ? (
+                      <ProgressBlock
+                        title={t("dryRun.running")}
+                        detail={t("dryRun.analyzing", { processed: n(job.processed), total: n(job.totalRows) })}
+                        percent={leadImportPercent(job)}
+                        label={t("progress.label")}
+                      />
+                    ) : null}
+
+                    {job.dryRun && job.status === "analyzed" ? (
+                      <section className="space-y-2" aria-live="polite">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <h3 className="text-sm font-semibold text-foreground">{t("dryRun.title")}</h3>
+                          <span className="text-xs text-muted-foreground">{t("dryRun.help")}</span>
+                        </div>
+                        <ImportCountsSummary counts={job.dryRun} tense="planned" />
+                        {current.dirty ? <Notice tone="warning" text={t("dryRun.stale")} /> : null}
+                      </section>
+                    ) : null}
+                  </>
+                ) : null}
+
+                {tracked?.pollError ? <PollNotice onRetry={() => tracker.retry(job.id)} /> : null}
+
+                {step === "importing" ? (
+                  <>
+                    {isLeadImportActive(job.status) ? (
+                      <ProgressBlock
+                        title={t("progress.title")}
+                        detail={t("progress.rows", { processed: n(job.processed), total: n(job.totalRows) })}
+                        stage={job.stage && t.has(`progress.stages.${job.stage}`) ? t(`progress.stages.${job.stage}`) : undefined}
+                        percent={leadImportPercent(job)}
+                        label={t("progress.label")}
+                      />
+                    ) : (
+                      <Notice tone="fault" title={t("failure.title")} text={importFailureLabel(t, job.failureCode)} />
+                    )}
+                    {job.result ? <ImportCountsSummary counts={job.result} tense="done" /> : null}
+                    {job.result && !isLeadImportActive(job.status) ? (
+                      <RejectionsNotice
+                        count={importIssueTotal(job.result)}
+                        busy={busy === "download"}
+                        onDownload={downloadRejections}
+                      />
+                    ) : null}
+                  </>
+                ) : null}
+
+                {step === "done" && job.result ? (
+                  <>
+                    <section className="space-y-2" aria-live="polite">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Check className="h-4 w-4 text-healthy-ink" weight="bold" aria-hidden />
+                        {t("toast.done", { file: job.fileName })}
+                      </h3>
+                      <ImportCountsSummary counts={job.result} tense="done" finished placement={job.placement} />
+                    </section>
+                    <SeedOutcome job={job} />
+                    <RejectionsNotice
+                      count={importIssueTotal(job.result)}
+                      busy={busy === "download"}
+                      onDownload={downloadRejections}
+                    />
+                  </>
+                ) : null}
+              </div>
             </div>
-          )}
+          ) : null}
         </ElevatedDialogBody>
 
-        <ElevatedDialogFooter>
-          {result ? (
-            <Button variant="primary" title={t("done")} onClick={() => close(false)} />
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                title={t("cancel")}
-                onClick={() => close(false)}
-                disabled={importing}
-              />
-              <Button
-                variant="primary"
-                title={importing ? t("importing") : t("confirm")}
-                onClick={runImport}
-                disabled={!canImport}
-              />
-            </>
-          )}
-        </ElevatedDialogFooter>
+        <ElevatedDialogFooter>{footer()}</ElevatedDialogFooter>
       </ElevatedDialogContent>
     </ElevatedDialog>
   );
 }
 
-function ImportSummary({ result }: { result: LeadImportResult }) {
+function ImportSteps({ current }: { current: number }) {
   const t = useTranslations("leadsPage.import");
-
-  const tiles = [
-    {
-      key: "created",
-      label: t("result.created"),
-      value: result.created,
-      tone: "text-healthy-ink",
-      icon: CheckCircle,
-    },
-    {
-      key: "matched",
-      label: t("result.matched"),
-      value: result.matched,
-      tone: "text-info-ink",
-      icon: Users,
-    },
-  ];
-
-  const skipped = result.invalid + result.duplicate;
-
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2">
-        {tiles.map((tile) => (
-          <div
-            key={tile.key}
-            className="rounded-[--radius] border border-border bg-card p-3"
-          >
-            <div className="flex items-center gap-2">
-              <tile.icon className={cn("h-4 w-4", tile.tone)} weight="fill" />
-              <p className="truncate text-2xs font-semibold text-muted-foreground">
-                {tile.label}
-              </p>
-            </div>
-            <p className="readout mt-1 font-display text-2xl font-semibold text-foreground">
-              {tile.value}
-            </p>
-          </div>
-        ))}
+    <ol className="mt-1 flex flex-wrap items-center gap-2 text-xs" aria-label={t("title")}>
+      {STEP_ORDER.map((step, index) => {
+        const done = index < current;
+        const active = index === current;
+        return (
+          <li key={step} className="flex items-center gap-2" aria-current={active ? "step" : undefined}>
+            {index > 0 ? <span aria-hidden className="h-px w-6 bg-border-strong" /> : null}
+            <span
+              className={cn(
+                "flex h-5 w-5 items-center justify-center rounded-full text-2xs font-semibold tabular-nums",
+                done
+                  ? "border border-control-edge bg-muted text-foreground"
+                  : active
+                    ? "border border-primary-edge bg-primary text-primary-foreground"
+                    : "border border-control-edge text-muted-foreground",
+              )}
+            >
+              {done ? <Check className="h-3 w-3" weight="bold" aria-hidden /> : index + 1}
+            </span>
+            <span className={cn(active || done ? "font-medium text-foreground" : "text-muted-foreground")}>
+              {t(`steps.${step}`)}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function FileStep({
+  uploading,
+  limits,
+  onChoose,
+  error,
+}: {
+  uploading: boolean;
+  limits: LeadImportLimits | null;
+  onChoose: () => void;
+  error: string | null;
+}) {
+  const t = useTranslations("leadsPage.import");
+  const format = useFormatter();
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col items-start gap-3 rounded-[--radius] border border-dashed border-control-edge bg-card px-4 py-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<UploadSimple weight="bold" />}
+            iconVisible
+            title={uploading ? t("file.uploading") : t("file.choose")}
+            onClick={onChoose}
+            disabled={uploading}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<DownloadSimple weight="bold" />}
+            iconVisible
+            title={t("template")}
+            onClick={downloadLeadImportTemplate}
+          />
+        </div>
+        {limits ? (
+          <p className="text-xs text-muted-foreground">
+            {t("file.limits", { megabytes: format.number(limits.maxMegabytes), rows: format.number(limits.maxRows) })}
+          </p>
+        ) : null}
+        <p className="text-xs text-muted-foreground">{t("file.templateHint")}</p>
       </div>
+      {error ? <Notice tone="fault" text={error} /> : null}
+    </div>
+  );
+}
 
-      {skipped > 0 ? (
-        <p className="text-xs text-muted-foreground">
-          {t("result.skipped", {
-            invalid: result.invalid,
-            duplicates: result.duplicate,
-          })}
-        </p>
-      ) : null}
+function Notice({ tone, title, text }: { tone: "info" | "warning" | "fault"; title?: string; text: string }) {
+  return (
+    <SystemNotice tone={tone} title={title}>
+      <p>{text}</p>
+    </SystemNotice>
+  );
+}
 
-      {result.blocked > 0 ? (
-        <p className="text-xs text-warning-ink">
-          {t("result.blocked", { count: result.blocked })}
-        </p>
-      ) : null}
+function PollNotice({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations("leadsPage.import");
+  return (
+    <div className="flex flex-wrap items-center gap-2" role="status">
+      <Notice tone="warning" text={t("pollFailed")} />
+      <Button variant="secondary" size="sm" title={t("retry")} onClick={onRetry} />
+    </div>
+  );
+}
 
-      {result.inboxSeedError ? (
-        <p className="text-xs text-warning-ink">{t("result.inboxSeedFailed")}</p>
-      ) : result.inboxSeedQueued ? (
-        <p className="text-xs text-muted-foreground">
-          {t("result.inboxSeedQueued", { count: result.inboxSeedQueued })}
-        </p>
-      ) : null}
+function ProgressBlock({
+  title,
+  detail,
+  stage,
+  percent,
+  label,
+}: {
+  title: string;
+  detail: string;
+  stage?: string;
+  percent: number;
+  label: string;
+}) {
+  return (
+    <div className="space-y-1.5" aria-live="polite">
+      <div className="flex items-baseline justify-between gap-3 text-sm">
+        <span className="font-semibold text-foreground">{title}</span>
+        <span className="readout tabular-nums text-muted-foreground">{detail}</span>
+      </div>
+      <ProgressTrack label={label} percent={percent} />
+      {stage ? <p className="text-2xs text-muted-foreground">{stage}</p> : null}
+    </div>
+  );
+}
 
-      {result.scriptedSeedError ? (
-        <p className="text-xs text-warning-ink">
-          {t("result.scriptedSeedFailed")}
+function RejectionsNotice({ count, busy, onDownload }: { count: number; busy: boolean; onDownload: () => void }) {
+  const t = useTranslations("leadsPage.import");
+  if (count <= 0) return null;
+  return (
+    <div className="space-y-2">
+      <Notice tone="info" text={t("rejections.notice", { count })} />
+      <Button
+        variant="secondary"
+        size="sm"
+        icon={<DownloadSimple weight="bold" />}
+        iconVisible
+        title={busy ? t("rejections.downloading") : t("rejections.download")}
+        onClick={onDownload}
+        disabled={busy}
+      />
+    </div>
+  );
+}
+
+function SeedOutcome({ job }: { job: LeadImportJob }) {
+  const t = useTranslations("leadsPage.import") as unknown as ImportTranslator;
+  const seed = job.seed;
+  if (!seed) return null;
+  const lines: { key: string; text: string; warn: boolean }[] = [];
+  if (seed.error) lines.push({ key: "error", text: t.has(`seed.errors.${seed.error}`) ? t(`seed.errors.${seed.error}`) : t("generic"), warn: true });
+  else if (seed.queued > 0) lines.push({ key: "queued", text: t("seed.queued", { count: seed.queued }), warn: false });
+  if (seed.scriptError) {
+    lines.push({
+      key: "scriptError",
+      text: t.has(`seed.errors.${seed.scriptError}`) ? t(`seed.errors.${seed.scriptError}`) : t("generic"),
+      warn: true,
+    });
+  } else if (seed.scriptedQueued) {
+    lines.push({ key: "scripted", text: t("seed.scriptedQueued", { count: seed.scriptedQueued }), warn: false });
+  }
+  if (seed.unconfirmed) lines.push({ key: "unconfirmed", text: t("seed.unconfirmed", { count: seed.unconfirmed }), warn: true });
+  if (lines.length === 0) return null;
+  return (
+    <div className="space-y-1">
+      {lines.map((line) => (
+        <p key={line.key} className={cn("text-xs", line.warn ? "text-warning-ink" : "text-muted-foreground")}>
+          {line.text}
         </p>
-      ) : result.scriptedSeedQueued ? (
-        <p className="text-xs text-muted-foreground">
-          {t("result.scriptedSeedQueued", { count: result.scriptedSeedQueued })}
-        </p>
-      ) : null}
+      ))}
     </div>
   );
 }

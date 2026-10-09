@@ -1,24 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
+import { getMediaGenerationAction, requestMediaGenerationAction } from "@/app/actions/media-generation";
 import TourGuide from "@/components/TourGuide";
+import { useScreenTurnEnd } from "@/components/ai-chat/screen-bridge";
+import { useStudioAgent, useStudioAgentKit } from "@/components/studio/agent/use-studio-agent";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import type { StudioEditorMountProps } from "@/components/studio/studio-editor-shell";
 import { studioVideoTourPalette, studioVideoTourSeed, studioVideoTourSteps } from "@/data/tour-studio-video";
 import { bindKeymap, videoActionFor, type VideoAction } from "@/lib/studio/keymap";
+import { videoAssetIds } from "@/lib/studio/media-clips";
 import { videoExtraActionFor, type VideoExtraAction } from "@/lib/studio/video-shortcuts";
 
+import { AgentFollower } from "./agent-follow";
 import type { EditorCommands } from "./editor-commands";
 import { VideoEditorContext, type VideoEditorContextValue } from "./editor-context";
 import { EditorToolbar } from "./editor-toolbar";
 import { Inspector } from "./inspector/inspector";
+import { VideoAgentCursor, VideoJobFollowers } from "./jobs";
 import { EditorNotice } from "./editor-notice";
 import { SidePanel } from "./panels/side-panel";
 import { Preview } from "./preview/preview";
 import { Timeline } from "./timeline/timeline";
 import { bindPaste } from "./paste-handler";
+import { browserFrames } from "./playback-controller";
+import { ProxyQueue } from "./proxy-queue";
 import { createVideoEditorRuntime } from "./runtime";
+import { createVideoAgent } from "./video-agent";
 
 export type VideoEditorProps = StudioEditorMountProps<"video">;
 
@@ -112,9 +122,21 @@ function useEditorRuntime({ project, studio }: VideoEditorProps): VideoEditorCon
 
 export function VideoEditor(props: VideoEditorProps) {
   const value = useEditorRuntime(props);
-  const { store, playback, audio, assets, commands, studio, frames } = value;
+  const { store, clock, playback, audio, assets, commands, studio, frames } = value;
   const studioRef = useRef(studio);
   const valueRef = useRef(value);
+  const kit = useStudioAgentKit();
+  const captionTrackName = useTranslations("studio.video.captions")("trackName");
+  const { view } = value;
+  const [follower] = useState(() => new AgentFollower({ view, seek: (ms) => playback.seek(ms), frames: browserFrames, now: () => performance.now(), reduceMotion: kit.reduceMotion }));
+  useEffect(() => follower.attach(), [follower]);
+  useScreenTurnEnd(useCallback(() => follower.resume(), [follower]));
+  const agent = useMemo(
+    () => createVideoAgent({ editor: { store, view, clock, assets, audio, playback, commands, frames }, presence: kit.presence, follower, captionTrackName, label: kit.label, reduceMotion: kit.reduceMotion }),
+    [store, view, clock, assets, audio, playback, commands, frames, kit, follower, captionTrackName],
+  );
+  useStudioAgent(props.project.id, "video", studio.name ?? props.project.name, agent);
+  const { presence } = kit;
 
   useEffect(() => {
     studioRef.current = studio;
@@ -126,6 +148,17 @@ export function VideoEditor(props: VideoEditorProps) {
   }, [assets]);
 
   useEffect(() => {
+    const proxies = new ProxyQueue({ request: requestMediaGenerationAction, get: getMediaGenerationAction, wait: (ms) => new Promise((done) => setTimeout(done, ms)), onReady: assets.rememberProxy });
+    const sync = () => proxies.want(videoAssetIds(store.getState().document));
+    sync();
+    const stop = store.subscribe(sync);
+    return () => {
+      stop();
+      proxies.dispose();
+    };
+  }, [store, assets]);
+
+  useEffect(() => {
     let saved = store.getState().document;
     return store.subscribe((state, previous) => {
       if (state.document !== previous.document) playback.documentChanged();
@@ -135,14 +168,22 @@ export function VideoEditor(props: VideoEditorProps) {
     });
   }, [store, playback]);
 
-  useEffect(() => bindKeymap(window, videoActionFor, (action) => runAction(action, valueRef.current, commands)), [commands]);
+  useEffect(
+    () =>
+      bindKeymap(window, videoActionFor, (action) => {
+        if (!presence.isBusy()) runAction(action, valueRef.current, commands);
+      }),
+    [commands, presence],
+  );
 
   useEffect(() => bindPaste(commands), [commands]);
 
   useEffect(
     () =>
-      bindKeymap(window, videoExtraActionFor, (action) => runExtraAction(action, commands)),
-    [commands],
+      bindKeymap(window, videoExtraActionFor, (action) => {
+        if (!presence.isBusy()) runExtraAction(action, commands);
+      }),
+    [commands, presence],
   );
 
   useEffect(
@@ -181,6 +222,8 @@ export function VideoEditor(props: VideoEditorProps) {
         </ResizablePanelGroup>
         <EditorNotice />
       </div>
+      <VideoJobFollowers />
+      <VideoAgentCursor presence={presence} />
       <TourGuide
         steps={studioVideoTourSteps}
         storageKey="tour_dismissed_studio_video"

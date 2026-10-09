@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyVideoDocument, newMediaClip, newOverlayClip, newShapeLayer, newTextLayer, type Clip, type VideoDocument } from "./document";
-import { KEYFRAME_LIMITS, type Keyframes } from "./keyframes";
+import { type Keyframes } from "./keyframes";
 import {
   applyToSelection,
   commonFields,
@@ -20,7 +20,7 @@ import {
   transformPatch,
   trimSelectionEnd,
 } from "./selection-edit";
-import { findClip, insertClip, updateTrack } from "./timeline";
+import { findClip, insertClip, timelineKeyframeCount, updateTrack } from "./timeline";
 import { parseDocument } from "./validate";
 
 const asset = "11111111-1111-4111-8111-111111111111";
@@ -125,7 +125,7 @@ describe("applyToSelection", () => {
     expect(result).toEqual({ ok: false, reason: "invalid" });
   });
 
-  it("refuses instead of partially applying when the timeline keyframe cap would pass", () => {
+  it("animates every selected clip however many keyframes the video already has", () => {
     const { doc, textA, textB } = fixture();
     const many = (offset: number): Keyframes => ({
       x: Array.from({ length: 32 }, (_, i) => ({ atMs: i * 10 + offset, value: 0.5, easing: "linear" as const })),
@@ -134,12 +134,12 @@ describe("applyToSelection", () => {
       rotation: Array.from({ length: 32 }, (_, i) => ({ atMs: i * 10 + offset, value: 0, easing: "linear" as const })),
       opacity: Array.from({ length: 32 }, (_, i) => ({ atMs: i * 10 + offset, value: 1, easing: "linear" as const })),
     });
-    expect(32 * 5 * 3).toBeGreaterThan(KEYFRAME_LIMITS.perTimeline);
     const first = applyToSelection(doc, [textA, textB], () => ({ keyframes: many(0) }));
     expect(first.ok).toBe(true);
     if (!first.ok) return;
     const image = first.document.tracks[0].clips.find((c) => c.type === "image")!.id;
-    expect(applyToSelection(first.document, [image], () => ({ keyframes: many(0) }))).toEqual({ ok: false, reason: "keyframeLimit" });
+    const second = applyToSelection(first.document, [image], () => ({ keyframes: many(0) }));
+    expect(second.ok && timelineKeyframeCount(second.document)).toBe(32 * 5 * 3);
   });
 
   it("passes refusals from the patch builder through", () => {

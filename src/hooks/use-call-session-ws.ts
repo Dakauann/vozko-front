@@ -27,6 +27,7 @@ import {
     type TransferTarget,
 } from "@/lib/call-session/transfer";
 import { callChannelOf, type CallChannel } from "@/lib/call-session/channel";
+import { isCallLive } from "@/lib/call-session/call-readiness";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ConnectionStatus } from "@/lib/conversations/types";
@@ -35,8 +36,15 @@ import {
     createReconnectController,
     type ReconnectController,
 } from "@/lib/ws/reconnect";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useDepartment } from "@/contexts/department-context";
+import {
+    dialerErrorCode,
+    microphoneErrorCode,
+    type DialerErrorCode,
+    type MicrophoneErrorCode,
+} from "@/lib/dialer/dial-string";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
@@ -50,6 +58,9 @@ export type CallSessionStatus = "ringing" | "answered" | "waiting_slot" | "ended
 export interface StartCallOptions {
     whatsAppPhoneId?: string;
     trunkId?: string;
+    leadId?: string;
+    callListItemId?: string;
+    requestId?: string;
 }
 
 export const CONNECTION_LOST_REASON = "connection_lost";
@@ -165,6 +176,12 @@ export function useCallSessionWs({
 }: UseCallSessionWsOptions): CallSessionApi {
     const { currentWorkspace } = useWorkspace();
     const { currentDepartment } = useDepartment();
+    const tDialerErrors = useTranslations("calling.dialer.errors");
+    const tDialerErrorsRef = useRef(tDialerErrors);
+
+    useEffect(() => {
+        tDialerErrorsRef.current = tDialerErrors;
+    }, [tDialerErrors]);
 
     const workspaceId = currentWorkspace?.id ?? "";
     const departmentId = currentDepartment?.id ?? "";
@@ -200,7 +217,7 @@ export function useCallSessionWs({
         return () => clearTimeout(timer);
     }, [incomingCall]);
 
-    const inCall = callState !== null && callState.status !== "ended";
+    const inCall = isCallLive(callState);
     useEffect(() => {
         if (!inCall) return;
         const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
@@ -257,6 +274,7 @@ export function useCallSessionWs({
         if (prevScopeRef.current !== scopeKey) {
             setCallState(null);
             setLastError(null);
+            setLastErrorCode(null);
             setPresence([]);
         }
         prevScopeRef.current = scopeKey;
@@ -309,10 +327,14 @@ export function useCallSessionWs({
 
     const startMicCapture = useCallback(async (): Promise<boolean> => {
         if (micStartedRef.current) return true;
-        if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-            const message = "Microphone not available in this browser.";
+        const refuseMicrophone = (code: MicrophoneErrorCode) => {
+            const message = tDialerErrorsRef.current(code);
             setLastError(message);
+            setLastErrorCode(code);
             toast.error(message);
+        };
+        if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+            refuseMicrophone("microphone_unsupported");
             return false;
         }
 
@@ -331,9 +353,8 @@ export function useCallSessionWs({
             const ctx = new AudioContext({ sampleRate: CALL_SAMPLE_RATE });
             captureContextRef.current = ctx;
             if (ctx.sampleRate !== CALL_SAMPLE_RATE) {
-                const message = `Call audio must run at ${CALL_SAMPLE_RATE} Hz PCM16, but the browser opened ${ctx.sampleRate} Hz.`;
-                setLastError(message);
-                toast.error(message);
+                console.error(`[CallSessionWS] Call audio needs ${CALL_SAMPLE_RATE} Hz, the browser opened ${ctx.sampleRate} Hz.`);
+                refuseMicrophone("call_audio_unsupported");
                 stopAudioPipeline();
                 return false;
             }
@@ -365,12 +386,7 @@ export function useCallSessionWs({
             return true;
         } catch (err) {
             console.error("[CallSessionWS] Microphone access error:", err);
-            const message =
-                err instanceof Error && err.name === "NotAllowedError"
-                    ? "Microphone permission denied. Allow access to make calls."
-                    : "Microphone access failed. Cannot start call audio.";
-            setLastError(message);
-            toast.error(message);
+            refuseMicrophone(microphoneErrorCode(err));
             stopAudioPipeline();
             return false;
         }
@@ -391,10 +407,10 @@ export function useCallSessionWs({
     const endCallOnConnectionLoss = useCallback(() => {
         setIncomingCall(null);
         const current = callStateRef.current;
-        if (!current || current.status === "ended") return;
+        if (!isCallLive(current)) return;
         stopAudioPipeline();
         setCallState((prev) =>
-            prev && prev.status !== "ended" ? { ...prev, status: "ended", reason: CONNECTION_LOST_REASON } : prev,
+            prev && isCallLive(prev) ? { ...prev, status: "ended", reason: CONNECTION_LOST_REASON } : prev,
         );
         clearEndedCallAfterDelay();
     }, [clearEndedCallAfterDelay, stopAudioPipeline]);
@@ -532,7 +548,8 @@ export function useCallSessionWs({
                     endCallOnConnectionLoss();
                     return;
                 }
-                toast.error(message);
+                const known = dialerErrorCode(event.payload.code ?? null);
+                toast.error(known ? tDialerErrorsRef.current(known) : message);
                 if (!callStateRef.current?.callId) {
                     stopAudioPipeline();
                     setCallState(null);
@@ -734,30 +751,30 @@ export function useCallSessionWs({
 
     const startCall = useCallback(
         (phoneNumber: string, options?: StartCallOptions) => {
-            const { whatsAppPhoneId, trunkId } = options ?? {};
+            const { whatsAppPhoneId, trunkId, leadId, callListItemId, requestId: chosenRequestId } = options ?? {};
+            const refuse = (code: DialerErrorCode) => {
+                const message = tDialerErrors(code);
+                setLastError(message);
+                setLastErrorCode(code);
+                toast.error(message);
+            };
             const target = phoneNumber.trim();
             if (!target) {
-                const message = "Phone number is required.";
-                setLastError(message);
-                toast.error(message);
+                refuse("number_required");
                 return;
             }
 
             if (wsRef.current?.readyState !== WebSocket.OPEN) {
-                const message = "Calling is offline. Reconnecting...";
-                setLastError(message);
-                toast.error(message);
+                refuse("call_service_offline");
                 return;
             }
 
-            if (callState && callState.status !== "ended") {
-                const message = "You already have an active call.";
-                setLastError(message);
-                toast.error(message);
+            if (isCallLive(callState)) {
+                toast.error(tDialerErrors("already_in_call"));
                 return;
             }
 
-            const requestId = crypto.randomUUID();
+            const requestId = chosenRequestId || crypto.randomUUID();
 
             setLastError(null);
             setLastErrorCode(null);
@@ -774,6 +791,8 @@ export function useCallSessionWs({
                 request_id: requestId,
                 ...(whatsAppPhoneId ? { whatsapp_phone_id: whatsAppPhoneId } : {}),
                 ...(trunkId ? { trunk_id: trunkId } : {}),
+                ...(leadId ? { lead_id: leadId } : {}),
+                ...(callListItemId ? { call_list_item_id: callListItemId } : {}),
             });
 
             void startMicCapture().then((ok) => {
@@ -782,7 +801,7 @@ export function useCallSessionWs({
                 }
             });
         },
-        [callState, send, startMicCapture],
+        [callState, send, startMicCapture, tDialerErrors],
     );
 
     const endCall = useCallback(() => {
@@ -796,8 +815,8 @@ export function useCallSessionWs({
     const acceptIncomingCall = useCallback(
         (offerId: string) => {
             if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-            if (callState && callState.status !== "ended") {
-                toast.error("Você já está em uma chamada.");
+            if (isCallLive(callState)) {
+                toast.error(tDialerErrors("already_in_call"));
                 return;
             }
             const offer = incomingCall?.offerId === offerId ? incomingCall : null;
@@ -824,7 +843,7 @@ export function useCallSessionWs({
                 });
             });
         },
-        [callState, incomingCall, send, startMicCapture],
+        [callState, incomingCall, send, startMicCapture, tDialerErrors],
     );
 
     const transferCall = useCallback(

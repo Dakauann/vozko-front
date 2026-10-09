@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CurrencyDollar, Trash, TrendUp } from "@/components/icons";
 import OpportunityLinkedConversations from "@/components/crm/OpportunityLinkedConversations";
@@ -19,7 +20,6 @@ import {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
-import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 
 import {
   createOpportunityAction,
@@ -29,7 +29,8 @@ import {
   unlinkOpportunityConversationAction,
 } from "@/app/actions/opportunities";
 import type { OpportunityConversationLink } from "@/lib/crm/opportunities";
-import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
+import { useAssignableMembers } from "@/hooks/use-assignable-members";
+import { useDealActorLabels } from "@/hooks/use-deal-actor-labels";
 import {
   dealActorName,
   formatValueCents,
@@ -39,10 +40,10 @@ import {
   type OpportunityColumn,
 } from "@/lib/crm/opportunities";
 import OpportunityHistory from "@/components/crm/OpportunityHistory";
+import CustomFieldInput from "@/components/crm/CustomFieldInput";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import { useAuth } from "@/contexts/auth-context";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { cn } from "@/lib/utils";
 
 interface OpportunityDrawerProps {
   open: boolean;
@@ -54,19 +55,23 @@ interface OpportunityDrawerProps {
   workspaceId?: string;
   defaultStageId?: string;
   defaultTitle?: string;
+  heading?: string;
+  leadId?: string;
   linkEntryId?: string;
   linkEntryType?: string;
-  onSaved: () => void;
+  createdNotice?: OpportunityCreatedNotice;
+  onSaved?: () => void;
 }
 
-const ACTOR_LABELS: DealActorLabels = {
-  ai: "Agente de IA",
-  workflow: "Fluxo",
-  system: "Sistema",
-  unknownMember: "Membro removido",
-};
+export interface OpportunityCreatedNotice {
+  message: string;
+  action?: { label: string; onClick: () => void };
+}
 
-const closedAtFormat = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+interface LinksOfDeal {
+  opportunityId: string;
+  links: OpportunityConversationLink[];
+}
 
 export default function OpportunityDrawer({
   open,
@@ -78,11 +83,16 @@ export default function OpportunityDrawer({
   workspaceId,
   defaultStageId,
   defaultTitle,
+  heading,
+  leadId,
   linkEntryId,
   linkEntryType,
+  createdNotice,
   onSaved,
 }: OpportunityDrawerProps) {
   const isEdit = !!opportunity;
+  const t = useTranslations("opportunityDrawer");
+  const actorLabels = useDealActorLabels();
   const { user } = useAuth();
   const { can } = useWorkspace();
   const currentUserId = user?.id ?? "";
@@ -97,44 +107,45 @@ export default function OpportunityDrawer({
   const [custom, setCustom] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [members, setMembers] = useState<AssignableMember[]>([]);
-  const [links, setLinks] = useState<OpportunityConversationLink[]>([]);
+  const [linksOfDeal, setLinksOfDeal] = useState<LinksOfDeal | null>(null);
+  const [draftSeed, setDraftSeed] = useState<string | null>(null);
+
+  const seed = open
+    ? JSON.stringify([opportunity?.id ?? "", opportunity?.version ?? 0, opportunity?.updatedAt ?? "", defaultTitle ?? "", defaultStageId ?? "", columns[0]?.id ?? "", currentUserId])
+    : null;
+  if (seed !== draftSeed) {
+    setDraftSeed(seed);
+    if (seed !== null) {
+      setTitle(opportunity?.title ?? defaultTitle ?? "");
+      setValueInput(opportunity ? String((opportunity.valueCents ?? 0) / 100).replace(".", ",") : "");
+      setStageId(opportunity?.stageId ?? defaultStageId ?? columns[0]?.id ?? "");
+      setOwnerId(opportunity?.ownerId ?? currentUserId);
+      setSource(opportunity?.source ?? "");
+      setLostReason(opportunity?.lostReasonId ?? "");
+      setCustom({ ...(opportunity?.customFields ?? {}) });
+    }
+  }
+
+  const { members, names: memberNames } = useAssignableMembers(open && !!workspaceId);
+
+  const linkedDealId = open ? (opportunity?.id ?? null) : null;
+  const links = linkedDealId && linksOfDeal?.opportunityId === linkedDealId ? linksOfDeal.links : [];
 
   useEffect(() => {
-    if (!open) return;
-    setTitle(opportunity?.title ?? defaultTitle ?? "");
-    setValueInput(opportunity ? String((opportunity.valueCents ?? 0) / 100).replace(".", ",") : "");
-    setStageId(opportunity?.stageId ?? defaultStageId ?? columns[0]?.id ?? "");
-    setOwnerId(opportunity?.ownerId ?? currentUserId);
-    setSource(opportunity?.source ?? "");
-    setLostReason(opportunity?.lostReasonId ?? "");
-    setCustom({ ...(opportunity?.customFields ?? {}) });
-  }, [open, opportunity, defaultStageId, defaultTitle, columns, currentUserId]);
-
-  useEffect(() => {
-    if (!open || !workspaceId) return;
+    if (!linkedDealId) return;
     let cancelled = false;
-    void listAssignableMembersAction(workspaceId, { pageSize: 200 }).then((res) => {
-      if (!cancelled) setMembers(res.members ?? []);
+    void listOpportunityConversationsAction(linkedDealId).then(({ links: read }) => {
+      if (!cancelled) setLinksOfDeal({ opportunityId: linkedDealId, links: read });
     });
     return () => {
       cancelled = true;
     };
-  }, [open, workspaceId]);
+  }, [linkedDealId]);
 
-  const reloadLinks = useCallback(async () => {
-    if (!opportunity) {
-      setLinks([]);
-      return;
-    }
-    const { links: l } = await listOpportunityConversationsAction(opportunity.id);
-    setLinks(l);
-  }, [opportunity]);
-
-  useEffect(() => {
-    if (open && opportunity) void reloadLinks();
-    else setLinks([]);
-  }, [open, opportunity, reloadLinks]);
+  const reloadLinks = useCallback(async (opportunityId: string) => {
+    const { links: read } = await listOpportunityConversationsAction(opportunityId);
+    setLinksOfDeal({ opportunityId, links: read });
+  }, []);
 
   const handleUnlink = useCallback(
     async (entryId: string, entryType: string) => {
@@ -145,12 +156,12 @@ export default function OpportunityDrawer({
         entryType,
       );
       if (!success) {
-        toast.error(error ?? "Não foi possível desvincular a conversa.");
+        toast.error(error ?? t("unlinkFailed"));
         return;
       }
-      await reloadLinks();
+      await reloadLinks(opportunity.id);
     },
-    [opportunity, reloadLinks],
+    [opportunity, reloadLinks, t],
   );
 
   const selectedColumn = useMemo(
@@ -160,20 +171,16 @@ export default function OpportunityDrawer({
   const needsLostReason = !!selectedColumn?.isLost;
   const needsValue = !!selectedColumn?.isWon;
 
-  const memberNames = useMemo(
-    () => new Map(members.map((m) => [m.userId, m.username?.trim() || m.email?.trim() || m.userId])),
-    [members],
-  );
   const stageNames = useMemo(() => new Map(columns.map((c) => [c.id, c.name])), [columns]);
 
   const memberOptions = useMemo(() => {
     const options = members.map((m) => ({ value: m.userId, label: memberNames.get(m.userId) ?? m.userId }));
     if (ownerId && !memberNames.has(ownerId)) {
       const resolved = ownerId === opportunity?.ownerId ? opportunity?.ownerName : undefined;
-      options.unshift({ value: ownerId, label: dealActorName(ownerId, memberNames, ACTOR_LABELS, resolved) ?? ownerId });
+      options.unshift({ value: ownerId, label: dealActorName(ownerId, memberNames, actorLabels, resolved) ?? ownerId });
     }
     return options;
-  }, [members, memberNames, ownerId, opportunity?.ownerId, opportunity?.ownerName]);
+  }, [members, memberNames, ownerId, opportunity?.ownerId, opportunity?.ownerName, actorLabels]);
 
   const setCustomValue = useCallback((key: string, value: unknown) => {
     setCustom((prev) => {
@@ -185,17 +192,17 @@ export default function OpportunityDrawer({
   }, []);
 
   const canSave =
-    !!stageId && (title.trim().length > 0 || !!opportunity?.leadId) && !saving;
+    !!stageId && (title.trim().length > 0 || !!opportunity?.leadId || (!isEdit && !!leadId)) && !saving;
 
   const handleSave = async () => {
     if (!canSave) return;
     if (needsLostReason && !lostReason.trim()) {
-      toast.error("Informe o motivo da perda para mover para uma etapa de perdido.");
+      toast.error(t("lostReasonMissing"));
       return;
     }
     const valueCents = parseBRLToCents(valueInput);
     if (needsValue && valueCents <= 0) {
-      toast.error("Informe o valor da oportunidade para marcá-la como ganha.");
+      toast.error(t("wonValueMissing"));
       return;
     }
     setSaving(true);
@@ -213,16 +220,16 @@ export default function OpportunityDrawer({
       });
       setSaving(false);
       if (conflict) {
-        toast.error(error ?? "Esta oportunidade foi alterada agora. Recarregue para ver a versão atual.");
+        toast.error(error ?? t("conflict"));
         onOpenChange(false);
-        onSaved();
+        onSaved?.();
         return;
       }
       if (error || !updated) {
-        toast.error(error ?? "Não foi possível salvar a oportunidade.");
+        toast.error(error ?? t("saveFailed"));
         return;
       }
-      toast.success("Oportunidade atualizada.");
+      toast.success(t("updated"));
     } else {
       const { opportunity: created, error } = await createOpportunityAction({
         pipelineId,
@@ -232,18 +239,20 @@ export default function OpportunityDrawer({
         ownerId: ownerId || undefined,
         source: source.trim() || undefined,
         customFields: Object.keys(custom).length ? custom : undefined,
+        leadId: leadId || undefined,
         linkEntryId: linkEntryId || undefined,
         linkEntryType: linkEntryType || undefined,
       });
       setSaving(false);
       if (error || !created) {
-        toast.error(error ?? "Não foi possível criar a oportunidade.");
+        toast.error(error ?? t("createFailed"));
         return;
       }
-      toast.success("Oportunidade criada.");
+      if (createdNotice?.action) toast.success(createdNotice.message, { action: createdNotice.action });
+      else toast.success(createdNotice?.message ?? t("created"));
     }
     onOpenChange(false);
-    onSaved();
+    onSaved?.();
   };
 
   const handleDelete = async () => {
@@ -252,12 +261,12 @@ export default function OpportunityDrawer({
     const { success, error } = await deleteOpportunityAction(opportunity.id);
     setDeleting(false);
     if (!success) {
-      toast.error(error ?? "Não foi possível excluir a oportunidade.");
+      toast.error(error ?? t("deleteFailed"));
       return;
     }
-    toast.success("Oportunidade excluída.");
+    toast.success(t("deleted"));
     onOpenChange(false);
-    onSaved();
+    onSaved?.();
   };
 
   const previewValue = formatValueCents(parseBRLToCents(valueInput));
@@ -275,12 +284,10 @@ export default function OpportunityDrawer({
             </span>
             <div className="min-w-0">
               <ElevatedSheetTitle className="text-lg">
-                {isEdit ? "Editar oportunidade" : "Nova oportunidade"}
+                {isEdit ? t("editTitle") : (heading ?? t("createTitle"))}
               </ElevatedSheetTitle>
               <ElevatedSheetDescription className="text-xs">
-                {isEdit
-                  ? "Atualize os dados, mova de etapa ou registre ganho/perda."
-                  : "Registre uma nova oportunidade no funil."}
+                {isEdit ? t("editDescription") : t("createDescription")}
               </ElevatedSheetDescription>
             </div>
           </div>
@@ -289,25 +296,25 @@ export default function OpportunityDrawer({
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
           <ElevatedInput
             id="opp-title"
-            label="Título"
+            label={t("title")}
             variant="outline"
             controlSize="sm"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Ex.: Contrato Acme, 10 licenças"
+            placeholder={t("titlePlaceholder")}
           />
 
           <div>
             <ElevatedInput
               id="opp-value"
-              label="Valor (R$)"
+              label={t("value")}
               variant="outline"
               controlSize="sm"
               value={valueInput}
               onChange={(e) => setValueInput(e.target.value)}
-              placeholder="0,00"
+              placeholder={t("valuePlaceholder")}
               inputMode="decimal"
-              error={needsValue && parseBRLToCents(valueInput) <= 0 ? "Obrigatório para ganho" : undefined}
+              error={needsValue && parseBRLToCents(valueInput) <= 0 ? t("valueRequired") : undefined}
             />
             {valueInput ? (
               <p className="mt-1 flex items-center gap-1 pl-1 text-xs text-muted-foreground">
@@ -318,7 +325,7 @@ export default function OpportunityDrawer({
           </div>
 
           <div className="space-y-1.5">
-            <label className="pl-1 text-sm font-medium text-foreground">Etapa</label>
+            <label className="pl-1 text-sm font-medium text-foreground">{t("stage")}</label>
             <ElevatedSelect value={stageId} onValueChange={setStageId} className="w-full">
               {columns.map((c) => (
                 <ElevatedSelectItem key={c.id} value={c.id}>
@@ -328,7 +335,7 @@ export default function OpportunityDrawer({
                       style={{ backgroundColor: c.color || "#94a3b8" }}
                     />
                     {c.name}
-                    {c.isWon ? " • ganho" : c.isLost ? " • perdido" : ""}
+                    {c.isWon ? ` • ${t("stageWon")}` : c.isLost ? ` • ${t("stageLost")}` : ""}
                   </span>
                 </ElevatedSelectItem>
               ))}
@@ -338,36 +345,36 @@ export default function OpportunityDrawer({
           {needsLostReason ? (
             <ElevatedInput
               id="opp-lost-reason"
-              label="Motivo da perda"
+              label={t("lostReason")}
               variant="outline"
               controlSize="sm"
               value={lostReason}
               onChange={(e) => setLostReason(e.target.value)}
-              placeholder="Ex.: preço, concorrente, sem orçamento..."
-              error={needsLostReason && !lostReason.trim() ? "Obrigatório" : undefined}
+              placeholder={t("lostReasonPlaceholder")}
+              error={needsLostReason && !lostReason.trim() ? t("required") : undefined}
             />
           ) : null}
 
           <div className="space-y-1.5">
             {canAssignOthers ? (
               <ElevatedCommandSelect
-                label="Responsável"
+                label={t("owner")}
                 options={memberOptions}
                 value={ownerId || null}
                 onValueChange={(v) => setOwnerId(v)}
-                searchPlaceholder="Buscar responsável..."
-                emptyMessage="Nenhum membro"
+                searchPlaceholder={t("ownerSearch")}
+                emptyMessage={t("ownerEmpty")}
                 fullWidth
               />
             ) : (
               <div>
-                <label className="pl-1 text-sm font-medium text-foreground">Responsável</label>
+                <label className="pl-1 text-sm font-medium text-foreground">{t("owner")}</label>
                 <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
                   <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold uppercase text-foreground">
                     {(memberOptions.find((m) => m.value === ownerId)?.label ?? "?").charAt(0)}
                   </span>
                   <span className="truncate">
-                    {memberOptions.find((m) => m.value === ownerId)?.label ?? "Você"}
+                    {memberOptions.find((m) => m.value === ownerId)?.label ?? t("ownerYou")}
                   </span>
                 </div>
               </div>
@@ -376,18 +383,18 @@ export default function OpportunityDrawer({
 
           <ElevatedInput
             id="opp-source"
-            label="Origem"
+            label={t("source")}
             variant="outline"
             controlSize="sm"
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            placeholder="Ex.: WhatsApp, indicação, anúncio..."
+            placeholder={t("sourcePlaceholder")}
           />
 
           {customFields.length > 0 ? (
             <div className="space-y-4 border-t border-border pt-4">
               <p className="text-2xs font-semibold text-muted-foreground">
-                Campos personalizados
+                {t("customFields")}
               </p>
               {customFields.map((f) => (
                 <CustomFieldInput
@@ -400,7 +407,7 @@ export default function OpportunityDrawer({
             </div>
           ) : null}
 
-          {opportunity ? <DealAuthorship opportunity={opportunity} members={memberNames} /> : null}
+          {opportunity ? <DealAuthorship opportunity={opportunity} members={memberNames} actorLabels={actorLabels} /> : null}
 
           {isEdit ? <OpportunityLinkedConversations links={links} onUnlink={handleUnlink} /> : null}
 
@@ -410,7 +417,7 @@ export default function OpportunityDrawer({
               updatedAt={opportunity.updatedAt}
               members={memberNames}
               stageNames={stageNames}
-              actorLabels={ACTOR_LABELS}
+              actorLabels={actorLabels}
             />
           ) : null}
         </div>
@@ -424,7 +431,7 @@ export default function OpportunityDrawer({
               className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50"
             >
               <Trash weight="bold" className="h-3.5 w-3.5" />
-              {deleting ? "Excluindo..." : "Excluir"}
+              {deleting ? t("deleting") : t("delete")}
             </button>
           ) : (
             <span />
@@ -433,13 +440,13 @@ export default function OpportunityDrawer({
             <ElevatedButton
               variant="outline-subtle"
               size="sm"
-              title="Cancelar"
+              title={t("cancel")}
               onClick={() => onOpenChange(false)}
             />
             <ElevatedButton
               variant="primary"
               size="sm"
-              title={saving ? "Salvando..." : isEdit ? "Salvar" : "Criar"}
+              title={saving ? t("saving") : isEdit ? t("save") : t("create")}
               onClick={handleSave}
               disabled={!canSave}
             />
@@ -453,120 +460,36 @@ export default function OpportunityDrawer({
 function DealAuthorship({
   opportunity,
   members,
+  actorLabels,
 }: {
   opportunity: Opportunity;
   members: ReadonlyMap<string, string>;
+  actorLabels: DealActorLabels;
 }) {
-  const createdBy = dealActorName(opportunity.createdBy, members, ACTOR_LABELS, opportunity.createdByName);
-  const closedBy = dealActorName(opportunity.closedBy, members, ACTOR_LABELS, opportunity.closedByName);
-  const closedAt = opportunity.status !== "open" && opportunity.closeDate ? closedAtFormat.format(new Date(opportunity.closeDate)) : null;
+  const t = useTranslations("opportunityDrawer");
+  const format = useFormatter();
+  const createdBy = dealActorName(opportunity.createdBy, members, actorLabels, opportunity.createdByName);
+  const closedBy = dealActorName(opportunity.closedBy, members, actorLabels, opportunity.closedByName);
+  const closedAt =
+    opportunity.status !== "open" && opportunity.closeDate
+      ? format.dateTime(new Date(opportunity.closeDate), { day: "2-digit", month: "short", year: "numeric" })
+      : null;
   if (!createdBy && !closedAt) return null;
 
   return (
     <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-border pt-4 text-xs">
       {createdBy ? (
         <>
-          <dt className="text-muted-foreground">Criado por</dt>
+          <dt className="text-muted-foreground">{t("createdBy")}</dt>
           <dd className="text-foreground">{createdBy}</dd>
         </>
       ) : null}
       {closedAt ? (
         <>
-          <dt className="text-muted-foreground">{opportunity.status === "won" ? "Ganho em" : "Perdido em"}</dt>
-          <dd className="text-foreground">
-            {closedAt}
-            {closedBy ? ` por ${closedBy}` : null}
-          </dd>
+          <dt className="text-muted-foreground">{opportunity.status === "won" ? t("wonAt") : t("lostAt")}</dt>
+          <dd className="text-foreground">{closedBy ? t("closedBy", { date: closedAt, name: closedBy }) : closedAt}</dd>
         </>
       ) : null}
     </dl>
-  );
-}
-
-function CustomFieldInput({
-  field,
-  value,
-  onChange,
-}: {
-  field: CustomFieldDefinition;
-  value: unknown;
-  onChange: (value: unknown) => void;
-}) {
-  const label = field.required ? `${field.label} *` : field.label;
-
-  if (field.type === "select") {
-    return (
-      <div className="space-y-1.5">
-        <label className="pl-1 text-sm font-medium text-foreground">{label}</label>
-        <ElevatedSelect
-          value={typeof value === "string" ? value : ""}
-          onValueChange={(v) => onChange(v)}
-          className="w-full"
-        >
-          {(field.options ?? []).map((opt) => (
-            <ElevatedSelectItem key={opt} value={opt}>
-              {opt}
-            </ElevatedSelectItem>
-          ))}
-        </ElevatedSelect>
-      </div>
-    );
-  }
-
-  if (field.type === "boolean") {
-    const checked = value === true;
-    return (
-      <label className="flex cursor-pointer items-center gap-2.5 pl-1">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={checked}
-          onClick={() => onChange(!checked)}
-          className={cn(
-            "relative h-5 w-9 flex-shrink-0 rounded-full transition-colors",
-            checked ? "bg-primary" : "bg-muted",
-          )}
-        >
-          <span
-            className={cn(
-              "absolute top-0.5 h-4 w-4 rounded-full shadow-sm transition-transform",
-              checked ? "translate-x-4 bg-primary-foreground" : "translate-x-0.5 bg-foreground",
-            )}
-          />
-        </button>
-        <span className="text-sm font-medium text-foreground">{label}</span>
-      </label>
-    );
-  }
-
-  if (field.type === "date") {
-    return (
-      <ElevatedDatePicker
-        id={`cf-${field.key}`}
-        label={label}
-        value={typeof value === "string" ? value.slice(0, 10) : ""}
-        onChange={(v: string) => onChange(v || undefined)}
-      />
-    );
-  }
-
-  return (
-    <ElevatedInput
-      id={`cf-${field.key}`}
-      label={label}
-      variant="outline"
-      controlSize="sm"
-      type={field.type === "number" ? "number" : "text"}
-      value={value === undefined || value === null ? "" : String(value)}
-      onChange={(e) =>
-        onChange(
-          field.type === "number"
-            ? e.target.value === ""
-              ? undefined
-              : Number(e.target.value)
-            : e.target.value,
-        )
-      }
-    />
   );
 }

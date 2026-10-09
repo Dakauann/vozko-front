@@ -16,7 +16,7 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PencilSimple } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { inputToMinor, minorToInput } from "@/lib/advertising/money";
 import { spendCapBlockerKey } from "@/lib/advertising/delivery";
 import { activeSpendCap, spendCapProblem, spendCapUsage } from "@/lib/advertising/spend-cap";
@@ -39,7 +39,6 @@ function SpendCapForm({
   onSaved: (account: AdAccount) => void;
 }) {
   const t = useTranslations("adsManager.spendCap");
-  const { toast } = useToast();
   const fmt = useAdsFormat();
   const errorText = useAdsErrorText();
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -59,7 +58,7 @@ function SpendCapForm({
         return;
       }
       onSaved(result.data);
-      toast({ title: next === null ? t("removed") : t("saved") });
+      toast(next === null ? t("removed") : t("saved"));
     });
   };
 

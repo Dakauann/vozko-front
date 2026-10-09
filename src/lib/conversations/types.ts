@@ -1,6 +1,7 @@
 import type { Analysis } from '@/lib/analysis/types';
 import type { AdOrigin } from './ad-origin';
 import type { LiveRead } from '@/lib/live-decisions/types';
+import type { LeadsBulkUpdateEvent, LeadUpdateEvent } from '@/lib/leads/types';
 
 
 export interface Stage {
@@ -190,6 +191,7 @@ export interface InboxEntry {
     entry_id: string;
     entry_type: EntryType;
     lead_id?: string;
+    lead_version?: number;
     lead_name: string;
     lead_picture?: string;
     lead_number: string;
@@ -286,8 +288,17 @@ export interface ConversationMessage {
     delivery_status?: 'sent' | 'delivered' | 'read' | 'failed';
     reply_to_message_id?: string;
     metadata?: TemplateMessageMetadata;
+    location?: MessageLocation;
     created_at: string;
     updated_at: string;
+}
+
+export interface MessageLocation {
+    latitude: number;
+    longitude: number;
+    name?: string;
+    address?: string;
+    candidate: boolean;
 }
 
 
@@ -437,6 +448,9 @@ export interface WsEntryUpdatePayload {
 export interface WsSubscribedPayload {
     entry_id: string;
     entry_type: EntryType;
+    lead_id?: string;
+    lead_version?: number;
+    blocked?: boolean;
     lead_name: string;
     lead_number: string;
     lead_picture?: string;
@@ -520,6 +534,7 @@ export interface ConversationOutcome {
 export interface WsErrorPayload {
     code: string;
     message: string;
+    request_id?: string;
     entry_id?: string;
     entry_type?: EntryType;
     status?: 'new' | 'ongoing' | 'finished';
@@ -687,6 +702,8 @@ export type WsServerEvent =
     | { type: 'conversation:conversation_status_counts_update'; payload: WsConversationStatusCountsUpdatePayload }
     | { type: 'conversation:view_switched'; payload: WsViewSwitchedPayload }
     | { type: 'conversation:analysis_update'; payload: WsAnalysisUpdatePayload }
+    | { type: 'conversation:lead_update'; payload: LeadUpdateEvent }
+    | { type: 'conversation:leads_bulk_update'; payload: LeadsBulkUpdateEvent }
     | { type: 'conversation:error'; payload: WsErrorPayload };
 
 
@@ -726,6 +743,9 @@ export interface ActiveConversation {
     entry_id: string;
     entry_type: EntryType;
     campaign_id?: string;
+    lead_id?: string;
+    lead_version?: number;
+    blocked?: boolean;
     lead_name: string;
     lead_picture?: string;
     lead_number: string;

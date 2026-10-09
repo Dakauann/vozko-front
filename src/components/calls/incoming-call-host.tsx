@@ -6,6 +6,7 @@ import { CALL_ACTION, CallContextNote, CallerIdentity } from "@/components/calls
 import { PhoneDisconnect, PhoneIncoming } from "@/components/icons";
 import { useCallSession } from "@/contexts/call-session-context";
 import { useOfferRing } from "@/hooks/use-call-clock";
+import { isCallLive } from "@/lib/call-session/call-readiness";
 import { callChannelOf } from "@/lib/call-session/channel";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,7 @@ export function IncomingCallHost() {
 
   if (!incomingCall) return null;
 
-  const busy = callState !== null && callState.status !== "ended";
+  const busy = isCallLive(callState);
   const channel = callChannelOf(incomingCall.channel);
   const transfer = incomingCall.transfer;
   const resume = incomingCall.resume === true;

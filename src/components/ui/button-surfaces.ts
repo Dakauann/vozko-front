@@ -7,6 +7,8 @@ export const BUTTON_PRIMARY = cn(
   "active:bg-[hsl(var(--primary-active))] active:shadow-button-primary",
 );
 
+export const CHIP_CHOSEN = "border-transparent bg-primary text-primary-foreground shadow-button-primary hover:bg-primary";
+
 export const BUTTON_SECONDARY = cn(
   "bg-card text-foreground shadow-quiet",
   "hover:shadow-quiet-hover",

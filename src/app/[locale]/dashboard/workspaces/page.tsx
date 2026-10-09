@@ -37,7 +37,7 @@ import type { User } from "@/lib/users/types";
 import { cn } from "@/lib/utils";
 import { getUserByIdAction } from "@/app/actions/users";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 function formatDate(value?: string | null) {
@@ -200,7 +200,6 @@ function MembersPanel({ workspaceId }: { workspaceId: string }) {
 
 export default function AdminWorkspacesPage() {
   const t = useTranslations("adminWorkspaces");
-  const { toast } = useToast();
   const [searchMode, setSearchMode] = useState<"workspace" | "email">(
     "workspace",
   );
@@ -435,10 +434,7 @@ export default function AdminWorkspacesPage() {
                     );
                     setCancellingId(null);
                     if (result.error) {
-                      toast({
-                        title: result.error,
-                        variant: "destructive",
-                      });
+                      toast.error(result.error);
                       return;
                     }
                     setWorkspaces((prev) =>
@@ -448,7 +444,7 @@ export default function AdminWorkspacesPage() {
                           : w,
                       ),
                     );
-                    toast({ title: t("plan.cancelSuccess") });
+                    toast(t("plan.cancelSuccess"));
                   }}
                   className="ml-1 inline-flex items-center justify-center rounded-lg border border-destructive bg-destructive p-1.5 text-destructive-foreground transition-all hover:bg-destructive hover:border-destructive disabled:opacity-50"
                   title={t("plan.cancel")}

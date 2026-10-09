@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newShapeLayer, type Layer } from "./document";
+import { emptyArtboard, newShapeLayer, type Layer } from "./document";
 import { snapMove, snapTargets } from "./snapping";
 
 const canvas = { width: 1000, height: 1000 };
@@ -11,7 +11,7 @@ function layer(id: string, x: number, y: number, w: number, h: number, extra: Pa
 
 describe("snapTargets", () => {
   it("collects canvas edges and center plus the edges and centers of other visible layers", () => {
-    const doc = { ...emptyImageDocument(canvas), layers: [layer("a", 0.2, 0.3, 0.2, 0.2), layer("b", 0.8, 0.8, 0.1, 0.1, { hidden: true }), layer("m", 0.5, 0.5, 0.1, 0.1)] };
+    const doc = { ...emptyArtboard(canvas), layers: [layer("a", 0.2, 0.3, 0.2, 0.2), layer("b", 0.8, 0.8, 0.1, 0.1, { hidden: true }), layer("m", 0.5, 0.5, 0.1, 0.1)] };
     const targets = snapTargets(doc, ["m"]);
     expect(targets.x).toEqual([0, 500, 1000, 100, 200, 300]);
     expect(targets.y).toEqual([0, 500, 1000, 200, 300, 400]);

@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { DOCK_HEADER_ICON_BUTTON as HEADER_ICON_BUTTON, PANEL_EASE } from "@/components/docks/dock-chrome";
 import { ArrowSquareOut, ArrowsInSimple, ArrowsOutSimple, Minus, Plus } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { Link, usePathname } from "@/i18n/routing";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { speechLang } from "@/lib/voice/speech-text";
 
 import { useAssistantContext } from "./assistant-context";
+import { ChatAnswerContext } from "./ask-card";
 import { AssistantLauncher } from "./assistant-launcher";
 import { Composer } from "./composer";
 import { MessageBubble, useBubbleLabels } from "./message-list";
@@ -24,29 +26,46 @@ import { useChatAttachments } from "./use-chat-attachments";
 import { useDockOpen } from "./use-dock-open";
 import { useChatConversation } from "./use-chat-conversation";
 import { useChatModel } from "./use-chat-model";
+import { StudioModePicker, useStudioMode } from "./studio-mode";
 import { useResizableSheet } from "./use-resizable-sheet";
 import { useStickToBottom } from "./use-stick-to-bottom";
 import { starterGroupsFor } from "./starter-groups";
 import { StarterList } from "./starter-list";
+import { ThreadCostBadge } from "./thread-cost";
 import { useVoiceMode } from "./voice/use-voice-mode";
 
 const SHEET_WIDTH_KEY = "assistant-dock:sheet-width";
 const FULL_CHAT_PATH = "/dashboard/ai-chat";
 
 export function AssistantDock() {
-  const { can, permissionsLoading } = useWorkspace();
+  const allowed = useSettledPermission("ai_chat", "create");
   const pathname = usePathname();
-  if (permissionsLoading || !can("ai_chat", "create") || pathname.startsWith(FULL_CHAT_PATH)) return null;
+  if (!allowed || pathname.startsWith(FULL_CHAT_PATH)) return null;
   return <Dock />;
 }
 
 function useCopy(context: AssistantContext | null) {
   const ta = useTranslations("metricsOps.attendance.assistant");
   const td = useTranslations("aiChatPage.dock");
+  const ts = useTranslations("studio.agent");
+  const tl = useTranslations("leadsPage.assistant");
+  if (context?.kind === "leads") {
+    return { greeting: tl("greeting"), description: tl("description"), title: td("title") };
+  }
   if (context?.kind === "attendance") {
     return { greeting: ta("greeting"), description: ta("description"), title: ta("title") };
   }
+  if (context?.kind === "studio") {
+    return { greeting: ts(`greeting.${context.view.projectKind}`), description: ts(`description.${context.view.projectKind}`), title: ts("title") };
+  }
   return { greeting: td("greeting"), description: td("description"), title: td("title") };
+}
+
+function contextChips(context: AssistantContext | null): string[] {
+  if (context?.kind === "studio") return [context.projectName];
+  if (context?.kind === "leads") return [context.scope.filter, context.scope.selected].filter((v): v is string => Boolean(v));
+  const scope = context?.scope;
+  return scope ? [scope.period, scope.department, scope.member, scope.channel, scope.campaign].filter((v): v is string => Boolean(v)) : [];
 }
 
 function Dock() {
@@ -62,8 +81,11 @@ function Dock() {
   const [open, setOpen] = useDockOpen();
   const [input, setInput] = useState("");
   const { model, models, pricing, changeModel } = useChatModel();
+  const [studioMode, setStudioMode] = useStudioMode();
+  const inStudio = context?.kind === "studio";
   const chat = useChatConversation({
     view: context?.view,
+    mode: inStudio ? studioMode : undefined,
     rememberKey: currentWorkspace ? activeThreadKey(currentWorkspace.id) : undefined,
     createError: tc("createError"),
   });
@@ -95,6 +117,8 @@ function Dock() {
     [submit],
   );
 
+  const answer = useCallback((content: string) => submit(content), [submit]);
+
   const voice = useVoiceMode({
     messages: chat.messages,
     streaming: chat.streaming,
@@ -125,10 +149,7 @@ function Dock() {
 
   const isEmpty = chat.messages.length === 0;
   const sizeStyle: CSSProperties = card.pushing ? { width: card.width } : { left: 0 };
-  const scope = context?.scope;
-  const chips = scope
-    ? [scope.period, scope.department, scope.member, scope.channel, scope.campaign].filter((v): v is string => Boolean(v))
-    : [];
+  const chips = contextChips(context);
 
   return (
     <>
@@ -209,19 +230,22 @@ function Dock() {
                   <Minus weight="bold" className="h-3.5 w-3.5" />
                 </button>
               </div>
-              {chips.length > 0 ? (
-                <dl className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-2xs">
-                  <dt className="sr-only">{ta("scope")}</dt>
-                  {chips.map((value, i) => (
-                    <dd
-                      key={i}
-                      title={value}
-                      className="max-w-[10rem] truncate rounded-full border border-border bg-muted px-2 py-0.5 font-medium text-muted-foreground"
-                    >
-                      {value}
-                    </dd>
-                  ))}
-                </dl>
+              {chips.length > 0 || chat.activeId ? (
+                <div className="mt-2 flex min-w-0 items-center gap-2">
+                  <dl className="flex min-w-0 flex-1 flex-wrap items-center gap-1 text-2xs">
+                    <dt className="sr-only">{ta("scope")}</dt>
+                    {chips.map((value, i) => (
+                      <dd
+                        key={i}
+                        title={value}
+                        className="max-w-[10rem] truncate rounded-full border border-border bg-muted px-2 py-0.5 font-medium text-muted-foreground"
+                      >
+                        {value}
+                      </dd>
+                    ))}
+                  </dl>
+                  <ThreadCostBadge threadId={chat.activeId} streaming={chat.streaming} />
+                </div>
               ) : null}
             </header>
 
@@ -235,22 +259,25 @@ function Dock() {
                   </div>
                 </div>
               ) : (
-                <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-                  {chat.messages.map((m, i) => (
-                    <MessageBubble
-                      key={m.id}
-                      message={m}
-                      live={chat.streaming && i === chat.messages.length - 1}
-                      onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)}
-                      onReject={(id) => void chat.resolveAction(id, "reject", model)}
-                      onEditImage={editImage}
-                      labels={labels}
-                    />
-                  ))}
-                </div>
+                <ChatAnswerContext.Provider value={answer}>
+                  <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+                    {chat.messages.map((m, i) => (
+                      <MessageBubble
+                        key={m.id}
+                        message={m}
+                        live={chat.streaming && i === chat.messages.length - 1}
+                        onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)}
+                        onReject={(id) => void chat.resolveAction(id, "reject", model)}
+                        onEditImage={editImage}
+                        labels={labels}
+                      />
+                    ))}
+                  </div>
+                </ChatAnswerContext.Provider>
               )}
             </div>
 
+            {inStudio ? <StudioModePicker mode={studioMode} onChange={setStudioMode} disabled={chat.streaming} /> : null}
             <Composer
               docked
               input={input}

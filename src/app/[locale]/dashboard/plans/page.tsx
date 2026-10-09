@@ -53,7 +53,7 @@ import { fetchWorkspaces } from "@/lib/workspace/client";
 import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
   adminGetAffiliateAction,
@@ -244,7 +244,6 @@ export default function DashboardPlansPage() {
 
 export function AdminPlansManager() {
   const t = useTranslations("adminPlans");
-  const { toast } = useToast();
 
   const [plans, setPlans] = React.useState<PlanDefinition[]>([]);
   const [pricingDefaults, setPricingDefaults] = React.useState<PricingItem[]>(
@@ -443,23 +442,17 @@ export function AdminPlansManager() {
 
     const rate = resolveExchangeRate(exchangeRate);
     if (rate == null) {
-      toast({
-        title: t("toast.validation.exchangeRate"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.validation.exchangeRate"));
       return;
     }
 
     const payload = toMutationInput(draft, rate);
     if (!payload.name) {
-      toast({ title: t("toast.validation.name"), variant: "destructive" });
+      toast.error(t("toast.validation.name"));
       return;
     }
     if (!payload.pricingItems || payload.pricingItems.length === 0) {
-      toast({
-        title: t("toast.validation.pricingItems"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.validation.pricingItems"));
       return;
     }
 
@@ -471,27 +464,22 @@ export function AdminPlansManager() {
           : await updateAdminPlanRequest(selectedPlanId, payload);
 
       if (result.error || !result.plan) {
-        toast({
-          title: t("toast.error.save"),
-          description: result.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("toast.error.save"), { description: result.error ?? undefined });
         return;
       }
 
-      toast({
-        title:
-          selectedPlanId === "new" || !selectedPlanId
-            ? t("toast.success.created")
-            : t("toast.success.updated"),
-      });
+      toast(
+        selectedPlanId === "new" || !selectedPlanId
+          ? t("toast.success.created")
+          : t("toast.success.updated"),
+      );
       await loadData(result.plan.id);
     } catch {
-      toast({ title: t("toast.error.save"), variant: "destructive" });
+      toast.error(t("toast.error.save"));
     } finally {
       setSaving(false);
     }
-  }, [draft, exchangeRate, loadData, selectedPlanId, t, toast]);
+  }, [draft, exchangeRate, loadData, selectedPlanId, t]);
 
   const handleArchive = React.useCallback(async () => {
     if (!selectedPlan || selectedPlan.archivedAt) {
@@ -509,22 +497,18 @@ export function AdminPlansManager() {
     try {
       const result = await archiveAdminPlanRequest(selectedPlan.id);
       if (result.error || !result.success) {
-        toast({
-          title: t("toast.error.archive"),
-          description: result.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("toast.error.archive"), { description: result.error ?? undefined });
         return;
       }
 
-      toast({ title: t("toast.success.archived") });
+      toast(t("toast.success.archived"));
       await loadData("new");
     } catch {
-      toast({ title: t("toast.error.archive"), variant: "destructive" });
+      toast.error(t("toast.error.archive"));
     } finally {
       setArchiving(false);
     }
-  }, [loadData, selectedPlan, t, toast]);
+  }, [loadData, selectedPlan, t]);
 
   const handleSaveVisibility = React.useCallback(async () => {
     if (!selectedPlan) return;
@@ -539,22 +523,18 @@ export function AdminPlansManager() {
       });
 
       if (result.error) {
-        toast({
-          title: t("toast.error.visibility"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.error.visibility"), { description: result.error });
         return;
       }
 
-      toast({ title: t("toast.success.visibility") });
+      toast(t("toast.success.visibility"));
       await loadData(selectedPlan.id);
     } catch {
-      toast({ title: t("toast.error.visibility"), variant: "destructive" });
+      toast.error(t("toast.error.visibility"));
     } finally {
       setSavingVisibility(false);
     }
-  }, [allowedWorkspaces, loadData, selectedPlan, t, toast, visibilityGlobal]);
+  }, [allowedWorkspaces, loadData, selectedPlan, t, visibilityGlobal]);
 
   const allowedIds = React.useMemo(
     () => new Set(allowedWorkspaces.map((w) => w.id)),
@@ -652,21 +632,17 @@ export function AdminPlansManager() {
         exclusiveAffiliate?.id ?? null,
       );
       if (result.error || !result.plan) {
-        toast({
-          title: t("exclusive.error.save"),
-          description: result.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("exclusive.error.save"), { description: result.error ?? undefined });
         return;
       }
-      toast({ title: t("exclusive.success") });
+      toast(t("exclusive.success"));
       await loadData(selectedPlan.id);
     } catch {
-      toast({ title: t("exclusive.error.save"), variant: "destructive" });
+      toast.error(t("exclusive.error.save"));
     } finally {
       setSavingExclusive(false);
     }
-  }, [exclusiveAffiliate, loadData, selectedPlan, t, toast]);
+  }, [exclusiveAffiliate, loadData, selectedPlan, t]);
 
   if (loading) {
     return <ScreenLoader fit="screen" label={t("loading")} />;

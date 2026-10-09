@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import TooltipWrapper from "@/components/ui/tooltip-wrapper";
+import { BulkActionButton } from "@/components/selection/GuardedAction";
 import { Link } from "@/i18n/routing";
 import { isCreativeField, type BulkMode } from "@/lib/advertising/manager-bulk";
 import type { ActionState } from "@/lib/advertising/manager-toolbar";
@@ -46,15 +46,6 @@ export interface ToolbarHandlers {
   onExport: () => void;
 }
 
-function Guarded({ state, blockerText, children }: { state: ActionState; blockerText: BlockerText; children: ReactNode }) {
-  const reason = blockerText(state);
-  return (
-    <TooltipWrapper content={reason ?? ""} enabled={!!reason}>
-      {children}
-    </TooltipWrapper>
-  );
-}
-
 function ToolButton({
   state,
   blockerText,
@@ -73,23 +64,16 @@ function ToolButton({
   iconOnly?: boolean;
 }) {
   return (
-    <Guarded state={state} blockerText={blockerText}>
-      <button
-        type="button"
-        disabled={!state.enabled}
-        onClick={onClick}
-        aria-label={label}
-        title={iconOnly ? label : undefined}
-        className={cn(
-          TOOLBAR_CONTROL,
-          primary && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
-          iconOnly && "w-8 justify-center px-0",
-        )}
-      >
-        {icon}
-        {iconOnly ? null : <span className={primary ? undefined : "max-sm:sr-only"}>{label}</span>}
-      </button>
-    </Guarded>
+    <BulkActionButton
+      state={state}
+      reasonText={blockerText}
+      icon={icon}
+      label={label}
+      onClick={onClick}
+      primary={primary}
+      iconOnly={iconOnly}
+      labelClassName={primary ? undefined : "max-sm:sr-only"}
+    />
   );
 }
 

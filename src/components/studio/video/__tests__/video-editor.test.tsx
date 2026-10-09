@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -16,14 +16,10 @@ vi.mock("@/app/actions/media-generation", () => ({
   getMediaGenerationAction: vi.fn(),
 }));
 
-const exportStudioVideo = vi.fn();
+const saveStudioExport = vi.fn();
 vi.mock("@/app/actions/studio", () => ({
-  exportStudioVideoAction: (...args: unknown[]) => exportStudioVideo(...args),
-}));
-
-vi.mock("@/components/studio/canvas/rasterize", () => ({
-  rasterizeLayer: vi.fn(async () => new Blob(["png"], { type: "image/png" })),
-  uploadRaster: vi.fn(async () => ({ data: { mediaId: "raster-1", mediaUrl: "https://cdn/raster.png" } })),
+  saveStudioExportAction: (...args: unknown[]) => saveStudioExport(...args),
+  reportStudioCapabilitiesAction: vi.fn(async () => ({ data: true })),
 }));
 
 vi.mock("react-konva", () => {
@@ -87,20 +83,15 @@ describe("VideoEditor", () => {
     expect(undone.tracks[0].clips).toHaveLength(1);
   });
 
-  it("exports the saved version with the overlay rasters", async () => {
-    exportStudioVideo.mockResolvedValue({ data: { id: "job-1", kind: "video", status: "queued", referenceMediaIds: [], createdAt: "", updatedAt: "" } });
+  it("saves, then explains when this browser cannot render the export, sending nothing", async () => {
     const studio = mount();
     fireEvent.click(screen.getByRole("tab", { name: "Texto" }));
     fireEvent.click(await screen.findByRole("button", { name: "Adicionar título" }));
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
     });
-    await waitFor(() => expect(exportStudioVideo).toHaveBeenCalled());
+    expect(await screen.findByText(/Este navegador não consegue gerar vídeo/)).toBeInTheDocument();
     expect(studio.flush).toHaveBeenCalled();
-    const [projectId, version, rasters] = exportStudioVideo.mock.calls[0];
-    expect(projectId).toBe("p-1");
-    expect(version).toBe(1);
-    expect(Object.values(rasters)).toEqual(["raster-1"]);
-    expect(await screen.findByText("Na fila")).toBeInTheDocument();
+    expect(saveStudioExport).not.toHaveBeenCalled();
   });
 });

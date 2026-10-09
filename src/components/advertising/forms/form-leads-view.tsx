@@ -10,7 +10,7 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { ArrowClockwise, ArrowLeft, ArrowSquareOut, ClipboardText, Warning } from "@/components/icons";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Link } from "@/i18n/routing";
 import { formBuilderFromForm, humanizeKey, leadContact, type FormLead, type LeadForm } from "@/lib/advertising/forms";
 import type { AdAccount, AdPage } from "@/lib/advertising/types";
@@ -25,7 +25,6 @@ const PAGE_SIZE = 20;
 export function FormLeadsView({ account, page: adPage, form, onBack }: { account: AdAccount; page: AdPage; form: LeadForm; onBack: () => void }) {
   const t = useTranslations("adsForms.leads");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const [page, setPage] = useState(1);
   const [syncing, setSyncing] = useState(false);
   const load = useCallback(() => listFormLeadsAction(form.metaId, PAGE_SIZE, (page - 1) * PAGE_SIZE), [form.metaId, page]);
@@ -43,10 +42,10 @@ export function FormLeadsView({ account, page: adPage, form, onBack }: { account
     const outcome = await syncLeadFormAction(form.metaId, account.id);
     setSyncing(false);
     if (isAdsError(outcome)) {
-      toast({ title: t("syncFailed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("syncFailed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("synced", { count: outcome.data.imported }) });
+    toast(t("synced", { count: outcome.data.imported }));
     leads.reload();
   };
 

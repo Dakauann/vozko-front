@@ -23,6 +23,7 @@ export interface LibraryState {
 export interface AssetCatalogState {
   assets: Record<string, AssetEntry>;
   library: LibraryState;
+  proxies: Record<string, string>;
 }
 
 export interface AssetCatalog {
@@ -31,6 +32,8 @@ export interface AssetCatalog {
   ensure: (assetId: string) => Promise<AssetEntry>;
   remember: (media: Media) => void;
   sourceDuration: (assetId: string) => Promise<number | undefined>;
+  previewOf: (assetId: string) => string;
+  rememberProxy: (assetId: string, proxyMediaId: string) => void;
 }
 
 const PROBE_TIMEOUT_MS = 15_000;
@@ -54,7 +57,7 @@ function probeDuration(url: string, kind: "audio" | "video"): Promise<number | u
 }
 
 export function createAssetCatalog(): AssetCatalog {
-  const store = createStore<AssetCatalogState>()(() => ({ assets: {}, library: { status: "loading", medias: [] } }));
+  const store = createStore<AssetCatalogState>()(() => ({ assets: {}, library: { status: "loading", medias: [] }, proxies: {} }));
   const pending = new Map<string, Promise<AssetEntry>>();
   const durations = new Map<string, Promise<number | undefined>>();
 
@@ -109,5 +112,9 @@ export function createAssetCatalog(): AssetCatalog {
     return probing;
   };
 
-  return { store, loadLibrary, ensure, remember, sourceDuration };
+  const previewOf = (assetId: string) => store.getState().proxies[assetId] ?? assetId;
+
+  const rememberProxy = (assetId: string, proxyMediaId: string) => store.setState((state) => ({ proxies: { ...state.proxies, [assetId]: proxyMediaId } }));
+
+  return { store, loadLibrary, ensure, remember, sourceDuration, previewOf, rememberProxy };
 }

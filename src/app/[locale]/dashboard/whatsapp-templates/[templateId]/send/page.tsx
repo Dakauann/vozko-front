@@ -37,7 +37,7 @@ import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 const AUTH_CODE_MAX_LENGTH = 15;
@@ -51,7 +51,6 @@ interface DebugInfo {
 
 export default function SendWhatsAppTemplatePage() {
   const t = useTranslations("whatsappTemplates");
-  const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
   const templateId = params.templateId as string;
@@ -232,11 +231,7 @@ export default function SendWhatsAppTemplatePage() {
           responseStatus: null,
           serverMessage: sendError.code,
         });
-        toast({
-          title: t("toast.sendError"),
-          description: sendError.message,
-          variant: "destructive",
-        });
+        toast.error(t("toast.sendError"), { description: sendError.message });
       } else if (conversation) {
         setSendSuccess(true);
         setDebugInfo({
@@ -245,18 +240,11 @@ export default function SendWhatsAppTemplatePage() {
           responseStatus: null,
           serverMessage: conversation.messageId ?? null,
         });
-        toast({
-          title: t("toast.sendSuccess"),
-          description: t("toast.sendSuccessDesc"),
-        });
+        toast(t("toast.sendSuccess"), { description: t("toast.sendSuccessDesc") });
         router.push(`/dashboard/crm?entryId=${conversation.entryId}&entryType=${conversation.entryType}`);
       }
     } catch {
-      toast({
-        title: t("toast.sendError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.sendError"), { description: t("error.default") });
     } finally {
       setSending(false);
     }

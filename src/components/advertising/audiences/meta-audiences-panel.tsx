@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { audienceSize, audienceState, originCandidates, type Audience, type CustomerListResult } from "@/lib/advertising/audiences";
 import type { AdAccount } from "@/lib/advertising/types";
@@ -40,7 +40,6 @@ const STATE_TONE = { ready: "healthy", too_small: "warning", processing: "info",
 export function MetaAudiencesPanel({ account, permissions }: { account: AdAccount; permissions: AudiencePermissions }) {
   const t = useTranslations("adsAudiences");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const load = useCallback(() => listAudiencesAction(account.id), [account.id]);
   const list = useKeyedLoad(account.id, load);
@@ -63,7 +62,7 @@ export function MetaAudiencesPanel({ account, permissions }: { account: AdAccoun
 
   const lookalikeCreated = (audience: Audience) => {
     setCreating(null);
-    toast({ title: t("lookalike.created", { name: audience.name }) });
+    toast(t("lookalike.created", { name: audience.name }));
     list.reload();
   };
 
@@ -73,10 +72,10 @@ export function MetaAudiencesPanel({ account, permissions }: { account: AdAccoun
     const outcome = await deleteAudienceAction(target.metaId, account.id);
     setDeleting(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("delete.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("delete.done", { name: target.name }) });
+    toast(t("delete.done", { name: target.name }));
     list.update((current) =>
       isAdsError(current)
         ? current
@@ -150,13 +149,15 @@ export function MetaAudiencesPanel({ account, permissions }: { account: AdAccoun
         <Button variant="primary" title={t("actions.new")} icon={<Plus weight="bold" className="h-4 w-4" />} iconVisible iconSide="left" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuItem disabled={!termsAccepted} onSelect={() => setCreating("crm")} className="items-start gap-2 py-2">
-          <Users className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-          <span>
-            <span className="block text-sm font-medium">{t("actions.crm")}</span>
-            <span className="block text-xs text-muted-foreground">{t("actions.crmHint")}</span>
-          </span>
-        </DropdownMenuItem>
+        {permissions.canCreateFromLeads ? (
+          <DropdownMenuItem disabled={!termsAccepted} onSelect={() => setCreating("crm")} className="items-start gap-2 py-2">
+            <Users className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            <span>
+              <span className="block text-sm font-medium">{t("actions.crm")}</span>
+              <span className="block text-xs text-muted-foreground">{t("actions.crmHint")}</span>
+            </span>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem disabled={!termsAccepted} onSelect={() => setCreating("file")} className="items-start gap-2 py-2">
           <FileCsv className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
           <span>
@@ -234,7 +235,7 @@ export function MetaAudiencesPanel({ account, permissions }: { account: AdAccoun
         }}
       />
 
-      {creating === "crm" ? <CrmListDialog account={account} onClose={() => setCreating(null)} onCreated={created} /> : null}
+      {creating === "crm" && permissions.canCreateFromLeads ? <CrmListDialog account={account} onClose={() => setCreating(null)} onCreated={created} /> : null}
       {creating === "file" ? <FileListDialog account={account} onClose={() => setCreating(null)} onCreated={created} /> : null}
       {creating === "lookalike" ? (
         <LookalikeDialog account={account} origins={origins} onClose={() => setCreating(null)} onCreated={lookalikeCreated} />

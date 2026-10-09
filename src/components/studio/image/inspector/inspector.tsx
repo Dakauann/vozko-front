@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { useImageDoc } from "../editor-state";
+import { useArtboardNames } from "../artboard-names";
+import { useActiveArtboard, useImageDoc } from "../editor-state";
 import { ArrangeSection } from "./arrange-section";
 import { CanvasSection } from "./canvas-section";
 import { ImageSection } from "./image-section";
@@ -13,9 +14,9 @@ import { TransformSection } from "./transform-section";
 
 export function Inspector() {
   const t = useTranslations("studio.image.inspector");
-  const layers = useImageDoc((s) => s.document.layers);
+  const { id, layers, canvas } = useActiveArtboard();
+  const names = useArtboardNames();
   const selection = useImageDoc((s) => s.selection);
-  const canvas = useImageDoc((s) => s.document.canvas);
   const picked = useMemo(() => {
     const wanted = new Set(selection);
     return layers.filter((l) => wanted.has(l.id));
@@ -23,7 +24,7 @@ export function Inspector() {
 
   const types = new Set(picked.map((l) => l.type));
   const only = types.size === 1 ? picked[0].type : null;
-  const heading = picked.length === 0 ? t("canvasTitle") : picked.length === 1 ? t(`types.${picked[0].type}`) : t("selectionTitle", { count: picked.length });
+  const heading = picked.length === 0 ? (names.get(id) ?? t("canvasTitle")) : picked.length === 1 ? t(`types.${picked[0].type}`) : t("selectionTitle", { count: picked.length });
 
   return (
     <aside aria-label={t("label")} data-tour="studio-image-inspector" className="flex h-full min-h-0 flex-col">

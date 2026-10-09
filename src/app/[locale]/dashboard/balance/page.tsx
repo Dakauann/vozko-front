@@ -44,7 +44,7 @@ import { getExchangeRateAction } from "@/app/actions/pricing";
 import { useLocale, useTranslations } from "next-intl";
 import { ExportMenu } from "@/components/reports/export-menu";
 import { useReportJob } from "@/hooks/use-report-job";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { BalanceReportParams, ReportFormat } from "@/lib/reports/types";
 
 const BALANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "xlsx", "pdf"];
@@ -160,10 +160,9 @@ export default function BalancePage() {
   const t = useTranslations("balancePage");
   const texp = useTranslations("metricsOps.export");
   const locale = useLocale();
-  const { toast } = useToast();
   const { running: exporting, request: requestReport } = useReportJob({
     onQueued: () => {
-      toast({ title: texp("queuedTitle"), description: texp("queuedBody") });
+      toast(texp("queuedTitle"), { description: texp("queuedBody") });
     },
   });
 
@@ -232,19 +231,17 @@ export default function BalancePage() {
       });
 
       if (outcome.status === "done") {
-        toast({ title: texp("ready") });
+        toast(texp("ready"));
         return;
       }
-      toast({
-        title: texp("failed"),
+      toast.error(texp("failed"), {
         description:
           outcome.status === "failed"
             ? texp(`failure.${outcome.job.failureCode ?? "render_failed"}`)
             : outcome.error,
-        variant: "destructive",
       });
     },
-    [typeFilter, serviceFilter, dateRange, requestReport, locale, texp, toast],
+    [typeFilter, serviceFilter, dateRange, requestReport, locale, texp],
   );
 
   useEffect(() => {

@@ -4,6 +4,8 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { UnofficialWhatsAppInstance } from "@/lib/unofficial-whatsapp/types";
 import { useTranslations } from "next-intl";
 
+export const DEFAULT_SEND_DELAY_MS = { min: 3000, max: 12000 } as const;
+
 export function CampaignPacingPanel({
   minMs,
   maxMs,

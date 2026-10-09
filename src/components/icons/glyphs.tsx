@@ -382,6 +382,14 @@ export const Square: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const Artboard: Icon = /*#__PURE__*/ glyph(
+  "Artboard",
+  <>
+    <path d="M7 3.5v17M17 3.5v17M3.5 7h17M3.5 17h17" />
+    <rect stroke={ACCENT} x="7" y="7" width="10" height="10" rx="1.5" />
+  </>,
+);
+
 export const Prohibit: Icon = /*#__PURE__*/ glyph(
   "Prohibit",
   <>
@@ -1865,5 +1873,77 @@ export const Palette: Icon = /*#__PURE__*/ glyph(
     <circle fill={ACCENT} stroke="none" cx="12.4" cy="7.15" r="1.35" />
     <circle fill={ACCENT} stroke="none" cx="16.4" cy="9.75" r="1.35" />
     <circle fill={ACCENT} stroke="none" cx="7.15" cy="14.25" r="1.35" />
+  </>,
+);
+
+export const MapTrifold: Icon = /*#__PURE__*/ glyph(
+  "MapTrifold",
+  <>
+    <path d="M3.25 6.5 8.75 4.25l6.5 2.5 5.5-2.25v13.25l-5.5 2.25-6.5-2.5-5.5 2.25V6.5Z" />
+    <path d="M8.75 4.25V17.5" />
+    <path stroke={ACCENT} d="M15.25 6.75v13" />
+  </>,
+);
+
+export const Area: Icon = /*#__PURE__*/ glyph(
+  "Area",
+  <>
+    <path d="M5.25 8.25 12 4.5l7 4.75-1.75 9.25L6.5 19.5 5.25 8.25Z" />
+    <circle fill={ACCENT} stroke="none" cx="5.25" cy="8.25" r="1.9" />
+    <circle fill={ACCENT} stroke="none" cx="12" cy="4.5" r="1.9" />
+    <circle fill={ACCENT} stroke="none" cx="19" cy="9.25" r="1.9" />
+    <circle fill={ACCENT} stroke="none" cx="17.25" cy="18.5" r="1.9" />
+    <circle fill={ACCENT} stroke="none" cx="6.5" cy="19.5" r="1.9" />
+  </>,
+);
+
+export const Rectangle: Icon = /*#__PURE__*/ glyph(
+  "Rectangle",
+  <>
+    <rect x="4.75" y="6.25" width="14.5" height="11.5" rx="1" />
+    <rect stroke={ACCENT} x="3" y="4.5" width="3.5" height="3.5" rx="0.75" />
+    <rect stroke={ACCENT} x="17.5" y="4.5" width="3.5" height="3.5" rx="0.75" />
+    <rect stroke={ACCENT} x="17.5" y="16" width="3.5" height="3.5" rx="0.75" />
+    <rect stroke={ACCENT} x="3" y="16" width="3.5" height="3.5" rx="0.75" />
+  </>,
+);
+
+export const Radius: Icon = /*#__PURE__*/ glyph(
+  "Radius",
+  <>
+    <circle cx="12" cy="12" r="8.75" />
+    <path stroke={ACCENT} d="M12 12h8.75" />
+    <circle fill={ACCENT} stroke="none" cx="12" cy="12" r="1.9" />
+  </>,
+);
+
+export const House: Icon = /*#__PURE__*/ glyph(
+  "House",
+  <>
+    <path d="M3.25 11.25 12 4l8.75 7.25" />
+    <path d="M5.5 9.5v9.75a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5V9.5" />
+    <path stroke={ACCENT} d="M10 20.75v-5.25h4v5.25" />
+  </>,
+);
+
+export const Family: Icon = /*#__PURE__*/ glyph(
+  "Family",
+  <>
+    <circle cx="7.25" cy="6.75" r="2.5" />
+    <circle cx="16.75" cy="6.75" r="2.5" />
+    <path d="M2.75 19.75v-1.5a4.75 4.75 0 0 1 6.75-4.3" />
+    <path d="M21.25 19.75v-1.5a4.75 4.75 0 0 0-6.75-4.3" />
+    <circle stroke={ACCENT} cx="12" cy="12.5" r="1.9" />
+    <path stroke={ACCENT} d="M8.75 20.25a3.25 3.25 0 0 1 6.5 0" />
+  </>,
+);
+
+export const Heat: Icon = /*#__PURE__*/ glyph(
+  "Heat",
+  <>
+    <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="2.75" />
+    <path d="M9.1 3.25v17.5M14.9 3.25v17.5M3.25 9.1h17.5M3.25 14.9h17.5" />
+    <rect fill={ACCENT} stroke="none" x="9.1" y="9.1" width="5.8" height="5.8" />
+    <rect fill={ACCENT} stroke="none" x="14.9" y="9.1" width="5.85" height="5.8" opacity=".55" />
   </>,
 );

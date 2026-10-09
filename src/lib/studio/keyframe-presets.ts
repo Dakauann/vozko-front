@@ -71,11 +71,15 @@ function presentProperties(k: Keyframes): KeyframeProperty[] {
   return KEYFRAME_PROPERTIES.filter((property) => (k[property] ?? []).length > 0);
 }
 
-export function presetPatch(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): ClipPatch | Refusal {
+export function withPreset(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): Keyframes {
   const preset = presetKeyframes(id, clip);
   const keyframes: Keyframes = { ...clip.keyframes };
   for (const property of presentProperties(preset)) keyframes[property] = preset[property];
-  return checked(keyframes, clip);
+  return keyframes;
+}
+
+export function presetPatch(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): ClipPatch | Refusal {
+  return checked(withPreset(clip, id), clip);
 }
 
 export function captureKeyframes(clip: Pick<Clip, "keyframes">): Keyframes | null {

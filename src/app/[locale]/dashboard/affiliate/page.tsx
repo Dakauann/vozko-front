@@ -23,7 +23,7 @@ import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { cn } from "@/lib/utils";
 import { getMyAffiliateAction } from "@/app/actions/affiliate";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 
@@ -53,7 +53,6 @@ function buildReferralUrl(code: string): string {
 export default function AffiliatePage() {
   const t = useTranslations("affiliatePage");
   const router = useRouter();
-  const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<AffiliateProfileWithStats | null>(
@@ -115,10 +114,7 @@ export default function AffiliatePage() {
       profile={profile}
       onCopy={(link) => {
         void navigator.clipboard.writeText(link).then(() => {
-          toast({
-            title: t("dashboard.referralLink.copiedTitle"),
-            description: t("dashboard.referralLink.copiedDesc"),
-          });
+          toast(t("dashboard.referralLink.copiedTitle"), { description: t("dashboard.referralLink.copiedDesc") });
         });
       }}
     />

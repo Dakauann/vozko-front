@@ -1,4 +1,4 @@
-import type { ImageDocument } from "./document";
+import type { ImageSurface } from "./document";
 import { layerBounds, type Bounds } from "./layers";
 
 export const SNAP_THRESHOLD_SCREEN_PX = 5;
@@ -21,7 +21,7 @@ export interface SnapResult {
 
 const TOUCH_EPSILON = 0.5;
 
-export function snapTargets(doc: ImageDocument, movingIds: readonly string[]): SnapTargets {
+export function snapTargets(doc: ImageSurface, movingIds: readonly string[]): SnapTargets {
   const moving = new Set(movingIds);
   const { width, height } = doc.canvas;
   const x = [0, width / 2, width];

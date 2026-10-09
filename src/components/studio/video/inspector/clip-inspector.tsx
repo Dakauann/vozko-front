@@ -23,7 +23,7 @@ import {
 } from "@/lib/studio/selection-edit";
 import { setClipTrimIn, type ClipLocation } from "@/lib/studio/timeline";
 
-import { useVideoEditor, useViewState } from "../editor-context";
+import { usePanelPlayhead, useVideoEditor } from "../editor-context";
 import { AnimationFields } from "./animation-fields";
 import { FieldGrid, InspectorSection, NumberField, SliderField } from "./fields";
 import { LayerStyleFields } from "./layer-style-fields";
@@ -51,7 +51,7 @@ interface ClipInspectorProps {
 export function ClipInspector({ locations }: ClipInspectorProps) {
   const t = useTranslations("studio.video.inspector");
   const { commands } = useVideoEditor();
-  const playheadMs = useViewState((s) => s.playheadMs);
+  const playheadMs = usePanelPlayhead();
   const clips = useMemo(() => locations.map((location) => location.clip), [locations]);
   const ids = useMemo(() => clips.map((clip) => clip.id), [clips]);
   const editor = useSelectionEditor(ids);

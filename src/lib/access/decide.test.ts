@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { Feature, PermissionEntry } from "@/lib/workspace/types";
 
-import { type AccessState, decidePath, decideScreen, screenCapability } from "./decide";
+import { type AccessState, decideCapabilities, decidePath, decideScreen, screenCapability } from "./decide";
 
 const features: Feature[] = [
   {
@@ -145,5 +145,33 @@ describe("released channels", () => {
     expect(decideScreen("facebook_pages", member([], { catalog })).status).toBe("allowed");
     expect(decidePath("/dashboard/facebook-pages/123", member([], { catalog, privileged: true })).status).toBe("allowed");
     expect(decideScreen("facebook_pages", member([], { permissionsLoading: true })).status).toBe("loading");
+  });
+});
+
+describe("decideCapabilities", () => {
+  const updateStages = { resource: "stages", action: "update" } as const;
+
+  it("grants when every requirement of every capability is held", () => {
+    expect(decideCapabilities(["funnels.view", "funnels.edit"], member([readStages, updateStages]))).toBe("granted");
+  });
+
+  it("denies when one requirement of one capability is missing", () => {
+    expect(decideCapabilities(["funnels.view", "funnels.edit"], member([readStages]))).toBe("denied");
+  });
+
+  it("denies a capability the catalog does not know, and an empty list", () => {
+    expect(decideCapabilities(["funnels.unknown"], member([readStages]))).toBe("denied");
+    expect(decideCapabilities([], member([readStages]))).toBe("denied");
+  });
+
+  it("denies a managers only capability to a member and grants everything to a manager", () => {
+    expect(decideCapabilities(["business_phones.connect"], member([]))).toBe("denied");
+    expect(decideCapabilities(["business_phones.connect", "funnels.edit"], member([], { privileged: true }))).toBe("granted");
+  });
+
+  it("waits while permissions or the catalog load, and fails closed when the catalog failed", () => {
+    expect(decideCapabilities(["funnels.view"], member([readStages], { permissionsLoading: true }))).toBe("loading");
+    expect(decideCapabilities(["funnels.view"], member([readStages], { catalog: { status: "loading" } }))).toBe("loading");
+    expect(decideCapabilities(["funnels.view"], member([readStages], { catalog: { status: "failed" } }))).toBe("denied");
   });
 });

@@ -162,6 +162,18 @@ describe("apiClient", () => {
     expect(result.error?.expected).toEqual({ manageUrl: "https://business.facebook.com/latest/posts" });
   });
 
+  it("keeps the current record a version conflict carries", async () => {
+    const current = { id: "lead-1", name: "Ana", version: 5 };
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(409, { code: "version_conflict", message: "changed", current }),
+    );
+
+    const result = await apiClient("/leads/lead-1");
+
+    expect(result.error?.code).toBe("version_conflict");
+    expect(result.error?.current).toEqual(current);
+  });
+
   it("reads the code from the error field when the server sends a coded error with a message", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse(422, { error: "origin_insecure", message: "webchat: origin must use https" }),

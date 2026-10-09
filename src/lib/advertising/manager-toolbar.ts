@@ -1,3 +1,5 @@
+import { READY, blocked, firstBlocker, type ActionState as SelectionActionState } from "@/lib/selection/action-state";
+
 import { canTest } from "./ab-test";
 import { isArchived, isRemoved } from "./delivery";
 import { isEditableDraft, publishedIds, type TableRow } from "./manager-drafts";
@@ -36,23 +38,12 @@ export type ActionBlocker =
   | "testCount"
   | "level";
 
-export type ActionState = { enabled: true } | { enabled: false; reason: ActionBlocker };
-
-const READY: ActionState = { enabled: true };
+export type ActionState = SelectionActionState<ActionBlocker>;
 
 const HIDDEN_BLOCKERS: ActionBlocker[] = ["permission", "publishedOnly", "level", "noDrafts"];
 
 export function isOffered(state: ActionState): boolean {
   return state.enabled || !HIDDEN_BLOCKERS.includes(state.reason);
-}
-
-function blocked(reason: ActionBlocker): ActionState {
-  return { enabled: false, reason };
-}
-
-function firstBlocker(checks: [boolean, ActionBlocker][]): ActionState {
-  const failed = checks.find(([fails]) => fails);
-  return failed ? blocked(failed[1]) : READY;
 }
 
 function hasDraft(rows: TableRow[]): boolean {

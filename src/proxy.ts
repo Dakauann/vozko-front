@@ -10,6 +10,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|images|videos|audio|3d|privacy-policy|terms-of-service|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.ico$|.*\\.wav$|.*\\.mp3$|.*\\.glb$|.*\\.gltf$).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|images|videos|audio|3d|maplibre|privacy-policy|terms-of-service|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.ico$|.*\\.wav$|.*\\.mp3$|.*\\.glb$|.*\\.gltf$).*)',
     ],
 };

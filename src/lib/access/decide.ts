@@ -73,3 +73,28 @@ export function decidePath(pathname: string, state: AccessState): AccessDecision
       return decideScreen(rule.screen, state);
   }
 }
+
+export type CapabilityDecision = "loading" | "granted" | "denied";
+
+function findCapability(features: Feature[], key: string): FeatureCapability | null {
+  for (const feature of features) {
+    const found = feature.capabilities.find((capability) => capability.key === key);
+    if (found) return found;
+  }
+  return null;
+}
+
+export function decideCapabilities(keys: readonly string[], state: AccessState): CapabilityDecision {
+  if (state.permissionsLoading) return "loading";
+  if (keys.length === 0) return "denied";
+  if (state.privileged) return "granted";
+  if (state.catalog.status === "loading") return "loading";
+  if (state.catalog.status === "failed") return "denied";
+  const { features } = state.catalog;
+  for (const key of keys) {
+    const capability = findCapability(features, key);
+    if (!capability || capability.managersOnly) return "denied";
+    if (!capability.requires.every((permission) => state.has(permission))) return "denied";
+  }
+  return "granted";
+}

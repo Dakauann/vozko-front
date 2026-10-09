@@ -17,6 +17,7 @@ import { useCallback, useMemo, useState } from "react";
 import Button from "@/components/elevated-design/button";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import type { EntryType } from "@/lib/conversations/types";
+import { QuoteRefusalNotice } from "@/components/whatsapp/quote-refusal-notice";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
 import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
 import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
@@ -152,6 +153,8 @@ export default function ScheduleTemplateDialog({
                                     {t("templateDialog.insufficientNow")}
                                 </p>
                             )}
+
+                            <QuoteRefusalNotice message={composer.quoteError} onRetry={composer.retryQuote} />
 
                             {errorCopy && (
                                 <div className="flex items-start gap-2 rounded-[--radius] border border-border bg-card px-3 py-2">

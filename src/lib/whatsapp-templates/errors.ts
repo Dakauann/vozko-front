@@ -73,6 +73,8 @@ export const TEMPLATE_ERROR_CODES = [
     "template_send_not_sendable",
     "template_send_billing_not_configured",
     "template_send_attempt_conflict",
+    "template_send_params_mismatch",
+    "template_quote_out_of_range",
 
     "template_provider_rejected",
     "template_provider_unavailable",

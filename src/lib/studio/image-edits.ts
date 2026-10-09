@@ -1,4 +1,4 @@
-import type { CanvasSize, Filters, ImageDocument, Layer } from "./document";
+import type { CanvasSize, Filters, ImageSurface, Layer } from "./document";
 import { fitInside } from "./geometry";
 import { deleteLayers, updateLayers, type LayerPatch } from "./layers";
 
@@ -26,7 +26,7 @@ export function isDefaultFilters(filters: Filters | undefined): boolean {
   return (Object.keys(DEFAULT_FILTERS) as (keyof Filters)[]).every((key) => filters[key] === DEFAULT_FILTERS[key]);
 }
 
-export function commitText(doc: ImageDocument, id: string, text: string): ImageDocument {
+export function commitText(doc: ImageSurface, id: string, text: string): ImageSurface {
   const layer = doc.layers.find((l) => l.id === id);
   if (!layer || layer.text === text) return doc;
   if (text.trim() === "") return deleteLayers(doc, [id]);

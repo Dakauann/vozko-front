@@ -28,7 +28,7 @@ export function HandBackConfirmDialog({
       open={open}
       onOpenChange={onOpenChange}
       tone="default"
-      icon={<Icon size={30} weight="fill" className="text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.35)]" />}
+      icon={<Icon size={28} weight="fill" />}
       title={t("title", { name: target.name })}
       description={
         canViewOthers

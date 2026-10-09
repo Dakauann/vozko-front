@@ -65,7 +65,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { Icon } from "@/components/icons";
 import { IconBox } from "@/components/elevated-design/listing-card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { auditChangeOf } from "@/lib/pricing/audit";
 import { useTranslations } from "next-intl";
 const CATEGORY_ICONS: Record<string, Icon> = {
@@ -109,7 +109,6 @@ function amountOf(item: PricingItem, field: AmountField): number {
 
 export default function AdminPricingPage() {
   const t = useTranslations("adminPricing");
-  const { toast } = useToast();
 
   const [defaults, setDefaults] = React.useState<PricingItem[]>([]);
   const [exchangeRate, setExchangeRate] = React.useState<
@@ -187,34 +186,26 @@ export default function AdminPricingPage() {
 
   const handleSaveItem = async (item: PricingItem, field: AmountField) => {
     if (rateNumber == null) {
-      toast({
-        title: t("form.error.exchangeRateRequired"),
-        variant: "destructive",
-      });
+      toast.error(t("form.error.exchangeRateRequired"));
       return;
     }
     const brl = parseAmount(editValueBrl);
     if (brl === null || brl <= 0) {
-      toast({ title: t("form.error.invalidPrice"), variant: "destructive" });
+      toast.error(t("form.error.invalidPrice"));
       return;
     }
     const newMicros = parseBrlToUsdMicros(editValueBrl, rateNumber);
     if (newMicros <= 0) {
-      toast({ title: t("form.error.priceTooSmall"), variant: "destructive" });
+      toast.error(t("form.error.priceTooSmall"));
       return;
     }
     setSaving(true);
     try {
       const result = await saveAmount(item, field, newMicros);
       if (result.error) {
-        toast({
-          title: t("form.error.saveFailed"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("form.error.saveFailed"), { description: result.error });
       } else {
-        toast({
-          title: field === "cost" ? t("form.success.costSaved") : t("form.success.saved"),
+        toast(field === "cost" ? t("form.success.costSaved") : t("form.success.saved"), {
           description: t("form.success.savedDetail", {
             brl: formatBrlCurrency(brl),
             usd: formatUsdCurrency(microsToUsdNumber(newMicros)),
@@ -224,7 +215,7 @@ export default function AdminPricingPage() {
         loadData();
       }
     } catch {
-      toast({ title: t("form.error.saveFailed"), variant: "destructive" });
+      toast.error(t("form.error.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -233,30 +224,26 @@ export default function AdminPricingPage() {
   const handleSaveRate = async () => {
     const n = parseAmount(rateValue);
     if (n === null || n <= 0) {
-      toast({ title: t("form.error.invalidPrice"), variant: "destructive" });
+      toast.error(t("form.error.invalidPrice"));
       return;
     }
     const newMicros = Math.round(n * 1_000_000);
     if (newMicros <= 0) {
-      toast({ title: t("form.error.invalidPrice"), variant: "destructive" });
+      toast.error(t("form.error.invalidPrice"));
       return;
     }
     setSavingRate(true);
     try {
       const result = await updateExchangeRateAction(newMicros);
       if (result.error) {
-        toast({
-          title: t("form.error.saveFailed"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("form.error.saveFailed"), { description: result.error });
       } else {
-        toast({ title: t("form.success.rateSaved") });
+        toast(t("form.success.rateSaved"));
         setEditingRate(false);
         loadData();
       }
     } catch {
-      toast({ title: t("form.error.saveFailed"), variant: "destructive" });
+      toast.error(t("form.error.saveFailed"));
     } finally {
       setSavingRate(false);
     }

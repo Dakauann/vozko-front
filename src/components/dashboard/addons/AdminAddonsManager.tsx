@@ -33,7 +33,7 @@ import ElevatedSelect, {
 } from "@/components/elevated-design/elevated-select";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 type AddonDraft = {
   key: string;
@@ -125,7 +125,6 @@ function statusChip(addon: AddonDefinition) {
 const PANEL = "rounded-[--radius] border border-border bg-card";
 
 export function AdminAddonsManager() {
-  const { toast } = useToast();
   const [addons, setAddons] = React.useState<AddonDefinition[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -137,12 +136,12 @@ export function AdminAddonsManager() {
     const { addons: list, error } = await adminListAddonsAction(true);
     const visible = list.filter((a) => !RETIRED_KINDS.has(a.entitlementKind));
     if (error) {
-      toast({ title: "Erro ao carregar addons", description: error, variant: "destructive" });
+      toast.error("Erro ao carregar addons", { description: error });
     } else {
       setAddons(visible);
     }
     setLoading(false);
-  }, [toast]);
+  }, []);
 
   React.useEffect(() => {
     void load();
@@ -164,7 +163,7 @@ export function AdminAddonsManager() {
 
   async function save() {
     if (!draft.key.trim() || !draft.name.trim()) {
-      toast({ title: "Preencha a chave e o nome", variant: "destructive" });
+      toast.error("Preencha a chave e o nome");
       return;
     }
     setSaving(true);
@@ -174,14 +173,12 @@ export function AdminAddonsManager() {
       : await adminCreateAddonAction(input);
     setSaving(false);
     if (result.error || !result.addon) {
-      toast({
-        title: "Não foi possível salvar",
+      toast.error("Não foi possível salvar", {
         description: result.error ?? "",
-        variant: "destructive",
       });
       return;
     }
-    toast({ title: editingId ? "Addon atualizado" : "Addon criado" });
+    toast(editingId ? "Addon atualizado" : "Addon criado");
     startCreate();
     void load();
   }
@@ -190,10 +187,10 @@ export function AdminAddonsManager() {
     if (!editingId) return;
     const { success, error } = await adminArchiveAddonAction(editingId);
     if (!success) {
-      toast({ title: "Falha ao arquivar", description: error ?? "", variant: "destructive" });
+      toast.error("Falha ao arquivar", { description: error ?? "" });
       return;
     }
-    toast({ title: "Addon arquivado" });
+    toast("Addon arquivado");
     startCreate();
     void load();
   }

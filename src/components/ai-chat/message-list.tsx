@@ -5,76 +5,82 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import {
+  Archive,
+  ArrowClockwise,
+  ArrowRight,
+  ArrowsLeftRight,
+  ArrowSquareOut,
   Brain,
   Buildings,
   Calculator,
+  CalendarBlank,
   CaretRight,
   ChartBar,
   ChartLine,
+  ChartPie,
   ChatsCircle,
-  ArrowRight,
-  ArrowsLeftRight,
-  CalendarBlank,
+  ChatText,
+  CircleNotch,
   ClockCountdown,
   ClockCounterClockwise,
-  NotePencil,
-  PaperPlaneRight,
-  Pause,
-  Play,
-  TagSimple,
-  UserPlus,
-  XCircle,
-  ChatText,
-  EnvelopeSimple,
-  FileText,
-  FlowArrow,
-  Handshake,
-  Kanban,
-  Tag,
-  IdentificationCard,
-  UserCircle,
-  ArrowClockwise,
-  Funnel,
-  Pulse,
-  CircleNotch,
+  Copy,
+  CurrencyDollar,
   Database,
-  Hourglass,
   DeviceMobile,
-  UserMinus,
-  ShieldCheck,
-  Key,
-  IdentificationBadge,
-  UserGear,
+  EnvelopeSimple,
+  Eye,
   FileCsv,
-  Megaphone,
-  PlayCircle,
   Files,
-  UploadSimple,
-  type Icon,
+  FileText,
+  FilmStrip,
+  FlowArrow,
+  Funnel,
+  GraduationCap,
+  Handshake,
+  Hourglass,
+  IdentificationBadge,
+  IdentificationCard,
+  Image as ImageGlyph,
+  Kanban,
+  Key,
   ListBullets,
   ListNumbers,
   MagnifyingGlass,
-  PaperPlaneTilt,
+  MapTrifold,
+  Megaphone,
   Microphone,
+  NotePencil,
+  PaintBrush,
+  PaperPlaneRight,
+  PaperPlaneTilt,
+  Pause,
   PencilSimple,
   Phone,
   PhoneCall,
+  Play,
+  PlayCircle,
   Plus,
+  Pulse,
+  Question,
   Queue,
-  TelegramLogo,
+  ShieldCheck,
   Sparkle,
-  TrashSimple,
-  Users,
-  Wrench,
-  GraduationCap,
-  Image as ImageGlyph,
-  FilmStrip,
-  Waveform,
-  CurrencyDollar,
-  Archive,
-  ChartPie,
-  Copy,
+  Tag,
+  TagSimple,
+  TelegramLogo,
   Trash,
+  TrashSimple,
+  type Icon,
+  UploadSimple,
+  UserCircle,
+  UserGear,
+  UserMinus,
+  UserPlus,
+  Users,
+  UsersThree,
+  Waveform,
+  Wrench,
+  XCircle,
 } from "@/components/icons";
 import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -86,13 +92,13 @@ import { GeneratingMedia } from "@/components/media-generation/generating-media"
 import { MediaModelSelect } from "@/components/media-generation/media-model-select";
 import { imageAttachments, isShownImage } from "@/lib/aichat/attachments";
 import { openDock } from "@/lib/aichat/dock-state";
+import { fieldsShownByLeadActionPreview } from "@/lib/aichat/lead-action-proposal";
 import { mediaPlaceholderOf } from "@/lib/aichat/generating-media";
-import type { Approval, ChatChart, ChatMedia, ChoiceField, ChoiceKind, ChatMessage, PendingAction, ProposalStatus, SecretField } from "@/lib/aichat/types";
+import type { Approval, ChatChart, ChatMedia, ChoiceField, ChoiceKind, PendingAction, ProposalStatus, SecretField, ToolSubject } from "@/lib/aichat/types";
 import type { ModelKind } from "@/lib/media-generation/types";
 import {
   humanizeFieldKey,
   isOpenProposal,
-  pendingFromStored,
   proposalRows,
   approvalPayload,
   approvalReady,
@@ -103,7 +109,8 @@ import { cn } from "@/lib/utils";
 import { AttachmentChip } from "./attachment-chip";
 import { ChatChartView } from "./chat-chart";
 import { ChatMediaView } from "./chat-media";
-import { isThinkingBetweenSteps, layoutSegments, type Block, type Segment } from "./segments";
+import { isThinkingBetweenSteps, layoutSegments, type Block } from "@/lib/aichat/segments";
+import type { UIMessage } from "@/lib/aichat/ui-message";
 
 const TOOL_ICON: Record<string, Icon> = {
   create_agent: Plus,
@@ -132,6 +139,10 @@ const TOOL_ICON: Record<string, Icon> = {
   search_conversations: MagnifyingGlass,
   read_conversation: ChatText,
   search_leads: UserCircle,
+  lead_geo_summary: MapTrifold,
+  prepare_lead_action: UsersThree,
+  start_lead_send: PlayCircle,
+  cancel_lead_send: XCircle,
   get_lead: IdentificationCard,
   list_knowledge_bases: FileText,
   search_knowledge: FileText,
@@ -242,6 +253,19 @@ const TOOL_ICON: Record<string, Icon> = {
   swap_ad_creative: ImageGlyph,
   get_ad_creative: ImageGlyph,
   load_skill: GraduationCap,
+  studio_read: MagnifyingGlass,
+  studio_look: Eye,
+  studio_edit_video: FilmStrip,
+  studio_edit_image: PaintBrush,
+  studio_start_job: Queue,
+  studio_jobs: Queue,
+  studio_generate_music: Waveform,
+  studio_generate_voiceover: Microphone,
+  studio_generate_image: ImageGlyph,
+  studio_ask: Question,
+  diagnose_access: ShieldCheck,
+  explain_permission: Key,
+  open_screen: ArrowSquareOut,
   list_page_posts: FileText,
   list_ad_apps: DeviceMobile,
   list_ad_catalogs: ListBullets,
@@ -278,29 +302,7 @@ const TOOL_ICON: Record<string, Icon> = {
   connect_ad_account: Plus,
 };
 
-const KNOWN_TOOLS = new Set(Object.keys(TOOL_ICON));
 
-export type { Segment };
-
-export type UIMessage = ChatMessage & {
-  segments?: Segment[];
-  pending?: PendingAction | null;
-};
-
-export function hydrate(m: ChatMessage): UIMessage {
-  const pending = pendingFromStored(m.proposal);
-  if (!m.reasoning && !(m.tools && m.tools.length > 0)) return { ...m, pending };
-  const segments: Segment[] = [];
-  if (m.reasoning) segments.push({ kind: "thinking", text: m.reasoning });
-  for (const tool of m.tools ?? []) {
-    segments.push({ kind: "tool", name: tool.name, summary: tool.summary, ok: tool.ok });
-    if (tool.chart) segments.push({ kind: "chart", chart: tool.chart });
-    if (tool.card) segments.push({ kind: "card", card: tool.card });
-    if (tool.image) segments.push({ kind: "media", media: tool.image });
-  }
-  if (m.content) segments.push({ kind: "text", text: m.content });
-  return { ...m, segments, pending };
-}
 
 export interface BubbleLabels {
   thinking: string;
@@ -312,6 +314,7 @@ export interface BubbleLabels {
   toolFailed: string;
   toolDenied: string;
   toolLabel: (name: string) => string;
+  subjectLabel: (subject: ToolSubject) => string;
   secretLabel: (field: SecretField) => string;
   secretHint: string;
   proposal: ProposalDictionary;
@@ -322,13 +325,25 @@ export function useBubbleLabels(): BubbleLabels {
   const t = useTranslations("aiChatPage");
   const tTools = useTranslations("aiChatPage.tools");
   const toolLabel = useCallback(
-    (name: string) => (KNOWN_TOOLS.has(name) ? tTools(name) : name.replace(/_/g, " ")),
+    (name: string) => (tTools.has(name) ? tTools(name) : name.replace(/_/g, " ")),
     [tTools],
   );
+  const tSubjects = useTranslations("aiChatPage.subjects");
+  const subjectLabel = useCallback(
+    (subject: ToolSubject) => {
+      const key = `${subject.kind}.${subject.key}`;
+      return tSubjects.has(key) ? tSubjects(key) : subject.label;
+    },
+    [tSubjects],
+  );
   const tFields = useTranslations("aiChatPage.fields");
+  const tToolFields = useTranslations("aiChatPage.toolFields");
   const fieldLabel = useCallback(
-    (key: string) => (tFields.has(key) ? tFields(key) : humanizeFieldKey(key)),
-    [tFields],
+    (key: string, tool?: string) => {
+      if (tool && tToolFields.has(`${tool}.${key}`)) return tToolFields(`${tool}.${key}`);
+      return tFields.has(key) ? tFields(key) : humanizeFieldKey(key);
+    },
+    [tFields, tToolFields],
   );
   return {
     thinking: t("thinking"),
@@ -340,6 +355,7 @@ export function useBubbleLabels(): BubbleLabels {
     toolFailed: t("toolFailed"),
     toolDenied: t("toolDenied"),
     toolLabel,
+    subjectLabel,
     secretLabel: (field: SecretField) => (tFields.has(field.key) ? tFields(field.key) : field.label),
     secretHint: t("secretHint"),
     proposal: { label: fieldLabel, yes: t("yes"), no: t("no") },
@@ -464,7 +480,7 @@ function SegmentView({ seg, labels, onEditImage }: { seg: Block; labels: BubbleL
 }
 
 function ToolStep({ seg, labels }: { seg: Extract<Block, { kind: "tool" }>; labels: BubbleLabels }) {
-  const line = <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} labels={labels} />;
+  const line = <ToolLine name={seg.name} summary={seg.summary} ok={seg.ok} running={seg.running} subject={seg.subject} labels={labels} />;
   const placeholder = mediaPlaceholderOf(seg);
   if (!placeholder) return line;
   return (
@@ -520,12 +536,14 @@ function ToolLine({
   summary,
   ok,
   running,
+  subject,
   labels,
 }: {
   name: string;
   summary: string;
   ok: boolean;
   running?: boolean;
+  subject?: ToolSubject;
   labels: BubbleLabels;
 }) {
   const note = toolNote(summary, ok, labels);
@@ -543,6 +561,7 @@ function ToolLine({
         <TileIcon weight="bold" className="h-3.5 w-3.5 flex-shrink-0" />
       )}
       <span className={cn("flex-shrink-0", running && "text-foreground")}>{labels.toolLabel(name)}</span>
+      {subject ? <span className="min-w-0 truncate font-medium text-foreground">· {labels.subjectLabel(subject)}</span> : null}
       {running ? null : note ? <span className="truncate opacity-80">· {note}</span> : null}
     </div>
   );
@@ -560,7 +579,8 @@ function ApprovalCard({
   labels: BubbleLabels;
 }) {
   const TileIcon = TOOL_ICON[pending.toolName] ?? Wrench;
-  const rows = proposalRows(pending.fields, labels.proposal);
+  const shownByPreview = fieldsShownByLeadActionPreview(pending.preview);
+  const rows = proposalRows(pending.fields, labels.proposal, pending.toolName).filter((row) => !shownByPreview.has(row.key));
   return (
     <div className="rounded-lg border border-border bg-muted p-3.5">
       <div className="flex items-start gap-3">
@@ -585,7 +605,7 @@ function ApprovalCard({
       </div>
       {hasProposalPreview(pending.preview) ? (
         <div className="mt-3">
-          <ProposalPreview preview={pending.preview} />
+          <ProposalPreview preview={pending.preview} open={isOpenProposal(pending)} />
         </div>
       ) : null}
       {isOpenProposal(pending) ? (

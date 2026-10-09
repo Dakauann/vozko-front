@@ -386,7 +386,7 @@ export default function CrmLayout({
     setConversationStatus,
     pendingOutcomeRequest,
     clearPendingOutcomeRequest,
-    applyLeadRename,
+    applyLeadPatch,
     windowConversations,
     windowFocusRequest,
     openConversationWindow,
@@ -2626,7 +2626,7 @@ export default function CrmLayout({
               canBlock={can("leads", "block")}
               canManageMemories={can("leads", "update")}
               canRenameLead={can("leads", "update")}
-              onLeadRenamed={applyLeadRename}
+              onLeadPatched={applyLeadPatch}
             />
           )}
           <WorkflowRunDrawer

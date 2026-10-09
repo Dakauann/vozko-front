@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Broadcast, CaretDown, Check, DownloadSimple, ListDashes, Target, Warning } from "@/components/icons";
+import { BULK_CONTROL } from "@/components/selection/GuardedAction";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { LiveFetch } from "@/lib/advertising/live";
 import type { AdAttributionWindow } from "@/lib/advertising/types";
@@ -36,8 +37,7 @@ export function LiveHint({ status }: { status: LiveFetch }) {
   );
 }
 
-export const TOOLBAR_CONTROL =
-  "inline-flex h-8 items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+export const TOOLBAR_CONTROL = BULK_CONTROL;
 
 function MenuButton({ icon, label, disabled, children }: { icon: ReactNode; label: string; disabled: boolean; children: ReactNode }) {
   return (

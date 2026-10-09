@@ -28,7 +28,7 @@ import {
   OriginsSection,
 } from "@/components/webchat/widget-sections";
 import { useParams, useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -39,7 +39,6 @@ export default function WebchatWidgetPage() {
   const params = useParams();
   const widgetId = String(params?.widgetId ?? "");
   const router = useRouter();
-  const { toast } = useToast();
   const { can } = useWorkspace();
 
   const [widget, setWidget] = useState<WebchatWidget | null>(null);
@@ -77,28 +76,24 @@ export default function WebchatWidgetPage() {
       const result = await updateWebchatWidgetAction(widgetId, payload);
       if ("error" in result || !result.widget) {
         const key = "error" in result ? webchatErrorKey(result.code) : null;
-        toast({
-          title: t("detail.saveFailed"),
-          description: key ? t(key) : "error" in result ? result.error : undefined,
-          variant: "destructive",
-        });
+        toast.error(t("detail.saveFailed"), { description: key ? t(key) : "error" in result ? result.error : undefined });
         return false;
       }
       setWidget(result.widget);
       return true;
     },
-    [widgetId, toast, t],
+    [widgetId, t],
   );
 
   const handleDelete = useCallback(async () => {
     const result = await deleteWebchatWidgetAction(widgetId);
     if ("error" in result) {
-      toast({ title: t("danger.deleteFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("danger.deleteFailed"), { description: result.error });
       return;
     }
-    toast({ title: t("danger.deleted", { name: widget?.name ?? "" }) });
+    toast(t("danger.deleted", { name: widget?.name ?? "" }));
     router.push("/dashboard/webchat");
-  }, [widgetId, widget?.name, toast, t, router]);
+  }, [widgetId, widget?.name, t, router]);
 
   if (loading) {
     return <div className="p-6 text-sm text-muted-foreground">{t("detail.loading")}</div>;

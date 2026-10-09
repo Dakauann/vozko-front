@@ -41,7 +41,7 @@ import { cn } from "@/lib/utils";
 import { getExchangeRateAction } from "@/app/actions/pricing";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useParams, useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 
@@ -92,7 +92,6 @@ export default function AdminUserBalancePage() {
   const router = useRouter();
   const workspaceId = params.userId as string;
   const t = useTranslations("adminBalancePage");
-  const { toast } = useToast();
 
   const [summary, setSummary] = useState<BalanceSummary | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -204,17 +203,14 @@ export default function AdminUserBalancePage() {
     e.preventDefault();
     const amount = Number.parseFloat(formAmount);
     if (!amount || amount <= 0) {
-      toast({ title: t("form.error.invalidAmount"), variant: "destructive" });
+      toast.error(t("form.error.invalidAmount"));
       return;
     }
 
     setSubmitting(true);
     try {
       if (loadingRate || exchangeRate == null) {
-        toast({
-          title: "Exchange rate not loaded yet",
-          variant: "destructive",
-        });
+        toast.error(t("form.error.exchangeRateNotLoaded"));
         setSubmitting(false);
         return;
       }
@@ -233,17 +229,9 @@ export default function AdminUserBalancePage() {
       const result = await action(workspaceId, payload);
 
       if (result.error) {
-        toast({
-          title: t("form.error.operationFailed"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("form.error.operationFailed"), { description: result.error });
       } else {
-        toast({
-          title:
-            operationType === "credit"
-              ? t("form.success.credit")
-              : t("form.success.debit"),
+        toast(operationType === "credit" ? t("form.success.credit") : t("form.success.debit"), {
           description: t("form.success.description"),
         });
         setShowForm(false);
@@ -253,7 +241,7 @@ export default function AdminUserBalancePage() {
         fetchTransactions();
       }
     } catch {
-      toast({ title: t("form.error.operationFailed"), variant: "destructive" });
+      toast.error(t("form.error.operationFailed"));
     } finally {
       setSubmitting(false);
     }

@@ -10,7 +10,7 @@ import { DashboardTable, type DashboardTableColumn } from "@/components/elevated
 import { Bookmark, PencilSimple, Plus, Trash } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { AUDIENCE_MAX_AGE, genderChoiceOf, type SavedAudience } from "@/lib/advertising/audiences";
 import type { AdAccount } from "@/lib/advertising/types";
 import { formatWhen } from "@/lib/advertising/when";
@@ -26,7 +26,6 @@ type Editing = { mode: "create" } | { mode: "edit"; audience: SavedAudience } | 
 export function SavedAudiencesPanel({ account, permissions }: { account: AdAccount; permissions: AudiencePermissions }) {
   const t = useTranslations("adsAudiences.saved");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const list = useKeyedLoad("saved", listSavedAudiencesAction);
   const [editing, setEditing] = useState<Editing>(null);
@@ -49,7 +48,7 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
 
   const saved = (audience: SavedAudience, created: boolean) => {
     setEditing(null);
-    toast({ title: created ? t("created", { name: audience.name }) : t("updated", { name: audience.name }) });
+    toast(created ? t("created", { name: audience.name }) : t("updated", { name: audience.name }));
     list.reload();
   };
 
@@ -59,10 +58,10 @@ export function SavedAudiencesPanel({ account, permissions }: { account: AdAccou
     const outcome = await deleteSavedAudienceAction(target.id);
     setDeleting(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("deleteFailed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("deleteFailed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("deleted", { name: target.name }) });
+    toast(t("deleted", { name: target.name }));
     list.reload();
   };
 

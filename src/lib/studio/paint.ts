@@ -1,4 +1,4 @@
-import type { BlendMode, FrameKind, Layer } from "./document";
+import { STAR_DEFAULTS, type BlendMode, type FrameKind, type Gradient, type Layer, type LineCap, type LineJoin } from "./document";
 import type { Point } from "./viewport";
 
 export interface Box {
@@ -24,6 +24,27 @@ export function gradientLine(angle: number, box: Box): { start: Point; end: Poin
   };
 }
 
+export type GradientStops = (number | string)[];
+
+export type GradientPaint =
+  | { kind: "linear"; start: Point; end: Point; stops: GradientStops }
+  | { kind: "radial"; center: Point; radius: number; stops: GradientStops };
+
+export function gradientStops(gradient: Gradient): GradientStops {
+  return gradient.via ? [0, gradient.from, 0.5, gradient.via, 1, gradient.to] : [0, gradient.from, 1, gradient.to];
+}
+
+export function gradientPaint(gradient: Gradient, box: Box): GradientPaint {
+  const stops = gradientStops(gradient);
+  if (gradient.kind !== "radial") return { kind: "linear", ...gradientLine(gradient.angle, box), stops };
+  return {
+    kind: "radial",
+    center: { x: box.x + (gradient.cx ?? 0) * box.width, y: box.y + (gradient.cy ?? 0) * box.height },
+    radius: ((gradient.radius ?? 0) * Math.max(box.width, box.height)) / 2,
+    stops,
+  };
+}
+
 export function compositeOf(mode: BlendMode | undefined): Composite {
   return !mode || mode === "normal" ? "source-over" : mode;
 }
@@ -37,18 +58,21 @@ export function curvePath(width: number, height: number, curve: number): string 
   return `M 0 ${y} A ${radius} ${radius} 0 0 ${curve > 0 ? 1 : 0} ${width} ${y}`;
 }
 
-const STAR_POINTS = 5;
-const STAR_INNER = 0.45;
-
-export function framePolygon(kind: Exclude<FrameKind, "ellipse">, width: number, height: number): number[] {
-  if (kind === "triangle") return [width / 2, 0, width, height, 0, height];
+export function starPolygon(star: Pick<Layer, "points" | "inner">, width: number, height: number): number[] {
+  const count = star.points || STAR_DEFAULTS.points;
+  const inner = star.inner || STAR_DEFAULTS.inner;
   const points: number[] = [];
-  for (let i = 0; i < STAR_POINTS * 2; i++) {
-    const radius = i % 2 === 0 ? 0.5 : 0.5 * STAR_INNER;
-    const angle = -Math.PI / 2 + (i * Math.PI) / STAR_POINTS;
+  for (let i = 0; i < count * 2; i++) {
+    const radius = i % 2 === 0 ? 0.5 : 0.5 * inner;
+    const angle = -Math.PI / 2 + (i * Math.PI) / count;
     points.push(width / 2 + Math.cos(angle) * radius * width, height / 2 + Math.sin(angle) * radius * height);
   }
   return points;
+}
+
+export function framePolygon(kind: Exclude<FrameKind, "ellipse">, width: number, height: number): number[] {
+  if (kind === "triangle") return [width / 2, 0, width, height, 0, height];
+  return starPolygon({}, width, height);
 }
 
 export function clipRuns(layers: readonly Layer[]): Layer[][] {
@@ -63,7 +87,33 @@ export function clipRuns(layers: readonly Layer[]): Layer[][] {
 
 export const MAX_CACHE_PIXEL_RATIO = 2;
 
-export function cachePixelRatioFor(scale: number, devicePixelRatio: number): number {
-  const wanted = Math.min(MAX_CACHE_PIXEL_RATIO, Math.max(0.25, scale * (devicePixelRatio || 1)));
+export function cachePixelRatioFor(scale: number, devicePixelRatio: number, ceiling: number = MAX_CACHE_PIXEL_RATIO): number {
+  const wanted = Math.min(ceiling, Math.max(0.25, scale * (devicePixelRatio || 1)));
   return Math.ceil(wanted * 4) / 4;
+}
+
+export const DEFAULT_MITER_LIMIT = 10;
+export const LEGACY_DASH = [3, 2] as const;
+
+export interface StrokeStyle {
+  lineCap: LineCap;
+  lineJoin: LineJoin;
+  miterLimit: number;
+  dash: number[] | undefined;
+  dashOffset: number;
+}
+
+const ROUND_SHAPES = new Set<Layer["shape"]>(["triangle", "line", "arrow", "path"]);
+
+export function strokeStyle(layer: Pick<Layer, "type" | "shape" | "strokeWidth" | "lineCap" | "lineJoin" | "miterLimit" | "dash" | "dashArray" | "dashOffset">): StrokeStyle {
+  const round = layer.type === "shape" && ROUND_SHAPES.has(layer.shape);
+  const width = layer.strokeWidth ?? 0;
+  const pattern = layer.dashArray && layer.dashArray.length > 0 ? layer.dashArray : layer.dash ? LEGACY_DASH : null;
+  return {
+    lineCap: layer.lineCap ?? (round && layer.shape !== "triangle" ? "round" : "butt"),
+    lineJoin: layer.lineJoin ?? (round ? "round" : "miter"),
+    miterLimit: layer.miterLimit || DEFAULT_MITER_LIMIT,
+    dash: pattern && width > 0 ? pattern.map((v) => v * width) : undefined,
+    dashOffset: (layer.dashOffset ?? 0) * width,
+  };
 }

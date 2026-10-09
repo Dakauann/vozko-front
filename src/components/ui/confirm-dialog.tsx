@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Warning, Trash, CircleNotch } from "@/components/icons";
+import { useTranslations } from "next-intl";
+import { Info, Trash, CircleNotch } from "@/components/icons";
 
 import {
   AlertDialog,
@@ -13,25 +14,9 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
-import GrainBackground, {
-  type ColorGroup,
-} from "@/components/elevated-design/grain-background";
 import { cn } from "@/lib/utils";
 
 type ConfirmTone = "danger" | "default";
-
-const DANGER_PALETTE: ColorGroup[] = [
-  { colors: ["#fb7185", "#f43f5e"], weight: 40 },
-  { colors: ["#f43f5e", "#e11d48"], weight: 30 },
-  { colors: ["#e11d48", "#be123c"], weight: 20 },
-  { colors: ["#be123c", "#9f1239"], weight: 10 },
-];
-const DEFAULT_PALETTE: ColorGroup[] = [
-  { colors: ["#3b82f6", "#2563eb"], weight: 40 },
-  { colors: ["#2563eb", "#1d4ed8"], weight: 30 },
-  { colors: ["#1d4ed8", "#1e40af"], weight: 20 },
-  { colors: ["#1e40af", "#1e3a8a"], weight: 10 },
-];
 
 export interface ConfirmDialogProps {
   trigger?: React.ReactNode;
@@ -42,10 +27,11 @@ export interface ConfirmDialogProps {
   description?: React.ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => void | boolean | Promise<void | boolean>;
   tone?: ConfirmTone;
   icon?: React.ReactNode;
   confirmDisabled?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConfirmDialog({
@@ -55,12 +41,14 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = "Cancelar",
+  cancelLabel,
   onConfirm,
   tone = "danger",
   icon,
   confirmDisabled = false,
+  children,
 }: ConfirmDialogProps) {
+  const t = useTranslations("common");
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
 
@@ -73,15 +61,16 @@ export function ConfirmDialog({
 
   const danger = tone === "danger";
   const resolvedConfirmLabel =
-    confirmLabel ?? (danger ? "Excluir" : "Confirmar");
-  const TileIcon = danger ? Trash : Warning;
+    confirmLabel ?? (danger ? t("delete") : t("confirm"));
+  const resolvedCancelLabel = cancelLabel ?? t("cancel");
+  const TileIcon = danger ? Trash : Info;
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await onConfirm();
+      const keepOpen = (await onConfirm()) === false;
       setBusy(false);
-      setOpen(false);
+      if (!keepOpen) setOpen(false);
     } catch {
       setBusy(false);
     }
@@ -96,34 +85,19 @@ export function ConfirmDialog({
     >
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent className="max-w-md gap-0 overflow-hidden rounded-[--radius] p-0 sm:rounded-[--radius]">
-        {}
-        <div className="relative h-28 w-full overflow-hidden">
-          <GrainBackground
-            palette={danger ? DANGER_PALETTE : DEFAULT_PALETTE}
-            seed={danger ? 13 : 50}
-            mode="islands"
-            islandsScale={0.01}
-            islandsElongation={0.9}
-            islandsWarp={10}
-            islandsBlur={2}
-            opacity={0.22}
-            className="h-full !rounded-none"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-white/10" />
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="grid h-16 w-16 place-items-center rounded-[--radius] bg-white/15 shadow-lg ring-1 ring-white/25">
-              {icon ?? (
-                <TileIcon
-                  size={30}
-                  weight="fill"
-                  className="text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.35)]"
-                />
-              )}
-            </div>
+        <div className="flex justify-center px-6 pt-6">
+          <div
+            aria-hidden="true"
+            className={cn(
+              "grid h-14 w-14 place-items-center",
+              danger ? "tile-fault" : "tile-info",
+            )}
+          >
+            {icon ?? <TileIcon size={28} />}
           </div>
         </div>
 
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 p-6 pt-4">
           <div className="space-y-1.5 text-center">
             <AlertDialogTitle className="text-lg font-semibold">
               {title}
@@ -135,12 +109,14 @@ export function ConfirmDialog({
             )}
           </div>
 
+          {children}
+
           <AlertDialogFooter className="flex-row gap-2.5 sm:justify-stretch sm:space-x-0">
             <AlertDialogCancel
               disabled={busy}
               className="mt-0 flex-1 rounded-[--radius]"
             >
-              {cancelLabel}
+              {resolvedCancelLabel}
             </AlertDialogCancel>
             <button
               type="button"

@@ -1,15 +1,16 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import pt from "@/i18n/messages/pt.json";
 import type { CallSessionApi } from "@/hooks/use-call-session-ws";
-import type { SipTrunk } from "@/lib/sip-trunks/types";
+import type { DialTargets, DialTrunk } from "@/lib/dialer/dial-targets";
 import type { QueueTarget } from "@/lib/call-routing/types";
 
 const grants = vi.hoisted(() => ({ value: new Set<string>() }));
 const session = vi.hoisted(() => ({ value: null as unknown as CallSessionApi }));
-const trunkList = vi.hoisted(() => ({ value: [] as SipTrunk[] }));
+const trunkList = vi.hoisted(() => ({ value: [] as DialTrunk[], leads: {} as Record<string, DialTargets>, asked: [] as Array<string | null> }));
 const queueList = vi.hoisted(() => ({ value: [] as QueueTarget[] }));
 
 vi.mock("@/contexts/workspace-context", () => ({
@@ -20,30 +21,35 @@ vi.mock("@/contexts/workspace-context", () => ({
   }),
 }));
 vi.mock("@/contexts/call-session-context", () => ({ useCallSession: () => session.value }));
-vi.mock("@/app/actions/sip-trunks", () => ({ listSipTrunksAction: () => Promise.resolve({ trunks: trunkList.value }) }));
+vi.mock("@/app/actions/sip-trunks", () => ({
+  fetchDialTargets: (leadId: string | null) => {
+    trunkList.asked.push(leadId);
+    const lead = leadId ? trunkList.leads[leadId] : undefined;
+    return Promise.resolve(
+      lead ?? {
+        leadId: leadId ?? "",
+        numbers: [],
+        trunks: trunkList.value,
+        ...(trunkList.value.length === 0 ? { trunkRefusal: "no_dialable_trunk" } : {}),
+      },
+    );
+  },
+}));
 vi.mock("@/app/actions/call-routing", () => ({ listTransferQueuesAction: () => Promise.resolve({ queues: queueList.value }) }));
 vi.mock("@/i18n/routing", () => ({ Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a> }));
 
 import { DialerDock } from "@/components/dialer/dialer-dock";
-import { presetDial, subscribeCallRequest, type CallRequest } from "@/lib/call-session/call-session-control";
+import {
+  callSurfaceOwner,
+  presetDial,
+  releaseCallSurface,
+  setCallSurface,
+  subscribeCallRequest,
+  type CallRequest,
+} from "@/lib/call-session/call-session-control";
 
-function trunk(overrides: Partial<SipTrunk>): SipTrunk {
-  return {
-    id: "t1",
-    name: "Principal",
-    trunkType: "BIDIRECTIONAL",
-    host: "sip.example.com",
-    port: 5060,
-    transport: "UDP",
-    username: "1001",
-    hasPassword: true,
-    enabled: true,
-    settings: { skipRegistration: false, dialPlan: {}, stunEnabled: false },
-    registrationStatus: "REGISTERED",
-    createdAt: "",
-    updatedAt: "",
-    ...overrides,
-  };
+function trunk(overrides: Partial<DialTrunk>): DialTrunk {
+  return { id: "t1", name: "Principal", ...overrides };
 }
 
 function callSession(overrides: Partial<CallSessionApi> = {}): CallSessionApi {
@@ -69,11 +75,13 @@ function callSession(overrides: Partial<CallSessionApi> = {}): CallSessionApi {
   } as CallSessionApi;
 }
 
-function renderDialer() {
+function renderDialer(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) {
   return render(
-    <NextIntlClientProvider locale="pt" messages={pt}>
-      <DialerDock />
-    </NextIntlClientProvider>,
+    <QueryClientProvider client={client}>
+      <NextIntlClientProvider locale="pt" messages={pt}>
+        <DialerDock />
+      </NextIntlClientProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -92,12 +100,17 @@ describe("DialerDock", () => {
     grants.value = new Set(["sip_trunks:call", "sip_trunks:read", "call_session:use", "call_session:transfer"]);
     session.value = callSession();
     trunkList.value = [trunk({})];
+    trunkList.leads = {};
+    trunkList.asked = [];
     queueList.value = [];
     requests = [];
     unsubscribe = subscribeCallRequest((request) => requests.push(request));
   });
 
-  afterEach(() => unsubscribe());
+  afterEach(() => {
+    unsubscribe();
+    releaseCallSurface("call_list");
+  });
 
   it("stays hidden for members who may not call through trunks", () => {
     grants.value = new Set(["call_session:use"]);
@@ -105,19 +118,109 @@ describe("DialerDock", () => {
     expect(screen.queryByRole("button", { name: "Abrir discador" })).toBeNull();
   });
 
-  it("offers only registered trunks that can dial", async () => {
-    trunkList.value = [
-      trunk({ id: "ok", name: "Registrado" }),
-      trunk({ id: "failed", name: "Falhou", registrationStatus: "FAILED" }),
-      trunk({ id: "in", name: "Entrada", trunkType: "INBOUND" }),
-      trunk({ id: "off", name: "Desligado", enabled: false }),
-    ];
+  it("offers the lines the server says can dial", async () => {
+    trunkList.value = [trunk({ id: "ok", name: "Registrado" })];
     renderDialer();
+    expect(trunkList.asked).toEqual([]);
     await openDialer();
     await waitFor(() => expect(screen.getByText("Registrado")).toBeTruthy());
-    expect(screen.queryByText("Falhou")).toBeNull();
-    expect(screen.queryByText("Entrada")).toBeNull();
-    expect(screen.queryByText("Desligado")).toBeNull();
+    expect(trunkList.asked).toEqual([null]);
+  });
+
+  it("says so when no line can dial", async () => {
+    trunkList.value = [];
+    renderDialer();
+    await openDialer();
+    expect(await screen.findByText(pt.calling.dialer.noTrunks)).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Número"), { target: { value: "100" } });
+    expect(screen.getByRole("button", { name: "Ligar" })).toHaveProperty("disabled", true);
+  });
+
+  it("asks for the lines of the handed over lead", async () => {
+    trunkList.leads = {
+      "lead-1": { leadId: "lead-1", numbers: [{ number: "5584999990000", identity: true }], trunks: [{ id: "t9", name: "Do lead" }] },
+    };
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "5584999990000", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(screen.getByText("Do lead")).toBeTruthy());
+    expect(trunkList.asked).toContain("lead-1");
+    fireEvent.click(screen.getByRole("button", { name: "Ligar" }));
+    expect(requests).toEqual([{ phoneNumber: "5584999990000", trunkId: "t9", label: "Do lead", leadId: "lead-1" }]);
+  });
+
+  it("reads the answer the Ligar button already holds for the same lead revision", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 60_000 } } });
+    client.setQueryData(["dial-targets", "ws-1", "lead-1", 3], {
+      leadId: "lead-1",
+      callable: "5584999990000",
+      numbers: [{ number: "5584999990000", identity: true }],
+      trunks: [{ id: "t9", name: "Do lead" }, { id: "t8", name: "Outra" }],
+    });
+    renderDialer(client);
+    await act(async () => {
+      presetDial({ phoneNumber: "5584999990000", leadId: "lead-1", leadRevision: 3, trunkId: "t9" });
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(screen.getByText("Do lead")).toBeTruthy());
+    expect(trunkList.asked).not.toContain("lead-1");
+  });
+
+  it("calls a contact phone of the lead that is not the first callable number", async () => {
+    trunkList.leads = {
+      "lead-1": {
+        leadId: "lead-1",
+        callable: "5584999990000",
+        numbers: [
+          { number: "5584999990000", identity: true },
+          { number: "551133334444", identity: false, phoneId: "phone-1" },
+        ],
+        trunks: [{ id: "t9", name: "Do lead" }],
+      },
+    };
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "551133334444", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Ligar" })).toHaveProperty("disabled", false));
+    fireEvent.click(screen.getByRole("button", { name: "Ligar" }));
+    expect(requests).toEqual([{ phoneNumber: "551133334444", trunkId: "t9", label: "Do lead", leadId: "lead-1" }]);
+  });
+
+  it("refuses a handed over number the lead may not be called on, with the reason", async () => {
+    trunkList.leads = {
+      "lead-1": {
+        leadId: "lead-1",
+        numbers: [
+          { number: "5584999990000", identity: true, refusal: "opted_out" },
+          { number: "551133334444", identity: false },
+        ],
+        trunks: [{ id: "t1", name: "Principal" }],
+      },
+    };
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "5584999990000", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    expect(await screen.findByText(pt.calling.dialTargets.reasons.opted_out)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ligar" })).toHaveProperty("disabled", true);
+  });
+
+  it("explains why a handed over lead cannot be called at all", async () => {
+    trunkList.leads = {
+      "lead-1": { leadId: "lead-1", refusal: "blocked", numbers: [{ number: "5584999990000", identity: true, refusal: "blocked" }], trunks: [] },
+    };
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "5584999990000", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    expect(await screen.findByText(pt.calling.dialTargets.reasons.blocked)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ligar" })).toHaveProperty("disabled", true);
   });
 
   it("dials through the selected trunk once the number is valid", async () => {
@@ -175,6 +278,77 @@ describe("DialerDock", () => {
     expect((screen.getByLabelText("Número") as HTMLInputElement).value).toBe("5584999990000");
     fireEvent.click(await screen.findByRole("button", { name: "Ligar" }));
     expect(requests).toEqual([{ phoneNumber: "5584999990000", trunkId: "b", label: "B" }]);
+  });
+
+  it("keeps the handed over lead while the number is still the one handed over", async () => {
+    trunkList.leads = {
+      "lead-1": { leadId: "lead-1", numbers: [{ number: "5584999990000", identity: true }], trunks: [trunk({})] },
+    };
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "5584999990000", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Ligar" }));
+    expect(requests).toEqual([{ phoneNumber: "5584999990000", trunkId: "t1", label: "Principal", leadId: "lead-1" }]);
+  });
+
+  it("drops the handed over lead once the member changes the number", async () => {
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "100", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apagar" }));
+    expect((screen.getByLabelText("Número") as HTMLInputElement).value).toBe("100");
+    fireEvent.click(await screen.findByRole("button", { name: "Ligar" }));
+    expect(requests).toEqual([{ phoneNumber: "100", trunkId: "t1", label: "Principal" }]);
+  });
+
+  it("replaces an earlier lead when another number is handed over", async () => {
+    renderDialer();
+    await act(async () => {
+      presetDial({ phoneNumber: "100", leadId: "lead-1" });
+      await Promise.resolve();
+    });
+    await act(async () => {
+      presetDial({ phoneNumber: "100" });
+      await Promise.resolve();
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Ligar" }));
+    expect(requests).toEqual([{ phoneNumber: "100", trunkId: "t1", label: "Principal" }]);
+  });
+
+  it("owns the call surface only while open", async () => {
+    renderDialer();
+    expect(callSurfaceOwner()).toBeNull();
+    await openDialer();
+    expect(callSurfaceOwner()).toBe("dialer");
+    fireEvent.click(screen.getByRole("button", { name: "Minimizar" }));
+    expect(callSurfaceOwner()).toBeNull();
+  });
+
+  it("leaves the live call to the call list while the call list owns the call surface", async () => {
+    session.value = callSession({ callState: { phoneNumber: "100", status: "answered", answeredAt: Date.now() } });
+    renderDialer();
+    await openDialer();
+    expect(screen.getByText(pt.calling.dialer.inCall)).toBeTruthy();
+
+    act(() => setCallSurface("call_list"));
+    expect(screen.queryByText(pt.calling.dialer.inCall)).toBeNull();
+    expect(screen.queryByRole("button", { name: /Desligar/ })).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe(pt.calling.dialer.callHeldBy.call_list);
+
+    act(() => releaseCallSurface("call_list"));
+    expect(screen.getByText(pt.calling.dialer.inCall)).toBeTruthy();
+  });
+
+  it("explains a refused lead call in the member's language", async () => {
+    session.value = callSession({ lastErrorCode: "lead_blocked", lastError: "lead blocked" });
+    renderDialer();
+    await openDialer();
+    expect(await screen.findByText(pt.calling.dialer.errors.lead_blocked)).toBeTruthy();
   });
 
   it("explains a refused call in the member's language", async () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newShapeLayer, newTextLayer, STUDIO_LIMITS, type Layer } from "./document";
+import { emptyArtboard, newShapeLayer, newTextLayer, STUDIO_LIMITS, type Layer } from "./document";
 import { clipboardOf, decodeClipboard, encodeClipboard, CLIPBOARD_PREFIX } from "./clipboard";
 import { pasteLayers } from "./layers";
-import { documentIssue } from "./validate";
+import { surfaceIssue } from "./validate";
 
 const canvas = { width: 1000, height: 1000 };
 
@@ -13,7 +13,7 @@ function rect(id: string, extra: Partial<Layer> = {}): Layer {
 
 describe("clipboard payload", () => {
   it("round trips layers with their groups through text", () => {
-    const doc = { ...emptyImageDocument(canvas), layers: [rect("a", { groupId: "g" }), rect("b", { groupId: "g" }), newTextLayer("Oi")], groups: [{ id: "g", name: "Topo" }] };
+    const doc = { ...emptyArtboard(canvas), layers: [rect("a", { groupId: "g" }), rect("b", { groupId: "g" }), newTextLayer("Oi")], groups: [{ id: "g", name: "Topo" }] };
     const content = clipboardOf(doc, ["a", "b"]);
     expect(content).toEqual({ layers: doc.layers.slice(0, 2), groups: doc.groups });
     const text = encodeClipboard(content);
@@ -32,15 +32,20 @@ describe("clipboard payload", () => {
     expect(decodeClipboard(wrap([rect("a")], { groups: [{ id: "g", parentId: "g" }] }))).toBeNull();
   });
 
-  it("refuses more layers than a document can hold", () => {
-    const many = Array.from({ length: STUDIO_LIMITS.maxLayers + 1 }, (_, i) => rect(`l${i}`));
-    expect(decodeClipboard(encodeClipboard({ layers: many, groups: [] }))).toBeNull();
+  it("takes any number of layers that fit in a document", () => {
+    const many = Array.from({ length: 600 }, (_, i) => rect(`l${i}`));
+    expect(decodeClipboard(encodeClipboard({ layers: many, groups: [] }))?.layers).toHaveLength(600);
+  });
+
+  it("refuses clipboard text larger than a document can be", () => {
+    const huge = `${encodeClipboard({ layers: [rect("a")], groups: [] })}${" ".repeat(STUDIO_LIMITS.maxDocumentBytes)}`;
+    expect(decodeClipboard(huge)).toBeNull();
   });
 });
 
 describe("pasteLayers", () => {
   it("adds fresh copies on top with an offset, unlocked, keeping groups together under a new id", () => {
-    const doc = { ...emptyImageDocument(canvas), layers: [rect("a")] };
+    const doc = { ...emptyArtboard(canvas), layers: [rect("a")] };
     const copied = [rect("a"), rect("b", { groupId: "g", locked: true }), rect("c", { groupId: "g" })];
     const { document, ids } = pasteLayers(doc, copied, 0.02);
     expect(ids).toHaveLength(3);
@@ -52,19 +57,19 @@ describe("pasteLayers", () => {
     expect(b.groupId).toBe(c.groupId);
     expect(b.locked).toBeUndefined();
     expect(b.transform.x).toBeCloseTo(0.52);
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
   });
 
   it("drops a group id left with a single member", () => {
-    const doc = emptyImageDocument(canvas);
+    const doc = emptyArtboard(canvas);
     const { document } = pasteLayers(doc, [rect("b", { groupId: "g" })], 0);
     expect(document.layers[0].groupId).toBeUndefined();
   });
 
-  it("does nothing when the document would exceed the layer limit", () => {
-    const doc = { ...emptyImageDocument(canvas), layers: Array.from({ length: STUDIO_LIMITS.maxLayers }, (_, i) => rect(`l${i}`)) };
+  it("pastes onto a design that already has many layers", () => {
+    const doc = { ...emptyArtboard(canvas), layers: Array.from({ length: 600 }, (_, i) => rect(`l${i}`)) };
     const result = pasteLayers(doc, [rect("x")], 0.02);
-    expect(result.document).toBe(doc);
-    expect(result.ids).toEqual([]);
+    expect(result.ids).toHaveLength(1);
+    expect(result.document.layers).toHaveLength(601);
   });
 });

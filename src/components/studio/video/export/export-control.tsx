@@ -16,41 +16,18 @@ import { pathForScreen } from "@/lib/navigation/routes";
 import { useEditorState } from "../editor-context";
 import { useVideoExport, type VideoExportState } from "../use-video-export";
 
-const KNOWN_FAILURES = new Set([
-  "empty",
-  "unsaved",
-  "raster_failed",
-  "upload_failed",
-  "too_many_jobs",
-  "not_rasterized",
-  "invalid",
-  "conflict",
-  "changed",
-  "insufficient_funds",
-  "timed_out",
-  "generation_failed",
-  "storage_failed",
-  "enqueue_failed",
-]);
-
 function progressLabel(state: VideoExportState, t: ReturnType<typeof useTranslations>): string | null {
-  switch (state.status) {
-    case "preparing":
-      if (state.phase.phase === "rasterizing") return t("phase.rasterizing", { done: state.phase.done, total: state.phase.total });
-      return t(`phase.${state.phase.phase}`);
-    case "queued":
-      return t("phase.queued");
-    case "rendering":
-      return t("phase.rendering");
-    case "finalizing":
-      return t("phase.finalizing");
-  }
-  return null;
+  return state.status === "preparing" ? t(`phase.${state.phase.phase}`) : null;
 }
 
-function Running({ label }: { label: string }) {
-  const progress = useEstimatedProgress();
-  return <ProgressPanel label={label} progress={progress} className="h-24 w-full" />;
+function measuredProgress(state: VideoExportState): number | undefined {
+  if (state.status !== "preparing" || state.phase.phase !== "encoding") return undefined;
+  return Math.round((state.phase.done / Math.max(1, state.phase.total)) * 100);
+}
+
+function Running({ label, measured }: { label: string; measured?: number }) {
+  const estimated = useEstimatedProgress();
+  return <ProgressPanel label={label} progress={measured ?? estimated} className="h-24 w-full" />;
 }
 
 export function ExportControl() {
@@ -90,7 +67,7 @@ export function ExportControl() {
         <p className="text-sm font-semibold text-foreground">{t("title")}</p>
         {label ? (
           <div aria-live="polite">
-            <Running label={label} />
+            <Running label={label} measured={measuredProgress(state)} />
           </div>
         ) : null}
         {state.status === "idle" ? <p className="text-xs text-muted-foreground">{t("hint")}</p> : null}
@@ -129,7 +106,7 @@ export function ExportControl() {
           <div className="space-y-3">
             <p role="alert" className="notice notice-fault flex items-start gap-1.5 px-2 py-1.5 text-xs">
               <WarningCircle className="notice-ink mt-px h-4 w-4 shrink-0" aria-hidden />
-              <span className="text-foreground">{t(`errors.${KNOWN_FAILURES.has(state.code) ? state.code : "unknown"}`)}</span>
+              <span className="text-foreground">{t(`errors.${state.code}`)}</span>
             </p>
             <div className="flex gap-2">
               <Button variant="primary" size="sm" title={t("retry")} onClick={() => void start()} />

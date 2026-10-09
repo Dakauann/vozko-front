@@ -51,6 +51,8 @@ import Link from "next/link";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
+import { selectionSendControls } from "@/lib/campaigns/selection-send";
+import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { templateParamSlots } from "@/lib/whatsapp-templates/params";
 import type { Workflow } from "@/lib/workflows/types";
@@ -67,7 +69,7 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -138,7 +140,10 @@ const extractTemplateVariables = (
   return templateParamSlots(template).body.map((slot) => `{{${slot}}}`);
 };
 
-const createWhatsAppCampaignSchema = (t: (key: string) => string) => {
+const createWhatsAppCampaignSchema = (
+  t: (key: string) => string,
+  contactsLocked = false,
+) => {
   const phoneNumberSchema = z.object({
     number: z
       .string()
@@ -177,7 +182,7 @@ const createWhatsAppCampaignSchema = (t: (key: string) => string) => {
       scheduledStart: z.string().optional().nullable(),
       phoneNumbers: z
         .array(phoneNumberSchema)
-        .min(1, t("validation.contactsMin")),
+        .min(contactsLocked ? 0 : 1, t("validation.contactsMin")),
     })
     .superRefine((data, ctx) => {
       if (data.phoneNumbers.length > 150000) {
@@ -300,7 +305,6 @@ export default function CreateWhatsAppCampaignForm({
   modelPricing: modelPricingProp,
 }: WhatsAppCampaignFormProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [isSubmitting, startSubmit] = useTransition();
@@ -380,7 +384,15 @@ export default function CreateWhatsAppCampaignForm({
     };
   }, []);
 
-  const campaignSchema = useMemo(() => createWhatsAppCampaignSchema(t), [t]);
+  const contentLocked =
+    mode === "edit" &&
+    !!initialCampaign &&
+    !selectionSendControls(initialCampaign.source, initialCampaign.status).editContent;
+  const refusalText = useSelectionSendRefusalText();
+  const campaignSchema = useMemo(
+    () => createWhatsAppCampaignSchema(t, contentLocked),
+    [t, contentLocked],
+  );
 
   const {
     control,
@@ -914,24 +926,13 @@ export default function CreateWhatsAppCampaignForm({
             headerMediaUrl,
           },
         }));
-        toast({
-          title: t("toast.success"),
-          description: t("media.saved"),
-        });
+        toast(t("toast.success"), { description: t("media.saved") });
         setMediaModalOpen(false);
       } else {
-        toast({
-          title: t("toast.error"),
-          description: result.error || t("media.saveError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.error"), { description: result.error || t("media.saveError") });
       }
     } catch {
-      toast({
-        title: t("toast.error"),
-        description: t("media.saveError"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.error"), { description: t("media.saveError") });
     } finally {
       setIsSavingMedia(false);
     }
@@ -1055,8 +1056,9 @@ export default function CreateWhatsAppCampaignForm({
 
   useEffect(() => {
     if (initialCampaign && mode === "edit") {
+      const loadedContacts = contentLocked ? [] : (initialCampaign.phoneNumbers ?? []);
       const phoneNumbersData =
-        initialCampaign.phoneNumbers?.map((pn) => {
+        loadedContacts.map((pn) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { variables: _metaVars, ...cleanMetadata } = (pn.metadata ||
             {}) as Record<string, unknown>;
@@ -1070,7 +1072,7 @@ export default function CreateWhatsAppCampaignForm({
               string | number | boolean | null
             >,
           };
-        }) || [];
+        });
 
       reset({
         name: initialCampaign.name,
@@ -1087,12 +1089,12 @@ export default function CreateWhatsAppCampaignForm({
         aiModel: initialCampaign.aiModel ?? "",
         scheduledStart: initialCampaign.scheduledStart || null,
         phoneNumbers:
-          phoneNumbersData.length > 0
+          phoneNumbersData.length > 0 || contentLocked
             ? phoneNumbersData
             : [{ number: "", name: "", variables: [], metadata: {} }],
       });
 
-      if (initialCampaign.scheduledStart) {
+      if (initialCampaign.scheduledStart && !contentLocked) {
         setScheduleEnabled(true);
       }
 
@@ -1100,7 +1102,7 @@ export default function CreateWhatsAppCampaignForm({
         replace(phoneNumbersData);
       }
     }
-  }, [initialCampaign, mode, reset, replace]);
+  }, [initialCampaign, mode, reset, replace, contentLocked]);
 
   const parseCsvContentAsync = useCallback(
     async (
@@ -1350,25 +1352,17 @@ export default function CreateWhatsAppCampaignForm({
       setLoadingProgress(100);
 
       const metadataFieldsCount = metadataHeaders.length;
-      toast({
-        title: t("toast.listLoaded"),
-        description:
-          metadataFieldsCount > 0
+      toast(t("toast.listLoaded"), { description: metadataFieldsCount > 0
             ? t("csv.importedWithMetadata", {
                 count: items.length,
                 fields: metadataFieldsCount,
               })
-            : t("csv.importedCount", { count: items.length }),
-      });
+            : t("csv.importedCount", { count: items.length }) });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t("csv.importError");
       setCsvError(message);
-      toast({
-        title: t("toast.csvError"),
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(t("toast.csvError"), { description: message });
     } finally {
       setIsLoadingCsv(false);
       setLoadingProgress(0);
@@ -1424,11 +1418,7 @@ export default function CreateWhatsAppCampaignForm({
 
   const onSubmit = (data: WhatsAppCampaignFormValues) => {
     if (mode === "create" && !templateInfoConfirmed) {
-      toast({
-        title: t("toast.validationError"),
-        description: t("validation.confirmTemplateFirst"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.validationError"), { description: t("validation.confirmTemplateFirst") });
       templateConfirmRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -1520,13 +1510,9 @@ export default function CreateWhatsAppCampaignForm({
     const actualMissingCount = hasVarsToCheck ? missingPhones.length : 0;
 
     if (hasVarsToCheck && actualMissingCount > 0) {
-      toast({
-        title: t("validation.missingVariablesTitle"),
-        description: t("validation.cannotSubmitMissingVars", {
+      toast.error(t("validation.missingVariablesTitle"), { description: t("validation.cannotSubmitMissingVars", {
           count: actualMissingCount,
-        }),
-        variant: "destructive",
-      });
+        }) });
       setShowOnlyMissingVars(true);
       setCurrentPage(0);
       return;
@@ -1606,25 +1592,21 @@ export default function CreateWhatsAppCampaignForm({
               }),
         };
 
-        const result =
+        const result: {
+          campaign: WhatsAppCampaign | null;
+          error: string | null;
+          errorCode?: string;
+        } =
           mode === "edit" && initialCampaign
             ? await updateWhatsAppCampaignAction(initialCampaign.id, payload)
             : await createWhatsAppCampaignAction(payload);
 
         if (result.error) {
-          toast({
-            title: t("toast.error"),
-            description: result.error,
-            variant: "destructive",
-          });
+          toast.error(t("toast.error"), { description: refusalText(result.errorCode, result.error) });
         } else {
-          toast({
-            title: t("toast.success"),
-            description:
-              mode === "edit"
+          toast(t("toast.success"), { description: mode === "edit"
                 ? t("toast.campaignUpdated")
-                : t("toast.campaignCreated"),
-          });
+                : t("toast.campaignCreated") });
 
           const campaignId = result.campaign?.id;
           if (
@@ -1635,23 +1617,14 @@ export default function CreateWhatsAppCampaignForm({
               dealPipelineId,
             ))
           ) {
-            toast({
-              title: tDeals("notAppliedTitle"),
-              description: tDeals("notApplied"),
-              variant: "destructive",
-            });
+            toast.error(tDeals("notAppliedTitle"), { description: tDeals("notApplied") });
           }
           pendingRedirectRef.current = campaignId
             ? `/dashboard/whatsapp-campaigns/${campaignId}`
             : "/dashboard/whatsapp-campaigns";
         }
       } catch (error) {
-        toast({
-          title: t("toast.error"),
-          description:
-            error instanceof Error ? error.message : t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.error"), { description: error instanceof Error ? error.message : t("toast.unknownError") });
       }
     });
   };
@@ -1720,11 +1693,7 @@ export default function CreateWhatsAppCampaignForm({
   const onInvalid = (errors: Record<string, unknown>) => {
     const { message, contactIndex } = describeFormError(errors);
 
-    toast({
-      title: t("toast.validationError"),
-      description: message,
-      variant: "destructive",
-    });
+    toast.error(t("toast.validationError"), { description: message });
 
     if (contactIndex !== undefined) {
       setShowOnlyMissingVars(false);
@@ -1738,13 +1707,9 @@ export default function CreateWhatsAppCampaignForm({
       onSubmit={(event) => {
         void handleSubmit(onSubmit, onInvalid)(event).catch((error) => {
           console.error("[campaign-form] submit failed", error);
-          toast({
-            title: t("toast.validationError"),
-            description: t("validation.submitCrashed", {
+          toast.error(t("toast.validationError"), { description: t("validation.submitCrashed", {
               detail: error instanceof Error ? error.message : String(error),
-            }),
-            variant: "destructive",
-          });
+            }) });
         });
       }}
       className="space-y-6"
@@ -1783,6 +1748,7 @@ export default function CreateWhatsAppCampaignForm({
                       field.onChange(val);
                       setValue("templateId", "", { shouldDirty: true });
                     }}
+                    disabled={contentLocked}
                     options={businessPhoneOptions}
                     searchPlaceholder={t("basicInfo.searchBusinessPhone")}
                     emptyMessage={t("basicInfo.noBusinessPhones")}
@@ -1794,9 +1760,13 @@ export default function CreateWhatsAppCampaignForm({
                 )}
               />
               <FieldError message={errors.businessPhoneId?.message} />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("basicInfo.businessPhoneDescription")}
-              </p>
+              {contentLocked ? (
+                <SelectionSendNote reason="templateLocked" className="mt-2" />
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("basicInfo.businessPhoneDescription")}
+                </p>
+              )}
             </div>
 
             <div>
@@ -1829,7 +1799,7 @@ export default function CreateWhatsAppCampaignForm({
                     label={t("basicInfo.template")}
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={!selectedBusinessPhoneId}
+                    disabled={contentLocked || !selectedBusinessPhoneId}
                     options={templateOptions}
                     searchPlaceholder={t("basicInfo.searchTemplate")}
                     emptyMessage={
@@ -1881,7 +1851,7 @@ export default function CreateWhatsAppCampaignForm({
                   </div>
                 )}
 
-              {selectedTemplate && templateVariables.length > 0 && (
+              {selectedTemplate && templateVariables.length > 0 && !contentLocked && (
                 <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
                   <h4 className="text-sm font-semibold text-healthy-ink mb-2">
                     {t("basicInfo.templateVariables")}
@@ -2113,6 +2083,7 @@ export default function CreateWhatsAppCampaignForm({
                 </div>
               )}
 
+            {!contentLocked && (
             <div data-tour="wc-schedule">
               <div className="flex items-center gap-3 mb-2">
                 <ElevatedSwitch
@@ -2183,6 +2154,7 @@ export default function CreateWhatsAppCampaignForm({
                 </div>
               )}
             </div>
+            )}
           </div>
         </ElevatedContainer>
 
@@ -2317,6 +2289,14 @@ export default function CreateWhatsAppCampaignForm({
         </ElevatedContainer>
       </div>
 
+      {contentLocked ? (
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
+          <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">
+            {t("contacts.title")}
+          </h2>
+          <SelectionSendNote reason="contactsLocked" />
+        </ElevatedContainer>
+      ) : (
       <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
@@ -2776,6 +2756,7 @@ export default function CreateWhatsAppCampaignForm({
           </div>
         )}
       </ElevatedContainer>
+      )}
 
       <div className="flex items-center justify-between" data-tour="wc-submit">
         <Link href="/dashboard/whatsapp-campaigns">

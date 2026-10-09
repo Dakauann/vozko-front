@@ -67,6 +67,8 @@ import EntryFiltersBar, {
 } from "@/components/dashboard/EntryFiltersBar";
 import EntryStageBadge from "@/components/dashboard/EntryStageBadge";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
+import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
+import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import { type ConversationFilterValues } from "@/components/dashboard/ConversationFilters";
 import Button from "@/components/elevated-design/button";
 import CrmDialog from "@/components/crm/CrmDialog";
@@ -80,7 +82,7 @@ import { cn } from "@/lib/utils";
 import { getWhatsAppCampaignStatsAction } from "@/app/actions/analysis";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useExportEntries } from "@/hooks/use-export-entries";
@@ -183,7 +185,6 @@ function ResetModal({
   const [generatedCode, setGeneratedCode] = useState("");
   const [inputCode, setInputCode] = useState("");
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const t = useTranslations("whatsappCampaignsPage.detail.reset");
 
   const handlePrepare = () => {
@@ -192,11 +193,7 @@ function ResetModal({
         await prepareResetWhatsAppCampaignAction(campaignId);
 
       if (error) {
-        toast({
-          title: t("errorTitle"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("errorTitle"), { description: error });
         return;
       }
 
@@ -210,11 +207,7 @@ function ResetModal({
 
   const handleConfirm = () => {
     if (inputCode.toUpperCase() !== generatedCode.toUpperCase()) {
-      toast({
-        title: t("invalidCodeTitle"),
-        description: t("invalidCodeDescription"),
-        variant: "destructive",
-      });
+      toast.error(t("invalidCodeTitle"), { description: t("invalidCodeDescription") });
       return;
     }
 
@@ -225,20 +218,13 @@ function ResetModal({
       );
 
       if (error) {
-        toast({
-          title: t("errorTitle"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("errorTitle"), { description: error });
         return;
       }
 
-      toast({
-        title: t("successTitle"),
-        description: t("successDescription", {
+      toast(t("successTitle"), { description: t("successDescription", {
           count: data?.numbersReset ?? 0,
-        }),
-      });
+        }) });
 
       onSuccess();
       setStep("prepare");
@@ -479,7 +465,6 @@ function ClearHistoryModal({
   const [messageCount, setMessageCount] = useState(0);
   const [inputCode, setInputCode] = useState("");
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const t = useTranslations("whatsappCampaignsPage.detail.clearHistory");
 
   const handlePrepare = () => {
@@ -488,11 +473,7 @@ function ClearHistoryModal({
         await prepareClearHistoryWhatsAppCampaignAction(campaignId);
 
       if (error) {
-        toast({
-          title: t("errorTitle"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("errorTitle"), { description: error });
         return;
       }
 
@@ -506,11 +487,7 @@ function ClearHistoryModal({
 
   const handleConfirm = () => {
     if (inputCode.toUpperCase() !== generatedCode.toUpperCase()) {
-      toast({
-        title: t("invalidCodeTitle"),
-        description: t("invalidCodeDescription"),
-        variant: "destructive",
-      });
+      toast.error(t("invalidCodeTitle"), { description: t("invalidCodeDescription") });
       return;
     }
 
@@ -521,20 +498,13 @@ function ClearHistoryModal({
       );
 
       if (error) {
-        toast({
-          title: t("errorTitle"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("errorTitle"), { description: error });
         return;
       }
 
-      toast({
-        title: t("successTitle"),
-        description: t("successDescription", {
+      toast(t("successTitle"), { description: t("successDescription", {
           count: data?.deletedCount ?? 0,
-        }),
-      });
+        }) });
 
       onSuccess();
       setStep("prepare");
@@ -764,7 +734,6 @@ function WhatsAppCampaignDetailContent({
   templateName,
 }: WhatsAppCampaignDetailContentProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const { can, currentWorkspace } = useWorkspace();
   const hasActiveSubscription =
     currentWorkspace?.subscriptionStatus === "active";
@@ -806,6 +775,7 @@ function WhatsAppCampaignDetailContent({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoadRef = useRef(true);
   const t = useTranslations("whatsappCampaignsPage");
+  const refusalText = useSelectionSendRefusalText();
   const canManageStages = can("stages", "update");
   const canReadStages = can("stages", "read");
   const { exporting, exportEntries } = useExportEntries();
@@ -1029,15 +999,11 @@ function WhatsAppCampaignDetailContent({
     );
     if ("error" in result) {
       const msg = t(`detail.export.${exportErrorKey(result.error)}`);
-      toast({
-        title: t("detail.toast.error"),
-        description: msg,
-        variant: "destructive",
-      });
+      toast.error(t("detail.toast.error"), { description: msg });
     } else {
-      toast({ title: t("detail.export.success") });
+      toast(t("detail.export.success"));
     }
-  }, [campaign.id, exportEntries, toast, t]);
+  }, [campaign.id, exportEntries, t]);
 
   useEffect(() => {
     if (!shouldAutoRefresh) return;
@@ -1093,32 +1059,26 @@ function WhatsAppCampaignDetailContent({
         stop: t("detail.toast.stopped"),
       } as const;
 
-      const { error } = await actionMap[action](campaign.id);
+      const { error, errorCode } = await actionMap[action](campaign.id);
 
       if (error) {
-        toast({
-          title: t("detail.toast.error"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("detail.toast.error"), { description: refusalText(errorCode, error) });
         return;
       }
 
-      toast({
-        title: toastTitleMap[action],
-        description: `${campaign.name} atualizado`,
-      });
+      toast(toastTitleMap[action], { description: t("detail.toast.updatedName", { name: campaign.name }) });
 
       router.refresh();
     });
   };
 
+  const selectionSend = selectionSendControls(campaign.source, status);
   const canStart =
-    status === "STOPPED" || status === "PAUSED" || status === "COMPLETED";
+    selectionSend.start && (status === "STOPPED" || status === "PAUSED" || status === "COMPLETED");
   const canPause = status === "RUNNING";
   const canStop = status === "RUNNING" || status === "PAUSED";
   const canReset =
-    status === "STOPPED" || status === "PAUSED" || status === "COMPLETED";
+    selectionSend.reset && (status === "STOPPED" || status === "PAUSED" || status === "COMPLETED");
 
   useEffect(() => {
     const currentMetrics = {
@@ -1370,6 +1330,8 @@ function WhatsAppCampaignDetailContent({
           }}
         />
       </div>
+
+      {selectionSend.fromLeads ? <SelectionSendNote /> : null}
 
       <div
         className={cn("grid gap-4", canReadAnalysis ? "lg:grid-cols-3" : "")}

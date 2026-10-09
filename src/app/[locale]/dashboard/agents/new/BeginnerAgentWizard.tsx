@@ -47,7 +47,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -189,7 +189,6 @@ export default function BeginnerAgentWizard({
   const tWizard = useTranslations("agents.new.beginner");
   const tEdit = useTranslations("agents.edit");
   const empty = useEmptyValue();
-  const { toast } = useToast();
   const [isSubmitting, startSubmitting] = useTransition();
 
   const [options, setOptions] = useState<AgentOptions | null>(null);
@@ -383,11 +382,7 @@ export default function BeginnerAgentWizard({
 
   const onSubmit = (data: BeginnerFormData) => {
     if (mode === "create" && tools.length === 0) {
-      toast({
-        title: tWizard("errors.toolsUnavailable.title"),
-        description: tWizard("errors.toolsUnavailable.description"),
-        variant: "destructive",
-      });
+      toast.error(tWizard("errors.toolsUnavailable.title"), { description: tWizard("errors.toolsUnavailable.description") });
       return;
     }
 
@@ -464,35 +459,20 @@ export default function BeginnerAgentWizard({
         };
         const res = await updateAgentAction(initialAgent.id, payload);
         if (res.error || !res.agent) {
-          toast({
-            title: tEdit("errors.updateFailed.title"),
-            description: res.error ?? tEdit("errors.updateFailed.description"),
-            variant: "destructive",
-          });
+          toast.error(tEdit("errors.updateFailed.title"), { description: res.error ?? tEdit("errors.updateFailed.description") });
           return;
         }
-        toast({
-          title: tEdit("success.title"),
-          description: tEdit("success.description"),
-        });
+        toast(tEdit("success.title"), { description: tEdit("success.description") });
         onSaved(res.agent);
         return;
       }
 
       const result = await createAgentAction(basePayload);
       if (result.error || !result.agent) {
-        toast({
-          title: tWizard("errors.createFailed.title"),
-          description:
-            result.error ?? tWizard("errors.createFailed.description"),
-          variant: "destructive",
-        });
+        toast.error(tWizard("errors.createFailed.title"), { description: result.error ?? tWizard("errors.createFailed.description") });
         return;
       }
-      toast({
-        title: tWizard("success.title"),
-        description: tWizard("success.description"),
-      });
+      toast(tWizard("success.title"), { description: tWizard("success.description") });
       onSaved(result.agent);
     });
   };

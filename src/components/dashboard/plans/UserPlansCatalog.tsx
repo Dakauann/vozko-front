@@ -57,7 +57,7 @@ import {
 } from "./plan-estimates";
 import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { isCustomerDocumentRequiredError } from "@/lib/invoices/recharge-errors";
 import { getInvoiceAction } from "@/app/actions/invoices";
@@ -183,7 +183,6 @@ async function fetchDashboardInvoice(
 export default function UserPlansCatalog() {
   const t = useTranslations("plansPage");
   const locale = useLocale();
-  const { toast } = useToast();
   const { currentWorkspace, can } = useWorkspace();
 
   const [plans, setPlans] = React.useState<PublicPlanDetails[]>([]);
@@ -296,7 +295,7 @@ export default function UserPlansCatalog() {
       setGeneratedInvoice(result.data);
       if (result.data.status === "PAID") {
         setPaymentConfirmed(true);
-        toast({ title: t("toast.paymentConfirmed") });
+        toast(t("toast.paymentConfirmed"));
         void loadData();
       }
     }, 4000);
@@ -305,7 +304,7 @@ export default function UserPlansCatalog() {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [dialogOpen, generatedInvoice, loadData, t, toast]);
+  }, [dialogOpen, generatedInvoice, loadData, t]);
 
   const featured = React.useMemo(() => featuredPlan(plans), [plans]);
 
@@ -445,14 +444,13 @@ export default function UserPlansCatalog() {
     }
 
     setGeneratedInvoice(result.invoice);
-    toast({ title: t("toast.invoiceCreated") });
+    toast(t("toast.invoiceCreated"));
   }, [
     currentWorkspace?.id,
     paymentMethod,
     billingCycle,
     selectedPlan,
     t,
-    toast,
   ]);
 
   const handleCancelSubscription = React.useCallback(async () => {
@@ -472,14 +470,11 @@ export default function UserPlansCatalog() {
     setCancellingSubscription(false);
 
     if (result.error) {
-      toast({
-        title: result.error ?? t("toast.cancelError"),
-        variant: "destructive",
-      });
+      toast.error(result.error ?? t("toast.cancelError"));
       return;
     }
 
-    toast({ title: t("toast.cancelSuccess") });
+    toast(t("toast.cancelSuccess"));
     await loadData();
   }, [
     currentPlan,
@@ -487,7 +482,6 @@ export default function UserPlansCatalog() {
     currentWorkspace?.id,
     loadData,
     t,
-    toast,
   ]);
 
   const handleCopyPix = React.useCallback(async () => {
@@ -498,12 +492,12 @@ export default function UserPlansCatalog() {
     try {
       await navigator.clipboard.writeText(generatedInvoice.pixCopy);
       setPixCopied(true);
-      toast({ title: t("toast.pixCopied") });
+      toast(t("toast.pixCopied"));
       window.setTimeout(() => setPixCopied(false), 2000);
     } catch {
-      toast({ title: t("toast.copyFailed"), variant: "destructive" });
+      toast.error(t("toast.copyFailed"));
     }
-  }, [generatedInvoice?.pixCopy, t, toast]);
+  }, [generatedInvoice?.pixCopy, t]);
 
   const subscriptionDescription = currentSubscription
     ? currentSubscription.status === "cancelled"

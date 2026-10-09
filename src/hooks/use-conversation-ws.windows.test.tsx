@@ -8,7 +8,7 @@ const { hasUserDataCookie, playFn } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/contexts/workspace-context", () => ({
-  useWorkspace: () => ({ currentWorkspace: { id: "ws-1" } }),
+  useWorkspace: () => ({ currentWorkspace: { id: "ws-1" }, can: () => false }),
 }));
 vi.mock("@/contexts/department-context", () => ({
   useDepartment: () => ({ currentDepartment: null }),
@@ -16,6 +16,7 @@ vi.mock("@/contexts/department-context", () => ({
 vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
 vi.mock("@/lib/sounds/sound-player", () => ({ soundPlayer: { play: playFn } }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+vi.mock("next-intl", async () => (await import("@/test/next-intl-pt")).nextIntlInPortuguese());
 
 import { useConversationWs } from "@/hooks/use-conversation-ws";
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";

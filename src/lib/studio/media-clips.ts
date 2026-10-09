@@ -1,4 +1,4 @@
-import { newMediaClip, newOverlayClip, newStudioId, newTextLayer, STUDIO_LIMITS, type Clip, type Layer, type Transform } from "./document";
+import { newMediaClip, newOverlayClip, newStudioId, newTextLayer, STUDIO_LIMITS, type Clip, type Layer, type Transform, type VideoDocument } from "./document";
 
 export const DEFAULT_STILL_MS = 3000;
 export const DEFAULT_OVERLAY_MS = 3000;
@@ -27,6 +27,12 @@ export function mediaClips(type: MediaClipType, assetId: string, atMs: number, s
   return [{ ...primary, linkId }, { ...newMediaClip("audio", assetId, atMs, durationMs), linkId }];
 }
 
+export function sizedMediaClips(type: MediaClipType, assetId: string, atMs: number, sourceDurationMs: number | undefined, durationMs?: number): Clip[] {
+  const clips = mediaClips(type, assetId, atMs, sourceDurationMs);
+  const fits = durationMs !== undefined && (type === "image" || sourceDurationMs === undefined || durationMs <= sourceDurationMs);
+  return fits ? clips.map((clip) => ({ ...clip, durationMs: Math.round(durationMs) })) : clips;
+}
+
 export function overlayClip(layer: Layer, atMs: number, transform?: Transform): Clip {
   return newOverlayClip(layer, atMs, DEFAULT_OVERLAY_MS, transform ?? { ...layer.transform });
 }
@@ -37,4 +43,9 @@ export function captionLayer(text: string): Layer {
 
 export function captionClip(cue: { text: string; startMs: number; endMs: number }): Clip {
   return newOverlayClip(captionLayer(cue.text), cue.startMs, Math.max(STUDIO_LIMITS.minClipMs, cue.endMs - cue.startMs), { ...CAPTION_TRANSFORM });
+}
+
+export function videoAssetIds(doc: VideoDocument): string[] {
+  const ids = doc.tracks.flatMap((track) => track.clips.flatMap((clip) => (clip.type === "video" && clip.assetId ? [clip.assetId] : [])));
+  return [...new Set(ids)];
 }

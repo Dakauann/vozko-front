@@ -1,5 +1,6 @@
 import type { CrmFilter } from "@/lib/crm/board";
 import type { AdDraftTargeting, AdPlacements } from "@/lib/advertising/draft-types";
+import { assignColumn as assignSheetColumn } from "@/lib/csv/column-mapping";
 
 export type AudienceKind = "CUSTOMER_LIST" | "LOOKALIKE" | "WEBSITE" | "ENGAGEMENT" | "OTHER";
 
@@ -272,10 +273,7 @@ export function previewCsv(text: string, header?: boolean, sampleRows = CSV_SAMP
 }
 
 export function assignColumn(columns: ColumnMapping[], index: number, key: ColumnMapping): ColumnMapping[] {
-  return columns.map((current, column) => {
-    if (column === index) return key;
-    return key !== "" && current === key ? "" : current;
-  });
+  return assignSheetColumn(columns, index, key);
 }
 
 export function hasIdentifyingColumn(columns: ColumnMapping[]): boolean {

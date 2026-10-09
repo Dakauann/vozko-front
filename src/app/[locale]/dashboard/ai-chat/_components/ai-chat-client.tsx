@@ -23,6 +23,7 @@ import { useChatModel } from "@/components/ai-chat/use-chat-model";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
 import { useStickToBottom } from "@/components/ai-chat/use-stick-to-bottom";
+import { ThreadCostBadge } from "@/components/ai-chat/thread-cost";
 
 export function AIChatClient() {
   const t = useTranslations("aiChatPage");
@@ -160,6 +161,7 @@ export function AIChatClient() {
             <h1 className="font-display text-base font-semibold">{t("assistantName")}</h1>
             <p className="truncate text-xs text-muted-foreground">{t("assistantRole")}</p>
           </div>
+          <ThreadCostBadge threadId={chat.activeId} streaming={chat.streaming} />
           <button type="button" onClick={startNew} disabled={busy} className={buttonClass}><Plus className="h-4 w-4" /><span className="hidden sm:inline">{t("newChat")}</span><span className="sr-only sm:hidden">{t("newChat")}</span></button>
         </header>
         <div ref={scrollRef} onScroll={onScroll} aria-busy={chat.loadingThread} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6">

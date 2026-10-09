@@ -42,6 +42,12 @@ describe("route rules", () => {
     expect(ruleForPath("/dashboard/funnels?tab=x")).toEqual({ kind: "screen", screen: "funnels" });
   });
 
+  it("opens the call lists and their worker page through their own screens", () => {
+    expect(ruleForPath("/dashboard/call-lists")).toEqual({ kind: "screen", screen: "call_lists" });
+    expect(ruleForPath("/dashboard/call-lists/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "call_list_detail" });
+    expect(pathForScreen("call_list_detail", { listId: "7b1c2f9e-0a51" })).toBe("/dashboard/call-lists/7b1c2f9e-0a51");
+  });
+
   it("gates the ad editor like creating an ad, not like reading the manager", () => {
     expect(ruleForPath("/dashboard/advertising/editor?draft=d1")).toEqual({ kind: "screen", screen: "ads_editor" });
     expect(ruleForPath("/dashboard/advertising/new")).toEqual({ kind: "screen", screen: "ads_create" });
@@ -56,6 +62,7 @@ describe("route rules", () => {
   it("classifies platform and manager areas", () => {
     expect(ruleForPath("/dashboard/users/abc/balance")).toEqual({ kind: "platform_admin" });
     expect(ruleForPath("/dashboard/plans/manage")).toEqual({ kind: "platform_admin" });
+    expect(ruleForPath("/dashboard/admin/geocoding")).toEqual({ kind: "platform_admin" });
     expect(ruleForPath("/dashboard/plans")).toEqual({ kind: "screen", screen: "plans" });
     expect(ruleForPath("/dashboard/affiliate/earnings")).toEqual({ kind: "workspace_manager" });
   });

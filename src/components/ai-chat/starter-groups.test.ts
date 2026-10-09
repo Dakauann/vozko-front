@@ -61,8 +61,8 @@ describe("starterGroupsFor", () => {
   it("always offers the questions about what the assistant can do and about access", () => {
     const start = starterGroupsFor(grant("ai_chat:read"), "/dashboard").groups;
     expect(start).toEqual([
-      { key: "start", items: ["capabilities", "setup"] },
-      { key: "team", items: ["access", "explain"] },
+      { key: "start", items: ["capabilities", "setup"], live: false },
+      { key: "team", items: ["access", "explain"], live: false },
     ]);
   });
 
@@ -76,7 +76,7 @@ describe("starterGroupsFor", () => {
 
   it("shows campaigns to a team that only uses QR code numbers", () => {
     const qrOnly = starterGroupsFor(grant("unofficial_whatsapp_campaigns:create"), "/dashboard").groups;
-    expect(qrOnly).toEqual([{ key: "campaigns", items: ["createQrCampaign"] }]);
+    expect(qrOnly).toEqual([{ key: "campaigns", items: ["createQrCampaign"], live: false }]);
   });
 
   it("opens the category of the page the user is on", () => {
@@ -101,7 +101,7 @@ describe("starterGroupsFor", () => {
 
   it("offers team management only to people who may manage the team", () => {
     const reader = starterGroupsFor(grant("members:read"), "/dashboard").groups;
-    expect(reader).toEqual([{ key: "team", items: ["members", "permissions"] }]);
+    expect(reader).toEqual([{ key: "team", items: ["members", "permissions"], live: false }]);
     const manager = starterGroupsFor(everything, "/dashboard").groups.find((g) => g.key === "team");
     expect(manager?.items).toEqual(["access", "explain", "members", "invite", "permissions", "grant", "department", "roles"]);
   });
@@ -113,11 +113,48 @@ describe("starterGroupsFor", () => {
 
   it("offers the ads group only with ads:read, and creation only with ads:create", () => {
     expect(starterGroupsFor(grant("ads:read"), "/dashboard/advertising")).toEqual({
-      groups: [{ key: "ads", items: ["results", "best"] }],
+      groups: [{ key: "ads", items: ["results", "best"], live: false }],
       open: "ads",
     });
     const creator = starterGroupsFor(grant("ads:read", "ads:create"), "/dashboard").groups;
-    expect(creator).toEqual([{ key: "ads", items: ["results", "best", "create"] }]);
+    expect(creator).toEqual([{ key: "ads", items: ["results", "best", "create"], live: false }]);
     expect(starterGroupsFor(everything, "/dashboard").groups.some((g) => g.key === "ads")).toBe(false);
+  });
+});
+
+describe("studio starters", () => {
+  const editor = grant("ai_chat:read", "media:read", "media:create");
+
+  it("opens the video editing starters inside a video project", () => {
+    const { groups, open } = starterGroupsFor(editor, "/dashboard/studio/video/p-1");
+    expect(open).toBe("studioVideo");
+    expect(groups.find((g) => g.key === "studioVideo")?.items).toContain("captions");
+    expect(groups.some((g) => g.key === "studioImage")).toBe(false);
+  });
+
+  it("opens the image starters inside an image project", () => {
+    expect(starterGroupsFor(editor, "/dashboard/studio/image/p-1").open).toBe("studioImage");
+  });
+
+  it("never offers editing starters outside a project, where Elo cannot edit", () => {
+    const { groups } = starterGroupsFor(editor, "/dashboard/studio");
+    expect(groups.some((g) => g.key === "studioVideo" || g.key === "studioImage")).toBe(false);
+  });
+
+  it("needs media creation to edit", () => {
+    const { groups } = starterGroupsFor(grant("ai_chat:read", "media:read"), "/dashboard/studio/video/p-1");
+    expect(groups.find((g) => g.key === "studioVideo")?.items).toEqual(["review"]);
+  });
+});
+
+describe("studio starters come first inside a project", () => {
+  it("puts the editing group above the general ones", () => {
+    const { groups } = starterGroupsFor(grant("ai_chat:read", "media:read", "media:create", "attendance:read"), "/dashboard/studio/image/p-1");
+    expect(groups[0].key).toBe("studioImage");
+  });
+
+  it("keeps the order elsewhere", () => {
+    const { groups } = starterGroupsFor(grant("ai_chat:read", "attendance:read"), "/dashboard/attendance");
+    expect(groups[0].key).toBe("start");
   });
 });

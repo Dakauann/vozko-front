@@ -12,21 +12,24 @@ export function getApiBaseUrl(): string {
 
 export interface ApiResult<T> {
   data?: T;
-  error?: { message: string; status?: number; code?: string; expected?: Record<string, string> };
+  error?: { message: string; status?: number; code?: string; expected?: Record<string, string>; current?: unknown };
 }
 
 const AUTH_TIMEOUT_MS = 10_000;
 
 const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
-const SLOW_ENDPOINTS: { prefix: string; timeoutMs: number }[] = [
+const SLOW_ENDPOINTS: { prefix: string; exact?: boolean; timeoutMs: number }[] = [
   { prefix: "/attendance/", timeoutMs: 30_000 },
   { prefix: "/admin/analytics/meta-invoice-check", timeoutMs: 60_000 },
+  { prefix: "/leads/actions", exact: true, timeoutMs: 120_000 },
+  { prefix: "/leads/actions/sends/", timeoutMs: 120_000 },
 ];
 
 function requestTimeoutMs(endpoint: string, isFormData: boolean): number {
   if (isFormData) return UPLOAD_TIMEOUT_MS;
-  return SLOW_ENDPOINTS.find((slow) => endpoint.startsWith(slow.prefix))?.timeoutMs ?? AUTH_TIMEOUT_MS;
+  const slow = SLOW_ENDPOINTS.find((candidate) => (candidate.exact ? endpoint === candidate.prefix : endpoint.startsWith(candidate.prefix)));
+  return slow?.timeoutMs ?? AUTH_TIMEOUT_MS;
 }
 
 function timeoutSignal(ms: number): { signal: AbortSignal; clear: () => void } {
@@ -228,6 +231,7 @@ export async function apiClient<T>(
         error?: string;
         code?: string;
         expected?: Record<string, string>;
+        current?: unknown;
       };
       return {
         error: {
@@ -235,6 +239,7 @@ export async function apiClient<T>(
           status: response.status,
           code: body.code ?? (typeof body.error === "string" && body.message ? body.error : undefined),
           expected: body.expected,
+          ...(body.current !== undefined ? { current: body.current } : {}),
         },
       };
     }

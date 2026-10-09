@@ -8,7 +8,7 @@ import Button from "@/components/elevated-design/button";
 import { Image as ImageGlyph, Lock, PencilSimple, Warning } from "@/components/icons";
 import { Hint, ReadOnlyFact, Section } from "@/components/advertising/wizard/choice-row";
 import { useWizardLabels } from "@/components/advertising/wizard/use-wizard-labels";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { civilToday } from "@/lib/advertising/date-range";
 import { isArchived } from "@/lib/advertising/delivery";
 import { bidFromInput } from "@/lib/advertising/draft";
@@ -41,7 +41,6 @@ export function ObjectEditForm({
 }) {
   const t = useTranslations("adsManager.edit");
   const labels = useWizardLabels();
-  const { toast } = useToast();
   const { row } = detail;
   const currency = account.currency;
   const [original] = useState<EditForm>(() => editFormOf(detail, account.timezone, catalog, currency));
@@ -76,7 +75,7 @@ export function ObjectEditForm({
         setError(Object.keys(issues).length > 0 ? t("fixIssues") : result.status === 429 ? t("tooSoon") : result.error);
         return;
       }
-      toast({ title: t("saved", { name: result.data.name }) });
+      toast(t("saved", { name: result.data.name }));
       onSaved(result.data);
     });
   };

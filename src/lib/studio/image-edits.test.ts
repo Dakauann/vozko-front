@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newImageLayer, newShapeLayer, newTextLayer } from "./document";
+import { emptyArtboard, newImageLayer, newShapeLayer, newTextLayer } from "./document";
 import {
   commitText,
   DEFAULT_FILTERS,
@@ -19,19 +19,19 @@ const canvas = { width: 1000, height: 500 };
 describe("commitText", () => {
   it("updates the text of the layer", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
-    const doc = { ...emptyImageDocument(canvas), layers: [layer] };
+    const doc = { ...emptyArtboard(canvas), layers: [layer] };
     expect(commitText(doc, "t", "Olá").layers[0].text).toBe("Olá");
   });
 
   it("removes the layer when the text is left blank", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
-    const doc = { ...emptyImageDocument(canvas), layers: [layer] };
+    const doc = { ...emptyArtboard(canvas), layers: [layer] };
     expect(commitText(doc, "t", "  \n").layers).toEqual([]);
   });
 
   it("keeps the document when nothing changed", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
-    const doc = { ...emptyImageDocument(canvas), layers: [layer] };
+    const doc = { ...emptyArtboard(canvas), layers: [layer] };
     expect(commitText(doc, "t", "Oi")).toBe(doc);
   });
 });

@@ -1,8 +1,8 @@
 import { clampClipTransform } from "./clip-transform";
 import type { Clip, Transform, VideoDocument } from "./document";
 import { editTransform, keyTimes, localTime, momentEasing, momentState, recordMoment, removeMoment, setAllEasing, setMomentEasing, type MomentState } from "./keyframe-edit";
-import { animatedTransform, KEYFRAME_LIMITS, KEYFRAME_PROPERTIES, keyframeCount, type Easing } from "./keyframes";
-import { findClip, hasSourceTime, moveClipsBy, timelineKeyframeCount, trimClipEnd, updateClip, type ClipLocation, type ClipPatch } from "./timeline";
+import { animatedTransform, KEYFRAME_PROPERTIES, type Easing } from "./keyframes";
+import { findClip, hasSourceTime, moveClipsBy, trimClipEnd, updateClip, type ClipLocation, type ClipPatch } from "./timeline";
 import { documentIssue } from "./validate";
 
 export type Shared<T> = { kind: "same"; value: T } | { kind: "mixed" };
@@ -90,7 +90,6 @@ export function applyToSelection(doc: VideoDocument, clipIds: readonly string[],
     const patch = build(clip);
     if (patch === null) return current;
     if (typeof patch === "string") return patch;
-    if ("keyframes" in patch && timelineKeyframeCount(current) - keyframeCount(clip.keyframes) + keyframeCount(patch.keyframes) > KEYFRAME_LIMITS.perTimeline) return "keyframeLimit";
     return updateClip(current, clip.id, patch);
   });
 }

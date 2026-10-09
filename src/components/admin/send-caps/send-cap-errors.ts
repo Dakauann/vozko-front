@@ -1,12 +1,6 @@
 import type { SendCapActionError } from "@/lib/balance/send-cap-types";
+import { codedErrorMessage, type CodedTranslator } from "@/lib/api/coded-error";
 
-type Translator = {
-    (key: string): string;
-    has: (key: string) => boolean;
-};
-
-export function describeSendCapError(t: Translator, error: SendCapActionError): string {
-    const key = `errors.${error.code ?? ""}`;
-    if (error.code && t.has(key)) return t(key);
-    return error.message || t("errors.default");
+export function describeSendCapError(t: CodedTranslator, error: SendCapActionError): string {
+    return codedErrorMessage(t, error, error.message || t("errors.default"));
 }

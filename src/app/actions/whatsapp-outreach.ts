@@ -37,7 +37,7 @@ export async function startOfficialConversationAction(
 export async function quoteTemplateSendAction(
     templateId: string,
     businessPhoneId: string,
-): Promise<{ quote: SendQuote | null; error: string | null }> {
+): Promise<{ quote: SendQuote | null; error: OutreachError | null }> {
     const params = new URLSearchParams({ templateId });
     if (businessPhoneId) params.set("businessPhoneId", businessPhoneId);
 
@@ -46,7 +46,13 @@ export async function quoteTemplateSendAction(
     });
 
     if (response.error) {
-        return { quote: null, error: response.error.message };
+        return {
+            quote: null,
+            error: { code: response.error.code ?? "quote_unavailable", message: response.error.message },
+        };
     }
-    return { quote: response.data ?? null, error: null };
+    if (!response.data) {
+        return { quote: null, error: { code: "quote_unavailable", message: "" } };
+    }
+    return { quote: response.data, error: null };
 }

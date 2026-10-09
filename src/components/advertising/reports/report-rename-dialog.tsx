@@ -15,7 +15,7 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { AdSavedReport } from "@/lib/advertising/types";
 
 export function ReportRenameDialog({
@@ -28,7 +28,6 @@ export function ReportRenameDialog({
   onRenamed: (report: AdSavedReport) => void;
 }) {
   const t = useTranslations("adsReports.rename");
-  const { toast } = useToast();
   const [name, setName] = useState(report.name);
   const [saving, setSaving] = useState(false);
   const trimmed = name.trim();
@@ -39,10 +38,10 @@ export function ReportRenameDialog({
     const outcome = await updateAdSavedReportAction(report.id, { name: trimmed, adAccountId: report.adAccountId, definition: report.definition });
     setSaving(false);
     if (isAdsError(outcome)) {
-      toast({ title: t("failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("done") });
+    toast(t("done"));
     onRenamed(outcome.data);
   };
 

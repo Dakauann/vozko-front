@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Check,
   CheckCircle,
@@ -86,7 +86,6 @@ const computeParameterFormat = (
 };
 
 export default function NewWhatsAppTemplatePage() {
-  const { toast } = useToast();
   const router = useRouter();
   const t = useTranslations("whatsappTemplates");
   const tRoot = useTranslations();
@@ -630,18 +629,11 @@ export default function NewWhatsAppTemplatePage() {
           code: reason || undefined,
         });
       } else {
-        toast({
-          title: t("toast.createSuccess"),
-          description: t("toast.createSuccessDesc"),
-        });
+        toast(t("toast.createSuccess"), { description: t("toast.createSuccessDesc") });
         router.push("/dashboard/whatsapp-templates");
       }
     } catch {
-      toast({
-        title: t("toast.createError"),
-        description: t("toast.createErrorDesc"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.createError"), { description: t("toast.createErrorDesc") });
     } finally {
       setSaving(false);
     }

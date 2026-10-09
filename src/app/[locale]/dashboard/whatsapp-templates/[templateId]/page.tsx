@@ -67,7 +67,7 @@ import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useParams } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -125,15 +125,12 @@ function usabilityTone(status: string): string {
 export default function WhatsAppTemplateDetailPage() {
   const t = useTranslations("whatsappTemplates");
   const commonT = useTranslations("common");
-  const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
   const params = useParams();
   const templateId = params.templateId as string;
 
   const tRef = useRef(t);
-  const toastRef = useRef(toast);
   tRef.current = t;
-  toastRef.current = toast;
 
   const [template, setTemplate] = useState<WhatsAppTemplate | null>(null);
   const [loading, setLoading] = useState(true);
@@ -335,26 +332,15 @@ export default function WhatsAppTemplateDetailPage() {
     try {
       const result = await syncWhatsAppTemplateByIdAction(templateId);
       if (result.error) {
-        toast({
-          title: t("toast.syncError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.syncError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.syncSuccess"),
-          description: t("toast.templateSynced"),
-        });
+        toast(t("toast.syncSuccess"), { description: t("toast.templateSynced") });
         if (result.template) {
           setTemplate(result.template);
         }
       }
     } catch {
-      toast({
-        title: t("toast.syncError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.syncError"), { description: t("error.default") });
     } finally {
       setSyncing(false);
     }
@@ -367,11 +353,7 @@ export default function WhatsAppTemplateDetailPage() {
     try {
       const result = await listBusinessPhonesAction({ pageSize: 500 });
       if (result.error) {
-        toast({
-          title: t("toast.replicateError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.replicateError"), { description: result.error });
         setReplicatePhones([]);
       } else {
         const filtered = result.phones.filter(
@@ -395,24 +377,13 @@ export default function WhatsAppTemplateDetailPage() {
         replicateTarget,
       );
       if (result.error) {
-        toast({
-          title: t("toast.replicateError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.replicateError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.replicateSuccess"),
-          description: t("toast.replicateSuccessDesc"),
-        });
+        toast(t("toast.replicateSuccess"), { description: t("toast.replicateSuccessDesc") });
         setReplicateOpen(false);
       }
     } catch {
-      toast({
-        title: t("toast.replicateError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.replicateError"), { description: t("error.default") });
     } finally {
       setReplicating(false);
     }
@@ -425,27 +396,16 @@ export default function WhatsAppTemplateDetailPage() {
         headerMediaUrl,
       });
       if (result.error) {
-        toast({
-          title: t("toast.updateMediaError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.updateMediaError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.updateMediaSuccess"),
-          description: t("toast.updateMediaSuccessDesc"),
-        });
+        toast(t("toast.updateMediaSuccess"), { description: t("toast.updateMediaSuccessDesc") });
         if (template) {
           setTemplate({ ...template, headerMediaUrl });
         }
         setIsEditModalOpen(false);
       }
     } catch {
-      toast({
-        title: t("toast.updateMediaError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.updateMediaError"), { description: t("error.default") });
     } finally {
       setIsSavingMedia(false);
     }
@@ -459,24 +419,13 @@ export default function WhatsAppTemplateDetailPage() {
         templateId,
       });
       if (result.error) {
-        toast({
-          title: t("toast.accessGrantError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.accessGrantError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.accessGrantSuccess"),
-          description: t("toast.accessGrantSuccessDesc"),
-        });
+        toast(t("toast.accessGrantSuccess"), { description: t("toast.accessGrantSuccessDesc") });
         await fetchAccess();
       }
     } catch {
-      toast({
-        title: t("toast.accessGrantError"),
-        description: t("access.error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.accessGrantError"), { description: t("access.error.default") });
     } finally {
       setGrantingWorkspaceId(null);
     }
@@ -490,24 +439,13 @@ export default function WhatsAppTemplateDetailPage() {
         templateId,
       });
       if (result.error) {
-        toast({
-          title: t("toast.accessRevokeError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.accessRevokeError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.accessRevokeSuccess"),
-          description: t("toast.accessRevokeSuccessDesc"),
-        });
+        toast(t("toast.accessRevokeSuccess"), { description: t("toast.accessRevokeSuccessDesc") });
         await fetchAccess();
       }
     } catch {
-      toast({
-        title: t("toast.accessRevokeError"),
-        description: t("access.error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.accessRevokeError"), { description: t("access.error.default") });
     } finally {
       setRevokingWorkspaceId(null);
     }

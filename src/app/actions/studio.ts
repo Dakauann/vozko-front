@@ -1,8 +1,9 @@
 import { apiClient } from "@/lib/api/browser-client";
-import type { MediaGenerationJob } from "@/lib/media-generation/types";
 import type { StudioDocument, StudioKind } from "@/lib/studio/document";
+import type { ExportedVideo } from "@/lib/studio/export";
+import type { CapabilityReport } from "@/lib/studio/telemetry";
+import { ifMatchHeader, isVersionConflict, type VersionedSaveResult } from "@/lib/api/versioned-save";
 import {
-  VERSION_CONFLICT,
   type StudioChange,
   type StudioProject,
   type StudioProjectPage,
@@ -12,15 +13,13 @@ import {
 import { isActionError, settleResult, type ActionError, type ActionResult } from "./action-result";
 
 const PROJECTS_PATH = "/studio/projects";
+const CAPABILITIES_PATH = "/studio/capabilities";
 
 function projectPath(id: string): string {
   return `${PROJECTS_PATH}/${encodeURIComponent(id)}`;
 }
 
-export type StudioSaveResult =
-  | { status: "saved"; project: StudioProject }
-  | { status: "conflict"; current: StudioProject }
-  | { status: "failed"; error: ActionError };
+export type StudioSaveResult = VersionedSaveResult<"project", StudioProject, ActionError>;
 
 export async function listStudioProjectsAction(query: StudioProjectQuery = {}): Promise<ActionResult<StudioProjectPage>> {
   const params = new URLSearchParams();
@@ -43,22 +42,29 @@ export async function saveStudioProjectAction(id: string, version: number, chang
   const result = settleResult(
     await apiClient<StudioProject>(projectPath(id), {
       method: "PATCH",
-      headers: { "If-Match": String(version) },
+      headers: ifMatchHeader(version),
       body: JSON.stringify(change),
       keepalive: options.keepalive,
     }),
   );
   if (!isActionError(result)) return { status: "saved", project: result.data };
-  if (result.status !== 409 || result.code !== VERSION_CONFLICT) return { status: "failed", error: result };
+  if (!isVersionConflict(result)) return { status: "failed", error: result };
   const current = await getStudioProjectAction(id);
   if (isActionError(current)) return { status: "failed", error: current };
   return { status: "conflict", current: current.data };
+}
+
+export async function reportStudioCapabilitiesAction(sessionId: string, report: CapabilityReport, options: { keepalive?: boolean } = {}): Promise<ActionResult<true>> {
+  const path = `${CAPABILITIES_PATH}/${encodeURIComponent(sessionId)}`;
+  return settleResult(await apiClient<true>(path, { method: "PUT", body: JSON.stringify(report), keepalive: options.keepalive }), true);
 }
 
 export async function archiveStudioProjectAction(id: string): Promise<ActionResult<true>> {
   return settleResult(await apiClient<true>(projectPath(id), { method: "DELETE" }), true);
 }
 
-export async function exportStudioVideoAction(id: string, version: number, rasters: Record<string, string>): Promise<ActionResult<MediaGenerationJob>> {
-  return settleResult(await apiClient<MediaGenerationJob>(`${projectPath(id)}/export`, { method: "POST", body: JSON.stringify({ version, rasters }) }));
+export async function saveStudioExportAction(id: string, video: Blob): Promise<ActionResult<ExportedVideo>> {
+  const form = new FormData();
+  form.append("video", new File([video], "export.mp4", { type: "video/mp4" }));
+  return settleResult(await apiClient<ExportedVideo>(`${projectPath(id)}/exports`, { method: "POST", body: form }));
 }

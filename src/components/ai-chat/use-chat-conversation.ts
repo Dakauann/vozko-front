@@ -1,115 +1,62 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import { createChatThreadAction, getChatMessagesAction } from "@/app/actions/aichat";
-import { useChatStream } from "@/hooks/use-chat-stream";
-import type { ActionCard, Approval, ChatAttachment, ChatChart, ChatMedia, ChatThread, ChatView, PendingAction } from "@/lib/aichat/types";
-
+import { createChatThreadAction } from "@/app/actions/aichat";
+import { chatStreams } from "@/lib/aichat/chat-stream";
+import type { Approval, ChatAttachment, ChatMode, ChatThread, ChatView } from "@/lib/aichat/types";
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
-import { toolStartFrame } from "@/lib/aichat/generating-media";
 import { expireOpen } from "@/lib/aichat/proposal";
+import { chatTurns, IDLE_TURN } from "@/lib/aichat/turn-store";
+import type { UIMessage } from "@/lib/aichat/ui-message";
 
-import { hydrate, type UIMessage } from "./message-list";
-import { finishTool, startTool, type Segment } from "./segments";
+import { openThread, refreshThread, startTurn, stopTurn } from "./chat-turns";
+import { useScreenStop } from "./screen-bridge";
 
 interface Options {
   view?: ChatView;
+  mode?: ChatMode;
   rememberKey?: string;
   createError: string;
   onThreadCreated?: (thread: ChatThread) => void;
   onTurnFinished?: () => void;
 }
 
-export function useChatConversation({ view, rememberKey, createError, onThreadCreated, onTurnFinished }: Options) {
+function emptyReply(model: string, createdAt: string): UIMessage {
+  return { id: `a-${createdAt}`, role: "assistant", content: "", model, createdAt, segments: [] };
+}
+
+function useTurnFinished(activeId: string | null, streaming: boolean, onTurnFinished?: () => void) {
+  const latest = useRef(onTurnFinished);
+  const previous = useRef({ activeId, streaming });
+
+  useEffect(() => {
+    latest.current = onTurnFinished;
+  }, [onTurnFinished]);
+
+  useEffect(() => {
+    const before = previous.current;
+    previous.current = { activeId, streaming };
+    if (before.activeId === activeId && before.streaming && !streaming) latest.current?.();
+  }, [activeId, streaming]);
+}
+
+export function useChatConversation({ view, mode, rememberKey, createError, onThreadCreated, onTurnFinished }: Options) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<UIMessage[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
-  const { streaming, send, approve, reject, stop } = useChatStream();
-
-  const patchLastAssistant = useCallback((fn: (m: UIMessage) => UIMessage) => {
-    setMessages((prev) => {
-      const next = [...prev];
-      for (let i = next.length - 1; i >= 0; i--) {
-        if (next[i].role === "assistant") {
-          next[i] = fn(next[i]);
-          break;
-        }
-      }
-      return next;
-    });
-  }, []);
-
-  const patchSegments = useCallback(
-    (fn: (segs: Segment[]) => Segment[]) =>
-      patchLastAssistant((m) => ({ ...m, segments: fn(m.segments ?? []) })),
-    [patchLastAssistant],
+  const turn = useSyncExternalStore(
+    chatTurns.subscribe,
+    () => chatTurns.snapshot(activeId),
+    () => IDLE_TURN,
   );
+  const { messages, streaming } = turn;
 
-  const finalizeStreaming = useCallback(
-    () =>
-      patchLastAssistant((m) => ({
-        ...m,
-        segments: (m.segments ?? []).map((s) => {
-          if (s.kind === "thinking" || s.kind === "text") return { ...s, streaming: false };
-          if (s.kind === "tool" && s.running) return { ...s, running: false };
-          return s;
-        }),
-      })),
-    [patchLastAssistant],
-  );
-
-  const streamHandlers = useCallback(
-    (approved?: PendingAction) => ({
-      onReasoning: (text: string) =>
-        patchSegments((segs) => {
-          const last = segs[segs.length - 1];
-          if (last && last.kind === "thinking" && last.streaming) {
-            return [...segs.slice(0, -1), { ...last, text: last.text + text }];
-          }
-          return [...segs, { kind: "thinking", text, streaming: true }];
-        }),
-      onReasoningDone: () =>
-        patchSegments((segs) => {
-          const last = segs[segs.length - 1];
-          if (last && last.kind === "thinking" && last.streaming) {
-            return [...segs.slice(0, -1), { ...last, streaming: false }];
-          }
-          return segs;
-        }),
-      onToolStart: (name: string) => patchSegments((segs) => startTool(segs, name, toolStartFrame(name, approved))),
-      onTool: (name: string, summary: string, ok: boolean) =>
-        patchSegments((segs) => finishTool(segs, name, summary, ok)),
-      onChart: (chart: ChatChart) => patchSegments((segs) => [...segs, { kind: "chart", chart }]),
-      onCard: (card: ActionCard) => patchSegments((segs) => [...segs, { kind: "card", card, live: true }]),
-      onImage: (media: ChatMedia) => patchSegments((segs) => [...segs, { kind: "media", media }]),
-      onDelta: (text: string) =>
-        patchSegments((segs) => {
-          const last = segs[segs.length - 1];
-          if (last && last.kind === "text" && last.streaming) {
-            return [...segs.slice(0, -1), { ...last, text: last.text + text }];
-          }
-          return [...segs, { kind: "text", text, streaming: true }];
-        }),
-      onProposal: (action: PendingAction) => patchLastAssistant((m) => ({ ...m, pending: action })),
-      onAwaitingApproval: () => finalizeStreaming(),
-      onError: (msg: string) => {
-        finalizeStreaming();
-        setError(msg);
-      },
-      onDone: () => {
-        finalizeStreaming();
-        onTurnFinished?.();
-      },
-    }),
-    [patchSegments, patchLastAssistant, finalizeStreaming, onTurnFinished],
-  );
-
-  const reload = useCallback(async (threadId: string) => {
-    const { data } = await getChatMessagesAction(threadId);
-    if (data) setMessages(data.items.map(hydrate));
-  }, []);
+  const stop = useCallback(() => {
+    if (activeId) void stopTurn(activeId);
+  }, [activeId]);
+  useScreenStop(stop, streaming);
+  useTurnFinished(activeId, streaming, onTurnFinished);
 
   const remember = useCallback(
     (id: string | null) => {
@@ -123,17 +70,15 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
   const selectThread = useCallback(
     async (id: string) => {
       setActiveId(id);
-      setError(null);
+      setLocalError(null);
       setLoadingThread(true);
-      const { data } = await getChatMessagesAction(id);
+      const opened = await openThread(id);
       setLoadingThread(false);
-      if (!data) {
+      if (opened === "missing") {
         setActiveId(null);
-        setMessages([]);
         remember(null);
         return;
       }
-      setMessages(data.items.map(hydrate));
       remember(id);
     },
     [remember],
@@ -141,8 +86,7 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
 
   const newChat = useCallback(() => {
     setActiveId(null);
-    setMessages([]);
-    setError(null);
+    setLocalError(null);
     remember(null);
   }, [remember]);
 
@@ -157,14 +101,15 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
   const ask = useCallback(
     async (content: string, model: string, attachments: ChatAttachment[] = []) => {
       const text = content.trim();
-      if (!text || streaming || !model) return;
-      setError(null);
+      if (!text || !model) return;
+      if (activeId && chatTurns.isStreaming(activeId)) return;
+      setLocalError(null);
 
       let threadId = activeId;
       if (!threadId) {
         const { data, error: createErr } = await createChatThreadAction(model);
         if (!data) {
-          setError(createErr ?? createError);
+          setLocalError(createErr ?? createError);
           return;
         }
         threadId = data.id;
@@ -174,49 +119,44 @@ export function useChatConversation({ view, rememberKey, createError, onThreadCr
       }
 
       const now = new Date().toISOString();
-      setMessages((prev) => [
-        ...prev.map((m) => (m.pending ? { ...m, pending: expireOpen(m.pending) } : m)),
-        { id: `u-${now}`, role: "user", content: text, attachments, createdAt: now },
-        { id: `a-${now}`, role: "assistant", content: "", model, createdAt: now, segments: [] },
-      ]);
-      await send(threadId, text, model, streamHandlers(), view, attachments.map((a) => a.mediaId));
+      await startTurn(threadId, {
+        request: chatStreams.send(threadId, { content: text, model, view, attachments: attachments.map((a) => a.mediaId), mode }),
+        open: (prev) => [
+          ...prev.map((m) => (m.pending ? { ...m, pending: expireOpen(m.pending) } : m)),
+          { id: `u-${now}`, role: "user", content: text, attachments, createdAt: now },
+          emptyReply(model, now),
+        ],
+      });
     },
-    [streaming, activeId, send, streamHandlers, view, createError, onThreadCreated, remember],
+    [activeId, view, mode, createError, onThreadCreated, remember],
   );
 
   const resolveAction = useCallback(
     async (actionId: string, kind: "approve" | "reject", model: string, approval?: Approval) => {
-      if (!activeId) return;
+      if (!activeId || chatTurns.isStreaming(activeId)) return;
       const threadId = activeId;
       const status = kind === "approve" ? "approved" : "rejected";
-      const approved = messages.find((m) => m.pending?.id === actionId)?.pending ?? undefined;
-      setMessages((prev) =>
-        prev.map((m) => (m.pending?.id === actionId ? { ...m, pending: { ...m.pending, status } } : m)),
-      );
+      const approved = chatTurns.snapshot(threadId).messages.find((m) => m.pending?.id === actionId)?.pending ?? undefined;
+      chatTurns.update(threadId, (prev) => prev.map((m) => (m.pending?.id === actionId ? { ...m, pending: { ...m.pending, status } } : m)));
       if (kind === "approve") {
         const now = new Date().toISOString();
-        setMessages((prev) => [
-          ...prev,
-          { id: `a-${now}`, role: "assistant", content: "", model, createdAt: now, segments: [] },
-        ]);
-        await approve(threadId, actionId, streamHandlers(approved), approval);
+        await startTurn(threadId, {
+          request: chatStreams.approve(threadId, actionId, { ...approval, view, mode }),
+          open: (prev) => [...prev, emptyReply(model, now)],
+          approved,
+        });
         return;
       }
-      await reject(threadId, actionId, {
-        onError: (msg) => setError(msg),
-        onDone: () => {
-          void reload(threadId);
-          onTurnFinished?.();
-        },
-      });
+      await startTurn(threadId, { request: chatStreams.reject(threadId, actionId), open: (prev) => prev });
+      await refreshThread(threadId);
     },
-    [activeId, messages, approve, reject, streamHandlers, reload, onTurnFinished],
+    [activeId, view, mode],
   );
 
   return {
     activeId,
     messages,
-    error,
+    error: localError ?? turn.error,
     loadingThread,
     streaming,
     stop,

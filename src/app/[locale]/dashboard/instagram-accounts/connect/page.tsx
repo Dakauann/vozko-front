@@ -19,14 +19,13 @@ import {
 import { InstagramLogoColor } from "@/components/icons/channel-logos";
 import { useInstagramConnect } from "@/hooks/use-instagram-connect";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 export default function ConnectInstagramPage() {
   const t = useTranslations("instagram");
   const tc = useTranslations("channels.connect");
   const router = useRouter();
-  const { toast } = useToast();
 
   const [result, setResult] = useState<{
     status: string;
@@ -42,22 +41,14 @@ export default function ConnectInstagramPage() {
     setResult(outcome);
 
     if (outcome.status === "error") {
-      toast({
-        title: t("connect.errorTitle"),
-        description: t(`connectError.${outcome.reason ?? "connect_failed"}`),
-        variant: "destructive",
-      });
+      toast.error(t("connect.errorTitle"), { description: t(`connectError.${outcome.reason ?? "connect_failed"}`) });
       return;
     }
-    toast({
-      title: t("connect.successTitle"),
+    toast(t("connect.successTitle"), {
       description: outcome.username
-        ? t(
-            outcome.status === "reconnected"
-              ? "notice.reconnected"
-              : "notice.connected",
-            { username: outcome.username },
-          )
+        ? t(outcome.status === "reconnected" ? "notice.reconnected" : "notice.connected", {
+            username: outcome.username,
+          })
         : t("notice.connectedGeneric"),
     });
   });

@@ -1,7 +1,8 @@
 import type { ImageAspect } from "@/lib/media-generation/types";
 
-import { VIDEO_ASPECT_SIZES, type CanvasSize, type ImageDocument, type Layer, type Transform } from "./document";
-import { layerBounds, withGroupMembers, type Bounds, type LayerPatch } from "./layers";
+import { VIDEO_ASPECT_SIZES, type CanvasSize, type ImageSurface, type Layer, type Transform } from "./document";
+import { baseOf, captureGroup, containerOf, groupLayerIds, itemLayerIds, layerChain, scaffoldOf, selectionItems, siblingItems } from "./groups";
+import { isPickable, layerBounds, withGroupMembers, type Bounds, type LayerPatch } from "./layers";
 import { clampTo, LAYER_RANGES, normalizedRotation } from "./layer-ranges";
 
 export interface PixelBox {
@@ -98,22 +99,74 @@ function intersects(a: Bounds, b: Bounds): boolean {
   return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
 }
 
-export function layersInRect(doc: ImageDocument, rect: Bounds): string[] {
+export function layersInRect(doc: ImageSurface, rect: Bounds): string[] {
   const area = normalized(rect);
-  const hits = doc.layers.filter((l) => !l.hidden && !l.locked && intersects(layerBounds(l.transform, doc.canvas), area)).map((l) => l.id);
+  const hits = doc.layers.filter((l) => isPickable(l) && intersects(layerBounds(l.transform, doc.canvas), area)).map((l) => l.id);
   return hits.length === 0 ? [] : withGroupMembers(doc, hits);
 }
 
-export function clickSelection(doc: ImageDocument, current: readonly string[], id: string, additive: boolean): string[] {
-  const members = withGroupMembers(doc, [id]);
+export function clickSelection(doc: ImageSurface, current: readonly string[], id: string, additive: boolean, deep: boolean = false): string[] {
+  const members = deep ? [id] : withGroupMembers(doc, [id]);
   const chosen = new Set(current);
-  if (!additive) return chosen.has(id) ? [...current] : members;
+  if (!additive) return deep ? [id] : chosen.has(id) ? [...current] : members;
   const everyChosen = members.every((m) => chosen.has(m));
   for (const m of members) {
     if (everyChosen) chosen.delete(m);
     else chosen.add(m);
   }
   return doc.layers.filter((l) => chosen.has(l.id)).map((l) => l.id);
+}
+
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((id) => b.includes(id));
+}
+
+export function drillSelection(doc: ImageSurface, selection: readonly string[], id: string): string[] | null {
+  const capture = captureGroup(doc, id);
+  if (!capture) return null;
+  const chain = layerChain(doc, id);
+  const levels = chain
+    .slice(0, chain.indexOf(capture) + 1)
+    .reverse()
+    .filter((groupId) => {
+      const base = baseOf(doc, groupId);
+      return base === null || base === id;
+    })
+    .map((groupId) => (baseOf(doc, groupId) ? [id] : groupLayerIds(doc, groupId)));
+  const at = levels.findIndex((level) => sameIds(level, selection));
+  if (at < 0) return null;
+  const next = levels[at + 1] ?? [id];
+  return sameIds(next, selection) ? null : next;
+}
+
+export function childrenSelection(doc: ImageSurface, ids: readonly string[]): string[] {
+  const wanted = new Set<string>();
+  for (const id of ids) {
+    const scaffold = scaffoldOf(doc, id);
+    const children = scaffold ? siblingItems(doc, scaffold).flatMap((item) => itemLayerIds(doc, item)) : [];
+    for (const child of children.length > 0 ? children : [id]) wanted.add(child);
+  }
+  return doc.layers.filter((l) => wanted.has(l.id)).map((l) => l.id);
+}
+
+export function parentSelection(doc: ImageSurface, ids: readonly string[]): string[] {
+  const wanted = new Set<string>();
+  for (const item of selectionItems(doc, ids)) {
+    const container = containerOf(doc, item);
+    const base = container ? baseOf(doc, container) : null;
+    const parent = container === null ? itemLayerIds(doc, item) : base ? [base] : groupLayerIds(doc, container);
+    for (const id of parent) wanted.add(id);
+  }
+  return doc.layers.filter((l) => wanted.has(l.id)).map((l) => l.id);
+}
+
+export function containsPoint(transform: Transform, canvas: CanvasSize, point: { x: number; y: number }): boolean {
+  const radians = (transform.rotation * Math.PI) / 180;
+  const dx = point.x - transform.x * canvas.width;
+  const dy = point.y - transform.y * canvas.height;
+  const localX = dx * Math.cos(radians) + dy * Math.sin(radians);
+  const localY = -dx * Math.sin(radians) + dy * Math.cos(radians);
+  return Math.abs(localX) <= (transform.w * canvas.width) / 2 && Math.abs(localY) <= (transform.h * canvas.height) / 2;
 }
 
 export function squareTransform(canvas: CanvasSize, share: number, heightShare: number = share): Transform {

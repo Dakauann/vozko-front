@@ -29,7 +29,7 @@ import {
 } from "@/components/elevated-design/elevated-select";
 import { listReportsAction, type ReportListFilters } from "@/app/actions/reports";
 import { useReportJob } from "@/hooks/use-report-job";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   isTerminalReportStatus,
   type ReportJob,
@@ -46,6 +46,7 @@ const KINDS: ReportKind[] = [
   "conversation_entries",
   "balance_transactions",
   "opportunities",
+  "leads",
 ];
 
 const STATUSES: ReportStatus[] = ["queued", "running", "done", "failed", "expired"];
@@ -66,7 +67,6 @@ export default function ReportsPage() {
   const tc = useTranslations("metricsOps.common");
   const locale = useLocale();
 
-  const { toast } = useToast();
   const { download } = useReportJob({ autoDownload: false });
 
   const [jobs, setJobs] = useState<ReportJob[]>([]);
@@ -138,14 +138,10 @@ export default function ReportsPage() {
       const failure = await download(job.id);
       setDownloading(null);
       if (failure) {
-        toast({
-          title: t("downloadFailed"),
-          description: failure,
-          variant: "destructive",
-        });
+        toast.error(t("downloadFailed"), { description: failure });
       }
     },
-    [download, t, toast],
+    [download, t],
   );
 
   const columns = useMemo<DashboardTableColumn<ReportJob>[]>(

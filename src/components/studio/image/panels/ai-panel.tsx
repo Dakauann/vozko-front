@@ -9,13 +9,14 @@ import { MediaModelSelect } from "@/components/media-generation/media-model-sele
 import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/media-generation/reference-thumbnails";
 import { loadAssetImage } from "@/components/studio/canvas/asset-images";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { canStart, MAX_PARALLEL_GENERATIONS } from "@/lib/media-generation/limits";
 import { withReference } from "@/lib/media-generation/references";
 import { IMAGE_ASPECTS, MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/media-generation/types";
 import { closestAspect } from "@/lib/studio/geometry";
 import { cn } from "@/lib/utils";
 
 import { FIELD_CLASS, Notice, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS } from "../controls";
-import { useImageDoc, useImageEditor } from "../editor-state";
+import { jobKind, useActiveArtboard, useEditorUi, useImageDoc, useImageEditor, type ImageAiDraft } from "../editor-state";
 import { ImageSourcePicker } from "../image-source-picker";
 import { JobStatusList, useJobsFor } from "../jobs";
 import { RemoveBackground } from "../remove-background";
@@ -27,15 +28,18 @@ const BUTTON = OUTLINE_BUTTON_CLASS;
 export function AiPanel() {
   const t = useTranslations("studio.image.panels.ai");
   const tAspect = useTranslations("studio.aspects");
-  const { commands } = useImageEditor();
-  const canvas = useImageDoc((s) => s.document.canvas);
-  const layers = useImageDoc((s) => s.document.layers);
+  const { commands, ui } = useImageEditor();
+  const { canvas, layers } = useActiveArtboard();
   const selection = useImageDoc((s) => s.selection);
   const jobs = useJobsFor("generate", null);
-  const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState<string | null>(null);
-  const [aspect, setAspect] = useState<ImageAspect>(() => closestAspect(canvas.width, canvas.height));
-  const [references, setReferences] = useState<ReferenceThumbnail[]>([]);
+  const draft = useEditorUi((s) => s.aiDraft);
+  const { prompt, model, references } = draft;
+  const aspect = draft.aspect ?? closestAspect(canvas.width, canvas.height);
+  const updateDraft = (patch: Partial<ImageAiDraft>) => ui.setState((current) => ({ aiDraft: { ...current.aiDraft, ...patch } }));
+  const setReferences = (change: (current: ReferenceThumbnail[]) => ReferenceThumbnail[]) =>
+    ui.setState((current) => ({ aiDraft: { ...current.aiDraft, references: change(current.aiDraft.references) } }));
+  const running = useEditorUi((s) => s.jobs).filter((job) => !job.error).map((job) => jobKind(job.purpose));
+  const blocked = !canStart("image", running);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [referenceError, setReferenceError] = useState(false);
 
@@ -44,7 +48,6 @@ export function AiPanel() {
     return layers.filter((l) => wanted.has(l.id) && l.type === "image" && l.assetId);
   }, [layers, selection]);
   const single = selection.length === 1 ? (layers.find((l) => l.id === selection[0]) ?? null) : null;
-  const running = jobs.some((job) => !job.error);
   const text = prompt.trim();
 
   const addFromSelection = async () => {
@@ -77,28 +80,28 @@ export function AiPanel() {
             maxLength={MAX_PROMPT}
             rows={4}
             placeholder={t("promptPlaceholder")}
-            onChange={(event) => setPrompt(event.target.value)}
+            onChange={(event) => updateDraft({ prompt: event.target.value })}
             className={cn(FIELD_CLASS, "h-auto resize-y py-1.5 leading-snug")}
           />
         </label>
         <div className="space-y-1">
           <span className="block text-xs text-muted-foreground">{t("aspect")}</span>
-          <ElevatedPillToggle<ImageAspect> aria-label={t("aspect")} size="sm" value={aspect} onChange={setAspect} options={IMAGE_ASPECTS.map((value) => ({ value, label: tAspect(value), disabled: running }))} />
+          <ElevatedPillToggle<ImageAspect> aria-label={t("aspect")} size="sm" value={aspect} onChange={(next) => updateDraft({ aspect: next })} options={IMAGE_ASPECTS.map((value) => ({ value, label: tAspect(value) }))} />
         </div>
-        <MediaModelSelect kind="image" value={model} onChange={setModel} disabled={running} />
+        <MediaModelSelect kind="image" value={model} onChange={(next) => updateDraft({ model: next })} />
         <div className="space-y-1.5">
           <p className="legend text-muted-foreground">{t("references")}</p>
           {references.length > 0 ? (
-            <ReferenceThumbnails items={references} removeLabel={t("removeReference")} onRemove={running ? undefined : (id) => setReferences((current) => current.filter((r) => r.mediaId !== id))} />
+            <ReferenceThumbnails items={references} removeLabel={t("removeReference")} onRemove={(id) => setReferences((current) => current.filter((r) => r.mediaId !== id))} />
           ) : null}
           <div className="flex flex-wrap gap-1.5">
-            <button type="button" className={BUTTON} disabled={running || selectedImages.length === 0 || references.length >= MAX_REFERENCE_IMAGES} onClick={() => void addFromSelection()}>
+            <button type="button" className={BUTTON} disabled={selectedImages.length === 0 || references.length >= MAX_REFERENCE_IMAGES} onClick={() => void addFromSelection()}>
               <Plus className="h-3.5 w-3.5" aria-hidden />
               {t("fromSelection")}
             </button>
             <Popover open={libraryOpen} onOpenChange={setLibraryOpen}>
               <PopoverTrigger asChild>
-                <button type="button" className={BUTTON} disabled={running || references.length >= MAX_REFERENCE_IMAGES}>
+                <button type="button" className={BUTTON} disabled={references.length >= MAX_REFERENCE_IMAGES}>
                   <Plus className="h-3.5 w-3.5" aria-hidden />
                   {t("fromLibrary")}
                 </button>
@@ -124,13 +127,14 @@ export function AiPanel() {
         <p className="text-2xs text-muted-foreground">{t("costNote")}</p>
         <button
           type="button"
-          disabled={running || !text || !model}
+          disabled={blocked || !text || !model}
           onClick={generate}
           className={cn(PRIMARY_BUTTON_CLASS, "h-8 w-full")}
         >
           <Sparkle className="h-4 w-4" aria-hidden />
           {t("generate")}
         </button>
+        {blocked ? <p className="text-2xs text-muted-foreground">{t("ceiling", { count: MAX_PARALLEL_GENERATIONS })}</p> : null}
         <JobStatusList jobs={jobs} />
       </section>
       <section className="space-y-2 border-t border-border pt-3">

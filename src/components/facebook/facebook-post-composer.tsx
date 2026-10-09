@@ -46,6 +46,7 @@ import {
   type ComposerProblem,
 } from "@/lib/facebook/composer";
 import { jobOutcome } from "@/lib/facebook/publish-job";
+import { toLocalDateTimeInput } from "@/lib/format/local-datetime";
 import type { FacebookMediaRef, FacebookPage, FacebookPublishJob, FacebookPublishKind } from "@/lib/facebook/types";
 import {
   FACEBOOK_RULE_ACTIONS,
@@ -68,10 +69,7 @@ function acceptFor(kind: FacebookPublishKind): string {
   return PHOTO_MIME_TYPES.join(",");
 }
 
-function toLocalInput(date: Date): string {
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}
+const toLocalInput = toLocalDateTimeInput;
 
 export function FacebookPostComposer({
   page,

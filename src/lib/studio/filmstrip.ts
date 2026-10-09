@@ -52,7 +52,10 @@ export function planFilmstrip(input: FilmstripInput): FilmstripTile[] {
 export class LruCache<K, V> {
   private readonly entries = new Map<K, V>();
 
-  constructor(private readonly capacity: number) {}
+  constructor(
+    private readonly capacity: number,
+    private readonly onEvict: (value: V) => void = () => undefined,
+  ) {}
 
   get(key: K): V | undefined {
     const value = this.entries.get(key);
@@ -66,8 +69,9 @@ export class LruCache<K, V> {
     this.entries.delete(key);
     this.entries.set(key, value);
     while (this.entries.size > this.capacity) {
-      const oldest = this.entries.keys().next().value as K;
+      const [oldest, evicted] = this.entries.entries().next().value as [K, V];
       this.entries.delete(oldest);
+      this.onEvict(evicted);
     }
   }
 

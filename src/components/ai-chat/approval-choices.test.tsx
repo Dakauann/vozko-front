@@ -11,7 +11,9 @@ vi.mock("@/app/actions/media-generation", () => ({
   listMediaModelsAction: (kind: ModelKind) => listMediaModels(kind),
 }));
 
-import { MessageBubble, useBubbleLabels, type UIMessage } from "./message-list";
+import type { UIMessage } from "@/lib/aichat/ui-message";
+
+import { MessageBubble, useBubbleLabels } from "./message-list";
 
 const imageProposal: PendingAction = {
   id: "act-1",

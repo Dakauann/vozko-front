@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  CaretDown,
   ChatCircleDots,
   CheckCircle,
   CircleNotch,
@@ -25,6 +24,8 @@ import { ROULETTE_DEFAULTS, ROULETTE_LIMITS } from "@/lib/workspace/workspace-co
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
 import { OutcomeCaptureCard } from "@/components/dashboard/workspace/OutcomeCaptureCard";
+import { ConfigCardShell } from "@/components/dashboard/workspace/ConfigCardShell";
+import { GeocodingConfigCard } from "@/components/dashboard/workspace/GeocodingConfigCard";
 import {
   summarizeWorkingHours,
   validateWorkingHours,
@@ -42,7 +43,9 @@ export function WorkspaceConfigTab({
   workspaceId,
   config,
   onConfigChange,
-}: WorkspaceConfigTabProps) {
+  ownerSettings,
+  managerSettings,
+}: WorkspaceConfigTabProps & { ownerSettings: boolean; managerSettings: boolean }) {
   const t = useTranslations("workspaceSettings");
 
   return (
@@ -52,105 +55,51 @@ export function WorkspaceConfigTab({
           {t("tabs.config")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground max-w-2xl">
-          {t("configTab.description")}
+          {ownerSettings
+            ? t("configTab.description")
+            : t("configTab.managerDescription")}
         </p>
       </div>
 
-      <section className="space-y-3">
-        <p className="text-2xs font-semibold text-muted-foreground">
-          {t("configTab.sections.attendance")}
-        </p>
-        <DistributionConfigCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-        <OutcomeCaptureConfigCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-        <WorkingHoursConfigCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-        <AutoCloseConfigCard
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-      </section>
-    </div>
-  );
-}
-
-
-function ConfigCardShell({
-  open,
-  onToggle,
-  icon,
-  title,
-  description,
-  statusLabel,
-  statusActive,
-  children,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  statusLabel: string;
-  statusActive: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-[--radius] border border-border bg-card shadow-sm p-5 space-y-4">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-start justify-between gap-4 text-left"
-      >
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow">
-            {icon}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">{title}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-              {description}
-            </p>
-          </div>
-        </div>
-        <span className="flex shrink-0 items-center gap-2">
-          {
-}
-          <span
-            className={cn(
-              "rounded-[--radius] px-2.5 py-1 text-2xs font-semibold",
-              statusActive
-                ? "bg-healthy text-healthy-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {statusLabel}
-          </span>
-          <CaretDown
-            weight="bold"
-            className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform",
-              open && "rotate-180",
-            )}
+      {ownerSettings ? (
+        <section className="space-y-3">
+          <p className="text-2xs font-semibold text-muted-foreground">
+            {t("configTab.sections.attendance")}
+          </p>
+          <DistributionConfigCard
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
           />
-        </span>
-      </button>
-      {open ? <div className="space-y-4">{children}</div> : null}
+          <OutcomeCaptureConfigCard
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
+          />
+          <WorkingHoursConfigCard
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
+          />
+          <AutoCloseConfigCard
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
+          />
+        </section>
+      ) : null}
+
+      {ownerSettings || managerSettings ? (
+        <section className="space-y-3">
+          <p className="text-2xs font-semibold text-muted-foreground">
+            {t("configTab.sections.leads")}
+          </p>
+          <GeocodingConfigCard workspaceId={workspaceId} />
+        </section>
+      ) : null}
     </div>
   );
 }
-
 
 
 function DistributionConfigCard({
@@ -211,7 +160,7 @@ function DistributionConfigCard({
           ? t("roulette.statusLastSeen")
           : t("roulette.statusOnline")
       }
-      statusActive={mode === "last_seen"}
+      statusTone={mode === "last_seen" ? "active" : "inactive"}
     >
       <div className="space-y-2">
         <p className="text-sm font-medium text-foreground">
@@ -515,7 +464,7 @@ function OutcomeCaptureConfigCard({
       title={t("label")}
       description={t("cardDescription")}
       statusLabel={statusLabel}
-      statusActive={active}
+      statusTone={active ? "active" : "inactive"}
     >
       <OutcomeCaptureCard
         workspaceId={workspaceId}
@@ -569,7 +518,7 @@ function WorkingHoursConfigCard({
       title={tw("title")}
       description={tw("workspaceDescription")}
       statusLabel={statusLabel}
-      statusActive={!!saved}
+      statusTone={saved ? "active" : "inactive"}
     >
       {
 }
@@ -723,7 +672,7 @@ function AutoCloseConfigCard({
       title={t("autoClose.title")}
       description={t("autoClose.description")}
       statusLabel={anyOn ? t("configCard.active") : t("configCard.inactive")}
-      statusActive={anyOn}
+      statusTone={anyOn ? "active" : "inactive"}
     >
       {}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">

@@ -18,6 +18,7 @@ import {
   overviewWindow,
   rangeView,
   scrollToCenter,
+  steppedSpan,
   visibleSpan,
   laneOrder,
   fitZoom,
@@ -178,6 +179,13 @@ describe("timecode and visible spans", () => {
   it("clips a clip to the visible part of the scroller", () => {
     expect(visibleSpan(100, 500, 300, 200)).toEqual({ fromPx: 200, toPx: 400 });
     expect(visibleSpan(100, 500, 0, 50)).toBeNull();
+  });
+
+  it("widens a visible span to whole steps so small scrolls keep the same span", () => {
+    expect(steppedSpan({ fromPx: 130, toPx: 370 }, 100, 500)).toEqual({ fromPx: 100, toPx: 400 });
+    expect(steppedSpan({ fromPx: 160, toPx: 399 }, 100, 500)).toEqual({ fromPx: 100, toPx: 400 });
+    expect(steppedSpan({ fromPx: 420, toPx: 480 }, 100, 450)).toEqual({ fromPx: 400, toPx: 450 });
+    expect(steppedSpan(null, 100, 500)).toBeNull();
     expect(visibleSpan(100, 500, 0, 50, 60)).toEqual({ fromPx: 0, toPx: 10 });
   });
 });

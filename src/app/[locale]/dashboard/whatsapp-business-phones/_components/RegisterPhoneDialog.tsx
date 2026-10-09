@@ -13,7 +13,7 @@ import { registerBusinessPhoneAction } from "@/app/actions/whatsapp-business-pho
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface RegisterPhoneDialogProps {
@@ -32,17 +32,13 @@ export function RegisterPhoneDialog({
   onSuccess,
 }: RegisterPhoneDialogProps) {
   const t = useTranslations("whatsappBusinessPhones");
-  const { toast } = useToast();
 
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     if (pin.length !== 6) {
-      toast({
-        title: t("cloudRegistration.pinRequired"),
-        variant: "destructive",
-      });
+      toast.error(t("cloudRegistration.pinRequired"));
       return;
     }
 
@@ -51,25 +47,14 @@ export function RegisterPhoneDialog({
       const result = await registerBusinessPhoneAction(phoneId, { pin });
 
       if (!result.error) {
-        toast({
-          title: t("cloudRegistration.success"),
-          description: t("cloudRegistration.successDesc"),
-        });
+        toast(t("cloudRegistration.success"), { description: t("cloudRegistration.successDesc") });
         onSuccess();
         handleClose();
       } else {
-        toast({
-          title: t("cloudRegistration.error"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("cloudRegistration.error"), { description: result.error || t("toast.unknownError") });
       }
     } catch {
-      toast({
-        title: t("cloudRegistration.error"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("cloudRegistration.error"), { description: t("toast.unknownError") });
     } finally {
       setLoading(false);
     }

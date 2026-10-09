@@ -8,13 +8,13 @@ import { canvasSizeIssue } from "@/lib/studio/validate";
 import { cn } from "@/lib/utils";
 
 import { FIELD_CLASS, ICON_BUTTON_CLASS, Notice, PRIMARY_BUTTON_CLASS } from "./controls";
-import { useImageDoc, useImageEditor } from "./editor-state";
+import { useActiveCanvas, useImageEditor } from "./editor-state";
 
 export function ResizeForm({ onDone }: { onDone?: () => void }) {
   const t = useTranslations("studio.image.resize");
   const tp = useTranslations("studio.presets");
   const { commands } = useImageEditor();
-  const canvas = useImageDoc((s) => s.document.canvas);
+  const canvas = useActiveCanvas();
   const [width, setWidth] = useState(String(canvas.width));
   const [height, setHeight] = useState(String(canvas.height));
   const custom: CanvasSize = { width: Number(width), height: Number(height) };

@@ -27,6 +27,7 @@ services:
         NEXT_PUBLIC_BRAND_LOGO_URL: ${NEXT_PUBLIC_BRAND_LOGO_URL}
         NEXT_PUBLIC_BRAND_LOGO_WHITE_URL: ${NEXT_PUBLIC_BRAND_LOGO_WHITE_URL}
         NEXT_PUBLIC_BRAND_FAVICON_URL: ${NEXT_PUBLIC_BRAND_FAVICON_URL}
+        NEXT_PUBLIC_MAP_STYLE_URL: ${NEXT_PUBLIC_MAP_STYLE_URL:-}
     ports:
       # Bind to localhost only for security - use Traefik/Nginx reverse proxy for external access
       - "127.0.0.1:8000:8000"

@@ -1,19 +1,29 @@
 import {
   DOCUMENT_VERSION,
+  IMAGE_DOCUMENT_VERSION,
   IMAGE_SCHEMA,
   SHAPE_KINDS,
   STUDIO_LIMITS,
   VIDEO_ASPECTS,
   VIDEO_SCHEMA,
   BLEND_MODES,
+  FILL_RULES,
   FRAME_KINDS,
+  LINE_CAPS,
+  LINE_JOINS,
+  MAX_DASH_VALUES,
+  GRADIENT_KINDS,
+  RADIAL_RADIUS_RANGE,
   MOTION_EDGES,
   type Clip,
   type Marker,
   type Motion,
   type Gradient,
+  type Artboard,
   type ImageDocument,
+  type ImageSurface,
   type Layer,
+  type LegacyImageDocument,
   type StudioDocument,
   type StudioGroup,
   type StudioKind,
@@ -21,14 +31,18 @@ import {
   type Transform,
   type VideoDocument,
 } from "./document";
+import { upgradeImageDocument } from "./artboards";
 import { isFontId } from "./fonts";
-import { KEYFRAME_LIMITS, keyframeCount, keyframesIssue } from "./keyframes";
+import { keyframesIssue } from "./keyframes";
+import { LAYER_RANGES } from "./layer-ranges";
+import { isValidPath } from "./vector-path";
 
 export const ISSUE_FIELDS = {
   kind: "kind",
   name: "name",
   document: "document",
   canvas: "document.canvas",
+  artboards: "document.artboards",
   layers: "document.layers",
   tracks: "document.tracks",
   markers: "document.markers",
@@ -50,7 +64,9 @@ type PointerSpec = { pointer: ObjectSpec };
 
 const transformSpec: ObjectSpec = { object: { x: "number", y: "number", w: "number", h: "number", rotation: "number", opacity: "number" } };
 
-const gradientSpec: PointerSpec = { pointer: { object: { from: "string", to: "string", angle: "number" } } };
+const gradientSpec: PointerSpec = {
+  pointer: { object: { from: "string", to: "string", angle: "number", kind: "string", via: "string", cx: "number", cy: "number", radius: "number" } },
+};
 
 const layerSpec: ObjectSpec = {
   object: {
@@ -90,18 +106,29 @@ const layerSpec: ObjectSpec = {
     highlight: { pointer: { object: { color: "string", radius: "number" } } },
     curve: "number",
     frame: "string",
+    path: "string",
+    fillRule: "string",
+    lineCap: "string",
+    lineJoin: "string",
+    miterLimit: "number",
+    dashArray: { array: "number" },
+    dashOffset: "number",
+    points: "int",
+    inner: "number",
   },
 };
 
-const imageSpec: ObjectSpec = {
-  object: {
-    schema: "string",
-    version: "int",
-    canvas: { object: { width: "int", height: "int", background: "string", gradient: gradientSpec } },
-    layers: { array: layerSpec },
-    groups: { array: { object: { id: "string", parentId: "string", name: "string" } } },
-  },
+const surfaceFields: Record<string, Kind> = {
+  canvas: { object: { width: "int", height: "int", background: "string", gradient: gradientSpec } },
+  layers: { array: layerSpec },
+  groups: { array: { object: { id: "string", parentId: "string", name: "string", baseId: "string" } } },
 };
+
+const artboardSpec: ObjectSpec = { object: { id: "string", name: "string", x: "number", y: "number", ...surfaceFields } };
+
+const imageSpec: ObjectSpec = { object: { schema: "string", version: "int", artboards: { array: artboardSpec } } };
+
+const legacyImageSpec: ObjectSpec = { object: { schema: "string", version: "int", ...surfaceFields } };
 
 const motionSpec: ObjectSpec = { object: { edge: "string", durationMs: "int" } };
 
@@ -208,9 +235,28 @@ function within(v: number, lo: number, hi: number): boolean {
 
 const BLEND_VALUES = new Set<string>(["", ...BLEND_MODES]);
 const FRAME_VALUES = new Set<string>(["", ...FRAME_KINDS]);
+const FILL_RULE_VALUES = new Set<string>(["", ...FILL_RULES]);
+const CAP_VALUES = new Set<string>(["", ...LINE_CAPS]);
+const JOIN_VALUES = new Set<string>(["", ...LINE_JOINS]);
+
+function strokeIssue(l: DecodedLayer): IssueCode | null {
+  if (!CAP_VALUES.has(l.lineCap ?? "") || !JOIN_VALUES.has(l.lineJoin ?? "")) return "unknown";
+  const dashes = l.dashArray ?? [];
+  const styled = (l.lineCap ?? "") !== "" || (l.lineJoin ?? "") !== "" || (l.miterLimit ?? 0) !== 0 || dashes.length > 0 || (l.dashOffset ?? 0) !== 0;
+  if (styled && l.type === "icon") return "invalid";
+  if ((l.miterLimit ?? 0) !== 0 && !within(l.miterLimit ?? 0, ...LAYER_RANGES.miterLimit)) return "out_of_range";
+  if (dashes.length > MAX_DASH_VALUES || dashes.some((v) => !within(v, ...LAYER_RANGES.dashValue)) || (dashes.length > 0 && dashes.every((v) => v === 0))) return "invalid";
+  return within(l.dashOffset ?? 0, ...LAYER_RANGES.dashOffset) ? null : "out_of_range";
+}
+
+const GRADIENT_VALUES = new Set<string>(["", ...GRADIENT_KINDS]);
 
 function gradientValid(g: Gradient | undefined): boolean {
-  return !g || (isValidColor(g.from, true) && isValidColor(g.to, true) && within(g.angle, -360, 360));
+  if (!g) return true;
+  const kind = g.kind ?? "";
+  if (!GRADIENT_VALUES.has(kind) || !isValidColor(g.from, true) || !isValidColor(g.to, true) || !isValidColor(g.via ?? "", false)) return false;
+  if (!within(g.angle, -360, 360) || !within(g.cx ?? 0, 0, 1) || !within(g.cy ?? 0, 0, 1)) return false;
+  return kind === "radial" ? within(g.radius ?? 0, ...RADIAL_RADIUS_RANGE) : within(g.radius ?? 0, 0, RADIAL_RADIUS_RANGE[1]);
 }
 
 export function isValidColor(color: string, required: boolean): boolean {
@@ -244,6 +290,18 @@ function imageLayerIssue(l: DecodedLayer): IssueCode | null {
   return null;
 }
 
+function shapeLayerIssue(l: DecodedLayer): IssueCode | null {
+  if (!(SHAPE_KINDS as readonly string[]).includes(l.shape ?? "")) return "unknown";
+  const path = l.path ?? "";
+  const points = l.points ?? 0;
+  const inner = l.inner ?? 0;
+  if ((l.shape === "path") !== (path !== "") || (path !== "" && !isValidPath(path))) return "invalid";
+  if (l.shape !== "star") return points !== 0 || inner !== 0 ? "invalid" : null;
+  if (points !== 0 && !within(points, ...LAYER_RANGES.starPoints)) return "out_of_range";
+  if (inner !== 0 && !within(inner, ...LAYER_RANGES.starInner)) return "out_of_range";
+  return null;
+}
+
 function textLayerIssue(l: DecodedLayer): IssueCode | null {
   const text = l.text ?? "";
   if (text.trim() === "" || runes(text) > STUDIO_LIMITS.maxTextRunes) return "invalid";
@@ -267,7 +325,10 @@ export function layerIssue(layer: Layer): IssueCode | null {
   }
   const s = l.shadow;
   if (s && (!isValidColor(s.color, true) || !within(s.blur, 0, 200) || !within(s.x, -500, 500) || !within(s.y, -500, 500))) return "invalid";
-  if (!BLEND_VALUES.has(l.blendMode ?? "") || !FRAME_VALUES.has(l.frame ?? "")) return "unknown";
+  if (!BLEND_VALUES.has(l.blendMode ?? "") || !FRAME_VALUES.has(l.frame ?? "") || !FILL_RULE_VALUES.has(l.fillRule ?? "")) return "unknown";
+  if ((l.fillRule ?? "") !== "" && !(l.type === "shape" && l.shape === "path")) return "invalid";
+  const strokeCode = strokeIssue(l);
+  if (strokeCode) return strokeCode;
   const h = l.highlight;
   if (!gradientValid(l.gradient) || (h && (!isValidColor(h.color, true) || !within(h.radius, 0, 1)))) return "invalid";
   if (!within(l.curve ?? 0, -1, 1)) return "out_of_range";
@@ -277,7 +338,7 @@ export function layerIssue(layer: Layer): IssueCode | null {
     case "text":
       return textLayerIssue(l);
     case "shape":
-      return (SHAPE_KINDS as readonly string[]).includes(l.shape ?? "") ? null : "unknown";
+      return shapeLayerIssue(l);
     case "icon":
       return isValidToken(l.iconId ?? "") ? null : "invalid";
   }
@@ -288,28 +349,88 @@ function issue(field: IssueField, code: IssueCode): DocumentIssue {
   return { field, code };
 }
 
-function imageDocumentIssue(d: ImageDocument): DocumentIssue | null {
-  if (d.schema !== IMAGE_SCHEMA || d.version !== DOCUMENT_VERSION) return issue(ISSUE_FIELDS.document, "unknown");
-  const { width, height, background } = d.canvas;
+interface SeenIds {
+  layers: Set<string>;
+  groups: Set<string>;
+}
+
+function freshIds(): SeenIds {
+  return { layers: new Set(), groups: new Set() };
+}
+
+function surfaceIssueAmong(s: ImageSurface, seen: SeenIds): DocumentIssue | null {
+  const { width, height, background } = s.canvas;
   const { minCanvasSide: lo, maxCanvasSide: hi } = STUDIO_LIMITS;
   if (width < lo || width > hi || height < lo || height > hi) return issue(ISSUE_FIELDS.canvas, "out_of_range");
-  if (!isValidColor(background, false) || !gradientValid(d.canvas.gradient)) return issue(ISSUE_FIELDS.canvas, "invalid");
-  if (d.layers.length > STUDIO_LIMITS.maxLayers || (d.groups ?? []).length > STUDIO_LIMITS.maxLayers) return issue(ISSUE_FIELDS.layers, "too_many");
-  const seen = new Set<string>();
-  for (const layer of d.layers) {
-    if (seen.has(layer.id)) return issue(ISSUE_FIELDS.layers, "duplicate");
-    seen.add(layer.id);
+  if (!isValidColor(background, false) || !gradientValid(s.canvas.gradient)) return issue(ISSUE_FIELDS.canvas, "invalid");
+  for (const layer of s.layers) {
+    if (seen.layers.has(layer.id)) return issue(ISSUE_FIELDS.layers, "duplicate");
+    seen.layers.add(layer.id);
     const code = layerIssue(layer);
     if (code) return issue(ISSUE_FIELDS.layers, code);
   }
-  const groupCode = groupsIssue(d.groups ?? []);
-  return groupCode ? issue(ISSUE_FIELDS.layers, groupCode) : null;
+  const groupCode = groupsIssue(s.groups ?? [], s.layers);
+  if (groupCode) return issue(ISSUE_FIELDS.layers, groupCode);
+  for (const group of s.groups ?? []) {
+    if (seen.groups.has(group.id)) return issue(ISSUE_FIELDS.layers, "duplicate");
+    seen.groups.add(group.id);
+  }
+  return null;
 }
 
-function groupsIssue(groups: readonly StudioGroup[]): IssueCode | null {
+function tooLarge(value: unknown): boolean {
+  return new TextEncoder().encode(JSON.stringify(value)).length > STUDIO_LIMITS.maxDocumentBytes;
+}
+
+export function surfaceIssue(s: ImageSurface): DocumentIssue | null {
+  return tooLarge(s) ? issue(ISSUE_FIELDS.document, "too_large") : surfaceIssueAmong(s, freshIds());
+}
+
+function artboardIssue(a: Artboard, artboardIds: Set<string>): DocumentIssue | null {
+  const limit = STUDIO_LIMITS.maxArtboardCoordinate;
+  if (!isValidToken(a.id) || runes(a.name ?? "") > STUDIO_LIMITS.maxLayerNameRunes) return issue(ISSUE_FIELDS.artboards, "invalid");
+  if (artboardIds.has(a.id)) return issue(ISSUE_FIELDS.artboards, "duplicate");
+  if (!within(a.x, -limit, limit) || !within(a.y, -limit, limit)) return issue(ISSUE_FIELDS.artboards, "out_of_range");
+  artboardIds.add(a.id);
+  return null;
+}
+
+function imageDocumentIssue(d: ImageDocument): DocumentIssue | null {
+  if (d.schema !== IMAGE_SCHEMA || d.version !== IMAGE_DOCUMENT_VERSION) return issue(ISSUE_FIELDS.document, "unknown");
+  if (d.artboards.length === 0) return issue(ISSUE_FIELDS.artboards, "required");
+  const seen = freshIds();
+  const artboardIds = new Set<string>();
+  for (const artboard of d.artboards) {
+    const found = artboardIssue(artboard, artboardIds) ?? surfaceIssueAmong(artboard, seen);
+    if (found) return found;
+  }
+  return null;
+}
+
+function legacyImageIssue(d: LegacyImageDocument): DocumentIssue | null {
+  if (d.schema !== IMAGE_SCHEMA || d.version !== DOCUMENT_VERSION) return issue(ISSUE_FIELDS.document, "unknown");
+  return surfaceIssue(d);
+}
+
+function parseImage(raw: Record<string, unknown>): ParsedDocument<ImageDocument> {
+  if (raw.version === DOCUMENT_VERSION) {
+    const legacy = decodeObject(raw, legacyImageSpec);
+    if (legacy === INVALID) return { ok: false, issue: issue(ISSUE_FIELDS.document, "invalid") };
+    const found = legacyImageIssue(legacy as LegacyImageDocument);
+    return found ? { ok: false, issue: found } : { ok: true, document: upgradeImageDocument(raw as unknown as LegacyImageDocument) };
+  }
+  const decoded = decodeObject(raw, imageSpec);
+  if (decoded === INVALID) return { ok: false, issue: issue(ISSUE_FIELDS.document, "invalid") };
+  const found = imageDocumentIssue(decoded as ImageDocument);
+  return found ? { ok: false, issue: found } : { ok: true, document: raw as unknown as ImageDocument };
+}
+
+function groupsIssue(groups: readonly StudioGroup[], layers: readonly Layer[]): IssueCode | null {
+  const homes = new Map(layers.map((l) => [l.id, l.groupId ?? ""]));
   const parents = new Map<string, string>();
   for (const g of groups) {
     if (!isValidToken(g.id) || ((g.parentId ?? "") !== "" && !isValidToken(g.parentId ?? "")) || runes(g.name ?? "") > STUDIO_LIMITS.maxLayerNameRunes) return "invalid";
+    if ((g.baseId ?? "") !== "" && homes.get(g.baseId ?? "") !== g.id) return "invalid";
     if (parents.has(g.id)) return "duplicate";
     parents.set(g.id, g.parentId ?? "");
   }
@@ -384,17 +505,12 @@ function markersIssue(markers: readonly Marker[]): DocumentIssue | null {
 function videoDocumentIssue(d: VideoDocument): DocumentIssue | null {
   if (d.schema !== VIDEO_SCHEMA || d.version !== DOCUMENT_VERSION) return issue(ISSUE_FIELDS.document, "unknown");
   if (!isValidColor(d.canvas.background, true) || d.canvas.background.length !== 7) return issue(ISSUE_FIELDS.canvas, "invalid");
-  if (d.tracks.length > STUDIO_LIMITS.maxTracks) return issue(ISSUE_FIELDS.tracks, "too_many");
   if (d.durationMs < 0 || d.durationMs > STUDIO_LIMITS.maxVideoMs) return issue(ISSUE_FIELDS.tracks, "out_of_range");
   if (!VIDEO_ASPECTS.includes(d.canvas.aspect)) return issue(ISSUE_FIELDS.canvas, "unknown");
   const ids = new Set<string>();
-  let clips = 0;
-  let keyframes = 0;
   for (const track of d.tracks) {
     if (!isValidToken(track.id) || ids.has(track.id) || (track.kind !== "visual" && track.kind !== "audio")) return issue(ISSUE_FIELDS.tracks, "invalid");
     ids.add(track.id);
-    clips += track.clips.length;
-    keyframes += track.clips.reduce((total, c) => total + keyframeCount(c.keyframes), 0);
     let lastEnd = 0;
     for (let i = 0; i < track.clips.length; i++) {
       const c = track.clips[i];
@@ -406,9 +522,6 @@ function videoDocumentIssue(d: VideoDocument): DocumentIssue | null {
       lastEnd = c.startMs + c.durationMs;
     }
   }
-  const visual = d.tracks.filter((t) => t.kind === "visual").length;
-  if (visual > STUDIO_LIMITS.maxVisualTracks || d.tracks.length - visual > STUDIO_LIMITS.maxAudioTracks) return issue(ISSUE_FIELDS.tracks, "too_many");
-  if (clips > STUDIO_LIMITS.maxClips || keyframes > KEYFRAME_LIMITS.perTimeline) return issue(ISSUE_FIELDS.tracks, "too_many");
   return markersIssue(d.markers ?? []);
 }
 
@@ -419,13 +532,14 @@ export function parseDocument(kind: "video", raw: unknown): ParsedDocument<Video
 export function parseDocument(kind: StudioKind, raw: unknown): ParsedDocument<StudioDocument>;
 export function parseDocument(kind: StudioKind, raw: unknown): ParsedDocument<StudioDocument> {
   if (raw === undefined || raw === null) return { ok: false, issue: issue(ISSUE_FIELDS.document, "required") };
-  const serialized = JSON.stringify(raw);
-  if (new TextEncoder().encode(serialized).length > STUDIO_LIMITS.maxDocumentBytes) return { ok: false, issue: issue(ISSUE_FIELDS.document, "too_large") };
+  if (tooLarge(raw)) return { ok: false, issue: issue(ISSUE_FIELDS.document, "too_large") };
   if (kind !== "image" && kind !== "video") return { ok: false, issue: issue(ISSUE_FIELDS.kind, "unknown") };
-  const decoded = isRecord(raw) ? decodeObject(raw, kind === "image" ? imageSpec : videoSpec) : INVALID;
+  if (!isRecord(raw)) return { ok: false, issue: issue(ISSUE_FIELDS.document, "invalid") };
+  if (kind === "image") return parseImage(raw);
+  const decoded = decodeObject(raw, videoSpec);
   if (decoded === INVALID) return { ok: false, issue: issue(ISSUE_FIELDS.document, "invalid") };
-  const found = kind === "image" ? imageDocumentIssue(decoded as ImageDocument) : videoDocumentIssue(decoded as VideoDocument);
-  return found ? { ok: false, issue: found } : { ok: true, document: raw as StudioDocument };
+  const found = videoDocumentIssue(decoded as VideoDocument);
+  return found ? { ok: false, issue: found } : { ok: true, document: raw as unknown as StudioDocument };
 }
 
 export function documentIssue(kind: StudioKind, raw: unknown): DocumentIssue | null {

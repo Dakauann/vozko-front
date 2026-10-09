@@ -11,7 +11,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { SipTrunkSheet } from "@/components/sip-trunks/sip-trunk-sheet";
 import { deleteSipTrunkAction, listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { SipRegistrationStatus, SipTrunk } from "@/lib/sip-trunks/types";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,6 @@ const STATUS_TONE: Record<SipRegistrationStatus, string> = {
 export default function SipTrunksPage() {
   const t = useTranslations("sipTrunks");
   const { can } = useWorkspace();
-  const { toast } = useToast();
   const [trunks, setTrunks] = useState<SipTrunk[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,10 +71,10 @@ export default function SipTrunksPage() {
     if (!deleting) return;
     const result = await deleteSipTrunkAction(deleting.id);
     if (result.error) {
-      toast({ title: t("delete.failed"), description: result.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: result.error });
       return;
     }
-    toast({ title: t("delete.done"), description: deleting.name });
+    toast(t("delete.done"), { description: deleting.name });
     setDeleting(null);
     load();
   };

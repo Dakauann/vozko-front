@@ -3,18 +3,21 @@
 import { Controller, useForm } from "react-hook-form";
 import { DealAutomationDraft, DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 import { applyDealAutomation } from "@/lib/deal-automation/client";
-import { DownloadSimple, UploadSimple, Warning } from "@/components/icons";
+import { DownloadSimple, UploadSimple } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import Button from "@/components/elevated-design/button";
 import { CampaignMediaPicker, MEDIA_ACCEPT } from "@/components/campaigns/CampaignMediaPicker";
+import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
+import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import {
   CampaignMessageComposer,
+  messageBodiesReady,
   parameterCount,
-  variantsAgree,
 } from "@/components/unofficial-whatsapp/campaign-message-composer";
-import { CampaignPacingPanel } from "@/components/unofficial-whatsapp/campaign-pacing-panel";
+import { CampaignPacingPanel, DEFAULT_SEND_DELAY_MS } from "@/components/unofficial-whatsapp/campaign-pacing-panel";
+import { InstanceIssueLine, useUnofficialInstanceSelect } from "@/components/unofficial-whatsapp/instance-select";
 import {
   ElevatedCommandSelect,
   type ElevatedCommandOption,
@@ -29,13 +32,12 @@ import {
   type ParsedTargetList,
 } from "@/components/campaigns/TargetListEditor";
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
-import type { UnofficialWhatsAppInstance } from "@/lib/unofficial-whatsapp/types";
 import type {
   UnofficialWhatsAppCampaign,
   UnofficialWhatsAppMessageSpec,
 } from "@/lib/unofficial-whatsapp-campaigns/types";
 import type { Workflow } from "@/lib/workflows/types";
-import { instanceIssue } from "@/lib/unofficial-whatsapp/types";
+import { instanceIssue, instanceUnusable } from "@/lib/unofficial-whatsapp/types";
 import { seededOutcomeCounts } from "@/lib/unofficial-whatsapp-campaigns/statuses";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
@@ -44,12 +46,11 @@ import {
   updateUnofficialCampaignAction,
 } from "@/app/actions/unofficial-whatsapp-campaigns";
 import { listAgentsAction } from "@/app/actions/agents";
-import { listInstancesAction } from "@/app/actions/unofficial-whatsapp";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import { listWorkflowsAction } from "@/app/actions/workflows";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 
@@ -100,7 +101,9 @@ export default function CreateUnofficialCampaignForm({
   const t = useTranslations("unofficialWhatsappCampaigns");
   const tDeals = useTranslations("dealAutomation");
   const router = useRouter();
-  const { toast } = useToast();
+  const refusalText = useSelectionSendRefusalText();
+  const contentLocked =
+    mode === "edit" && !selectionSendControls(initialCampaign?.source, initialCampaign?.status ?? "").editContent;
 
   const {
     control,
@@ -138,8 +141,8 @@ export default function CreateUnofficialCampaignForm({
     Boolean(initialCampaign?.scheduledStart),
   );
   const [pipelines, setPipelines] = useState<{ id: string; name: string }[]>([]);
-  const [minMs, setMinMs] = useState(initialCampaign?.sendDelayMinMs ?? 3000);
-  const [maxMs, setMaxMs] = useState(initialCampaign?.sendDelayMaxMs ?? 12000);
+  const [minMs, setMinMs] = useState<number>(initialCampaign?.sendDelayMinMs ?? DEFAULT_SEND_DELAY_MS.min);
+  const [maxMs, setMaxMs] = useState<number>(initialCampaign?.sendDelayMaxMs ?? DEFAULT_SEND_DELAY_MS.max);
   const [dailyCap, setDailyCap] = useState(initialCampaign?.dailyCap ?? 0);
 
   const [seedOutcome, setSeedOutcome] = useState(false);
@@ -155,23 +158,7 @@ export default function CreateUnofficialCampaignForm({
   const enableAutoMemory = watch("enableAutoMemory");
 
 
-  const mapInstanceOption = useCallback(
-    (instance: UnofficialWhatsAppInstance): ElevatedCommandOption => ({
-      value: instance.id,
-      label: instance.sessionLive
-        ? instance.displayName
-        : `${instance.displayName} · ${t("form.numberOffline")}`,
-    }),
-    [t],
-  );
-
-  const instanceSelect = usePaginatedSelect<UnofficialWhatsAppInstance>({
-    fetchFn: useCallback(async (page: number, search: string) => {
-      const result = await listInstancesAction(page, 20, search || undefined);
-      return { items: result.instances ?? [], totalPages: result.meta.totalPages };
-    }, []),
-    mapOption: mapInstanceOption,
-  });
+  const instanceSelect = useUnofficialInstanceSelect();
 
   const agentSelect = usePaginatedSelect<AgentListItem>({
     fetchFn: useCallback(async (page: number, search: string) => {
@@ -208,11 +195,7 @@ export default function CreateUnofficialCampaignForm({
 
 
   const requiredVariables = parameterCount(message);
-  const variantsOk = variantsAgree(message.bodies);
-  const bodiesFilled =
-    message.kind === "text" || message.kind === "menu"
-      ? message.bodies.every((b) => b.trim().length > 0)
-      : true;
+  const bodiesReady = messageBodiesReady(message);
 
   const parsed = useMemo(
     () => (rawTargets ? parseTargetList(rawTargets, requiredVariables, isValidNumber) : EMPTY_PARSE),
@@ -231,7 +214,7 @@ export default function CreateUnofficialCampaignForm({
   );
 
   const issue = selectedInstance ? instanceIssue(selectedInstance) : null;
-  const numberUnusable = issue === "banned" || issue === "provision-failed";
+  const numberUnusable = instanceUnusable(issue);
 
   const handleDownloadCsvExample = () => {
     const header = ["numero", "nome", ...Array.from({ length: requiredVariables }, (_, i) => `variavel${i + 1}`)];
@@ -248,16 +231,16 @@ export default function CreateUnofficialCampaignForm({
 
 
   const onSubmit = handleSubmit(async (values) => {
-    if (!variantsOk || !bodiesFilled) {
-      toast({ title: t("form.saveFailed"), description: t("form.variantsMismatch"), variant: "destructive" });
+    if (!bodiesReady) {
+      toast.error(t("form.saveFailed"), { description: t("form.variantsMismatch") });
       return;
     }
     if (seedOverflow) {
-      toast({ title: t("form.saveFailed"), description: t("form.seedOutcomeOverflow"), variant: "destructive" });
+      toast.error(t("form.saveFailed"), { description: t("form.seedOutcomeOverflow") });
       return;
     }
     if (mode === "create" && parsed.targets.length === 0) {
-      toast({ title: t("form.saveFailed"), description: t("form.noTargets"), variant: "destructive" });
+      toast.error(t("form.saveFailed"), { description: t("form.noTargets") });
       return;
     }
 
@@ -275,7 +258,7 @@ export default function CreateUnofficialCampaignForm({
       enableAutoStaging: values.enableAutoStaging,
       enableAutoMemory: values.enableAutoMemory,
       aiModel: values.aiModel || undefined,
-      scheduledStart: scheduleEnabled ? values.scheduledStart : null,
+      scheduledStart: scheduleEnabled && !contentLocked ? values.scheduledStart : null,
       sendDelayMinMs: minMs,
       sendDelayMaxMs: maxMs,
       dailyCap,
@@ -293,7 +276,7 @@ export default function CreateUnofficialCampaignForm({
         : await createUnofficialCampaignAction(payload);
 
     if (result.error) {
-      toast({ title: t("form.saveFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("form.saveFailed"), { description: refusalText(result.code, result.error) });
       return;
     }
     const campaignId = result.campaign?.id;
@@ -305,7 +288,7 @@ export default function CreateUnofficialCampaignForm({
         dealPipelineId,
       ))
     ) {
-      toast({ title: tDeals("notAppliedTitle"), description: tDeals("notApplied"), variant: "destructive" });
+      toast.error(tDeals("notAppliedTitle"), { description: tDeals("notApplied") });
     }
     router.push(`/dashboard/unofficial-whatsapp-campaigns/${campaignId ?? ""}`);
   });
@@ -321,6 +304,7 @@ export default function CreateUnofficialCampaignForm({
           </h2>
 
           <div className="space-y-4">
+            {contentLocked ? <SelectionSendNote reason="contentLocked" /> : null}
             <div>
               <ElevatedInput
                 label={t("form.name")}
@@ -351,6 +335,7 @@ export default function CreateUnofficialCampaignForm({
                     onScrollEnd={instanceSelect.onScrollEnd}
                     onOpenChange={instanceSelect.onOpenChange}
                     isLoading={instanceSelect.isLoading}
+                    disabled={contentLocked}
                   />
                 )}
               />
@@ -358,17 +343,7 @@ export default function CreateUnofficialCampaignForm({
               <p className="mt-1 text-xs text-muted-foreground">
                 {t("form.numberDescription")}
               </p>
-              {issue ? (
-                <p
-                  className={cn(
-                    "mt-1.5 flex items-center gap-1.5 text-xs font-semibold",
-                    numberUnusable ? "text-destructive-ink" : "text-warning-ink",
-                  )}
-                >
-                  <Warning className="h-3.5 w-3.5" weight="fill" />
-                  {t(`numberIssue.${issue}`)}
-                </p>
-              ) : null}
+              <InstanceIssueLine issue={issue} className="mt-1.5" />
             </div>
 
             {pipelines.length > 0 ? (
@@ -403,14 +378,14 @@ export default function CreateUnofficialCampaignForm({
               <CampaignMessageComposer
                 value={message}
                 onChange={setMessage}
-                disabled={isSubmitting}
+                disabled={isSubmitting || contentLocked}
                 mediaSlot={
                   <CampaignMediaPicker
                     kind={message.kind}
                     mediaId={message.mediaId}
                     fileName={message.fileName}
                     accept={MEDIA_ACCEPT[message.kind] ?? "*/*"}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || contentLocked}
                     onChange={(next) =>
                       setMessage({ ...message, mediaId: next.mediaId, fileName: next.fileName })
                     }
@@ -605,40 +580,42 @@ export default function CreateUnofficialCampaignForm({
               />
             </div>
 
-            <div className="border-t border-border pt-4">
-              <div className="mb-2 flex items-center gap-3">
-                <ElevatedSwitch
-                  checked={scheduleEnabled}
-                  onCheckedChange={(checked) => {
-                    setScheduleEnabled(checked);
-                    if (!checked) setValue("scheduledStart", null);
-                  }}
-                  label={t("form.scheduleToggle")}
-                />
+            {!contentLocked && (
+              <div className="border-t border-border pt-4">
+                <div className="mb-2 flex items-center gap-3">
+                  <ElevatedSwitch
+                    checked={scheduleEnabled}
+                    onCheckedChange={(checked) => {
+                      setScheduleEnabled(checked);
+                      if (!checked) setValue("scheduledStart", null);
+                    }}
+                    label={t("form.scheduleToggle")}
+                  />
+                </div>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  {t("form.scheduleDescription")}
+                </p>
+                {scheduleEnabled ? (
+                  <Controller
+                    name="scheduledStart"
+                    control={control}
+                    render={({ field }) => (
+                      <ElevatedInput
+                        type="datetime-local"
+                        label={t("form.scheduledStart")}
+                        value={field.value ? field.value.slice(0, 16) : ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? new Date(e.target.value).toISOString() : null,
+                          )
+                        }
+                        controlSize="sm"
+                      />
+                    )}
+                  />
+                ) : null}
               </div>
-              <p className="mb-3 text-xs text-muted-foreground">
-                {t("form.scheduleDescription")}
-              </p>
-              {scheduleEnabled ? (
-                <Controller
-                  name="scheduledStart"
-                  control={control}
-                  render={({ field }) => (
-                    <ElevatedInput
-                      type="datetime-local"
-                      label={t("form.scheduledStart")}
-                      value={field.value ? field.value.slice(0, 16) : ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? new Date(e.target.value).toISOString() : null,
-                        )
-                      }
-                      controlSize="sm"
-                    />
-                  )}
-                />
-              ) : null}
-            </div>
+            )}
           </div>
         </ElevatedContainer>
 
@@ -812,7 +789,7 @@ export default function CreateUnofficialCampaignForm({
           variant="primary"
           title={mode === "edit" ? t("form.save") : t("form.create")}
           disabled={
-            isSubmitting || numberUnusable || !variantsOk || !bodiesFilled || seedOverflow
+            isSubmitting || numberUnusable || !bodiesReady || seedOverflow
           }
         />
       </div>

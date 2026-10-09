@@ -59,10 +59,6 @@ export interface SipActiveCall {
 
 export const SIP_CODECS: SipCodec[] = ["PCMU", "PCMA", "opus", "telephone-event"];
 
-export function canDialThrough(trunk: SipTrunk): boolean {
-  return trunk.enabled && trunk.trunkType !== "INBOUND" && trunk.registrationStatus === "REGISTERED";
-}
-
 export function receivesCalls(trunk: SipTrunk): boolean {
   return trunk.trunkType !== "OUTBOUND";
 }

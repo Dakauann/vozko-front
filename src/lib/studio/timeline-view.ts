@@ -232,6 +232,11 @@ export function visibleSpan(leftPx: number, widthPx: number, scrollLeft: number,
   return toPx > fromPx ? { fromPx, toPx } : null;
 }
 
+export function steppedSpan(span: Span | null, stepPx: number, widthPx: number): Span | null {
+  if (!span) return null;
+  return { fromPx: Math.floor(span.fromPx / stepPx) * stepPx, toPx: Math.min(widthPx, Math.ceil(span.toPx / stepPx) * stepPx) };
+}
+
 export interface OverviewWindow {
   left: number;
   width: number;

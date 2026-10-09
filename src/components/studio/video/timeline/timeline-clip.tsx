@@ -1,13 +1,13 @@
 "use client";
 
-import { memo, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { LinkSimple } from "@/components/icons";
 import { STUDIO_LIMITS, type Clip, type Track } from "@/lib/studio/document";
 import { mainTrackId, placeGroup, placementMode, rippleTrim, trimLinked } from "@/lib/studio/edits";
 import { clipEnd, findClip, hasSourceTime, snapCandidates, snapMs, snapRangeStart, trimClipEnd, trimClipStart, updateClip } from "@/lib/studio/timeline";
-import { envelopePoints, formatTimecode, levelFromY, msToPx, pxToMs, snapThresholdMs, visibleSpan } from "@/lib/studio/timeline-view";
+import { envelopePoints, formatTimecode, levelFromY, msToPx, pxToMs, snapThresholdMs } from "@/lib/studio/timeline-view";
 import { rollEdit, slideClip, slipClip } from "@/lib/studio/tools";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ import type { DragMode } from "../view-store";
 import { ClipKeyframes } from "./clip-keyframes";
 import { BLADE_CURSOR } from "./cursors";
 import { ImageFilmstrip, VideoFilmstrip } from "./filmstrip";
-import { CLIP_INSET, DRAG_SLOP_PX, useTimelineGeometry } from "./timeline-geometry";
+import { CLIP_INSET, DRAG_SLOP_PX, useOnScreen, useTimelineGeometry, useVisibleSpan } from "./timeline-geometry";
 import { Waveform } from "./waveform";
 
 type Gesture = "move" | "start" | "end" | "fadeIn" | "fadeOut" | "volume" | "slip" | "slide";
@@ -63,6 +63,7 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
   const tool = useViewState((s) => s.tool);
   const sourceDurationMs = useSourceDuration(hasSourceTime(clip.type) ? clip.assetId : undefined);
   const drag = useRef<DragState | null>(null);
+  const [dragging, setDragging] = useState(false);
   const label = useClipLabel(clip);
   const left = msToPx(clip.startMs, geometry.pxPerSecond);
   const width = Math.max(2, msToPx(clip.durationMs, geometry.pxPerSecond));
@@ -74,7 +75,8 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
   const level = audio ? clip.volume / STUDIO_LIMITS.maxVolume : clip.transform.opacity;
   const wellWidth = Math.max(1, width - WELL_INSET * 2);
   const wellHeight = Math.max(0, height - HEADER_PX - WELL_INSET);
-  const span = visibleSpan(left + WELL_INSET, wellWidth, geometry.scrollLeft, geometry.viewportPx, OVERSCAN_PX);
+  const span = useVisibleSpan(geometry.scroll, left + WELL_INSET, wellWidth, OVERSCAN_PX);
+  const onScreen = useOnScreen(geometry.scroll, left, width, OVERSCAN_PX);
   const envelope = envelopePoints(clip, wellWidth, wellHeight, level)
     .map(([x, y]) => `${x},${y}`)
     .join(" ");
@@ -85,7 +87,7 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
   };
 
   const begin = (requested: Gesture, event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || locked) return;
     event.stopPropagation();
     const state = store.getState();
     const current = view.getState();
@@ -99,7 +101,6 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
       return;
     } else if (!state.selection.includes(clip.id)) commands.selectClip(clip.id, false);
     if (current.selectedGap) view.setState({ selectedGap: null });
-    if (locked) return;
     const gesture: Gesture = requested === "move" && (current.tool === "slip" || current.tool === "slide") ? current.tool : requested;
     const ids = store.getState().selection;
     const doc = store.getState().document;
@@ -120,6 +121,7 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
       blockSpan: blockEnd - blockStart,
       started: false,
     };
+    setDragging(true);
   };
 
   const bladeTime = (clientX: number) => {
@@ -205,6 +207,7 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
   const finish = (commit: boolean) => {
     const current = drag.current;
     drag.current = null;
+    setDragging(false);
     view.setState({ snapGuideMs: null, dragMode: null, feedback: null });
     if (!current?.started) return;
     if (commit) store.getState().commitTransaction();
@@ -222,6 +225,8 @@ export const TimelineClip = memo(function TimelineClip({ clip, track, selected }
   const handleVisibility = selected ? "opacity-100" : "opacity-0 group-hover:opacity-100";
   const bodyCursor = locked ? "cursor-not-allowed" : tool === "slip" || tool === "slide" ? "cursor-ew-resize" : "cursor-grab active:cursor-grabbing";
   const edgeTools = tool !== "blade";
+
+  if (!onScreen && !dragging) return null;
 
   return (
     <div

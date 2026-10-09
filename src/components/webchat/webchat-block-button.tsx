@@ -7,7 +7,7 @@ import { Prohibit } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { setWebchatVisitorBlockedAction } from "@/app/actions/webchat";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { webchatErrorKey } from "@/lib/webchat/types";
 
@@ -19,7 +19,6 @@ export function WebchatBlockButton({
   blocked: boolean;
 }) {
   const t = useTranslations("webchat");
-  const { toast } = useToast();
   const [source, setSource] = useState({ entryId, blocked });
   const [current, setCurrent] = useState(blocked);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -36,15 +35,13 @@ export function WebchatBlockButton({
     setBusy(false);
     if ("error" in result) {
       const key = webchatErrorKey(result.code);
-      toast({
-        title: t("block.failed"),
+      toast.error(t("block.failed"), {
         description: key ? t(key) : result.error,
-        variant: "destructive",
       });
       return;
     }
     setCurrent(next);
-    toast({ title: next ? t("block.blocked") : t("block.unblocked") });
+    toast(next ? t("block.blocked") : t("block.unblocked"));
   };
 
   const label = current ? t("block.unblock") : t("block.block");

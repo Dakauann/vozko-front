@@ -39,7 +39,8 @@ export function imageDocumentFromMedia(assetId: string, frame: MediaFrame): Imag
   const relative = hasShape(frame) ? frame.width / frame.height / (preset.width / preset.height) : 1;
   const w = relative >= 1 ? 1 : relative;
   const h = relative >= 1 ? 1 / relative : 1;
-  return { ...document, layers: [newImageLayer(assetId, { x: 0.5, y: 0.5, w, h, rotation: 0, opacity: 1 })] };
+  const [artboard] = document.artboards;
+  return { ...document, artboards: [{ ...artboard, layers: [newImageLayer(assetId, { x: 0.5, y: 0.5, w, h, rotation: 0, opacity: 1 })] }] };
 }
 
 export function videoDocumentFromMedia(type: Exclude<MediaClipType, "image">, assetId: string, frame: MediaFrame): VideoDocument | null {

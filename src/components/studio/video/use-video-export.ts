@@ -1,85 +1,85 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { exportStudioVideoAction } from "@/app/actions/studio";
-import { rasterizeLayer, uploadRaster } from "@/components/studio/canvas/rasterize";
-import { useMediaGeneration, type MediaGenerationResult } from "@/hooks/use-media-generation";
 import type { VideoDocument } from "@/lib/studio/document";
-import { isExportOutdated, startVideoExport, type ExportPhase } from "@/lib/studio/export";
+import { isExportOutdated, startVideoExport, type ExportedVideo, type ExportFailureCode, type ExportPhase } from "@/lib/studio/export";
 
+import { useStudioTelemetry } from "../telemetry/studio-telemetry";
 import { useEditorState, useVideoEditor } from "./editor-context";
+import { exportLocally } from "./export/browser-export";
 
 export type VideoExportState =
   | { status: "idle" }
   | { status: "preparing"; phase: ExportPhase }
-  | { status: "queued" }
-  | { status: "rendering" }
-  | { status: "finalizing" }
-  | { status: "done"; result: MediaGenerationResult; outdated: boolean }
-  | { status: "failed"; code: string };
+  | { status: "done"; result: ExportedVideo; outdated: boolean }
+  | { status: "failed"; code: ExportFailureCode };
+
+interface FinishedExport {
+  result: ExportedVideo;
+  document: VideoDocument;
+}
+
+function useLeaveGuard(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const hold = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", hold);
+    return () => window.removeEventListener("beforeunload", hold);
+  }, [active]);
+}
 
 export function useVideoExport() {
   const { projectId, store, studio, assets } = useVideoEditor();
-  const { follow, reset: resetGeneration, status, settling, jobStatus, result, error } = useMediaGeneration({
-    onDone: () => void assets.loadLibrary(),
-  });
+  const telemetry = useStudioTelemetry();
   const [preparing, setPreparing] = useState<ExportPhase | null>(null);
-  const [failure, setFailure] = useState<string | null>(null);
-  const [rendered, setRendered] = useState<VideoDocument | null>(null);
+  const [failure, setFailure] = useState<ExportFailureCode | null>(null);
+  const [finished, setFinished] = useState<FinishedExport | null>(null);
   const current = useEditorState((s) => s.document);
-  const cache = useRef(new Map<string, string>());
   const busy = useRef(false);
 
   const start = useCallback(async () => {
     if (busy.current) return;
     busy.current = true;
     setFailure(null);
-    setRendered(null);
-    resetGeneration();
+    setFinished(null);
     store.getState().commitTransaction();
     try {
       const outcome = await startVideoExport({
         flush: studio.flush,
         committed: studio.committed,
         document: () => store.getState().document,
-        rasterize: (target) => rasterizeLayer(target.layer, target.widthPx, target.heightPx, { fontBasePx: target.fontBasePx }),
-        upload: (blob, target) => uploadRaster(blob, `studio overlay ${target.clipId}`, "studio-overlay.png"),
-        requestExport: (version, rasters) => exportStudioVideoAction(projectId, version, rasters),
-        cache: cache.current,
+        local: async (document, onPhase) => {
+          const local = await exportLocally(projectId, document, onPhase);
+          if (local.status === "done") telemetry?.exported();
+          else telemetry?.exportFailed(local.reason);
+          return local;
+        },
         onPhase: setPreparing,
       });
-      if (outcome.status === "started") {
-        setRendered(outcome.document);
-        void follow(() => Promise.resolve({ data: outcome.job }));
+      if (outcome.status === "failed") {
+        setFailure(outcome.code);
         return;
       }
-      if (outcome.status === "conflict") {
-        studio.edit({ document: store.getState().document });
-        await studio.flush();
-        setFailure(studio.committed().settled ? "changed" : "conflict");
-        return;
-      }
-      setFailure(outcome.code);
+      setFinished({ result: outcome.result, document: outcome.document });
+      void assets.loadLibrary();
     } finally {
       setPreparing(null);
       busy.current = false;
     }
-  }, [follow, resetGeneration, projectId, store, studio]);
+  }, [projectId, store, studio, assets, telemetry]);
 
   const reset = useCallback(() => {
-    resetGeneration();
     setFailure(null);
-    setRendered(null);
-  }, [resetGeneration]);
+    setFinished(null);
+  }, []);
+
+  useLeaveGuard(preparing !== null && preparing.phase !== "saving");
 
   let state: VideoExportState = { status: "idle" };
   if (preparing) state = { status: "preparing", phase: preparing };
   else if (failure) state = { status: "failed", code: failure };
-  else if (status === "generating") {
-    state = settling ? { status: "finalizing" } : jobStatus === "running" ? { status: "rendering" } : { status: "queued" };
-  } else if (status === "done" && result) state = { status: "done", result, outdated: rendered === null || isExportOutdated(rendered, current) };
-  else if (status === "failed" && error) state = { status: "failed", code: error.code };
+  else if (finished) state = { status: "done", result: finished.result, outdated: isExportOutdated(finished.document, current) };
 
   return { state, start, reset };
 }

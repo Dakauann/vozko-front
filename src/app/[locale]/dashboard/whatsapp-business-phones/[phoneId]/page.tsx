@@ -38,7 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/auth-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
   getBusinessPhoneByIdAction,
@@ -136,17 +136,14 @@ export default function BusinessPhoneDetailPage() {
   const locale = useLocale();
   const router = useRouter();
   const params = useParams();
-  const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
   const { can, currentWorkspace } = useWorkspace();
   const canManage = can("business_phones", "update");
   const isSystemAdmin = user?.role === "admin";
 
   const tRef = useRef(t);
-  const toastRef = useRef(toast);
   const routerRef = useRef(router);
   tRef.current = t;
-  toastRef.current = toast;
   routerRef.current = router;
 
   const phoneId = params.phoneId as string;
@@ -214,19 +211,11 @@ export default function BusinessPhoneDetailPage() {
           setCallingLoading(false);
         }
       } else {
-        toastRef.current({
-          title: tRef.current("toast.errorFetchingPhone"),
-          description: phoneResult.error || tRef.current("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(tRef.current("toast.errorFetchingPhone"), { description: phoneResult.error || tRef.current("toast.unknownError") });
         routerRef.current.push(`/${locale}/dashboard/whatsapp-business-phones`);
       }
     } catch {
-      toastRef.current({
-        title: tRef.current("toast.errorFetchingPhone"),
-        description: tRef.current("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(tRef.current("toast.errorFetchingPhone"), { description: tRef.current("toast.unknownError") });
     } finally {
       setLoading(false);
     }
@@ -237,11 +226,7 @@ export default function BusinessPhoneDetailPage() {
       setCallingSaving(true);
       const result = await setWhatsappCallingStatusAction(phoneId, next);
       if (result.error) {
-        toastRef.current({
-          title: "WhatsApp Calling",
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error("WhatsApp Calling", { description: result.error });
       } else {
         setCallingEnabled(result.enabled);
       }
@@ -333,24 +318,13 @@ export default function BusinessPhoneDetailPage() {
     try {
       const result = await syncBusinessPhoneAction(phoneId);
       if (!result.error) {
-        toast({
-          title: t("toast.phoneSynced"),
-          description: t("toast.phoneSyncedDesc"),
-        });
+        toast(t("toast.phoneSynced"), { description: t("toast.phoneSyncedDesc") });
         await fetchData();
       } else {
-        toast({
-          title: t("toast.syncFailed"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.syncFailed"), { description: result.error || t("toast.unknownError") });
       }
     } catch {
-      toast({
-        title: t("toast.syncFailed"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.syncFailed"), { description: t("toast.unknownError") });
     } finally {
       setSyncing(false);
     }
@@ -361,18 +335,11 @@ export default function BusinessPhoneDetailPage() {
     try {
       const result = await deregisterBusinessPhoneAction(phoneId);
       if (!result.error) {
-        toast({
-          title: t("disconnect.successTitle"),
-          description: t("disconnect.successDesc"),
-        });
+        toast(t("disconnect.successTitle"), { description: t("disconnect.successDesc") });
         setShowDisconnectDialog(false);
         await fetchData();
       } else {
-        toast({
-          title: t("disconnect.errorTitle"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("disconnect.errorTitle"), { description: result.error || t("toast.unknownError") });
       }
     } finally {
       setDisconnecting(false);
@@ -384,18 +351,11 @@ export default function BusinessPhoneDetailPage() {
     try {
       const result = await unassignPhoneOwnerAction(phoneId);
       if (!result.error) {
-        toast({
-          title: t("unassign.successTitle"),
-          description: t("unassign.successDesc"),
-        });
+        toast(t("unassign.successTitle"), { description: t("unassign.successDesc") });
         setShowUnassignDialog(false);
         await fetchData();
       } else {
-        toast({
-          title: t("unassign.errorTitle"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("unassign.errorTitle"), { description: result.error || t("toast.unknownError") });
       }
     } finally {
       setUnassigning(false);

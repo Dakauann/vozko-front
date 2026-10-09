@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { STUDIO_LIMITS } from "@/lib/studio/document";
 import { clipCount, findClip, type ClipLocation } from "@/lib/studio/timeline";
 import { formatTimecode } from "@/lib/studio/timeline-view";
 
@@ -19,14 +18,14 @@ function ProjectInspector() {
   return (
     <>
       <InspectorSection title={t("project")}>
-        <ColorField label={t("background")} value={document.canvas.background} onChange={commands.setBackground} />
+        <ColorField label={t("background")} value={document.canvas.background} opaque onChange={commands.setBackground} />
         <dl className="grid grid-cols-2 gap-y-1 text-xs">
           <dt className="text-muted-foreground">{t("length")}</dt>
           <dd className="text-right tabular-nums text-foreground">{formatTimecode(document.durationMs)}</dd>
           <dt className="text-muted-foreground">{t("clips")}</dt>
-          <dd className="text-right tabular-nums text-foreground">{`${clipCount(document)} / ${STUDIO_LIMITS.maxClips}`}</dd>
+          <dd className="text-right tabular-nums text-foreground">{clipCount(document)}</dd>
           <dt className="text-muted-foreground">{t("tracks")}</dt>
-          <dd className="text-right tabular-nums text-foreground">{`${document.tracks.length} / ${STUDIO_LIMITS.maxTracks}`}</dd>
+          <dd className="text-right tabular-nums text-foreground">{document.tracks.length}</dd>
         </dl>
       </InspectorSection>
       <p className="px-3 py-3 text-xs text-muted-foreground">{t("empty")}</p>

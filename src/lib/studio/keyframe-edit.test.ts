@@ -7,8 +7,10 @@ import {
   keyAt,
   keyTimes,
   localTime,
+  propertyEasing,
   propertyValue,
   setKeyEasing,
+  setPropertyEasing,
   toggleAnimation,
   toggleKeyAt,
 } from "./keyframe-edit";
@@ -67,6 +69,27 @@ describe("keyframe editing", () => {
     expect(toggleKeyAt(moving, "x", 1000).keyframes?.x).toHaveLength(3);
     expect(setKeyEasing(moving, "x", 0, "easeOut")?.keyframes?.x?.[0].easing).toBe("easeOut");
     expect(setKeyEasing(moving, "x", 1000, "easeOut")).toBeNull();
+  });
+
+  it("reads the easing of one property at the key under the playhead or across all its keys", () => {
+    const mixed = { ...moving, keyframes: { ...moving.keyframes, x: [{ atMs: 0, value: 0.2, easing: "easeIn" as const }, { atMs: 2000, value: 0.8, easing: "linear" as const }] } };
+    expect(propertyEasing(mixed, "x", 5)).toEqual({ scope: "key", easing: "easeIn" });
+    expect(propertyEasing(mixed, "x", 1000)).toEqual({ scope: "all", easing: null });
+    expect(propertyEasing(mixed, "x", null)).toEqual({ scope: "all", easing: null });
+    expect(propertyEasing(moving, "x", 1000)).toEqual({ scope: "all", easing: "linear" });
+    expect(propertyEasing(still, "x", 0)).toEqual({ scope: "all", easing: null });
+  });
+
+  it("sets the easing of the key under the playhead or of every key of that one property", () => {
+    const one = setPropertyEasing(moving, "x", 2010, "hold")!;
+    expect(one.keyframes?.x?.map((f) => f.easing)).toEqual(["linear", "hold"]);
+    expect(one.keyframes?.scale).toEqual(moving.keyframes.scale);
+    const all = setPropertyEasing(moving, "x", 1000, "easeOut")!;
+    expect(all.keyframes?.x?.map((f) => f.easing)).toEqual(["easeOut", "easeOut"]);
+    expect(all.keyframes?.scale?.[0].easing).toBe("linear");
+    expect(setPropertyEasing(moving, "x", null, "linear")).toBeNull();
+    expect(setPropertyEasing(moving, "x", 0, "linear")).toBeNull();
+    expect(setPropertyEasing(still, "x", 0, "easeOut")).toBeNull();
   });
 
   it("routes a transform edit to keys for animated properties and to the base for the rest", () => {

@@ -180,10 +180,10 @@ export async function updateWhatsAppCampaignAction(
     console.log(response)
 
     if (response.error) {
-        return { campaign: null, error: response.error.message };
+        return { campaign: null, error: response.error.message, errorCode: response.error.code };
     }
 
-    return { campaign: unwrapWhatsAppCampaign(response.data ?? null), error: null };
+    return { campaign: unwrapWhatsAppCampaign(response.data ?? null), error: null, errorCode: undefined };
 }
 
 export async function assignWhatsAppCampaignDepartmentAction(

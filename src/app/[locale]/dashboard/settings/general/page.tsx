@@ -19,7 +19,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import type { SystemConfig } from "@/lib/system-config/types";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 function deepEqual(a: unknown, b: unknown) {
@@ -69,7 +69,6 @@ function FieldDescription({
 
 export default function GeneralSettingsPage() {
   const t = useTranslations("systemConfig");
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, startSaving] = useTransition();
   const [original, setOriginal] = useState<SystemConfig | null>(null);
@@ -114,13 +113,9 @@ export default function GeneralSettingsPage() {
 
   useEffect(() => {
     if (loadError) {
-      toast({
-        title: t("messages.loadError"),
-        description: t("messages.loadErrorDescription"),
-        variant: "destructive",
-      });
+      toast.error(t("messages.loadError"), { description: t("messages.loadErrorDescription") });
     }
-  }, [loadError, t, toast]);
+  }, [loadError, t]);
 
   const hasChanges = useMemo(() => {
     if (!original) return false;
@@ -142,11 +137,7 @@ export default function GeneralSettingsPage() {
         const result = await updateSystemConfigAction(form);
 
         if (result.error) {
-          toast({
-            title: t("messages.saveError"),
-            description: t("messages.saveErrorDescription"),
-            variant: "destructive",
-          });
+          toast.error(t("messages.saveError"), { description: t("messages.saveErrorDescription") });
           return;
         }
 
@@ -155,16 +146,9 @@ export default function GeneralSettingsPage() {
           setForm(result.config);
         }
 
-        toast({
-          title: t("messages.saveSuccess"),
-          description: t("messages.saveSuccessDescription"),
-        });
+        toast(t("messages.saveSuccess"), { description: t("messages.saveSuccessDescription") });
       } catch {
-        toast({
-          title: t("messages.saveError"),
-          description: t("messages.saveErrorDescription"),
-          variant: "destructive",
-        });
+        toast.error(t("messages.saveError"), { description: t("messages.saveErrorDescription") });
       }
     });
   };

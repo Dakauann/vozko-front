@@ -34,7 +34,7 @@ import {
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 import {
@@ -145,12 +145,9 @@ export default function WhatsAppTemplatesPage({
 }: TemplatesPageProps = {}) {
   const t = useTranslations("whatsappTemplates");
   const { can } = useWorkspace();
-  const { toast } = useToast();
   const router = useRouter();
   const tRef = useRef(t);
-  const toastRef = useRef(toast);
   tRef.current = t;
-  toastRef.current = toast;
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -175,22 +172,14 @@ export default function WhatsAppTemplatesPage({
       });
 
       if (result.error) {
-        toastRef.current({
-          title: tRef.current("error.title"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(tRef.current("error.title"), { description: result.error });
       }
 
       setBusinessPhones(result.businessPhones ?? []);
       setTemplates(result.templates ?? []);
       setMeta(result.meta ?? null);
     } catch {
-      toastRef.current({
-        title: tRef.current("error.title"),
-        description: tRef.current("error.default"),
-        variant: "destructive",
-      });
+      toast.error(tRef.current("error.title"), { description: tRef.current("error.default") });
     } finally {
       setLoading(false);
     }
@@ -220,26 +209,15 @@ export default function WhatsAppTemplatesPage({
     try {
       const result = await syncWhatsAppTemplates(phoneId);
       if (result.error) {
-        toast({
-          title: t("toast.syncError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.syncError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.syncSuccess"),
-          description: t("toast.syncSuccessDescription", {
+        toast(t("toast.syncSuccess"), { description: t("toast.syncSuccessDescription", {
             count: result.count,
-          }),
-        });
+          }) });
         await fetchData();
       }
     } catch {
-      toast({
-        title: t("toast.syncError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.syncError"), { description: t("error.default") });
     } finally {
       setSyncing(null);
     }

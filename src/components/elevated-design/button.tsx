@@ -134,6 +134,7 @@ const Button = ({
     "transition-[background-color,box-shadow,transform,color,border-color] duration-150",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "disabled:pointer-events-none disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
+    "aria-disabled:cursor-not-allowed aria-disabled:border aria-disabled:border-border aria-disabled:bg-muted aria-disabled:text-muted-foreground aria-disabled:shadow-none",
     effectiveSize !== "icon" && "min-w-16",
     sizeClasses[effectiveSize],
     variantClasses[resolvedVariant],

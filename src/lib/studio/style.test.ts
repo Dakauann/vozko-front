@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { newIconLayer, newImageLayer, newShapeLayer, newTextLayer } from "./document";
+import { newIconLayer, newImageLayer, newShapeLayer, newTextLayer, type Layer } from "./document";
 import { styleActionFor, styleOf, stylePatch } from "./style";
 
 describe("copy and paste style", () => {
@@ -31,5 +31,17 @@ describe("styleActionFor", () => {
     expect(styleActionFor(key("v", "KeyV"))).toEqual({ type: "pasteStyle" });
     expect(styleActionFor(key("c", "KeyC", { altKey: false }))).toBeNull();
     expect(styleActionFor(key("v", "KeyV", { target: document.createElement("textarea") }))).toBeNull();
+  });
+});
+
+describe("stroke styles travel with paste style", () => {
+  it("carries dashes, caps, joins and the miter limit between strokes, and never a path-only field", () => {
+    const source: Layer = { id: "p", type: "shape", shape: "path", path: "M0 0 L1 1", fillRule: "evenodd", stroke: "#111111", strokeWidth: 4, dashArray: [3, 1], dashOffset: 0.5, lineCap: "square", lineJoin: "miter", miterLimit: 6, transform: { x: 0.5, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 } };
+    const text: Layer = { id: "t", type: "text", text: "Oi", fontId: "inter", fontSize: 0.1, fill: "#000000", transform: { x: 0.5, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 } };
+    const rect: Layer = { id: "r", type: "shape", shape: "rect", fill: "#000000", transform: { x: 0.5, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 } };
+    expect(stylePatch(styleOf(source), text)).toMatchObject({ dashArray: [3, 1], dashOffset: 0.5, lineJoin: "miter", miterLimit: 6 });
+    const onRect = stylePatch(styleOf(source), rect);
+    expect(onRect).toMatchObject({ dashArray: [3, 1], lineCap: "square" });
+    expect("fillRule" in onRect).toBe(false);
   });
 });

@@ -46,8 +46,41 @@ export const DIALER_ERROR_CODES = [
   "insufficient_balance",
   "already_in_call",
   "dial_failed",
+  "lead_not_dialable",
+  "lead_blocked",
+  "number_required",
+  "call_service_offline",
+  "call_list_item_unavailable",
+  "microphone_unsupported",
+  "microphone_denied",
+  "microphone_not_found",
+  "microphone_busy",
+  "microphone_failed",
+  "call_audio_unsupported",
 ] as const;
 
-export function dialerErrorCode(code: string | null): (typeof DIALER_ERROR_CODES)[number] | null {
-  return (DIALER_ERROR_CODES as readonly string[]).includes(code ?? "") ? (code as (typeof DIALER_ERROR_CODES)[number]) : null;
+export type DialerErrorCode = (typeof DIALER_ERROR_CODES)[number];
+
+export function dialerErrorCode(code: string | null): DialerErrorCode | null {
+  return (DIALER_ERROR_CODES as readonly string[]).includes(code ?? "") ? (code as DialerErrorCode) : null;
+}
+
+export type MicrophoneErrorCode = Extract<DialerErrorCode, `microphone_${string}` | "call_audio_unsupported">;
+
+const MICROPHONE_FAILURES = new Map<string, MicrophoneErrorCode>([
+  ["NotAllowedError", "microphone_denied"],
+  ["PermissionDeniedError", "microphone_denied"],
+  ["SecurityError", "microphone_denied"],
+  ["NotFoundError", "microphone_not_found"],
+  ["DevicesNotFoundError", "microphone_not_found"],
+  ["OverconstrainedError", "microphone_not_found"],
+  ["NotReadableError", "microphone_busy"],
+  ["TrackStartError", "microphone_busy"],
+  ["AbortError", "microphone_busy"],
+  ["NotSupportedError", "call_audio_unsupported"],
+]);
+
+export function microphoneErrorCode(failure: unknown): MicrophoneErrorCode {
+  const name = failure && typeof failure === "object" && "name" in failure ? String(failure.name) : "";
+  return MICROPHONE_FAILURES.get(name) ?? "microphone_failed";
 }

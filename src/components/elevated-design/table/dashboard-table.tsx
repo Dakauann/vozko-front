@@ -7,10 +7,12 @@ import {
   Minus,
 } from "@/components/icons";
 import { Fragment, ReactNode, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 import { CircuitTraces } from "@/components/brand/circuit";
 import { SortableColumnHead } from "@/components/elevated-design/table/sortable-column-head";
 import { LightPool } from "@/components/brand/light-pool";
+import { pageHeaderState, togglePage, togglePicked } from "@/lib/selection/bulk-state";
 import { cn } from "@/lib/utils";
 
 
@@ -58,10 +60,11 @@ export interface DashboardTableStat {
   icon?: ReactNode;
 }
 
-export interface DashboardTableSelection<T> {
-  selectedKeys: Set<string>;
+export interface DashboardTableSelection {
+  selectedKeys: ReadonlySet<string>;
   onSelectionChange: (keys: Set<string>) => void;
-  actions?: (selectedRows: T[]) => ReactNode;
+  active?: boolean;
+  actions?: () => ReactNode;
   label?: (count: number) => ReactNode;
   selectAllLabel?: string;
   selectRowLabel?: string;
@@ -84,9 +87,11 @@ export interface DashboardTableProps<T> {
 
   toolbar?: ReactNode;
 
+  body?: ReactNode;
+
   sorting?: DashboardTableSorting;
 
-  selection?: DashboardTableSelection<T>;
+  selection?: DashboardTableSelection;
 
   pagination?: DashboardTablePagination;
   paginationText?: {
@@ -117,6 +122,7 @@ export function DashboardTable<T>({
   headerLeft,
   headerRight,
   toolbar,
+  body,
   sorting,
   selection,
   pagination,
@@ -127,34 +133,31 @@ export function DashboardTable<T>({
   renderExpandedRow,
   rowClassName,
 }: DashboardTableProps<T>) {
+  const t = useTranslations("dashboardTable");
   const hasData = data.length > 0;
   const hasHeader =
     !!headerLeft || !!headerRight || (stats && stats.length > 0);
   const hasToolbar = !!toolbar;
-  const hasPagination = !!pagination;
+  const showsTable = body === undefined;
+  const hasPagination = !!pagination && showsTable;
   const hasSelection = !!selection;
 
-  const allKeys = data.map((row, i) => rowKey(row, i));
+  const pageKeys = data.map((row, i) => rowKey(row, i));
   const selectedCount = selection?.selectedKeys.size ?? 0;
-  const allSelected = hasData && selectedCount === data.length;
-  const someSelected = selectedCount > 0 && !allSelected;
+  const selectionActive = selection ? (selection.active ?? selectedCount > 0) : false;
+  const headerState = selection ? pageHeaderState(pageKeys, selection.selectedKeys) : "none";
+  const allSelected = headerState === "all";
+  const someSelected = headerState === "some";
 
   const toggleAll = useCallback(() => {
     if (!selection) return;
-    if (allSelected) {
-      selection.onSelectionChange(new Set());
-    } else {
-      selection.onSelectionChange(new Set(allKeys));
-    }
-  }, [selection, allSelected, allKeys]);
+    selection.onSelectionChange(new Set(togglePage(selection.selectedKeys, pageKeys)));
+  }, [selection, pageKeys]);
 
   const toggleRow = useCallback(
     (key: string) => {
       if (!selection) return;
-      const next = new Set(selection.selectedKeys);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      selection.onSelectionChange(next);
+      selection.onSelectionChange(new Set(togglePicked(selection.selectedKeys, key)));
     },
     [selection],
   );
@@ -201,10 +204,6 @@ export function DashboardTable<T>({
   const totalCols =
     columns.length + (renderRowActions ? 1 : 0) + (hasSelection ? 1 : 0);
 
-  const selectedRows = hasSelection
-    ? data.filter((row, i) => selection!.selectedKeys.has(rowKey(row, i)))
-    : [];
-
   return (
     <div
       className={cn(
@@ -246,206 +245,207 @@ export function DashboardTable<T>({
         </div>
       )}
 
-      {}
-      {hasSelection && selectedCount > 0 && !selection!.hideSummary && (
-        <div className="flex items-center gap-3 border-b border-border px-4 py-2">
-          <span className="text-sm font-medium text-primary-ink">
-            {selection!.label
-              ? selection!.label(selectedCount)
-              : `${selectedCount} selected`}
-          </span>
-          {selection!.actions?.(selectedRows)}
-        </div>
-      )}
-
-      {}
       {hasToolbar && (
         <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {toolbar}
         </div>
       )}
 
-      {}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          {caption ? (
-            <caption className="px-4 py-3 text-left text-sm text-muted-foreground">
-              {caption}
-            </caption>
-          ) : null}
+      {hasSelection && selectionActive && !selection!.hideSummary && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-card px-4 py-2">
+          <span className="text-sm font-medium text-primary-ink">
+            {selection!.label
+              ? selection!.label(selectedCount)
+              : t("selected", { count: selectedCount })}
+          </span>
+          {selection!.actions?.()}
+        </div>
+      )}
 
-          <thead>
-            {
-}
-            <tr className="bg-muted border-b border-border-strong">
-              {hasSelection && (
-                <th className="w-10 px-3 py-2" scope="col">
-                  <button
-                    type="button"
-                    role="checkbox"
-                    aria-checked={
-                      allSelected ? true : someSelected ? "mixed" : false
-                    }
-                    aria-label={selection!.selectAllLabel ?? "Select all rows"}
-                    onClick={toggleAll}
+      {body}
+
+      {showsTable && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            {caption ? (
+              <caption className="px-4 py-3 text-left text-sm text-muted-foreground">
+                {caption}
+              </caption>
+            ) : null}
+
+            <thead>
+              {
+  }
+              <tr className="bg-muted border-b border-border-strong">
+                {hasSelection && (
+                  <th className="w-10 px-3 py-2" scope="col">
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={
+                        allSelected ? true : someSelected ? "mixed" : false
+                      }
+                      aria-label={selection!.selectAllLabel ?? t("selectAll")}
+                      onClick={toggleAll}
+                      className={cn(
+                        "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                        allSelected || someSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card hover:border-muted-foreground",
+                      )}
+                    >
+                      {allSelected && <Check className="h-3 w-3" weight="bold" />}
+                      {someSelected && (
+                        <Minus className="h-3 w-3" weight="bold" />
+                      )}
+                    </button>
+                  </th>
+                )}
+                {columns.map((column) => (
+                  <SortableColumnHead
+                    key={column.key}
+                    label={column.header}
+                    sortKey={column.sortKey}
+                    sorts={sorting?.sorts}
+                    onToggle={sorting?.onToggle}
                     className={cn(
-                      "flex h-4 w-4 items-center justify-center rounded border transition-colors",
-                      allSelected || someSelected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card hover:border-muted-foreground",
+                      "px-4 py-2 text-2xs font-semibold text-muted-foreground",
+                      column.className,
                     )}
-                  >
-                    {allSelected && <Check className="h-3 w-3" weight="bold" />}
-                    {someSelected && (
-                      <Minus className="h-3 w-3" weight="bold" />
-                    )}
-                  </button>
-                </th>
-              )}
-              {columns.map((column) => (
-                <SortableColumnHead
-                  key={column.key}
-                  label={column.header}
-                  sortKey={column.sortKey}
-                  sorts={sorting?.sorts}
-                  onToggle={sorting?.onToggle}
-                  className={cn(
-                    "px-4 py-2 text-2xs font-semibold text-muted-foreground",
-                    column.className,
-                  )}
-                />
-              ))}
-              {renderRowActions ? (
-                <th
-                  className="px-4 py-2 text-xs font-semibold text-muted-foreground text-right"
-                  scope="col"
-                />
-              ) : null}
-            </tr>
-          </thead>
+                  />
+                ))}
+                {renderRowActions ? (
+                  <th
+                    className="px-4 py-2 text-xs font-semibold text-muted-foreground text-right"
+                    scope="col"
+                  />
+                ) : null}
+              </tr>
+            </thead>
 
-          <tbody className="divide-y divide-border/50">
-            {loading
-              ? Array.from({ length: 5 }).map((_, rowIndex) => (
-                  <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
-                    {hasSelection && (
-                      <td className="w-10 px-3 py-2.5">
-                        <div className="h-4 w-4 rounded border border-border bg-muted" />
-                      </td>
-                    )}
-                    {columns.map((column) => (
-                      <td
-                        key={`skeleton-${rowIndex}-${column.key}`}
-                        className={cn("px-4 py-2.5", column.className)}
-                      >
-                        <div className="h-4 bg-border/60 rounded w-3/4" />
-                      </td>
-                    ))}
-                    {renderRowActions ? (
-                      <td className="px-4 py-2.5 text-right">
-                        <div className="h-4 bg-border/60 rounded w-8 ml-auto" />
-                      </td>
-                    ) : null}
-                  </tr>
-                ))
-              : hasData
-                ? data.map((row, rowIndex) => {
-                    const key = rowKey(row, rowIndex);
-                    const clickable = !!onRowClick;
-                    const expanded = isRowExpanded?.(row, rowIndex) ?? false;
-                    const extraClass = rowClassName?.(row, rowIndex) ?? "";
-                    const isSelected =
-                      selection?.selectedKeys.has(key) ?? false;
-
-                    return (
-                      <Fragment key={key}>
-                        <tr
-                          onClick={
-                            clickable
-                              ? () => onRowClick(row, rowIndex)
-                              : undefined
-                          }
-                          className={cn(
-                            "group bg-card transition-colors duration-150",
-                            clickable && "cursor-pointer",
-                            "hover:bg-muted",
-                            expanded && "bg-muted",
-                            isSelected && "bg-muted hover:bg-[hsl(var(--accent-hover))]",
-                            extraClass,
-                          )}
+            <tbody className="divide-y divide-border/50">
+              {loading
+                ? Array.from({ length: 5 }).map((_, rowIndex) => (
+                    <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
+                      {hasSelection && (
+                        <td className="w-10 px-3 py-2.5">
+                          <div className="h-4 w-4 rounded border border-border bg-muted" />
+                        </td>
+                      )}
+                      {columns.map((column) => (
+                        <td
+                          key={`skeleton-${rowIndex}-${column.key}`}
+                          className={cn("px-4 py-2.5", column.className)}
                         >
-                          {hasSelection && (
-                            <td className="w-10 px-3 py-2.5">
-                              <button
-                                type="button"
-                                role="checkbox"
-                                aria-checked={isSelected}
-                                aria-label={
-                                  selection!.selectRowLabel ?? "Select row"
-                                }
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleRow(key);
-                                }}
-                                className={cn(
-                                  "flex h-4 w-4 items-center justify-center rounded border transition-colors",
-                                  isSelected
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border bg-card hover:border-muted-foreground",
-                                )}
-                              >
-                                {isSelected && (
-                                  <Check className="h-3 w-3" weight="bold" />
-                                )}
-                              </button>
-                            </td>
-                          )}
+                          <div className="h-4 bg-border/60 rounded w-3/4" />
+                        </td>
+                      ))}
+                      {renderRowActions ? (
+                        <td className="px-4 py-2.5 text-right">
+                          <div className="h-4 bg-border/60 rounded w-8 ml-auto" />
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))
+                : hasData
+                  ? data.map((row, rowIndex) => {
+                      const key = rowKey(row, rowIndex);
+                      const clickable = !!onRowClick;
+                      const expanded = isRowExpanded?.(row, rowIndex) ?? false;
+                      const extraClass = rowClassName?.(row, rowIndex) ?? "";
+                      const isSelected =
+                        selection?.selectedKeys.has(key) ?? false;
 
-                          {columns.map((column) => {
-                            const value =
-                              column.render?.(row, rowIndex) ??
-                              column.accessor?.(row) ??
-                              (row as Record<string, unknown>)[column.key];
-
-                            return (
-                              <td
-                                key={`${key}-${column.key}`}
-                                className={cn("px-4 py-2.5", column.className)}
-                              >
-                                {(value as ReactNode) || null}
+                      return (
+                        <Fragment key={key}>
+                          <tr
+                            onClick={
+                              clickable
+                                ? () => onRowClick(row, rowIndex)
+                                : undefined
+                            }
+                            className={cn(
+                              "group bg-card transition-colors duration-150",
+                              clickable && "cursor-pointer",
+                              "hover:bg-muted",
+                              expanded && "bg-muted",
+                              isSelected && "bg-muted hover:bg-[hsl(var(--accent-hover))]",
+                              extraClass,
+                            )}
+                          >
+                            {hasSelection && (
+                              <td className="w-10 px-3 py-2.5">
+                                <button
+                                  type="button"
+                                  role="checkbox"
+                                  aria-checked={isSelected}
+                                  aria-label={
+                                    selection!.selectRowLabel ?? t("selectRow")
+                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRow(key);
+                                  }}
+                                  className={cn(
+                                    "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                                    isSelected
+                                      ? "border-primary bg-primary text-primary-foreground"
+                                      : "border-border bg-card hover:border-muted-foreground",
+                                  )}
+                                >
+                                  {isSelected && (
+                                    <Check className="h-3 w-3" weight="bold" />
+                                  )}
+                                </button>
                               </td>
-                            );
-                          })}
+                            )}
 
-                          {renderRowActions ? (
-                            <td className="px-4 py-2.5 text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                {renderRowActions(row)}
-                              </div>
-                            </td>
-                          ) : null}
-                        </tr>
+                            {columns.map((column) => {
+                              const value =
+                                column.render?.(row, rowIndex) ??
+                                column.accessor?.(row) ??
+                                (row as Record<string, unknown>)[column.key];
 
-                        {expanded && renderExpandedRow && (
-                          <tr>
-                            <td colSpan={totalCols} className="p-0">
-                              {renderExpandedRow(row, rowIndex)}
-                            </td>
+                              return (
+                                <td
+                                  key={`${key}-${column.key}`}
+                                  className={cn("px-4 py-2.5", column.className)}
+                                >
+                                  {(value as ReactNode) || null}
+                                </td>
+                              );
+                            })}
+
+                            {renderRowActions ? (
+                              <td className="px-4 py-2.5 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  {renderRowActions(row)}
+                                </div>
+                              </td>
+                            ) : null}
                           </tr>
-                        )}
-                      </Fragment>
-                    );
-                  })
-                : null}
-          </tbody>
-          {footer && hasData && !loading ? (
-            <tfoot className="border-t border-border-strong bg-muted">{footer}</tfoot>
-          ) : null}
-        </table>
-      </div>
+
+                          {expanded && renderExpandedRow && (
+                            <tr>
+                              <td colSpan={totalCols} className="p-0">
+                                {renderExpandedRow(row, rowIndex)}
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      );
+                    })
+                  : null}
+            </tbody>
+            {footer && hasData && !loading ? (
+              <tfoot className="border-t border-border-strong bg-muted">{footer}</tfoot>
+            ) : null}
+          </table>
+        </div>
+      )}
 
       {}
-      {!hasData && !loading && (
+      {showsTable && !hasData && !loading && (
         <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
           <LightPool />
           {
@@ -489,11 +489,10 @@ export function DashboardTable<T>({
                 </svg>
               </div>
               <p className="relative font-display font-semibold tracking-[0.01em] text-foreground mb-1">
-                Nenhum registro encontrado
+                {t("emptyTitle")}
               </p>
               <p className="text-sm text-muted-foreground">
-                {emptyState ??
-                  "Tente ajustar os filtros ou adicione novos itens."}
+                {emptyState ?? t("emptyDescription")}
               </p>
             </>
           )}
@@ -505,20 +504,20 @@ export function DashboardTable<T>({
         <div className="flex items-center justify-between border-t border-border bg-muted px-4 py-2">
           <div className="flex items-center gap-4">
             <p className="text-xs text-muted-foreground">
-              {paginationText?.showing ?? "Mostrando"}{" "}
+              {paginationText?.showing ?? t("showing")}{" "}
               <span className="font-semibold text-foreground">
                 {from} → {to}
               </span>{" "}
-              {paginationText?.of ?? "de"}{" "}
+              {paginationText?.of ?? t("of")}{" "}
               <span className="font-semibold text-foreground">
                 {pagination.totalItems}
               </span>{" "}
-              {paginationText?.items ?? "itens"}
+              {paginationText?.items ?? t("items")}
             </p>
 
             {pagination.pageSizeOptions && pagination.onPageSizeChange ? (
               <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span>{paginationText?.perPage ?? "Por página"}</span>
+                <span>{paginationText?.perPage ?? t("perPage")}</span>
                 <select
                   value={pagination.pageSize}
                   onChange={(e) =>
@@ -539,6 +538,8 @@ export function DashboardTable<T>({
 }
           <div className={cn("flex gap-1", pagination.totalPages <= 1 && "hidden")}>
             <button
+              type="button"
+              aria-label={t("previousPage")}
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage - 1)
               }
@@ -551,6 +552,8 @@ export function DashboardTable<T>({
             {getPaginationRange().map((pageNum) => (
               <button
                 key={pageNum}
+                type="button"
+                aria-current={pagination.currentPage === pageNum ? "page" : undefined}
                 onClick={() => pagination.onPageChange(pageNum)}
                 className={cn(
                   "w-7 h-7 flex items-center justify-center rounded text-xs font-medium transition-colors",
@@ -564,6 +567,8 @@ export function DashboardTable<T>({
             ))}
 
             <button
+              type="button"
+              aria-label={t("nextPage")}
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage + 1)
               }

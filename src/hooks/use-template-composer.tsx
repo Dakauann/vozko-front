@@ -3,17 +3,18 @@
 import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import {
     isTemplateSendable,
-    renderTemplateText,
+    templateMessageMetadata,
     templateParamSlots,
     templateSummary,
     templateUsability,
 } from "@/lib/whatsapp-templates/params";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { SendQuote } from "@/lib/whatsapp-outreach/types";
+import type { OutreachError, SendQuote } from "@/lib/whatsapp-outreach/types";
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { isRetryableQuoteRefusal, outreachRefusalKey } from "@/lib/whatsapp-outreach/refusals";
 import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import { quoteTemplateSendAction } from "@/app/actions/whatsapp-outreach";
 import { useTranslations } from "next-intl";
@@ -40,6 +41,11 @@ interface Loaded<T> {
     value: T;
 }
 
+interface QuoteAnswer {
+    quote: SendQuote | null;
+    error: OutreachError | null;
+}
+
 interface LoadedTemplates {
     phoneId: string;
     version: number;
@@ -54,10 +60,12 @@ export function useTemplateComposer({
     businessPhoneId,
     enabled,
     initial,
+    quote: quoted = true,
 }: {
     businessPhoneId: string;
     enabled: boolean;
     initial?: TemplateComposerInitial;
+    quote?: boolean;
 }) {
     const t = useTranslations("whatsappOutreach");
     const tTemplates = useTranslations("whatsappTemplates");
@@ -73,8 +81,9 @@ export function useTemplateComposer({
     }));
     const [templates, setTemplates] = useState<LoadedTemplates | null>(null);
     const [version, setVersion] = useState(0);
-    const [quote, setQuote] = useState<Loaded<SendQuote | null> | null>(null);
-    const exchangeRate = useExchangeRate(enabled);
+    const [quote, setQuote] = useState<Loaded<QuoteAnswer> | null>(null);
+    const [quoteAttempt, setQuoteAttempt] = useState(0);
+    const exchangeRate = useExchangeRate(enabled && quoted);
 
     const templateId = selection.phoneId === businessPhoneId ? selection.templateId : "";
 
@@ -89,18 +98,21 @@ export function useTemplateComposer({
         };
     }, [enabled, businessPhoneId, version]);
 
-    const quoteKey = templateId && businessPhoneId ? `${templateId}|${businessPhoneId}` : "";
+    const quoteKey = templateId && businessPhoneId ? `${templateId}|${businessPhoneId}|${quoteAttempt}` : "";
 
     useEffect(() => {
-        if (!enabled || !quoteKey) return;
+        if (!enabled || !quoted || !quoteKey) return;
         let cancelled = false;
-        quoteTemplateSendAction(templateId, businessPhoneId).then((result) => {
-            if (!cancelled) setQuote({ key: quoteKey, value: result.quote });
-        });
+        quoteTemplateSendAction(templateId, businessPhoneId)
+            .then((result) => ({ quote: result.quote, error: result.error }))
+            .catch((): QuoteAnswer => ({ quote: null, error: { code: "quote_unavailable", message: "" } }))
+            .then((value) => {
+                if (!cancelled) setQuote({ key: quoteKey, value });
+            });
         return () => {
             cancelled = true;
         };
-    }, [enabled, quoteKey, templateId, businessPhoneId]);
+    }, [enabled, quoted, quoteKey, templateId, businessPhoneId]);
 
     const list = useMemo(
         () => (templates?.phoneId === businessPhoneId ? templates.value : []),
@@ -148,6 +160,8 @@ export function useTemplateComposer({
 
     const reload = useCallback(() => setVersion((current) => current + 1), []);
 
+    const askQuoteAgain = useCallback(() => setQuoteAttempt((current) => current + 1), []);
+
     const upsertTemplate = useCallback((next: WhatsAppTemplate) => {
         setTemplates((current) =>
             current && {
@@ -162,26 +176,10 @@ export function useTemplateComposer({
         setValues({ templateId: "", body: [], header: [] });
     }, []);
 
-    const previewMetadata: TemplateMessageMetadata | null = useMemo(() => {
-        if (!template) return null;
-        const filled = (template.components ?? []).map((component) => {
-            const type = component.type?.toUpperCase();
-            if (type === "BODY") {
-                return { ...component, text: renderTemplateText(component.text, bodyValues, slots.body) };
-            }
-            if (type === "HEADER" && component.format?.toUpperCase() === "TEXT") {
-                return { ...component, text: renderTemplateText(component.text, headerValues, slots.header) };
-            }
-            return component;
-        });
-        return {
-            template_name: template.name,
-            language: template.language,
-            category: template.category,
-            components: filled as TemplateMessageMetadata["components"],
-            header_media_url: template.headerMediaUrl ?? undefined,
-        };
-    }, [template, bodyValues, headerValues, slots]);
+    const previewMetadata: TemplateMessageMetadata | null = useMemo(
+        () => templateMessageMetadata(template, bodyValues, headerValues, slots),
+        [template, bodyValues, headerValues, slots],
+    );
 
     const templateOptions = useMemo(
         () =>
@@ -204,7 +202,10 @@ export function useTemplateComposer({
         [list, t, tTemplates],
     );
 
-    const currentQuote = quote?.key === quoteKey ? quote.value : null;
+    const currentAnswer = quote?.key === quoteKey ? quote.value : null;
+    const currentQuote = currentAnswer?.quote ?? null;
+    const quoteError = currentAnswer?.error ? t(outreachRefusalKey(currentAnswer.error.code, "quote_unavailable")) : null;
+    const retryQuote = currentAnswer?.error && isRetryableQuoteRefusal(currentAnswer.error.code) ? askQuoteAgain : null;
 
     return {
         templates: list,
@@ -223,6 +224,8 @@ export function useTemplateComposer({
         missingValues,
         previewMetadata,
         quote: currentQuote,
+        quoteError,
+        retryQuote,
         priceLabel: formatMicrosAsBrl(currentQuote?.priceMicros, exchangeRate),
         reload,
         upsertTemplate,

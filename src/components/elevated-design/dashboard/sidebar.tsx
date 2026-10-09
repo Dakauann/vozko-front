@@ -24,6 +24,7 @@ import {
   Package,
   Phone,
   PhoneCall,
+  PhoneOutgoing,
   Waveform,
   Bell,
   FileText,
@@ -47,6 +48,7 @@ import {
   Receipt,
   Scales,
   LockKey,
+  MapTrifold,
   Wrench,
   CalendarBlank,
   Lightning,
@@ -440,6 +442,12 @@ export const campanhasNavItems: NavItem[] = [
     family: "telephony",
   },
   {
+    icon: PhoneOutgoing,
+    labelKey: "nav.callLists",
+    href: "/dashboard/call-lists",
+    family: "telephony",
+  },
+  {
     icon: DeviceMobile,
     labelKey: "nav.unofficialWhatsapp",
     href: "/dashboard/unofficial-whatsapp",
@@ -678,6 +686,12 @@ export const adminNavItems: NavItem[] = [
     icon: LockKey,
     labelKey: "nav.adminSendCaps",
     href: "/dashboard/admin/send-caps",
+    family: "platform",
+  },
+  {
+    icon: MapTrifold,
+    labelKey: "nav.adminGeocoding",
+    href: "/dashboard/admin/geocoding",
     family: "platform",
   },
   {

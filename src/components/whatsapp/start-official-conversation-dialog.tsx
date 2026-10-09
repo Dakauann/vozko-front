@@ -36,6 +36,7 @@ import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-com
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
+import { QuoteRefusalNotice } from "@/components/whatsapp/quote-refusal-notice";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
 import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
 import { useTemplateComposer } from "@/hooks/use-template-composer";
@@ -45,6 +46,7 @@ import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
 import { createWhatsAppTemplateAction, getWhatsAppTemplateByIdAction } from "@/app/actions/whatsapp-templates";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
+import { newIdempotencyKey } from "@/lib/api/idempotency-key";
 import { normalizeRecipients } from "@/lib/unofficial-whatsapp/recipients";
 import { startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
 import { useTranslations } from "next-intl";
@@ -91,6 +93,8 @@ export function StartOfficialConversationDialog({
         previewMetadata,
         templateOptions,
         quote,
+        quoteError,
+        retryQuote,
         priceLabel,
         reset: resetComposer,
         reload: reloadTemplates,
@@ -105,10 +109,7 @@ export function StartOfficialConversationDialog({
 
     useEffect(() => {
         if (open) {
-            idempotencyKey.current =
-                typeof crypto !== "undefined" && "randomUUID" in crypto
-                    ? crypto.randomUUID()
-                    : `${Date.now()}-${Math.random()}`;
+            idempotencyKey.current = newIdempotencyKey();
             return;
         }
         setMode("send");
@@ -429,6 +430,7 @@ export function StartOfficialConversationDialog({
                                                 {t("cost.insufficient")}
                                             </p>
                                         )}
+                                        <QuoteRefusalNotice message={quoteError} onRetry={retryQuote} className="mt-1.5" />
                                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                                             {t("risk")}
                                         </p>
@@ -693,7 +695,7 @@ export function StartOfficialConversationDialog({
     );
 }
 
-function PhonePicker({
+export function PhonePicker({
     phones,
     value,
     onChange,

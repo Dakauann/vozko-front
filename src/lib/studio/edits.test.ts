@@ -229,11 +229,11 @@ describe("keyframes follow the content", () => {
     expect(findClip(moved, "b")?.clip.keyframes?.opacity?.[0].atMs).toBe(1000);
   });
 
-  it("refuses edits that would pass the timeline key cap", () => {
+  it("duplicates heavily animated clips without a timeline key budget", () => {
     const d = doc();
     const frames = Array.from({ length: 32 }, (_, i) => ({ atMs: i * 10, value: 0.5, easing: "linear" as const }));
     const many = { x: frames, y: frames, scale: frames.map((f) => ({ ...f, value: 1 })), rotation: frames, opacity: frames };
     d.tracks[0].clips = d.tracks[0].clips.map((c) => ({ ...c, keyframes: many }));
-    expect(duplicateGroup(d, ["c"]).clipIds).toEqual([]);
+    expect(duplicateGroup(d, ["c"]).clipIds).toHaveLength(1);
   });
 });

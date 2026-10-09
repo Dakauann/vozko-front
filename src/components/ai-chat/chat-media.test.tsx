@@ -14,11 +14,13 @@ vi.mock("@/hooks/use-open-in-studio", () => ({
 
 import ptMessages from "@/i18n/messages/pt.json";
 
-import { dispatchStreamEvent } from "@/hooks/use-chat-stream";
+import { dispatchStreamEvent } from "@/lib/aichat/chat-stream";
 import type { ChatMessage } from "@/lib/aichat/types";
 
 import { ChatMediaView } from "./chat-media";
-import { hydrate, MessageBubble, useBubbleLabels, type UIMessage } from "./message-list";
+import { hydrate, type UIMessage } from "@/lib/aichat/ui-message";
+
+import { MessageBubble, useBubbleLabels } from "./message-list";
 
 const image = { url: "https://cdn.example.com/card.jpg", mediaId: "m-1", alt: "um card promocional" };
 

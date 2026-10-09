@@ -1,30 +1,30 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newShapeLayer, type ImageDocument, type Layer, type StudioGroup } from "./document";
+import { emptyArtboard, newShapeLayer, type ImageSurface, type Layer, type StudioGroup } from "./document";
 import {
+  captureGroup,
   dissolveGroup,
   dropPlacement,
   groupLayerIds,
   layerChain,
   moveItem,
   nestGroup,
-  outermostGroup,
   renameGroup,
 } from "./groups";
 import { duplicateLayers, groupLayers, pasteLayers, ungroupLayers, withGroupMembers } from "./layers";
-import { documentIssue } from "./validate";
+import { surfaceIssue } from "./validate";
 
 function rect(id: string, groupId?: string): Layer {
   return { ...newShapeLayer("rect"), id, ...(groupId ? { groupId } : {}) };
 }
 
-function doc(layers: Layer[], groups?: StudioGroup[]): ImageDocument {
-  return { ...emptyImageDocument({ width: 1000, height: 1000 }), layers, ...(groups ? { groups } : {}) };
+function doc(layers: Layer[], groups?: StudioGroup[]): ImageSurface {
+  return { ...emptyArtboard({ width: 1000, height: 1000 }), layers, ...(groups ? { groups } : {}) };
 }
 
-const ids = (d: ImageDocument) => d.layers.map((l) => l.id);
+const ids = (d: ImageSurface) => d.layers.map((l) => l.id);
 
-function nested(): ImageDocument {
+function nested(): ImageSurface {
   return doc([rect("a"), rect("b", "inner"), rect("c", "inner"), rect("d", "outer"), rect("e")], [{ id: "outer" }, { id: "inner", parentId: "outer" }]);
 }
 
@@ -33,7 +33,7 @@ describe("group tree", () => {
     const d = nested();
     expect(layerChain(d, "b")).toEqual(["inner", "outer"]);
     expect(layerChain(d, "a")).toEqual([]);
-    expect(outermostGroup(d, "c")).toBe("outer");
+    expect(captureGroup(d, "c")).toBe("outer");
     expect(groupLayerIds(d, "outer")).toEqual(["b", "c", "d"]);
     expect(groupLayerIds(d, "inner")).toEqual(["b", "c"]);
   });
@@ -56,7 +56,7 @@ describe("grouping", () => {
     expect(document.groups?.find((g) => g.id === "outer")?.parentId).toBe(groupId);
     expect(document.layers.find((l) => l.id === "e")?.groupId).toBe(groupId);
     expect(layerChain(document, "b")).toEqual(["inner", "outer", groupId]);
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
   });
 
   it("makes a subgroup when the layers share a group", () => {
@@ -166,7 +166,7 @@ describe("copies keep their groups", () => {
     const chain = layerChain(document, b);
     expect(chain).toHaveLength(2);
     expect(chain).not.toContain("inner");
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
   });
 
   it("keeps a duplicated child inside the group it came from", () => {
@@ -177,7 +177,7 @@ describe("copies keep their groups", () => {
   it("pastes into another document without dangling group ids", () => {
     const source = nested();
     const { document } = pasteLayers(doc([rect("x")]), source.layers.slice(1, 4), 0, source.groups);
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
     const pasted = document.layers.slice(1);
     expect(new Set(pasted.map((l) => layerChain(document, l.id).length))).toEqual(new Set([2, 1]));
   });

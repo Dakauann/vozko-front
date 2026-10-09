@@ -25,12 +25,16 @@ import type {
   ActiveConversation,
   InboxEntry,
 } from "@/lib/conversations/types";
+import { leadPresence, type LeadPatch } from "@/lib/conversations/lead-patch";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import { blockLeadAction } from "@/app/actions/leads";
 import { EditableLeadName } from "@/components/leads/EditableLeadName";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
 import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
+import { ContactInfoRow as InfoRow } from "@/components/crm/ContactInfoRow";
+import { ConversationLeadRows, ConversationLeadSummary } from "@/components/crm/ConversationLeadCard";
 import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
@@ -59,7 +63,7 @@ interface CrmConversationInfosPanelProps {
   canBlock: boolean;
   canManageMemories: boolean;
   canRenameLead: boolean;
-  onLeadRenamed?: (leadId: string, name: string) => void;
+  onLeadPatched: (leadId: string, patch: LeadPatch) => void;
 }
 
 function initialsOf(name: string | null | undefined, fallback: string): string {
@@ -78,9 +82,10 @@ export default function CrmConversationInfosPanel({
   canBlock,
   canManageMemories,
   canRenameLead,
-  onLeadRenamed,
+  onLeadPatched,
 }: CrmConversationInfosPanelProps) {
   const t = useTranslations("crmContactPanel");
+  const tLeads = useTranslations("leads");
   const dealOwnerLabels = useMemo(
     () => ({
       ai: t("dealOwnerAI"),
@@ -94,26 +99,35 @@ export default function CrmConversationInfosPanel({
   const [blocking, setBlocking] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [blockedOverride, setBlockedOverride] = useState<boolean | null>(null);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [tab, setTab] = useState<PanelTab>("contact");
   const [expanded, setExpanded] = useState(false);
 
   const isWhatsApp = conversation?.entry_type === "whatsapp";
   const leadNumber = conversation?.lead_number ?? "";
-  const [leadNameOverride, setLeadNameOverride] = useState<string | null>(null);
-  const leadName = leadNameOverride ?? conversation?.lead_name ?? "";
-  const leadId = inboxEntry?.lead_id ?? "";
+  const leadName = conversation?.lead_name ?? "";
+  const leadId = inboxEntry?.lead_id ?? conversation?.lead_id ?? "";
+  const leadVersion = leadPresence([inboxEntry, conversation], leadId).version;
 
   const isGroup = Boolean(conversation?.is_group ?? inboxEntry?.is_group);
+
+  const leadCard =
+    conversation && leadId && !isGroup
+      ? {
+          entryId: conversation.entry_id,
+          entryType: conversation.entry_type,
+          leadId,
+          leadVersion,
+          active: open,
+          onLeadPatched,
+        }
+      : null;
 
   const channelName = channelLabel(conversation?.entry_type);
 
   useEffect(() => {
     setConfirmingBlock(false);
-    setBlockedOverride(null);
     setTab("contact");
-    setLeadNameOverride(null);
   }, [inboxEntry?.entry_id, inboxEntry?.entry_type]);
 
   const activeTab: PanelTab =
@@ -137,7 +151,7 @@ export default function CrmConversationInfosPanel({
     };
   }, [open, conversation?.entry_id, conversation?.entry_type]);
 
-  const isBlocked = blockedOverride ?? Boolean(inboxEntry?.blocked);
+  const isBlocked = Boolean(inboxEntry?.blocked ?? conversation?.blocked);
 
   const metadataEntries = useMemo(() => {
     const meta = (conversation?.lead_metadata ?? {}) as Record<string, unknown>;
@@ -173,16 +187,17 @@ export default function CrmConversationInfosPanel({
       );
       if (result.error) {
         toast.error(nextBlocked ? t("blockError") : t("unblockError"), {
-          description: result.error,
+          description: codedErrorMessage(tLeads, result.error, "") || undefined,
         });
         return;
       }
-      setBlockedOverride(nextBlocked);
+      const { outcome } = result;
+      onLeadPatched(leadId, { blocked: outcome.blocked, lead_version: outcome.version });
       setConfirmingBlock(false);
-      if (nextBlocked) {
+      if (outcome.blocked) {
         toast.success(t("blockSuccess"), {
           description:
-            isWhatsApp && !result.metaApplied
+            isWhatsApp && !outcome.metaApplied
               ? t("blockMetaPending")
               : undefined,
         });
@@ -192,7 +207,7 @@ export default function CrmConversationInfosPanel({
     } finally {
       setBlocking(false);
     }
-  }, [leadId, blocking, isBlocked, isWhatsApp, inboxEntry?.business_phone_id, t]);
+  }, [leadId, blocking, isBlocked, isWhatsApp, inboxEntry?.business_phone_id, onLeadPatched, t, tLeads]);
 
   const windowOpen = conversation?.window_open ?? inboxEntry?.window_open;
   const assignedUsername = inboxEntry?.assigned_username;
@@ -331,12 +346,12 @@ export default function CrmConversationInfosPanel({
                   <EditableLeadName
                     leadId={leadId}
                     name={leadName}
+                    version={leadVersion}
                     fallback={formatPhoneForDisplay(leadNumber)}
                     canEdit={canRenameLead}
-                    onRenamed={(next) => {
-                      setLeadNameOverride(next);
-                      onLeadRenamed?.(leadId, next);
-                    }}
+                    onLeadChanged={(lead) =>
+                      onLeadPatched(leadId, { lead_name: lead.name, lead_version: lead.version })
+                    }
                     size="md"
                     className="max-w-full text-sm font-semibold tracking-tight text-foreground"
                   />
@@ -371,6 +386,7 @@ export default function CrmConversationInfosPanel({
                     )}
                   </button>
                 )}
+                {leadCard ? <ConversationLeadSummary key={`${leadCard.entryType}:${leadCard.entryId}`} {...leadCard} /> : null}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   {
 }
@@ -412,6 +428,7 @@ export default function CrmConversationInfosPanel({
           <div className="min-h-0 flex-1 overflow-y-auto">
             {activeTab === "contact" && (
               <dl className="flex flex-col gap-px bg-border/60">
+                {leadCard ? <ConversationLeadRows key={`${leadCard.entryType}:${leadCard.entryId}`} {...leadCard} /> : null}
                 {isWhatsApp && (
                   <InfoRow label={t("windowStatus")}>
                     {windowOpen ? (
@@ -711,22 +728,5 @@ export default function CrmConversationInfosPanel({
         </div>
       )}
     </aside>
-  );
-}
-
-function InfoRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-3 bg-card px-4 py-2.5">
-      <dt className="text-xs font-medium capitalize text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="text-right text-xs font-medium">{children}</dd>
-    </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEv
 import { useTranslations } from "next-intl";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { swatchOf, typedColor, withSwatch } from "@/lib/studio/color";
 import type { KeyState } from "@/lib/studio/keyframe-edit";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +77,8 @@ interface NumberFieldProps {
   disabled?: boolean;
   keyState?: KeyState;
   keyHint?: string;
+  placeholder?: string;
+  onClear?: () => void;
 }
 
 function display(value: number | null, decimals: number): string {
@@ -101,6 +104,8 @@ export function NumberField({
   disabled,
   keyState = "static",
   keyHint,
+  placeholder,
+  onClear,
 }: NumberFieldProps) {
   const t = useTranslations("studio.video.inspector");
   const id = useId();
@@ -115,6 +120,10 @@ export function NumberField({
     if (draft === null) return;
     const parsed = Number(draft.replace(",", "."));
     setDraft(null);
+    if (draft.trim() === "" && onClear && value !== null) {
+      onClear();
+      return;
+    }
     if (draft.trim() === "" || !Number.isFinite(parsed)) return;
     const next = bounded(parsed, min, max);
     if (next !== value) onCommit(next);
@@ -179,7 +188,7 @@ export function NumberField({
           inputMode="decimal"
           disabled={disabled}
           value={draft ?? display(value, decimals)}
-          placeholder={value === null ? t("mixed") : undefined}
+          placeholder={value === null ? (placeholder ?? t("mixed")) : undefined}
           title={disabled ? undefined : t("scrubHint")}
           onChange={(event) => setDraft(event.target.value)}
           onFocus={(event) => event.currentTarget.select()}
@@ -298,15 +307,14 @@ export function SelectField<T extends string>({
   );
 }
 
-const HEX = /^#[0-9a-fA-F]{6}$/;
-
-export function ColorField({ label, value, onChange, disabled }: { label: string; value: string | null; onChange: (value: string) => void; disabled?: boolean }) {
+export function ColorField({ label, value, onChange, disabled, opaque }: { label: string; value: string | null; onChange: (value: string) => void; disabled?: boolean; opaque?: boolean }) {
   const t = useTranslations("studio.video.inspector");
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
-  const commit = (next: string) => {
+  const commit = (raw: string) => {
     setDraft(null);
-    if (HEX.test(next) && next.toLowerCase() !== value?.toLowerCase()) onChange(next.toLowerCase());
+    const next = typedColor(raw, !opaque);
+    if (next !== null && next !== value?.toLowerCase()) onChange(next);
   };
   return (
     <div className="space-y-1">
@@ -317,9 +325,9 @@ export function ColorField({ label, value, onChange, disabled }: { label: string
         <input
           type="color"
           aria-label={label}
-          value={value !== null && HEX.test(value) ? value : "#808080"}
+          value={swatchOf(value) ?? "#808080"}
           disabled={disabled}
-          onChange={(event) => commit(event.target.value)}
+          onChange={(event) => commit(withSwatch(value, event.target.value))}
           className="h-7 w-8 shrink-0 cursor-pointer rounded-md border border-border bg-background p-0.5 disabled:cursor-not-allowed"
         />
         <input
@@ -328,6 +336,7 @@ export function ColorField({ label, value, onChange, disabled }: { label: string
           value={draft ?? value ?? ""}
           placeholder={value === null ? t("mixed") : undefined}
           disabled={disabled}
+          maxLength={opaque ? 7 : 9}
           spellCheck={false}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={(event) => commit(event.target.value)}

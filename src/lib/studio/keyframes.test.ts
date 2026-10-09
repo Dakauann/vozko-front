@@ -4,6 +4,7 @@ import {
   KEYFRAME_LIMITS,
   animatedTransform,
   keyframeCount,
+  keyframeFault,
   keyframesInRange,
   keyframesIssue,
   removeKeyframe,
@@ -146,5 +147,43 @@ describe("keyframe rules (mirror of the backend)", () => {
     ["empty", {}, "required"],
   ])("refuses %s", (_name, k, code) => {
     expect(keyframesIssue(k, box)).toBe(code);
+  });
+});
+
+describe("keyframeFault", () => {
+  it("names nothing for a valid animation", () => {
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 1, easing: "linear" }, { atMs: 900, value: 1.2, easing: "easeOut" }] }, box)).toBeNull();
+    expect(keyframeFault(undefined, box)).toBeNull();
+  });
+
+  it("points at the exact key whose value leaves the range", () => {
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 1, easing: "linear" }, { atMs: 500, value: 0, easing: "linear" }] }, box)).toEqual({
+      kind: "value",
+      property: "scale",
+      atMs: 500,
+      value: 0,
+      range: [0.05, 5],
+    });
+  });
+
+  it("reports repeated instants, times beyond the limit and unknown easings", () => {
+    expect(keyframeFault({ y: [{ atMs: 400, value: 0.1, easing: "linear" }, { atMs: 400, value: 0.2, easing: "linear" }] }, box)).toEqual({
+      kind: "order",
+      property: "y",
+      atMs: 400,
+    });
+    expect(keyframeFault({ x: [{ atMs: 90_001, value: 0.5, easing: "linear" }] }, box)).toEqual({ kind: "time", property: "x", atMs: 90_001, limit: 90_000 });
+    expect(keyframeFault({ y: [{ atMs: 0, value: 0.1, easing: "bounce" as Easing }] }, box)).toEqual({ kind: "easing", property: "y", atMs: 0, easing: "bounce" });
+  });
+
+  it("gives the largest scale the box can take", () => {
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.5, easing: "linear" }] }, { ...box, w: 1, h: 1 })).toEqual({ kind: "box", scale: 4.5, maxScale: 4 });
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.6, easing: "linear" }] }, { ...box, w: 0.9, h: 0.4 })).toEqual({ kind: "box", scale: 4.6, maxScale: 4.44 });
+  });
+
+  it("counts keys past the per property limit and an empty set", () => {
+    const many = Array.from({ length: 33 }, (_, i) => ({ atMs: i * 10, value: 0.5, easing: "linear" as Easing }));
+    expect(keyframeFault({ x: many }, box)).toEqual({ kind: "too_many", property: "x", limit: 32 });
+    expect(keyframeFault({}, box)).toEqual({ kind: "empty" });
   });
 });

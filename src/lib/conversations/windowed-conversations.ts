@@ -7,6 +7,7 @@ import type {
 
 import { resolveAutomationEnabled } from "./automation";
 import { isFromContact } from "./direction";
+import { mergeSubscribedLead, patchLead, type LeadPatch } from "./lead-patch";
 import { windowKey } from "./window-deck";
 
 
@@ -182,6 +183,21 @@ function patchConversation(
   return conversation === w.conversation ? w : { ...w, conversation };
 }
 
+export function patchWindowLead(
+  state: WindowConversations,
+  leadId: string,
+  patch: LeadPatch,
+): WindowConversations {
+  let next: Map<string, WindowConversationState> | null = null;
+  for (const [key, w] of state) {
+    const patched = patchConversation(w, (c) => patchLead(c, leadId, patch));
+    if (patched === w) continue;
+    next ??= new Map(state);
+    next.set(key, patched);
+  }
+  return next ?? state;
+}
+
 export function applyWindowEvent(
   state: WindowConversations,
   event: WsServerEvent,
@@ -192,11 +208,8 @@ export function applyWindowEvent(
     case "conversation:subscribed": {
       const p = event.payload;
       return update(state, p.entry_id, p.entry_type, (w) =>
-        patchConversation(w, (c) => ({
+        patchConversation(w, (c) => mergeSubscribedLead({
           ...c,
-          lead_name: p.lead_name || c.lead_name,
-          lead_number: p.lead_number || c.lead_number,
-          lead_picture: p.lead_picture || c.lead_picture,
           lead_metadata: p.lead_metadata ?? c.lead_metadata,
           unread_count: p.unread_count ?? c.unread_count,
           window_open: p.window_open ?? c.window_open,
@@ -207,7 +220,7 @@ export function applyWindowEvent(
             p.automation_enabled,
             c.automation_enabled,
           ),
-        })),
+        }, p)),
       );
     }
 

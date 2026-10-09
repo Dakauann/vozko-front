@@ -2,6 +2,293 @@
   "screenLoader": {
     "label": "Cargando…"
   },
+  "leadMap": {
+    "mapLabel": "Mapa de leads",
+    "loading": "Cargando mapa…",
+    "retry": "Intentar de nuevo",
+    "styleError": "No se pudo cargar el mapa base.",
+    "styleConfigError": "La dirección del mapa base configurada no es válida. Avisa al administrador de la plataforma.",
+    "renderError": "Tu navegador no pudo dibujar el mapa.",
+    "controls": {
+      "marker": "Marcador en el mapa",
+      "zoom": "Zoom",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "resetBearing": "Volver el norte hacia arriba",
+      "attribution": "Mostrar créditos del mapa"
+    },
+    "precision": {
+      "exact": "Ubicación exacta",
+      "address": "Número de la calle",
+      "street": "Calle",
+      "postalCode": "Código postal",
+      "district": "Barrio",
+      "city": "Ciudad",
+      "unknown": "Precisión desconocida"
+    },
+    "legend": {
+      "title": "Leyenda del mapa",
+      "count": "{count, number}",
+      "districts": "Por barrio",
+      "districtsHint": "Círculos proporcionales a los leads de cada barrio, incluidos los aproximados.",
+      "selected": "Seleccionados",
+      "area": "Área dibujada",
+      "ibgeCredit": "Fuente: IBGE, CNEFE 2022",
+      "heatHint": "El calor solo cuenta leads con posición de casa; los aproximados están en la vista Por barrio.",
+      "approximate": "Aproximado (código postal, barrio o ciudad)",
+      "less": "Menos",
+      "more": "Más",
+      "precise": "Posición de casa"
+    },
+    "draw": {
+      "toolbar": "Dibujar un área",
+      "polygon": "Polígono",
+      "rectangle": "Rectángulo",
+      "circle": "Radio",
+      "cancel": "Cancelar dibujo",
+      "hint": {
+        "polygon": "Haz clic para marcar cada esquina. Haz clic en el primer punto o pulsa Enter para cerrar. Esc cancela.",
+        "rectangle": "Haz clic en una esquina y después en la esquina opuesta. Esc cancela.",
+        "circle": "Haz clic en el centro y después en la distancia del radio. Esc cancela."
+      },
+      "invalid": "No se pudo usar esta área. Dibújala de nuevo sin cruzar las líneas.",
+      "unavailable": "Las herramientas de dibujo no se cargaron. Recarga la página."
+    },
+    "summary": {
+      "loading": "Cargando los recuentos del mapa.",
+      "failed": "No se pudieron cargar los recuentos del mapa.",
+      "visible": "{count, plural, =0 {Ningún lead en esta parte del mapa.} one {# lead en esta parte del mapa.} other {# leads en esta parte del mapa.}}",
+      "total": "{count, plural, =0 {Ningún lead en el filtro.} one {# lead en el filtro.} other {# leads en el filtro.}}",
+      "onMap": "{count, plural, =0 {Ninguno en el mapa.} other {# en el mapa.}}",
+      "approximate": "{count, plural, one {# aproximado.} other {# aproximados.}}",
+      "withoutAddress": "{count, plural, other {# sin dirección.}}",
+      "notFound": "{count, plural, one {# no localizado.} other {# no localizados.}}",
+      "pending": "{count, plural, other {# en espera de localización.}}",
+      "quotaExceeded": "{count, plural, one {# detenido por el límite de localización.} other {# detenidos por el límite de localización.}}",
+      "refused": "{count, plural, one {# rechazado por el proveedor de localización.} other {# rechazados por el proveedor de localización.}}",
+      "visibleApproximate": "{count, plural, other {# con posición aproximada en esta parte del mapa.}}"
+    },
+    "panel": {
+      "expand": "Abrir el panel del mapa",
+      "collapse": "Contraer el panel del mapa",
+      "title": "Resumen del mapa",
+      "inFilter": "En este filtro",
+      "inArea": "En esta área",
+      "leadsInFilter": "{count, plural, one {lead en este filtro} other {leads en este filtro}}",
+      "leadsInArea": "{count, plural, one {lead en {name}} other {leads en {name}}}",
+      "leadsInAreas": "{count, plural, one {lead} other {leads}} en {areas, plural, one {# área} other {# áreas}}",
+      "colouredBy": "Coloreado por {field}",
+      "leadsColumn": "leads",
+      "notInformed": "Sin informar",
+      "offMap": "Fuera del mapa en este filtro",
+      "districts": "Barrios",
+      "districtsColumn": "todos los leads",
+      "summaryFailed": "No se pudieron cargar los conteos de este filtro.",
+      "colourFailed": "No se pudieron cargar los conteos por {field}.",
+      "offMapRows": {
+        "approximate": "Aproximados (código postal, barrio, ciudad)",
+        "withoutAddress": "Sin dirección",
+        "notFound": "Dirección no localizada",
+        "pending": "Esperando ubicación",
+        "quotaExceeded": "Detenidos por el límite de ubicación",
+        "refused": "Rechazados por el proveedor de localización"
+      },
+      "offMapActions": {
+        "approximate": "Listar en la tabla los leads aproximados",
+        "withoutAddress": "Listar en la tabla los leads sin dirección",
+        "notFound": "Listar en la tabla las direcciones no localizadas",
+        "pending": "Listar en la tabla los leads esperando ubicación",
+        "quotaExceeded": "Listar en la tabla los leads detenidos por el límite",
+        "refused": "Listar en la tabla las direcciones rechazadas"
+      },
+      "offMapActionLabel": "{label} {count}. {action}",
+      "leftOut": {
+        "summary": "{count, plural, one {# lead aproximado quedó} other {# leads aproximados quedaron}} fuera {areas, plural, one {del área dibujada} other {de las áreas dibujadas}}.",
+        "none": "Ningún lead aproximado quedó fuera {areas, plural, one {del área dibujada} other {de las áreas dibujadas}}.",
+        "list": "Listar en la tabla",
+        "listAll": "Listar en la tabla los {count, number} aproximados fuera del área",
+        "byDistrict": "Ver por barrio",
+        "districtsLabel": "Aproximados fuera del área, por barrio",
+        "districtAction": "Listar en la tabla los {count, number} aproximados de {name} fuera del área",
+        "failed": "No fue posible contar los aproximados fuera del área."
+      }
+    },
+    "empty": {
+      "title": "Todavía no hay leads en el mapa",
+      "description": "Los leads aparecen aquí cuando su dirección está localizada. Empieza trayendo las direcciones.",
+      "count": "{count, number}",
+      "counts": {
+        "total": "Leads",
+        "withoutAddress": "Sin dirección",
+        "approximate": "Aproximados",
+        "pending": "En espera",
+        "notFound": "No localizados",
+        "quotaExceeded": "Detenidos por el límite",
+        "refused": "Rechazados por el proveedor"
+      },
+      "actions": {
+        "importAddresses": "Importar direcciones",
+        "requestAddress": "Pedir la dirección por WhatsApp",
+        "createLead": "Registrar lead"
+      },
+      "reasons": {
+        "importForbidden": "No tienes permiso para registrar leads.",
+        "nobodyWithoutAddress": "Todos los leads de este filtro ya tienen dirección."
+      }
+    },
+    "miniMap": {
+      "label": "Mapa de la dirección",
+      "pin": "Posición de la dirección",
+      "noPosition": "La dirección todavía no tiene posición en el mapa",
+      "dragHint": "Arrastra el marcador para corregir la posición",
+      "keyboardHint": "O enfoca el marcador y usa las flechas para moverlo (Shift lo mueve más). Enter confirma, Esc deshace.",
+      "pinNudged": "Marcador movido. Enter confirma, Esc deshace.",
+      "pinConfirmed": "Nueva posición confirmada.",
+      "pinReverted": "Movimiento deshecho."
+    },
+    "layerMode": {
+      "label": "Capa del mapa",
+      "districts": "Por barrio",
+      "heat": "Calor",
+      "points": "Puntos"
+    },
+    "colorBy": {
+      "label": "Colorear por",
+      "none": "Ninguno",
+      "trigger": "Colorear por: <b>{field}</b>"
+    },
+    "unavailable": "El mapa de leads no está disponible ahora. Inténtalo más tarde.",
+    "layerFailed": "No se pudieron cargar los puntos de esta parte del mapa.",
+    "districtList": {
+      "label": "Barrios del filtro",
+      "empty": "Ningún barrio tiene punto en el mapa todavía.",
+      "failed": "No se pudieron cargar los barrios.",
+      "selectAll": "Seleccionar todos de este barrio",
+      "more": "Mostrar más barrios",
+      "hint": "Usa las flechas para recorrer los barrios. Enter muestra el barrio en el mapa.",
+      "radius": {
+        "label": "Área de radio desde {name}",
+        "visibleLabel": "Radio:",
+        "meters": "{value, number} m",
+        "kilometers": "{value, number} km"
+      },
+      "radiusFrom": {
+        "toggle": "Radio a partir de una dirección o CEP",
+        "hint": "Indica un CEP, o la ciudad con su estado (el barrio es opcional). El centro es el punto de referencia del IBGE.",
+        "zipCode": "CEP",
+        "district": "Barrio",
+        "city": "Ciudad",
+        "state": "Estado",
+        "radius": "Radio",
+        "submit": "Crear área de radio",
+        "searching": "Buscando el punto…",
+        "empty": "Indica un CEP, o la ciudad con su estado.",
+        "failed": "No se pudo encontrar el punto de esta dirección.",
+        "errors": {
+          "reference_query_invalid": "Indica un CEP válido, o la ciudad con su estado.",
+          "reference_not_loaded": "La base de direcciones del IBGE todavía no está cargada para este estado.",
+          "reference_point_not_found": "No encontramos este CEP o dirección en la base del IBGE.",
+          "reference_unavailable": "La base de direcciones no está disponible ahora. Inténtalo de nuevo en unos instantes.",
+          "reference_point_unavailable": "La base de direcciones no está disponible ahora. Inténtalo de nuevo en unos instantes.",
+          "forbidden": "No tienes permiso para ver direcciones completas."
+        }
+      }
+    },
+    "peek": {
+      "label": "Leads de este punto",
+      "close": "Cerrar vista previa",
+      "loading": "Cargando los leads de este punto.",
+      "failed": "No se pudieron cargar los leads de este punto.",
+      "people": "{count, plural, one {# persona en este punto} other {# personas en este punto}}",
+      "more": "{count, plural, one {Y # persona más en este punto.} other {Y # personas más en este punto.}}",
+      "open": "Abrir",
+      "template": "Plantilla",
+      "selectHint": "Shift + clic en el punto agrega estos leads a la selección.",
+      "precisionSource": "{precision} · {source}",
+      "approximate": "Posición aproximada ({place})",
+      "approximatePlace": {
+        "district": "barrio {name}",
+        "postal_code": "código postal {name}",
+        "city": "ciudad {name}"
+      },
+      "approximateKind": {
+        "district": "por barrio",
+        "postal_code": "por código postal",
+        "city": "por ciudad"
+      },
+      "peopleAddress": "{count, plural, one {# persona en esta dirección} other {# personas en esta dirección}}"
+    },
+    "source": {
+      "manual": "pin manual",
+      "lead_pin": "enviada por el lead",
+      "import": "importada",
+      "reference": "IBGE",
+      "provider": "proveedor externo"
+    },
+    "areas": {
+      "proposedName": "Área dibujada el {date}",
+      "saved": "Área guardada y aplicada al filtro.",
+      "failed": "No se pudo guardar el área.",
+      "errors": {
+        "area_limit_reached": "El workspace llegó al límite de áreas guardadas. Borra un área antes de dibujar otra.",
+        "area_shape_invalid": "Esta área no es válida. Dibújala de nuevo sin cruzar las líneas.",
+        "area_name_required": "El área necesita un nombre.",
+        "area_name_too_long": "El nombre del área es demasiado largo.",
+        "area_forbidden": "No puedes cambiar esta área.",
+        "lead_addresses_forbidden": "No tienes permiso para ver direcciones.",
+        "lead_areas_unavailable": "Las áreas no están disponibles ahora. Inténtalo más tarde.",
+        "area_not_found": "Esta área ya no existe. Actualiza la lista de áreas.",
+        "area_visibility_invalid": "Elige si el área es privada o compartida."
+      },
+      "radiusName": "Radio de {radius} en {name}",
+      "manager": {
+        "trigger": "Áreas",
+        "triggerLabel": "Áreas guardadas: {count, number}",
+        "title": "Áreas guardadas",
+        "description": "Aplica un área al filtro, o cambia el nombre, comparte y borra las que creaste.",
+        "empty": "No hay áreas guardadas. Dibuja en el mapa para crear una.",
+        "apply": "Aplicar {name} al filtro",
+        "remove": "Quitar {name} del filtro",
+        "shared": "Compartida",
+        "private": "Privada",
+        "rename": "Cambiar nombre",
+        "renameArea": "Cambiar el nombre de {name}",
+        "renameLabel": "Nuevo nombre de {name}",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "share": "Compartir con el workspace",
+        "shareArea": "Compartir {name} con el workspace",
+        "unshare": "Dejar solo para mí",
+        "unshareArea": "Dejar {name} solo para mí",
+        "delete": "Borrar",
+        "deleteArea": "Borrar {name}",
+        "deleteTitle": "¿Borrar el área {name}?",
+        "deleteDescription": "Los filtros y vistas guardadas que usan esta área dejan de funcionar hasta que se quite de ellos.",
+        "deleteConfirm": "Borrar área",
+        "readOnly": "Solo quien creó el área puede cambiarla.",
+        "renamed": "Nombre del área cambiado.",
+        "sharedDone": "Área compartida con el workspace.",
+        "privateDone": "Ahora el área es solo tuya.",
+        "deleted": "Área borrada.",
+        "updateFailed": "No fue posible cambiar el área.",
+        "deleteFailed": "No fue posible borrar el área."
+      }
+    },
+    "selection": {
+      "inArea": "{count, plural, one {# lead en el área dibujada} other {# leads en el área dibujada}}",
+      "partial": "Solo los primeros {count, number} leads de este punto entraron en la selección.",
+      "failed": "No se pudieron agregar los leads de este punto."
+    },
+    "viewportFailed": "No se pudo abrir el mapa con este filtro.",
+    "providers": {
+      "opencage": "OpenCage"
+    },
+    "focus": {
+      "unplaced": "Este lead todavía no tiene posición en el mapa.",
+      "failed": "No fue posible abrir este lead en el mapa.",
+      "dismiss": "Cerrar aviso"
+    }
+  },
   "crmAnalysis": {
     "awaiting": "Esperando análisis",
     "awaitingHint": "Esta conversación sigue en curso. La IA la analiza cuando pase unos minutos sin mensajes; todavía no se está analizando nada.",
@@ -391,7 +678,24 @@
       "member_activity": "Actividad del miembro",
       "generate_music": "Generar música",
       "generate_voiceover": "Generar locución",
-      "render_video": "Montar video"
+      "render_video": "Montar video",
+      "studio_read": "Leer el proyecto",
+      "studio_look": "Ver el resultado",
+      "studio_edit_video": "Editar el video",
+      "studio_edit_image": "Editar la pieza",
+      "studio_start_job": "Poner en cola",
+      "studio_jobs": "Seguir la cola",
+      "studio_generate_music": "Generar música para el video",
+      "studio_generate_voiceover": "Generar locución para el video",
+      "studio_generate_image": "Generar imagen para el proyecto",
+      "studio_ask": "Preguntar",
+      "diagnose_access": "Verificar acceso",
+      "explain_permission": "Explicar permiso",
+      "open_screen": "Abrir pantalla",
+      "lead_geo_summary": "Leads por lugar",
+      "prepare_lead_action": "Acción en grupo sobre leads",
+      "start_lead_send": "Iniciar envío a leads",
+      "cancel_lead_send": "Descartar envío preparado"
     },
     "threadsLegend": "Conversaciones",
     "greeting": "Hola, soy Elo. ¿En qué trabajamos?",
@@ -596,6 +900,41 @@
             "best": "¿Qué anuncio trajo las conversaciones más baratas este mes?",
             "create": "Crea un anuncio de WhatsApp para mi promoción"
           }
+        },
+        "studioVideo": {
+          "title": "Editar este video",
+          "items": {
+            "captions": "Subtitula lo que se dice en este video",
+            "tighten": "Corta las pausas y deja el video en menos de 20 segundos",
+            "title": "Crea una apertura animada con el nombre de la marca",
+            "music": "Agrega una música de fondo que combine con el video",
+            "review": "Mira el video y dime qué mejorar"
+          }
+        },
+        "studioImage": {
+          "title": "Editar esta pieza",
+          "items": {
+            "compose": "Arma una pieza de oferta con título, precio y llamada",
+            "tidy": "Alinea y ordena los elementos de esta pieza",
+            "cutout": "Quita el fondo de la foto del producto",
+            "review": "Mira la pieza y sugiere mejoras"
+          }
+        }
+      },
+      "otherTopics": "Otros temas",
+      "modes": {
+        "label": "Modo de ejecución",
+        "ask": {
+          "title": "Preguntar",
+          "hint": "Elo pide tu aprobación antes de cada edición y de cada generación."
+        },
+        "edit": {
+          "title": "Editar sola",
+          "hint": "Las ediciones entran directo al proyecto. Las generaciones pagas piden tu aprobación."
+        },
+        "full": {
+          "title": "Acceso total",
+          "hint": "Ediciones y generaciones corren directo, con el modelo recomendado. Las generaciones se cobran del saldo."
         }
       }
     },
@@ -766,7 +1105,15 @@
       "voice": "Locución",
       "scenes": "Escenas",
       "music_model": "Modelo de música",
-      "voice_model": "Modelo de locución"
+      "voice_model": "Modelo de locución",
+      "skipped": "Omitidos",
+      "parts": "Envíos",
+      "capRemaining": "Límite del mes restante",
+      "estimatedDays": "Días estimados",
+      "next": "Siguiente paso",
+      "recipients": "Reciben",
+      "counted": "Entre quienes reciben",
+      "entries": "Leads en el envío"
     },
     "attachments": {
       "legend": "Archivos adjuntos",
@@ -871,6 +1218,14 @@
         "scene": "Escena {index}",
         "music": "Música",
         "voice": "Locución"
+      },
+      "leadAction": {
+        "counting": "Contando los leads: los números todavía pueden cambiar.",
+        "partial": "Conteo parcial, hecho cuando se creó la propuesta.",
+        "expired": "Conteo parcial: el resultado final ya no está disponible. Al aprobar, el conteo se vuelve a comprobar.",
+        "failed": "Esta aprobación será rechazada. Pide a Elo que la proponga de nuevo.",
+        "cancel": "Envíos detenidos que se eliminarán",
+        "entries": "{count, plural, =1 {# lead} other {# leads}}"
       }
     },
     "navigation": {
@@ -909,6 +1264,73 @@
       },
       "downloadingHint": "El navegador no informa el progreso. Esperamos hasta 2 minutos y empezamos a escuchar en cuanto esté listo.",
       "interruptHint": "Habla en cualquier momento para interrumpir."
+    },
+    "ask": {
+      "label": "Pregunta de Elo",
+      "options": "Respuestas",
+      "orType": "O escribe otra respuesta."
+    },
+    "subjects": {
+      "skill": {
+        "agentes-de-atendimento-ia": "Agentes de atención con IA",
+        "alcance-e-reconhecimento": "Alcance y reconocimiento",
+        "anuncios-para-site": "Anuncios para sitio web",
+        "anuncios-para-whatsapp": "Anuncios hacia WhatsApp",
+        "base-de-conhecimento": "Base de conocimiento",
+        "campanhas-de-whatsapp": "Campañas de WhatsApp",
+        "catalogo-e-app": "Catálogo y aplicación",
+        "criativo-com-a-marca": "Creatividad con la marca",
+        "criativos-que-performam": "Creatividades que rinden",
+        "design-de-imagem": "Diseño de imagen",
+        "edicao-de-video": "Edición de video",
+        "estrategia-de-campanha": "Estrategia de campaña",
+        "formularios-de-cadastro": "Formularios de registro",
+        "funil-e-qualificacao": "Embudo y calificación",
+        "impulsionar-publicacao": "Promocionar publicación",
+        "legendas-e-texto": "Subtítulos y texto en pantalla",
+        "lgpd-no-marketing": "Ley de datos en el marketing",
+        "mensagens-instagram-e-messenger": "Instagram Direct y Messenger",
+        "metricas-de-atendimento": "Métricas de atención",
+        "modelos-do-whatsapp": "Plantillas de WhatsApp",
+        "motion-design": "Motion design",
+        "nicho-advocacia": "Abogacía",
+        "nicho-imobiliario": "Inmobiliario",
+        "nicho-medicina": "Medicina",
+        "nicho-odontologia": "Odontología",
+        "otimizacao-e-diagnostico": "Optimización y diagnóstico",
+        "politicas-de-anuncios": "Políticas de anuncios",
+        "publico-e-segmentacao": "Público y segmentación",
+        "remarketing": "Remarketing",
+        "testes-e-atribuicao": "Pruebas y atribución",
+        "video-com-som": "Video con sonido",
+        "formatos-e-zonas-seguras": "Formatos y zonas seguras",
+        "carrossel-e-miniatura": "Carrusel y miniatura",
+        "anuncio-ugc-e-depoimento": "Anuncio UGC y testimonio",
+        "oferta-e-preco": "Oferta y precio",
+        "explicativo-e-dados": "Explicativos y datos",
+        "pecas-por-segmento": "Piezas por segmento"
+      }
+    },
+    "cost": {
+      "label": "Costo de esta conversación",
+      "tooltip": "Total cobrado de tu saldo por esta conversación hasta ahora, con los precios de tu plan: el uso de Elo en cada respuesta y las generaciones de imagen, música, locución y video que inició aquí. Se actualiza mientras Elo trabaja.",
+      "unavailable": "El costo exacto de esta conversación no está disponible. Las conversaciones iniciadas antes del registro de costo por conversación no tienen total.",
+      "tokens": "{count} tokens",
+      "usage": {
+        "calls": "Llamadas al modelo",
+        "input": "Tokens de entrada",
+        "cacheRead": "Leídos de la caché",
+        "cacheWrite": "Guardados en la caché",
+        "output": "Tokens de salida",
+        "reasoning": "De razonamiento"
+      }
+    },
+    "toolFields": {
+      "prepare_lead_action": {
+        "leads": "Leads",
+        "changes": "Se modificarán",
+        "budget": "Límite de envío"
+      }
     }
   },
   "leadMemories": {
@@ -1285,7 +1707,29 @@
     "dealOwnerAI": "Agente de IA",
     "dealOwnerWorkflow": "Flujo",
     "dealOwnerSystem": "Sistema",
-    "dealOwnerTeam": "Equipo"
+    "dealOwnerTeam": "Equipo",
+    "lead": {
+      "district": "Barrio",
+      "city": "Ciudad",
+      "state": "Estado",
+      "noOwner": "Sin responsable",
+      "family": "Familia",
+      "familyCount": "{count, plural, =0 {ningún familiar} one {# familiar} other {# familiares}}",
+      "referredCount": "{count, plural, one {refirió a # persona} other {refirió a # personas}}",
+      "openRecord": "Abrir registro completo",
+      "loadFailed": "No se pudo cargar el registro de este contacto.",
+      "editArea": "Editar barrio y ciudad",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "areaSaved": "Barrio actualizado",
+      "areaFailed": "No se pudo guardar el barrio",
+      "editOwner": "Cambiar responsable",
+      "ownerSaved": "Responsable actualizado",
+      "ownerFailed": "No se pudo cambiar el responsable",
+      "record": "Registro",
+      "messages": "Mensajes",
+      "optedOut": "No quiere recibir mensajes"
+    }
   },
   "metadata": {
     "title": "{brandLegalName}",
@@ -1422,6 +1866,19 @@
       "published_ad": "Anuncio publicado"
     },
     "footer": "Precios en BRL. Los valores pueden variar según el tipo de cambio. Los planes se pueden cambiar en cualquier momento."
+  },
+  "dashboardTable": {
+    "emptyTitle": "No se encontraron registros",
+    "emptyDescription": "Intenta ajustar los filtros o agregar nuevos elementos.",
+    "showing": "Mostrando",
+    "of": "de",
+    "items": "elementos",
+    "perPage": "Por página",
+    "previousPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "selectAll": "Seleccionar todas las filas de la página",
+    "selectRow": "Seleccionar fila",
+    "selected": "{count, plural, one {# seleccionado} other {# seleccionados}}"
   },
   "common": {
     "groupConversation": "Grupo",
@@ -1830,6 +2287,7 @@
       "adminOverview": "Ingresos",
       "adminMetaCosts": "Costo Meta",
       "adminSendCaps": "Límites de envío",
+      "adminGeocoding": "Geolocalización",
       "platformUsers": "Cuentas",
       "usersList": "Lista de Usuarios",
       "registerUser": "Registrar Usuario",
@@ -1910,6 +2368,7 @@
       "sipTrunks": "Líneas telefónicas",
       "callQueues": "Colas",
       "callHistory": "Historial",
+      "callLists": "Listas de llamadas",
       "adsOverview": "Información general de la cuenta",
       "adsManager": "Campañas",
       "adsAudiences": "Públicos",
@@ -3140,7 +3599,8 @@
         "error": "Error al actualizar",
         "activated": "Agente activado",
         "deactivated": "Agente desactivado",
-        "updated": "fue actualizado exitosamente."
+        "updated": "fue actualizado exitosamente.",
+        "idCopied": "ID copiado"
       }
     }
   },
@@ -3943,7 +4403,9 @@
       "template_authentication_code_too_long": "El código no puede superar los 15 caracteres.",
       "template_access_denied": "Este espacio de trabajo no tiene acceso a esta plantilla.",
       "template_header_media_outside_storage": "El medio del encabezado debe ser un archivo de la biblioteca de medios del espacio de trabajo.",
-      "template_phone_outside_workspace": "Este número de WhatsApp no pertenece a este espacio de trabajo."
+      "template_phone_outside_workspace": "Este número de WhatsApp no pertenece a este espacio de trabajo.",
+      "template_send_params_mismatch": "Los valores de las variables no corresponden a la plantilla. Revísalos e inténtalo de nuevo.",
+      "template_quote_out_of_range": "No se pudo calcular el costo de este envío: la cantidad o el importe supera el límite."
     },
     "header": {
       "badge": "WhatsApp Business",
@@ -5077,7 +5539,8 @@
         "started": "Campaña iniciada exitosamente",
         "paused": "Campaña pausada",
         "stopped": "Campaña detenida",
-        "deleted": "Campaña eliminada"
+        "deleted": "Campaña eliminada",
+        "updatedName": "{name} actualizada"
       },
       "confirmDelete": "¿Estás seguro de que deseas eliminar esta campaña? Esta acción no se puede deshacer.",
       "reset": {
@@ -5933,10 +6396,12 @@
       "departments": "Departamentos"
     },
     "configTab": {
-      "description": "Políticas del espacio: asignación y cierre de conversaciones.",
+      "description": "Políticas del espacio: asignación, cierre de conversaciones y ubicación de direcciones.",
       "sections": {
-        "attendance": "Atención"
-      }
+        "attendance": "Atención",
+        "leads": "Leads"
+      },
+      "managerDescription": "Ubicación de direcciones de esta área de trabajo."
     },
     "roles": {
       "owner": "Propietario",
@@ -6187,7 +6652,96 @@
         "connects_accounts": "Permite conectar y desconectar canales e integraciones de la empresa."
       }
     },
-    "viewActivity": "Ver actividad"
+    "viewActivity": "Ver actividad",
+    "geocoding": {
+      "title": "Ubicación de direcciones",
+      "description": "Cómo las direcciones de los leads se convierten en posiciones en el mapa.",
+      "status": {
+        "loading": "Cargando",
+        "unavailable": "No disponible",
+        "reference": "Solo referencia IBGE",
+        "provider": "Proveedor externo activado",
+        "ceilingReached": "Tope del mes alcanzado",
+        "noCeiling": "Tope mensual en cero",
+        "providerMissing": "Proveedor externo no disponible",
+        "providerPaused": "Proveedor en pausa",
+        "providerPauseUnknown": "Proveedor en espera"
+      },
+      "loading": "Cargando la ubicación de direcciones…",
+      "loadFailed": "No se pudo cargar la ubicación de direcciones.",
+      "saved": "Ubicación de direcciones actualizada.",
+      "saveFailed": "No se pudo guardar.",
+      "reference": {
+        "label": "Base de referencia",
+        "hint": "Siempre activa. Ubica las direcciones por CEP, barrio y ciudad con datos públicos, sin enviar direcciones fuera de nuestros servidores."
+      },
+      "provider": {
+        "label": "Proveedor externo ({provider})",
+        "labelNone": "Proveedor externo",
+        "hint": "Se usa solo cuando la referencia no llega al nivel de la calle y la dirección tiene calle. Al activarlo, las direcciones de los leads se envían al proveedor, que tiene instrucciones de no guardar las consultas.",
+        "readOnly": "Solo el dueño del workspace o un administrador de la plataforma puede activar o desactivar el proveedor externo.",
+        "notConfigured": "Este servidor no tiene acceso a un proveedor externo.",
+        "stamp": {
+          "on": "Activado por <name>{person}</name> el {date}",
+          "off": "Desactivado por <name>{person}</name> el {date}"
+        },
+        "never": "Nunca se activó en este workspace."
+      },
+      "usage": {
+        "title": "Consultas externas en este ciclo",
+        "count": "{used, number} de {ceiling, number}",
+        "today": "Hoy: {used, number} de {share, number}",
+        "renews": "El ciclo se renueva el {date}.",
+        "off": "Con el proveedor desactivado, no se hace ninguna consulta externa.",
+        "none": "Tope mensual en cero: no se hace ninguna consulta externa.",
+        "reached": "Tope del mes alcanzado. Las direcciones que faltan quedan con la posición de la referencia hasta el próximo ciclo.",
+        "todayReached": "Cuota de hoy alcanzada. Las consultas siguen mañana."
+      },
+      "ceiling": {
+        "label": "Tope mensual de consultas",
+        "hint": "0 desactiva las consultas externas de este workspace.",
+        "readOnly": "Solo los administradores de la plataforma cambian el tope mensual.",
+        "save": "Guardar tope",
+        "invalid": "Ingresa un número entero, sin decimales.",
+        "stamp": "Tope definido por <name>{person}</name> el {date}"
+      },
+      "confirm": {
+        "enable": {
+          "title": "¿Activar el proveedor externo?",
+          "description": "Las direcciones de los leads de este workspace pasan a enviarse a {provider} cuando la referencia no llega al nivel de la calle. Las consultas cuentan en el tope mensual del workspace.",
+          "confirm": "Activar proveedor"
+        },
+        "cancel": "Cancelar"
+      },
+      "errors": {
+        "geocoding_forbidden": "Solo el dueño del workspace o un administrador de la plataforma puede cambiar esta configuración.",
+        "geocoding_ceiling_forbidden": "Solo un administrador de la plataforma puede cambiar el tope mensual.",
+        "geocoding_change_empty": "No hay nada para guardar.",
+        "geocoding_provider_unknown": "Este proveedor no existe.",
+        "geocoding_ceiling_invalid": "El tope está fuera del rango permitido.",
+        "geocoding_provider_not_configured": "Este servidor no tiene acceso a ese proveedor.",
+        "geocoding_settings_unreadable": "No se pudo leer la configuración. Inténtalo de nuevo.",
+        "geocoding_unavailable": "La ubicación de direcciones no está disponible en este servidor.",
+        "invalid_body": "El servidor rechazó la solicitud. Recarga la página e inténtalo de nuevo.",
+        "unknown": "Inténtalo de nuevo en unos instantes."
+      },
+      "pause": {
+        "title": "El proveedor externo está en pausa para todos los workspaces",
+        "unknownTitle": "No fue posible confirmar el estado del proveedor externo",
+        "since": "En pausa desde {since}.",
+        "until": "No se hace ninguna consulta externa paga ni se gasta nada del tope hasta {until}.",
+        "unknown": "Mientras no se confirme el estado, no se hace ninguna consulta externa paga ni se gasta nada del tope.",
+        "reference": "Mientras tanto, las posiciones usan la referencia gratuita (el punto del CEP, del barrio o de la ciudad).",
+        "reasons": {
+          "key_rejected": "El proveedor rechazó la clave de acceso de la plataforma.",
+          "account_quota_spent": "Se agotó la cuota de la cuenta de la plataforma en el proveedor.",
+          "key_disabled": "La clave de acceso de la plataforma fue desactivada en el proveedor.",
+          "account_refused": "El proveedor rechazó la cuenta de la plataforma.",
+          "queries_refused": "El proveedor rechazó varias direcciones distintas seguidas, señal de un problema en la integración con el proveedor y no en sus direcciones.",
+          "other": "El proveedor rechazó las consultas de la plataforma."
+        }
+      }
+    }
   },
   "workspaceInvites": {
     "loading": "Cargando invitaciones...",
@@ -7595,6 +8149,18 @@
       "textResponse": "Respuesta de Texto",
       "noMatch": "Sin Coincidencia",
       "error": "Error"
+    },
+    "updateLead": {
+      "empty": "Ningún dato del lead",
+      "more": "+{count, plural, one {# campo} other {# campos}}",
+      "customField": "Campo {key}",
+      "keysTitle": "Campos personalizados de lead",
+      "keysHelp": "Haz clic en un campo para agregar su clave abajo. Los campos sensibles nunca se graban desde flujos.",
+      "keysEmpty": "Este workspace no tiene campos personalizados de lead.",
+      "keysFailed": "No se pudieron cargar los campos personalizados.",
+      "keysRetry": "Intentar de nuevo",
+      "keyAdded": "agregado",
+      "keySensitive": "sensible"
     }
   },
   "mcpPage": {
@@ -7859,66 +8425,324 @@
       "save": "Guardar nombre",
       "cancel": "Cancelar",
       "saved": "Nombre actualizado",
-      "cleared": "Nombre eliminado, el contacto vuelve a mostrar su número"
+      "cleared": "Nombre eliminado, el contacto vuelve a mostrar su número",
+      "failed": "No se pudo guardar el nombre",
+      "conflict": "Otra persona cambió el nombre a \"{name}\". Guarda de nuevo para usar el tuyo o cancela para mantener el actual.",
+      "conflictOther": "Otra persona modificó este lead mientras lo editabas. Guarda de nuevo para aplicar tu nombre o cancela."
+    },
+    "errors": {
+      "version_required": "No se pudo confirmar la versión de este lead. Recarga la página e inténtalo de nuevo.",
+      "lead_name_too_long": "El nombre es demasiado largo.",
+      "lead_not_found": "Este lead ya no existe.",
+      "forbidden": "No tienes permiso para cambiar este lead.",
+      "lead_commands_unavailable": "La edición de leads no está disponible en este momento. Inténtalo de nuevo en unos instantes.",
+      "invalid_body": "El servidor rechazó la solicitud. Recarga la página e inténtalo de nuevo.",
+      "lead_identity_taken": "Este número ya pertenece a otro lead.",
+      "lead_identity_in_use": "Este número ya tiene conversaciones y no se puede cambiar.",
+      "lead_number_invalid": "Número de WhatsApp inválido.",
+      "lead_identity_required": "Indica el nombre o el WhatsApp.",
+      "lead_nickname_too_long": "El apodo es demasiado largo.",
+      "lead_email_invalid": "Correo electrónico inválido.",
+      "lead_birth_date_invalid": "Fecha de nacimiento inválida.",
+      "lead_owner_invalid": "Responsable inválido.",
+      "lead_owner_outside_workspace": "Esta persona no forma parte del workspace.",
+      "lead_owner_out_of_reach": "No puedes asignar leads a esta persona.",
+      "lead_phone_invalid": "Teléfono inválido.",
+      "lead_phone_label_invalid": "Tipo de teléfono inválido.",
+      "lead_phone_limit": "Un lead tiene como máximo 6 teléfonos de contacto.",
+      "lead_phone_repeats_identity": "Este teléfono ya es el WhatsApp del lead.",
+      "lead_phone_repeated": "Teléfono repetido en este lead.",
+      "lead_phone_unknown": "Este teléfono ya no es de este lead. Recarga e inténtalo de nuevo.",
+      "lead_address_invalid": "Dirección incompleta: indica el CEP o la ciudad con el estado.",
+      "lead_address_label_invalid": "Tipo de dirección inválido.",
+      "lead_address_limit": "Un lead tiene como máximo 5 direcciones.",
+      "lead_address_primary": "Elige exactamente una dirección principal.",
+      "lead_address_unknown": "Esta dirección ya no es de este lead. Recarga e inténtalo de nuevo.",
+      "lead_no_primary_address": "Este lead no tiene dirección principal para copiar.",
+      "lead_addresses_forbidden": "No tienes permiso para cambiar direcciones.",
+      "lead_relation_kind_invalid": "Parentesco inválido.",
+      "lead_relation_self": "Un lead no puede ser pariente de sí mismo.",
+      "lead_relative_not_found": "Este lead ya no existe.",
+      "lead_relation_exists": "Estos leads ya están vinculados.",
+      "lead_relation_not_found": "Este vínculo ya fue eliminado.",
+      "custom_field_unknown_key": "Este campo personalizado ya no existe. Recarga.",
+      "custom_field_value_type": "Valor inválido para este campo.",
+      "custom_field_value_not_in_options": "Elige una de las opciones del campo.",
+      "custom_field_value_required": "Campo obligatorio.",
+      "custom_field_sensitive_forbidden": "No tienes permiso para cambiar campos sensibles.",
+      "version_conflict": "Otra persona cambió este lead mientras editabas.",
+      "lead_opt_out_source_invalid": "El origen indicado no es válido."
     }
   },
   "leadsPage": {
     "import": {
       "action": "Importar",
+      "template": "Descargar modelo",
       "title": "Importar leads",
-      "description": "Sube una planilla de contactos. El archivo se lee en tu navegador: nada se envía antes de que confirmes.",
-      "chooseFile": "Elegir archivo CSV",
-      "template": "Descargar plantilla",
-      "empty": "Elige un archivo CSV o TXT para empezar.",
+      "description": "El archivo se lee en el servidor y la importación sigue en segundo plano. Puedes cerrar esta ventana.",
+      "steps": {
+        "file": "Archivo",
+        "columns": "Columnas",
+        "importing": "Importando"
+      },
+      "file": {
+        "choose": "Elegir planilla",
+        "uploading": "Enviando la planilla...",
+        "limits": "CSV o TSV de hasta {megabytes} MB y {rows} filas. La primera fila trae el nombre de las columnas.",
+        "rows": "{count, plural, one {# fila} other {# filas}}",
+        "templateHint": "El modelo trae las columnas más usadas: WhatsApp, nombre, teléfonos, dirección y familia. Basta una columna de WhatsApp o de nombre.",
+        "loading": "Cargando la importación..."
+      },
       "mapping": {
         "title": "Columnas del archivo",
-        "detected": "Encabezado detectado. Verifica que cada columna quede en el campo correcto.",
-        "noHeader": "Sin encabezado: las columnas están en el orden en que aparecen en el archivo.",
-        "column": "Columna {index}",
-        "number": "Teléfono",
-        "name": "Nombre",
-        "age": "Edad",
+        "recognised": "{count, number} de {total, plural, one {# columna reconocida} other {# columnas reconocidas}}",
+        "help": "Cada columna va a un campo del lead. Revisa las sugerencias; elige No importar para ignorar una columna.",
         "none": "No importar",
-        "onlyThese": "Un lead guarda teléfono, nombre y edad. Las demás columnas del archivo se ignoran."
+        "column": "Columna {index}",
+        "choose": "Destino de la columna {column}",
+        "sensitive": "Campo sensible",
+        "nothingMapped": "Elige el destino de al menos una columna."
       },
-      "summary": {
-        "counts": "{valid} contactos válidos · {invalid} inválidos · {duplicates} repetidos en el archivo",
-        "tooMany": "Límite de {max} contactos por importación. Divide el archivo y envíalo por partes.",
-        "rejectedTitle": "Líneas que se omitirán ({count})"
+      "groups": {
+        "identity": "Identificación",
+        "phones": "Teléfonos de contacto",
+        "contact": "Contacto",
+        "address": "Dirección",
+        "owner": "Responsable",
+        "consent": "Consentimiento",
+        "custom": "Campos personalizados",
+        "family": "Familia",
+        "other": "Otros"
       },
-      "reasons": {
-        "invalid": "teléfono inválido",
-        "duplicate": "repetido"
+      "fields": {
+        "number": "WhatsApp (principal)",
+        "phone_mobile": "Teléfono · Móvil",
+        "phone_landline": "Teléfono · Casa",
+        "phone_work": "Teléfono · Trabajo",
+        "phone_message": "Teléfono · Recados",
+        "phone_other": "Teléfono · Otro",
+        "name": "Nombre",
+        "nickname": "Apodo",
+        "email": "Correo electrónico",
+        "birth_date": "Nacimiento",
+        "zip_code": "CEP",
+        "street": "Calle",
+        "street_number": "Número",
+        "complement": "Complemento",
+        "district": "Barrio",
+        "city": "Ciudad",
+        "state": "Estado",
+        "latitude": "Latitud",
+        "longitude": "Longitud",
+        "owner_email": "Responsable (correo)",
+        "consent_date": "Fecha del consentimiento",
+        "consent_purpose": "Finalidad del consentimiento",
+        "relative_number": "Familia · WhatsApp del familiar",
+        "relation_kind": "Familia · parentesco",
+        "custom": "Campo: {label}",
+        "unknown": "Campo {key}"
+      },
+      "requires": {
+        "leads_read_addresses": "Requiere permiso para ver direcciones",
+        "leads_assign": "Requiere permiso para asignar responsable",
+        "leads_read_sensitive": "Requiere permiso para ver campos sensibles",
+        "leads_update": "Requiere permiso para editar leads",
+        "other": "Requiere un permiso que no tienes"
+      },
+      "permissions": {
+        "leads_create": "crear leads",
+        "leads_update": "editar leads",
+        "leads_assign": "asignar responsable",
+        "leads_read_addresses": "ver direcciones",
+        "leads_read_sensitive": "ver campos sensibles",
+        "media_read": "ver la biblioteca de medios",
+        "other": "un permiso que no tienes"
       },
       "existing": {
-        "label": "Contactos que ya existen",
-        "fillEmpty": "Completar nombre y edad vacíos",
-        "skip": "No modificar nada",
-        "neverOverwrites": "La importación nunca reemplaza un nombre ya cargado."
+        "label": "Leads que ya existen",
+        "fillEmpty": "Completar solo lo que está vacío",
+        "skip": "No cambiar nada",
+        "fillEmptyLocked": "Completar leads existentes requiere permiso para editar leads.",
+        "neverOverwrites": "La importación nunca cambia un valor ya completado, ni una dirección o pin puesto por el equipo."
       },
-      "confirm": "Importar",
-      "importing": "Importando...",
+      "dryRun": {
+        "run": "Simular importación",
+        "again": "Simular de nuevo",
+        "running": "Revisando la planilla...",
+        "analyzing": "Revisando {processed} de {total} filas",
+        "title": "Simulación",
+        "help": "Todavía no se guardó nada. Revisa los números e importa.",
+        "stale": "Las columnas cambiaron después de la simulación. Simula de nuevo para importar."
+      },
+      "start": {
+        "action": "Importar {count, plural, one {# fila} other {# filas}}",
+        "starting": "Iniciando..."
+      },
+      "progress": {
+        "title": "Importando",
+        "rows": "{processed} de {total}",
+        "label": "Avance de la importación",
+        "stages": {
+          "rows": "Guardando las filas",
+          "links": "Vinculando familiares",
+          "seed": "Abriendo conversaciones"
+        }
+      },
+      "counts": {
+        "planned": {
+          "created": "Leads nuevos",
+          "enriched": "Ya existen y ganan dirección, teléfono o campo",
+          "unchanged": "Ya existen, sin cambios",
+          "skipped": "Ya existen y quedan como están",
+          "conflicting": "Con otro valor ya guardado (se mantiene)",
+          "blocked": "Ya existen y están bloqueados",
+          "links": "Vínculos familiares",
+          "rejected": "Filas rechazadas"
+        },
+        "done": {
+          "created": "Leads creados",
+          "enriched": "Ya existían, con dirección o teléfono agregado",
+          "unchanged": "Ya existían, sin cambios",
+          "skipped": "Ya existían y quedaron como estaban",
+          "conflicting": "Con otro valor ya guardado (se mantiene)",
+          "blocked": "Ya existían y están bloqueados",
+          "links": "Vínculos familiares creados",
+          "rejected": "Filas omitidas"
+        }
+      },
+      "addresses": {
+        "title": "Direcciones",
+        "added": "Direcciones agregadas",
+        "located": "Con posición de la planilla",
+        "pending": "Esperando ubicación en el mapa",
+        "help": "Las direcciones sin latitud ni longitud entran en la cola de ubicación del mapa.",
+        "filled": "Direcciones existentes completadas",
+        "noAddress": "Filas sin dirección en el archivo"
+      },
+      "issues": {
+        "title": "Problemas por motivo ({count})"
+      },
+      "reasons": {
+        "invalid": "WhatsApp inválido",
+        "duplicate": "Repetida en el archivo",
+        "identity_required": "Sin WhatsApp ni nombre",
+        "name_too_long": "Nombre demasiado largo",
+        "nickname_too_long": "Apodo demasiado largo",
+        "email_invalid": "Correo electrónico inválido",
+        "birth_date_invalid": "Fecha de nacimiento inválida",
+        "phone_invalid": "Teléfono de contacto inválido",
+        "phone_limit": "Más teléfonos de los que admite un lead",
+        "address_invalid": "Dirección incompleta o inválida",
+        "coordinates_invalid": "Latitud o longitud inválida",
+        "coordinates_outside_brazil": "Coordenadas fuera de Brasil",
+        "owner_not_found": "Responsable no encontrado",
+        "owner_out_of_reach": "Responsable fuera de tu alcance",
+        "consent_date_invalid": "Fecha del consentimiento inválida",
+        "consent_purpose_too_long": "Finalidad del consentimiento demasiado larga",
+        "custom_field_invalid": "Valor inválido para el campo personalizado",
+        "custom_field_required": "Campo personalizado obligatorio vacío",
+        "relative_number_invalid": "WhatsApp del familiar inválido",
+        "relation_kind_invalid": "Parentesco no reconocido",
+        "relative_not_found": "El familiar no está en el archivo ni en la base",
+        "relation_self": "El familiar es la misma persona",
+        "relation_exists": "El vínculo familiar ya existía",
+        "contact_ambiguous": "Teléfono compartido por demasiados leads para encontrar a la persona",
+        "lead_changing": "Lead en edición por otra persona",
+        "record_invalid": "Registro inválido",
+        "other": "Otro motivo"
+      },
+      "rejections": {
+        "notice": "{count, plural, one {# problema} other {# problemas}} en filas de la planilla. El archivo trae la fila y el motivo de cada uno, sin repetir los datos.",
+        "download": "Descargar filas con problemas",
+        "downloading": "Descargando...",
+        "failed": "No se pudo descargar el archivo"
+      },
+      "seed": {
+        "queued": "{count, plural, one {Se está creando # conversación en segundo plano y aparecerá} other {Se están creando # conversaciones en segundo plano y aparecerán}} en la atención en instantes.",
+        "scriptedQueued": "{count, plural, one {# de ellas recibirá} other {# de ellas recibirán}} una conversación de ejemplo escrita.",
+        "errors": {
+          "seed_forbidden": "Los leads se importaron, pero no tienes permiso para abrir conversaciones en WhatsApp no oficial.",
+          "seed_unavailable": "Los leads se importaron, pero abrir conversaciones no está disponible ahora.",
+          "seed_failed": "Los leads se importaron, pero no se pudieron crear las conversaciones. Verifica que haya un número conectado en WhatsApp no oficial.",
+          "script_forbidden": "Las conversaciones se crearon, pero solo un administrador de la plataforma puede escribir conversaciones de ejemplo."
+        },
+        "unconfirmed": "{count, plural, one {# conversación puede no haberse creado} other {# conversaciones pueden no haberse creado}}: el envío se interrumpió y no se repitió para no duplicar conversaciones."
+      },
+      "failure": {
+        "title": "La importación se detuvo",
+        "stalled": "El servidor intentó continuar tres veces y no pudo. Los lotes ya guardados se mantienen.",
+        "file_unavailable": "El archivo de la importación ya no se puede leer. Envía la planilla de nuevo.",
+        "forbidden": "Se retiró un permiso necesario durante la importación.",
+        "internal": "La importación no pudo continuar. Los lotes ya guardados se mantienen.",
+        "interrupted": "La importación se interrumpió a la mitad. Los lotes ya guardados se mantienen.",
+        "unknown": "La importación no pudo continuar."
+      },
+      "gone": "Esta importación ya no existe. Se borra {days, plural, one {# día} other {# días}} después del envío.",
+      "goneNoLimit": "Esta importación ya no existe. Las importaciones se borran algunos días después del envío.",
+      "pollFailed": "No se puede seguir la importación ahora.",
+      "retry": "Intentar de nuevo",
+      "close": "Cerrar",
+      "closeBackground": "Cerrar y seguir en segundo plano",
       "cancel": "Cancelar",
-      "done": "Finalizar",
-      "result": {
-        "created": "Leads creados",
-        "matched": "Ya existían",
-        "skipped": "Se omitieron {invalid} líneas con teléfono inválido y {duplicates} repetidas.",
-        "blocked": "{count} de los contactos existentes están bloqueados y no serán alcanzados por campañas.",
-        "inboxSeedQueued": "{count} conversaciones se están creando en segundo plano y aparecerán en la bandeja en breve.",
-        "inboxSeedFailed": "Los leads se importaron, pero no se pudieron crear las conversaciones. Verifique que haya un número conectado en WhatsApp no oficial.",
-        "scriptedSeedQueued": "{count} de ellas recibirán una conversación de ejemplo.",
-        "scriptedSeedFailed": "Las conversaciones se crearon, pero no se escribió ningún mensaje de ejemplo en ellas."
+      "done": "Listo",
+      "another": "Nueva importación",
+      "changeFile": "Cambiar archivo",
+      "errorTitle": "No se pudo importar",
+      "generic": "Inténtalo de nuevo en unos instantes.",
+      "errors": {
+        "lead_import_empty": "La planilla no tiene filas, o no tiene la fila con el nombre de las columnas.",
+        "lead_import_unsupported_file": "El archivo no es una planilla CSV o TSV.",
+        "lead_import_mapping_invalid": "El mapeo de las columnas no se puede usar.",
+        "lead_import_forbidden": "Esta importación requiere permiso para {permission}.",
+        "lead_import_not_found": "Esta importación ya no existe.",
+        "lead_import_file_unavailable": "El archivo de la importación ya no se puede leer. Envía la planilla de nuevo.",
+        "lead_import_running": "Otra importación está en curso en este workspace. Espera a que termine.",
+        "lead_import_not_ready": "La importación cambió de estado. Actualiza e inténtalo de nuevo.",
+        "lead_import_file_too_large": "El archivo supera {megabytes} MB. Divide la planilla y envíala por partes.",
+        "lead_import_too_many_rows": "La planilla supera {rows} filas. Divide la planilla y envíala por partes.",
+        "lead_import_unavailable": "La importación de leads no está disponible en este servidor.",
+        "lead_import_rate_limited": "Demasiados envíos en poco tiempo. Espera un minuto e inténtalo de nuevo.",
+        "lead_import_unreadable": "No se pudo leer la respuesta del servidor.",
+        "invalid_body": "El servidor rechazó la solicitud.",
+        "timeout": "El envío tardó demasiado. Inténtalo de nuevo.",
+        "lead_import_file_too_large_unknown": "El archivo supera el tamaño máximo aceptado. Divide la planilla y envíala por partes.",
+        "lead_import_too_many_rows_unknown": "La planilla supera el número máximo de filas. Divide la planilla y envíala por partes."
       },
-      "error": {
-        "title": "No se pudo importar",
-        "generic": "Inténtalo de nuevo en unos instantes."
+      "mappingRules": {
+        "unknown_column": "La columna {column} ya no está en la planilla.",
+        "unknown_field": "El campo elegido para la columna {column} ya no existe.",
+        "repeated": "El campo {field} está en más de una columna.",
+        "too_many_phones": "Hasta cuatro columnas de teléfono de contacto por importación.",
+        "identity_required": "Elige una columna de WhatsApp o de nombre.",
+        "needs_pair": "Mapea también la columna de {field}.",
+        "policy": "Elige qué hacer con los leads que ya existen.",
+        "script": "La conversación de ejemplo necesita el primer mensaje y Abrir conversación en la atención."
+      },
+      "status": {
+        "button": "Importaciones",
+        "running": "{count, number} en curso",
+        "title": "Importaciones recientes",
+        "uploaded": "Esperando las columnas",
+        "analyzing": "Simulando",
+        "analyzed": "Simulación lista",
+        "importing": "Importando {processed} de {total}",
+        "done": "Terminada: {created, plural, one {# creado} other {# creados}}",
+        "failed": "Se detuvo",
+        "gone": "Borrada",
+        "pollFailed": "Sin actualización",
+        "dismiss": "Descartar {file}"
+      },
+      "toast": {
+        "done": "Importación de {file} terminada",
+        "doneDescription": "{created, plural, one {# lead creado} other {# leads creados}} y {enriched, plural, one {# completado} other {# completados}}.",
+        "failed": "La importación de {file} se detuvo",
+        "analyzed": "Simulación de {file} lista",
+        "open": "Abrir"
       },
       "seedInbox": {
         "label": "Abrir conversación en la bandeja",
         "help": "Crea una conversación vacía de WhatsApp no oficial para cada número importado, para que los leads aparezcan en la bandeja sin que nadie tenga que escribir primero. No se envía nada."
       },
-      "recognisedColumns": "La plantilla trae las tres columnas que la importación guarda: telefone (teléfono), nome (nombre) e idade (edad). Solo el teléfono es obligatorio. Las demás columnas del archivo se ignoran.",
       "seedConversations": {
         "label": "Sembrar conversaciones de ejemplo",
         "adminOnly": "solo admin",
@@ -7935,7 +8759,6 @@
         "contextPlaceholder": "Curso técnico de enfermería, inscripciones abiertas",
         "maxMessages": "Largo de la conversación",
         "messageCount": "{count} mensajes",
-        "unnamedRows": "{count} filas no tienen nombre y recibirán una conversación vacía, porque el primer mensaje usa el nombre.",
         "costNotice": "Solo los primeros {max} contactos de la importación reciben conversación de ejemplo; el resto recibe una vacía. La IA se cobra del saldo del workspace.",
         "invalid": "Escribe el primer mensaje y usa las mismas variables en todas las variantes.",
         "mediaTitle": "Adjunto del primer mensaje",
@@ -7951,22 +8774,59 @@
         "mediaUpload": "Subir un archivo",
         "mediaUploading": "Subiendo...",
         "mediaRemove": "Quitar archivo",
-        "mediaFailed": "No se pudo subir el archivo"
+        "mediaFailed": "No se pudo subir el archivo",
+        "kept": "El guion de la conversación de ejemplo se guardó con la simulación y se usará al importar.",
+        "writeNew": "Escribir otro guion",
+        "rewrite": "El guion guardado vale solo para la simulación anterior. Escríbelo de nuevo para simular otra vez.",
+        "costNoticeNoLimit": "Solo los primeros contactos de la importación reciben conversación de ejemplo; el resto recibe una vacía. La IA se cobra del saldo del workspace.",
+        "savedMedia": "Archivo guardado con la simulación"
+      },
+      "placement": {
+        "title": "Ubicación de las direcciones",
+        "rows": {
+          "precise": "Posición de casa o calle (CEP preciso)",
+          "approximate": "Aproximadas (CEP amplio, barrio o ciudad)",
+          "pending": "Esperando ubicación",
+          "notLocated": "No ubicadas",
+          "noAddress": "Sin dirección en el archivo"
+        },
+        "source": "Ubicadas con la base de direcciones del IBGE (CNEFE 2022) en nuestros servidores. Un proveedor externo solo se usa cuando el workspace lo activó."
       }
     },
     "header": {
       "badge": "Leads",
-      "description": "Base completa de leads del workspace, con búsqueda, filtros avanzados y memorias."
+      "description": "Tu base de personas, con teléfonos, direcciones, familias y ubicación.",
+      "newLead": "Nuevo lead",
+      "fields": "Campos"
     },
     "summary": {
-      "total": "Total de leads",
-      "withWhatsApp": "Con WhatsApp",
+      "total": "Total",
       "windowOpen": "Ventana abierta",
-      "withMemory": "Con memorias",
-      "blocked": "Bloqueados"
+      "blocked": "Bloqueados",
+      "onMap": "En el mapa",
+      "approximate": "Aproximados",
+      "withoutAddress": "Sin dirección",
+      "birthdaysToday": "Cumpleaños hoy",
+      "apply": "Mostrar solo estos leads",
+      "remove": "Quitar este filtro",
+      "loading": "Cargando los números",
+      "failed": "No se pudieron cargar los números de este filtro."
     },
     "search": {
-      "placeholder": "Buscar por nombre, teléfono o memoria..."
+      "placeholder": "Buscar por nombre, teléfono, barrio o ciudad",
+      "label": "Buscar leads",
+      "clear": "Borrar búsqueda",
+      "groups": {
+        "leads": "Leads",
+        "districts": "Barrios",
+        "cities": "Ciudades"
+      },
+      "searchLeads": "Buscar leads con «{query}»",
+      "leadsCount": "{count, plural, one {# lead} other {# leads}}",
+      "suggestionsFailed": "No fue posible sugerir barrios y ciudades ahora",
+      "results": "{count, plural, =0 {Ningún lead encontrado} one {# lead encontrado} other {# leads encontrados}}",
+      "emptyTitle": "Ningún lead para «{query}»",
+      "emptyHint": "Revisa la ortografía o busca por teléfono, barrio o ciudad."
     },
     "filters": {
       "label": "Filtros",
@@ -7990,7 +8850,11 @@
         "engagement": "Actividad",
         "campaigns": "Campañas",
         "crm": "CRM",
-        "memories": "Memorias"
+        "memories": "Memorias",
+        "address": "Dirección",
+        "family": "Familia",
+        "owner": "Responsable",
+        "custom": "Campos personalizados"
       },
       "fields": {
         "name": "Nombre",
@@ -8011,7 +8875,30 @@
         "memoryAuthor": "Autor de la memoria",
         "memoryText": "Contenido de la memoria",
         "memoryCount": "N.º de memorias",
-        "memoryUpdatedAt": "Memoria actualizada el"
+        "memoryUpdatedAt": "Memoria actualizada el",
+        "email": "Correo electrónico",
+        "nickname": "Apodo",
+        "birthday": "Cumpleaños",
+        "birthDate": "Fecha de nacimiento",
+        "source": "Origen",
+        "hasIdentity": "Número de WhatsApp",
+        "optedOut": "Recepción de mensajes",
+        "whatsappOptIn": "Consentimiento en WhatsApp",
+        "city": "Ciudad",
+        "district": "Barrio",
+        "state": "Estado",
+        "hasAddress": "Dirección",
+        "geoPrecision": "Precisión de la ubicación",
+        "geoStatus": "Estado de la ubicación",
+        "relationKind": "Vínculo",
+        "relativesCount": "Nº de familiares",
+        "referredCount": "Nº de referidos",
+        "owner": "Responsable",
+        "area": "Área",
+        "zip": "Código postal",
+        "referredBy": "Referido por",
+        "geoPlacement": "Posición en el mapa",
+        "areaApproximate": "Aproximados en el área"
       },
       "options": {
         "channel": {
@@ -8050,6 +8937,54 @@
         "windowOpen": {
           "true": "Abierta",
           "false": "Cerrada"
+        },
+        "cityOf": "{city} ({state})",
+        "districtOf": "{district} ({city})",
+        "ownerUnnamed": "Sin nombre",
+        "birthday": {
+          "today": "Hoy",
+          "this_week": "Esta semana",
+          "this_month": "Este mes"
+        },
+        "hasIdentity": {
+          "true": "Con número",
+          "false": "Sin número"
+        },
+        "optedOut": {
+          "true": "No quiere recibir",
+          "false": "Acepta recibir"
+        },
+        "whatsappOptIn": {
+          "true": "Con consentimiento",
+          "false": "Sin consentimiento"
+        },
+        "hasAddress": {
+          "true": "Con dirección",
+          "false": "Sin dirección"
+        },
+        "geoStatus": {
+          "pending": "Esperando ubicación",
+          "located": "Ubicado",
+          "approximate": "Aproximado",
+          "not_found": "No ubicado",
+          "ambiguous": "Dirección ambigua",
+          "unavailable": "Servicio no disponible",
+          "quota_exceeded": "Límite de consultas alcanzado",
+          "refused": "Rechazado por el proveedor"
+        },
+        "ownerPresence": {
+          "true": "Con responsable",
+          "false": "Sin responsable"
+        },
+        "leadUnknown": "Lead no encontrado",
+        "geoPlacement": {
+          "on_map": "En el mapa",
+          "approximate": "Aproximado (código postal, barrio, ciudad)",
+          "without_address": "Sin dirección",
+          "not_found": "Dirección no localizada",
+          "pending": "Esperando ubicación",
+          "quota_exceeded": "Detenido por el límite de ubicación",
+          "refused": "Rechazado por el proveedor de localización"
         }
       },
       "chips": {
@@ -8063,6 +8998,24 @@
         "isEmpty": "no tiene",
         "isTrue": "sí",
         "isFalse": "no"
+      },
+      "failed": "No se pudieron cargar las opciones.",
+      "facetsFailed": "Los conteos de los filtros no se cargaron.",
+      "optionsFailed": "Algunas opciones de filtro no se cargaron.",
+      "customFailed": "Los campos personalizados no se cargaron.",
+      "zip": {
+        "placeholder": "00000-000; separa varios con comas",
+        "invalid": "No es un código postal: {values}",
+        "tooMany": "Hasta {max} códigos postales por filtro.",
+        "remove": "Quitar el código postal {value}"
+      },
+      "referredBy": {
+        "placeholder": "Nombre o teléfono del lead",
+        "searching": "Buscando...",
+        "failed": "La búsqueda de leads falló. Inténtalo de nuevo.",
+        "none": "No se encontró ningún lead.",
+        "tooMany": "Hasta {max} leads por filtro.",
+        "remove": "Quitar {name}"
       }
     },
     "views": {
@@ -8097,7 +9050,23 @@
       "createdAt": "Creado el",
       "campaigns": "Campañas",
       "memories": "Memorias",
-      "blocked": "Bloqueado"
+      "blocked": "Bloqueado",
+      "phones": "Teléfonos",
+      "district": "Barrio",
+      "city": "Ciudad",
+      "owner": "Responsable",
+      "family": "Familia",
+      "noName": "sin nombre registrado",
+      "noWhatsApp": "sin WhatsApp",
+      "contactPhones": "{count, plural, one {# teléfono de contacto} other {# teléfonos de contacto}}",
+      "relatives": "{count, plural, one {# familiar} other {# familiares}}",
+      "edit": "Editar lead",
+      "columns": "Columnas",
+      "columnsTitle": "Columnas opcionales",
+      "rowActions": "Acciones de {name}",
+      "rowActionsUnnamed": "Acciones del lead sin nombre",
+      "referrals": "Referencias",
+      "referred": "{count, plural, one {# referencia} other {# referencias}}"
     },
     "window": {
       "open": "Abierta",
@@ -8107,19 +9076,466 @@
       "whatsapp": "WhatsApp",
       "sms": "SMS"
     },
-    "campaignHistory": {
-      "title": "Historial de campañas",
-      "noCampaigns": "Este lead no participa en campañas.",
-      "entries": "entradas",
-      "status": "Estado",
-      "date": "Fecha"
-    },
     "pagination": {
       "page": "Página",
       "of": "de"
     },
     "error": {
       "title": "Error al cargar los leads"
+    },
+    "owner": {
+      "ai": "Agente de IA",
+      "workflow": "Flujo",
+      "system": "Sistema",
+      "removed": "Miembro eliminado",
+      "member": "Miembro del equipo",
+      "label": "Responsable",
+      "none": "Sin responsable",
+      "search": "Buscar responsable...",
+      "empty": "Ningún miembro",
+      "membersFailed": "No fue posible cargar el equipo."
+    },
+    "errors": {
+      "lead_filter_invalid": "Este filtro no es válido. Revisa los campos e inténtalo de nuevo.",
+      "lead_filter_address_forbidden": "No tienes permiso para filtrar por código postal o por la ubicación en el mapa.",
+      "custom_field_filter_sensitive_forbidden": "No tienes permiso para filtrar por un campo sensible.",
+      "custom_field_filter_unknown_key": "Un campo personalizado de este filtro ya no existe.",
+      "custom_field_filter_operator": "Un campo personalizado de este filtro no acepta esa condición.",
+      "custom_field_filter_value": "Un valor de este filtro no coincide con el tipo del campo personalizado.",
+      "saved_view_forbidden": "No tienes permiso para guardar esta vista.",
+      "area_too_many": "Este filtro tiene demasiadas áreas. Quita un área del filtro e inténtalo de nuevo.",
+      "area_not_found": "Una de las áreas del filtro ya no existe o no puedes verla. Quítala del filtro.",
+      "lead_search_too_short": "Escribe al menos 2 letras en alguna palabra de la búsqueda."
+    },
+    "view": {
+      "label": "Ver como",
+      "table": "Tabla",
+      "map": "Mapa"
+    },
+    "selection": {
+      "selectedCount": "{count, plural, =1 {# seleccionado} other {# seleccionados}}",
+      "selectAllMatching": "Seleccionar los {count, number} del filtro",
+      "selectEveryone": "Seleccionar los {count, number} leads del workspace",
+      "counting": "Contando leads",
+      "allMatchingSelected": "Los {count, number} leads del filtro seleccionados",
+      "everyoneSelected": "Los {count, number} leads del workspace seleccionados",
+      "quantitySelected": "Los primeros {count, number} leads del filtro seleccionados",
+      "clearSelection": "Limpiar selección",
+      "modes": "Otras selecciones",
+      "quantity": "Seleccionar una cantidad",
+      "quantityNeedsFilter": "Aplica un filtro o una búsqueda para elegir una cantidad.",
+      "everyone": "Todos los leads del workspace",
+      "everyoneHint": "Ignora el filtro. Confirmas escribiendo el total.",
+      "quantityTitle": "Seleccionar una cantidad",
+      "quantityHint": "Los primeros leads del filtro, en el orden actual de la lista ({sort}).",
+      "quantityLabel": "Cantidad de leads",
+      "quantityApply": "Seleccionar",
+      "cancel": "Cancelar",
+      "countFailed": "No se pudieron contar los leads del workspace. Inténtalo de nuevo.",
+      "sortLabel": "{field}, {direction}",
+      "sortDefault": "creado el, más recientes primero",
+      "sortKeys": {
+        "createdAt": "creado el",
+        "updatedAt": "actualizado el",
+        "lastActivityAt": "última actividad",
+        "name": "nombre",
+        "number": "teléfono",
+        "age": "edad",
+        "campaigns": "campañas",
+        "memories": "memorias",
+        "lastMemoryAt": "última memoria"
+      },
+      "sortDirections": {
+        "asc": "ascendente",
+        "desc": "descendente"
+      },
+      "selectPage": "Seleccionar los leads de esta página",
+      "selectRow": "Seleccionar lead",
+      "invalidFilter": "Enlace de filtro inválido. La lista muestra todos los leads y las acciones masivas quedan desactivadas hasta que limpies el filtro.",
+      "inFilter": "{count, plural, one {# lead en el filtro} other {# leads en el filtro}}"
+    },
+    "bulk": {
+      "actions": {
+        "send_template": "Enviar plantilla",
+        "send_message": "Mensaje",
+        "call_list": "Lista de llamadas",
+        "classify": "Clasificar",
+        "assign_owner": "Asignar",
+        "export": "Exportar",
+        "meta_audience": "Público de Meta",
+        "block": "Bloquear"
+      },
+      "more": "Más",
+      "actionsMenu": "Acciones",
+      "clear": "Limpiar selección",
+      "blockers": {
+        "empty": "Selecciona leads primero.",
+        "invalidFilter": "El enlace de filtro es inválido. Limpia el filtro para actuar sobre la selección.",
+        "noFields": "Ningún campo personalizado que puedas completar.",
+        "permissionBulkEdit": "No tienes permiso para editar leads de forma masiva.",
+        "permissionAssign": "No tienes permiso para asignar leads.",
+        "permissionBlock": "No tienes permiso para bloquear leads.",
+        "permissionExport": "No tienes permiso para exportar leads.",
+        "permissionMetaAudience": "No tienes permiso para crear públicos en Meta.",
+        "permissionCallList": "No tienes permiso para crear listas de llamadas.",
+        "checkingAccess": "Revisando tus permisos.",
+        "permissionSendTemplate": "No tienes permiso para envíos de plantilla a partir de leads.",
+        "permissionSendUnofficial": "No tienes permiso para envíos no oficiales a partir de leads.",
+        "checkingNumbers": "Comprobando los números conectados.",
+        "numbersUnavailable": "No se pudieron comprobar los números conectados.",
+        "noOfficialNumber": "Ningún número oficial conectado",
+        "noUnofficialNumber": "Ningún número no oficial conectado",
+        "noDialableLine": "Ninguna línea telefónica disponible para llamar"
+      },
+      "dialog": {
+        "title": {
+          "classify": "Clasificar leads",
+          "assign_owner": "Asignar responsable",
+          "block": "Bloquear o desbloquear leads",
+          "export": "Exportar leads",
+          "meta_audience": "Crear público en Meta",
+          "call_list": "Crear lista de llamadas"
+        },
+        "selection": {
+          "ids": "{count, plural, =1 {# lead elegido} other {# leads elegidos}}",
+          "all_matching": "Los {count, number} leads del filtro",
+          "first_n": "Los primeros {count, number} leads del filtro",
+          "everyone": "Todos los leads del workspace"
+        },
+        "classify": {
+          "field": "Campo",
+          "mode": "Valor del campo",
+          "set": "Definir valor",
+          "clear": "Limpiar campo"
+        },
+        "block": {
+          "mode": "Bloqueo",
+          "block": "Bloquear",
+          "unblock": "Desbloquear"
+        },
+        "export": {
+          "hint": "El archivo CSV trae nombre, teléfonos, barrio, ciudad y los campos personalizados que puedes ver.",
+          "addresses": "Incluir la dirección completa",
+          "sensitive": "Incluir campos sensibles"
+        },
+        "audience": {
+          "loadingAccounts": "Cargando cuentas",
+          "accountsFailed": "No se pudieron cargar las cuentas publicitarias.",
+          "noAccounts": "Ninguna cuenta publicitaria conectada."
+        },
+        "callList": {
+          "name": "Nombre de la lista",
+          "defaultName": "Lista del {date}",
+          "phone": "Número para llamar",
+          "identity": "WhatsApp del lead",
+          "contact": "Teléfono de contacto",
+          "label": "Tipo de teléfono",
+          "hint": "Los leads bloqueados, que pidieron no ser llamados o sin el número elegido quedan fuera, con el motivo."
+        },
+        "previewing": "Calculando a cuántos leads llega la acción...",
+        "previewWaiting": "Completa los campos para ver a cuántos leads llega la acción.",
+        "counts": {
+          "selected": "En la selección",
+          "number": "{count, number}",
+          "eligible": {
+            "edit": "Se modificarán",
+            "export": "Filas del archivo",
+            "meta_audience": "Enviados a Meta",
+            "call_list": "Van al armado"
+          }
+        },
+        "changed": "La selección cambió desde el conteo: eran {previous, number}, ahora son {count, number}. Revisa y confirma de nuevo.",
+        "typeCount": "Escribe {count, number} para confirmar",
+        "cancel": "Cancelar",
+        "applying": "Aplicando...",
+        "apply": {
+          "classify": "Clasificar",
+          "assign_owner": "Asignar",
+          "block": "Aplicar",
+          "export": "Exportar",
+          "meta_audience": "Crear público",
+          "call_list": "Crear lista"
+        },
+        "retry": "Intentar de nuevo",
+        "previewProgress": "Contando los leads: {done, number} de {total, number}..."
+      },
+      "skipped": {
+        "unchanged": "Ya tienen este valor",
+        "gone": "Ya no existen",
+        "other": "Omitidos"
+      },
+      "failures": {
+        "stalled": "La acción se detuvo a mitad. Los lotes ya guardados se mantienen; inténtalo de nuevo.",
+        "forbidden": "Perdiste el permiso para esta acción.",
+        "invalid": "El servidor rechazó los parámetros de esta acción.",
+        "internal": "La acción falló en el servidor. Inténtalo de nuevo.",
+        "snapshot_lost": "La selección congelada expiró antes del final. Selecciona de nuevo y repite.",
+        "unknown": "La acción no terminó. Revisa los leads e inténtalo de nuevo."
+      },
+      "runQueued": "Acción en curso. Te avisamos cuando termine.",
+      "runDone": "Listo: {changed, plural, =1 {# lead modificado} other {# leads modificados}}, {skipped, plural, =1 {# omitido} other {# omitidos}}.",
+      "runLost": "No se pudo seguir la acción. Recarga la página para ver el resultado.",
+      "exportQueued": "Generando el archivo. La descarga empieza cuando esté listo.",
+      "exportDone": "Archivo listo con {count, number} leads.",
+      "exportEmpty": "Ningún lead entró en el archivo.",
+      "exportFailed": "No se pudo generar el archivo. Inténtalo de nuevo.",
+      "audienceQueued": "Armando el público en Meta. Te avisamos cuando termine.",
+      "audienceDone": "Público creado en Meta con {matched, number} leads.",
+      "audienceLost": "No se pudo seguir el público. Revisa la lista de públicos en Anuncios.",
+      "callListQueued": "Lista creada. Los contactos se están armando.",
+      "callListOpen": "Abrir lista",
+      "errors": {
+        "forbidden": "No tienes permiso para esta acción sobre leads.",
+        "lead_action_unknown": "Acción desconocida. Recarga la página e inténtalo de nuevo.",
+        "lead_action_params_ambiguous": "Los parámetros no coinciden con la acción elegida.",
+        "lead_action_key_required": "Elige el campo a clasificar.",
+        "lead_action_value_required": "Indica el valor del campo.",
+        "lead_action_owner_required": "Elige el responsable.",
+        "lead_action_blocked_required": "Elige entre bloquear y desbloquear.",
+        "lead_action_format_unsupported": "Formato de archivo no aceptado.",
+        "lead_action_ad_account_required": "Elige la cuenta publicitaria.",
+        "lead_action_name_required": "Ponle un nombre al público.",
+        "lead_action_requirement_unknown": "Esta acción no está configurada en el servidor.",
+        "lead_action_workspace_required": "Elige un workspace antes de actuar sobre leads.",
+        "lead_action_actor_required": "Inicia sesión de nuevo para continuar.",
+        "idempotency_key_required": "El pedido salió sin identificador. Recarga la página e inténtalo de nuevo.",
+        "idempotency_key_reused": "Este pedido ya se usó con otros datos. Cierra la ventana y empieza de nuevo.",
+        "lead_action_not_a_run": "Esta acción no tiene progreso que seguir.",
+        "lead_action_run_not_found": "No encontramos esta acción, o no puedes verla.",
+        "lead_action_preview_not_found": "La vista previa expiró. Cierra la ventana y ábrela de nuevo.",
+        "lead_action_claim_lost": "Otra ejecución tomó esta acción. Espera el resultado.",
+        "lead_actions_unavailable": "Las acciones masivas sobre leads no están disponibles en este momento.",
+        "lead_action_selection_too_large": "La selección supera el límite de esta acción. Afina el filtro.",
+        "lead_action_selection_empty": "Ningún lead en esta selección.",
+        "lead_action_mode_unsupported": "Esta acción no acepta este tipo de selección. Para el público de Meta, usa los leads elegidos o el filtro completo.",
+        "lead_action_in_progress": "Ya hay una acción en curso con este pedido.",
+        "lead_action_phone_unavailable": "Este número no puede bloquear contactos en este workspace.",
+        "lead_action_snapshot_lost": "La selección congelada expiró. Selecciona de nuevo y repite.",
+        "lead_action_audience_not_found": "No encontramos este público en construcción.",
+        "lead_owner_out_of_reach": "No puedes asignar leads a esta persona.",
+        "report_forbidden": "No tienes permiso para este archivo.",
+        "reports_unavailable": "Los informes no están disponibles en este momento.",
+        "audience_sensitive_filter": "El filtro usa un campo sensible, que no puede convertirse en público de Meta.",
+        "no_customers_matched": "Ningún lead de la selección tiene un teléfono que Meta acepte.",
+        "audience_terms_not_accepted": "Acepta los términos de públicos personalizados de Meta en esta cuenta publicitaria.",
+        "reconnect_required": "Vuelve a conectar la cuenta de Meta para crear el público.",
+        "not_found": "La cuenta publicitaria no está disponible."
+      },
+      "runResumed": "Seguimos una acción masiva iniciada antes. Te avisamos cuando termine."
+    },
+    "assistant": {
+      "greeting": "¿Qué quieres saber o hacer con estos leads?",
+      "description": "Elo ve el filtro de esta pantalla y cuántos leads seleccionaste. Las acciones en grupo siempre esperan tu aprobación.",
+      "all": "Todos los leads",
+      "filtered": "{count, plural, =1 {Filtro con # condición} other {Filtro con # condiciones}}",
+      "selected": "{count, plural, =1 {# lead seleccionado} other {# leads seleccionados}}"
+    }
+  },
+  "leadSends": {
+    "title": {
+      "send_template": "Enviar plantilla a {count, plural, =1 {# lead} other {# leads}}",
+      "send_unofficial": "Enviar mensaje a {count, plural, =1 {# lead} other {# leads}}"
+    },
+    "titlePending": {
+      "send_template": "Enviar plantilla",
+      "send_unofficial": "Mensaje no oficial"
+    },
+    "steps": {
+      "label": "Pasos del envío",
+      "template": "Plantilla",
+      "message": "Mensaje",
+      "variables": "Variables",
+      "review": "Revisar"
+    },
+    "name": {
+      "label": "Nombre del envío",
+      "template": "{template} · {date}",
+      "message": "Mensaje · {date}"
+    },
+    "department": {
+      "label": "Departamento del envío",
+      "required": "Elige el departamento del envío.",
+      "value": "departamento {name}",
+      "loading": "Cargando los departamentos.",
+      "failed": "No se pudieron cargar los departamentos."
+    },
+    "template": {
+      "from": "Enviar desde",
+      "loadingPhones": "Cargando los números oficiales...",
+      "phonesFailed": "No se pudieron cargar los números oficiales.",
+      "noPhones": "Ningún número oficial conectado. Conecta un número en WhatsApp oficial para enviar plantillas.",
+      "label": "Plantilla",
+      "search": "Buscar plantilla",
+      "empty": "No se encontró ninguna plantilla.",
+      "pickPhone": "Elige primero el número.",
+      "noTemplates": "Ninguna plantilla aprobada en este número.",
+      "previewLabel": "Vista previa",
+      "previewEmpty": "Elige una plantilla para ver la vista previa.",
+      "summary": "Enviar desde {phone} · plantilla {template}",
+      "summaryCategory": "Enviar desde {phone} · plantilla {template} ({category})"
+    },
+    "message": {
+      "instance": "Número no oficial",
+      "search": "Buscar número",
+      "empty": "No se encontró ningún número no oficial.",
+      "content": "Mensaje",
+      "previewEmpty": "Escribe el mensaje para ver la vista previa.",
+      "summary": "Enviar desde {instance}",
+      "incomplete": "Completa el mensaje: texto en todas las variaciones, las mismas variables en cada una y el archivo cuando el tipo lo pide.",
+      "instancesFailed": "No se pudieron cargar los números no oficiales."
+    },
+    "bindings": {
+      "title": "Variables",
+      "hint": "Cada variable viene de un campo del lead o de un texto fijo. Los leads sin valor para una variable se omiten y aparecen en la revisión.",
+      "none": "Este mensaje no tiene variables.",
+      "source": "Origen de la variable {slot}",
+      "literalValue": "Texto de la variable {slot}",
+      "sources": {
+        "literal": "Texto fijo",
+        "firstName": "Nombre",
+        "name": "Nombre completo",
+        "nickname": "Apodo",
+        "district": "Barrio de la dirección principal",
+        "city": "Ciudad de la dirección principal",
+        "ownerName": "Responsable del lead"
+      },
+      "custom": "Campo: {label}",
+      "literalSummary": "Texto fijo: {value}"
+    },
+    "quote": {
+      "checking": "Revisando la selección y el costo...",
+      "waiting": "Elige el origen de cada variable para ver cuántos lo reciben y el costo.",
+      "selected": "{count, plural, =1 {# lead en la selección} other {# leads en la selección}}",
+      "estimate": "Costo estimado si todos lo reciben: {amount}",
+      "daily": "Hasta {cap, number} por día: unos {days, plural, =1 {# día} other {# días}}",
+      "dailyNone": "Sin límite diario en este número.",
+      "splitRequired": "La selección supera los {max, number} leads, el límite de un envío.",
+      "split": "Dividir en {parts, number} envíos de hasta {max, number} leads"
+    },
+    "review": {
+      "preparing": "Preparando el envío: congelando la selección y contando quién lo recibe...",
+      "howItArrives": "Cómo llegará el mensaje",
+      "selected": "Seleccionados",
+      "receive": "Lo reciben",
+      "skipped": {
+        "no_identity": "Sin WhatsApp",
+        "blocked": "Bloqueados",
+        "opted_out": "No quieren recibir mensajes",
+        "cooldown": "Recibieron un envío hace poco",
+        "missing_variable": "Sin valor para una variable",
+        "already_in_running_campaign": "Ya están en otro envío en curso",
+        "over_cap": "Fuera del límite de este envío",
+        "other": "Omitidos por otro motivo"
+      },
+      "countedLead": "Entre los que lo reciben:",
+      "counted": {
+        "window_open": "{count, plural, =1 {# tiene} other {# tienen}} la ventana abierta (la plantilla se cobra igual)",
+        "no_consent_recorded": "{count, plural, =1 {# no tiene} other {# no tienen}} consentimiento registrado"
+      },
+      "cost": "Costo estimado",
+      "costLine": "{count, number} × {unit} · saldo {balance}",
+      "capRemaining": "Límite del mes: quedan {count, number}",
+      "capNone": "Sin límite mensual",
+      "charged": "La plantilla se cobra al enviarse, aunque la persona no responda.",
+      "pace": "Ritmo del envío",
+      "paceNone": "Sin límite diario: el envío sigue el intervalo entre mensajes.",
+      "budget": {
+        "unaffordable": "El saldo cubre {fits, number} de los {count, number} que lo reciben.",
+        "over_cap": "El límite del mes cubre {fits, number} de los {count, number} que lo reciben.",
+        "firstN": "Enviar solo a los primeros {fits, number}",
+        "send_pricing_unavailable": "No se pudo calcular el precio de esta plantilla ahora. Inténtalo más tarde.",
+        "send_nothing_eligible": "Nadie de esta selección puede recibir el envío."
+      },
+      "parts": "Dividido en {count, number} envíos",
+      "stopped": "Envío preparado y detenido: nada sale hasta que confirmes. Después, síguelo en Difusiones.",
+      "cooldownDays": "Recibieron un envío en {days, plural, =1 {el último día} other {los últimos # días}}",
+      "missingSlot": "{field} para la variable '{{'{slot}'}}'",
+      "missingSlotUnnamed": "Sin valor para la variable '{{'{slot}'}}'",
+      "missingOverlap": "Un lead sin valor en más de una variable cuenta en cada una de ellas.",
+      "missingField": {
+        "firstName": "Sin nombre",
+        "name": "Sin nombre completo",
+        "nickname": "Sin apodo",
+        "district": "Sin barrio",
+        "city": "Sin ciudad",
+        "ownerName": "Sin responsable",
+        "custom": "Sin {label}"
+      }
+    },
+    "actions": {
+      "back": "Volver",
+      "next": "Siguiente",
+      "review": "Revisar",
+      "preparing": "Preparando...",
+      "send": "Enviar a {count, plural, =1 {# lead} other {# leads}}",
+      "sending": "Enviando..."
+    },
+    "done": "Envío iniciado para {count, plural, =1 {# lead} other {# leads}}. Síguelo en Difusiones.",
+    "cancelFailed": "El envío preparado no se eliminó y quedó detenido en Difusiones. Elimínalo allí.",
+    "leftBehind": "Un envío preparado antes puede haber quedado detenido en Difusiones. Revísalo y elimínalo allí.",
+    "blockers": {
+      "checkingAccess": "Revisando tus permisos.",
+      "permissionSendTemplate": "No tienes permiso para enviar plantillas a partir de leads.",
+      "permissionSendUnofficial": "No tienes permiso para enviar mensajes no oficiales a partir de leads.",
+      "checkingNumbers": "Comprobando los números conectados.",
+      "numbersUnavailable": "No se pudieron comprobar los números conectados.",
+      "noOfficialNumber": "Ningún número oficial conectado",
+      "noUnofficialNumber": "Ningún número no oficial conectado"
+    },
+    "campaign": {
+      "fromLeads": "Envío preparado a partir de leads. Solo empieza desde la revisión del envío, en la página de leads; detenido aquí, no se puede iniciar. Elimínalo y prepáralo de nuevo si hace falta.",
+      "contentLocked": "Envío preparado a partir de leads: el número y el mensaje no se pueden cambiar. El nombre, el ritmo y las respuestas siguen editables. Para cambiar lo que se envía, elimínalo y prepáralo de nuevo en la página de leads.",
+      "templateLocked": "Envío preparado a partir de leads: el número y la plantilla no se pueden cambiar. Para cambiar lo que se envía, elimínalo y prepáralo de nuevo en la página de leads.",
+      "contactsLocked": "Los contactos de este envío vienen de la selección de leads y no cambian aquí. Mira quién lo recibe en la página del envío."
+    },
+    "errors": {
+      "forbidden": "No tienes permiso para este envío.",
+      "send_creation_scope_missing": "No se pudo identificar quién crea el envío. Vuelve a iniciar sesión e inténtalo otra vez.",
+      "send_department_forbidden": "No puedes crear envíos en este departamento.",
+      "send_department_required": "Elige el departamento del envío.",
+      "send_header_variable_unsupported": "Esta plantilla tiene una variable en el encabezado, que aún no se puede enviar a una selección. Elige otra plantilla.",
+      "send_named_parameters_unsupported": "Esta plantilla usa variables con nombre. Para una selección, usa plantillas con variables numeradas.",
+      "send_bindings_mismatch": "Cada variable necesita un origen. Revisa las variables.",
+      "send_binding_unknown": "Uno de los orígenes elegidos para las variables no se acepta.",
+      "send_binding_literal_empty": "Completa el texto fijo de cada variable.",
+      "send_binding_field_unknown": "Un campo elegido para una variable ya no existe.",
+      "send_binding_sensitive": "Los campos sensibles no pueden ir en un mensaje.",
+      "send_first_n_invalid": "La cantidad debe estar entre 1 y el número de los que lo reciben.",
+      "send_incomplete": "No se encontraron todas las partes de este envío. Prepáralo de nuevo.",
+      "send_not_from_selection": "Este envío no se preparó a partir de leads.",
+      "send_message_invalid": "El mensaje está incompleto. Revisa el texto, el archivo y las opciones.",
+      "send_selection_empty": "Ningún lead en esta selección.",
+      "send_selection_over_campaign_cap": "Un envío lleva hasta 150.000 leads. Divídelo en varios envíos o ajusta el filtro.",
+      "send_selection_too_large": "La selección supera 10 envíos de 150.000 leads. Ajusta el filtro.",
+      "send_nothing_eligible": "Nadie de esta selección puede recibir el envío.",
+      "send_already_started": "Este envío ya empezó y ya no se puede cancelar.",
+      "send_selection_locked": "Un envío preparado a partir de leads no se puede cambiar. Cancélalo y prepáralo de nuevo.",
+      "send_start_from_leads": "Este envío se preparó a partir de leads: envíalo desde su revisión en la página de leads.",
+      "send_preparing": "El envío todavía se está preparando. Inténtalo de nuevo en un momento.",
+      "send_template_unavailable": "La plantilla no está aprobada o no se puede enviar ahora.",
+      "send_template_phone_mismatch": "La plantilla no pertenece a este número.",
+      "send_phone_unavailable": "Este número oficial no puede enviar para este workspace.",
+      "send_instance_unavailable": "El número no oficial no está conectado o no puede enviar ahora.",
+      "send_campaign_not_found": "No se encontró el envío preparado. Prepáralo de nuevo.",
+      "send_pricing_unavailable": "No se pudo calcular el precio de esta plantilla ahora. Inténtalo más tarde.",
+      "unaffordable": "El saldo no cubre este envío.",
+      "over_cap": "El envío supera el límite mensual de envíos del workspace.",
+      "NO_ACTIVE_SUBSCRIPTION": "Este workspace no tiene una suscripción activa para envíos.",
+      "lead_sends_unavailable": "Los envíos a partir de leads no están disponibles en este momento.",
+      "campaign_automation_unavailable": "Los envíos no están disponibles en este momento. Inténtalo de nuevo en un momento.",
+      "campaign_idempotency_unavailable": "Los envíos no están disponibles en este momento. Inténtalo de nuevo en un momento.",
+      "campaign_lead_targets_unavailable": "Los envíos no están disponibles en este momento. Inténtalo de nuevo en un momento.",
+      "lead_action_send_params_required": "Faltan los datos del envío.",
+      "lead_action_send_phone_required": "Elige el número oficial.",
+      "lead_action_send_template_required": "Elige la plantilla.",
+      "lead_action_send_instance_required": "Elige el número no oficial.",
+      "lead_action_send_message_required": "Escribe el mensaje.",
+      "lead_action_send_pacing_invalid": "El intervalo y el límite diario no pueden ser negativos.",
+      "timeout": "El servidor tardó en responder. Inténtalo de nuevo: el envío no se duplica."
+    },
+    "selection": {
+      "summary": "Selección: {items}",
+      "search": "Búsqueda: “{text}”"
     }
   },
   "featurePages": {
@@ -8625,6 +10041,24 @@
       "durable": "resuelve",
       "noCatalogue": "Ningún desenlace configurado en este workspace. Pida a un administrador que cargue la lista.",
       "title": "¿Cuál fue el desenlace?"
+    },
+    "locationMessage": {
+      "mapLabel": "Mapa de la ubicación enviada",
+      "caption": "Ubicación · {place}",
+      "coordinates": "{latitude}, {longitude}",
+      "accept": "Usar como ubicación de {name}",
+      "acceptUnnamed": "Usar como ubicación del lead",
+      "accepting": "Guardando la ubicación…",
+      "accepted": "Ubicación guardada en el registro de {name}.",
+      "acceptedUnnamed": "Ubicación guardada en el registro del lead.",
+      "failed": "No se pudo usar esta ubicación.",
+      "errors": {
+        "lead_location_not_found": "Este mensaje no es una ubicación de este lead.",
+        "lead_not_found": "Este lead ya no existe.",
+        "forbidden": "No tienes permiso para cambiar la ubicación de este lead.",
+        "version_conflict": "El registro de este lead acaba de cambiar. Inténtalo de nuevo.",
+        "lead_locations_unavailable": "La ubicación de leads no está disponible ahora. Inténtalo de nuevo en unos instantes."
+      }
     }
   },
   "workflows": {
@@ -8703,6 +10137,73 @@
       "manage": "Gestionar",
       "session": "Sesión",
       "outbound": "Contactar"
+    },
+    "bulk": {
+      "selectedCount": "{count, plural, =1 {# seleccionada} other {# seleccionadas}}",
+      "selectAllMatching": "Seleccionar las {count} del filtro",
+      "selectEveryone": "Seleccionar las {count} conversaciones",
+      "counting": "Contando conversaciones",
+      "allMatchingSelected": "Las {count} conversaciones del filtro están seleccionadas",
+      "everyoneSelected": "Las {count} conversaciones que ves están seleccionadas",
+      "clearSelection": "Limpiar selección",
+      "confirmTitle": "{count, plural, =1 {¿Aplicar a # conversación?} other {¿Aplicar a # conversaciones?}}",
+      "confirmAllMatching": "La acción se aplica a todas las conversaciones que cumplen el filtro actual, incluidas las que no aparecen en esta página.",
+      "confirmEveryone": "No hay ningún filtro activo: la acción se aplica a todas las conversaciones que puedes ver.",
+      "confirmChanged": "La selección cambió desde el conteo: eran {previous}, ahora son {count}. Confirma de nuevo para aplicar.",
+      "confirm": "Aplicar",
+      "confirmEveryoneAction": "Aplicar a todas",
+      "cancel": "Cancelar",
+      "updated": "{count, plural, =1 {# conversación actualizada} other {# conversaciones actualizadas}}",
+      "partial": "{succeeded} de {eligible} conversaciones actualizadas. {failed, plural, =1 {# no se pudo cambiar.} other {# no se pudieron cambiar.}}",
+      "truncated": "{succeeded} de {matched} conversaciones actualizadas: la acción alcanzó el límite por operación. Repítela para continuar.",
+      "moveStage": "Mover etapa",
+      "moveStageHeading": "Mover a la etapa",
+      "searchStage": "Buscar etapa...",
+      "noStages": "Ninguna etapa",
+      "moveFunnel": "Mover a otro embudo…",
+      "addLabel": "Etiquetar",
+      "addLabelHeading": "Agregar etiqueta",
+      "searchLabel": "Buscar etiqueta...",
+      "noLabels": "Ninguna etiqueta",
+      "removeLabel": "Quitar etiqueta",
+      "clear": "Limpiar",
+      "quantitySelected": "Las primeras {count} conversaciones del filtro seleccionadas",
+      "unknownPick": "Ya no sabemos el tipo de una conversación elegida. Recarga la lista y elige de nuevo."
+    },
+    "list": {
+      "columns": {
+        "contact": "Contacto",
+        "channel": "Canal",
+        "lastMessage": "Último mensaje",
+        "stage": "Etapa",
+        "owner": "Responsable",
+        "updated": "Actualizado"
+      },
+      "owner": {
+        "ai": "IA",
+        "workflow": "Flujo",
+        "assigned": "Asignado"
+      },
+      "stats": {
+        "conversations": "Conversaciones"
+      },
+      "sort": {
+        "newest": "Más recientes",
+        "oldest": "Más antiguas"
+      },
+      "selectPage": "Seleccionar todas las conversaciones de esta página",
+      "selectRow": "Seleccionar conversación",
+      "pagination": {
+        "showing": "Mostrando",
+        "of": "de",
+        "items": "conversaciones"
+      },
+      "empty": {
+        "failedTitle": "No se pudo cargar",
+        "retry": "Intentar de nuevo",
+        "title": "Ninguna conversación",
+        "description": "Ajusta los filtros para ver otras conversaciones."
+      }
     }
   },
   "metricsOps": {
@@ -11030,6 +12531,71 @@
       "internal_error": "Error interno al procesar el límite. Inténtalo de nuevo."
     }
   },
+  "adminGeocoding": {
+    "header": {
+      "badge": "Geolocalización de direcciones",
+      "description": "Consumo del proveedor externo y cobertura de direcciones de cada workspace, en el ciclo mensual de Brasilia."
+    },
+    "stats": {
+      "workspaces": "Workspaces",
+      "cycle": "Ciclo actual",
+      "cycleValue": "{start} a {end}"
+    },
+    "search": {
+      "placeholder": "Buscar workspace por nombre"
+    },
+    "actions": {
+      "refresh": "Actualizar",
+      "showDetails": "Ver detalles",
+      "hideDetails": "Ocultar detalles"
+    },
+    "table": {
+      "workspace": "Workspace",
+      "provider": "Proveedor",
+      "usage": "Consumo en el ciclo",
+      "address": "Con dirección",
+      "onMap": "En el mapa",
+      "details": "Detalles"
+    },
+    "provider": {
+      "none": "Solo la base de referencia",
+      "active": "Activo",
+      "since": "Activo desde {date}"
+    },
+    "usage": {
+      "value": "{used, number} de {ceiling, number}",
+      "meter": "Consumo del tope mensual",
+      "off": "Proveedor apagado",
+      "none": "Tope en cero, ninguna consulta permitida",
+      "today": "Hoy: {count, number}",
+      "defaultCeiling": "tope predeterminado"
+    },
+    "share": {
+      "value": "{share, number, percent}",
+      "of": "{count, number} de {total, number} leads"
+    },
+    "details": {
+      "history": "Consultas al proveedor por ciclo",
+      "historyTotal": "{count, number} en los últimos 12 ciclos",
+      "coverage": "Estado de las direcciones"
+    },
+    "empty": {
+      "title": "Ningún workspace con leads o geolocalización",
+      "filteredTitle": "Ningún workspace con ese nombre",
+      "description": "Aquí aparecen los workspaces con leads, con proveedor configurado o con consumo registrado."
+    },
+    "errors": {
+      "title": "No se pudo cargar la geolocalización",
+      "forbidden": "Solo un administrador de la plataforma puede ver el consumo de todos los workspaces.",
+      "unavailable": "La geolocalización de direcciones no está disponible en este servidor.",
+      "busy": "La lectura está ocupada ahora. Inténtalo de nuevo en unos instantes.",
+      "slow": "La lectura tardó demasiado. Inténtalo de nuevo en unos instantes.",
+      "default": "No se pudo leer el consumo de geolocalización."
+    },
+    "pagination": {
+      "items": "workspaces"
+    }
+  },
   "adminAffiliates": {
     "header": {
       "badge": "Afiliados",
@@ -11532,7 +13098,6 @@
       "window_already_open": "Esta conversación ya está abierta. Responde por el chat, sin costo.",
       "send_in_progress": "Este envío ya está en curso. Espera la confirmación.",
       "within_spam_window": "Este contacto recibió un mensaje de este número hace poco. Espera el intervalo definido por tu espacio de trabajo.",
-      "rate_limited": "Demasiadas conversaciones iniciadas en poco tiempo. Inténtalo de nuevo en unos instantes.",
       "insufficient_balance": "Saldo insuficiente para enviar esta plantilla.",
       "monthly_send_cap_reached": "Este workspace alcanzó su límite mensual de envíos. Habla con la administración.",
       "pricing_unavailable": "No hay precio configurado para esta categoría de plantilla. Habla con quien administra el espacio de trabajo.",
@@ -11545,6 +13110,11 @@
       "not_found": "Número o plantilla no encontrados.",
       "idempotency_key_required": "No se pudo confirmar el envío. Cierra y abre la ventana para intentarlo de nuevo.",
       "billing_unavailable": "El cobro no está disponible en este momento. El envío se rechazó por precaución.",
+      "lead_opted_out": "Este contacto pidió no recibir mensajes. El envío se rechazó.",
+      "quote_out_of_range": "No se pudo calcular el costo de este envío. Habla con quien administra el espacio de trabajo.",
+      "quote_unavailable": "No se pudo calcular el costo ahora. Inténtalo de nuevo en unos instantes.",
+      "conversation_not_found": "Conversación no encontrada. Puede haber sido eliminada.",
+      "send_outcome_unknown": "WhatsApp puede haber entregado la plantilla. Revisa la conversación antes de enviarla de nuevo.",
       "send_failed": "No se pudo enviar la plantilla."
     },
     "create": {
@@ -13168,7 +14738,8 @@
       "attendance_overview": "Atención",
       "conversation_entries": "Conversaciones",
       "balance_transactions": "Transacciones de saldo",
-      "opportunities": "Oportunidades"
+      "opportunities": "Oportunidades",
+      "leads": "Leads"
     },
     "status": {
       "queued": "En cola",
@@ -13865,12 +15436,48 @@
         "no_call_slots": "Todos los canales de llamada están ocupados. Inténtalo en unos instantes.",
         "insufficient_balance": "Saldo insuficiente para llamar.",
         "already_in_call": "Ya estás en una llamada.",
-        "dial_failed": "No se pudo iniciar la llamada."
+        "dial_failed": "No se pudo iniciar la llamada.",
+        "lead_not_dialable": "No se puede llamar a este lead a este número.",
+        "lead_blocked": "Este lead está bloqueado para llamadas.",
+        "number_required": "Escribe un número para llamar.",
+        "call_service_offline": "Las llamadas están sin conexión. Reconectando…",
+        "call_list_item_unavailable": "Este contacto ya no está reservado para ti. Toma el siguiente de la lista.",
+        "microphone_unsupported": "Este navegador no da acceso al micrófono. Usa un navegador actualizado para llamar.",
+        "microphone_denied": "Se negó el acceso al micrófono. Permite el micrófono para este sitio en la configuración del navegador.",
+        "microphone_not_found": "No se encontró ningún micrófono. Conecta uno e inténtalo de nuevo.",
+        "microphone_busy": "Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo.",
+        "microphone_failed": "No se pudo abrir el micrófono para la llamada.",
+        "call_audio_unsupported": "El audio de este navegador no funciona con las llamadas. Prueba otro navegador."
       },
       "tabIncoming": "Llamada",
-      "tabRinging": "Llamando"
+      "tabRinging": "Llamando",
+      "callHeldBy": {
+        "call_list": "La llamada en curso aparece en la lista de llamadas."
+      }
     },
     "dragHint": "Arrastra para mover, doble clic para volver a su lugar",
+    "dialTargets": {
+      "call": "Llamar",
+      "callNumber": "Llamar a {number}",
+      "reasons": {
+        "noPermission": "No tienes permiso para llamar por las líneas telefónicas.",
+        "connecting": "Conectando al servicio de llamadas…",
+        "busy": "Ya estás en una llamada.",
+        "checking": "Verificando números y líneas…",
+        "forbidden": "No tienes permiso para ver los números de este lead.",
+        "linesForbidden": "No tienes permiso para ver las líneas telefónicas.",
+        "lead_not_found": "Lead no encontrado.",
+        "unavailable": "No fue posible verificar los números y las líneas ahora.",
+        "blocked": "El número de este lead está bloqueado.",
+        "opted_out": "Este lead pidió no ser contactado.",
+        "invalid_number": "Ninguna línea puede marcar el número de este lead.",
+        "no_number": "Este lead no tiene un número para llamar.",
+        "number_not_held": "Este número no es del lead.",
+        "unauthorized": "No tienes permiso para llamar por estas líneas.",
+        "no_dialable_trunk": "Ninguna línea telefónica conectada.",
+        "refused": "No es posible llamar a este lead ahora."
+      }
+    },
     "assistantCard": {
       "title": "Llamada",
       "via": "Por la línea {trunk}",
@@ -13878,10 +15485,7 @@
       "call": "Llamar",
       "openDialer": "Abrir en el marcador",
       "started": "Llamada iniciada. Síguela en la tarjeta de llamada.",
-      "handedOver": "Número enviado al marcador. Elige la línea y llama.",
-      "noPermission": "No tienes permiso para llamar por las líneas telefónicas.",
-      "connecting": "Conectando al servicio de llamadas…",
-      "busy": "Ya estás en una llamada."
+      "handedOver": "Número enviado al marcador. Elige la línea y llama."
     },
     "transfer": {
       "open": "Transferir",
@@ -14139,6 +15743,231 @@
         "balance_check_error": "no se pudo verificar el saldo",
         "interrupted": "interrumpida por una falla del servidor"
       }
+    }
+  },
+  "callLists": {
+    "page": {
+      "title": "Listas de llamadas",
+      "description": "Leads separados para llamar en orden. Quienes fueron elegidos toman el siguiente, llaman y registran cómo fue.",
+      "refresh": "Actualizar",
+      "emptyTitle": "Ninguna lista de llamadas",
+      "emptyDescription": "En Leads, selecciona a las personas y elige Lista de llamadas para crear una.",
+      "emptyFiltered": "Ninguna lista con este estado.",
+      "goToLeads": "Ir a Leads",
+      "errorTitle": "No fue posible cargar las listas",
+      "retry": "Intentar de nuevo"
+    },
+    "filters": {
+      "status": "Estado",
+      "any": "Todos"
+    },
+    "stats": {
+      "lists": "Listas"
+    },
+    "table": {
+      "name": "Lista",
+      "assignees": "Quién llama",
+      "progress": "Avance",
+      "status": "Estado",
+      "createdAt": "Creada el",
+      "progressValue": "{closed, number} de {total, number} cerrados",
+      "building": "Revisando {selected, number} leads"
+    },
+    "status": {
+      "building": "Armando",
+      "active": "Activa",
+      "paused": "Pausada",
+      "archived": "Archivada",
+      "failed": "No armada"
+    },
+    "failures": {
+      "no_callable_lead": "Ningún lead de la selección puede recibir llamadas en el número elegido.",
+      "build_failed": "El armado falló varias veces. Crea la lista de nuevo desde Leads.",
+      "unknown": "No se pudo armar la lista."
+    },
+    "progress": {
+      "label": "Avance de la lista",
+      "total": "En la lista",
+      "open": "Faltan",
+      "closed": "Cerrados",
+      "skipped": "Quedaron fuera",
+      "percent": "{percent}% cerrado",
+      "called": "Llamados",
+      "callbacks": "Volver a llamar"
+    },
+    "skipped": {
+      "blocked": "Bloqueados",
+      "opted_out": "Pidieron no ser llamados",
+      "no_number": "Sin el número elegido",
+      "number_not_held": "El número no es del lead",
+      "invalid_number": "Número inválido",
+      "gone": "Ya no existen",
+      "other": "Otros motivos"
+    },
+    "phone": {
+      "identity": "Llama al WhatsApp del lead",
+      "contact": "Llama al teléfono de contacto: {label}"
+    },
+    "assignees": {
+      "title": "Quién llama",
+      "description": "Solo estos miembros toman contactos de esta lista. Cada uno debe poder llamar por las líneas telefónicas.",
+      "label": "Miembros que llaman",
+      "add": "Agregar miembro",
+      "search": "Buscar miembro",
+      "empty": "Ningún miembro encontrado",
+      "membersFailed": "No fue posible cargar los miembros.",
+      "noMembersPermission": "No tienes permiso para ver los miembros del workspace.",
+      "remove": "Quitar a {name}",
+      "none": "Elige al menos un miembro.",
+      "button": "Quién llama ({count, number})",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "saved": "Se actualizó quién llama en esta lista."
+    },
+    "actions": {
+      "menu": "Acciones de la lista {name}",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "archive": "Archivar",
+      "restore": "Reactivar",
+      "delete": "Eliminar",
+      "updated": "Lista actualizada.",
+      "deleted": "Lista eliminada."
+    },
+    "confirm": {
+      "deleteTitle": "¿Eliminar la lista {name}?",
+      "deleteDescription": "La lista y su avance salen del workspace. Las llamadas hechas siguen en el historial de llamadas.",
+      "deleteConfirm": "Eliminar lista",
+      "archiveTitle": "¿Archivar la lista {name}?",
+      "archiveDescription": "Nadie toma nuevos contactos de una lista archivada. Puedes reactivarla después.",
+      "archiveConfirm": "Archivar",
+      "cancel": "Cancelar"
+    },
+    "worker": {
+      "back": "Listas de llamadas",
+      "description": "{count, plural, =1 {1 lead en la lista} other {# leads en la lista}} · creada el {date}",
+      "notFound": "Lista no encontrada, o no estás entre quienes llaman en ella.",
+      "loadFailed": "No fue posible cargar la lista.",
+      "building": "Armando la lista: revisando los {selected, number} leads de la selección. Esta página se actualiza sola.",
+      "paused": "Esta lista está pausada. Nadie toma nuevos contactos hasta que se reanude.",
+      "archived": "Esta lista está archivada. Nadie toma nuevos contactos de ella.",
+      "notAssignee": "No estás entre quienes llaman en esta lista. Quien gestiona listas puede incluirte en Quién llama.",
+      "cannotWork": "No tienes permiso para trabajar en listas de llamadas.",
+      "checking": "Verificando tus permisos."
+    },
+    "next": {
+      "title": "Siguiente",
+      "reservedUntil": "reservado para ti hasta las {time}",
+      "expired": "la reserva venció",
+      "start": "Tomar el siguiente",
+      "loading": "Buscando el siguiente contacto...",
+      "empty": "Nadie en la cola ahora.",
+      "emptyHint": "Las devoluciones programadas y los contactos de quien dejó de llamar vuelven solos a la cola.",
+      "more": "Algunos contactos se saltaron. Toma el siguiente de nuevo para continuar.",
+      "refused": "{count, plural, =1 {1 contacto saltado} other {# contactos saltados}} porque el lead no puede recibir llamadas ahora.",
+      "noName": "Lead sin nombre",
+      "family": "Familia",
+      "familyCount": "{count, plural, =0 {Ningún familiar registrado} =1 {1 familiar registrado} other {# familiares registrados}}",
+      "lastInteraction": "Última interacción",
+      "lastInteractionValue": "Conversación del {date}",
+      "noInteraction": "Ninguna conversación que puedas abrir",
+      "number": "Número",
+      "line": "Línea",
+      "openLead": "Abrir lead",
+      "openConversation": "Abrir conversación"
+    },
+    "call": {
+      "call": "Llamar",
+      "again": "Llamar de nuevo",
+      "inDialer": "La llamada está abierta en el marcador.",
+      "ended": "Llamada terminada",
+      "technical": "El resultado técnico viene del registro de la llamada, no se escribe.",
+      "stamped": "La llamada quedó registrada en este contacto.",
+      "lostStamped": "Se cayó la conexión, pero la llamada quedó registrada en este contacto. Registra cómo fue.",
+      "lostNotStamped": "Se cayó la conexión antes de registrar la llamada. Llama de nuevo o libera el contacto.",
+      "notStarted": "La llamada no empezó. El contacto sigue reservado para ti: llama de nuevo o libéralo."
+    },
+    "outcome": {
+      "title": "¿Cómo fue?",
+      "callback": "Volver a llamar",
+      "callbackAt": "Volver a llamar el",
+      "note": "Nota",
+      "noCatalogue": "No hay resultados configurados en este workspace. Pide a un administrador que cargue la lista de resultados.",
+      "loading": "Cargando los resultados..."
+    },
+    "save": "Guardar y siguiente",
+    "saving": "Guardando...",
+    "release": "Liberar",
+    "releasing": "Liberando...",
+    "saveOnly": "Guardar",
+    "saved": "Resultado registrado.",
+    "released": "Contacto devuelto a la cola.",
+    "blockers": {
+      "notCalled": "Llama antes de registrar cómo fue.",
+      "callLive": "Termina la llamada antes de guardar.",
+      "noOutcome": "Elige cómo fue.",
+      "callbackTime": "Elige cuándo volver a llamar."
+    },
+    "queue": {
+      "title": "Cola",
+      "description": "En el orden en que la cola atiende: primero las devoluciones vencidas, luego la cola y después las devoluciones programadas para más tarde.",
+      "tabs": {
+        "pending": "Pendientes",
+        "reserved": "En llamada",
+        "closed": "Cerrados"
+      },
+      "empty": {
+        "pending": "Ningún contacto pendiente.",
+        "reserved": "Nadie en llamada ahora.",
+        "closed": "Ningún contacto cerrado todavía."
+      },
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando...",
+      "callbackAt": "volver a llamar {date}",
+      "recheck": "revisar de nuevo {date}",
+      "reservedBy": "con {name}",
+      "reservedByYou": "contigo",
+      "attempts": "{count, plural, =1 {1 intento} other {# intentos}}",
+      "callbackDisposition": "Volver a llamar después",
+      "refusedDisposition": "Fuera: {reason}"
+    },
+    "errors": {
+      "forbidden": "No tienes permiso para esto en las listas de llamadas.",
+      "call_list_not_assignee": "No estás entre quienes llaman en esta lista.",
+      "call_list_not_found": "Lista no encontrada.",
+      "call_list_item_not_found": "Este contacto ya no está en la lista.",
+      "call_list_building": "La lista todavía se está armando. Espera un momento.",
+      "call_list_not_active": "La lista no está activa.",
+      "call_list_status_transition": "La lista no puede pasar a este estado.",
+      "call_list_reservation_held": "Ya tienes un contacto de otra lista. Registra cómo fue o libéralo antes.",
+      "call_list_item_taken": "Otra persona tomó este contacto.",
+      "call_list_item_not_reserved": "Este contacto no está reservado para ti.",
+      "call_list_item_closed": "Este contacto ya fue cerrado.",
+      "call_list_item_not_called": "Llama al contacto antes de registrar cómo fue.",
+      "call_list_call_not_the_items": "La llamada registrada no es tu llamada a este contacto.",
+      "call_list_item_mismatch": "La llamada no es para el lead y el número de este contacto.",
+      "call_list_selection_too_large": "La selección supera el límite de 100.000 leads por lista. Ajusta el filtro.",
+      "call_list_selection_empty": "Ningún lead en esta selección.",
+      "call_list_assignee_cannot_work": "Uno de los miembros elegidos no tiene permiso para trabajar en listas de llamadas.",
+      "call_list_no_outcomes": "No hay resultados configurados en este workspace. Pide a un administrador que cargue la lista de resultados.",
+      "call_list_disposition_required": "Elige cómo fue.",
+      "call_list_disposition_unknown": "Este resultado ya no está en el catálogo del workspace. Elige otro.",
+      "call_list_disposition_reserved": "Este resultado está reservado para el sistema.",
+      "call_list_callback_time": "Elige una hora futura, dentro de 90 días, para volver a llamar.",
+      "call_list_note_too_long": "La nota supera los 2.000 caracteres.",
+      "call_list_status_invalid": "Estado desconocido.",
+      "call_list_items_query_invalid": "No fue posible leer esta página de la cola.",
+      "call_list_nothing_to_change": "Nada que cambiar.",
+      "call_list_name_required": "Ponle un nombre a la lista.",
+      "call_list_name_too_long": "El nombre supera los 120 caracteres.",
+      "call_list_assignees_required": "Elige al menos un miembro para llamar.",
+      "call_list_too_many_assignees": "Una lista acepta hasta 100 miembros.",
+      "call_list_phone_choice_invalid": "Elige el WhatsApp del lead o un tipo de teléfono de contacto.",
+      "call_list_build_claim_lost": "Otra ejecución tomó el armado de esta lista.",
+      "call_lists_unavailable": "Las listas de llamadas no están disponibles en este momento.",
+      "lead_action_call_list_required": "Completa el nombre, quién llama y el número de la lista.",
+      "generic": "No fue posible terminar. Intenta de nuevo."
     }
   },
   "callQueues": {
@@ -18263,7 +20092,8 @@
       "video": "Montando video",
       "cutout": "Quitando el fondo",
       "captions": "Generando subtítulos",
-      "denoise": "Limpiando el audio"
+      "denoise": "Limpiando el audio",
+      "proxy": "Preparando la copia de edición..."
     },
     "failed": {
       "image": "No se pudo generar la imagen",
@@ -18272,7 +20102,8 @@
       "video": "No se pudo montar el video",
       "cutout": "No se pudo quitar el fondo",
       "captions": "No se pudieron generar los subtítulos",
-      "denoise": "No se pudo limpiar el audio"
+      "denoise": "No se pudo limpiar el audio",
+      "proxy": "No se pudo preparar la copia de edición"
     },
     "finalizing": "Finalizando",
     "download": "Descargar",
@@ -18500,7 +20331,8 @@
           "referencesHint": "Opcional. Hasta {max} imágenes para guiar el estilo o el producto.",
           "costNote": "Generar imágenes usa el saldo del workspace. El resultado entra en el diseño como una nueva capa.",
           "generate": "Generar imagen",
-          "removeBackgroundTitle": "Quitar fondo"
+          "removeBackgroundTitle": "Quitar fondo",
+          "ceiling": "Hasta {count} a la vez. Espera a que uno termine para empezar otro."
         },
         "layers": {
           "title": "Capas",
@@ -18525,7 +20357,8 @@
           "opacity": "Opacidad",
           "opacityShort": "Op.",
           "clip": "Crear máscara de recorte",
-          "unclip": "Soltar máscara de recorte"
+          "unclip": "Soltar máscara de recorte",
+          "familyRowLabel": "{name}, estructura con {count, plural, one {# hijo} other {# hijos}}, capa {position} de {total}"
         }
       },
       "layerKinds": {
@@ -18587,7 +20420,12 @@
           "vertical": "Distribuir en vertical"
         },
         "copyStyle": "Copiar estilo",
-        "pasteStyle": "Pegar estilo"
+        "pasteStyle": "Pegar estilo",
+        "scaffold": "Crear estructura",
+        "release": "Deshacer estructura",
+        "leave": "Sacar de la estructura",
+        "selectParent": "Seleccionar el elemento padre",
+        "selectChildren": "Seleccionar los hijos"
       },
       "resize": {
         "hint": "Los elementos se reubican para caber en el nuevo tamaño.",
@@ -18618,7 +20456,13 @@
           "timeout": "La exportación tardó demasiado y se canceló. Inténtalo de nuevo.",
           "render": "No se pudo crear la imagen. Inténtalo de nuevo.",
           "upload": "La imagen se creó, pero no se guardó en la biblioteca: {reason}"
-        }
+        },
+        "scope": "Exportar",
+        "scopeActive": "Esta mesa de trabajo",
+        "scopeAll": "Todas ({count})",
+        "scopeAllHint": "Un archivo por mesa de trabajo, con su nombre.",
+        "downloadZip": "Descargar ZIP",
+        "savedMany": "{count} imágenes guardadas en la biblioteca"
       },
       "jobs": {
         "running": {
@@ -18661,7 +20505,7 @@
         "label": "Propiedades",
         "canvasTitle": "Diseño",
         "selectionTitle": "{count} elementos",
-        "lockedHint": "Elemento bloqueado. Desbloquéalo para editar.",
+        "lockedHint": "Elemento bloqueado: no se puede seleccionar en el lienzo ni editar. Desbloquéalo para editar.",
         "types": {
           "image": "Imagen",
           "text": "Texto",
@@ -18730,7 +20574,9 @@
           "headStart": "Punta de flecha al inicio",
           "headStartShort": "Inicio",
           "headEnd": "Punta de flecha al final",
-          "headEndShort": "Final"
+          "headEndShort": "Final",
+          "points": "Puntas",
+          "inner": "Radio interior"
         },
         "icon": {
           "title": "Icono",
@@ -18817,7 +20663,16 @@
           "toggle": "Degradado",
           "from": "Inicio",
           "to": "Fin",
-          "angle": "Ángulo"
+          "angle": "Ángulo",
+          "kind": "Tipo",
+          "linear": "Lineal",
+          "radial": "Radial",
+          "via": "Medio",
+          "viaNone": "Ninguno",
+          "centerX": "Centro horizontal",
+          "centerY": "Centro vertical",
+          "radius": "Radio",
+          "radiusShort": "Radio"
         }
       },
       "icons": {
@@ -18885,6 +20740,23 @@
         "saturation": "Saturación",
         "color": "Color",
         "luminosity": "Luminosidad"
+      },
+      "artboards": {
+        "untitled": "Mesa de trabajo {number}",
+        "add": "Nueva mesa de trabajo",
+        "rename": "Renombrar mesa de trabajo",
+        "rowLabel": "Mesa de trabajo {name}, {width} × {height} px",
+        "expand": "Mostrar las capas de {name}",
+        "collapse": "Ocultar las capas de {name}",
+        "duplicate": "Duplicar mesa de trabajo",
+        "duplicateAs": "Duplicar en otro formato",
+        "show": "Ver en el lienzo",
+        "delete": "Borrar mesa de trabajo",
+        "name": "Nombre",
+        "title": "Mesa de trabajo",
+        "tip": "Arrastra el nombre para mover la mesa de trabajo. N y Shift+N pasan de una a otra, Shift+1 las muestra todas.",
+        "duplicateShort": "Duplicar",
+        "addShort": "Nueva"
       }
     },
     "video": {
@@ -18910,15 +20782,12 @@
         "button": "Exportar",
         "exporting": "Exportando",
         "title": "Exportar video",
-        "hint": "El video se guarda, se renderiza en MP4 y queda en la biblioteca de medios.",
+        "hint": "El video se genera en este navegador en MP4 y se guarda en la biblioteca de medios.",
         "start": "Exportar ahora",
         "phase": {
           "saving": "Guardando el proyecto",
-          "rasterizing": "Preparando superposiciones ({done} de {total})",
-          "submitting": "Enviando a la cola",
-          "queued": "En cola",
-          "rendering": "Renderizando",
-          "finalizing": "Finalizando"
+          "encoding": "Generando el video en este navegador",
+          "uploading": "Guardando en la biblioteca"
         },
         "done": "Video listo",
         "result": "Video exportado",
@@ -18931,19 +20800,13 @@
         "errors": {
           "empty": "Agrega al menos un clip antes de exportar.",
           "unsaved": "El proyecto no se guardó. Revisa la conexión e intenta de nuevo.",
-          "raster_failed": "No se pudo preparar una superposición. Revisa los textos y las imágenes.",
-          "upload_failed": "No se pudo subir una superposición. Intenta de nuevo.",
-          "too_many_jobs": "Ya hay demasiados procesos en curso. Espera a que uno termine e intenta de nuevo.",
-          "not_rasterized": "Una superposición cambió durante la exportación. Intenta de nuevo.",
-          "invalid": "El proyecto tiene algo que el servidor no acepta. Revisa los clips e intenta de nuevo.",
-          "conflict": "El proyecto se guardó en otro lugar. Elige una versión en el aviso de arriba y exporta de nuevo.",
-          "insufficient_funds": "Saldo insuficiente para exportar.",
-          "timed_out": "La exportación tardó demasiado. Intenta de nuevo.",
-          "generation_failed": "El renderizado falló. Intenta de nuevo.",
-          "storage_failed": "No se pudo guardar el video en la biblioteca. Intenta de nuevo.",
-          "enqueue_failed": "La exportación no entró en la cola. Intenta de nuevo.",
-          "unknown": "La exportación falló. Intenta de nuevo.",
-          "changed": "El proyecto cambió durante la exportación. Exporta de nuevo."
+          "no_encoder": "Este navegador no puede generar video. Usa Chrome, Edge o Safari 26 o más nuevo.",
+          "undecodable": "Este navegador no puede leer un video del proyecto. Usa Chrome o Edge, o cambia el video.",
+          "stalled": "La generación del video se detuvo. Inténtalo de nuevo.",
+          "too_large": "El video supera los 95 MB. Acorta el proyecto y exporta de nuevo.",
+          "renderer_off": "El renderizado con la tarjeta gráfica está desactivado o no está disponible en este navegador.",
+          "upload_failed": "No se pudo guardar el video en la biblioteca. Revisa la conexión e inténtalo de nuevo.",
+          "failed": "La exportación falló. Inténtalo de nuevo."
         },
         "outdated": {
           "title": "Este video no tiene tus últimos cambios",
@@ -18956,7 +20819,6 @@
         "nothingToSplit": "No hay ningún clip bajo el cursor para dividir.",
         "unsupportedMedia": "Este tipo de archivo no puede ir en el video.",
         "uploadFailed": "No se pudo subir el archivo.",
-        "tooManyTracks": "El proyecto ya tiene el máximo de pistas.",
         "captionsUnreadable": "Los subtítulos se generaron, pero no se pudieron leer.",
         "captionsEmpty": "No se encontró habla en ese tramo.",
         "clipGone": "El clip se eliminó antes de que terminara el proceso.",
@@ -18971,7 +20833,11 @@
         "locked": "El clip está en una pista bloqueada.",
         "outOfRange": "Ese valor está fuera de lo permitido.",
         "sourcePending": "Espera a que cargue el medio e intenta de nuevo.",
-        "invalid": "El proyecto no acepta ese cambio."
+        "invalid": "El proyecto no acepta ese cambio.",
+        "tooManyJobs": "Llegaste al límite de trabajos a la vez. Espera a que uno termine.",
+        "captionsPlaced": "Subtítulos añadidos en una pista nueva.",
+        "captionsFileUnreadable": "Este archivo no tiene subtítulos SRT o VTT. No se cambió nada.",
+        "captionsInvalid": "Los subtítulos no caben en el proyecto: alguno supera el largo de texto permitido o el proyecto quedaría demasiado grande. No se cambió nada."
       },
       "preview": {
         "label": "Vista previa",
@@ -19020,7 +20886,12 @@
           "main": "Principal",
           "solo": "Escuchar solo {name}",
           "unsolo": "Dejar de escuchar solo {name}",
-          "soloMark": "S"
+          "soloMark": "S",
+          "options": "Opciones de {name}",
+          "addAbove": "Nueva pista encima",
+          "addBelow": "Nueva pista debajo",
+          "moveUp": "Subir",
+          "moveDown": "Bajar"
         },
         "linked": "Vinculado",
         "bar": {
@@ -19194,13 +21065,17 @@
         "lineWidth": "Grosor",
         "outlineWidth": "Grosor del contorno",
         "radius": "Redondeo",
-        "dashed": "Discontinua",
         "arrowStart": "Punta al inicio",
         "arrowEnd": "Punta al final",
         "shadow": "Sombra",
         "shadowColor": "Color de la sombra",
         "shadowBlur": "Desenfoque de la sombra",
-        "invalid": "Ese valor no se acepta. El texto no puede quedar vacío."
+        "invalid": "Ese valor no se acepta. El texto no puede quedar vacío.",
+        "points": "Puntas",
+        "inner": "Radio interior",
+        "shadowX": "Sombra X",
+        "shadowY": "Sombra Y",
+        "gradientVia": "Color intermedio"
       },
       "panels": {
         "label": "Paneles",
@@ -19240,17 +21115,22 @@
       "jobs": {
         "errors": {
           "insufficient_funds": "Saldo insuficiente",
-          "too_many_jobs": "Ya hay demasiados procesos en curso",
+          "too_many_jobs": "Ya hay demasiadas generaciones en curso",
           "timed_out": "Tardó demasiado",
           "invalid_request": "La solicitud no fue aceptada",
           "wrong_type": "Este tipo de archivo no sirve para eso",
           "not_image": "Elige una imagen",
           "cost_unreported": "No se informó el costo"
-        }
+        },
+        "placed": "Listo, ya está en el proyecto",
+        "ceiling": "Hasta {count} a la vez. Espera a que uno termine para empezar otro.",
+        "list": "Trabajos en cola",
+        "dismiss": "Descartar",
+        "byElo": "Elo"
       },
       "ai": {
         "kinds": "Tipo de generación",
-        "placement": "El resultado va a la biblioteca y entra en el cursor, en la pista correcta.",
+        "placement": "El resultado va a la biblioteca y entra en el cursor. Elige la pista y la duración o déjalas en automático. La música y la locución nunca duran más de lo generado.",
         "music": {
           "tab": "Música",
           "prompt": "Describe la música",
@@ -19270,7 +21150,10 @@
           "prompt": "Describe la imagen",
           "placeholder": "Ej.: producto sobre fondo claro con luz suave",
           "generate": "Generar imagen"
-        }
+        },
+        "track": "Pista",
+        "duration": "Duración",
+        "auto": "Automática"
       },
       "elements": {
         "text": "Texto",
@@ -19321,7 +21204,15 @@
         "generate": "Generar subtítulos",
         "done": "Subtítulos agregados en una pista nueva.",
         "styleHint": "Cada subtítulo es un texto normal: cambia la fuente, el color y la posición en el panel de propiedades.",
-        "trackName": "Subtítulos"
+        "trackName": "Subtítulos",
+        "fileTitle": "Archivo de subtítulos",
+        "fileDescription": "Coloca subtítulos listos desde un archivo SRT o VTT. Los tiempos cuentan desde el clip elegido o desde el inicio del video.",
+        "alignTo": "Tiempos desde",
+        "alignStart": "Inicio del video",
+        "importFile": "Importar SRT o VTT",
+        "libraryFiles": "Subtítulos en la biblioteca",
+        "place": "Colocar",
+        "placeFile": "Colocar {name} de {when}"
       },
       "process": {
         "denoise": {
@@ -19430,12 +21321,13 @@
         "copy": "Copiar animación",
         "paste": "Pegar animación",
         "advanced": "Avanzado",
-        "advancedHint": "Anima cada propiedad por separado, con su propio cronómetro y navegación.",
+        "advancedHint": "Anima cada propiedad por separado, con su propio cronómetro, navegación y suavizado. Haz clic en una propiedad para elegir su suavizado.",
         "advancedSingle": "Selecciona un solo clip para animar cada propiedad por separado.",
         "pathLabel": "Trayectoria de la animación",
         "pathPad": "Posición en {time}. Haz clic para ir o arrastra para moverla.",
         "lanes": "Pistas de fotogramas clave",
-        "keyAt": "Fotograma clave de {name} en {time} ms"
+        "keyAt": "Fotograma clave de {name} en {time} ms",
+        "easingProperty": "Suavizado de toda la animación de {name}"
       },
       "focus": {
         "label": "Foco",
@@ -19498,6 +21390,201 @@
       "failed": "No se pudo abrir en el Estudio",
       "unreadable": "No se pudo leer el archivo. Inténtalo de nuevo en unos instantes.",
       "defaultName": "Creativo de Elo"
+    },
+    "agent": {
+      "title": "Elo en el Estudio",
+      "greeting": {
+        "video": "¿Editamos este video juntos?",
+        "image": "¿Creamos esta pieza juntos?"
+      },
+      "description": {
+        "video": "Recorto, subtitulo, animo textos y agrego música directo en la línea de tiempo. Ves mi cursor y puedes deshacer cualquier paso con Ctrl+Z.",
+        "image": "Armo la composición, escribo los textos, alineo los elementos y quito fondos directo en la pieza. Ves mi cursor y puedes deshacer cualquier paso con Ctrl+Z."
+      },
+      "cursorLabel": "Elo: {action}",
+      "actions": {
+        "read": "Leyendo el proyecto",
+        "look": "Mirando el resultado",
+        "working": "Trabajando",
+        "add_media": "Agregando medios",
+        "add_text": "Escribiendo texto",
+        "add_shape": "Dibujando una forma",
+        "add_captions": "Agregando subtítulos",
+        "move_clip": "Moviendo un clip",
+        "trim_clip": "Recortando",
+        "slip_clip": "Ajustando el tramo",
+        "split_clip": "Dividiendo un clip",
+        "delete_clips": "Borrando",
+        "duplicate_clips": "Duplicando",
+        "update_clip": "Ajustando",
+        "animate": "Animando",
+        "motion_preset": "Aplicando una animación",
+        "entrance": "Creando una entrada",
+        "exit": "Creando una salida",
+        "add_track": "Creando una pista",
+        "move_track": "Moviendo una pista",
+        "update_track": "Ajustando una pista",
+        "remove_track": "Quitando una pista",
+        "add_marker": "Marcando",
+        "set_canvas": "Ajustando el formato",
+        "seek": "Yendo al momento",
+        "select": "Seleccionando",
+        "add_image": "Agregando una imagen",
+        "update_layer": "Ajustando una capa",
+        "delete_layers": "Borrando capas",
+        "duplicate_layers": "Duplicando capas",
+        "order_layers": "Reordenando",
+        "align_layers": "Alineando",
+        "distribute_layers": "Distribuyendo",
+        "group_layers": "Agrupando",
+        "ungroup_layers": "Desagrupando",
+        "set_hidden": "Ocultando",
+        "set_locked": "Bloqueando",
+        "replace_image": "Cambiando la imagen",
+        "job_captions": "Generando subtítulos",
+        "job_denoise": "Limpiando el audio",
+        "job_cutout": "Quitando el fondo",
+        "job_music": "Generando música",
+        "job_voice": "Generando la locución",
+        "job_image": "Generando una imagen",
+        "job_edit": "Editando con IA",
+        "update_artboard": "Ajustando la mesa de trabajo",
+        "add_artboard": "Creando una mesa de trabajo",
+        "duplicate_artboard": "Creando una versión",
+        "delete_artboard": "Borrando la mesa de trabajo",
+        "move_to_artboard": "Llevando a otra mesa de trabajo"
+      },
+      "stop": "Detener",
+      "progress": "{step} de {total}",
+      "queue": {
+        "title": "En la cola",
+        "following": "Siguiendo {count, plural, one {# trabajo} other {# trabajos}} en la cola",
+        "running": "Generando",
+        "settling": "Finalizando"
+      }
+    },
+    "vectors": {
+      "title": "Formas vectoriales",
+      "names": {
+        "diagonalBand": "Banda diagonal",
+        "diagonalSplit": "Corte diagonal",
+        "arch": "Arco",
+        "ribbon": "Cinta",
+        "chevron": "Chevrón",
+        "wave": "Onda",
+        "blob": "Forma orgánica",
+        "speechBubble": "Bocadillo",
+        "heart": "Corazón",
+        "swoosh": "Trazo curvo",
+        "tornPaper": "Papel rasgado",
+        "cornerBracket": "Esquina",
+        "squiggle": "Línea ondulada",
+        "burst": "Explosión",
+        "seal": "Sello"
+      },
+      "edit": {
+        "node": "Punto {index}",
+        "handle": "Manija del punto {index}"
+      },
+      "hints": {
+        "pen": "Haz clic para crear puntos y arrastra para hacer curvas. Shift fija 45 grados, Alt suelta la manija. Haz clic en el primer punto para cerrar. Retroceso borra el último punto, Enter o Esc termina.",
+        "draw": "Dibuja con el mouse, un lápiz o el dedo. Terminar cerca del inicio cierra la forma.",
+        "edit": "Arrastra puntos y manijas. Doble clic en un punto alterna curva y esquina; en el contorno, agrega un punto. Suprimir borra el punto, Alt suelta las manijas, Shift fija el movimiento. Enter o Esc termina."
+      },
+      "tools": {
+        "label": "Herramientas",
+        "select": "Seleccionar",
+        "pen": "Pluma",
+        "draw": "Lápiz"
+      },
+      "inspector": {
+        "editPoints": "Editar puntos",
+        "convert": "Convertir en vector",
+        "convertHint": "Se convierte en una forma vectorial con puntos editables.",
+        "fillRule": "Vaciar superposiciones",
+        "fillRuleHint": "Donde la forma se cruza queda vacía, como el centro de una O."
+      },
+      "svg": {
+        "import": "Importar SVG",
+        "imported": "{count, plural, one {# forma importada} other {# formas importadas}}",
+        "skipped": "{count, plural, one {# elemento no compatible quedó fuera} other {# elementos no compatibles quedaron fuera}} (texto, imágenes o filtros).",
+        "invalid": "Este archivo no es un SVG válido.",
+        "empty": "El SVG no tiene formas para importar.",
+        "tooLarge": "El SVG es demasiado grande para el proyecto.",
+        "copy": "Copiar como SVG",
+        "copied": "SVG copiado",
+        "copyFailed": "No se pudo copiar. Selecciona formas e inténtalo de nuevo."
+      },
+      "trace": {
+        "title": "Vectorizar imagen",
+        "hint": "Convierte la foto o el logo en formas vectoriales editables, sobre la imagen.",
+        "mode": "Modo",
+        "modes": {
+          "color": "Colores",
+          "grayscale": "Escala de grises",
+          "bw": "Blanco y negro"
+        },
+        "colors": "Colores",
+        "threshold": "Umbral",
+        "detail": "Detalle",
+        "noise": "Ignorar manchas",
+        "ignoreWhite": "Ignorar el blanco",
+        "run": "Vectorizar",
+        "running": "Vectorizando…",
+        "groupName": "{name} vectorizada",
+        "done": "{count, plural, one {Imagen vectorizada en # forma} other {Imagen vectorizada en # formas}}",
+        "nothing": "No hay formas para vectorizar con estos ajustes.",
+        "failed": "No se pudo vectorizar esta imagen.",
+        "tooLarge": "El resultado es demasiado grande. Usa menos colores, menos detalle o ignora manchas más grandes."
+      },
+      "stroke": {
+        "dash": "Trazo",
+        "dashes": {
+          "solid": "Continuo",
+          "dashed": "Discontinuo",
+          "dotted": "Punteado",
+          "dashDot": "Trazo y punto",
+          "long": "Trazos largos",
+          "custom": "Personalizado"
+        },
+        "dashOffset": "Desplazamiento",
+        "caps": "Extremos",
+        "cap": {
+          "butt": "Extremo recto",
+          "round": "Extremo redondo",
+          "square": "Extremo cuadrado"
+        },
+        "joins": "Esquinas",
+        "join": {
+          "miter": "Esquina en punta",
+          "round": "Esquina redonda",
+          "bevel": "Esquina biselada"
+        },
+        "miterLimit": "Límite de punta"
+      },
+      "ops": {
+        "title": "Formas",
+        "union": "Unir formas",
+        "subtract": "Restar las de arriba",
+        "intersect": "Mantener la intersección",
+        "exclude": "Excluir la superposición",
+        "flatten": "Juntar en un trazado",
+        "release": "Separar las partes",
+        "reverse": "Invertir la dirección",
+        "issues": {
+          "too_few": "Selecciona al menos dos formas para combinar.",
+          "unsupported": "Solo formas y trazados vectoriales entran en esta operación. Líneas, flechas, textos, iconos e imágenes quedan fuera.",
+          "locked": "Desbloquea primero las capas seleccionadas.",
+          "empty": "Las formas no se superponen, así que el resultado quedaría vacío.",
+          "failed": "No se pudo calcular esta combinación. Prueba simplificar las formas y repite.",
+          "too_large": "El resultado sería demasiado grande para el proyecto.",
+          "invalid": "El resultado no cumple las reglas del proyecto, así que no se cambió nada.",
+          "unchanged": "El trazado ya es lo más simple posible."
+        },
+        "simplify": "Simplificar",
+        "points": "{count, plural, one {# punto} other {# puntos}}",
+        "outline": "Convertir trazo en forma"
+      }
     }
   },
   "tourStudioImage": {
@@ -19610,6 +21697,733 @@
         "f0": "Sigue el progreso hasta que esté listo",
         "f1": "Usa el video en un anuncio"
       }
+    }
+  },
+  "selection": {
+    "errors": {
+      "forbidden": "No tienes permiso para esta acción masiva.",
+      "unknown_action": "Acción masiva desconocida. Recarga la página e inténtalo de nuevo.",
+      "invalid_filter": "El filtro actual no se puede usar en esta selección. Revisa los filtros e inténtalo de nuevo.",
+      "selection_unknown_mode": "Tipo de selección desconocido. Recarga la página e inténtalo de nuevo.",
+      "selection_empty": "No hay nada seleccionado.",
+      "selection_ambiguous": "La selección mezcla elementos elegidos y un filtro. Limpia la selección y elige de nuevo.",
+      "selection_too_many_ids": "Demasiados elementos elegidos uno a uno. Usa la opción de seleccionar todos los del filtro.",
+      "selection_filter_required": "Esta selección necesita un filtro activo.",
+      "selection_limit_required": "Indica cuántos elementos debe incluir la selección.",
+      "selection_everyone_unconfirmed": "Confirma el total antes de aplicar la acción a todos los elementos.",
+      "selection_fingerprint_mismatch": "El filtro cambió desde el conteo. Selecciona de nuevo para volver a contar.",
+      "selection_invalid_count": "El conteo confirmado no es válido. Selecciona de nuevo para volver a contar.",
+      "selection_changed": "La selección cambió desde el conteo. Revisa el nuevo total y confirma de nuevo.",
+      "selection_mode_unsupported": "Este tipo de selección no se acepta en esta acción.",
+      "selection_unavailable": "La selección por filtro no está disponible ahora. Inténtalo de nuevo en unos instantes.",
+      "selection_invalid_page": "Solicitud de página no válida. Recarga la página e inténtalo de nuevo.",
+      "selection_scope_denied": "El departamento elegido está fuera de tu acceso. Cambia de departamento e inténtalo de nuevo.",
+      "busy": "Hay demasiados conteos en curso. Inténtalo de nuevo en unos instantes.",
+      "default": "No se pudo completar la acción masiva. Inténtalo de nuevo.",
+      "selection_invalid_ids": "Algún elemento elegido no es válido. Limpia la selección y elige de nuevo.",
+      "selection_unknown_sort": "El orden actual de la lista no sirve para una selección por cantidad. Cambia el orden e inténtalo de nuevo.",
+      "selection_count_required": "Confirma el conteo antes de aplicar la acción."
+    }
+  },
+  "customFields": {
+    "saveFailed": "No se pudo guardar el campo.",
+    "deleteFailed": "No se pudo eliminar el campo.",
+    "errors": {
+      "custom_field_not_found": "Este campo ya no existe. Recarga la lista.",
+      "custom_field_key_exists": "Ya existe un campo con esta clave en este objeto.",
+      "custom_field_role_taken": "Otro campo de este objeto ya es el campo de clasificación.",
+      "custom_field_workspace_required": "Workspace no identificado. Recarga la página e inténtalo de nuevo.",
+      "custom_field_invalid_object_type": "Los campos personalizados solo valen para oportunidades y leads.",
+      "custom_field_key_required": "Indica la clave del campo.",
+      "custom_field_label_required": "Indica una etiqueta para el campo.",
+      "custom_field_invalid_type": "Tipo de campo no válido.",
+      "custom_field_options_required": "Los campos de selección necesitan al menos una opción.",
+      "custom_field_sensitivity_choice_missing": "Indica si este campo guarda datos sensibles.",
+      "custom_field_legal_basis_required": "Un campo sensible necesita una base legal (LGPD).",
+      "custom_field_legal_basis_too_long": "La base legal es demasiado larga. Resume el texto.",
+      "custom_field_sensitive_unsupported_object": "Solo los campos de lead pueden guardar datos sensibles.",
+      "custom_field_invalid_tone": "Color de opción no válido.",
+      "custom_field_tone_unknown_option": "Se dio un color a una opción que el campo no tiene.",
+      "custom_field_invalid_role": "Rol de campo desconocido.",
+      "custom_field_role_requires_select": "El campo de clasificación debe ser de tipo selección.",
+      "custom_field_invalid_definition": "La definición del campo no es válida. Revísala e inténtalo de nuevo."
+    },
+    "title": "Campos personalizados",
+    "descriptionOpportunity": "Define los atributos que tus oportunidades necesitan registrar.",
+    "descriptionLead": "Define lo que el equipo registra sobre cada lead.",
+    "loading": "Cargando...",
+    "empty": "Todavía no hay campos personalizados.",
+    "newField": "Nuevo campo",
+    "editField": "Editar campo",
+    "editAction": "Editar campo",
+    "deleteAction": "Eliminar campo",
+    "label": "Etiqueta",
+    "labelPlaceholder": "Ej.: Segmento, Escuela, Interés",
+    "type": "Tipo",
+    "types": {
+      "text": "Texto",
+      "number": "Número",
+      "date": "Fecha",
+      "boolean": "Sí/No",
+      "select": "Selección",
+      "multiselect": "Selección múltiple"
+    },
+    "options": "Opciones",
+    "optionLabel": "Opción {index}",
+    "optionPlaceholder": "Opción {index}",
+    "optionTone": "Color de {option}",
+    "addOption": "Agregar opción",
+    "removeOption": "Quitar opción",
+    "tones": {
+      "none": "Sin color",
+      "chart-1": "Tinta",
+      "chart-2": "Índigo",
+      "chart-3": "Ámbar",
+      "chart-4": "Azul",
+      "chart-5": "Magenta",
+      "neutral": "Anillo hueco"
+    },
+    "required": "Obligatorio",
+    "sensitive": {
+      "question": "¿Este campo guarda datos sensibles?",
+      "hint": "Opinión política, religión, salud y los demás datos del art. 5, II de la LGPD. Solo quien tiene permiso ve, filtra y exporta estos valores.",
+      "yes": "Sí, dato sensible",
+      "no": "No",
+      "choiceMissing": "Responde si el campo guarda datos sensibles para poder guardar.",
+      "legalBasis": "Base legal (LGPD)",
+      "legalBasisHint": "Ej.: consentimiento del titular para una finalidad informada, o la hipótesis del art. 11, II que corresponde.",
+      "badge": "Sensible"
+    },
+    "role": {
+      "classification": "Usar como clasificación del lead",
+      "classificationHint": "La clasificación aparece como columna en la lista de leads y colorea el mapa. Solo un campo puede tener este papel.",
+      "badge": "Clasificación"
+    },
+    "preset": {
+      "title": "Clasificación lista",
+      "description": "Crea el campo Clasificación con Positivo, Negativo, Por conquistar y No informado, con colores, marcado como dato sensible. Escribes la base legal que tiene el workspace antes de guardar.",
+      "action": "Usar la plantilla Clasificación",
+      "label": "Clasificación",
+      "options": {
+        "positive": "Positivo",
+        "negative": "Negativo",
+        "toWin": "Por conquistar",
+        "notInformed": "No informado"
+      },
+      "legalBasisExample": "Ej.: consentimiento del titular para registrar su posición, con la finalidad de organizar la relación con él."
+    },
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "created": "Campo creado.",
+    "updated": "Campo actualizado.",
+    "deleted": "Campo eliminado.",
+    "keyFailed": "No fue posible generar la clave del campo. Usa letras o números en la etiqueta.",
+    "input": {
+      "none": "Ninguno",
+      "yes": "Sí",
+      "no": "No"
+    },
+    "loadFailed": "No se pudieron cargar los campos.",
+    "delete": {
+      "title": "¿Eliminar el campo {label}?",
+      "description": "El campo sale de todos los registros y los valores completados se borran. No se puede deshacer.",
+      "descriptionSensitive": "El campo sale de todos los registros y los valores completados, que son datos sensibles, se borran. No se puede deshacer.",
+      "confirm": "Eliminar campo y valores"
+    }
+  },
+  "leadSheet": {
+    "titleNew": "Nuevo lead",
+    "titleEdit": "Editar lead",
+    "description": "Solo el nombre o el WhatsApp son obligatorios.",
+    "loading": "Cargando lead...",
+    "loadFailed": "No fue posible abrir este lead.",
+    "retry": "Intentar de nuevo",
+    "save": "Guardar lead",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "created": "Lead registrado.",
+    "updated": "Lead actualizado.",
+    "failed": "No fue posible guardar el lead.",
+    "reviewFields": "Revisa los campos destacados.",
+    "issues": {
+      "phone": "Indica el número o quita esta fila.",
+      "address": "Completa la dirección o quita este bloque.",
+      "generic": "Revisa este campo."
+    },
+    "identity": {
+      "title": "Identificación",
+      "name": "Nombre completo",
+      "nickname": "Apodo",
+      "birthDate": "Nacimiento",
+      "email": "Correo electrónico"
+    },
+    "phones": {
+      "title": "WhatsApp y teléfonos",
+      "whatsapp": "WhatsApp (principal)",
+      "whatsappHint": "El número que conversa con el equipo. Los otros teléfonos sirven para llamar y buscar.",
+      "openHolder": "Abrir el lead que tiene este número",
+      "addAsContact": "Guardarlo como teléfono de contacto",
+      "label": "Tipo",
+      "number": "Teléfono",
+      "labels": {
+        "mobile": "Celular",
+        "landline": "Casa",
+        "work": "Trabajo",
+        "message": "Recados",
+        "other": "Otro"
+      },
+      "add": "Agregar teléfono",
+      "remove": "Quitar teléfono",
+      "sharedHint": "Los teléfonos de la casa pueden ser compartidos por la familia."
+    },
+    "addresses": {
+      "title": "Direcciones",
+      "addressN": "Dirección {index}",
+      "label": "Tipo",
+      "labels": {
+        "home": "Casa",
+        "work": "Trabajo",
+        "other": "Otra"
+      },
+      "primary": "Principal",
+      "makePrimary": "Hacer principal",
+      "remove": "Quitar dirección",
+      "add": "Agregar dirección",
+      "empty": "Ninguna dirección registrada.",
+      "zipCode": "CEP",
+      "street": "Calle",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Barrio",
+      "city": "Ciudad",
+      "state": "Estado",
+      "cepHint": "Escribe el CEP para completar calle, barrio, ciudad y estado.",
+      "cepSearching": "Buscando el CEP",
+      "cepFound": "Dirección completada por el CEP. Revisa el número.",
+      "cepNotFound": "CEP no encontrado. Completa la dirección a mano.",
+      "cepInvalid": "CEP inválido. Usa los 8 dígitos.",
+      "cepUnavailable": "La búsqueda de CEP no está disponible ahora. Completa la dirección a mano.",
+      "positionHint": "La posición en el mapa se calcula después de guardar.",
+      "restricted": "Solo ves el barrio y la ciudad. La dirección completa es para quien tiene permiso para ver direcciones.",
+      "pin": {
+        "title": "Posición en el mapa",
+        "hint": "Arrastra el marcador hasta la casa. La posición se guarda al instante, como pin manual.",
+        "saving": "Guardando la posición…",
+        "saved": "Posición guardada.",
+        "failed": "No se pudo guardar la posición.",
+        "unsaved": "Guarda el lead para ubicar esta dirección en el mapa.",
+        "notLocated": "Esta dirección aún no se localizó. Acerca el mapa y toca la casa, o arrastra el marcador hasta ella.",
+        "errors": {
+          "lead_location_invalid": "La posición debe quedar dentro de Brasil. Arrastra el marcador de vuelta.",
+          "lead_address_not_found": "Esta dirección ya no existe en este lead. Cierra y abre el lead de nuevo.",
+          "forbidden": "No tienes permiso para cambiar la posición de esta dirección."
+        },
+        "previewTitle": "Vista previa del lugar por CEP",
+        "cepPreview": "Punto aproximado del CEP (fuente: {source}). Guarda el lead para ajustar el marcador en la casa.",
+        "notLocatedFromCep": "Esta dirección todavía no fue localizada. El marcador empieza en el punto del CEP: arrástralo hasta la casa.",
+        "unsavedPlace": "Arrastra el marcador hasta la casa, o elige la calle o el CEP para llevarlo allí. La posición se guarda junto con la dirección.",
+        "unsavedFromAddress": "El marcador está en el punto aproximado de la dirección. Arrástralo hasta la casa: la posición se guarda junto con la dirección.",
+        "unsavedMoved": "Posición marcada a mano. Se guarda junto con la dirección.",
+        "unsavedReset": "Volver al punto de la dirección"
+      },
+      "keepPin": "Mantener la posición del alfiler",
+      "keepPinHint": "La dirección cambió. Al guardar, la posición marcada a mano se vuelve a calcular, a menos que la mantengas.",
+      "suggest": {
+        "cities": "Ciudades sugeridas",
+        "districts": "Barrios sugeridos",
+        "streets": "Calles sugeridas"
+      }
+    },
+    "family": {
+      "title": "Familia",
+      "loading": "Cargando...",
+      "loadFailed": "No fue posible cargar la familia.",
+      "empty": "Ningún familiar vinculado.",
+      "loadMore": "Cargar más",
+      "kind": "Parentesco",
+      "search": "Nombre o teléfono",
+      "searching": "Buscando leads...",
+      "searchFailed": "No fue posible buscar leads ahora.",
+      "matches": "Leads encontrados:",
+      "numberHeld": "Este número ya está registrado en:",
+      "linkAs": "Vincular como {kind}",
+      "createNew": "Registrar \"{text}\" como nuevo lead",
+      "sameAddress": "Misma dirección",
+      "sameAddressUnavailable": "Registra una dirección principal para copiarla.",
+      "createForbidden": "Registrar un familiar nuevo requiere permiso para registrar leads.",
+      "linkForbidden": "Vincular familiares requiere permiso para editar leads.",
+      "willLink": "se vinculará al guardar",
+      "willCreate": "se registrará al guardar",
+      "willCreateSameAddress": "se registrará con la misma dirección",
+      "willUnlink": "se desvinculará al guardar",
+      "remove": "Quitar",
+      "unlink": "Desvincular",
+      "undo": "Deshacer",
+      "unnamed": "sin nombre",
+      "noWhatsApp": "sin WhatsApp",
+      "kinds": {
+        "spouse": "Cónyuge",
+        "partner": "Pareja",
+        "parent": "Padre o madre",
+        "child": "Hijo(a)",
+        "sibling": "Hermano(a)",
+        "grandparent": "Abuelo(a)",
+        "grandchild": "Nieto(a)",
+        "uncle_aunt": "Tío(a)",
+        "nephew_niece": "Sobrino(a)",
+        "cousin": "Primo(a)",
+        "in_law": "Pariente político",
+        "relative": "Otro pariente",
+        "referred": "Referido(a) por este lead",
+        "referred_by": "Refirió a este lead"
+      }
+    },
+    "owner": {
+      "title": "Responsable",
+      "none": "Sin responsable",
+      "readOnly": "Solo quien puede asignar leads cambia el responsable."
+    },
+    "customFields": {
+      "title": "Campos personalizados",
+      "empty": "Ningún campo personalizado de lead.",
+      "loadFailed": "No fue posible cargar los campos personalizados.",
+      "sensitive": "Dato sensible: solo quien tiene permiso ve este valor.",
+      "hiddenSensitive": "{count, plural, one {# campo sensible no aparece} other {# campos sensibles no aparecen}} para ti.",
+      "manage": "Gestionar campos",
+      "loading": "Cargando los campos personalizados..."
+    },
+    "consent": {
+      "title": "Consentimiento",
+      "optIn": "Aceptó recibir mensajes por WhatsApp",
+      "source": "por: {source}",
+      "sources": {
+        "form": "formulario",
+        "import": "importación",
+        "manual": "registro manual",
+        "conversation_request": "pedido en la conversación",
+        "other": "otro origen"
+      },
+      "optedOut": "No quiere recibir mensajes desde el {date}.",
+      "hint": "Un mensaje recibido no cuenta como consentimiento."
+    },
+    "conflict": {
+      "title": "Otra persona cambió este lead mientras editabas.",
+      "changed": "También cambió: {fields}.",
+      "reapply": "Volver a aplicar mis cambios",
+      "discard": "Descartar los míos",
+      "rebased": "Se cargaron los valores nuevos con tus cambios en los campos que solo tú cambiaste y en los que decidiste mantener. Revisa y guarda.",
+      "overlapHint": "Ambos cambiaron estos campos. Queda el valor nuevo, salvo que marques mantener el tuyo.",
+      "theirs": "Valor nuevo:",
+      "mine": "Tu valor:",
+      "keepMine": "Mantener mi valor",
+      "keepMineOf": "Mantener mi valor en {field}",
+      "optedIn": "aceptó recibir mensajes",
+      "notOptedIn": "sin consentimiento"
+    },
+    "fields": {
+      "number": "WhatsApp",
+      "name": "Nombre",
+      "nickname": "Apodo",
+      "email": "Correo electrónico",
+      "birthDate": "Nacimiento",
+      "whatsappOptIn": "Consentimiento",
+      "owner": "Responsable",
+      "phones": "Teléfonos",
+      "addresses": "Direcciones",
+      "relations": "Familia y referidos",
+      "blocked": "Bloqueo",
+      "optedOut": "Pedido de no recibir mensajes",
+      "optOutSource": "Origen del pedido",
+      "profilePictureUrl": "Foto",
+      "age": "Edad",
+      "customField": "Campo personalizado",
+      "other": "Otro campo"
+    },
+    "duplicates": {
+      "title": "Puede ser la misma persona que:",
+      "unnamed": "Lead sin nombre",
+      "open": "Abrir lead",
+      "done": "Listo",
+      "reasons": {
+        "shared_phone": "mismo teléfono",
+        "same_name_and_address": "mismo nombre y dirección",
+        "other": "otro motivo"
+      }
+    },
+    "followUp": {
+      "owner": "El lead se guardó, pero no se definió el responsable: {reason}",
+      "relative": "El lead se guardó, pero {name} no se vinculó: {reason}",
+      "unlink": "El lead se guardó, pero un familiar no se desvinculó: {reason}"
+    },
+    "linkOffers": {
+      "title": "Estos números ya son de otros leads:",
+      "item": "El número de {name} ya está registrado.",
+      "open": "Abrir lead",
+      "link": "Vincular como {kind}",
+      "linked": "Vinculado",
+      "failed": "No se pudo vincular este lead."
+    }
+  },
+  "leadDetail": {
+    "back": "Leads",
+    "loadFailed": "No se pudo abrir este lead.",
+    "notFound": "Este lead ya no existe o no está disponible para ti.",
+    "noWhatsApp": "sin WhatsApp",
+    "unnamed": "Lead sin nombre",
+    "owner": "Responsable: {name}",
+    "noOwner": "Sin responsable",
+    "blocked": "Bloqueado",
+    "optedOut": "No quiere recibir mensajes",
+    "actions": {
+      "edit": "Editar",
+      "sendTemplate": "Enviar plantilla",
+      "sendMessage": "Mensaje",
+      "more": "Más acciones",
+      "block": "Bloquear",
+      "unblock": "Desbloquear",
+      "optOut": "No quiere recibir mensajes",
+      "anonymize": "Anonimizar"
+    },
+    "cancel": "Cancelar",
+    "block": {
+      "title": "¿Bloquear este lead?",
+      "description": "Los mensajes de este lead se ignoran y las campañas dejan de alcanzarlo. Puedes desbloquearlo cuando quieras.",
+      "confirm": "Bloquear",
+      "blocked": "Lead bloqueado",
+      "unblocked": "Lead desbloqueado",
+      "failed": "No se pudo cambiar el bloqueo"
+    },
+    "optOut": {
+      "title": "¿Registrar que no quiere recibir mensajes?",
+      "description": "Las campañas, las automatizaciones, las plantillas enviadas desde una conversación o por Elo y las plantillas programadas dejan de enviarse a este lead. Solo un nuevo consentimiento registrado lo deshace.",
+      "sourceLabel": "¿Quién lo decidió?",
+      "sources": {
+        "lead_request": "El propio lead lo pidió",
+        "operator": "Decisión del equipo"
+      },
+      "confirm": "Registrar",
+      "done": "Registrado: no quiere recibir mensajes",
+      "failed": "No se pudo registrar"
+    },
+    "anonymize": {
+      "title": "¿Anonimizar este lead?",
+      "description": "Borra nombre, teléfonos, direcciones, familia, memorias e historial de ediciones, y enmascara el número en llamadas y envíos. No se puede deshacer.",
+      "confirm": "Anonimizar",
+      "done": "Lead anonimizado",
+      "failed": "No se pudo anonimizar el lead"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "family": "Familia",
+      "timeline": "Línea de tiempo",
+      "deals": "Negocios",
+      "memories": "Memorias",
+      "campaigns": "Campañas"
+    },
+    "contact": {
+      "title": "Contacto",
+      "phones": "{count, plural, =0 {sin teléfonos de contacto} one {# teléfono de contacto} other {# teléfonos de contacto}}",
+      "whatsapp": "WhatsApp (principal)",
+      "email": "Correo",
+      "birthDate": "Nacimiento",
+      "age": "{age, plural, one {# año} other {# años}}",
+      "nickname": "Apodo",
+      "source": "Origen",
+      "sources": {
+        "manual": "Registro manual",
+        "import": "Importación",
+        "channel": "Conversación"
+      },
+      "since": "{source} el {date}"
+    },
+    "address": {
+      "title": "Dirección principal",
+      "empty": "Ninguna dirección registrada.",
+      "add": "Agregar dirección",
+      "restricted": "Solo ves el barrio y la ciudad. La dirección completa es para quien tiene permiso para ver direcciones.",
+      "zipCode": "CP {zipCode}",
+      "geoStatus": {
+        "pending": "Esperando ubicación",
+        "located": "Ubicado",
+        "approximate": "Ubicación aproximada",
+        "not_found": "Dirección no encontrada",
+        "ambiguous": "Dirección ambigua",
+        "unavailable": "Ubicación no disponible",
+        "quota_exceeded": "Límite de ubicaciones alcanzado",
+        "refused": "Dirección rechazada por el proveedor"
+      },
+      "positionSource": "{source} · {date}",
+      "providerSource": "{source} ({provider})",
+      "queuedNote": {
+        "pending": "Buscando una posición más precisa",
+        "unavailable": "Posición más precisa no disponible por ahora",
+        "quota_exceeded": "Tope alcanzado: posición más precisa en el próximo ciclo"
+      },
+      "showOnMap": "Ver en el mapa de leads"
+    },
+    "customFields": {
+      "title": "Campos personalizados",
+      "empty": "Ningún campo personalizado de lead.",
+      "loadFailed": "No se pudieron cargar los campos personalizados.",
+      "sensitive": "Dato sensible. Base legal: {basis}",
+      "sensitiveNoBasis": "Dato sensible",
+      "hiddenSensitive": "{count, plural, one {# campo sensible no aparece} other {# campos sensibles no aparecen}} para ti.",
+      "loading": "Cargando los campos personalizados..."
+    },
+    "consent": {
+      "title": "Consentimiento",
+      "whatsapp": "WhatsApp",
+      "granted": "Aceptó recibir mensajes",
+      "grantedDetail": "{source} el {date}",
+      "none": "Sin consentimiento registrado",
+      "optedOut": "No quiere recibir mensajes",
+      "optedOutDetail": "el {date}",
+      "optedOutBy": {
+        "lead_request": "a pedido del lead, el {date}",
+        "operator": "por decisión del equipo, el {date}"
+      },
+      "hint": "Un mensaje recibido no cuenta como consentimiento.",
+      "purpose": "Finalidad"
+    },
+    "family": {
+      "title": "Familia y referidos",
+      "count": "{count, plural, one {# vínculo} other {# vínculos}}",
+      "empty": "Ningún familiar o referido vinculado.",
+      "add": "Agregar familiar",
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando..."
+    },
+    "campaigns": {
+      "title": "Campañas",
+      "empty": "Este lead aún no participó en campañas.",
+      "entries": "{count, plural, one {# registro} other {# registros}}",
+      "status": "Estado",
+      "date": "Fecha",
+      "entry": "Registro",
+      "lastActivity": "Última actividad: {date}",
+      "window": "Ventana de 24 h",
+      "windowOpen": "Abierta",
+      "windowClosed": "Cerrada",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "voice": "Voz"
+      },
+      "showEntries": "Ver registros",
+      "hideEntries": "Ocultar registros"
+    },
+    "relativeInstant": {
+      "today": "hoy, {time}",
+      "yesterday": "ayer, {time}"
+    },
+    "anonymizedElsewhere": "Este lead fue anonimizado y ya no se puede abrir.",
+    "timeline": {
+      "title": "Línea de tiempo",
+      "legend": "todo sobre {name}, en un solo lugar",
+      "legendUnnamed": "todo sobre este lead, en un solo lugar",
+      "empty": "Todavía no pasó nada con este lead.",
+      "addMemory": "Registrar memoria",
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando...",
+      "openConversation": "Abrir conversación",
+      "untitledCampaign": "sin nombre",
+      "otherChannel": "otro canal",
+      "conversation": "Conversación iniciada en {channel}",
+      "campaign": {
+        "sent": "Campaña \"{title}\" enviada",
+        "delivered": "Campaña \"{title}\" entregada",
+        "read": "Campaña \"{title}\" leída",
+        "failed": "Campaña \"{title}\" no fue entregada"
+      },
+      "call": {
+        "outbound": "Llamada realizada",
+        "inbound": "Llamada recibida",
+        "other": "Llamada",
+        "answered": "atendida, {duration}",
+        "missed": "no atendida",
+        "callbackAt": "volver a llamar el {when}"
+      },
+      "deal": "Negocio \"{title}\" creado",
+      "dealUntitled": "Negocio creado",
+      "untitledDeal": "sin nombre",
+      "dealEvent": {
+        "stage_moved": "Negocio \"{title}\" movido a {to}",
+        "won": "Negocio \"{title}\" ganado",
+        "lost": "Negocio \"{title}\" perdido",
+        "reopened": "Negocio \"{title}\" reabierto",
+        "other": "Negocio \"{title}\" actualizado",
+        "from": "antes en {from}"
+      },
+      "memory": "Memoria ({category}): {text}",
+      "memoryUncategorized": "Memoria: {text}",
+      "by": "por {actor}",
+      "wholeRecord": "el registro",
+      "record": {
+        "created": "{actor} registró el lead",
+        "updated": "{actor} cambió {fields}",
+        "renamed": "{actor} cambió el nombre",
+        "blocked": "{actor} bloqueó el lead",
+        "unblocked": "{actor} desbloqueó el lead",
+        "owner_changed": "{actor} cambió el responsable",
+        "opted_out": "{actor} registró que el lead no quiere recibir mensajes",
+        "incoming_merged": "Datos recibidos actualizaron {fields}",
+        "relation_added": "{actor} vinculó un familiar o referido",
+        "relation_removed": "{actor} desvinculó un familiar o referido",
+        "identity_promoted": "Un teléfono de contacto pasó a ser el WhatsApp del lead",
+        "imported": "{actor} importó el lead",
+        "import_enriched": "Una importación completó {fields}",
+        "anonymized": "{actor} anonimizó el lead",
+        "profile_from_conversation": "Una conversación actualizó {fields}",
+        "profile_from_workflow": "Un flujo actualizó {fields}",
+        "profile_from_form": "Un formulario actualizó {fields}",
+        "other": "{actor} cambió {fields}",
+        "location_pinned": "{actor} fijó la posición de una dirección en el mapa",
+        "location_accepted": "{actor} usó la ubicación enviada por el lead como posición"
+      }
+    },
+    "deals": {
+      "title": "Negocios",
+      "description": "Atenciones y oportunidades de este lead en los embudos a los que accedes.",
+      "add": "Nueva atención",
+      "opening": "Abriendo...",
+      "empty": "Todavía no hay negocios con este lead.",
+      "forbidden": "No tienes acceso a los negocios de este workspace.",
+      "untitled": "Negocio sin título",
+      "status": {
+        "open": "Abierto",
+        "won": "Ganado",
+        "lost": "Perdido"
+      },
+      "owner": "Responsable: {name}",
+      "noOwner": "Sin responsable",
+      "createdAt": "Creado el {date}",
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando..."
+    },
+    "sharedNumber": {
+      "row": "también de <names></names>",
+      "sheet": "Este teléfono también está en <names></names>.",
+      "others": "otros"
+    }
+  },
+  "dealActors": {
+    "ai": "Agente de IA",
+    "workflow": "Flujo",
+    "system": "Sistema",
+    "unknownMember": "Miembro eliminado"
+  },
+  "opportunityHistory": {
+    "title": "Historial",
+    "loading": "Cargando...",
+    "loadFailed": "No se pudo cargar el historial.",
+    "empty": "Sin registros para esta oportunidad.",
+    "removedStage": "etapa eliminada",
+    "events": {
+      "created": "{actor} creó la oportunidad",
+      "stage_moved": "{actor} la movió de {from} a {to}",
+      "won": "{actor} la marcó como ganada ({value})",
+      "lost": "{actor} la marcó como perdida",
+      "reopened": "{actor} reabrió la oportunidad",
+      "value_changed": "{actor} cambió el valor a {value}",
+      "owner_changed": "{actor} cambió el responsable",
+      "linked": "{actor} vinculó una conversación",
+      "other": "{actor} modificó la oportunidad"
+    }
+  },
+  "opportunityLinkedConversations": {
+    "title": "Conversaciones vinculadas",
+    "empty": "Ninguna conversación vinculada a esta oportunidad.",
+    "unnamed": "Contacto sin nombre",
+    "open": "Abrir conversación",
+    "openWith": "Abrir la conversación con {name}",
+    "unlink": "Desvincular",
+    "unlinkWith": "Desvincular la conversación con {name}"
+  },
+  "opportunityDrawer": {
+    "createTitle": "Nueva oportunidad",
+    "editTitle": "Editar oportunidad",
+    "createDescription": "Registra una nueva oportunidad en el embudo.",
+    "editDescription": "Actualiza los datos, cambia de etapa o registra si se ganó o se perdió.",
+    "title": "Título",
+    "titlePlaceholder": "Ej.: Contrato Acme, 10 licencias",
+    "value": "Valor (R$)",
+    "valuePlaceholder": "0,00",
+    "valueRequired": "Obligatorio para marcarla como ganada",
+    "stage": "Etapa",
+    "stageWon": "ganada",
+    "stageLost": "perdida",
+    "lostReason": "Motivo de la pérdida",
+    "lostReasonPlaceholder": "Ej.: precio, competidor, sin presupuesto...",
+    "required": "Obligatorio",
+    "owner": "Responsable",
+    "ownerSearch": "Buscar responsable...",
+    "ownerEmpty": "Ningún miembro",
+    "ownerYou": "Tú",
+    "source": "Origen",
+    "sourcePlaceholder": "Ej.: WhatsApp, recomendación, anuncio...",
+    "customFields": "Campos personalizados",
+    "createdBy": "Creada por",
+    "wonAt": "Ganada el",
+    "lostAt": "Perdida el",
+    "closedBy": "{date} por {name}",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "create": "Crear",
+    "lostReasonMissing": "Indica el motivo de la pérdida para moverla a una etapa de perdida.",
+    "wonValueMissing": "Indica el valor de la oportunidad para marcarla como ganada.",
+    "conflict": "Esta oportunidad acaba de cambiar. Recarga para ver la versión actual.",
+    "saveFailed": "No se pudo guardar la oportunidad.",
+    "updated": "Oportunidad actualizada.",
+    "createFailed": "No se pudo crear la oportunidad.",
+    "created": "Oportunidad creada.",
+    "deleteFailed": "No se pudo eliminar la oportunidad.",
+    "deleted": "Oportunidad eliminada.",
+    "unlinkFailed": "No se pudo desvincular la conversación.",
+    "openFailed": "No se pudo abrir el embudo de negocios.",
+    "fromConversation": {
+      "label": "Crear oportunidad",
+      "hint": "Crear una oportunidad a partir de esta conversación",
+      "created": "Oportunidad creada y vinculada a la conversación.",
+      "viewBoard": "Ver en el embudo"
+    }
+  },
+  "adminBalancePage": {
+    "form": {
+      "error": {
+        "exchangeRateNotLoaded": "La cotización aún no se ha cargado. Inténtalo de nuevo en un momento."
+      }
+    }
+  },
+  "places": {
+    "searching": "Buscando lugares…",
+    "empty": "Ningún lugar encontrado en la base de direcciones.",
+    "notLoaded": "Este estado todavía no tiene la base de direcciones cargada.",
+    "notLoadedWith": "Este estado todavía no tiene la base de direcciones cargada. Estados con base: {states}.",
+    "failed": "No fue posible buscar lugares ahora.",
+    "results": "{count, plural, =0 {Ningún lugar encontrado} one {# lugar encontrado} other {# lugares encontrados}}",
+    "groups": {
+      "city": "Ciudades",
+      "district": "Barrios",
+      "street": "Calles",
+      "cep": "CEP",
+      "recent": "Recientes"
+    },
+    "errors": {
+      "place_query_invalid": "Escribe de 2 a 60 letras, o de 5 a 8 dígitos del CEP.",
+      "place_scope_invalid": "Elige antes el estado y la ciudad.",
+      "reference_unavailable": "La base de direcciones no está disponible ahora. Inténtalo de nuevo en unos instantes.",
+      "place_search_unavailable": "La búsqueda de lugares no está disponible en este servidor.",
+      "place_answer_unreadable": "La búsqueda de lugares respondió en un formato inesperado.",
+      "forbidden": "No tienes permiso para ver direcciones completas."
+    },
+    "mapSearch": {
+      "label": "Buscar un lugar en el mapa",
+      "placeholder": "Ciudad, barrio, calle o CEP",
+      "clear": "Limpiar búsqueda",
+      "filter": "Filtrar por este lugar: {place}"
     }
   }
 }

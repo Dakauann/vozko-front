@@ -20,6 +20,30 @@ export interface CrmFilter {
 
 export const emptyCrmFilter: CrmFilter = { groups: [] };
 
+const KEYED_FIELD_SEPARATOR = ':';
+
+export interface CrmFilterTarget {
+    field: string;
+    key?: string;
+}
+
+export function keyedFilterField(field: string, key: string): string {
+    return `${field}${KEYED_FIELD_SEPARATOR}${key}`;
+}
+
+export function filterTarget(address: string): CrmFilterTarget {
+    const at = address.indexOf(KEYED_FIELD_SEPARATOR);
+    if (at < 0) return { field: address };
+    return { field: address.slice(0, at), key: address.slice(at + 1) };
+}
+
+export function predicateAddress(predicate: CrmFilterPredicate): string {
+    return predicate.key ? keyedFilterField(predicate.field, predicate.key) : predicate.field;
+}
+
+function targets(predicate: CrmFilterPredicate, address: string): boolean {
+    return predicateAddress(predicate) === address;
+}
 
 export function filterPredicates(
     filter: CrmFilter | null | undefined,
@@ -40,7 +64,7 @@ export function readFilterValues(
 ): string[] {
     return (
         filterPredicates(filter).find(
-            (p) => p.field === field && p.operator === operator,
+            (p) => targets(p, field) && p.operator === operator,
         )?.values ?? []
     );
 }
@@ -51,7 +75,7 @@ export function hasFilterPredicate(
     operator: string,
 ): boolean {
     return filterPredicates(filter).some(
-        (p) => p.field === field && p.operator === operator,
+        (p) => targets(p, field) && p.operator === operator,
     );
 }
 
@@ -62,15 +86,17 @@ export function withFilterPredicate(
     values: string[],
     options?: { valueless?: boolean; key?: string },
 ): CrmFilter {
+    const address = options?.key ? keyedFilterField(field, options.key) : field;
+    const target = filterTarget(address);
     const next = filterPredicates(filter).filter(
-        (p) => !(p.field === field && p.operator === operator),
+        (p) => !(targets(p, address) && p.operator === operator),
     );
     if (options?.valueless || values.length > 0) {
         next.push({
-            field,
+            field: target.field,
+            ...(target.key ? { key: target.key } : {}),
             operator,
             values,
-            ...(options?.key ? { key: options.key } : {}),
         });
     }
     return filterFromPredicates(next);
@@ -83,7 +109,7 @@ export function removeFilterPredicate(
 ): CrmFilter {
     return filterFromPredicates(
         filterPredicates(filter).filter(
-            (p) => !(p.field === field && (operator === undefined || p.operator === operator)),
+            (p) => !(targets(p, field) && (operator === undefined || p.operator === operator)),
         ),
     );
 }
@@ -172,11 +198,22 @@ export interface CrmBulkTarget {
     entryType: string;
 }
 
+export type CrmSelectionMode = 'ids' | 'all_matching' | 'everyone';
+
 export interface CrmBulkInput {
     action: CrmBulkActionType;
-    targets: CrmBulkTarget[];
     value: string;
+    mode: CrmSelectionMode;
+    targets?: CrmBulkTarget[];
     filter?: CrmFilter;
+    expectedCount?: number;
+    fingerprint?: string;
+    excludeIds?: string[];
+}
+
+export interface CrmBulkCount {
+    matched: number;
+    fingerprint: string;
 }
 
 export interface CrmBulkFailure {
@@ -188,6 +225,7 @@ export interface CrmBulkResult {
     succeeded: number;
     failed: CrmBulkFailure[];
     matched?: number;
+    eligible?: number;
     truncated?: boolean;
 }
 
@@ -215,14 +253,64 @@ export function encodeFilterParam(filter: CrmFilter | null | undefined): string 
     return encodeBase64(JSON.stringify(filter));
 }
 
-export function decodeFilterParam(param: string | null | undefined): CrmFilter {
-    if (!param) return emptyCrmFilter;
+export type FilterParam =
+    | { status: 'empty'; filter: CrmFilter }
+    | { status: 'valid'; filter: CrmFilter }
+    | { status: 'invalid' };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isStringList(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function predicateOf(value: unknown): CrmFilterPredicate | null {
+    if (!isRecord(value)) return null;
+    const { field, key, operator, values } = value;
+    if (typeof field !== 'string' || typeof operator !== 'string') return null;
+    if (key !== undefined && typeof key !== 'string') return null;
+    if (values !== undefined && !isStringList(values)) return null;
+    return { field, ...(key !== undefined ? { key } : {}), operator, values: values ?? [] };
+}
+
+function groupOf(value: unknown): CrmFilterGroup | null {
+    if (!isRecord(value) || !Array.isArray(value.predicates)) return null;
+    const conjunction = value.conjunction;
+    if (conjunction !== 'and' && conjunction !== 'or') return null;
+    const predicates = value.predicates.map(predicateOf);
+    if (predicates.some((predicate) => predicate === null)) return null;
+    return { conjunction, predicates: predicates as CrmFilterPredicate[] };
+}
+
+function filterOf(value: unknown): CrmFilter | null {
+    if (!isRecord(value) || !Array.isArray(value.groups)) return null;
+    const groups = value.groups.map(groupOf);
+    if (groups.some((group) => group === null)) return null;
+    return { groups: groups as CrmFilterGroup[] };
+}
+
+export function crmFilterFromValue(value: unknown): CrmFilter | null {
+    return filterOf(value);
+}
+
+export function parseFilterParam(param: string | null | undefined): FilterParam {
+    if (!param) return { status: 'empty', filter: emptyCrmFilter };
+    let decoded: unknown;
     try {
-        const parsed = JSON.parse(decodeBase64(param)) as CrmFilter;
-        if (parsed && Array.isArray(parsed.groups)) return parsed;
+        decoded = JSON.parse(decodeBase64(param));
     } catch {
+        return { status: 'invalid' };
     }
-    return emptyCrmFilter;
+    const filter = filterOf(decoded);
+    if (!filter) return { status: 'invalid' };
+    return { status: isEmptyCrmFilter(filter) ? 'empty' : 'valid', filter };
+}
+
+export function decodeFilterParam(param: string | null | undefined): CrmFilter {
+    const parsed = parseFilterParam(param);
+    return parsed.status === 'invalid' ? emptyCrmFilter : parsed.filter;
 }
 
 export function boardEntryToInboxEntry(e: CrmBoardEntry): InboxEntry {

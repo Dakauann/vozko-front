@@ -1,3 +1,5 @@
+import type { TemplateMessageMetadata } from "@/lib/conversations/types";
+
 import type { TemplateComponent, WhatsAppTemplate } from "./types";
 
 
@@ -65,6 +67,32 @@ export function renderTemplateText(
         rendered = rendered.replaceAll(`{{${index + 1}}}`, value).replaceAll(`{{${slot}}}`, value);
     });
     return rendered;
+}
+
+export function templateMessageMetadata(
+    template: Pick<WhatsAppTemplate, "name" | "language" | "category" | "components" | "headerMediaUrl"> | null | undefined,
+    bodyValues: string[],
+    headerValues: string[],
+    slots: TemplateParamSlots,
+): TemplateMessageMetadata | null {
+    if (!template) return null;
+    const components = componentsOf(template).map((component) => {
+        const type = component.type?.toUpperCase();
+        if (type === "BODY") {
+            return { ...component, text: renderTemplateText(component.text, bodyValues, slots.body) };
+        }
+        if (type === "HEADER" && component.format?.toUpperCase() === "TEXT") {
+            return { ...component, text: renderTemplateText(component.text, headerValues, slots.header) };
+        }
+        return component;
+    });
+    return {
+        template_name: template.name,
+        language: template.language,
+        category: template.category,
+        components: components as TemplateMessageMetadata["components"],
+        header_media_url: template.headerMediaUrl ?? undefined,
+    };
 }
 
 export function templateBodyText(template: Pick<WhatsAppTemplate, "components"> | null | undefined): string {

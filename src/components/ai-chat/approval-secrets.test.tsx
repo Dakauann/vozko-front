@@ -5,7 +5,9 @@ import { describe, expect, it, vi } from "vitest";
 import pt from "@/i18n/messages/pt.json";
 import type { Approval } from "@/lib/aichat/types";
 
-import { MessageBubble, useBubbleLabels, type UIMessage } from "./message-list";
+import type { UIMessage } from "@/lib/aichat/ui-message";
+
+import { MessageBubble, useBubbleLabels } from "./message-list";
 
 const message: UIMessage = {
   id: "m1",

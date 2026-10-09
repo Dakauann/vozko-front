@@ -1,7 +1,7 @@
 import { produce } from "immer";
 
 import { newStudioId, STUDIO_LIMITS, type Clip, type VideoDocument } from "./document";
-import { KEYFRAME_LIMITS, keyframeCount, shiftKeyframes } from "./keyframes";
+import { shiftKeyframes } from "./keyframes";
 import { addTrack, clampClipTiming, clipEnd, contentDuration, findClip, insertClip, isRangeFree, hasSourceTime, moveClipToward, settleTimeline, splitClip, trackAccepts } from "./timeline";
 
 export interface ClipChange {
@@ -57,10 +57,8 @@ export function rearrange(
     touched.add(trackId);
     layout.get(trackId)!.push(clip);
   }
-  let count = 0;
   for (const track of doc.tracks) {
     const clips = layout.get(track.id)!.sort((a, b) => a.startMs - b.startMs);
-    count += clips.length;
     if (!touched.has(track.id)) continue;
     if (track.locked) return null;
     let lastEnd = 0;
@@ -71,9 +69,6 @@ export function rearrange(
       lastEnd = clipEnd(clip);
     }
   }
-  if (count > STUDIO_LIMITS.maxClips) return null;
-  const keys = [...layout.values()].reduce((total, clips) => clips.reduce((sum, c) => sum + keyframeCount(c.keyframes), total), 0);
-  if (keys > KEYFRAME_LIMITS.perTimeline) return null;
   return produce(doc, (draft) => {
     for (const track of draft.tracks) {
       if (!touched.has(track.id)) continue;
@@ -355,9 +350,9 @@ export function splitAt(doc: VideoDocument, atMs: number, ids?: readonly string[
   });
 }
 
-export function placeStack(doc: VideoDocument, clips: readonly Clip[]): { document: VideoDocument; ids: string[] } | null {
+export function placeStack(doc: VideoDocument, clips: readonly Clip[], above: number = -1): { document: VideoDocument; ids: string[] } | null {
   let document = doc;
-  let floor = -1;
+  let floor = above;
   const ids: string[] = [];
   for (const clip of clips) {
     let index = document.tracks.findIndex(
@@ -365,7 +360,6 @@ export function placeStack(doc: VideoDocument, clips: readonly Clip[]): { docume
     );
     if (index < 0) {
       const added = addTrack(document, "visual");
-      if (!added.trackId) return null;
       document = added.document;
       index = document.tracks.length - 1;
     }

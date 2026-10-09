@@ -2,11 +2,13 @@
 
 import Konva from "konva";
 import { forwardRef, memo, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
-import { Arrow, Ellipse, Group, Image as KonvaImage, Line, Rect, Star, Text, TextPath } from "react-konva";
+import { Arrow, Ellipse, Group, Image as KonvaImage, Line, Path, Rect, Text, TextPath } from "react-konva";
 
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT, type FontId } from "@/lib/studio/fonts";
 import type { Filters, Gradient, Layer } from "@/lib/studio/document";
-import { compositeOf, curvePath, framePolygon, gradientLine, type Box, type Composite } from "@/lib/studio/paint";
+import { arrowheadSize, pathArrowheads } from "@/lib/studio/arrowheads";
+import { compositeOf, curvePath, framePolygon, gradientPaint, starPolygon, strokeStyle, type Box, type Composite } from "@/lib/studio/paint";
+import { scalePath } from "@/lib/studio/vector-path";
 
 import { loadAssetImage, loadUrlImage, useLoadedImage } from "./asset-images";
 import { ensureFont, konvaFontFamily, konvaFontStyle } from "./ensure-font";
@@ -54,12 +56,22 @@ export function cornerRadiusPx(radius: number | undefined, width: number, height
 
 export function gradientFill(gradient: Gradient | undefined, box: Box) {
   if (!gradient) return {};
-  const line = gradientLine(gradient.angle, box);
+  const paint = gradientPaint(gradient, box);
+  if (paint.kind === "radial") {
+    return {
+      fillPriority: "radial-gradient",
+      fillRadialGradientStartPoint: paint.center,
+      fillRadialGradientEndPoint: paint.center,
+      fillRadialGradientStartRadius: 0,
+      fillRadialGradientEndRadius: paint.radius,
+      fillRadialGradientColorStops: paint.stops,
+    };
+  }
   return {
     fillPriority: "linear-gradient",
-    fillLinearGradientStartPoint: line.start,
-    fillLinearGradientEndPoint: line.end,
-    fillLinearGradientColorStops: [0, gradient.from, 1, gradient.to],
+    fillLinearGradientStartPoint: paint.start,
+    fillLinearGradientEndPoint: paint.end,
+    fillLinearGradientColorStops: paint.stops,
   };
 }
 
@@ -70,10 +82,15 @@ function shadowProps(layer: Layer) {
 
 function strokeProps(layer: Layer) {
   const width = layer.strokeWidth ?? 0;
+  const style = strokeStyle(layer);
   return {
     stroke: width > 0 ? color(layer.stroke) : undefined,
     strokeWidth: width,
-    dash: layer.dash && width > 0 ? [width * 3, width * 2] : undefined,
+    lineCap: style.lineCap,
+    lineJoin: style.lineJoin,
+    miterLimit: style.miterLimit,
+    dash: style.dash,
+    dashOffset: style.dashOffset,
   };
 }
 
@@ -120,7 +137,7 @@ function ImageContent({ layer, width, height, composite, ready, fail }: ContentP
       image.getLayer()?.batchDraw();
     }
     ready();
-  }, [loaded, hasFilters, width, height, layer.crop, layer.radius, layer.flipX, layer.flipY, layer.frame, layer.stroke, layer.strokeWidth, layer.dash, layer.shadow, composite, ready, fail]);
+  }, [loaded, hasFilters, width, height, layer.crop, layer.radius, layer.flipX, layer.flipY, layer.frame, layer.stroke, layer.strokeWidth, layer.dash, layer.dashArray, layer.dashOffset, layer.lineJoin, layer.miterLimit, layer.shadow, composite, ready, fail]);
 
   if (loaded.status !== "ready") {
     return (
@@ -250,34 +267,36 @@ function ShapeContent({ layer, width, height, composite, ready }: ContentProps) 
     case "ellipse":
       return <Ellipse x={width / 2} y={height / 2} radiusX={width / 2} radiusY={height / 2} {...fillIn({ x: -width / 2, y: -height / 2, width, height })} {...common} />;
     case "triangle":
-      return <Line points={[width / 2, 0, width, height, 0, height]} closed lineJoin="round" {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
+      return <Line points={[width / 2, 0, width, height, 0, height]} closed {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
     case "star":
+      return <Line points={starPolygon(layer, width, height)} closed {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
+    case "path": {
+      const body = <Path data={scalePath(layer.path ?? "", width, height)} fillRule={layer.fillRule} {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
+      const heads = pathArrowheads(layer, width, height);
+      if (heads.length === 0) return body;
       return (
-        <Star
-          x={width / 2}
-          y={height / 2}
-          numPoints={5}
-          outerRadius={0.5}
-          innerRadius={0.225}
-          scaleX={width}
-          scaleY={height}
-          strokeScaleEnabled={false}
-          {...fillIn({ x: -0.5, y: -0.5, width: 1, height: 1 })}
-          {...common}
-        />
+        <Group>
+          {body}
+          {heads.map((points, i) => (
+            <Line key={i} points={points} closed fill={lineColor} globalCompositeOperation={composite} {...shadow} />
+          ))}
+        </Group>
       );
+    }
     case "line":
     case "arrow": {
-      const pointer = Math.max(lineWidth * 3, 6);
+      const pointer = arrowheadSize(lineWidth);
       return (
         <Arrow
           points={[0, height / 2, width, height / 2]}
           stroke={lineColor}
           fill={lineColor}
           strokeWidth={lineWidth}
-          lineCap="round"
-          lineJoin="round"
-          dash={layer.dash && lineWidth > 0 ? [lineWidth * 3, lineWidth * 2] : undefined}
+          lineCap={stroke.lineCap}
+          lineJoin={stroke.lineJoin}
+          miterLimit={stroke.miterLimit}
+          dash={stroke.dash}
+          dashOffset={stroke.dashOffset}
           pointerAtBeginning={Boolean(layer.arrowStart)}
           pointerAtEnding={Boolean(layer.arrowEnd)}
           pointerLength={pointer}

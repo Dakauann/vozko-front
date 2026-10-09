@@ -357,10 +357,12 @@ export function SectionError({
   busy,
   onRetry,
   retrying,
+  message,
 }: {
   busy: boolean;
   onRetry: () => void;
   retrying: boolean;
+  message?: string;
 }) {
   const t = useTranslations("metricsOps.common");
   return (
@@ -369,7 +371,7 @@ export function SectionError({
       className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm"
     >
       <span className="text-destructive-ink">
-        {busy ? t("sectionBusy") : t("sectionError")}
+        {busy ? t("sectionBusy") : message ?? t("sectionError")}
       </span>
       <Button variant="secondary" title={t("retry")} onClick={onRetry} disabled={retrying} />
     </div>

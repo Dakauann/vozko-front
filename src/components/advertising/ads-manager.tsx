@@ -30,7 +30,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useMetaAdsConnect } from "@/hooks/use-meta-ads-connect";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { bulkFieldsFor, bulkOutcomes, bulkTally, type BulkOutcome } from "@/lib/advertising/manager-bulk";
 import {
   needsLiveData,
@@ -164,7 +164,6 @@ export function AdsManager() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const fmt = useAdsFormat();
   const errorText = useAdsErrorText();
   const issueText = useIssueText("adsManager");
@@ -425,7 +424,7 @@ export function AdsManager() {
     void syncAdAccountAction(accountId).then((result) => {
       setSyncing(false);
       if (isAdsError(result)) {
-        toast({ title: t("sync.failed"), description: errorText(result), variant: "destructive" });
+        toast.error(t("sync.failed"), { description: errorText(result) });
         return;
       }
       replaceAccount(result.data);
@@ -433,7 +432,7 @@ export function AdsManager() {
       reloadDrafts();
       setReloadToken((token) => token + 1);
     });
-  }, [accountId, replaceAccount, refreshReadiness, reloadDrafts, toast, t, errorText]);
+  }, [accountId, replaceAccount, refreshReadiness, reloadDrafts, t, errorText]);
 
   const campaignReport = fresh ? data.reports.campaign : null;
   const publishedMissing =
@@ -497,13 +496,13 @@ export function AdsManager() {
         markPending(row.metaId, false);
         if (isAdsError(result)) {
           patchRow(row.metaId, null);
-          toast({ title: t(on ? "toggle.onFailed" : "toggle.offFailed", { name: row.name }), description: errorText(result), variant: "destructive" });
+          toast.error(t(on ? "toggle.onFailed" : "toggle.offFailed", { name: row.name }), { description: errorText(result) });
           return;
         }
         applyRow(result.data);
       });
     },
-    [markPending, patchRow, applyRow, toast, t, errorText],
+    [markPending, patchRow, applyRow, t, errorText],
   );
 
   const saveBudget = useCallback(
@@ -514,10 +513,10 @@ export function AdsManager() {
         return issues.length > 0 ? issues.map(issueText).join(" ") : budgetError(result, t("budget.tooSoon"));
       }
       patchRow(row.metaId, { dailyBudget: result.data.dailyBudget, lifetimeBudget: result.data.lifetimeBudget });
-      toast({ title: t("budget.saved", { name: row.name }) });
+      toast(t("budget.saved", { name: row.name }));
       return null;
     },
-    [patchRow, toast, t, issueText],
+    [patchRow, t, issueText],
   );
 
   const draftsById = useMemo(() => new Map((draftList ?? []).map((draft) => [draft.id, draft])), [draftList]);
@@ -573,11 +572,11 @@ export function AdsManager() {
     void archiveAdObjectAction(row.metaId).then((result) => {
       markPending(row.metaId, false);
       if (isAdsError(result)) {
-        toast({ title: t("rowActions.archiveFailed", { name: row.name }), description: errorText(result), variant: "destructive" });
+        toast.error(t("rowActions.archiveFailed", { name: row.name }), { description: errorText(result) });
         return;
       }
       applyRow(result.data);
-      toast({ title: t("rowActions.archived", { name: row.name }) });
+      toast(t("rowActions.archived", { name: row.name }));
     });
   };
 
@@ -590,10 +589,10 @@ export function AdsManager() {
     void duplicateAdDraftAction(row.draft.draftId, `${row.name}${t("duplicate.defaultSuffix")}`).then((result) => {
       markPending(row.metaId, false);
       if (isAdsError(result)) {
-        toast({ title: t("duplicate.draftFailed", { name: row.name }), description: errorText(result), variant: "destructive" });
+        toast.error(t("duplicate.draftFailed", { name: row.name }), { description: errorText(result) });
         return;
       }
-      toast({ title: t("duplicate.done", { name: row.name }) });
+      toast(t("duplicate.done", { name: row.name }));
       reloadDrafts();
     });
   };
@@ -671,10 +670,9 @@ export function AdsManager() {
     const failures = outcomes
       .filter((outcome) => !outcome.ok)
       .map((outcome) => `${names.get(outcome.metaId) ?? outcome.metaId}: ${outcome.message ?? t("bulk.noAnswer")}`);
-    toast({
-      title: t(`bulk.${doneKey}`, tally),
+    const send = tally.failed > 0 ? toast.error : toast;
+    send(t(`bulk.${doneKey}`, tally), {
       description: failures.length > 0 ? failures.join("; ") : undefined,
-      variant: tally.failed > 0 ? "destructive" : undefined,
     });
   };
 
@@ -691,7 +689,7 @@ export function AdsManager() {
       ids.forEach((id) => markPending(id, false));
       const names = new Map(targets.map((row) => [row.metaId, row.name]));
       if (isAdsError(result)) {
-        toast({ title: t(on ? "bulk.activateFailed" : "bulk.pauseFailed"), description: errorText(result), variant: "destructive" });
+        toast.error(t(on ? "bulk.activateFailed" : "bulk.pauseFailed"), { description: errorText(result) });
         return;
       }
       const outcomes = bulkOutcomes(ids, result.data.results ?? []);
@@ -733,18 +731,18 @@ export function AdsManager() {
     if (!accountId) return;
     const result = await discardAdDraftsAction(accountId);
     if (isAdsError(result)) {
-      toast({ title: t("drafts.discardFailed"), description: errorText(result), variant: "destructive" });
+      toast.error(t("drafts.discardFailed"), { description: errorText(result) });
       throw new Error(result.error);
     }
     setDiscarding(false);
     setSelection(EMPTY_SELECTION);
-    toast({ title: t("drafts.discarded", { count: result.data.discarded }) });
+    toast(t("drafts.discarded", { count: result.data.discarded }));
     reloadDrafts();
   };
 
   const finishDuplicate = (row: AdRow) => {
     setDuplicating(null);
-    toast({ title: t("duplicate.done", { name: row.name }) });
+    toast(t("duplicate.done", { name: row.name }));
     reload();
   };
 
@@ -759,7 +757,7 @@ export function AdsManager() {
       search: search.trim() || undefined,
     }).then((result) => {
       setExporting(false);
-      if (isAdsError(result)) toast({ title: t("report.exportFailed"), description: errorText(result), variant: "destructive" });
+      if (isAdsError(result)) toast.error(t("report.exportFailed"), { description: errorText(result) });
     });
   };
 
@@ -782,9 +780,11 @@ export function AdsManager() {
     (result: MetaAdsConnectResult) => {
       void accounts.reload(accountId);
       const message = connectMessage(result);
-      if (message) toast({ title: message.title, description: message.description, variant: message.failed ? "destructive" : undefined });
+      if (!message) return;
+      const send = message.failed ? toast.error : toast;
+      send(message.title, { description: message.description });
     },
-    [toast, connectMessage, accounts, accountId],
+    [connectMessage, accounts, accountId],
   );
 
   const { connect, isConnecting } = useMetaAdsConnect(reportConnect);
@@ -793,11 +793,11 @@ export function AdsManager() {
     if (!account) return;
     const result = await disconnectAdAccountAction(account.id);
     if (isAdsError(result)) {
-      toast({ title: t("disconnect.failed"), description: errorText(result), variant: "destructive" });
+      toast.error(t("disconnect.failed"), { description: errorText(result) });
       throw new Error(result.error);
     }
     setDisconnecting(false);
-    toast({ title: t("disconnect.done", { name: account.name }) });
+    toast(t("disconnect.done", { name: account.name }));
     void accounts.reload();
   };
 
@@ -939,7 +939,7 @@ export function AdsManager() {
           jobId={publishedJobId}
           onSwitchedOn={() => {
             setPublishedOpen(false);
-            toast({ title: t("published.switchedOn") });
+            toast(t("published.switchedOn"));
             reload();
           }}
           onDismiss={() => setPublishedOpen(false)}
@@ -1134,7 +1134,7 @@ export function AdsManager() {
         onCreated={(name) => {
           setTestObjects(null);
           setTestsRefresh((value) => value + 1);
-          toast({ title: t("abTest.created", { name }) });
+          toast(t("abTest.created", { name }));
         }}
       />
 

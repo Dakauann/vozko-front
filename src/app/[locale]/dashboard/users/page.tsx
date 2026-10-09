@@ -31,7 +31,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 const roleConfig: Record<
@@ -64,7 +64,6 @@ function formatDate(value?: string | null) {
 export default function UsersPage() {
   const t = useTranslations("users");
   const router = useRouter();
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "">("");
   const [users, setUsers] = useState<UserType[]>([]);
@@ -117,26 +116,15 @@ export default function UsersPage() {
     try {
       const result = await updateUserRoleAction(userId, { role: newRole });
       if (result.error) {
-        toast({
-          title: t("toast.updateRoleError"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.updateRoleError"), { description: result.error });
       } else {
-        toast({
-          title: t("toast.updateRoleSuccess"),
-          description: t("toast.updateRoleSuccessDescription"),
-        });
+        toast(t("toast.updateRoleSuccess"), { description: t("toast.updateRoleSuccessDescription") });
         setUsers((prev) =>
           prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)),
         );
       }
     } catch {
-      toast({
-        title: t("toast.updateRoleError"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.updateRoleError"), { description: t("error.default") });
     } finally {
       setUpdatingUserId(null);
     }

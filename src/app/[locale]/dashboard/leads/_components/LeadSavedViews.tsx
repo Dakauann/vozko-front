@@ -15,20 +15,24 @@ import {
   deleteSavedViewAction,
   listSavedViewsAction,
 } from "@/app/actions/saved-views";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import type { SavedView } from "@/lib/crm/saved-views";
-import { isEmptyLeadFilter, type LeadFilter } from "@/lib/leads/filters";
+import type { LeadFilter } from "@/lib/leads/filters";
+import { leadSavedViewInput } from "@/lib/leads/saved-view";
 import type { LeadSort } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
 
 export interface LeadSavedViewsProps {
   filter: LeadFilter;
   sorts: LeadSort[];
+  columns: string[];
   onApply: (view: SavedView) => void;
 }
 
 export default function LeadSavedViews({
   filter,
   sorts,
+  columns,
   onApply,
 }: LeadSavedViewsProps) {
   const t = useTranslations("leadsPage");
@@ -49,25 +53,17 @@ export default function LeadSavedViews({
 
     setSaving(true);
     setError(null);
-    const result = await createSavedViewAction({
-      name: trimmed,
-      objectType: "lead",
-      filter,
-      groupBy: "none",
-      sortField: sorts[0]?.key,
-      sortDir: sorts[0]?.direction,
-      visibility: "private",
-    });
+    const result = await createSavedViewAction(leadSavedViewInput({ name: trimmed, filter, sorts, columns }));
     setSaving(false);
 
     if (result.error || !result.view) {
-      setError(result.error ?? t("views.saveError"));
+      setError(codedErrorMessage(t, { code: result.code }, t("views.saveError")));
       return;
     }
 
     setName("");
     setViews((current) => [...current, result.view!]);
-  }, [name, saving, filter, sorts, t]);
+  }, [name, saving, filter, sorts, columns, t]);
 
   const remove = useCallback(async (id: string) => {
     setViews((current) => current.filter((view) => view.id !== id));
@@ -150,8 +146,6 @@ export default function LeadSavedViews({
         </div>
 
         <div className="border-t border-border p-2">
-          {
-}
           <div className="flex items-center gap-1.5">
             <ElevatedInput
               value={name}
@@ -161,13 +155,12 @@ export default function LeadSavedViews({
               }}
               placeholder={t("views.namePlaceholder")}
               controlSize="sm"
-              disabled={isEmptyLeadFilter(filter)}
               className="flex-1"
             />
             <button
               type="button"
               onClick={() => void save()}
-              disabled={!name.trim() || saving || isEmptyLeadFilter(filter)}
+              disabled={!name.trim() || saving}
               title={t("views.save")}
               className={cn(
                 "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",

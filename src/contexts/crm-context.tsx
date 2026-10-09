@@ -18,6 +18,7 @@ import type {
   WsSearchInboxPayload,
   PendingOutcomeRequest,
 } from "@/lib/conversations/types";
+import type { LeadPatch } from "@/lib/conversations/lead-patch";
 import {
   createContext,
   useCallback,
@@ -31,6 +32,8 @@ import {
 
 import {
   type FunnelColumnState,
+  type LeadsBulkUpdateListener,
+  type LeadUpdateListener,
   type SendButtonWsInput,
   useConversationWs,
 } from "@/hooks/use-conversation-ws";
@@ -139,7 +142,9 @@ interface CrmContextValue {
   ) => void;
   pendingOutcomeRequest: PendingOutcomeRequest | null;
   clearPendingOutcomeRequest: () => void;
-  applyLeadRename: (leadId: string, name: string) => void;
+  applyLeadPatch: (leadId: string, patch: LeadPatch) => void;
+  subscribeLeadUpdates: (listener: LeadUpdateListener) => () => void;
+  subscribeLeadsBulkUpdates: (listener: LeadsBulkUpdateListener) => () => void;
 
   windowConversations: WindowConversations;
   windowFocusRequest: { key: string; nonce: number } | null;
@@ -263,7 +268,7 @@ export function CrmProvider({
       campaignType,
       viewMode: ws.viewMode,
       switchView: ws.switchView,
-      applyLeadRename: ws.applyLeadRename,
+      applyLeadPatch: ws.applyLeadPatch,
     }),
     [
       ws,
@@ -281,6 +286,10 @@ export function CrmProvider({
   return <CrmContext.Provider value={value}>{children}</CrmContext.Provider>;
 }
 
+
+export function useOptionalCrm(): CrmContextValue | null {
+  return useContext(CrmContext);
+}
 
 export function useCrm(): CrmContextValue {
   const context = useContext(CrmContext);

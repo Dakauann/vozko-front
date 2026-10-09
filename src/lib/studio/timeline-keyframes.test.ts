@@ -47,21 +47,16 @@ describe("keyframes follow timeline edits", () => {
     expect(parseDocument("video", JSON.parse(JSON.stringify(document))).ok).toBe(true);
   });
 
-  it("refuses edits that would pass the timeline keyframe cap", () => {
-    let doc = emptyVideoDocument("story");
+  it("keeps animating clips without a timeline-wide keyframe budget", () => {
     const per = KEYFRAME_LIMITS.perProperty;
-    let at = 0;
-    while (timelineKeyframeCount(doc) + per <= KEYFRAME_LIMITS.perTimeline) {
-      doc = insertClip(doc, doc.tracks[0].id, { ...newMediaClip("image", asset, at, 1000), keyframes: full(per) }).document;
-      at += 1000;
-    }
-    const rest = KEYFRAME_LIMITS.perTimeline - timelineKeyframeCount(doc);
-    doc = insertClip(doc, doc.tracks[0].id, { ...newMediaClip("image", asset, at, 1000), keyframes: full(rest, 60) }).document;
-    expect(timelineKeyframeCount(doc)).toBe(KEYFRAME_LIMITS.perTimeline);
+    let doc = emptyVideoDocument("story");
+    for (let at = 0; at < 30_000; at += 1000) doc = insertClip(doc, doc.tracks[0].id, { ...newMediaClip("image", asset, at, 1000), keyframes: full(per) }).document;
+    expect(timelineKeyframeCount(doc)).toBe(30 * per);
     const last = doc.tracks[0].clips.at(-1)!.id;
-    expect(duplicateClips(doc, [last]).clipIds).toEqual([]);
-    expect(splitClip(doc, last, at + 450).clipId).toBeNull();
+    expect(duplicateClips(doc, [last]).clipIds).toHaveLength(1);
+    expect(splitClip(doc, last, 29_450).clipId).not.toBeNull();
     const plain = insertClip(doc, doc.tracks[1].id, newMediaClip("image", asset, 0, 1000));
-    expect(updateClip(plain.document, plain.clipId!, { keyframes: full(per) })).toBe(plain.document);
+    expect(updateClip(plain.document, plain.clipId!, { keyframes: full(per) })).not.toBe(plain.document);
+    expect(parseDocument("video", JSON.parse(JSON.stringify(doc))).ok).toBe(true);
   });
 });

@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { X } from "@/components/icons";
 import { useMediaGeneration } from "@/hooks/use-media-generation";
 
+import { AgentCursor } from "../agent/agent-cursor";
+import type { AgentTask } from "../agent/agent-tasks";
+import type { AgentPresence } from "../agent/presence";
 import { IconButton, Notice } from "./controls";
 import { useEditorUi, useImageEditor, type JobPurpose, type StudioJob } from "./editor-state";
 
@@ -42,6 +45,18 @@ export function JobFollowers() {
         ))}
     </>
   );
+}
+
+const TASK_ACTIONS: Record<JobPurpose, string> = { generate: "job_image", edit: "job_edit", cutout: "job_cutout" };
+
+export function agentTasks(jobs: readonly StudioJob[]): AgentTask[] {
+  return jobs.filter((job) => job.byAgent && !job.error).map((job) => ({ id: job.id, action: TASK_ACTIONS[job.purpose], settling: job.settling }));
+}
+
+export function ImageAgentCursor({ presence }: { presence: AgentPresence }) {
+  const jobs = useEditorUi((s) => s.jobs);
+  const tasks = useMemo(() => agentTasks(jobs), [jobs]);
+  return <AgentCursor presence={presence} tasks={tasks} anchor="[data-studio-canvas]" />;
 }
 
 export function useJobsFor(purpose: JobPurpose, layerId: string | null): StudioJob[] {

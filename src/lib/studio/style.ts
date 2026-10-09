@@ -5,11 +5,12 @@ import type { LayerPatch } from "./layers";
 type StyleKey = Exclude<keyof Layer, "id" | "type" | "name" | "transform" | "hidden" | "locked" | "groupId" | "assetId" | "crop" | "text" | "iconId" | "shape" | "clip">;
 
 const COMMON: StyleKey[] = ["shadow", "blendMode"];
+export const STROKE_STYLE_KEYS: StyleKey[] = ["stroke", "strokeWidth", "dash", "dashArray", "dashOffset", "lineCap", "lineJoin", "miterLimit"];
 
 export const STYLE_KEYS: Record<LayerType, readonly StyleKey[]> = {
-  text: [...COMMON, "fontId", "fontSize", "fontWeight", "italic", "align", "lineHeight", "letterSpacing", "fill", "stroke", "strokeWidth", "gradient", "highlight", "curve"],
-  shape: [...COMMON, "fill", "stroke", "strokeWidth", "dash", "radius", "gradient", "arrowStart", "arrowEnd"],
-  image: [...COMMON, "filters", "radius", "stroke", "strokeWidth", "frame", "flipX", "flipY"],
+  text: [...COMMON, "fontId", "fontSize", "fontWeight", "italic", "align", "lineHeight", "letterSpacing", "fill", ...STROKE_STYLE_KEYS, "gradient", "highlight", "curve"],
+  shape: [...COMMON, "fill", ...STROKE_STYLE_KEYS, "radius", "gradient", "arrowStart", "arrowEnd"],
+  image: [...COMMON, "filters", "radius", ...STROKE_STYLE_KEYS, "frame", "flipX", "flipY"],
   icon: [...COMMON, "fill"],
 };
 

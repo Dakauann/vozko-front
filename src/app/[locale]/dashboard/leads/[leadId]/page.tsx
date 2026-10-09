@@ -1,12 +1,14 @@
-import LeadDetailClient from "./_components/LeadDetailClient"
+import { LeadDetail } from "@/components/leads/detail/LeadDetail"
 
 export const dynamic = "force-dynamic"
 
 export default async function LeadDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ leadId: string }>
+  searchParams: Promise<{ tab?: string | string[] }>
 }) {
-  const { leadId } = await params
-  return <LeadDetailClient leadId={leadId} />
+  const [{ leadId }, { tab }] = await Promise.all([params, searchParams])
+  return <LeadDetail leadId={leadId} initialTab={typeof tab === "string" ? tab : undefined} />
 }

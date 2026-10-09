@@ -46,6 +46,15 @@ describe("frame cache and bars", () => {
     expect(cache.size).toBe(2);
   });
 
+  it("hands evicted values back so their owner can release them", () => {
+    const evicted: number[] = [];
+    const cache = new LruCache<string, number>(1, (value) => evicted.push(value));
+    cache.set("a", 1);
+    cache.set("a", 2);
+    cache.set("b", 3);
+    expect(evicted).toEqual([2]);
+  });
+
   it("draws at most one bar per pixel", () => {
     expect(waveformBars(300, 2)).toBe(150);
     expect(waveformBars(300, 0)).toBe(300);

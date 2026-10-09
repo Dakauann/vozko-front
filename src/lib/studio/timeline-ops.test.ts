@@ -53,14 +53,15 @@ describe("placeClip", () => {
     expect(refused.clipId).toBeNull();
   });
 
-  it("refuses when no track can be added", () => {
+  it("opens a new track when every track is locked, however many there are", () => {
     const d = doc();
     d.tracks[0].locked = true;
     d.tracks[1].locked = true;
-    for (let i = 0; i < STUDIO_LIMITS.maxVisualTracks - 2; i++) d.tracks.push({ id: `t${i}`, kind: "visual", locked: true, clips: [] });
-    const refused = placeClip(d, clip("n", 0, 1000));
-    expect(refused.document).toBe(d);
-    expect(refused.clipId).toBeNull();
+    for (let i = 0; i < 30; i++) d.tracks.push({ id: `t${i}`, kind: "visual", locked: true, clips: [] });
+    const placed = placeClip(d, clip("n", 0, 1000));
+    expect(placed.clipId).not.toBeNull();
+    expect(placed.document.tracks.length).toBe(d.tracks.length + 1);
+    expect(documentIssue("video", placed.document)).toBeNull();
   });
 });
 
@@ -141,11 +142,13 @@ describe("insertCaptionTrack", () => {
     expect(documentIssue("video", result.document)).toBeNull();
   });
 
-  it("refuses when there are no cues or too many clips", () => {
+  it("refuses only when there are no cues, taking as many as the speech has", () => {
     const d = doc();
     expect(insertCaptionTrack(d, [], make).document).toBe(d);
-    const many = Array.from({ length: STUDIO_LIMITS.maxClips }, (_, i) => ({ startMs: i * 200, endMs: i * 200 + 150, text: `${i}` }));
-    expect(insertCaptionTrack(d, many, make).trackId).toBeNull();
+    const many = Array.from({ length: 300 }, (_, i) => ({ startMs: i * 200, endMs: i * 200 + 150, text: `${i}` }));
+    const result = insertCaptionTrack(d, many, make);
+    expect(result.document.tracks.find((t) => t.id === result.trackId)?.clips).toHaveLength(300);
+    expect(documentIssue("video", result.document)).toBeNull();
   });
 });
 

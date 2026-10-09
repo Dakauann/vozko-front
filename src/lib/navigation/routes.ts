@@ -67,6 +67,8 @@ export const screenPaths = {
   sip_trunks: "/dashboard/sip-trunks",
   call_queues: "/dashboard/call-queues",
   call_history: "/dashboard/call-history",
+  call_lists: "/dashboard/call-lists",
+  call_list_detail: "/dashboard/call-lists/[listId]",
   telegram_account: "/dashboard/telegram-accounts/[accountId]",
   webchat_widgets: "/dashboard/webchat",
   webchat_new: "/dashboard/webchat/new",

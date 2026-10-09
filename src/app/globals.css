@@ -703,7 +703,8 @@ input:-webkit-autofill:active {
     and its blurred copy sit behind the face (z-index -1 inside an isolated
     stacking context), so the face covers all but a 2px edge.
   */
-  .vz-ai-launcher {
+  .vz-ai-launcher,
+  .vz-ai-card {
     isolation: isolate;
   }
 
@@ -738,12 +739,16 @@ input:-webkit-autofill:active {
 
   .vz-ai-launcher:hover .vz-ai-halo,
   .vz-ai-launcher:focus-visible .vz-ai-halo,
+  .vz-ai-card:hover .vz-ai-halo,
+  .vz-ai-card:focus-within .vz-ai-halo,
   .vz-ai-launcher[data-busy="true"] .vz-ai-halo {
     opacity: 0.8;
   }
 
   .vz-ai-launcher[data-busy="true"] .vz-ai-ring,
-  .vz-ai-launcher[data-busy="true"] .vz-ai-halo {
+  .vz-ai-launcher[data-busy="true"] .vz-ai-halo,
+  .vz-ai-card[data-busy="true"] .vz-ai-ring,
+  .vz-ai-card[data-busy="true"] .vz-ai-halo {
     animation-duration: 1.6s;
   }
 
@@ -1443,4 +1448,47 @@ input:-webkit-autofill:active {
 .dark .hljs-deletion {
   color: #ffdcd7;
   background-color: #67060c;
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib {
+  background-color: hsl(var(--card));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  font-family: inherit;
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib a {
+  color: hsl(var(--muted-foreground));
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib a:hover {
+  color: hsl(var(--foreground));
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button {
+  background-color: transparent;
+  background-image: none;
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: hsl(var(--muted-foreground));
+  -webkit-mask: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20fill-rule%3D%22evenodd%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M4%2010a6%206%200%201%200%2012%200%206%206%200%201%200-12%200m5-3a1%201%200%201%200%202%200%201%201%200%201%200-2%200m0%203a1%201%200%201%201%202%200v3a1%201%200%201%201-2%200%22%2F%3E%3C%2Fsvg%3E") center / 24px 24px no-repeat;
+  mask: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20fill-rule%3D%22evenodd%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M4%2010a6%206%200%201%200%2012%200%206%206%200%201%200-12%200m5-3a1%201%200%201%200%202%200%201%201%200%201%200-2%200m0%203a1%201%200%201%201%202%200v3a1%201%200%201%201-2%200%22%2F%3E%3C%2Fsvg%3E") center / 24px 24px no-repeat;
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button:hover::after {
+  background-color: hsl(var(--foreground));
+}
+
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button:focus-visible,
+.vz-map .maplibregl-ctrl.maplibregl-ctrl-attrib a:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: none;
 }

@@ -38,7 +38,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -50,7 +50,6 @@ export default function UnofficialWhatsAppPage() {
   const t = useTranslations("unofficialWhatsapp");
   const { can } = useWorkspace();
   const router = useRouter();
-  const { toast } = useToast();
 
   const [instances, setInstances] = useState<UnofficialWhatsAppInstance[]>([]);
   const [page, setPage] = useState(1);
@@ -124,17 +123,14 @@ export default function UnofficialWhatsAppPage() {
       setBusyId(null);
 
       if (result.error) {
-        toast({ title: t("actions.remove"), description: result.error, variant: "destructive" });
+        toast.error(t("actions.remove"), { description: result.error });
         return;
       }
-      toast({
-        title: t("actions.remove"),
-        description: t("notice.removed", { name: instance.displayName }),
-      });
+      toast(t("actions.remove"), { description: t("notice.removed", { name: instance.displayName }) });
       void fetchInstances(page, search);
       void fetchAllowance();
     },
-    [toast, t, fetchInstances, fetchAllowance, page, search],
+    [t, fetchInstances, fetchAllowance, page, search],
   );
 
   const handleReset = useCallback(
@@ -143,14 +139,11 @@ export default function UnofficialWhatsAppPage() {
       const result = await resetInstanceAction(instance.id);
       setBusyId(null);
 
-      toast({
-        title: t("actions.reset"),
-        description: result.error ?? t("notice.resetStarted"),
-        variant: result.error ? "destructive" : undefined,
-      });
+      const notify = result.error ? toast.error : toast;
+      notify(t("actions.reset"), { description: result.error ?? t("notice.resetStarted") });
       void fetchInstances(page, search, true);
     },
-    [toast, t, fetchInstances, page, search],
+    [t, fetchInstances, page, search],
   );
 
   const restricted = useMemo(

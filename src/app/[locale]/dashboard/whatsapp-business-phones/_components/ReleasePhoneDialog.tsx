@@ -20,7 +20,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { releaseBusinessPhoneAction } from "@/app/actions/whatsapp-business-phones";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface ReleasePhoneDialogProps {
@@ -55,7 +55,6 @@ export function ReleasePhoneDialog({
   onSuccess,
 }: ReleasePhoneDialogProps) {
   const t = useTranslations("whatsappBusinessPhones");
-  const { toast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
@@ -75,11 +74,7 @@ export function ReleasePhoneDialog({
       const response = await releaseBusinessPhoneAction(phoneId, confirmValue);
 
       if (response.error) {
-        toast({
-          title: t("release.errorTitle"),
-          description: response.error,
-          variant: "destructive",
-        });
+        toast.error(t("release.errorTitle"), { description: response.error });
         setLoading(false);
         return;
       }
@@ -88,21 +83,14 @@ export function ReleasePhoneDialog({
         setResult(response.data.result);
       }
 
-      toast({
-        title: t("release.successTitle"),
-        description: t("release.successDesc"),
-      });
+      toast(t("release.successTitle"), { description: t("release.successDesc") });
 
       setTimeout(() => {
         onSuccess();
         handleClose();
       }, 1800);
     } catch {
-      toast({
-        title: t("release.errorTitle"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("release.errorTitle"), { description: t("toast.unknownError") });
     } finally {
       setLoading(false);
     }

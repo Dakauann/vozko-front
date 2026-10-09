@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newIconLayer, newShapeLayer, newTextLayer, type Layer } from "./document";
+import { emptyArtboard, newIconLayer, newShapeLayer, newTextLayer, type Layer } from "./document";
 import { layerCaption, layerRows, rangeBetween, toggleIn } from "./layer-list";
 
 function rect(id: string, groupId?: string): Layer {
@@ -9,7 +9,7 @@ function rect(id: string, groupId?: string): Layer {
 
 function nested() {
   return {
-    ...emptyImageDocument({ width: 100, height: 100 }),
+    ...emptyArtboard({ width: 100, height: 100 }),
     layers: [rect("a"), rect("b", "inner"), rect("c", "inner"), rect("d", "outer"), rect("e")],
     groups: [{ id: "outer", name: "Topo" }, { id: "inner", parentId: "outer" }],
   };
@@ -32,6 +32,31 @@ describe("layerRows", () => {
     const rows = layerRows(nested(), new Set(["inner"]));
     expect(rows.map((r) => (r.kind === "group" ? `g:${r.groupId}` : r.id))).toEqual(["e", "g:outer", "d", "g:inner", "a"]);
     expect(layerRows(nested(), new Set(["outer"])).map((r) => (r.kind === "group" ? `g:${r.groupId}` : r.id))).toEqual(["e", "g:outer", "a"]);
+  });
+});
+
+describe("layerRows with families", () => {
+  function family() {
+    return {
+      ...emptyArtboard({ width: 100, height: 100 }),
+      layers: [rect("under"), rect("card", "s"), rect("title", "s"), rect("chip", "t"), rect("dot", "t"), rect("over")],
+      groups: [{ id: "s", baseId: "card" }, { id: "t", parentId: "s", baseId: "chip" }],
+    };
+  }
+
+  it("heads each family with its parent row and lists the children under it", () => {
+    expect(layerRows(family())).toEqual([
+      { kind: "layer", id: "over", index: 5, depth: 0, groupId: null },
+      { kind: "layer", id: "card", index: 1, depth: 0, groupId: "s", family: { scaffoldId: "s", ids: ["dot", "chip", "title", "card"] } },
+      { kind: "layer", id: "chip", index: 3, depth: 1, groupId: "t", family: { scaffoldId: "t", ids: ["dot", "chip"] } },
+      { kind: "layer", id: "dot", index: 4, depth: 2, groupId: "t" },
+      { kind: "layer", id: "title", index: 2, depth: 1, groupId: "s" },
+      { kind: "layer", id: "under", index: 0, depth: 0, groupId: null },
+    ]);
+  });
+
+  it("keeps the parent row when its family is collapsed", () => {
+    expect(layerRows(family(), new Set(["s"])).map((r) => (r.kind === "layer" ? r.id : r.groupId))).toEqual(["over", "card", "under"]);
   });
 });
 

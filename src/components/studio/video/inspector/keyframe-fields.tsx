@@ -6,12 +6,13 @@ import { useTranslations } from "next-intl";
 import { CaretLeft, CaretRight, Timer } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Clip } from "@/lib/studio/document";
-import { adjacentKey, framesOf, isAnimated, keyAt, localTime, propertyValue, toggleAnimation, toggleKeyAt } from "@/lib/studio/keyframe-edit";
+import { adjacentKey, framesOf, isAnimated, keyAt, localTime, propertyEasing, propertyValue, setPropertyEasing, toggleAnimation, toggleKeyAt } from "@/lib/studio/keyframe-edit";
 import { KEYFRAME_PROPERTIES, type KeyframeProperty } from "@/lib/studio/keyframes";
 import { cn } from "@/lib/utils";
 
-import { useVideoEditor, useViewState } from "../editor-context";
+import { usePanelPlayhead, useVideoEditor, useViewState } from "../editor-context";
 import { ToolButton } from "../tool-button";
+import { EasingPicker } from "./easing-picker";
 
 export function KeyDiamond({ filled, className }: { filled: boolean; className?: string }) {
   return (
@@ -34,11 +35,13 @@ export interface PropertyKeyListProps {
 export function PropertyKeyList({ clip, disabled }: PropertyKeyListProps) {
   const t = useTranslations("studio.video.keyframes");
   const { commands, view, playback } = useVideoEditor();
-  const playheadMs = useViewState((s) => s.playheadMs);
+  const playheadMs = usePanelPlayhead();
   const keyProperty = useViewState((s) => s.keyProperty);
   const [stopping, setStopping] = useState<KeyframeProperty | null>(null);
   const local = localTime(clip, playheadMs);
   const sample = local ?? Math.min(Math.max(0, playheadMs - clip.startMs), clip.durationMs);
+  const easing = propertyEasing(clip, keyProperty, local);
+  const keyName = t(`properties.${keyProperty}`);
 
   const seekLocal = (atMs: number) => playback.seek(clip.startMs + atMs);
 
@@ -102,6 +105,12 @@ export function PropertyKeyList({ clip, disabled }: PropertyKeyListProps) {
           );
         })}
       </ul>
+      <EasingPicker
+        label={easing.scope === "key" ? t("easing", { name: keyName }) : t("easingProperty", { name: keyName })}
+        value={easing.easing}
+        disabled={disabled || !isAnimated(clip, keyProperty)}
+        onPick={(next) => commands.patchKeyframes(clip.id, (current) => setPropertyEasing(current, keyProperty, local, next), true)}
+      />
       <ConfirmDialog
         open={stopping !== null}
         onOpenChange={(open) => {

@@ -8,10 +8,11 @@ import { InCallPanel } from "@/components/calls/in-call-panel";
 import { DockBounds } from "@/components/docks/dock-bounds";
 import { useDraggableDock } from "@/components/docks/use-draggable-dock";
 import { useCallSession } from "@/contexts/call-session-context";
+import { isCallLive } from "@/lib/call-session/call-readiness";
 import {
   setCallActive,
   subscribeCallRequest,
-  useDialerOpen,
+  useCallSurfaceOwner,
 } from "@/lib/call-session/call-session-control";
 
 export function ActiveCallHost() {
@@ -19,32 +20,33 @@ export function ActiveCallHost() {
   const tc = useTranslations("calling");
   const { x, y, boundsRef, startDrag, reset, dragProps } = useDraggableDock("active-call");
   const { callState, startCall } = useCallSession();
-  const dialerOpen = useDialerOpen();
+  const surfaceOwner = useCallSurfaceOwner();
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
 
   useEffect(() => {
-    return subscribeCallRequest(({ phoneNumber, whatsAppPhoneId, trunkId, label }) => {
+    return subscribeCallRequest(({ phoneNumber, whatsAppPhoneId, trunkId, leadId, callListItemId, requestId, label }) => {
+      const lead = { ...(leadId ? { leadId } : {}), ...(callListItemId ? { callListItemId } : {}), ...(requestId ? { requestId } : {}) };
       if (trunkId) {
         setActiveLabel(label ?? null);
-        startCall(phoneNumber, { trunkId });
+        startCall(phoneNumber, { trunkId, ...lead });
         return;
       }
       if (!whatsAppPhoneId) return;
       const clean = phoneNumber.replace(/[^\d+]/g, "");
       if (!clean) return;
       setActiveLabel(label ?? null);
-      startCall(clean, { whatsAppPhoneId });
+      startCall(clean, { whatsAppPhoneId, ...lead });
     });
   }, [startCall]);
 
-  const hasActiveCall = callState != null && callState.status !== "ended";
+  const hasActiveCall = isCallLive(callState);
 
   useEffect(() => {
     setCallActive(hasActiveCall);
     return () => setCallActive(false);
   }, [hasActiveCall]);
 
-  if (!callState || dialerOpen) return null;
+  if (!callState || surfaceOwner !== null) return null;
 
   return (
     <>

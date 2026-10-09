@@ -17,7 +17,7 @@ vi.mock("@/app/actions/whatsapp-business-phones", () => ({
   listBusinessPhonesAction: (...args: unknown[]) => listPhones(...args),
 }));
 
-vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }));
 
 import { ConversionSettingsCard } from "./conversion-settings-card";
 

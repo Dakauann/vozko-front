@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { bindKeymap, canvasActionFor, capturesArrowKeys, imageActionFor, imageZoomActionFor, isEditableTarget, videoActionFor, type KeyStroke } from "./keymap";
+import { bindKeymap, canvasActionFor, capturesArrowKeys, imageActionFor, imageZoomActionFor, isEditableTarget, vectorModeAction, videoActionFor, type KeyStroke } from "./keymap";
 
 function stroke(key: string, extra: Partial<KeyStroke> = {}): KeyStroke {
   return { key, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false, ...extra };
@@ -27,8 +27,33 @@ describe("image keymap (Canva conventions)", () => {
     [stroke("Delete"), { type: "delete" }],
     [stroke("Backspace"), { type: "delete" }],
     [stroke("Escape"), { type: "deselect" }],
+    [stroke("g", { ...ctrl, altKey: true }), { type: "scaffold" }],
+    [stroke("L", { ...ctrl, shiftKey: true }), { type: "toggleLock" }],
+    [stroke("H", { ...ctrl, shiftKey: true }), { type: "toggleHidden" }],
+    [stroke("Enter"), { type: "selectChildren" }],
+    [stroke("Enter", { shiftKey: true }), { type: "selectParent" }],
+    [stroke("p"), { type: "tool", tool: "pen" }],
+    [stroke("B", { shiftKey: true }), { type: "tool", tool: "draw" }],
+    [stroke("v"), { type: "tool", tool: "select" }],
+    [stroke("U", { altKey: true, shiftKey: true, code: "KeyU" }), { type: "shapeOp", kind: "union" }],
+    [stroke("Í", { altKey: true, shiftKey: true, code: "KeyS" }), { type: "shapeOp", kind: "subtract" }],
+    [stroke("I", { altKey: true, shiftKey: true, code: "KeyI" }), { type: "shapeOp", kind: "intersect" }],
+    [stroke("E", { altKey: true, shiftKey: true, code: "KeyE" }), { type: "shapeOp", kind: "exclude" }],
+    [stroke("e", { ...ctrl, code: "KeyE" }), { type: "shapeOp", kind: "flatten" }],
+    [stroke("ø", { ...ctrl, altKey: true, code: "KeyO" }), { type: "shapeOp", kind: "outline" }],
+    [stroke("n"), { type: "artboard", direction: 1 }],
+    [stroke("N", { shiftKey: true }), { type: "artboard", direction: -1 }],
   ])("maps %o", (input, action) => {
     expect(imageActionFor(input)).toEqual(action);
+  });
+
+  it("leaves Enter to the focused button or menu item", () => {
+    const button = document.createElement("button");
+    const item = document.createElement("div");
+    item.setAttribute("role", "menuitem");
+    expect(canvasActionFor(stroke("Enter", { target: button }))).toBeNull();
+    expect(canvasActionFor(stroke("Enter", { shiftKey: true, target: item }))).toBeNull();
+    expect(canvasActionFor(stroke("Enter", { target: document.body }))).toEqual({ type: "selectChildren" });
   });
 
   it("ignores unbound keys", () => {
@@ -112,6 +137,8 @@ describe("image zoom keys", () => {
     [stroke("+", { ...ctrl, shiftKey: true }), { type: "zoom", direction: 1 }],
     [stroke("-", ctrl), { type: "zoom", direction: -1 }],
     [stroke("0", ctrl), { type: "fit" }],
+    [stroke("!", { shiftKey: true, code: "Digit1" }), { type: "fit" }],
+    [stroke("@", { shiftKey: true, code: "Digit2" }), { type: "fitSelection" }],
   ])("maps %o", (input, action) => {
     expect(imageZoomActionFor(input)).toEqual(action);
   });
@@ -145,5 +172,18 @@ describe("canvasActionFor", () => {
     dialog.appendChild(field);
     expect(canvasActionFor(stroke("Escape", { target: field }))).toBeNull();
     expect(canvasActionFor(stroke("Escape", { target: document.body }))).toEqual({ type: "deselect" });
+  });
+});
+
+describe("vector mode", () => {
+  it("keeps only history and tool switches while drawing or editing points", () => {
+    expect(vectorModeAction({ type: "delete" })).toBeNull();
+    expect(vectorModeAction({ type: "deselect" })).toBeNull();
+    expect(vectorModeAction({ type: "nudge", dx: 1, dy: 0 })).toBeNull();
+    expect(vectorModeAction({ type: "undo" })).toEqual({ type: "undo" });
+    expect(vectorModeAction({ type: "tool", tool: "draw" })).toEqual({ type: "tool", tool: "draw" });
+    expect(vectorModeAction(null)).toBeNull();
+    expect(vectorModeAction({ type: "shapeOp", kind: "union" })).toBeNull();
+    expect(imageActionFor(stroke("U", { altKey: true, code: "KeyU" }))).toBeNull();
   });
 });

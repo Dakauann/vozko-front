@@ -7,9 +7,9 @@ import type {
     WindowStatsResponse,
 } from '@/lib/attendance/types';
 
-import { apiClient, type ApiResult } from "@/lib/api/browser-client";
+import { apiClient } from "@/lib/api/browser-client";
+import { requireSectionData } from "@/lib/analytics/section-query";
 import {
-    AttendanceSectionError,
     sectionQueryParams,
     type AttendanceSection,
     type AttendanceSectionPayloads,
@@ -140,14 +140,4 @@ export async function fetchMemberActivity(
     const url = `${memberActivityPath(subject)}?${memberActivityQuery(period, timezone)}`;
     const response = await apiClient<MemberActivityReport>(url, { method: "GET", signal });
     return requireSectionData(response, "member activity");
-}
-
-function requireSectionData<T>(response: ApiResult<T>, what: string): T {
-    if (response.error) {
-        throw new AttendanceSectionError(response.error.message, response.error.status);
-    }
-    if (!response.data) {
-        throw new AttendanceSectionError(`${what} came back empty`);
-    }
-    return response.data;
 }

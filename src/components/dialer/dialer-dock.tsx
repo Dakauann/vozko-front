@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -27,10 +26,10 @@ import {
   Minus,
   Phone,
 } from "@/components/icons";
-import { listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { useCallSession } from "@/contexts/call-session-context";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { useSettledPermission } from "@/hooks/use-settled-permission";
+import { useMayPlaceCalls } from "@/hooks/use-call-readiness";
+import { useDialTargets } from "@/hooks/use-dial-targets";
 import {
   formatCallDuration,
   useCallElapsedSeconds,
@@ -38,22 +37,28 @@ import {
 import { Link } from "@/i18n/routing";
 import {
   requestCall,
-  setDialerOpen,
   subscribeDialPreset,
+  useCallSurfaceClaim,
+  useCallSurfaceOwner,
 } from "@/lib/call-session/call-session-control";
+import {
+  EMPTY_DIAL_DRAFT,
+  draftFromPreset,
+  withDialNumber,
+  type DialDraft,
+} from "@/lib/dialer/dial-draft";
 import {
   DIAL_KEYS,
   appendDialKey,
   dialerErrorCode,
   isDialable,
 } from "@/lib/dialer/dial-string";
+import { numberRefusal } from "@/lib/dialer/dial-targets";
 import { dialerTabState } from "@/lib/dialer/tab-state";
 import { soundPlayer } from "@/lib/sounds/sound-player";
-import { canDialThrough, type SipTrunk } from "@/lib/sip-trunks/types";
 import { cn } from "@/lib/utils";
 
 const TRUNK_REFRESH_MS = 10_000;
-const REMEMBERED_TRUNK_KEY = "dialer:trunk";
 const KEY_LETTERS: Partial<Record<(typeof DIAL_KEYS)[number], string>> = {
   "2": "ABC",
   "3": "DEF",
@@ -66,120 +71,100 @@ const KEY_LETTERS: Partial<Record<(typeof DIAL_KEYS)[number], string>> = {
 };
 
 export function DialerDock() {
-  const mayCall = useSettledPermission("sip_trunks", "call");
-  const mayUseCalls = useSettledPermission("call_session", "use");
-  if (!mayCall || !mayUseCalls) return null;
+  const permitted = useMayPlaceCalls();
+  if (!permitted) return null;
   return <Dialer />;
-}
-
-function readRememberedTrunk(workspaceId: string): string | null {
-  try {
-    return window.localStorage.getItem(
-      `${REMEMBERED_TRUNK_KEY}:${workspaceId}`,
-    );
-  } catch {
-    return null;
-  }
-}
-
-function rememberTrunk(workspaceId: string, trunkId: string) {
-  try {
-    window.localStorage.setItem(
-      `${REMEMBERED_TRUNK_KEY}:${workspaceId}`,
-      trunkId,
-    );
-  } catch {
-    return;
-  }
 }
 
 function Dialer() {
   const t = useTranslations("calling.dialer");
   const tc = useTranslations("calling");
   const tt = useTranslations("calling.transfer");
-  const { can, currentWorkspace } = useWorkspace();
+  const tReasons = useTranslations("calling.dialTargets.reasons");
+  const { can } = useWorkspace();
   const {
     callState,
-    status,
     lastErrorCode,
     lastError,
     clearError,
     transfer,
     incomingCall,
   } = useCallSession();
-  const workspaceId = currentWorkspace?.id ?? "";
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const [trunks, setTrunks] = useState<SipTrunk[]>([]);
-  const [loadingTrunks, setLoadingTrunks] = useState(false);
-  const [chosenTrunkId, setChosenTrunkId] = useState<string | null>(null);
-  const [number, setNumber] = useState("");
+  const [draft, setDraft] = useState<DialDraft>(EMPTY_DIAL_DRAFT);
+  const number = draft.number;
+  const {
+    online,
+    live,
+    blocker: linesBlocker,
+    numberBlocker,
+    status: linesStatus,
+    targets,
+    trunks: dialable,
+    selectedTrunk,
+    chooseTrunk,
+    presetTrunk,
+  } = useDialTargets({
+    leadId: draft.leadId ?? null,
+    enabled: open,
+    refreshMs: TRUNK_REFRESH_MS,
+    direct: true,
+    revision: draft.leadRevision,
+  });
+  const blocker = draft.leadId ? numberBlocker(number) : linesBlocker;
+  const loadingTrunks = linesStatus === "loading" || linesStatus === "idle";
+  const leadNumberRefusal =
+    draft.leadId && targets ? numberRefusal(targets, number) : null;
   const tabRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const elapsed = useCallElapsedSeconds(callState);
   const { x, y, boundsRef, startDrag, reset, dragProps } =
     useDraggableDock("dialer");
 
-  const dialable = useMemo(() => trunks.filter(canDialThrough), [trunks]);
-  const selectedTrunk =
-    dialable.find((trunk) => trunk.id === chosenTrunkId) ??
-    dialable.find((trunk) => trunk.id === readRememberedTrunk(workspaceId)) ??
-    dialable[0] ??
-    null;
-
-  const loadTrunks = useCallback(() => {
-    setLoadingTrunks(true);
-    void listSipTrunksAction().then((result) => {
-      setTrunks(result.trunks);
-      setLoadingTrunks(false);
-    });
+  const editNumber = useCallback((edit: (current: string) => string) => {
+    setDraft((current) => withDialNumber(current, edit(current.number)));
   }, []);
 
-  const openPanel = useCallback(() => {
-    setOpen(true);
-    loadTrunks();
-  }, [loadTrunks]);
+  const openPanel = useCallback(() => setOpen(true), []);
 
   const minimize = useCallback(() => {
     setOpen(false);
     requestAnimationFrame(() => tabRef.current?.focus());
   }, []);
 
-  useEffect(() => {
-    setDialerOpen(open);
-    return () => setDialerOpen(false);
-  }, [open]);
+  useCallSurfaceClaim("dialer", open);
+  const surfaceOwner = useCallSurfaceOwner();
 
   useEffect(
     () =>
       subscribeDialPreset((preset) => {
-        setNumber(preset.phoneNumber);
-        if (preset.trunkId) setChosenTrunkId(preset.trunkId);
+        setDraft(draftFromPreset(preset));
+        if (preset.trunkId) presetTrunk(preset.trunkId);
         clearError();
         openPanel();
       }),
-    [openPanel, clearError],
+    [openPanel, clearError, presetTrunk],
   );
 
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
-    const timer = setInterval(loadTrunks, TRUNK_REFRESH_MS);
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") minimize();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, loadTrunks, minimize]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, minimize]);
 
   const inCall = callState !== null;
-  const live = inCall && callState.status !== "ended";
-  const online = status === "connected";
+  const callHeldBy = surfaceOwner !== null && surfaceOwner !== "dialer" ? surfaceOwner : null;
   const canPlace =
-    online && !inCall && selectedTrunk !== null && isDialable(number);
+    blocker === null &&
+    !inCall &&
+    selectedTrunk !== null &&
+    isDialable(number);
+  const noLine = blocker === null || blocker === "no_dialable_trunk";
   const tabState = dialerTabState({
     callStatus: callState?.status ?? null,
     hasIncomingCall: incomingCall !== null,
@@ -201,12 +186,13 @@ function Dialer() {
       phoneNumber: number.trim(),
       trunkId: selectedTrunk.id,
       label: selectedTrunk.name,
+      ...(draft.leadId ? { leadId: draft.leadId } : {}),
     });
   };
 
   const press = (key: (typeof DIAL_KEYS)[number]) => {
     soundPlayer.keyTone(key);
-    setNumber((current) => appendDialKey(current, key));
+    editNumber((current) => appendDialKey(current, key));
     inputRef.current?.focus();
   };
 
@@ -299,15 +285,26 @@ function Dialer() {
                 </div>
               </header>
 
-              {inCall ? (
+              {inCall && callHeldBy ? (
+                <p
+                  role="status"
+                  className="px-4 py-4 text-xs text-muted-foreground"
+                >
+                  {t(`callHeldBy.${callHeldBy}`)}
+                </p>
+              ) : inCall ? (
                 <InCallPanel />
               ) : (
                 <div className="flex min-h-0 flex-col overflow-y-auto">
                   <div className="px-4 pt-3">
                     {dialable.length === 0 ? (
                       <div className="rounded-[--radius] border border-dashed border-border px-3 py-3 text-center text-xs text-muted-foreground">
-                        {loadingTrunks ? t("loadingTrunks") : t("noTrunks")}
-                        {!loadingTrunks && can("sip_trunks", "read") ? (
+                        {loadingTrunks
+                          ? t("loadingTrunks")
+                          : noLine
+                            ? t("noTrunks")
+                            : tReasons(blocker)}
+                        {!loadingTrunks && noLine && can("sip_trunks", "read") ? (
                           <Link
                             href="/dashboard/sip-trunks"
                             className="mt-1.5 block font-semibold text-primary-ink underline-offset-2 hover:underline"
@@ -320,10 +317,7 @@ function Dialer() {
                       <ElevatedSelect
                         label={t("trunk")}
                         value={selectedTrunk?.id ?? ""}
-                        onValueChange={(value) => {
-                          setChosenTrunkId(value);
-                          rememberTrunk(workspaceId, value);
-                        }}
+                        onValueChange={chooseTrunk}
                       >
                         {dialable.map((trunk) => (
                           <ElevatedSelectItem key={trunk.id} value={trunk.id}>
@@ -339,7 +333,10 @@ function Dialer() {
                     <input
                       ref={inputRef}
                       value={number}
-                      onChange={(event) => setNumber(event.target.value)}
+                      onChange={(event) => {
+                        const typed = event.target.value;
+                        editNumber(() => typed);
+                      }}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") placeCall();
                         if (!event.repeat) soundPlayer.keyTone(event.key);
@@ -354,7 +351,7 @@ function Dialer() {
                     <button
                       type="button"
                       onClick={() =>
-                        setNumber((current) => current.slice(0, -1))
+                        editNumber((current) => current.slice(0, -1))
                       }
                       disabled={!number}
                       aria-label={t("erase")}
@@ -398,6 +395,14 @@ function Dialer() {
                       <Phone weight="fill" className="h-4 w-4" aria-hidden />
                       {t("call")}
                     </button>
+                    {leadNumberRefusal && dialable.length > 0 ? (
+                      <p
+                        role="status"
+                        className="mt-2 text-xs text-muted-foreground"
+                      >
+                        {tReasons(leadNumberRefusal)}
+                      </p>
+                    ) : null}
                     {errorCode || lastError ? (
                       <p
                         role="alert"

@@ -179,31 +179,32 @@ export function dealActorName(
     return members.get(id) ?? (name || labels.unknownMember);
 }
 
-export function dealEventText(
+export interface DealEventLabels {
+    removedStage: string;
+    money: (cents: number, currency: string) => string;
+}
+
+export interface DealEventMessage {
+    key: OpportunityEventType;
+    values: { actor: string; from: string; to: string; value: string };
+}
+
+export function dealEventMessage(
     event: OpportunityEvent,
     actorName: string,
     stageNames: ReadonlyMap<string, string>,
-): string {
-    const stage = (id?: string) => (id && stageNames.get(id)) || 'etapa removida';
-    const value = formatValueCents(event.valueCents, event.currency);
-    switch (event.type) {
-        case 'created':
-            return `${actorName} criou a oportunidade`;
-        case 'stage_moved':
-            return `${actorName} moveu de ${stage(event.fromStageId)} para ${stage(event.toStageId)}`;
-        case 'won':
-            return `${actorName} marcou como ganha (${value})`;
-        case 'lost':
-            return `${actorName} marcou como perdida`;
-        case 'reopened':
-            return `${actorName} reabriu a oportunidade`;
-        case 'value_changed':
-            return `${actorName} alterou o valor para ${value}`;
-        case 'owner_changed':
-            return `${actorName} trocou o responsável`;
-        case 'linked':
-            return `${actorName} vinculou uma conversa`;
-    }
+    labels: DealEventLabels,
+): DealEventMessage {
+    const stage = (id?: string) => (id && stageNames.get(id)) || labels.removedStage;
+    return {
+        key: event.type,
+        values: {
+            actor: actorName,
+            from: stage(event.fromStageId),
+            to: stage(event.toStageId),
+            value: labels.money(event.valueCents ?? 0, event.currency || 'BRL'),
+        },
+    };
 }
 
 export function formatValueCents(cents: number, currency = 'BRL'): string {

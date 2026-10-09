@@ -6,6 +6,7 @@ import type {
     UnofficialWhatsAppGroup,
     UnofficialWhatsAppInstance,
     UnofficialWhatsAppListMeta,
+    UnofficialWhatsAppStatus,
     UpdateGroupPayload,
     UpdateInstancePayload,
     StartedConversation,
@@ -29,9 +30,10 @@ interface ListApiResponse {
 }
 
 
-export async function listInstancesAction(page = 1, pageSize = 15, search?: string) {
+export async function listInstancesAction(page = 1, pageSize = 15, search?: string, status?: UnofficialWhatsAppStatus) {
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
     if (search) params.set('search', search);
+    if (status) params.set('status', status);
 
     const response = await apiClient<ListApiResponse>(`${BASE}/instances?${params}`, {
         method: 'GET',

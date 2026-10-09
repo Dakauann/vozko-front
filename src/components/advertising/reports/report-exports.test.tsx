@@ -24,7 +24,7 @@ const entry = (id: string, adAccountId: string): AdReportExport => ({
 const listMock = vi.fn();
 const downloadMock = vi.fn();
 const deleteMock = vi.fn();
-const toastMock = vi.fn();
+const toastMock = vi.hoisted(() => Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }));
 
 vi.mock("@/app/actions/advertising-reports", () => ({
   listAdReportExportsAction: () => listMock(),
@@ -32,7 +32,7 @@ vi.mock("@/app/actions/advertising-reports", () => ({
   deleteAdReportExportAction: (id: string) => deleteMock(id),
 }));
 
-vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: toastMock }) }));
+vi.mock("sonner", () => ({ toast: toastMock }));
 
 const permissions = (canDelete: boolean) => ({ canCreate: true, canUpdate: true, canDelete });
 
@@ -50,6 +50,8 @@ describe("ReportExports", () => {
     downloadMock.mockReset().mockResolvedValue({ data: null });
     deleteMock.mockReset().mockResolvedValue({ data: null });
     toastMock.mockReset();
+    toastMock.success.mockReset();
+    toastMock.error.mockReset();
   });
 
   it("lists only the exports of the chosen account and downloads one again", async () => {
@@ -72,7 +74,7 @@ describe("ReportExports", () => {
     await screen.findByText("Relatório a");
     fireEvent.click(screen.getByRole("button", { name: "Baixar" }));
     await waitFor(() =>
-      expect(toastMock).toHaveBeenCalledWith({ title: "Não foi possível baixar a exportação", description: "arquivo expirou", variant: "destructive" }),
+      expect(toastMock.error).toHaveBeenCalledWith("Não foi possível baixar a exportação", { description: "arquivo expirou" }),
     );
   });
 

@@ -41,4 +41,12 @@ describe("HandBackConfirmDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Devolver" }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
+
+  it("lets the tile colour the automation glyph, with no shadow of its own", () => {
+    renderDialog(false);
+    const glyph = screen.getByRole("alertdialog").querySelector(".tile-info > svg");
+    expect(glyph).not.toBeNull();
+    expect(glyph?.getAttribute("class") ?? "").not.toMatch(/shadow|text-white/);
+    expect(glyph?.getAttribute("width")).toBe("28");
+  });
 });

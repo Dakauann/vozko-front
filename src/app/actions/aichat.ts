@@ -3,6 +3,7 @@ import type {
   ChatThreadList,
   ChatMessageList,
 } from '@/lib/aichat/types';
+import type { ThreadCost } from '@/lib/aichat/thread-cost';
 import { apiClient } from "@/lib/api/browser-client";
 
 export async function listChatThreadsAction(page = 1, pageSize = 50) {
@@ -30,6 +31,21 @@ export async function getChatMessagesAction(threadId: string, page = 1, pageSize
   );
   if (res.error) return { data: null, error: res.error.message };
   return { data: res.data ?? null, error: null };
+}
+
+export async function getChatThreadCostAction(threadId: string) {
+  const res = await apiClient<ThreadCost>(`/chat/threads/${encodeURIComponent(threadId)}/cost`, {
+    method: 'GET',
+  });
+  if (res.error || !res.data) return { data: null, error: res.error?.message ?? null };
+  return { data: res.data, error: null };
+}
+
+export async function stopChatTurnAction(threadId: string) {
+  const res = await apiClient<{ ok: boolean }>(`/chat/threads/${encodeURIComponent(threadId)}/turn/stop`, {
+    method: 'POST',
+  });
+  return { error: res.error?.message ?? null };
 }
 
 export async function renameChatThreadAction(threadId: string, title: string) {

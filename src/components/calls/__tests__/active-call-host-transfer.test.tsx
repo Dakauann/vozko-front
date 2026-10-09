@@ -21,7 +21,7 @@ vi.mock("@/app/actions/call-routing", () => ({
 }));
 
 import { ActiveCallHost } from "@/components/calls/active-call-host";
-import { setDialerOpen } from "@/lib/call-session/call-session-control";
+import { releaseCallSurface, setCallSurface, setDialerOpen } from "@/lib/call-session/call-session-control";
 
 function whatsAppCall(overrides: Partial<CallSessionApi> = {}) {
   session.value = {
@@ -91,6 +91,24 @@ describe("ActiveCallHost transfers", () => {
     await renderWidget();
     expect(screen.queryByRole("heading", { name: "Ligação" })).toBeNull();
     setDialerOpen(false);
+  });
+
+  it("stays out of the way while another page owns the call surface", async () => {
+    setCallSurface("call_list");
+    await renderWidget();
+    expect(screen.queryByRole("heading", { name: "Ligação" })).toBeNull();
+    act(() => releaseCallSurface("call_list"));
+    expect(screen.getByRole("heading", { name: "Ligação" })).toBeTruthy();
+  });
+
+  it("comes back once the dialer closes, even if it opened over another surface", async () => {
+    setCallSurface("call_list");
+    setDialerOpen(true);
+    await renderWidget();
+    act(() => setDialerOpen(false));
+    expect(screen.queryByRole("heading", { name: "Ligação" })).toBeNull();
+    act(() => releaseCallSurface("call_list"));
+    expect(screen.getByRole("heading", { name: "Ligação" })).toBeTruthy();
   });
 
   it("offers no transfer to someone not allowed to transfer calls", async () => {

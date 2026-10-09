@@ -97,7 +97,7 @@ import { attendanceSectionsKey } from "@/lib/attendance/sections";
 import { presetRange, type PeriodPreset } from "@/lib/attendance/period";
 import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { AttendanceReportParams, ReportFormat } from "@/lib/reports/types";
 import { ExportMenuItems } from "@/components/reports/export-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -161,7 +161,7 @@ import { MemberActivitySheet } from "@/components/dashboard/attendance/member-ac
 import { hasMemberActivity, memberActivitySubject } from "@/lib/attendance/member-activity";
 import { useAuth } from "@/contexts/auth-context";
 import { usePublishAssistantContext } from "@/components/ai-chat/assistant-context";
-import type { ChatView } from "@/lib/aichat/types";
+import type { AttendanceView } from "@/lib/aichat/types";
 
 const ATTENDANCE_EXPORT_FORMATS: readonly ReportFormat[] = ["csv", "pdf"];
 
@@ -1956,10 +1956,9 @@ export default function AttendanceOpsPage() {
   const tl = useTranslations("metricsOps.attendance.labels");
   const tg = useTranslations("metricsOps.attendance.glossary");
   const texp = useTranslations("metricsOps.export");
-  const { toast } = useToast();
   const { running: exporting, request: requestReport } = useReportJob({
     onQueued: () => {
-      toast({ title: texp("queuedTitle"), description: texp("queuedBody") });
+      toast(texp("queuedTitle"), { description: texp("queuedBody") });
     },
   });
   const te = useTranslations("metricsOps.attendance.executive");
@@ -2152,37 +2151,16 @@ export default function AttendanceOpsPage() {
     });
 
     if (outcome.status === "done") {
-      toast({ title: texp("ready") });
+      toast(texp("ready"));
       return;
     }
-    toast({
-      title: texp("failed"),
+    toast.error(texp("failed"), {
       description:
         outcome.status === "failed"
           ? texp(`failure.${outcome.job.failureCode ?? "render_failed"}`)
           : outcome.error,
-      variant: "destructive",
     });
-  }, [
-    summary,
-    requestReport,
-    toast,
-    locale,
-    texp,
-    tc,
-    dateFrom,
-    dateTo,
-    departmentId,
-    departments,
-    memberId,
-    members,
-    channel,
-    includeAi,
-    rankMetric,
-    campaignId,
-    campaignType,
-    currentWorkspace?.name,
-  ]);
+  }, [summary, requestReport, locale, texp, tc, dateFrom, dateTo, departmentId, departments, memberId, members, channel, includeAi, rankMetric, campaignId, campaignType, currentWorkspace?.name]);
 
   const kpis = summary?.kpis;
   const total =
@@ -2197,7 +2175,7 @@ export default function AttendanceOpsPage() {
           ? tl("last30d")
           : tl("last90d");
 
-  const assistantView = useMemo<ChatView>(
+  const assistantView = useMemo<AttendanceView>(
     () => ({
       surface: "attendance",
       dateFrom,

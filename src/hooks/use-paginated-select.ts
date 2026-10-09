@@ -93,6 +93,11 @@ export function usePaginatedSelect<T>({
         load(nextPage, debouncedSearch, true);
     }, [isLoading, page, totalPages, debouncedSearch, load]);
 
+    const reload = useCallback(() => {
+        setPage(1);
+        void load(1, debouncedSearch, false);
+    }, [debouncedSearch, load]);
+
     const options = useMemo(() => items.map(mapOptionRef.current), [items]);
 
     return {
@@ -101,6 +106,7 @@ export function usePaginatedSelect<T>({
         onSearch,
         onScrollEnd,
         onOpenChange,
+        reload,
         items,
         search,
     };

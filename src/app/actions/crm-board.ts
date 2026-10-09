@@ -1,10 +1,13 @@
 import { apiClient } from "@/lib/api/browser-client";
+import { codedErrorOf, type CodedError } from "@/lib/api/coded-error";
 import {
     encodeBase64,
     emptyCrmFilter,
     type CrmBoard,
+    type CrmBulkCount,
     type CrmBulkInput,
     type CrmBulkResult,
+    type CrmFilter,
     type CrmEntriesResult,
     type FetchCrmBoardParams,
     type FetchCrmEntriesParams,
@@ -82,23 +85,40 @@ export async function getCrmEntriesAction(
     return { result: response.data ?? null };
 }
 
-function fetchCrmBulk(input: CrmBulkInput) {
-    return apiClient<CrmBulkResult>('/crm/bulk', {
+export async function countCrmBulkAction(
+    filter: CrmFilter,
+): Promise<{ count: CrmBulkCount | null; error?: CodedError }> {
+    const response = await apiClient<CrmBulkCount>('/crm/bulk/count', {
         method: 'POST',
-        body: JSON.stringify(input),
+        body: JSON.stringify({ filter }),
     });
+
+    if (response.error) {
+        return { count: null, error: codedErrorOf(response.error) };
+    }
+    if (!response.data) {
+        return { count: null, error: { message: 'Empty response' } };
+    }
+
+    return { count: response.data };
 }
 
 export async function crmBulkAction(
     input: CrmBulkInput,
-): Promise<{ result: CrmBulkResult | null; error?: string }> {
-    const response = await fetchCrmBulk(input);
+): Promise<{ result: CrmBulkResult | null; error?: CodedError }> {
+    const response = await apiClient<CrmBulkResult>('/crm/bulk', {
+        method: 'POST',
+        body: JSON.stringify(input),
+    });
 
     if (response.error) {
-        return { result: null, error: response.error.message };
+        return { result: null, error: codedErrorOf(response.error) };
+    }
+    if (!response.data) {
+        return { result: null, error: { message: 'Empty response' } };
     }
 
-    return { result: response.data ?? null };
+    return { result: response.data };
 }
 
 export async function listPipelinesAction(

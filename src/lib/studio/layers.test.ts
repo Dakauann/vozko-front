@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, STUDIO_LIMITS, type ImageDocument, type Layer } from "./document";
+import { emptyArtboard, STUDIO_LIMITS, type ImageSurface, type Layer } from "./document";
 import {
   addLayers,
   alignLayers,
@@ -9,7 +9,6 @@ import {
   duplicateLayers,
   groupLayers,
   layerBounds,
-  moveLayerTo,
   reorderLayers,
   resizeCanvas,
   selectionBounds,
@@ -20,19 +19,19 @@ import {
   updateLayers,
   withGroupMembers,
 } from "./layers";
-import { documentIssue } from "./validate";
+import { surfaceIssue } from "./validate";
 
 function rect(id: string, x: number, y: number, w = 0.1, h = 0.1): Layer {
   return { id, type: "shape", shape: "rect", fill: "#000000", transform: { x, y, w, h, rotation: 0, opacity: 1 } };
 }
 
-function doc(): ImageDocument {
-  const d = emptyImageDocument({ width: 1000, height: 1000 });
+function doc(): ImageSurface {
+  const d = emptyArtboard({ width: 1000, height: 1000 });
   d.layers = [rect("a", 0.2, 0.2), rect("b", 0.5, 0.5), rect("c", 0.8, 0.8), rect("d", 0.5, 0.2)];
   return d;
 }
 
-function order(d: ImageDocument): string[] {
+function order(d: ImageSurface): string[] {
   return d.layers.map((l) => l.id);
 }
 
@@ -41,11 +40,11 @@ function close(value: number, expected: number) {
 }
 
 describe("layer list", () => {
-  it("adds layers on top and refuses past the limit", () => {
+  it("adds layers on top, as many as the design needs", () => {
     expect(order(addLayers(doc(), [rect("e", 0.5, 0.5)]))).toEqual(["a", "b", "c", "d", "e"]);
     expect(order(addLayers(doc(), [rect("e", 0.5, 0.5)], 1))).toEqual(["a", "e", "b", "c", "d"]);
-    const full = { ...doc(), layers: Array.from({ length: STUDIO_LIMITS.maxLayers }, (_, i) => rect(`l${i}`, 0.5, 0.5)) };
-    expect(addLayers(full, [rect("x", 0.5, 0.5)])).toBe(full);
+    const crowded = { ...doc(), layers: Array.from({ length: 600 }, (_, i) => rect(`l${i}`, 0.5, 0.5)) };
+    expect(order(addLayers(crowded, [rect("x", 0.5, 0.5)])).at(-1)).toBe("x");
   });
 
   it("updates, moves and deletes only unlocked layers", () => {
@@ -68,7 +67,7 @@ describe("layer list", () => {
     expect(order(document).slice(0, 2)).toEqual(["a", "b"]);
     expect(order(document).slice(2, 4)).toEqual(ids);
     close(document.layers[2].transform.x, 0.22);
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
   });
 
   it("reorders one step, or to the front and back", () => {
@@ -77,7 +76,6 @@ describe("layer list", () => {
     expect(order(reorderLayers(doc(), ["b", "c"], "backward"))).toEqual(["b", "c", "a", "d"]);
     expect(order(reorderLayers(doc(), ["a", "c"], "front"))).toEqual(["b", "d", "a", "c"]);
     expect(order(reorderLayers(doc(), ["d"], "back"))).toEqual(["d", "a", "b", "c"]);
-    expect(order(moveLayerTo(doc(), "a", 3))).toEqual(["b", "c", "d", "a"]);
   });
 });
 
@@ -87,7 +85,7 @@ describe("groups", () => {
     expect(order(document)).toEqual(["b", "a", "c", "d"]);
     expect(document.layers.filter((l) => l.groupId === groupId).map((l) => l.id)).toEqual(["a", "c"]);
     expect(withGroupMembers(document, ["a"])).toEqual(["a", "c"]);
-    expect(documentIssue("image", document)).toBeNull();
+    expect(surfaceIssue(document)).toBeNull();
     expect(groupLayers(doc(), ["a"]).groupId).toBeNull();
   });
 
@@ -163,7 +161,7 @@ describe("magic resize", () => {
     close(by("t").fontSize!, 0.05);
     close(by("bg").transform.w, 2);
     close(by("bg").transform.h, 1);
-    expect(documentIssue("image", story)).toBeNull();
+    expect(surfaceIssue(story)).toBeNull();
   });
 
   it("keeps a group together", () => {

@@ -65,7 +65,13 @@ export type ResourceAction =
     | "block"
     | "call"
     | "delegate"
-    | "transfer";
+    | "transfer"
+    | "read_sensitive"
+    | "read_addresses"
+    | "configure"
+    | "anonymize"
+    | "export"
+    | "bulk_update";
 
 export interface Workspace {
     id: string;

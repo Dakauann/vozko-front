@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { proxy } from './proxy';
+import { config, proxy } from './proxy';
 
 const intlMiddlewareMock = vi.hoisted(() => vi.fn());
 
@@ -38,6 +38,16 @@ function makeAccessToken(offsetMs: number): string {
 
     return `${header}.${payload}.signature`;
 }
+
+describe('proxy matcher', () => {
+    const matches = (path: string) => new RegExp('^' + config.matcher[0] + '$').test(path);
+
+    it('leaves the MapLibre worker to the static files, so it is never sent to a locale path', () => {
+        expect(matches('/maplibre/maplibre-gl-worker.mjs')).toBe(false);
+        expect(matches('/dashboard/leads')).toBe(true);
+        expect(matches('/pt/dashboard/leads')).toBe(true);
+    });
+});
 
 describe('proxy', () => {
     beforeEach(() => {

@@ -74,6 +74,29 @@ describe("keyframe inspector", () => {
     expect(editor.view.getState().notice?.key).toBe("keyframeOutside");
   });
 
+  it("eases one property at the key under the playhead, then every key of that property only", () => {
+    const d = doc();
+    d.tracks[0].clips[0].keyframes = {
+      x: [{ atMs: 0, value: 0.2, easing: "linear" }, { atMs: 2000, value: 0.8, easing: "linear" }],
+      opacity: [{ atMs: 0, value: 0, easing: "linear" }, { atMs: 2000, value: 1, easing: "linear" }],
+    };
+    const { editor } = renderInEditor(d, <Inspector />);
+    act(() => {
+      editor.store.getState().select(["a"]);
+      editor.view.setState({ playheadMs: 1000, keyProperty: "x" });
+    });
+    const atKey = screen.getByRole("group", { name: "Suavização do quadro-chave de Posição X" });
+    fireEvent.click(within(atKey).getByRole("button", { name: "Acelerar" }));
+    expect(clipA(editor).keyframes?.x?.map((f) => f.easing)).toEqual(["easeIn", "linear"]);
+    act(() => editor.view.setState({ playheadMs: 2000 }));
+    const whole = screen.getByRole("group", { name: "Suavização de toda a animação de Posição X" });
+    fireEvent.click(within(whole).getByRole("button", { name: "Desacelerar" }));
+    expect(clipA(editor).keyframes?.x?.map((f) => f.easing)).toEqual(["easeOut", "easeOut"]);
+    expect(clipA(editor).keyframes?.opacity?.map((f) => f.easing)).toEqual(["linear", "linear"]);
+    fireEvent.pointerDown(screen.getByText("Opacidade", { selector: "span" }));
+    expect(screen.getByRole("group", { name: "Suavização de toda a animação de Opacidade" })).toBeInTheDocument();
+  });
+
   it("applies an entrance preset", () => {
     const { editor } = renderInEditor(doc(), <Inspector />);
     act(() => editor.store.getState().select(["a"]));

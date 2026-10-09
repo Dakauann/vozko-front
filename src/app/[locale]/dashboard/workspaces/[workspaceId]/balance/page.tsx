@@ -60,7 +60,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { cn } from "@/lib/utils";
 import { getExchangeRateAction } from "@/app/actions/pricing";
 import { useParams, useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 
@@ -148,7 +148,6 @@ export default function AdminWorkspaceBalancePage() {
   const router = useRouter();
   const workspaceId = params.workspaceId as string;
   const t = useTranslations("adminBalancePage");
-  const { toast } = useToast();
 
   const [summary, setSummary] = useState<BalanceSummary | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -340,7 +339,7 @@ export default function AdminWorkspaceBalancePage() {
     e.preventDefault();
     const amount = Number.parseFloat(formAmount);
     if (!amount || amount <= 0) {
-      toast({ title: t("form.error.invalidAmount"), variant: "destructive" });
+      toast.error(t("form.error.invalidAmount"));
       return;
     }
 
@@ -354,11 +353,7 @@ export default function AdminWorkspaceBalancePage() {
         });
 
         if (result.error) {
-          toast({
-            title: t("form.error.operationFailed"),
-            description: result.error,
-            variant: "destructive",
-          });
+          toast.error(t("form.error.operationFailed"), { description: result.error });
         } else if (result.invoice) {
           setViewInvoice(result.invoice);
           setPaymentConfirmed(false);
@@ -370,10 +365,7 @@ export default function AdminWorkspaceBalancePage() {
         }
       } else if (showForm === "debit") {
         if (loadingRate || exchangeRate == null) {
-          toast({
-            title: "Exchange rate not loaded yet",
-            variant: "destructive",
-          });
+          toast.error(t("form.error.exchangeRateNotLoaded"));
           setSubmitting(false);
           return;
         }
@@ -388,16 +380,9 @@ export default function AdminWorkspaceBalancePage() {
         const result = await adminDebitResourceAction(workspaceId, payload);
 
         if (result.error) {
-          toast({
-            title: t("form.error.operationFailed"),
-            description: result.error,
-            variant: "destructive",
-          });
+          toast.error(t("form.error.operationFailed"), { description: result.error });
         } else {
-          toast({
-            title: t("form.success.debit"),
-            description: t("form.success.description"),
-          });
+          toast(t("form.success.debit"), { description: t("form.success.description") });
           setShowForm(null);
           setFormAmount("");
           setFormDescription("");
@@ -406,7 +391,7 @@ export default function AdminWorkspaceBalancePage() {
         }
       }
     } catch {
-      toast({ title: t("form.error.operationFailed"), variant: "destructive" });
+      toast.error(t("form.error.operationFailed"));
     } finally {
       setSubmitting(false);
     }

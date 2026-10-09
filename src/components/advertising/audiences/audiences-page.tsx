@@ -8,6 +8,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { Tabs, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 import { UsersThree } from "@/components/icons";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { useAccess } from "@/hooks/use-access";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { accountWritePermissions } from "@/lib/advertising/delivery";
 
@@ -19,15 +20,19 @@ import { SavedAudiencesPanel } from "./saved-audiences-panel";
 
 type AudienceTab = "meta" | "saved";
 
+const LEADS_AUDIENCE_CAPABILITY = "leads.meta_audience";
+
 export function AudiencesPage() {
   const t = useTranslations("adsAudiences");
   const { can, permissionsLoading } = useWorkspace();
+  const { decideCapabilities } = useAccess();
   const searchParams = useSearchParams();
   const canRead = !permissionsLoading && can("ads", "read");
   const permissions = {
     canCreate: !permissionsLoading && can("ads", "create"),
     canUpdate: !permissionsLoading && can("ads", "update"),
     canDelete: !permissionsLoading && can("ads", "delete"),
+    canCreateFromLeads: !permissionsLoading && can("ads", "create") && decideCapabilities([LEADS_AUDIENCE_CAPABILITY]) === "granted",
   };
   const accounts = useAdAccounts({ enabled: canRead, requested: searchParams.get("account") });
   const [tab, setTab] = useState<AudienceTab>("meta");
@@ -78,4 +83,5 @@ export interface AudiencePermissions {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  canCreateFromLeads: boolean;
 }

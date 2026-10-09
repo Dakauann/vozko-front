@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
+import en from "@/i18n/messages/en.json";
 import pt from "@/i18n/messages/pt.json";
 import type { OpportunityConversationLink } from "@/lib/crm/opportunities";
 import OpportunityLinkedConversations from "../OpportunityLinkedConversations";
@@ -50,5 +51,18 @@ describe("OpportunityLinkedConversations", () => {
   it("says when nothing is linked", () => {
     renderLinks([]);
     expect(screen.getByText("Nenhuma conversa vinculada a esta oportunidade.")).toBeTruthy();
+  });
+
+  it("speaks the viewer's language", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <OpportunityLinkedConversations links={[{ ...LINK, leadName: undefined, leadNumber: undefined }]} onUnlink={vi.fn()} />
+      </NextIntlClientProvider>,
+    );
+    const t = en.opportunityLinkedConversations;
+    expect(screen.getByText(t.title)).toBeTruthy();
+    expect(screen.getByText(t.unnamed)).toBeTruthy();
+    expect(screen.getByRole("link", { name: t.openWith.replace("{name}", t.unnamed) }).getAttribute("title")).toBe(t.open);
+    expect(screen.getByRole("button", { name: t.unlinkWith.replace("{name}", t.unnamed) }).getAttribute("title")).toBe(t.unlink);
   });
 });

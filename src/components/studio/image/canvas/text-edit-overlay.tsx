@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import { DEFAULT_LINE_HEIGHT } from "@/components/studio/canvas/layer-node";
 import { STUDIO_LIMITS, type CanvasSize, type Layer } from "@/lib/studio/document";
 import { cssFontOf, DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT } from "@/lib/studio/fonts";
-import type { Viewport } from "@/lib/studio/viewport";
+import { artboardOfLayer } from "@/lib/studio/artboards";
+import { localViewport, type Viewport } from "@/lib/studio/viewport";
 
 import { useEditorUi, useImageDoc, useImageEditor } from "../editor-state";
 
@@ -100,8 +101,8 @@ export function TextEditOverlay() {
   const { commands } = useImageEditor();
   const id = useEditorUi((s) => s.editingTextId);
   const viewport = useEditorUi((s) => s.viewport);
-  const layer = useImageDoc((s) => (id ? s.document.layers.find((l) => l.id === id) : undefined));
-  const canvas = useImageDoc((s) => s.document.canvas);
-  if (!id || !layer) return null;
-  return <TextEditor key={id} layer={layer} canvas={canvas} viewport={viewport} onDone={(text) => commands.finishTextEdit(id, text)} />;
+  const artboard = useImageDoc((s) => (id ? artboardOfLayer(s.document, id) : undefined));
+  const layer = artboard?.layers.find((l) => l.id === id);
+  if (!id || !artboard || !layer) return null;
+  return <TextEditor key={id} layer={layer} canvas={artboard.canvas} viewport={localViewport(viewport, artboard)} onDone={(text) => commands.finishTextEdit(id, text)} />;
 }

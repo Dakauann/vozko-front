@@ -15,11 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ShapeOpIcon } from "@/components/studio/canvas/vector/shape-op-icons";
+import { VectorToolIcon } from "@/components/studio/canvas/vector/tool-icons";
+import { VECTOR_TOOL_KEYS, VECTOR_TOOLS } from "@/lib/studio/vector-tools";
 import { ZOOM_PRESETS } from "@/lib/studio/viewport";
 import { cn } from "@/lib/utils";
 
 import { ICON_BUTTON_CLASS, IconButton, ToggleButton } from "./controls";
-import { useEditorUi, useImageDoc, useImageEditor } from "./editor-state";
+import { useActiveCanvas, useEditorUi, useImageDoc, useImageEditor } from "./editor-state";
 import { ExportMenu } from "./export-menu";
 import { ResizeForm } from "./resize-form";
 import { useSelectionActions, type MenuAction } from "./selection-actions";
@@ -31,6 +34,7 @@ function ActionItems({ actions }: { actions: MenuAction[] }) {
     <>
       {actions.map((action) => (
         <DropdownMenuItem key={action.id} disabled={action.disabled} onSelect={action.run}>
+          {action.icon}
           {action.label}
           {action.shortcut ? <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut> : null}
         </DropdownMenuItem>
@@ -41,6 +45,7 @@ function ActionItems({ actions }: { actions: MenuAction[] }) {
 
 function ContextActions() {
   const t = useTranslations("studio.image.toolbar");
+  const to = useTranslations("studio.vectors.ops");
   const actions = useSelectionActions();
   if (actions.count === 0) return null;
   const find = (id: string) => actions.edit.find((a) => a.id === id);
@@ -68,6 +73,22 @@ function ContextActions() {
           <ActionItems actions={actions.distribute} />
         </DropdownMenuContent>
       </DropdownMenu>
+      {actions.shapes.length > 0 ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className={ICON_BUTTON_CLASS} aria-label={to("title")}>
+              <ShapeOpIcon kind="union" className="h-4 w-4" />
+              <CaretDown className="h-3 w-3" aria-hidden />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-64">
+            <DropdownMenuLabel>{to("title")}</DropdownMenuLabel>
+            <ActionItems actions={actions.shapes} />
+            <DropdownMenuSeparator />
+            <ActionItems actions={actions.paths} />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
       {group ? (
         <IconButton label={group.label} onClick={group.run} disabled={group.disabled}>
           <Stack className="h-4 w-4" aria-hidden />
@@ -88,6 +109,21 @@ function ContextActions() {
           <Trash className="h-4 w-4" aria-hidden />
         </IconButton>
       ) : null}
+    </div>
+  );
+}
+
+function ToolButtons() {
+  const t = useTranslations("studio.vectors.tools");
+  const { commands } = useImageEditor();
+  const tool = useEditorUi((s) => s.tool);
+  return (
+    <div role="group" aria-label={t("label")} className="flex items-center gap-0.5">
+      {VECTOR_TOOLS.map((id) => (
+        <ToggleButton key={id} label={`${t(id)} (${VECTOR_TOOL_KEYS[id]})`} pressed={tool === id} onClick={() => commands.setTool(id)}>
+          <VectorToolIcon tool={id} className="h-4 w-4" />
+        </ToggleButton>
+      ))}
     </div>
   );
 }
@@ -157,7 +193,7 @@ function ViewMenu() {
 
 function ResizeButton() {
   const t = useTranslations("studio.image.toolbar");
-  const canvas = useImageDoc((s) => s.document.canvas);
+  const canvas = useActiveCanvas();
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -187,6 +223,8 @@ export function EditorToolbar() {
       <IconButton label={t("redo")} onClick={commands.redo} disabled={!canRedo}>
         <ArrowBendUpLeft className="h-4 w-4" mirrored aria-hidden />
       </IconButton>
+      {DIVIDER}
+      <ToolButtons />
       {DIVIDER}
       <ResizeButton />
       <ViewMenu />

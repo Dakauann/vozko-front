@@ -86,6 +86,27 @@ export function setKeyEasing(clip: KeyedClip, property: KeyframeProperty, localM
   return { keyframes: setKeyframe(clip.keyframes, property, existing.atMs, existing.value, easing) };
 }
 
+export interface PropertyEasing {
+  scope: "key" | "all";
+  easing: Easing | null;
+}
+
+export function propertyEasing(clip: KeyedClip, property: KeyframeProperty, localMs: number | null): PropertyEasing {
+  const frames = framesOf(clip, property);
+  const key = localMs === null ? null : keyAt(frames, localMs);
+  if (key) return { scope: "key", easing: key.easing };
+  const easings = new Set(frames.map((frame) => frame.easing));
+  return { scope: "all", easing: easings.size === 1 ? [...easings][0] : null };
+}
+
+export function setPropertyEasing(clip: KeyedClip, property: KeyframeProperty, localMs: number | null, easing: Easing): ClipPatch | null {
+  const frames = framesOf(clip, property);
+  const key = localMs === null ? null : keyAt(frames, localMs);
+  if (key) return key.easing === easing ? null : setKeyEasing(clip, property, key.atMs, easing);
+  if (frames.every((frame) => frame.easing === easing)) return null;
+  return { keyframes: { ...clip.keyframes, [property]: frames.map((frame) => ({ ...frame, easing })) } };
+}
+
 export interface TransformEdit {
   patch: ClipPatch;
   outside: boolean;

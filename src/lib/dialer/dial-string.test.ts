@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { appendDialKey, callOutcome, isDialable, DIAL_KEYS } from "./dial-string";
+import { appendDialKey, callOutcome, dialerErrorCode, isDialable, microphoneErrorCode, DIAL_KEYS } from "./dial-string";
 
 describe("dial string", () => {
   it("accepts what the trunk can dial and nothing else", () => {
@@ -27,5 +27,36 @@ describe("dial string", () => {
     expect(callOutcome("connection_lost")).toBe("connection_lost");
     expect(callOutcome("something_new")).toBe("ended");
     expect(callOutcome(undefined)).toBe("ended");
+  });
+
+  it("knows the refusals the dialer explains in the member's language", () => {
+    for (const code of ["lead_not_dialable", "lead_blocked", "number_required", "call_service_offline", "already_in_call", "call_list_item_unavailable"]) {
+      expect(dialerErrorCode(code)).toBe(code);
+    }
+    expect(dialerErrorCode("something_new")).toBeNull();
+    expect(dialerErrorCode(null)).toBeNull();
+  });
+
+  it("names why the browser would not hand over the microphone", () => {
+    const cases = [
+      { failure: "NotAllowedError", want: "microphone_denied" },
+      { failure: "PermissionDeniedError", want: "microphone_denied" },
+      { failure: "SecurityError", want: "microphone_denied" },
+      { failure: "NotFoundError", want: "microphone_not_found" },
+      { failure: "DevicesNotFoundError", want: "microphone_not_found" },
+      { failure: "OverconstrainedError", want: "microphone_not_found" },
+      { failure: "NotReadableError", want: "microphone_busy" },
+      { failure: "TrackStartError", want: "microphone_busy" },
+      { failure: "AbortError", want: "microphone_busy" },
+      { failure: "NotSupportedError", want: "call_audio_unsupported" },
+      { failure: "TypeError", want: "microphone_failed" },
+    ];
+    for (const { failure, want } of cases) {
+      expect(microphoneErrorCode(new DOMException("browser words", failure)), failure).toBe(want);
+      expect(dialerErrorCode(want)).toBe(want);
+    }
+    expect(microphoneErrorCode("not an error")).toBe("microphone_failed");
+    expect(microphoneErrorCode(null)).toBe("microphone_failed");
+    expect(dialerErrorCode("microphone_unsupported")).toBe("microphone_unsupported");
   });
 });

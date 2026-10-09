@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/browser-client";
-import { SectionError } from "@/lib/analytics/section-query";
+import { requireSectionData } from "@/lib/analytics/section-query";
 import {
   dispatchReportPath,
   dispatchReportQuery,
@@ -17,12 +17,5 @@ export async function fetchDispatchReportSection<S extends DispatchReportSection
   const url = `${dispatchReportPath(section)}?${query}`;
 
   const response = await apiClient<DispatchReportPayloads[S]>(url, { method: "GET", signal });
-
-  if (response.error) {
-    throw new SectionError(response.error.message, response.error.status);
-  }
-  if (!response.data) {
-    throw new SectionError(`dispatch report section ${section} came back empty`);
-  }
-  return response.data;
+  return requireSectionData(response, `dispatch report section ${section}`);
 }

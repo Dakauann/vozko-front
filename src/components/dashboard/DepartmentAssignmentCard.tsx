@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useDepartment } from "@/contexts/department-context";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -41,7 +41,6 @@ export function DepartmentAssignmentCard({
 }: DepartmentAssignmentCardProps) {
   const t = useTranslations("departmentAssignment");
   const router = useRouter();
-  const { toast } = useToast();
   const { user } = useAuth();
   const { currentWorkspace } = useWorkspace();
   const { departments, currentDepartment, isLoading } = useDepartment();
@@ -121,16 +120,13 @@ export function DepartmentAssignmentCard({
       try {
         const result = await onAssign(selectedDepartment.id);
         if (result.error) {
-          toast({
-            title: t("errorTitle"),
+          toast.error(t("errorTitle"), {
             description: result.error,
-            variant: "destructive",
           });
           return;
         }
 
-        toast({
-          title: isAssigned ? t("updatedTitle") : t("successTitle"),
+        toast(isAssigned ? t("updatedTitle") : t("successTitle"), {
           description: isAssigned
             ? t("updatedDescription", {
                 department: selectedDepartment.name,
@@ -147,11 +143,8 @@ export function DepartmentAssignmentCard({
 
         router.refresh();
       } catch (error) {
-        toast({
-          title: t("errorTitle"),
-          description:
-            error instanceof Error ? error.message : t("unexpectedError"),
-          variant: "destructive",
+        toast.error(t("errorTitle"), {
+          description: error instanceof Error ? error.message : t("unexpectedError"),
         });
       }
     });

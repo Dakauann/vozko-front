@@ -9,6 +9,7 @@ import { ArrowsLeftRight, Microphone, MicrophoneSlash, PhoneDisconnect, SpinnerG
 import { useCallSession } from "@/contexts/call-session-context";
 import { formatCallDuration, useCallElapsedSeconds } from "@/hooks/use-call-clock";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
+import { isCallLive } from "@/lib/call-session/call-readiness";
 import { transferErrorCode } from "@/lib/call-session/transfer";
 import { callOutcome } from "@/lib/dialer/dial-string";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export function InCallPanel({ via }: { via?: string | null }) {
 
   if (!callState) return null;
 
-  const live = callState.status !== "ended";
+  const live = isCallLive(callState);
   const answered = callState.status === "answered";
   const connecting = callState.status === "ringing" || callState.status === "waiting_slot";
   const transferredBy = callState.transferredBy;

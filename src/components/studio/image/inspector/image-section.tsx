@@ -17,6 +17,7 @@ import { useEditorUi, useImageEditor } from "../editor-state";
 import { ImageSourcePicker } from "../image-source-picker";
 import { JobStatusList, useJobsFor } from "../jobs";
 import { RemoveBackground } from "../remove-background";
+import { TraceSection } from "./trace-section";
 import { OutlineSection, ShadowSection } from "./effects";
 
 const MAX_PROMPT = 4000;
@@ -91,7 +92,7 @@ function FiltersControls({ layer }: { layer: Layer }) {
           min={slider.min}
           max={slider.max}
           step={slider.step}
-          format={(value) => String(Math.round(value * slider.scale))}
+          entry={{ range: LAYER_RANGES[slider.key], scale: slider.scale }}
           disabled={locked}
           onStart={commands.beginLive}
           onEnd={commands.endLive}
@@ -208,6 +209,7 @@ export function ImageSection({ layer, canvas }: { layer: Layer; canvas: CanvasSi
         <RemoveBackground layer={layer} />
       </InspectorSection>
       <FiltersControls layer={layer} />
+      <TraceSection layer={layer} />
       <EditWithAi layer={layer} canvas={canvas} />
       <OutlineSection layer={layer} disabled={locked} onPatch={patch} />
       <ShadowSection layer={layer} disabled={locked} onPatch={patch} />

@@ -1,12 +1,24 @@
-
+import type { ReactElement } from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+
+import ptMessages from "@/i18n/messages/pt.json";
+import enMessages from "@/i18n/messages/en.json";
 
 import { ConfirmDialog } from "./confirm-dialog";
 
+function renderInPt(ui: ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="pt" messages={ptMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 describe("ConfirmDialog", () => {
   it("opens from its trigger and shows the title and description", async () => {
-    render(
+    renderInPt(
       <ConfirmDialog
         trigger={<button type="button">Excluir workflow</button>}
         title="Excluir workflow"
@@ -22,7 +34,7 @@ describe("ConfirmDialog", () => {
 
   it("runs onConfirm and closes when confirmed", async () => {
     const onConfirm = vi.fn();
-    render(
+    renderInPt(
       <ConfirmDialog
         trigger={<button type="button">open</button>}
         title="Excluir workflow"
@@ -41,7 +53,7 @@ describe("ConfirmDialog", () => {
 
   it("does not run onConfirm when cancelled", async () => {
     const onConfirm = vi.fn();
-    render(
+    renderInPt(
       <ConfirmDialog
         trigger={<button type="button">open</button>}
         title="Título"
@@ -55,7 +67,7 @@ describe("ConfirmDialog", () => {
   });
 
   it("uses the default danger confirm label when none is given", async () => {
-    render(
+    renderInPt(
       <ConfirmDialog
         trigger={<button type="button">open</button>}
         title="Título"
@@ -67,4 +79,40 @@ describe("ConfirmDialog", () => {
       await screen.findByRole("button", { name: "Excluir" }),
     ).toBeInTheDocument();
   });
+
+  it("takes its default labels from the viewer's locale", () => {
+    const { unmount } = render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <ConfirmDialog open title="Remove" onConfirm={() => {}} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
+    unmount();
+
+    render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <ConfirmDialog open tone="default" title="Apply" onConfirm={() => {}} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("button", { name: "Confirm" })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["danger", "tile-fault"],
+    ["default", "tile-info"],
+  ] as const)(
+    "marks the %s tone with a glyph tile, never grain or a gradient",
+    (tone, tileClass) => {
+      renderInPt(
+        <ConfirmDialog open tone={tone} title="Título" onConfirm={() => {}} />,
+      );
+      const dialog = screen.getByRole("alertdialog");
+      expect(dialog.querySelector(`.${tileClass}`)).not.toBeNull();
+      expect(dialog.querySelector("canvas")).toBeNull();
+      expect(dialog.querySelector("filter")).toBeNull();
+      expect(dialog.querySelector("[class*='gradient']")).toBeNull();
+      expect(dialog.querySelector("[class*='shadow-lg']")).toBeNull();
+    },
+  );
 });

@@ -18,7 +18,7 @@ import {
 import { createCallQueueAction, updateCallQueueAction } from "@/app/actions/call-routing";
 import { listMembersAction } from "@/app/actions/workspace";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { fetchDepartments } from "@/lib/department/client";
 import type { Department } from "@/lib/department/types";
 import {
@@ -69,7 +69,6 @@ function CallQueueForm({
   onSaved: () => void;
 }) {
   const t = useTranslations("callQueues.form");
-  const { toast } = useToast();
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
   const [form, setForm] = useState<QueueForm>(() => queueFormFrom(queue));
@@ -111,10 +110,10 @@ function CallQueueForm({
       const payload = queuePayload(form);
       const result = queue ? await updateCallQueueAction(queue.id, payload) : await createCallQueueAction(payload);
       if (result.error) {
-        toast({ title: t("saveFailed"), description: result.error, variant: "destructive" });
+        toast.error(t("saveFailed"), { description: result.error });
         return;
       }
-      toast({ title: queue ? t("updated") : t("created"), description: payload.name });
+      toast(queue ? t("updated") : t("created"), { description: payload.name });
       onClose();
       onSaved();
     });

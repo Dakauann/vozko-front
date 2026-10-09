@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, type ImageDocument, type Layer } from "./document";
+import { emptyArtboard, type ImageSurface, type Layer } from "./document";
 import { addLayers, translateLayers } from "./layers";
 import { createStudioStore, HISTORY_LIMIT } from "./store";
 
@@ -9,10 +9,17 @@ function rect(id: string): Layer {
 }
 
 function store() {
-  return createStudioStore<ImageDocument>(emptyImageDocument({ width: 1000, height: 1000 }));
+  return createStudioStore<ImageSurface>(emptyArtboard({ width: 1000, height: 1000 }));
 }
 
 describe("studio editor store", () => {
+  it("keeps every document it holds frozen, so derived indexes can be cached by identity", () => {
+    const s = store();
+    expect(Object.isFrozen(s.getState().document.layers)).toBe(true);
+    s.getState().reset(emptyArtboard({ width: 500, height: 500 }));
+    expect(Object.isFrozen(s.getState().document.layers)).toBe(true);
+  });
+
   it("applies operations and undoes and redoes them", () => {
     const s = store();
     s.getState().apply((d) => addLayers(d, [rect("a")]), ["a"]);
@@ -96,7 +103,7 @@ describe("studio editor store", () => {
   it("resets to a new document without history", () => {
     const s = store();
     s.getState().apply((d) => addLayers(d, [rect("a")]));
-    s.getState().reset(emptyImageDocument({ width: 500, height: 500 }));
+    s.getState().reset(emptyArtboard({ width: 500, height: 500 }));
     expect(s.getState().canUndo).toBe(false);
     expect(s.getState().document.canvas.width).toBe(500);
   });

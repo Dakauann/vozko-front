@@ -17,7 +17,7 @@ import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { DownloadSimple, Info } from "@/components/icons";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { useExportEntries } from "@/hooks/use-export-entries";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   DISPATCHED_STATUSES,
   SEND_STATUSES,
@@ -46,7 +46,6 @@ export function CampaignsLeadsExportDialog({
   const t = useTranslations("campaignsSummary");
   const empty = useEmptyValue();
   const tStatus = useTranslations("whatsappCampaignsPage");
-  const { toast } = useToast();
   const { exporting, exportEntries } = useExportEntries();
 
   const [open, setOpen] = useState(false);
@@ -90,15 +89,11 @@ export function CampaignsLeadsExportDialog({
     );
 
     if ("error" in result) {
-      toast({
-        title: t("export.errorTitle"),
-        description: t(`export.${exportErrorKey(result.error)}`),
-        variant: "destructive",
-      });
+      toast.error(t("export.errorTitle"), { description: t(`export.${exportErrorKey(result.error)}`) });
       return;
     }
 
-    toast({ title: t("export.success") });
+    toast(t("export.success"));
     setOpen(false);
   };
 

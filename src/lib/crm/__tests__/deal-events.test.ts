@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dealEventText, type OpportunityEvent } from "@/lib/crm/opportunities";
+import { dealEventMessage, type OpportunityEvent } from "@/lib/crm/opportunities";
 
 function event(overrides: Partial<OpportunityEvent>): OpportunityEvent {
   return {
@@ -16,40 +16,38 @@ function event(overrides: Partial<OpportunityEvent>): OpportunityEvent {
 }
 
 const stages = new Map([["st-new", "Novo"], ["st-won", "Ganho"]]);
+const labels = { removedStage: "etapa removida", money: (cents: number, currency: string) => `${currency} ${cents}` };
 
-describe("dealEventText", () => {
+describe("dealEventMessage", () => {
   it("says who created the deal", () => {
-    expect(dealEventText(event({ type: "created" }), "Agente de IA", stages)).toBe("Agente de IA criou a oportunidade");
+    expect(dealEventMessage(event({ type: "created" }), "Agente de IA", stages, labels)).toEqual({
+      key: "created",
+      values: { actor: "Agente de IA", from: "etapa removida", to: "etapa removida", value: "BRL 0" },
+    });
   });
 
   it("names both stages of a move", () => {
-    expect(
-      dealEventText(event({ type: "stage_moved", fromStageId: "st-new", toStageId: "st-won" }), "Ana", stages),
-    ).toBe("Ana moveu de Novo para Ganho");
+    expect(dealEventMessage(event({ type: "stage_moved", fromStageId: "st-new", toStageId: "st-won" }), "Ana", stages, labels).values).toMatchObject({
+      from: "Novo",
+      to: "Ganho",
+    });
   });
 
-  it("carries the value of a win", () => {
-    expect(dealEventText(event({ type: "won", valueCents: 150050 }), "Fluxo", stages)).toMatch(
-      /^Fluxo marcou como ganha \(R\$\s1\.500,50\)$/,
-    );
+  it("carries the value of a win in the deal's own currency", () => {
+    expect(dealEventMessage(event({ type: "won", valueCents: 150050, currency: "USD" }), "Fluxo", stages, labels).values.value).toBe("USD 150050");
   });
 
-  it("carries the new value of a value change", () => {
-    expect(dealEventText(event({ type: "value_changed", valueCents: 7900 }), "Ana", stages)).toMatch(
-      /^Ana alterou o valor para R\$\s79,00$/,
-    );
+  it("formats a deal without a currency as reais", () => {
+    expect(dealEventMessage(event({ type: "value_changed", valueCents: 7900, currency: "" }), "Ana", stages, labels).values.value).toBe("BRL 7900");
   });
 
   it("falls back to a neutral stage name for a stage that no longer exists", () => {
-    expect(
-      dealEventText(event({ type: "stage_moved", fromStageId: "st-gone", toStageId: "st-new" }), "Ana", stages),
-    ).toBe("Ana moveu de etapa removida para Novo");
+    expect(dealEventMessage(event({ type: "stage_moved", fromStageId: "st-gone", toStageId: "st-new" }), "Ana", stages, labels).values.from).toBe("etapa removida");
   });
 
-  it("describes the remaining events", () => {
-    expect(dealEventText(event({ type: "lost" }), "Ana", stages)).toBe("Ana marcou como perdida");
-    expect(dealEventText(event({ type: "reopened" }), "Ana", stages)).toBe("Ana reabriu a oportunidade");
-    expect(dealEventText(event({ type: "owner_changed" }), "Ana", stages)).toBe("Ana trocou o responsável");
-    expect(dealEventText(event({ type: "linked" }), "Ana", stages)).toBe("Ana vinculou uma conversa");
+  it("keys every event by its own type", () => {
+    for (const type of ["lost", "reopened", "owner_changed", "linked"] as const) {
+      expect(dealEventMessage(event({ type }), "Ana", stages, labels).key).toBe(type);
+    }
   });
 });

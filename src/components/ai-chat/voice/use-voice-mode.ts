@@ -8,7 +8,7 @@ import { useCallActive } from "@/lib/call-session/call-session-control";
 import type { ListenFailure } from "@/lib/voice/browser-speech";
 import { nextSentences, soundsLikeInterruption } from "@/lib/voice/speech-text";
 
-import type { UIMessage } from "../message-list";
+import type { UIMessage } from "@/lib/aichat/ui-message";
 
 export type VoicePhase =
   | "off"

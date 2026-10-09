@@ -1,7 +1,30 @@
 import { produce, type Draft } from "immer";
 
-import { newStudioId, STUDIO_LIMITS, type CanvasSize, type ImageDocument, type Layer, type StudioGroup, type Transform } from "./document";
-import { cleanupGroups, cloneWithGroups, groupAncestry, groupLayerIds, groupParents, outermostGroup } from "./groups";
+import { newStudioId, STUDIO_LIMITS, type CanvasSize, type ImageSurface, type Layer, type StudioGroup, type Transform } from "./document";
+import {
+  baseOf,
+  bottomIndex,
+  captureGroup,
+  cleanupGroups,
+  cloneWithGroups,
+  containerOf,
+  dissolveGroup,
+  dropItem,
+  familyOf,
+  ancestry,
+  groupAncestry,
+  groupParents,
+  groupLayerIds,
+  itemLayerIds,
+  layerChain,
+  scaffoldOf,
+  selectionItems,
+  siblingItems,
+  treeLayerOrder,
+  type TreeItem,
+} from "./groups";
+import { indexOf } from "./layer-index";
+import { clampTo, LAYER_RANGES, normalizedRotation } from "./layer-ranges";
 
 export type LayerPatch = Partial<Omit<Layer, "id" | "type">>;
 
@@ -20,63 +43,132 @@ export interface Bounds {
 
 export const DUPLICATE_OFFSET = 0.02;
 
-export function layerById(doc: ImageDocument, id: string): Layer | undefined {
-  return doc.layers.find((l) => l.id === id);
+const SIZE_EPSILON = 1e-9;
+
+export function layerById(doc: ImageSurface, id: string): Layer | undefined {
+  return indexOf(doc).layers.get(id);
 }
 
-export function canAddLayers(doc: ImageDocument, count: number): boolean {
-  return doc.layers.length + count <= STUDIO_LIMITS.maxLayers;
+export function isPickable(layer: Layer): boolean {
+  return !layer.hidden && !layer.locked;
 }
 
-export function withGroupMembers(doc: ImageDocument, ids: readonly string[]): string[] {
+export function withGroupMembers(doc: ImageSurface, ids: readonly string[]): string[] {
   const wanted = new Set(ids);
-  const tops = new Set(ids.map((id) => outermostGroup(doc, id)).filter((g): g is string => g !== null));
-  return doc.layers.filter((l) => wanted.has(l.id) || tops.has(outermostGroup(doc, l.id) ?? "")).map((l) => l.id);
+  for (const id of ids) {
+    const group = captureGroup(doc, id);
+    if (group) for (const member of groupLayerIds(doc, group)) wanted.add(member);
+  }
+  return doc.layers.filter((l) => wanted.has(l.id)).map((l) => l.id);
 }
 
-function editable(doc: ImageDocument, ids: readonly string[]): Set<string> {
+function editable(doc: ImageSurface, ids: readonly string[]): Set<string> {
   const wanted = new Set(ids);
   return new Set(doc.layers.filter((l) => wanted.has(l.id) && !l.locked).map((l) => l.id));
 }
 
-export function addLayers(doc: ImageDocument, layers: readonly Layer[], atIndex: number = doc.layers.length): ImageDocument {
-  if (layers.length === 0 || !canAddLayers(doc, layers.length)) return doc;
+export function addLayers(doc: ImageSurface, layers: readonly Layer[], atIndex: number = doc.layers.length): ImageSurface {
+  if (layers.length === 0) return doc;
   return produce(doc, (draft) => {
     draft.layers.splice(Math.max(0, Math.min(atIndex, draft.layers.length)), 0, ...(layers as Draft<Layer>[]));
   });
 }
 
-export function updateLayers(doc: ImageDocument, ids: readonly string[], patch: LayerPatch | ((layer: Layer) => LayerPatch)): ImageDocument {
+export function addLayersAbove(doc: ImageSurface, layers: readonly Layer[], anchorId: string): ImageSurface {
+  const index = doc.layers.findIndex((l) => l.id === anchorId);
+  if (index < 0) return addLayers(doc, layers);
+  const groupId = doc.layers[index].groupId;
+  return addLayers(
+    doc,
+    layers.map((l) => (groupId ? { ...l, groupId } : l)),
+    index + 1,
+  );
+}
+
+interface Motion {
+  from: Transform;
+  to: Transform;
+}
+
+function rigidMotion(from: Transform, to: Transform): Motion | null {
+  if (Math.abs(from.w - to.w) > SIZE_EPSILON || Math.abs(from.h - to.h) > SIZE_EPSILON) return null;
+  if (from.x === to.x && from.y === to.y && from.rotation === to.rotation) return null;
+  return { from, to };
+}
+
+function follow(layer: Draft<Layer>, motion: Motion, canvas: CanvasSize) {
+  const { from, to } = motion;
+  const turn = to.rotation - from.rotation;
+  const radians = (turn * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const px = (layer.transform.x - from.x) * canvas.width;
+  const py = (layer.transform.y - from.y) * canvas.height;
+  layer.transform.x = clampTo(to.x + (px * cos - py * sin) / canvas.width, LAYER_RANGES.position);
+  layer.transform.y = clampTo(to.y + (px * sin + py * cos) / canvas.height, LAYER_RANGES.position);
+  if (turn !== 0) layer.transform.rotation = normalizedRotation(layer.transform.rotation + turn);
+}
+
+function nearestMovedParent(doc: ImageSurface, layerId: string, motions: ReadonlyMap<string, Motion | null>): Motion | null {
+  const own = scaffoldOf(doc, layerId);
+  for (const groupId of layerChain(doc, layerId)) {
+    const base = groupId === own ? null : baseOf(doc, groupId);
+    if (base && motions.has(base)) return motions.get(base) ?? null;
+  }
+  return null;
+}
+
+export function updateLayers(doc: ImageSurface, ids: readonly string[], patch: LayerPatch | ((layer: Layer) => LayerPatch)): ImageSurface {
   const targets = editable(doc, ids);
   if (targets.size === 0) return doc;
   return produce(doc, (draft) => {
-    for (const layer of draft.layers) {
-      if (!targets.has(layer.id)) continue;
-      Object.assign(layer, typeof patch === "function" ? patch(layer as Layer) : patch);
-    }
+    const motions = new Map<string, Motion | null>();
+    doc.layers.forEach((base, i) => {
+      if (!targets.has(base.id)) return;
+      const layer = draft.layers[i];
+      Object.assign(layer, typeof patch === "function" ? patch(base) : patch);
+      if (scaffoldOf(doc, base.id)) motions.set(base.id, rigidMotion(base.transform, { ...layer.transform }));
+    });
+    if (motions.size === 0) return;
+    doc.layers.forEach((base, i) => {
+      if (targets.has(base.id)) return;
+      const motion = nearestMovedParent(doc, base.id, motions);
+      if (motion) follow(draft.layers[i], motion, doc.canvas);
+    });
   });
 }
 
-export function translateLayers(doc: ImageDocument, ids: readonly string[], dx: number, dy: number): ImageDocument {
+export function translateLayers(doc: ImageSurface, ids: readonly string[], dx: number, dy: number): ImageSurface {
   return updateLayers(doc, ids, (layer) => ({ transform: { ...layer.transform, x: clamp(layer.transform.x + dx, -1, 2), y: clamp(layer.transform.y + dy, -1, 2) } }));
 }
 
-export function setLayersLocked(doc: ImageDocument, ids: readonly string[], locked: boolean): ImageDocument {
-  const wanted = new Set(ids);
+export function changedTransforms(before: ImageSurface, after: ImageSurface): Map<string, Transform> {
+  const previous = new Map(before.layers.map((l) => [l.id, l.transform]));
+  return new Map(after.layers.filter((l) => previous.has(l.id) && previous.get(l.id) !== l.transform).map((l) => [l.id, l.transform]));
+}
+
+export function setLayersLocked(doc: ImageSurface, ids: readonly string[], locked: boolean): ImageSurface {
+  const wanted = new Set(familyOf(doc, ids));
   return produce(doc, (draft) => {
     for (const layer of draft.layers) if (wanted.has(layer.id)) layer.locked = locked || undefined;
   });
 }
 
-export function setLayersHidden(doc: ImageDocument, ids: readonly string[], hidden: boolean): ImageDocument {
-  const wanted = new Set(ids);
+export function setLayersHidden(doc: ImageSurface, ids: readonly string[], hidden: boolean): ImageSurface {
+  const wanted = new Set(familyOf(doc, ids));
   return produce(doc, (draft) => {
     for (const layer of draft.layers) if (wanted.has(layer.id)) layer.hidden = hidden || undefined;
   });
 }
 
-export function deleteLayers(doc: ImageDocument, ids: readonly string[]): ImageDocument {
-  const targets = editable(doc, ids);
+export function newlyLocked(before: Pick<ImageSurface, "layers">, after: Pick<ImageSurface, "layers">, selection: readonly string[]): string[] {
+  const was = new Set(before.layers.filter((l) => l.locked).map((l) => l.id));
+  const now = new Set(after.layers.filter((l) => l.locked && !was.has(l.id)).map((l) => l.id));
+  return selection.filter((id) => now.has(id));
+}
+
+export function deleteLayers(doc: ImageSurface, ids: readonly string[]): ImageSurface {
+  const targets = editable(doc, familyOf(doc, [...editable(doc, ids)]));
   if (targets.size === 0) return doc;
   return produce(doc, (draft) => {
     draft.layers = draft.layers.filter((l) => !targets.has(l.id));
@@ -85,14 +177,14 @@ export function deleteLayers(doc: ImageDocument, ids: readonly string[]): ImageD
 }
 
 function insertClones(
-  doc: ImageDocument,
+  doc: ImageSurface,
   sources: readonly Layer[],
   meta: readonly StudioGroup[],
   offset: number,
   atIndex: number,
   keep: (groupId: string) => boolean,
-): { document: ImageDocument; ids: string[] } {
-  if (sources.length === 0 || !canAddLayers(doc, sources.length)) return { document: doc, ids: [] };
+): { document: ImageSurface; ids: string[] } {
+  if (sources.length === 0) return { document: doc, ids: [] };
   const { layers: copies, groups } = cloneWithGroups(sources, meta, offset, keep, (v) => clamp(v, -1, 2));
   const document = produce(addLayers(doc, copies, atIndex), (draft) => {
     if (groups.length > 0) draft.groups = [...(draft.groups ?? []), ...groups];
@@ -101,8 +193,8 @@ function insertClones(
   return { document, ids: copies.map((c) => c.id) };
 }
 
-export function duplicateLayers(doc: ImageDocument, ids: readonly string[], offset: number = DUPLICATE_OFFSET): { document: ImageDocument; ids: string[] } {
-  const wanted = new Set(ids);
+export function duplicateLayers(doc: ImageSurface, ids: readonly string[], offset: number = DUPLICATE_OFFSET): { document: ImageSurface; ids: string[] } {
+  const wanted = new Set(familyOf(doc, ids));
   const sources = doc.layers.filter((l) => wanted.has(l.id));
   const top = Math.max(-1, ...sources.map((l) => doc.layers.indexOf(l)));
   const whole = (groupId: string) => groupLayerIds(doc, groupId).every((id) => wanted.has(id));
@@ -110,87 +202,88 @@ export function duplicateLayers(doc: ImageDocument, ids: readonly string[], offs
 }
 
 export function pasteLayers(
-  doc: ImageDocument,
+  doc: ImageSurface,
   layers: readonly Layer[],
   offset: number = DUPLICATE_OFFSET,
   groups: readonly StudioGroup[] = [],
-): { document: ImageDocument; ids: string[] } {
-  return insertClones(doc, layers, groups, offset, doc.layers.length, () => false);
+  atIndex: number = doc.layers.length,
+): { document: ImageSurface; ids: string[] } {
+  return insertClones(doc, layers, groups, offset, atIndex, () => false);
 }
 
-export function reorderLayers(doc: ImageDocument, ids: readonly string[], direction: OrderDirection): ImageDocument {
-  const wanted = new Set(ids);
-  if (!doc.layers.some((l) => wanted.has(l.id))) return doc;
+function itemKey(item: TreeItem): string {
+  return `${item.kind}:${item.id}`;
+}
+
+function reordered<T>(list: readonly T[], picked: (item: T) => boolean, direction: OrderDirection): T[] {
+  if (direction === "front") return [...list.filter((item) => !picked(item)), ...list.filter(picked)];
+  if (direction === "back") return [...list.filter(picked), ...list.filter((item) => !picked(item))];
+  const items = [...list];
+  const step = direction === "forward" ? 1 : -1;
+  const order = step === 1 ? [...items.keys()].reverse() : [...items.keys()];
+  for (const i of order) {
+    const j = i + step;
+    if (!picked(items[i]) || j < 0 || j >= items.length || picked(items[j])) continue;
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
+}
+
+export function reorderLayers(doc: ImageSurface, ids: readonly string[], direction: OrderDirection): ImageSurface {
+  const picked = new Map<string | null, Set<string>>();
+  for (const item of selectionItems(doc, ids)) {
+    const container = containerOf(doc, item);
+    picked.set(container, (picked.get(container) ?? new Set()).add(itemKey(item)));
+  }
+  if (picked.size === 0) return doc;
+  const order = treeLayerOrder(doc, (container) => {
+    const chosen = picked.get(container);
+    const siblings = siblingItems(doc, container);
+    return chosen ? reordered(siblings, (item) => chosen.has(itemKey(item)), direction) : siblings;
+  });
+  if (!order || order.every((id, i) => doc.layers[i].id === id)) return doc;
+  const byId = new Map(doc.layers.map((l) => [l.id, l]));
   return produce(doc, (draft) => {
-    const picked = draft.layers.filter((l) => wanted.has(l.id));
-    const rest = draft.layers.filter((l) => !wanted.has(l.id));
-    if (direction === "front") {
-      draft.layers = [...rest, ...picked];
-      return;
-    }
-    if (direction === "back") {
-      draft.layers = [...picked, ...rest];
-      return;
-    }
-    const layers = [...draft.layers];
-    const step = direction === "forward" ? 1 : -1;
-    const order = step === 1 ? [...layers.keys()].reverse() : [...layers.keys()];
-    for (const i of order) {
-      const j = i + step;
-      if (!wanted.has(layers[i].id) || j < 0 || j >= layers.length || wanted.has(layers[j].id)) continue;
-      [layers[i], layers[j]] = [layers[j], layers[i]];
-    }
-    draft.layers = layers;
+    draft.layers = order.map((id) => byId.get(id)!) as Draft<Layer>[];
   });
 }
 
-export function moveLayerTo(doc: ImageDocument, id: string, toIndex: number): ImageDocument {
-  const from = doc.layers.findIndex((l) => l.id === id);
-  const to = clamp(Math.round(toIndex), 0, doc.layers.length - 1);
-  if (from < 0 || from === to) return doc;
-  return produce(doc, (draft) => {
-    const [layer] = draft.layers.splice(from, 1);
-    draft.layers.splice(to, 0, layer);
-  });
+interface Wrapping {
+  parent: string | null;
+  units: TreeItem[];
 }
 
-function commonParent(doc: ImageDocument, ids: readonly string[]): string | null {
-  const chains = ids.map((id) => groupAncestry(doc, layerById(doc, id)?.groupId).reverse());
-  let shared: string | null = null;
-  for (let depth = 0; chains.every((c) => depth < c.length && c[depth] === chains[0][depth]); depth++) shared = chains[0][depth];
-  const wanted = new Set(ids);
+function wrapping(doc: ImageSurface, ids: readonly string[]): Wrapping | null {
+  const items = selectionItems(doc, ids);
+  if (items.length === 0) return null;
   const parents = groupParents(doc);
-  while (shared !== null && groupLayerIds(doc, shared).every((id) => wanted.has(id))) shared = parents.get(shared) ?? null;
-  return shared;
+  const paths = items.map((item) => ancestry(parents, containerOf(doc, item)).reverse());
+  let depth = 0;
+  while (paths.every((path) => depth < path.length && path[depth] === paths[0][depth])) depth++;
+  const found = new Map<string, TreeItem>();
+  items.forEach((item, i) => {
+    const unit: TreeItem = paths[i].length > depth ? { kind: "group", id: paths[i][depth] } : item;
+    found.set(itemKey(unit), unit);
+  });
+  const units = [...found.values()].sort((a, b) => bottomIndex(doc, a) - bottomIndex(doc, b));
+  return { parent: depth > 0 ? paths[0][depth - 1] : null, units };
 }
 
-function childUnder(doc: ImageDocument, layerId: string, parent: string | null): { kind: "layer" | "group"; id: string } {
-  const chain = groupAncestry(doc, layerById(doc, layerId)?.groupId);
-  const index = parent === null ? chain.length : chain.indexOf(parent);
-  return index > 0 ? { kind: "group", id: chain[index - 1] } : { kind: "layer", id: layerId };
-}
-
-export function groupLayers(doc: ImageDocument, ids: readonly string[]): { document: ImageDocument; groupId: string | null } {
-  const present = ids.filter((id) => layerById(doc, id));
-  if (present.length === 0) return { document: doc, groupId: null };
-  const parent = commonParent(doc, present);
-  const children = new Map(present.map((id) => childUnder(doc, id, parent)).map((c) => [c.kind + ":" + c.id, c]));
-  if (children.size < 2) return { document: doc, groupId: null };
-  const groupId = newStudioId("g");
-  const document = produce(doc, (draft) => {
-    const groups = [...(draft.groups ?? []), { id: groupId, ...(parent ? { parentId: parent } : {}) }];
+function wrap(doc: ImageSurface, { parent, units }: Wrapping, entry: StudioGroup): ImageSurface {
+  return produce(doc, (draft) => {
+    const groups = [...(draft.groups ?? []), { ...entry, ...(parent ? { parentId: parent } : {}) }];
     draft.groups = groups;
-    for (const child of children.values()) {
-      if (child.kind === "layer") {
-        const layer = draft.layers.find((l) => l.id === child.id);
-        if (layer) layer.groupId = groupId;
+    for (const unit of units) {
+      if (unit.kind === "layer") {
+        const layer = draft.layers.find((l) => l.id === unit.id);
+        if (layer) layer.groupId = entry.id;
         continue;
       }
-      const entry = draft.groups.find((g) => g.id === child.id);
-      if (entry) entry.parentId = groupId;
-      else draft.groups.push({ id: child.id, parentId: groupId });
+      const existing = draft.groups.find((g) => g.id === unit.id);
+      if (existing) existing.parentId = entry.id;
+      else draft.groups.push({ id: unit.id, parentId: entry.id });
     }
-    const members = new Set(groupLayerIds(draft as ImageDocument, groupId));
+    const members = new Set(groupLayerIds(draft as ImageSurface, entry.id));
     const top = Math.max(...draft.layers.map((l, i) => (members.has(l.id) ? i : -1)));
     const above = draft.layers.slice(top + 1);
     const below = draft.layers.slice(0, top + 1).filter((l) => !members.has(l.id));
@@ -198,18 +291,78 @@ export function groupLayers(doc: ImageDocument, ids: readonly string[]): { docum
     draft.layers = [...below, ...picked, ...above];
     cleanupGroups(draft);
   });
-  return { document, groupId };
 }
 
-export function ungroupLayers(doc: ImageDocument, ids: readonly string[]): ImageDocument {
-  const tops = new Set(ids.map((id) => outermostGroup(doc, id)).filter((g): g is string => g !== null));
-  if (tops.size === 0) return doc;
-  return produce(doc, (draft) => {
-    for (const l of draft.layers) if (l.groupId && tops.has(l.groupId)) delete l.groupId;
-    for (const g of draft.groups ?? []) if (g.parentId && tops.has(g.parentId)) delete g.parentId;
-    if (draft.groups) draft.groups = draft.groups.filter((g) => !tops.has(g.id));
-    cleanupGroups(draft);
+export function groupLayers(doc: ImageSurface, ids: readonly string[]): { document: ImageSurface; groupId: string | null } {
+  const plan = wrapping(doc, ids);
+  if (!plan || plan.units.length < 2) return { document: doc, groupId: null };
+  const groupId = newStudioId("g");
+  return { document: wrap(doc, plan, { id: groupId }), groupId };
+}
+
+function scaffoldBase(doc: ImageSurface, plan: Wrapping | null): TreeItem | null {
+  if (!plan || plan.units.length < 2) return null;
+  const lowest = plan.units[0];
+  return lowest.kind === "layer" || baseOf(doc, lowest.id) ? lowest : null;
+}
+
+export function canCreateScaffold(doc: ImageSurface, ids: readonly string[]): boolean {
+  return scaffoldBase(doc, wrapping(doc, ids)) !== null;
+}
+
+export function createScaffold(doc: ImageSurface, ids: readonly string[]): { document: ImageSurface; scaffoldId: string | null } {
+  const plan = wrapping(doc, ids);
+  const base = scaffoldBase(doc, plan);
+  if (!plan || !base) return { document: doc, scaffoldId: null };
+  if (base.kind === "layer") {
+    const scaffoldId = newStudioId("g");
+    return { document: wrap(doc, plan, { id: scaffoldId, baseId: base.id }), scaffoldId };
+  }
+  const document = plan.units.slice(1).reduce((current, unit) => dropItem(current, unit, base, "into"), doc);
+  return { document, scaffoldId: base.id };
+}
+
+export function ungroupTargets(doc: ImageSurface, ids: readonly string[]): string[] {
+  return [...new Set(ids.map((id) => scaffoldOf(doc, id) ?? captureGroup(doc, id)).filter((g): g is string => g !== null))];
+}
+
+function scaffoldChildren(doc: ImageSurface, ids: readonly string[]): string[] {
+  return ids.filter((id) => {
+    const container = layerById(doc, id)?.groupId;
+    return container !== undefined && !scaffoldOf(doc, id) && baseOf(doc, container) !== null;
   });
+}
+
+function familyLeavers(doc: ImageSurface, ids: readonly string[]): string[] {
+  return scaffoldChildren(doc, ids).filter((id) => !captureGroup(doc, id));
+}
+
+export function leaveFamily(doc: ImageSurface, ids: readonly string[]): ImageSurface {
+  const leavers = new Set(scaffoldChildren(doc, ids));
+  return [...doc.layers]
+    .reverse()
+    .filter((l) => leavers.has(l.id))
+    .reduce((current, layer) => {
+      const scaffold = layerById(current, layer.id)?.groupId;
+      return scaffold ? dropItem(current, { kind: "layer", id: layer.id }, { kind: "group", id: scaffold }, "above") : current;
+    }, doc);
+}
+
+export type UngroupKind = "ungroup" | "release" | "leave";
+
+export function ungroupKind(doc: ImageSurface, ids: readonly string[]): UngroupKind | null {
+  const targets = ungroupTargets(doc, ids);
+  if (targets.some((groupId) => baseOf(doc, groupId) === null)) return "ungroup";
+  if (targets.length > 0) return "release";
+  return familyLeavers(doc, ids).length > 0 ? "leave" : null;
+}
+
+export function canUngroup(doc: ImageSurface, ids: readonly string[]): boolean {
+  return ungroupKind(doc, ids) !== null;
+}
+
+export function ungroupLayers(doc: ImageSurface, ids: readonly string[]): ImageSurface {
+  return leaveFamily(ungroupTargets(doc, ids).reduce(dissolveGroup, doc), familyLeavers(doc, ids));
 }
 
 export function layerBounds(transform: Transform, canvas: CanvasSize): Bounds {
@@ -234,7 +387,7 @@ function union(bounds: Bounds[]): Bounds {
   };
 }
 
-export function selectionBounds(doc: ImageDocument, ids: readonly string[]): Bounds | null {
+export function selectionBounds(doc: ImageSurface, ids: readonly string[]): Bounds | null {
   const wanted = new Set(ids);
   const picked = doc.layers.filter((l) => wanted.has(l.id));
   return picked.length === 0 ? null : union(picked.map((l) => layerBounds(l.transform, doc.canvas)));
@@ -243,20 +396,29 @@ export function selectionBounds(doc: ImageDocument, ids: readonly string[]): Bou
 interface Unit {
   ids: string[];
   bounds: Bounds;
+  container: string | null;
 }
 
-function units(doc: ImageDocument, ids: readonly string[]): Unit[] {
-  const targets = editable(doc, withGroupMembers(doc, ids));
-  const byKey = new Map<string, Layer[]>();
-  for (const l of doc.layers) {
-    if (!targets.has(l.id)) continue;
-    const key = outermostGroup(doc, l.id) ?? `layer:${l.id}`;
-    byKey.set(key, [...(byKey.get(key) ?? []), l]);
+function units(doc: ImageSurface, ids: readonly string[]): Unit[] {
+  return selectionItems(doc, withGroupMembers(doc, ids)).flatMap((item): Unit[] => {
+    const members = itemLayerIds(doc, item);
+    const base = item.kind === "group" ? baseOf(doc, item.id) : null;
+    const free = (base ? [base] : members).filter((id) => !layerById(doc, id)?.locked);
+    if (free.length === 0) return [];
+    const bounds = union(free.map((id) => layerBounds(layerById(doc, id)!.transform, doc.canvas)));
+    return [{ ids: base ? members : free, bounds, container: containerOf(doc, item) }];
+  });
+}
+
+function parentFrame(doc: ImageSurface, container: string | null): Bounds {
+  for (const groupId of groupAncestry(doc, container)) {
+    const base = baseOf(doc, groupId);
+    if (base) return layerBounds(layerById(doc, base)!.transform, doc.canvas);
   }
-  return [...byKey.values()].map((layers) => ({ ids: layers.map((l) => l.id), bounds: union(layers.map((l) => layerBounds(l.transform, doc.canvas))) }));
+  return { left: 0, top: 0, right: doc.canvas.width, bottom: doc.canvas.height };
 }
 
-function shiftUnits(doc: ImageDocument, shifts: Map<string, [number, number]>): ImageDocument {
+function shiftUnits(doc: ImageSurface, shifts: Map<string, [number, number]>): ImageSurface {
   if (shifts.size === 0) return doc;
   return produce(doc, (draft) => {
     for (const layer of draft.layers) {
@@ -268,10 +430,10 @@ function shiftUnits(doc: ImageDocument, shifts: Map<string, [number, number]>): 
   });
 }
 
-export function alignLayers(doc: ImageDocument, ids: readonly string[], alignment: Alignment): ImageDocument {
+export function alignLayers(doc: ImageSurface, ids: readonly string[], alignment: Alignment): ImageSurface {
   const found = units(doc, ids);
   if (found.length === 0) return doc;
-  const frame = found.length === 1 ? { left: 0, top: 0, right: doc.canvas.width, bottom: doc.canvas.height } : union(found.map((u) => u.bounds));
+  const frame = found.length === 1 ? parentFrame(doc, found[0].container) : union(found.map((u) => u.bounds));
   const shifts = new Map<string, [number, number]>();
   for (const unit of found) {
     const b = unit.bounds;
@@ -284,7 +446,7 @@ export function alignLayers(doc: ImageDocument, ids: readonly string[], alignmen
   return shiftUnits(doc, shifts);
 }
 
-export function distributeLayers(doc: ImageDocument, ids: readonly string[], axis: DistributeAxis): ImageDocument {
+export function distributeLayers(doc: ImageSurface, ids: readonly string[], axis: DistributeAxis): ImageSurface {
   const found = units(doc, ids);
   if (found.length < 3) return doc;
   const start = (b: Bounds) => (axis === "horizontal" ? b.left : b.top);
@@ -320,7 +482,7 @@ function clampSide(n: number): number {
   return clamp(Math.round(n), STUDIO_LIMITS.minCanvasSide, STUDIO_LIMITS.maxCanvasSide);
 }
 
-export function resizeCanvas(doc: ImageDocument, size: CanvasSize): ImageDocument {
+export function resizeCanvas(doc: ImageSurface, size: CanvasSize): ImageSurface {
   const width = clampSide(size.width);
   const height = clampSide(size.height);
   const { width: oldW, height: oldH } = doc.canvas;

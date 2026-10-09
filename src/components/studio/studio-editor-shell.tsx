@@ -13,6 +13,8 @@ import type { DocumentOf, StudioKind } from "@/lib/studio/document";
 import type { StudioProject } from "@/lib/studio/project";
 import { cn } from "@/lib/utils";
 
+import { StudioTelemetryProvider } from "./telemetry/studio-telemetry";
+
 export interface StudioEditorMountProps<K extends StudioKind> {
   project: StudioProject<DocumentOf<K>>;
   studio: StudioProjectHandle<K>;
@@ -121,7 +123,11 @@ export function StudioEditorShell<K extends StudioKind>({ projectId, kind, child
           <div className="relative min-w-0 flex-1">
             {studio.load.status === "loading" ? <ScreenLoader fit="fill" label={t("loading")} /> : null}
             {studio.load.status === "failed" ? <LoadFailure studio={studio} /> : null}
-            {studio.load.status === "ready" ? <div key={studio.generation} className="h-full">{children({ project: studio.load.project, studio })}</div> : null}
+            {studio.load.status === "ready" ? (
+              <div key={studio.generation} className="h-full">
+                <StudioTelemetryProvider kind={kind}>{children({ project: studio.load.project, studio })}</StudioTelemetryProvider>
+              </div>
+            ) : null}
           </div>
           <div aria-hidden data-edge-tab-rail className="w-9 shrink-0 border-l border-border bg-card" />
         </div>

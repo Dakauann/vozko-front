@@ -16,7 +16,7 @@ import {
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface VerificationDialogProps {
@@ -38,7 +38,6 @@ export function VerificationDialog({
   onSuccess,
 }: VerificationDialogProps) {
   const t = useTranslations("whatsappBusinessPhones");
-  const { toast } = useToast();
 
   const [step, setStep] = useState<VerificationStep>("request");
   const [codeMethod, setCodeMethod] = useState<CodeMethod>("SMS");
@@ -55,24 +54,13 @@ export function VerificationDialog({
       });
 
       if (!result.error) {
-        toast({
-          title: t("toast.codeSent"),
-          description: t("toast.codeSentDesc", { method: codeMethod }),
-        });
+        toast(t("toast.codeSent"), { description: t("toast.codeSentDesc", { method: codeMethod }) });
         setStep("verify");
       } else {
-        toast({
-          title: t("toast.codeRequestFailed"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.codeRequestFailed"), { description: result.error || t("toast.unknownError") });
       }
     } catch {
-      toast({
-        title: t("toast.codeRequestFailed"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.codeRequestFailed"), { description: t("toast.unknownError") });
     } finally {
       setLoading(false);
     }
@@ -80,10 +68,7 @@ export function VerificationDialog({
 
   const handleVerifyCode = async () => {
     if (!verificationCode.trim()) {
-      toast({
-        title: t("toast.enterCode"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.enterCode"));
       return;
     }
 
@@ -94,25 +79,14 @@ export function VerificationDialog({
       });
 
       if (!result.error) {
-        toast({
-          title: t("toast.phoneVerified"),
-          description: t("toast.phoneVerifiedDesc"),
-        });
+        toast(t("toast.phoneVerified"), { description: t("toast.phoneVerifiedDesc") });
         onSuccess();
         handleClose();
       } else {
-        toast({
-          title: t("toast.verificationFailed"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.verificationFailed"), { description: result.error || t("toast.unknownError") });
       }
     } catch {
-      toast({
-        title: t("toast.verificationFailed"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.verificationFailed"), { description: t("toast.unknownError") });
     } finally {
       setLoading(false);
     }

@@ -24,11 +24,11 @@ export async function listSavedViewsAction(
 
 export async function createSavedViewAction(
     input: SavedViewInput,
-): Promise<{ view: SavedView | null; error?: string }> {
+): Promise<{ view: SavedView | null; error?: string; code?: string }> {
     const response = await createSavedView(input);
 
     if (response.error) {
-        return { view: null, error: response.error.message };
+        return { view: null, error: response.error.message, code: response.error.code };
     }
 
     return { view: response.data ?? null };

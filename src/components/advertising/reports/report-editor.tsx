@@ -16,7 +16,7 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { DashboardTable } from "@/components/elevated-design/table/dashboard-table";
 import { ArrowClockwise, CaretLeft, ChartBar, ChartLine, DownloadSimple, FloppyDisk, SlidersHorizontal, Table, Warning } from "@/components/icons";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "@/i18n/routing";
 import { reportHref } from "@/lib/advertising/connect";
 import { civilToday } from "@/lib/advertising/date-range";
@@ -141,7 +141,6 @@ function ReportWorkspace({
 }) {
   const t = useTranslations("adsReports.editor");
   const router = useRouter();
-  const { toast } = useToast();
   const labels = useReportLabels();
   const [now] = useState(() => new Date());
   const [savedId, setSavedId] = useState(initial.savedId);
@@ -181,13 +180,13 @@ function ReportWorkspace({
     const outcome = savedId ? await updateAdSavedReportAction(savedId, input) : await createAdSavedReportAction(input);
     setSaving(false);
     if (isAdsError(outcome)) {
-      toast({ title: t("saveFailed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("saveFailed"), { description: outcome.error });
       return false;
     }
     const stored: ReportDraft = { name: outcome.data.name, adAccountId: outcome.data.adAccountId, definition: outcome.data.definition };
     setBaseline(stored);
     setDraft(stored);
-    toast({ title: t("saved") });
+    toast(t("saved"));
     if (!savedId) {
       setSavedId(outcome.data.id);
       router.replace(reportHref(outcome.data.id));
@@ -213,16 +212,16 @@ function ReportWorkspace({
     });
     if (isAdsError(created)) {
       setExporting(false);
-      toast({ title: t("exportFailed"), description: created.error, variant: "destructive" });
+      toast.error(t("exportFailed"), { description: created.error });
       return;
     }
     const downloaded = await downloadAdReportExportAction(created.data);
     setExporting(false);
     if (isAdsError(downloaded)) {
-      toast({ title: t("exportDownloadFailed"), description: downloaded.error, variant: "destructive" });
+      toast.error(t("exportDownloadFailed"), { description: downloaded.error });
       return;
     }
-    toast({ title: t("exported"), description: t("exportedBody") });
+    toast(t("exported"), { description: t("exportedBody") });
   };
 
   const exportable = !!request && !!result && hasReportData(result) && !exporting;

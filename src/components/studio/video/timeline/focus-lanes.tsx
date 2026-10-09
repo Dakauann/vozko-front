@@ -13,7 +13,7 @@ import { snapMs, updateClip } from "@/lib/studio/timeline";
 import { msToPx, normalizedRect, pxToMs, snapThresholdMs, type Rect } from "@/lib/studio/timeline-view";
 import { cn } from "@/lib/utils";
 
-import { useVideoEditor, useViewState } from "../editor-context";
+import { usePanelPlayhead, useVideoEditor, useViewState } from "../editor-context";
 import { KeyDiamond } from "../key-diamond";
 import { useTimelineGeometry } from "./timeline-geometry";
 
@@ -43,7 +43,7 @@ export function FocusLanes({ clip }: { clip: Clip }) {
   const { store, view, commands, playback } = useVideoEditor();
   const geometry = useTimelineGeometry();
   const selectedKeys = useViewState((s) => s.selectedKeys);
-  const playheadMs = useViewState((s) => s.playheadMs);
+  const playheadMs = usePanelPlayhead();
   const host = useRef<HTMLDivElement>(null);
   const drag = useRef<KeyDrag | null>(null);
   const [marquee, setMarquee] = useState<KeyMarquee | null>(null);

@@ -18,7 +18,7 @@ import {
   ElevatedSheetTitle,
 } from "@/components/elevated-design/elevated-sheet";
 import { createSipTrunkAction, updateSipTrunkAction } from "@/app/actions/sip-trunks";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   draftFromTrunk,
   emptyTrunkDraft,
@@ -49,7 +49,6 @@ export function SipTrunkSheet({ open, onOpenChange, trunk, onSaved }: SipTrunkSh
 
 function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("sipTrunks.form");
-  const { toast } = useToast();
   const editing = trunk !== null;
   const [draft, setDraft] = useState<SipTrunkDraft>(() => (trunk ? draftFromTrunk(trunk) : emptyTrunkDraft()));
   const [invalid, setInvalid] = useState<SipTrunkDraftField[]>([]);
@@ -68,10 +67,10 @@ function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onC
       const payload = payloadFromDraft(draft);
       const result = trunk ? await updateSipTrunkAction(trunk.id, payload) : await createSipTrunkAction(payload);
       if (result.error) {
-        toast({ title: t("saveFailed"), description: result.error, variant: "destructive" });
+        toast.error(t("saveFailed"), { description: result.error });
         return;
       }
-      toast({ title: editing ? t("updated") : t("created"), description: draft.name.trim() });
+      toast(editing ? t("updated") : t("created"), { description: draft.name.trim() });
       onClose();
       onSaved();
     });

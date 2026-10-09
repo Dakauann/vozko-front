@@ -11,6 +11,7 @@ interface DashboardPageHeaderProps {
   badge: string;
   description: string;
   title?: string;
+  meta?: ReactNode;
   actions?: ReactNode;
   back?: { onClick: () => void; label: string };
   colorClass?: string;
@@ -21,12 +22,14 @@ function HeaderHeading({
   icon,
   heading,
   description,
+  meta,
   back,
   descriptionClassName,
 }: {
   icon: ReactNode;
   heading: string;
   description: string;
+  meta?: ReactNode;
   back?: { onClick: () => void; label: string };
   descriptionClassName: string;
 }) {
@@ -58,6 +61,7 @@ function HeaderHeading({
       </div>
 
       {description && <p className={descriptionClassName}>{description}</p>}
+      {meta ? <div className="mt-1.5 flex flex-wrap items-center gap-2">{meta}</div> : null}
     </>
   );
 }
@@ -67,6 +71,7 @@ export function DashboardPageHeader({
   badge,
   description,
   title,
+  meta,
   actions,
   back,
   layout = "stacked",
@@ -81,6 +86,7 @@ export function DashboardPageHeader({
             icon={icon}
             heading={heading}
             description={description}
+            meta={meta}
             back={back}
             descriptionClassName="mt-0.5 truncate text-xs text-muted-foreground"
           />
@@ -97,6 +103,7 @@ export function DashboardPageHeader({
         icon={icon}
         heading={heading}
         description={description}
+        meta={meta}
         back={back}
         descriptionClassName="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground"
       />

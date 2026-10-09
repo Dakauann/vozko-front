@@ -30,6 +30,7 @@ import {
   GroupNode,
   type WorkflowNodeData,
 } from "@/app/[locale]/dashboard/workflows/_components/workflow-node";
+import { NodeDefinitionsProvider } from "@/app/[locale]/dashboard/workflows/_components/node-previews/node-definitions";
 import type {
   HandleDefinition,
   NodeDefinition,
@@ -275,6 +276,7 @@ export function WorkflowRunDrawer({
           <div className="absolute inset-0">
             {ready && (
               <ReactFlowProvider>
+                <NodeDefinitionsProvider definitions={state.defs ?? []}>
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -313,6 +315,7 @@ export function WorkflowRunDrawer({
                     className="!bottom-3 !right-3 rounded-lg border border-border !bg-card"
                   />
                 </ReactFlow>
+                </NodeDefinitionsProvider>
               </ReactFlowProvider>
             )}
           </div>

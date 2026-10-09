@@ -1,10 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ptMessages from "@/i18n/messages/pt.json";
-import { emptyImageDocument, newShapeLayer, newTextLayer, type Layer, type StudioGroup } from "@/lib/studio/document";
+import { emptyArtboard, imageDocument, newShapeLayer, newTextLayer, type Layer, type StudioGroup } from "@/lib/studio/document";
 import { createStudioStore } from "@/lib/studio/store";
 
 import { createImageCommands } from "../commands";
@@ -14,7 +14,7 @@ import { LayersPanel } from "./layers-panel";
 const pt = ptMessages.studio.image.panels.layers;
 
 function setup(layers: Layer[], groups?: StudioGroup[]) {
-  const store = createStudioStore({ ...emptyImageDocument({ width: 100, height: 100 }), layers, ...(groups ? { groups } : {}) });
+  const store = createStudioStore(imageDocument([{ ...emptyArtboard({ width: 100, height: 100 }), layers, ...(groups ? { groups } : {}) }]));
   const ui = createEditorUiStore();
   const commands = createImageCommands(store, ui, { requestJob: vi.fn(), naturalSize: vi.fn() });
   render(
@@ -42,11 +42,11 @@ describe("LayersPanel", () => {
   it("locks, hides and reorders from the keyboard", () => {
     const store = setup([rect, text]);
     fireEvent.click(screen.getAllByRole("button", { name: pt.lock })[0]);
-    expect(store.getState().document.layers[1].locked).toBe(true);
+    expect(store.getState().document.artboards[0].layers[1].locked).toBe(true);
     fireEvent.click(screen.getAllByRole("button", { name: pt.hide })[1]);
-    expect(store.getState().document.layers[0].hidden).toBe(true);
+    expect(store.getState().document.artboards[0].layers[0].hidden).toBe(true);
     fireEvent.keyDown(screen.getByRole("button", { name: "Retângulo, camada 2 de 2" }), { key: "ArrowUp", altKey: true });
-    expect(store.getState().document.layers.map((l) => l.id)).toEqual(["t", "r"]);
+    expect(store.getState().document.artboards[0].layers.map((l) => l.id)).toEqual(["t", "r"]);
   });
 
   it("renames a layer and clears the name when left blank", () => {
@@ -55,12 +55,12 @@ describe("LayersPanel", () => {
     const input = screen.getByRole("textbox", { name: pt.rename });
     fireEvent.change(input, { target: { value: "Fundo" } });
     fireEvent.blur(input);
-    expect(store.getState().document.layers[0].name).toBe("Fundo");
+    expect(store.getState().document.artboards[0].layers[0].name).toBe("Fundo");
     fireEvent.doubleClick(screen.getByRole("button", { name: "Fundo, camada 1 de 1" }));
     const again = screen.getByRole("textbox", { name: pt.rename });
     fireEvent.change(again, { target: { value: "  " } });
     fireEvent.blur(again);
-    expect(store.getState().document.layers[0].name).toBeUndefined();
+    expect(store.getState().document.artboards[0].layers[0].name).toBeUndefined();
   });
 
   const row = (name: string) => screen.getByRole("button", { name: new RegExp(`^${name}, camada`) });
@@ -88,15 +88,30 @@ describe("LayersPanel", () => {
     const store = setup([rect, text]);
     fireEvent.click(row("Oferta"));
     fireEvent.change(screen.getByRole("combobox", { name: pt.blendMode }), { target: { value: "multiply" } });
-    expect(store.getState().document.layers[1].blendMode).toBe("multiply");
+    expect(store.getState().document.artboards[0].layers[1].blendMode).toBe("multiply");
     const opacity = screen.getByLabelText(pt.opacity);
     fireEvent.change(opacity, { target: { value: "40" } });
     fireEvent.keyDown(opacity, { key: "Enter" });
-    expect(store.getState().document.layers[1].transform.opacity).toBeCloseTo(0.4);
+    expect(store.getState().document.artboards[0].layers[1].transform.opacity).toBeCloseTo(0.4);
     fireEvent.click(screen.getByRole("button", { name: pt.clip }));
-    expect(store.getState().document.layers[1].clip).toBe(true);
+    expect(store.getState().document.artboards[0].layers[1].clip).toBe(true);
     fireEvent.change(screen.getByRole("combobox", { name: pt.blendMode }), { target: { value: "normal" } });
-    expect(store.getState().document.layers[1].blendMode).toBeUndefined();
+    expect(store.getState().document.artboards[0].layers[1].blendMode).toBeUndefined();
+  });
+
+  it("heads a family with its parent row, which selects the parent alone and hides or locks the whole family", () => {
+    const store = setup([{ ...rect, id: "card", groupId: "s" }, { ...text, id: "title", groupId: "s" }, { ...rect, id: "free" }], [{ id: "s", baseId: "card" }]);
+    const parent = screen.getByRole("button", { name: "Retângulo, estrutura com 1 filho, camada 3 de 3" });
+    fireEvent.click(parent);
+    expect(store.getState().selection).toEqual(["card"]);
+    const parentRow = parent.closest("li") as HTMLElement;
+    fireEvent.click(within(parentRow).getByRole("button", { name: pt.hide }));
+    expect(store.getState().document.artboards[0].layers.filter((l) => l.hidden).map((l) => l.id)).toEqual(["card", "title"]);
+    fireEvent.click(within(parentRow).getByRole("button", { name: pt.lock }));
+    expect(store.getState().document.artboards[0].layers.filter((l) => l.locked).map((l) => l.id)).toEqual(["card", "title"]);
+    expect(store.getState().selection).toEqual([]);
+    fireEvent.click(within(parentRow).getByRole("button", { name: pt.collapse.replace("{name}", "Retângulo") }));
+    expect(screen.queryByRole("button", { name: /^Oferta, camada/ })).toBeNull();
   });
 
   it("outlines the hovered layer on the canvas", () => {

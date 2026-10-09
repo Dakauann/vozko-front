@@ -35,7 +35,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -43,7 +43,6 @@ export default function TelegramAccountPage() {
   const t = useTranslations("telegram");
   const params = useParams();
   const accountId = String(params?.accountId ?? "");
-  const { toast } = useToast();
   const { can } = useWorkspace();
 
   const [account, setAccount] = useState<TelegramAccount | null>(null);
@@ -82,12 +81,12 @@ export default function TelegramAccountPage() {
     setBusy(false);
 
     if (result.error) {
-      toast({ title: t("card.reregister"), description: result.error, variant: "destructive" });
+      toast.error(t("card.reregister"), { description: result.error });
       return;
     }
-    toast({ title: t("card.reregister"), description: t("notice.webhookFixed") });
+    toast(t("card.reregister"), { description: t("notice.webhookFixed") });
     if (result.account) setAccount(result.account);
-  }, [accountId, toast, t]);
+  }, [accountId, t]);
 
   const handleCreateLink = useCallback(async () => {
     setBusy(true);
@@ -97,12 +96,12 @@ export default function TelegramAccountPage() {
     setBusy(false);
 
     if (result.error || !result.link) {
-      toast({ title: t("links.createFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("links.createFailed"), { description: result.error });
       return;
     }
     setNewLabel("");
     setLinks((prev) => [result.link!, ...prev]);
-  }, [accountId, newLabel, toast, t]);
+  }, [accountId, newLabel, t]);
 
   const handleDeleteLink = useCallback(
     async (token: string) => {
@@ -111,12 +110,12 @@ export default function TelegramAccountPage() {
       setBusy(false);
 
       if (result.error) {
-        toast({ title: t("links.deleteFailed"), description: result.error, variant: "destructive" });
+        toast.error(t("links.deleteFailed"), { description: result.error });
         return;
       }
       setLinks((prev) => prev.filter((l) => l.link.token !== token));
     },
-    [accountId, toast, t],
+    [accountId, t],
   );
 
   if (loading) {

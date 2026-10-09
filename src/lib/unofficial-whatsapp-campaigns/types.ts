@@ -38,6 +38,7 @@ export interface UnofficialWhatsAppMessageSpec {
 }
 
 export interface UnofficialWhatsAppCampaign {
+    source?: string;
     id: string;
     workspaceId: string;
     departmentId?: string | null;

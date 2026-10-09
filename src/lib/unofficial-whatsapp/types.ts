@@ -120,6 +120,12 @@ export function instanceIssue(instance: UnofficialWhatsAppInstance): InstanceIss
     return null;
 }
 
+const UNUSABLE_ISSUES: readonly InstanceIssue[] = ['banned', 'provision-failed'];
+
+export function instanceUnusable(issue: InstanceIssue): boolean {
+    return UNUSABLE_ISSUES.includes(issue);
+}
+
 export function canRelink(instance: UnofficialWhatsAppInstance): boolean {
     return instance.status !== 'BANNED' && instance.status !== 'PROVISIONING';
 }

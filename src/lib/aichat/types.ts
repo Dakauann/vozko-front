@@ -1,3 +1,5 @@
+import type { CrmFilter } from "@/lib/crm/board";
+
 export type ChatRole = "user" | "assistant" | "system" | "tool";
 
 export interface ChatThread {
@@ -39,6 +41,7 @@ export interface ChatMessageList {
   total: number;
   page: number;
   pageSize: number;
+  running?: boolean;
 }
 
 export type ChatChartType =
@@ -76,7 +79,27 @@ export interface ChatChart {
 
 export const CHART_OTHER_CATEGORY = "__other__";
 
-export interface ChatView {
+export type StudioProjectKind = "image" | "video";
+
+export const CHAT_MODES = ["ask", "edit", "full"] as const;
+
+export type ChatMode = (typeof CHAT_MODES)[number];
+
+export interface StudioView {
+  surface: "studio";
+  projectId: string;
+  projectKind: StudioProjectKind;
+}
+
+export interface LeadsView {
+  surface: "leads";
+  leadFilter?: CrmFilter;
+  selectedLeads?: number;
+}
+
+export type ChatView = AttendanceView | StudioView | LeadsView;
+
+export interface AttendanceView {
   surface: "attendance";
   dateFrom?: string;
   dateTo?: string;
@@ -134,14 +157,26 @@ export interface ConnectAdAccountCard {
   kind: "connect_ad_account";
 }
 
-export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard;
+export interface AskCard {
+  kind: "ask";
+  question: { text: string; options: string[] };
+}
+
+export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard;
 
 export type ActionKind = ActionCard["kind"];
+
+export interface ToolSubject {
+  kind: string;
+  key: string;
+  label: string;
+}
 
 export interface ToolActivity {
   name: string;
   summary: string;
   ok: boolean;
+  subject?: ToolSubject;
   chart?: ChatChart;
   card?: ActionCard;
   image?: ChatMedia;
@@ -222,6 +257,7 @@ export interface ChatStreamEvent {
     | "image"
     | "tool_proposal"
     | "awaiting_approval"
+    | "screen_command"
     | "done"
     | "error";
   payload?: {
@@ -242,5 +278,6 @@ export interface ChatStreamEvent {
     content?: string;
     status?: string;
     error?: string;
+    subject?: ToolSubject;
   };
 }

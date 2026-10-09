@@ -25,8 +25,9 @@ describe("opening a generated media in the studio", () => {
 
   it("places an image whole on its canvas, as one editable layer", () => {
     const doc = imageDocumentFromMedia(asset, { width: 1200, height: 800 });
-    expect(doc.canvas).toMatchObject({ width: 1280, height: 720 });
-    const [layer] = doc.layers;
+    const [artboard] = doc.artboards;
+    expect(artboard.canvas).toMatchObject({ width: 1280, height: 720 });
+    const [layer] = artboard.layers;
     expect(layer).toMatchObject({ type: "image", assetId: asset });
     expect(layer.transform.h).toBeCloseTo(1);
     expect(layer.transform.w).toBeLessThanOrEqual(1);

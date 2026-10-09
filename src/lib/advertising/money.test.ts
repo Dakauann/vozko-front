@@ -31,6 +31,10 @@ describe("formatMicros", () => {
     expect(plain(formatMicros(0, "BRL"))).toBe("R$ 0,00");
   });
 
+  it("shows a unit price with the digits it needs", () => {
+    expect(plain(formatMicros(62_500, "USD", "pt-BR", 4))).toBe("US$ 0,0625");
+  });
+
   it("shows a dash for unknown values, never zero", () => {
     expect(formatMicros(null, "BRL")).toBe("n/d");
     expect(formatMicros(undefined, "BRL")).toBe("n/d");

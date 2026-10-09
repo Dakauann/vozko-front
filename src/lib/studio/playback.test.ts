@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { emptyVideoDocument, newMediaClip, newOverlayClip, newTextLayer, type Clip, type VideoDocument } from "./document";
 import {
+  audioPlanChange,
+  audioVoiceKeys,
   audioPlan,
   boxStyle,
   clockPosition,
@@ -12,6 +14,8 @@ import {
   zoomAround,
   gainEnvelope,
   idleClock,
+  MAX_OUTPUT_LATENCY_SEC,
+  outputLatencySec,
   shuttleRate,
   startClock,
   stopClock,
@@ -42,6 +46,20 @@ describe("playback clock", () => {
     expect(clockPosition(clock, 20, 5000)).toBe(5000);
     expect(clockPosition(startClock(1000, 10, -2), 10.25, 5000)).toBe(500);
     expect(clockPosition(idleClock(800), 99, 5000)).toBe(800);
+  });
+
+  it("holds at the origin until a clock that starts later begins", () => {
+    const clock = startClock(1000, 10.05);
+    expect(clockPosition(clock, 9.9, 5000)).toBe(1000);
+    expect(clockPosition(clock, 10.55, 5000)).toBe(1500);
+  });
+
+  it("measures how late the speakers are from what the context reports", () => {
+    expect(outputLatencySec({ outputLatency: 0.04, baseLatency: 0.01 })).toBeCloseTo(0.05);
+    expect(outputLatencySec({ baseLatency: 0.01 })).toBeCloseTo(0.01);
+    expect(outputLatencySec({})).toBe(0);
+    expect(outputLatencySec({ outputLatency: Number.NaN, baseLatency: -1 })).toBe(0);
+    expect(outputLatencySec({ outputLatency: 3 })).toBe(MAX_OUTPUT_LATENCY_SEC);
   });
 
   it("stops where it was and reports the edges", () => {
@@ -250,5 +268,35 @@ describe("focus in the preview", () => {
     expect(zoom.scale).toBeCloseTo(3);
     expect([zoom.originX, zoom.originY]).toEqual([0.5, 0.8]);
     expect(zoomAround({ x: 0.5, y: 0.5, w: 1, h: 1 }).scale).toBe(1);
+  });
+});
+
+describe("audio plan changes", () => {
+  it("leaves the sound alone when an edit does not touch it", () => {
+    const before = doc();
+    const after = doc();
+    after.tracks[1].clips[0] = { ...after.tracks[1].clips[0], transform: { ...after.tracks[1].clips[0].transform, x: 0.2 } };
+    expect(audioPlanChange(audioVoiceKeys(before), audioVoiceKeys(after))).toEqual({ stop: [], start: [] });
+  });
+
+  it("restarts only the clip whose sound changed", () => {
+    const before = doc();
+    before.tracks[2].clips.push(media("n", "audio", 0, 3000));
+    for (const change of [{ startMs: 100 }, { trimInMs: 1200 }, { volume: 0.9 }, { fadeOutMs: 0 }, { durationMs: 4000 }]) {
+      const after = structuredClone(before);
+      after.tracks[2].clips[0] = { ...after.tracks[2].clips[0], ...change };
+      expect(audioPlanChange(audioVoiceKeys(before), audioVoiceKeys(after)), JSON.stringify(change)).toEqual({ stop: ["m"], start: ["m"] });
+    }
+  });
+
+  it("stops what went silent and starts what is new", () => {
+    const before = doc();
+    const muted = structuredClone(before);
+    muted.tracks[2].muted = true;
+    expect(audioPlanChange(audioVoiceKeys(before), audioVoiceKeys(muted))).toEqual({ stop: ["m"], start: [] });
+    const added = structuredClone(before);
+    added.tracks[2].clips.push(media("n", "audio", 0, 3000));
+    expect(audioPlanChange(audioVoiceKeys(before), audioVoiceKeys(added))).toEqual({ stop: [], start: ["n"] });
+    expect(audioPlanChange(audioVoiceKeys(before), audioVoiceKeys(before, { soloTrackIds: ["none"] }))).toEqual({ stop: ["m"], start: [] });
   });
 });

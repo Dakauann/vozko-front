@@ -32,6 +32,7 @@ export type WorkflowNodeType =
   | "action_finish_conversation"
   | "action_move_stage"
   | "action_manage_opportunity"
+  | "action_update_lead"
   | "wait_duration"
   | "wait_for_reply"
   | "wait_for_event"

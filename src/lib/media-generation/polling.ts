@@ -1,12 +1,10 @@
 import type { MediaGenerationJob } from "./types";
 
-export const FIRST_POLL_MS = 1_500;
-export const MAX_POLL_MS = 5_000;
-export const POLL_BACKOFF = 1.5;
-export const MAX_CONSECUTIVE_POLL_ERRORS = 3;
+export { FIRST_POLL_MS, MAX_CONSECUTIVE_POLL_ERRORS, MAX_POLL_MS, POLL_BACKOFF, nextPollDelay } from "@/lib/polling";
 export const CLIENT_TIMEOUT_MS = 11 * 60_000;
 
 export const MISSING_MEDIA = "missing_media";
+export const TOO_MANY_JOBS = "too_many_jobs";
 export const UNKNOWN_FAILURE = "unknown";
 
 export type MediaJobOutcome =
@@ -16,11 +14,6 @@ export type MediaJobOutcome =
 
 export function isTerminalMediaJob(status: string): boolean {
   return status === "done" || status === "failed";
-}
-
-export function nextPollDelay(previousMs: number | null): number {
-  if (previousMs === null) return FIRST_POLL_MS;
-  return Math.min(Math.round(previousMs * POLL_BACKOFF), MAX_POLL_MS);
 }
 
 export function mediaJobOutcome(job: MediaGenerationJob): MediaJobOutcome {

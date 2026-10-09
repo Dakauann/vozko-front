@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { templateParamSlots } from "./params";
+import { templateMessageMetadata, templateParamSlots } from "./params";
 import type { WhatsAppTemplate } from "./types";
 
 type SlotInput = Pick<
@@ -91,5 +91,39 @@ describe("templateParamSlots", () => {
         );
 
         expect(slots.named).toBe(false);
+    });
+});
+
+describe("templateMessageMetadata", () => {
+    const sendable = {
+        name: "matriculas",
+        language: "pt_BR",
+        category: "MARKETING",
+        headerMediaUrl: "https://cdn/x.png",
+        components: [
+            { type: "HEADER", format: "TEXT", text: "Oi {{1}}" },
+            { type: "BODY", text: "Ola {{1}}, unidade {{2}}." },
+            { type: "FOOTER", text: "Prisma" },
+        ],
+    } as unknown as WhatsAppTemplate;
+
+    it("fills the body and the text header with the given values", () => {
+        const slots = templateParamSlots(sendable);
+        const metadata = templateMessageMetadata(sendable, ["Maria", "[Bairro]"], ["Ana"], slots);
+        expect(metadata).toEqual({
+            template_name: "matriculas",
+            language: "pt_BR",
+            category: "MARKETING",
+            header_media_url: "https://cdn/x.png",
+            components: [
+                { type: "HEADER", format: "TEXT", text: "Oi Ana" },
+                { type: "BODY", text: "Ola Maria, unidade [Bairro]." },
+                { type: "FOOTER", text: "Prisma" },
+            ],
+        });
+    });
+
+    it("has nothing to show without a template", () => {
+        expect(templateMessageMetadata(null, [], [], templateParamSlots(null))).toBeNull();
     });
 });

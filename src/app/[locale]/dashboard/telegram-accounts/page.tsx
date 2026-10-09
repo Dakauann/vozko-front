@@ -35,7 +35,7 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -53,7 +53,6 @@ export default function TelegramAccountsPage() {
   const t = useTranslations("telegram");
   const { can } = useWorkspace();
   const router = useRouter();
-  const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<TelegramAccount[]>([]);
   const [page, setPage] = useState(1);
@@ -94,16 +93,13 @@ export default function TelegramAccountsPage() {
       setBusyId(null);
 
       if (result.error) {
-        toast({ title: t("card.disconnect"), description: result.error, variant: "destructive" });
+        toast.error(t("card.disconnect"), { description: result.error });
         return;
       }
-      toast({
-        title: t("card.disconnect"),
-        description: t("notice.disconnected", { username: account.displayName }),
-      });
+      toast(t("card.disconnect"), { description: t("notice.disconnected", { username: account.displayName }) });
       void fetchAccounts(page, search);
     },
-    [toast, t, fetchAccounts, page, search],
+    [t, fetchAccounts, page, search],
   );
 
   const handleReregister = useCallback(
@@ -113,17 +109,13 @@ export default function TelegramAccountsPage() {
       setBusyId(null);
 
       if (result.error) {
-        toast({
-          title: t("card.reregister"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("card.reregister"), { description: result.error });
         return;
       }
-      toast({ title: t("card.reregister"), description: t("notice.webhookFixed") });
+      toast(t("card.reregister"), { description: t("notice.webhookFixed") });
       void fetchAccounts(page, search);
     },
-    [toast, t, fetchAccounts, page, search],
+    [t, fetchAccounts, page, search],
   );
 
   const activeCount = accounts.filter(

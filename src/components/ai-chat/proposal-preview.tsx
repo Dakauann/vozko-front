@@ -14,12 +14,15 @@ import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/media
 import { AudioPlayer } from "@/components/media/audio-player";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { LEAD_ACTION_PROPOSAL_KIND } from "@/lib/aichat/lead-action-proposal";
 import type { ProposalPreview as Preview } from "@/lib/aichat/types";
 import { parseVideoPlan, type VideoPlanTrack } from "@/lib/aichat/video-plan";
 import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
 import type { TemplateComponent } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
+
+import { LeadActionProposalPreview } from "./lead-action-preview";
 
 interface TemplatePreviewData {
   name: string;
@@ -219,18 +222,19 @@ function VideoPlanPreview({ data }: { data: unknown }) {
   );
 }
 
-const RENDERERS: Record<string, (data: unknown) => ReactNode> = {
+const RENDERERS: Record<string, (data: unknown, open: boolean) => ReactNode> = {
   whatsapp_template: (data) => <TemplateProposalPreview data={data as TemplatePreviewData} />,
   message: (data) => <MessageProposalPreview data={data as MessagePreviewData} />,
   ad_creative: (data) => <AdCreativeProposalPreview data={(data ?? {}) as AdCreativePreviewData} />,
   image_references: (data) => <ImageReferencesPreview data={(data ?? {}) as { references?: unknown }} />,
   video_plan: (data) => <VideoPlanPreview data={data} />,
+  [LEAD_ACTION_PROPOSAL_KIND]: (data, open) => <LeadActionProposalPreview data={data} open={open} />,
 };
 
 export function hasProposalPreview(preview: Preview | undefined): preview is Preview {
   return !!preview && preview.kind in RENDERERS;
 }
 
-export function ProposalPreview({ preview }: { preview: Preview }) {
-  return <>{RENDERERS[preview.kind]?.(preview.data)}</>;
+export function ProposalPreview({ preview, open = false }: { preview: Preview; open?: boolean }) {
+  return <>{RENDERERS[preview.kind]?.(preview.data, open)}</>;
 }

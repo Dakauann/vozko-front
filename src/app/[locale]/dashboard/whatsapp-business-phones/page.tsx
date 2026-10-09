@@ -58,7 +58,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -154,7 +154,6 @@ export default function WhatsAppBusinessPhonesPage({
   adminAllMode = false,
 }: BusinessPhonesPageProps = {}) {
   const t = useTranslations("whatsappBusinessPhones");
-  const { toast } = useToast();
   const router = useRouter();
   const { can } = useWorkspace();
   const { user } = useAuth();
@@ -194,25 +193,17 @@ export default function WhatsAppBusinessPhonesPage({
       });
 
       if (result.error) {
-        toast({
-          title: t("error.title"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("error.title"), { description: result.error });
       }
 
       setPhones(result.phones ?? []);
       setMeta(result.meta ?? null);
     } catch {
-      toast({
-        title: t("error.title"),
-        description: t("error.default"),
-        variant: "destructive",
-      });
+      toast.error(t("error.title"), { description: t("error.default") });
     } finally {
       setLoading(false);
     }
-  }, [t, toast, adminAllMode, page, debouncedSearch, statusFilter, qualityFilter]);
+  }, [t, adminAllMode, page, debouncedSearch, statusFilter, qualityFilter]);
 
   useEffect(() => {
     void fetchData();
@@ -268,16 +259,9 @@ export default function WhatsAppBusinessPhonesPage({
     setAssigningOwner(false);
 
     if (result.error) {
-      toast({
-        title: t("ownership.assignError"),
-        description: result.error,
-        variant: "destructive",
-      });
+      toast.error(t("ownership.assignError"), { description: result.error });
     } else {
-      toast({
-        title: t("ownership.assignSuccess"),
-        description: t("ownership.assignSuccessDesc"),
-      });
+      toast(t("ownership.assignSuccess"), { description: t("ownership.assignSuccessDesc") });
       setPhones((prev) =>
         prev.map((p) =>
           p.id === phoneId ? { ...p, ownerWorkspaceId: workspaceId } : p,
@@ -510,34 +494,23 @@ export default function WhatsAppBusinessPhonesPage({
   const handleRetryOnboarding = useCallback(
     async (phoneId: string, workspaceId: string | null | undefined) => {
       if (!workspaceId) {
-        toast({
-          title: t("onboarding.retryErrorTitle"),
-          description: t("onboarding.retryErrorTitle"),
-          variant: "destructive",
-        });
+        toast.error(t("onboarding.retryErrorTitle"), { description: t("onboarding.retryErrorTitle") });
         return;
       }
       setRetryingId(phoneId);
       try {
         const result = await retryDialog360OnboardingAction(phoneId, workspaceId);
         if (result.error) {
-          toast({
-            title: t("onboarding.retryErrorTitle"),
-            description: result.error,
-            variant: "destructive",
-          });
+          toast.error(t("onboarding.retryErrorTitle"), { description: result.error });
           return;
         }
-        toast({
-          title: t("onboarding.retrySuccessTitle"),
-          description: t("onboarding.retrySuccessDescription"),
-        });
+        toast(t("onboarding.retrySuccessTitle"), { description: t("onboarding.retrySuccessDescription") });
         await fetchData();
       } finally {
         setRetryingId(null);
       }
     },
-    [t, toast, fetchData],
+    [t, fetchData],
   );
 
   const renderRowActions = useCallback(

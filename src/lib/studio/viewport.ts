@@ -24,14 +24,46 @@ export function clampZoom(scale: number): number {
   return Math.min(Math.max(scale, MIN_ZOOM), MAX_ZOOM);
 }
 
-export function fitViewport(container: CanvasSize, canvas: CanvasSize, padding: number = FIT_PADDING_PX): Viewport {
+export interface Area {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+export function fitBounds(container: CanvasSize, area: Area, padding: number = FIT_PADDING_PX): Viewport {
+  const width = Math.max(1, area.right - area.left);
+  const height = Math.max(1, area.bottom - area.top);
   const room = { width: Math.max(1, container.width - padding * 2), height: Math.max(1, container.height - padding * 2) };
-  const scale = clampZoom(Math.min(room.width / canvas.width, room.height / canvas.height));
-  return { scale, x: (container.width - canvas.width * scale) / 2, y: (container.height - canvas.height * scale) / 2 };
+  const scale = clampZoom(Math.min(room.width / width, room.height / height));
+  return { scale, x: (container.width - width * scale) / 2 - area.left * scale, y: (container.height - height * scale) / 2 - area.top * scale };
+}
+
+export function fitViewport(container: CanvasSize, canvas: CanvasSize, padding: number = FIT_PADDING_PX): Viewport {
+  return fitBounds(container, { left: 0, top: 0, right: canvas.width, bottom: canvas.height }, padding);
+}
+
+export function viewArea(v: Viewport, container: CanvasSize): Area {
+  return { left: (0 - v.x) / v.scale, top: (0 - v.y) / v.scale, right: (container.width - v.x) / v.scale, bottom: (container.height - v.y) / v.scale };
+}
+
+export function visibleShare(area: Area, view: Area): number {
+  const width = Math.max(0, Math.min(area.right, view.right) - Math.max(area.left, view.left));
+  const height = Math.max(0, Math.min(area.bottom, view.bottom) - Math.max(area.top, view.top));
+  const whole = Math.max(1e-9, (area.right - area.left) * (area.bottom - area.top));
+  return (width * height) / whole;
+}
+
+export function localViewport(v: Viewport, origin: Point): Viewport {
+  return { scale: v.scale, x: v.x + origin.x * v.scale, y: v.y + origin.y * v.scale };
 }
 
 export function screenToWorld(v: Viewport, point: Point): Point {
   return { x: (point.x - v.x) / v.scale, y: (point.y - v.y) / v.scale };
+}
+
+export function worldToScreen(v: Viewport, point: Point): Point {
+  return { x: point.x * v.scale + v.x, y: point.y * v.scale + v.y };
 }
 
 export function zoomAt(v: Viewport, nextScale: number, anchor: Point): Viewport {
@@ -74,7 +106,7 @@ export function rulerTicks(scale: number, offset: number, lengthPx: number): Rul
   return ticks;
 }
 
-export function followViewport(fit: boolean, current: Viewport, container: CanvasSize | null, canvas: CanvasSize): Viewport {
+export function followViewport(fit: boolean, current: Viewport, container: CanvasSize | null, area: Area): Viewport {
   if (!fit || !container || container.width <= 0 || container.height <= 0) return current;
-  return fitViewport(container, canvas);
+  return fitBounds(container, area);
 }

@@ -42,6 +42,19 @@ describe("proposalRows", () => {
   it("returns nothing when the proposal carries no fields", () => {
     expect(proposalRows(undefined, dict)).toEqual([]);
   });
+
+  it("asks for the label of the tool that proposed, so one key can mean different things per tool", () => {
+    const scoped = {
+      ...dict,
+      label: (key: string, tool?: string) => (tool === "prepare_lead_action" && key === "changes" ? "Serão alterados" : "Campos alterados"),
+    };
+    expect(proposalRows([{ key: "changes", value: "4700" }], scoped, "prepare_lead_action")).toEqual([
+      { key: "changes", label: "Serão alterados", value: "4700" },
+    ]);
+    expect(proposalRows([{ key: "changes", value: "headline" }], scoped, "edit_ad_text")).toEqual([
+      { key: "changes", label: "Campos alterados", value: "headline" },
+    ]);
+  });
 });
 
 describe("proposal lifecycle", () => {

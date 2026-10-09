@@ -9,7 +9,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
 import { Code, Copy, Plus } from "@/components/icons";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Pixel } from "@/lib/advertising/conversions";
 import { issuesAt, type ExpectedIssues } from "@/lib/advertising/issues";
 import type { AdAccount } from "@/lib/advertising/types";
@@ -39,7 +39,6 @@ export function PixelsCard({
 }) {
   const t = useTranslations("adsConversions.pixels");
   const fmt = useAdsFormat();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
@@ -48,9 +47,9 @@ export function PixelsCard({
   const copy = async (pixel: Pixel) => {
     try {
       await navigator.clipboard.writeText(pixel.metaId);
-      toast({ title: t("copied") });
+      toast(t("copied"));
     } catch {
-      toast({ title: t("copyFailed"), description: pixel.metaId, variant: "destructive" });
+      toast.error(t("copyFailed"), { description: pixel.metaId });
     }
   };
 
@@ -60,12 +59,12 @@ export function PixelsCard({
     setCreating(false);
     if (isAdsError(outcome)) {
       setExpected(outcome.expected ?? {});
-      if (!outcome.expected) toast({ title: t("createFailed"), description: outcome.error, variant: "destructive" });
+      if (!outcome.expected) toast.error(t("createFailed"), { description: outcome.error });
       return;
     }
     setExpected({});
     setName("");
-    toast({ title: t("created", { name: outcome.data.name }) });
+    toast(t("created", { name: outcome.data.name }));
     onReload();
   };
 

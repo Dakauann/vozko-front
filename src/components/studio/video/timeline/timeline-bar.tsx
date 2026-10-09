@@ -12,6 +12,7 @@ import { SHORTCUT_ROWS } from "@/lib/studio/video-shortcuts";
 import { cn } from "@/lib/utils";
 
 import { useEditorState, useVideoEditor, useViewState } from "../editor-context";
+import { PlayheadTimecode } from "../playhead-timecode";
 import { RANGE_KEYS } from "../inspector/fields";
 import { ToolButton, ToolDivider } from "../tool-button";
 import type { DragMode, TimelineTool, TrackHeight } from "../view-store";
@@ -62,7 +63,6 @@ function ShortcutsHelp() {
 export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => void }) {
   const t = useTranslations("studio.video.timeline.bar");
   const { commands, view } = useVideoEditor();
-  const playheadMs = useViewState((s) => s.playheadMs);
   const durationMs = useEditorState((s) => s.document.durationMs);
   const hasSelection = useEditorState((s) => s.selection.length > 0);
   const snapping = useViewState((s) => s.snapping);
@@ -76,7 +76,7 @@ export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => v
   return (
     <div role="toolbar" aria-label={t("label")} className="flex h-9 shrink-0 items-center gap-0.5 overflow-x-auto border-b border-border-strong bg-card px-2">
       <output aria-label={t("timecode")} className="mr-2 min-w-[11rem] font-mono text-sm font-semibold tabular-nums text-foreground">
-        {formatSmpte(playheadMs)}
+        <PlayheadTimecode format={formatSmpte} />
         <span className="text-xs font-normal text-muted-foreground"> / {formatSmpte(durationMs)}</span>
       </output>
       <div role="radiogroup" aria-label={t("tools")} className="flex items-center gap-0.5 rounded-[--radius] border border-border-strong bg-muted p-0.5">

@@ -134,7 +134,7 @@ export async function createUnofficialCampaignAction(payload: UnofficialWhatsApp
         method: 'POST',
         body: JSON.stringify(payload),
     });
-    if (response.error) return { error: response.error.message };
+    if (response.error) return { error: response.error.message, code: response.error.code };
     return { campaign: unwrap(response.data) };
 }
 
@@ -146,7 +146,7 @@ export async function updateUnofficialCampaignAction(
         method: 'PUT',
         body: JSON.stringify(payload),
     });
-    if (response.error) return { error: response.error.message };
+    if (response.error) return { error: response.error.message, code: response.error.code };
     return { campaign: unwrap(response.data) };
 }
 
@@ -180,7 +180,7 @@ export async function unarchiveUnofficialCampaignAction(campaignId: string) {
 
 async function lifecycle(campaignId: string, action: 'start' | 'pause' | 'stop') {
     const response = await apiClient(`${BASE}/${campaignId}/${action}`, { method: 'POST' });
-    if (response.error) return { error: response.error.message };
+    if (response.error) return { error: response.error.message, code: response.error.code };
     return { ok: true };
 }
 

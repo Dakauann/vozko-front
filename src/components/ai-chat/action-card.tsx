@@ -22,6 +22,7 @@ import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup"
 import { Link, useRouter } from "@/i18n/routing";
 import { openDock } from "@/lib/aichat/dock-state";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { AskCardView } from "@/components/ai-chat/ask-card";
 import { CallCardView } from "@/components/ai-chat/call-card";
 import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
@@ -92,6 +93,7 @@ export function ActionCardView({ card, live = false }: { card: ActionCard; live?
   if (card.kind === "place_call") return <CallCardView card={card} />;
   if (card.kind === "ad_readiness") return <AdReadinessCard adAccountId={card.adAccountId} />;
   if (card.kind === "connect_ad_account") return <ConnectAdAccountCard />;
+  if (card.kind === "ask") return <AskCardView card={card} />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;

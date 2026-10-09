@@ -2,20 +2,38 @@
 
 import { useTranslations } from "next-intl";
 
-import { DEFAULT_IMAGE_BACKGROUND } from "@/lib/studio/document";
+import { Copy, Plus } from "@/components/icons";
+import { DEFAULT_IMAGE_BACKGROUND, STUDIO_LIMITS } from "@/lib/studio/document";
 
-import { ColorField, InspectorSection, SwitchToggle } from "../controls";
-import { useImageDoc, useImageEditor } from "../editor-state";
+import { useArtboardNames } from "../artboard-names";
+import { ColorField, InspectorSection, OUTLINE_BUTTON_CLASS, SwitchToggle, TextField } from "../controls";
+import { useActiveArtboard, useImageEditor } from "../editor-state";
 import { ResizeForm } from "../resize-form";
 import { GradientFields } from "./effects";
 
 export function CanvasSection() {
   const t = useTranslations("studio.image.inspector.canvas");
+  const ta = useTranslations("studio.image.artboards");
   const { commands } = useImageEditor();
-  const canvas = useImageDoc((s) => s.document.canvas);
+  const artboard = useActiveArtboard();
+  const names = useArtboardNames();
+  const { canvas } = artboard;
   const transparent = canvas.background === "";
   return (
     <>
+      <InspectorSection title={ta("title")}>
+        <TextField label={ta("name")} value={artboard.name ?? ""} placeholder={names.get(artboard.id)} maxLength={STUDIO_LIMITS.maxLayerNameRunes} onCommit={(name) => commands.renameArtboard(artboard.id, name)} />
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => commands.duplicateArtboards([artboard.id])} className={OUTLINE_BUTTON_CLASS}>
+            <Copy className="h-3.5 w-3.5" aria-hidden />
+            {ta("duplicateShort")}
+          </button>
+          <button type="button" onClick={() => commands.addArtboard(canvas)} className={OUTLINE_BUTTON_CLASS}>
+            <Plus className="h-3.5 w-3.5" aria-hidden />
+            {ta("addShort")}
+          </button>
+        </div>
+      </InspectorSection>
       <InspectorSection title={t("background")}>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-muted-foreground">{t("transparent")}</span>
@@ -37,6 +55,7 @@ export function CanvasSection() {
           <li>{t("tipPan")}</li>
           <li>{t("tipZoom")}</li>
           <li>{t("tipEdit")}</li>
+          <li>{ta("tip")}</li>
         </ul>
       </InspectorSection>
     </>

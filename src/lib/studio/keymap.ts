@@ -1,4 +1,6 @@
 import type { OrderDirection } from "./layers";
+import type { ShapeCombine, ShapeOpKind } from "./shape-ops";
+import { VECTOR_TOOL_KEYS, type VectorTool } from "./vector-tools";
 
 export interface KeyStroke {
   key: string;
@@ -21,7 +23,15 @@ export type ImageAction =
   | { type: "nudge"; dx: number; dy: number }
   | { type: "delete" }
   | { type: "selectAll" }
-  | { type: "deselect" };
+  | { type: "deselect" }
+  | { type: "scaffold" }
+  | { type: "toggleLock" }
+  | { type: "toggleHidden" }
+  | { type: "selectChildren" }
+  | { type: "selectParent" }
+  | { type: "tool"; tool: VectorTool }
+  | { type: "shapeOp"; kind: ShapeOpKind }
+  | { type: "artboard"; direction: 1 | -1 };
 
 export type VideoAction =
   | HistoryAction
@@ -74,7 +84,11 @@ function isDelete(stroke: KeyStroke): boolean {
   return stroke.key === "Delete" || stroke.key === "Backspace";
 }
 
+const TOOL_KEYS: Record<string, VectorTool> = Object.fromEntries(Object.entries(VECTOR_TOOL_KEYS).map(([tool, key]) => [key.toLowerCase(), tool as VectorTool]));
+
 const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+const COMBINE_CODES: Record<string, ShapeCombine> = { KeyU: "union", KeyS: "subtract", KeyI: "intersect", KeyE: "exclude" };
 
 function bracket(stroke: KeyStroke): "]" | "[" | null {
   if (stroke.code === "BracketRight" || stroke.key === "]" || stroke.key === "}") return "]";
@@ -93,13 +107,20 @@ export function imageActionFor(stroke: KeyStroke): ImageAction | null {
       const direction: OrderDirection = side === "]" ? (stroke.altKey ? "front" : "forward") : stroke.altKey ? "back" : "backward";
       return { type: "order", direction };
     }
-    if (stroke.altKey) return null;
+    if (stroke.altKey && !stroke.shiftKey && stroke.code === "KeyO") return { type: "shapeOp", kind: "outline" };
+    if (stroke.altKey) return key === "g" && !stroke.shiftKey ? { type: "scaffold" } : null;
     if (key === "g") return stroke.shiftKey ? { type: "ungroup" } : { type: "group" };
+    if (key === "l" && stroke.shiftKey) return { type: "toggleLock" };
+    if (key === "h" && stroke.shiftKey) return { type: "toggleHidden" };
     if (key === "d" && !stroke.shiftKey) return { type: "duplicate" };
     if (key === "a" && !stroke.shiftKey) return { type: "selectAll" };
+    if (key === "e" && !stroke.shiftKey) return { type: "shapeOp", kind: "flatten" };
     return null;
   }
-  if (stroke.altKey) return null;
+  if (stroke.altKey) {
+    const kind = stroke.shiftKey && stroke.code ? COMBINE_CODES[stroke.code] : undefined;
+    return kind ? { type: "shapeOp", kind } : null;
+  }
   if (key in ARROWS) {
     const [x, y] = ARROWS[key];
     const step = stroke.shiftKey ? NUDGE_SHIFT_PX : NUDGE_PX;
@@ -107,7 +128,10 @@ export function imageActionFor(stroke: KeyStroke): ImageAction | null {
   }
   if (isDelete(stroke) && !stroke.shiftKey) return { type: "delete" };
   if (key === "Escape") return { type: "deselect" };
-  return null;
+  if (key === "Enter") return stroke.shiftKey ? { type: "selectParent" } : { type: "selectChildren" };
+  if (key === "n") return { type: "artboard", direction: stroke.shiftKey ? -1 : 1 };
+  const tool = TOOL_KEYS[key];
+  return tool ? { type: "tool", tool } : null;
 }
 
 export function videoActionFor(stroke: KeyStroke): VideoAction | null {
@@ -159,10 +183,13 @@ export function bindKeymap<A>(target: Pick<Window, "addEventListener" | "removeE
   return () => target.removeEventListener("keydown", listener as EventListener);
 }
 
-export type ImageZoomAction = { type: "zoom"; direction: 1 | -1 } | { type: "fit" };
+export type ImageZoomAction = { type: "zoom"; direction: 1 | -1 } | { type: "fit" } | { type: "fitSelection" };
 
 export function imageZoomActionFor(stroke: KeyStroke): ImageZoomAction | null {
-  if (!mod(stroke) || stroke.altKey || isEditableTarget(stroke.target)) return null;
+  if (stroke.altKey || isEditableTarget(stroke.target)) return null;
+  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit1") return { type: "fit" };
+  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit2") return { type: "fitSelection" };
+  if (!mod(stroke)) return null;
   if (stroke.key === "+" || stroke.key === "=" || stroke.code === "NumpadAdd") return { type: "zoom", direction: 1 };
   if (stroke.key === "-" || stroke.key === "_" || stroke.code === "NumpadSubtract") return { type: "zoom", direction: -1 };
   if (stroke.key === "0" || stroke.code === "Numpad0") return { type: "fit" };
@@ -182,9 +209,21 @@ function insideOverlay(target: EventTarget | null | undefined): boolean {
   return typeof (target as HTMLElement | null)?.closest === "function" && (target as HTMLElement).closest("[role=dialog],[role=menu],[role=alertdialog]") != null;
 }
 
+const ENTER_OWNERS =
+  "button, a[href], summary, select, [role=button], [role=link], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=tab], [role=checkbox], [role=switch], [role=combobox]";
+
+export function activatesOnEnter(target: EventTarget | null | undefined): boolean {
+  return typeof (target as HTMLElement | null)?.closest === "function" && (target as HTMLElement).closest(ENTER_OWNERS) != null;
+}
+
 export function canvasActionFor(stroke: KeyStroke): ImageAction | null {
   const action = imageActionFor(stroke);
+  if ((action?.type === "selectChildren" || action?.type === "selectParent") && activatesOnEnter(stroke.target)) return null;
   if (action?.type === "nudge" && capturesArrowKeys(stroke.target)) return null;
   if (action?.type === "deselect" && insideOverlay(stroke.target)) return null;
   return action;
+}
+
+export function vectorModeAction(action: ImageAction | null): ImageAction | null {
+  return action && (action.type === "undo" || action.type === "redo" || action.type === "tool") ? action : null;
 }

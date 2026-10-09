@@ -19,7 +19,7 @@ import { useFacebookError } from "@/components/facebook/use-facebook-error";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useFacebookConnect } from "@/hooks/use-facebook-connect";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { FACEBOOK_PAGES_PATH, connectResultFromQuery, isConnectedOutcome } from "@/lib/facebook/connect";
 import { displayStatus, pageNotices, type FacebookDisplayStatus } from "@/lib/facebook/page";
 import type { FacebookCapability, FacebookConnectResult, FacebookPage } from "@/lib/facebook/types";
@@ -43,7 +43,6 @@ export default function FacebookPagesPage() {
   const { can } = useWorkspace();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const describeError = useFacebookError();
 
   const [pages, setPages] = useState<FacebookPage[]>([]);
@@ -92,25 +91,20 @@ export default function FacebookPagesPage() {
     (result: FacebookConnectResult) => {
       if (result.status === "cancelled") return;
       if (result.status === "error") {
-        toast({
-          title: t("connect.errorTitle"),
-          description: t(`connectError.${result.reason ?? "connect_failed"}`),
-          variant: "destructive",
-        });
+        toast.error(t("connect.errorTitle"), { description: t(`connectError.${result.reason ?? "connect_failed"}`) });
         return;
       }
       const connected = result.pages
         ? result.pages.filter((p) => isConnectedOutcome(p.outcome)).length
         : (result.connected ?? 0);
       const skipped = result.pages ? result.pages.length - connected : (result.skipped ?? 0);
-      toast({
-        title: result.status === "partial" ? t("connect.partialTitle") : t("connect.successTitle"),
+      const notify = result.status === "partial" ? toast.error : toast;
+      notify(result.status === "partial" ? t("connect.partialTitle") : t("connect.successTitle"), {
         description: t("notice.connectedCount", { connected, skipped }),
-        variant: result.status === "partial" ? "destructive" : undefined,
       });
       void load(1, "");
     },
-    [toast, t, load],
+    [t, load],
   );
 
   const { connect, isConnecting } = useFacebookConnect(reportResult);
@@ -130,18 +124,17 @@ export default function FacebookPagesPage() {
     const result = await disconnectFacebookPageAction(target.id);
     setBusyId(null);
     if ("error" in result) {
-      toast({ title: t("card.disconnect"), description: describeError(result), variant: "destructive" });
+      toast.error(t("card.disconnect"), { description: describeError(result) });
       return;
     }
-    toast({
-      title: t("card.disconnect"),
+    const notify = result.warning ? toast.error : toast;
+    notify(t("card.disconnect"), {
       description: result.warning
         ? t("notice.disconnectedWithWarning", { name: target.name })
         : t("notice.disconnected", { name: target.name }),
-      variant: result.warning ? "destructive" : undefined,
     });
     void fetchPages(page, search);
-  }, [disconnecting, toast, t, describeError, fetchPages, page, search]);
+  }, [disconnecting, t, describeError, fetchPages, page, search]);
 
   const connectedCount = pages.filter((p) => p.status === "CONNECTED").length;
   const attentionCount = pages.filter((p) => pageNotices(p).some((n) => n !== "routingUnknown")).length;

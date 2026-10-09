@@ -1,7 +1,7 @@
 import type { Approval, PendingAction, ProposalField, StoredProposal } from "./types";
 
 export interface ProposalDictionary {
-  label: (key: string) => string;
+  label: (key: string, tool?: string) => string;
   yes: string;
   no: string;
 }
@@ -21,10 +21,10 @@ export function humanizeFieldKey(key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-export function proposalRows(fields: ProposalField[] | undefined, dict: ProposalDictionary): ProposalRow[] {
+export function proposalRows(fields: ProposalField[] | undefined, dict: ProposalDictionary, tool?: string): ProposalRow[] {
   return (fields ?? [])
     .filter((f) => f.key.trim() !== "" && f.value.trim() !== "")
-    .map((f) => ({ key: f.key, label: dict.label(f.key), value: plainValue(f.value, dict) }));
+    .map((f) => ({ key: f.key, label: dict.label(f.key, tool), value: plainValue(f.value, dict) }));
 }
 
 function plainValue(value: string, dict: ProposalDictionary): string {

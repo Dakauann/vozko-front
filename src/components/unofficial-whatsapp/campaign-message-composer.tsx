@@ -44,6 +44,19 @@ export function parameterCount(spec: UnofficialWhatsAppMessageSpec): number {
   return parameterCountIn(spec.bodies);
 }
 
+export function messageNeedsMedia(kind: UnofficialWhatsAppMessageKind): boolean {
+  return NEEDS_MEDIA.includes(kind);
+}
+
+export function messageBodiesReady(spec: UnofficialWhatsAppMessageSpec): boolean {
+  if (!variantsAgree(spec.bodies)) return false;
+  return (spec.kind !== "text" && spec.kind !== "menu") || spec.bodies.every((body) => body.trim() !== "");
+}
+
+export function unofficialMessageReady(spec: UnofficialWhatsAppMessageSpec): boolean {
+  return messageBodiesReady(spec) && (!messageNeedsMedia(spec.kind) || Boolean(spec.mediaId));
+}
+
 export interface CampaignMessageComposerProps {
   value: UnofficialWhatsAppMessageSpec;
   onChange: (next: UnofficialWhatsAppMessageSpec) => void;
@@ -62,7 +75,7 @@ export function CampaignMessageComposer({
   const setKind = (kind: UnofficialWhatsAppMessageKind) =>
     onChange({ ...value, kind });
 
-  const needsMedia = NEEDS_MEDIA.includes(value.kind);
+  const needsMedia = messageNeedsMedia(value.kind);
 
   return (
     <div className="space-y-4">

@@ -51,8 +51,16 @@ export interface FilterFieldConfig {
   options?: FilterMultiSelectOption[];
   placeholder?: string;
   loading?: boolean;
+  emptyMessage?: string;
   trueLabel?: string;
   falseLabel?: string;
+  presence?: FilterPresenceLabels;
+  renderControl?: (filter: CrmFilter, onChange: (filter: CrmFilter) => void) => ReactNode;
+}
+
+export interface FilterPresenceLabels {
+  trueLabel: string;
+  falseLabel: string;
 }
 
 export interface FilterGroupConfig {
@@ -143,6 +151,8 @@ function FieldControl({
 }) {
   const { field, control } = config;
 
+  if (config.renderControl) return <>{config.renderControl(value, onChange)}</>;
+
   switch (control) {
     case "text":
       return (
@@ -157,7 +167,7 @@ function FieldControl({
     case "enum":
     case "idset": {
       const selected = readSet(value, field);
-      return (
+      const multiSelect = (
         <FilterMultiSelect
           triggerLabel={config.label}
           icon={<FunnelSimple weight="bold" className="h-3.5 w-3.5" />}
@@ -166,10 +176,23 @@ function FieldControl({
           onToggle={(option) => onChange(toggleInSet(value, field, option))}
           onClear={() => onChange(withSet(value, field, []))}
           searchPlaceholder={labels.search}
-          emptyMessage={config.loading ? labels.loading : labels.empty}
+          emptyMessage={config.loading ? labels.loading : config.emptyMessage ?? labels.empty}
           clearLabel={labels.clearAll}
           className="h-9 w-full justify-between"
         />
+      );
+      if (!config.presence) return multiSelect;
+      return (
+        <div className="flex flex-col gap-2">
+          {multiSelect}
+          <TriStateToggle
+            value={readPresence(value, field)}
+            onChange={(next) => onChange(withPresence(value, field, next))}
+            labels={labels}
+            trueLabel={config.presence.trueLabel}
+            falseLabel={config.presence.falseLabel}
+          />
+        </div>
       );
     }
 

@@ -20,6 +20,7 @@ import type {
 } from "@/lib/conversations/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { messageMedia } from "@/lib/conversations/message-media";
+import { messageLocation } from "@/lib/conversations/message-location";
 import { adOriginOf } from "@/lib/conversations/ad-origin";
 
 import { hasUserDataCookie } from "@/lib/auth/client-cookies";
@@ -32,6 +33,7 @@ import {
   incomingUnreadIds,
   markWindowLoadingMore,
   openWindowConversation,
+  patchWindowLead,
   setWindowVisibility,
   unreadIdsIn,
   type OpenWindowConversationInput,
@@ -40,10 +42,35 @@ import {
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
 import { patchColumns, patchEntries } from "@/lib/conversations/entry-patch";
 import {
+  leadPatchFromRecord,
+  leadPresence,
+  mergeSubscribedLead,
+  patchLead,
+  patchLeadColumns,
+  patchLeadList,
+  planLeadUpdate,
+  subscribedLeadPatch,
+  type CarrierFilter,
+  type LeadCarrier,
+  type LeadPatch,
+  type LeadReread,
+} from "@/lib/conversations/lead-patch";
+import {
+  subscribeAnswered,
+  subscribeSent,
+  subscribesDropped,
+  type PendingSubscribe,
+} from "@/lib/conversations/subscribe-ledger";
+import { createLeadRefresher, type LeadFetched } from "@/lib/conversations/lead-refresh";
+import { getLeadByIdAction } from "@/app/actions/leads";
+import type { LeadsBulkUpdateEvent, LeadUpdateEvent } from "@/lib/leads/types";
+import {
   createReconnectController,
   type ReconnectController,
 } from "@/lib/ws/reconnect";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { isTemplateSendRefusal, outreachRefusalKey } from "@/lib/whatsapp-outreach/refusals";
 import { useDepartment } from "@/contexts/department-context";
 import { messageSoundsMuted } from "@/lib/sounds/message-sound-preference";
 import { shouldChimeForMessage } from "@/lib/sounds/rules";
@@ -91,6 +118,10 @@ export interface SendButtonWsInput {
   footerText?: string;
   buttons: { id: string; title: string }[];
 }
+
+export type LeadUpdateListener = (event: LeadUpdateEvent) => void;
+
+export type LeadsBulkUpdateListener = (event: LeadsBulkUpdateEvent) => void;
 
 interface UseConversationWsReturn {
   status: ConnectionStatus;
@@ -177,7 +208,9 @@ interface UseConversationWsReturn {
   ) => void;
   pendingOutcomeRequest: PendingOutcomeRequest | null;
   clearPendingOutcomeRequest: () => void;
-  applyLeadRename: (leadId: string, name: string) => void;
+  applyLeadPatch: (leadId: string, patch: LeadPatch) => void;
+  subscribeLeadUpdates: (listener: LeadUpdateListener) => () => void;
+  subscribeLeadsBulkUpdates: (listener: LeadsBulkUpdateListener) => () => void;
 
   windowConversations: WindowConversations;
   windowFocusRequest: { key: string; nonce: number } | null;
@@ -253,8 +286,10 @@ export function useConversationWs({
   campaignType,
   enabled = true,
 }: UseConversationWsOptions): UseConversationWsReturn {
-  const { currentWorkspace } = useWorkspace();
+  const { currentWorkspace, can } = useWorkspace();
   const { currentDepartment } = useDepartment();
+  const tOutreach = useTranslations("whatsappOutreach");
+  const canReadLeads = can("leads", "read");
   const workspaceId = currentWorkspace?.id ?? "";
   const departmentId = currentDepartment?.id ?? "";
   const scopeKey = `${workspaceId}:${departmentId}`;
@@ -352,6 +387,8 @@ export function useConversationWs({
   const currentSearchFiltersRef = useRef<WsSearchInboxPayload | null>(null);
   const searchResultsRef = useRef<InboxEntry[] | null>(null);
   const activeConversationRef = useRef<ActiveConversation | null>(null);
+  const funnelColumnsRef = useRef<Map<string, FunnelColumnState>>(funnelColumns);
+  const canReadLeadsRef = useRef(canReadLeads);
   const pendingStatusChangesRef = useRef<
     Map<string, PendingStatusChangeSnapshot>
   >(new Map());
@@ -416,6 +453,14 @@ export function useConversationWs({
   useEffect(() => {
     activeConversationRef.current = activeConversation;
   }, [activeConversation]);
+
+  useEffect(() => {
+    funnelColumnsRef.current = funnelColumns;
+  }, [funnelColumns]);
+
+  useEffect(() => {
+    canReadLeadsRef.current = canReadLeads;
+  }, [canReadLeads]);
 
   const rollbackPendingStatusChange = useCallback(
     (entryId: string, entryType: string, previousStatus?: string) => {
@@ -510,11 +555,33 @@ export function useConversationWs({
   }, [scopeKey]);
 
 
-  const send = useCallback((type: string, payload: Record<string, unknown>) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type, payload }));
-    }
+  const send = useCallback((type: string, payload: Record<string, unknown>): boolean => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return false;
+    wsRef.current.send(JSON.stringify({ type, payload }));
+    return true;
   }, []);
+
+  const subscribesInFlightRef = useRef<Map<string, PendingSubscribe>>(new Map());
+
+  const settleSubscribes = useCallback((key: string, pending: PendingSubscribe | undefined) => {
+    if (pending) subscribesInFlightRef.current.set(key, pending);
+    else subscribesInFlightRef.current.delete(key);
+  }, []);
+
+  const sendSubscribe = useCallback(
+    (entryId: string, entryType: EntryType, reread?: LeadReread) => {
+      if (!send("subscribe", { entry_id: entryId, entry_type: entryType })) return;
+      const key = windowKey(entryId, entryType);
+      settleSubscribes(key, subscribeSent(subscribesInFlightRef.current.get(key), reread));
+    },
+    [send, settleSubscribes],
+  );
+
+  const dropSubscribesInFlight = useCallback(() => {
+    for (const [key, pending] of [...subscribesInFlightRef.current]) {
+      settleSubscribes(key, subscribesDropped(pending));
+    }
+  }, [settleSubscribes]);
 
   type SubscriptionHolder = "pane" | "window";
   const subscriptionHoldersRef = useRef<
@@ -532,9 +599,9 @@ export function useConversationWs({
       holders.add(holder);
       subscriptionHoldersRef.current.set(key, { entryId, entryType, holders });
 
-      send("subscribe", { entry_id: entryId, entry_type: entryType });
+      sendSubscribe(entryId, entryType);
     },
-    [send],
+    [sendSubscribe],
   );
 
   const releaseSubscription = useCallback(
@@ -550,6 +617,135 @@ export function useConversationWs({
       send("unsubscribe", { entry_id: entryId, entry_type: entryType });
     },
     [send],
+  );
+
+  const patchListedLead = useCallback(
+    (leadId: string, patch: LeadPatch, only?: CarrierFilter<InboxEntry>) => {
+      setInbox((prev) => {
+        const updated = patchLeadList(prev, leadId, patch, only);
+        inboxRef.current = updated;
+        return updated;
+      });
+      setSearchResults((prev) => {
+        if (!prev) return prev;
+        const updated = patchLeadList(prev, leadId, patch, only);
+        searchResultsRef.current = updated;
+        return updated;
+      });
+      setFunnelColumns((prev) => patchLeadColumns(prev, leadId, patch, only));
+    },
+    [],
+  );
+
+  const applyConversationLead = useCallback(
+    (entryId: string, entryType: EntryType, leadId: string, patch: LeadPatch) => {
+      patchListedLead(leadId, patch, (entry) => entry.entry_id === entryId && entry.entry_type === entryType);
+    },
+    [patchListedLead],
+  );
+
+  const applyLeadPatch = useCallback((leadId: string, patch: LeadPatch) => {
+    if (!leadId) return;
+
+    patchListedLead(leadId, patch);
+    setActiveConversation((prev) => (prev ? patchLead(prev, leadId, patch) : prev));
+
+    const windows = patchWindowLead(windowConversationsRef.current, leadId, patch);
+    if (windows !== windowConversationsRef.current) {
+      windowConversationsRef.current = windows;
+      setWindowConversations(windows);
+    }
+  }, [patchListedLead]);
+
+  const openLeadConversations = useCallback((): (ActiveConversation | null)[] => {
+    const windows = [...windowConversationsRef.current.values()].map((w) => w.conversation);
+    return [activeConversationRef.current, ...windows];
+  }, []);
+
+  const shownLeadCarriers = useCallback((): (LeadCarrier | null)[] => {
+    const columns = [...funnelColumnsRef.current.values()].flatMap((column) => column.entries);
+    return [
+      ...inboxRef.current,
+      ...(searchResultsRef.current ?? []),
+      ...columns,
+      ...openLeadConversations(),
+    ];
+  }, [openLeadConversations]);
+
+  const rereadLeadConversations = useCallback(
+    (leadId: string, fields: readonly string[]) => {
+      const reread = new Set<string>();
+      for (const conversation of openLeadConversations()) {
+        if (!conversation || conversation.lead_id !== leadId) continue;
+        const key = windowKey(conversation.entry_id, conversation.entry_type);
+        if (reread.has(key) || !subscriptionHoldersRef.current.has(key)) continue;
+        reread.add(key);
+        sendSubscribe(conversation.entry_id, conversation.entry_type, { leadId, fields });
+      }
+    },
+    [openLeadConversations, sendSubscribe],
+  );
+
+  const vouchSubscribed = useCallback((event: WsServerEvent): WsServerEvent => {
+    if (event.type !== "conversation:subscribed") return event;
+    const key = windowKey(event.payload.entry_id, event.payload.entry_type);
+    const settled = subscribeAnswered(subscribesInFlightRef.current.get(key), event.payload);
+    settleSubscribes(key, settled.pending);
+    return { ...event, payload: settled.answer };
+  }, [settleSubscribes]);
+
+  const fetchShownLead = useCallback(
+    async (leadId: string, fields: readonly string[]): Promise<LeadFetched | null> => {
+      if (!canReadLeadsRef.current) {
+        rereadLeadConversations(leadId, fields);
+        return null;
+      }
+      const { lead } = await getLeadByIdAction(leadId);
+      if (!lead) return null;
+      const applyFields = (named: readonly string[]) => applyLeadPatch(leadId, leadPatchFromRecord(lead, named));
+      applyFields(fields);
+      return { version: lead.version, applyFields };
+    },
+    [applyLeadPatch, rereadLeadConversations],
+  );
+
+  const leadRefresherRef = useRef<((event: LeadUpdateEvent) => void) | null>(null);
+  const leadUpdateListenersRef = useRef(new Set<LeadUpdateListener>());
+
+  const subscribeLeadUpdates = useCallback((listener: LeadUpdateListener) => {
+    leadUpdateListenersRef.current.add(listener);
+    return () => {
+      leadUpdateListenersRef.current.delete(listener);
+    };
+  }, []);
+
+  const leadsBulkListenersRef = useRef(new Set<LeadsBulkUpdateListener>());
+
+  const subscribeLeadsBulkUpdates = useCallback((listener: LeadsBulkUpdateListener) => {
+    leadsBulkListenersRef.current.add(listener);
+    return () => {
+      leadsBulkListenersRef.current.delete(listener);
+    };
+  }, []);
+
+  const handleLeadsBulkUpdate = useCallback((event: LeadsBulkUpdateEvent) => {
+    if (typeof event?.runId !== "string" || event.runId === "") return;
+    const notice: LeadsBulkUpdateEvent = { runId: event.runId };
+    for (const listener of leadsBulkListenersRef.current) listener(notice);
+  }, []);
+
+  const handleLeadUpdate = useCallback(
+    (event: LeadUpdateEvent) => {
+      if (typeof event?.leadId !== "string" || !Array.isArray(event.fields)) return;
+      const notice: LeadUpdateEvent = { leadId: event.leadId, version: event.version, fields: event.fields };
+      for (const listener of leadUpdateListenersRef.current) listener(notice);
+      const plan = planLeadUpdate(leadPresence(shownLeadCarriers(), event.leadId), event);
+      if (plan === "advance") applyLeadPatch(event.leadId, { lead_version: event.version });
+      if (plan !== "refetch") return;
+      leadRefresherRef.current ??= createLeadRefresher(fetchShownLead);
+      leadRefresherRef.current(event);
+    },
+    [applyLeadPatch, fetchShownLead, shownLeadCarriers],
   );
 
 
@@ -593,6 +789,7 @@ export function useConversationWs({
           undefined,
         metadata:
           (msg.metadata as ConversationMessage["metadata"]) ?? undefined,
+        ...messageLocation(msg),
         created_at:
           (msg.created_at as string) ?? (msg.createdAt as string) ?? "",
         updated_at:
@@ -612,6 +809,8 @@ export function useConversationWs({
           "whatsapp",
         lead_id:
           (raw.lead_id as string) ?? (raw.leadId as string) ?? undefined,
+        lead_version:
+          (raw.lead_version as number) ?? (raw.leadVersion as number) ?? undefined,
         lead_name: (raw.lead_name as string) ?? (raw.leadName as string) ?? "",
         lead_number:
           (raw.lead_number as string) ?? (raw.leadNumber as string) ?? "",
@@ -768,7 +967,8 @@ export function useConversationWs({
   );
 
   const handleServerEvent = useCallback(
-    (event: WsServerEvent) => {
+    (incoming: WsServerEvent) => {
+      const event = vouchSubscribed(incoming);
       routeEventToWindows(event);
 
       switch (event.type) {
@@ -1117,6 +1317,8 @@ export function useConversationWs({
           const {
             entry_id,
             entry_type,
+            lead_id,
+            lead_version,
             lead_name,
             lead_number,
             lead_metadata,
@@ -1129,6 +1331,11 @@ export function useConversationWs({
             ad_origin,
           } = event.payload;
           const adOrigin = adOriginOf(ad_origin);
+          const leadPatch = subscribedLeadPatch(event.payload);
+
+          if (lead_id && leadPatch) {
+            applyConversationLead(entry_id, entry_type, lead_id, leadPatch);
+          }
 
           if (
             activeSubscriptionRef.current &&
@@ -1151,10 +1358,10 @@ export function useConversationWs({
               prev.entry_type === entry_type &&
               prev.messages.length > 0
             ) {
-              return {
+              return mergeSubscribedLead({
                 ...prev,
-                lead_name: lead_name ?? prev.lead_name,
-                lead_number: lead_number ?? prev.lead_number,
+                lead_id: inboxEntry?.lead_id ?? prev.lead_id,
+                blocked: inboxEntry?.blocked ?? prev.blocked,
                 lead_metadata: lead_metadata ?? prev.lead_metadata,
                 campaign_id: inboxEntry?.campaign_id ?? prev.campaign_id,
                 entry_variables:
@@ -1177,13 +1384,16 @@ export function useConversationWs({
                 conversation_status:
                   inboxEntry?.conversation_status ?? prev.conversation_status,
                 ad_origin: adOrigin ?? prev.ad_origin ?? null,
-              };
+              }, event.payload);
             }
 
             return {
               entry_id,
               entry_type,
               campaign_id: inboxEntry?.campaign_id,
+              lead_id: lead_id ?? inboxEntry?.lead_id,
+              lead_version: lead_version ?? inboxEntry?.lead_version,
+              blocked: leadPatch?.blocked ?? inboxEntry?.blocked,
               lead_name,
               lead_number,
               lead_metadata,
@@ -1661,6 +1871,16 @@ export function useConversationWs({
           break;
         }
 
+        case "conversation:lead_update": {
+          handleLeadUpdate(event.payload);
+          break;
+        }
+
+        case "conversation:leads_bulk_update": {
+          handleLeadsBulkUpdate(event.payload);
+          break;
+        }
+
         case "conversation:analysis_update": {
           const { entry_id, entry_type, analysis, pending } = event.payload;
           setLatestAnalysisUpdate(event.payload);
@@ -1706,6 +1926,10 @@ export function useConversationWs({
             );
             break;
           }
+          if (isTemplateSendRefusal(event.payload)) {
+            toast.error(tOutreach(outreachRefusalKey(event.payload.code)));
+            break;
+          }
           switch (event.payload.code) {
             case "insufficient_balance":
               toast.error(
@@ -1718,7 +1942,7 @@ export function useConversationWs({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [send, routeEventToWindows],
+    [send, routeEventToWindows, handleLeadUpdate, handleLeadsBulkUpdate, applyConversationLead, vouchSubscribed, tOutreach],
   );
 
 
@@ -1814,14 +2038,10 @@ export function useConversationWs({
         }),
       );
 
+      dropSubscribesInFlight();
       if (wasReconnect) {
         for (const { entryId, entryType } of subscriptionHoldersRef.current.values()) {
-          ws.send(
-            JSON.stringify({
-              type: "subscribe",
-              payload: { entry_id: entryId, entry_type: entryType },
-            }),
-          );
+          sendSubscribe(entryId, entryType);
         }
       }
     };
@@ -1871,7 +2091,7 @@ export function useConversationWs({
 
       controllerRef.current?.scheduleReconnect();
     };
-  }, [handleServerEvent]);
+  }, [handleServerEvent, dropSubscribesInFlight, sendSubscribe]);
 
   useEffect(() => {
     connectRef.current = connect;
@@ -2405,54 +2625,6 @@ export function useConversationWs({
     [handleServerEvent],
   );
 
-  const applyLeadRename = useCallback((leadId: string, name: string) => {
-    if (!leadId) return;
-
-    const rename = (entries: InboxEntry[]) =>
-      entries.map((entry) =>
-        entry.lead_id === leadId ? { ...entry, lead_name: name } : entry,
-      );
-
-    const owned = new Set(
-      [...inboxRef.current, ...(searchResultsRef.current ?? [])]
-        .filter((entry) => entry.lead_id === leadId)
-        .map((entry) => `${entry.entry_type}-${entry.entry_id}`),
-    );
-
-    setInbox((prev) => {
-      const updated = rename(prev);
-      inboxRef.current = updated;
-      return updated;
-    });
-    setSearchResults((prev) => {
-      if (!prev) return prev;
-      const updated = rename(prev);
-      searchResultsRef.current = updated;
-      return updated;
-    });
-    setFunnelColumns((prev) => {
-      let changed = false;
-      const updated = new Map(prev);
-      for (const [stageId, column] of prev) {
-        let columnChanged = false;
-        const entries = column.entries.map((entry) => {
-          if (entry.lead_id !== leadId) return entry;
-          columnChanged = true;
-          changed = true;
-          return { ...entry, lead_name: name };
-        });
-        if (columnChanged) updated.set(stageId, { ...column, entries });
-      }
-      return changed ? updated : prev;
-    });
-
-    setActiveConversation((prev) =>
-      prev && owned.has(`${prev.entry_type}-${prev.entry_id}`)
-        ? { ...prev, lead_name: name }
-        : prev,
-    );
-  }, []);
-
   const setConversationStatus = useCallback(
     (entryId: string, entryType: string, status: string, outcomeCode?: string) => {
       if (wsRef.current?.readyState !== WebSocket.OPEN) {
@@ -2669,7 +2841,9 @@ export function useConversationWs({
     assignTo,
     forgetEntry,
     setConversationStatus,
-    applyLeadRename,
+    applyLeadPatch,
+    subscribeLeadUpdates,
+    subscribeLeadsBulkUpdates,
     windowConversations,
     windowFocusRequest,
     openConversationWindow,

@@ -17,6 +17,11 @@ export const LAYER_RANGES = {
   saturation: [-2, 10],
   blur: [0, 40],
   cropSide: [0.01, 1],
+  starPoints: [3, 64],
+  starInner: [0.05, 1],
+  miterLimit: [1, 20],
+  dashValue: [0, 100],
+  dashOffset: [-1000, 1000],
 } as const satisfies Record<string, Range>;
 
 export function clampTo(value: number, [lo, hi]: Range): number {

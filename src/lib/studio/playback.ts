@@ -7,6 +7,7 @@ export const PREMOUNT_MS = 1500;
 export const DRIFT_TOLERANCE_MS = 80;
 export const PAUSED_TOLERANCE_MS = 17;
 export const MAX_SHUTTLE_RATE = 8;
+export const MAX_OUTPUT_LATENCY_SEC = 0.5;
 
 export interface PlaybackClock {
   playing: boolean;
@@ -23,9 +24,13 @@ export function clampPosition(ms: number, durationMs: number): number {
   return Math.min(Math.max(0, ms), Math.max(0, durationMs));
 }
 
+function travelledMs(clock: PlaybackClock, nowSec: number): number {
+  return Math.max(0, nowSec - clock.originSec) * 1000 * clock.rate;
+}
+
 export function clockPosition(clock: PlaybackClock, nowSec: number, durationMs: number): number {
   if (!clock.playing) return clampPosition(clock.originMs, durationMs);
-  return clampPosition(clock.originMs + (nowSec - clock.originSec) * 1000 * clock.rate, durationMs);
+  return clampPosition(clock.originMs + travelledMs(clock, nowSec), durationMs);
 }
 
 export function startClock(positionMs: number, nowSec: number, rate: number = 1): PlaybackClock {
@@ -38,8 +43,21 @@ export function stopClock(clock: PlaybackClock, nowSec: number, durationMs: numb
 
 export function clockReachedEdge(clock: PlaybackClock, nowSec: number, durationMs: number): boolean {
   if (!clock.playing) return false;
-  const position = clock.originMs + (nowSec - clock.originSec) * 1000 * clock.rate;
+  const position = clock.originMs + travelledMs(clock, nowSec);
   return clock.rate > 0 ? position >= durationMs : position <= 0;
+}
+
+export interface OutputLatency {
+  outputLatency?: number;
+  baseLatency?: number;
+}
+
+function seconds(value: number | undefined): number {
+  return value !== undefined && Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+export function outputLatencySec(context: OutputLatency): number {
+  return Math.min(seconds(context.outputLatency) + seconds(context.baseLatency), MAX_OUTPUT_LATENCY_SEC);
 }
 
 export type ShuttleDirection = -1 | 0 | 1;
@@ -69,6 +87,7 @@ export interface VisualItem {
   assetId?: string;
   layer?: Layer;
   transform: Transform;
+  base: Transform;
   fit: Fit;
   active: boolean;
   opacity: number;
@@ -95,6 +114,7 @@ export function visualPlan(doc: VideoDocument, ms: number, premountMs: number = 
         assetId: clip.assetId,
         layer: clip.layer,
         transform: active ? movedTransform(transform, motionOffset(clip, localMs)) : clip.transform,
+        base: clip.transform,
         fit: clip.type === "overlay" ? "contain" : (clip.fit ?? "cover"),
         active,
         opacity: active ? transform.opacity * fadeLevel(clip, localMs) : 0,
@@ -157,27 +177,49 @@ export interface AudioPlanOptions {
   soloTrackIds?: readonly string[];
 }
 
-export function audioPlan(doc: VideoDocument, fromMs: number, options: AudioPlanOptions = {}): AudioVoice[] {
+type AudibleClip = Clip & { assetId: string };
+
+function audibleClips(doc: VideoDocument, options: AudioPlanOptions): AudibleClip[] {
   const solo = new Set(options.soloTrackIds ?? []);
+  return doc.tracks.flatMap((track) => {
+    if (track.kind !== "audio" || track.hidden || track.muted || (solo.size > 0 && !solo.has(track.id))) return [];
+    return track.clips.filter((clip): clip is AudibleClip => Boolean(clip.assetId) && !clip.disabled && clip.volume > 0);
+  });
+}
+
+export function audioPlan(doc: VideoDocument, fromMs: number, options: AudioPlanOptions = {}): AudioVoice[] {
   const voices: AudioVoice[] = [];
-  for (const track of doc.tracks) {
-    if (track.kind !== "audio" || track.hidden || track.muted || (solo.size > 0 && !solo.has(track.id))) continue;
-    for (const clip of track.clips) {
-      const end = clipEnd(clip);
-      if (!clip.assetId || clip.disabled || end <= fromMs || clip.volume <= 0) continue;
-      const playFrom = Math.max(fromMs, clip.startMs);
-      const localMs = playFrom - clip.startMs;
-      voices.push({
-        clipId: clip.id,
-        assetId: clip.assetId,
-        delayMs: playFrom - fromMs,
-        offsetMs: clip.trimInMs + localMs,
-        durationMs: end - playFrom,
-        gain: gainEnvelope(clip, localMs),
-      });
-    }
+  for (const clip of audibleClips(doc, options)) {
+    const end = clipEnd(clip);
+    if (end <= fromMs) continue;
+    const playFrom = Math.max(fromMs, clip.startMs);
+    const localMs = playFrom - clip.startMs;
+    voices.push({
+      clipId: clip.id,
+      assetId: clip.assetId,
+      delayMs: playFrom - fromMs,
+      offsetMs: clip.trimInMs + localMs,
+      durationMs: end - playFrom,
+      gain: gainEnvelope(clip, localMs),
+    });
   }
   return voices;
+}
+
+export function audioVoiceKeys(doc: VideoDocument, options: AudioPlanOptions = {}): Map<string, string> {
+  return new Map(audibleClips(doc, options).map((clip) => [clip.id, JSON.stringify([clip.assetId, clip.startMs, clip.durationMs, clip.trimInMs, clip.volume, clip.fadeInMs, clip.fadeOutMs])]));
+}
+
+export interface AudioPlanChange {
+  stop: string[];
+  start: string[];
+}
+
+export function audioPlanChange(previous: ReadonlyMap<string, string>, next: ReadonlyMap<string, string>): AudioPlanChange {
+  return {
+    stop: [...previous].filter(([clipId, key]) => next.get(clipId) !== key).map(([clipId]) => clipId),
+    start: [...next].filter(([clipId, key]) => previous.get(clipId) !== key).map(([clipId]) => clipId),
+  };
 }
 
 export interface BoxStyle {

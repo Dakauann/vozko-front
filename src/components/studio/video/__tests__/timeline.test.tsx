@@ -49,6 +49,10 @@ function drag(element: Element, fromX: number, toX: number, init: Partial<Pointe
   fireEvent.pointerUp(element, { pointerId: 1, clientX: toX, clientY: 10, ...init });
 }
 
+function openTrackMenu(name: string) {
+  fireEvent.keyDown(screen.getByRole("button", { name: `Opções de ${name}` }), { key: "Enter" });
+}
+
 describe("Timeline", () => {
   it("updates playback indicators without rendering the track tree", async () => {
     const { editor, container } = renderInEditor(doc(), <Timeline />);
@@ -110,12 +114,50 @@ describe("Timeline", () => {
     expect(findClip(editor.store.getState().document, "a")?.clip.startMs).toBe(0);
   });
 
+  it("drops a track's clips from the selection when it is locked and ignores clicks on them", () => {
+    const { editor } = renderInEditor(doc(), <Timeline />);
+    fireEvent.pointerDown(clipElement("a"), { button: 0, pointerId: 1, clientX: 10 });
+    fireEvent.pointerDown(clipElement("m"), { button: 0, pointerId: 2, clientX: 10, shiftKey: true });
+    expect(editor.store.getState().selection).toEqual(["a", "m"]);
+    fireEvent.click(screen.getByRole("button", { name: "Bloquear Vídeo 1" }));
+    expect(editor.store.getState().selection).toEqual(["m"]);
+    fireEvent.pointerDown(clipElement("b"), { button: 0, pointerId: 3, clientX: 10, shiftKey: true });
+    expect(editor.store.getState().selection).toEqual(["m"]);
+    act(() => editor.store.getState().undo());
+    expect(editor.store.getState().selection).toEqual(["a", "m"]);
+  });
+
   it("mutes an audio track and adds tracks", () => {
     const { editor } = renderInEditor(doc(), <Timeline />);
     fireEvent.click(screen.getByRole("button", { name: "Silenciar Áudio 1" }));
     expect(editor.store.getState().document.tracks[1].muted).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Nova faixa de áudio" }));
     expect(editor.store.getState().document.tracks).toHaveLength(3);
+  });
+
+  it("moves a track among its lanes and adds one next to it from the track menu, one undo step each", () => {
+    const d = doc();
+    d.tracks.splice(1, 0, { id: "v2", kind: "visual", clips: [] });
+    const { editor } = renderInEditor(d, <Timeline />);
+    const ids = () => editor.store.getState().document.tracks.map((t) => t.id);
+    openTrackMenu("Vídeo 1");
+    fireEvent.click(screen.getByRole("menuitem", { name: "Mover para cima" }));
+    expect(ids()).toEqual(["v2", "v1", "au"]);
+    openTrackMenu("Vídeo 1");
+    expect(screen.getByRole("menuitem", { name: "Mover para baixo" })).toHaveAttribute("data-disabled");
+    fireEvent.click(screen.getByRole("menuitem", { name: "Nova faixa abaixo" }));
+    expect(ids()).toHaveLength(4);
+    expect(editor.store.getState().document.tracks[0]).toMatchObject({ kind: "visual", clips: [] });
+    expect(ids().slice(1)).toEqual(["v2", "v1", "au"]);
+    act(() => editor.store.getState().undo());
+    expect(ids()).toEqual(["v2", "v1", "au"]);
+  });
+
+  it("opens the track menu with a right click on the header and removes the track from it", () => {
+    const { editor } = renderInEditor(doc(), <Timeline />);
+    fireEvent.contextMenu(screen.getByText("Áudio 1"));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Remover Áudio 1" }));
+    expect(editor.store.getState().document.tracks.map((t) => t.id)).toEqual(["v1"]);
   });
 
   it("exposes the playhead as a slider", () => {

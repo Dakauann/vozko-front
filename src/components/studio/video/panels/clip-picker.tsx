@@ -21,6 +21,7 @@ interface ClipPickerProps {
   value: string | null;
   onChange: (clipId: string | null) => void;
   disabled?: boolean;
+  noneLabel?: string;
 }
 
 export function useEligibleClips(accepts: (clip: Clip, track: Track) => boolean): PickedClip[] {
@@ -28,7 +29,7 @@ export function useEligibleClips(accepts: (clip: Clip, track: Track) => boolean)
   return useMemo(() => tracks.flatMap((track) => track.clips.filter((clip) => accepts(clip, track)).map((clip) => ({ clip, track }))), [tracks, accepts]);
 }
 
-export function ClipPicker({ label, accepts, value, onChange, disabled }: ClipPickerProps) {
+export function ClipPicker({ label, accepts, value, onChange, disabled, noneLabel }: ClipPickerProps) {
   const t = useTranslations("studio.video.picker");
   const id = useId();
   const selection = useEditorState((s) => s.selection);
@@ -38,13 +39,13 @@ export function ClipPicker({ label, accepts, value, onChange, disabled }: ClipPi
   const selectedEligible = eligible.find((entry) => selection.includes(entry.clip.id));
   const current = eligible.find((entry) => entry.clip.id === value);
 
-  const fallback = selectedEligible?.clip.id ?? eligible[0]?.clip.id ?? null;
+  const fallback = noneLabel !== undefined ? null : (selectedEligible?.clip.id ?? eligible[0]?.clip.id ?? null);
 
   useEffect(() => {
     if (!current && fallback !== value) onChange(fallback);
   }, [current, fallback, value, onChange]);
 
-  if (eligible.length === 0) return <p className="text-xs text-muted-foreground">{t("none")}</p>;
+  if (eligible.length === 0 && noneLabel === undefined) return <p className="text-xs text-muted-foreground">{t("none")}</p>;
 
   return (
     <div className="space-y-1">
@@ -58,6 +59,7 @@ export function ClipPicker({ label, accepts, value, onChange, disabled }: ClipPi
         onChange={(event) => onChange(event.target.value || null)}
         className="h-7 w-full rounded-md border border-border bg-background px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
+        {noneLabel !== undefined ? <option value="">{noneLabel}</option> : null}
         {eligible.map(({ clip, track }) => (
           <option key={clip.id} value={clip.id}>
             {t("option", { track: names.get(track.id) ?? "", start: formatTimecode(clip.startMs), end: formatTimecode(clipEnd(clip)) })}

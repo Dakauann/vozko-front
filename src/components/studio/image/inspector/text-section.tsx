@@ -6,6 +6,7 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { TextB, TextItalic } from "@/components/icons";
 import type { CanvasSize, Layer, TextAlign } from "@/lib/studio/document";
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT, FONT_IDS, nearestFontWeight, STUDIO_FONTS, type FontId } from "@/lib/studio/fonts";
+import { DEFAULT_HIGHLIGHT } from "@/lib/studio/layer-effects";
 import { clampTo, LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import type { LayerPatch } from "@/lib/studio/layers";
 
@@ -15,7 +16,6 @@ import { GradientFields, OutlineSection, ShadowSection } from "./effects";
 
 const ALIGNS: TextAlign[] = ["left", "center", "right"];
 const BOLD_WEIGHT = 700;
-const DEFAULT_HIGHLIGHT = { color: "#ffe14d", radius: 0.2 };
 
 export function TextSection({ layers, canvas }: { layers: Layer[]; canvas: CanvasSize }) {
   const t = useTranslations("studio.image.inspector.text");
@@ -95,7 +95,7 @@ export function TextSection({ layers, canvas }: { layers: Layer[]; canvas: Canva
           min={LAYER_RANGES.lineHeight[0]}
           max={3}
           step={0.05}
-          format={(value) => value.toFixed(2)}
+          entry={{ range: LAYER_RANGES.lineHeight, decimals: 2 }}
           disabled={locked || curved}
           onStart={commands.beginLive}
           onEnd={commands.endLive}
@@ -107,7 +107,7 @@ export function TextSection({ layers, canvas }: { layers: Layer[]; canvas: Canva
           min={-0.2}
           max={1}
           step={0.01}
-          format={(value) => `${Math.round(value * 100)}%`}
+          entry={{ range: LAYER_RANGES.letterSpacing, scale: 100, suffix: "%" }}
           disabled={locked}
           onStart={commands.beginLive}
           onEnd={commands.endLive}

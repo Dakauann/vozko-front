@@ -21,14 +21,13 @@ import {
 import { TelegramLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 export default function ConnectTelegramPage() {
   const t = useTranslations("telegram");
   const tc = useTranslations("channels.connect");
   const router = useRouter();
-  const { toast } = useToast();
 
   const [token, setToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -49,22 +48,15 @@ export default function ConnectTelegramPage() {
 
     if (result.error) {
       setError(result.error);
-      toast({
-        title: t("connect.errorTitle"),
-        description: result.error,
-        variant: "destructive",
-      });
+      toast.error(t("connect.errorTitle"), { description: result.error });
       return;
     }
 
     const name = result.account?.displayName ?? "";
     setToken("");
     setConnected({ name });
-    toast({
-      title: t("connect.successTitle"),
-      description: t("notice.connected", { username: name }),
-    });
-  }, [tokenLooksValid, submitting, trimmed, toast, t]);
+    toast(t("connect.successTitle"), { description: t("notice.connected", { username: name }) });
+  }, [tokenLooksValid, submitting, trimmed, t]);
 
   const facts = [
     {

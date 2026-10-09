@@ -16,9 +16,11 @@ import {
 import type { VideoViewStore } from "./view-store";
 
 export interface PlaybackAudio {
-  now: () => number;
+  heard: () => number;
+  startsAt: () => number;
   prepare: () => Promise<void>;
-  play: (doc: VideoDocument, fromMs: number, position: () => number, options?: AudioPlanOptions) => void;
+  play: (doc: VideoDocument, positionAt: (clockSec: number) => number, options?: AudioPlanOptions) => void;
+  update: (doc: VideoDocument, positionAt: (clockSec: number) => number, options?: AudioPlanOptions) => void;
   stop: () => void;
 }
 
@@ -27,7 +29,7 @@ export interface FrameScheduler {
   cancel: (handle: number) => void;
 }
 
-const browserFrames: FrameScheduler = {
+export const browserFrames: FrameScheduler = {
   request: (callback) => requestAnimationFrame(callback),
   cancel: (handle) => cancelAnimationFrame(handle),
 };
@@ -44,7 +46,7 @@ export class PlaybackController {
   ) {}
 
   position(): number {
-    return clockPosition(this.clock, this.audio.now(), this.document().durationMs);
+    return this.positionAt(this.audio.heard());
   }
 
   async play(rate: number = 1): Promise<void> {
@@ -55,8 +57,8 @@ export class PlaybackController {
     if (rate < 0 && from <= 0) return this.pause();
     this.audio.stop();
     await this.audio.prepare();
-    this.clock = startClock(clampPosition(from, durationMs), this.audio.now(), rate);
-    if (rate === 1) this.audio.play(this.document(), this.clock.originMs, () => this.position(), this.audioOptions());
+    this.clock = startClock(clampPosition(from, durationMs), this.audio.startsAt(), rate);
+    if (rate === 1) this.playAudio();
     this.view.setState({ playing: true, rate, playheadMs: this.clock.originMs });
     this.loop();
   }
@@ -100,16 +102,19 @@ export class PlaybackController {
       if (playhead > durationMs) this.seek(durationMs);
       return;
     }
-    if (this.clock.rate === 1) {
-      const position = this.position();
-      this.audio.stop();
-      this.clock = startClock(position, this.audio.now(), 1);
-      this.audio.play(this.document(), position, () => this.position(), this.audioOptions());
-    }
+    if (this.clock.rate === 1) this.audio.update(this.document(), (clockSec) => this.positionAt(clockSec), this.audioOptions());
+  }
+
+  private positionAt(clockSec: number): number {
+    return clockPosition(this.clock, clockSec, this.document().durationMs);
   }
 
   private audioOptions(): AudioPlanOptions {
     return { soloTrackIds: this.view.getState().soloTrackIds };
+  }
+
+  private playAudio(): void {
+    this.audio.play(this.document(), (clockSec) => this.positionAt(clockSec), this.audioOptions());
   }
 
   dispose(): void {
@@ -132,7 +137,7 @@ export class PlaybackController {
       this.frame = null;
       if (!this.clock.playing) return;
       const durationMs = this.document().durationMs;
-      if (clockReachedEdge(this.clock, this.audio.now(), durationMs)) {
+      if (clockReachedEdge(this.clock, this.audio.heard(), durationMs)) {
         this.halt(this.clock.rate > 0 ? durationMs : 0);
         return;
       }

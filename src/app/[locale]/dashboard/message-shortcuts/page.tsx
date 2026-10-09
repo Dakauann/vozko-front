@@ -36,7 +36,7 @@ import type { MessageShortcut } from "@/lib/message-shortcuts/types";
 import MessageShortcutSheet from "@/components/message-shortcuts/MessageShortcutSheet";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -77,7 +77,6 @@ function getShortcutTypeLabel(
 }
 
 export default function MessageShortcutsPage() {
-  const { toast } = useToast();
   const t = useTranslations("messageShortcutsPage");
   const { can, currentWorkspace } = useWorkspace();
   const [shortcuts, setShortcuts] = useState<MessageShortcut[]>([]);
@@ -102,11 +101,7 @@ export default function MessageShortcutsPage() {
       setLoading(true);
       const result = await listMessageShortcutsAction();
       if (result.error) {
-        toast({
-          title: t("toast.error"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.error"), { description: result.error });
         setLoading(false);
         return;
       }
@@ -127,7 +122,7 @@ export default function MessageShortcutsPage() {
       });
       setLoading(false);
     },
-    [t, toast],
+    [t],
   );
 
   useEffect(() => {
@@ -216,18 +211,11 @@ export default function MessageShortcutsPage() {
     startDeleting(async () => {
       const result = await deleteMessageShortcutAction(deletingShortcut.id);
       if (result.error) {
-        toast({
-          title: t("toast.error"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("toast.error"), { description: result.error });
         return;
       }
 
-      toast({
-        title: t("toast.deleted"),
-        description: t("toast.deletedDescription"),
-      });
+      toast(t("toast.deleted"), { description: t("toast.deletedDescription") });
 
       const deletedId = deletingShortcut.id;
       setDeletingShortcut(null);

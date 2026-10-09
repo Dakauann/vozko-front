@@ -25,6 +25,7 @@ interface DepartmentContextType {
   currentDepartment: Department | null;
   isLoading: boolean;
   isResolved: boolean;
+  loadFailed: boolean;
   switchDepartment: (department: Department | null) => void;
   refreshDepartments: () => Promise<void>;
   isLocked: boolean;
@@ -109,6 +110,7 @@ export function DepartmentProvider({
     null,
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [scope, setScope] = useState<DepartmentScope>(NO_DEPARTMENT_SCOPE);
   const [resolvedKey, setResolvedKey] = useState<string | null>(null);
   const requestRef = useRef<Promise<void> | null>(null);
@@ -148,6 +150,7 @@ export function DepartmentProvider({
           fetchDepartmentScope(),
         ]);
         setScope(scopeResult.scope);
+        setLoadFailed(Boolean(result.error));
         if (result.error) return;
 
         const all = result.departments;
@@ -232,6 +235,7 @@ export function DepartmentProvider({
       currentDepartment,
       isLoading,
       isResolved,
+      loadFailed,
       switchDepartment,
       refreshDepartments,
       isLocked,
@@ -242,6 +246,7 @@ export function DepartmentProvider({
       currentDepartment,
       isLoading,
       isResolved,
+      loadFailed,
       switchDepartment,
       refreshDepartments,
       isLocked,
@@ -264,6 +269,7 @@ export function useDepartment() {
       currentDepartment: null,
       isLoading: false,
       isResolved: true,
+      loadFailed: false,
       switchDepartment: () => {},
       refreshDepartments: async () => {},
       isLocked: false,

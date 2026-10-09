@@ -10,6 +10,7 @@ import { SendMediaPreview } from "./send-media-preview";
 
 export { MediaNodePreview } from "./media-node-preview";
 export { renderConditionContentPreview } from "./conditions";
+export { renderActionContentPreview } from "./actions";
 
 export function renderMessageContentPreview(
   nodeType: WorkflowNodeType,

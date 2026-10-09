@@ -84,6 +84,7 @@ import { MessageMedia } from "./message-media";
 import { AdOriginBanner } from "./ad-origin-banner";
 import FormattedMessageText from "@/components/ui/formatted-message-text";
 import TemplateBubble from "@/components/crm/TemplateBubble";
+import { LocationMessageCard } from "@/components/crm/LocationMessageCard";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import {
   deliveryErrorFrom,
@@ -2169,7 +2170,18 @@ export default function CrmConversationView({
                                 />
                               )}
 
+                              {msg.location && (
+                                <LocationMessageCard
+                                  messageId={msg.id}
+                                  location={msg.location}
+                                  leadId={conversation.lead_id}
+                                  leadName={conversation.lead_name}
+                                  leadNumber={conversation.lead_number}
+                                />
+                              )}
+
                               {msg.text &&
+                                !msg.location &&
                                 !isToolEventMessage &&
                                 !isTemplateMessage && (
                                   <CollapsibleMessageText text={msg.text} />

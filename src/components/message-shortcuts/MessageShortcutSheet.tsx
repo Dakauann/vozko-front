@@ -24,7 +24,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface ButtonDraft {
@@ -61,7 +61,6 @@ export default function MessageShortcutSheet({
   onSaved,
 }: MessageShortcutSheetProps) {
   const t = useTranslations("messageShortcutsPage");
-  const { toast } = useToast();
   const [name, setName] = useState("");
   const [shortcut, setShortcut] = useState("");
   const [messageType, setMessageType] = useState<ShortcutMessageType>("text");
@@ -149,16 +148,13 @@ export default function MessageShortcutSheet({
           });
 
       if (result.error || !result.shortcut) {
-        toast({
-          title: t("toast.error"),
+        toast.error(t("toast.error"), {
           description: result.error || t("toast.error"),
-          variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title: editingShortcut ? t("toast.updated") : t("toast.created"),
+      toast(editingShortcut ? t("toast.updated") : t("toast.created"), {
         description: editingShortcut
           ? t("toast.updatedDescription", { shortcut: normalizedShortcut })
           : t("toast.createdDescription", { shortcut: normalizedShortcut }),

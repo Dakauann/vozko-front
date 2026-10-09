@@ -1,12 +1,13 @@
 "use client";
 
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 import { cn } from "@/lib/utils";
 
-const STATUS_TONE: Record<string, string> = {
-  RUNNING: "bg-healthy text-healthy-foreground",
-  PAUSED: "bg-warning text-warning-foreground",
-  STOPPED: "bg-muted text-muted-foreground",
-  COMPLETED: "bg-muted text-muted-foreground",
+const STATUS_TONE: Record<string, StatusChipTone> = {
+  RUNNING: "healthy",
+  PAUSED: "warning",
+  STOPPED: "muted",
+  COMPLETED: "muted",
 };
 
 export function CampaignStatusChip({
@@ -18,17 +19,7 @@ export function CampaignStatusChip({
   label: string;
   className?: string;
 }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-        STATUS_TONE[status] ?? "bg-[hsl(var(--plate-neutral))] text-white",
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
+  return <StatusChip tone={STATUS_TONE[status] ?? "neutral"} label={label} className={className} />;
 }
 
 export function MetricCell({

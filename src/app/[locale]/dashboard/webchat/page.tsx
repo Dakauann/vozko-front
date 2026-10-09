@@ -21,7 +21,7 @@ import Link from "next/link";
 import { WebchatLogoColor } from "@/components/icons/channel-logos";
 import { WebchatStatusChip } from "@/components/webchat/webchat-status-chip";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -34,7 +34,6 @@ export default function WebchatWidgetsPage() {
   const locale = useLocale();
   const { can } = useWorkspace();
   const router = useRouter();
-  const { toast } = useToast();
 
   const [widgets, setWidgets] = useState<WebchatWidget[]>([]);
   const [meta, setMeta] = useState<WebchatWidgetListMeta>({ page: 1, pageSize: ITEMS_PER_PAGE, totalPages: 0, totalItems: 0 });
@@ -73,12 +72,12 @@ export default function WebchatWidgetsPage() {
     if (!pendingDelete) return;
     const result = await deleteWebchatWidgetAction(pendingDelete.id);
     if ("error" in result) {
-      toast({ title: t("danger.deleteFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("danger.deleteFailed"), { description: result.error });
       return;
     }
-    toast({ title: t("danger.deleted", { name: pendingDelete.name }) });
+    toast(t("danger.deleted", { name: pendingDelete.name }));
     fetchWidgets(meta.page, search);
-  }, [pendingDelete, toast, t, fetchWidgets, meta.page, search]);
+  }, [pendingDelete, t, fetchWidgets, meta.page, search]);
 
   const activeCount = widgets.filter((w) => w.status === "active").length;
   const dateFormat = useMemo(() => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }), [locale]);

@@ -20,7 +20,7 @@ import {
   type SaveWidget,
 } from "@/components/webchat/widget-section";
 import { revealWebchatIdentitySecretAction, rotateWebchatIdentitySecretAction } from "@/app/actions/webchat";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   ATTACHMENT_MAX_MB,
   ATTACHMENT_TYPES,
@@ -386,7 +386,6 @@ ${snippet ?? '<script async src="..."></script>'}`;
 export function IdentitySection({ widget, canUpdate, onSave }: SectionProps) {
   const t = useTranslations("webchat.identity");
   const tRoot = useTranslations("webchat");
-  const { toast } = useToast();
   const [draft, setDraft, dirty] = useSectionDraft<{ identityMode: IdentityMode }>({ identityMode: widget.identityMode });
   const [secret, setSecret] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -397,7 +396,7 @@ export function IdentitySection({ widget, canUpdate, onSave }: SectionProps) {
     const result = await revealWebchatIdentitySecretAction(widget.id);
     setBusy(false);
     if ("error" in result) {
-      toast({ title: t("revealFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("revealFailed"), { description: result.error });
       return;
     }
     setSecret(result.identitySecret);
@@ -406,11 +405,11 @@ export function IdentitySection({ widget, canUpdate, onSave }: SectionProps) {
   const rotate = async () => {
     const result = await rotateWebchatIdentitySecretAction(widget.id);
     if ("error" in result) {
-      toast({ title: t("rotateFailed"), description: result.error, variant: "destructive" });
+      toast.error(t("rotateFailed"), { description: result.error });
       return;
     }
     setSecret(result.identitySecret);
-    toast({ title: t("rotated") });
+    toast(t("rotated"));
   };
 
   return (

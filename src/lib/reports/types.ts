@@ -2,7 +2,8 @@ export type ReportKind =
     | "attendance_overview"
     | "conversation_entries"
     | "balance_transactions"
-    | "opportunities";
+    | "opportunities"
+    | "leads";
 
 export type ReportFormat = "csv" | "xlsx" | "pdf";
 

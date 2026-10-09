@@ -14,7 +14,7 @@ import { Lock, Warning } from "@/components/icons";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Link } from "@/i18n/routing";
 import { managerHref, objectEditorHref } from "@/lib/advertising/connect";
 import { civilToday } from "@/lib/advertising/date-range";
@@ -101,7 +101,6 @@ export function MultiObjectEditor({ metaIds, accountId }: { metaIds: string[]; a
   const t = useTranslations("adsEditor");
   const tBulk = useTranslations("adsManager.bulk");
   const router = useRouter();
-  const { toast } = useToast();
   const { can, permissionsLoading } = useWorkspace();
   const canRead = !permissionsLoading && can("ads", "read");
   const [results, setResults] = useState<SavedResults | null>(null);
@@ -113,7 +112,7 @@ export function MultiObjectEditor({ metaIds, accountId }: { metaIds: string[]; a
   const finished = (rows: TableRow[], outcomes: BulkOutcome[]) => {
     const tally = bulkTally(outcomes);
     if (tally.failed === 0) {
-      toast({ title: tBulk("switched", tally) });
+      toast(tBulk("switched", tally));
       router.push(closeHref);
       return;
     }

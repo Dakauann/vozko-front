@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -25,8 +25,9 @@ export function PanelSection({
   contentClassName,
   children,
 }: PanelSectionProps) {
+  const titleId = useId();
   return (
-    <section className={cn(boxed && "well overflow-hidden", className)}>
+    <section aria-labelledby={titleId} className={cn(boxed && "well overflow-hidden", className)}>
       <header
         className={cn(
           "rule-engraved flex flex-wrap items-start justify-between gap-3 pb-3",
@@ -34,7 +35,7 @@ export function PanelSection({
         )}
       >
         <div className="min-w-0">
-          <h2 className="font-display text-base font-semibold leading-tight tracking-[-0.01em] text-foreground">
+          <h2 id={titleId} className="font-display text-base font-semibold leading-tight tracking-[-0.01em] text-foreground">
             {title}
           </h2>
           {description ? (

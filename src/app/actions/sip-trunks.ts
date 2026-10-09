@@ -1,6 +1,7 @@
 import type { SipActiveCall, SipTrunk, SipTrunkPayload } from '@/lib/sip-trunks/types';
 
 import { apiClient } from '@/lib/api/browser-client';
+import { DialTargetsError, dialTargetsFailure, readDialTargets, type DialTargets } from '@/lib/dialer/dial-targets';
 
 export async function listSipTrunksAction() {
     const response = await apiClient<SipTrunk[]>('/sip-trunks', { method: 'GET' });
@@ -40,4 +41,14 @@ export async function listSipTrunkCallsAction(trunkId: string) {
     });
     if (response.error) return { calls: [] as SipActiveCall[], error: response.error.message };
     return { calls: response.data ?? [] };
+}
+
+export async function fetchDialTargets(leadId: string | null, signal?: AbortSignal): Promise<DialTargets> {
+    const path = leadId ? `/dial-targets?leadId=${encodeURIComponent(leadId)}` : '/dial-targets';
+    const response = await apiClient<Parameters<typeof readDialTargets>[0]>(path, { method: 'GET', signal });
+    if (response.error) {
+        throw new DialTargetsError(response.error.message, dialTargetsFailure(response.error), response.error.status);
+    }
+    if (!response.data) throw new DialTargetsError('empty dial targets', 'unavailable');
+    return readDialTargets(response.data);
 }

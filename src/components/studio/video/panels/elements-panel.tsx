@@ -3,10 +3,12 @@
 import { useTranslations } from "next-intl";
 
 import { ArrowRight, ArrowsLeftRight, Circle, Minus, Square, Star, TextHOne, TextHTwo, TextT, type Icon } from "@/components/icons";
+import { VectorGlyph } from "@/components/studio/canvas/vector-glyph";
 import { TEXT_STYLE_PRESETS } from "@/lib/studio/text-presets";
-import { newIconLayer, newShapeLayer, newTextLayer, type Layer, type ShapeKind, type TextPreset } from "@/lib/studio/document";
+import { newIconLayer, newShapeLayer, newTextLayer, VIDEO_ASPECT_SIZES, type Layer, type ShapeKind, type TextPreset, type VideoAspect } from "@/lib/studio/document";
+import { VECTOR_PRESET_IDS, vectorPresetLayer, type VectorPresetId } from "@/lib/studio/vector-presets";
 
-import { useVideoEditor } from "../editor-context";
+import { useEditorState, useVideoEditor } from "../editor-context";
 import { IconGrid } from "../icon-grid";
 
 const OVERLAY_INK = "#ffffff";
@@ -17,7 +19,7 @@ const TEXT_PRESETS: { preset: TextPreset; icon: Icon; box: { w: number; h: numbe
   { preset: "body", icon: TextT, box: { w: 0.8, h: 0.08 }, className: "text-xs" },
 ];
 
-type ShapeOption = { id: string; shape: ShapeKind; icon: Icon; both?: boolean };
+type ShapeOption = { id: string; shape: Exclude<ShapeKind, "path">; icon: Icon; both?: boolean };
 
 const SHAPES: ShapeOption[] = [
   { id: "rect", shape: "rect", icon: Square },
@@ -35,9 +37,16 @@ function shapeLayer(option: ShapeOption): Layer {
   return layer;
 }
 
+function vectorLayer(id: VectorPresetId, aspect: VideoAspect): Layer {
+  const layer = vectorPresetLayer(id, VIDEO_ASPECT_SIZES[aspect]);
+  return layer.strokeWidth ? { ...layer, stroke: OVERLAY_INK } : layer;
+}
+
 export function ElementsPanel() {
   const t = useTranslations("studio.video.elements");
+  const tv = useTranslations("studio.vectors");
   const { commands } = useVideoEditor();
+  const aspect = useEditorState((s) => s.document.canvas.aspect);
 
   const addText = (preset: (typeof TEXT_PRESETS)[number]) => {
     const layer = newTextLayer(t(`samples.${preset.preset}`), preset.preset, { x: 0.5, y: 0.5, w: preset.box.w, h: preset.box.h, rotation: 0, opacity: 1 });
@@ -95,6 +104,23 @@ export function ElementsPanel() {
               ) : (
                 <option.icon className="h-4 w-4" aria-hidden />
               )}
+            </button>
+          ))}
+        </div>
+      </section>
+      <section className="space-y-2">
+        <h3 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">{tv("title")}</h3>
+        <div className="grid grid-cols-4 gap-1.5">
+          {VECTOR_PRESET_IDS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              aria-label={tv(`names.${id}`)}
+              title={tv(`names.${id}`)}
+              onClick={() => commands.insertLayer(vectorLayer(id, aspect))}
+              className="flex aspect-square items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:border-control-edge hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <VectorGlyph id={id} className="h-6 w-6" />
             </button>
           ))}
         </div>

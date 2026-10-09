@@ -56,7 +56,7 @@ import { toggleAgentStatusAction } from "@/app/actions/agents";
 import Button from "@/components/elevated-design/button";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -579,7 +579,6 @@ export default function AgentDetail({
   tools,
 }: AgentDetailProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const { can, permissionsLoading } = useWorkspace();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations("agents");
@@ -633,18 +632,11 @@ export default function AgentDetail({
       );
 
       if (error) {
-        toast({
-          title: t("detail.toast.error"),
-          description: error,
-          variant: "destructive",
-        });
+        toast.error(t("detail.toast.error"), { description: error });
         return;
       }
 
-      toast({
-        title: agent.isActive
-          ? t("detail.toast.deactivated")
-          : t("detail.toast.activated"),
+      toast(agent.isActive ? t("detail.toast.deactivated") : t("detail.toast.activated"), {
         description: `${agent.name} ${t("detail.toast.updated")}`,
       });
 
@@ -1028,7 +1020,7 @@ export default function AgentDetail({
                       type="button"
                       onClick={() => {
                         copyToClipboard(mediaId);
-                        toast({ title: "ID copiado" });
+                        toast(t("detail.toast.idCopied"));
                       }}
                       className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       title="Copiar"

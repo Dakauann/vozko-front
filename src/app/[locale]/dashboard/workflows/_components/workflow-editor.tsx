@@ -97,6 +97,7 @@ import {
 } from "./workflow-node";
 import { getDomainEdgeLabel } from "./workflow-graph";
 import { NodePalette } from "./node-palette";
+import { NodeDefinitionsProvider } from "./node-previews/node-definitions";
 import { NodeConfigPanel } from "./node-config-panel";
 import { SmartBezierEdge, SmartConnectionLine } from "./smart-edge";
 import { useUndoRedo } from "./use-undo-redo";
@@ -1701,6 +1702,7 @@ export function WorkflowEditor({
           onDrop={onDrop}
           onMouseMove={onMouseMove}
         >
+          <NodeDefinitionsProvider definitions={definitions}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -1830,6 +1832,7 @@ export function WorkflowEditor({
               </div>
             </Panel>
           </ReactFlow>
+          </NodeDefinitionsProvider>
 
           {ctxMenu && (
             <CanvasContextMenu

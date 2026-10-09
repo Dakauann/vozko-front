@@ -1,6 +1,18 @@
 
 import { act, renderHook } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import pt from "@/i18n/messages/pt.json";
+
+function withMessages({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="pt" messages={pt}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
 
 const { hasUserDataCookie } = vi.hoisted(() => ({
   hasUserDataCookie: vi.fn(() => true),
@@ -45,13 +57,14 @@ describe("useCallSessionWs socket lifecycle", () => {
   });
 
   it("opens exactly one socket on mount", async () => {
-    renderHook((props) => useCallSessionWs(props), { initialProps: baseProps });
+    renderHook((props) => useCallSessionWs(props), { initialProps: baseProps, wrapper: withMessages });
     await flushConnect();
     expect(FakeWebSocket.instances).toHaveLength(1);
   });
 
   it("does NOT reconnect when only the token string changes (the /auth/refresh churn that dropped calls)", async () => {
     const { rerender } = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
       initialProps: baseProps,
     });
     await flushConnect();
@@ -68,6 +81,7 @@ describe("useCallSessionWs socket lifecycle", () => {
 
   it("does NOT reconnect on re-render with unchanged scope", async () => {
     const { rerender } = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
       initialProps: baseProps,
     });
     await flushConnect();
@@ -78,6 +92,7 @@ describe("useCallSessionWs socket lifecycle", () => {
 
   it("reconnects when the workspace scope actually changes", async () => {
     const { rerender } = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
       initialProps: baseProps,
     });
     await flushConnect();
@@ -91,8 +106,26 @@ describe("useCallSessionWs socket lifecycle", () => {
     expect(FakeWebSocket.instances[0].closed).toBe(true);
   });
 
+  it("forgets the last refusal when the workspace scope changes", async () => {
+    const hook = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
+      initialProps: baseProps,
+    });
+    await flushConnect();
+    act(() => hook.result.current.startCall("100", { trunkId: "trunk-1" }));
+    expect(hook.result.current.lastErrorCode).toBe("call_service_offline");
+
+    mockWorkspace = { id: "ws-2" };
+    hook.rerender({ ...baseProps });
+    await flushConnect();
+
+    expect(hook.result.current.lastErrorCode).toBeNull();
+    expect(hook.result.current.lastError).toBeNull();
+  });
+
   it("goes from token present to absent -> disconnects (logout)", async () => {
     const { rerender } = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
       initialProps: baseProps,
     });
     await flushConnect();
@@ -106,6 +139,7 @@ describe("useCallSessionWs socket lifecycle", () => {
 
   it("does not connect while disabled, then connects once when enabled", async () => {
     const { rerender } = renderHook((props) => useCallSessionWs(props), {
+      wrapper: withMessages,
       initialProps: { token: "session-token", enabled: false },
     });
     await flushConnect();

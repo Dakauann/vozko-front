@@ -6,25 +6,30 @@ import { useTranslations } from "next-intl";
 import { requestMediaGenerationAction } from "@/app/actions/media-generation";
 import TourGuide, { type TourStep } from "@/components/TourGuide";
 import { loadAssetImage } from "@/components/studio/canvas/asset-images";
+import { useStudioAgent, useStudioAgentKit } from "@/components/studio/agent/use-studio-agent";
 import { asUploadableImage } from "@/components/studio/canvas/uploadable-image";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { StudioEditorMountProps } from "@/components/studio/studio-editor-shell";
 import { STUDIO_IMAGE_TOUR_KEY, studioImageTourPalette, studioImageTourSeed, studioImageTourSteps } from "@/data/tour-studio-image";
+import { useShapeOpFeedback } from "@/components/studio/canvas/vector/use-shape-op-feedback";
+import { useSvgFeedback } from "@/components/studio/canvas/vector/use-svg-feedback";
 import { useToast } from "@/hooks/use-toast";
 import { decodeClipboard, encodeClipboard } from "@/lib/studio/clipboard";
+import { isSvgText } from "@/lib/studio/svg-import";
 import { imageFilesFrom } from "@/lib/studio/clipboard-files";
 import { newTextLayer, STUDIO_LIMITS } from "@/lib/studio/document";
-import { bindKeymap, canvasActionFor, imageZoomActionFor, isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/studio/keymap";
 import { createStudioStore } from "@/lib/studio/store";
-import { styleActionFor } from "@/lib/studio/style";
 
 import { CanvasArea } from "./canvas-area";
 import { createImageCommands } from "./commands";
+import { bindEditorKeys } from "./editor-keys";
 import { EditorToolbar } from "./editor-toolbar";
 import { createEditorUiStore, ImageEditorContext, PANEL_IDS, type ImageEditorContextValue, type PanelId } from "./editor-state";
+import { createImageAgent } from "./image-agent";
 import { uploadImageFile } from "./image-source-picker";
 import { RightDock } from "./right-dock";
-import { JobFollowers } from "./jobs";
+import { ImageAgentCursor, JobFollowers } from "./jobs";
 import { SideRail } from "./side-rail";
 
 export type ImageEditorProps = StudioEditorMountProps<"image">;
@@ -46,6 +51,8 @@ function tourPanel(step: TourStep): PanelId | null {
 export function ImageEditor({ project, studio }: ImageEditorProps) {
   const t = useTranslations("studio.image");
   const { toast } = useToast();
+  const svgFeedback = useSvgFeedback();
+  const shapeFeedback = useShapeOpFeedback();
   const [editor] = useState(() => {
     const store = createStudioStore(project.document);
     const ui = createEditorUiStore();
@@ -54,6 +61,10 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
   });
   const projectName = studio.name ?? project.name;
   const value = useMemo<ImageEditorContextValue>(() => ({ ...editor, projectName }), [editor, projectName]);
+  const kit = useStudioAgentKit();
+  const agent = useMemo(() => createImageAgent({ ...editor, naturalSize, presence: kit.presence, label: kit.label, reduceMotion: kit.reduceMotion }), [editor, kit]);
+  useStudioAgent(project.id, "image", projectName, agent);
+  const { presence } = kit;
   const edit = useRef(studio.edit);
 
   useEffect(() => {
@@ -69,27 +80,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
     });
   }, [editor.store]);
 
-  useEffect(() => {
-    const { commands, ui } = editor;
-    const unbindActions = bindKeymap(window, canvasActionFor, (action) => {
-      if (ui.getState().crop && action.type !== "deselect" && action.type !== "undo" && action.type !== "redo") return;
-      commands.runAction(action);
-    });
-    const unbindZoom = bindKeymap(window, imageZoomActionFor, (action) => (action.type === "fit" ? commands.fit() : commands.zoomStep(action.direction)));
-    const unbindStyle = bindKeymap(window, styleActionFor, (action) => (action.type === "copyStyle" ? commands.copyStyle() : commands.pasteStyle()));
-    const onEnter = (event: KeyboardEvent) => {
-      if (event.key !== "Enter" || isEditableTarget(event.target) || !ui.getState().crop) return;
-      event.preventDefault();
-      commands.finishCrop();
-    };
-    window.addEventListener("keydown", onEnter);
-    return () => {
-      unbindActions();
-      unbindZoom();
-      unbindStyle();
-      window.removeEventListener("keydown", onEnter);
-    };
-  }, [editor]);
+  useEffect(() => bindEditorKeys(window, { commands: editor.commands, ui: editor.ui, isBusy: presence.isBusy, onShapeOp: shapeFeedback }), [editor, presence, shapeFeedback]);
 
   useEffect(() => {
     const { commands } = editor;
@@ -125,6 +116,11 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
         commands.paste(content);
         return;
       }
+      if (isSvgText(text)) {
+        event.preventDefault();
+        svgFeedback.imported(commands.importSvg(text));
+        return;
+      }
       const clean = [...text.trim()].slice(0, STUDIO_LIMITS.maxTextRunes).join("");
       if (clean === "") return;
       event.preventDefault();
@@ -138,7 +134,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
       document.removeEventListener("cut", onCut);
       document.removeEventListener("paste", onPaste);
     };
-  }, [editor, toast, t]);
+  }, [editor, toast, t, svgFeedback]);
 
   return (
     <ImageEditorContext.Provider value={value}>
@@ -152,6 +148,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
         </div>
       </div>
       <JobFollowers />
+      <ImageAgentCursor presence={presence} />
       <TourGuide
         steps={studioImageTourSteps}
         storageKey={STUDIO_IMAGE_TOUR_KEY}

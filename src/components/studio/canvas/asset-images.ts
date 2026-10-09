@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { fetchMediaFileAction } from "@/app/actions/medias";
+import { loadMediaFile } from "./media-files";
 
 export class AssetUnavailableError extends Error {
   constructor(readonly source: string) {
@@ -24,9 +24,9 @@ function decode(src: string, source: string): Promise<HTMLImageElement> {
 export function loadAssetImage(assetId: string): Promise<HTMLImageElement> {
   const cached = assets.get(assetId);
   if (cached) return cached;
-  const loading = fetchMediaFileAction(assetId).then(({ data }) => {
-    if (!data || !data.contentType.startsWith("image/")) throw new AssetUnavailableError(assetId);
-    return decode(URL.createObjectURL(data.blob), assetId);
+  const loading = loadMediaFile(assetId).then((file) => {
+    if (!file || !file.contentType.startsWith("image/")) throw new AssetUnavailableError(assetId);
+    return decode(file.url, assetId);
   });
   assets.set(assetId, loading);
   loading.catch(() => assets.delete(assetId));

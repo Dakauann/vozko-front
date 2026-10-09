@@ -1,4 +1,4 @@
-import { applyPatches, enablePatches, produceWithPatches, type Draft, type Patch } from "immer";
+import { applyPatches, enablePatches, freeze, produceWithPatches, type Draft, type Patch } from "immer";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
@@ -74,7 +74,7 @@ export function createStudioStore<D extends object>(initial: D, options: StudioS
     };
 
     return {
-      document: initial,
+      document: freeze(initial, true),
       selection: [],
       revision: 0,
       canUndo: false,
@@ -131,7 +131,7 @@ export function createStudioStore<D extends object>(initial: D, options: StudioS
         past = [];
         future = [];
         pending = null;
-        set({ document, selection: [], revision: 0, ...flags() });
+        set({ document: freeze(document, true), selection: [], revision: 0, ...flags() });
       },
     };
   });

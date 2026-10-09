@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { emptyImageDocument, newShapeLayer, newTextLayer, type Layer, type Transform } from "./document";
+import { emptyArtboard, newShapeLayer, newTextLayer, type Layer, type Transform } from "./document";
 import {
   boxPx,
   clickSelection,
@@ -107,7 +107,7 @@ describe("closestAspect", () => {
 });
 
 function docWith(layers: Layer[]) {
-  return { ...emptyImageDocument(canvas), layers };
+  return { ...emptyArtboard(canvas), layers };
 }
 
 describe("layersInRect", () => {

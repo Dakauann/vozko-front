@@ -1,5 +1,5 @@
-import type { ImageDocument, Layer } from "./document";
-import { groupAncestry, groupLayerIds } from "./groups";
+import type { ImageSurface, Layer } from "./document";
+import { ancestry, baseOf, groupLayerIds, groupParents, scaffoldOf } from "./groups";
 
 export interface GroupRow {
   kind: "group";
@@ -9,25 +9,33 @@ export interface GroupRow {
   name: string | null;
 }
 
+export interface FamilyInfo {
+  scaffoldId: string;
+  ids: string[];
+}
+
 export interface LayerRowEntry {
   kind: "layer";
   id: string;
   index: number;
   depth: number;
   groupId: string | null;
+  family?: FamilyInfo;
 }
 
 export type LayerRow = LayerRowEntry | GroupRow;
 
 export const CAPTION_RUNES = 32;
 
-export function layerRows(doc: ImageDocument, collapsed: ReadonlySet<string> = new Set()): LayerRow[] {
+export function layerRows(doc: ImageSurface, collapsed: ReadonlySet<string> = new Set()): LayerRow[] {
   const rows: LayerRow[] = [];
   const names = new Map((doc.groups ?? []).map((g) => [g.id, g.name ?? null]));
+  const indexOf = new Map(doc.layers.map((l, i) => [l.id, i]));
+  const parents = groupParents(doc);
   let open: string[] = [];
   for (let index = doc.layers.length - 1; index >= 0; index--) {
     const layer = doc.layers[index];
-    const chain = groupAncestry(doc, layer.groupId).reverse();
+    const chain = ancestry(parents, layer.groupId).reverse();
     let shared = 0;
     while (shared < open.length && shared < chain.length && open[shared] === chain[shared]) shared++;
     open = open.slice(0, shared);
@@ -36,9 +44,11 @@ export function layerRows(doc: ImageDocument, collapsed: ReadonlySet<string> = n
       open.push(groupId);
       if (chain.slice(0, depth).some((g) => collapsed.has(g))) continue;
       const ids = groupLayerIds(doc, groupId).reverse();
-      rows.push({ kind: "group", groupId, depth, ids, name: names.get(groupId) ?? null });
+      const base = baseOf(doc, groupId);
+      if (base) rows.push({ kind: "layer", id: base, index: indexOf.get(base)!, depth, groupId, family: { scaffoldId: groupId, ids } });
+      else rows.push({ kind: "group", groupId, depth, ids, name: names.get(groupId) ?? null });
     }
-    if (chain.some((g) => collapsed.has(g))) continue;
+    if (scaffoldOf(doc, layer.id) || chain.some((g) => collapsed.has(g))) continue;
     rows.push({ kind: "layer", id: layer.id, index, depth: chain.length, groupId: layer.groupId ?? null });
   }
   return rows;

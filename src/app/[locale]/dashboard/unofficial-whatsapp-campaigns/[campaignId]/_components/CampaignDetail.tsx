@@ -17,6 +17,8 @@ import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { CampaignConfirmModal } from "@/components/campaigns/CampaignConfirmModal";
 import CrmDialog from "@/components/crm/CrmDialog";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
+import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
+import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import { CampaignMetricsTiles } from "@/components/campaigns/CampaignMetricsTiles";
 import { WhatsappLogo } from "@/components/icons";
 import { channelPlate } from "@/components/channels/channel-tile";
@@ -45,7 +47,7 @@ import {
   validateUnofficialCampaignTargetsAction,
 } from "@/app/actions/unofficial-whatsapp-campaigns";
 import { useReportJob } from "@/hooks/use-report-job";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -91,9 +93,9 @@ export default function UnofficialCampaignDetail({
   campaign: UnofficialWhatsAppCampaign;
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const refusalText = useSelectionSendRefusalText();
   const tCrm = useTranslations("crm");
   const tSidebar = useTranslations("sidebar");
-  const { toast } = useToast();
   const { can } = useWorkspace();
   const [pending, startTransition] = useTransition();
 
@@ -151,20 +153,16 @@ export default function UnofficialCampaignDetail({
   }, [campaign.status, refresh, fetchEntries]);
 
   const act = (
-    action: () => Promise<{ error?: string }>,
+    action: () => Promise<{ error?: string; code?: string }>,
     successKey: string,
   ) =>
     startTransition(async () => {
       const result = await action();
       if (result.error) {
-        toast({
-          title: t("actions.failed"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("actions.failed"), { description: refusalText(result.code, result.error) });
         return;
       }
-      toast({ title: t(successKey) });
+      toast(t(successKey));
       await refresh();
       await fetchEntries();
     });
@@ -179,11 +177,7 @@ export default function UnofficialCampaignDetail({
     });
 
     const failed = (reason: string) => {
-      toast({
-        title: t("actions.failed"),
-        description: t(`entries.exportError.${reason}`),
-        variant: "destructive",
-      });
+      toast.error(t("actions.failed"), { description: t(`entries.exportError.${reason}`) });
     };
 
     if (queued.error || !queued.job) {
@@ -208,6 +202,7 @@ export default function UnofficialCampaignDetail({
   };
 
   const canUpdate = can("unofficial_whatsapp_campaigns", "update");
+  const selectionSend = selectionSendControls(campaign.source, campaign.status);
   const canRunStart = can("unofficial_whatsapp_campaigns", "start");
   const canRunStop = can("unofficial_whatsapp_campaigns", "stop");
 
@@ -220,10 +215,10 @@ export default function UnofficialCampaignDetail({
         backLink="/dashboard/unofficial-whatsapp-campaigns"
         editLink={`/dashboard/unofficial-whatsapp-campaigns/${campaign.id}/edit`}
         isPending={pending}
-        canStart={canStart(campaign.status) && campaign.instanceSessionLive}
+        canStart={selectionSend.start && canStart(campaign.status) && campaign.instanceSessionLive}
         canPause={canPause(campaign.status)}
         canStop={canStop(campaign.status)}
-        canReset={campaign.status !== "RUNNING"}
+        canReset={selectionSend.reset && campaign.status !== "RUNNING"}
         hasPermissionStart={canRunStart}
         hasPermissionStop={canRunStop}
         extraActions={
@@ -244,15 +239,10 @@ export default function UnofficialCampaignDetail({
                         campaign.id,
                       );
                       if (result.error) {
-                        toast({
-                          title: t("actions.failed"),
-                          description: result.error,
-                          variant: "destructive",
-                        });
+                        toast.error(t("actions.failed"), { description: result.error });
                         return;
                       }
-                      toast({
-                        title: t("actions.validated"),
+                      toast(t("actions.validated"), {
                         description: t("actions.validatedDetail", {
                           checked: result.result?.checked ?? 0,
                           skipped: result.result?.skipped ?? 0,
@@ -277,7 +267,7 @@ export default function UnofficialCampaignDetail({
           startTransition(async () => {
             const result = await prepareResetUnofficialCampaignAction(campaign.id);
             if (result.error) {
-              toast({ title: t("actions.failed"), description: result.error, variant: "destructive" });
+              toast.error(t("actions.failed"), { description: result.error });
               return;
             }
             setResetCode(result.data?.resetCode);
@@ -287,7 +277,7 @@ export default function UnofficialCampaignDetail({
           startTransition(async () => {
             const result = await prepareClearHistoryUnofficialCampaignAction(campaign.id);
             if (result.error) {
-              toast({ title: t("actions.failed"), description: result.error, variant: "destructive" });
+              toast.error(t("actions.failed"), { description: result.error });
               return;
             }
             setClearCode(result.data?.clearCode);
@@ -324,6 +314,8 @@ export default function UnofficialCampaignDetail({
           noPermissionUpdate: t("actions.noPermissionUpdate"),
         }}
       />
+
+      {selectionSend.fromLeads ? <SelectionSendNote /> : null}
 
       {}
       {campaign.statusReason ? (
@@ -719,10 +711,10 @@ export default function UnofficialCampaignDetail({
             const result = await confirmResetUnofficialCampaignAction(campaign.id, code);
             setResetCode(undefined);
             if (result.error) {
-              toast({ title: t("actions.failed"), description: result.error, variant: "destructive" });
+              toast.error(t("actions.failed"), { description: result.error });
               return;
             }
-            toast({ title: t("danger.resetDone") });
+            toast(t("danger.resetDone"));
             await refresh();
             await fetchEntries();
           })
@@ -745,10 +737,10 @@ export default function UnofficialCampaignDetail({
             const result = await confirmClearHistoryUnofficialCampaignAction(campaign.id, code);
             setClearCode(undefined);
             if (result.error) {
-              toast({ title: t("actions.failed"), description: result.error, variant: "destructive" });
+              toast.error(t("actions.failed"), { description: result.error });
               return;
             }
-            toast({ title: t("danger.clearDone") });
+            toast(t("danger.clearDone"));
             await refresh();
           })
         }

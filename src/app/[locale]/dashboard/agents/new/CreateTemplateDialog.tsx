@@ -30,7 +30,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { createPortal } from "react-dom";
 import { createWhatsAppTemplateAction } from "@/app/actions/whatsapp-templates";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface CreateTemplateDialogProps {
@@ -84,7 +84,6 @@ export default function CreateTemplateDialog({
 }: CreateTemplateDialogProps) {
   const t = useTranslations("whatsappTemplates");
   const tAgents = useTranslations("agents.form");
-  const { toast } = useToast();
   const [saving, startSaving] = useTransition();
 
   const [name, setName] = useState("");
@@ -319,18 +318,11 @@ export default function CreateTemplateDialog({
       const result = await createWhatsAppTemplateAction(payload);
 
       if (result.error || !result.template) {
-        toast({
-          title: t("toast.createError"),
-          description: result.error ?? t("toast.createErrorDesc"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.createError"), { description: result.error ?? t("toast.createErrorDesc") });
         return;
       }
 
-      toast({
-        title: t("toast.createSuccess"),
-        description: t("toast.createSuccessDesc"),
-      });
+      toast(t("toast.createSuccess"), { description: t("toast.createSuccessDesc") });
 
       onTemplateCreated(result.template);
       resetForm();

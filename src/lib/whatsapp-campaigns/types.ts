@@ -42,6 +42,7 @@ export interface WhatsAppCampaignMetrics {
 }
 
 export interface WhatsAppCampaign {
+    source?: string;
     id: string;
     name: string;
     type: WhatsAppCampaignType;

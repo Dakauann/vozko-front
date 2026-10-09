@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { setCallActive } from "@/lib/call-session/call-session-control";
 import { forgetLocalInstalls, LOCAL_POLL_MS, LOCAL_WAIT_LIMIT_MS } from "@/lib/voice/browser-speech";
 
-import type { UIMessage } from "../../message-list";
+import type { UIMessage } from "@/lib/aichat/ui-message";
 import { useVoiceMode } from "../use-voice-mode";
 
 class FakeRecognition {

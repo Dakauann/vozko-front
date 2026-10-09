@@ -23,7 +23,7 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { WebchatLogoColor } from "@/components/icons/channel-logos";
 import { useDepartment } from "@/contexts/department-context";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -33,7 +33,6 @@ export default function NewWebchatWidgetPage() {
   const t = useTranslations("webchat");
   const tDepartment = useTranslations("departmentAssignment");
   const router = useRouter();
-  const { toast } = useToast();
   const { can } = useWorkspace();
   const { departments, currentDepartment } = useDepartment();
 
@@ -67,11 +66,11 @@ export default function NewWebchatWidgetPage() {
       const key = "error" in result ? webchatErrorKey(result.code) : null;
       const message = key ? t(key) : "error" in result ? result.error : t("create.errorTitle");
       setError(message);
-      toast({ title: t("create.errorTitle"), description: message, variant: "destructive" });
+      toast.error(t("create.errorTitle"), { description: message });
       return;
     }
 
-    toast({ title: t("create.successTitle"), description: t("create.successBody", { name: result.widget.name }) });
+    toast(t("create.successTitle"), { description: t("create.successBody", { name: result.widget.name }) });
     router.push(`/dashboard/webchat/${result.widget.id}`);
   };
 

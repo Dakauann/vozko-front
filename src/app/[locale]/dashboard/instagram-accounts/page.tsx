@@ -35,7 +35,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { translateAccountType } from "@/lib/instagram/account-type";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -55,7 +55,6 @@ export default function InstagramAccountsPage() {
   const { can } = useWorkspace();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
   const [page, setPage] = useState(1);
@@ -93,16 +92,11 @@ export default function InstagramAccountsPage() {
       if (result.status === "cancelled") return;
 
       if (result.status === "error") {
-        toast({
-          title: t("connect.errorTitle"),
-          description: t(`connectError.${result.reason ?? "connect_failed"}`),
-          variant: "destructive",
-        });
+        toast.error(t("connect.errorTitle"), { description: t(`connectError.${result.reason ?? "connect_failed"}`) });
         return;
       }
 
-      toast({
-        title: t("connect.successTitle"),
+      toast(t("connect.successTitle"), {
         description: result.username
           ? t(result.status === "reconnected" ? "notice.reconnected" : "notice.connected", {
               username: result.username,
@@ -111,7 +105,7 @@ export default function InstagramAccountsPage() {
       });
       void fetchAccounts(1, "");
     },
-    [toast, t, fetchAccounts],
+    [t, fetchAccounts],
   );
 
   const { connect, isConnecting } = useInstagramConnect(reportResult);
@@ -135,16 +129,13 @@ export default function InstagramAccountsPage() {
       setDisconnectingId(null);
 
       if (result.error) {
-        toast({ title: t("card.disconnect"), description: result.error, variant: "destructive" });
+        toast.error(t("card.disconnect"), { description: result.error });
         return;
       }
-      toast({
-        title: t("card.disconnect"),
-        description: t("notice.disconnected", { username: account.username }),
-      });
+      toast(t("card.disconnect"), { description: t("notice.disconnected", { username: account.username }) });
       void fetchAccounts(page, search);
     },
-    [toast, t, fetchAccounts, page, search],
+    [t, fetchAccounts, page, search],
   );
 
   const statusKeyFor = (row: InstagramAccount): InstagramAccountStatus | "MESSAGING_OFF" =>

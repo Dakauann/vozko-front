@@ -27,6 +27,7 @@ import {
 } from "@/lib/call-session/call-session-control";
 
 const copy = pt.calling.assistantCard;
+const reasons = pt.calling.dialTargets.reasons;
 
 function card(call: CallCard["call"]): CallCard {
   return { kind: "place_call", call };
@@ -71,6 +72,27 @@ describe("place_call card", () => {
     expect(requests).toEqual([]);
   });
 
+  it("still hands the number to the dialer while the call service connects or a call is live", () => {
+    session.value = { status: "connecting", callState: { phoneNumber: "200", status: "answered" } };
+    renderCard(card({ phoneNumber: "100" }));
+    const button = screen.getByRole("button", { name: copy.openDialer });
+    expect(button).toHaveProperty("disabled", false);
+    fireEvent.click(button);
+    expect(presets).toEqual([{ phoneNumber: "100" }]);
+    expect(requests).toEqual([]);
+    expect(screen.getByText(copy.handedOver)).toBeTruthy();
+  });
+
+  it("will not hand the number over without permission", () => {
+    grants.value = new Set(["sip_trunks:call"]);
+    renderCard(card({ phoneNumber: "100" }));
+    const button = screen.getByRole("button", { name: copy.openDialer });
+    expect(button).toHaveProperty("disabled", true);
+    fireEvent.click(button);
+    expect(presets).toEqual([]);
+    expect(screen.getByText(reasons.noPermission)).toBeTruthy();
+  });
+
   it("will not call without permission", () => {
     grants.value = new Set(["call_session:use"]);
     renderCard(card({ phoneNumber: "100", trunkId: "t1", trunkName: "Principal" }));
@@ -78,19 +100,19 @@ describe("place_call card", () => {
     expect(button).toHaveProperty("disabled", true);
     fireEvent.click(button);
     expect(requests).toEqual([]);
-    expect(screen.getByText(copy.noPermission)).toBeTruthy();
+    expect(screen.getByText(reasons.noPermission)).toBeTruthy();
   });
 
   it("will not start a second call or dial while the call service is offline", () => {
     session.value = { status: "connected", callState: { phoneNumber: "200", status: "answered" } };
     const { unmount } = renderCard(card({ phoneNumber: "100", trunkId: "t1", trunkName: "Principal" }));
     expect(screen.getByRole("button", { name: copy.call })).toHaveProperty("disabled", true);
-    expect(screen.getByText(copy.busy)).toBeTruthy();
+    expect(screen.getByText(reasons.busy)).toBeTruthy();
     unmount();
 
     session.value = { status: "connecting", callState: null };
     renderCard(card({ phoneNumber: "100", trunkId: "t1", trunkName: "Principal" }));
     expect(screen.getByRole("button", { name: copy.call })).toHaveProperty("disabled", true);
-    expect(screen.getByText(copy.connecting)).toBeTruthy();
+    expect(screen.getByText(reasons.connecting)).toBeTruthy();
   });
 });

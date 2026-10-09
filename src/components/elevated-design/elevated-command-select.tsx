@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -82,6 +83,8 @@ const ElevatedCommandSelect = ({
   const [selectedOptionCache, setSelectedOptionCache] =
     useState<ElevatedCommandOption | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const labelId = useId();
+  const valueId = useId();
 
   const currentValue = value !== undefined ? (value ?? "") : internalValue;
 
@@ -170,6 +173,7 @@ const ElevatedCommandSelect = ({
           <button
             type="button"
             disabled={disabled}
+            aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(
@@ -182,7 +186,7 @@ const ElevatedCommandSelect = ({
               boxShadow: disabled ? DISABLED_SHADOW : softSurfaceWithInset,
             }}
           >
-            <span className="flex min-h-[1.25rem] flex-1 items-center gap-2 truncate text-sm text-foreground">
+            <span id={valueId} className="flex min-h-[1.25rem] flex-1 items-center gap-2 truncate text-sm text-foreground">
               {selectedOption ? (
                 <>
                   {selectedOption.icon ? (
@@ -300,6 +304,7 @@ const ElevatedCommandSelect = ({
       </Popover>
       {label ? (
         <label
+          id={labelId}
           className={cn(
             "absolute pointer-events-none rounded-[--radius] px-2 py-[2px] text-sm font-medium transition-all duration-200 ease-out",
             "left-5",

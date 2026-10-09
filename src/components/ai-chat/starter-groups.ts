@@ -12,6 +12,7 @@ interface GroupDefinition {
   key: StarterGroupKey;
   paths: string[];
   starters: StarterDefinition[];
+  live?: boolean;
 }
 
 export type StarterGroupKey =
@@ -25,11 +26,14 @@ export type StarterGroupKey =
   | "schedule"
   | "team"
   | "agents"
-  | "ads";
+  | "ads"
+  | "studioVideo"
+  | "studioImage";
 
 export interface StarterGroup {
   key: StarterGroupKey;
   items: string[];
+  live: boolean;
 }
 
 const GROUPS: GroupDefinition[] = [
@@ -146,6 +150,29 @@ const GROUPS: GroupDefinition[] = [
       { key: "create", resource: "ads", action: "create" },
     ],
   },
+  {
+    key: "studioVideo",
+    paths: ["/dashboard/studio/video"],
+    live: true,
+    starters: [
+      { key: "captions", resource: "media", action: "create" },
+      { key: "tighten", resource: "media", action: "create" },
+      { key: "title", resource: "media", action: "create" },
+      { key: "music", resource: "media", action: "create" },
+      { key: "review", resource: "media" },
+    ],
+  },
+  {
+    key: "studioImage",
+    paths: ["/dashboard/studio/image"],
+    live: true,
+    starters: [
+      { key: "compose", resource: "media", action: "create" },
+      { key: "tidy", resource: "media", action: "create" },
+      { key: "cutout", resource: "media", action: "create" },
+      { key: "review", resource: "media" },
+    ],
+  },
 ];
 
 function onPage(pathname: string, paths: string[]): boolean {
@@ -156,9 +183,11 @@ export function starterGroupsFor(can: Can, pathname: string): { groups: StarterG
   const groups: StarterGroup[] = [];
   let open: StarterGroupKey | null = null;
   for (const group of GROUPS) {
+    if (group.live && !onPage(pathname, group.paths)) continue;
     const items = group.starters.filter((s) => can(s.resource, s.action ?? "read")).map((s) => s.key);
     if (items.length === 0) continue;
-    groups.push({ key: group.key, items });
+    if (group.live) groups.unshift({ key: group.key, items, live: true });
+    else groups.push({ key: group.key, items, live: false });
     if (!open && onPage(pathname, group.paths)) open = group.key;
   }
   return { groups, open: open ?? groups[0]?.key ?? null };

@@ -21,7 +21,7 @@ import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 export default function ConnectWhatsAppPage() {
@@ -30,7 +30,6 @@ export default function ConnectWhatsAppPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
-  const { toast } = useToast();
   const capacity = useWhatsAppCapacity();
   const capacityBlocked = capacity.ready && !capacity.canAdd;
   const [popupConnected, setPopupConnected] = useState(false);
@@ -48,32 +47,18 @@ export default function ConnectWhatsAppPage() {
 
   useEffect(() => {
     if (isSuccess) {
-      toast({
-        title: t("connect.success.toastTitle"),
-        description: t("connect.success.toastDescription"),
-      });
+      toast(t("connect.success.toastTitle"), { description: t("connect.success.toastDescription") });
     } else if (isError) {
-      toast({
-        title: t("connect.error.toastTitle"),
-        description: t("connect.error.toastDescription"),
-        variant: "destructive",
-      });
+      toast.error(t("connect.error.toastTitle"), { description: t("connect.error.toastDescription") });
     }
-  }, [isSuccess, isError, toast, t]);
+  }, [isSuccess, isError, t]);
 
   const signup = useWhatsAppEmbeddedSignup((outcome) => {
     if (outcome === "success") {
-      toast({
-        title: t("connect.success.toastTitle"),
-        description: t("connect.success.toastDescription"),
-      });
+      toast(t("connect.success.toastTitle"), { description: t("connect.success.toastDescription") });
       setPopupConnected(true);
     } else if (outcome === "no_workspace") {
-      toast({
-        title: t("connect.error.toastTitle"),
-        description: t("connect.noWorkspace"),
-        variant: "destructive",
-      });
+      toast.error(t("connect.error.toastTitle"), { description: t("connect.noWorkspace") });
     }
   });
   const isRedirecting = signup.connecting;

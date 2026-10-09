@@ -1,44 +1,43 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLeadImportTemplate } from "../template";
-import { buildLeadImportRows, readLeadImportFile } from "../import";
+import { parseDelimitedText } from "@/lib/csv/parse";
+
+import { buildLeadImportTemplate, LEAD_IMPORT_TEMPLATE_COLUMNS } from "../template";
 
 describe("lead import template", () => {
-  it("round-trips through the importer with no rejections", () => {
-    const file = readLeadImportFile(buildLeadImportTemplate());
-    const parsed = buildLeadImportRows(file, file.guess);
-
-    expect(parsed.rejected).toEqual([]);
-    expect(parsed.rows).toHaveLength(3);
+  it("names the columns the server recognises for every lead section", () => {
+    expect(LEAD_IMPORT_TEMPLATE_COLUMNS).toEqual([
+      "whatsapp",
+      "nome",
+      "apelido",
+      "email",
+      "data de nascimento",
+      "celular",
+      "telefone fixo",
+      "cep",
+      "logradouro",
+      "número",
+      "complemento",
+      "bairro",
+      "cidade",
+      "uf",
+      "familiar de",
+      "parentesco",
+    ]);
   });
 
-  it("is mapped from its own Portuguese header, not by column position", () => {
-    const file = readLeadImportFile(buildLeadImportTemplate());
+  it("writes one example row per column, linking a relative inside the file", () => {
+    const rows = parseDelimitedText(buildLeadImportTemplate().replace(/^﻿/, ""));
+    const [header, ...examples] = rows;
+    expect(header.cells).toEqual([...LEAD_IMPORT_TEMPLATE_COLUMNS]);
+    expect(examples.length).toBeGreaterThanOrEqual(2);
+    for (const row of examples) expect(row.cells).toHaveLength(LEAD_IMPORT_TEMPLATE_COLUMNS.length);
 
-    expect(file.headers).toEqual(["telefone", "nome", "idade"]);
-    expect(file.guess).toEqual({ number: 0, name: 1, age: 2 });
-  });
-
-  it("normalises a number written with punctuation and a country code", () => {
-    const file = readLeadImportFile(buildLeadImportTemplate());
-    const parsed = buildLeadImportRows(file, file.guess);
-
-    expect(parsed.rows[1].number).toBe("5511987654322");
-  });
-
-  it("accepts a blank idade rather than rejecting the row", () => {
-    const file = readLeadImportFile(buildLeadImportTemplate());
-    const parsed = buildLeadImportRows(file, file.guess);
-
-    expect(parsed.rows[1].age).toBeUndefined();
-    expect(parsed.rows[0].age).toBe(34);
-  });
-
-  it("keeps a name containing the delimiter in one column", () => {
-    const file = readLeadImportFile(buildLeadImportTemplate());
-    const parsed = buildLeadImportRows(file, file.guess);
-
-    expect(parsed.rows[2].name).toBe("Carla Souza; ME");
-    expect(parsed.rows[2].age).toBe(41);
+    const relativeColumn = LEAD_IMPORT_TEMPLATE_COLUMNS.indexOf("familiar de");
+    const whatsappColumn = LEAD_IMPORT_TEMPLATE_COLUMNS.indexOf("whatsapp");
+    const numbers = examples.map((row) => row.cells[whatsappColumn]);
+    const linked = examples.map((row) => row.cells[relativeColumn]).filter(Boolean);
+    expect(linked.length).toBeGreaterThan(0);
+    for (const relative of linked) expect(numbers).toContain(relative);
   });
 });

@@ -1,12 +1,15 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 
 export interface CallRequest {
     phoneNumber: string;
     whatsAppPhoneId?: string;
     trunkId?: string;
+    leadId?: string;
+    callListItemId?: string;
+    requestId?: string;
     label?: string;
 }
 
@@ -67,29 +70,59 @@ export function useCallActive(): boolean {
     return useSyncExternalStore(subscribeActive, getActiveSnapshot, getServerSnapshot);
 }
 
-const dialerListeners = new Set<() => void>();
-let dialerOpen = false;
+export type CallSurfaceOwner = "dialer" | "call_list";
 
-export function setDialerOpen(next: boolean): void {
-    if (dialerOpen === next) return;
-    dialerOpen = next;
-    dialerListeners.forEach((listener) => listener());
+const surfaceListeners = new Set<() => void>();
+let surfaceClaims: readonly CallSurfaceOwner[] = [];
+
+function publishSurfaceClaims(next: readonly CallSurfaceOwner[]): void {
+    surfaceClaims = next;
+    surfaceListeners.forEach((listener) => listener());
 }
 
-function subscribeDialerOpen(listener: () => void): () => void {
-    dialerListeners.add(listener);
+export function setCallSurface(owner: CallSurfaceOwner): void {
+    if (callSurfaceOwner() === owner) return;
+    publishSurfaceClaims([...surfaceClaims.filter((claim) => claim !== owner), owner]);
+}
+
+export function releaseCallSurface(owner: CallSurfaceOwner): void {
+    if (!surfaceClaims.includes(owner)) return;
+    publishSurfaceClaims(surfaceClaims.filter((claim) => claim !== owner));
+}
+
+export function callSurfaceOwner(): CallSurfaceOwner | null {
+    return surfaceClaims[surfaceClaims.length - 1] ?? null;
+}
+
+function subscribeCallSurface(listener: () => void): () => void {
+    surfaceListeners.add(listener);
     return () => {
-        dialerListeners.delete(listener);
+        surfaceListeners.delete(listener);
     };
 }
 
-export function useDialerOpen(): boolean {
-    return useSyncExternalStore(subscribeDialerOpen, () => dialerOpen, () => false);
+export function useCallSurfaceOwner(): CallSurfaceOwner | null {
+    return useSyncExternalStore(subscribeCallSurface, callSurfaceOwner, () => null);
+}
+
+export function useCallSurfaceClaim(owner: CallSurfaceOwner, claimed: boolean): void {
+    useEffect(() => {
+        if (!claimed) return;
+        setCallSurface(owner);
+        return () => releaseCallSurface(owner);
+    }, [owner, claimed]);
+}
+
+export function setDialerOpen(next: boolean): void {
+    if (next) setCallSurface("dialer");
+    else releaseCallSurface("dialer");
 }
 
 export interface DialPreset {
     phoneNumber: string;
     trunkId?: string;
+    leadId?: string;
+    leadRevision?: number;
 }
 
 type PresetListener = (preset: DialPreset) => void;

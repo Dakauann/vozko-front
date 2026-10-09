@@ -19,7 +19,7 @@ import {
   saveRoutingSettingsAction,
 } from "@/app/actions/call-routing";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { fetchDepartments } from "@/lib/department/client";
 import { DEFAULT_HOLD_PRESET, holdMusicKey, type CallQueue, type HoldMusicRef } from "@/lib/call-routing/types";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,6 @@ import { cn } from "@/lib/utils";
 export default function CallQueuesPage() {
   const t = useTranslations("callQueues");
   const { can } = useWorkspace();
-  const { toast } = useToast();
   const library = useHoldMusicLibrary();
   const [queues, setQueues] = useState<CallQueue[]>([]);
   const [departmentNames, setDepartmentNames] = useState<Record<string, string>>({});
@@ -68,10 +67,10 @@ export default function CallQueuesPage() {
     if (!deleting) return;
     const result = await deleteCallQueueAction(deleting.id);
     if (result.error) {
-      toast({ title: t("delete.failed"), description: result.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: result.error });
       return;
     }
-    toast({ title: t("delete.done"), description: deleting.name });
+    toast(t("delete.done"), { description: deleting.name });
     setDeleting(null);
     load();
   };
@@ -236,7 +235,6 @@ export default function CallQueuesPage() {
 
 function WorkspaceHoldMusic({ library, canUpdate }: { library: HoldMusicLibrary; canUpdate: boolean }) {
   const t = useTranslations("callQueues.workspaceMusic");
-  const { toast } = useToast();
   const [saved, setSaved] = useState<HoldMusicRef | null>(null);
   const [choice, setChoice] = useState<HoldMusicRef | null>(null);
   const [saving, startSaving] = useTransition();
@@ -256,11 +254,11 @@ function WorkspaceHoldMusic({ library, canUpdate }: { library: HoldMusicLibrary;
     startSaving(async () => {
       const result = await saveRoutingSettingsAction({ holdMusic: choice });
       if (result.error || !result.settings) {
-        toast({ title: t("saveFailed"), description: result.error, variant: "destructive" });
+        toast.error(t("saveFailed"), { description: result.error });
         return;
       }
       setSaved(result.settings.holdMusic);
-      toast({ title: t("saved") });
+      toast(t("saved"));
     });
 
   return (

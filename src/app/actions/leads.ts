@@ -1,29 +1,45 @@
 import type {
     AnalysisListParams,
+    CreatedLead,
+    LeadRelation,
+    LeadRelationKind,
+    LeadRelativesPage,
     AnalysisListResponse,
     EntryConversationResponse,
     Lead,
     LeadAnalysis,
-    LeadCampaignAnalysisResponse,
-    LeadCampaignEntriesResponse,
-    LeadConversationsResponse,
-    LeadDetailResponse,
+    LeadAnonymizeOutcome,
+    LeadAreaInput,
+    LeadBlockOutcome,
+    LeadCard,
+    LeadDetail,
+    LeadOptOutSource,
+    LeadRecord,
     ConversationEntryType,
-    LeadEntryType,
-    LeadFacets,
     LeadListItem,
     LeadSortKey,
-    LeadResponse,
     LeadsListMeta,
     LeadsQueryParams,
     OldLeadsListParams,
 } from '@/lib/leads/types';
 
-import { emptyCrmFilter, encodeFilterParam } from '@/lib/crm/board';
+import { emptyCrmFilter } from '@/lib/crm/board';
 import { withText } from '@/lib/filters/controls';
+import { leadsQueryString } from '@/lib/leads/query';
+import { requireSectionData } from '@/lib/analytics/section-query';
+import {
+    leadSectionPath,
+    type LeadSection,
+    type LeadSectionParams,
+    type LeadSectionPayloads,
+} from '@/lib/leads/sections';
 
 import { apiClient } from "@/lib/api/browser-client";
-import type { LeadImportRow } from '@/lib/leads/import';
+import { codedErrorOf, codedRefusalOf, type CodedError, type CodedRefusal } from "@/lib/api/coded-error";
+import { ifMatchHeader, isVersionConflict, type VersionedSaveResult } from "@/lib/api/versioned-save";
+import { readDealsPage, readTimelinePage, type LeadDealsPage, type LeadTimelinePage } from '@/lib/leads/timeline';
+import { readLeadSummary, type LeadDetailSummary } from '@/lib/leads/detail-summary';
+import type { CreateLeadBody, UpdateLeadBody } from '@/lib/leads/sheet';
 
 const DEFAULT_LEADS_META: LeadsListMeta = {
     page: 1,
@@ -53,145 +69,337 @@ export async function listLeadsAction(params: OldLeadsListParams = {}) {
     };
 }
 
-export interface BlockLeadResult {
-    blocked: boolean;
-    metaApplied: boolean;
-    error: string | null;
+const EMPTY_ANSWER: CodedError = { message: 'Empty response' };
+
+function hasVersion(value: unknown): value is { version: number } {
+    if (typeof value !== 'object' || value === null) return false;
+    const version = (value as { version?: unknown }).version;
+    return typeof version === 'number' && Number.isInteger(version) && version >= 1;
 }
+
+function isLeadRecord(value: unknown): value is LeadRecord {
+    return hasVersion(value) && typeof (value as { id?: unknown }).id === 'string';
+}
+
+function leadPath(leadId: string): string {
+    return `/leads/${encodeURIComponent(leadId)}`;
+}
+
+export type LeadRefusal = CodedRefusal;
+
+export type LeadSaveResult = VersionedSaveResult<'lead', LeadRecord, LeadRefusal>;
+
+async function saveLeadRecord(
+    method: 'PATCH' | 'PUT',
+    leadId: string,
+    version: number | undefined,
+    body: Record<string, unknown>,
+): Promise<LeadSaveResult> {
+    const response = await apiClient<LeadRecord>(leadPath(leadId), {
+        method,
+        headers: ifMatchHeader(version),
+        body: JSON.stringify(body),
+    });
+
+    if (response.error) {
+        const { error } = response;
+        if (isVersionConflict(error) && isLeadRecord(error.current)) {
+            return { status: 'conflict', current: error.current };
+        }
+        return { status: 'failed', error: codedRefusalOf(error) };
+    }
+    if (!isLeadRecord(response.data)) return { status: 'failed', error: EMPTY_ANSWER };
+    return { status: 'saved', lead: response.data };
+}
+
+export async function updateLeadAction(
+    leadId: string,
+    version: number,
+    body: UpdateLeadBody,
+): Promise<LeadSaveResult> {
+    return saveLeadRecord('PUT', leadId, version, { ...body });
+}
+
+export type LeadCreateResult =
+    | { lead: CreatedLead; error: null }
+    | { lead: null; error: LeadRefusal };
+
+function isCreatedLead(value: unknown): value is CreatedLead {
+    return isLeadRecord(value) && Array.isArray((value as { duplicates?: unknown }).duplicates);
+}
+
+export async function createLeadAction(body: CreateLeadBody): Promise<LeadCreateResult> {
+    const response = await apiClient<CreatedLead>('/leads', {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+    if (response.error) return { lead: null, error: codedRefusalOf(response.error) };
+    if (!isCreatedLead(response.data)) return { lead: null, error: EMPTY_ANSWER };
+    return { lead: response.data, error: null };
+}
+
+export type LeadCommandResult =
+    | { lead: LeadRecord; error: null }
+    | { lead: null; error: LeadRefusal };
+
+async function postLeadCommand(leadId: string, command: string, body?: Record<string, unknown>): Promise<LeadCommandResult> {
+    const response = await apiClient<LeadRecord>(`${leadPath(leadId)}/${command}`, {
+        method: 'POST',
+        ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    if (response.error) return { lead: null, error: codedRefusalOf(response.error) };
+    if (!isLeadRecord(response.data)) return { lead: null, error: EMPTY_ANSWER };
+    return { lead: response.data, error: null };
+}
+
+export async function setLeadOwnerAction(leadId: string, ownerId: string): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, 'owner', { ownerId });
+}
+
+export async function optOutLeadAction(leadId: string, source: LeadOptOutSource): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, 'opt-out', { source });
+}
+
+export async function setLeadDistrictAction(leadId: string, area: LeadAreaInput): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, 'district', {
+        district: area.district,
+        city: area.city,
+        state: area.state,
+        ...(area.cityCode ? { cityCode: area.cityCode } : {}),
+    });
+}
+
+export async function pinLeadAddressAction(
+    leadId: string,
+    addressId: string,
+    position: { lat: number; lng: number },
+): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, `addresses/${encodeURIComponent(addressId)}/pin`, { latitude: position.lat, longitude: position.lng });
+}
+
+export async function acceptLeadLocationAction(leadId: string, messageId: string): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, `location-candidates/${encodeURIComponent(messageId)}/accept`);
+}
+
+export type AnonymizeLeadResult =
+    | { outcome: LeadAnonymizeOutcome; error: null }
+    | { outcome: null; error: CodedError };
+
+export async function anonymizeLeadAction(leadId: string): Promise<AnonymizeLeadResult> {
+    const response = await apiClient<LeadAnonymizeOutcome>(`${leadPath(leadId)}/anonymize`, { method: 'POST' });
+    if (response.error) return { outcome: null, error: codedErrorOf(response.error) };
+    if (!hasVersion(response.data) || typeof response.data.anonymizedAt !== 'string') {
+        return { outcome: null, error: EMPTY_ANSWER };
+    }
+    return { outcome: response.data, error: null };
+}
+
+export type EntryLeadCardResult = { card: LeadCard; error: null } | { card: null; error: CodedError };
+
+function isLeadCard(value: unknown): value is LeadCard {
+    return hasVersion(value) && typeof (value as { leadId?: unknown }).leadId === 'string';
+}
+
+export async function getEntryLeadCardAction(
+    entryId: string,
+    entryType: ConversationEntryType,
+    signal?: AbortSignal,
+): Promise<EntryLeadCardResult> {
+    const query = new URLSearchParams({ entryType }).toString();
+    const response = await apiClient<LeadCard>(`/entries/${encodeURIComponent(entryId)}/lead?${query}`, { method: 'GET', signal });
+    if (response.error) return { card: null, error: codedErrorOf(response.error) };
+    if (!isLeadCard(response.data)) return { card: null, error: EMPTY_ANSWER };
+    return { card: response.data, error: null };
+}
+
+export interface AddLeadRelativeInput {
+    kind: LeadRelationKind;
+    relative: CreateLeadBody;
+    copyPrimaryAddress: boolean;
+}
+
+export interface AddedLeadRelative {
+    lead: LeadRecord;
+    relative: LeadRecord;
+    relation: LeadRelation;
+    duplicates: CreatedLead['duplicates'];
+}
+
+export type LeadRelationResult<T> = { result: T; error: null } | { result: null; error: LeadRefusal };
+
+function isRelation(value: unknown): value is LeadRelation {
+    return typeof value === 'object' && value !== null && typeof (value as { id?: unknown }).id === 'string';
+}
+
+export async function addLeadRelativeAction(
+    leadId: string,
+    input: AddLeadRelativeInput,
+): Promise<LeadRelationResult<AddedLeadRelative>> {
+    const response = await apiClient<AddedLeadRelative>(`${leadPath(leadId)}/relatives`, {
+        method: 'POST',
+        body: JSON.stringify({
+            kind: input.kind,
+            relative: input.relative,
+            ...(input.copyPrimaryAddress ? { copyPrimaryAddress: true } : {}),
+        }),
+    });
+    if (response.error) return { result: null, error: codedRefusalOf(response.error) };
+    const data = response.data;
+    if (!data || !isLeadRecord(data.relative) || !isRelation(data.relation)) return { result: null, error: EMPTY_ANSWER };
+    return { result: { ...data, duplicates: data.duplicates ?? [] }, error: null };
+}
+
+export async function linkLeadRelationAction(
+    leadId: string,
+    otherLeadId: string,
+    kind: LeadRelationKind,
+): Promise<LeadRelationResult<LeadRelation>> {
+    const response = await apiClient<{ lead: LeadRecord; relation: LeadRelation }>(`${leadPath(leadId)}/relations`, {
+        method: 'POST',
+        body: JSON.stringify({ otherLeadId, kind }),
+    });
+    if (response.error) return { result: null, error: codedRefusalOf(response.error) };
+    if (!isRelation(response.data?.relation)) return { result: null, error: EMPTY_ANSWER };
+    return { result: response.data.relation, error: null };
+}
+
+export async function removeLeadRelationAction(relationId: string): Promise<{ error: LeadRefusal | null }> {
+    const response = await apiClient<void>(`/lead-relations/${encodeURIComponent(relationId)}`, { method: 'DELETE' });
+    return { error: response.error ? codedRefusalOf(response.error) : null };
+}
+
+export async function listLeadRelativesAction(
+    leadId: string,
+    params: { dimension?: 'family' | 'referral'; after?: string; limit?: number } = {},
+    signal?: AbortSignal,
+): Promise<{ page: LeadRelativesPage | null; error: LeadRefusal | null }> {
+    const qs = new URLSearchParams();
+    if (params.dimension) qs.set('dimension', params.dimension);
+    if (params.after) qs.set('after', params.after);
+    if (params.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString();
+    const response = await apiClient<LeadRelativesPage>(`${leadPath(leadId)}/relatives${query ? `?${query}` : ''}`, { method: 'GET', signal });
+    if (response.error) return { page: null, error: codedRefusalOf(response.error) };
+    if (!response.data || !Array.isArray(response.data.items)) return { page: null, error: EMPTY_ANSWER };
+    return { page: response.data, error: null };
+}
+
+export interface LeadHistoryPageParams {
+    before?: string;
+    limit?: number;
+}
+
+function historyPagePath(leadId: string, route: 'timeline' | 'deals', params: LeadHistoryPageParams): string {
+    const qs = new URLSearchParams();
+    if (params.before) qs.set('before', params.before);
+    if (params.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString();
+    return `${leadPath(leadId)}/${route}${query ? `?${query}` : ''}`;
+}
+
+async function readHistoryPage<T>(
+    path: string,
+    read: (value: unknown) => T | null,
+    signal?: AbortSignal,
+): Promise<{ page: T | null; error: LeadRefusal | null }> {
+    const response = await apiClient<unknown>(path, { method: 'GET', signal });
+    if (response.error) return { page: null, error: codedRefusalOf(response.error) };
+    const page = read(response.data);
+    if (!page) return { page: null, error: EMPTY_ANSWER };
+    return { page, error: null };
+}
+
+export async function listLeadTimelineAction(
+    leadId: string,
+    params: LeadHistoryPageParams = {},
+    signal?: AbortSignal,
+): Promise<{ page: LeadTimelinePage | null; error: LeadRefusal | null }> {
+    return readHistoryPage(historyPagePath(leadId, 'timeline', params), readTimelinePage, signal);
+}
+
+export async function listLeadDealsAction(
+    leadId: string,
+    params: LeadHistoryPageParams = {},
+    signal?: AbortSignal,
+): Promise<{ page: LeadDealsPage | null; error: LeadRefusal | null }> {
+    return readHistoryPage(historyPagePath(leadId, 'deals', params), readDealsPage, signal);
+}
+
+export type BlockLeadResult =
+    | { outcome: LeadBlockOutcome; error: null }
+    | { outcome: null; error: CodedError };
 
 export async function blockLeadAction(
     leadId: string,
     block: boolean,
     businessPhoneId?: string
 ): Promise<BlockLeadResult> {
-    const response = await apiClient<{
-        success: boolean;
-        data: { leadId: string; blocked: boolean; metaApplied: boolean };
-    }>(`/leads/${leadId}/block`, {
+    const response = await apiClient<LeadBlockOutcome>(`${leadPath(leadId)}/block`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             blocked: block,
             ...(businessPhoneId ? { businessPhoneId } : {}),
         }),
     });
 
-    if (response.error) {
-        return { blocked: !block, metaApplied: false, error: response.error.message };
-    }
-
-    return {
-        blocked: response.data?.data?.blocked ?? block,
-        metaApplied: response.data?.data?.metaApplied ?? false,
-        error: null,
-    };
+    if (response.error) return { outcome: null, error: codedErrorOf(response.error) };
+    if (!hasVersion(response.data)) return { outcome: null, error: EMPTY_ANSWER };
+    return { outcome: response.data, error: null };
 }
 
-export async function getLeadByIdAction(
-    leadId: string,
-    entryType?: LeadEntryType
-) {
-    const queryParams = new URLSearchParams();
-    if (entryType) queryParams.set('entryType', entryType);
+type LeadDetailRead = { lead: LeadDetail; error: null } | { lead: null; error: CodedError };
 
-    const queryString = queryParams.toString();
-    const url = `/leads/${leadId}${queryString ? `?${queryString}` : ''}`;
+async function readLeadDetail(path: string, signal?: AbortSignal): Promise<LeadDetailRead> {
+    const response = await apiClient<LeadDetail>(path, { method: 'GET', signal });
 
-    const response = await apiClient<LeadResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { lead: null, error: response.error.message };
-    }
-
-    return { lead: response.data?.data ?? null, error: null };
+    if (response.error) return { lead: null, error: codedErrorOf(response.error) };
+    if (!isLeadRecord(response.data)) return { lead: null, error: EMPTY_ANSWER };
+    return { lead: response.data, error: null };
 }
 
-export async function searchLeadByNumberAction(
-    phoneNumber: string,
-    entryType?: LeadEntryType
-) {
-    const queryParams = new URLSearchParams();
-    queryParams.set('number', phoneNumber);
-    if (entryType) queryParams.set('entryType', entryType);
-
-    const url = `/leads/search?${queryParams.toString()}`;
-
-    const response = await apiClient<LeadResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { lead: null, error: response.error.message };
-    }
-
-    return { lead: response.data?.data ?? null, error: null };
+export async function getLeadByIdAction(leadId: string, signal?: AbortSignal): Promise<LeadDetailRead> {
+    return readLeadDetail(leadPath(leadId), signal);
 }
 
-export async function getLeadConversationsAction(
-    leadId: string,
-    entryType?: LeadEntryType
-) {
-    const queryParams = new URLSearchParams();
-    if (entryType) queryParams.set('entryType', entryType);
+export type LeadSummaryRead = { summary: LeadDetailSummary; error: null } | { summary: null; error: CodedError };
 
-    const queryString = queryParams.toString();
-    const url = `/leads/${leadId}/conversations${queryString ? `?${queryString}` : ''}`;
-
-    const response = await apiClient<LeadConversationsResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { conversations: null, error: response.error.message };
-    }
-
-    return { conversations: response.data?.data ?? null, error: null };
+export async function getLeadSummaryAction(leadId: string, signal?: AbortSignal): Promise<LeadSummaryRead> {
+    const response = await apiClient<unknown>(`${leadPath(leadId)}/summary`, { method: 'GET', signal });
+    if (response.error) return { summary: null, error: codedErrorOf(response.error) };
+    const summary = readLeadSummary(response.data);
+    if (!summary) return { summary: null, error: EMPTY_ANSWER };
+    return { summary, error: null };
 }
 
-export async function getLeadCampaignEntriesAction(
-    leadId: string,
-    campaignId: string,
-    entryType?: LeadEntryType
-) {
-    const queryParams = new URLSearchParams();
-    if (entryType) queryParams.set('entryType', entryType);
-
-    const queryString = queryParams.toString();
-    const url = `/leads/${leadId}/campaigns/${campaignId}/entries${queryString ? `?${queryString}` : ''}`;
-
-    const response = await apiClient<LeadCampaignEntriesResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { entries: [], error: response.error.message };
-    }
-
-    return { entries: response.data?.data?.entries ?? [], error: null };
+export interface LeadLookupMatch {
+    id: string;
+    realName?: string;
+    number: string;
 }
 
-export async function getLeadCampaignAnalysisAction(
-    leadId: string,
-    campaignId: string,
-    entryType?: LeadEntryType
-) {
-    const queryParams = new URLSearchParams();
-    if (entryType) queryParams.set('entryType', entryType);
+export type LeadLookupResult = { matches: LeadLookupMatch[]; error: CodedError | null };
 
-    const queryString = queryParams.toString();
-    const url = `/leads/${leadId}/campaigns/${campaignId}/analysis${queryString ? `?${queryString}` : ''}`;
+const LEAD_LOOKUP_PAGE_SIZE = 5;
+const NO_HOLDER_STATUSES = new Set([400, 404]);
 
-    const response = await apiClient<LeadCampaignAnalysisResponse>(url, {
-        method: 'GET',
+function lookupMatchOf(lead: { id: string; realName?: string; number: string }): LeadLookupMatch {
+    return { id: lead.id, realName: lead.realName, number: lead.number };
+}
+
+export async function findLeadByNumberAction(number: string, signal?: AbortSignal): Promise<LeadLookupResult> {
+    const read = await readLeadDetail(`/leads/search?number=${encodeURIComponent(number)}`, signal);
+    if (read.lead) return { matches: [lookupMatchOf(read.lead)], error: null };
+    if (read.error.status !== undefined && NO_HOLDER_STATUSES.has(read.error.status)) return { matches: [], error: null };
+    return { matches: [], error: read.error };
+}
+
+export async function findLeadsByNameAction(name: string): Promise<LeadLookupResult> {
+    const result = await listLeadsQueryAction({
+        filter: withText(emptyCrmFilter, 'name', name),
+        pageSize: LEAD_LOOKUP_PAGE_SIZE,
     });
-
-    if (response.error) {
-        return { analysis: null, error: response.error.message };
-    }
-
-    return { analysis: response.data?.data ?? null, error: null };
+    if (result.error) return { matches: [], error: { message: result.error } };
+    return { matches: result.items.map(lookupMatchOf), error: null };
 }
 
 export async function listAnalysisAction(params: AnalysisListParams = {}) {
@@ -265,34 +473,17 @@ export async function getEntryConversationAction(
     return { conversation: response.data ?? null, error: null };
 }
 
-function buildLeadsQuery(params: LeadsQueryParams): string {
-    const qs = new URLSearchParams();
-
-    const filter = encodeFilterParam(params.filter);
-    if (filter) qs.set('filter', filter);
-
-    const q = params.q?.trim();
-    if (q) qs.set('q', q);
-
-    if (params.sorts?.length) {
-        qs.set('sort', params.sorts.map((s) => `${s.key}:${s.direction}`).join(','));
-    }
-    if (params.page) qs.set('page', String(params.page));
-    if (params.pageSize) qs.set('pageSize', String(params.pageSize));
-
-    return qs.toString();
-}
-
 export interface LeadsQueryResult {
     items: LeadListItem[];
     meta: LeadsListMeta;
     error: string | null;
+    errorCode: string | null;
 }
 
 export async function listLeadsQueryAction(
     params: LeadsQueryParams = {},
 ): Promise<LeadsQueryResult> {
-    const queryString = buildLeadsQuery(params);
+    const queryString = leadsQueryString(params);
     const response = await apiClient<{
         data: LeadListItem[];
         meta: LeadsListMeta;
@@ -303,6 +494,7 @@ export async function listLeadsQueryAction(
             items: [],
             meta: DEFAULT_LEADS_META,
             error: response.error.message,
+            errorCode: response.error.code ?? null,
         };
     }
 
@@ -316,121 +508,23 @@ export async function listLeadsQueryAction(
             totalItems: payload?.meta?.totalItems ?? 0,
         },
         error: null,
+        errorCode: null,
     };
 }
 
-const EMPTY_LEAD_FACETS: LeadFacets = {
-    total: 0,
-    blocked: 0,
-    active: 0,
-    windowOpen: 0,
-    windowClosed: 0,
-    withCampaign: 0,
-    withoutCampaign: 0,
-    withMemory: 0,
-    withoutMemory: 0,
-    named: 0,
-    unnamed: 0,
-    memoryCategories: {},
-    channels: {},
-    campaignStatuses: {},
-};
-
-export async function getLeadFacetsAction(
-    params: LeadsQueryParams = {},
-): Promise<{ facets: LeadFacets; error: string | null }> {
-    const queryString = buildLeadsQuery({ filter: params.filter, q: params.q });
-    const response = await apiClient<LeadFacets>(
-        `/leads/facets${queryString ? `?${queryString}` : ''}`,
-        { method: 'GET' },
-    );
-
-    if (response.error) {
-        return { facets: EMPTY_LEAD_FACETS, error: response.error.message };
-    }
-    return { facets: response.data ?? EMPTY_LEAD_FACETS, error: null };
-}
-
-export async function getLeadCampaignHistoryAction(leadId: string) {
-    const response = await apiClient<LeadDetailResponse['data']>(`/leads/${leadId}/campaigns`, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { lead: null, error: response.error.message };
-    }
-
-    return { lead: response.data ?? null, error: null };
+export async function fetchLeadSection<S extends LeadSection>(
+    section: S,
+    params: LeadSectionParams,
+    signal?: AbortSignal,
+): Promise<LeadSectionPayloads[S]> {
+    const response = await apiClient<LeadSectionPayloads[S]>(leadSectionPath(section, params), { method: 'GET', signal });
+    return requireSectionData(response, `lead section ${section}`);
 }
 
 export async function renameLeadAction(
     leadId: string,
     name: string,
-): Promise<{ lead: Lead | null; error: string | null }> {
-    const response = await apiClient<Lead>(`/leads/${leadId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
-    });
-
-    if (response.error) {
-        return { lead: null, error: response.error.message };
-    }
-    return { lead: response.data ?? null, error: null };
-}
-
-export interface LeadImportResult {
-    created: number;
-    matched: number;
-    blocked: number;
-    invalid: number;
-    duplicate: number;
-    rejected: { line: number; number: string; reason: string }[];
-    rejectedTruncated?: number;
-    inboxSeedQueued?: number;
-    inboxSeedError?: string;
-    scriptedSeedQueued?: number;
-    scriptedSeedError?: string;
-}
-
-export interface LeadImportSeedConversations {
-    bodies: string[];
-    maxMessages: number;
-    context?: string;
-    attachment?: LeadImportSeedAttachment;
-}
-
-export interface LeadImportSeedAttachment {
-    mediaId: string;
-    kind: string;
-}
-
-export const LEAD_IMPORT_MAX_ROWS = 100000;
-
-export async function importLeadsAction(
-    rows: LeadImportRow[],
-    onExisting: 'fill_empty' | 'skip' = 'fill_empty',
-    seedInbox = false,
-    seedConversations?: LeadImportSeedConversations,
-): Promise<{ result: LeadImportResult | null; error: string | null }> {
-    if (rows.length === 0) {
-        return { result: null, error: null };
-    }
-
-    const response = await apiClient<LeadImportResult>('/leads/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            rows,
-            onExisting,
-            seedInbox,
-            ...(seedInbox && seedConversations ? { seedConversations } : {}),
-        }),
-    });
-
-    if (response.error) {
-        return { result: null, error: response.error.message };
-    }
-
-    return { result: response.data ?? null, error: null };
+    version: number | undefined,
+): Promise<LeadSaveResult> {
+    return saveLeadRecord('PATCH', leadId, version, { name });
 }

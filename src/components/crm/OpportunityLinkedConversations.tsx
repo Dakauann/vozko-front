@@ -14,21 +14,22 @@ export default function OpportunityLinkedConversations({
   links: OpportunityConversationLink[];
   onUnlink: (entryId: string, entryType: string) => void;
 }) {
+  const t = useTranslations("opportunityLinkedConversations");
   const tChannels = useTranslations("audience.channels");
   const channelName = (entryType: string) => (tChannels.has(entryType) ? tChannels(entryType) : entryType);
 
   return (
     <div className="space-y-2 border-t border-border pt-4">
-      <p className="text-2xs font-semibold text-muted-foreground">Conversas vinculadas</p>
+      <p className="text-2xs font-semibold text-muted-foreground">{t("title")}</p>
       {links.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-          Nenhuma conversa vinculada a esta oportunidade.
+          {t("empty")}
         </p>
       ) : (
         links.map((link) => {
           const name = link.leadName?.trim();
           const number = link.leadNumber?.trim();
-          const title = name || number || "Contato sem nome";
+          const title = name || number || t("unnamed");
           const detail = [channelName(link.entryType), name ? number : ""].filter(Boolean).join(" · ");
           return (
             <div
@@ -42,8 +43,8 @@ export default function OpportunityLinkedConversations({
               </div>
               <a
                 href={conversationHref(link.entryId, isEntryType(link.entryType) ? link.entryType : "whatsapp")}
-                title="Abrir conversa"
-                aria-label={`Abrir conversa com ${title}`}
+                title={t("open")}
+                aria-label={t("openWith", { name: title })}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
@@ -51,8 +52,8 @@ export default function OpportunityLinkedConversations({
               <button
                 type="button"
                 onClick={() => onUnlink(link.entryId, link.entryType)}
-                title="Desvincular"
-                aria-label={`Desvincular conversa com ${title}`}
+                title={t("unlink")}
+                aria-label={t("unlinkWith", { name: title })}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
               >
                 <LinkSimpleBreak weight="bold" className="h-3.5 w-3.5" />

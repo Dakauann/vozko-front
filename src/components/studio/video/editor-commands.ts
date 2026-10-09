@@ -1,19 +1,23 @@
 "use client";
 
+import { isActionError, type ActionResult } from "@/app/actions/action-result";
 import { uploadMediaAction } from "@/app/actions/medias";
+import type { MediaGenerationError } from "@/hooks/use-media-generation";
+import { canStart, KEPT_FINISHED_JOBS } from "@/lib/media-generation/limits";
+import type { MediaGenerationInput, MediaGenerationJob } from "@/lib/media-generation/types";
 import { asUploadableImage } from "@/components/studio/canvas/uploadable-image";
 import type { Media } from "@/lib/medias/types";
 import { encodeClipboard } from "@/lib/studio/clip-clipboard";
-import type { Clip, Layer, Transform, VideoAspect, VideoDocument } from "@/lib/studio/document";
+import { newStudioId, type Clip, type Layer, type Transform, type VideoAspect, type VideoDocument } from "@/lib/studio/document";
 import { adjacentKey, keyTimes, localTime } from "@/lib/studio/keyframe-edit";
 import { toggleSelectionMoment, transformPatch } from "@/lib/studio/selection-edit";
 import { closeGaps, duplicateGroup, linkClips, magnetize, placeStack, splitAt, unlinkClips, withLinked } from "@/lib/studio/edits";
 import { removeKeys } from "@/lib/studio/focus-lanes";
 import { addMarker, adjacentMarker, removeMarker } from "@/lib/studio/markers";
-import { clipTypeForMedia, mediaClips, overlayClip } from "@/lib/studio/media-clips";
+import { clipTypeForMedia, mediaClips, overlayClip, sizedMediaClips } from "@/lib/studio/media-clips";
 import type { StudioEditorStore } from "@/lib/studio/store";
 import { textPresetClips, type TextStylePreset } from "@/lib/studio/text-presets";
-import { contentDuration, deleteClips, findClip, placeClips, rippleDeleteClips, updateClip, type ClipPatch } from "@/lib/studio/timeline";
+import { contentDuration, deleteClips, findClip, isClipPickable, placeClips, rippleDeleteClips, updateClip, type ClipPatch } from "@/lib/studio/timeline";
 
 import { fitZoom, focusView, toggledSelection, zoomBy } from "@/lib/studio/timeline-view";
 import {
@@ -34,7 +38,7 @@ import {
 
 import type { AssetCatalog } from "./asset-catalog";
 import type { PlaybackController } from "./playback-controller";
-import { TRIM_TOOLS, type NoticeTone, type TimelineTool, type TrackHeight, type VideoViewStore } from "./view-store";
+import { TRIM_TOOLS, type NoticeTone, type TimelineTool, type TrackHeight, type VideoJob, type VideoJobPurpose, type VideoJobTarget, type VideoViewStore } from "./view-store";
 
 export interface EditorCommands {
   undo: () => void;
@@ -47,7 +51,13 @@ export interface EditorCommands {
   duplicate: () => void;
   link: () => void;
   unlink: () => void;
-  insertMedia: (media: Pick<Media, "id" | "type">, atMs?: number, preferTrackId?: string) => Promise<boolean>;
+  insertMedia: (media: Pick<Media, "id" | "type">, atMs?: number, preferTrackId?: string, durationMs?: number) => Promise<boolean>;
+  startJob: (purpose: VideoJobPurpose, input: MediaGenerationInput, target: VideoJobTarget) => Promise<void>;
+  followJob: (purpose: VideoJobPurpose, job: MediaGenerationJob, target: VideoJobTarget) => string;
+  jobProgress: (id: string, settling: boolean) => void;
+  jobFailed: (id: string, error: MediaGenerationError) => void;
+  jobFinished: (id: string) => void;
+  dismissJob: (id: string) => void;
   insertLayer: (layer: Layer) => boolean;
   insertClips: (clips: Clip[], preferTrackId?: string) => boolean;
   insertTextPreset: (preset: TextStylePreset, content: string) => boolean;
@@ -101,9 +111,24 @@ interface CommandDeps {
   view: VideoViewStore;
   assets: AssetCatalog;
   playback: PlaybackController;
+  requestJob: (input: MediaGenerationInput) => Promise<ActionResult<MediaGenerationJob>>;
 }
 
-export function createEditorCommands({ store, view, assets, playback }: CommandDeps): EditorCommands {
+export function keepRecentJobs(jobs: readonly VideoJob[]): VideoJob[] {
+  const finished = new Map<VideoJobPurpose, number>();
+  const kept: VideoJob[] = [];
+  for (const job of [...jobs].reverse()) {
+    if (job.state !== "running") {
+      const seen = finished.get(job.purpose) ?? 0;
+      if (seen >= KEPT_FINISHED_JOBS) continue;
+      finished.set(job.purpose, seen + 1);
+    }
+    kept.push(job);
+  }
+  return kept.reverse();
+}
+
+export function createEditorCommands({ store, view, assets, playback, requestJob }: CommandDeps): EditorCommands {
   const state = () => store.getState();
   let clipboard: ClipboardPayload | null = null;
   const selectedTrackIds = () => {
@@ -118,7 +143,10 @@ export function createEditorCommands({ store, view, assets, playback }: CommandD
   };
   const playhead = () => view.getState().playheadMs;
   const linkedSelection = () => view.getState().linkedSelection;
-  const expanded = (ids: readonly string[]) => (linkedSelection() ? withLinked(state().document, ids) : [...ids]);
+  const expanded = (ids: readonly string[]) => {
+    const { document } = state();
+    return (linkedSelection() ? withLinked(document, ids) : [...ids]).filter((id) => isClipPickable(document, id));
+  };
 
   const notify = (key: string, tone: NoticeTone = "info") => view.setState({ notice: { key, tone } });
 
@@ -135,6 +163,18 @@ export function createEditorCommands({ store, view, assets, playback }: CommandD
   };
 
   const insertClips = (clips: Clip[], preferTrackId?: string): boolean => settle(placeClips(state().document, clips, preferTrackId));
+
+  const patchJob = (id: string, patch: Partial<VideoJob>) =>
+    view.setState((current) => ({ jobs: current.jobs.map((job) => (job.id === id ? { ...job, ...patch } : job)) }));
+
+  const addJob = (purpose: VideoJobPurpose, target: VideoJobTarget, created: MediaGenerationJob | null, byAgent: boolean): string => {
+    const id = newStudioId("job");
+    const job: VideoJob = { id, purpose, target, created, state: "running", settling: false, error: null, byAgent };
+    view.setState((current) => ({ jobs: keepRecentJobs([...current.jobs, job]) }));
+    return id;
+  };
+
+  const runningKinds = () => view.getState().jobs.filter((job) => job.state === "running").map((job) => job.purpose);
 
   const commands: EditorCommands = {
     undo: () => state().undo(),
@@ -199,15 +239,30 @@ export function createEditorCommands({ store, view, assets, playback }: CommandD
       const next = unlinkClips(document, selection);
       if (next !== document) state().apply(() => next);
     },
-    insertMedia: async (media, atMs, preferTrackId) => {
+    insertMedia: async (media, atMs, preferTrackId, durationMs) => {
       const type = clipTypeForMedia(media.type);
       if (!type) {
         notify("unsupportedMedia", "error");
         return false;
       }
-      const durationMs = type === "image" ? undefined : await assets.sourceDuration(media.id);
-      return insertClips(mediaClips(type, media.id, atMs ?? playhead(), durationMs), preferTrackId);
+      const sourceMs = type === "image" ? undefined : await assets.sourceDuration(media.id);
+      return insertClips(sizedMediaClips(type, media.id, atMs ?? playhead(), sourceMs, durationMs), preferTrackId);
     },
+    startJob: async (purpose, input, target) => {
+      if (!canStart(purpose, runningKinds())) {
+        notify("tooManyJobs", "error");
+        return;
+      }
+      const id = addJob(purpose, target, null, false);
+      const result = await requestJob(input);
+      if (isActionError(result)) patchJob(id, { state: "failed", error: { code: result.code ?? "request_failed", message: result.error } });
+      else patchJob(id, { created: result.data });
+    },
+    followJob: (purpose, job, target) => addJob(purpose, target, job, true),
+    jobProgress: (id, settling) => patchJob(id, { settling }),
+    jobFailed: (id, error) => patchJob(id, { state: "failed", error, settling: false }),
+    jobFinished: (id) => patchJob(id, { state: "done", settling: false }),
+    dismissJob: (id) => view.setState((current) => ({ jobs: current.jobs.filter((job) => job.id !== id) })),
     insertLayer: (layer) => insertClips([overlayClip(layer, playhead())]),
     insertClips,
     insertTextPreset: (preset, content) => settle(placeStack(state().document, textPresetClips(preset, content, playhead()))),

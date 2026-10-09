@@ -103,7 +103,7 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -547,7 +547,6 @@ export default function CreateNewAgentForm({
   const previousProviderRef = useRef<string | null>(null);
   const optionsLoadedRef = useRef(false);
   const router = useRouter();
-  const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [isSubmitting, startSubmit] = useTransition();
@@ -1040,24 +1039,13 @@ export default function CreateNewAgentForm({
               : tpl,
           ),
         );
-        toast({
-          title: t("templateMedia.saved"),
-          description: t("templateMedia.savedDescription"),
-        });
+        toast(t("templateMedia.saved"), { description: t("templateMedia.savedDescription") });
         setTemplateMediaModalOpen(false);
       } else {
-        toast({
-          title: t("templateMedia.saveError"),
-          description: result.error || t("templateMedia.saveErrorDescription"),
-          variant: "destructive",
-        });
+        toast.error(t("templateMedia.saveError"), { description: result.error || t("templateMedia.saveErrorDescription") });
       }
     } catch {
-      toast({
-        title: t("templateMedia.saveError"),
-        description: t("templateMedia.saveErrorDescription"),
-        variant: "destructive",
-      });
+      toast.error(t("templateMedia.saveError"), { description: t("templateMedia.saveErrorDescription") });
     } finally {
       setIsSavingTemplateMedia(false);
     }
@@ -1255,11 +1243,7 @@ export default function CreateNewAgentForm({
     }
 
     if (invalidFiles.length > 0) {
-      toast({
-        title: t("media.invalidFile"),
-        description: invalidFiles.join(", "),
-        variant: "destructive",
-      });
+      toast.error(t("media.invalidFile"), { description: invalidFiles.join(", ") });
     }
 
     if (validFiles.length === 0) return;
@@ -1337,20 +1321,12 @@ export default function CreateNewAgentForm({
         shouldValidate: true,
       });
 
-      toast({
-        title: t("media.uploadSuccess"),
-        description: t("media.uploadSuccessDescription", {
-          count: uploads.length,
-        }),
+      toast(t("media.uploadSuccess"), {
+        description: t("media.uploadSuccessDescription", { count: uploads.length }),
       });
     } catch (error) {
-      toast({
-        title: t("media.uploadError"),
-        description:
-          error instanceof Error
-            ? error.message
-            : t("media.uploadErrorGeneric"),
-        variant: "destructive",
+      toast.error(t("media.uploadError"), {
+        description: error instanceof Error ? error.message : t("media.uploadErrorGeneric"),
       });
     } finally {
       setIsUploadingMedia(false);
@@ -1374,11 +1350,7 @@ export default function CreateNewAgentForm({
       const validVars = agentVariables.filter((v) => v.name.trim());
       for (const v of validVars) {
         if (!variableNamePattern.test(v.name.trim())) {
-          toast({
-            title: t("sections.variables.title"),
-            description: t("sections.variables.invalidName", { name: v.name }),
-            variant: "destructive",
-          });
+          toast.error(t("sections.variables.title"), { description: t("sections.variables.invalidName", { name: v.name }) });
           return;
         }
       }
@@ -1386,21 +1358,13 @@ export default function CreateNewAgentForm({
       for (const v of validVars) {
         const lower = v.name.trim().toLowerCase();
         if (seenNames.has(lower)) {
-          toast({
-            title: t("sections.variables.title"),
-            description: t("sections.variables.duplicateName", { name: v.name }),
-            variant: "destructive",
-          });
+          toast.error(t("sections.variables.title"), { description: t("sections.variables.duplicateName", { name: v.name }) });
           return;
         }
         seenNames.add(lower);
       }
       if (validVars.length > 50) {
-        toast({
-          title: t("sections.variables.title"),
-          description: t("sections.variables.tooMany"),
-          variant: "destructive",
-        });
+        toast.error(t("sections.variables.title"), { description: t("sections.variables.tooMany") });
         return;
       }
       const basePayload = {
@@ -1477,22 +1441,13 @@ export default function CreateNewAgentForm({
           error ??
           (mode === "edit" ? t("toast.updateError") : t("toast.createError"));
 
-        toast({
-          title:
-            mode === "edit"
-              ? t("toast.updateErrorTitle")
-              : t("toast.createErrorTitle"),
+        toast.error(mode === "edit" ? t("toast.updateErrorTitle") : t("toast.createErrorTitle"), {
           description,
-          variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title:
-          mode === "edit" ? t("toast.updateSuccess") : t("toast.createSuccess"),
-        description: t("toast.successDescription", { name: agent.name }),
-      });
+      toast(mode === "edit" ? t("toast.updateSuccess") : t("toast.createSuccess"), { description: t("toast.successDescription", { name: agent.name }) });
 
       try {
         await apiClient(`/agents/${agent.id}/knowledge-bases`, {

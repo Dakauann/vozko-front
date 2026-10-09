@@ -3,16 +3,20 @@ import { describe, expect, it } from "vitest";
 import { emptyVideoDocument, newMediaClip, newOverlayClip, newTextLayer, STUDIO_LIMITS, type Clip, type VideoDocument } from "./document";
 import {
   addTrack,
+  addTrackNextTo,
   clipsAt,
   deleteClips,
   duplicateClips,
   findClip,
   insertClip,
+  isClipPickable,
   moveClip,
   moveTrack,
   nearestFreeStart,
   removeTrack,
   rippleDeleteClips,
+  shiftTarget,
+  shiftTrack,
   snapCandidates,
   snapMs,
   snapRangeStart,
@@ -170,20 +174,74 @@ describe("deleting and duplicating", () => {
 });
 
 describe("tracks", () => {
-  it("adds up to the limit, removes and reorders", () => {
+  it("adds as many tracks as the edit needs, removes and reorders", () => {
     let d = doc();
-    for (let i = 0; i < 20; i++) d = addTrack(d, "visual").document;
-    expect(d.tracks.filter((t) => t.kind === "visual")).toHaveLength(STUDIO_LIMITS.maxVisualTracks);
-    expect(addTrack(d, "visual").trackId).toBeNull();
+    for (let i = 0; i < 30; i++) d = addTrack(d, "visual").document;
+    expect(d.tracks.filter((t) => t.kind === "visual")).toHaveLength(32);
     let a = d;
     for (let i = 0; i < 20; i++) a = addTrack(a, "audio").document;
-    expect(a.tracks.filter((t) => t.kind === "audio")).toHaveLength(STUDIO_LIMITS.maxAudioTracks);
-    expect(addTrack(a, "audio").trackId).toBeNull();
+    expect(a.tracks.filter((t) => t.kind === "audio")).toHaveLength(21);
+    expect(documentIssue("video", a)).toBeNull();
     const reordered = moveTrack(doc(), "au", 0);
     expect(reordered.tracks.map((t) => t.id)).toEqual(["au", "v1", "v2"]);
     const removed = removeTrack(doc(), "au");
     expect(removed.tracks.map((t) => t.id)).toEqual(["v1", "v2"]);
     expect(removed.durationMs).toBe(5000);
+  });
+});
+
+describe("track lanes", () => {
+  function interleaved(): VideoDocument {
+    const d = doc();
+    d.tracks = [
+      { id: "v1", kind: "visual", clips: [] },
+      { id: "au", kind: "audio", clips: [] },
+      { id: "v2", kind: "visual", clips: [] },
+      { id: "a2", kind: "audio", clips: [] },
+    ];
+    return d;
+  }
+
+  const ids = (d: VideoDocument) => d.tracks.map((t) => t.id);
+
+  it("moves a track one lane up or down among its own kind, the way the timeline stacks them", () => {
+    const d = interleaved();
+    expect(ids(shiftTrack(d, "v1", "up"))).toEqual(["au", "v2", "v1", "a2"]);
+    expect(ids(shiftTrack(d, "v2", "down"))).toEqual(["v2", "v1", "au", "a2"]);
+    expect(ids(shiftTrack(d, "au", "down"))).toEqual(["v1", "v2", "a2", "au"]);
+    expect(ids(shiftTrack(d, "a2", "up"))).toEqual(["v1", "a2", "au", "v2"]);
+  });
+
+  it("leaves the document alone at the end of a lane or for a missing track", () => {
+    const d = interleaved();
+    expect(shiftTrack(d, "v2", "up")).toBe(d);
+    expect(shiftTrack(d, "v1", "down")).toBe(d);
+    expect(shiftTrack(d, "au", "up")).toBe(d);
+    expect(shiftTrack(d, "a2", "down")).toBe(d);
+    expect(shiftTrack(d, "gone", "up")).toBe(d);
+    expect(shiftTarget(d.tracks, "v2", "up")).toBeNull();
+    expect(shiftTarget(d.tracks, "v2", "down")).toBe(0);
+  });
+
+  it("adds a track of the same kind right above or below another one", () => {
+    const d = interleaved();
+    const above = addTrackNextTo(d, "v1", "up")!;
+    expect(ids(above.document)).toEqual(["v1", above.trackId, "au", "v2", "a2"]);
+    const below = addTrackNextTo(d, "v1", "down")!;
+    expect(ids(below.document)).toEqual([below.trackId, "v1", "au", "v2", "a2"]);
+    const audioAbove = addTrackNextTo(d, "a2", "up")!;
+    expect(ids(audioAbove.document)).toEqual(["v1", "au", "v2", audioAbove.trackId, "a2"]);
+    expect(audioAbove.document.tracks[3].kind).toBe("audio");
+    expect(addTrackNextTo(d, "gone", "up")).toBeNull();
+  });
+});
+
+describe("locked tracks", () => {
+  it("keep their clips out of reach of the pointer and the selection", () => {
+    const locked = updateTrack(doc(), "v1", { locked: true });
+    expect(isClipPickable(locked, "a")).toBe(false);
+    expect(isClipPickable(locked, "m")).toBe(true);
+    expect(isClipPickable(locked, "ghost")).toBe(false);
   });
 });
 

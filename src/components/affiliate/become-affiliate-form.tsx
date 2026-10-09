@@ -20,7 +20,7 @@ import {
   type ElevatedStepperStep,
 } from "@/components/elevated-design/elevated-stepper";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 
@@ -82,7 +82,6 @@ function mapDomainError(raw: string): { key: string; field?: string } | null {
 export function BecomeAffiliateForm() {
   const t = useTranslations("affiliatePage.register");
   const router = useRouter();
-  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [step, setStep] = useState(0);
@@ -200,10 +199,7 @@ export function BecomeAffiliateForm() {
     setSubmitError(null);
     if (Object.keys(errors).length > 0) {
       setSubmitError(t("toast.validationFailed"));
-      toast({
-        title: t("toast.validationFailed"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.validationFailed"));
       return;
     }
 
@@ -232,16 +228,13 @@ export function BecomeAffiliateForm() {
           const target = fieldToStep[mapped.field];
           if (target !== undefined) setStep(target);
         }
-        toast({
-          title: t("toast.errorTitle"),
+        toast.error(t("toast.errorTitle"), {
           description: msg,
-          variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title: t("toast.successTitle"),
+      toast(t("toast.successTitle"), {
         description: t("toast.successDescription"),
       });
       router.push("/dashboard/affiliate");
@@ -253,7 +246,6 @@ export function BecomeAffiliateForm() {
     asaasWalletId,
     code,
     errors,
-    toast,
     t,
     router,
     startTransition,

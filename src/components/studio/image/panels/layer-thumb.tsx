@@ -5,7 +5,8 @@ import Image from "next/image";
 import { loadAssetImage, useLoadedImage } from "@/components/studio/canvas/asset-images";
 import { STUDIO_ICONS } from "@/components/studio/canvas/icon-catalog";
 import type { Layer } from "@/lib/studio/document";
-import { framePolygon } from "@/lib/studio/paint";
+import { framePolygon, starPolygon } from "@/lib/studio/paint";
+import { scalePath } from "@/lib/studio/vector-path";
 
 const BOX = 24;
 
@@ -31,8 +32,11 @@ function ShapeThumb({ layer }: { layer: Layer }) {
     case "ellipse":
       return <ellipse cx={BOX / 2} cy={BOX / 2} rx={size / 2} ry={size / 2} fill={paint} />;
     case "triangle":
-    case "star":
       return <polygon points={framePolygon(layer.shape, size, size).map((v) => v + inset).join(" ")} fill={paint} />;
+    case "star":
+      return <polygon points={starPolygon(layer, size, size).map((v) => v + inset).join(" ")} fill={paint} />;
+    case "path":
+      return <path d={scalePath(layer.path ?? "", size, size)} transform={`translate(${inset} ${inset})`} fillRule={layer.fillRule} fill={layer.fill ? paint : "none"} stroke={layer.fill ? undefined : paint} strokeWidth={1.5} />;
     case "line":
     case "arrow":
       return <line x1={inset} y1={BOX / 2} x2={BOX - inset} y2={BOX / 2} stroke={paint} strokeWidth={2.5} strokeLinecap="round" />;

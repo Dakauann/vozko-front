@@ -7,14 +7,10 @@ import { DEFAULT_FONT_ID, type FontId } from "./fonts";
 export const IMAGE_SCHEMA = "studio.image";
 export const VIDEO_SCHEMA = "studio.video";
 export const DOCUMENT_VERSION = 1;
+export const IMAGE_DOCUMENT_VERSION = 2;
 
 export const STUDIO_LIMITS = {
-  maxDocumentBytes: 512 * 1024,
-  maxLayers: 200,
-  maxVisualTracks: 8,
-  maxAudioTracks: 6,
-  maxTracks: 14,
-  maxClips: 80,
+  maxDocumentBytes: 2 * 1024 * 1024,
   minCanvasSide: 100,
   maxCanvasSide: 4096,
   maxVideoMs: 90_000,
@@ -26,6 +22,7 @@ export const STUDIO_LIMITS = {
   maxProjectNameRunes: 120,
   maxMarkers: 50,
   maxMarkerLabelRunes: 64,
+  maxArtboardCoordinate: 100_000,
 } as const;
 
 export const FRAMES_PER_SECOND = 30;
@@ -67,11 +64,24 @@ export interface Shadow {
   y: number;
 }
 
+export const GRADIENT_KINDS = ["linear", "radial"] as const;
+
+export type GradientKind = (typeof GRADIENT_KINDS)[number];
+
 export interface Gradient {
   from: string;
   to: string;
   angle: number;
+  kind?: GradientKind | "";
+  via?: string;
+  cx?: number;
+  cy?: number;
+  radius?: number;
 }
+
+export const RADIAL_RADIUS_RANGE = [0.05, 2] as const;
+
+export const CENTERED_RADIAL = { cx: 0.5, cy: 0.5, radius: 1 } as const;
 
 export interface Highlight {
   color: string;
@@ -107,11 +117,28 @@ export interface StudioGroup {
   id: string;
   parentId?: string;
   name?: string;
+  baseId?: string;
 }
 
 export type LayerType = "image" | "text" | "shape" | "icon";
 
-export const SHAPE_KINDS = ["rect", "ellipse", "line", "arrow", "triangle", "star"] as const;
+export const SHAPE_KINDS = ["rect", "ellipse", "line", "arrow", "triangle", "star", "path"] as const;
+
+export const STAR_DEFAULTS = { points: 5, inner: 0.45 } as const;
+
+export const FILL_RULES = ["nonzero", "evenodd"] as const;
+
+export const LINE_CAPS = ["butt", "round", "square"] as const;
+
+export type LineCap = (typeof LINE_CAPS)[number];
+
+export const LINE_JOINS = ["miter", "round", "bevel"] as const;
+
+export type LineJoin = (typeof LINE_JOINS)[number];
+
+export const MAX_DASH_VALUES = 8;
+
+export type FillRule = (typeof FILL_RULES)[number];
 
 export type ShapeKind = (typeof SHAPE_KINDS)[number];
 
@@ -154,6 +181,15 @@ export interface Layer {
   highlight?: Highlight;
   curve?: number;
   frame?: FrameKind;
+  path?: string;
+  fillRule?: FillRule;
+  lineCap?: LineCap;
+  lineJoin?: LineJoin;
+  miterLimit?: number;
+  dashArray?: number[];
+  dashOffset?: number;
+  points?: number;
+  inner?: number;
 }
 
 export interface ImageCanvas {
@@ -163,12 +199,28 @@ export interface ImageCanvas {
   gradient?: Gradient;
 }
 
-export interface ImageDocument {
-  schema: typeof IMAGE_SCHEMA;
-  version: typeof DOCUMENT_VERSION;
+export interface ImageSurface {
   canvas: ImageCanvas;
   layers: Layer[];
   groups?: StudioGroup[];
+}
+
+export interface Artboard extends ImageSurface {
+  id: string;
+  name?: string;
+  x: number;
+  y: number;
+}
+
+export interface ImageDocument {
+  schema: typeof IMAGE_SCHEMA;
+  version: typeof IMAGE_DOCUMENT_VERSION;
+  artboards: Artboard[];
+}
+
+export interface LegacyImageDocument extends ImageSurface {
+  schema: typeof IMAGE_SCHEMA;
+  version: typeof DOCUMENT_VERSION;
 }
 
 export type TrackKind = "visual" | "audio";
@@ -289,8 +341,16 @@ export function fullFrame(): Transform {
   return { x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 1 };
 }
 
+export function emptyArtboard(size: CanvasSize, background: string = DEFAULT_IMAGE_BACKGROUND): Artboard {
+  return { id: newStudioId("artboard"), x: 0, y: 0, canvas: { width: size.width, height: size.height, background }, layers: [] };
+}
+
+export function imageDocument(artboards: Artboard[]): ImageDocument {
+  return { schema: IMAGE_SCHEMA, version: IMAGE_DOCUMENT_VERSION, artboards };
+}
+
 export function emptyImageDocument(size: CanvasSize, background: string = DEFAULT_IMAGE_BACKGROUND): ImageDocument {
-  return { schema: IMAGE_SCHEMA, version: DOCUMENT_VERSION, canvas: { width: size.width, height: size.height, background }, layers: [] };
+  return imageDocument([emptyArtboard(size, background)]);
 }
 
 export function emptyVideoDocument(aspect: VideoAspect, background: string = DEFAULT_VIDEO_BACKGROUND): VideoDocument {
@@ -339,7 +399,7 @@ export function newTextLayer(text: string, preset: TextPreset = "body", transfor
   };
 }
 
-export function newShapeLayer(shape: ShapeKind, transform: Transform = centered(0.3, 0.3)): Layer {
+export function newShapeLayer(shape: Exclude<ShapeKind, "path">, transform: Transform = centered(0.3, 0.3)): Layer {
   const stroked = shape === "line" || shape === "arrow";
   return {
     id: newStudioId("l"),
@@ -348,6 +408,10 @@ export function newShapeLayer(shape: ShapeKind, transform: Transform = centered(
     transform: stroked ? { ...transform, h: Math.min(transform.h, 0.05) } : transform,
     ...(stroked ? { stroke: "#111111", strokeWidth: 8, arrowEnd: shape === "arrow" } : { fill: "#3b82f6" }),
   };
+}
+
+export function newPathLayer(path: string, transform: Transform = centered(0.3, 0.3), open = false): Layer {
+  return { id: newStudioId("l"), type: "shape", shape: "path", path, transform, ...(open ? { stroke: "#111111", strokeWidth: 8 } : { fill: "#3b82f6" }) };
 }
 
 export function newImageLayer(assetId: string, transform: Transform = centered(0.6, 0.6)): Layer {

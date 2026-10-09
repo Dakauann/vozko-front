@@ -14,7 +14,7 @@ import { ArrowSquareOut, ChartBar, ClockCounterClockwise, FileCsv, FileText, Mag
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "@/i18n/routing";
 import { reportHref } from "@/lib/advertising/connect";
 import { filterReports, newReportHref, reportsListHref, reportsSection, reportStamp, type ReportsSection } from "@/lib/advertising/reports";
@@ -69,7 +69,6 @@ function ReportsList({ account, permissions, onShowExports }: { account: AdAccou
   const t = useTranslations("adsReports");
   const fmt = useAdsFormat();
   const router = useRouter();
-  const { toast } = useToast();
   const loadError = useLoadErrorState();
   const list = useKeyedLoad("ad-reports", listAdSavedReportsAction);
   const [search, setSearch] = useState("");
@@ -90,10 +89,10 @@ function ReportsList({ account, permissions, onShowExports }: { account: AdAccou
     const outcome = await deleteAdSavedReportAction(target.id);
     setDeleting(null);
     if (isAdsError(outcome)) {
-      toast({ title: t("delete.failed"), description: outcome.error, variant: "destructive" });
+      toast.error(t("delete.failed"), { description: outcome.error });
       return;
     }
-    toast({ title: t("delete.done") });
+    toast(t("delete.done"));
     list.update((current) => (isAdsError(current) ? current : { data: current.data.filter((report) => report.id !== target.id) }));
   };
 

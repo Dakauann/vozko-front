@@ -81,7 +81,7 @@ import { cn } from "@/lib/utils";
 import { getUserByIdAction } from "@/app/actions/users";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useParams } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 
@@ -182,7 +182,6 @@ function StatusBadge({
 export default function AdminWorkspaceDetailPage() {
   const t = useTranslations("adminWorkspaceDetail");
   const tp = useTranslations("adminPricing");
-  const { toast } = useToast();
   const params = useParams();
   const workspaceId = params.workspaceId as string;
 
@@ -622,11 +621,11 @@ export default function AdminWorkspaceDetailPage() {
                     );
                     setSavingConfig(false);
                     if (res.error) {
-                      toast({ title: res.error, variant: "destructive" });
+                      toast.error(res.error);
                     } else if (res.config) {
                       setWsConfig(res.config);
                       setSpamDays(res.config.campaignSpamProtectionDays);
-                      toast({ title: t("config.spamProtection.success") });
+                      toast(t("config.spamProtection.success"));
                     }
                   }}
                 />
@@ -685,13 +684,13 @@ export default function AdminWorkspaceDetailPage() {
                     );
                     setSavingConfig(false);
                     if (res.error) {
-                      toast({ title: res.error, variant: "destructive" });
+                      toast.error(res.error);
                     } else if (res.config) {
                       setWsConfig(res.config);
                       setIncludedInstances(
                         res.config.includedUnofficialWhatsAppInstances ?? 0,
                       );
-                      toast({ title: t("config.unofficialWhatsapp.success") });
+                      toast(t("config.unofficialWhatsapp.success"));
                     }
                   }}
                 />
@@ -753,11 +752,11 @@ export default function AdminWorkspaceDetailPage() {
                         );
                       setCancellingSubscription(false);
                       if (result.error) {
-                        toast({ title: result.error, variant: "destructive" });
+                        toast.error(result.error);
                         return;
                       }
                       setWorkspaceSubscription(result.subscription);
-                      toast({ title: t("config.subscription.cancelSuccess") });
+                      toast(t("config.subscription.cancelSuccess"));
                     }}
                   />
                 ) : null}
@@ -913,15 +912,10 @@ export default function AdminWorkspaceDetailPage() {
                               );
                             setGeneratingInvoice(false);
                             if (result.error) {
-                              toast({
-                                title: result.error,
-                                variant: "destructive",
-                              });
+                              toast.error(result.error);
                               return;
                             }
-                            toast({
-                              title: t("config.subscription.generateSuccess"),
-                            });
+                            toast(t("config.subscription.generateSuccess"));
                             loadData();
                           }}
                         />

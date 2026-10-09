@@ -46,7 +46,7 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const RETIRED_KINDS = new Set<AddonEntitlementKind>(["call_channels"]);
@@ -91,7 +91,6 @@ const EMPTY_STATE =
 
 export default function UserAddonsCatalog() {
   const t = useTranslations("addonsPage");
-  const { toast } = useToast();
   const { currentWorkspace, can, permissionsLoading } = useWorkspace();
 
   const kindLabel = React.useCallback(
@@ -193,24 +192,19 @@ export default function UserAddonsCatalog() {
     setPurchasing(false);
 
     if (result.insufficientBalance) {
-      toast({
-        title: t("toast.insufficientTitle"),
+      toast.error(t("toast.insufficientTitle"), {
         description: t("toast.insufficientDescription"),
-        variant: "destructive",
       });
       return;
     }
     if (result.error || !result.subscription) {
-      toast({
-        title: t("toast.purchaseFailedTitle"),
+      toast.error(t("toast.purchaseFailedTitle"), {
         description: result.error ?? "",
-        variant: "destructive",
       });
       return;
     }
     setSelected(null);
-    toast({
-      title: t("toast.activatedTitle"),
+    toast(t("toast.activatedTitle"), {
       description: t("toast.activatedDescription", { name: selected.name }),
     });
     void load();
@@ -222,15 +216,12 @@ export default function UserAddonsCatalog() {
     const result = await cancelAddonSubscriptionAction(workspaceId, sub.id);
     setBusyId(null);
     if (result.error) {
-      toast({
-        title: t("toast.cancelFailedTitle"),
+      toast.error(t("toast.cancelFailedTitle"), {
         description: result.error,
-        variant: "destructive",
       });
       return;
     }
-    toast({
-      title: t("toast.cancelledTitle"),
+    toast(t("toast.cancelledTitle"), {
       description: t("toast.cancelledDescription"),
     });
     void load();

@@ -13,7 +13,7 @@ export interface SectionQueryState {
   refetch: () => unknown;
 }
 
-export function SectionState({ query, children }: { query: SectionQueryState; children: ReactNode }) {
+export function SectionState({ query, children, message }: { query: SectionQueryState; children: ReactNode; message?: string }) {
   if (!query.isError) return <>{children}</>;
-  return <SectionError busy={isBusySectionError(query.error)} onRetry={() => void query.refetch()} retrying={query.isFetching} />;
+  return <SectionError busy={isBusySectionError(query.error)} onRetry={() => void query.refetch()} retrying={query.isFetching} message={message} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { assigneeKind } from "@/lib/conversations/assignee";
@@ -42,17 +42,35 @@ import {
 } from "@/components/elevated-design/elevated-select";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
 import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
+import { BULK_CONTROL } from "@/components/selection/GuardedAction";
+import { SelectionCount, type SelectionOffer } from "@/components/selection/SelectionCount";
+import { useBulkSelection, type WideCount } from "@/components/selection/use-bulk-selection";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { FunnelStages } from "@/app/actions/stages";
 
-import { getCrmEntriesAction, crmBulkAction } from "@/app/actions/crm-board";
+import { getCrmEntriesAction, crmBulkAction, countCrmBulkAction } from "@/app/actions/crm-board";
 import { getBatchEntryStagesAction } from "@/app/actions/stages";
 import { listAssignableMembersAction, type AssignableMember } from "@/app/actions/workspace";
+import type { CodedError } from "@/lib/api/coded-error";
 import { emptyValue } from "@/lib/format/empty-value";
-import { encodeFilterParam, type CrmBoardEntry, type CrmBulkActionType, type CrmFilter } from "@/lib/crm/board";
+import {
+  encodeFilterParam,
+  isEmptyCrmFilter,
+  type CrmBoardEntry,
+  type CrmBulkActionType,
+  type CrmBulkResult,
+  type CrmBulkTarget,
+  type CrmFilter,
+} from "@/lib/crm/board";
+import { bulkRequest, filterSelection, type CrmBulkSelection } from "@/lib/crm/bulk-selection";
+import { offersAllMatching } from "@/lib/selection/bulk-state";
+import { SELECTION_CHANGED, selectionErrorMessage } from "@/lib/selection/errors";
 import type { EntryStage, EntryType, Label, Stage } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 20;
+
+const BULK_NAMESPACE = "crmBoard.bulk";
 
 interface ChannelMeta {
   label: React.ReactNode;
@@ -131,12 +149,11 @@ function BulkMenu({
         <button
           type="button"
           disabled={disabled}
-          className={cn(
-            "inline-flex h-9 items-center gap-1.5 rounded-[--radius] px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+          className={
             tone === "ghost"
-              ? "text-muted-foreground hover:bg-black/5"
-              : "border border-border bg-card text-foreground hover:border-foreground/20 hover:bg-muted",
-          )}
+              ? "inline-flex h-8 items-center gap-1.5 rounded-[--radius] px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground"
+              : BULK_CONTROL
+          }
         >
           <span className="text-muted-foreground">{icon}</span>
           <span>{triggerLabel}</span>
@@ -211,35 +228,34 @@ function BulkActionsBar({
   onRequestBulkMoveToFunnel,
   onClear,
 }: BulkActionsBarProps) {
+  const t = useTranslations(BULK_NAMESPACE);
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
       {canAssignStage ? (
         <BulkMenu
-          triggerLabel="Mover etapa"
+          triggerLabel={t("moveStage")}
           icon={<Stack weight="bold" className="h-3.5 w-3.5" />}
-          heading="Mover para etapa"
-          searchPlaceholder="Buscar etapa..."
-          emptyMessage="Nenhuma etapa"
+          heading={t("moveStageHeading")}
+          searchPlaceholder={t("searchStage")}
+          emptyMessage={t("noStages")}
           options={stageOptions}
           onSelect={(v) => onBulk("move_stage", v)}
           disabled={bulkBusy}
         />
       ) : null}
 
-      {
-}
       {canAssignStage && onRequestBulkMoveToFunnel ? (
         <button
           type="button"
           disabled={bulkBusy}
           onClick={onRequestBulkMoveToFunnel}
-          className="inline-flex h-9 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:border-foreground/20 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          className={BULK_CONTROL}
         >
           <ArrowsLeftRight
             weight="bold"
             className="h-3.5 w-3.5 text-muted-foreground"
           />
-          <span>Mover para outro funil…</span>
+          <span>{t("moveFunnel")}</span>
         </button>
       ) : null}
 
@@ -252,11 +268,11 @@ function BulkActionsBar({
 
       {canAssignLabel ? (
         <BulkMenu
-          triggerLabel="Etiquetar"
+          triggerLabel={t("addLabel")}
           icon={<Tag weight="bold" className="h-3.5 w-3.5" />}
-          heading="Adicionar etiqueta"
-          searchPlaceholder="Buscar etiqueta..."
-          emptyMessage="Nenhuma etiqueta"
+          heading={t("addLabelHeading")}
+          searchPlaceholder={t("searchLabel")}
+          emptyMessage={t("noLabels")}
           options={labelOptions}
           onSelect={(v) => onBulk("add_label", v)}
           disabled={bulkBusy}
@@ -265,11 +281,11 @@ function BulkActionsBar({
 
       {canAssignLabel ? (
         <BulkMenu
-          triggerLabel="Remover etiqueta"
+          triggerLabel={t("removeLabel")}
           icon={<X weight="bold" className="h-3.5 w-3.5" />}
-          heading="Remover etiqueta"
-          searchPlaceholder="Buscar etiqueta..."
-          emptyMessage="Nenhuma etiqueta"
+          heading={t("removeLabel")}
+          searchPlaceholder={t("searchLabel")}
+          emptyMessage={t("noLabels")}
           options={labelOptions}
           onSelect={(v) => onBulk("remove_label", v)}
           disabled={bulkBusy}
@@ -283,60 +299,30 @@ function BulkActionsBar({
         className="ml-1 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         <X weight="bold" className="h-3.5 w-3.5" />
-        Limpar
+        {t("clear")}
       </button>
     </div>
   );
 }
 
-function SelectionCount({
-  count,
-  total,
-  pageSize,
-  allMatching,
-  onSelectAllMatching,
-  onClear,
-}: {
-  count: number;
-  total: number;
-  pageSize: number;
-  allMatching: boolean;
-  onSelectAllMatching: () => void;
-  onClear: () => void;
-}) {
-  if (allMatching) {
-    return (
-      <span className="inline-flex flex-wrap items-center gap-2">
-        <span className="font-medium text-foreground">
-          Todas as {total} conversas do filtro selecionadas
-        </span>
-        <button
-          type="button"
-          onClick={onClear}
-          className="font-medium text-primary-ink underline-offset-2 hover:underline"
-        >
-          Limpar seleção
-        </button>
-      </span>
-    );
+interface PendingBulk {
+  action: CrmBulkActionType;
+  value: string;
+  previousCount?: number;
+}
+
+function reportBulkResult(t: ReturnType<typeof useTranslations>, result: CrmBulkResult) {
+  const succeeded = result.succeeded ?? 0;
+  const failed = result.failed?.length ?? 0;
+  if (result.truncated) {
+    toast.warning(t("truncated", { succeeded, matched: result.matched ?? succeeded }));
+    return;
   }
-
-  const canOfferAll = count > 0 && count >= Math.min(pageSize, total) && total > count;
-
-  return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      <span>{count} selecionada(s)</span>
-      {canOfferAll ? (
-        <button
-          type="button"
-          onClick={onSelectAllMatching}
-          className="font-medium text-primary-ink underline-offset-2 hover:underline"
-        >
-          Selecionar todas as {total} do filtro
-        </button>
-      ) : null}
-    </span>
-  );
+  if (failed > 0) {
+    toast.warning(t("partial", { succeeded, eligible: result.eligible ?? succeeded + failed, failed }));
+    return;
+  }
+  toast.success(t("updated", { count: succeeded }));
 }
 
 export interface CrmListViewProps {
@@ -363,6 +349,9 @@ export default function CrmListView({
   canAssignLabel = false,
 }: CrmListViewProps) {
   const locale = useLocale();
+  const t = useTranslations(BULK_NAMESPACE);
+  const tList = useTranslations("crmBoard.list");
+  const tSelection = useTranslations("selection");
 
   const [entries, setEntries] = useState<CrmBoardEntry[]>([]);
   const [total, setTotal] = useState(0);
@@ -370,19 +359,16 @@ export default function CrmListView({
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [stageByEntry, setStageByEntry] = useState<Record<string, EntryStage | null>>({});
   const [bulkBusy, setBulkBusy] = useState(false);
   const [members, setMembers] = useState<AssignableMember[]>([]);
-  const [allMatching, setAllMatching] = useState(false);
+  const [pendingBulk, setPendingBulk] = useState<PendingBulk | null>(null);
+  const [entryTypes, setEntryTypes] = useState<ReadonlyMap<string, string>>(new Map());
 
   const reqRef = useRef(0);
 
   useEffect(() => {
-    if (!workspaceId) {
-      setMembers([]);
-      return;
-    }
+    if (!workspaceId) return;
     let cancelled = false;
     void listAssignableMembersAction(workspaceId, { pageSize: 200 }).then((res) => {
       if (!cancelled) setMembers(res.members ?? []);
@@ -394,20 +380,32 @@ export default function CrmListView({
 
   const membersById = useMemo(() => {
     const map = new Map<string, AssignableMember>();
+    if (!workspaceId) return map;
     for (const m of members) map.set(m.userId, m);
     return map;
-  }, [members]);
+  }, [members, workspaceId]);
 
-  const [scope, setScope] = useState(
-    () => `${encodeFilterParam(filter)}|${sortOrder}`,
-  );
-  const currentScope = `${encodeFilterParam(filter)}|${sortOrder}`;
+  const filterKey = encodeFilterParam(filter);
+  const currentScope = `${filterKey}|${sortOrder}`;
+  const selection = useBulkSelection(currentScope);
+  const { widen, clear: clearSelection, setPicked } = selection;
+
+  const [scope, setScope] = useState(currentScope);
   if (scope !== currentScope) {
     setScope(currentScope);
     setPage(1);
-    if (selectedKeys.size > 0) setSelectedKeys(new Set());
-    if (allMatching) setAllMatching(false);
+    setEntryTypes(new Map());
+    if (pendingBulk) setPendingBulk(null);
   }
+
+  const wide = selection.wide;
+  const activeAllMatching = useMemo<Extract<CrmBulkSelection, { kind: "filter" }> | null>(
+    () =>
+      wide && wide.fingerprint !== undefined
+        ? filterSelection(filter, { matched: wide.matched, fingerprint: wide.fingerprint })
+        : null,
+    [wide, filter],
+  );
 
   const enrichStages = useCallback(
     async (list: CrmBoardEntry[], reqId: number) => {
@@ -451,6 +449,11 @@ export default function CrmListView({
     }
     const list = result?.entries ?? [];
     setEntries(list);
+    setEntryTypes((known) => {
+      const next = new Map(known);
+      for (const entry of list) next.set(entry.EntryID, entry.EntryType);
+      return next;
+    });
     setTotal(result?.total ?? 0);
     setError(null);
     setLoading(false);
@@ -463,20 +466,15 @@ export default function CrmListView({
     return () => clearTimeout(t);
   }, [load]);
 
-  const selectedEntries = useMemo(
-    () => entries.filter((e) => selectedKeys.has(e.EntryID)),
-    [entries, selectedKeys],
-  );
-
-  const changeSelection = useCallback((keys: Set<string>) => {
-    setSelectedKeys(keys);
-    setAllMatching(false);
-  }, []);
-
-  const clearSelection = useCallback(() => {
-    setSelectedKeys(new Set());
-    setAllMatching(false);
-  }, []);
+  const pickedTargets = useMemo((): CrmBulkTarget[] | null => {
+    const targets: CrmBulkTarget[] = [];
+    for (const entryId of selection.picked) {
+      const entryType = entryTypes.get(entryId);
+      if (!entryType) return null;
+      targets.push({ entryId, entryType });
+    }
+    return targets;
+  }, [selection.picked, entryTypes]);
 
   const [movingSelection, setMovingSelection] = useState(false);
 
@@ -485,6 +483,43 @@ export default function CrmListView({
     canMoveToFunnel &&
     funnelStages.filter((f) => f.stages.length > 0).length > 1;
 
+  const unfiltered = isEmptyCrmFilter(filter);
+  const wideMode: SelectionOffer["mode"] = unfiltered ? "everyone" : "all_matching";
+
+  const countMatching = useCallback(
+    async (counted: CrmFilter): Promise<WideCount | null> => {
+      const { count, error: countError } = await countCrmBulkAction(counted);
+      if (!count) {
+        toast.error(selectionErrorMessage(tSelection, countError ?? {}));
+        return null;
+      }
+      return count;
+    },
+    [tSelection],
+  );
+
+  const selectAllMatching = useCallback(() => {
+    void widen(wideMode, () => countMatching(filter));
+  }, [widen, wideMode, countMatching, filter]);
+
+  const applyBulk = useCallback(
+    async (
+      action: CrmBulkActionType,
+      value: string,
+      chosen: CrmBulkSelection,
+    ): Promise<CodedError | null> => {
+      setBulkBusy(true);
+      const { result, error: bulkError } = await crmBulkAction(bulkRequest(action, value, chosen));
+      setBulkBusy(false);
+      if (!result) return bulkError ?? {};
+      reportBulkResult(t, result);
+      clearSelection();
+      await load();
+      return null;
+    },
+    [t, clearSelection, load],
+  );
+
   const runBulk = useCallback(
     async (
       action: CrmBulkActionType,
@@ -492,52 +527,43 @@ export default function CrmListView({
     ): Promise<string | null> => {
       if (!value) return null;
 
-      const targets = allMatching
-        ? []
-        : selectedEntries.map((e) => ({
-            entryId: e.EntryID,
-            entryType: e.EntryType,
-          }));
-      if (!allMatching && targets.length === 0) return null;
-
-      if (
-        allMatching &&
-        !window.confirm(
-          `Aplicar esta ação a todas as ${total} conversas do filtro atual?`,
-        )
-      ) {
+      if (activeAllMatching) {
+        setPendingBulk({ action, value });
         return null;
       }
 
-      setBulkBusy(true);
-      const { result, error: err } = await crmBulkAction({
-        action,
-        targets,
-        value,
-        ...(allMatching ? { filter } : {}),
-      });
-      setBulkBusy(false);
-      if (err) {
-        toast.error(err);
-        return err;
+      if (pickedTargets === null) {
+        const message = t("unknownPick");
+        toast.error(message);
+        return message;
       }
-      const ok = result?.succeeded ?? 0;
-      const failed = result?.failed?.length ?? 0;
-      if (result?.truncated) {
-        toast.warning(
-          `${ok} de ${result.matched ?? ok} atualizada(s), limite por operação. Repita para continuar.`,
-        );
-      } else if (failed > 0) {
-        toast.warning(`${ok} atualizada(s), ${failed} falhou(aram)`);
-      } else {
-        toast.success(`${ok} conversa(s) atualizada(s)`);
-      }
-      clearSelection();
-      await load();
-      return null;
+      if (pickedTargets.length === 0) return null;
+
+      const refusal = await applyBulk(action, value, { kind: "ids", targets: pickedTargets });
+      if (!refusal) return null;
+      const message = selectionErrorMessage(tSelection, refusal);
+      toast.error(message);
+      return message;
     },
-    [allMatching, selectedEntries, filter, total, clearSelection, load],
+    [activeAllMatching, pickedTargets, applyBulk, tSelection, t],
   );
+
+  const confirmPendingBulk = useCallback(async (): Promise<boolean> => {
+    if (!pendingBulk || !activeAllMatching) return true;
+
+    const refusal = await applyBulk(pendingBulk.action, pendingBulk.value, activeAllMatching);
+    if (!refusal) return true;
+    if (refusal.code !== SELECTION_CHANGED) {
+      toast.error(selectionErrorMessage(tSelection, refusal));
+      return true;
+    }
+
+    const previousCount = activeAllMatching.count.matched;
+    const recounted = await widen(activeAllMatching.mode, () => countMatching(activeAllMatching.filter));
+    if (!recounted) return true;
+    setPendingBulk({ ...pendingBulk, previousCount });
+    return false;
+  }, [pendingBulk, activeAllMatching, applyBulk, tSelection, widen, countMatching]);
 
   const stageOptions = useMemo(
     () =>
@@ -558,7 +584,7 @@ export default function CrmListView({
     () => [
       {
         key: "contato",
-        header: "Contato",
+        header: tList("columns.contact"),
         render: (row) => {
           const name = row.LeadName?.trim();
           const number = row.LeadNumber?.trim();
@@ -578,7 +604,7 @@ export default function CrmListView({
       },
       {
         key: "canal",
-        header: "Canal",
+        header: tList("columns.channel"),
         render: (row) => {
           const meta = channelMeta(row.EntryType);
           return (
@@ -598,7 +624,7 @@ export default function CrmListView({
       },
       {
         key: "mensagem",
-        header: "Última mensagem",
+        header: tList("columns.lastMessage"),
         className: "max-w-[280px]",
         render: (row) => {
           const preview = row.LastMessageText?.trim();
@@ -619,7 +645,7 @@ export default function CrmListView({
       },
       {
         key: "etapa",
-        header: "Etapa",
+        header: tList("columns.stage"),
         render: (row) => {
           const es = stageByEntry[row.EntryID];
           if (!es) return <EmptyValue className="text-sm" />;
@@ -636,21 +662,21 @@ export default function CrmListView({
       },
       {
         key: "responsavel",
-        header: "Responsável",
+        header: tList("columns.owner"),
         render: (row) => {
           const uid = row.AssignedUserID?.trim();
           if (!uid) return <OwnerCell name={null} />;
           const holder = assigneeKind(uid);
-          if (holder === "ai") return <OwnerCell name="IA" />;
-          if (holder === "workflow") return <OwnerCell name="Fluxo" />;
+          if (holder === "ai") return <OwnerCell name={tList("owner.ai")} />;
+          if (holder === "workflow") return <OwnerCell name={tList("owner.workflow")} />;
           const m = membersById.get(uid);
-          const name = m ? m.username?.trim() || m.email?.trim() || uid : "Atribuído";
+          const name = m ? m.username?.trim() || m.email?.trim() || uid : tList("owner.assigned");
           return <OwnerCell name={name} />;
         },
       },
       {
         key: "atualizado",
-        header: "Atualizado",
+        header: tList("columns.updated"),
         render: (row) => (
           <span className="text-sm text-muted-foreground whitespace-nowrap">
             {formatDate(row.LastMessageAt, locale)}
@@ -658,10 +684,11 @@ export default function CrmListView({
         ),
       },
     ],
-    [stageByEntry, locale, membersById],
+    [stageByEntry, locale, membersById, tList],
   );
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageKeys = useMemo(() => entries.map((entry) => entry.EntryID), [entries]);
 
   const renderBulkActions = useCallback(
     () => (
@@ -672,7 +699,7 @@ export default function CrmListView({
         workspaceId={workspaceId}
         stageOptions={stageOptions}
         labelOptions={labelOptions}
-        bulkBusy={bulkBusy}
+        bulkBusy={bulkBusy || selection.counting !== null}
         onBulk={runBulk}
         onRequestBulkMoveToFunnel={
           canMoveAcrossFunnels ? () => setMovingSelection(true) : undefined
@@ -688,25 +715,34 @@ export default function CrmListView({
       stageOptions,
       labelOptions,
       bulkBusy,
+      selection.counting,
+      clearSelection,
       runBulk,
       canMoveAcrossFunnels,
-      clearSelection,
     ],
   );
 
+  const offer = useMemo<SelectionOffer | null>(
+    () => (offersAllMatching(selection.picked, pageKeys, total) ? { count: total, mode: wideMode } : null),
+    [selection.picked, pageKeys, total, wideMode],
+  );
+
   const renderSelectionCount = useCallback(
-    (count: number) => (
+    () => (
       <SelectionCount
-        count={count}
-        total={total}
-        pageSize={PAGE_SIZE}
-        allMatching={allMatching}
-        onSelectAllMatching={() => setAllMatching(true)}
+        namespace={BULK_NAMESPACE}
+        picked={selection.picked.size}
+        wide={wide}
+        counting={selection.counting !== null}
+        offer={offer}
+        onSelectAll={selectAllMatching}
         onClear={clearSelection}
       />
     ),
-    [total, allMatching, clearSelection],
+    [selection.picked, selection.counting, clearSelection, wide, offer, selectAllMatching],
   );
+
+  const pendingEveryone = activeAllMatching?.mode === "everyone";
 
   return (
     <div className="h-full w-full overflow-auto p-4">
@@ -717,7 +753,7 @@ export default function CrmListView({
         loading={loading}
         stats={[
           {
-            label: "Conversas",
+            label: tList("stats.conversations"),
             value: loading ? "..." : String(total),
             icon: <UsersThree className="h-4 w-4 text-primary-ink" weight="fill" />,
           },
@@ -728,17 +764,17 @@ export default function CrmListView({
             onValueChange={(v) => setSortOrder(v as "desc" | "asc")}
             className="w-auto min-w-[170px]"
           >
-            <ElevatedSelectItem value="desc">Mais recentes</ElevatedSelectItem>
-            <ElevatedSelectItem value="asc">Mais antigas</ElevatedSelectItem>
+            <ElevatedSelectItem value="desc">{tList("sort.newest")}</ElevatedSelectItem>
+            <ElevatedSelectItem value="asc">{tList("sort.oldest")}</ElevatedSelectItem>
           </ElevatedSelect>
         }
         selection={{
-          selectedKeys,
-          onSelectionChange: changeSelection,
+          selectedKeys: selection.picked,
+          onSelectionChange: setPicked,
           actions: renderBulkActions,
           label: renderSelectionCount,
-          selectAllLabel: "Selecionar todas as conversas desta página",
-          selectRowLabel: "Selecionar conversa",
+          selectAllLabel: tList("selectPage"),
+          selectRowLabel: tList("selectRow"),
         }}
         pagination={
           totalPages > 1
@@ -751,32 +787,30 @@ export default function CrmListView({
               }
             : undefined
         }
-        paginationText={{ showing: "Mostrando", of: "de", items: "conversas" }}
+        paginationText={{ showing: tList("pagination.showing"), of: tList("pagination.of"), items: tList("pagination.items") }}
         emptyState={
           error
             ? {
                 icon: <ArrowsClockwise className="h-7 w-7 text-destructive-ink" weight="bold" />,
-                title: "Não foi possível carregar",
+                title: tList("empty.failedTitle"),
                 description: error,
                 action: (
                   <ElevatedButton
                     variant="outline-subtle"
                     size="sm"
-                    title="Tentar novamente"
+                    title={tList("empty.retry")}
                     onClick={() => void load()}
                   />
                 ),
               }
             : {
                 icon: <ChatCircleDots className="h-7 w-7 text-muted-foreground" weight="fill" />,
-                title: "Nenhuma conversa",
-                description: "Ajuste os filtros para ver outras conversas.",
+                title: tList("empty.title"),
+                description: tList("empty.description"),
               }
         }
       />
 
-      {
-}
       {canMoveAcrossFunnels && movingSelection ? (
         <MoveToFunnelDialog
           open
@@ -785,8 +819,38 @@ export default function CrmListView({
           }}
           funnels={funnelStages}
           currentStageId={null}
-          bulkCount={allMatching ? total : selectedEntries.length}
+          bulkCount={selection.size}
           onConfirm={(stageId) => runBulk("move_funnel", stageId)}
+        />
+      ) : null}
+
+      {pendingBulk && activeAllMatching ? (
+        <ConfirmDialog
+          open
+          onOpenChange={(next) => {
+            if (!next) setPendingBulk(null);
+          }}
+          tone="default"
+          title={t("confirmTitle", { count: activeAllMatching.count.matched })}
+          description={
+            <>
+              {pendingBulk.previousCount !== undefined ? (
+                <span className="mb-2 block font-medium text-foreground">
+                  {t("confirmChanged", {
+                    previous: pendingBulk.previousCount,
+                    count: activeAllMatching.count.matched,
+                  })}
+                </span>
+              ) : null}
+              <span className="block">
+                {t(pendingEveryone ? "confirmEveryone" : "confirmAllMatching")}
+              </span>
+            </>
+          }
+          confirmLabel={t(pendingEveryone ? "confirmEveryoneAction" : "confirm")}
+          cancelLabel={t("cancel")}
+          confirmDisabled={activeAllMatching.count.matched === 0}
+          onConfirm={confirmPendingBulk}
         />
       ) : null}
     </div>

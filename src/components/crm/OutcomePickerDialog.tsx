@@ -15,7 +15,8 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import Button from "@/components/elevated-design/button";
-import { cn } from "@/lib/utils";
+
+import { OutcomeOptions } from "./OutcomeOptions";
 
 const LAST_OUTCOME_KEY = "vozko:last-outcome-code";
 
@@ -98,34 +99,7 @@ export function OutcomePickerDialog({
               {t("noCatalogue")}
             </p>
           ) : (
-            <ul className="space-y-1.5" role="radiogroup" aria-label={t("title")}>
-              {request.outcomes.map((outcome) => (
-                <li key={outcome.code}>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={selected === outcome.code}
-                    onClick={() => setSelected(outcome.code)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") confirm();
-                    }}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-3 rounded-[--radius] border px-3 py-2 text-left text-sm",
-                      selected === outcome.code
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <span>{outcome.label}</span>
-                    {outcome.isDurable ? (
-                      <span className="text-2xs font-semibold uppercase tracking-wide text-healthy-ink">
-                        {t("durable")}
-                      </span>
-                    ) : null}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <OutcomeOptions label={t("title")} outcomes={request.outcomes} selected={selected} onSelect={setSelected} onConfirm={confirm} />
           )}
         </ElevatedDialogBody>
 

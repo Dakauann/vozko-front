@@ -136,6 +136,30 @@ const defaultTranslations = {
 
 
 describe("CrmConversationView rendering", () => {
+  it("draws a shared location as a map card instead of its raw text", () => {
+    const conv = makeConversation({
+      lead_id: "lead-1",
+      messages: [
+        makeMsg({
+          id: "msg-1",
+          text: "📍 Casa, R. das Acácias (-23.511300, -46.876100)",
+          location: { latitude: -23.5113, longitude: -46.8761, name: "Casa", address: "R. das Acácias", candidate: true },
+        }),
+      ],
+    });
+    render(
+      <CrmConversationView
+        conversation={conv}
+        isTyping={false}
+        translations={defaultTranslations as never}
+      />,
+    );
+    const t = ptMessages.crm.locationMessage;
+    expect(screen.getByRole("img", { name: t.mapLabel })).toBeInTheDocument();
+    expect(screen.getByText(t.caption.replace("{place}", "Casa, R. das Acácias"))).toBeInTheDocument();
+    expect(screen.queryByText(/-23.511300/)).toBeNull();
+  });
+
   it("shows empty state when no conversation", () => {
     render(
       <CrmConversationView

@@ -6,13 +6,13 @@ import { createRoot } from "react-dom/client";
 import { Layer as KonvaLayer, Rect, Stage } from "react-konva";
 
 import type { ActionResult } from "@/app/actions/action-result";
-import { uploadMediaAction } from "@/app/actions/medias";
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT } from "@/lib/studio/fonts";
 import type { Gradient, Layer } from "@/lib/studio/document";
 
 import { ensureFont } from "./ensure-font";
 import { gradientFill, LayerNode } from "./layer-node";
 import { LayerStack } from "./layer-stack";
+import { uploadStudioMedia, type UploadedMedia } from "./upload-media";
 
 export const RASTER_TIMEOUT_MS = 30_000;
 
@@ -107,7 +107,7 @@ function stageBlob(stage: Konva.Stage, options: RasterOptions): Promise<Blob> {
   });
 }
 
-export async function rasterizeLayers(layers: readonly Layer[], widthPx: number, heightPx: number, options: RasterOptions = {}): Promise<Blob> {
+async function withRasterStage<T>(layers: readonly Layer[], widthPx: number, heightPx: number, options: RasterOptions, finish: (stage: Konva.Stage) => T | Promise<T>): Promise<T> {
   const width = Math.max(1, Math.round(widthPx));
   const height = Math.max(1, Math.round(heightPx));
   await Promise.all(
@@ -136,7 +136,7 @@ export async function rasterizeLayers(layers: readonly Layer[], widthPx: number,
         />,
       );
     });
-    return await stageBlob(stage, options);
+    return await finish(stage);
   } finally {
     if (timer !== null) clearTimeout(timer);
     root.unmount();
@@ -144,21 +144,21 @@ export async function rasterizeLayers(layers: readonly Layer[], widthPx: number,
   }
 }
 
+export function rasterizeLayers(layers: readonly Layer[], widthPx: number, heightPx: number, options: RasterOptions = {}): Promise<Blob> {
+  return withRasterStage(layers, widthPx, heightPx, options, (stage) => stageBlob(stage, options));
+}
+
+export function rasterizeLayerCanvas(layer: Layer, widthPx: number, heightPx: number, options: RasterOptions = {}): Promise<HTMLCanvasElement> {
+  return withRasterStage([layer], widthPx, heightPx, options, (stage) => {
+    stage.draw();
+    return stage.toCanvas({ pixelRatio: options.pixelRatio ?? 1 });
+  });
+}
+
 export function rasterizeLayer(layer: Layer, widthPx: number, heightPx: number, options: RasterOptions = {}): Promise<Blob> {
   return rasterizeLayers([layer], widthPx, heightPx, options);
 }
 
-export interface UploadedRaster {
-  mediaId: string;
-  mediaUrl: string;
-}
-
-export async function uploadRaster(blob: Blob, description: string, fileName: string = "studio.png"): Promise<ActionResult<UploadedRaster>> {
-  const form = new FormData();
-  form.append("media", new File([blob], fileName, { type: blob.type || "image/png" }));
-  form.append("mediaType", "image");
-  form.append("description", description);
-  const result = await uploadMediaAction(form);
-  if (result.error || !result.mediaId || !result.mediaUrl) return { error: result.error ?? "Upload returned no media" };
-  return { data: { mediaId: result.mediaId, mediaUrl: result.mediaUrl } };
+export function uploadRaster(blob: Blob, description: string, fileName: string = "studio.png"): Promise<ActionResult<UploadedMedia>> {
+  return uploadStudioMedia(blob, "image", description, fileName);
 }

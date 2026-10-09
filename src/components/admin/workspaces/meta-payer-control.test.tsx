@@ -8,15 +8,13 @@ import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
 import { MetaPayerControl } from "./meta-payer-control";
 
 const updateAction = vi.fn();
-const toast = vi.fn();
+const toast = vi.hoisted(() => Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }));
 
 vi.mock("@/app/actions/workspace-config", () => ({
     adminUpdateWorkspaceConfigAction: (...args: unknown[]) => updateAction(...args),
 }));
 
-vi.mock("@/hooks/use-toast", () => ({
-    useToast: () => ({ toast }),
-}));
+vi.mock("sonner", () => ({ toast }));
 
 const t = ptMessages.adminWorkspaceDetail.config.metaPayer;
 
@@ -40,6 +38,8 @@ describe("MetaPayerControl", () => {
     beforeEach(() => {
         updateAction.mockReset();
         toast.mockReset();
+        toast.success.mockReset();
+        toast.error.mockReset();
     });
 
     it("shows the current payer and the hint", () => {
@@ -59,7 +59,7 @@ describe("MetaPayerControl", () => {
 
         await waitFor(() => expect(onSaved).toHaveBeenCalledWith(saved));
         expect(updateAction).toHaveBeenCalledWith("ws-1", { metaPayer: "client" });
-        expect(toast).toHaveBeenCalledWith({ title: t.success });
+        expect(toast).toHaveBeenCalledWith(t.success);
     });
 
     it("shows the backend error on a rejected value instead of succeeding", async () => {
@@ -71,6 +71,8 @@ describe("MetaPayerControl", () => {
         expect(await screen.findByText("metaPayer must be vozko or client")).toBeInTheDocument();
         expect(onSaved).not.toHaveBeenCalled();
         expect(toast).not.toHaveBeenCalled();
+        expect(toast.success).not.toHaveBeenCalled();
+        expect(toast.error).not.toHaveBeenCalled();
     });
 
     it("fails closed when the saved config does not carry the requested payer", async () => {

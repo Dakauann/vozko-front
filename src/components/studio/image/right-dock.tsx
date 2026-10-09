@@ -19,7 +19,7 @@ export function RightDock() {
   const { ui } = useImageEditor();
   const open = useEditorUi((s) => s.layersOpen);
   const height = useEditorUi((s) => s.layersHeight);
-  const count = useImageDoc((s) => s.document.layers.length);
+  const count = useImageDoc((s) => s.document.artboards.reduce((total, a) => total + a.layers.length, 0));
   const dock = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startY: number; startHeight: number } | null>(null);
 

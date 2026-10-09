@@ -19,7 +19,6 @@ export type Keyframes = Partial<Record<KeyframeProperty, Keyframe[]>>;
 
 export const KEYFRAME_LIMITS = {
   perProperty: 32,
-  perTimeline: 400,
   maxAbsMs: 90_000,
   maxAnimatedBox: 4,
 } as const;
@@ -130,26 +129,58 @@ export function keyframesInRange(k: Keyframes | undefined, fromMs: number, toMs:
   return keyframeCount(next) === 0 ? undefined : next;
 }
 
-function propertyIssue(frames: readonly Keyframe[], [low, high]: readonly [number, number]): IssueCode | null {
-  if (frames.length > KEYFRAME_LIMITS.perProperty) return "too_many";
-  for (const [i, f] of frames.entries()) {
-    if (!(EASINGS as readonly string[]).includes(f.easing)) return "unknown";
-    if (!Number.isFinite(f.atMs) || Math.abs(f.atMs) > KEYFRAME_LIMITS.maxAbsMs) return "out_of_range";
-    if (!Number.isFinite(f.value) || f.value < low || f.value > high) return "out_of_range";
-    if (i > 0 && f.atMs <= frames[i - 1].atMs) return "out_of_range";
+export type KeyframeFault =
+  | { kind: "empty" }
+  | { kind: "too_many"; property: KeyframeProperty; limit: number }
+  | { kind: "easing"; property: KeyframeProperty; atMs: number; easing: string }
+  | { kind: "time"; property: KeyframeProperty; atMs: number; limit: number }
+  | { kind: "value"; property: KeyframeProperty; atMs: number; value: number; range: readonly [number, number] }
+  | { kind: "order"; property: KeyframeProperty; atMs: number }
+  | { kind: "box"; scale: number; maxScale: number };
+
+function propertyFault(property: KeyframeProperty, frames: readonly Keyframe[]): KeyframeFault | null {
+  if (frames.length > KEYFRAME_LIMITS.perProperty) return { kind: "too_many", property, limit: KEYFRAME_LIMITS.perProperty };
+  const range = KEYFRAME_RANGES[property];
+  for (const [index, f] of frames.entries()) {
+    const atMs = f.atMs;
+    if (!(EASINGS as readonly string[]).includes(f.easing)) return { kind: "easing", property, atMs, easing: f.easing };
+    if (!Number.isFinite(atMs) || Math.abs(atMs) > KEYFRAME_LIMITS.maxAbsMs) return { kind: "time", property, atMs, limit: KEYFRAME_LIMITS.maxAbsMs };
+    if (!Number.isFinite(f.value) || f.value < range[0] || f.value > range[1]) return { kind: "value", property, atMs, value: f.value, range };
+    if (index > 0 && atMs <= frames[index - 1].atMs) return { kind: "order", property, atMs };
   }
   return null;
 }
 
-export function keyframesIssue(k: Keyframes | undefined, box: Transform): IssueCode | null {
+function largestScale(box: Transform): number {
+  const fitting = KEYFRAME_LIMITS.maxAnimatedBox / Math.max(box.w, box.h);
+  return Math.floor(Math.min(KEYFRAME_RANGES.scale[1], fitting) * 100) / 100;
+}
+
+export function keyframeFault(k: Keyframes | undefined, box: Transform): KeyframeFault | null {
   if (!k) return null;
-  if (keyframeCount(k) === 0) return "required";
+  if (keyframeCount(k) === 0) return { kind: "empty" };
   for (const property of KEYFRAME_PROPERTIES) {
-    const code = propertyIssue(framesOf(k, property), KEYFRAME_RANGES[property]);
-    if (code) return code;
+    const fault = propertyFault(property, framesOf(k, property));
+    if (fault) return fault;
   }
   const scale = maxScale(k);
-  return box.w * scale > KEYFRAME_LIMITS.maxAnimatedBox || box.h * scale > KEYFRAME_LIMITS.maxAnimatedBox ? "out_of_range" : null;
+  const oversized = box.w * scale > KEYFRAME_LIMITS.maxAnimatedBox || box.h * scale > KEYFRAME_LIMITS.maxAnimatedBox;
+  return oversized ? { kind: "box", scale, maxScale: largestScale(box) } : null;
+}
+
+const FAULT_ISSUES: Record<KeyframeFault["kind"], IssueCode> = {
+  empty: "required",
+  too_many: "too_many",
+  easing: "unknown",
+  time: "out_of_range",
+  value: "out_of_range",
+  order: "out_of_range",
+  box: "out_of_range",
+};
+
+export function keyframesIssue(k: Keyframes | undefined, box: Transform): IssueCode | null {
+  const fault = keyframeFault(k, box);
+  return fault ? FAULT_ISSUES[fault.kind] : null;
 }
 
 export interface KeyRef {

@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { MagnifyingGlass } from "@/components/icons";
 import { STUDIO_ICON_IDS, STUDIO_ICONS } from "@/components/studio/canvas/icon-catalog";
+import { useSvgFeedback } from "@/components/studio/canvas/vector/use-svg-feedback";
+import { VectorGlyph } from "@/components/studio/canvas/vector-glyph";
 import { newIconLayer, newShapeLayer, type CanvasSize, type Layer, type ShapeKind } from "@/lib/studio/document";
 import { squareTransform } from "@/lib/studio/geometry";
+import { VECTOR_PRESET_IDS, vectorPresetLayer } from "@/lib/studio/vector-presets";
 
 import { FIELD_CLASS } from "../controls";
-import { useImageDoc, useImageEditor } from "../editor-state";
+import { useActiveCanvas, useImageEditor } from "../editor-state";
 import { PanelHeading } from "./panel-heading";
 
-type ShapeChoice = { id: string; shape: ShapeKind; extra?: Partial<Layer>; preview: ReactNode };
+type ShapeChoice = { id: string; shape: Exclude<ShapeKind, "path">; extra?: Partial<Layer>; preview: ReactNode };
 
 const STROKE = { fill: "none", stroke: "currentColor", strokeWidth: 2.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 
@@ -48,8 +51,17 @@ function shapeLayer(choice: ShapeChoice, canvas: CanvasSize): Layer {
 export function ElementsPanel() {
   const t = useTranslations("studio.image.panels.elements");
   const ti = useTranslations("studio.image.icons");
+  const tv = useTranslations("studio.vectors");
+  const svgFeedback = useSvgFeedback();
+  const svgInput = useRef<HTMLInputElement>(null);
+  const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    svgFeedback.imported(commands.importSvg(await file.text(), file.name.replace(/\.svg$/i, "")));
+  };
   const { commands } = useImageEditor();
-  const canvas = useImageDoc((s) => s.document.canvas);
+  const canvas = useActiveCanvas();
   const [query, setQuery] = useState("");
 
   const icons = useMemo(() => {
@@ -75,6 +87,30 @@ export function ElementsPanel() {
                 <svg viewBox="0 0 40 40" className="h-8 w-8" aria-hidden>
                   {choice.preview}
                 </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="legend text-muted-foreground">{tv("title")}</h3>
+          <button type="button" onClick={() => svgInput.current?.click()} className="rounded-[--radius] px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            {tv("svg.import")}
+          </button>
+          <input ref={svgInput} type="file" accept=".svg,image/svg+xml" className="hidden" aria-label={tv("svg.import")} onChange={importFile} />
+        </div>
+        <ul className="grid grid-cols-4 gap-1.5">
+          {VECTOR_PRESET_IDS.map((id) => (
+            <li key={id}>
+              <button
+                type="button"
+                aria-label={tv(`names.${id}`)}
+                title={tv(`names.${id}`)}
+                onClick={() => commands.insert([vectorPresetLayer(id, canvas)])}
+                className="flex aspect-square w-full items-center justify-center rounded-[--radius] border border-border bg-card text-foreground transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <VectorGlyph id={id} className="h-8 w-8" />
               </button>
             </li>
           ))}

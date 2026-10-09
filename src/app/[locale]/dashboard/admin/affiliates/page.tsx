@@ -30,7 +30,7 @@ import { motion } from "framer-motion";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useAuth } from "@/contexts/auth-context";
 import { isSystemAdmin } from "@/lib/auth/roles";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
   adminListAffiliatesAction,
@@ -71,7 +71,6 @@ async function updateAffiliate(
 
 function AdminAffiliatesTable() {
   const t = useTranslations("adminAffiliates");
-  const { toast } = useToast();
 
   const [items, setItems] = React.useState<Affiliate[]>([]);
   const [meta, setMeta] = React.useState<PaginationMeta>(DEFAULT_META);
@@ -136,10 +135,7 @@ function AdminAffiliatesTable() {
   const saveCommission = async (aff: Affiliate) => {
     const parsed = Number.parseFloat(draftPct.replace(/,/g, "."));
     if (!Number.isFinite(parsed) || parsed < 0 || parsed > 30) {
-      toast({
-        title: t("toast.invalidCommission"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.invalidCommission"));
       return;
     }
     setSaving(true);
@@ -148,14 +144,10 @@ function AdminAffiliatesTable() {
         commissionPct: parsed / 100,
       });
       if (res.error || !res.affiliate) {
-        toast({
-          title: t("toast.updateFailed"),
-          description: res.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("toast.updateFailed"), { description: res.error ?? undefined });
         return;
       }
-      toast({ title: t("toast.updated") });
+      toast(t("toast.updated"));
       cancelEdit();
       await load();
     } finally {
@@ -168,16 +160,10 @@ function AdminAffiliatesTable() {
     try {
       const res = await updateAffiliate(aff.id, { active: !aff.active });
       if (res.error || !res.affiliate) {
-        toast({
-          title: t("toast.updateFailed"),
-          description: res.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("toast.updateFailed"), { description: res.error ?? undefined });
         return;
       }
-      toast({
-        title: aff.active ? t("toast.deactivated") : t("toast.activated"),
-      });
+      toast(aff.active ? t("toast.deactivated") : t("toast.activated"));
       await load();
     } finally {
       setSaving(false);
@@ -191,19 +177,10 @@ function AdminAffiliatesTable() {
     try {
       const res = await updateAffiliate(aff.id, { tier: nextTier });
       if (res.error || !res.affiliate) {
-        toast({
-          title: t("toast.updateFailed"),
-          description: res.error ?? undefined,
-          variant: "destructive",
-        });
+        toast.error(t("toast.updateFailed"), { description: res.error ?? undefined });
         return;
       }
-      toast({
-        title:
-          nextTier === "reseller"
-            ? t("toast.tierPromoted")
-            : t("toast.tierDemoted"),
-      });
+      toast(nextTier === "reseller" ? t("toast.tierPromoted") : t("toast.tierDemoted"));
       await load();
     } finally {
       setSaving(false);

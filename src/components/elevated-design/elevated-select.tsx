@@ -16,6 +16,8 @@ type ElevatedSelectProps = React.ComponentPropsWithoutRef<
   className?: string;
   trigger?: ReactNode;
   contentClassName?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 };
 
 const ElevatedSelect = forwardRef<
@@ -33,6 +35,8 @@ const ElevatedSelect = forwardRef<
       value,
       onValueChange,
       trigger,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
       ...props
     },
     ref,
@@ -78,6 +82,8 @@ const ElevatedSelect = forwardRef<
           <SelectPrimitive.Trigger
             asChild
             ref={ref}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
             className="focus:outline-none focus-visible:outline-none"
           >
             {trigger}
@@ -144,6 +150,8 @@ const ElevatedSelect = forwardRef<
         >
           <SelectPrimitive.Trigger
             ref={ref}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(

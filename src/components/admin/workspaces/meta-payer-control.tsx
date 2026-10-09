@@ -8,7 +8,7 @@ import { adminUpdateWorkspaceConfigAction } from "@/app/actions/workspace-config
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
     META_PAYERS,
     metaPayerSaveOutcome,
@@ -26,7 +26,6 @@ export function MetaPayerControl({
     onSaved: (config: WorkspaceConfig) => void;
 }) {
     const t = useTranslations("adminWorkspaceDetail.config.metaPayer");
-    const { toast } = useToast();
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +43,7 @@ export function MetaPayerControl({
             return;
         }
         onSaved(outcome.config);
-        toast({ title: t("success") });
+        toast(t("success"));
     };
 
     return (

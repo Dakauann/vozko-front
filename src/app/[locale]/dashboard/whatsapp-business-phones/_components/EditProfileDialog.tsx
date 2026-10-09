@@ -28,7 +28,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface EditProfileDialogProps {
@@ -71,7 +71,6 @@ export function EditProfileDialog({
   onSuccess,
 }: EditProfileDialogProps) {
   const t = useTranslations("whatsappBusinessPhones");
-  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
@@ -113,20 +112,12 @@ export function EditProfileDialog({
     if (!file) return;
 
     if (!file.type.match(/^image\/(jpeg|png)$/)) {
-      toast({
-        title: t("profile.invalidImageType"),
-        description: t("profile.invalidImageTypeDesc"),
-        variant: "destructive",
-      });
+      toast.error(t("profile.invalidImageType"), { description: t("profile.invalidImageTypeDesc") });
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: t("profile.imageTooLarge"),
-        description: t("profile.imageTooLargeDesc"),
-        variant: "destructive",
-      });
+      toast.error(t("profile.imageTooLarge"), { description: t("profile.imageTooLargeDesc") });
       return;
     }
 
@@ -144,25 +135,14 @@ export function EditProfileDialog({
       const result = await uploadProfilePictureAction(formDataUpload);
 
       if (result.error) {
-        toast({
-          title: t("profile.uploadFailed"),
-          description: result.error,
-          variant: "destructive",
-        });
+        toast.error(t("profile.uploadFailed"), { description: result.error });
         setPreviewUrl(currentProfile?.profilePictureUrl || null);
       } else if (result.handle) {
         setProfilePictureHandle(result.handle);
-        toast({
-          title: t("profile.uploadSuccess"),
-          description: t("profile.uploadSuccessDesc"),
-        });
+        toast(t("profile.uploadSuccess"), { description: t("profile.uploadSuccessDesc") });
       }
     } catch {
-      toast({
-        title: t("profile.uploadFailed"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("profile.uploadFailed"), { description: t("toast.unknownError") });
       setPreviewUrl(currentProfile?.profilePictureUrl || null);
     } finally {
       setUploadingImage(false);
@@ -197,25 +177,14 @@ export function EditProfileDialog({
       const result = await updateBusinessProfileAction(phoneId, payload);
 
       if (!result.error) {
-        toast({
-          title: t("toast.profileUpdated"),
-          description: t("toast.profileUpdatedDesc"),
-        });
+        toast(t("toast.profileUpdated"), { description: t("toast.profileUpdatedDesc") });
         onSuccess();
         onOpenChange(false);
       } else {
-        toast({
-          title: t("toast.profileUpdateFailed"),
-          description: result.error || t("toast.unknownError"),
-          variant: "destructive",
-        });
+        toast.error(t("toast.profileUpdateFailed"), { description: result.error || t("toast.unknownError") });
       }
     } catch {
-      toast({
-        title: t("toast.profileUpdateFailed"),
-        description: t("toast.unknownError"),
-        variant: "destructive",
-      });
+      toast.error(t("toast.profileUpdateFailed"), { description: t("toast.unknownError") });
     } finally {
       setLoading(false);
     }

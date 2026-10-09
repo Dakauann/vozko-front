@@ -1,15 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CircleNotch, TrendUp } from "@/components/icons";
 
 import OpportunityDrawer from "@/components/crm/OpportunityDrawer";
-import { listPipelinesAction } from "@/app/actions/crm-board";
-import { getOpportunityBoardAction } from "@/app/actions/opportunities";
-import { listCustomFieldsAction } from "@/app/actions/custom-fields";
-import type { OpportunityColumn } from "@/lib/crm/opportunities";
-import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
+import { useOpportunityCreation } from "@/hooks/use-opportunity-creation";
 import { cn } from "@/lib/utils";
 
 interface CreateOpportunityButtonProps {
@@ -27,34 +24,13 @@ export default function CreateOpportunityButton({
   workspaceId,
   className,
 }: CreateOpportunityButtonProps) {
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [pipelineId, setPipelineId] = useState("");
-  const [columns, setColumns] = useState<OpportunityColumn[]>([]);
-  const [customFields, setCustomFields] = useState<CustomFieldDefinition[]>([]);
+  const t = useTranslations("opportunityDrawer");
+  const { loading, open, setOpen, setup, start } = useOpportunityCreation();
 
   const handleClick = useCallback(async () => {
     if (loading) return;
-    setLoading(true);
-    try {
-      const [{ pipelines }, { board }, { fields }] = await Promise.all([
-        listPipelinesAction("opportunity"),
-        getOpportunityBoardAction({ groupBy: "stage" }),
-        listCustomFieldsAction("opportunity"),
-      ]);
-      const pipeline = pipelines.find((p) => p.isDefault) ?? pipelines[0];
-      if (!pipeline || !board?.columns?.length) {
-        toast.error("Não foi possível abrir o funil de vendas.");
-        return;
-      }
-      setPipelineId(pipeline.id);
-      setColumns(board.columns);
-      setCustomFields(fields);
-      setOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [loading]);
+    if (!(await start())) toast.error(t("openFailed"));
+  }, [loading, start, t]);
 
   return (
     <>
@@ -62,7 +38,7 @@ export default function CreateOpportunityButton({
         type="button"
         onClick={handleClick}
         disabled={loading}
-        title="Criar oportunidade a partir desta conversa"
+        title={t("fromConversation.hint")}
         className={cn(
           "inline-flex h-8 items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 text-xs font-medium text-foreground transition-colors hover:border-border hover:bg-muted disabled:opacity-60",
           className,
@@ -73,30 +49,29 @@ export default function CreateOpportunityButton({
         ) : (
           <TrendUp weight="bold" className="h-3.5 w-3.5" />
         )}
-        <span className="hidden sm:inline">Criar oportunidade</span>
+        <span className="hidden sm:inline">{t("fromConversation.label")}</span>
       </button>
 
       <OpportunityDrawer
         open={open}
         onOpenChange={setOpen}
         opportunity={null}
-        pipelineId={pipelineId}
-        columns={columns}
-        customFields={customFields}
+        pipelineId={setup?.pipelineId ?? ""}
+        columns={setup?.columns ?? []}
+        customFields={setup?.customFields ?? []}
         workspaceId={workspaceId}
         defaultTitle={leadName}
         linkEntryId={entryId}
         linkEntryType={entryType}
-        onSaved={() =>
-          toast.success("Oportunidade criada e vinculada à conversa.", {
-            action: {
-              label: "Ver no funil",
-              onClick: () => {
-                window.location.href = "/dashboard/sales";
-              },
+        createdNotice={{
+          message: t("fromConversation.created"),
+          action: {
+            label: t("fromConversation.viewBoard"),
+            onClick: () => {
+              window.location.href = "/dashboard/sales";
             },
-          })
-        }
+          },
+        }}
       />
     </>
   );

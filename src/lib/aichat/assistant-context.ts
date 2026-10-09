@@ -1,4 +1,4 @@
-import type { ChatView } from "./types";
+import type { AttendanceView, LeadsView, StudioView } from "./types";
 
 export interface AssistantScope {
   period: string;
@@ -8,11 +8,30 @@ export interface AssistantScope {
   campaign?: string;
 }
 
-export interface AssistantContext {
+export interface AttendanceAssistantContext {
   kind: "attendance";
-  view: ChatView;
+  view: AttendanceView;
   scope: AssistantScope;
 }
+
+export interface StudioAssistantContext {
+  kind: "studio";
+  view: StudioView;
+  projectName: string;
+}
+
+export interface LeadsAssistantScope {
+  filter: string;
+  selected?: string;
+}
+
+export interface LeadsAssistantContext {
+  kind: "leads";
+  view: LeadsView;
+  scope: LeadsAssistantScope;
+}
+
+export type AssistantContext = AttendanceAssistantContext | StudioAssistantContext | LeadsAssistantContext;
 
 export interface AssistantContextStore {
   get: () => AssistantContext | null;
