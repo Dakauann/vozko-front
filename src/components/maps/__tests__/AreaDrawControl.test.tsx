@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 
 import type { MapPalette } from "@/lib/maps/palette";
@@ -8,13 +8,13 @@ import { AreaDrawControl } from "../AreaDrawControl";
 import { LeadMapContext } from "../map-context";
 import { renderInPortuguese } from "./intl";
 
-type Listener = (id: string) => void;
+type Listener = (...args: never[]) => void;
 
 const terra = vi.hoisted(() => {
   const state = {
     instances: [] as Array<{
       options: { modes: Array<{ name: string; options: Record<string, unknown> }> };
-      listeners: Record<string, (id: string) => void>;
+      listeners: Record<string, (...args: never[]) => void>;
       mode: string;
       cleared: number;
       stopped: boolean;
@@ -115,6 +115,14 @@ const square = {
   properties: { mode: "polygon" },
 };
 
+const stateBox = {
+  type: "Feature",
+  geometry: {
+    type: "Polygon",
+    coordinates: [[[-48, -24], [-45, -24], [-45, -22], [-48, -22], [-48, -24]]],
+  },
+};
+
 describe("AreaDrawControl", () => {
   beforeEach(() => {
     terra.instances.length = 0;
@@ -151,7 +159,7 @@ describe("AreaDrawControl", () => {
     const draw = await readyDraw();
     fireEvent.click(screen.getByRole("button", { name: "Polígono" }));
     draw.snapshot["f1"] = square;
-    act(() => draw.listeners.finish("f1"));
+    act(() => (draw.listeners.finish as (id: string) => void)("f1"));
     expect(onAreaDrawn).toHaveBeenCalledWith({
       kind: "polygon",
       ring: [
@@ -171,9 +179,46 @@ describe("AreaDrawControl", () => {
     const draw = await readyDraw();
     fireEvent.click(screen.getByRole("button", { name: "Polígono" }));
     draw.snapshot["f2"] = { ...square, properties: { mode: "freehand" } };
-    act(() => draw.listeners.finish("f2"));
+    act(() => (draw.listeners.finish as (id: string) => void)("f2"));
     expect(onAreaDrawn).not.toHaveBeenCalled();
-    expect(screen.getByText(/Não foi possível usar esta área/)).toBeInTheDocument();
+    expect(screen.getByText("Não foi possível usar este desenho. Desenhe a área de novo.")).toBeInTheDocument();
+  });
+
+  it("shows the live size of a box next to the cursor while drawing", async () => {
+    renderControl();
+    const draw = await readyDraw();
+    fireEvent.click(screen.getByRole("button", { name: "Retângulo" }));
+    fireEvent.pointerMove(mapContainer, { clientX: 120, clientY: 80 });
+    draw.snapshot["r1"] = { ...stateBox, properties: { mode: "rectangle", currentlyDrawing: true } };
+    act(() => (draw.listeners.change as (ids: string[], type: string) => void)(["r1"], "update"));
+    const label = within(mapContainer).getByText("307 km × 222 km");
+    expect(mapContainer).toContainElement(label);
+    expect(label).toHaveStyle({ left: "134px", top: "94px" });
+  });
+
+  it("shows the live radius while drawing a circle", async () => {
+    renderControl();
+    const draw = await readyDraw();
+    fireEvent.click(screen.getByRole("button", { name: "Raio" }));
+    fireEvent.pointerMove(mapContainer, { clientX: 10, clientY: 10 });
+    draw.snapshot["c1"] = { ...square, properties: { mode: "circle", radiusKilometers: 45.2, currentlyDrawing: true } };
+    act(() => (draw.listeners.change as (ids: string[], type: string) => void)(["c1"], "update"));
+    expect(within(mapContainer).getByText("raio 45 km")).toBeTruthy();
+  });
+
+  it("measures only the shape being drawn and hides the size once it is done", async () => {
+    renderControl(vi.fn());
+    const draw = await readyDraw();
+    fireEvent.click(screen.getByRole("button", { name: "Retângulo" }));
+    fireEvent.pointerMove(mapContainer, { clientX: 10, clientY: 10 });
+    draw.snapshot["done"] = { ...stateBox, properties: { mode: "rectangle" } };
+    act(() => (draw.listeners.change as (ids: string[], type: string) => void)(["done"], "update"));
+    expect(within(mapContainer).queryByText("307 km × 222 km")).toBeNull();
+    draw.snapshot["r2"] = { ...stateBox, properties: { mode: "rectangle", currentlyDrawing: true } };
+    act(() => (draw.listeners.change as (ids: string[], type: string) => void)(["r2"], "update"));
+    expect(within(mapContainer).getByText("307 km × 222 km")).toBeTruthy();
+    act(() => (draw.listeners.finish as (id: string) => void)("r2"));
+    expect(within(mapContainer).queryByText("307 km × 222 km")).toBeNull();
   });
 
   it("cancels the drawing with Escape on the map", async () => {
@@ -225,7 +270,7 @@ describe("AreaDrawControl", () => {
       const draw = terra.instances[terra.instances.length - 1];
       fireEvent.click(screen.getByRole("button", { name: "Polígono" }));
       draw.snapshot["f3"] = square;
-      act(() => draw.listeners.finish("f3"));
+      act(() => (draw.listeners.finish as (id: string) => void)("f3"));
       expect(setDrawing).toHaveBeenLastCalledWith(true);
       act(() => {
         vi.runAllTimers();

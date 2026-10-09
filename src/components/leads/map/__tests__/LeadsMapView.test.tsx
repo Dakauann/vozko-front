@@ -436,6 +436,20 @@ describe("LeadsMapView", () => {
     expect(onFilterChange).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["area_shape_crossing", "As linhas desta área se cruzam. Desenhe de novo sem cruzar as linhas."],
+    ["area_shape_outside_bounds", "Esta área sai do mapa do Brasil. Desenhe dentro do país."],
+    ["area_shape_too_many_vertices", "Esta área tem pontos demais. Desenhe de novo com menos cliques."],
+    ["area_shape_empty", "Esta área não tem tamanho. Desenhe uma forma que cerque uma região."],
+    ["area_shape_invalid", "Não foi possível ler esta área. Desenhe de novo."],
+  ])("toasts the server's own reason for a refused shape: %s", async (code, message) => {
+    actions.createLeadAreaAction.mockResolvedValue({ area: null, error: { code, status: 400 } });
+    renderView();
+    await screen.findByTestId("lead-map");
+    await act(async () => mapProps.current.onAreaDrawn?.(AREA.shape));
+    expect(toast.error).toHaveBeenCalledWith(message);
+  });
+
   it("leaves the number of areas in a filter to the server", async () => {
     const ids = Array.from({ length: 20 }, (_, index) => `area-${index}`);
     actions.createLeadAreaAction.mockResolvedValue({ area: AREA, error: null });

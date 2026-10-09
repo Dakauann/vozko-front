@@ -1,4 +1,5 @@
 import { circleRing64, distanceMeters, isValidPosition } from "./geometry";
+import { simplifyRing } from "./ring-simplify";
 import { latToMercatorY, mercatorYToLat } from "./tiles";
 import type { AreaShape, LatLng } from "./types";
 
@@ -78,7 +79,7 @@ export function drawnFeatureToArea(feature: DrawnFeature | null | undefined): Ar
   if (!ring) return null;
   switch (feature.properties?.mode) {
     case "polygon":
-      return { kind: "polygon", ring };
+      return { kind: "polygon", ring: simplifyRing(ring) };
     case "rectangle":
       return rectangle(ring);
     case "circle":

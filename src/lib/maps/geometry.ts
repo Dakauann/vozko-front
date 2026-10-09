@@ -8,6 +8,10 @@ export function radians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
+export function degrees(radians: number): number {
+  return (radians * 180) / Math.PI;
+}
+
 export function isValidPosition(position: LatLng): boolean {
   const { lat, lng } = position;
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
@@ -26,11 +30,16 @@ export function distanceMeters(a: LatLng, b: LatLng): number {
 
 export function circleRing64(center: LatLng, radiusM: number): LatLng[] {
   const ring: LatLng[] = [];
+  const fromLat = radians(center.lat);
+  const reach = radiusM / EARTH_RADIUS_M;
   for (let i = 0; i < CIRCLE_VERTICES; i++) {
-    const angle = (2 * Math.PI * i) / CIRCLE_VERTICES;
-    const lat = center.lat + (radiusM * Math.cos(angle)) / METERS_PER_DEGREE_LAT;
-    const lng = center.lng + (radiusM * Math.sin(angle)) / (METERS_PER_DEGREE_LAT * Math.cos(radians(lat)));
-    ring.push({ lat, lng });
+    const bearing = (2 * Math.PI * i) / CIRCLE_VERTICES;
+    const toLat = Math.asin(Math.sin(fromLat) * Math.cos(reach) + Math.cos(fromLat) * Math.sin(reach) * Math.cos(bearing));
+    const turn = Math.atan2(
+      Math.sin(bearing) * Math.sin(reach) * Math.cos(fromLat),
+      Math.cos(reach) - Math.sin(fromLat) * Math.sin(toLat),
+    );
+    ring.push({ lat: degrees(toLat), lng: center.lng + degrees(turn) });
   }
   return ring;
 }

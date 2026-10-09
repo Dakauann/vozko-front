@@ -1,4 +1,14 @@
 {
+  "adFromMedia": {
+    "useInAd": "In einer Anzeige verwenden",
+    "useInAdHint": "Speichert die Zeichenfläche in der Mediathek und öffnet die Anzeigenerstellung damit.",
+    "oneArtboard": "Für eine Anzeige exportiere nur die geöffnete Zeichenfläche.",
+    "rasterOnly": "Für eine Anzeige exportiere als PNG oder JPG.",
+    "chosen": {
+      "image": "Das gewählte Bild kommt in die Anzeige. Wähle das Ziel, um fortzufahren.",
+      "video": "Das gewählte Video kommt in die Anzeige. Wähle das Ziel, um fortzufahren."
+    }
+  },
   "screenLoader": {
     "label": "Wird geladen…"
   },
@@ -51,7 +61,11 @@
         "rectangle": "Klicke auf eine Ecke und dann auf die gegenüberliegende Ecke. Esc bricht ab.",
         "circle": "Klicke auf den Mittelpunkt und dann auf den Radius. Esc bricht ab."
       },
-      "invalid": "Diese Fläche kann nicht verwendet werden. Zeichne sie erneut, ohne dass sich Linien kreuzen.",
+      "invalid": "Diese Zeichnung kann nicht verwendet werden. Zeichne das Gebiet erneut.",
+      "size": {
+        "box": "{width} × {height}",
+        "radius": "Umkreis {radius}"
+      },
       "unavailable": "Die Zeichenwerkzeuge wurden nicht geladen. Lade die Seite neu."
     },
     "summary": {
@@ -233,7 +247,11 @@
       "failed": "Das Gebiet konnte nicht gespeichert werden.",
       "errors": {
         "area_limit_reached": "Der Workspace hat das Limit gespeicherter Gebiete erreicht. Lösche ein Gebiet, bevor du ein weiteres zeichnest.",
-        "area_shape_invalid": "Dieses Gebiet ist ungültig. Zeichne es erneut, ohne Linien zu kreuzen.",
+        "area_shape_invalid": "Dieses Gebiet konnte nicht gelesen werden. Zeichne es erneut.",
+        "area_shape_crossing": "Die Linien dieses Gebiets kreuzen sich. Zeichne es erneut, ohne dass sich Linien kreuzen.",
+        "area_shape_outside_bounds": "Dieses Gebiet reicht über die Karte Brasiliens hinaus. Zeichne es innerhalb des Landes.",
+        "area_shape_too_many_vertices": "Dieses Gebiet hat zu viele Punkte. Zeichne es erneut mit weniger Klicks.",
+        "area_shape_empty": "Dieses Gebiet hat keine Größe. Zeichne eine Form, die eine Region umschließt.",
         "area_name_required": "Das Gebiet braucht einen Namen.",
         "area_name_too_long": "Der Name des Gebiets ist zu lang.",
         "area_forbidden": "Du kannst dieses Gebiet nicht ändern.",
@@ -680,12 +698,14 @@
       "render_video": "Video erstellen",
       "studio_read": "Projekt lesen",
       "studio_look": "Ergebnis ansehen",
+      "studio_listen": "Ton messen",
       "studio_edit_video": "Video bearbeiten",
       "studio_edit_image": "Design bearbeiten",
       "studio_start_job": "In die Warteschlange stellen",
       "studio_jobs": "Warteschlange prüfen",
       "studio_generate_music": "Musik für das Video erstellen",
       "studio_generate_voiceover": "Sprechertext für das Video erstellen",
+      "studio_generate_sfx": "Soundeffekt für das Video erstellen",
       "studio_generate_image": "Bild für das Projekt erstellen",
       "studio_ask": "Fragen",
       "diagnose_access": "Zugriff prüfen",
@@ -1105,6 +1125,9 @@
       "scenes": "Szenen",
       "music_model": "Musikmodell",
       "voice_model": "Sprechermodell",
+      "sfx_model": "Soundeffekt-Modell",
+      "effect": "Soundeffekt",
+      "length": "Länge",
       "skipped": "Übersprungen",
       "parts": "Versände",
       "capRemaining": "Restliches Monatslimit",
@@ -18501,6 +18524,13 @@
         "needs_lifetime_budget": "Auslieferungszeiten gibt es nur mit Laufzeitbudget."
       },
       "generic": {
+        "media_format": "Meta akzeptiert Bilder als PNG oder JPEG und Videos als MP4 oder MOV.",
+        "media_too_large": "Die Datei ist zu groß für Meta: Bilder bis 30 MB, Videos bis 4 GB.",
+        "media_too_small": "Die Datei ist zu klein: Bilder brauchen mindestens 600 px Breite und Höhe, Videos 120 px.",
+        "media_ratio": "Dieses Seitenverhältnis schaltet Meta nicht: Bilder von 9:16 bis 1,91:1, Videos von 9:16 bis 16:9.",
+        "video_too_short": "Das Video muss mindestens 1 Sekunde lang sein.",
+        "video_too_long": "Das Video ist länger als 241 Minuten, das Limit von Meta.",
+        "media_unreadable": "Diese Datei konnte nicht gelesen werden. Exportiere oder lade sie erneut hoch.",
         "below_minimum": "Unter dem Mindest-Tagesbudget von Meta für dieses Konto.",
         "required": "Pflichtfeld.",
         "invalid": "Ungültiger Wert.",
@@ -20454,19 +20484,22 @@
     "model": {
       "image": "Bildmodell",
       "music": "Musikmodell",
-      "voice": "Sprechermodell"
+      "voice": "Sprechermodell",
+      "sfx": "Soundeffekt-Modell"
     },
     "modelHint": "Vom meistgenutzten zum am wenigsten genutzten.",
     "recommendedModel": "{name} (empfohlen)",
     "modelsLoading": {
       "image": "Bildmodelle werden geladen...",
       "music": "Musikmodelle werden geladen...",
-      "voice": "Sprechermodelle werden geladen..."
+      "voice": "Sprechermodelle werden geladen...",
+      "sfx": "Soundeffekt-Modelle werden geladen..."
     },
     "modelsUnavailable": {
       "image": "Die Bildmodelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal.",
       "music": "Die Musikmodelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal.",
-      "voice": "Die Sprechermodelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal."
+      "voice": "Die Sprechermodelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal.",
+      "sfx": "Die Soundeffekt-Modelle konnten gerade nicht geladen werden. Versuche es gleich noch einmal."
     },
     "generating": {
       "image": "Bild wird erstellt",
@@ -20476,7 +20509,8 @@
       "cutout": "Hintergrund wird entfernt",
       "captions": "Untertitel werden erstellt",
       "denoise": "Audio wird bereinigt",
-      "proxy": "Bearbeitungskopie wird vorbereitet..."
+      "proxy": "Bearbeitungskopie wird vorbereitet...",
+      "sfx": "Soundeffekt wird erstellt"
     },
     "failed": {
       "image": "Das Bild konnte nicht erstellt werden",
@@ -20486,7 +20520,8 @@
       "cutout": "Der Hintergrund konnte nicht entfernt werden",
       "captions": "Die Untertitel konnten nicht erstellt werden",
       "denoise": "Das Audio konnte nicht bereinigt werden",
-      "proxy": "Die Bearbeitungskopie konnte nicht vorbereitet werden"
+      "proxy": "Die Bearbeitungskopie konnte nicht vorbereitet werden",
+      "sfx": "Der Soundeffekt konnte nicht erstellt werden"
     },
     "finalizing": "Wird abgeschlossen",
     "download": "Herunterladen",
@@ -20629,6 +20664,133 @@
     "image": {
       "canvas": {
         "editText": "Text bearbeiten"
+      },
+      "paint": {
+        "opacity": "Deckkraft",
+        "blend": "Mischmodus",
+        "hide": "Ausblenden",
+        "show": "Einblenden",
+        "remove": "Entfernen",
+        "moveUp": "Nach vorne",
+        "moveDown": "Nach hinten",
+        "pattern": {
+          "title": "Muster",
+          "toggle": "Muster verwenden",
+          "preset": "Motiv",
+          "uploaded": "Hochgeladenes Bild",
+          "presets": {
+            "dots": "Punkte",
+            "grid-lines": "Raster",
+            "stripes": "Streifen",
+            "diagonal": "Diagonalen",
+            "checker": "Schachbrett",
+            "cross": "Kreuze",
+            "zigzag": "Zickzack",
+            "waves": "Wellen",
+            "triangles": "Dreiecke",
+            "hexagons": "Sechsecke",
+            "confetti": "Konfetti",
+            "plus": "Pluszeichen"
+          },
+          "image": "Bild verwenden",
+          "imageUpload": "Bild hochladen",
+          "ink": "Motivfarbe",
+          "paper": "Motivhintergrund",
+          "paperNone": "Transparent",
+          "tile": "Wiederholung",
+          "tiles": {
+            "grid": "Raster",
+            "brick-row": "Ziegel in Zeilen",
+            "brick-column": "Ziegel in Spalten",
+            "hex-row": "Waben in Zeilen",
+            "hex-column": "Waben in Spalten"
+          },
+          "size": "Größe",
+          "spacingX": "Horizontaler Abstand",
+          "spacingY": "Vertikaler Abstand",
+          "offset": "Versatz",
+          "angle": "Winkel",
+          "originX": "Horizontaler Start",
+          "originY": "Vertikaler Start",
+          "resetOrigin": "Ursprung ausrichten"
+        },
+        "fills": {
+          "title": "Füllungen",
+          "add": "Füllung hinzufügen",
+          "row": "Füllung {number}",
+          "type": "Art",
+          "types": {
+            "solid": "Farbe",
+            "gradient": "Verlauf",
+            "pattern": "Muster"
+          },
+          "color": "Farbe"
+        },
+        "strokes": {
+          "title": "Konturen",
+          "add": "Kontur hinzufügen",
+          "row": "Kontur {number}",
+          "width": "Stärke",
+          "align": "Position",
+          "aligns": {
+            "center": "Mittig",
+            "inside": "Innen",
+            "outside": "Außen"
+          },
+          "traced": "Die Kontur folgt der Silhouette des Inhalts."
+        },
+        "effects": {
+          "title": "Effekte",
+          "add": "Effekt hinzufügen",
+          "types": {
+            "drop-shadow": "Schlagschatten",
+            "inner-shadow": "Innerer Schatten",
+            "outer-glow": "Schein nach außen",
+            "inner-glow": "Schein nach innen"
+          },
+          "color": "Farbe",
+          "x": "Horizontaler Versatz",
+          "y": "Vertikaler Versatz",
+          "blur": "Weichzeichnung",
+          "blurShort": "Weich",
+          "spread": "Ausdehnung",
+          "spreadShort": "Ausd.",
+          "source": "Quelle",
+          "sources": {
+            "edge": "Kante",
+            "center": "Mitte"
+          },
+          "showBehind": "Hinter transparenten Bereichen zeigen"
+        },
+        "gradientMap": {
+          "title": "Verlaufsumsetzung",
+          "toggle": "Verlaufsumsetzung verwenden",
+          "preset": "Kombination",
+          "presetCustom": "Eigene",
+          "presets": {
+            "noite": "Nacht",
+            "coral": "Koralle",
+            "oceano": "Ozean",
+            "menta": "Minze",
+            "vinho": "Wein",
+            "sepia": "Sepia",
+            "neon": "Neon",
+            "pb": "Schwarzweiß",
+            "por-do-sol": "Sonnenuntergang",
+            "aurora": "Polarlicht"
+          },
+          "stop": "Farbe {number}",
+          "stopAt": "Position der Farbe {number}",
+          "addStop": "Farbe hinzufügen",
+          "removeStop": "Farbe {number} entfernen",
+          "intensity": "Intensität",
+          "reverse": "Umkehren",
+          "interpolation": "Übergang",
+          "interpolations": {
+            "perceptual": "Wahrnehmungsgetreu",
+            "srgb": "Linear"
+          }
+        }
       },
       "clipboard": {
         "imageFailed": "Das Bild konnte nicht eingefügt werden. Lade die Datei über den Bereich Uploads hoch."
@@ -20845,7 +21007,22 @@
         "scopeAll": "Alle ({count})",
         "scopeAllHint": "Eine Datei pro Zeichenfläche, nach ihr benannt.",
         "downloadZip": "ZIP herunterladen",
-        "savedMany": "{count} Bilder in der Bibliothek gespeichert"
+        "savedMany": "{count} Bilder in der Bibliothek gespeichert",
+        "preset": "Verwendung",
+        "presets": {
+          "digital": "Bildschirm",
+          "print": "Druck"
+        },
+        "presetHints": {
+          "digital": "Fotos und Texte darin in 2x, zum Ansehen und Teilen.",
+          "print": "Fotos und Texte darin mit 300 ppi, für Druckereien."
+        },
+        "vectorHint": "Formen bleiben Vektoren; Texte, Fotos und Effekte kommen als hochaufgelöste Bilder hinein.",
+        "rasterized": "{count, plural, one {# Ebene kommt als Bild hinein.} other {# Ebenen kommen als Bilder hinein.}}",
+        "scopeAllPdfHint": "Eine Datei, mit einer Seite pro Zeichenfläche.",
+        "savedFile": "Datei in der Bibliothek gespeichert",
+        "savedFiles": "{count} Dateien in der Bibliothek gespeichert",
+        "openFile": "Datei öffnen"
       },
       "jobs": {
         "running": {
@@ -21165,7 +21342,41 @@
         "button": "Exportieren",
         "exporting": "Wird exportiert",
         "title": "Video exportieren",
-        "hint": "Das Video wird in diesem Browser als MP4 erstellt und in der Mediathek gespeichert.",
+        "hints": {
+          "mp4": "Das Video wird in diesem Browser als MP4 mit Ton erstellt und in der Mediathek gespeichert.",
+          "gif": "Animation ohne Ton, die auf Websites, in E-Mails und sozialen Netzwerken von selbst abläuft. Größer als das MP4.",
+          "webp": "Animation ohne Ton, deutlich kleiner als das GIF und mit vollen Farben, für Websites und soziale Netzwerke."
+        },
+        "format": "Format",
+        "width": "Breite",
+        "widthOriginal": "Original",
+        "size": "{width} x {height} px",
+        "fps": "Bilder pro Sekunde",
+        "loop": "Wiederholung",
+        "loopForever": "Endlos",
+        "loopCount": "Gezählt",
+        "plays": "Mal",
+        "colors": "Farben",
+        "dither": "Dithering",
+        "ditherNone": "Keins",
+        "ditherDiffusion": "Diffusion",
+        "ditherOrdered": "Geordnet",
+        "ditherHint": {
+          "none": "Kleinste Datei, ideal für flächige Grafiken.",
+          "diffusion": "Glättet Fotos und Verläufe.",
+          "ordered": "Körnung, die von Bild zu Bild ruhig bleibt."
+        },
+        "quality": "Qualität",
+        "phaseAnimation": "Animation wird in diesem Browser erstellt",
+        "doneAnimation": "Animation fertig",
+        "resultAnimation": "Exportierte Animation",
+        "inLibraryAnimation": "Die Animation ist bereits in der Mediathek.",
+        "fileNameAnimation": "studio animation",
+        "otherFormat": "Anderes Format",
+        "animationErrors": {
+          "no_encoder": "Dieser Browser kann dieses Format nicht erstellen. Verwende Chrome oder Edge.",
+          "too_large": "Die Animation ist größer als 95 MB. Verringere Breite, Bilder pro Sekunde oder Farben und exportiere erneut."
+        },
         "start": "Jetzt exportieren",
         "phase": {
           "saving": "Projekt wird gespeichert",
@@ -21242,6 +21453,12 @@
           "source": "Das Medium endet bei dieser Geschwindigkeit vor dem Clip. Nimm eine geringere Geschwindigkeit oder schalte Dauer beibehalten aus.",
           "noRoom": "Auf der Zeitleiste ist kein Platz für diese Länge.",
           "rampOutside": "Wähle einen Video- oder Audioclip und setze die Abspielposition darauf, um die Rampe zu beginnen."
+        },
+        "ducking": {
+          "invalid": "Wähle andere Audiospuren mit der Sprache, ohne dass sich zwei Spuren gegenseitig im Kreis absenken.",
+          "range": "Dieser Wert liegt außerhalb des erlaubten Bereichs.",
+          "missing": "Diese Spur hat kein Ducking zum Fixieren.",
+          "tooMany": "Das fixierte Ducking bräuchte zu viele Keyframes in einem Clip. Erhöhe die Pausen, die abgesenkt bleiben, und versuche es erneut."
         }
       },
       "preview": {
@@ -21278,7 +21495,7 @@
         },
         "track": {
           "name": "Name der Spur",
-          "renameHint": "Doppelklick zum Umbenennen",
+          "renameHint": "{name}. Doppelklick zum Umbenennen",
           "visualName": "Video {index}",
           "audioName": "Audio {index}",
           "show": "{name} einblenden",
@@ -21553,6 +21770,14 @@
           "generate": "Sprachaufnahme erstellen",
           "exact": "Die Stimme liest den Text genau so, wie er dasteht.",
           "voice": "Stimme"
+        },
+        "sfx": {
+          "tab": "Effekte",
+          "prompt": "Beschreibe den Klang",
+          "placeholder": "Z. B. ein schnelles, luftiges Whoosh für den Szenenwechsel",
+          "generate": "Soundeffekt erstellen",
+          "length": "Effektlänge",
+          "placement": "Der Effekt landet in der Mediathek und am Abspielkopf, ohne Stille an den Rändern und nie länger als die gewählte Länge."
         },
         "image": {
           "tab": "Bild",
@@ -21951,6 +22176,21 @@
           "apply": "Rampe an der Abspielposition",
           "hint": "Die Geschwindigkeit ändert sich ab der Abspielposition allmählich, der Rest des Clips läuft mit der Zielgeschwindigkeit."
         }
+      },
+      "trackSound": {
+        "open": "Ton der Spur {name}",
+        "level": "Spurlautstärke",
+        "ducking": "Bei Sprache absenken",
+        "triggers": "Absenken, wenn Sprache auf",
+        "audioTrack": "Audio {number}",
+        "noOtherTracks": "Füge eine weitere Audiospur mit der Sprache hinzu, damit diese Spur sich selbst absenkt.",
+        "reduce": "Absenkung",
+        "attack": "Zeit zum Absenken",
+        "release": "Zeit zum Zurückkehren",
+        "hold": "Pausen, die abgesenkt bleiben",
+        "sensitivity": "Sprachempfindlichkeit",
+        "hint": "Die Spur senkt sich vor jedem Satz ab und kehrt danach zurück. Fixieren wandelt die Regel in Lautstärke-Keyframes um, die du einzeln anpassen kannst.",
+        "bake": "In Lautstärke-Keyframes fixieren"
       }
     },
     "openFromMedia": {
@@ -21973,6 +22213,7 @@
       "actions": {
         "read": "Liest das Projekt",
         "look": "Prüft das Ergebnis",
+        "listen": "Misst den Ton",
         "working": "Arbeitet",
         "add_media": "Fügt Medien ein",
         "add_text": "Schreibt Text",

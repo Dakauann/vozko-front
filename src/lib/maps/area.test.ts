@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { areaOutline, drawnFeatureToArea, type DrawnFeature } from "./area";
 import { CIRCLE_VERTICES } from "./geometry";
+import { MAX_AREA_VERTICES } from "./ring-simplify";
 
 const MERCATOR_RADIUS = 6378137;
 
@@ -55,6 +56,16 @@ describe("drawnFeatureToArea", () => {
     const area = drawnFeatureToArea(feature("polygon", square.slice(0, 4)));
     expect(area?.kind).toBe("polygon");
     expect(area && "ring" in area ? area.ring : []).toHaveLength(4);
+  });
+
+  it("simplifies a polygon of more vertices than the backend takes, so it is never refused for that", () => {
+    const many = Array.from({ length: 900 }, (_, i) => {
+      const angle = (2 * Math.PI * i) / 900;
+      return [-46.63 + 0.4 * Math.sin(angle), -23.55 + 0.4 * Math.cos(angle)];
+    });
+    const area = drawnFeatureToArea(feature("polygon", [...many, many[0]]));
+    expect(area?.kind).toBe("polygon");
+    expect(area && "ring" in area ? area.ring : []).toHaveLength(MAX_AREA_VERTICES);
   });
 
   it("squares a rectangle to four exact axis-aligned corners", () => {

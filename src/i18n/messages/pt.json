@@ -1,4 +1,14 @@
 {
+  "adFromMedia": {
+    "useInAd": "Usar em anúncio",
+    "useInAdHint": "Salva a prancheta na biblioteca e abre a criação do anúncio com ela.",
+    "oneArtboard": "Para usar em anúncio, exporte só a prancheta aberta.",
+    "rasterOnly": "Para usar em anúncio, exporte em PNG ou JPG.",
+    "chosen": {
+      "image": "A imagem escolhida entra no anúncio. Escolha o objetivo para continuar.",
+      "video": "O vídeo escolhido entra no anúncio. Escolha o objetivo para continuar."
+    }
+  },
   "screenLoader": {
     "label": "Carregando…"
   },
@@ -51,7 +61,11 @@
         "rectangle": "Clique em um canto e depois no canto oposto. Esc cancela.",
         "circle": "Clique no centro e depois na distância do raio. Esc cancela."
       },
-      "invalid": "Não foi possível usar esta área. Desenhe de novo, sem cruzar as linhas.",
+      "invalid": "Não foi possível usar este desenho. Desenhe a área de novo.",
+      "size": {
+        "box": "{width} × {height}",
+        "radius": "raio {radius}"
+      },
       "unavailable": "As ferramentas de desenho não carregaram. Recarregue a página."
     },
     "summary": {
@@ -233,7 +247,11 @@
       "failed": "Não foi possível salvar a área.",
       "errors": {
         "area_limit_reached": "O workspace chegou ao limite de áreas salvas. Apague uma área antes de desenhar outra.",
-        "area_shape_invalid": "Esta área não é válida. Desenhe de novo, sem cruzar as linhas.",
+        "area_shape_invalid": "Não foi possível ler esta área. Desenhe de novo.",
+        "area_shape_crossing": "As linhas desta área se cruzam. Desenhe de novo sem cruzar as linhas.",
+        "area_shape_outside_bounds": "Esta área sai do mapa do Brasil. Desenhe dentro do país.",
+        "area_shape_too_many_vertices": "Esta área tem pontos demais. Desenhe de novo com menos cliques.",
+        "area_shape_empty": "Esta área não tem tamanho. Desenhe uma forma que cerque uma região.",
         "area_name_required": "A área precisa de um nome.",
         "area_name_too_long": "O nome da área é longo demais.",
         "area_forbidden": "Você não pode alterar esta área.",
@@ -680,12 +698,14 @@
       "render_video": "Montar vídeo",
       "studio_read": "Ler o projeto",
       "studio_look": "Ver o resultado",
+      "studio_listen": "Medir o som",
       "studio_edit_video": "Editar o vídeo",
       "studio_edit_image": "Editar a arte",
       "studio_start_job": "Colocar na fila",
       "studio_jobs": "Acompanhar a fila",
       "studio_generate_music": "Gerar música para o vídeo",
       "studio_generate_voiceover": "Gerar locução para o vídeo",
+      "studio_generate_sfx": "Gerar efeito sonoro para o vídeo",
       "studio_generate_image": "Gerar imagem para o projeto",
       "studio_ask": "Perguntar",
       "diagnose_access": "Verificar acesso",
@@ -1105,6 +1125,9 @@
       "scenes": "Cenas",
       "music_model": "Modelo de música",
       "voice_model": "Modelo de locução",
+      "sfx_model": "Modelo de efeito sonoro",
+      "effect": "Efeito sonoro",
+      "length": "Duração",
       "skipped": "Pulados",
       "parts": "Disparos",
       "capRemaining": "Limite do mês restante",
@@ -19532,6 +19555,13 @@
         "needs_lifetime_budget": "Horários de veiculação só existem com orçamento total."
       },
       "generic": {
+        "media_format": "A Meta aceita imagem em PNG ou JPEG e vídeo em MP4 ou MOV.",
+        "media_too_large": "Arquivo grande demais para a Meta: imagem até 30 MB, vídeo até 4 GB.",
+        "media_too_small": "Arquivo pequeno demais: a imagem precisa de pelo menos 600 px de largura e de altura, e o vídeo de 120 px.",
+        "media_ratio": "Proporção fora do que a Meta veicula: imagem de 9:16 a 1,91:1, vídeo de 9:16 a 16:9.",
+        "video_too_short": "O vídeo precisa ter pelo menos 1 segundo.",
+        "video_too_long": "O vídeo passa de 241 minutos, o limite da Meta.",
+        "media_unreadable": "Não foi possível ler este arquivo. Exporte ou envie de novo.",
         "below_minimum": "Abaixo do orçamento diário mínimo da Meta para esta conta.",
         "required": "Campo obrigatório.",
         "invalid": "Valor inválido.",
@@ -21485,19 +21515,22 @@
     "model": {
       "image": "Modelo de imagem",
       "music": "Modelo de música",
-      "voice": "Modelo de locução"
+      "voice": "Modelo de locução",
+      "sfx": "Modelo de efeito sonoro"
     },
     "modelHint": "Do mais usado para o menos usado.",
     "recommendedModel": "{name} (recomendado)",
     "modelsLoading": {
       "image": "Carregando modelos de imagem...",
       "music": "Carregando modelos de música...",
-      "voice": "Carregando modelos de locução..."
+      "voice": "Carregando modelos de locução...",
+      "sfx": "Carregando modelos de efeito sonoro..."
     },
     "modelsUnavailable": {
       "image": "Não foi possível carregar os modelos de imagem agora. Tente de novo em instantes.",
       "music": "Não foi possível carregar os modelos de música agora. Tente de novo em instantes.",
-      "voice": "Não foi possível carregar os modelos de locução agora. Tente de novo em instantes."
+      "voice": "Não foi possível carregar os modelos de locução agora. Tente de novo em instantes.",
+      "sfx": "Não foi possível carregar os modelos de efeito sonoro agora. Tente de novo em instantes."
     },
     "generating": {
       "image": "Gerando imagem",
@@ -21507,7 +21540,8 @@
       "cutout": "Removendo o fundo",
       "captions": "Gerando legendas",
       "denoise": "Limpando o áudio",
-      "proxy": "Preparando a cópia de edição..."
+      "proxy": "Preparando a cópia de edição...",
+      "sfx": "Gerando efeito sonoro"
     },
     "failed": {
       "image": "Não foi possível gerar a imagem",
@@ -21517,7 +21551,8 @@
       "cutout": "Não foi possível remover o fundo",
       "captions": "Não foi possível gerar as legendas",
       "denoise": "Não foi possível limpar o áudio",
-      "proxy": "Não foi possível preparar a cópia de edição"
+      "proxy": "Não foi possível preparar a cópia de edição",
+      "sfx": "Não foi possível gerar o efeito sonoro"
     },
     "finalizing": "Finalizando",
     "download": "Baixar",
@@ -21660,6 +21695,133 @@
     "image": {
       "canvas": {
         "editText": "Editar texto"
+      },
+      "paint": {
+        "opacity": "Opacidade",
+        "blend": "Mistura",
+        "hide": "Esconder",
+        "show": "Mostrar",
+        "remove": "Remover",
+        "moveUp": "Trazer para frente",
+        "moveDown": "Levar para trás",
+        "pattern": {
+          "title": "Padrão",
+          "toggle": "Usar padrão",
+          "preset": "Desenho",
+          "uploaded": "Imagem enviada",
+          "presets": {
+            "dots": "Bolinhas",
+            "grid-lines": "Grade",
+            "stripes": "Listras",
+            "diagonal": "Diagonais",
+            "checker": "Xadrez",
+            "cross": "Xis",
+            "zigzag": "Zigue-zague",
+            "waves": "Ondas",
+            "triangles": "Triângulos",
+            "hexagons": "Hexágonos",
+            "confetti": "Confete",
+            "plus": "Cruzes"
+          },
+          "image": "Usar uma imagem",
+          "imageUpload": "Enviar imagem",
+          "ink": "Cor do desenho",
+          "paper": "Fundo do desenho",
+          "paperNone": "Transparente",
+          "tile": "Repetição",
+          "tiles": {
+            "grid": "Grade",
+            "brick-row": "Tijolo em linhas",
+            "brick-column": "Tijolo em colunas",
+            "hex-row": "Colmeia em linhas",
+            "hex-column": "Colmeia em colunas"
+          },
+          "size": "Tamanho",
+          "spacingX": "Espaço horizontal",
+          "spacingY": "Espaço vertical",
+          "offset": "Deslocamento",
+          "angle": "Ângulo",
+          "originX": "Início horizontal",
+          "originY": "Início vertical",
+          "resetOrigin": "Alinhar origem"
+        },
+        "fills": {
+          "title": "Preenchimentos",
+          "add": "Adicionar preenchimento",
+          "row": "Preenchimento {number}",
+          "type": "Tipo",
+          "types": {
+            "solid": "Cor",
+            "gradient": "Degradê",
+            "pattern": "Padrão"
+          },
+          "color": "Cor"
+        },
+        "strokes": {
+          "title": "Contornos",
+          "add": "Adicionar contorno",
+          "row": "Contorno {number}",
+          "width": "Espessura",
+          "align": "Posição",
+          "aligns": {
+            "center": "No meio",
+            "inside": "Dentro",
+            "outside": "Fora"
+          },
+          "traced": "O contorno acompanha a silhueta do conteúdo."
+        },
+        "effects": {
+          "title": "Efeitos",
+          "add": "Adicionar efeito",
+          "types": {
+            "drop-shadow": "Sombra",
+            "inner-shadow": "Sombra interna",
+            "outer-glow": "Brilho externo",
+            "inner-glow": "Brilho interno"
+          },
+          "color": "Cor",
+          "x": "Deslocamento horizontal",
+          "y": "Deslocamento vertical",
+          "blur": "Desfoque",
+          "blurShort": "Desf.",
+          "spread": "Expansão",
+          "spreadShort": "Exp.",
+          "source": "Origem",
+          "sources": {
+            "edge": "Borda",
+            "center": "Centro"
+          },
+          "showBehind": "Mostrar atrás das partes transparentes"
+        },
+        "gradientMap": {
+          "title": "Mapa de gradiente",
+          "toggle": "Usar mapa de gradiente",
+          "preset": "Combinação",
+          "presetCustom": "Personalizada",
+          "presets": {
+            "noite": "Noite",
+            "coral": "Coral",
+            "oceano": "Oceano",
+            "menta": "Menta",
+            "vinho": "Vinho",
+            "sepia": "Sépia",
+            "neon": "Neon",
+            "pb": "Preto e branco",
+            "por-do-sol": "Pôr do sol",
+            "aurora": "Aurora"
+          },
+          "stop": "Cor {number}",
+          "stopAt": "Posição da cor {number}",
+          "addStop": "Adicionar cor",
+          "removeStop": "Remover a cor {number}",
+          "intensity": "Intensidade",
+          "reverse": "Inverter",
+          "interpolation": "Transição",
+          "interpolations": {
+            "perceptual": "Perceptual",
+            "srgb": "Linear"
+          }
+        }
       },
       "clipboard": {
         "imageFailed": "Não foi possível colar a imagem. Tente enviar o arquivo pelo painel Uploads."
@@ -21876,7 +22038,22 @@
         "scopeAll": "Todas ({count})",
         "scopeAllHint": "Um arquivo por prancheta, com o nome dela.",
         "downloadZip": "Baixar ZIP",
-        "savedMany": "{count} imagens salvas na biblioteca"
+        "savedMany": "{count} imagens salvas na biblioteca",
+        "preset": "Uso",
+        "presets": {
+          "digital": "Tela",
+          "print": "Impressão"
+        },
+        "presetHints": {
+          "digital": "Fotos e textos internos em 2x, para ver e compartilhar.",
+          "print": "Fotos e textos internos a 300 ppi, para gráficas."
+        },
+        "vectorHint": "Formas saem em vetor; textos, fotos e efeitos entram como imagem em alta resolução.",
+        "rasterized": "{count, plural, one {# camada entra como imagem.} other {# camadas entram como imagem.}}",
+        "scopeAllPdfHint": "Um só arquivo, com uma página por prancheta.",
+        "savedFile": "Arquivo salvo na biblioteca",
+        "savedFiles": "{count} arquivos salvos na biblioteca",
+        "openFile": "Abrir o arquivo"
       },
       "jobs": {
         "running": {
@@ -22196,7 +22373,41 @@
         "button": "Exportar",
         "exporting": "Exportando",
         "title": "Exportar vídeo",
-        "hint": "O vídeo é gerado neste navegador em MP4 e guardado na biblioteca de mídia.",
+        "hints": {
+          "mp4": "O vídeo é gerado neste navegador em MP4, com som, e guardado na biblioteca de mídia.",
+          "gif": "Animação sem som que toca sozinha em sites, e-mails e redes. Sai mais pesada que o MP4.",
+          "webp": "Animação sem som e bem menor que o GIF, com cores completas, para sites e redes."
+        },
+        "format": "Formato",
+        "width": "Largura",
+        "widthOriginal": "Original",
+        "size": "{width} x {height} px",
+        "fps": "Quadros por segundo",
+        "loop": "Repetição",
+        "loopForever": "Sem parar",
+        "loopCount": "Contada",
+        "plays": "Vezes",
+        "colors": "Cores",
+        "dither": "Pontilhado",
+        "ditherNone": "Nenhum",
+        "ditherDiffusion": "Difusão",
+        "ditherOrdered": "Ordenado",
+        "ditherHint": {
+          "none": "Arquivo menor, ótimo para artes chapadas.",
+          "diffusion": "Suaviza fotos e degradês.",
+          "ordered": "Granulado que fica parado de um quadro para outro."
+        },
+        "quality": "Qualidade",
+        "phaseAnimation": "Gerando a animação neste navegador",
+        "doneAnimation": "Animação pronta",
+        "resultAnimation": "Animação exportada",
+        "inLibraryAnimation": "A animação já está na biblioteca de mídia.",
+        "fileNameAnimation": "animacao do estudio",
+        "otherFormat": "Outro formato",
+        "animationErrors": {
+          "no_encoder": "Este navegador não consegue gerar esse formato. Use o Chrome ou o Edge.",
+          "too_large": "A animação passou de 95 MB. Diminua a largura, os quadros por segundo ou as cores e exporte de novo."
+        },
         "start": "Exportar agora",
         "phase": {
           "saving": "Salvando o projeto",
@@ -22273,6 +22484,12 @@
           "source": "A mídia acaba antes do fim do clipe nessa velocidade. Use uma velocidade menor ou desligue Manter a duração.",
           "noRoom": "Não há espaço na linha do tempo para essa duração.",
           "rampOutside": "Selecione um clipe de vídeo ou áudio e coloque o cursor sobre ele para começar a rampa."
+        },
+        "ducking": {
+          "invalid": "Escolha outras faixas de áudio com a fala, sem uma faixa abaixar a outra em círculo.",
+          "range": "Esse valor está fora do intervalo permitido.",
+          "missing": "Esta faixa não tem ducking para fixar.",
+          "tooMany": "O ducking fixado teria chaves demais num clipe. Aumente as pausas que seguem abaixadas e tente de novo."
         }
       },
       "preview": {
@@ -22309,7 +22526,7 @@
         },
         "track": {
           "name": "Nome da faixa",
-          "renameHint": "Clique duas vezes para renomear",
+          "renameHint": "{name}. Clique duas vezes para renomear",
           "visualName": "Vídeo {index}",
           "audioName": "Áudio {index}",
           "show": "Mostrar {name}",
@@ -22584,6 +22801,14 @@
           "generate": "Gerar locução",
           "exact": "A voz lê o texto como está escrito.",
           "voice": "Voz"
+        },
+        "sfx": {
+          "tab": "Efeitos",
+          "prompt": "Descreva o som",
+          "placeholder": "Ex.: whoosh rápido de ar para a troca de cena",
+          "generate": "Gerar efeito sonoro",
+          "length": "Duração do efeito",
+          "placement": "O efeito vai para a biblioteca e entra no cursor, sem silêncio nas pontas e nunca mais longo que a duração escolhida."
         },
         "image": {
           "tab": "Imagem",
@@ -22982,6 +23207,21 @@
           "apply": "Aplicar rampa no cursor",
           "hint": "A velocidade muda aos poucos a partir do cursor e o resto do clipe segue na velocidade de chegada."
         }
+      },
+      "trackSound": {
+        "open": "Som da faixa {name}",
+        "level": "Volume da faixa",
+        "ducking": "Abaixar durante a fala",
+        "triggers": "Abaixar quando houver fala em",
+        "audioTrack": "Áudio {number}",
+        "noOtherTracks": "Adicione outra faixa de áudio com a fala para esta faixa abaixar sozinha.",
+        "reduce": "Quanto abaixa",
+        "attack": "Tempo para abaixar",
+        "release": "Tempo para voltar",
+        "hold": "Pausas que seguem abaixadas",
+        "sensitivity": "Sensibilidade à fala",
+        "hint": "A faixa abaixa antes de cada fala e volta depois dela. Fixar troca a regra por chaves de volume que você pode ajustar uma a uma.",
+        "bake": "Fixar em chaves de volume"
       }
     },
     "openFromMedia": {
@@ -23004,6 +23244,7 @@
       "actions": {
         "read": "Lendo o projeto",
         "look": "Olhando o resultado",
+        "listen": "Medindo o som",
         "working": "Trabalhando",
         "add_media": "Colocando mídia",
         "add_text": "Escrevendo texto",

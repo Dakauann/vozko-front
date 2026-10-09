@@ -75,6 +75,7 @@ import {
   type MapPicks,
   type OffMapKey,
 } from "@/lib/leads/map-view";
+import { distanceValue } from "@/lib/maps/area-size";
 import { zoomForPrecision } from "@/lib/maps/precision";
 import type { AreaShape, BBox, DistrictCount, DrawnArea, MapGoTo, MapLayerMode, MapPlaceMarker, MapPoint, SnappedViewport } from "@/lib/maps/types";
 import { cn } from "@/lib/utils";
@@ -119,8 +120,6 @@ interface MapFocus {
 type FocusProblem = { leadId: string; reason: "unplaced" | "failed" };
 
 const AREA_NAME_FORMAT = { dateStyle: "short", timeStyle: "short" } as const;
-
-const KILOMETER = 1000;
 
 const NO_FIELDS: readonly CustomFieldDefinition[] = [];
 
@@ -297,10 +296,8 @@ export function LeadsMapView({
   };
 
   const saveRadius = (center: RadiusCenter, radiusM: number) => {
-    const radius =
-      radiusM < KILOMETER
-        ? tDistricts("radius.meters", { value: radiusM })
-        : tDistricts("radius.kilometers", { value: radiusM / KILOMETER });
+    const distance = distanceValue(radiusM);
+    const radius = tDistricts(`radius.${distance.unit}`, { value: distance.value });
     void saveArea(
       { kind: "circle", center: { lat: center.lat, lng: center.lng }, radiusM },
       t("areas.radiusName", { radius, name: center.name }),
