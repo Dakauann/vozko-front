@@ -22757,7 +22757,13 @@
           "hold": "Hold",
           "easeIn": "Ease in",
           "easeOut": "Ease out",
-          "easeInOut": "Ease in and out"
+          "easeInOut": "Ease in and out",
+          "backIn": "Anticipate",
+          "backOut": "Overshoot",
+          "backInOut": "Anticipate and overshoot",
+          "elastic": "Elastic",
+          "bounce": "Bounce",
+          "spring": "Spring"
         },
         "outside": "The playhead is outside the clip. Move it inside to edit keyframes.",
         "hint": "While a property is animated, changing it here or in the preview records a keyframe at the playhead.",
@@ -22792,7 +22798,13 @@
           "hold": "Stays still and jumps at the next keyframe",
           "easeIn": "Starts slow and speeds up",
           "easeOut": "Starts fast and slows down",
-          "easeInOut": "Starts and ends slowly"
+          "easeInOut": "Starts and ends slowly",
+          "backIn": "Pulls back a little before leaving",
+          "backOut": "Goes a little past the target and settles back",
+          "backInOut": "Pulls back before leaving and overshoots before stopping",
+          "elastic": "Rings around the final value like a rubber band",
+          "bounce": "Bounces on the final value like a ball",
+          "spring": "Arrives with a spring's momentum and settles"
         },
         "presetsTitle": "Ready animations",
         "presetApply": "Apply {name}",
@@ -22805,7 +22817,10 @@
           "fadeOut": "Disappear",
           "pulse": "Pulse",
           "spin": "Spin",
-          "wobble": "Wobble"
+          "wobble": "Wobble",
+          "pop": "Pop",
+          "drop": "Drop and bounce",
+          "springIn": "Spring in"
         },
         "copy": "Copy animation",
         "paste": "Paste animation",
@@ -22816,7 +22831,15 @@
         "pathPad": "Position at {time}. Click to go there or drag to move it.",
         "lanes": "Keyframe lanes",
         "keyAt": "{name} keyframe at {time} ms",
-        "easingProperty": "Easing of the whole {name} animation"
+        "easingProperty": "Easing of the whole {name} animation",
+        "customCurve": "Custom curve",
+        "customCurveHint": "Shape the curve with two control points, as in CSS cubic-bezier. Y below 0 or above 1 makes the animation overshoot.",
+        "curve": {
+          "x1": "X1",
+          "y1": "Y1",
+          "x2": "X2",
+          "y2": "Y2"
+        }
       },
       "focus": {
         "label": "Focus",

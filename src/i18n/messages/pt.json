@@ -22796,7 +22796,13 @@
           "hold": "Manter",
           "easeIn": "Acelerar",
           "easeOut": "Desacelerar",
-          "easeInOut": "Suave"
+          "easeInOut": "Suave",
+          "backIn": "Recuar",
+          "backOut": "Passar e voltar",
+          "backInOut": "Recuar e passar",
+          "elastic": "Elástico",
+          "bounce": "Quicar",
+          "spring": "Mola"
         },
         "outside": "O cursor está fora do clipe. Leve o cursor para dentro dele para editar os quadros-chave.",
         "hint": "Com a animação ligada, mudar um valor aqui ou na pré-visualização grava um quadro-chave no cursor.",
@@ -22831,7 +22837,13 @@
           "hold": "Fica parado e muda de uma vez no próximo quadro-chave",
           "easeIn": "Começa devagar e acelera",
           "easeOut": "Começa rápido e desacelera",
-          "easeInOut": "Começa e termina devagar"
+          "easeInOut": "Começa e termina devagar",
+          "backIn": "Recua um pouco antes de sair",
+          "backOut": "Passa um pouco do ponto e volta",
+          "backInOut": "Recua antes de sair e passa do ponto antes de parar",
+          "elastic": "Vibra em volta do ponto final como um elástico",
+          "bounce": "Quica no ponto final como uma bola",
+          "spring": "Chega com o impulso de uma mola e se acomoda"
         },
         "presetsTitle": "Animações prontas",
         "presetApply": "Aplicar {name}",
@@ -22844,7 +22856,10 @@
           "fadeOut": "Sumir",
           "pulse": "Pulsar",
           "spin": "Girar",
-          "wobble": "Balançar"
+          "wobble": "Balançar",
+          "pop": "Pop",
+          "drop": "Cair e quicar",
+          "springIn": "Entrar com mola"
         },
         "copy": "Copiar animação",
         "paste": "Colar animação",
@@ -22855,7 +22870,15 @@
         "pathPad": "Posição em {time}. Clique para ir até ela ou arraste para mover.",
         "lanes": "Faixas de quadros-chave",
         "keyAt": "Quadro-chave de {name} em {time} ms",
-        "easingProperty": "Suavização de toda a animação de {name}"
+        "easingProperty": "Suavização de toda a animação de {name}",
+        "customCurve": "Curva personalizada",
+        "customCurveHint": "Defina a curva com dois pontos de controle, como no CSS cubic-bezier. Y abaixo de 0 ou acima de 1 faz a animação passar do ponto.",
+        "curve": {
+          "x1": "X1",
+          "y1": "Y1",
+          "x2": "X2",
+          "y2": "Y2"
+        }
       },
       "focus": {
         "label": "Foco",

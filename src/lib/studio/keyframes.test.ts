@@ -7,6 +7,12 @@ import {
   keyframeFault,
   keyframesInRange,
   keyframesIssue,
+  bezierEasing,
+  bezierOf,
+  ease,
+  easingReach,
+  isEasing,
+  maxScale,
   removeKeyframe,
   setKeyframe,
   shiftKeyframes,
@@ -37,6 +43,23 @@ const SHARED_VECTORS: Array<[string, Keyframe[], number, number]> = [
   ["ease in out is symmetric at the middle", ramp("easeInOut"), 2000, 50],
   ["ease in out first quarter", ramp("easeInOut"), 1500, 6.25],
   ["ease in out last quarter", ramp("easeInOut"), 2500, 93.75],
+  ["back in pulls back before leaving", ramp("backIn"), 1500, -6.41365625],
+  ["back in last quarter", ramp("backIn"), 2500, 18.25903125],
+  ["back out overshoots and settles", ramp("backOut"), 2500, 106.41365625],
+  ["back in out pulls back and overshoots", ramp("backInOut"), 2500, 109.968184375],
+  ["back in out first quarter", ramp("backInOut"), 1500, -9.968184375],
+  ["elastic rings past the target", ramp("elastic"), 1500, 91.1611652352],
+  ["elastic last quarter", ramp("elastic"), 2500, 100.5524271728],
+  ["bounce first quarter", ramp("bounce"), 1500, 47.265625],
+  ["bounce last quarter", ramp("bounce"), 2500, 97.265625],
+  ["spring overshoots early", ramp("spring"), 1500, 102.1143579132],
+  ["spring settles back", ramp("spring"), 2500, 97.2042262475],
+  ["every easing lands on the next key", ramp("spring"), 3000, 100],
+  ["an emphasized entrance curve rushes out", ramp("cubic-bezier(0.05,0.7,0.1,1)"), 1500, 83.1529746487],
+  ["an emphasized entrance curve at the middle", ramp("cubic-bezier(0.05,0.7,0.1,1)"), 2000, 95.0247475324],
+  ["a bezier with handles past 1 overshoots", ramp("cubic-bezier(0.34,1.56,0.64,1)"), 2000, 108.7400670219],
+  ["a bezier with handles past 1 settles back", ramp("cubic-bezier(0.34,1.56,0.64,1)"), 2500, 105.9646859964],
+  ["an emphasized exit curve starts slow", ramp("cubic-bezier(0.3, 0, 0.8, 0.15)"), 2500, 40.5585508922],
   ["a single key is constant", [{ atMs: 500, value: 7, easing: "easeIn" }], 9000, 7],
   [
     "the outgoing easing of each key shapes its segment",
@@ -65,6 +88,29 @@ describe("keyframe interpolation (same vectors as the Go renderer)", () => {
   });
 });
 
+describe("custom curves", () => {
+  it("reads a css cubic-bezier with its handles inside the allowed box", () => {
+    expect(bezierOf("cubic-bezier(0.05,0.7,0.1,1)")).toEqual([0.05, 0.7, 0.1, 1]);
+    expect(bezierOf("cubic-bezier( 0.3 , 0 , 0.8 , 0.15 )")).toEqual([0.3, 0, 0.8, 0.15]);
+    for (const bad of ["cubic-bezier(1.2,0,0.5,1)", "cubic-bezier(0.2,3,0.5,1)", "cubic-bezier(0.2,0,0.5)", "bezier(0,0,1,1)", "cubic-bezier(a,0,1,1)", "cubic-bezier(-0.1,0,1,1)"]) expect(bezierOf(bad)).toBeNull();
+    expect(isEasing("cubic-bezier(0.2,0,0,1)")).toBe(true);
+    expect(isEasing("cubic-bezier(0.2,0,0,9)")).toBe(false);
+    expect(bezierEasing([0.2, 0, 0, 1])).toBe("cubic-bezier(0.2,0,0,1)");
+  });
+
+  it("measures how far a curve overshoots so the animated box covers it", () => {
+    const [low, high] = easingReach("cubic-bezier(0.34,1.56,0.64,1)");
+    expect(low).toBe(0);
+    expect(high).toBeGreaterThan(1.09);
+    for (let i = 0; i <= 100; i++) expect(ease("cubic-bezier(0.34,1.56,0.64,1)", i / 100)).toBeLessThanOrEqual(high);
+    expect(easingReach("cubic-bezier(0.2,0,0,1)")).toEqual([0, 1]);
+  });
+
+  it("refuses a key whose curve is malformed", () => {
+    expect(keyframeFault({ y: [{ atMs: 0, value: 0.1, easing: "cubic-bezier(2,0,0,1)" as Easing }] }, box)).toMatchObject({ kind: "easing" });
+  });
+});
+
 describe("animated transform", () => {
   it("overrides position, rotation and opacity and multiplies the box by scale", () => {
     const k: Keyframes = {
@@ -74,6 +120,24 @@ describe("animated transform", () => {
     };
     expect(animatedTransform(box, k, 500)).toEqual({ x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 0.5 });
     expect(animatedTransform(box, undefined, 500)).toBe(box);
+  });
+
+  it("keeps an overshooting opacity between 0 and 1 and never flips the box", () => {
+    const k: Keyframes = {
+      opacity: [{ atMs: 0, value: 0, easing: "backOut" }, { atMs: 1000, value: 1, easing: "linear" }],
+      scale: [{ atMs: 0, value: 1, easing: "backOut" }, { atMs: 1000, value: 0.05, easing: "linear" }],
+    };
+    const shown = animatedTransform(box, k, 750);
+    expect(shown.opacity).toBe(1);
+    expect(shown.w).toBeGreaterThanOrEqual(0);
+    expect(shown.h).toBeGreaterThanOrEqual(0);
+  });
+
+  it("sizes the animated box for the overshoot of the easing, not only the keys", () => {
+    const k: Keyframes = { scale: [{ atMs: 0, value: 1, easing: "elastic" }, { atMs: 1000, value: 2, easing: "linear" }] };
+    expect(maxScale(k)).toBeGreaterThanOrEqual(2.37);
+    for (let ms = 0; ms <= 1000; ms += 5) expect(valueAt(k.scale!, ms)).toBeLessThanOrEqual(maxScale(k));
+    expect(keyframeFault(k, { ...box, w: 1.8, h: 1.8 })).toMatchObject({ kind: "box" });
   });
 });
 
@@ -137,7 +201,7 @@ describe("keyframe rules (mirror of the backend)", () => {
 
   it.each<[string, Keyframes, string]>([
     ["unsorted", { y: [{ atMs: 1000, value: 0.1, easing: "linear" }, { atMs: 1000, value: 0.2, easing: "linear" }] }, "out_of_range"],
-    ["unknown easing", { y: [{ atMs: 0, value: 0.1, easing: "bounce" as Easing }] }, "unknown"],
+    ["unknown easing", { y: [{ atMs: 0, value: 0.1, easing: "wiggle" as Easing }] }, "unknown"],
     ["opacity range", { opacity: [{ atMs: 0, value: 1.5, easing: "linear" }] }, "out_of_range"],
     ["position range", { x: [{ atMs: 0, value: 3, easing: "linear" }] }, "out_of_range"],
     ["scale range", { scale: [{ atMs: 0, value: 0, easing: "linear" }] }, "out_of_range"],
@@ -173,7 +237,7 @@ describe("keyframeFault", () => {
       atMs: 400,
     });
     expect(keyframeFault({ x: [{ atMs: 90_001, value: 0.5, easing: "linear" }] }, box)).toEqual({ kind: "time", property: "x", atMs: 90_001, limit: 90_000 });
-    expect(keyframeFault({ y: [{ atMs: 0, value: 0.1, easing: "bounce" as Easing }] }, box)).toEqual({ kind: "easing", property: "y", atMs: 0, easing: "bounce" });
+    expect(keyframeFault({ y: [{ atMs: 0, value: 0.1, easing: "wiggle" as Easing }] }, box)).toEqual({ kind: "easing", property: "y", atMs: 0, easing: "wiggle" });
   });
 
   it("gives the largest scale the box can take", () => {

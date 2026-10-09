@@ -4,7 +4,7 @@ import { KEYFRAME_LIMITS, KEYFRAME_PROPERTIES, keyframeCount, keyframesIssue, sh
 import type { Refusal } from "./selection-edit";
 import type { ClipPatch } from "./timeline";
 
-export const KEYFRAME_PRESETS = ["kenBurns", "enterLeft", "slideUp", "fadeIn", "fadeOut", "pulse", "spin", "wobble"] as const;
+export const KEYFRAME_PRESETS = ["kenBurns", "enterLeft", "slideUp", "fadeIn", "fadeOut", "pulse", "spin", "wobble", "pop", "drop", "springIn"] as const;
 
 export type KeyframePresetId = (typeof KEYFRAME_PRESETS)[number];
 
@@ -18,6 +18,13 @@ const PULSE_PERIOD_MS = 400;
 const WOBBLE_DEGREES = 6;
 const WOBBLE_PERIOD_MS = 160;
 const SLIDE_DISTANCE = 0.25;
+const POP_MS = 450;
+const POP_FROM = 0.5;
+const POP_FADE_MS = 150;
+const DROP_MS = 900;
+const DROP_DISTANCE = 0.3;
+const SPRING_MS = 800;
+const SPRING_FROM = 0.3;
 
 function key(atMs: number, value: number, easing: Easing = "linear"): Keyframe {
   return { atMs: Math.round(atMs), value, easing };
@@ -25,6 +32,14 @@ function key(atMs: number, value: number, easing: Easing = "linear"): Keyframe {
 
 function entrance(clip: PresetClip): number {
   return Math.min(ENTRANCE_MS, clip.durationMs);
+}
+
+function upTo(clip: PresetClip, ms: number): number {
+  return Math.min(ms, clip.durationMs);
+}
+
+function fadeUp(clip: PresetClip, ms: number): Keyframe[] {
+  return [key(0, 0, "easeOut"), key(upTo(clip, ms), clip.transform.opacity)];
 }
 
 function evenTimes(durationMs: number, periodMs: number): number[] {
@@ -51,6 +66,9 @@ const BUILDERS: Record<KeyframePresetId, (clip: PresetClip) => Keyframes> = {
   wobble: (clip) => ({
     rotation: oscillate(clip, WOBBLE_PERIOD_MS, clip.transform.rotation, (i) => clip.transform.rotation + (i % 2 === 1 ? -WOBBLE_DEGREES : WOBBLE_DEGREES)),
   }),
+  pop: (clip) => ({ scale: [key(0, POP_FROM, "backOut"), key(upTo(clip, POP_MS), 1)], opacity: fadeUp(clip, POP_FADE_MS) }),
+  drop: (clip) => ({ y: [key(0, clip.transform.y - DROP_DISTANCE, "bounce"), key(upTo(clip, DROP_MS), clip.transform.y)], opacity: fadeUp(clip, POP_FADE_MS) }),
+  springIn: (clip) => ({ scale: [key(0, SPRING_FROM, "spring"), key(upTo(clip, SPRING_MS), 1)], opacity: fadeUp(clip, POP_FADE_MS) }),
 };
 
 export function presetKeyframes(id: KeyframePresetId, clip: PresetClip): Keyframes {

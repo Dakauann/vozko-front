@@ -15,7 +15,7 @@ describe("keyframeFaultText", () => {
   });
 
   it("lists the easings for an unknown one", () => {
-    expect(keyframeFaultText({ kind: "easing", property: "y", atMs: 0, easing: "bounce" })).toContain("linear, hold, easeIn, easeOut, easeInOut");
+    expect(keyframeFaultText({ kind: "easing", property: "y", atMs: 0, easing: "wiggle" })).toContain("linear, hold, easeIn, easeOut, easeInOut, backIn, backOut, backInOut, elastic, bounce, spring");
   });
 
   it("asks for distinct instants when two keys collide", () => {

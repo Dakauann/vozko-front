@@ -39,6 +39,28 @@ describe("keyframe presets", () => {
     expect(animatedTransform(box, keyframes, clip.durationMs).x).toBeCloseTo(box.x);
   });
 
+  it("pops in past its size and settles on it", () => {
+    const keyframes = presetKeyframes("pop", clip);
+    const sizes = Array.from({ length: 61 }, (_, i) => animatedTransform(box, keyframes, i * 10).w);
+    expect(sizes[0]).toBeLessThan(box.w);
+    expect(Math.max(...sizes)).toBeGreaterThan(box.w);
+    expect(animatedTransform(box, keyframes, clip.durationMs).w).toBeCloseTo(box.w);
+    expect(animatedTransform(box, keyframes, 0).opacity).toBe(0);
+  });
+
+  it("drops from above and bounces onto the clip position", () => {
+    const keyframes = presetKeyframes("drop", clip);
+    expect(animatedTransform(box, keyframes, 0).y).toBeLessThan(box.y);
+    expect(animatedTransform(box, keyframes, clip.durationMs).y).toBeCloseTo(box.y);
+    expect(keyframes.y?.[0].easing).toBe("bounce");
+  });
+
+  it("springs in from small with the spring curve", () => {
+    const keyframes = presetKeyframes("springIn", clip);
+    expect(keyframes.scale?.[0].easing).toBe("spring");
+    expect(animatedTransform(box, keyframes, clip.durationMs).w).toBeCloseTo(box.w);
+  });
+
   it("zooms slowly from the clip size", () => {
     const keyframes = presetKeyframes("kenBurns", clip);
     expect(animatedTransform(box, keyframes, 0).w).toBeCloseTo(box.w);

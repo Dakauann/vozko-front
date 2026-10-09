@@ -21765,7 +21765,13 @@
           "hold": "Halten",
           "easeIn": "Beschleunigen",
           "easeOut": "Abbremsen",
-          "easeInOut": "Weich"
+          "easeInOut": "Weich",
+          "backIn": "Ausholen",
+          "backOut": "Überschwingen",
+          "backInOut": "Ausholen und überschwingen",
+          "elastic": "Elastisch",
+          "bounce": "Hüpfen",
+          "spring": "Feder"
         },
         "outside": "Der Abspielkopf liegt außerhalb des Clips. Bewege ihn hinein, um Keyframes zu bearbeiten.",
         "hint": "Ist die Animation an, setzt jede Änderung hier oder in der Vorschau einen Keyframe am Abspielkopf.",
@@ -21800,7 +21806,13 @@
           "hold": "Bleibt stehen und springt beim nächsten Keyframe",
           "easeIn": "Beginnt langsam und wird schneller",
           "easeOut": "Beginnt schnell und wird langsamer",
-          "easeInOut": "Beginnt und endet langsam"
+          "easeInOut": "Beginnt und endet langsam",
+          "backIn": "Holt kurz aus, bevor es losgeht",
+          "backOut": "Schießt etwas über das Ziel hinaus und federt zurück",
+          "backInOut": "Holt aus und schießt vor dem Stopp über das Ziel hinaus",
+          "elastic": "Schwingt wie ein Gummiband um den Endwert",
+          "bounce": "Prallt wie ein Ball am Endwert ab",
+          "spring": "Kommt mit dem Schwung einer Feder an und pendelt sich ein"
         },
         "presetsTitle": "Fertige Animationen",
         "presetApply": "{name} anwenden",
@@ -21813,7 +21825,10 @@
           "fadeOut": "Ausblenden",
           "pulse": "Pulsieren",
           "spin": "Drehen",
-          "wobble": "Wackeln"
+          "wobble": "Wackeln",
+          "pop": "Pop",
+          "drop": "Fallen und hüpfen",
+          "springIn": "Mit Feder herein"
         },
         "copy": "Animation kopieren",
         "paste": "Animation einfügen",
@@ -21824,7 +21839,15 @@
         "pathPad": "Position bei {time}. Klicken, um hinzuspringen, oder ziehen, um sie zu verschieben.",
         "lanes": "Keyframe Spuren",
         "keyAt": "Keyframe von {name} bei {time} ms",
-        "easingProperty": "Verlauf der ganzen Animation von {name}"
+        "easingProperty": "Verlauf der ganzen Animation von {name}",
+        "customCurve": "Eigene Kurve",
+        "customCurveHint": "Forme die Kurve mit zwei Kontrollpunkten wie bei CSS cubic-bezier. Y unter 0 oder über 1 lässt die Animation überschwingen.",
+        "curve": {
+          "x1": "X1",
+          "y1": "Y1",
+          "x2": "X2",
+          "y2": "Y2"
+        }
       },
       "focus": {
         "label": "Fokus",

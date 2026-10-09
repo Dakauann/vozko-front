@@ -1,4 +1,4 @@
-import { EASINGS, KEYFRAME_LIMITS, type KeyframeFault, type KeyframeProperty } from "../keyframes";
+import { BEZIER_Y_RANGE, EASINGS, KEYFRAME_LIMITS, type KeyframeFault, type KeyframeProperty } from "../keyframes";
 
 const PROPERTY_HINTS: Record<KeyframeProperty, string> = {
   x: "0.5 é o centro do quadro; fora de 0 a 1 sai da tela",
@@ -15,7 +15,7 @@ export function keyframeFaultText(fault: KeyframeFault): string {
     case "too_many":
       return `${fault.property} passou de ${fault.limit} chaves; use menos chaves`;
     case "easing":
-      return `${fault.property} em ${fault.atMs} ms usa o easing ${fault.easing}, que não existe; use ${EASINGS.join(", ")}`;
+      return `${fault.property} em ${fault.atMs} ms usa o easing ${fault.easing}, que não existe; use ${EASINGS.join(", ")} ou cubic-bezier(x1,y1,x2,y2) com x de 0 a 1 e y de ${BEZIER_Y_RANGE[0]} a ${BEZIER_Y_RANGE[1]}`;
     case "time":
       return `${fault.property} tem uma chave em ${fault.atMs} ms; at_ms vai de ${-fault.limit} a ${fault.limit} ms`;
     case "value":
@@ -23,7 +23,7 @@ export function keyframeFaultText(fault: KeyframeFault): string {
     case "order":
       return `duas chaves de ${fault.property} caem em ${fault.atMs} ms; cada chave precisa de um instante diferente`;
     case "box":
-      return `com scale ${fault.scale} o clipe passaria de ${KEYFRAME_LIMITS.maxAnimatedBox} vezes o quadro; para este clipe use scale até ${fault.maxScale}`;
+      return `com scale chegando a ${fault.scale}, contando o quanto a suavização passa da chave, o clipe passaria de ${KEYFRAME_LIMITS.maxAnimatedBox} vezes o quadro; para este clipe use scale até ${fault.maxScale}`;
   }
 }
 
