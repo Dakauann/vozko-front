@@ -32,6 +32,7 @@ export function RadiusFromPlace({ onRadius, className }: { onRadius: (center: Ra
   const [radiusM, setRadiusM] = useState<number>(DEFAULT_RADIUS_M);
   const [busy, setBusy] = useState(false);
   const [refusal, setRefusal] = useState<string | null>(null);
+  const [wholeCity, setWholeCity] = useState<string | null>(null);
 
   const radiusLabel = (value: number) =>
     value < KILOMETER ? t("radius.meters", { value }) : t("radius.kilometers", { value: value / KILOMETER });
@@ -39,6 +40,7 @@ export function RadiusFromPlace({ onRadius, className }: { onRadius: (center: Ra
   const change = (field: PlaceField, value: string) => {
     setPlace((current) => ({ ...current, [field]: value }));
     setRefusal(null);
+    setWholeCity(null);
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -50,12 +52,14 @@ export function RadiusFromPlace({ onRadius, className }: { onRadius: (center: Ra
     }
     setBusy(true);
     setRefusal(null);
+    setWholeCity(null);
     const outcome = await fetchReferencePoint(place);
     setBusy(false);
     if (!outcome.point) {
       setRefusal(codedErrorMessage(tForm, outcome.error, tForm("failed")));
       return;
     }
+    if (outcome.point.wholeCity && place.zipCode.trim() !== "") setWholeCity(outcome.point.city);
     onRadius({ name: referencePointName(place), lat: outcome.point.position.lat, lng: outcome.point.position.lng }, radiusM);
   };
 
@@ -122,6 +126,11 @@ export function RadiusFromPlace({ onRadius, className }: { onRadius: (center: Ra
           {refusal ? (
             <p role="alert" className="text-xs text-destructive-ink">
               {refusal}
+            </p>
+          ) : null}
+          {wholeCity ? (
+            <p role="status" className="text-xs text-muted-foreground">
+              {tForm("wholeCity", { city: wholeCity })}
             </p>
           ) : null}
           <Button

@@ -152,11 +152,7 @@ function AddressLocationLine({ address, mapHref }: { address: LeadAddress; mapHr
   const location = addressLocation(address);
   const label = location.label.kind === "precision" ? tMap(location.label.key) : t(`geoStatus.${location.label.status}`);
   const origin = addressPositionSource(address);
-  const source = origin
-    ? origin.providerKey
-      ? t("providerSource", { source: tMap(origin.sourceKey), provider: tMap(origin.providerKey) })
-      : tMap(origin.sourceKey)
-    : null;
+  const source = origin ? tMap(origin.sourceKey) : null;
   const sourceLine = source && origin?.fixedAt ? t("positionSource", { source, date: format.dateTime(origin.fixedAt, { dateStyle: "short" }) }) : source;
 
   return (

@@ -64,8 +64,6 @@
       "withoutAddress": "{count, plural, other {# sem endereço.}}",
       "notFound": "{count, plural, one {# não localizado.} other {# não localizados.}}",
       "pending": "{count, plural, other {# aguardando localização.}}",
-      "quotaExceeded": "{count, plural, one {# parado pelo limite de localização.} other {# parados pelo limite de localização.}}",
-      "refused": "{count, plural, one {# recusado pelo provedor de localização.} other {# recusados pelo provedor de localização.}}",
       "visibleApproximate": "{count, plural, other {# com posição aproximada nesta parte do mapa.}}"
     },
     "panel": {
@@ -89,17 +87,13 @@
         "approximate": "Aproximados (CEP, bairro, cidade)",
         "withoutAddress": "Sem endereço",
         "notFound": "Endereço não localizado",
-        "pending": "Aguardando localização",
-        "quotaExceeded": "Parados pelo limite de localização",
-        "refused": "Recusados pelo provedor de localização"
+        "pending": "Aguardando localização"
       },
       "offMapActions": {
         "approximate": "Listar na tabela os leads aproximados",
         "withoutAddress": "Listar na tabela os leads sem endereço",
         "notFound": "Listar na tabela os endereços não localizados",
-        "pending": "Listar na tabela os leads aguardando localização",
-        "quotaExceeded": "Listar na tabela os leads parados pelo limite",
-        "refused": "Listar na tabela os endereços recusados"
+        "pending": "Listar na tabela os leads aguardando localização"
       },
       "offMapActionLabel": "{label} {count}. {action}",
       "leftOut": {
@@ -111,7 +105,10 @@
         "districtsLabel": "Aproximados fora da área, por bairro",
         "districtAction": "Listar na tabela os {count, number} aproximados de {name} fora da área",
         "failed": "Não foi possível contar os aproximados fora da área."
-      }
+      },
+      "approximateInArea": "({count, number} com posição aproximada)",
+      "exactOnly": "Só posição exata",
+      "exactOnlyHint": "Deixa de fora os leads localizados só pelo CEP, bairro ou cidade."
     },
     "empty": {
       "title": "Nenhum lead no mapa ainda",
@@ -122,19 +119,24 @@
         "withoutAddress": "Sem endereço",
         "approximate": "Aproximados",
         "pending": "Aguardando",
-        "notFound": "Não localizados",
-        "quotaExceeded": "Parados pelo limite",
-        "refused": "Recusados pelo provedor"
+        "notFound": "Não localizados"
       },
       "actions": {
         "importAddresses": "Importar endereços",
         "requestAddress": "Pedir endereço pelo WhatsApp",
-        "createLead": "Cadastrar lead"
+        "createLead": "Cadastrar lead",
+        "clearFilters": "Limpar filtros",
+        "includeApproximate": "Incluir aproximados"
       },
       "reasons": {
         "importForbidden": "Você não tem permissão para cadastrar leads.",
         "nobodyWithoutAddress": "Todos os leads deste filtro já têm endereço."
-      }
+      },
+      "filterTitle": "Nenhum lead neste filtro",
+      "filterDescription": "Mude ou limpe os filtros para ver leads no mapa.",
+      "approximateInside": "{count, plural, one {# lead com posição aproximada está dentro da área.} other {# leads com posição aproximada estão dentro da área.}}",
+      "unplacedTitle": "Nenhum lead deste filtro está no mapa",
+      "unplacedDescription": "Estes leads ainda não têm um endereço localizado. Traga os endereços para vê-los aqui."
     },
     "miniMap": {
       "label": "Mapa do endereço",
@@ -191,7 +193,8 @@
           "reference_unavailable": "A base de endereços está indisponível agora. Tente de novo em instantes.",
           "reference_point_unavailable": "A base de endereços está indisponível agora. Tente de novo em instantes.",
           "forbidden": "Você não tem permissão para ver endereços completos."
-        }
+        },
+        "wholeCity": "Este CEP cobre a cidade inteira; o raio parte do centro de {city}."
       }
     },
     "peek": {
@@ -222,8 +225,7 @@
       "manual": "pin manual",
       "lead_pin": "enviada pelo lead",
       "import": "importada",
-      "reference": "IBGE",
-      "provider": "provedor externo"
+      "reference": "IBGE"
     },
     "areas": {
       "proposedName": "Área desenhada em {date}",
@@ -280,9 +282,6 @@
       "failed": "Não foi possível adicionar os leads deste ponto."
     },
     "viewportFailed": "Não foi possível abrir o mapa neste filtro.",
-    "providers": {
-      "opencage": "OpenCage"
-    },
     "focus": {
       "unplaced": "Este lead ainda não tem posição no mapa.",
       "failed": "Não foi possível abrir este lead no mapa.",
@@ -7809,12 +7808,10 @@
       "departments": "Departamentos"
     },
     "configTab": {
-      "description": "Políticas da área de trabalho: atribuição e encerramento de conversas e localização de endereços.",
+      "description": "Políticas da área de trabalho: atribuição e encerramento de conversas.",
       "sections": {
-        "attendance": "Atendimento",
-        "leads": "Leads"
-      },
-      "managerDescription": "Localização de endereços desta área de trabalho."
+        "attendance": "Atendimento"
+      }
     },
     "roles": {
       "owner": "Proprietário",
@@ -8067,96 +8064,7 @@
         "connects_accounts": "Permite conectar e desconectar canais e integrações da empresa."
       }
     },
-    "viewActivity": "Ver atividade",
-    "geocoding": {
-      "title": "Localização de endereços",
-      "description": "Como os endereços dos leads viram posições no mapa.",
-      "status": {
-        "loading": "Carregando",
-        "unavailable": "Indisponível",
-        "reference": "Só referência IBGE",
-        "provider": "Provedor externo ligado",
-        "ceilingReached": "Teto do mês atingido",
-        "noCeiling": "Teto mensal zerado",
-        "providerMissing": "Provedor externo indisponível",
-        "providerPaused": "Provedor pausado",
-        "providerPauseUnknown": "Provedor em espera"
-      },
-      "loading": "Carregando a localização de endereços…",
-      "loadFailed": "Não foi possível carregar a localização de endereços.",
-      "saved": "Localização de endereços atualizada.",
-      "saveFailed": "Não foi possível salvar.",
-      "reference": {
-        "label": "Base de referência",
-        "hint": "Sempre ligada. Posiciona os endereços pelo CEP, pelo bairro e pela cidade com dados públicos, sem enviar endereços para fora dos nossos servidores."
-      },
-      "provider": {
-        "label": "Provedor externo ({provider})",
-        "labelNone": "Provedor externo",
-        "hint": "Usado só quando a referência não chega ao nível da rua e o endereço tem logradouro. Ao ligar, os endereços dos leads passam a ser enviados ao provedor, que é instruído a não guardar as consultas.",
-        "readOnly": "Só o dono do workspace ou um administrador da plataforma pode ligar ou desligar o provedor externo.",
-        "notConfigured": "Este servidor não tem acesso a um provedor externo.",
-        "stamp": {
-          "on": "Ligado por <name>{person}</name> em {date}",
-          "off": "Desligado por <name>{person}</name> em {date}"
-        },
-        "never": "Nunca ligado neste workspace."
-      },
-      "usage": {
-        "title": "Consultas externas neste ciclo",
-        "count": "{used, number} de {ceiling, number}",
-        "today": "Hoje: {used, number} de {share, number}",
-        "renews": "O ciclo renova em {date}.",
-        "off": "Com o provedor desligado, nenhuma consulta externa é feita.",
-        "none": "Teto mensal zerado: nenhuma consulta externa é feita.",
-        "reached": "Teto do mês atingido. Os endereços que faltam ficam com a posição da referência até o próximo ciclo.",
-        "todayReached": "Cota de hoje atingida. As consultas continuam amanhã."
-      },
-      "ceiling": {
-        "label": "Teto mensal de consultas",
-        "hint": "0 desliga as consultas externas deste workspace.",
-        "readOnly": "Só administradores da plataforma mudam o teto mensal.",
-        "save": "Salvar teto",
-        "invalid": "Informe um número inteiro, sem casas decimais.",
-        "stamp": "Teto definido por <name>{person}</name> em {date}"
-      },
-      "confirm": {
-        "enable": {
-          "title": "Ligar o provedor externo?",
-          "description": "Os endereços dos leads deste workspace passam a ser enviados ao {provider} quando a referência não chega ao nível da rua. As consultas contam no teto mensal do workspace.",
-          "confirm": "Ligar provedor"
-        },
-        "cancel": "Cancelar"
-      },
-      "errors": {
-        "geocoding_forbidden": "Só o dono do workspace ou um administrador da plataforma pode mudar esta configuração.",
-        "geocoding_ceiling_forbidden": "Só um administrador da plataforma pode mudar o teto mensal.",
-        "geocoding_change_empty": "Não há nada para salvar.",
-        "geocoding_provider_unknown": "Este provedor não existe.",
-        "geocoding_ceiling_invalid": "O teto informado está fora da faixa permitida.",
-        "geocoding_provider_not_configured": "Este servidor não tem acesso a esse provedor.",
-        "geocoding_settings_unreadable": "A configuração não pôde ser lida. Tente de novo.",
-        "geocoding_unavailable": "A localização de endereços não está disponível neste servidor.",
-        "invalid_body": "O pedido foi recusado pelo servidor. Recarregue a página e tente de novo.",
-        "unknown": "Tente de novo em instantes."
-      },
-      "pause": {
-        "title": "O provedor externo está pausado para todos os workspaces",
-        "unknownTitle": "Não foi possível confirmar o estado do provedor externo",
-        "since": "Pausado desde {since}.",
-        "until": "Nenhuma consulta externa paga é feita e nada do teto é gasto até {until}.",
-        "unknown": "Enquanto o estado não for confirmado, nenhuma consulta externa paga é feita e nada do teto é gasto.",
-        "reference": "Enquanto isso, as posições usam a referência gratuita (o ponto do CEP, do bairro ou da cidade).",
-        "reasons": {
-          "key_rejected": "O provedor recusou a chave de acesso da plataforma.",
-          "account_quota_spent": "A cota da conta da plataforma no provedor acabou.",
-          "key_disabled": "A chave de acesso da plataforma foi desativada no provedor.",
-          "account_refused": "O provedor recusou a conta da plataforma.",
-          "queries_refused": "O provedor recusou endereços diferentes em sequência, sinal de um problema na integração com o provedor e não nos seus endereços.",
-          "other": "O provedor recusou as consultas da plataforma."
-        }
-      }
-    }
+    "viewActivity": "Ver atividade"
   },
   "workspaceInvites": {
     "loading": "Carregando convites...",
@@ -8894,12 +8802,10 @@
   "adminGeocoding": {
     "header": {
       "badge": "Geolocalização de endereços",
-      "description": "Consumo do provedor externo e cobertura de endereços de cada workspace, no ciclo mensal de Brasília."
+      "description": "Quantos leads de cada workspace têm endereço e posição no mapa, localizados pela base de referência do IBGE."
     },
     "stats": {
-      "workspaces": "Workspaces",
-      "cycle": "Ciclo atual",
-      "cycleValue": "{start} a {end}"
+      "workspaces": "Workspaces"
     },
     "search": {
       "placeholder": "Buscar workspace pelo nome"
@@ -8911,46 +8817,29 @@
     },
     "table": {
       "workspace": "Workspace",
-      "provider": "Provedor",
-      "usage": "Consumo no ciclo",
       "address": "Com endereço",
       "onMap": "No mapa",
       "details": "Detalhes"
-    },
-    "provider": {
-      "none": "Só a base de referência",
-      "active": "Ativo",
-      "since": "Ativo desde {date}"
-    },
-    "usage": {
-      "value": "{used, number} de {ceiling, number}",
-      "meter": "Consumo do teto mensal",
-      "off": "Provedor desligado",
-      "none": "Teto zerado, nenhuma consulta liberada",
-      "today": "Hoje: {count, number}",
-      "defaultCeiling": "teto padrão"
     },
     "share": {
       "value": "{share, number, percent}",
       "of": "{count, number} de {total, number} leads"
     },
     "details": {
-      "history": "Consultas ao provedor por ciclo",
-      "historyTotal": "{count, number} nos últimos 12 ciclos",
       "coverage": "Situação dos endereços"
     },
     "empty": {
-      "title": "Nenhum workspace com leads ou geolocalização",
+      "title": "Nenhum workspace com leads",
       "filteredTitle": "Nenhum workspace com esse nome",
-      "description": "Aparecem aqui os workspaces com leads, com provedor configurado ou com consumo registrado."
+      "description": "Aparecem aqui os workspaces que têm leads."
     },
     "errors": {
       "title": "Não foi possível carregar a geolocalização",
-      "forbidden": "Só um administrador da plataforma pode ver o consumo de todos os workspaces.",
+      "forbidden": "Só um administrador da plataforma pode ver a cobertura de endereços de todos os workspaces.",
       "unavailable": "A geolocalização de endereços não está disponível neste servidor.",
       "busy": "A leitura está ocupada agora. Tente de novo em instantes.",
       "slow": "A leitura demorou demais. Tente de novo em instantes.",
-      "default": "O consumo de geolocalização não pôde ser lido."
+      "default": "A cobertura de endereços não pôde ser lida."
     },
     "pagination": {
       "items": "workspaces"
@@ -10542,7 +10431,7 @@
           "notLocated": "Não localizados",
           "noAddress": "Sem endereço no arquivo"
         },
-        "source": "Localizados com a base de endereços do IBGE (CNEFE 2022) nos nossos servidores. Um provedor externo só é usado quando o workspace o ativou."
+        "source": "Localizados com a base de endereços do IBGE (CNEFE 2022) nos nossos servidores."
       }
     },
     "header": {
@@ -10720,10 +10609,7 @@
           "located": "Localizado",
           "approximate": "Aproximado",
           "not_found": "Não localizado",
-          "ambiguous": "Endereço ambíguo",
-          "unavailable": "Serviço indisponível",
-          "quota_exceeded": "Limite de consultas atingido",
-          "refused": "Recusado pelo provedor"
+          "unavailable": "Serviço indisponível"
         },
         "ownerPresence": {
           "true": "Com responsável",
@@ -10735,9 +10621,7 @@
           "approximate": "Aproximado (CEP, bairro, cidade)",
           "without_address": "Sem endereço",
           "not_found": "Endereço não localizado",
-          "pending": "Aguardando localização",
-          "quota_exceeded": "Parado pelo limite de localização",
-          "refused": "Recusado pelo provedor de localização"
+          "pending": "Aguardando localização"
         }
       },
       "chips": {
@@ -10750,7 +10634,8 @@
         "isSet": "tem",
         "isEmpty": "não tem",
         "isTrue": "sim",
-        "isFalse": "não"
+        "isFalse": "não",
+        "exactOnly": "só posição exata"
       },
       "failed": "Não foi possível carregar as opções.",
       "facetsFailed": "As contagens dos filtros não carregaram.",
@@ -22366,7 +22251,29 @@
         "tooManyJobs": "Limite de trabalhos ao mesmo tempo atingido. Aguarde um terminar.",
         "captionsPlaced": "Legendas adicionadas numa faixa nova.",
         "captionsFileUnreadable": "Esse arquivo não tem legendas em SRT ou VTT. Nada foi alterado.",
-        "captionsInvalid": "As legendas não cabem no projeto: alguma passa do tamanho de texto permitido ou o projeto ficaria grande demais. Nada foi alterado."
+        "captionsInvalid": "As legendas não cabem no projeto: alguma passa do tamanho de texto permitido ou o projeto ficaria grande demais. Nada foi alterado.",
+        "transitions": {
+          "apart": "Os dois clipes precisam se encostar na mesma faixa visual para receber uma transição.",
+          "kind": "Esse tipo de transição não existe.",
+          "duration": "A transição vai de 0,1 a 4 s e não pode passar da metade de cada clipe.",
+          "alignment": "Mergulho na cor, zoom e chicote só ficam centralizados no corte.",
+          "easing": "A curva \"manter\" não vale para transições.",
+          "option": "Essa opção não vale para esse tipo de transição.",
+          "missing": "A transição não existe mais.",
+          "locked": "A faixa está travada.",
+          "noCut": "Coloque dois clipes encostados na mesma faixa para adicionar uma transição."
+        },
+        "speed": {
+          "missing": "Esse clipe não existe mais.",
+          "locked": "A faixa está bloqueada. Desbloqueie para mudar a velocidade.",
+          "notSourced": "Só vídeo e áudio mudam de velocidade.",
+          "notVideo": "Coloque o cursor sobre um clipe de vídeo para congelar um quadro.",
+          "frozen": "Um quadro congelado não muda de velocidade. Mude a duração dele pelas bordas.",
+          "range": "A velocidade vai de 0,1× a 16×.",
+          "source": "A mídia acaba antes do fim do clipe nessa velocidade. Use uma velocidade menor ou desligue Manter a duração.",
+          "noRoom": "Não há espaço na linha do tempo para essa duração.",
+          "rampOutside": "Selecione um clipe de vídeo ou áudio e coloque o cursor sobre ele para começar a rampa."
+        }
       },
       "preview": {
         "label": "Pré-visualização",
@@ -22566,7 +22473,8 @@
           "copied": "Animação copiada. Selecione outro clipe, coloque o cursor e cole.",
           "noKeys": "O clipe não tem quadros-chave para copiar.",
           "clipboardEmpty": "Copie a animação de um clipe antes de colar."
-        }
+        },
+        "transitionTitle": "Transição"
       },
       "layer": {
         "title": {
@@ -22614,14 +22522,16 @@
           "ai": "IA",
           "elements": "Texto",
           "captions": "Legendas",
-          "process": "Processar"
+          "process": "Processar",
+          "transitions": "Transições"
         },
         "titles": {
           "media": "Mídia",
           "ai": "Gerar com IA",
           "elements": "Texto e elementos",
           "captions": "Legendas automáticas",
-          "process": "Processar"
+          "process": "Processar",
+          "transitions": "Transições"
         }
       },
       "media": {
@@ -22785,7 +22695,10 @@
           "scale": "Escala",
           "rotation": "Rotação",
           "opacity": "Opacidade",
-          "blur": "Desfoque"
+          "blur": "Desfoque",
+          "fill": "Cor",
+          "stroke": "Cor do contorno",
+          "gainDb": "Volume (dB)"
         },
         "animate": "Animar {name}",
         "stopAnimating": "Parar de animar {name}",
@@ -22936,6 +22849,138 @@
           "overwriteDrag": "Arrastar sobrescrevendo",
           "rippleTrimDrag": "Cortar em cascata",
           "forwardClick": "Selecionar trecho para frente"
+        }
+      },
+      "transitions": {
+        "title": "Transição",
+        "kind": "Tipo",
+        "duration": "Duração",
+        "alignment": "Posição no corte",
+        "easing": "Curva",
+        "optionsTitle": "Opções",
+        "remove": "Remover transição",
+        "chip": "Transição: {kind}",
+        "addAt": "Adicionar transição neste corte",
+        "panelHint": "Escolha um tipo para aplicar no corte do clipe selecionado ou no corte mais perto do cursor. Os clipes não se movem.",
+        "swapHint": "Escolha outro tipo para trocar a transição selecionada.",
+        "kinds": {
+          "dissolve": "Fusão",
+          "dipToColor": "Mergulho na cor",
+          "push": "Empurrar",
+          "slide": "Deslizar",
+          "wipe": "Varredura",
+          "iris": "Íris",
+          "clockWipe": "Relógio",
+          "split": "Abrir ao meio",
+          "zoom": "Zoom",
+          "whip": "Chicote",
+          "blurDissolve": "Fusão desfocada"
+        },
+        "hints": {
+          "dissolve": "Um clipe se funde no outro",
+          "dipToColor": "Passa por uma cor no meio, como um fade para preto",
+          "push": "O clipe novo empurra o antigo para fora",
+          "slide": "Um clipe desliza por cima do outro",
+          "wipe": "Uma borda varre o quadro revelando o clipe novo",
+          "iris": "O clipe novo abre a partir de uma forma",
+          "clockWipe": "Varre o quadro como o ponteiro de um relógio",
+          "split": "O clipe novo abre do centro para as bordas",
+          "zoom": "Aproxima até trocar de clipe, com desfoque",
+          "whip": "Passagem rápida com desfoque de movimento",
+          "blurDissolve": "Fusão com um desfoque no meio"
+        },
+        "options": {
+          "direction": "Direção",
+          "moving": "Movimento",
+          "color": "Cor",
+          "angle": "Ângulo",
+          "shape": "Forma",
+          "originX": "Centro horizontal",
+          "originY": "Centro vertical",
+          "clockwise": "Sentido horário",
+          "orientation": "Abertura",
+          "reverse": "Fechar o clipe que sai",
+          "amount": "Intensidade"
+        },
+        "directions": {
+          "left": "Para a esquerda",
+          "right": "Para a direita",
+          "up": "Para cima",
+          "down": "Para baixo"
+        },
+        "moves": {
+          "in": "O novo entra por cima",
+          "out": "O antigo sai por cima"
+        },
+        "shapes": {
+          "circle": "Círculo",
+          "box": "Retângulo",
+          "diamond": "Losango"
+        },
+        "orientations": {
+          "horizontal": "Para cima e para baixo",
+          "vertical": "Para os lados"
+        },
+        "alignments": {
+          "center": "Centralizada",
+          "start": "Começa no corte",
+          "end": "Termina no corte"
+        },
+        "timingTitle": "Tipo, tempo e curva"
+      },
+      "textMotion": {
+        "title": "Animação do texto",
+        "hint": "Cada letra, palavra ou linha começa depois da anterior; o intervalo é esse atraso. A saída termina junto com o clipe.",
+        "sides": {
+          "in": {
+            "style": "Chegada do texto",
+            "unit": "Chegada por",
+            "duration": "Duração da chegada",
+            "stagger": "Intervalo da chegada",
+            "easing": "Curva da chegada"
+          },
+          "out": {
+            "style": "Saída do texto",
+            "unit": "Saída por",
+            "duration": "Duração da saída",
+            "stagger": "Intervalo da saída",
+            "easing": "Curva da saída"
+          }
+        },
+        "styles": {
+          "none": "Nenhuma",
+          "fade": "Surgir",
+          "rise": "Subir",
+          "slide": "Deslizar",
+          "pop": "Saltar",
+          "blur": "Desfocar",
+          "typewriter": "Máquina de escrever"
+        },
+        "units": {
+          "char": "Letra",
+          "word": "Palavra",
+          "line": "Linha"
+        }
+      },
+      "speed": {
+        "title": "Velocidade",
+        "speed": "Velocidade",
+        "presets": "Velocidades prontas",
+        "preset": "{speed}×",
+        "keepDuration": "Manter a duração",
+        "reverse": "De trás para frente",
+        "preservePitch": "Manter o tom do som",
+        "freeze": "Congelar quadro no cursor",
+        "frozen": "Este clipe é um quadro congelado. Mude a duração dele pelas bordas na linha do tempo.",
+        "pitchHint": "Longe de 1× o som esticado pode soar artificial. Desligue Manter o tom para o som acompanhar a velocidade.",
+        "badge": "{speed}×",
+        "reversedBadge": "De trás para frente",
+        "frozenBadge": "Quadro congelado",
+        "ramp": {
+          "target": "Velocidade de chegada",
+          "duration": "Duração da rampa",
+          "apply": "Aplicar rampa no cursor",
+          "hint": "A velocidade muda aos poucos a partir do cursor e o resto do clipe segue na velocidade de chegada."
         }
       }
     },
@@ -23138,6 +23183,38 @@
         "simplify": "Simplificar",
         "points": "{count, plural, one {# ponto} other {# pontos}}",
         "outline": "Converter traço em forma"
+      }
+    },
+    "grade": {
+      "title": "Correção de cor",
+      "reset": "Redefinir cor",
+      "light": "Luz",
+      "color": "Cor",
+      "look": "Look",
+      "looks": "Looks prontos",
+      "intensity": "Intensidade do look",
+      "stops": "{value} EV",
+      "fields": {
+        "exposure": "Exposição",
+        "contrast": "Contraste",
+        "highlights": "Realces",
+        "shadows": "Sombras",
+        "whites": "Brancos",
+        "blacks": "Pretos",
+        "temperature": "Temperatura",
+        "tint": "Matiz",
+        "saturation": "Saturação",
+        "vibrance": "Vibração"
+      },
+      "lookNames": {
+        "warm": "Quente",
+        "cool": "Frio",
+        "faded": "Desbotado",
+        "mono": "Preto e branco",
+        "punchy": "Vibrante",
+        "dramatic": "Dramático",
+        "soft": "Suave",
+        "vintage": "Vintage"
       }
     }
   },
@@ -23702,17 +23779,12 @@
         "located": "Localizado",
         "approximate": "Localização aproximada",
         "not_found": "Endereço não localizado",
-        "ambiguous": "Endereço ambíguo",
-        "unavailable": "Localização indisponível",
-        "quota_exceeded": "Limite de localizações atingido",
-        "refused": "Endereço recusado pelo provedor"
+        "unavailable": "Localização indisponível"
       },
       "positionSource": "{source} · {date}",
-      "providerSource": "{source} ({provider})",
       "queuedNote": {
         "pending": "Buscando uma posição mais precisa",
-        "unavailable": "Posição mais precisa indisponível no momento",
-        "quota_exceeded": "Teto atingido: posição mais precisa no próximo ciclo"
+        "unavailable": "Posição mais precisa indisponível no momento"
       },
       "showOnMap": "Ver no mapa de leads"
     },

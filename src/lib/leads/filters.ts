@@ -172,10 +172,7 @@ export const LEAD_GEO_STATUSES: readonly LeadGeoStatus[] = [
     'located',
     'approximate',
     'not_found',
-    'ambiguous',
     'unavailable',
-    'quota_exceeded',
-    'refused',
 ];
 
 export const LEAD_GEO_PLACEMENTS = [
@@ -184,8 +181,6 @@ export const LEAD_GEO_PLACEMENTS = [
     'without_address',
     'not_found',
     'pending',
-    'quota_exceeded',
-    'refused',
 ] as const;
 
 export type LeadGeoPlacement = (typeof LEAD_GEO_PLACEMENTS)[number];

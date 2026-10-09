@@ -90,14 +90,6 @@ describe("lead detail, Endereço principal", () => {
     expect(within(section).getByText(tMap.precision.exact)).toBeInTheDocument();
   });
 
-  it("names the provider behind a provider position", () => {
-    const section = renderOverview(lead({ ...exact, precision: "street", positionSource: "provider", positionProvider: "opencage", geocodedAt: undefined }));
-    expect(within(section).getByText(tMap.precision.street)).toBeInTheDocument();
-    expect(
-      within(section).getByText(t.providerSource.replace("{source}", tMap.source.provider).replace("{provider}", tMap.providers.opencage)),
-    ).toBeInTheDocument();
-  });
-
   it.each([
     ["postal_code", tMap.precision.postalCode],
     ["district", tMap.precision.district],
@@ -111,7 +103,7 @@ describe("lead detail, Endereço principal", () => {
   it.each([
     ["pending", t.geoStatus.pending],
     ["not_found", t.geoStatus.not_found],
-    ["refused", t.geoStatus.refused],
+    ["unavailable", t.geoStatus.unavailable],
   ] as const)("labels a %s address by its status", (geoStatus, label) => {
     const section = renderOverview(lead({ geoStatus }));
     expect(within(section).getByText(label)).toBeInTheDocument();
@@ -121,7 +113,6 @@ describe("lead detail, Endereço principal", () => {
   it.each([
     ["pending", t.queuedNote.pending],
     ["unavailable", t.queuedNote.unavailable],
-    ["quota_exceeded", t.queuedNote.quota_exceeded],
   ] as const)("notes that an approximate %s position is still waiting for a better one", (geoStatus, note) => {
     const section = renderOverview(lead({ geoStatus, geoQueued: true, precision: "district", positionSource: "reference", latitude: -23.5, longitude: -46.8 }));
     expect(within(section).getByText(tMap.precision.district)).toBeInTheDocument();

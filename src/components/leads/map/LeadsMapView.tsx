@@ -17,6 +17,7 @@ import type { RadiusCenter } from "@/components/maps/RadiusFromPlace";
 import { GeoSummaryPanel, type GeoLeftOutView } from "@/components/maps/GeoSummaryPanel";
 import { LeadMap } from "@/components/maps/LeadMap";
 import { MapEmptyState, type MapEmptyActionProps } from "@/components/maps/MapEmptyState";
+import { MapFilterEmpty } from "@/components/maps/MapFilterEmpty";
 import { MapLegend } from "@/components/maps/MapLegend";
 import { BESIDE_MAP_PANEL, MAP_FLOATY } from "@/components/maps/map-layout";
 import { MapFailure } from "@/components/maps/MapStatus";
@@ -27,7 +28,7 @@ import { useViewportFill } from "@/hooks/use-viewport-fill";
 import {
   leadAreasKey,
   useLeadMapDistricts,
-  useLeadMapLayer,
+  useLeadMapTiles,
   useLeadMapLeftOut,
   useLeadMapSummary,
   useLeadMapViewport,
@@ -37,10 +38,14 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { isBusySectionError, sectionErrorCode } from "@/lib/analytics/section-query";
 import { codedErrorMessage } from "@/lib/api/coded-error";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
-import type { LeadFilter } from "@/lib/leads/filters";
+import { emptyLeadFilter, isEmptyLeadFilter, type LeadFilter } from "@/lib/leads/filters";
 import {
   addressRequestSelection,
+  areaExactOnly,
   areaIdsOf,
+  leadMapFrame,
+  mapEmptyKind,
+  withAreaExactOnly,
   centeredPeek,
   chosenColourField,
   colourFieldsOf,
@@ -82,6 +87,7 @@ export interface LeadsMapViewProps {
   filter: LeadFilter;
   search: string;
   onFilterChange: (filter: LeadFilter) => void;
+  onClearFilters: () => void;
   onShowTable: (filter?: LeadFilter) => void;
   areas: readonly DrawnArea[];
   picks: MapPicks;
@@ -122,12 +128,17 @@ const FIT_PADDING = { top: 64, right: 336, bottom: 40, left: 64 };
 
 const MAP_NOTICE = cn("px-2.5 py-1.5 text-xs", MAP_FLOATY);
 
-const OFF_MAP_KEYS: readonly OffMapKey[] = ["approximate", "withoutAddress", "notFound", "pending", "quotaExceeded", "refused"];
+const EMPTY_CARD = cn("pointer-events-auto h-auto max-h-full w-full max-w-2xl overflow-y-auto py-6", MAP_FLOATY);
+
+const WHOLE_WORKSPACE = { filter: emptyLeadFilter, q: "" };
+
+const OFF_MAP_KEYS: readonly OffMapKey[] = ["approximate", "withoutAddress", "notFound", "pending"];
 
 export function LeadsMapView({
   filter,
   search,
   onFilterChange,
+  onClearFilters,
   onShowTable,
   areas,
   picks,
@@ -197,7 +208,7 @@ export function LeadsMapView({
 
   const wantsPositions = (chosenLayer ?? defaultLayerMode(viewport.data?.view, null)) !== "districts";
   const layerRequest = snapped ? (colorBy ? { viewport: snapped, colorBy } : { viewport: snapped }) : null;
-  const layer = useLeadMapLayer(params, layerRequest, { enabled: inView && viewportSettled && wantsPositions });
+  const layer = useLeadMapTiles(params, layerRequest, { enabled: inView && viewportSettled && wantsPositions });
   const mode: MapLayerMode = chosenLayer ?? defaultLayerMode(viewport.data?.view, layer.data?.kind ?? null);
   const facets = useLeadSection("facets", { ...params, colorBy }, { enabled: inView && colorBy !== undefined });
 
@@ -210,7 +221,8 @@ export function LeadsMapView({
     [filter, areas],
   );
   const outlined: AreaShape[] = useMemo(() => activeAreas.map((area) => area.shape), [activeAreas]);
-  const leftOut = useLeadMapLeftOut(params, { enabled: inView && activeAreaIds.length > 0 });
+  const exactOnly = areaExactOnly(filter);
+  const leftOut = useLeadMapLeftOut(params, { enabled: inView && exactOnly });
 
   const availability = [viewport.error, summary.error, districts.error, layer.error]
     .map(leadMapAvailability)
@@ -346,7 +358,18 @@ export function LeadsMapView({
   const viewportFailure = isBusySectionError(viewport.error)
     ? tCommon("sectionBusy")
     : codedErrorMessage(tLeads, { code: sectionErrorCode(viewport.error) ?? undefined }, t("viewportFailed"));
-  const empty = nothingOnMap(summary.data ?? null, districts.data ?? null);
+  const filtering = !isEmptyLeadFilter(filter) || search.trim() !== "";
+  const filteredEmpty = filtering && nothingOnMap(summary.data ?? null, districts.data ?? null);
+  const workspaceSummary = useLeadMapSummary(WHOLE_WORKSPACE, { enabled: inView && filteredEmpty });
+  const emptyKind = mapEmptyKind({
+    filtering,
+    summary: summary.data ?? null,
+    districts: districts.data ?? null,
+    workspace: workspaceSummary.data ?? null,
+  });
+  const empty = emptyKind !== null;
+  const keepExactOnly = (on: boolean) => onFilterChange(withAreaExactOnly(filter, on));
+  const approximateInside = exactOnly ? leftOut.data?.total ?? 0 : 0;
 
   const offMapActions = Object.fromEntries(
     OFF_MAP_KEYS.map((key) => [key, () => onShowTable(offMapFilter(filter, key))]),
@@ -354,7 +377,7 @@ export function LeadsMapView({
 
   const leftOutData = leftOut.data ?? null;
   const leftOutView: GeoLeftOutView | null =
-    activeAreaIds.length > 0
+    exactOnly
       ? {
           counts: leftOutData,
           failed: leftOut.isError,
@@ -371,11 +394,14 @@ export function LeadsMapView({
       : null;
 
   const withoutAddressCount = summary.data?.withoutAddress ?? 0;
-  const requestAddress: MapEmptyActionProps = !sends.send_template.enabled
-    ? { disabledReason: tSendBlockers(sends.send_template.reason) }
-    : withoutAddressCount === 0
-      ? { disabledReason: t("empty.reasons.nobodyWithoutAddress") }
-      : { onSelect: () => setRequesting(true) };
+  const requestAddress: MapEmptyActionProps | undefined =
+    (summary.data?.total ?? 0) === 0
+      ? undefined
+      : !sends.send_template.enabled
+        ? { disabledReason: tSendBlockers(sends.send_template.reason) }
+        : withoutAddressCount === 0
+          ? { disabledReason: t("empty.reasons.nobodyWithoutAddress") }
+          : { onSelect: () => setRequesting(true) };
 
   const shownFocusProblem = focusProblem && focusProblem.leadId === focusLeadId ? focusProblem : null;
 
@@ -406,7 +432,7 @@ export function LeadsMapView({
         selectedPointIds={selectedPointIds}
         allSelected={activeAreas.length > 0}
         areas={outlined}
-        bounds={focus?.bounds ?? viewport.data?.bbox ?? null}
+        bounds={leadMapFrame(focus?.bounds ?? null, viewport.data, activeAreaIds.length > 0)}
         fitPadding={FIT_PADDING}
         ariaLabel={t("mapLabel")}
         onViewportChange={setSnapped}
@@ -483,6 +509,7 @@ export function LeadsMapView({
           <GeoSummaryPanel
             summary={summary.data ?? null}
             areaNames={activeAreas.map((area) => area.name)}
+            exactOnly={{ on: exactOnly, onChange: keepExactOnly }}
             colour={panelColour}
             failed={summary.isError}
             busy={isBusySectionError(summary.error)}
@@ -512,13 +539,22 @@ export function LeadsMapView({
         {body}
         {empty && availability !== "unavailable" ? (
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
-            <MapEmptyState
-              className={cn("pointer-events-auto h-auto max-h-full w-full max-w-2xl overflow-y-auto py-6", MAP_FLOATY)}
-              summary={summary.data ?? null}
-              importAddresses={canCreateLead ? { onSelect: onImport } : { disabledReason: t("empty.reasons.importForbidden") }}
-              requestAddress={requestAddress}
-              createLead={canCreateLead ? { onSelect: onCreateLead } : { disabledReason: t("empty.reasons.importForbidden") }}
-            />
+            {emptyKind === "filter" ? (
+              <MapFilterEmpty
+                className={EMPTY_CARD}
+                onClear={onClearFilters}
+                includeApproximate={approximateInside > 0 ? { count: approximateInside, onSelect: () => keepExactOnly(false) } : null}
+              />
+            ) : (
+              <MapEmptyState
+                className={EMPTY_CARD}
+                scope={emptyKind === "unplaced" ? "filter" : "workspace"}
+                summary={summary.data ?? null}
+                importAddresses={canCreateLead ? { onSelect: onImport } : { disabledReason: t("empty.reasons.importForbidden") }}
+                requestAddress={requestAddress}
+                createLead={canCreateLead ? { onSelect: onCreateLead } : { disabledReason: t("empty.reasons.importForbidden") }}
+              />
+            )}
           </div>
         ) : null}
       </div>

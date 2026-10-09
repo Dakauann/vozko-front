@@ -64,8 +64,6 @@
       "withoutAddress": "{count, plural, other {# ohne Adresse.}}",
       "notFound": "{count, plural, other {# nicht gefunden.}}",
       "pending": "{count, plural, other {# warten auf Verortung.}}",
-      "quotaExceeded": "{count, plural, other {# durch das Verortungslimit angehalten.}}",
-      "refused": "{count, plural, other {# vom Standortanbieter abgelehnt.}}",
       "visibleApproximate": "{count, plural, other {# mit ungefährer Position in diesem Kartenausschnitt.}}"
     },
     "panel": {
@@ -89,17 +87,13 @@
         "approximate": "Ungefähr (PLZ, Stadtteil, Stadt)",
         "withoutAddress": "Ohne Adresse",
         "notFound": "Adresse nicht gefunden",
-        "pending": "Warten auf Standort",
-        "quotaExceeded": "Durch das Standortlimit gestoppt",
-        "refused": "Vom Standortanbieter abgelehnt"
+        "pending": "Warten auf Standort"
       },
       "offMapActions": {
         "approximate": "Die ungefähren Leads in der Tabelle auflisten",
         "withoutAddress": "Die Leads ohne Adresse in der Tabelle auflisten",
         "notFound": "Die nicht gefundenen Adressen in der Tabelle auflisten",
-        "pending": "Die Leads, die auf einen Standort warten, in der Tabelle auflisten",
-        "quotaExceeded": "Die durch das Limit gestoppten Leads in der Tabelle auflisten",
-        "refused": "Die abgelehnten Adressen in der Tabelle auflisten"
+        "pending": "Die Leads, die auf einen Standort warten, in der Tabelle auflisten"
       },
       "offMapActionLabel": "{label} {count}. {action}",
       "leftOut": {
@@ -111,7 +105,10 @@
         "districtsLabel": "Ungefähre Leads außerhalb des Gebiets, nach Stadtteil",
         "districtAction": "Die {count, number} ungefähren Leads aus {name} außerhalb des Gebiets in der Tabelle auflisten",
         "failed": "Die ungefähren Leads außerhalb des Gebiets konnten nicht gezählt werden."
-      }
+      },
+      "approximateInArea": "({count, number} mit ungefährer Position)",
+      "exactOnly": "Nur exakte Position",
+      "exactOnlyHint": "Lässt Leads weg, die nur über CEP, Stadtteil oder Stadt verortet sind."
     },
     "empty": {
       "title": "Noch keine Leads auf der Karte",
@@ -122,19 +119,24 @@
         "withoutAddress": "Ohne Adresse",
         "approximate": "Ungefähr",
         "pending": "Wartend",
-        "notFound": "Nicht gefunden",
-        "quotaExceeded": "Durch das Limit gestoppt",
-        "refused": "Vom Anbieter abgelehnt"
+        "notFound": "Nicht gefunden"
       },
       "actions": {
         "importAddresses": "Adressen importieren",
         "requestAddress": "Adresse per WhatsApp anfragen",
-        "createLead": "Lead anlegen"
+        "createLead": "Lead anlegen",
+        "clearFilters": "Filter löschen",
+        "includeApproximate": "Ungefähre einbeziehen"
       },
       "reasons": {
         "importForbidden": "Du darfst keine Leads anlegen.",
         "nobodyWithoutAddress": "Alle Leads in diesem Filter haben bereits eine Adresse."
-      }
+      },
+      "filterTitle": "Keine Leads in diesem Filter",
+      "filterDescription": "Ändere oder lösche die Filter, um Leads auf der Karte zu sehen.",
+      "approximateInside": "{count, plural, one {# Lead mit ungefährer Position liegt im Gebiet.} other {# Leads mit ungefährer Position liegen im Gebiet.}}",
+      "unplacedTitle": "Kein Lead dieses Filters ist auf der Karte",
+      "unplacedDescription": "Diese Leads haben noch keine verortete Adresse. Erfasse die Adressen, um sie hier zu sehen."
     },
     "miniMap": {
       "label": "Adresskarte",
@@ -191,7 +193,8 @@
           "reference_unavailable": "Die Adressbasis ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
           "reference_point_unavailable": "Die Adressbasis ist gerade nicht verfügbar. Versuche es gleich noch einmal.",
           "forbidden": "Du darfst vollständige Adressen nicht sehen."
-        }
+        },
+        "wholeCity": "Diese CEP deckt die ganze Stadt ab; der Radius beginnt im Zentrum von {city}."
       }
     },
     "peek": {
@@ -222,8 +225,7 @@
       "manual": "manueller Pin",
       "lead_pin": "vom Lead gesendet",
       "import": "importiert",
-      "reference": "IBGE",
-      "provider": "externer Anbieter"
+      "reference": "IBGE"
     },
     "areas": {
       "proposedName": "Gebiet gezeichnet am {date}",
@@ -280,9 +282,6 @@
       "failed": "Die Leads an diesem Punkt konnten nicht hinzugefügt werden."
     },
     "viewportFailed": "Die Karte konnte für diesen Filter nicht geöffnet werden.",
-    "providers": {
-      "opencage": "OpenCage"
-    },
     "focus": {
       "unplaced": "Dieser Lead hat noch keine Position auf der Karte.",
       "failed": "Dieser Lead konnte nicht auf der Karte geöffnet werden.",
@@ -6916,12 +6915,10 @@
       "departments": "Abteilungen"
     },
     "configTab": {
-      "description": "Workspace-Richtlinien: Zuweisung, Gesprächsabschluss und Verortung von Adressen.",
+      "description": "Workspace-Richtlinien: Zuweisung und Gesprächsabschluss.",
       "sections": {
-        "attendance": "Betreuung",
-        "leads": "Leads"
-      },
-      "managerDescription": "Adressverortung dieses Workspace."
+        "attendance": "Betreuung"
+      }
     },
     "roles": {
       "owner": "Eigentümer",
@@ -7172,96 +7169,7 @@
         "connects_accounts": "Erlaubt das Verbinden und Trennen von Kanälen und Integrationen des Unternehmens."
       }
     },
-    "viewActivity": "Aktivität ansehen",
-    "geocoding": {
-      "title": "Verortung von Adressen",
-      "description": "Wie Lead-Adressen zu Positionen auf der Karte werden.",
-      "status": {
-        "loading": "Wird geladen",
-        "unavailable": "Nicht verfügbar",
-        "reference": "Nur IBGE-Referenz",
-        "provider": "Externer Anbieter aktiv",
-        "ceilingReached": "Monatsobergrenze erreicht",
-        "noCeiling": "Monatsobergrenze ist null",
-        "providerMissing": "Externer Anbieter nicht verfügbar",
-        "providerPaused": "Anbieter pausiert",
-        "providerPauseUnknown": "Anbieter wartet"
-      },
-      "loading": "Verortung von Adressen wird geladen…",
-      "loadFailed": "Die Verortung von Adressen konnte nicht geladen werden.",
-      "saved": "Verortung von Adressen aktualisiert.",
-      "saveFailed": "Speichern fehlgeschlagen.",
-      "reference": {
-        "label": "Referenzdaten",
-        "hint": "Immer aktiv. Verortet Adressen über CEP, Stadtteil und Stadt mit öffentlichen Daten, ohne Adressen außerhalb unserer Server zu senden."
-      },
-      "provider": {
-        "label": "Externer Anbieter ({provider})",
-        "labelNone": "Externer Anbieter",
-        "hint": "Nur genutzt, wenn die Referenz nicht die Straßenebene erreicht und die Adresse eine Straße hat. Wenn aktiv, werden Lead-Adressen an den Anbieter gesendet, der angewiesen ist, die Anfragen nicht zu speichern.",
-        "readOnly": "Nur der Workspace-Inhaber oder ein Plattform-Admin kann den externen Anbieter ein- oder ausschalten.",
-        "notConfigured": "Dieser Server hat keinen Zugang zu einem externen Anbieter.",
-        "stamp": {
-          "on": "Eingeschaltet von <name>{person}</name> am {date}",
-          "off": "Ausgeschaltet von <name>{person}</name> am {date}"
-        },
-        "never": "In diesem Workspace nie eingeschaltet."
-      },
-      "usage": {
-        "title": "Externe Anfragen in diesem Zyklus",
-        "count": "{used, number} von {ceiling, number}",
-        "today": "Heute: {used, number} von {share, number}",
-        "renews": "Der Zyklus erneuert sich am {date}.",
-        "off": "Mit ausgeschaltetem Anbieter werden keine externen Anfragen gestellt.",
-        "none": "Monatsobergrenze ist null: Es werden keine externen Anfragen gestellt.",
-        "reached": "Monatsobergrenze erreicht. Die übrigen Adressen behalten bis zum nächsten Zyklus die Referenzposition.",
-        "todayReached": "Tagesanteil erreicht. Die Anfragen gehen morgen weiter."
-      },
-      "ceiling": {
-        "label": "Monatliche Obergrenze für Anfragen",
-        "hint": "0 schaltet externe Anfragen für diesen Workspace aus.",
-        "readOnly": "Nur Plattform-Admins ändern die Monatsobergrenze.",
-        "save": "Obergrenze speichern",
-        "invalid": "Gib eine ganze Zahl ohne Nachkommastellen ein.",
-        "stamp": "Obergrenze festgelegt von <name>{person}</name> am {date}"
-      },
-      "confirm": {
-        "enable": {
-          "title": "Externen Anbieter einschalten?",
-          "description": "Die Lead-Adressen dieses Workspaces werden an {provider} gesendet, wenn die Referenz nicht die Straßenebene erreicht. Die Anfragen zählen zur Monatsobergrenze des Workspaces.",
-          "confirm": "Anbieter einschalten"
-        },
-        "cancel": "Abbrechen"
-      },
-      "errors": {
-        "geocoding_forbidden": "Nur der Workspace-Inhaber oder ein Plattform-Admin kann diese Einstellung ändern.",
-        "geocoding_ceiling_forbidden": "Nur ein Plattform-Admin kann die Monatsobergrenze ändern.",
-        "geocoding_change_empty": "Es gibt nichts zu speichern.",
-        "geocoding_provider_unknown": "Diesen Anbieter gibt es nicht.",
-        "geocoding_ceiling_invalid": "Die Obergrenze liegt außerhalb des erlaubten Bereichs.",
-        "geocoding_provider_not_configured": "Dieser Server hat keinen Zugang zu diesem Anbieter.",
-        "geocoding_settings_unreadable": "Die Einstellung konnte nicht gelesen werden. Versuche es erneut.",
-        "geocoding_unavailable": "Die Verortung von Adressen ist auf diesem Server nicht verfügbar.",
-        "invalid_body": "Der Server hat die Anfrage abgelehnt. Lade die Seite neu und versuche es erneut.",
-        "unknown": "Versuche es gleich noch einmal."
-      },
-      "pause": {
-        "title": "Der externe Anbieter ist für alle Workspaces pausiert",
-        "unknownTitle": "Der Status des externen Anbieters konnte nicht bestätigt werden",
-        "since": "Pausiert seit {since}.",
-        "until": "Bis {until} wird keine kostenpflichtige externe Anfrage gestellt und nichts von der Obergrenze verbraucht.",
-        "unknown": "Solange der Status nicht bestätigt ist, wird keine kostenpflichtige externe Anfrage gestellt und nichts von der Obergrenze verbraucht.",
-        "reference": "In der Zwischenzeit nutzen Positionen die kostenlose Referenz (den Punkt der CEP, des Stadtteils oder der Stadt).",
-        "reasons": {
-          "key_rejected": "Der Anbieter hat den Zugangsschlüssel der Plattform abgelehnt.",
-          "account_quota_spent": "Das Kontingent des Plattformkontos beim Anbieter ist aufgebraucht.",
-          "key_disabled": "Der Zugangsschlüssel der Plattform wurde beim Anbieter deaktiviert.",
-          "account_refused": "Der Anbieter hat das Plattformkonto abgelehnt.",
-          "queries_refused": "Der Anbieter hat mehrere verschiedene Adressen nacheinander abgelehnt, ein Hinweis auf ein Problem in der Anbindung an den Anbieter und nicht in Ihren Adressen.",
-          "other": "Der Anbieter hat die Anfragen der Plattform abgelehnt."
-        }
-      }
-    }
+    "viewActivity": "Aktivität ansehen"
   },
   "workspaceInvites": {
     "loading": "Einladungen werden geladen...",
@@ -9310,7 +9218,7 @@
           "notLocated": "Nicht gefunden",
           "noAddress": "Keine Adresse in der Datei"
         },
-        "source": "Platziert mit der IBGE-Adressbasis (CNEFE 2022) auf unseren Servern. Ein externer Anbieter wird nur genutzt, wenn der Workspace ihn aktiviert hat."
+        "source": "Platziert mit der IBGE-Adressbasis (CNEFE 2022) auf unseren Servern."
       }
     },
     "header": {
@@ -9488,10 +9396,7 @@
           "located": "Lokalisiert",
           "approximate": "Ungefähr",
           "not_found": "Nicht gefunden",
-          "ambiguous": "Mehrdeutige Adresse",
-          "unavailable": "Dienst nicht verfügbar",
-          "quota_exceeded": "Abfragelimit erreicht",
-          "refused": "Vom Anbieter abgelehnt"
+          "unavailable": "Dienst nicht verfügbar"
         },
         "ownerPresence": {
           "true": "Mit Verantwortlichem",
@@ -9503,9 +9408,7 @@
           "approximate": "Ungefähr (PLZ, Stadtteil, Stadt)",
           "without_address": "Ohne Adresse",
           "not_found": "Adresse nicht gefunden",
-          "pending": "Warten auf Standort",
-          "quota_exceeded": "Durch das Standortlimit gestoppt",
-          "refused": "Vom Standortanbieter abgelehnt"
+          "pending": "Warten auf Standort"
         }
       },
       "chips": {
@@ -9518,7 +9421,8 @@
         "isSet": "hat",
         "isEmpty": "hat kein",
         "isTrue": "ja",
-        "isFalse": "nein"
+        "isFalse": "nein",
+        "exactOnly": "nur exakte Position"
       },
       "failed": "Die Optionen konnten nicht geladen werden.",
       "facetsFailed": "Die Filterzahlen wurden nicht geladen.",
@@ -12996,12 +12900,10 @@
   "adminGeocoding": {
     "header": {
       "badge": "Adress-Geokodierung",
-      "description": "Nutzung des externen Anbieters und Adressabdeckung jedes Workspaces im monatlichen Zyklus von Brasília."
+      "description": "Wie viele Leads jedes Workspaces eine Adresse und eine Position auf der Karte haben, verortet mit der IBGE-Referenzbasis."
     },
     "stats": {
-      "workspaces": "Workspaces",
-      "cycle": "Aktueller Zyklus",
-      "cycleValue": "{start} bis {end}"
+      "workspaces": "Workspaces"
     },
     "search": {
       "placeholder": "Workspace nach Namen suchen"
@@ -13013,46 +12915,29 @@
     },
     "table": {
       "workspace": "Workspace",
-      "provider": "Anbieter",
-      "usage": "Nutzung im Zyklus",
       "address": "Mit Adresse",
       "onMap": "Auf der Karte",
       "details": "Details"
-    },
-    "provider": {
-      "none": "Nur Referenzdaten",
-      "active": "Aktiv",
-      "since": "Aktiv seit {date}"
-    },
-    "usage": {
-      "value": "{used, number} von {ceiling, number}",
-      "meter": "Nutzung des Monatslimits",
-      "off": "Anbieter aus",
-      "none": "Limit bei null, keine Abfragen erlaubt",
-      "today": "Heute: {count, number}",
-      "defaultCeiling": "Standardlimit"
     },
     "share": {
       "value": "{share, number, percent}",
       "of": "{count, number} von {total, number} Leads"
     },
     "details": {
-      "history": "Anbieterabfragen pro Zyklus",
-      "historyTotal": "{count, number} in den letzten 12 Zyklen",
       "coverage": "Adressstatus"
     },
     "empty": {
-      "title": "Kein Workspace mit Leads oder Geokodierung",
+      "title": "Kein Workspace mit Leads",
       "filteredTitle": "Kein Workspace mit diesem Namen",
-      "description": "Hier erscheinen Workspaces mit Leads, mit konfiguriertem Anbieter oder mit erfasster Nutzung."
+      "description": "Hier erscheinen die Workspaces, die Leads haben."
     },
     "errors": {
       "title": "Geokodierung konnte nicht geladen werden",
-      "forbidden": "Nur ein Plattform-Admin kann die Nutzung aller Workspaces sehen.",
+      "forbidden": "Nur ein Plattform-Admin kann die Adressabdeckung aller Workspaces sehen.",
       "unavailable": "Die Adress-Geokodierung ist auf diesem Server nicht verfügbar.",
       "busy": "Die Abfrage ist gerade ausgelastet. Versuche es gleich noch einmal.",
       "slow": "Die Abfrage hat zu lange gedauert. Versuche es gleich noch einmal.",
-      "default": "Die Geokodierungsnutzung konnte nicht gelesen werden."
+      "default": "Die Adressabdeckung konnte nicht gelesen werden."
     },
     "pagination": {
       "items": "Workspaces"
@@ -21335,7 +21220,29 @@
         "tooManyJobs": "Das Limit gleichzeitiger Aufträge ist erreicht. Warte, bis einer fertig ist.",
         "captionsPlaced": "Untertitel auf einer neuen Spur hinzugefügt.",
         "captionsFileUnreadable": "Diese Datei enthält keine SRT- oder VTT-Untertitel. Nichts wurde geändert.",
-        "captionsInvalid": "Die Untertitel passen nicht ins Projekt: Ein Untertitel ist länger als ein Text sein darf oder das Projekt würde zu groß. Nichts wurde geändert."
+        "captionsInvalid": "Die Untertitel passen nicht ins Projekt: Ein Untertitel ist länger als ein Text sein darf oder das Projekt würde zu groß. Nichts wurde geändert.",
+        "transitions": {
+          "apart": "Beide Clips müssen sich auf derselben Bildspur berühren, um einen Übergang zu bekommen.",
+          "kind": "Diese Übergangsart gibt es nicht.",
+          "duration": "Ein Übergang dauert 0,1 bis 4 s und darf höchstens die Hälfte jedes Clips einnehmen.",
+          "alignment": "Blende über Farbe, Zoom und Reißschwenk bleiben mittig am Schnitt.",
+          "easing": "Die Kurve \"Halten\" gilt nicht für Übergänge.",
+          "option": "Diese Option gilt nicht für diese Übergangsart.",
+          "missing": "Der Übergang existiert nicht mehr.",
+          "locked": "Die Spur ist gesperrt.",
+          "noCut": "Lege zwei sich berührende Clips auf dieselbe Spur, um einen Übergang hinzuzufügen."
+        },
+        "speed": {
+          "missing": "Dieser Clip existiert nicht mehr.",
+          "locked": "Die Spur ist gesperrt. Entsperre sie, um die Geschwindigkeit zu ändern.",
+          "notSourced": "Nur Video und Audio können die Geschwindigkeit ändern.",
+          "notVideo": "Setze die Abspielposition auf einen Videoclip, um ein Standbild zu erstellen.",
+          "frozen": "Ein Standbild hat keine Geschwindigkeit. Ändere seine Länge über die Ränder.",
+          "range": "Die Geschwindigkeit reicht von 0,1× bis 16×.",
+          "source": "Das Medium endet bei dieser Geschwindigkeit vor dem Clip. Nimm eine geringere Geschwindigkeit oder schalte Dauer beibehalten aus.",
+          "noRoom": "Auf der Zeitleiste ist kein Platz für diese Länge.",
+          "rampOutside": "Wähle einen Video- oder Audioclip und setze die Abspielposition darauf, um die Rampe zu beginnen."
+        }
       },
       "preview": {
         "label": "Vorschau",
@@ -21535,7 +21442,8 @@
           "copied": "Animation kopiert. Wähle einen anderen Clip, setze den Abspielkopf und füge ein.",
           "noKeys": "Dieser Clip hat keine Keyframes zum Kopieren.",
           "clipboardEmpty": "Kopiere zuerst die Animation eines Clips."
-        }
+        },
+        "transitionTitle": "Übergang"
       },
       "layer": {
         "title": {
@@ -21583,14 +21491,16 @@
           "ai": "KI",
           "elements": "Text",
           "captions": "Untertitel",
-          "process": "Bearbeiten"
+          "process": "Bearbeiten",
+          "transitions": "Übergänge"
         },
         "titles": {
           "media": "Medien",
           "ai": "Mit KI erstellen",
           "elements": "Text und Elemente",
           "captions": "Automatische Untertitel",
-          "process": "Bearbeiten"
+          "process": "Bearbeiten",
+          "transitions": "Übergänge"
         }
       },
       "media": {
@@ -21754,7 +21664,10 @@
           "scale": "Skalierung",
           "rotation": "Drehung",
           "opacity": "Deckkraft",
-          "blur": "Unschärfe"
+          "blur": "Unschärfe",
+          "fill": "Farbe",
+          "stroke": "Konturfarbe",
+          "gainDb": "Lautstärke (dB)"
         },
         "animate": "{name} animieren",
         "stopAnimating": "Animation von {name} beenden",
@@ -21905,6 +21818,138 @@
           "overwriteDrag": "Überschreibend ziehen",
           "rippleTrimDrag": "Ripple Schnitt",
           "forwardClick": "Abschnitt ab hier auswählen"
+        }
+      },
+      "transitions": {
+        "title": "Übergang",
+        "kind": "Art",
+        "duration": "Dauer",
+        "alignment": "Lage am Schnitt",
+        "easing": "Kurve",
+        "optionsTitle": "Optionen",
+        "remove": "Übergang entfernen",
+        "chip": "Übergang: {kind}",
+        "addAt": "Übergang an diesem Schnitt hinzufügen",
+        "panelHint": "Wähle eine Art, um sie am Schnitt des ausgewählten Clips oder am Schnitt nahe dem Abspielkopf anzuwenden. Clips bleiben, wo sie sind.",
+        "swapHint": "Wähle eine andere Art, um den ausgewählten Übergang zu tauschen.",
+        "kinds": {
+          "dissolve": "Überblendung",
+          "dipToColor": "Blende über Farbe",
+          "push": "Schieben",
+          "slide": "Gleiten",
+          "wipe": "Wischen",
+          "iris": "Iris",
+          "clockWipe": "Uhr",
+          "split": "Teilen",
+          "zoom": "Zoom",
+          "whip": "Reißschwenk",
+          "blurDissolve": "Weiche Überblendung"
+        },
+        "hints": {
+          "dissolve": "Ein Clip blendet in den anderen über",
+          "dipToColor": "Geht in der Mitte über eine Farbe, wie eine Abblende auf Schwarz",
+          "push": "Der neue Clip schiebt den alten hinaus",
+          "slide": "Ein Clip gleitet über den anderen",
+          "wipe": "Eine Kante wischt über das Bild und zeigt den neuen Clip",
+          "iris": "Der neue Clip öffnet sich aus einer Form",
+          "clockWipe": "Wischt wie ein Uhrzeiger über das Bild",
+          "split": "Der neue Clip öffnet sich von der Mitte zu den Rändern",
+          "zoom": "Zoomt bis zum Clipwechsel, mit Unschärfe",
+          "whip": "Ein schneller Wechsel mit Bewegungsunschärfe",
+          "blurDissolve": "Eine Überblendung mit Unschärfe in der Mitte"
+        },
+        "options": {
+          "direction": "Richtung",
+          "moving": "Bewegung",
+          "color": "Farbe",
+          "angle": "Winkel",
+          "shape": "Form",
+          "originX": "Mitte horizontal",
+          "originY": "Mitte vertikal",
+          "clockwise": "Im Uhrzeigersinn",
+          "orientation": "Öffnung",
+          "reverse": "Ausgehenden Clip schließen",
+          "amount": "Stärke"
+        },
+        "directions": {
+          "left": "Nach links",
+          "right": "Nach rechts",
+          "up": "Nach oben",
+          "down": "Nach unten"
+        },
+        "moves": {
+          "in": "Neuer Clip gleitet darüber hinein",
+          "out": "Alter Clip gleitet darüber hinaus"
+        },
+        "shapes": {
+          "circle": "Kreis",
+          "box": "Rechteck",
+          "diamond": "Raute"
+        },
+        "orientations": {
+          "horizontal": "Nach oben und unten",
+          "vertical": "Zu den Seiten"
+        },
+        "alignments": {
+          "center": "Mittig",
+          "start": "Beginnt am Schnitt",
+          "end": "Endet am Schnitt"
+        },
+        "timingTitle": "Art, Timing und Kurve"
+      },
+      "textMotion": {
+        "title": "Textanimation",
+        "hint": "Jeder Buchstabe, jedes Wort oder jede Zeile startet nach dem vorherigen; der Versatz ist diese Verzögerung. Der Ausgang endet mit dem Clip.",
+        "sides": {
+          "in": {
+            "style": "Text erscheint",
+            "unit": "Erscheinen nach",
+            "duration": "Dauer des Erscheinens",
+            "stagger": "Versatz des Erscheinens",
+            "easing": "Kurve des Erscheinens"
+          },
+          "out": {
+            "style": "Text verschwindet",
+            "unit": "Verschwinden nach",
+            "duration": "Dauer des Verschwindens",
+            "stagger": "Versatz des Verschwindens",
+            "easing": "Kurve des Verschwindens"
+          }
+        },
+        "styles": {
+          "none": "Keine",
+          "fade": "Einblenden",
+          "rise": "Aufsteigen",
+          "slide": "Gleiten",
+          "pop": "Aufploppen",
+          "blur": "Unschärfe",
+          "typewriter": "Schreibmaschine"
+        },
+        "units": {
+          "char": "Buchstabe",
+          "word": "Wort",
+          "line": "Zeile"
+        }
+      },
+      "speed": {
+        "title": "Geschwindigkeit",
+        "speed": "Geschwindigkeit",
+        "presets": "Vorgaben",
+        "preset": "{speed}×",
+        "keepDuration": "Dauer beibehalten",
+        "reverse": "Rückwärts",
+        "preservePitch": "Tonhöhe beibehalten",
+        "freeze": "Standbild an der Abspielposition",
+        "frozen": "Dieser Clip ist ein Standbild. Ändere seine Länge über die Ränder in der Zeitleiste.",
+        "pitchHint": "Weit weg von 1× kann gedehnter Ton künstlich klingen. Schalte Tonhöhe beibehalten aus, damit der Ton der Geschwindigkeit folgt.",
+        "badge": "{speed}×",
+        "reversedBadge": "Rückwärts",
+        "frozenBadge": "Standbild",
+        "ramp": {
+          "target": "Zielgeschwindigkeit",
+          "duration": "Rampenlänge",
+          "apply": "Rampe an der Abspielposition",
+          "hint": "Die Geschwindigkeit ändert sich ab der Abspielposition allmählich, der Rest des Clips läuft mit der Zielgeschwindigkeit."
         }
       }
     },
@@ -22107,6 +22152,38 @@
         "simplify": "Vereinfachen",
         "points": "{count, plural, one {# Punkt} other {# Punkte}}",
         "outline": "Kontur in Fläche umwandeln"
+      }
+    },
+    "grade": {
+      "title": "Farbkorrektur",
+      "reset": "Farbe zurücksetzen",
+      "light": "Licht",
+      "color": "Farbe",
+      "look": "Look",
+      "looks": "Fertige Looks",
+      "intensity": "Look-Stärke",
+      "stops": "{value} LW",
+      "fields": {
+        "exposure": "Belichtung",
+        "contrast": "Kontrast",
+        "highlights": "Lichter",
+        "shadows": "Tiefen",
+        "whites": "Weiß",
+        "blacks": "Schwarz",
+        "temperature": "Temperatur",
+        "tint": "Tönung",
+        "saturation": "Sättigung",
+        "vibrance": "Dynamik"
+      },
+      "lookNames": {
+        "warm": "Warm",
+        "cool": "Kühl",
+        "faded": "Verblasst",
+        "mono": "Schwarzweiß",
+        "punchy": "Kräftig",
+        "dramatic": "Dramatisch",
+        "soft": "Weich",
+        "vintage": "Vintage"
       }
     }
   },
@@ -22671,17 +22748,12 @@
         "located": "Verortet",
         "approximate": "Ungefährer Standort",
         "not_found": "Adresse nicht gefunden",
-        "ambiguous": "Adresse nicht eindeutig",
-        "unavailable": "Standort nicht verfügbar",
-        "quota_exceeded": "Verortungslimit erreicht",
-        "refused": "Adresse vom Anbieter abgelehnt"
+        "unavailable": "Standort nicht verfügbar"
       },
       "positionSource": "{source} · {date}",
-      "providerSource": "{source} ({provider})",
       "queuedNote": {
         "pending": "Genauere Position wird gesucht",
-        "unavailable": "Genauere Position derzeit nicht verfügbar",
-        "quota_exceeded": "Obergrenze erreicht: genauere Position im nächsten Zyklus"
+        "unavailable": "Genauere Position derzeit nicht verfügbar"
       },
       "showOnMap": "Auf der Lead-Karte zeigen"
     },

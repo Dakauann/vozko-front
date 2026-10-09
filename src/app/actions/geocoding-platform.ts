@@ -10,9 +10,9 @@ export interface GeocodingPlatformQuery {
   search: string;
 }
 
-const MALFORMED_ANSWER: CodedError = { message: "Malformed geocoding usage" };
+const MALFORMED_ANSWER: CodedError = { message: "Malformed geocoding coverage" };
 
-export async function adminListGeocodingUsageAction(query: GeocodingPlatformQuery, signal?: AbortSignal): Promise<GeocodingPlatformResult> {
+export async function adminListGeocodingCoverageAction(query: GeocodingPlatformQuery, signal?: AbortSignal): Promise<GeocodingPlatformResult> {
   const params = new URLSearchParams({ page: String(query.page), pageSize: String(query.pageSize) });
   const search = query.search.trim();
   if (search) params.set("search", search);

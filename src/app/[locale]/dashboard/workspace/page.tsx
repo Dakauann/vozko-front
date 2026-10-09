@@ -142,7 +142,6 @@ export default function WorkspaceSettingsPage() {
     isSystemAdmin ||
     currentMember?.role === "owner" ||
     currentMember?.role === "admin";
-  const seesConfig = isOwner || isOwnerOrAdmin;
 
   const didInitialLoad = React.useRef(false);
 
@@ -277,7 +276,7 @@ export default function WorkspaceSettingsPage() {
       <div>
         <Tabs defaultValue={isOwner ? "config" : "members"}>
           <TabsList>
-            {seesConfig && (
+            {isOwner && (
               <TabsTrigger value="config" className="gap-2">
                 <SlidersHorizontal className="h-4 w-4" weight="fill" />
                 <span className="hidden sm:inline">{t("tabs.config")}</span>
@@ -322,14 +321,12 @@ export default function WorkspaceSettingsPage() {
             <ScreenLoader fit="fill" label={t("loading")} className="min-h-48" />
           ) : (
             <>
-              {seesConfig && wsId && (
+              {isOwner && wsId && (
                 <TabsContent value="config">
                   <WorkspaceConfigTab
                     workspaceId={wsId}
                     config={wsConfig}
                     onConfigChange={(cfg) => setWsConfig(cfg)}
-                    ownerSettings={isOwner}
-                    managerSettings={isOwnerOrAdmin}
                   />
                 </TabsContent>
               )}

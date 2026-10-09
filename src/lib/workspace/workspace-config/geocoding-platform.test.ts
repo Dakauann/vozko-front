@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { geocodingPlatformErrorKey, geocodingPlatformUsage, readGeocodingPlatformPage } from "./geocoding-platform";
-
-const months = Array.from({ length: 12 }, (_, i) => ({
-  cycleStart: new Date(Date.UTC(2026, 9 - i, 1, 3)).toISOString(),
-  requests: i === 0 ? 40 : 0,
-}));
+import { geocodingPlatformErrorKey, readGeocodingPlatformPage } from "./geocoding-platform";
 
 const coverage = {
   total: 10,
@@ -15,75 +10,39 @@ const coverage = {
   approximate: 2,
   pending: 1,
   notFound: 0,
-  quotaExceeded: 0,
-  refused: 0,
   addressShare: 0.8,
   mapShare: 0.5,
 };
 
-const item = {
-  workspaceId: "ws-1",
-  workspaceName: "Escola",
-  provider: "opencage",
-  enabled: true,
-  monthlyCeiling: 5000,
-  ceilingSet: false,
-  providerChangedAt: "2026-10-02T12:00:00Z",
-  usedThisCycle: 40,
-  usedToday: 3,
-  months,
-  coverage,
-};
+const item = { workspaceId: "ws-1", workspaceName: "Escola", coverage };
 
-const answer = {
-  cycleStart: "2026-10-01T03:00:00Z",
-  nextCycleStart: "2026-11-01T03:00:00Z",
-  today: "2026-10-08T03:00:00Z",
-  cycles: months.map((m) => m.cycleStart),
-  items: [item],
-  page: 1,
-  pageSize: 20,
-  totalItems: 1,
-  totalPages: 1,
-};
+const answer = { items: [item], page: 1, pageSize: 20, totalItems: 1, totalPages: 1 };
 
 describe("readGeocodingPlatformPage", () => {
-  it("reads a page of workspaces with their usage history and coverage", () => {
+  it("reads a page of workspaces with their address coverage", () => {
     const page = readGeocodingPlatformPage(answer);
-    expect(page?.items[0]).toEqual(item);
-    expect(page?.cycles).toHaveLength(12);
-    expect(page?.totalItems).toBe(1);
+    expect(page).toEqual(answer);
   });
 
-  it("reads a workspace that never changed its provider", () => {
-    const page = readGeocodingPlatformPage({ ...answer, items: [{ ...item, provider: "", enabled: false, providerChangedAt: null }] });
-    expect(page?.items[0].providerChangedAt).toBeUndefined();
-    expect(page?.items[0].provider).toBe("");
+  it("keeps only the coverage, whatever else an older server sends", () => {
+    const page = readGeocodingPlatformPage({
+      ...answer,
+      cycleStart: "2026-10-01T03:00:00Z",
+      items: [{ ...item, provider: "opencage", usedThisCycle: 40, coverage: { ...coverage, refused: 3 } }],
+    });
+    expect(page).toEqual(answer);
   });
 
   it.each([
     ["not an object", null],
     ["a missing items list", { ...answer, items: undefined }],
-    ["a negative count", { ...answer, items: [{ ...item, usedThisCycle: -1 }] }],
+    ["a workspace without a name", { ...answer, items: [{ ...item, workspaceName: 3 }] }],
+    ["a negative count", { ...answer, items: [{ ...item, coverage: { ...coverage, onMap: -1 } }] }],
+    ["a missing count", { ...answer, items: [{ ...item, coverage: { ...coverage, notFound: undefined } }] }],
     ["a share above one", { ...answer, items: [{ ...item, coverage: { ...coverage, mapShare: 1.5 } }] }],
-    ["a month without its cycle", { ...answer, items: [{ ...item, months: [{ requests: 1 }] }] }],
-    ["an unreadable cycle", { ...answer, cycleStart: "soon" }],
-    ["a missing verdict", { ...answer, items: [{ ...item, enabled: "yes" }] }],
     ["a missing page count", { ...answer, totalPages: undefined }],
   ])("refuses %s", (_, value) => {
     expect(readGeocodingPlatformPage(value)).toBeNull();
-  });
-});
-
-describe("geocodingPlatformUsage", () => {
-  it.each([
-    [true, 40, 5000, { percent: 0.8, state: "open" }],
-    [true, 5000, 5000, { percent: 100, state: "reached" }],
-    [true, 6000, 5000, { percent: 100, state: "reached" }],
-    [true, 10, 0, { percent: null, state: "none" }],
-    [false, 10, 0, { percent: null, state: "off" }],
-  ])("reads enabled %s with %i of %i", (enabled, used, ceiling, usage) => {
-    expect(geocodingPlatformUsage({ enabled, usedThisCycle: used, monthlyCeiling: ceiling })).toEqual(usage);
   });
 });
 
@@ -94,7 +53,7 @@ describe("geocodingPlatformErrorKey", () => {
     [{ status: 503, code: "geocoding_unavailable" }, "unavailable"],
     [{ status: 503 }, "busy"],
     [{ status: 504 }, "slow"],
-    [{ status: 500, code: "geocoding_usage_unreadable" }, "default"],
+    [{ status: 500, code: "geocoding_coverage_unreadable" }, "default"],
     [{ message: "Malformed" }, "default"],
   ])("maps %o to %s", (error, key) => {
     expect(geocodingPlatformErrorKey(error)).toBe(key);

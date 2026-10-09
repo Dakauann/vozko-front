@@ -5,9 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { Upload, UserPlus, WhatsappLogo, type Icon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { presentOffMapKeys } from "@/lib/maps/summary";
 import type { GeoSummary } from "@/lib/maps/types";
-import { cn } from "@/lib/utils";
 
 import { MapNotice } from "./MapNotice";
 
@@ -21,8 +19,16 @@ function explained(props: MapEmptyActionProps | undefined): props is MapEmptyAct
   return props !== undefined && (typeof props.onSelect === "function" || Boolean(props.disabledReason));
 }
 
+export type MapEmptyScope = "workspace" | "filter";
+
+const SCOPE_COPY: Record<MapEmptyScope, { title: string; description: string }> = {
+  workspace: { title: "title", description: "description" },
+  filter: { title: "unplacedTitle", description: "unplacedDescription" },
+};
+
 export interface MapEmptyStateProps {
   summary: GeoSummary | null;
+  scope?: MapEmptyScope;
   importAddresses?: MapEmptyActionProps;
   requestAddress?: MapEmptyActionProps;
   createLead?: MapEmptyActionProps;
@@ -36,10 +42,6 @@ const ACTIONS: Array<{ key: MapEmptyAction; icon: Icon; primary: boolean }> = [
 ];
 
 const COUNTS: Array<keyof GeoSummary> = ["total", "withoutAddress", "approximate", "pending", "notFound"];
-
-function shownCounts(summary: GeoSummary): Array<keyof GeoSummary> {
-  return [...COUNTS, ...presentOffMapKeys(summary)];
-}
 
 function EmptyAction({ action, icon: ActionIcon, primary, props }: { action: MapEmptyAction; icon: Icon; primary: boolean; props: MapEmptyActionProps }) {
   const t = useTranslations("leadMap.empty");
@@ -66,22 +68,16 @@ function EmptyAction({ action, icon: ActionIcon, primary, props }: { action: Map
   );
 }
 
-export function MapEmptyState({ summary, importAddresses, requestAddress, createLead, className }: MapEmptyStateProps) {
+export function MapEmptyState({ summary, scope = "workspace", importAddresses, requestAddress, createLead, className }: MapEmptyStateProps) {
   const t = useTranslations("leadMap.empty");
   const provided: Record<MapEmptyAction, MapEmptyActionProps | undefined> = { importAddresses, requestAddress, createLead };
   const actions = ACTIONS.filter(({ key }) => explained(provided[key]));
-  const counts = summary ? shownCounts(summary) : [];
 
   return (
-    <MapNotice title={t("title")} description={t("description")} className={className}>
+    <MapNotice title={t(SCOPE_COPY[scope].title)} description={t(SCOPE_COPY[scope].description)} className={className}>
       {summary ? (
-        <dl
-          className={cn(
-            "grid w-full grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-flow-col sm:grid-cols-none sm:auto-cols-fr",
-            counts.length > COUNTS.length ? "max-w-2xl" : "max-w-lg",
-          )}
-        >
-          {counts.map((field) => (
+        <dl className="grid w-full max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-flow-col sm:grid-cols-none sm:auto-cols-fr">
+          {COUNTS.map((field) => (
             <div key={field} className="flex flex-col gap-0.5 bg-card px-3 py-2 text-left">
               <dt className="text-2xs text-muted-foreground">{t(`counts.${field}`)}</dt>
               <dd className="readout text-sm font-semibold tabular-nums text-foreground">{t("count", { count: summary[field] })}</dd>

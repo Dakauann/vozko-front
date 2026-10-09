@@ -5,7 +5,6 @@ import { MapContractError } from "@/lib/maps/contracts";
 import { decodeFilterParam, emptyCrmFilter } from "@/lib/crm/board";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import { LEAD_FILTER_FIELD, readBoolean, readSet, withSet } from "@/lib/leads/filters";
-import { snapViewport } from "@/lib/maps/tiles";
 import type { GeoSummary } from "@/lib/maps/types";
 
 import {
@@ -14,7 +13,6 @@ import {
   leadViewOf,
   addressPositions,
   areaIdsOf,
-  bboxParam,
   chosenColourField,
   colourFieldsOf,
   colourLegend,
@@ -30,7 +28,7 @@ import {
   leadMapAvailability,
   leadMapHref,
   leadMapKey,
-  leadMapLayerPath,
+  leadMapTilePath,
   leadMapPointPath,
   leadMapSectionPath,
   nothingOnMap,
@@ -55,6 +53,12 @@ import {
   withoutArea,
   approximatePlace,
   visibleByPlacement,
+  AREA_EXACT_ONLY,
+  LEAD_AREA_EXACT_ONLY_FIELD,
+  areaExactOnly,
+  leadMapFrame,
+  mapEmptyKind,
+  withAreaExactOnly,
 } from "./map-view";
 
 const filter = withSet(emptyCrmFilter, LEAD_FILTER_FIELD.city, ["sp:sao paulo"]);
@@ -70,8 +74,6 @@ const summary: GeoSummary = {
   withoutAddress: 1117,
   notFound: 214,
   pending: 96,
-  quotaExceeded: 0,
-  refused: 0,
 };
 
 const classification: CustomFieldDefinition = {
@@ -146,26 +148,16 @@ describe("map section paths", () => {
     expect(leadMapSectionPath("viewport", { filter: emptyCrmFilter })).toBe("/leads/map/viewport");
   });
 
-  it("writes the box west, south, east, north", () => {
-    expect(bboxParam({ south: -23.7, west: -46.8, north: -23.4, east: -46.4 })).toBe("-46.8,-23.7,-46.4,-23.4");
-  });
-
-  it("asks for the layer of the tile-snapped window with its zoom and colour", () => {
-    const viewport = snapViewport({ bbox: { south: -23.6, west: -46.7, north: -23.5, east: -46.6 }, zoom: 12.7 });
-    if (!viewport) throw new Error("viewport");
-    const path = leadMapLayerPath({ filter }, { viewport, colorBy: "interesse" });
+  it("asks for one tile by z/x/y with the filter and the colour", () => {
+    const path = leadMapTilePath({ filter }, { tile: { z: 12, x: 1517, y: 2323 }, colorBy: "interesse" });
     const params = query(path);
-    expect(path.startsWith("/leads/map/layer?")).toBe(true);
-    expect(params.get("bbox")).toBe(bboxParam(viewport.bbox));
-    expect(params.get("zoom")).toBe("12");
+    expect(path.startsWith("/leads/map/tiles/12/1517/2323?")).toBe(true);
     expect(params.get("colorBy")).toBe("interesse");
     expect(decodeFilterParam(params.get("filter"))).toEqual(filter);
   });
 
   it("leaves the colour out when nothing colours the dots", () => {
-    const viewport = snapViewport({ bbox: { south: -23.6, west: -46.7, north: -23.5, east: -46.6 }, zoom: 12 });
-    if (!viewport) throw new Error("viewport");
-    expect(query(leadMapLayerPath({ filter }, { viewport })).has("colorBy")).toBe(false);
+    expect(leadMapTilePath({ filter: emptyCrmFilter }, { tile: { z: 0, x: 0, y: 0 } })).toBe("/leads/map/tiles/0/0/0");
   });
 
   it("asks for the people at one position", () => {
@@ -180,19 +172,19 @@ describe("map section paths", () => {
 
 describe("map section keys", () => {
   it("varies with the workspace, the section, the filter, the search and the window", () => {
-    const base = leadMapKey("ws1", "layer", { filter }, "12/1:2/3:4", "interesse");
-    expect(leadMapKey("ws2", "layer", { filter }, "12/1:2/3:4", "interesse")).not.toEqual(base);
+    const base = leadMapKey("ws1", "tile", { filter }, "12/1:2/3:4", "interesse");
+    expect(leadMapKey("ws2", "tile", { filter }, "12/1:2/3:4", "interesse")).not.toEqual(base);
     expect(leadMapKey("ws1", "summary", { filter })).not.toEqual(base);
-    expect(leadMapKey("ws1", "layer", { filter: emptyCrmFilter }, "12/1:2/3:4", "interesse")).not.toEqual(base);
-    expect(leadMapKey("ws1", "layer", { filter, q: "x" }, "12/1:2/3:4", "interesse")).not.toEqual(base);
-    expect(leadMapKey("ws1", "layer", { filter }, "13/1:2/3:4", "interesse")).not.toEqual(base);
-    expect(leadMapKey("ws1", "layer", { filter }, "12/1:2/3:4")).not.toEqual(base);
+    expect(leadMapKey("ws1", "tile", { filter: emptyCrmFilter }, "12/1:2/3:4", "interesse")).not.toEqual(base);
+    expect(leadMapKey("ws1", "tile", { filter, q: "x" }, "12/1:2/3:4", "interesse")).not.toEqual(base);
+    expect(leadMapKey("ws1", "tile", { filter }, "13/1:2/3:4", "interesse")).not.toEqual(base);
+    expect(leadMapKey("ws1", "tile", { filter }, "12/1:2/3:4")).not.toEqual(base);
   });
 
   it("keeps the previous layer only while the same filter pans", () => {
-    const before = leadMapKey("ws1", "layer", { filter }, "12/1:2/3:4", "");
-    expect(isSameLeadMapSection(before, leadMapKey("ws1", "layer", { filter }, "13/2:3/4:5", ""))).toBe(true);
-    expect(isSameLeadMapSection(before, leadMapKey("ws1", "layer", { filter: emptyCrmFilter }, "12/1:2/3:4", ""))).toBe(false);
+    const before = leadMapKey("ws1", "tile", { filter }, "12/1:2/3:4", "");
+    expect(isSameLeadMapSection(before, leadMapKey("ws1", "tile", { filter }, "13/2:3/4:5", ""))).toBe(true);
+    expect(isSameLeadMapSection(before, leadMapKey("ws1", "tile", { filter: emptyCrmFilter }, "12/1:2/3:4", ""))).toBe(false);
     expect(isSameLeadMapSection(before, leadMapKey("ws1", "summary", { filter }))).toBe(false);
   });
 });
@@ -253,18 +245,6 @@ describe("off the map", () => {
       { key: "withoutAddress", count: 1117 },
       { key: "notFound", count: 214 },
       { key: "pending", count: 96 },
-    ]);
-  });
-
-  it("adds the leads stopped by the geocoding limit only when there are any", () => {
-    expect(offMapRows({ ...summary, quotaExceeded: 4 }).map((row) => row.key)).toContain("quotaExceeded");
-  });
-
-  it("adds the addresses the provider refused only when there are any, after the limit", () => {
-    expect(offMapRows(summary).map((row) => row.key)).not.toContain("refused");
-    expect(offMapRows({ ...summary, quotaExceeded: 4, refused: 2 }).slice(-2)).toEqual([
-      { key: "quotaExceeded", count: 4 },
-      { key: "refused", count: 2 },
     ]);
   });
 });
@@ -524,9 +504,7 @@ describe("off the map links", () => {
     expect(readSet(offMapFilter(filter, "approximate"), LEAD_FILTER_FIELD.geoPlacement)).toEqual(["approximate"]);
     expect(readSet(offMapFilter(filter, "notFound"), LEAD_FILTER_FIELD.geoPlacement)).toEqual(["not_found"]);
     expect(readSet(offMapFilter(filter, "pending"), LEAD_FILTER_FIELD.geoPlacement)).toEqual(["pending"]);
-    expect(readSet(offMapFilter(filter, "quotaExceeded"), LEAD_FILTER_FIELD.geoPlacement)).toEqual(["quota_exceeded"]);
-    expect(readSet(offMapFilter(filter, "refused"), LEAD_FILTER_FIELD.geoPlacement)).toEqual(["refused"]);
-    expect(readSet(offMapFilter(filter, "refused"), LEAD_FILTER_FIELD.city)).toEqual(["sp:sao paulo"]);
+    expect(readSet(offMapFilter(filter, "notFound"), LEAD_FILTER_FIELD.city)).toEqual(["sp:sao paulo"]);
   });
 
   it("lists the leads without an address with the summary's own filter", () => {
@@ -632,5 +610,102 @@ describe("the leads left out of an area", () => {
 
   it("has no list when the server sent no filter", () => {
     expect(leftOutListFilter({ total: 0, filter: null, districts: [] })).toBeNull();
+  });
+});
+
+describe("area predicates that keep only exact positions", () => {
+  const exact = withAreaExactOnly(withDrawnArea(filter, "a1"), true);
+
+  it("reads the areas of an exact only predicate", () => {
+    expect(areaIdsOf(exact)).toEqual(["a1"]);
+    expect(areaExactOnly(exact)).toBe(true);
+    expect(areaExactOnly(withDrawnArea(filter, "a1"))).toBe(false);
+  });
+
+  it("sends exact only as the key of the one area predicate", () => {
+    const predicates = exact.groups.flatMap((group) => group.predicates);
+    expect(predicates).toContainEqual({ field: "area", key: AREA_EXACT_ONLY, operator: "in", values: ["a1"] });
+    expect(predicates.filter((predicate) => predicate.field === "area")).toHaveLength(1);
+    expect(readSet(exact, LEAD_FILTER_FIELD.city)).toEqual(["sp:sao paulo"]);
+  });
+
+  it("keeps exact only when an area is added or taken out", () => {
+    const two = withDrawnArea(exact, "a2");
+    expect(readSet(two, LEAD_AREA_EXACT_ONLY_FIELD)).toEqual(["a1", "a2"]);
+    expect(readSet(two, LEAD_FILTER_FIELD.area)).toEqual([]);
+    expect(readSet(withoutArea(two, "a1"), LEAD_AREA_EXACT_ONLY_FIELD)).toEqual(["a2"]);
+    expect(areaIdsOf(withoutArea(exact, "a1"))).toEqual([]);
+    expect(areaExactOnly(withoutArea(exact, "a1"))).toBe(false);
+  });
+
+  it("turns exact only back off with the same areas", () => {
+    const back = withAreaExactOnly(withDrawnArea(exact, "a2"), false);
+    expect(readSet(back, LEAD_FILTER_FIELD.area)).toEqual(["a1", "a2"]);
+    expect(areaExactOnly(back)).toBe(false);
+  });
+
+  it("leaves a filter with no area alone", () => {
+    expect(withAreaExactOnly(filter, true)).toBe(filter);
+  });
+
+  it("reads both predicates of a filter that carries both", () => {
+    const both = withSet(exact, LEAD_FILTER_FIELD.area, ["a3"]);
+    expect(areaIdsOf(both)).toEqual(["a3", "a1"]);
+    expect(areaIdsOf(withoutArea(both, "a1"))).toEqual(["a3"]);
+    expect(areaIdsOf(withAreaExactOnly(both, true))).toEqual(["a3", "a1"]);
+    expect(readSet(withAreaExactOnly(both, false), LEAD_FILTER_FIELD.area)).toEqual(["a3", "a1"]);
+  });
+});
+
+describe("the empty map", () => {
+  const nothing = { ...summary, onMap: 0, approximate: 0 };
+
+  it("says nothing while the map has something to draw or the counts are loading", () => {
+    expect(mapEmptyKind({ filtering: false, summary, districts: [], workspace: null })).toBeNull();
+    expect(mapEmptyKind({ filtering: true, summary: null, districts: null, workspace: null })).toBeNull();
+  });
+
+  it("shows day one with no filter and nothing positioned", () => {
+    expect(mapEmptyKind({ filtering: false, summary: nothing, districts: [], workspace: null })).toBe("dayOne");
+  });
+
+  it("shows day one under a filter only when the workspace has no positioned lead at all", () => {
+    expect(mapEmptyKind({ filtering: true, summary: { ...nothing, total: 0 }, districts: [], workspace: nothing })).toBe("dayOne");
+  });
+
+  it("says the filter has no lead when it holds none and the workspace has positioned leads", () => {
+    expect(mapEmptyKind({ filtering: true, summary: { ...nothing, total: 0 }, districts: [], workspace: summary })).toBe("filter");
+    expect(mapEmptyKind({ filtering: true, summary: { ...nothing, total: 0 }, districts: [], workspace: { ...nothing, approximate: 4 } })).toBe("filter");
+  });
+
+  it("says the leads of the filter are off the map when it holds leads without a position", () => {
+    expect(mapEmptyKind({ filtering: true, summary: nothing, districts: [], workspace: summary })).toBe("unplaced");
+  });
+
+  it("waits for the workspace counts before choosing under a filter", () => {
+    expect(mapEmptyKind({ filtering: true, summary: nothing, districts: [], workspace: null })).toBeNull();
+  });
+});
+
+describe("the map frame", () => {
+  const area = { bbox: { south: -23.6, west: -46.7, north: -23.5, east: -46.6 }, basis: "area" as const, view: "positions" as const };
+  const country = { bbox: { south: -33.8, west: -74.1, north: 5.3, east: -28.8 }, basis: "country" as const, view: "positions" as const };
+  const focus = { south: -23.56, west: -46.64, north: -23.54, east: -46.62 };
+
+  it("fits a focused place first", () => {
+    expect(leadMapFrame(focus, area, true)).toEqual(focus);
+  });
+
+  it("fits the drawn area the server framed", () => {
+    expect(leadMapFrame(null, area, true)).toEqual(area.bbox);
+  });
+
+  it("keeps the current view under an area until the server frames the area", () => {
+    expect(leadMapFrame(null, country, true)).toBeNull();
+    expect(leadMapFrame(null, undefined, true)).toBeNull();
+  });
+
+  it("fits the server viewport when no area is in the filter", () => {
+    expect(leadMapFrame(null, country, false)).toEqual(country.bbox);
   });
 });

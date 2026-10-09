@@ -3,51 +3,25 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import { adminListGeocodingUsageAction, type GeocodingPlatformResult } from "@/app/actions/geocoding-platform";
-import { Meter } from "@/components/charts/vozko";
+import { adminListGeocodingCoverageAction, type GeocodingPlatformResult } from "@/app/actions/geocoding-platform";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowsClockwise, Buildings, CalendarCheck, MagnifyingGlass, MapTrifold, Warning } from "@/components/icons";
-import { useGeocodingProviderName } from "@/hooks/use-geocoding-provider-name";
+import { ArrowsClockwise, Buildings, MagnifyingGlass, MapTrifold, Warning } from "@/components/icons";
 import {
   geocodingPlatformErrorKey,
-  geocodingPlatformUsage,
   type GeocodingPlatformCoverage,
   type GeocodingPlatformWorkspace,
 } from "@/lib/workspace/workspace-config/geocoding-platform";
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
-const BRASILIA = "America/Sao_Paulo";
 
-const COVERAGE_LINES = ["onMap", "approximate", "withoutAddress", "pending", "notFound", "quotaExceeded", "refused"] as const satisfies readonly (keyof GeocodingPlatformCoverage)[];
+const COVERAGE_LINES = ["onMap", "approximate", "withoutAddress", "pending", "notFound"] as const satisfies readonly (keyof GeocodingPlatformCoverage)[];
 
 type Query = { page: number; search: string };
-
-function UsageCell({ item }: { item: GeocodingPlatformWorkspace }) {
-  const t = useTranslations("adminGeocoding.usage");
-  const usage = geocodingPlatformUsage(item);
-  if (usage.state === "off") return <span className="text-sm text-muted-foreground">{t("off")}</span>;
-  if (usage.state === "none") return <span className="text-sm text-warning-ink">{t("none")}</span>;
-  return (
-    <div className="flex min-w-[11rem] flex-col gap-1.5">
-      <Meter
-        size="sm"
-        value={usage.percent ?? 0}
-        label={t("meter")}
-        color={usage.state === "reached" ? "hsl(var(--warning))" : "hsl(var(--muted-foreground))"}
-      />
-      <span className="readout text-xs text-foreground">
-        {t("value", { used: item.usedThisCycle, ceiling: item.monthlyCeiling })}
-        {item.ceilingSet ? null : <span className="ml-1 text-muted-foreground">({t("defaultCeiling")})</span>}
-      </span>
-      <span className="readout text-2xs text-muted-foreground">{t("today", { count: item.usedToday })}</span>
-    </div>
-  );
-}
 
 function ShareCell({ share, count, total, detail }: { share: number; count: number; total: number; detail?: string }) {
   const t = useTranslations("adminGeocoding.share");
@@ -64,45 +38,24 @@ function ShareCell({ share, count, total, detail }: { share: number; count: numb
 function WorkspaceDetails({ item }: { item: GeocodingPlatformWorkspace }) {
   const t = useTranslations("adminGeocoding.details");
   const tSummary = useTranslations("leadMap.summary");
-  const format = useFormatter();
-  const total = item.months.reduce((sum, month) => sum + month.requests, 0);
   return (
-    <div className="grid gap-6 border-t border-border bg-muted px-6 py-4 lg:grid-cols-[2fr_1fr]">
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-semibold text-foreground">{t("history")}</h3>
-          <span className="readout text-xs text-muted-foreground">{t("historyTotal", { count: total })}</span>
-        </div>
-        <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {item.months.map((month) => (
-            <li key={month.cycleStart} className="rounded-[--radius] border border-border bg-card px-2.5 py-2">
-              <p className="text-2xs text-muted-foreground">
-                {format.dateTime(new Date(month.cycleStart), { month: "short", year: "numeric", timeZone: BRASILIA })}
-              </p>
-              <p className="readout text-sm font-semibold text-foreground">{format.number(month.requests)}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-      <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">{t("coverage")}</h3>
-        <ul className="space-y-1.5 text-xs text-foreground">
-          {COVERAGE_LINES.map((line) => (
-            <li key={line} className="readout">
-              {tSummary(line, { count: item.coverage[line] })}
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
+    <section className="space-y-3 border-t border-border bg-muted px-6 py-4">
+      <h3 className="text-sm font-semibold text-foreground">{t("coverage")}</h3>
+      <ul className="space-y-1.5 text-xs text-foreground">
+        {COVERAGE_LINES.map((line) => (
+          <li key={line} className="readout">
+            {tSummary(line, { count: item.coverage[line] })}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
-export function GeocodingUsageAdmin() {
+export function GeocodingCoverageAdmin() {
   const t = useTranslations("adminGeocoding");
   const tSummary = useTranslations("leadMap.summary");
   const format = useFormatter();
-  const providerName = useGeocodingProviderName();
 
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState<Query>({ page: 1, search: "" });
@@ -124,7 +77,7 @@ export function GeocodingUsageAdmin() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void adminListGeocodingUsageAction({ page: query.page, pageSize: PAGE_SIZE, search: query.search }, controller.signal).then((next) => {
+    void adminListGeocodingCoverageAction({ page: query.page, pageSize: PAGE_SIZE, search: query.search }, controller.signal).then((next) => {
       if (controller.signal.aborted) return;
       setResult(next);
       setLoading(false);
@@ -147,41 +100,12 @@ export function GeocodingUsageAdmin() {
   const items = page?.items ?? [];
   const errorKey = result?.error ? geocodingPlatformErrorKey(result.error) : null;
 
-  const cycleText = page
-    ? t("stats.cycleValue", {
-        start: format.dateTime(new Date(page.cycleStart), { dateStyle: "short", timeZone: BRASILIA }),
-        end: format.dateTime(new Date(Date.parse(page.nextCycleStart) - 1), { dateStyle: "short", timeZone: BRASILIA }),
-      })
-    : null;
-
   const columns = useMemo<DashboardTableColumn<GeocodingPlatformWorkspace>[]>(
     () => [
       {
         header: t("table.workspace"),
         key: "workspace",
         render: (item) => <p className="truncate text-sm font-semibold text-foreground">{item.workspaceName}</p>,
-      },
-      {
-        header: t("table.provider"),
-        key: "provider",
-        render: (item) =>
-          item.enabled ? (
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm text-foreground">{providerName(item.provider)}</span>
-              <span className="text-2xs text-muted-foreground">
-                {item.providerChangedAt
-                  ? t("provider.since", { date: format.dateTime(new Date(item.providerChangedAt), { dateStyle: "short", timeZone: BRASILIA }) })
-                  : t("provider.active")}
-              </span>
-            </div>
-          ) : (
-            <span className="text-sm text-muted-foreground">{t("provider.none")}</span>
-          ),
-      },
-      {
-        header: t("table.usage"),
-        key: "usage",
-        render: (item) => <UsageCell item={item} />,
       },
       {
         header: t("table.address"),
@@ -222,7 +146,7 @@ export function GeocodingUsageAdmin() {
         },
       },
     ],
-    [t, tSummary, format, providerName, expanded],
+    [t, tSummary, expanded],
   );
 
   return (
@@ -239,11 +163,6 @@ export function GeocodingUsageAdmin() {
             label: t("stats.workspaces"),
             value: loading || !page ? "..." : format.number(page.totalItems),
             icon: <Buildings className="h-4 w-4 text-info-ink" weight="fill" />,
-          },
-          {
-            label: t("stats.cycle"),
-            value: cycleText ?? "...",
-            icon: <CalendarCheck className="h-4 w-4 text-muted-foreground" weight="fill" />,
           },
         ]}
         headerLeft={

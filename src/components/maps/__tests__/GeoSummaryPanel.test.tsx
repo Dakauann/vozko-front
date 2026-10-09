@@ -11,8 +11,6 @@ const summary = {
   withoutAddress: 1117,
   notFound: 214,
   pending: 96,
-  quotaExceeded: 0,
-  refused: 0,
 };
 
 const colour = {
@@ -39,6 +37,31 @@ describe("GeoSummaryPanel", () => {
     expect(screen.getByText("leads em Região Norte")).toBeInTheDocument();
   });
 
+  it("says how many leads of the area have an approximate position and offers to keep only exact positions", () => {
+    const onChange = vi.fn();
+    renderInPortuguese(<GeoSummaryPanel summary={summary} areaNames={["Região Norte"]} exactOnly={{ on: false, onChange }} />);
+    expect(screen.getByText("(1.611 com posição aproximada)")).toBeInTheDocument();
+    const exact = screen.getByRole("switch", { name: "Só posição exata" });
+    expect(exact).not.toBeChecked();
+    expect(exact).toHaveAccessibleDescription("Deixa de fora os leads localizados só pelo CEP, bairro ou cidade.");
+    fireEvent.click(exact);
+    expect(onChange).toHaveBeenCalledWith(true);
+  });
+
+  it("shows the switch on and no approximate count when the area keeps only exact positions", () => {
+    const onChange = vi.fn();
+    renderInPortuguese(<GeoSummaryPanel summary={{ ...summary, approximate: 0 }} areaNames={["Região Norte"]} exactOnly={{ on: true, onChange }} />);
+    expect(screen.queryByText(/com posição aproximada\)/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("switch", { name: "Só posição exata", checked: true }));
+    expect(onChange).toHaveBeenCalledWith(false);
+  });
+
+  it("offers no exact position switch without an area", () => {
+    renderInPortuguese(<GeoSummaryPanel summary={summary} areaNames={[]} />);
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+    expect(screen.queryByText(/com posição aproximada\)/)).not.toBeInTheDocument();
+  });
+
   it("counts the areas when several narrow the filter", () => {
     renderInPortuguese(<GeoSummaryPanel summary={summary} areaNames={["Norte", "Sul"]} />);
     expect(screen.getByText("leads em 2 áreas")).toBeInTheDocument();
@@ -63,21 +86,21 @@ describe("GeoSummaryPanel", () => {
     ]);
   });
 
-  it("lists the addresses the provider refused, with their count, only when there are any", () => {
-    renderInPortuguese(<GeoSummaryPanel summary={{ ...summary, refused: 7 }} areaNames={[]} />);
+  it("lists only the four off-map groups of the free IBGE path", () => {
+    renderInPortuguese(<GeoSummaryPanel summary={summary} areaNames={[]} />);
     const section = screen.getByRole("region", { name: "Fora do mapa neste filtro" });
-    const rows = within(section).getAllByRole("listitem").map((row) => row.textContent);
-    expect(rows.at(-1)).toBe("Recusados pelo provedor de localização7");
+    const rows = within(section).getAllByRole("listitem").map((row) => row.textContent ?? "");
+    expect(rows).toHaveLength(4);
+    expect(rows.some((row) => row.includes("provedor") || row.includes("limite"))).toBe(false);
   });
 
   it("turns every off-map count into a link to the leads it counts", () => {
-    const actions = { approximate: vi.fn(), withoutAddress: vi.fn(), notFound: vi.fn(), pending: vi.fn(), refused: vi.fn() };
-    renderInPortuguese(<GeoSummaryPanel summary={{ ...summary, refused: 7 }} areaNames={[]} offMapActions={actions} />);
+    const actions = { approximate: vi.fn(), withoutAddress: vi.fn(), notFound: vi.fn(), pending: vi.fn() };
+    renderInPortuguese(<GeoSummaryPanel summary={summary} areaNames={[]} offMapActions={actions} />);
     fireEvent.click(screen.getByRole("button", { name: /Listar na tabela os leads aproximados/ }));
     fireEvent.click(screen.getByRole("button", { name: /Listar na tabela os leads sem endereço/ }));
     fireEvent.click(screen.getByRole("button", { name: /Listar na tabela os endereços não localizados/ }));
     fireEvent.click(screen.getByRole("button", { name: /Listar na tabela os leads aguardando localização/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Listar na tabela os endereços recusados/ }));
     for (const action of Object.values(actions)) expect(action).toHaveBeenCalledTimes(1);
   });
 

@@ -25,7 +25,6 @@ import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
 import { OutcomeCaptureCard } from "@/components/dashboard/workspace/OutcomeCaptureCard";
 import { ConfigCardShell } from "@/components/dashboard/workspace/ConfigCardShell";
-import { GeocodingConfigCard } from "@/components/dashboard/workspace/GeocodingConfigCard";
 import {
   summarizeWorkingHours,
   validateWorkingHours,
@@ -43,9 +42,7 @@ export function WorkspaceConfigTab({
   workspaceId,
   config,
   onConfigChange,
-  ownerSettings,
-  managerSettings,
-}: WorkspaceConfigTabProps & { ownerSettings: boolean; managerSettings: boolean }) {
+}: WorkspaceConfigTabProps) {
   const t = useTranslations("workspaceSettings");
 
   return (
@@ -55,48 +52,35 @@ export function WorkspaceConfigTab({
           {t("tabs.config")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground max-w-2xl">
-          {ownerSettings
-            ? t("configTab.description")
-            : t("configTab.managerDescription")}
+          {t("configTab.description")}
         </p>
       </div>
 
-      {ownerSettings ? (
-        <section className="space-y-3">
-          <p className="text-2xs font-semibold text-muted-foreground">
-            {t("configTab.sections.attendance")}
-          </p>
-          <DistributionConfigCard
-            workspaceId={workspaceId}
-            config={config}
-            onConfigChange={onConfigChange}
-          />
-          <OutcomeCaptureConfigCard
-            workspaceId={workspaceId}
-            config={config}
-            onConfigChange={onConfigChange}
-          />
-          <WorkingHoursConfigCard
-            workspaceId={workspaceId}
-            config={config}
-            onConfigChange={onConfigChange}
-          />
-          <AutoCloseConfigCard
-            workspaceId={workspaceId}
-            config={config}
-            onConfigChange={onConfigChange}
-          />
-        </section>
-      ) : null}
-
-      {ownerSettings || managerSettings ? (
-        <section className="space-y-3">
-          <p className="text-2xs font-semibold text-muted-foreground">
-            {t("configTab.sections.leads")}
-          </p>
-          <GeocodingConfigCard workspaceId={workspaceId} />
-        </section>
-      ) : null}
+      <section className="space-y-3">
+        <p className="text-2xs font-semibold text-muted-foreground">
+          {t("configTab.sections.attendance")}
+        </p>
+        <DistributionConfigCard
+          workspaceId={workspaceId}
+          config={config}
+          onConfigChange={onConfigChange}
+        />
+        <OutcomeCaptureConfigCard
+          workspaceId={workspaceId}
+          config={config}
+          onConfigChange={onConfigChange}
+        />
+        <WorkingHoursConfigCard
+          workspaceId={workspaceId}
+          config={config}
+          onConfigChange={onConfigChange}
+        />
+        <AutoCloseConfigCard
+          workspaceId={workspaceId}
+          config={config}
+          onConfigChange={onConfigChange}
+        />
+      </section>
     </div>
   );
 }

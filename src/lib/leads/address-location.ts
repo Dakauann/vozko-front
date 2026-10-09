@@ -1,7 +1,7 @@
 import { LEAD_GEO_STATUSES } from "@/lib/leads/filters";
 import type { LeadAddress, LeadGeoStatus } from "@/lib/leads/types";
 import { isPrecision, precisionCategory, precisionLabelKey } from "@/lib/maps/precision";
-import { positionProviderKey, positionSourceKey } from "@/lib/maps/position";
+import { positionSourceKey } from "@/lib/maps/position";
 
 export type AddressLocationTone = "healthy" | "muted" | "warning";
 
@@ -16,10 +16,7 @@ export interface AddressLocation {
 const STATUS_TONE: Partial<Record<LeadGeoStatus, AddressLocationTone>> = {
   pending: "muted",
   not_found: "warning",
-  ambiguous: "warning",
   unavailable: "warning",
-  quota_exceeded: "warning",
-  refused: "warning",
 };
 
 const UNKNOWN: AddressLocation = { label: { kind: "precision", key: precisionLabelKey(null) }, tone: "muted", note: null };
@@ -41,19 +38,15 @@ export function addressLocation(address: Pick<LeadAddress, "geoStatus" | "geoQue
 
 export interface AddressPositionSource {
   sourceKey: string;
-  providerKey: string | null;
   fixedAt: Date | null;
 }
 
-export function addressPositionSource(
-  address: Pick<LeadAddress, "positionSource" | "positionProvider" | "geocodedAt">,
-): AddressPositionSource | null {
+export function addressPositionSource(address: Pick<LeadAddress, "positionSource" | "geocodedAt">): AddressPositionSource | null {
   const sourceKey = positionSourceKey(address.positionSource);
   if (!sourceKey) return null;
   const fixedAt = address.geocodedAt ? new Date(address.geocodedAt) : null;
   return {
     sourceKey,
-    providerKey: address.positionSource === "provider" ? positionProviderKey(address.positionProvider) : null,
     fixedAt: fixedAt && !Number.isNaN(fixedAt.getTime()) ? fixedAt : null,
   };
 }

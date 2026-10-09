@@ -64,8 +64,6 @@
       "withoutAddress": "{count, plural, other {# without an address.}}",
       "notFound": "{count, plural, other {# not located.}}",
       "pending": "{count, plural, other {# waiting to be located.}}",
-      "quotaExceeded": "{count, plural, other {# held by the location limit.}}",
-      "refused": "{count, plural, other {# refused by the location provider.}}",
       "visibleApproximate": "{count, plural, other {# with an approximate position in this part of the map.}}"
     },
     "panel": {
@@ -89,17 +87,13 @@
         "approximate": "Approximate (postal code, neighbourhood, city)",
         "withoutAddress": "No address",
         "notFound": "Address not found",
-        "pending": "Waiting for a location",
-        "quotaExceeded": "Stopped by the location limit",
-        "refused": "Refused by the location provider"
+        "pending": "Waiting for a location"
       },
       "offMapActions": {
         "approximate": "List the approximate leads in the table",
         "withoutAddress": "List the leads without an address in the table",
         "notFound": "List the addresses not found in the table",
-        "pending": "List the leads waiting for a location in the table",
-        "quotaExceeded": "List the leads stopped by the limit in the table",
-        "refused": "List the refused addresses in the table"
+        "pending": "List the leads waiting for a location in the table"
       },
       "offMapActionLabel": "{label} {count}. {action}",
       "leftOut": {
@@ -111,7 +105,10 @@
         "districtsLabel": "Approximate leads left out of the area, by neighbourhood",
         "districtAction": "List the {count, number} approximate leads of {name} left out of the area in the table",
         "failed": "Could not count the approximate leads left out of the area."
-      }
+      },
+      "approximateInArea": "({count, number} with an approximate position)",
+      "exactOnly": "Exact position only",
+      "exactOnlyHint": "Leaves out leads located only by CEP, neighborhood or city."
     },
     "empty": {
       "title": "No leads on the map yet",
@@ -122,19 +119,24 @@
         "withoutAddress": "No address",
         "approximate": "Approximate",
         "pending": "Waiting",
-        "notFound": "Not located",
-        "quotaExceeded": "Held by the limit",
-        "refused": "Refused by the provider"
+        "notFound": "Not located"
       },
       "actions": {
         "importAddresses": "Import addresses",
         "requestAddress": "Ask for the address on WhatsApp",
-        "createLead": "Add a lead"
+        "createLead": "Add a lead",
+        "clearFilters": "Clear filters",
+        "includeApproximate": "Include approximate"
       },
       "reasons": {
         "importForbidden": "You are not allowed to register leads.",
         "nobodyWithoutAddress": "Every lead in this filter already has an address."
-      }
+      },
+      "filterTitle": "No leads in this filter",
+      "filterDescription": "Change or clear the filters to see leads on the map.",
+      "approximateInside": "{count, plural, one {# lead with an approximate position is inside the area.} other {# leads with an approximate position are inside the area.}}",
+      "unplacedTitle": "No lead in this filter is on the map",
+      "unplacedDescription": "These leads have no located address yet. Bring in their addresses to see them here."
     },
     "miniMap": {
       "label": "Address map",
@@ -191,7 +193,8 @@
           "reference_unavailable": "The address base is unavailable right now. Try again in a moment.",
           "reference_point_unavailable": "The address base is unavailable right now. Try again in a moment.",
           "forbidden": "You are not allowed to see full addresses."
-        }
+        },
+        "wholeCity": "This CEP covers the whole city; the radius starts from the center of {city}."
       }
     },
     "peek": {
@@ -222,8 +225,7 @@
       "manual": "manual pin",
       "lead_pin": "sent by the lead",
       "import": "imported",
-      "reference": "IBGE",
-      "provider": "external provider"
+      "reference": "IBGE"
     },
     "areas": {
       "proposedName": "Area drawn on {date}",
@@ -280,9 +282,6 @@
       "failed": "Could not add the leads at this point."
     },
     "viewportFailed": "Could not open the map for this filter.",
-    "providers": {
-      "opencage": "OpenCage"
-    },
     "focus": {
       "unplaced": "This lead has no position on the map yet.",
       "failed": "Could not open this lead on the map.",
@@ -7771,12 +7770,10 @@
       "departments": "Departments"
     },
     "configTab": {
-      "description": "Workspace policies: assignment, conversation closure and address locations.",
+      "description": "Workspace policies: assignment and conversation closure.",
       "sections": {
-        "attendance": "Attendance",
-        "leads": "Leads"
-      },
-      "managerDescription": "This workspace's address locations."
+        "attendance": "Attendance"
+      }
     },
     "roles": {
       "owner": "Owner",
@@ -8028,96 +8025,7 @@
         "connects_accounts": "Allows connecting and disconnecting the company's channels and integrations."
       }
     },
-    "viewActivity": "View activity",
-    "geocoding": {
-      "title": "Address locations",
-      "description": "How lead addresses become positions on the map.",
-      "status": {
-        "loading": "Loading",
-        "unavailable": "Unavailable",
-        "reference": "IBGE reference only",
-        "provider": "External provider on",
-        "ceilingReached": "Monthly ceiling reached",
-        "noCeiling": "Monthly ceiling is zero",
-        "providerMissing": "External provider unavailable",
-        "providerPaused": "Provider paused",
-        "providerPauseUnknown": "Provider on hold"
-      },
-      "loading": "Loading address locations…",
-      "loadFailed": "Could not load address locations.",
-      "saved": "Address locations updated.",
-      "saveFailed": "Could not save.",
-      "reference": {
-        "label": "Reference data",
-        "hint": "Always on. Places addresses by CEP, neighbourhood and city with public data, without sending addresses outside our servers."
-      },
-      "provider": {
-        "label": "External provider ({provider})",
-        "labelNone": "External provider",
-        "hint": "Used only when the reference does not reach street level and the address has a street. When on, lead addresses are sent to the provider, which is instructed not to keep the queries.",
-        "readOnly": "Only the workspace owner or a platform admin can turn the external provider on or off.",
-        "notConfigured": "This server has no access to an external provider.",
-        "stamp": {
-          "on": "Turned on by <name>{person}</name> on {date}",
-          "off": "Turned off by <name>{person}</name> on {date}"
-        },
-        "never": "Never turned on in this workspace."
-      },
-      "usage": {
-        "title": "External queries this cycle",
-        "count": "{used, number} of {ceiling, number}",
-        "today": "Today: {used, number} of {share, number}",
-        "renews": "The cycle renews on {date}.",
-        "off": "With the provider off, no external query is made.",
-        "none": "Monthly ceiling is zero: no external query is made.",
-        "reached": "Monthly ceiling reached. The remaining addresses keep the reference position until the next cycle.",
-        "todayReached": "Today's share reached. Queries resume tomorrow."
-      },
-      "ceiling": {
-        "label": "Monthly query ceiling",
-        "hint": "0 turns off external queries for this workspace.",
-        "readOnly": "Only platform admins change the monthly ceiling.",
-        "save": "Save ceiling",
-        "invalid": "Enter a whole number, without decimals.",
-        "stamp": "Ceiling set by <name>{person}</name> on {date}"
-      },
-      "confirm": {
-        "enable": {
-          "title": "Turn on the external provider?",
-          "description": "This workspace's lead addresses will be sent to {provider} when the reference does not reach street level. Queries count toward the workspace's monthly ceiling.",
-          "confirm": "Turn on provider"
-        },
-        "cancel": "Cancel"
-      },
-      "errors": {
-        "geocoding_forbidden": "Only the workspace owner or a platform admin can change this setting.",
-        "geocoding_ceiling_forbidden": "Only a platform admin can change the monthly ceiling.",
-        "geocoding_change_empty": "There is nothing to save.",
-        "geocoding_provider_unknown": "This provider does not exist.",
-        "geocoding_ceiling_invalid": "The ceiling is outside the allowed range.",
-        "geocoding_provider_not_configured": "This server has no access to that provider.",
-        "geocoding_settings_unreadable": "The setting could not be read. Try again.",
-        "geocoding_unavailable": "Address locations are not available on this server.",
-        "invalid_body": "The server refused the request. Reload the page and try again.",
-        "unknown": "Try again in a moment."
-      },
-      "pause": {
-        "title": "The external provider is paused for every workspace",
-        "unknownTitle": "The external provider's state could not be confirmed",
-        "since": "Paused since {since}.",
-        "until": "No paid external query is made and none of the ceiling is spent until {until}.",
-        "unknown": "Until the state is confirmed, no paid external query is made and none of the ceiling is spent.",
-        "reference": "Meanwhile, positions use the free reference (the point of the CEP, neighbourhood or city).",
-        "reasons": {
-          "key_rejected": "The provider rejected the platform's access key.",
-          "account_quota_spent": "The platform account's quota at the provider ran out.",
-          "key_disabled": "The platform's access key was disabled at the provider.",
-          "account_refused": "The provider refused the platform account.",
-          "queries_refused": "The provider refused several different addresses in a row, which points to a problem in the provider integration, not in your addresses.",
-          "other": "The provider refused the platform's queries."
-        }
-      }
-    }
+    "viewActivity": "View activity"
   },
   "workspaceInvites": {
     "loading": "Loading invites...",
@@ -8855,12 +8763,10 @@
   "adminGeocoding": {
     "header": {
       "badge": "Address geocoding",
-      "description": "External provider usage and address coverage of each workspace, in the monthly Brasília cycle."
+      "description": "How many leads of each workspace have an address and a position on the map, placed with the IBGE reference base."
     },
     "stats": {
-      "workspaces": "Workspaces",
-      "cycle": "Current cycle",
-      "cycleValue": "{start} to {end}"
+      "workspaces": "Workspaces"
     },
     "search": {
       "placeholder": "Search workspace by name"
@@ -8872,46 +8778,29 @@
     },
     "table": {
       "workspace": "Workspace",
-      "provider": "Provider",
-      "usage": "Usage this cycle",
       "address": "With address",
       "onMap": "On the map",
       "details": "Details"
-    },
-    "provider": {
-      "none": "Reference data only",
-      "active": "Active",
-      "since": "Active since {date}"
-    },
-    "usage": {
-      "value": "{used, number} of {ceiling, number}",
-      "meter": "Usage of the monthly ceiling",
-      "off": "Provider off",
-      "none": "Ceiling at zero, no lookups allowed",
-      "today": "Today: {count, number}",
-      "defaultCeiling": "default ceiling"
     },
     "share": {
       "value": "{share, number, percent}",
       "of": "{count, number} of {total, number} leads"
     },
     "details": {
-      "history": "Provider lookups per cycle",
-      "historyTotal": "{count, number} in the last 12 cycles",
       "coverage": "Address status"
     },
     "empty": {
-      "title": "No workspace with leads or geocoding",
+      "title": "No workspace with leads",
       "filteredTitle": "No workspace with that name",
-      "description": "Workspaces with leads, a configured provider or recorded usage appear here."
+      "description": "Workspaces that have leads appear here."
     },
     "errors": {
       "title": "Could not load geocoding",
-      "forbidden": "Only a platform admin can see the usage of every workspace.",
+      "forbidden": "Only a platform admin can see the address coverage of every workspace.",
       "unavailable": "Address geocoding is not available on this server.",
       "busy": "The read is busy right now. Try again in a moment.",
       "slow": "The read took too long. Try again in a moment.",
-      "default": "Geocoding usage could not be read."
+      "default": "The address coverage could not be read."
     },
     "pagination": {
       "items": "workspaces"
@@ -10503,7 +10392,7 @@
           "notLocated": "Not located",
           "noAddress": "No address in the file"
         },
-        "source": "Placed with the IBGE address base (CNEFE 2022) on our servers. An external provider is used only when the workspace turned it on."
+        "source": "Placed with the IBGE address base (CNEFE 2022) on our servers."
       }
     },
     "header": {
@@ -10681,10 +10570,7 @@
           "located": "Located",
           "approximate": "Approximate",
           "not_found": "Not located",
-          "ambiguous": "Ambiguous address",
-          "unavailable": "Service unavailable",
-          "quota_exceeded": "Lookup limit reached",
-          "refused": "Refused by the provider"
+          "unavailable": "Service unavailable"
         },
         "ownerPresence": {
           "true": "With owner",
@@ -10696,9 +10582,7 @@
           "approximate": "Approximate (postal code, neighbourhood, city)",
           "without_address": "No address",
           "not_found": "Address not found",
-          "pending": "Waiting for a location",
-          "quota_exceeded": "Stopped by the location limit",
-          "refused": "Refused by the location provider"
+          "pending": "Waiting for a location"
         }
       },
       "chips": {
@@ -10711,7 +10595,8 @@
         "isSet": "has",
         "isEmpty": "has no",
         "isTrue": "yes",
-        "isFalse": "no"
+        "isFalse": "no",
+        "exactOnly": "exact position only"
       },
       "failed": "Could not load the options.",
       "facetsFailed": "The filter counts did not load.",
@@ -22327,7 +22212,29 @@
         "tooManyJobs": "You reached the limit of jobs at once. Wait for one to finish.",
         "captionsPlaced": "Captions added on a new track.",
         "captionsFileUnreadable": "This file has no SRT or VTT captions. Nothing was changed.",
-        "captionsInvalid": "The captions do not fit the project: a caption is longer than a text allows or the project would get too large. Nothing was changed."
+        "captionsInvalid": "The captions do not fit the project: a caption is longer than a text allows or the project would get too large. Nothing was changed.",
+        "transitions": {
+          "apart": "Both clips must touch on the same visual track to take a transition.",
+          "kind": "That transition type does not exist.",
+          "duration": "A transition lasts 0.1 to 4 s and cannot pass half of either clip.",
+          "alignment": "Dip to color, zoom and whip stay centered on the cut.",
+          "easing": "The \"hold\" curve does not apply to transitions.",
+          "option": "That option does not apply to this transition type.",
+          "missing": "The transition no longer exists.",
+          "locked": "The track is locked.",
+          "noCut": "Place two touching clips on the same track to add a transition."
+        },
+        "speed": {
+          "missing": "That clip no longer exists.",
+          "locked": "The track is locked. Unlock it to change the speed.",
+          "notSourced": "Only video and audio can change speed.",
+          "notVideo": "Put the playhead over a video clip to freeze a frame.",
+          "frozen": "A freeze frame has no speed. Change its length by dragging its edges.",
+          "range": "Speed goes from 0.1× to 16×.",
+          "source": "The media ends before the clip does at this speed. Use a lower speed or turn off Keep duration.",
+          "noRoom": "There is no room on the timeline for that length.",
+          "rampOutside": "Select a video or audio clip and put the playhead over it to start the ramp."
+        }
       },
       "preview": {
         "label": "Preview",
@@ -22527,7 +22434,8 @@
           "copied": "Animation copied. Select another clip, place the playhead and paste.",
           "noKeys": "This clip has no keyframes to copy.",
           "clipboardEmpty": "Copy the animation of a clip before pasting."
-        }
+        },
+        "transitionTitle": "Transition"
       },
       "layer": {
         "title": {
@@ -22575,14 +22483,16 @@
           "ai": "AI",
           "elements": "Text",
           "captions": "Captions",
-          "process": "Process"
+          "process": "Process",
+          "transitions": "Transitions"
         },
         "titles": {
           "media": "Media",
           "ai": "Generate with AI",
           "elements": "Text and elements",
           "captions": "Auto captions",
-          "process": "Process"
+          "process": "Process",
+          "transitions": "Transitions"
         }
       },
       "media": {
@@ -22746,7 +22656,10 @@
           "scale": "Scale",
           "rotation": "Rotation",
           "opacity": "Opacity",
-          "blur": "Blur"
+          "blur": "Blur",
+          "fill": "Color",
+          "stroke": "Outline color",
+          "gainDb": "Volume (dB)"
         },
         "animate": "Animate {name}",
         "stopAnimating": "Stop animating {name}",
@@ -22897,6 +22810,138 @@
           "overwriteDrag": "Drag as overwrite",
           "rippleTrimDrag": "Ripple trim",
           "forwardClick": "Select the section forward"
+        }
+      },
+      "transitions": {
+        "title": "Transition",
+        "kind": "Type",
+        "duration": "Duration",
+        "alignment": "Position on the cut",
+        "easing": "Curve",
+        "optionsTitle": "Options",
+        "remove": "Remove transition",
+        "chip": "Transition: {kind}",
+        "addAt": "Add a transition on this cut",
+        "panelHint": "Pick a type to apply it on the selected clip's cut or the cut nearest the playhead. Clips do not move.",
+        "swapHint": "Pick another type to swap the selected transition.",
+        "kinds": {
+          "dissolve": "Dissolve",
+          "dipToColor": "Dip to color",
+          "push": "Push",
+          "slide": "Slide",
+          "wipe": "Wipe",
+          "iris": "Iris",
+          "clockWipe": "Clock wipe",
+          "split": "Split",
+          "zoom": "Zoom",
+          "whip": "Whip",
+          "blurDissolve": "Blur dissolve"
+        },
+        "hints": {
+          "dissolve": "One clip blends into the other",
+          "dipToColor": "Passes through a color in the middle, like a fade to black",
+          "push": "The new clip pushes the old one out",
+          "slide": "One clip slides over the other",
+          "wipe": "An edge sweeps across revealing the new clip",
+          "iris": "The new clip opens from a shape",
+          "clockWipe": "Sweeps the frame like a clock hand",
+          "split": "The new clip opens from the center to the edges",
+          "zoom": "Zooms in until the clip changes, with blur",
+          "whip": "A fast pass with motion blur",
+          "blurDissolve": "A dissolve with blur in the middle"
+        },
+        "options": {
+          "direction": "Direction",
+          "moving": "Movement",
+          "color": "Color",
+          "angle": "Angle",
+          "shape": "Shape",
+          "originX": "Horizontal center",
+          "originY": "Vertical center",
+          "clockwise": "Clockwise",
+          "orientation": "Opening",
+          "reverse": "Close the outgoing clip",
+          "amount": "Strength"
+        },
+        "directions": {
+          "left": "Left",
+          "right": "Right",
+          "up": "Up",
+          "down": "Down"
+        },
+        "moves": {
+          "in": "New clip slides in on top",
+          "out": "Old clip slides out on top"
+        },
+        "shapes": {
+          "circle": "Circle",
+          "box": "Rectangle",
+          "diamond": "Diamond"
+        },
+        "orientations": {
+          "horizontal": "Up and down",
+          "vertical": "To the sides"
+        },
+        "alignments": {
+          "center": "Centered",
+          "start": "Starts at the cut",
+          "end": "Ends at the cut"
+        },
+        "timingTitle": "Type, timing and curve"
+      },
+      "textMotion": {
+        "title": "Text animation",
+        "hint": "Each letter, word or line starts after the one before; the stagger is that delay. The exit ends with the clip.",
+        "sides": {
+          "in": {
+            "style": "Text in",
+            "unit": "In by",
+            "duration": "In duration",
+            "stagger": "In stagger",
+            "easing": "In curve"
+          },
+          "out": {
+            "style": "Text out",
+            "unit": "Out by",
+            "duration": "Out duration",
+            "stagger": "Out stagger",
+            "easing": "Out curve"
+          }
+        },
+        "styles": {
+          "none": "None",
+          "fade": "Fade",
+          "rise": "Rise",
+          "slide": "Slide",
+          "pop": "Pop",
+          "blur": "Blur",
+          "typewriter": "Typewriter"
+        },
+        "units": {
+          "char": "Letter",
+          "word": "Word",
+          "line": "Line"
+        }
+      },
+      "speed": {
+        "title": "Speed",
+        "speed": "Speed",
+        "presets": "Preset speeds",
+        "preset": "{speed}×",
+        "keepDuration": "Keep duration",
+        "reverse": "Reverse",
+        "preservePitch": "Keep sound pitch",
+        "freeze": "Freeze frame at playhead",
+        "frozen": "This clip is a freeze frame. Change its length by dragging its edges on the timeline.",
+        "pitchHint": "Far from 1× stretched sound can feel artificial. Turn off Keep sound pitch to let the sound follow the speed.",
+        "badge": "{speed}×",
+        "reversedBadge": "Reversed",
+        "frozenBadge": "Freeze frame",
+        "ramp": {
+          "target": "Target speed",
+          "duration": "Ramp length",
+          "apply": "Apply ramp at playhead",
+          "hint": "The speed changes gradually from the playhead and the rest of the clip plays at the target speed."
         }
       }
     },
@@ -23099,6 +23144,38 @@
         "simplify": "Simplify",
         "points": "{count, plural, one {# point} other {# points}}",
         "outline": "Outline stroke"
+      }
+    },
+    "grade": {
+      "title": "Color correction",
+      "reset": "Reset color",
+      "light": "Light",
+      "color": "Color",
+      "look": "Look",
+      "looks": "Preset looks",
+      "intensity": "Look intensity",
+      "stops": "{value} EV",
+      "fields": {
+        "exposure": "Exposure",
+        "contrast": "Contrast",
+        "highlights": "Highlights",
+        "shadows": "Shadows",
+        "whites": "Whites",
+        "blacks": "Blacks",
+        "temperature": "Temperature",
+        "tint": "Tint",
+        "saturation": "Saturation",
+        "vibrance": "Vibrance"
+      },
+      "lookNames": {
+        "warm": "Warm",
+        "cool": "Cool",
+        "faded": "Faded",
+        "mono": "Black and white",
+        "punchy": "Punchy",
+        "dramatic": "Dramatic",
+        "soft": "Soft",
+        "vintage": "Vintage"
       }
     }
   },
@@ -23663,17 +23740,12 @@
         "located": "Located",
         "approximate": "Approximate location",
         "not_found": "Address not found",
-        "ambiguous": "Ambiguous address",
-        "unavailable": "Location unavailable",
-        "quota_exceeded": "Location limit reached",
-        "refused": "Address refused by the provider"
+        "unavailable": "Location unavailable"
       },
       "positionSource": "{source} · {date}",
-      "providerSource": "{source} ({provider})",
       "queuedNote": {
         "pending": "Looking for a more precise position",
-        "unavailable": "A more precise position is unavailable right now",
-        "quota_exceeded": "Ceiling reached: a more precise position next cycle"
+        "unavailable": "A more precise position is unavailable right now"
       },
       "showOnMap": "See on the leads map"
     },

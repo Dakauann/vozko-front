@@ -640,7 +640,7 @@ describe("ImportLeadsDialog address placement", () => {
       startedAt: "2026-10-08T12:05:00Z",
       finishedAt: "2026-10-08T12:06:00Z",
       result: counts({ created: 100, addressesAdded: 90, addressesLocated: 10, noAddress: 10 }),
-      placement: { onMap: 52, approximate: 30, pending: 6, notFound: 0, quotaExceeded: 2, refused: 0 },
+      placement: { onMap: 52, approximate: 30, pending: 8, notFound: 0 },
       ...overrides,
     });
 
@@ -658,7 +658,7 @@ describe("ImportLeadsDialog address placement", () => {
   });
 
   it("names the addresses that could not be located when there are some", () => {
-    openWith(finished({ placement: { onMap: 52, approximate: 30, pending: 6, notFound: 3, quotaExceeded: 0, refused: 1 } }));
+    openWith(finished({ placement: { onMap: 52, approximate: 30, pending: 6, notFound: 4 } }));
 
     const card = screen.getByRole("region", { name: "placement.title" });
     const row = within(card).getByText("placement.rows.notLocated").closest("div") as HTMLElement;

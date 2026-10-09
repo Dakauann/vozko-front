@@ -77,7 +77,7 @@ describe("applyPlace", () => {
 
 describe("shownPinOf", () => {
   it("shows the hand pin, then the chosen place, then the CEP point", () => {
-    const reference = { position: { lat: -8.2, lng: -34.95 }, precision: "postal_code" as const, attribution: "IBGE" };
+    const reference = { position: { lat: -8.2, lng: -34.95 }, precision: "postal_code" as const, attribution: "IBGE", city: "", state: "", wholeCity: false };
     const address = blankAddress();
     expect(shownPinOf(address, null)).toBeNull();
     expect(shownPinOf(address, reference)).toEqual({ position: reference.position, precision: "postal_code", moved: false });

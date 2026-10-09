@@ -1,6 +1,6 @@
 "use client";
 
-import { GeocodingUsageAdmin } from "@/components/admin/geocoding/geocoding-usage-admin";
+import { GeocodingCoverageAdmin } from "@/components/admin/geocoding/geocoding-coverage-admin";
 import { ScreenLoader } from "@/components/brand/screen-loader";
 import { AccessDenied } from "@/components/ui/access-denied";
 import { useAuth } from "@/contexts/auth-context";
@@ -17,5 +17,5 @@ export default function AdminGeocodingPage() {
     return <AccessDenied backHref="/dashboard" />;
   }
 
-  return <GeocodingUsageAdmin />;
+  return <GeocodingCoverageAdmin />;
 }

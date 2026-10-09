@@ -1,5 +1,5 @@
 import { sectionErrorCode } from '@/lib/analytics/section-query';
-import { crmFilterFromValue, encodeFilterParam, type CrmFilter } from '@/lib/crm/board';
+import { crmFilterFromValue, encodeFilterParam, keyedFilterField, type CrmFilter } from '@/lib/crm/board';
 import { optionTone, type CustomFieldDefinition } from '@/lib/crm/custom-fields';
 import { effectiveLeadFilter } from '@/lib/leads/bulk-selection';
 import type { LeadSelection } from '@/lib/leads/actions';
@@ -12,7 +12,8 @@ import { isValidPosition } from '@/lib/maps/geometry';
 import { type ColourLegendRow, type OffMapKey } from '@/lib/maps/summary';
 import { screenPaths } from '@/lib/navigation/routes';
 import { precisionCategory } from '@/lib/maps/precision';
-import { MAP_LAYER_MODES, type BBox, type DistrictCount, type GeoSummary, type LatLng, type LeftOutDistrict, type MapLayerMode, type MapLayerResponse, type MapPlacement, type MapPoint, type MapSpot, type MapView, type Precision, type SnappedViewport } from '@/lib/maps/types';
+import { tileId, type MapTile } from '@/lib/maps/tiles';
+import { MAP_LAYER_MODES, type BBox, type DistrictCount, type GeoSummary, type LatLng, type LeftOutDistrict, type MapLayerMode, type MapLayerResponse, type MapPlacement, type MapPoint, type MapSpot, type MapView, type MapViewport, type Precision, type SnappedViewport } from '@/lib/maps/types';
 import { formatCep } from '@/lib/address/cep';
 
 export { offMapRows, type ColourLegendRow, type OffMapKey, type OffMapRow } from '@/lib/maps/summary';
@@ -32,7 +33,7 @@ export function leadViewOf(chosen: LeadView | undefined, readsAddresses: boolean
     return chosen ?? defaultLeadView(readsAddresses);
 }
 
-export type LeadMapSection = 'summary' | 'districts' | 'viewport' | 'layer' | 'point' | 'left-out';
+export type LeadMapSection = 'summary' | 'districts' | 'viewport' | 'tile' | 'point' | 'left-out';
 
 export interface LeadMapParams {
     filter: CrmFilter;
@@ -53,20 +54,17 @@ function withParams(path: string, params: LeadMapParams, extra: Record<string, s
     return text ? `${path}?${text}` : path;
 }
 
-export function bboxParam(bbox: BBox): string {
-    return [bbox.west, bbox.south, bbox.east, bbox.north].join(',');
-}
-
 export function leadMapSectionPath(section: 'summary' | 'districts' | 'viewport' | 'left-out', params: LeadMapParams): string {
     return withParams(`/leads/map/${section}`, params);
 }
 
-export function leadMapLayerPath(params: LeadMapParams, request: LeadMapLayerRequest): string {
-    return withParams('/leads/map/layer', params, {
-        bbox: bboxParam(request.viewport.bbox),
-        zoom: String(request.viewport.zoom),
-        colorBy: request.colorBy ?? '',
-    });
+export interface LeadMapTileRequest {
+    tile: MapTile;
+    colorBy?: string;
+}
+
+export function leadMapTilePath(params: LeadMapParams, request: LeadMapTileRequest): string {
+    return withParams(`/leads/map/tiles/${tileId(request.tile)}`, params, { colorBy: request.colorBy ?? '' });
 }
 
 export function leadMapPointPath(params: LeadMapParams, at: MapSpot): string {
@@ -124,20 +122,41 @@ export function leadMapAvailability(error: unknown): LeadMapAvailability {
     return 'ready';
 }
 
+export const AREA_EXACT_ONLY = 'exact_only';
+
+export const LEAD_AREA_EXACT_ONLY_FIELD = keyedFilterField(LEAD_FILTER_FIELD.area, AREA_EXACT_ONLY);
+
+export const LEAD_AREA_ADDRESSES: readonly string[] = [LEAD_FILTER_FIELD.area, LEAD_AREA_EXACT_ONLY_FIELD];
+
+export function areaExactOnly(filter: CrmFilter): boolean {
+    return readSet(filter, LEAD_AREA_EXACT_ONLY_FIELD).length > 0;
+}
+
 export function areaIdsOf(filter: CrmFilter): string[] {
-    return readSet(filter, LEAD_FILTER_FIELD.area);
+    return [...new Set(LEAD_AREA_ADDRESSES.flatMap((address) => readSet(filter, address)))];
+}
+
+function withAreaIds(filter: CrmFilter, ids: string[], exactOnly: boolean): CrmFilter {
+    const cleared = LEAD_AREA_ADDRESSES.reduce((next, address) => withSet(next, address, []), filter);
+    return withSet(cleared, exactOnly ? LEAD_AREA_EXACT_ONLY_FIELD : LEAD_FILTER_FIELD.area, ids);
 }
 
 export function withDrawnArea(filter: CrmFilter, areaId: string): CrmFilter {
     const current = areaIdsOf(filter);
     if (current.includes(areaId)) return filter;
-    return withSet(filter, LEAD_FILTER_FIELD.area, [...current, areaId]);
+    return withAreaIds(filter, [...current, areaId], areaExactOnly(filter));
 }
 
 export function withoutArea(filter: CrmFilter, areaId: string): CrmFilter {
     const current = areaIdsOf(filter);
     if (!current.includes(areaId)) return filter;
-    return withSet(filter, LEAD_FILTER_FIELD.area, current.filter((id) => id !== areaId));
+    return withAreaIds(filter, current.filter((id) => id !== areaId), areaExactOnly(filter));
+}
+
+export function withAreaExactOnly(filter: CrmFilter, exactOnly: boolean): CrmFilter {
+    const current = areaIdsOf(filter);
+    if (current.length === 0) return filter;
+    return withAreaIds(filter, current, exactOnly);
 }
 
 export function withDistrictPairs(filter: CrmFilter, pairs: readonly string[]): CrmFilter {
@@ -154,8 +173,6 @@ const OFF_MAP_PLACEMENTS: Record<Exclude<OffMapKey, 'withoutAddress'>, LeadGeoPl
     approximate: 'approximate',
     notFound: 'not_found',
     pending: 'pending',
-    quotaExceeded: 'quota_exceeded',
-    refused: 'refused',
 };
 
 export function offMapFilter(filter: CrmFilter, key: OffMapKey): CrmFilter {
@@ -223,6 +240,34 @@ export function visibleByPlacement(layer: MapLayerResponse | null): VisibleCount
 export function nothingOnMap(summary: GeoSummary | null, districts: readonly DistrictCount[] | null): boolean {
     if (!summary || !districts) return false;
     return summary.onMap === 0 && districts.length === 0;
+}
+
+export type MapEmptyKind = 'dayOne' | 'filter' | 'unplaced';
+
+export interface MapEmptyInput {
+    filtering: boolean;
+    summary: GeoSummary | null;
+    districts: readonly DistrictCount[] | null;
+    workspace: GeoSummary | null;
+}
+
+function positionsAny(summary: GeoSummary): boolean {
+    return summary.onMap + summary.approximate > 0;
+}
+
+export function mapEmptyKind({ filtering, summary, districts, workspace }: MapEmptyInput): MapEmptyKind | null {
+    if (!summary || !nothingOnMap(summary, districts)) return null;
+    if (!filtering) return 'dayOne';
+    if (!workspace) return null;
+    if (!positionsAny(workspace)) return 'dayOne';
+    return summary.total === 0 ? 'filter' : 'unplaced';
+}
+
+export function leadMapFrame(focus: BBox | null, viewport: MapViewport | undefined, framingArea: boolean): BBox | null {
+    if (focus) return focus;
+    if (!viewport) return null;
+    if (framingArea && viewport.basis !== 'area') return null;
+    return viewport.bbox;
 }
 
 export const LEAD_MAP_LAYER_PARAM = 'layer';

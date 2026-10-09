@@ -30,8 +30,6 @@ const summary = {
   withoutAddress: 150,
   notFound: 30,
   pending: 15,
-  quotaExceeded: 5,
-  refused: 3,
 };
 
 const district = {
@@ -49,9 +47,13 @@ describe("parseGeoSummary", () => {
     expect(parseGeoSummary(summary)).toEqual(summary);
   });
 
+  it("drops the buckets only the retired external provider filled", () => {
+    expect(parseGeoSummary({ ...summary, quotaExceeded: 5, refused: 3 })).toEqual(summary);
+  });
+
   it.each([
     ["a missing count", { ...summary, pending: undefined }],
-    ["a missing refused count", { ...summary, refused: undefined }],
+    ["a missing not found count", { ...summary, notFound: undefined }],
     ["a negative count", { ...summary, onMap: -1 }],
     ["a fractional count", { ...summary, total: 1.5 }],
     ["a string count", { ...summary, total: "1200" }],

@@ -83,10 +83,7 @@ export type LeadGeoStatus =
     | 'located'
     | 'approximate'
     | 'not_found'
-    | 'ambiguous'
-    | 'unavailable'
-    | 'quota_exceeded'
-    | 'refused';
+    | 'unavailable';
 
 export interface LeadAddress {
     id: string;
@@ -104,7 +101,6 @@ export interface LeadAddress {
     geoQueued?: boolean;
     precision?: Precision;
     positionSource?: string;
-    positionProvider?: string;
     geocodedAt?: string;
     latitude?: number;
     longitude?: number;

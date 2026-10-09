@@ -1,4 +1,4 @@
-export const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job"] as const;
+export const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job", "export"] as const;
 
 export type ScreenCommandName = (typeof SCREEN_COMMANDS)[number];
 

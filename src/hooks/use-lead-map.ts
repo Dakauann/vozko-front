@@ -1,18 +1,21 @@
 "use client";
 
+import { useState } from "react";
+import { useQueries, type UseQueryResult } from "@tanstack/react-query";
+
 import {
   fetchLeadMapDistricts,
   fetchLeadMapLeftOut,
-  fetchLeadMapLayer,
   fetchLeadMapPoint,
   fetchLeadMapSummary,
+  fetchLeadMapTile,
   fetchLeadMapViewport,
   listLeadAreas,
 } from "@/app/actions/lead-map";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useSectionQuery } from "@/hooks/use-section-query";
+import { SECTION_STALE_MS, sectionRetryDelay, shouldRetrySection } from "@/lib/analytics/section-query";
 import {
-  isSameLeadMapSection,
   leadMapKey,
   leadMapsKey,
   type LeadMapLayerRequest,
@@ -20,7 +23,14 @@ import {
   type MapLeftOut,
   type MapPeek,
 } from "@/lib/leads/map-view";
+import { createTileLimiter, mergeTileLayers, tileId, visibleTiles, type MapTile } from "@/lib/maps/tiles";
 import type { DistrictCount, DrawnArea, GeoSummary, MapLayerResponse, MapSpot, MapViewport } from "@/lib/maps/types";
+
+export const TILE_GC_MS = 30 * 60_000;
+
+const tileLimiter = createTileLimiter();
+
+const NO_TILES: readonly MapTile[] = [];
 
 function useWorkspaceId(): string {
   const { currentWorkspace } = useWorkspace();
@@ -63,18 +73,67 @@ export function useLeadMapLeftOut(params: LeadMapParams, options: { enabled: boo
   });
 }
 
-export function useLeadMapLayer(params: LeadMapParams, request: LeadMapLayerRequest | null, options: { enabled: boolean }) {
+interface TileAnswers {
+  layer: MapLayerResponse | null;
+  settled: boolean;
+  error: Error | null;
+  isFetching: boolean;
+  refetch: () => Promise<unknown>;
+}
+
+function combineTiles(results: UseQueryResult<MapLayerResponse, Error>[]): TileAnswers {
+  const failed = results.filter((result) => result.isError);
+  return {
+    layer: mergeTileLayers(results.flatMap((result) => (result.data ? [result.data] : []))),
+    settled: results.length > 0 && results.every((result) => result.data !== undefined || result.isError),
+    error: failed[0]?.error ?? null,
+    isFetching: results.some((result) => result.isFetching),
+    refetch: () => Promise.all((failed.length > 0 ? failed : results).map((result) => result.refetch())),
+  };
+}
+
+interface HeldLayer {
+  identity: string;
+  drawKey: string;
+  layer: MapLayerResponse;
+}
+
+export function useLeadMapTiles(params: LeadMapParams, request: LeadMapLayerRequest | null, options: { enabled: boolean }) {
   const workspaceId = useWorkspaceId();
-  const queryKey = leadMapKey(workspaceId, "layer", params, request?.viewport.key ?? "", request?.colorBy ?? "");
-  return useSectionQuery<MapLayerResponse>({
-    queryKey,
-    queryFn: (signal) => {
-      if (!request) throw new Error("lead map layer needs a viewport");
-      return fetchLeadMapLayer(params, request, signal);
-    },
-    enabled: options.enabled && request !== null && workspaceId !== "",
-    keepPreviousWhen: (previous) => isSameLeadMapSection(previous, queryKey),
+  const colorBy = request?.colorBy;
+  const base = leadMapKey(workspaceId, "tile", params);
+  const tiles = request ? visibleTiles(request.viewport) : NO_TILES;
+  const enabled = options.enabled && request !== null && workspaceId !== "";
+  const answers = useQueries({
+    queries: tiles.map((tile) => ({
+      queryKey: [...base, tileId(tile), colorBy ?? ""],
+      queryFn: ({ signal }: { signal: AbortSignal }) =>
+        tileLimiter.run(signal, () => fetchLeadMapTile(params, colorBy ? { tile, colorBy } : { tile }, signal)),
+      enabled,
+      staleTime: SECTION_STALE_MS,
+      gcTime: TILE_GC_MS,
+      refetchOnWindowFocus: false,
+      retry: shouldRetrySection,
+      retryDelay: sectionRetryDelay,
+    })),
+    combine: combineTiles,
   });
+
+  const identity = JSON.stringify(base);
+  const drawKey = `${request?.viewport.zoom ?? ""}|${colorBy ?? ""}`;
+  const [held, setHeld] = useState<HeldLayer | null>(null);
+  if (answers.settled && answers.layer && (held?.layer !== answers.layer || held.identity !== identity || held.drawKey !== drawKey)) {
+    setHeld({ identity, drawKey, layer: answers.layer });
+  }
+  const holding = !answers.settled && held !== null && held.identity === identity && held.drawKey !== drawKey;
+
+  return {
+    data: (holding ? held.layer : answers.layer) ?? undefined,
+    error: answers.error,
+    isError: answers.error !== null,
+    isFetching: answers.isFetching,
+    refetch: answers.refetch,
+  };
 }
 
 export function useLeadMapPoint(params: LeadMapParams, at: MapSpot | null) {

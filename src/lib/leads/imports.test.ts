@@ -241,16 +241,20 @@ describe("readLeadImportJob", () => {
 });
 
 describe("readLeadImportJob placement and script", () => {
-  const placement: LeadImportPlacement = { onMap: 30, approximate: 20, pending: 7, notFound: 1, quotaExceeded: 2, refused: 0 };
+  const placement: LeadImportPlacement = { onMap: 30, approximate: 20, pending: 7, notFound: 1 };
 
   it("keeps a placement the server measured", () => {
     expect(readLeadImportJob({ ...job({ status: "done" }), placement })?.placement).toEqual(placement);
   });
 
+  it("keeps only the buckets of the free IBGE path from an older answer", () => {
+    expect(readLeadImportJob({ ...job({ status: "done" }), placement: { ...placement, quotaExceeded: 2, refused: 1 } })?.placement).toEqual(placement);
+  });
+
   it("drops a placement with a count it cannot read, so the screen says n/d", () => {
     expect(readLeadImportJob({ ...job({ status: "done" }), placement: { ...placement, pending: "7" } })?.placement).toBeUndefined();
     expect(readLeadImportJob({ ...job({ status: "done" }), placement: { onMap: 1 } })?.placement).toBeUndefined();
-    expect(readLeadImportJob({ ...job({ status: "done" }), placement: { ...placement, refused: -1 } })?.placement).toBeUndefined();
+    expect(readLeadImportJob({ ...job({ status: "done" }), placement: { ...placement, notFound: -1 } })?.placement).toBeUndefined();
   });
 
   it("keeps the stored example conversation script for the importer", () => {
@@ -292,7 +296,7 @@ describe("leadImportSummaryOf", () => {
       status: "done",
       startedAt: "2026-10-08T12:05:00Z",
       result: counts({ created: 2 }),
-      placement: { onMap: 1, approximate: 0, pending: 0, notFound: 0, quotaExceeded: 0, refused: 0 },
+      placement: { onMap: 1, approximate: 0, pending: 0, notFound: 0 },
     });
     expect(leadImportSummaryOf(full)).toEqual({
       id: "imp-1",
@@ -338,7 +342,7 @@ describe("readLeadImportList", () => {
 
 describe("importPlacementRows", () => {
   it("splits the addresses into the map's buckets with their share", () => {
-    const rows = importPlacementRows({ onMap: 52, approximate: 30, pending: 8, notFound: 0, quotaExceeded: 2, refused: 0 }, 8);
+    const rows = importPlacementRows({ onMap: 52, approximate: 30, pending: 10, notFound: 0 }, 8);
     expect(rows).toEqual([
       { key: "precise", value: 52, percent: 52 },
       { key: "approximate", value: 30, percent: 30 },
@@ -348,7 +352,7 @@ describe("importPlacementRows", () => {
   });
 
   it("adds the addresses that were not located only when there are some", () => {
-    const rows = importPlacementRows({ onMap: 5, approximate: 0, pending: 0, notFound: 3, quotaExceeded: 0, refused: 2 }, 0);
+    const rows = importPlacementRows({ onMap: 5, approximate: 0, pending: 0, notFound: 5 }, 0);
     expect(rows.map((row) => [row.key, row.value])).toEqual([
       ["precise", 5],
       ["approximate", 0],
@@ -368,13 +372,13 @@ describe("importPlacementRows", () => {
   });
 
   it("measures the shares without a count it does not know", () => {
-    const rows = importPlacementRows({ onMap: 3, approximate: 1, pending: 0, notFound: 0, quotaExceeded: 0, refused: 0 }, undefined);
+    const rows = importPlacementRows({ onMap: 3, approximate: 1, pending: 0, notFound: 0 }, undefined);
     expect(rows.find((row) => row.key === "precise")?.percent).toBe(75);
     expect(rows.find((row) => row.key === "noAddress")).toEqual({ key: "noAddress", value: null, percent: null });
   });
 
   it("gives no share when nothing was counted", () => {
-    const rows = importPlacementRows({ onMap: 0, approximate: 0, pending: 0, notFound: 0, quotaExceeded: 0, refused: 0 }, 0);
+    const rows = importPlacementRows({ onMap: 0, approximate: 0, pending: 0, notFound: 0 }, 0);
     expect(rows.every((row) => row.percent === 0)).toBe(true);
   });
 });

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import type { GeoSummary } from "@/lib/maps/types";
 import { cn } from "@/lib/utils";
 
-const OFF_MAP: Array<keyof GeoSummary> = ["approximate", "withoutAddress", "notFound", "pending", "quotaExceeded", "refused"];
+const OFF_MAP: Array<keyof GeoSummary> = ["approximate", "withoutAddress", "notFound", "pending"];
 
 export interface MapSummaryProps {
   summary: GeoSummary | null;

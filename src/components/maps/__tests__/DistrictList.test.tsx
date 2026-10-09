@@ -128,6 +128,32 @@ describe("DistrictList radius from an address or CEP", () => {
     expect(onRadius).toHaveBeenCalledWith({ name: "01310-100", lat: -23.5614, lng: -46.6559 }, 2000);
   });
 
+  it("says when the CEP covers the whole city and the radius starts at its centre", async () => {
+    fetchReferencePoint.mockResolvedValue({
+      point: { position: { lat: -22.0174, lng: -47.8908 }, precision: "city", attribution: "IBGE", city: "São Carlos", state: "SP", wholeCity: true },
+      error: null,
+    });
+    const onRadius = vi.fn();
+    renderInPortuguese(<DistrictList districts={districts} onActivate={vi.fn()} onRadius={onRadius} />);
+    const form = openForm();
+    fireEvent.change(within(form).getByLabelText("CEP"), { target: { value: "13560-000" } });
+    await act(async () => fireEvent.submit(form));
+    expect(onRadius).toHaveBeenCalledWith({ name: "13560-000", lat: -22.0174, lng: -47.8908 }, 1000);
+    expect(within(form).getByRole("status")).toHaveTextContent("Este CEP cobre a cidade inteira; o raio parte do centro de São Carlos.");
+  });
+
+  it("says nothing about the whole city for a precise CEP", async () => {
+    fetchReferencePoint.mockResolvedValue({
+      point: { position: { lat: -23.5614, lng: -46.6559 }, precision: "street", attribution: "IBGE", city: "São Paulo", state: "SP", wholeCity: false },
+      error: null,
+    });
+    renderInPortuguese(<DistrictList districts={districts} onActivate={vi.fn()} onRadius={vi.fn()} />);
+    const form = openForm();
+    fireEvent.change(within(form).getByLabelText("CEP"), { target: { value: "01310-100" } });
+    await act(async () => fireEvent.submit(form));
+    expect(within(form).queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("names an address radius by bairro, city and state", async () => {
     fetchReferencePoint.mockResolvedValue({
       point: { position: { lat: -23.56, lng: -46.65 }, precision: "district", attribution: "IBGE, CNEFE 2022" },

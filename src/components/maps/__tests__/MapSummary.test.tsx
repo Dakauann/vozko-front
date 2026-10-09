@@ -11,8 +11,6 @@ const summary = {
   withoutAddress: 150,
   notFound: 0,
   pending: 1,
-  quotaExceeded: 0,
-  refused: 0,
 };
 
 describe("MapSummary", () => {
@@ -39,9 +37,9 @@ describe("MapSummary", () => {
     expect(screen.getByRole("status").textContent).not.toContain("limite");
   });
 
-  it("announces the addresses the provider refused when there are any", () => {
-    renderInPortuguese(<MapSummary summary={{ ...summary, refused: 2 }} />);
-    expect(screen.getByRole("status")).toHaveTextContent("2 recusados pelo provedor de localização.");
+  it("never announces the retired external provider", () => {
+    renderInPortuguese(<MapSummary summary={{ ...summary, notFound: 2 }} />);
+    expect(screen.getByRole("status").textContent).not.toContain("provedor");
   });
 
   it("says when nothing is on the map", () => {

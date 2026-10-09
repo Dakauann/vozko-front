@@ -4,8 +4,13 @@ import { useCallback, useRef, useState } from "react";
 
 const DEFAULT_ROOT_MARGIN = "400px 0px";
 
+export interface InViewOptions {
+  once?: boolean;
+}
+
 export function useInView<T extends Element>(
   rootMargin: string = DEFAULT_ROOT_MARGIN,
+  { once = true }: InViewOptions = {},
 ): [(node: T | null) => void, boolean] {
   const [inView, setInView] = useState(
     () => typeof window !== "undefined" && typeof window.IntersectionObserver === "undefined",
@@ -20,6 +25,10 @@ export function useInView<T extends Element>(
 
       const next = new IntersectionObserver(
         (entries) => {
+          if (!once) {
+            setInView(entries[entries.length - 1]?.isIntersecting ?? false);
+            return;
+          }
           if (!entries.some((entry) => entry.isIntersecting)) return;
           next.disconnect();
           setInView(true);
@@ -29,7 +38,7 @@ export function useInView<T extends Element>(
       next.observe(node);
       observer.current = next;
     },
-    [rootMargin],
+    [rootMargin, once],
   );
 
   return [ref, inView];

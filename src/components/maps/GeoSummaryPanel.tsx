@@ -3,9 +3,10 @@
 import { useId, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
+import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { RetryNotice } from "@/components/elevated-design/retry-notice";
 import { ToneSwatch } from "@/components/elevated-design/tone-swatch";
-import { Heat, House, Hourglass, Prohibit, WarningCircle, type Icon } from "@/components/icons";
+import { Heat, House, Hourglass, WarningCircle, type Icon } from "@/components/icons";
 import { offMapRows, type ColourLegendRow, type OffMapKey } from "@/lib/maps/summary";
 import { cssTokenColor, toneCssColor } from "@/lib/tones/tones";
 import type { GeoSummary, LeftOutDistrict } from "@/lib/maps/types";
@@ -28,9 +29,15 @@ export interface GeoLeftOutView {
   onList?: (pair?: string) => void;
 }
 
+export interface GeoExactOnlyView {
+  on: boolean;
+  onChange: (on: boolean) => void;
+}
+
 export interface GeoSummaryPanelProps {
   summary: GeoSummary | null;
   areaNames: readonly string[];
+  exactOnly?: GeoExactOnlyView | null;
   colour?: GeoSummaryColour | null;
   offMapActions?: Partial<Record<OffMapKey, () => void>>;
   leftOut?: GeoLeftOutView | null;
@@ -47,8 +54,6 @@ const OFF_MAP_ICONS: Record<OffMapKey, Icon> = {
   withoutAddress: House,
   notFound: WarningCircle,
   pending: Hourglass,
-  quotaExceeded: Prohibit,
-  refused: WarningCircle,
 };
 
 function PanelBlock({ title, aside, children, className }: { title: string; aside?: string; children: ReactNode; className?: string }) {
@@ -67,6 +72,24 @@ function PanelBlock({ title, aside, children, className }: { title: string; asid
 }
 
 const LINK = "rounded-sm font-semibold tabular-nums text-foreground underline decoration-border-strong underline-offset-[3px] hover:decoration-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+function ExactOnlySwitch({ view }: { view: GeoExactOnlyView }) {
+  const t = useTranslations("leadMap.panel");
+  const hintId = useId();
+  return (
+    <div className="flex flex-col gap-1 pt-1">
+      <ElevatedSwitch
+        label={t("exactOnly")}
+        checked={view.on}
+        onCheckedChange={view.onChange}
+        aria-describedby={hintId}
+      />
+      <p id={hintId} className="text-2xs text-muted-foreground">
+        {t("exactOnlyHint")}
+      </p>
+    </div>
+  );
+}
 
 function LeftOutNote({ view, areas }: { view: GeoLeftOutView; areas: number }) {
   const t = useTranslations("leadMap.panel.leftOut");
@@ -140,6 +163,7 @@ function LeftOutNote({ view, areas }: { view: GeoLeftOutView; areas: number }) {
 export function GeoSummaryPanel({
   summary,
   areaNames,
+  exactOnly = null,
   colour = null,
   offMapActions = {},
   leftOut = null,
@@ -171,6 +195,9 @@ export function GeoSummaryPanel({
           <p className="flex flex-wrap items-baseline gap-1.5">
             <span className="font-display text-2xl font-semibold tabular-nums text-foreground">{number(summary.total)}</span>
             <span className="text-sm text-muted-foreground">{caption(summary.total)}</span>
+            {areaNames.length > 0 && exactOnly && !exactOnly.on ? (
+              <span className="text-sm text-muted-foreground">{t("approximateInArea", { count: summary.approximate })}</span>
+            ) : null}
           </p>
         ) : failed ? (
           <RetryNotice
@@ -183,6 +210,7 @@ export function GeoSummaryPanel({
         ) : (
           <span aria-hidden="true" className="block h-8 w-28 animate-pulse rounded-md bg-muted" />
         )}
+        {areaNames.length > 0 && exactOnly ? <ExactOnlySwitch view={exactOnly} /> : null}
       </PanelBlock>
 
       {colour ? (

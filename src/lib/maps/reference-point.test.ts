@@ -59,7 +59,30 @@ describe("parseReferencePoint", () => {
       position: { lat: -23.5614, lng: -46.6559 },
       precision: "street",
       attribution: "IBGE, CNEFE 2022",
+      city: "",
+      state: "",
+      wholeCity: false,
     });
+  });
+
+  it("reads the city of the point and whether the query only knew the whole city", () => {
+    const point = parseReferencePoint({
+      lat: -22.0174,
+      lng: -47.8908,
+      precision: "city",
+      city: "São Carlos",
+      state: "SP",
+      wholeCity: true,
+      attribution: "IBGE, CNEFE 2022",
+    });
+    expect(point).toMatchObject({ city: "São Carlos", state: "SP", wholeCity: true });
+  });
+
+  it("refuses a whole city answer that does not name the city, or a flag that is not a boolean", () => {
+    const base = { lat: -22.0174, lng: -47.8908, precision: "city", attribution: "IBGE, CNEFE 2022" };
+    expect(() => parseReferencePoint({ ...base, wholeCity: true, city: " " })).toThrow(MapContractError);
+    expect(() => parseReferencePoint({ ...base, wholeCity: "yes", city: "São Carlos" })).toThrow(MapContractError);
+    expect(() => parseReferencePoint({ ...base, city: 7 })).toThrow(MapContractError);
   });
 
   it("refuses an answer without a valid position or a known precision", () => {

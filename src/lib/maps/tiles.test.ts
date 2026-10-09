@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { latToMercatorY, mercatorYToLat, MAX_TILE_ZOOM, snapViewport } from "./tiles";
+import { createTileLimiter, latToMercatorY, mercatorYToLat, mergeTileLayers, MAX_TILE_ZOOM, snapViewport, tileId, visibleTiles } from "./tiles";
 
 const saoPaulo = { south: -23.7, west: -46.8, north: -23.4, east: -46.4 };
 
@@ -68,5 +68,163 @@ describe("snapViewport", () => {
 describe("mercator helpers", () => {
   it.each([0, -23.55, 45, -80])("round-trips latitude %s", (lat) => {
     expect(mercatorYToLat(latToMercatorY(lat))).toBeCloseTo(lat, 10);
+  });
+});
+
+const point = (id: string, lat: number, lng: number, count = 1, placement: "on_map" | "approximate" = "on_map") => ({
+  id,
+  lat,
+  lng,
+  precision: "exact" as const,
+  placement,
+  tone: "neutral" as const,
+  count,
+  leadIds: [],
+});
+
+describe("visibleTiles", () => {
+  it("lists every tile of the snapped window once, nearest the centre first", () => {
+    const snapped = snapViewport({ bbox: saoPaulo, zoom: 10 });
+    const tiles = visibleTiles(snapped!);
+    expect(tiles).toHaveLength(6);
+    expect(new Set(tiles.map(tileId)).size).toBe(6);
+    expect(tiles.map(tileId)).toEqual(expect.arrayContaining(["10/378/580", "10/380/581"]));
+    expect(tiles[0]).toEqual({ z: 10, x: 379, y: 580 });
+  });
+
+  it("gives one tile at zoom 0", () => {
+    const snapped = snapViewport({ bbox: { south: -60, west: -170, north: 60, east: 170 }, zoom: 0 });
+    expect(visibleTiles(snapped!)).toEqual([{ z: 0, x: 0, y: 0 }]);
+  });
+
+  it("keeps the tiles both sides of a pan share, so only the new column is asked for", () => {
+    const before = visibleTiles(snapViewport({ bbox: saoPaulo, zoom: 10 })!).map(tileId);
+    const after = visibleTiles(snapViewport({ bbox: { ...saoPaulo, west: -46.4, east: -46.0 }, zoom: 10 })!).map(tileId);
+    expect(after.filter((id) => !before.includes(id))).toEqual(["10/381/580", "10/381/581"]);
+  });
+});
+
+describe("tileId", () => {
+  it("writes z/x/y", () => {
+    expect(tileId({ z: 12, x: 1517, y: 2323 })).toBe("12/1517/2323");
+  });
+});
+
+describe("mergeTileLayers", () => {
+  it("has nothing to draw before any tile answers", () => {
+    expect(mergeTileLayers([])).toBeNull();
+  });
+
+  it("joins the points of every tile, keeping a position once", () => {
+    const merged = mergeTileLayers([
+      { kind: "points", points: [point("a", -23.5, -46.6, 2)] },
+      { kind: "points", points: [point("b", -23.4, -46.5), point("a", -23.5, -46.6, 2)] },
+      { kind: "points", points: [] },
+    ]);
+    expect(merged).toEqual({ kind: "points", points: [point("a", -23.5, -46.6, 2), point("b", -23.4, -46.5)] });
+  });
+
+  it("adds up the parts of a cell split by a tile edge, with a centre weighted by people", () => {
+    const merged = mergeTileLayers([
+      { kind: "cells", cellSizeDegrees: 0.5, cells: [{ ix: -94, iy: -47, placement: "on_map", count: 3, lat: -23.4, lng: -46.9 }] },
+      { kind: "cells", cellSizeDegrees: 0.5, cells: [
+        { ix: -94, iy: -47, placement: "on_map", count: 1, lat: -23.2, lng: -46.7 },
+        { ix: -94, iy: -47, placement: "approximate", count: 5, lat: -23.3, lng: -46.8 },
+      ] },
+    ]);
+    expect(merged?.kind).toBe("cells");
+    if (merged?.kind !== "cells") throw new Error("cells");
+    expect(merged.cellSizeDegrees).toBe(0.5);
+    expect(merged.cells).toHaveLength(2);
+    const precise = merged.cells.find((cell) => cell.placement === "on_map")!;
+    expect(precise.count).toBe(4);
+    expect(precise.lat).toBeCloseTo(-23.35, 10);
+    expect(precise.lng).toBeCloseTo(-46.85, 10);
+    expect(merged.cells.find((cell) => cell.placement === "approximate")?.count).toBe(5);
+  });
+
+  it("folds point tiles into the cell grid once any tile answers cells, never mixing the two classes", () => {
+    const merged = mergeTileLayers([
+      { kind: "points", points: [point("a", -23.4, -46.9, 2), point("b", -23.3, -46.8, 1, "approximate")] },
+      { kind: "cells", cellSizeDegrees: 0.5, cells: [{ ix: -94, iy: -47, placement: "on_map", count: 2, lat: -23.2, lng: -46.7 }] },
+    ]);
+    if (merged?.kind !== "cells") throw new Error("cells");
+    expect(merged.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ ix: -94, iy: -47, placement: "on_map", count: 4 }),
+        expect.objectContaining({ ix: -94, iy: -47, placement: "approximate", count: 1, lat: -23.3, lng: -46.8 }),
+      ]),
+    );
+    expect(merged.cells).toHaveLength(2);
+    const precise = merged.cells.find((cell) => cell.placement === "on_map")!;
+    expect(precise.lat).toBeCloseTo(-23.3, 10);
+  });
+});
+
+describe("createTileLimiter", () => {
+  const deferred = () => {
+    let resolve: (value: string) => void = () => undefined;
+    const promise = new Promise<string>((done) => {
+      resolve = done;
+    });
+    return { promise, resolve };
+  };
+
+  it("runs at most the limit at once and starts the next as one finishes", async () => {
+    const limiter = createTileLimiter(2);
+    const tasks = [deferred(), deferred(), deferred()];
+    const started: number[] = [];
+    const runs = tasks.map((task, index) =>
+      limiter.run(undefined, () => {
+        started.push(index);
+        return task.promise;
+      }),
+    );
+    expect(started).toEqual([0, 1]);
+    tasks[0].resolve("first");
+    await expect(runs[0]).resolves.toBe("first");
+    expect(started).toEqual([0, 1, 2]);
+    tasks[1].resolve("second");
+    tasks[2].resolve("third");
+    await expect(Promise.all(runs)).resolves.toEqual(["first", "second", "third"]);
+  });
+
+  it("drops a waiting tile whose request was cancelled, without ever starting it", async () => {
+    const limiter = createTileLimiter(1);
+    const first = deferred();
+    const started: string[] = [];
+    void limiter.run(undefined, () => {
+      started.push("first");
+      return first.promise;
+    });
+    const controller = new AbortController();
+    const dropped = limiter.run(controller.signal, () => {
+      started.push("dropped");
+      return Promise.resolve("never");
+    });
+    const next = limiter.run(undefined, () => {
+      started.push("next");
+      return Promise.resolve("next");
+    });
+    controller.abort();
+    await expect(dropped).rejects.toThrow();
+    first.resolve("done");
+    await expect(next).resolves.toBe("next");
+    expect(started).toEqual(["first", "next"]);
+  });
+
+  it("refuses a tile already cancelled", async () => {
+    const limiter = createTileLimiter(1);
+    const controller = new AbortController();
+    controller.abort();
+    const task = vi.fn(() => Promise.resolve("never"));
+    await expect(limiter.run(controller.signal, task)).rejects.toThrow();
+    expect(task).not.toHaveBeenCalled();
+  });
+
+  it("frees the slot when a tile fails", async () => {
+    const limiter = createTileLimiter(1);
+    await expect(limiter.run(undefined, () => Promise.reject(new Error("tile failed")))).rejects.toThrow("tile failed");
+    await expect(limiter.run(undefined, () => Promise.resolve("after"))).resolves.toBe("after");
   });
 });

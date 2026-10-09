@@ -44,8 +44,6 @@ export interface GeoSummary {
   withoutAddress: number;
   notFound: number;
   pending: number;
-  quotaExceeded: number;
-  refused: number;
 }
 
 export const MAP_PLACEMENTS = ["on_map", "approximate"] as const;

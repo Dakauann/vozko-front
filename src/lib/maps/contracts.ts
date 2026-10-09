@@ -82,8 +82,6 @@ export function parseGeoSummary(value: unknown): GeoSummary {
     withoutAddress: count(raw, "withoutAddress"),
     notFound: count(raw, "notFound"),
     pending: count(raw, "pending"),
-    quotaExceeded: count(raw, "quotaExceeded"),
-    refused: count(raw, "refused"),
   };
 }
 

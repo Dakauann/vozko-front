@@ -42,7 +42,7 @@ import { useListQueryState } from "@/hooks/use-list-query-state";
 import { usePermissionVerdict } from "@/hooks/use-settled-permission";
 import type { SavedView } from "@/lib/crm/saved-views";
 import { codedErrorMessage } from "@/lib/api/coded-error";
-import { isEmptyLeadFilter } from "@/lib/leads/filters";
+import { emptyLeadFilter, isEmptyLeadFilter } from "@/lib/leads/filters";
 import { leadSectionsKey } from "@/lib/leads/sections";
 import { savedViewState } from "@/lib/leads/saved-view";
 import { leadNameLines } from "@/lib/leads/display";
@@ -308,6 +308,7 @@ function LeadsPageContent() {
                 filter={filter}
                 search={search}
                 onFilterChange={query.setFilter}
+                onClearFilters={() => query.setFilterAndSearch(emptyLeadFilter, "")}
                 onShowTable={(shown) => query.setView("table", shown)}
                 areas={leadAreas.data ?? []}
                 picks={bulk.mapPicks}

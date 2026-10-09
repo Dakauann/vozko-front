@@ -2,14 +2,14 @@ import { apiClient, type ApiResult } from "@/lib/api/browser-client";
 import { requireSectionData } from "@/lib/analytics/section-query";
 import { codedErrorOf, type CodedError } from "@/lib/api/coded-error";
 import {
-  leadMapLayerPath,
   leadMapPointPath,
   leadMapSectionPath,
+  leadMapTilePath,
   parseMapLeftOut,
   parseMapPeek,
-  type LeadMapLayerRequest,
   type MapLeftOut,
   type LeadMapParams,
+  type LeadMapTileRequest,
   type MapPeek,
 } from "@/lib/leads/map-view";
 import {
@@ -54,12 +54,12 @@ export async function fetchLeadMapDistricts(params: LeadMapParams, signal?: Abor
   return parseDistrictCounts(await section<unknown>(leadMapSectionPath("districts", params), "lead map districts", signal));
 }
 
-export async function fetchLeadMapLayer(
+export async function fetchLeadMapTile(
   params: LeadMapParams,
-  request: LeadMapLayerRequest,
+  request: LeadMapTileRequest,
   signal?: AbortSignal,
 ): Promise<MapLayerResponse> {
-  return parseMapLayer(await section<unknown>(leadMapLayerPath(params, request), "lead map layer", signal));
+  return parseMapLayer(await section<unknown>(leadMapTilePath(params, request), "lead map tile", signal));
 }
 
 export async function fetchLeadMapLeftOut(params: LeadMapParams, signal?: AbortSignal): Promise<MapLeftOut> {

@@ -253,6 +253,26 @@ describe("LeadTemplateSendDialog", () => {
     expect(await screen.findByText("Seleção: Bairro: Jardim Silveira (Barueri) · Área: Região Norte · Busca: “maria”")).toBeInTheDocument();
   });
 
+  it("states the areas that keep only exact positions and the approximate leads of an area", async () => {
+    renderDialog(vi.fn(), {
+      mode: "all_matching",
+      filter: {
+        groups: [
+          {
+            conjunction: "and",
+            predicates: [
+              { field: "area", key: "exact_only", operator: "in", values: ["area-1"] },
+              { field: "area_approximate", operator: "in", values: ["area-1"] },
+            ],
+          },
+        ],
+      },
+    });
+    expect(
+      await screen.findByText("Seleção: Área: Região Norte · só posição exata · Aproximados na área: Região Norte"),
+    ).toBeInTheDocument();
+  });
+
   it("states no filter for leads picked one by one", async () => {
     renderDialog();
     await screen.findByRole("dialog");

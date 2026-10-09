@@ -56,6 +56,7 @@ import { LeadsToolbar } from "../LeadsToolbar";
 import { keyedFilterField } from "@/lib/crm/board";
 import { LEAD_FILTER_FIELD, emptyLeadFilter, readSet, withSet, type LeadFilter } from "@/lib/leads/filters";
 import { LeadSectionError } from "@/lib/leads/sections";
+import { areaIdsOf, withAreaExactOnly } from "@/lib/leads/map-view";
 
 const PLACES = {
   cities: [{ cityKey: "sp:barueri", city: "Barueri", state: "SP", count: 900 }],
@@ -127,6 +128,13 @@ describe("LeadsToolbar area chip", () => {
     const chip = await screen.findByRole("button", { name: "Área: Região Norte" });
     fireEvent.click(chip);
     expect(readSet(latest, LEAD_FILTER_FIELD.area)).toEqual([]);
+  });
+
+  it("says when a drawn area keeps only exact positions and removes it from the filter", async () => {
+    const initial = withAreaExactOnly(withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), true);
+    renderToolbar({ initial, areas: [{ id: "a1", name: "Região Norte" }] });
+    fireEvent.click(await screen.findByRole("button", { name: "Área: Região Norte · só posição exata" }));
+    expect(areaIdsOf(latest)).toEqual([]);
   });
 
   it("names the approximate leads left out of an area by the area's saved name", async () => {

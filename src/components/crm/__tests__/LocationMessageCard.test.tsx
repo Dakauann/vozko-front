@@ -14,8 +14,13 @@ vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({ can: (resource: string, action: string) => grants.value.has(`${resource}:${action}`) }),
 }));
 vi.mock("sonner", () => ({ toast: toasts }));
-const visibility = vi.hoisted(() => ({ inView: true }));
-vi.mock("@/hooks/use-in-view", () => ({ useInView: () => [() => undefined, visibility.inView] }));
+const visibility = vi.hoisted(() => ({ inView: true, options: undefined as unknown }));
+vi.mock("@/hooks/use-in-view", () => ({
+  useInView: (_margin?: string, options?: unknown) => {
+    visibility.options = options;
+    return [() => undefined, visibility.inView];
+  },
+}));
 vi.mock("@/components/maps/MiniMap", () => ({
   MiniMap: (props: { position: { lat: number; lng: number } | null; precision?: string | null; interactive?: boolean; draggable?: boolean; ariaLabel?: string }) => (
     <div
@@ -43,7 +48,7 @@ const shared: MessageLocation = {
 };
 
 function renderCard(overrides: Partial<{ location: MessageLocation; leadId: string | undefined; leadName: string; leadNumber: string }> = {}) {
-  render(
+  return render(
     <NextIntlClientProvider locale="pt" messages={ptMessages}>
       <LocationMessageCard
         messageId="msg-1"
@@ -81,6 +86,23 @@ describe("LocationMessageCard", () => {
     renderCard();
     expect(screen.queryByTestId("mini-map")).not.toBeInTheDocument();
     expect(screen.getByText(t.caption.replace("{place}", "Casa, R. das Acácias, Jardim Silveira"))).toBeInTheDocument();
+  });
+
+  it("releases the map once the card scrolls away and keeps a frame of the same size in its place", () => {
+    const { rerender } = renderCard();
+    expect(visibility.options).toEqual({ once: false });
+    expect(screen.getByTestId("mini-map")).toBeInTheDocument();
+
+    visibility.inView = false;
+    rerender(
+      <NextIntlClientProvider locale="pt" messages={ptMessages}>
+        <LocationMessageCard messageId="msg-1" location={shared} leadId="lead-1" leadName="Maria Aparecida Souza" leadNumber="5511900010142" />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.queryByTestId("mini-map")).not.toBeInTheDocument();
+    const frame = screen.getByTestId("location-map-frame");
+    expect(frame).toHaveClass("h-[110px]");
+    expect(frame).toHaveClass("overflow-hidden");
   });
 
   it("shows the coordinates when the lead shared no place text", () => {

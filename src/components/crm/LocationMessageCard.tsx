@@ -37,7 +37,7 @@ export function LocationMessageCard({
   const [accepted, setAccepted] = useState(false);
   const inFlight = useRef(false);
   const statusRef = useRef<HTMLParagraphElement>(null);
-  const [mapFrame, mapVisible] = useInView<HTMLDivElement>();
+  const [mapFrame, mapVisible] = useInView<HTMLDivElement>(undefined, { once: false });
 
   useEffect(() => {
     if (accepted) statusRef.current?.focus();
@@ -68,7 +68,7 @@ export function LocationMessageCard({
 
   return (
     <div className="w-[260px] max-w-full space-y-1.5">
-      <div ref={mapFrame} className="h-[110px] w-full">
+      <div ref={mapFrame} data-testid="location-map-frame" className="h-[110px] w-full overflow-hidden">
         {mapVisible ? (
           <MiniMap
             position={{ lat: location.latitude, lng: location.longitude }}

@@ -27,7 +27,7 @@ describe("fetchReferencePoint", () => {
     const signal = new AbortController().signal;
 
     await expect(fetchReferencePoint({ zipCode: "01310100" }, signal)).resolves.toEqual({
-      point: { position: { lat: -23.5614, lng: -46.6559 }, precision: "street", attribution: "IBGE, CNEFE 2022" },
+      point: { position: { lat: -23.5614, lng: -46.6559 }, precision: "street", attribution: "IBGE, CNEFE 2022", city: "", state: "", wholeCity: false },
       error: null,
     });
     expect(api.calls).toEqual([{ path: "/leads/map/reference-point?zipCode=01310100", method: "GET", signal }]);

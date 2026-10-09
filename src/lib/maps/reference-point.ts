@@ -18,6 +18,9 @@ export interface ReferencePoint {
   position: LatLng;
   precision: Precision;
   attribution: string;
+  city: string;
+  state: string;
+  wholeCity: boolean;
 }
 
 function filled(query: ReferencePointQuery): Array<[QueryField, string]> {
@@ -63,7 +66,7 @@ export function parseReferencePoint(value: unknown): ReferencePoint {
     throw new MapContractError("reference point is not an object");
   }
   const raw = value as Record<string, unknown>;
-  const { lat, lng, precision, attribution } = raw;
+  const { lat, lng, precision, attribution, city = "", state = "", wholeCity = false } = raw;
   if (typeof lat !== "number" || typeof lng !== "number" || !isValidPosition({ lat, lng })) {
     throw new MapContractError("reference point has no valid position");
   }
@@ -71,5 +74,8 @@ export function parseReferencePoint(value: unknown): ReferencePoint {
   if (typeof attribution !== "string" || attribution.trim() === "") {
     throw new MapContractError("reference point names no source");
   }
-  return { position: { lat, lng }, precision, attribution };
+  if (typeof city !== "string" || typeof state !== "string") throw new MapContractError("reference point place is not text");
+  if (typeof wholeCity !== "boolean") throw new MapContractError("reference point whole city flag is not a boolean");
+  if (wholeCity && city.trim() === "") throw new MapContractError("reference point covers a city it does not name");
+  return { position: { lat, lng }, precision, attribution, city: city.trim(), state: state.trim(), wholeCity };
 }

@@ -78,7 +78,7 @@ export interface LeadImportSeed {
   unconfirmed?: number;
 }
 
-export const LEAD_IMPORT_PLACEMENT_KEYS = ["onMap", "approximate", "pending", "notFound", "quotaExceeded", "refused"] as const;
+export const LEAD_IMPORT_PLACEMENT_KEYS = ["onMap", "approximate", "pending", "notFound"] as const;
 
 export type LeadImportPlacement = Record<(typeof LEAD_IMPORT_PLACEMENT_KEYS)[number], number>;
 
@@ -263,9 +263,9 @@ export function importPlacementRows(
   const values: { key: LeadImportPlacementBucket; value: number | null }[] = [
     { key: "precise", value: placement ? placement.onMap : null },
     { key: "approximate", value: placement ? placement.approximate : null },
-    { key: "pending", value: placement ? placement.pending + placement.quotaExceeded : null },
+    { key: "pending", value: placement ? placement.pending : null },
   ];
-  const notLocated = placement ? placement.notFound + placement.refused : 0;
+  const notLocated = placement ? placement.notFound : 0;
   if (notLocated > 0) values.push({ key: "notLocated", value: notLocated });
   values.push({ key: "noAddress", value: noAddress ?? null });
   const total = values.reduce((sum, row) => sum + (row.value ?? 0), 0);

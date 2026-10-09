@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import ptMessages from "@/i18n/messages/pt.json";
 import type { GeocodingPlatformPage, GeocodingPlatformWorkspace } from "@/lib/workspace/workspace-config/geocoding-platform";
 
-import { GeocodingUsageAdmin } from "../geocoding-usage-admin";
+import { GeocodingCoverageAdmin } from "../geocoding-coverage-admin";
 
 const listAction = vi.fn();
 
@@ -17,25 +17,15 @@ vi.mock("@/i18n/routing", () => ({
 }));
 
 vi.mock("@/app/actions/geocoding-platform", () => ({
-  adminListGeocodingUsageAction: (...args: unknown[]) => listAction(...args),
+  adminListGeocodingCoverageAction: (...args: unknown[]) => listAction(...args),
 }));
 
 const t = ptMessages.adminGeocoding;
-
-const cycles = Array.from({ length: 12 }, (_, i) => new Date(Date.UTC(2026, 9 - i, 1, 3)).toISOString());
 
 function workspace(overrides: Partial<GeocodingPlatformWorkspace> = {}): GeocodingPlatformWorkspace {
   return {
     workspaceId: "ws-1",
     workspaceName: "Escola Norte",
-    provider: "opencage",
-    enabled: true,
-    monthlyCeiling: 5000,
-    ceilingSet: false,
-    providerChangedAt: "2026-10-02T12:00:00Z",
-    usedThisCycle: 40,
-    usedToday: 3,
-    months: cycles.map((cycleStart, i) => ({ cycleStart, requests: i === 0 ? 40 : i === 1 ? 7 : 0 })),
     coverage: {
       total: 10,
       withAddress: 8,
@@ -44,8 +34,6 @@ function workspace(overrides: Partial<GeocodingPlatformWorkspace> = {}): Geocodi
       approximate: 2,
       pending: 1,
       notFound: 0,
-      quotaExceeded: 0,
-      refused: 0,
       addressShare: 0.8,
       mapShare: 0.5,
     },
@@ -54,60 +42,50 @@ function workspace(overrides: Partial<GeocodingPlatformWorkspace> = {}): Geocodi
 }
 
 function pageOf(items: GeocodingPlatformWorkspace[], overrides: Partial<GeocodingPlatformPage> = {}): GeocodingPlatformPage {
-  return {
-    cycleStart: "2026-10-01T03:00:00Z",
-    nextCycleStart: "2026-11-01T03:00:00Z",
-    today: "2026-10-08T03:00:00Z",
-    cycles,
-    items,
-    page: 1,
-    pageSize: 20,
-    totalItems: items.length,
-    totalPages: 1,
-    ...overrides,
-  };
+  return { items, page: 1, pageSize: 20, totalItems: items.length, totalPages: 1, ...overrides };
 }
 
 function renderAdmin() {
   return render(
     <NextIntlClientProvider locale="pt" messages={ptMessages} timeZone="America/Sao_Paulo">
-      <GeocodingUsageAdmin />
+      <GeocodingCoverageAdmin />
     </NextIntlClientProvider>,
   );
 }
 
-describe("GeocodingUsageAdmin", () => {
+describe("GeocodingCoverageAdmin", () => {
   beforeEach(() => {
     listAction.mockReset();
   });
 
-  it("lists each workspace with its provider, usage this cycle and coverage", async () => {
-    listAction.mockResolvedValue({ page: pageOf([workspace(), workspace({ workspaceId: "ws-2", workspaceName: "Clínica", provider: "", enabled: false, monthlyCeiling: 0, usedThisCycle: 0, usedToday: 0, providerChangedAt: undefined })]), error: null });
+  it("lists each workspace with its address coverage only", async () => {
+    const empty = workspace({
+      workspaceId: "ws-2",
+      workspaceName: "Clínica",
+      coverage: { total: 0, withAddress: 0, withoutAddress: 0, onMap: 0, approximate: 0, pending: 0, notFound: 0, addressShare: 0, mapShare: 0 },
+    });
+    listAction.mockResolvedValue({ page: pageOf([workspace(), empty]), error: null });
     renderAdmin();
 
     const row = (await screen.findByText("Escola Norte")).closest("tr") as HTMLElement;
-    expect(within(row).getByText("OpenCage")).toBeTruthy();
-    expect(within(row).getByText(/40 de 5\.000/)).toBeTruthy();
-    expect(within(row).getByText(/Hoje: 3/)).toBeTruthy();
-    expect(within(row).getByText(new RegExp(t.usage.defaultCeiling))).toBeTruthy();
     expect(within(row).getByText("80%")).toBeTruthy();
     expect(within(row).getByText("50%")).toBeTruthy();
-    expect(within(row).getByRole("meter", { name: t.usage.meter })).toBeTruthy();
-
-    const quiet = screen.getByText("Clínica").closest("tr") as HTMLElement;
-    expect(within(quiet).getByText(t.provider.none)).toBeTruthy();
-    expect(within(quiet).getByText(t.usage.off)).toBeTruthy();
+    expect(within(row).getByText("8 de 10 leads")).toBeTruthy();
+    expect(within(row).getByText("2 aproximados.")).toBeTruthy();
+    expect(screen.getAllByText("n/d").length).toBeGreaterThan(0);
+    expect(screen.queryByText("OpenCage")).toBeNull();
+    expect(screen.queryByRole("meter")).toBeNull();
+    expect(screen.queryByText(/provedor/i)).toBeNull();
+    expect(screen.queryByText(/ciclo/i)).toBeNull();
     expect(listAction).toHaveBeenCalledWith({ page: 1, pageSize: 20, search: "" }, expect.any(AbortSignal));
   });
 
-  it("opens a workspace's monthly history and address breakdown", async () => {
+  it("opens a workspace's address breakdown", async () => {
     listAction.mockResolvedValue({ page: pageOf([workspace()]), error: null });
     renderAdmin();
 
     fireEvent.click(await screen.findByRole("button", { name: t.actions.showDetails }));
 
-    expect(screen.getByText(t.details.history)).toBeTruthy();
-    expect(screen.getByText("47 nos últimos 12 ciclos")).toBeTruthy();
     expect(screen.getByText(t.details.coverage)).toBeTruthy();
     expect(screen.getByText("1 aguardando localização.")).toBeTruthy();
     expect(screen.getByText("2 sem endereço.")).toBeTruthy();
@@ -139,7 +117,7 @@ describe("GeocodingUsageAdmin", () => {
     [{ status: 503, message: "busy" }, t.errors.busy],
     [{ status: 503, code: "geocoding_unavailable", message: "off" }, t.errors.unavailable],
     [{ status: 504, message: "slow" }, t.errors.slow],
-    [{ status: 500, code: "geocoding_usage_unreadable", message: "boom" }, t.errors.default],
+    [{ status: 500, code: "geocoding_coverage_unreadable", message: "boom" }, t.errors.default],
   ])("shows a refusal instead of an empty list: %o", async (error, message) => {
     listAction.mockResolvedValue({ page: null, error });
     renderAdmin();

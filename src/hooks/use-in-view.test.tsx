@@ -31,6 +31,11 @@ function Probe() {
   return <div ref={ref}>{inView ? "visible" : "hidden"}</div>;
 }
 
+function WhileProbe() {
+  const [ref, inView] = useInView<HTMLDivElement>(undefined, { once: false });
+  return <div ref={ref}>{inView ? "visible" : "hidden"}</div>;
+}
+
 describe("useInView", () => {
   afterEach(() => {
     FakeObserver.instances = [];
@@ -52,6 +57,21 @@ describe("useInView", () => {
     render(<Probe />);
     act(() => FakeObserver.instances[0].emit(true));
     expect(FakeObserver.instances[0].disconnected).toBe(true);
+    expect(screen.getByText("visible")).toBeInTheDocument();
+  });
+
+  it("follows the element out of view and back when asked to, so a heavy child can be released", () => {
+    vi.stubGlobal("IntersectionObserver", FakeObserver);
+    render(<WhileProbe />);
+    expect(FakeObserver.instances[0].options?.rootMargin).toBe("400px 0px");
+    act(() => FakeObserver.instances[0].emit(true));
+    expect(screen.getByText("visible")).toBeInTheDocument();
+    expect(FakeObserver.instances[0].disconnected).toBe(false);
+
+    act(() => FakeObserver.instances[0].emit(false));
+    expect(screen.getByText("hidden")).toBeInTheDocument();
+
+    act(() => FakeObserver.instances[0].emit(true));
     expect(screen.getByText("visible")).toBeInTheDocument();
   });
 

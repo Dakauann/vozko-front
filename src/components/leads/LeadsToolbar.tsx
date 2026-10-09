@@ -39,6 +39,7 @@ import {
   type LeadFilterPredicate,
   type LeadRuntimeOptions,
 } from "@/lib/leads/filters";
+import { LEAD_AREA_ADDRESSES, LEAD_AREA_EXACT_ONLY_FIELD } from "@/lib/leads/map-view";
 import type { LeadFacetsSection } from "@/lib/leads/sections";
 import { toneCssColor } from "@/lib/tones/tones";
 import { cn } from "@/lib/utils";
@@ -108,14 +109,7 @@ export function LeadsToolbar({
     [filter, options, facets, entries, t, tr],
   );
 
-  const chipFields = useMemo<FilterFieldConfig[]>(
-    () => [
-      ...fields,
-      areaFilterFieldConfig(areas ?? [], t("filters.fields.area")),
-      areaFilterFieldConfig(areas ?? [], t("filters.fields.areaApproximate"), LEAD_FILTER_FIELD.areaApproximate),
-    ],
-    [fields, areas, t],
-  );
+  const chipFields = useMemo<LeadChipField[]>(() => [...fields, ...areaFilterFieldConfigs(areas ?? [], t)], [fields, areas, t]);
 
   const groups = useMemo<FilterGroupConfig[]>(
     () => LEAD_FILTER_GROUP_ORDER.map((id) => ({ id, label: t(`filters.groups.${id}`) })),
@@ -335,24 +329,29 @@ export function leadFilterFieldConfigs({
   return [...catalogue, ...custom];
 }
 
-const AREA_FIELDS: readonly string[] = [LEAD_FILTER_FIELD.area, LEAD_FILTER_FIELD.areaApproximate];
+export type LeadChipField = FilterFieldConfig & { chipSuffix?: string };
 
-export function areaFilterFieldConfig(
-  areas: readonly LeadToolbarArea[],
-  label: string,
-  field: typeof LEAD_FILTER_FIELD.area | typeof LEAD_FILTER_FIELD.areaApproximate = LEAD_FILTER_FIELD.area,
-): FilterFieldConfig {
-  return {
-    field,
-    control: "enum",
-    group: "address",
-    label,
-    options: areas.map((area) => ({ value: area.id, label: area.name })),
-  };
+const AREA_FIELDS: readonly string[] = [...LEAD_AREA_ADDRESSES, LEAD_FILTER_FIELD.areaApproximate];
+
+const CHIP_SUFFIX_SEPARATOR = " · ";
+
+export function areaFilterFieldConfigs(areas: readonly LeadToolbarArea[], t: Translator): LeadChipField[] {
+  const options = areas.map((area) => ({ value: area.id, label: area.name }));
+  const config = (field: string, label: string): LeadChipField => ({ field, control: "enum", group: "address", label, options });
+  return [
+    config(LEAD_FILTER_FIELD.area, t("filters.fields.area")),
+    { ...config(LEAD_AREA_EXACT_ONLY_FIELD, t("filters.fields.area")), chipSuffix: t("filters.chips.exactOnly") },
+    config(LEAD_FILTER_FIELD.areaApproximate, t("filters.fields.areaApproximate")),
+  ];
 }
 
-export function describeLeadPredicate(predicate: LeadFilterPredicate, fields: readonly FilterFieldConfig[], t: Translator): string {
+export function describeLeadPredicate(predicate: LeadFilterPredicate, fields: readonly LeadChipField[], t: Translator): string {
   const config = fields.find((f) => f.field === leadPredicateAddress(predicate));
+  const described = describePredicateValues(predicate, config, t);
+  return config?.chipSuffix ? `${described}${CHIP_SUFFIX_SEPARATOR}${config.chipSuffix}` : described;
+}
+
+function describePredicateValues(predicate: LeadFilterPredicate, config: LeadChipField | undefined, t: Translator): string {
   const label = config?.label ?? predicate.key ?? predicate.field;
 
   const valueLabels = predicate.values.map((value) => {
@@ -393,7 +392,7 @@ function LeadFilterChips({
 }: {
   filter: LeadFilter;
   onFilterChange: (filter: LeadFilter) => void;
-  fields: FilterFieldConfig[];
+  fields: LeadChipField[];
   onClearAll?: () => void;
   notice?: ReactNode;
 }) {

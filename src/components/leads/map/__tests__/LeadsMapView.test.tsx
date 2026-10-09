@@ -10,7 +10,7 @@ const actions = {
   fetchLeadMapSummary: vi.fn(),
   fetchLeadMapViewport: vi.fn(),
   fetchLeadMapDistricts: vi.fn(),
-  fetchLeadMapLayer: vi.fn(),
+  fetchLeadMapTile: vi.fn(),
   fetchLeadMapPoint: vi.fn(),
   listLeadAreas: vi.fn(),
   createLeadAreaAction: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("@/app/actions/lead-map", () => ({
   fetchLeadMapSummary: (...args: unknown[]) => actions.fetchLeadMapSummary(...args),
   fetchLeadMapViewport: (...args: unknown[]) => actions.fetchLeadMapViewport(...args),
   fetchLeadMapDistricts: (...args: unknown[]) => actions.fetchLeadMapDistricts(...args),
-  fetchLeadMapLayer: (...args: unknown[]) => actions.fetchLeadMapLayer(...args),
+  fetchLeadMapTile: (...args: unknown[]) => actions.fetchLeadMapTile(...args),
   fetchLeadMapPoint: (...args: unknown[]) => actions.fetchLeadMapPoint(...args),
   listLeadAreas: (...args: unknown[]) => actions.listLeadAreas(...args),
   createLeadAreaAction: (...args: unknown[]) => actions.createLeadAreaAction(...args),
@@ -110,12 +110,12 @@ vi.mock("@/components/maps/LeadMap", () => ({
 import { SectionError } from "@/lib/analytics/section-query";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import { LEAD_FILTER_FIELD, emptyLeadFilter, readBoolean, readSet, withSet, type LeadFilter } from "@/lib/leads/filters";
-import type { MapPicks } from "@/lib/leads/map-view";
-import { snapViewport } from "@/lib/maps/tiles";
+import { areaExactOnly, areaIdsOf, withAreaExactOnly, type MapPicks } from "@/lib/leads/map-view";
+import { snapViewport, visibleTiles } from "@/lib/maps/tiles";
 
 import { LeadsMapView } from "../LeadsMapView";
 
-const SUMMARY = { total: 7942, onMap: 5214, approximate: 1611, withoutAddress: 1117, notFound: 214, pending: 96, quotaExceeded: 0, refused: 0 };
+const SUMMARY = { total: 7942, onMap: 5214, approximate: 1611, withoutAddress: 1117, notFound: 214, pending: 96 };
 const VIEWPORT = { bbox: { south: -23.7, west: -46.8, north: -23.4, east: -46.4 }, basis: "located", view: "positions" };
 const DISTRICTS = [{ pair: "3550308/centro", cityKey: "3550308", districtKey: "centro", name: "Centro", lat: -23.55, lng: -46.63, count: 291 }];
 const POINT = { id: "-23.55,-46.63", lat: -23.55, lng: -46.63, precision: "exact", placement: "on_map", tone: "chart-2", count: 2, leadIds: ["l1", "l2"] };
@@ -173,6 +173,7 @@ function renderView(props: Partial<Parameters<typeof LeadsMapView>[0]> = {}) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const handlers = {
     onFilterChange: vi.fn(),
+    onClearFilters: vi.fn(),
     onShowTable: vi.fn(),
     onImport: vi.fn(),
     onCreateLead: vi.fn(),
@@ -227,7 +228,7 @@ describe("LeadsMapView", () => {
     actions.fetchLeadMapSummary.mockResolvedValue(SUMMARY);
     actions.fetchLeadMapViewport.mockResolvedValue(VIEWPORT);
     actions.fetchLeadMapDistricts.mockResolvedValue(DISTRICTS);
-    actions.fetchLeadMapLayer.mockResolvedValue({ kind: "points", points: [POINT] });
+    actions.fetchLeadMapTile.mockResolvedValue({ kind: "points", points: [POINT] });
   });
 
   it("loads nothing until the map is on screen", () => {
@@ -236,7 +237,7 @@ describe("LeadsMapView", () => {
     expect(actions.fetchLeadMapSummary).not.toHaveBeenCalled();
     expect(actions.fetchLeadMapViewport).not.toHaveBeenCalled();
     expect(actions.fetchLeadMapDistricts).not.toHaveBeenCalled();
-    expect(actions.fetchLeadMapLayer).not.toHaveBeenCalled();
+    expect(actions.fetchLeadMapTile).not.toHaveBeenCalled();
     expect(fetchLeadSection).not.toHaveBeenCalled();
   });
 
@@ -263,7 +264,7 @@ describe("LeadsMapView", () => {
   });
 
   it("opens Calor while the server answers cells, and Pontos when it answers points", async () => {
-    actions.fetchLeadMapLayer.mockResolvedValue({ kind: "cells", cellSizeDegrees: 0.1, cells: [{ ix: 1, iy: 1, placement: "on_map", count: 4, lat: -23.5, lng: -46.6 }] });
+    actions.fetchLeadMapTile.mockResolvedValue({ kind: "cells", cellSizeDegrees: 0.1, cells: [{ ix: 1, iy: 1, placement: "on_map", count: 4, lat: -23.5, lng: -46.6 }] });
     renderView();
     await screen.findByTestId("lead-map");
     moveTo(8);
@@ -273,12 +274,12 @@ describe("LeadsMapView", () => {
 
   it("keeps the layer the person chose, read from the address", async () => {
     navigation.search = "view=map&layer=points";
-    actions.fetchLeadMapLayer.mockResolvedValue({ kind: "cells", cellSizeDegrees: 0.1, cells: [] });
+    actions.fetchLeadMapTile.mockResolvedValue({ kind: "cells", cellSizeDegrees: 0.1, cells: [] });
     actions.fetchLeadMapViewport.mockResolvedValue({ ...VIEWPORT, view: "districts" });
     renderView();
     await screen.findByTestId("lead-map");
     moveTo(8);
-    await waitFor(() => expect(actions.fetchLeadMapLayer).toHaveBeenCalled());
+    await waitFor(() => expect(actions.fetchLeadMapTile).toHaveBeenCalled());
     expect(screen.getByTestId("lead-map")).toHaveAttribute("data-view", "points");
   });
 
@@ -301,8 +302,8 @@ describe("LeadsMapView", () => {
     renderView();
     await screen.findByTestId("lead-map");
     const viewport = moveTo(13.4);
-    await waitFor(() => expect(actions.fetchLeadMapLayer).toHaveBeenCalled());
-    expect(actions.fetchLeadMapLayer).toHaveBeenCalledWith({ filter: emptyLeadFilter, q: "" }, { viewport, colorBy: "interesse" }, expect.anything());
+    await waitFor(() => expect(actions.fetchLeadMapTile).toHaveBeenCalled());
+    expect(actions.fetchLeadMapTile).toHaveBeenCalledWith({ filter: emptyLeadFilter, q: "" }, { tile: visibleTiles(viewport!)[0], colorBy: "interesse" }, expect.anything());
   });
 
   it("stores the colour choice in the address and stops colouring for Nenhum", async () => {
@@ -320,7 +321,7 @@ describe("LeadsMapView", () => {
     await screen.findByTestId("lead-map");
     expect(screen.getByTestId("lead-map")).toHaveAttribute("data-coloured", "false");
     const viewport = moveTo(12);
-    await waitFor(() => expect(actions.fetchLeadMapLayer).toHaveBeenCalledWith(expect.anything(), { viewport }, expect.anything()));
+    await waitFor(() => expect(actions.fetchLeadMapTile).toHaveBeenCalledWith(expect.anything(), { tile: visibleTiles(viewport!)[0] }, expect.anything()));
     expect(screen.queryByText("Colorido por Interesse")).not.toBeInTheDocument();
   });
 
@@ -330,7 +331,7 @@ describe("LeadsMapView", () => {
     renderView();
     await screen.findByTestId("lead-map");
     const viewport = moveTo(12);
-    await waitFor(() => expect(actions.fetchLeadMapLayer).toHaveBeenCalledWith(expect.anything(), { viewport, colorBy: "etapa" }, expect.anything()));
+    await waitFor(() => expect(actions.fetchLeadMapTile).toHaveBeenCalledWith(expect.anything(), { tile: visibleTiles(viewport!)[0], colorBy: "etapa" }, expect.anything()));
     expect(fetchLeadSection).toHaveBeenCalledWith("facets", expect.objectContaining({ colorBy: "etapa" }), expect.anything());
     expect(await screen.findByText("Colorido por Etapa")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Colorir por: Etapa" })).toBeInTheDocument();
@@ -343,7 +344,7 @@ describe("LeadsMapView", () => {
     expect(screen.getByTestId("lead-map")).toHaveAttribute("data-view", "districts");
     moveTo(12);
     await waitFor(() => expect(actions.fetchLeadMapDistricts).toHaveBeenCalled());
-    expect(actions.fetchLeadMapLayer).not.toHaveBeenCalled();
+    expect(actions.fetchLeadMapTile).not.toHaveBeenCalled();
   });
 
   it("keeps the basemap on day one and floats the counts and three ways to add addresses over it", async () => {
@@ -467,7 +468,7 @@ describe("LeadsMapView", () => {
     expect(await screen.findByTestId("lead-map")).toBeInTheDocument();
     moveTo(4);
     await waitFor(() => expect(actions.fetchLeadMapSummary).toHaveBeenCalled());
-    expect(actions.fetchLeadMapLayer).not.toHaveBeenCalled();
+    expect(actions.fetchLeadMapTile).not.toHaveBeenCalled();
   });
 
   it("fits the map to the leads a search finds, from the same viewport section", async () => {
@@ -513,6 +514,89 @@ describe("LeadsMapView", () => {
     expect(screen.getByText("barra 7942 na área")).toBeInTheDocument();
   });
 
+  it("asks for no left-out count while the area holds its approximate leads", async () => {
+    renderView({ filter: withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), areas: [AREA] as never });
+    await screen.findByText("Fora do mapa neste filtro");
+    expect(actions.fetchLeadMapLeftOut).not.toHaveBeenCalled();
+  });
+
+  it("says how many leads of the area are approximate and keeps only exact positions from the panel", async () => {
+    const filter = withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]);
+    const { onFilterChange } = renderView({ filter, areas: [AREA] as never });
+    expect(await screen.findByText("(1.611 com posição aproximada)")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("switch", { name: "Só posição exata" }));
+    const next = onFilterChange.mock.calls.at(-1)?.[0] as LeadFilter;
+    expect(areaExactOnly(next)).toBe(true);
+    expect(areaIdsOf(next)).toEqual(["a1"]);
+  });
+
+  it("frames the drawn area and keeps that view when nothing is in it", async () => {
+    const box = { south: -23.52, west: -46.62, north: -23.48, east: -46.58 };
+    actions.fetchLeadMapViewport.mockResolvedValue({ bbox: box, basis: "area", view: "positions" });
+    actions.fetchLeadMapSummary.mockImplementation(async ({ filter }: { filter: LeadFilter }) =>
+      areaIdsOf(filter).length > 0 ? { ...SUMMARY, total: 0, onMap: 0, approximate: 0, withoutAddress: 0, notFound: 0, pending: 0 } : SUMMARY,
+    );
+    actions.fetchLeadMapDistricts.mockResolvedValue([]);
+    renderView({ filter: withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), areas: [AREA] as never });
+    expect(await screen.findByRole("heading", { name: "Nenhum lead neste filtro" })).toBeInTheDocument();
+    expect(mapProps.current.bounds).toEqual(box);
+  });
+
+  it("keeps the view under an area until the server frames the area", async () => {
+    renderView({ filter: withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), areas: [AREA] as never });
+    await waitFor(() => expect(actions.fetchLeadMapViewport).toHaveBeenCalled());
+    await screen.findByText("Fora do mapa neste filtro");
+    expect(mapProps.current.bounds).toBeNull();
+  });
+
+  it("says the filter has no lead, never day one, and clears the filters", async () => {
+    actions.fetchLeadMapSummary.mockImplementation(async ({ filter }: { filter: LeadFilter }) =>
+      readSet(filter, LEAD_FILTER_FIELD.city).length > 0 ? { ...SUMMARY, total: 0, onMap: 0, approximate: 0, withoutAddress: 0, notFound: 0, pending: 0 } : SUMMARY,
+    );
+    actions.fetchLeadMapDistricts.mockResolvedValue([]);
+    const { onClearFilters } = renderView({ filter: withSet(emptyLeadFilter, LEAD_FILTER_FIELD.city, ["sp:barueri"]) });
+    expect(await screen.findByRole("heading", { name: "Nenhum lead neste filtro" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Nenhum lead no mapa ainda" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Todos os leads deste filtro já têm endereço.")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Incluir aproximados" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Limpar filtros" }));
+    expect(onClearFilters).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers the approximate leads inside an area that keeps only exact positions", async () => {
+    const filter = withAreaExactOnly(withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), true);
+    actions.fetchLeadMapSummary.mockImplementation(async ({ filter: asked }: { filter: LeadFilter }) =>
+      areaIdsOf(asked).length > 0 ? { ...SUMMARY, total: 0, onMap: 0, approximate: 0, withoutAddress: 0, notFound: 0, pending: 0 } : SUMMARY,
+    );
+    actions.fetchLeadMapDistricts.mockResolvedValue([]);
+    actions.fetchLeadMapLeftOut.mockResolvedValue({ total: 40, filter: null, districts: [] });
+    const { onFilterChange } = renderView({ filter, areas: [AREA] as never });
+    expect(await screen.findByText("40 leads com posição aproximada estão dentro da área.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Incluir aproximados" }));
+    const next = onFilterChange.mock.calls.at(-1)?.[0] as LeadFilter;
+    expect(areaExactOnly(next)).toBe(false);
+    expect(areaIdsOf(next)).toEqual(["a1"]);
+  });
+
+  it("says the leads of a filter are off the map when the workspace has positioned leads", async () => {
+    actions.fetchLeadMapSummary.mockImplementation(async ({ filter }: { filter: LeadFilter }) =>
+      readSet(filter, LEAD_FILTER_FIELD.city).length > 0 ? { ...SUMMARY, onMap: 0, approximate: 0 } : SUMMARY,
+    );
+    actions.fetchLeadMapDistricts.mockResolvedValue([]);
+    renderView({ filter: withSet(emptyLeadFilter, LEAD_FILTER_FIELD.city, ["sp:barueri"]) });
+    expect(await screen.findByRole("heading", { name: "Nenhum lead deste filtro está no mapa" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Pedir endereço pelo WhatsApp/ })).toBeEnabled();
+  });
+
+  it("offers no address request on day one when the workspace has no lead at all", async () => {
+    actions.fetchLeadMapSummary.mockResolvedValue({ ...SUMMARY, total: 0, onMap: 0, approximate: 0, withoutAddress: 0, notFound: 0, pending: 0 });
+    actions.fetchLeadMapDistricts.mockResolvedValue([]);
+    renderView();
+    expect(await screen.findByRole("heading", { name: "Nenhum lead no mapa ainda" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Pedir endereço pelo WhatsApp/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Todos os leads deste filtro já têm endereço.")).not.toBeInTheDocument();
+  });
+
   it("lists the approximate leads the area left out, all of them or by bairro", async () => {
     const listed = { groups: [{ conjunction: "and" as const, predicates: [{ field: "area_approximate", operator: "in", values: ["a1"] }] }] };
     actions.fetchLeadMapLeftOut.mockResolvedValue({
@@ -520,7 +604,7 @@ describe("LeadsMapView", () => {
       filter: listed,
       districts: [{ pair: "3550308/se", cityKey: "3550308", districtKey: "se", name: "Sé", city: "São Paulo", state: "SP", count: 6 }],
     });
-    const filter = withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]);
+    const filter = withAreaExactOnly(withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["a1"]), true);
     const { onShowTable } = renderView({ filter, areas: [AREA] as never });
     expect(await screen.findByText("37 leads aproximados ficaram fora da área desenhada.")).toBeInTheDocument();
     expect(actions.fetchLeadMapLeftOut).toHaveBeenCalledWith({ filter, q: "" }, expect.anything());
@@ -617,7 +701,7 @@ describe("LeadsMapView", () => {
   });
 
   it("counts the approximate leads drawn apart from the ones on the map", async () => {
-    actions.fetchLeadMapLayer.mockResolvedValue({ kind: "points", points: [POINT, NEAR] });
+    actions.fetchLeadMapTile.mockResolvedValue({ kind: "points", points: [POINT, NEAR] });
     renderView();
     await screen.findByTestId("lead-map");
     moveTo(13);
@@ -683,7 +767,7 @@ describe("LeadsMapView", () => {
   });
 
   it("shows the layer failure on the map instead of an empty map", async () => {
-    actions.fetchLeadMapLayer.mockRejectedValue(new SectionError("bad", 400, "map_window_too_wide"));
+    actions.fetchLeadMapTile.mockRejectedValue(new SectionError("bad", 400, "map_window_too_wide"));
     renderView();
     await screen.findByTestId("lead-map");
     moveTo(12);

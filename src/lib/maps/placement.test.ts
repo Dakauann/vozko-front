@@ -29,7 +29,7 @@ describe("pinStart", () => {
   });
 
   it("starts at the CEP reference point, framed by its precision, before the workspace middle", () => {
-    const reference = { position: { lat: -23.5614, lng: -46.6559 }, precision: "street" as const, attribution: "IBGE, CNEFE 2022" };
+    const reference = { position: { lat: -23.5614, lng: -46.6559 }, precision: "street" as const, attribution: "IBGE, CNEFE 2022", city: "", state: "", wholeCity: false };
     expect(pinStart({ bbox: BRAZIL_BOUNDS, basis: "country", view: "districts" }, reference)).toEqual({
       position: { lat: -23.5614, lng: -46.6559 },
       zoom: 15,
