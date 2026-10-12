@@ -48,6 +48,8 @@ import {
 import { ADVERTISING_PATH, COLUMNS_STORAGE_KEY, RANGE_STORAGE_KEY, draftEditorHref, objectEditorHref, objectsEditorHref, readStored, writeStored } from "@/lib/advertising/connect";
 import { DEFAULT_PRESET, civilToday, leavesOutToday, relativeSince, resolveRange, storedPreset } from "@/lib/advertising/date-range";
 import { manageBlockerKey, spendBlockerKey } from "@/lib/advertising/delivery";
+import type { AdMediaRef } from "@/lib/advertising/draft-types";
+import { CREATE_MEDIA_PARAMS, requestedMedia } from "@/lib/advertising/editor-entry";
 import { issuesUnder, withBudgetMinimum } from "@/lib/advertising/issues";
 import { liveById, mergeLiveRows, withLiveResults, type LiveFetch } from "@/lib/advertising/live";
 import {
@@ -216,7 +218,7 @@ export function AdsManager() {
   const [jobsLoading, setJobsLoading] = useState(() => searchParams.get("jobs") === "1");
   const [jobsError, setJobsError] = useState<string | null>(null);
   const [publishedOpen, setPublishedOpen] = useState(justPublished);
-  const [creating, setCreating] = useState<{ parent?: CreateParent } | null>(null);
+  const [creating, setCreating] = useState<{ parent?: CreateParent; media?: AdMediaRef | null } | null>(null);
   const [createHandled, setCreateHandled] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewRequest | null>(null);
   const refreshedAfterPublish = useRef(false);
@@ -237,7 +239,7 @@ export function AdsManager() {
   const createKey = createRequested && account && canCreate ? searchParams.toString() : null;
   if (createKey && createHandled !== createKey) {
     setCreateHandled(createKey);
-    setCreating({ parent: requestedParent(searchParams) });
+    setCreating({ parent: requestedParent(searchParams), media: requestedMedia(searchParams) });
   }
   if (!createRequested && createHandled !== null) setCreateHandled(null);
 
@@ -247,6 +249,7 @@ export function AdsManager() {
     params.delete("create");
     params.delete("campaignId");
     params.delete("adSetId");
+    for (const name of CREATE_MEDIA_PARAMS) params.delete(name);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }, [createKey, createHandled, searchParams, pathname, router]);
@@ -1178,6 +1181,7 @@ export function AdsManager() {
         accounts={accounts.accounts}
         accountId={account.id}
         initialParent={creating?.parent}
+        initialMedia={creating?.media ?? null}
       />
 
       <ConfirmDialog

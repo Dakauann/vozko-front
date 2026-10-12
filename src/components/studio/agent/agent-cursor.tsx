@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useStore } from "zustand";
@@ -11,49 +11,9 @@ import { Stop } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import type { AgentTask } from "./agent-tasks";
+import { ANCHOR_INSET, useAnchorRect } from "./anchor-rect";
+import { LookShotPeek } from "./look-shot";
 import type { AgentPresence, AgentPresenceState } from "./presence";
-
-const ANCHOR_INSET = 12;
-const ANCHOR_ATTEMPTS = 120;
-
-interface AnchorRect {
-  top: number;
-  right: number;
-}
-
-function useAnchorRect(selector: string): AnchorRect | null {
-  const [rect, setRect] = useState<AnchorRect | null>(null);
-  useEffect(() => {
-    let element: HTMLElement | null = null;
-    let frame = 0;
-    let attempts = 0;
-    const measure = () => {
-      if (!element) return;
-      const box = element.getBoundingClientRect();
-      setRect((current) => (current && current.top === box.top && current.right === box.right ? current : { top: box.top, right: box.right }));
-    };
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
-    const find = () => {
-      element = document.querySelector<HTMLElement>(selector);
-      if (element) {
-        observer?.observe(element);
-        measure();
-        return;
-      }
-      if (++attempts < ANCHOR_ATTEMPTS) frame = requestAnimationFrame(find);
-    };
-    find();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
-    return () => {
-      cancelAnimationFrame(frame);
-      observer?.disconnect();
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
-    };
-  }, [selector]);
-  return rect;
-}
 
 function TaskList({ tasks }: { tasks: readonly AgentTask[] }) {
   const t = useTranslations("studio.agent");
@@ -141,13 +101,12 @@ interface AgentCursorProps {
 export function AgentCursor({ presence, tasks, anchor }: AgentCursorProps) {
   const t = useTranslations("studio.agent");
   const state = useStore(presence.store);
-  const { visible, busy, x, y, label, outline } = state;
+  const { visible, x, y, label, outline, ticks } = state;
   const reduceMotion = Boolean(useReducedMotion());
   const move = reduceMotion ? "opacity 120ms linear" : "transform 380ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms linear";
 
   return (
     <>
-      {busy ? <div data-studio-agent-lock aria-hidden className="fixed inset-0 z-[55] cursor-progress" /> : null}
       {visible && outline ? (
         <div
           aria-hidden
@@ -160,7 +119,19 @@ export function AgentCursor({ presence, tasks, anchor }: AgentCursorProps) {
           }}
         />
       ) : null}
+      {visible
+        ? ticks.map((tick, index) => (
+            <div
+              key={index}
+              aria-hidden
+              data-agent-tick
+              className="pointer-events-none fixed left-0 top-0 z-[57] rounded-full bg-primary ring-1 ring-background"
+              style={{ width: tick.width, height: tick.height, transform: `translate3d(${Math.round(tick.left)}px, ${Math.round(tick.top)}px, 0)` }}
+            />
+          ))
+        : null}
       <ActivityPanel state={state} tasks={tasks} anchor={anchor} reduceMotion={reduceMotion} />
+      <LookShotPeek shots={presence.shots} anchor={anchor} reduceMotion={reduceMotion} />
       <div
         aria-hidden
         aria-label={visible ? t("cursorLabel", { action: label }) : undefined}

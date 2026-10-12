@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { newIconLayer, newImageLayer, newShapeLayer, newTextLayer, type Layer } from "./document";
 import { styleActionFor, styleOf, stylePatch } from "./style";
+import { layerIssue } from "./validate";
 
 describe("copy and paste style", () => {
   it("copies text styling onto another text, clearing effects the source lacks", () => {
@@ -21,6 +22,29 @@ describe("copy and paste style", () => {
     const image = { ...newImageLayer("m"), filters: { brightness: 0.2, contrast: 0, saturation: 0, blur: 0 } };
     expect(stylePatch(styleOf(image), newIconLayer("star"))).not.toHaveProperty("filters");
     expect(stylePatch(styleOf(image), newImageLayer("n"))).toMatchObject({ filters: image.filters });
+  });
+});
+
+describe("copy and paste of paint lists", () => {
+  it("carries fills, strokes, patterns and effects and keeps the target valid", () => {
+    const source: Layer = {
+      ...newTextLayer("A"),
+      fill: undefined,
+      fills: [{ type: "solid", color: "#ffffff", opacity: 1 }],
+      strokes: [{ type: "solid", color: "#000000", opacity: 1, width: 4, align: "inside" }],
+      effects: [{ id: "fx", type: "outer-glow", color: "#ff0000", opacity: 1, x: 0, y: 0, blur: 8, spread: 0 }],
+    };
+    const shape = newShapeLayer("rect");
+    const pasted = { ...shape, ...stylePatch(styleOf(source), shape) };
+    expect(pasted).toMatchObject({ fills: source.fills, strokes: source.strokes, effects: source.effects });
+    expect(pasted.fill).toBeUndefined();
+    expect(layerIssue(pasted)).toBeNull();
+    const icon = newIconLayer("star");
+    const onIcon = { ...icon, ...stylePatch(styleOf(source), icon) };
+    expect(onIcon.strokes).toBeUndefined();
+    expect(layerIssue(onIcon)).toBeNull();
+    const photo = { ...newImageLayer("m"), gradientMap: { stops: [{ at: 0, color: "#000000" }, { at: 1, color: "#ffffff" }], intensity: 1 } };
+    expect(stylePatch(styleOf(photo), newImageLayer("n"))).toMatchObject({ gradientMap: photo.gradientMap });
   });
 });
 

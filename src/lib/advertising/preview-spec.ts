@@ -1,14 +1,12 @@
-export interface SafeZone {
-  top: number;
-  bottom: number;
-  side: number;
-}
+import { VERTICAL_SAFE_ZONE, type SafeInsets } from "./placement-frames";
+
+export type SafeZone = SafeInsets;
 
 export const FEED_MEDIA_RATIO = "4 / 5";
 export const CAROUSEL_CARD_RATIO = "1 / 1";
 export const STORY_RATIO = "9 / 16";
 
-export const STORY_SAFE_ZONE: SafeZone = { top: 0.14, bottom: 0.35, side: 0.06 };
+export const STORY_SAFE_ZONE: SafeZone = VERTICAL_SAFE_ZONE;
 
 export const TEXT_LIMITS = {
   feed: { headline: 40, description: 30 },

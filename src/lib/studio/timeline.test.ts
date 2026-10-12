@@ -30,7 +30,7 @@ import {
 import { documentIssue } from "./validate";
 
 function clip(id: string, startMs: number, durationMs: number, type: Clip["type"] = "video"): Clip {
-  return { ...newMediaClip(type === "overlay" ? "image" : type, `m-${id}`, startMs, durationMs), id, type };
+  return { ...newMediaClip(type === "overlay" || type === "effect" || type === "null" || type === "group" ? "image" : type, `m-${id}`, startMs, durationMs), id, type };
 }
 
 function doc(): VideoDocument {

@@ -6,10 +6,14 @@ import { Copy, Plus } from "@/components/icons";
 import { DEFAULT_IMAGE_BACKGROUND, STUDIO_LIMITS } from "@/lib/studio/document";
 
 import { useArtboardNames } from "../artboard-names";
-import { ColorField, InspectorSection, OUTLINE_BUTTON_CLASS, SwitchToggle, TextField } from "../controls";
+import { ColorField, InspectorSection, NumberField, OUTLINE_BUTTON_CLASS, SwitchToggle, TextField } from "../controls";
 import { useActiveArtboard, useImageEditor } from "../editor-state";
 import { ResizeForm } from "../resize-form";
+import { ArtboardArrangeSection } from "./artboard-arrange-section";
+import { ComponentFlag } from "./component-flag";
+import { DocumentStylesSection } from "./styles-section";
 import { GradientFields } from "./effects";
+import { StillVfxSection } from "./still-vfx-section";
 
 export function CanvasSection() {
   const t = useTranslations("studio.image.inspector.canvas");
@@ -23,6 +27,10 @@ export function CanvasSection() {
     <>
       <InspectorSection title={ta("title")}>
         <TextField label={ta("name")} value={artboard.name ?? ""} placeholder={names.get(artboard.id)} maxLength={STUDIO_LIMITS.maxLayerNameRunes} onCommit={(name) => commands.renameArtboard(artboard.id, name)} />
+        <div className="grid grid-cols-2 gap-2" role="group" aria-label={ta("position")}>
+          <NumberField label={ta("positionX")} short="X" value={artboard.x} min={-STUDIO_LIMITS.maxArtboardCoordinate} max={STUDIO_LIMITS.maxArtboardCoordinate} suffix="px" onCommit={(x) => commands.moveArtboard(artboard.id, { x })} />
+          <NumberField label={ta("positionY")} short="Y" value={artboard.y} min={-STUDIO_LIMITS.maxArtboardCoordinate} max={STUDIO_LIMITS.maxArtboardCoordinate} suffix="px" onCommit={(y) => commands.moveArtboard(artboard.id, { y })} />
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <button type="button" onClick={() => commands.duplicateArtboards([artboard.id])} className={OUTLINE_BUTTON_CLASS}>
             <Copy className="h-3.5 w-3.5" aria-hidden />
@@ -34,6 +42,9 @@ export function CanvasSection() {
           </button>
         </div>
       </InspectorSection>
+      <ArtboardArrangeSection />
+      <ComponentFlag />
+      <DocumentStylesSection />
       <InspectorSection title={t("background")}>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-muted-foreground">{t("transparent")}</span>
@@ -46,7 +57,8 @@ export function CanvasSection() {
         )}
         <GradientFields gradient={canvas.gradient} fallback={canvas.background} disabled={false} onChange={commands.setCanvasGradient} />
       </InspectorSection>
-      <InspectorSection title={t("size", { width: canvas.width, height: canvas.height })}>
+      <StillVfxSection target={{ kind: "canvas" }} vfx={canvas.vfx} disabled={false} />
+      <InspectorSection id="canvas-size" title={t("size", { width: canvas.width, height: canvas.height })}>
         <ResizeForm key={`${canvas.width}x${canvas.height}`} />
       </InspectorSection>
       <InspectorSection title={t("tipsTitle")}>

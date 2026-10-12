@@ -11,7 +11,7 @@ import { sharedNumberOfShown, type LeadDetailSummary } from "@/lib/leads/detail-
 import { addPhone, type LeadSheetDraft, type PhoneDraft } from "@/lib/leads/sheet";
 import { LEAD_PHONE_LABELS, type LeadPhoneLabel, type LeadRecord } from "@/lib/leads/types";
 
-import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection } from "./SheetSection";
+import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection, useSheetFieldId } from "./SheetSection";
 
 export interface IdentityRefusal {
   kind: "taken" | "in_use";
@@ -46,6 +46,7 @@ export function PhonesSection({
   stored?: Pick<LeadRecord, "number" | "phones">;
 }) {
   const t = useTranslations("leadSheet.phones");
+  const fieldId = useSheetFieldId();
 
   const updatePhone = (key: string, patch: Partial<PhoneDraft>) =>
     onUpdate((current) => ({
@@ -57,10 +58,10 @@ export function PhonesSection({
     onUpdate((current) => ({ ...current, phones: current.phones.filter((phone) => phone.key !== key) }));
 
   return (
-    <SheetSection icon={<WhatsappLogo />} title={t("title")}>
+    <SheetSection icon={<WhatsappLogo />} title={t("title")} anchor="phones">
       <div className="space-y-1.5">
         <ElevatedInput
-          id="lead-sheet-number"
+          id={fieldId("number")}
           label={t("whatsapp")}
           variant="outline"
           controlSize="sm"
@@ -107,7 +108,7 @@ export function PhonesSection({
               ))}
             </ElevatedSelect>
             <ElevatedInput
-              id={`lead-sheet-phone-${phone.key}`}
+              id={fieldId(`phone-${phone.key}`)}
               label={t("number")}
               variant="outline"
               controlSize="sm"

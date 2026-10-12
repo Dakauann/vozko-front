@@ -24,6 +24,7 @@ import { openDock } from "@/lib/aichat/dock-state";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import { AskCardView } from "@/components/ai-chat/ask-card";
 import { CallCardView } from "@/components/ai-chat/call-card";
+import { StudioProjectCardView } from "@/components/ai-chat/studio-project-card";
 import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
 import type { ActionCard, NavigationCard, OfferCard, OfferKind } from "@/lib/aichat/types";
@@ -94,6 +95,7 @@ export function ActionCardView({ card, live = false }: { card: ActionCard; live?
   if (card.kind === "ad_readiness") return <AdReadinessCard adAccountId={card.adAccountId} />;
   if (card.kind === "connect_ad_account") return <ConnectAdAccountCard />;
   if (card.kind === "ask") return <AskCardView card={card} />;
+  if (card.kind === "studio_project") return <StudioProjectCardView card={card} />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;

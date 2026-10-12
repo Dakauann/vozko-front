@@ -1,6 +1,39 @@
 import { IMAGE_ASPECTS, type ClipFit, type ImageAspect, type NormalizedTransform } from "@/lib/media-generation/types";
 
+import type { ColorGrade } from "./color-grade";
+import type { DuckingRule } from "./ducking";
+import type { ChromaKey } from "./chroma-key";
+import type { LumaKey } from "./luma-key";
+import type { MatteChannel } from "./matte";
+import type { Mask } from "./masks";
+import type { GradientMap } from "./gradient-map";
 import type { Keyframes } from "./keyframes";
+import type { Effect, Paint, StrokePaint } from "./layer-paint";
+import type { LineAnimation } from "./line-animation";
+import type { Pattern } from "./pattern";
+import type { PixelSurface } from "./pixel-surface";
+import type { Repeat } from "./repeat";
+import type { InstanceOverride } from "./components";
+import type { StudioStyle } from "./shared-styles";
+import type { Layout, LayoutItem } from "./auto-layout";
+import type { TextAnimator } from "./text-animation";
+import type { TextUnitAnimator } from "./text-selectors";
+import type { Counter } from "./counter";
+import type { TextPath } from "./text-path";
+import type { TextRun } from "./text-runs";
+import type { Transition } from "./transitions";
+import type { ClipTransition } from "./edge-transitions";
+import type { Vfx } from "./vfx";
+import type { Behavior } from "./behaviors";
+import type { PointTracker, Stabilize } from "./point-track";
+import type { LabelColor } from "./labels";
+import type { PathOp } from "./path-ops";
+import type { ChartSpec } from "./chart";
+import type { ClipCamera } from "./clip-camera";
+import type { TableSpec } from "./table";
+import type { QrSpec } from "./qr";
+import type { ChartAnimator } from "./chart-animation";
+import type { ClipRepeat } from "./clip-repeat";
 
 import { DEFAULT_FONT_ID, type FontId } from "./fonts";
 
@@ -10,18 +43,18 @@ export const DOCUMENT_VERSION = 1;
 export const IMAGE_DOCUMENT_VERSION = 2;
 
 export const STUDIO_LIMITS = {
-  maxDocumentBytes: 2 * 1024 * 1024,
+  maxDocumentBytes: 10 * 1024 * 1024,
   minCanvasSide: 100,
   maxCanvasSide: 4096,
-  maxVideoMs: 90_000,
+  maxVideoMs: 600_000,
   minClipMs: 100,
   maxVolume: 2,
   maxTextRunes: 2000,
   maxTokenRunes: 64,
   maxLayerNameRunes: 128,
   maxProjectNameRunes: 120,
-  maxMarkers: 50,
   maxMarkerLabelRunes: 64,
+  maxMarkerNoteRunes: 1000,
   maxArtboardCoordinate: 100_000,
 } as const;
 
@@ -96,6 +129,7 @@ export const BLEND_MODES = [
   "darken",
   "lighten",
   "color-dodge",
+  "add",
   "color-burn",
   "hard-light",
   "soft-light",
@@ -118,13 +152,18 @@ export interface StudioGroup {
   parentId?: string;
   name?: string;
   baseId?: string;
+  repeat?: Repeat;
+  layout?: Layout;
+  layoutItem?: LayoutItem;
 }
 
-export type LayerType = "image" | "text" | "shape" | "icon";
+export type LayerType = "image" | "text" | "shape" | "icon" | "instance" | "paint" | "chart" | "table" | "qr";
 
-export const SHAPE_KINDS = ["rect", "ellipse", "line", "arrow", "triangle", "star", "path"] as const;
+export const SHAPE_KINDS = ["rect", "ellipse", "line", "arrow", "triangle", "star", "polygon", "path"] as const;
 
 export const STAR_DEFAULTS = { points: 5, inner: 0.45 } as const;
+
+export const POLYGON_DEFAULTS = { points: 6 } as const;
 
 export const FILL_RULES = ["nonzero", "evenodd"] as const;
 
@@ -135,6 +174,10 @@ export type LineCap = (typeof LINE_CAPS)[number];
 export const LINE_JOINS = ["miter", "round", "bevel"] as const;
 
 export type LineJoin = (typeof LINE_JOINS)[number];
+
+export const LINE_END_KINDS = ["arrow", "openArrow", "round", "square", "bar", "dot", "diamond"] as const;
+
+export type LineEndKind = (typeof LINE_END_KINDS)[number];
 
 export const MAX_DASH_VALUES = 8;
 
@@ -158,6 +201,8 @@ export interface Layer {
   flipY?: boolean;
   radius?: number;
   filters?: Filters;
+  color?: ColorGrade;
+  chromaKey?: ChromaKey;
   text?: string;
   fontId?: FontId;
   fontSize?: number;
@@ -166,6 +211,7 @@ export interface Layer {
   align?: TextAlign;
   lineHeight?: number;
   letterSpacing?: number;
+  runs?: TextRun[];
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
@@ -174,6 +220,8 @@ export interface Layer {
   shape?: ShapeKind;
   arrowStart?: boolean;
   arrowEnd?: boolean;
+  arrowStartKind?: LineEndKind;
+  arrowEndKind?: LineEndKind;
   iconId?: string;
   blendMode?: BlendMode;
   clip?: boolean;
@@ -190,6 +238,25 @@ export interface Layer {
   dashOffset?: number;
   points?: number;
   inner?: number;
+  pattern?: Pattern;
+  gradientMap?: GradientMap;
+  fills?: Paint[];
+  strokes?: StrokePaint[];
+  effects?: Effect[];
+  componentId?: string;
+  overrides?: InstanceOverride[];
+  fillStyleId?: string;
+  strokeStyleId?: string;
+  textStyleId?: string;
+  effectStyleId?: string;
+  layoutItem?: LayoutItem;
+  surface?: PixelSurface;
+  mask?: PixelSurface;
+  vfx?: Vfx[];
+  pathOps?: PathOp[];
+  chart?: ChartSpec;
+  table?: TableSpec;
+  qr?: QrSpec;
 }
 
 export interface ImageCanvas {
@@ -197,6 +264,8 @@ export interface ImageCanvas {
   height: number;
   background: string;
   gradient?: Gradient;
+  backgroundStyleId?: string;
+  vfx?: Vfx[];
 }
 
 export interface ImageSurface {
@@ -208,6 +277,7 @@ export interface ImageSurface {
 export interface Artboard extends ImageSurface {
   id: string;
   name?: string;
+  component?: boolean;
   x: number;
   y: number;
 }
@@ -216,6 +286,7 @@ export interface ImageDocument {
   schema: typeof IMAGE_SCHEMA;
   version: typeof IMAGE_DOCUMENT_VERSION;
   artboards: Artboard[];
+  styles?: StudioStyle[];
 }
 
 export interface LegacyImageDocument extends ImageSurface {
@@ -225,7 +296,7 @@ export interface LegacyImageDocument extends ImageSurface {
 
 export type TrackKind = "visual" | "audio";
 
-export type ClipType = "video" | "image" | "overlay" | "audio";
+export type ClipType = "video" | "image" | "overlay" | "audio" | "effect" | "null" | "group";
 
 export type VideoAspect = ImageAspect;
 
@@ -241,16 +312,71 @@ export interface Clip {
   volume: number;
   fadeInMs: number;
   fadeOutMs: number;
+  pan?: number;
   fit?: Fit;
   transform: Transform;
   layer?: Layer;
   linkId?: string;
   motionIn?: Motion;
   motionOut?: Motion;
+  transitionIn?: ClipTransition;
+  transitionOut?: ClipTransition;
   keyframes?: Keyframes;
   disabled?: boolean;
   blur?: number;
+  textIn?: TextAnimator;
+  textOut?: TextAnimator;
+  textAnimators?: TextUnitAnimator[];
+  speed?: number;
+  reverse?: boolean;
+  freeze?: boolean;
+  preservePitch?: boolean;
+  frameMix?: boolean;
+  color?: ColorGrade;
+  gradientMap?: GradientMap;
+  chromaKey?: ChromaKey;
+  lumaKey?: LumaKey;
+  masks?: Mask[];
+  effects?: Effect[];
+  strokes?: StrokePaint[];
+  matte?: boolean;
+  matteChannel?: MatteChannel;
+  matteInvert?: boolean;
+  blendMode?: BlendMode;
+  line?: LineAnimation;
+  vfx?: Vfx[];
+  anchor?: Anchor;
+  flipX?: boolean;
+  flipY?: boolean;
+  autoOrient?: boolean;
+  motionBlur?: boolean;
+  rotationX?: number;
+  rotationY?: number;
+  camera?: ClipCamera;
+  counter?: Counter;
+  textPath?: TextPath;
+  repeat?: ClipRepeat;
+  parentId?: string;
+  parentTracker?: string;
+  trackers?: PointTracker[];
+  stabilize?: Stabilize;
+  behaviors?: Behavior[];
+  name?: string;
+  labelColor?: LabelColor;
+  markers?: ClipMarker[];
+  guide?: boolean;
+  tracks?: Track[];
+  chartIn?: ChartAnimator;
 }
+
+export interface Anchor {
+  x: number;
+  y: number;
+}
+
+export const ANCHOR_RANGE = [-1, 2] as const;
+
+export const CENTER_ANCHOR: Anchor = { x: 0.5, y: 0.5 };
 
 export const MOTION_EDGES = ["left", "right", "top", "bottom"] as const;
 
@@ -266,7 +392,14 @@ export interface Motion {
 export interface Marker {
   id: string;
   atMs: number;
+  durationMs?: number;
   label?: string;
+  color?: LabelColor;
+  note?: string;
+}
+
+export interface ClipMarker extends Marker {
+  beat?: boolean;
 }
 
 export interface Track {
@@ -277,11 +410,20 @@ export interface Track {
   locked?: boolean;
   muted?: boolean;
   clips: Clip[];
+  transitions?: Transition[];
+  gainDb?: number;
+  pan?: number;
+  ducking?: DuckingRule;
+  labelColor?: LabelColor;
+  shy?: boolean;
 }
 
 export interface VideoCanvas {
   aspect: VideoAspect;
   background: string;
+  shutterAngle?: number;
+  shutterPhase?: number;
+  perspective?: number;
 }
 
 export interface VideoDocument {
@@ -368,6 +510,11 @@ export function emptyVideoDocument(aspect: VideoAspect, background: string = DEF
   };
 }
 
+export function canvasAspect(doc: VideoDocument): number {
+  const size = VIDEO_ASPECT_SIZES[doc.canvas.aspect];
+  return size.width / size.height;
+}
+
 export function videoCanvasSize(doc: VideoDocument): CanvasSize {
   return VIDEO_ASPECT_SIZES[doc.canvas.aspect];
 }
@@ -436,6 +583,22 @@ export function newMediaClip(type: "video" | "image" | "audio", assetId: string,
     fadeOutMs: 0,
     ...(type === "audio" ? {} : { fit: "cover" as const }),
     transform: fullFrame(),
+  };
+}
+
+export const NULL_BOX = 0.1;
+
+export function newNullClip(startMs: number, durationMs: number, x: number = 0.5, y: number = 0.5): Clip {
+  return {
+    id: newStudioId("c"),
+    type: "null",
+    startMs: Math.round(startMs),
+    durationMs: Math.round(durationMs),
+    trimInMs: 0,
+    volume: 1,
+    fadeInMs: 0,
+    fadeOutMs: 0,
+    transform: { x, y, w: NULL_BOX, h: NULL_BOX, rotation: 0, opacity: 1 },
   };
 }
 

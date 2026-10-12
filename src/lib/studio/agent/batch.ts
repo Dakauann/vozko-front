@@ -9,9 +9,28 @@ export type AgentFocus =
   | { kind: "artboard"; artboardId: string }
   | { kind: "canvas" };
 
+export interface SpreadPart {
+  artboard: string;
+  ids: string[];
+}
+
+export interface SpreadOperation {
+  operation: number;
+  op: string;
+  artboards: SpreadPart[];
+}
+
 export type AgentOutcome<D> =
-  | { ok: true; document: D; created?: string[]; changed?: string[]; copies?: Record<string, string>; notes?: string[]; focus: AgentFocus; label: string; seekMs?: number; select?: string[] }
-  | { ok: false; reason: string };
+  | { ok: true; document: D; created?: string[]; changed?: string[]; copies?: Record<string, string>; notes?: string[]; focus: AgentFocus; label: string; seekMs?: number; select?: string[]; spread?: SpreadPart[] }
+  | { ok: false; reason: string; target?: string };
+
+export function missingTarget(field: string, reason: string): { ok: false; reason: string; target: string } {
+  return { ok: false, reason, target: field };
+}
+
+export function refAsTargetReason(ref: string, field: string): string {
+  return `ref só nomeia o que a própria operação cria, e "${ref}" não aponta para nada que já existe; para mudar o que já existe, use ${field} com o id que created devolveu para essa ref, ou o id de studio_read`;
+}
 
 export interface AgentStep<D> {
   document: D;
@@ -19,6 +38,7 @@ export interface AgentStep<D> {
   label: string;
   seekMs?: number;
   select?: string[];
+  operation?: number;
 }
 
 export interface BatchFailure {
@@ -28,7 +48,7 @@ export interface BatchFailure {
 }
 
 export type BatchPlan<D> =
-  | { ok: true; steps: AgentStep<D>[]; final: D; created: Record<string, string[]>; changed: string[]; copies: Record<string, string>; notes: string[] }
+  | { ok: true; steps: AgentStep<D>[]; final: D; created: Record<string, string[]>; changed: string[]; copies: Record<string, string>; notes: string[]; spread: SpreadOperation[] }
   | { ok: false; index: number; op: string; reason: string; failures: BatchFailure[]; skipped: number[] };
 
 interface WithRef {
@@ -132,6 +152,7 @@ export function planBatch<D, O extends WithRef>(
   const failures: BatchFailure[] = [];
   const skipped: number[] = [];
   const failedRefs = new Set<string>();
+  const spread: SpreadOperation[] = [];
   let document = base;
   operations.forEach((raw, index) => {
     const op = normalizeOperation(raw, idFields) as O & Record<string, unknown>;
@@ -152,7 +173,7 @@ export function planBatch<D, O extends WithRef>(
         if (failedRefs.has(resolved.ref.slice(1))) {
           skipped.push(index);
           if (raw.ref) failedRefs.add(raw.ref);
-        } else fail(`a referência ${resolved.ref} não foi criada antes neste lote`);
+        } else fail(`a referência ${resolved.ref} não foi criada antes neste lote; uma ref vale só no lote que a cria: nos lotes seguintes, use os ids que created devolveu para ela`);
         return;
       }
       (op as Record<string, unknown>)[field] = resolved.value;
@@ -168,7 +189,7 @@ export function planBatch<D, O extends WithRef>(
       outcome = { ok: false, reason: crashReason(error) };
     }
     if (!outcome.ok) {
-      fail(outcome.reason);
+      fail(outcome.target && raw.ref ? refAsTargetReason(raw.ref, outcome.target) : outcome.reason);
       return;
     }
     document = outcome.document;
@@ -182,10 +203,11 @@ export function planBatch<D, O extends WithRef>(
     }
     for (const id of [...(outcome.created ?? []), ...(outcome.changed ?? [])]) changed.add(id);
     for (const note of [...resolutionNotes, ...(outcome.notes ?? [])]) notes.push(`operação ${index + 1} (${raw.op}): ${note}`);
-    steps.push({ document, focus: outcome.focus, label: outcome.label, seekMs: outcome.seekMs, select: outcome.select });
+    if (outcome.spread) spread.push({ operation: index, op: raw.op, artboards: outcome.spread });
+    steps.push({ document, focus: outcome.focus, label: outcome.label, seekMs: outcome.seekMs, select: outcome.select, operation: index });
   });
   if (failures.length > 0) return { ok: false, index: failures[0].index, op: failures[0].op, reason: failures[0].reason, failures, skipped };
-  return { ok: true, steps, final: document, created: Object.fromEntries([...refs].filter(([ref]) => named.has(ref))), changed: [...changed], copies, notes };
+  return { ok: true, steps, final: document, created: Object.fromEntries([...refs].filter(([ref]) => named.has(ref))), changed: [...changed], copies, notes, spread };
 }
 
 export type StepCheck<D, I> = (document: D) => { ok: true } | { ok: false; issue: I };

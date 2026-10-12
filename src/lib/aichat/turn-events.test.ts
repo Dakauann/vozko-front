@@ -96,6 +96,22 @@ describe("applyTurnEvent", () => {
     expect(segmentsOf(out)).toEqual([{ kind: "text", text: "novo", streaming: true }]);
   });
 
+  it("takes back what a dropped attempt showed before the retry streams again", () => {
+    const out = play([
+      { kind: "tool_start", name: "studio_read" },
+      { kind: "tool", name: "studio_read", summary: "ok", ok: true },
+      { kind: "reasoning", text: "rascunho" },
+      { kind: "reasoning_done" },
+      { kind: "delta", text: "Vou mon" },
+      { kind: "retract", text: "Vou mon", reasoning: "rascunho" },
+      { kind: "delta", text: "Vou montar a arte." },
+    ]);
+    expect(segmentsOf(out)).toEqual([
+      { kind: "tool", name: "studio_read", summary: "ok", ok: true },
+      { kind: "text", text: "Vou montar a arte.", streaming: true },
+    ]);
+  });
+
   it("leaves a conversation with no reply untouched", () => {
     const start = [user];
     expect(play([{ kind: "delta", text: "x" }], start)).toEqual(start);

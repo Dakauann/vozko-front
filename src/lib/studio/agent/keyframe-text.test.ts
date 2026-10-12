@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { KEYFRAME_LIMITS } from "../keyframes";
 import { keyframeFaultText, keyOutsideClipText } from "./keyframe-text";
 
 describe("keyframeFaultText", () => {
@@ -11,7 +12,7 @@ describe("keyframeFaultText", () => {
   });
 
   it("tells the largest scale that fits the clip", () => {
-    expect(keyframeFaultText({ kind: "box", scale: 4.6, maxScale: 4.44 })).toContain("scale até 4.44");
+    expect(keyframeFaultText({ kind: "box", property: "scale", scale: 4.6, maxScale: 4.44 })).toContain("scale até 4.44");
   });
 
   it("lists the easings for an unknown one", () => {
@@ -25,8 +26,7 @@ describe("keyframeFaultText", () => {
   it("never writes a long dash", () => {
     const faults = [
       keyframeFaultText({ kind: "empty" }),
-      keyframeFaultText({ kind: "too_many", property: "x", limit: 32 }),
-      keyframeFaultText({ kind: "time", property: "x", atMs: 90_001, limit: 90_000 }),
+      keyframeFaultText({ kind: "time", property: "x", atMs: KEYFRAME_LIMITS.maxAbsMs + 1, limit: KEYFRAME_LIMITS.maxAbsMs }),
       keyOutsideClipText("opacity", 5200, 3000),
     ];
     for (const text of faults) expect(text).not.toMatch(/[–—]/);

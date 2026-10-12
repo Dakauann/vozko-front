@@ -143,6 +143,8 @@ export interface ModelPricingInfo {
     completionPrice: number;
     created?: number;
     contextLength?: number;
+    capabilities?: string[];
+    reasoning?: { levels: string[]; default: string };
 }
 
 export interface AgentOptions {
@@ -152,6 +154,7 @@ export interface AgentOptions {
         messagingModel: string;
     };
     modelPricing?: ModelPricingInfo[];
+    modelCapabilities?: string[];
 }
 
 export interface AgentListMeta {

@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuShortcut, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
 
+import { ImageAiSubmenu } from "./ai-submenu";
+import { PerceptionOverlay } from "./canvas/perception-overlay";
 import { Rulers } from "./canvas/rulers";
+import { ImageJobOverlays } from "./job-overlays";
+import { useImageCanvasDrop } from "./library-adapter";
 import { useSelectionActions, type MenuAction } from "./selection-actions";
 
 const EditorStage = dynamic(() => import("./canvas/editor-stage"), { ssr: false });
@@ -31,9 +35,10 @@ export function CanvasArea() {
   const to = useTranslations("studio.vectors.ops");
   const actions = useSelectionActions();
   const paste = actions.edit.find((a) => a.id === "paste");
+  const libraryDrop = useImageCanvasDrop();
 
   return (
-    <div className="relative min-h-0 min-w-0 flex-1 select-none" data-tour="studio-image-canvas">
+    <div className="relative min-h-0 min-w-0 flex-1 select-none" data-tour="studio-image-canvas" onDragOver={libraryDrop.onDragOver} onDrop={libraryDrop.onDrop}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="absolute inset-0">
@@ -52,6 +57,7 @@ export function CanvasArea() {
             <>
               <Items actions={[...actions.special, ...actions.family]} />
               {actions.special.length + actions.family.length > 0 ? <ContextMenuSeparator /> : null}
+              <ImageAiSubmenu />
               <Items actions={actions.edit} />
               <ContextMenuSeparator />
               <Items actions={actions.style} />
@@ -85,6 +91,8 @@ export function CanvasArea() {
       </ContextMenu>
       <TextEditOverlay />
       <ArtboardRename />
+      <PerceptionOverlay />
+      <ImageJobOverlays />
       <Rulers />
     </div>
   );

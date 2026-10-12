@@ -68,7 +68,10 @@ export function isVectorPreset(id: string): id is VectorPresetId {
 }
 
 export function vectorPresetLayer(id: VectorPresetId, canvas: CanvasSize, share: number = VECTOR_PRESET_SHARE): Layer {
-  const preset = VECTOR_PRESETS[id];
+  return presetLayer(VECTOR_PRESETS[id], canvas, share);
+}
+
+export function presetLayer(preset: VectorPreset, canvas: CanvasSize, share: number = VECTOR_PRESET_SHARE): Layer {
   const wide = preset.ratio >= 1;
   const transform = squareTransform(canvas, wide ? share : share * preset.ratio, wide ? share / preset.ratio : share);
   if (preset.kind === "star") return { ...newShapeLayer("star", transform), points: preset.points, inner: preset.inner };

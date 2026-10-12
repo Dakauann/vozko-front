@@ -83,9 +83,9 @@ describe("duplicateKeyframes", () => {
     expect(duplicateKeyframes(base, [{ property: "x", atMs: 0 }], 1000)).toBe(base);
   });
 
-  it("refuses a copy past the per-property limit", () => {
-    const full: Keyframes = { x: Array.from({ length: KEYFRAME_LIMITS.perProperty }, (_, i) => key(i * 10, 0.5)) };
-    expect(duplicateKeyframes(full, [{ property: "x", atMs: 0 }], 5)).toBe(full);
+  it("copies into a long lane", () => {
+    const full: Keyframes = { x: Array.from({ length: 100 }, (_, i) => key(i * 10, 0.5)) };
+    expect(duplicateKeyframes(full, [{ property: "x", atMs: 0 }], 5)?.x).toHaveLength(101);
   });
 
   it("refuses a copy past the time limit", () => {

@@ -55,10 +55,11 @@ interface EasingPickerProps {
   label: string;
   value: Easing | null;
   disabled: boolean;
+  hidden?: readonly NamedEasing[];
   onPick: (easing: Easing) => void;
 }
 
-export function EasingPicker({ label, value, disabled, onPick }: EasingPickerProps) {
+export function EasingPicker({ label, value, disabled, hidden = [], onPick }: EasingPickerProps) {
   const t = useTranslations("studio.video.keyframes");
   const curve = value ? bezierOf(value) : null;
   const name = value === null ? null : isNamedEasing(value) ? t(`easings.${value}`) : t("customCurve");
@@ -69,7 +70,7 @@ export function EasingPicker({ label, value, disabled, onPick }: EasingPickerPro
         {name ? <span className="text-foreground">{name}</span> : null}
       </div>
       <div role="group" aria-label={label} className="grid grid-cols-6 gap-1">
-        {EASINGS.map((easing) => (
+        {EASINGS.filter((easing) => !hidden.includes(easing)).map((easing) => (
           <button
             key={easing}
             type="button"

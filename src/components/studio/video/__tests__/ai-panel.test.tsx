@@ -68,3 +68,36 @@ describe("AI generation placement", () => {
     expect(editor.view.getState().jobs[0].target).toEqual({ atMs: 1500 });
   });
 });
+
+describe("AI sound effects", () => {
+  function setupEffect() {
+    const rendered = renderInEditor(doc(), <AiPanel />);
+    act(() => rendered.editor.view.setState({ playheadMs: 1500, aiKind: "sfx", aiDrafts: { sfx: { ...EMPTY_AI_DRAFT, prompt: "whoosh rápido", model: "m-sfx" } } }));
+    return rendered;
+  }
+
+  function setLength(value: string) {
+    const field = screen.getByRole("textbox", { name: "Duração do efeito" });
+    fireEvent.change(field, { target: { value } });
+    fireEvent.blur(field);
+  }
+
+  it("asks for the effect with its length and places it at the playhead on the chosen track", async () => {
+    const { requestMediaGenerationAction } = await import("@/app/actions/media-generation");
+    const { editor } = setupEffect();
+    fireEvent.change(screen.getByRole("combobox", { name: "Faixa" }), { target: { value: "a2" } });
+    setLength("0,8");
+    fireEvent.click(screen.getByRole("button", { name: "Gerar efeito sonoro" }));
+    expect(requestMediaGenerationAction).toHaveBeenLastCalledWith({ kind: "sfx", model: "m-sfx", prompt: "whoosh rápido", durationMs: 800 });
+    expect(editor.view.getState().jobs[0]).toMatchObject({ purpose: "sfx", target: { atMs: 1500, trackId: "a2" } });
+    expect(editor.view.getState().jobs[0].target.durationMs).toBeUndefined();
+  });
+
+  it("keeps the length inside what the server accepts", () => {
+    const { editor } = setupEffect();
+    setLength("0,1");
+    expect(editor.view.getState().aiDrafts.sfx?.lengthMs).toBe(500);
+    setLength("60");
+    expect(editor.view.getState().aiDrafts.sfx?.lengthMs).toBe(22_000);
+  });
+});

@@ -1,7 +1,7 @@
 import type { ActionResult } from "@/app/actions/action-result";
 import { canStart } from "@/lib/media-generation/limits";
 import type { MediaGenerationInput, MediaGenerationJob } from "@/lib/media-generation/types";
-import { applyCropBox, cropFrame } from "@/lib/studio/crop";
+import { applyCropBox, applyFramedCrop, centeredFramedBox, cropFrame, framedRatio } from "@/lib/studio/crop";
 import { produce } from "immer";
 
 import {
@@ -19,11 +19,25 @@ import {
   updateArtboard,
   type LayerTransfer,
 } from "@/lib/studio/artboards";
+import { arrangeArtboards, arrangeTargets, tidyArrangement, type ArrangeOptions } from "@/lib/studio/artboard-arrange";
 import { newImageLayer, newStudioId, type Artboard, type CanvasSize, type Gradient, type ImageDocument, type ImageSurface, type Layer } from "@/lib/studio/document";
 import { childrenSelection, fitInside, fittedTransform, parentSelection, type PixelBox } from "@/lib/studio/geometry";
 import { clipboardOf, type ClipboardContent } from "@/lib/studio/clipboard";
 import { dissolveGroup, dropItem, renameGroup, type DropPosition, type TreeItem } from "@/lib/studio/groups";
+import type { Repeat } from "@/lib/studio/repeat";
+import { editSurfaceVfx, type StillVfxChange, type StillVfxTarget } from "@/lib/studio/still-vfx-edit";
+import { expandRepeat, repeatLayers, setRepeat } from "@/lib/studio/repeat-edits";
+import { addInstance, clipboardComponents, createComponent, detachInstance, pastedContent, resetOverrides, setComponent, setOverrides, swapComponent, type ComponentRefusal } from "@/lib/studio/component-edits";
+import type { OverrideField, OverrideValues } from "@/lib/studio/components";
+import { applyStyle, createStyle, deleteStyle, detachStyle, mergedStyles, referencedStyles, styleUses, updateStyle, type NewStyle, type StylePatchInput, type StyleRefusal, type StyleTarget } from "@/lib/studio/shared-style-edits";
+import type { LayerSlot, StyleRole, StyleSlot } from "@/lib/studio/shared-styles";
+import type { HugMeasure, Layout, LayoutItem } from "@/lib/studio/auto-layout";
+import { removeLayout, scaffoldFor, setLayout, setLayoutItem, type LayoutRefusal, type LayoutTarget } from "@/lib/studio/auto-layout-edits";
 import { commitText, jobErrorCode, replaceImageAsset } from "@/lib/studio/image-edits";
+import { fillFrame, fillTargetAt, fillTargetOf } from "@/lib/studio/frame-fill";
+import { slotAsset, withSlotAsset, type AssetSlot } from "@/lib/studio/image-sources";
+import { jobLanding, jobStartAsset } from "@/lib/studio/job-landing";
+import type { TextEdit } from "@/lib/studio/text-run-editing";
 import { styleOf, stylePatch, type CopiedStyle } from "@/lib/studio/style";
 import type { ImageAction } from "@/lib/studio/keymap";
 import {
@@ -55,17 +69,22 @@ import {
   type OrderDirection,
 } from "@/lib/studio/layers";
 import type { Subpath } from "@/lib/studio/path-nodes";
-import { runShapeOp, type ShapeOpIssue, type ShapeOpKind } from "@/lib/studio/shape-ops";
+import { mergeLive, runShapeOp, type ShapeOpIssue, type ShapeOpKind } from "@/lib/studio/shape-ops";
+import type { MergeMode } from "@/lib/studio/path-ops";
 import type { StudioEditorStore } from "@/lib/studio/store";
 import { layersToSvg } from "@/lib/studio/svg-export";
 import type { TraceResult } from "@/lib/studio/trace/trace";
 import { importSvg, type SvgImportOutcome, type SvgTarget } from "@/lib/studio/svg-import";
+import { insertImageContent } from "@/lib/studio/library/instantiate";
+import { expandChart } from "@/lib/studio/chart-edits";
+import type { LibraryLayers } from "@/lib/studio/library/model";
 import { documentIssue } from "@/lib/studio/validate";
 import { convertToPath, pathLayerFromCanvas } from "@/lib/studio/vector-layer";
 import type { VectorTool } from "@/lib/studio/vector-tools";
 import { fitBounds, stepZoom, viewArea, visibleShare, zoomAt, type Point } from "@/lib/studio/viewport";
 
 import { currentArtboard, jobKind, type EditorUiStore, type JobPurpose, type StudioJob } from "./editor-state";
+import { createPixelCommands } from "./pixel-commands";
 
 export function runningJobKinds(ui: EditorUiStore): ("image" | "cutout")[] {
   return ui.getState().jobs.filter((job) => !job.error).map((job) => jobKind(job.purpose));
@@ -74,6 +93,13 @@ export function runningJobKinds(ui: EditorUiStore): ("image" | "cutout")[] {
 export interface CommandDeps {
   requestJob: (input: MediaGenerationInput) => Promise<ActionResult<MediaGenerationJob>>;
   naturalSize: (assetId: string) => Promise<CanvasSize>;
+  measure?: HugMeasure;
+}
+
+export interface PhotoSpot {
+  artboardId: string;
+  x: number;
+  y: number;
 }
 
 export interface InsertImageOptions {
@@ -121,6 +147,23 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
   const patchJob = (id: string, patch: Partial<StudioJob>) =>
     ui.setState((s) => ({ jobs: s.jobs.map((job) => (job.id === id ? { ...job, ...patch } : job)) }));
   const dropJob = (id: string) => ui.setState((s) => ({ jobs: s.jobs.filter((job) => job.id !== id) }));
+  const addJob = (spec: { purpose: JobPurpose; layerId: string | null; slot?: AssetSlot; start: MediaGenerationInput | MediaGenerationJob; created: MediaGenerationJob | null; byAgent: boolean }): string => {
+    const id = newStudioId("job");
+    const startedFrom = jobStartAsset(spec.start);
+    const job: StudioJob = {
+      id,
+      purpose: spec.purpose,
+      layerId: spec.layerId,
+      ...(spec.slot !== undefined ? { slot: spec.slot } : {}),
+      ...(startedFrom ? { startedFrom } : {}),
+      created: spec.created,
+      settling: false,
+      error: null,
+      byAgent: spec.byAgent,
+    };
+    ui.setState((s) => ({ jobs: [...s.jobs, job] }));
+    return id;
+  };
 
   const insert = (layers: Layer[], atIndex?: number): string[] => {
     if (layers.length === 0) return [];
@@ -142,6 +185,30 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
     const layer = newImageLayer(assetId, transform);
     const before = document();
     apply((s) => (options.aboveId ? addLayersAbove(s, [layer], options.aboveId) : addLayers(s, [layer])), [layer.id], home.id);
+    return document() !== before;
+  };
+
+  const placePhoto = async (assetId: string, spot?: PhotoSpot): Promise<boolean> => {
+    let natural: CanvasSize;
+    try {
+      natural = await deps.naturalSize(assetId);
+    } catch {
+      return false;
+    }
+    const ids = selection();
+    const board = spot ? artboardById(document(), spot.artboardId) : homeOf(ids);
+    if (!board) return false;
+    const target = spot ? fillTargetAt(board, { x: spot.x * board.canvas.width, y: spot.y * board.canvas.height }) : ids.length === 1 ? fillTargetOf(board, ids[0]) : null;
+    if (target) {
+      const outcome = fillFrame(board, target, assetId, natural);
+      if (!outcome.ok) return false;
+      apply((s) => (s === board ? outcome.document : s), [outcome.photoId], board.id);
+      return true;
+    }
+    if (!spot) return insertImage(assetId);
+    const layer = newImageLayer(assetId, { ...fittedTransform(natural.width, natural.height, board.canvas), x: spot.x, y: spot.y });
+    const before = document();
+    apply((s) => addLayers(s, [layer]), [layer.id], board.id);
     return document() !== before;
   };
 
@@ -194,6 +261,14 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
   const shapeOperation = (kind: ShapeOpKind): ShapeOpIssue | null => {
     const home = homeOf(selection());
     const result = runShapeOp(home, selection(), kind);
+    if (!result.ok) return result.issue;
+    apply(() => result.document, result.ids, home.id);
+    return null;
+  };
+
+  const liveMerge = (mode: MergeMode): ShapeOpIssue | null => {
+    const home = homeOf(selection());
+    const result = mergeLive(home, selection(), mode);
     if (!result.ok) return result.issue;
     apply(() => result.document, result.ids, home.id);
     return null;
@@ -310,6 +385,115 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
     },
     renameGroup: (groupId: string, name: string) => apply((s) => renameGroup(s, groupId, name), undefined, homeOf([groupId]).id),
     dissolveGroup: (groupId: string) => apply((s) => dissolveGroup(s, groupId), undefined, homeOf([groupId]).id),
+    repeat: (repeat: Repeat) => applyToSelection((s, ids) => repeatLayers(s, ids, repeat).document),
+    setRepeat: (groupId: string, repeat: Repeat | undefined) => apply((s) => setRepeat(s, groupId, repeat), undefined, homeOf([groupId]).id),
+    createComponent: (name?: string): ComponentRefusal | null => {
+      const result = createComponent(document(), selection(), name);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document, [result.instanceId]);
+      return null;
+    },
+    addInstance: (componentId: string): ComponentRefusal | null => {
+      const result = addInstance(document(), active().id, componentId);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document, [result.instanceId]);
+      return null;
+    },
+    setOverrides: (instanceId: string, layerId: string, values: OverrideValues): ComponentRefusal | null => {
+      const result = setOverrides(document(), instanceId, layerId, values);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document);
+      return null;
+    },
+    resetOverrides: (instanceId: string, layerId?: string, fields?: readonly OverrideField[]) => applyDocument((d) => resetOverrides(d, instanceId, layerId, fields)),
+    detachInstances: (ids: readonly string[]) => {
+      const created: string[] = [];
+      const next = ids.reduce((doc, id) => {
+        const result = detachInstance(doc, id);
+        if (!result.ok) return doc;
+        created.push(...result.ids);
+        return result.document;
+      }, document());
+      if (created.length > 0) applyDocument(() => next, created);
+    },
+    swapComponent: (instanceId: string, componentId: string) => {
+      const result = swapComponent(document(), instanceId, componentId);
+      if (result.ok) applyDocument(() => result.document);
+    },
+    setComponent: (artboardId: string, on: boolean): ComponentRefusal | null => {
+      const result = setComponent(document(), artboardId, on);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document);
+      return null;
+    },
+    createStyle: (input: NewStyle): StyleRefusal | null => {
+      const result = createStyle(document(), input);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document);
+      return null;
+    },
+    updateStyle: (styleId: string, patch: { name?: string; description?: string; role?: StyleRole | null; values?: StylePatchInput }): StyleRefusal | null => {
+      const result = updateStyle(document(), styleId, patch);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document);
+      return null;
+    },
+    applyStyle: (styleId: string, targets: readonly StyleTarget[], slot?: LayerSlot): StyleRefusal | null => {
+      const result = applyStyle(document(), styleId, targets, slot);
+      if (!result.ok) return result.reason;
+      applyDocument(() => result.document);
+      return null;
+    },
+    detachStyle: (targets: readonly StyleTarget[], slot?: StyleSlot) => applyDocument((d) => detachStyle(d, targets, slot)),
+    deleteStyle: (styleId: string) => applyDocument((d) => deleteStyle(d, styleId)),
+    selectStyleUses: (styleId: string) => {
+      const uses = styleUses(document(), styleId);
+      const layers = uses.flatMap((use) => (use.layerId ? [use.layerId] : []));
+      const home = layers.length > 0 ? artboardOfItem(document(), layers[0]) : undefined;
+      if (home) select(layers.filter((id) => artboardOfItem(document(), id)?.id === home.id));
+      else if (uses.length > 0) select([uses[0].artboardId]);
+    },
+    setLayout: (target: LayoutTarget, patch: Partial<Layout>): LayoutRefusal | null => {
+      const home = homeOf("groupId" in target ? [target.groupId] : [...target.ids]);
+      const result = setLayout(home, target, patch, deps.measure);
+      if (!result.ok) return result.reason;
+      apply(() => result.document, undefined, home.id);
+      return null;
+    },
+    addAutoLayout: (): LayoutRefusal | null => {
+      const ids = selection().filter((id) => !artboardById(document(), id));
+      if (ids.length === 0) return "missing";
+      const group = scaffoldFor(homeOf(ids), ids);
+      if (group?.layout) return null;
+      return commands.setLayout(group ? { groupId: group.id } : { ids }, {});
+    },
+    removeLayout: (groupId: string) => apply((s) => removeLayout(s, groupId), undefined, homeOf([groupId]).id),
+    setLayoutItem: (id: string, patch: Partial<LayoutItem>): LayoutRefusal | null => {
+      const home = homeOf([id]);
+      const result = setLayoutItem(home, id, patch, deps.measure);
+      if (!result.ok) return result.reason;
+      apply(() => result.document, undefined, home.id);
+      return null;
+    },
+    showComponent: (componentId: string) => {
+      const artboard = artboardById(document(), componentId);
+      if (!artboard) return;
+      select([componentId]);
+      ui.setState({ artboardId: componentId });
+      show(artboardBounds(artboard), false);
+    },
+    expandRepeat: (groupId: string): boolean => {
+      const outcome = expandRepeat(homeOf([groupId]), groupId);
+      if (!outcome.ok) return false;
+      apply(() => outcome.document, undefined, homeOf([groupId]).id);
+      return true;
+    },
+    expandChart: (layerId: string): boolean => {
+      const outcome = expandChart(homeOf([layerId]), layerId);
+      if (!outcome.ok) return false;
+      apply(() => outcome.document, outcome.ids, homeOf([layerId]).id);
+      return true;
+    },
     copyStyle: () => {
       const id = selection()[0] ?? "";
       const layer = layerById(homeOf([id]), id);
@@ -331,13 +515,38 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
         }),
       ),
     patchLayers: (ids: readonly string[], patch: LayerPatch | ((layer: Layer) => LayerPatch)) => apply((s) => updateLayers(s, ids, patch), undefined, homeOf(ids).id),
+    editVfx: (target: StillVfxTarget, change: StillVfxChange): boolean => {
+      let applied = false;
+      apply(
+        (s) => {
+          const edit = editSurfaceVfx(s, target, change);
+          applied = edit.ok;
+          return edit.ok ? edit.surface : s;
+        },
+        undefined,
+        target.kind === "layer" ? homeOf([target.layerId]).id : active().id,
+      );
+      return applied;
+    },
     patchSelection: (patch: LayerPatch | ((layer: Layer) => LayerPatch)) => applyToSelection((s, ids) => updateLayers(s, ids, patch)),
     beginLive: () => store.getState().beginTransaction(),
     endLive: () => store.getState().commitTransaction(),
     insert,
+    insertLibrary: (content: LibraryLayers, artboardId: string = active().id): string[] => {
+      const home = artboardById(document(), artboardId);
+      if (!home || content.layers.length === 0) return [];
+      const placed = insertImageContent(home, content);
+      const before = document();
+      apply(() => placed.document, placed.ids, home.id);
+      return document() === before ? [] : placed.ids;
+    },
     insertImage,
+    placePhoto,
     copySelection: (): ClipboardContent => {
-      const content = clipboardOf(homeOf(selection()), selection());
+      const surface = clipboardOf(homeOf(selection()), selection());
+      const components = clipboardComponents(document(), surface.layers);
+      const styles = referencedStyles(document(), surface.layers);
+      const content = { ...surface, ...(components.length > 0 ? { components } : {}), ...(styles.length > 0 ? { styles } : {}) };
       if (content.layers.length > 0) {
         copied = content;
         ui.setState({ clipboard: true });
@@ -345,13 +554,17 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
       return content;
     },
     pasteCopied: () => commands.paste(copied),
-    paste: (content: ClipboardContent) => {
+    paste: (copiedContent: ClipboardContent) => {
       let created: string[] = [];
-      apply((s) => {
-        const result = pasteLayers(s, content.layers, DUPLICATE_OFFSET, content.groups);
-        created = result.ids;
-        return result.document;
-      });
+      const content = pastedContent(document(), active().id, copiedContent);
+      const artboardId = active().id;
+      applyDocument((d) =>
+        editArtboard(mergedStyles(d, content.styles ?? []), artboardId, (s) => {
+          const result = pasteLayers(s, content.layers, DUPLICATE_OFFSET, content.groups);
+          created = result.ids;
+          return result.document;
+        }),
+      );
       if (created.length > 0) select(created);
     },
     startTextEdit: (id: string) => {
@@ -360,9 +573,9 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
       select([id]);
       ui.setState({ editingTextId: id, crop: null });
     },
-    finishTextEdit: (id: string, text: string) => {
+    finishTextEdit: (id: string, edit: TextEdit) => {
       ui.setState({ editingTextId: null });
-      apply((s) => commitText(s, id, text), text.trim() === "" ? [] : [id], homeOf([id]).id);
+      apply((s) => commitText(s, id, edit), edit.text.trim() === "" ? [] : [id], homeOf([id]).id);
     },
     startCrop: (id: string) => {
       const home = homeOf([id]);
@@ -370,10 +583,15 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
       if (!layer || layer.type !== "image" || layer.locked) return;
       const frame = cropFrame(layer, home.canvas);
       select([id]);
-      ui.setState({ crop: { layerId: id, frame, box: frame.box }, editingTextId: null });
+      ui.setState({ crop: { layerId: id, frame, box: frame.box, ...(layer.clip ? { ratio: framedRatio(layer, home.canvas) } : {}) }, editingTextId: null });
     },
     updateCropBox: (box: PixelBox) => ui.setState((s) => (s.crop ? { crop: { ...s.crop, box } } : {})),
-    resetCrop: () => ui.setState((s) => (s.crop ? { crop: { ...s.crop, box: { left: 0, top: 0, width: s.crop.frame.width, height: s.crop.frame.height } } } : {})),
+    resetCrop: () =>
+      ui.setState((s) => {
+        if (!s.crop) return {};
+        const { frame, ratio } = s.crop;
+        return { crop: { ...s.crop, box: ratio ? centeredFramedBox(frame, ratio) : { left: 0, top: 0, width: frame.width, height: frame.height } } };
+      }),
     finishCrop: () => {
       const session = ui.getState().crop;
       if (!session) return;
@@ -382,14 +600,14 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
         (s) => {
           const layer = layerById(s, session.layerId);
           if (!layer) return s;
-          return updateLayers(s, [layer.id], applyCropBox(layer, session.frame, session.box, s.canvas));
+          return updateLayers(s, [layer.id], session.ratio ? applyFramedCrop(layer, session.frame, session.box, s.canvas) : applyCropBox(layer, session.frame, session.box, s.canvas));
         },
         undefined,
         homeOf([session.layerId]).id,
       );
     },
     cancelCrop,
-    setTool: (tool: VectorTool) => ui.setState({ tool, pathEditId: null, crop: null, editingTextId: null }),
+    setTool: (tool: VectorTool) => ui.setState({ tool, pathEditId: null, crop: null, editingTextId: null, pixelTool: null, pixelLive: null }),
     insertDrawnPath: (subpath: Subpath, open: boolean): string | null => {
       const layer = pathLayerFromCanvas([subpath], active().canvas, open);
       const [id] = insert([layer]);
@@ -410,6 +628,7 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
     },
     finishPathEdit: () => ui.setState({ pathEditId: null }),
     shapeOperation,
+    liveMerge,
     importSvg: (text: string, name?: string, target?: SvgTarget): SvgImportOutcome => {
       const home = active();
       const result = importSvg(text, home.canvas, { name, target });
@@ -460,7 +679,13 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
     },
     duplicateArtboards,
     renameArtboard: (id: string, name: string) => applyDocument((d) => updateArtboard(d, id, { name })),
-    moveArtboard: (id: string, place: Point) => applyDocument((d) => updateArtboard(d, id, place)),
+    moveArtboard: (id: string, place: Partial<Point>) => applyDocument((d) => updateArtboard(d, id, place)),
+    arrangeArtboards: (options: ArrangeOptions) => applyDocument((d) => arrangeArtboards(d, arrangeTargets(d, selection()), options)),
+    tidyArtboards: () =>
+      applyDocument((d) => {
+        const ids = arrangeTargets(d, selection());
+        return arrangeArtboards(d, ids, tidyArrangement(d, ids));
+      }),
     removeArtboards,
     selectArtboard: (id: string, additive: boolean) => {
       const current = boardsInSelection();
@@ -483,10 +708,9 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
     moveLayersToArtboard: (ids: readonly string[], artboardId: string, mode: LayerTransfer = "keep-relative") => {
       applyDocument((d) => moveLayersToArtboard(d, ids, artboardId, mode), [...ids]);
     },
-    startJob: async (purpose: JobPurpose, input: MediaGenerationInput, layerId: string | null = null) => {
+    startJob: async (purpose: JobPurpose, input: MediaGenerationInput, layerId: string | null = null, slot?: AssetSlot) => {
       if (!canStart(jobKind(purpose), runningJobKinds(ui))) return;
-      const id = newStudioId("job");
-      ui.setState((s) => ({ jobs: [...s.jobs, { id, purpose, layerId, created: null, settling: false, error: null, byAgent: false }] }));
+      const id = addJob({ purpose, layerId, slot, start: input, created: null, byAgent: false });
       const result = await deps.requestJob(input);
       if ("error" in result) {
         patchJob(id, { error: jobErrorCode(result.code) });
@@ -494,25 +718,49 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
       }
       patchJob(id, { created: result.data });
     },
-    followJob: (purpose: JobPurpose, job: MediaGenerationJob, layerId: string | null = null): string => {
-      const id = newStudioId("job");
-      ui.setState((s) => ({ jobs: [...s.jobs, { id, purpose, layerId, created: job, settling: false, error: null, byAgent: true }] }));
-      return id;
-    },
+    followJob: (purpose: JobPurpose, job: MediaGenerationJob, layerId: string | null = null, slot?: AssetSlot): string => addJob({ purpose, layerId, slot, start: job, created: job, byAgent: true }),
     jobProgress: (id: string, settling: boolean) => patchJob(id, { settling }),
     jobFailed: (id: string, code: string) => patchJob(id, { error: jobErrorCode(code) }),
     jobDone: async (id: string, mediaId: string) => {
       const job = ui.getState().jobs.find((j) => j.id === id);
       if (!job) return;
       const source = job.layerId ? layerById(homeOf([job.layerId]), job.layerId) : undefined;
-      if (job.purpose === "cutout" && source && !source.locked) {
-        apply((s) => updateLayers(s, [source.id], { assetId: mediaId }), undefined, homeOf([source.id]).id);
+      const slot = job.slot ?? "asset";
+      const inPlace = Boolean(source && !source.locked && jobLanding(job.startedFrom, slotAsset(source, slot)) === "inPlace");
+      if (source && inPlace && (job.purpose === "cutout" || (job.purpose === "edit" && slot !== "asset"))) {
+        apply((s) => updateLayers(s, [source.id], withSlotAsset(source, slot, mediaId)), undefined, homeOf([source.id]).id);
         dropJob(id);
         return;
       }
-      const inserted = await insertImage(mediaId, job.purpose === "generate" || !source ? {} : { aboveId: source.id, within: source.transform });
-      if (inserted) dropJob(id);
-      else patchJob(id, { error: "result_unavailable" });
+      if (source && inPlace && job.purpose === "edit" && fillTargetOf(homeOf([source.id]), source.id)?.photoId === source.id) {
+        let natural: CanvasSize;
+        try {
+          natural = await deps.naturalSize(mediaId);
+        } catch {
+          patchJob(id, { error: "result_unavailable" });
+          return;
+        }
+        const before = document();
+        apply(
+          (s) => {
+            const target = fillTargetOf(s, source.id);
+            const outcome = target?.photoId === source.id ? fillFrame(s, target, mediaId, natural) : null;
+            return outcome?.ok ? outcome.document : s;
+          },
+          [source.id],
+          homeOf([source.id]).id,
+        );
+        if (document() === before) patchJob(id, { error: "result_unavailable" });
+        else dropJob(id);
+        return;
+      }
+      const inserted = await insertImage(mediaId, job.purpose === "generate" || job.purpose === "element" || !source ? {} : { aboveId: source.id, within: source.transform });
+      if (!inserted) {
+        patchJob(id, { error: "result_unavailable" });
+        return;
+      }
+      dropJob(id);
+      if (job.purpose === "element") void commands.startJob("cutout", { kind: "cutout", sourceMediaId: mediaId }, selection()[0] ?? null);
     },
     dismissJob: dropJob,
     replaceImage: async (layerId: string, assetId: string): Promise<boolean> => {
@@ -528,6 +776,7 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
       apply((s) => updateLayers(s, [layerId], replaceImageAsset(layer, assetId, natural, s.canvas)), undefined, home.id);
       return true;
     },
+    pixel: createPixelCommands(store, ui),
     runAction: (action: ImageAction) => {
       switch (action.type) {
         case "undo":
@@ -566,6 +815,12 @@ export function createImageCommands(store: StudioEditorStore<ImageDocument>, ui:
           return commands.shapeOperation(action.kind);
         case "artboard":
           return commands.stepArtboard(action.direction);
+        case "component":
+          return void commands.createComponent();
+        case "detach":
+          return commands.detachInstances(selection());
+        case "autoLayout":
+          return void commands.addAutoLayout();
       }
     },
   };

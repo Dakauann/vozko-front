@@ -38,7 +38,7 @@ describe("PlaybackController", () => {
     const { controller, view, audio, tick } = setup();
     controller.seek(1000);
     await controller.play();
-    expect(audio.play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [] });
+    expect(audio.play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [], rate: 1 });
     const positionAt = vi.mocked(audio.play).mock.calls[0][1];
     expect(positionAt(100)).toBe(1000);
     tick(0.5);
@@ -66,7 +66,7 @@ describe("PlaybackController", () => {
     controller.documentChanged();
     expect(audio.play).toHaveBeenCalledTimes(1);
     expect(audio.stop).toHaveBeenCalledTimes(stops);
-    expect(audio.update).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [] });
+    expect(audio.update).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [], rate: 1 });
     const positionAt = vi.mocked(audio.update).mock.calls[0][1];
     expect(positionAt(101.5)).toBe(1500);
     tick(0.5);
@@ -96,7 +96,7 @@ describe("PlaybackController", () => {
     expect(audio.stop).toHaveBeenCalled();
   });
 
-  it("shuttles faster without audio and backwards", async () => {
+  it("shuttles with sound up to twice the speed, silent beyond it, and backwards", async () => {
     const { controller, view, audio, tick } = setup();
     controller.seek(2000);
     controller.shuttle(1);
@@ -105,7 +105,11 @@ describe("PlaybackController", () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(view.getState().rate).toBe(2);
-    expect(audio.play).toHaveBeenCalledTimes(1);
+    controller.shuttle(1);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(view.getState().rate).toBe(4);
+    expect(vi.mocked(audio.play).mock.calls.map((call) => call[2]?.rate)).toEqual([1, 2]);
     controller.shuttle(-1);
     await Promise.resolve();
     await Promise.resolve();
@@ -124,5 +128,92 @@ describe("PlaybackController", () => {
     expect(view.getState().playheadMs).toBe(0);
     controller.seek(99_000);
     expect(view.getState().playheadMs).toBe(4000);
+  });
+});
+
+describe("preview speed", () => {
+  it("plays at the chosen speed with sound and restarts at a new speed while playing", async () => {
+    const { controller, view, audio, tick } = setup();
+    controller.setPreviewRate(0.5);
+    controller.toggle();
+    await vi.waitFor(() => expect(audio.play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [], rate: 0.5 }));
+    tick(1);
+    expect(view.getState()).toMatchObject({ playing: true, rate: 0.5, previewRate: 0.5, playheadMs: 500 });
+    controller.setPreviewRate(2);
+    await vi.waitFor(() => expect(audio.play).toHaveBeenLastCalledWith(expect.anything(), expect.any(Function), { soloTrackIds: [], rate: 2 }));
+    tick(0.5);
+    expect(view.getState().playheadMs).toBe(1500);
+  });
+});
+
+
+describe("work area and loop", () => {
+  it("plays only the marked range and stops at its out point", async () => {
+    const { controller, view, tick } = setup();
+    view.setState({ range: { inMs: 1000, outMs: 2500 } });
+    controller.seek(3000);
+    expect(controller.playRange()).toBe(true);
+    await vi.waitFor(() => expect(view.getState()).toMatchObject({ playing: true, playheadMs: 1000 }));
+    tick(1);
+    expect(view.getState().playheadMs).toBe(2000);
+    tick(1);
+    expect(view.getState()).toMatchObject({ playing: false, playheadMs: 2500 });
+  });
+
+  it("refuses to play a range that is not marked", () => {
+    const { controller, view } = setup();
+    view.setState({ range: { inMs: 2000, outMs: null } });
+    expect(controller.playRange()).toBe(false);
+    expect(view.getState().playing).toBe(false);
+  });
+
+  it("repeats the range while looping", async () => {
+    const { controller, view, audio, tick } = setup();
+    view.setState({ range: { inMs: 1000, outMs: 2500 } });
+    controller.setLoop(true);
+    controller.playRange();
+    await vi.waitFor(() => expect(view.getState().playing).toBe(true));
+    tick(1.6);
+    await vi.waitFor(() => expect(audio.play).toHaveBeenCalledTimes(2));
+    expect(view.getState()).toMatchObject({ playing: true, playheadMs: 1000, loop: true });
+    tick(0.5);
+    expect(view.getState().playheadMs).toBe(1500);
+  });
+
+  it("repeats the whole film while looping a normal play, also backwards", async () => {
+    const { controller, view, audio, tick } = setup();
+    controller.setLoop(true);
+    controller.seek(3500);
+    await controller.play();
+    tick(1);
+    await vi.waitFor(() => expect(audio.play).toHaveBeenCalledTimes(2));
+    expect(view.getState()).toMatchObject({ playing: true, playheadMs: 0 });
+    controller.pause();
+    controller.seek(300);
+    controller.shuttle(-1);
+    await vi.waitFor(() => expect(view.getState().playing).toBe(true));
+    tick(0.5);
+    await vi.waitFor(() => expect(view.getState().playheadMs).toBe(4000));
+    expect(view.getState()).toMatchObject({ playing: true, rate: -1 });
+  });
+
+  it("leaves the range for the film when a seek lands outside it", async () => {
+    const { controller, view, tick } = setup();
+    view.setState({ range: { inMs: 1000, outMs: 2500 } });
+    controller.playRange();
+    await vi.waitFor(() => expect(view.getState().playing).toBe(true));
+    controller.seek(3000);
+    await vi.waitFor(() => expect(view.getState()).toMatchObject({ playing: true, playheadMs: 3000 }));
+    tick(0.5);
+    expect(view.getState()).toMatchObject({ playing: true, playheadMs: 3500 });
+  });
+
+  it("stays paused when paused while the sound gets ready", async () => {
+    const { controller, view, audio } = setup();
+    const started = controller.play();
+    controller.pause();
+    await started;
+    expect(view.getState().playing).toBe(false);
+    expect(audio.play).not.toHaveBeenCalled();
   });
 });

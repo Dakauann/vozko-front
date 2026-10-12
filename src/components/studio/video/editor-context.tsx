@@ -11,12 +11,14 @@ import type { AssetCatalog, AssetCatalogState } from "./asset-catalog";
 import type { AudioEngine } from "./audio-engine";
 import type { EditorCommands } from "./editor-commands";
 import type { PanelClock } from "./panel-clock";
+import type { MeterHub } from "./meter-hub";
 import type { FrameExtractor } from "./timeline/frame-extractor";
 import type { PlaybackController } from "./playback-controller";
 import type { VideoViewState, VideoViewStore } from "./view-store";
 
 export interface VideoEditorContextValue {
   projectId: string;
+  root: StudioEditorStore<VideoDocument>;
   store: StudioEditorStore<VideoDocument>;
   view: VideoViewStore;
   clock: PanelClock;
@@ -26,6 +28,7 @@ export interface VideoEditorContextValue {
   studio: StudioProjectHandle<"video">;
   commands: EditorCommands;
   frames: FrameExtractor;
+  meters: MeterHub;
 }
 
 export const VideoEditorContext = createContext<VideoEditorContextValue | null>(null);

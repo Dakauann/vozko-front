@@ -8,11 +8,13 @@ const getChatMessages = vi.fn();
 const createChatThread = vi.fn();
 const stopChatTurn = vi.fn();
 const readChatStream = vi.fn();
+const queueChatMessage = vi.fn();
 
 vi.mock("@/app/actions/aichat", () => ({
   createChatThreadAction: (...args: unknown[]) => createChatThread(...args),
   getChatMessagesAction: (...args: unknown[]) => getChatMessages(...args),
   stopChatTurnAction: (...args: unknown[]) => stopChatTurn(...args),
+  queueChatMessageAction: (...args: unknown[]) => queueChatMessage(...args),
 }));
 
 vi.mock("@/lib/aichat/chat-stream", async (importOriginal) => {
@@ -132,12 +134,15 @@ describe("a conversation that remounts during an answer", () => {
     await act(async () => streams[0].finish("aborted"));
   });
 
-  it("refuses a second message while the answer runs", async () => {
+  it("queues a second message while the answer runs instead of starting another answer", async () => {
     const { streams, second } = await startAnswer("k-busy", "th-busy");
+    queueChatMessage.mockResolvedValue({ data: {}, error: null });
     await act(async () => {
       await second.result.current.ask("outra coisa", "m");
     });
     expect(streams).toHaveLength(1);
+    expect(queueChatMessage).toHaveBeenCalledWith("th-busy", expect.objectContaining({ content: "outra coisa" }));
+    expect(second.result.current.queued.map((q) => q.content)).toEqual(["outra coisa"]);
     await act(async () => streams[0].finish("finished"));
   });
 });

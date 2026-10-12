@@ -1,3 +1,5 @@
+import { localAtSource, sourceSpanMs } from "./clip-time";
+
 export interface CaptionCue {
   startMs: number;
   endMs: number;
@@ -43,15 +45,19 @@ export interface SourceWindow {
   startMs: number;
   durationMs: number;
   trimInMs: number;
+  speed?: number;
+  reverse?: boolean;
 }
 
 export function cuesOnTimeline(cues: readonly CaptionCue[], window: SourceWindow): CaptionCue[] {
-  const sourceEnd = window.trimInMs + window.durationMs;
+  const sourceEnd = window.trimInMs + sourceSpanMs(window);
+  const placed = (sourceMs: number) => window.startMs + Math.round(localAtSource(window, sourceMs));
   return cues
     .filter((cue) => cue.endMs > window.trimInMs && cue.startMs < sourceEnd)
-    .map((cue) => ({
-      text: cue.text,
-      startMs: window.startMs + Math.max(cue.startMs, window.trimInMs) - window.trimInMs,
-      endMs: window.startMs + Math.min(cue.endMs, sourceEnd) - window.trimInMs,
-    }));
+    .map((cue) => {
+      const from = placed(Math.max(cue.startMs, window.trimInMs));
+      const to = placed(Math.min(cue.endMs, sourceEnd));
+      return { text: cue.text, startMs: Math.min(from, to), endMs: Math.max(from, to) };
+    })
+    .sort((a, b) => a.startMs - b.startMs);
 }

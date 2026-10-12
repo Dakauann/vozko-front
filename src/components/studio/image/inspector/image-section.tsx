@@ -3,24 +3,25 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { ArrowsDownUp, ArrowsLeftRight, PencilSimple } from "@/components/icons";
-import { MediaModelSelect } from "@/components/media-generation/media-model-select";
+import { ArrowsDownUp, ArrowsLeftRight } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FRAME_KINDS, type CanvasSize, type Filters, type FrameKind, type Layer } from "@/lib/studio/document";
-import { closestAspect } from "@/lib/studio/geometry";
 import { DEFAULT_FILTERS, FILTER_PRESETS, isDefaultFilters } from "@/lib/studio/image-edits";
 import { LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import { cn } from "@/lib/utils";
 
-import { FIELD_CLASS, ICON_BUTTON_CLASS, InspectorSection, LABEL_CLASS, Notice, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS, SelectField, SliderField, ToggleButton } from "../controls";
+import { ICON_BUTTON_CLASS, InspectorSection, LABEL_CLASS, Notice, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS, SelectField, SliderField, ToggleButton } from "../controls";
+import { InspectorGroup } from "../../inspector/inspector-context";
+import { EditWithAiForm } from "../edit-with-ai";
 import { useEditorUi, useImageEditor } from "../editor-state";
 import { ImageSourcePicker } from "../image-source-picker";
-import { JobStatusList, useJobsFor } from "../jobs";
 import { RemoveBackground } from "../remove-background";
+import { ChromaKeySection } from "./chroma-key-section";
+import { ColorGradeSection } from "./color-grade-section";
+import { ColorFinishSections } from "./color-finish-sections";
 import { TraceSection } from "./trace-section";
 import { OutlineSection, ShadowSection } from "./effects";
-
-const MAX_PROMPT = 4000;
+import { StillVfxSection } from "./still-vfx-section";
 
 const FILTER_SLIDERS: { key: keyof Filters; min: number; max: number; step: number; scale: number }[] = [
   { key: "brightness", min: LAYER_RANGES.brightness[0], max: LAYER_RANGES.brightness[1], step: 0.01, scale: 100 },
@@ -131,39 +132,9 @@ function ReplaceImage({ layer }: { layer: Layer }) {
 
 function EditWithAi({ layer, canvas }: { layer: Layer; canvas: CanvasSize }) {
   const t = useTranslations("studio.image.inspector.image");
-  const { commands } = useImageEditor();
-  const jobs = useJobsFor("edit", layer.id);
-  const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState<string | null>(null);
-  const running = jobs.some((job) => !job.error);
-  const text = prompt.trim();
-
-  const run = () => {
-    if (!layer.assetId || !model || !text) return;
-    const aspect = closestAspect(layer.transform.w * canvas.width, layer.transform.h * canvas.height);
-    void commands.startJob("edit", { kind: "image", model, prompt: text, aspect, referenceMediaIds: [layer.assetId] }, layer.id);
-  };
-
   return (
     <InspectorSection title={t("editWithAi")}>
-      <label className="block space-y-1">
-        <span className="text-xs text-muted-foreground">{t("editPrompt")}</span>
-        <textarea
-          value={prompt}
-          maxLength={MAX_PROMPT}
-          rows={3}
-          placeholder={t("editPlaceholder")}
-          onChange={(event) => setPrompt(event.target.value)}
-          className={cn(FIELD_CLASS, "h-auto resize-y py-1.5 leading-snug")}
-        />
-      </label>
-      <MediaModelSelect kind="image" value={model} onChange={setModel} disabled={running} />
-      <button type="button" className={cn(BUTTON, "w-full")} disabled={running || !text || !model || !layer.assetId} onClick={run}>
-        <PencilSimple className="h-3.5 w-3.5" aria-hidden />
-        {t("editRun")}
-      </button>
-      <p className="text-2xs text-muted-foreground">{t("editHint")}</p>
-      <JobStatusList jobs={jobs} />
+      <EditWithAiForm layer={layer} canvas={canvas} />
     </InspectorSection>
   );
 }
@@ -208,11 +179,21 @@ export function ImageSection({ layer, canvas }: { layer: Layer; canvas: CanvasSi
         <ReplaceImage layer={layer} />
         <RemoveBackground layer={layer} />
       </InspectorSection>
-      <FiltersControls layer={layer} />
-      <TraceSection layer={layer} />
-      <EditWithAi layer={layer} canvas={canvas} />
       <OutlineSection layer={layer} disabled={locked} onPatch={patch} />
-      <ShadowSection layer={layer} disabled={locked} onPatch={patch} />
+      <InspectorGroup id="cutout">
+        <ChromaKeySection layer={layer} />
+      </InspectorGroup>
+      <InspectorGroup id="color">
+        <ColorGradeSection layer={layer} />
+        <ColorFinishSections layer={layer} />
+      </InspectorGroup>
+      <InspectorGroup id="effects">
+        <FiltersControls layer={layer} />
+        <StillVfxSection target={{ kind: "layer", layerId: layer.id }} vfx={layer.vfx} disabled={locked} />
+        <ShadowSection layer={layer} disabled={locked} onPatch={patch} />
+        <EditWithAi layer={layer} canvas={canvas} />
+        <TraceSection layer={layer} />
+      </InspectorGroup>
     </>
   );
 }

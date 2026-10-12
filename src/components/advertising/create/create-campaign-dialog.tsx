@@ -20,11 +20,11 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
-import { Info, Warning } from "@/components/icons";
+import { ImageSquare, Info, Warning } from "@/components/icons";
 import { draftEditorHref } from "@/lib/advertising/connect";
 import { civilToday } from "@/lib/advertising/date-range";
 import { buildDraft, parentFromRow } from "@/lib/advertising/draft";
-import type { AdObjective } from "@/lib/advertising/draft-types";
+import type { AdMediaRef, AdObjective } from "@/lib/advertising/draft-types";
 import { choiceObjective, createdLevels, initialForm, type CreateChoice } from "@/lib/advertising/editor-create";
 import type { AdAccount } from "@/lib/advertising/types";
 import { routesFor } from "@/lib/advertising/wizard-routes";
@@ -50,6 +50,7 @@ export interface CreateCampaignDialogProps {
   accounts: AdAccount[];
   accountId: string;
   initialParent?: CreateParent;
+  initialMedia?: AdMediaRef | null;
 }
 
 type CreateTab = "new" | "existing";
@@ -58,13 +59,13 @@ const AUCTION = "AUCTION";
 
 const keepAccount = () => undefined;
 
-export function CreateCampaignDialog({ open, onOpenChange, accounts, accountId, initialParent }: CreateCampaignDialogProps) {
+export function CreateCampaignDialog({ open, onOpenChange, accounts, accountId, initialParent, initialMedia = null }: CreateCampaignDialogProps) {
   const t = useTranslations("adsCreate");
   const account = accounts.find((candidate) => candidate.id === accountId);
   return (
     <ElevatedDialog open={open} onOpenChange={onOpenChange}>
       <ElevatedDialogContent className="max-w-3xl">
-        {open && account ? <CreateBody account={account} initialParent={initialParent} onCancel={() => onOpenChange(false)} /> : null}
+        {open && account ? <CreateBody account={account} initialParent={initialParent} initialMedia={initialMedia} onCancel={() => onOpenChange(false)} /> : null}
         {open && !account ? (
           <ElevatedDialogHeader>
             <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
@@ -76,7 +77,8 @@ export function CreateCampaignDialog({ open, onOpenChange, accounts, accountId, 
   );
 }
 
-function CreateBody({ account, initialParent, onCancel }: { account: AdAccount; initialParent?: CreateParent; onCancel: () => void }) {
+function CreateBody({ account, initialParent, initialMedia, onCancel }: { account: AdAccount; initialParent?: CreateParent; initialMedia: AdMediaRef | null; onCancel: () => void }) {
+  const mediaText = useTranslations("adFromMedia");
   const t = useTranslations("adsCreate");
   const router = useRouter();
   const labels = useWizardLabels();
@@ -113,9 +115,13 @@ function CreateBody({ account, initialParent, onCancel }: { account: AdAccount; 
     if (!choice || !optionsData || creating) return;
     const chosen = choiceObjective(choice);
     const objectiveName = labels.objective(chosen ?? (choice.kind === "existing" ? choice.campaign.objective : ""));
-    const form = initialForm(account.id, choice, chosen ? routesFor(optionsData, chosen) : [], {
-      campaign: t("names.campaign", { objective: objectiveName }),
-    });
+    const form = initialForm(
+      account.id,
+      choice,
+      chosen ? routesFor(optionsData, chosen) : [],
+      { campaign: t("names.campaign", { objective: objectiveName }) },
+      initialMedia,
+    );
     setCreating(true);
     setError(null);
     void createAdDraftAction(buildDraft(form, { timezone: account.timezone, currency: account.currency })).then((result) => {
@@ -143,6 +149,7 @@ function CreateBody({ account, initialParent, onCancel }: { account: AdAccount; 
       <ElevatedDialogBody className="space-y-5">
         <FundsBanner account={account} state={readiness} />
         <WizardReadinessBanner account={account} state={readiness} canCreate />
+        {initialMedia ? <Hint icon={<ImageSquare className="h-3.5 w-3.5" aria-hidden />}>{mediaText(`chosen.${initialMedia.kind}`)}</Hint> : null}
         {options.status === "error" ? <p className="text-sm text-destructive-ink">{options.message}</p> : null}
         {existing ? (
           <div className="space-y-3">

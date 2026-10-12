@@ -21,6 +21,19 @@ describe("shared studio media files", () => {
     expect(audio?.contentType).toBe("video/mp4");
   });
 
+  it("plays a built-in sound from the app's own files without asking the library", async () => {
+    const appFetch = vi.fn(async () => new Response(new Blob(["s"], { type: "audio/mpeg" }), { headers: { "content-type": "audio/mpeg" } }));
+    vi.stubGlobal("fetch", appFetch);
+    const { loadMediaFile } = await import("./media-files");
+    const loaded = await loadMediaFile("sound:pop");
+    expect(appFetch).toHaveBeenCalledWith("/audio/studio/pop.mp3");
+    expect(fetchMediaFileAction).not.toHaveBeenCalled();
+    expect(loaded?.contentType).toBe("audio/mpeg");
+    expect(await loadMediaFile("sound:nope")).toBeNull();
+    expect(fetchMediaFileAction).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it("does not remember a failed download, so the next request tries again", async () => {
     fetchMediaFileAction.mockResolvedValueOnce({ data: null, error: "boom" }).mockResolvedValueOnce({ data: { blob: new Blob(["v"]), contentType: "image/png" }, error: null });
     const { loadMediaFile } = await import("./media-files");

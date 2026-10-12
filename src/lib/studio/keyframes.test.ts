@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  KEYFRAME_LIMITS,
-  animatedTransform,
   keyframeCount,
   keyframeFault,
   keyframesInRange,
@@ -21,6 +19,7 @@ import {
   type Keyframe,
   type Keyframes,
 } from "./keyframes";
+import { animatedTransform } from "./clip-placement";
 
 const box = { x: 0.5, y: 0.5, w: 0.5, h: 0.5, rotation: 0, opacity: 1 };
 
@@ -118,8 +117,8 @@ describe("animated transform", () => {
       scale: [{ atMs: 0, value: 2, easing: "linear" }],
       opacity: [{ atMs: 0, value: 0.5, easing: "linear" }],
     };
-    expect(animatedTransform(box, k, 500)).toEqual({ x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 0.5 });
-    expect(animatedTransform(box, undefined, 500)).toBe(box);
+    expect(animatedTransform(box, k, 500, 1)).toEqual({ x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 0.5 });
+    expect(animatedTransform(box, undefined, 500, 1)).toBe(box);
   });
 
   it("keeps an overshooting opacity between 0 and 1 and never flips the box", () => {
@@ -127,7 +126,7 @@ describe("animated transform", () => {
       opacity: [{ atMs: 0, value: 0, easing: "backOut" }, { atMs: 1000, value: 1, easing: "linear" }],
       scale: [{ atMs: 0, value: 1, easing: "backOut" }, { atMs: 1000, value: 0.05, easing: "linear" }],
     };
-    const shown = animatedTransform(box, k, 750);
+    const shown = animatedTransform(box, k, 750, 1);
     expect(shown.opacity).toBe(1);
     expect(shown.w).toBeGreaterThanOrEqual(0);
     expect(shown.h).toBeGreaterThanOrEqual(0);
@@ -155,10 +154,10 @@ describe("editing keyframes", () => {
     expect(k).toBeUndefined();
   });
 
-  it("refuses a key past the per property limit", () => {
+  it("keeps adding keys on a long lane", () => {
     let k: Keyframes | undefined;
-    for (let i = 0; i < KEYFRAME_LIMITS.perProperty; i++) k = setKeyframe(k, "y", i * 10, 0.5);
-    expect(setKeyframe(k, "y", 99_999, 0.5)).toBe(k);
+    for (let i = 0; i < 100; i++) k = setKeyframe(k, "y", i * 10, 0.5);
+    expect(setKeyframe(k, "y", 99_999, 0.5)?.y).toHaveLength(101);
   });
 
   it("moves keys with the content when the clip start is trimmed", () => {
@@ -207,7 +206,7 @@ describe("keyframe rules (mirror of the backend)", () => {
     ["scale range", { scale: [{ atMs: 0, value: 0, easing: "linear" }] }, "out_of_range"],
     ["oversized box", { scale: [{ atMs: 0, value: 9, easing: "linear" }] }, "out_of_range"],
     ["rotation range", { rotation: [{ atMs: 0, value: 5000, easing: "linear" }] }, "out_of_range"],
-    ["time range", { x: [{ atMs: 90_001, value: 0.5, easing: "linear" }] }, "out_of_range"],
+    ["time range", { x: [{ atMs: 600_001, value: 0.5, easing: "linear" }] }, "out_of_range"],
     ["empty", {}, "required"],
   ])("refuses %s", (_name, k, code) => {
     expect(keyframesIssue(k, box)).toBe(code);
@@ -236,18 +235,18 @@ describe("keyframeFault", () => {
       property: "y",
       atMs: 400,
     });
-    expect(keyframeFault({ x: [{ atMs: 90_001, value: 0.5, easing: "linear" }] }, box)).toEqual({ kind: "time", property: "x", atMs: 90_001, limit: 90_000 });
+    expect(keyframeFault({ x: [{ atMs: 600_001, value: 0.5, easing: "linear" }] }, box)).toEqual({ kind: "time", property: "x", atMs: 600_001, limit: 600_000 });
     expect(keyframeFault({ y: [{ atMs: 0, value: 0.1, easing: "wiggle" as Easing }] }, box)).toEqual({ kind: "easing", property: "y", atMs: 0, easing: "wiggle" });
   });
 
   it("gives the largest scale the box can take", () => {
-    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.5, easing: "linear" }] }, { ...box, w: 1, h: 1 })).toEqual({ kind: "box", scale: 4.5, maxScale: 4 });
-    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.6, easing: "linear" }] }, { ...box, w: 0.9, h: 0.4 })).toEqual({ kind: "box", scale: 4.6, maxScale: 4.44 });
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.5, easing: "linear" }] }, { ...box, w: 1, h: 1 })).toEqual({ kind: "box", property: "scale", scale: 4.5, maxScale: 4 });
+    expect(keyframeFault({ scale: [{ atMs: 0, value: 4.6, easing: "linear" }] }, { ...box, w: 0.9, h: 0.4 })).toEqual({ kind: "box", property: "scale", scale: 4.6, maxScale: 4.44 });
   });
 
-  it("counts keys past the per property limit and an empty set", () => {
-    const many = Array.from({ length: 33 }, (_, i) => ({ atMs: i * 10, value: 0.5, easing: "linear" as Easing }));
-    expect(keyframeFault({ x: many }, box)).toEqual({ kind: "too_many", property: "x", limit: 32 });
+  it("takes any number of keys on a property and refuses an empty set", () => {
+    const many = Array.from({ length: 1000 }, (_, i) => ({ atMs: i * 10, value: 0.5, easing: "linear" as Easing }));
+    expect(keyframeFault({ x: many }, box)).toBeNull();
     expect(keyframeFault({}, box)).toEqual({ kind: "empty" });
   });
 });

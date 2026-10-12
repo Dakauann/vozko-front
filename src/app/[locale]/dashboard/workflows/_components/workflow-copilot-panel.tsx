@@ -27,13 +27,12 @@ import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
-import type { ModelPricingInfo } from "@/lib/agents/types";
+import { useModelChoice } from "@/hooks/use-model-choice";
 import { useWorkflowAIBuilder } from "@/hooks/use-workflow-ai-builder";
-import { getAgentOptionsAction } from "@/app/actions/agents";
+import { WORKFLOW_BUILDER_MODEL_STORAGE } from "@/lib/ai-models/storage-keys";
+import { WORKFLOW_BUILDER_SURFACE } from "@/lib/ai-models/surfaces";
 import { CopilotMessage, CopilotThinking } from "./workflow-copilot-message";
 import { WorkflowCopilotHistory } from "./workflow-copilot-history";
-
-const MODEL_STORAGE_KEY = "wf-copilot:model";
 
 interface WorkflowCopilotPanelProps {
   workflowId: string;
@@ -67,35 +66,19 @@ export function WorkflowCopilotPanel({
   onOpen,
   visible = true,
 }: WorkflowCopilotPanelProps) {
-  const [models, setModels] = useState<string[]>([]);
-  const [modelPricing, setModelPricing] = useState<ModelPricingInfo[]>([]);
-  const [model, setModel] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem(MODEL_STORAGE_KEY) ?? "";
-  });
+  const {
+    model,
+    models,
+    pricing: modelPricing,
+    changeModel: onModelChange,
+    reasoning,
+    storedReasoning,
+    changeReasoning,
+    adjusted,
+    acknowledgeAdjustment,
+  } = useModelChoice(WORKFLOW_BUILDER_MODEL_STORAGE);
 
-  useEffect(() => {
-    let cancelled = false;
-    void getAgentOptionsAction().then((res) => {
-      if (cancelled || !res.options) return;
-      const list = res.options.messaging ?? [];
-      setModels(list);
-      setModelPricing(res.options.modelPricing ?? []);
-      setModel(
-        (cur) => cur || res.options!.defaults?.messagingModel || list[0] || "",
-      );
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const onModelChange = (m: string) => {
-    setModel(m);
-    if (typeof window !== "undefined") localStorage.setItem(MODEL_STORAGE_KEY, m);
-  };
-
-  const builder = useWorkflowAIBuilder({ workflowId, workflowType, model, onGraph, onMeta, getGraph });
+  const builder = useWorkflowAIBuilder({ workflowId, workflowType, model, reasoning, onGraph, onMeta, getGraph });
   const {
     status,
     chat,
@@ -275,6 +258,11 @@ export function WorkflowCopilotPanel({
             models={models}
             modelPricing={modelPricing}
             disabled={isBusy}
+            surface={WORKFLOW_BUILDER_SURFACE}
+            reasoning={storedReasoning}
+            onReasoningChange={changeReasoning}
+            reasoningAdjusted={adjusted}
+            onReasoningAcknowledge={acknowledgeAdjustment}
           />
         </div>
       )}

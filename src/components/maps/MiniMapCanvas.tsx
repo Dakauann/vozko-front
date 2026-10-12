@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Map as MapLibreMap, Marker } from "maplibre-gl";
 
+import { CircleNotch } from "@/components/icons";
 import { applyPatchesToMap } from "@/lib/maps/basemap";
 import { isValidPosition, offsetMeters } from "@/lib/maps/geometry";
 import { ensureMapLibreWorker } from "@/lib/maps/maplibre-worker";
@@ -77,6 +78,7 @@ export function MiniMapCanvas({
   const [map, setMap] = useState<MapLibreMap | null>(null);
   const [renderFailed, setRenderFailed] = useState(false);
   const [announcement, setAnnouncement] = useState<PinAnnouncement | null>(null);
+  const [streetsLoading, setStreetsLoading] = useState(true);
   const marker = useRef<Marker | null>(null);
   const pinNodeRef = useRef<HTMLElement | null>(null);
   const framingZoom = zoom ?? zoomForPrecision(precision);
@@ -170,6 +172,8 @@ export function MiniMapCanvas({
     marker.current = pin;
     pinNodeRef.current = pinNode;
     created.on("load", () => setMap(created));
+    created.on("dataloading", () => setStreetsLoading(true));
+    created.on("idle", () => setStreetsLoading(false));
     return () => {
       pinNode.removeEventListener("keydown", onKeyDown);
       marker.current = null;
@@ -224,6 +228,15 @@ export function MiniMapCanvas({
             {" "}
             {t("miniMap.keyboardHint")}
           </span>
+        </p>
+      ) : null}
+      {map && streetsLoading ? (
+        <p
+          role="status"
+          className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md bg-card px-2 py-1 text-2xs text-muted-foreground shadow-sm"
+        >
+          <CircleNotch className="h-3 w-3 animate-spin" aria-hidden />
+          {t("miniMap.loadingStreets")}
         </p>
       ) : null}
       <p aria-live="polite" className="sr-only">

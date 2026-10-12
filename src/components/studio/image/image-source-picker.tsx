@@ -5,12 +5,14 @@ import { useTranslations } from "next-intl";
 
 import { uploadMediaAction } from "@/app/actions/medias";
 import { AdImage } from "@/components/advertising/ad-image";
+import { AiProgressSurface } from "@/components/elevated-design/ai-progress-surface";
 import { ArrowClockwise, CircleNotch, UploadSimple } from "@/components/icons";
 import { useMediaLibrary } from "@/hooks/use-media-library";
 import { libraryChoices } from "@/lib/advertising/library-media";
 import { cn } from "@/lib/utils";
 
 import { ICON_BUTTON_CLASS, Notice, OUTLINE_BUTTON_CLASS } from "./controls";
+import { writeDraggedPhoto } from "./photo-drag";
 
 export const IMAGE_ACCEPT = "image/jpeg,image/png";
 
@@ -31,9 +33,13 @@ export interface ImageSourcePickerProps {
   onPick: (mediaId: string, url: string) => Promise<boolean>;
   uploadLabel: string;
   compact?: boolean;
+  draggable?: boolean;
+  processing?: ReadonlyMap<string, string>;
 }
 
-export function ImageSourcePicker({ onPick, uploadLabel, compact }: ImageSourcePickerProps) {
+const NOTHING_PROCESSING: ReadonlyMap<string, string> = new Map();
+
+export function ImageSourcePicker({ onPick, uploadLabel, compact, draggable, processing = NOTHING_PROCESSING }: ImageSourcePickerProps) {
   const t = useTranslations("studio.image.media");
   const library = useMediaLibrary();
   const input = useRef<HTMLInputElement>(null);
@@ -104,12 +110,15 @@ export function ImageSourcePicker({ onPick, uploadLabel, compact }: ImageSourceP
               <button
                 type="button"
                 disabled={busy !== null}
+                draggable={draggable}
+                onDragStart={draggable ? (event) => writeDraggedPhoto(event.dataTransfer, choice.mediaId) : undefined}
                 onClick={() => void pick(choice.mediaId, choice.url)}
                 aria-label={t("pick")}
                 title={t("pick")}
                 className="relative block aspect-square w-full overflow-hidden rounded-[--radius] border border-border bg-card transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
               >
                 <AdImage src={choice.url} />
+                {processing.has(choice.mediaId) ? <AiProgressSurface label={processing.get(choice.mediaId)} indicator={compact ? "badge" : "center"} className="absolute inset-0" /> : null}
                 {busy === choice.mediaId ? (
                   <span className="absolute inset-0 flex items-center justify-center bg-background/60">
                     <CircleNotch className="h-4 w-4 animate-spin" aria-hidden />

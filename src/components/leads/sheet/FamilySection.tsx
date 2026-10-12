@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { ArrowCounterClockwise, Family, Link as LinkIcon, Plus, X } from "@/components/icons";
+import { ArrowCounterClockwise, Family, Link as LinkIcon, Plus, UserPlus, X } from "@/components/icons";
 import { SectionState } from "@/components/dashboard/attendance/section-state";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
@@ -12,15 +12,20 @@ import { RelativeLines } from "@/components/leads/RelativeLines";
 import type { LeadLookupMatch } from "@/app/actions/leads";
 import { useLeadLookup } from "@/hooks/use-lead-lookup";
 import { useLeadRelatives } from "@/hooks/use-lead-records";
-import { relativeFromText, type LeadSheetDraft, type RelativeDraft } from "@/lib/leads/sheet";
+import { relativeFromText, relativeSeedDraft, type LeadSheetDraft, type RelativeDraft } from "@/lib/leads/sheet";
 import { LEAD_FAMILY_KINDS, LEAD_REFERRAL_KINDS, type LeadRelationKind } from "@/lib/leads/types";
 
-import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection } from "./SheetSection";
+import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection, useSheetFieldId } from "./SheetSection";
 
 let relativeSequence = 0;
 function relativeKey(): string {
   relativeSequence += 1;
   return `relative-${relativeSequence}`;
+}
+
+export interface RelativeSignUp {
+  kind: LeadRelationKind;
+  draft: LeadSheetDraft;
 }
 
 export interface FamilySectionProps {
@@ -30,10 +35,20 @@ export interface FamilySectionProps {
   canLink: boolean;
   canCreateRelative: boolean;
   hasPrimaryAddress: boolean;
+  onSignUpRelative?: (signUp: RelativeSignUp) => void;
 }
 
-export function FamilySection({ leadId, draft, onUpdate, canLink, canCreateRelative, hasPrimaryAddress }: FamilySectionProps) {
+export function FamilySection({
+  leadId,
+  draft,
+  onUpdate,
+  canLink,
+  canCreateRelative,
+  hasPrimaryAddress,
+  onSignUpRelative,
+}: FamilySectionProps) {
   const t = useTranslations("leadSheet.family");
+  const fieldId = useSheetFieldId();
   const [kind, setKind] = useState<LeadRelationKind>("spouse");
   const [text, setText] = useState("");
   const [sameAddress, setSameAddress] = useState(false);
@@ -65,6 +80,15 @@ export function FamilySection({ leadId, draft, onUpdate, canLink, canCreateRelat
 
   const createNew = () => addPending({ kind, name: typed.name, number: typed.number, copyPrimaryAddress: sameAddress && hasPrimaryAddress });
 
+  const signUpFull = () => {
+    const home = sameAddress && hasPrimaryAddress ? (draft.addresses.find((address) => address.primary) ?? null) : null;
+    onSignUpRelative?.({ kind, draft: relativeSeedDraft(typed, home) });
+    setText("");
+    setSameAddress(false);
+  };
+
+  const typedSomething = text.trim().length > 0;
+
   const toggleRemoved = (relationId: string) =>
     onUpdate((current) => ({
       ...current,
@@ -77,7 +101,7 @@ export function FamilySection({ leadId, draft, onUpdate, canLink, canCreateRelat
   const emptyExisting = !leadId || (relatives.isSuccess && existing.length === 0);
 
   return (
-    <SheetSection icon={<Family />} title={t("title")}>
+    <SheetSection icon={<Family />} title={t("title")} anchor="family">
       {loadingExisting ? <SheetHint>{t("loading")}</SheetHint> : null}
       {leadId ? (
         <SectionState query={relatives} message={t("loadFailed")}>
@@ -154,7 +178,7 @@ export function FamilySection({ leadId, draft, onUpdate, canLink, canCreateRelat
               ))}
             </ElevatedSelect>
             <ElevatedInput
-              id="lead-sheet-relative"
+              id={fieldId("relative")}
               label={t("search")}
               variant="outline"
               controlSize="sm"
@@ -185,25 +209,30 @@ export function FamilySection({ leadId, draft, onUpdate, canLink, canCreateRelat
             </div>
           ) : null}
 
-          {text.trim().length > 0 ? (
-            canCreateRelative ? (
-              <div className="flex flex-wrap items-center gap-3">
+          {canCreateRelative ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {typedSomething ? (
                 <SheetLinkButton icon={<Plus />} onClick={createNew}>
                   {t("createNew", { text: text.trim() })}
                 </SheetLinkButton>
-                <label className="flex min-h-[34px] items-center gap-2 text-sm text-foreground sm:min-h-0">
-                  <Checkbox
-                    checked={sameAddress && hasPrimaryAddress}
-                    disabled={!hasPrimaryAddress}
-                    onCheckedChange={(checked) => setSameAddress(checked === true)}
-                  />
-                  {t("sameAddress")}
-                </label>
-                {!hasPrimaryAddress ? <SheetHint>{t("sameAddressUnavailable")}</SheetHint> : null}
-              </div>
-            ) : (
-              <SheetHint>{t("createForbidden")}</SheetHint>
-            )
+              ) : null}
+              {onSignUpRelative ? (
+                <SheetLinkButton icon={<UserPlus />} onClick={signUpFull}>
+                  {t("createFull")}
+                </SheetLinkButton>
+              ) : null}
+              <label className="flex min-h-[34px] items-center gap-2 text-sm text-foreground sm:min-h-0">
+                <Checkbox
+                  checked={sameAddress && hasPrimaryAddress}
+                  disabled={!hasPrimaryAddress}
+                  onCheckedChange={(checked) => setSameAddress(checked === true)}
+                />
+                {t("sameAddress")}
+              </label>
+              {!hasPrimaryAddress && typedSomething ? <SheetHint>{t("sameAddressUnavailable")}</SheetHint> : null}
+            </div>
+          ) : typedSomething ? (
+            <SheetHint>{t("createForbidden")}</SheetHint>
           ) : null}
         </div>
       ) : (

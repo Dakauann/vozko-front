@@ -8,8 +8,13 @@ function subscribe(onChange: () => void) {
 }
 
 const readWidth = () => window.innerWidth;
-const serverWidth = () => 0;
+const readHeight = () => window.innerHeight;
+const unknownOnServer = () => 0;
 
 export function useViewportWidth(): number {
-  return useSyncExternalStore(subscribe, readWidth, serverWidth);
+  return useSyncExternalStore(subscribe, readWidth, unknownOnServer);
+}
+
+export function useViewportHeight(): number {
+  return useSyncExternalStore(subscribe, readHeight, unknownOnServer);
 }

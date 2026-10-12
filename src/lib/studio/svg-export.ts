@@ -1,78 +1,89 @@
-import { pathArrowheads } from "./arrowheads";
-import type { CanvasSize, Gradient, ImageSurface, Layer } from "./document";
-import { strokeStyle } from "./paint";
-import { pathBounds, subpathsToPath, type Subpath } from "./path-nodes";
-import { canvasSubpaths, unitToCanvas, vectorLayerOf } from "./vector-layer";
+import type { ImageSurface } from "./document";
+import { layerVectors, roundedSubpaths, type ColorStop, type ExportScene, type PortableBlend, type RasterItem, type SceneStroke, type ScenePaint, type VectorItem } from "./export-scene";
+import type { Box } from "./paint";
+import { pathBounds, subpathsToPath } from "./path-nodes";
 
-function round(value: number): string {
-  return String(Math.round(value * 1000) / 1000 || 0);
+const DECIMALS = 3;
+export const SVG_PATCH_RATIO = 2;
+const SVG_NAMESPACE = 'xmlns="http://www.w3.org/2000/svg"';
+const XLINK_NAMESPACE = 'xmlns:xlink="http://www.w3.org/1999/xlink"';
+
+export interface SvgImage {
+  bounds: Box;
+  href: string;
 }
 
-function color(value: string): { hex: string; opacity: number } {
-  if (value.length === 9) return { hex: value.slice(0, 7), opacity: parseInt(value.slice(7), 16) / 255 };
-  return { hex: value, opacity: 1 };
+function num(value: number): string {
+  const scale = 10 ** DECIMALS;
+  return String(Math.round(value * scale) / scale || 0);
 }
 
-function paintAttrs(name: "fill" | "stroke", value: string): string {
-  const { hex, opacity } = color(value);
-  return opacity >= 1 ? `${name}="${hex}"` : `${name}="${hex}" ${name}-opacity="${round(opacity)}"`;
+function stopElement(stop: ColorStop): string {
+  return `<stop offset="${num(stop.offset)}" stop-color="${stop.color}"${stop.alpha < 1 ? ` stop-opacity="${num(stop.alpha)}"` : ""}/>`;
 }
 
-function gradientDef(id: string, gradient: Gradient): string {
-  const stops = [gradient.from, ...(gradient.via ? [gradient.via] : []), gradient.to].map((value, i, all) => {
-    const { hex, opacity } = color(value);
-    return `<stop offset="${round(all.length === 1 ? 0 : i / (all.length - 1))}" stop-color="${hex}"${opacity < 1 ? ` stop-opacity="${round(opacity)}"` : ""}/>`;
-  });
-  if (gradient.kind === "radial") return `<radialGradient id="${id}" cx="${round(gradient.cx ?? 0.5)}" cy="${round(gradient.cy ?? 0.5)}" r="${round((gradient.radius ?? 1) / 2)}">${stops.join("")}</radialGradient>`;
-  const radians = (gradient.angle * Math.PI) / 180;
-  const dx = Math.cos(radians) / 2;
-  const dy = Math.sin(radians) / 2;
-  return `<linearGradient id="${id}" x1="${round(0.5 - dx)}" y1="${round(0.5 - dy)}" x2="${round(0.5 + dx)}" y2="${round(0.5 + dy)}">${stops.join("")}</linearGradient>`;
+class Defs {
+  readonly entries: string[] = [];
+
+  paint(name: "fill" | "stroke", paint: ScenePaint | null): string {
+    if (!paint) return `${name}="none"`;
+    if (paint.kind === "solid") return paint.alpha < 1 ? `${name}="${paint.color}" ${name}-opacity="${num(paint.alpha)}"` : `${name}="${paint.color}"`;
+    const id = `g${this.entries.length}`;
+    const stops = paint.stops.map(stopElement).join("");
+    this.entries.push(
+      paint.kind === "linear"
+        ? `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${num(paint.from.x)}" y1="${num(paint.from.y)}" x2="${num(paint.to.x)}" y2="${num(paint.to.y)}">${stops}</linearGradient>`
+        : `<radialGradient id="${id}" gradientUnits="userSpaceOnUse" cx="${num(paint.center.x)}" cy="${num(paint.center.y)}" r="${num(paint.radius)}">${stops}</radialGradient>`,
+    );
+    return `${name}="url(#${id})"`;
+  }
+
+  toString(): string {
+    return this.entries.length > 0 ? `<defs>${this.entries.join("")}</defs>` : "";
+  }
 }
 
-function arrowheads(layer: Layer, canvas: CanvasSize): Subpath[] {
-  const width = layer.transform.w * canvas.width;
-  const height = layer.transform.h * canvas.height;
-  return pathArrowheads(layer, width, height).map((points) => ({
-    closed: true,
-    nodes: [0, 2, 4].map((i) => unitToCanvas(layer.transform, canvas, { x: points[i] / width, y: points[i + 1] / height })),
-  }));
+function blendStyle(blend: PortableBlend): string {
+  return blend === "normal" ? "" : ` style="mix-blend-mode:${blend}"`;
+}
+
+function strokeAttrs(stroke: SceneStroke, defs: Defs): string[] {
+  const attrs = [defs.paint("stroke", { kind: "solid", color: stroke.color, alpha: stroke.alpha }), `stroke-width="${num(stroke.width)}"`, `stroke-linecap="${stroke.cap}"`, `stroke-linejoin="${stroke.join}"`];
+  if (stroke.join === "miter") attrs.push(`stroke-miterlimit="${num(stroke.miterLimit)}"`);
+  if (stroke.dash) attrs.push(`stroke-dasharray="${stroke.dash.map(num).join(" ")}"`);
+  if (stroke.dashOffset !== 0) attrs.push(`stroke-dashoffset="${num(stroke.dashOffset)}"`);
+  return attrs;
+}
+
+function vectorElement(item: VectorItem, defs: Defs): string {
+  const attrs = [`d="${subpathsToPath(roundedSubpaths(item.subpaths, DECIMALS))}"`, defs.paint("fill", item.fill)];
+  if (item.fillRule === "evenodd") attrs.push(`fill-rule="evenodd"`);
+  if (item.stroke) attrs.push(...strokeAttrs(item.stroke, defs));
+  if (item.opacity < 1) attrs.push(`opacity="${num(item.opacity)}"`);
+  return `<path ${attrs.join(" ")}${blendStyle(item.blend)}/>`;
+}
+
+function imageElement(item: RasterItem, image: SvgImage | undefined): string {
+  if (!image) throw new Error(`svg export is missing the pixels of ${item.id}`);
+  const { bounds } = image;
+  return `<image x="${num(bounds.x)}" y="${num(bounds.y)}" width="${num(bounds.width)}" height="${num(bounds.height)}" preserveAspectRatio="none" xlink:href="${image.href}"${blendStyle(item.blend)}/>`;
+}
+
+export function sceneToSvg(scene: ExportScene, images: ReadonlyMap<string, SvgImage>): string {
+  const defs = new Defs();
+  const background = scene.background ? `<rect x="0" y="0" width="${num(scene.width)}" height="${num(scene.height)}" ${defs.paint("fill", scene.background)}/>` : "";
+  const items = scene.items.map((item) => (item.kind === "vector" ? vectorElement(item, defs) : imageElement(item, images.get(item.id))));
+  const size = `width="${num(scene.width)}" height="${num(scene.height)}" viewBox="0 0 ${num(scene.width)} ${num(scene.height)}"`;
+  return `<svg ${SVG_NAMESPACE} ${XLINK_NAMESPACE} ${size}>${defs}${background}${items.join("")}</svg>`;
 }
 
 export function layersToSvg(doc: ImageSurface, ids: readonly string[]): string | null {
   const wanted = new Set(ids);
-  const vectors = doc.layers.filter((l) => wanted.has(l.id)).flatMap((l) => {
-    const vector = l.hidden ? null : vectorLayerOf(l, doc.canvas);
-    return vector ? [vector] : [];
-  });
+  const vectors = doc.layers.filter((l) => wanted.has(l.id) && !l.hidden).flatMap((l) => layerVectors(l, doc.canvas) ?? []);
   if (vectors.length === 0) return null;
-  const defs: string[] = [];
-  const shapes = vectors.map((layer, index) => {
-    const subpaths = canvasSubpaths(layer, doc.canvas);
-    const attrs = [`d="${subpathsToPath(subpaths)}"`];
-    if (layer.gradient) {
-      const id = `g${index}`;
-      defs.push(gradientDef(id, layer.gradient));
-      attrs.push(`fill="url(#${id})"`);
-    } else {
-      attrs.push(layer.fill ? paintAttrs("fill", layer.fill) : `fill="none"`);
-    }
-    if (layer.fillRule === "evenodd") attrs.push(`fill-rule="evenodd"`);
-    if (layer.stroke && (layer.strokeWidth ?? 0) > 0) {
-      const style = strokeStyle(layer);
-      attrs.push(paintAttrs("stroke", layer.stroke), `stroke-width="${round(layer.strokeWidth ?? 0)}"`, `stroke-linecap="${style.lineCap}"`, `stroke-linejoin="${style.lineJoin}"`);
-      if (style.lineJoin === "miter") attrs.push(`stroke-miterlimit="${round(style.miterLimit)}"`);
-      if (style.dash) attrs.push(`stroke-dasharray="${style.dash.map(round).join(" ")}"`);
-      if (style.dashOffset !== 0) attrs.push(`stroke-dashoffset="${round(style.dashOffset)}"`);
-    }
-    const opacity = layer.transform.opacity < 1 ? ` opacity="${round(layer.transform.opacity)}"` : "";
-    const ink = layer.stroke || layer.fill;
-    const heads = arrowheads(layer, doc.canvas);
-    if (!ink || heads.length === 0) return { subpaths, element: `<path ${attrs.join(" ")}${opacity}/>` };
-    const triangles = heads.map((head) => `<path d="${subpathsToPath([head])}" ${paintAttrs("fill", ink)}/>`);
-    return { subpaths: [...subpaths, ...heads], element: `<g${opacity}><path ${attrs.join(" ")}/>${triangles.join("")}</g>` };
-  });
-  const bounds = pathBounds(shapes.flatMap((s) => s.subpaths));
-  const viewBox = [bounds.left, bounds.top, Math.max(bounds.right - bounds.left, 1), Math.max(bounds.bottom - bounds.top, 1)].map(round).join(" ");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${defs.length > 0 ? `<defs>${defs.join("")}</defs>` : ""}${shapes.map((s) => s.element).join("")}</svg>`;
+  const defs = new Defs();
+  const elements = vectors.map((item) => vectorElement(item, defs));
+  const bounds = pathBounds(vectors.flatMap((item) => roundedSubpaths(item.subpaths, DECIMALS)));
+  const viewBox = [bounds.left, bounds.top, Math.max(bounds.right - bounds.left, 1), Math.max(bounds.bottom - bounds.top, 1)].map(num).join(" ");
+  return `<svg ${SVG_NAMESPACE} viewBox="${viewBox}">${defs}${elements.join("")}</svg>`;
 }

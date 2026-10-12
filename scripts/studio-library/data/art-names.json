@@ -1,0 +1,254 @@
+{
+  "doodles": {
+    "Doggie": {
+      "pt": "Cachorro",
+      "en": "Doggie",
+      "es": "Perrito",
+      "de": "Hündchen"
+    },
+    "ballet": {
+      "pt": "Balé",
+      "en": "Ballet",
+      "es": "Ballet",
+      "de": "Ballett"
+    },
+    "bikini": {
+      "pt": "Biquíni",
+      "en": "Bikini",
+      "es": "Bikini",
+      "de": "Bikini"
+    },
+    "chilling": {
+      "pt": "Relaxando",
+      "en": "Chilling",
+      "es": "Relajándose",
+      "de": "Entspannt"
+    },
+    "clumsy": {
+      "pt": "Desastrado",
+      "en": "Clumsy",
+      "es": "Torpe",
+      "de": "Tollpatschig"
+    },
+    "coffee": {
+      "pt": "Café",
+      "en": "Coffee",
+      "es": "Café",
+      "de": "Kaffee"
+    },
+    "dancing": {
+      "pt": "Dançando",
+      "en": "Dancing",
+      "es": "Bailando",
+      "de": "Tanzend"
+    },
+    "dog-jump": {
+      "pt": "Cachorro pulando",
+      "en": "Jumping dog",
+      "es": "Perro saltando",
+      "de": "Springender Hund"
+    },
+    "float": {
+      "pt": "Flutuando",
+      "en": "Floating",
+      "es": "Flotando",
+      "de": "Schwebend"
+    },
+    "groovy": {
+      "pt": "Na onda",
+      "en": "Groovy",
+      "es": "Con ritmo",
+      "de": "Groovy"
+    },
+    "ice-cream": {
+      "pt": "Sorvete",
+      "en": "Ice cream",
+      "es": "Helado",
+      "de": "Eis"
+    },
+    "jumping": {
+      "pt": "Pulando",
+      "en": "Jumping",
+      "es": "Saltando",
+      "de": "Springend"
+    },
+    "laying": {
+      "pt": "Deitado",
+      "en": "Lying down",
+      "es": "Acostado",
+      "de": "Liegend"
+    },
+    "levitate": {
+      "pt": "Levitando",
+      "en": "Levitating",
+      "es": "Levitando",
+      "de": "Levitierend"
+    },
+    "loving": {
+      "pt": "Apaixonado",
+      "en": "In love",
+      "es": "Enamorado",
+      "de": "Verliebt"
+    },
+    "meditating": {
+      "pt": "Meditando",
+      "en": "Meditating",
+      "es": "Meditando",
+      "de": "Meditierend"
+    },
+    "moshing": {
+      "pt": "Agitando no show",
+      "en": "Moshing",
+      "es": "Pogo",
+      "de": "Pogen"
+    },
+    "petting": {
+      "pt": "Fazendo carinho",
+      "en": "Petting",
+      "es": "Acariciando",
+      "de": "Streichelnd"
+    },
+    "plant": {
+      "pt": "Planta",
+      "en": "Plant",
+      "es": "Planta",
+      "de": "Pflanze"
+    },
+    "reading-side": {
+      "pt": "Lendo de lado",
+      "en": "Reading sideways",
+      "es": "Leyendo de lado",
+      "de": "Seitlich lesend"
+    },
+    "reading": {
+      "pt": "Lendo",
+      "en": "Reading",
+      "es": "Leyendo",
+      "de": "Lesend"
+    },
+    "roller-skating": {
+      "pt": "Patinando",
+      "en": "Roller skating",
+      "es": "Patinando",
+      "de": "Rollschuhlaufen"
+    },
+    "rolling": {
+      "pt": "Rolando",
+      "en": "Rolling",
+      "es": "Rodando",
+      "de": "Rollend"
+    },
+    "running": {
+      "pt": "Correndo",
+      "en": "Running",
+      "es": "Corriendo",
+      "de": "Laufend"
+    },
+    "selfie": {
+      "pt": "Selfie",
+      "en": "Selfie",
+      "es": "Selfie",
+      "de": "Selfie"
+    },
+    "sitting-reading": {
+      "pt": "Sentado lendo",
+      "en": "Sitting and reading",
+      "es": "Sentado leyendo",
+      "de": "Sitzend lesend"
+    },
+    "sitting": {
+      "pt": "Sentado",
+      "en": "Sitting",
+      "es": "Sentado",
+      "de": "Sitzend"
+    },
+    "sleek": {
+      "pt": "Elegante",
+      "en": "Sleek",
+      "es": "Elegante",
+      "de": "Elegant"
+    },
+    "sprinting": {
+      "pt": "Disparando",
+      "en": "Sprinting",
+      "es": "Esprintando",
+      "de": "Sprintend"
+    },
+    "strolling": {
+      "pt": "Passeando",
+      "en": "Strolling",
+      "es": "Paseando",
+      "de": "Spazierend"
+    },
+    "swinging": {
+      "pt": "No balanço",
+      "en": "Swinging",
+      "es": "Columpiándose",
+      "de": "Schaukelnd"
+    },
+    "unboxing": {
+      "pt": "Abrindo caixa",
+      "en": "Unboxing",
+      "es": "Abriendo una caja",
+      "de": "Auspacken"
+    },
+    "zombieing": {
+      "pt": "Zumbi",
+      "en": "Zombie",
+      "es": "Zombi",
+      "de": "Zombie"
+    }
+  },
+  "humaaans": {
+    "hero-1": {
+      "pt": "Personagem 1",
+      "en": "Character 1",
+      "es": "Personaje 1",
+      "de": "Figur 1"
+    },
+    "hero-2": {
+      "pt": "Personagem 2",
+      "en": "Character 2",
+      "es": "Personaje 2",
+      "de": "Figur 2"
+    },
+    "hero-3": {
+      "pt": "Personagem 3",
+      "en": "Character 3",
+      "es": "Personaje 3",
+      "de": "Figur 3"
+    },
+    "hero-4": {
+      "pt": "Personagem 4",
+      "en": "Character 4",
+      "es": "Personaje 4",
+      "de": "Figur 4"
+    },
+    "wide-shot": {
+      "pt": "Grupo de pessoas",
+      "en": "Group of people",
+      "es": "Grupo de personas",
+      "de": "Gruppe von Menschen"
+    }
+  },
+  "peeps": {
+    "peep": {
+      "pt": "Busto",
+      "en": "Bust",
+      "es": "Busto",
+      "de": "Büste"
+    },
+    "peep-standing": {
+      "pt": "Pessoa em pé",
+      "en": "Standing person",
+      "es": "Persona de pie",
+      "de": "Stehende Person"
+    },
+    "peep-sitting": {
+      "pt": "Pessoa sentada",
+      "en": "Sitting person",
+      "es": "Persona sentada",
+      "de": "Sitzende Person"
+    }
+  }
+}

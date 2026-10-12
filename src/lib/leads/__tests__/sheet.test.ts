@@ -21,7 +21,9 @@ import {
   refusalShownOnField,
   removeAddress,
   relativeFromText,
+  relativeSeedDraft,
   updateLeadBody,
+  withLinkedRelative,
   type LeadSheetDraft,
 } from "../sheet";
 
@@ -319,6 +321,64 @@ describe("relativeFromText", () => {
     expect(relativeFromText(" (11) 90002-3301 ")).toEqual({ name: "", number: "(11) 90002-3301" });
     expect(relativeFromText("João Souza")).toEqual({ name: "João Souza", number: "" });
     expect(relativeFromText("1234")).toEqual({ name: "1234", number: "" });
+  });
+});
+
+describe("relativeSeedDraft", () => {
+  const home = {
+    key: "address-home",
+    id: "address-1",
+    label: "work" as const,
+    primary: false,
+    zipCode: "59255-000",
+    street: "Travessa Padre Andrade",
+    number: "548",
+    complement: "",
+    district: "Centro",
+    city: "Santo Antônio",
+    state: "RN",
+    cityCode: "2411205",
+    keepPosition: true,
+    pin: { lat: -6.31, lng: -35.48 },
+  };
+
+  it("starts the relative's sign-up from what was typed", () => {
+    expect(relativeSeedDraft({ name: "Maria Souza", number: "" }, null)).toEqual({ ...emptyLeadDraft(), name: "Maria Souza" });
+    expect(relativeSeedDraft({ name: "", number: "(84) 99999-0000" }, null)).toEqual({ ...emptyLeadDraft(), number: "(84) 99999-0000" });
+  });
+
+  it("copies the shared home as the relative's own new primary address, pin included", () => {
+    const [copied] = relativeSeedDraft({ name: "Maria", number: "" }, home).addresses;
+    expect(copied).toMatchObject({
+      label: "home",
+      primary: true,
+      zipCode: "59255-000",
+      street: "Travessa Padre Andrade",
+      number: "548",
+      district: "Centro",
+      city: "Santo Antônio",
+      state: "RN",
+      cityCode: "2411205",
+      pin: { lat: -6.31, lng: -35.48 },
+    });
+    expect(copied.id).toBeUndefined();
+    expect(copied.keepPosition).toBeUndefined();
+    expect(copied.key).not.toBe(home.key);
+  });
+});
+
+describe("withLinkedRelative", () => {
+  it("queues a link to the relative that was just registered", () => {
+    const draft = withLinkedRelative(emptyLeadDraft(), "child", record({ id: "lead-9", realName: "Maria", number: "5584999990000" }));
+    expect(draft.relatives).toEqual([
+      expect.objectContaining({ kind: "child", existingLeadId: "lead-9", name: "Maria", number: "5584999990000", copyPrimaryAddress: false }),
+    ]);
+  });
+
+  it("does not queue the same relative twice", () => {
+    const relative = record({ id: "lead-9", name: "Maria" });
+    const once = withLinkedRelative(emptyLeadDraft(), "child", relative);
+    expect(withLinkedRelative(once, "child", relative).relatives).toHaveLength(1);
   });
 });
 

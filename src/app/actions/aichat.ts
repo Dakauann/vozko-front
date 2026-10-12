@@ -6,8 +6,10 @@ import type {
 import type { ThreadCost } from '@/lib/aichat/thread-cost';
 import { apiClient } from "@/lib/api/browser-client";
 
-export async function listChatThreadsAction(page = 1, pageSize = 50) {
-  const res = await apiClient<ChatThreadList>(`/chat/threads?page=${page}&pageSize=${pageSize}`, {
+export async function listChatThreadsAction(page = 1, pageSize = 50, query = '') {
+  const search = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (query.trim()) search.set('q', query.trim());
+  const res = await apiClient<ChatThreadList>(`/chat/threads?${search.toString()}`, {
     method: 'GET',
   });
   if (res.error) return { data: null, error: res.error.message };
@@ -46,6 +48,30 @@ export async function stopChatTurnAction(threadId: string) {
     method: 'POST',
   });
   return { error: res.error?.message ?? null };
+}
+
+export interface QueueChatMessageInput {
+  clientId: string;
+  content: string;
+  attachments: string[];
+}
+
+export async function queueChatMessageAction(threadId: string, input: QueueChatMessageInput) {
+  const res = await apiClient<unknown>(`/chat/threads/${encodeURIComponent(threadId)}/queue`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (res.error) return { data: null, error: { message: res.error.message, code: res.error.code ?? null } };
+  return { data: res.data ?? null, error: null };
+}
+
+export async function unqueueChatMessageAction(threadId: string, clientId: string) {
+  const res = await apiClient<{ ok: boolean }>(`/chat/threads/${encodeURIComponent(threadId)}/queue/${encodeURIComponent(clientId)}`, {
+    method: 'DELETE',
+  });
+  if (res.error) return { error: { message: res.error.message, code: res.error.code ?? null } };
+  return { error: null };
 }
 
 export async function renameChatThreadAction(threadId: string, title: string) {

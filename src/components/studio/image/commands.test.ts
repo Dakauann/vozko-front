@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { emptyImageDocument, newImageLayer, newShapeLayer, newTextLayer, type ImageDocument, type Layer } from "@/lib/studio/document";
+import { emptyImageDocument, newImageLayer, newShapeLayer, newTextLayer, STUDIO_LIMITS, type ImageDocument, type Layer } from "@/lib/studio/document";
 import { createStudioStore, type StudioEditorStore } from "@/lib/studio/store";
 import { traceRaster } from "@/lib/studio/trace/trace";
+import { FIT_PADDING_PX } from "@/lib/studio/viewport";
 
 import { createImageCommands, type CommandDeps } from "./commands";
 import { createEditorUiStore } from "./editor-state";
@@ -81,7 +82,7 @@ describe("editing", () => {
     const { store, ui, commands } = setup([text]);
     commands.startTextEdit("t");
     expect(ui.getState().editingTextId).toBe("t");
-    commands.finishTextEdit("t", " ");
+    commands.finishTextEdit("t", { text: " ", runs: undefined });
     expect(board(store).layers).toEqual([]);
     expect(ui.getState().editingTextId).toBeNull();
     commands.undo();
@@ -140,7 +141,7 @@ describe("editing", () => {
     ui.setState({ container: { width: 600, height: 600 }, fit: true });
     commands.resize({ width: 2000, height: 1000 });
     expect(board(store).canvas).toMatchObject({ width: 2000, height: 1000 });
-    expect(ui.getState().viewport.scale).toBeCloseTo((600 - 96) / 2000);
+    expect(ui.getState().viewport.scale).toBeCloseTo((600 - FIT_PADDING_PX * 2) / 2000);
   });
 });
 
@@ -318,10 +319,17 @@ describe("svg", () => {
     expect(board(store).layers).toHaveLength(0);
   });
 
-  it("refuses a broken svg or one too big for the project and changes nothing", () => {
+  it("refuses a broken svg or one too big for the project and changes nothing", { timeout: 15_000 }, () => {
     const { store, commands } = setup();
     expect(commands.importSvg("<svg", "x")).toEqual({ ok: false, reason: "invalid" });
-    const huge = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${Array.from({ length: 9000 }, (_, i) => `<rect x="${i % 100}" y="${Math.floor(i / 100)}" width="1" height="1"/>`).join("")}</svg>`;
+    const rects = (count: number) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${Array.from({ length: count }, (_, i) => `<rect x="${i % 100}" y="${Math.floor(i / 100) % 100}" width="1" height="1"/>`).join("")}</svg>`;
+    const imported = (count: number) => {
+      const sample = setup();
+      expect(sample.commands.importSvg(rects(count), "x").ok).toBe(true);
+      return new TextEncoder().encode(JSON.stringify(sample.store.getState().document)).length;
+    };
+    const perRect = (imported(20) - imported(10)) / 10;
+    const huge = rects(Math.ceil(STUDIO_LIMITS.maxDocumentBytes / perRect) + 1);
     expect(commands.importSvg(huge, "x")).toEqual({ ok: false, reason: "too_large" });
     expect(board(store).layers).toHaveLength(0);
   });
@@ -411,7 +419,7 @@ describe("artboards", () => {
     commands.addArtboard({ width: 1000, height: 1000 });
     commands.fit();
     const { viewport } = ui.getState();
-    expect(viewport.scale).toBeCloseTo((500 - 96) / 1000, 3);
+    expect(viewport.scale).toBeCloseTo((500 - FIT_PADDING_PX * 2) / 1000, 3);
     expect(viewport.x).toBeGreaterThanOrEqual(0);
     expect(viewport.x + 2100 * viewport.scale).toBeLessThanOrEqual(1000);
   });

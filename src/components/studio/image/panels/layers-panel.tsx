@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { Fragment, memo, useCallback, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { Artboard as ArtboardIcon, CaretDown, CaretRight, Copy, Eye, EyeSlash, Image, Link, Lock, PencilSimple, Plus, Square, Stack, Star, TextT, Trash } from "@/components/icons";
+import { Artboard as ArtboardIcon, Barcode, CaretDown, CaretRight, ChartBar, Copy, Eye, EyeSlash, Image, Link, Kanban, Lock, PaintBrush, PencilSimple, Plus, PuzzlePiece, Square, Stack, Star, Table, TextT, Trash } from "@/components/icons";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -18,17 +18,18 @@ import {
 import { artboardOfItem } from "@/lib/studio/artboards";
 import { BLEND_MODES, IMAGE_PRESETS, STUDIO_LIMITS, type Artboard, type BlendMode, type Layer, type LayerType } from "@/lib/studio/document";
 import { groupLayerIds, type DropPosition, type TreeItem } from "@/lib/studio/groups";
-import { layerCaption, layerRows, rangeBetween, toggleIn, type GroupRow, type LayerRowEntry } from "@/lib/studio/layer-list";
+import { layerCaption, layerRows, rangeBetween, sameRow, toggleIn, type GroupRow, type LayerRowEntry } from "@/lib/studio/layer-list";
 import { clampTo, LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import { cn } from "@/lib/utils";
 
+import { ImageAiSubmenu } from "../ai-submenu";
 import { FIELD_CLASS, IconButton, NumberField, ToggleButton } from "../controls";
 import { useArtboardNames } from "../artboard-names";
 import { useActiveArtboard, useEditorUi, useImageDoc, useImageEditor } from "../editor-state";
 import { useSelectionActions, type MenuAction } from "../selection-actions";
 import { LayerThumb } from "./layer-thumb";
 
-const TYPE_ICONS: Record<LayerType, typeof Image> = { image: Image, text: TextT, shape: Square, icon: Star };
+const TYPE_ICONS: Record<LayerType, typeof Image> = { image: Image, text: TextT, shape: Square, icon: Star, instance: PuzzlePiece, paint: PaintBrush, chart: ChartBar, table: Table, qr: Barcode };
 const DRAG_TYPE = "application/x-vozko-studio-item";
 const INDENT_PX = 12;
 const ROW_CLASS = "group relative flex h-8 select-none items-center gap-1.5 pr-1 text-xs transition-colors";
@@ -116,26 +117,35 @@ function useDropTarget(target: TreeItem) {
   };
 }
 
-function RowMenu({ children, onOpen }: { children: ReactNode; onOpen: () => void }) {
+function RowMenuItems() {
   const actions = useSelectionActions();
   const items: MenuAction[] = [...actions.edit.filter((a) => a.id !== "paste" && a.id !== "copy"), ...actions.order];
+  return (
+    <>
+      <ImageAiSubmenu />
+      {items.map((action) => (
+        <ContextMenuItem key={action.id} disabled={action.disabled} onSelect={action.run} className={cn(action.destructive && "text-destructive-ink")}>
+          {action.label}
+          {action.shortcut ? <ContextMenuShortcut>{action.shortcut}</ContextMenuShortcut> : null}
+        </ContextMenuItem>
+      ))}
+      <ContextMenuSeparator />
+      {actions.style.map((action) => (
+        <ContextMenuItem key={action.id} disabled={action.disabled} onSelect={action.run}>
+          {action.label}
+          {action.shortcut ? <ContextMenuShortcut>{action.shortcut}</ContextMenuShortcut> : null}
+        </ContextMenuItem>
+      ))}
+    </>
+  );
+}
+
+function RowMenu({ children, onOpen }: { children: ReactNode; onOpen: () => void }) {
   return (
     <ContextMenu onOpenChange={(open) => open && onOpen()}>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-60">
-        {items.map((action) => (
-          <ContextMenuItem key={action.id} disabled={action.disabled} onSelect={action.run} className={cn(action.destructive && "text-destructive-ink")}>
-            {action.label}
-            {action.shortcut ? <ContextMenuShortcut>{action.shortcut}</ContextMenuShortcut> : null}
-          </ContextMenuItem>
-        ))}
-        <ContextMenuSeparator />
-        {actions.style.map((action) => (
-          <ContextMenuItem key={action.id} disabled={action.disabled} onSelect={action.run}>
-            {action.label}
-            {action.shortcut ? <ContextMenuShortcut>{action.shortcut}</ContextMenuShortcut> : null}
-          </ContextMenuItem>
-        ))}
+        <RowMenuItems />
       </ContextMenuContent>
     </ContextMenu>
   );
@@ -152,19 +162,30 @@ interface LayerRowProps {
   collapsed: boolean;
   selected: boolean;
   total: number;
+  componentName: string | undefined;
   onSelect: RowSelect;
 }
 
-function LayerRow({ row, layer, members, collapsed, selected, total, onSelect }: LayerRowProps) {
+function sameMembers(a: readonly Layer[], b: readonly Layer[]): boolean {
+  return a.length === b.length && a.every((layer, i) => layer === b[i]);
+}
+
+function sameLayerRowProps(a: LayerRowProps, b: LayerRowProps): boolean {
+  return a.layer === b.layer && a.collapsed === b.collapsed && a.selected === b.selected && a.total === b.total && a.componentName === b.componentName && a.onSelect === b.onSelect && sameRow(a.row, b.row) && sameMembers(a.members, b.members);
+}
+
+const LayerRow = memo(function LayerRow({ row, layer, members, collapsed, selected, total, componentName, onSelect }: LayerRowProps) {
   const t = useTranslations("studio.image.panels.layers");
   const tl = useTranslations("studio.image.layerKinds");
   const { commands, ui } = useImageEditor();
   const [renaming, setRenaming] = useState(false);
   const family = row.family;
+  const tLayout = useTranslations("studio.image.layout");
+  const laidOut = useImageDoc((s) => (family ? Boolean(artboardOfItem(s.document, family.scaffoldId)?.groups?.some((g) => g.id === family.scaffoldId && g.layout)) : false));
   const item: TreeItem = family ? { kind: "group", id: family.scaffoldId } : { kind: "layer", id: layer.id };
   const { dropping, handlers } = useDropTarget(item);
   const caption = layerCaption(layer);
-  const label = "name" in caption ? caption.name : tl(caption.kind);
+  const label = "name" in caption ? caption.name : layer.type === "instance" ? (componentName ?? tl(caption.kind)) : tl(caption.kind);
   const TypeIcon = TYPE_ICONS[layer.type];
   const hidden = members.every((l) => l.hidden);
   const locked = members.every((l) => l.locked);
@@ -209,6 +230,7 @@ function LayerRow({ row, layer, members, collapsed, selected, total, onSelect }:
           />
         ) : null}
         {layer.clip ? <Link className="h-3 w-3 shrink-0 text-muted-foreground" aria-label={t("clipped")} /> : null}
+        {laidOut ? <Kanban className="h-3 w-3 shrink-0 text-primary" aria-label={tLayout("title")} /> : null}
         <LayerThumb layer={layer} />
         {renaming ? (
           <RowRename
@@ -249,9 +271,20 @@ function LayerRow({ row, layer, members, collapsed, selected, total, onSelect }:
       </li>
     </RowMenu>
   );
+}, sameLayerRowProps);
+
+interface GroupHeaderProps {
+  row: GroupRow;
+  collapsed: boolean;
+  selected: boolean;
+  members: Layer[];
 }
 
-function GroupHeader({ row, collapsed, selected, members }: { row: GroupRow; collapsed: boolean; selected: boolean; members: Layer[] }) {
+function sameGroupHeaderProps(a: GroupHeaderProps, b: GroupHeaderProps): boolean {
+  return a.collapsed === b.collapsed && a.selected === b.selected && sameRow(a.row, b.row) && sameMembers(a.members, b.members);
+}
+
+const GroupHeader = memo(function GroupHeader({ row, collapsed, selected, members }: GroupHeaderProps) {
   const t = useTranslations("studio.image.panels.layers");
   const { commands, ui, store } = useImageEditor();
   const [renaming, setRenaming] = useState(false);
@@ -318,7 +351,7 @@ function GroupHeader({ row, collapsed, selected, members }: { row: GroupRow; col
       </li>
     </RowMenu>
   );
-}
+}, sameGroupHeaderProps);
 
 function SelectionBar() {
   const t = useTranslations("studio.image.panels.layers");
@@ -502,10 +535,11 @@ interface ArtboardLayersProps {
   artboard: Artboard;
   collapsed: ReadonlySet<string>;
   chosen: ReadonlySet<string>;
+  names: ReadonlyMap<string, string>;
   onSelect: RowSelect;
 }
 
-function ArtboardLayers({ artboard, collapsed, chosen, onSelect }: ArtboardLayersProps) {
+function ArtboardLayers({ artboard, collapsed, chosen, names, onSelect }: ArtboardLayersProps) {
   const t = useTranslations("studio.image.panels.layers");
   const rows = useMemo(() => layerRows(artboard, collapsed), [artboard, collapsed]);
   const byId = useMemo(() => new Map(artboard.layers.map((l) => [l.id, l])), [artboard.layers]);
@@ -539,6 +573,7 @@ function ArtboardLayers({ artboard, collapsed, chosen, onSelect }: ArtboardLayer
             collapsed={row.family ? collapsed.has(row.family.scaffoldId) : false}
             selected={chosen.has(row.id)}
             total={artboard.layers.length}
+            componentName={layer.type === "instance" ? names.get(layer.componentId ?? "") : undefined}
             onSelect={onSelect}
           />
         );
@@ -561,15 +596,18 @@ export function LayersPanel() {
   const collapsed = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
   const chosen = new Set(selection);
 
-  const onSelect: RowSelect = (id, event) => {
-    const state = store.getState();
-    const home = artboardOfItem(state.document, id);
-    const order = home ? layerRows(home, collapsed).flatMap((r) => (r.kind === "layer" ? [r.id] : [])) : [id];
-    if (event.shiftKey) commands.select(rangeBetween(order, anchor.current, id));
-    else if (event.ctrlKey || event.metaKey) commands.select(home && artboardOfItem(state.document, state.selection[0] ?? "")?.id === home.id ? toggleIn(state.selection, [id]) : [id]);
-    else commands.select([id]);
-    if (!event.shiftKey) anchor.current = id;
-  };
+  const onSelect = useCallback<RowSelect>(
+    (id, event) => {
+      const state = store.getState();
+      const home = artboardOfItem(state.document, id);
+      const order = home ? layerRows(home, collapsed).flatMap((r) => (r.kind === "layer" ? [r.id] : [])) : [id];
+      if (event.shiftKey) commands.select(rangeBetween(order, anchor.current, id));
+      else if (event.ctrlKey || event.metaKey) commands.select(home && artboardOfItem(state.document, state.selection[0] ?? "")?.id === home.id ? toggleIn(state.selection, [id]) : [id]);
+      else commands.select([id]);
+      if (!event.shiftKey) anchor.current = id;
+    },
+    [store, commands, collapsed],
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -586,7 +624,7 @@ export function LayersPanel() {
                 collapsed={collapsed.has(artboard.id)}
                 removable={artboards.length > 1}
               />
-              {collapsed.has(artboard.id) ? null : <ArtboardLayers artboard={artboard} collapsed={collapsed} chosen={chosen} onSelect={onSelect} />}
+              {collapsed.has(artboard.id) ? null : <ArtboardLayers artboard={artboard} collapsed={collapsed} chosen={chosen} names={names} onSelect={onSelect} />}
             </Fragment>
           ))}
         </ul>

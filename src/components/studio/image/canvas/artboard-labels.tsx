@@ -2,7 +2,7 @@
 
 import type Konva from "konva";
 import { useRef } from "react";
-import { Text } from "react-konva";
+import { Group, Rect, Text } from "react-konva";
 
 import type { Artboard } from "@/lib/studio/document";
 import type { Point } from "@/lib/studio/viewport";
@@ -14,6 +14,9 @@ export const LABEL_GAP_PX = 6;
 
 const IDLE_COLOR = "#6b7280";
 const ACTIVE_COLOR = "#1f2937";
+const COMPONENT_COLOR = "#7c3aed";
+const BADGE_PX = 7;
+const BADGE_GAP_PX = 5;
 
 export function labelTop(artboard: Artboard, scale: number): number {
   return artboard.y - (LABEL_PX + LABEL_GAP_PX) / scale;
@@ -39,10 +42,10 @@ interface ArtboardLabelsProps {
 }
 
 export function ArtboardLabels({ artboards, names, selected, activeId, renamingId, scale, onSelect, onRename, onMoveStart, onMove, onMoveEnd }: ArtboardLabelsProps) {
-  const labels = useRef(new Map<string, Konva.Text>());
+  const labels = useRef(new Map<string, Konva.Group>());
   const moving = useRef<{ move: ArtboardMove; anchor: string } | null>(null);
 
-  const shiftOf = (node: Konva.Text, move: ArtboardMove, anchor: string): Point => {
+  const shiftOf = (node: Konva.Node, move: ArtboardMove, anchor: string): Point => {
     const start = move.start.get(anchor)!;
     return { x: node.x() - start.x, y: node.y() - (start.y - (LABEL_PX + LABEL_GAP_PX) / scale) };
   };
@@ -60,8 +63,10 @@ export function ArtboardLabels({ artboards, names, selected, activeId, renamingI
     <>
       {artboards.map((artboard) => {
         const chosen = selected.has(artboard.id);
+        const color = chosen ? SELECTION_COLOR : artboard.component ? COMPONENT_COLOR : artboard.id === activeId ? ACTIVE_COLOR : IDLE_COLOR;
+        const indent = artboard.component ? (BADGE_PX * Math.SQRT2 + BADGE_GAP_PX) / scale : 0;
         return (
-          <Text
+          <Group
             key={artboard.id}
             ref={(node) => {
               if (node) labels.current.set(artboard.id, node);
@@ -69,14 +74,6 @@ export function ArtboardLabels({ artboards, names, selected, activeId, renamingI
             }}
             x={artboard.x}
             y={labelTop(artboard, scale)}
-            text={names.get(artboard.id) ?? ""}
-            fontSize={LABEL_PX / scale}
-            fontFamily="Inter, system-ui, sans-serif"
-            fontStyle={chosen || artboard.id === activeId ? "600" : "normal"}
-            fill={chosen ? SELECTION_COLOR : artboard.id === activeId ? ACTIVE_COLOR : IDLE_COLOR}
-            width={artboard.canvas.width}
-            wrap="none"
-            ellipsis
             visible={renamingId !== artboard.id}
             draggable
             onMouseDown={(event) => {
@@ -96,16 +93,29 @@ export function ArtboardLabels({ artboards, names, selected, activeId, renamingI
             onDragMove={(event) => {
               const session = moving.current;
               if (!session) return;
-              const shift = shiftOf(event.target as Konva.Text, session.move, session.anchor);
+              const shift = shiftOf(event.target, session.move, session.anchor);
               followLabels(session.move, session.anchor, shift);
               onMove(session.move, shift);
             }}
             onDragEnd={(event) => {
               const session = moving.current;
               moving.current = null;
-              if (session) onMoveEnd(session.move, shiftOf(event.target as Konva.Text, session.move, session.anchor));
+              if (session) onMoveEnd(session.move, shiftOf(event.target, session.move, session.anchor));
             }}
-          />
+          >
+            {artboard.component ? <Rect x={(BADGE_PX * Math.SQRT2) / 2 / scale} y={(LABEL_PX / 2) / scale} offsetX={BADGE_PX / 2 / scale} offsetY={BADGE_PX / 2 / scale} width={BADGE_PX / scale} height={BADGE_PX / scale} rotation={45} fill={color} /> : null}
+            <Text
+              x={indent}
+              text={names.get(artboard.id) ?? ""}
+              fontSize={LABEL_PX / scale}
+              fontFamily="Inter, system-ui, sans-serif"
+              fontStyle={chosen || artboard.id === activeId ? "600" : "normal"}
+              fill={color}
+              width={Math.max(artboard.canvas.width - indent, 1)}
+              wrap="none"
+              ellipsis
+            />
+          </Group>
         );
       })}
     </>

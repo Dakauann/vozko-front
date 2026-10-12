@@ -23,6 +23,7 @@ interface LayerStackProps {
   render: RenderStackNode;
   onReady?: (layerId: string) => void;
   onError?: (layerId: string, error: Error) => void;
+  trailing?: (run: readonly Layer[]) => ReactNode;
 }
 
 const noop = () => undefined;
@@ -59,17 +60,16 @@ function ClipGroup({ run, pixelRatio, render, onReady, onError }: { run: Layer[]
   );
 }
 
-export function LayerStack({ layers, pixelRatio, render, onReady = noop, onError = noop }: LayerStackProps) {
+export function LayerStack({ layers, pixelRatio, render, onReady = noop, onError = noop, trailing }: LayerStackProps) {
   const runs = useMemo(() => clipRuns(layers), [layers]);
   return (
     <>
-      {runs.map((run) =>
-        run.length === 1 ? (
-          <Fragment key={run[0].id}>{render(run[0], { onReady, onError })}</Fragment>
-        ) : (
-          <ClipGroup key={run[0].id} run={run} pixelRatio={pixelRatio} render={render} onReady={onReady} onError={onError} />
-        ),
-      )}
+      {runs.map((run) => (
+        <Fragment key={run[0].id}>
+          {run.length === 1 ? render(run[0], { onReady, onError }) : <ClipGroup run={run} pixelRatio={pixelRatio} render={render} onReady={onReady} onError={onError} />}
+          {trailing?.(run)}
+        </Fragment>
+      ))}
     </>
   );
 }

@@ -20,19 +20,29 @@ describe("commitText", () => {
   it("updates the text of the layer", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
     const doc = { ...emptyArtboard(canvas), layers: [layer] };
-    expect(commitText(doc, "t", "Olá").layers[0].text).toBe("Olá");
+    expect(commitText(doc, "t", { text: "Olá", runs: undefined }).layers[0].text).toBe("Olá");
   });
 
   it("removes the layer when the text is left blank", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
     const doc = { ...emptyArtboard(canvas), layers: [layer] };
-    expect(commitText(doc, "t", "  \n").layers).toEqual([]);
+    expect(commitText(doc, "t", { text: "  \n", runs: undefined }).layers).toEqual([]);
   });
 
   it("keeps the document when nothing changed", () => {
     const layer = { ...newTextLayer("Oi"), id: "t" };
     const doc = { ...emptyArtboard(canvas), layers: [layer] };
-    expect(commitText(doc, "t", "Oi")).toBe(doc);
+    expect(commitText(doc, "t", { text: "Oi", runs: undefined })).toBe(doc);
+  });
+
+  it("stores the styled runs with the text and keeps the document when they did not change", () => {
+    const layer = { ...newTextLayer("Oi"), id: "t" };
+    const doc = { ...emptyArtboard(canvas), layers: [layer] };
+    const runs = [{ start: 0, end: 1, fontWeight: 700 }];
+    const styled = commitText(doc, "t", { text: "Oi", runs });
+    expect(styled.layers[0].runs).toEqual(runs);
+    expect(commitText(styled, "t", { text: "Oi", runs: [{ start: 0, end: 1, fontWeight: 700 }] })).toBe(styled);
+    expect(commitText(styled, "t", { text: "Oi", runs: undefined }).layers[0].runs).toBeUndefined();
   });
 });
 
@@ -77,6 +87,8 @@ describe("exportFileName", () => {
     expect(exportFileName("Promoção de Verão!", "png", 1)).toBe("promocao-de-verao.png");
     expect(exportFileName("Promoção de Verão!", "jpeg", 2)).toBe("promocao-de-verao@2x.jpg");
     expect(exportFileName("  ", "png", 1)).toBe("estudio.png");
+    expect(exportFileName("Promoção de Verão!", "pdf", 2)).toBe("promocao-de-verao.pdf");
+    expect(exportFileName("Promoção de Verão!", "svg", 1)).toBe("promocao-de-verao.svg");
   });
 });
 

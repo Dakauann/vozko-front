@@ -14,7 +14,8 @@ export interface Point {
 export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 4;
 export const ZOOM_PRESETS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
-export const FIT_PADDING_PX = 48;
+export const ZOOM_MENU_PRESETS: readonly number[] = ZOOM_PRESETS.filter((preset) => preset >= 0.5);
+export const FIT_PADDING_PX = 24;
 export const MIN_RULER_GAP_PX = 50;
 
 const WHEEL_SENSITIVITY = 0.0015;
@@ -80,6 +81,57 @@ export function stepZoom(scale: number, direction: 1 | -1): number {
 
 export function wheelZoom(scale: number, deltaY: number): number {
   return clampZoom(scale * Math.exp(-deltaY * WHEEL_SENSITIVITY));
+}
+
+export interface WheelInput {
+  deltaX: number;
+  deltaY: number;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+}
+
+export function wheelViewport(v: Viewport, wheel: WheelInput, anchor: Point): Viewport {
+  if (wheel.ctrlKey || wheel.metaKey) return zoomAt(v, wheelZoom(v.scale, wheel.deltaY), anchor);
+  const sideways = wheel.shiftKey && wheel.deltaX === 0;
+  const dx = sideways ? wheel.deltaY : wheel.deltaX;
+  const dy = sideways ? 0 : wheel.deltaY;
+  return { ...v, x: v.x - dx, y: v.y - dy };
+}
+
+export function zoomAtCenter(v: Viewport, nextScale: number, container: CanvasSize | null): Viewport {
+  return zoomAt(v, nextScale, container ? { x: container.width / 2, y: container.height / 2 } : { x: 0, y: 0 });
+}
+
+export interface ScreenRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export function frameRect(v: Viewport, canvas: CanvasSize): ScreenRect {
+  return { left: v.x, top: v.y, width: canvas.width * v.scale, height: canvas.height * v.scale };
+}
+
+export interface FramePlacement {
+  frame: ScreenRect;
+  visible: ScreenRect;
+}
+
+export function placeFrame(v: Viewport, canvas: CanvasSize, container: CanvasSize): FramePlacement {
+  const exact = frameRect(v, canvas);
+  const frame = { left: Math.round(exact.left), top: Math.round(exact.top), width: Math.round(exact.width), height: Math.round(exact.height) };
+  return { frame, visible: visibleFrame(frame, container) };
+}
+
+export function visibleFrame(frame: ScreenRect, container: CanvasSize): ScreenRect {
+  const left = Math.max(0, -frame.left);
+  const top = Math.max(0, -frame.top);
+  const width = Math.min(frame.width, container.width - frame.left) - left;
+  const height = Math.min(frame.height, container.height - frame.top) - top;
+  if (width <= 0 || height <= 0) return { left: 0, top: 0, width: 0, height: 0 };
+  return { left, top, width, height };
 }
 
 export interface RulerTick {

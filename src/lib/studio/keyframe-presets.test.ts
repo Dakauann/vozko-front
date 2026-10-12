@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { KEYFRAME_LIMITS, KEYFRAME_PROPERTIES, animatedTransform, keyframesIssue, type Keyframes } from "./keyframes";
+import { KEYFRAME_PROPERTIES, keyframesIssue, type Keyframes } from "./keyframes";
+import { animatedTransform } from "./clip-placement";
 import { KEYFRAME_PRESETS, captureKeyframes, keyframeClipboardAction, pastePatch, presetKeyframes, presetPatch } from "./keyframe-presets";
 
 const box = { x: 0.5, y: 0.5, w: 0.4, h: 0.2, rotation: 0, opacity: 1 };
@@ -27,50 +28,53 @@ describe("keyframe presets", () => {
     expect(keyframesIssue(presetKeyframes(id, short), box)).toBeNull();
   });
 
-  it.each(KEYFRAME_PRESETS)("%s keeps under the per-property limit on a long clip", (id) => {
+  it.each(KEYFRAME_PRESETS)("%s keeps its rhythm on a long clip", (id) => {
     const long = { transform: box, durationMs: 90_000 };
-    const keyframes = presetKeyframes(id, long);
-    for (const property of KEYFRAME_PROPERTIES) expect((keyframes[property] ?? []).length).toBeLessThanOrEqual(KEYFRAME_LIMITS.perProperty);
+    expect(keyframesIssue(presetKeyframes(id, long), box)).toBeNull();
+  });
+
+  it("pulses for the whole of a long clip", () => {
+    expect(presetKeyframes("pulse", { transform: box, durationMs: 90_000 }).scale).toHaveLength(226);
   });
 
   it("enters from the left and lands on the clip position", () => {
     const keyframes = presetKeyframes("enterLeft", clip);
-    expect(animatedTransform(box, keyframes, 0).x).toBeLessThanOrEqual(0);
-    expect(animatedTransform(box, keyframes, clip.durationMs).x).toBeCloseTo(box.x);
+    expect(animatedTransform(box, keyframes, 0, 1).x).toBeLessThanOrEqual(0);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).x).toBeCloseTo(box.x);
   });
 
   it("pops in past its size and settles on it", () => {
     const keyframes = presetKeyframes("pop", clip);
-    const sizes = Array.from({ length: 61 }, (_, i) => animatedTransform(box, keyframes, i * 10).w);
+    const sizes = Array.from({ length: 61 }, (_, i) => animatedTransform(box, keyframes, i * 10, 1).w);
     expect(sizes[0]).toBeLessThan(box.w);
     expect(Math.max(...sizes)).toBeGreaterThan(box.w);
-    expect(animatedTransform(box, keyframes, clip.durationMs).w).toBeCloseTo(box.w);
-    expect(animatedTransform(box, keyframes, 0).opacity).toBe(0);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).w).toBeCloseTo(box.w);
+    expect(animatedTransform(box, keyframes, 0, 1).opacity).toBe(0);
   });
 
   it("drops from above and bounces onto the clip position", () => {
     const keyframes = presetKeyframes("drop", clip);
-    expect(animatedTransform(box, keyframes, 0).y).toBeLessThan(box.y);
-    expect(animatedTransform(box, keyframes, clip.durationMs).y).toBeCloseTo(box.y);
+    expect(animatedTransform(box, keyframes, 0, 1).y).toBeLessThan(box.y);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).y).toBeCloseTo(box.y);
     expect(keyframes.y?.[0].easing).toBe("bounce");
   });
 
   it("springs in from small with the spring curve", () => {
     const keyframes = presetKeyframes("springIn", clip);
     expect(keyframes.scale?.[0].easing).toBe("spring");
-    expect(animatedTransform(box, keyframes, clip.durationMs).w).toBeCloseTo(box.w);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).w).toBeCloseTo(box.w);
   });
 
   it("zooms slowly from the clip size", () => {
     const keyframes = presetKeyframes("kenBurns", clip);
-    expect(animatedTransform(box, keyframes, 0).w).toBeCloseTo(box.w);
-    expect(animatedTransform(box, keyframes, clip.durationMs).w).toBeGreaterThan(box.w);
+    expect(animatedTransform(box, keyframes, 0, 1).w).toBeCloseTo(box.w);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).w).toBeGreaterThan(box.w);
   });
 
   it("fades out to nothing at the end", () => {
     const keyframes = presetKeyframes("fadeOut", clip);
-    expect(animatedTransform(box, keyframes, 0).opacity).toBe(1);
-    expect(animatedTransform(box, keyframes, clip.durationMs).opacity).toBe(0);
+    expect(animatedTransform(box, keyframes, 0, 1).opacity).toBe(1);
+    expect(animatedTransform(box, keyframes, clip.durationMs, 1).opacity).toBe(0);
   });
 
   it("replaces only the properties the preset animates", () => {
@@ -132,8 +136,8 @@ describe("keyframe clipboard", () => {
   it("refuses outside the clip and past the limits", () => {
     const captured = captureKeyframes(animated)!;
     expect(pastePatch(clip, captured, null)).toBe("keyframeOutside");
-    const full = { ...clip, keyframes: { x: Array.from({ length: KEYFRAME_LIMITS.perProperty }, (_, i) => ({ atMs: i * 7 + 3, value: 0.5, easing: "linear" as const })) } };
-    expect(pastePatch(full, captured, 1000)).toBe("keyframeLimit");
+    const full = { ...clip, keyframes: { x: Array.from({ length: 100 }, (_, i) => ({ atMs: i * 7 + 3, value: 0.5, easing: "linear" as const })) } };
+    expect(typeof pastePatch(full, captured, 1000)).toBe("object");
     const big = { transform: { ...box, w: 3.9 }, durationMs: 3000 };
     expect(pastePatch(big, { scale: [{ atMs: 0, value: 2, easing: "linear" }] }, 0)).toBe("outOfRange");
   });
@@ -144,6 +148,7 @@ describe("keyframe clipboard", () => {
     expect(keyframeClipboardAction(stroke("v", { metaKey: true, altKey: true }))).toBe("paste");
     expect(keyframeClipboardAction(stroke("c", { ctrlKey: true }))).toBeNull();
     expect(keyframeClipboardAction(stroke("c", { ctrlKey: true, altKey: true, shiftKey: true }))).toBeNull();
+    expect(keyframeClipboardAction(stroke("V", { ctrlKey: true, altKey: true, shiftKey: true, code: "KeyV" }))).toBe("reversePaste");
     expect(keyframeClipboardAction({ ...stroke("c", { ctrlKey: true, altKey: true }), target: Object.assign(document.createElement("input")) })).toBeNull();
   });
 });

@@ -1,3 +1,4 @@
+import { drawCallsSoFar, lastCanvasCreatedAt, startProbes, stopProbes } from "./probes";
 import { createElement as h } from "react";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "use-intl";
@@ -18,9 +19,12 @@ import { emptyArtboard, imageDocument, newShapeLayer, newTextLayer, type ImageDo
 import { createStudioStore } from "@/lib/studio/store";
 import { parseDocument } from "@/lib/studio/validate";
 
+import { heavyDocument, heavyRoles, type HeavyRoles } from "./heavy-document";
+
 const SHAPES = ["rect", "ellipse", "star", "triangle"] as const;
 const FILLS = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899"] as const;
 const LABEL_LIFT_PX = 12;
+const EDGE_BAND_PX = 1.5;
 
 function grid(count: number): Layer[] {
   const columns = Math.ceil(Math.sqrt(count));
@@ -42,18 +46,6 @@ const naturalSize = async () => ({ width: 1000, height: 1000 });
 const commands = createImageCommands(store, ui, { requestJob: async () => ({ error: "harness", code: "harness" }) as never, naturalSize });
 const agent = createImageAgent({ store, ui, commands, naturalSize, presence: createAgentPresence(), label: (action) => action, reduceMotion: () => true });
 
-const created = { canvases: 0, lastAt: 0, stacks: new Map<string, number>() };
-const createElement = document.createElement.bind(document);
-document.createElement = ((tag: string, options?: ElementCreationOptions) => {
-  if (tag === "canvas") created.lastAt = performance.now();
-  if (recording && tag === "canvas") {
-    created.canvases += 1;
-    const where = (new Error().stack ?? "").split(String.fromCharCode(10)).slice(2, 7).join(" < ");
-    created.stacks.set(where, (created.stacks.get(where) ?? 0) + 1);
-  }
-  return createElement(tag, options);
-}) as typeof document.createElement;
-
 const frames: number[] = [];
 let recording = false;
 let last = 0;
@@ -66,13 +58,17 @@ requestAnimationFrame(tick);
 
 const QUIET_MS = 800;
 
+function nextFrames(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+}
+
 function settle(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 250))));
 }
 
 async function quiet(): Promise<void> {
   await settle();
-  while (performance.now() - created.lastAt < QUIET_MS) await settle();
+  while (performance.now() - lastCanvasCreatedAt() < QUIET_MS) await settle();
 }
 
 function toScreen(x: number, y: number) {
@@ -88,6 +84,23 @@ function layerScreen(id: string) {
   return toScreen(artboard.x + layer.transform.x * artboard.canvas.width, artboard.y + layer.transform.y * artboard.canvas.height);
 }
 
+function transformsOf(ids: readonly string[]) {
+  const doc = store.getState().document;
+  return ids.map((id) => {
+    const artboard = artboardOfLayer(doc, id)!;
+    const layer = artboard.layers.find((l) => l.id === id)!;
+    return [layer.transform.x * artboard.canvas.width, layer.transform.y * artboard.canvas.height];
+  });
+}
+
+type HeavyTarget = "small" | "header" | "multi";
+
+function heavyChoice(roles: HeavyRoles, target: HeavyTarget): { ids: string[]; anchor: string; preselect: boolean } {
+  if (target === "small") return { ids: [roles.smallLabel], anchor: roles.smallLabel, preselect: false };
+  if (target === "header") return { ids: [roles.header], anchor: roles.header, preselect: false };
+  return { ids: roles.multi, anchor: roles.multiAnchor, preselect: true };
+}
+
 const harness = {
   store,
   ui,
@@ -101,19 +114,90 @@ const harness = {
     await quiet();
     return { anchor: layers.length > 0 ? layerScreen(layers[0].id) : null, scale: ui.getState().viewport.scale };
   },
+  async loadHeavy() {
+    const parsed = parseDocument("image", JSON.parse(JSON.stringify(heavyDocument())));
+    if (!parsed.ok) throw new Error(`heavy document refused: ${JSON.stringify(parsed.issue)}`);
+    store.getState().reset(parsed.document);
+    store.getState().select([]);
+    commands.fit();
+    await quiet();
+    return ui.getState().viewport;
+  },
+  async heavyTarget(target: HeavyTarget) {
+    commands.fit();
+    const choice = heavyChoice(heavyRoles(), target);
+    store.getState().select(choice.preselect ? choice.ids : []);
+    await quiet();
+    return { ids: choice.ids, anchor: layerScreen(choice.anchor), scale: ui.getState().viewport.scale, before: transformsOf(choice.ids) };
+  },
+  async heavyView() {
+    commands.fit();
+    store.getState().select([]);
+    await quiet();
+    return ui.getState().viewport;
+  },
+  async redrawLive() {
+    ui.setState({});
+    await nextFrames();
+  },
+  nextFrames,
+  drawCallsSoFar,
+  async pixelDiff(first: string, second: string) {
+    const decode = async (data: string) => {
+      const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const context = canvas.getContext("2d")!;
+      context.drawImage(bitmap, 0, 0);
+      return context.getImageData(0, 0, bitmap.width, bitmap.height);
+    };
+    const [shotA, shotB] = await Promise.all([decode(first), decode(second)]);
+    const { width } = shotA;
+    const a = shotA.data;
+    const b = shotB.data;
+    const edges = store.getState().document.artboards.map((artboard) => {
+      const from = toScreen(artboard.x, artboard.y);
+      const to = toScreen(artboard.x + artboard.canvas.width, artboard.y + artboard.canvas.height);
+      return { left: from.x, top: from.y, right: to.x, bottom: to.y };
+    });
+    const onEdge = (x: number, y: number) =>
+      edges.some((e) => {
+        const nearX = Math.abs(x - e.left) <= EDGE_BAND_PX || Math.abs(x - e.right) <= EDGE_BAND_PX;
+        const nearY = Math.abs(y - e.top) <= EDGE_BAND_PX || Math.abs(y - e.bottom) <= EDGE_BAND_PX;
+        return (nearX && y >= e.top - EDGE_BAND_PX && y <= e.bottom + EDGE_BAND_PX) || (nearY && x >= e.left - EDGE_BAND_PX && x <= e.right + EDGE_BAND_PX);
+      });
+    let max = 0;
+    let differing = 0;
+    for (let i = 0; i < a.length; i += 4) {
+      const pixel = i / 4;
+      if (onEdge(pixel % width, Math.floor(pixel / width))) continue;
+      const diff = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2]));
+      if (diff > 0) differing += 1;
+      max = Math.max(max, diff);
+    }
+    return { max, differing, pixels: a.length / 4 };
+  },
+  async rasterizedAfter() {
+    startProbes();
+    await quiet();
+    return (await stopProbes()).canvases;
+  },
+  transformsOf,
+  viewport() {
+    return ui.getState().viewport;
+  },
   record() {
     frames.length = 0;
-    created.canvases = 0;
-    created.stacks.clear();
+    startProbes();
     recording = true;
     return store.getState().revision;
   },
-  async stop() {
-    await settle();
+  async stop(quick = false) {
+    await (quick ? nextFrames() : settle());
     recording = false;
+    const probes = await stopProbes();
     const sorted = [...frames].sort((a, b) => a - b);
     const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0;
-    return { canvases: created.canvases, stacks: [...created.stacks.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3), frames: sorted.length, p50: at(0.5), p95: at(0.95), max: sorted[sorted.length - 1] ?? 0, slow: sorted.filter((d) => d > 34).length, revision: store.getState().revision };
+    return { ...probes, frames: sorted.length, p50: at(0.5), p95: at(0.95), max: sorted[sorted.length - 1] ?? 0, slow: sorted.filter((d) => d > 34).length, revision: store.getState().revision };
   },
   positions(count: number) {
     return store.getState().document.artboards[0].layers.slice(0, count).map((l) => [l.transform.x, l.transform.y]);

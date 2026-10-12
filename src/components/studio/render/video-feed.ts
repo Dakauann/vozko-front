@@ -1,6 +1,6 @@
 "use client";
 
-import type { VideoPicture } from "@/lib/studio/render/renderer";
+import type { VideoBlend, VideoPicture } from "@/lib/studio/render/renderer";
 import type { SceneVideo } from "@/lib/studio/scene/scene";
 
 import type { DecodedVideos } from "../media/decoded-videos";
@@ -8,6 +8,7 @@ import type { PlaybackState, VideoPool } from "./video-pool";
 
 export interface VideoPictures {
   picture(clipId: string): VideoPicture | null;
+  blend(clipId: string, sourceMs: number): VideoBlend | null;
 }
 
 export class VideoFeed implements VideoPictures {
@@ -22,6 +23,10 @@ export class VideoFeed implements VideoPictures {
 
   picture(clipId: string): VideoPicture | null {
     return this.decoded.picture(clipId) ?? this.elements.element(clipId);
+  }
+
+  blend(clipId: string, sourceMs: number): VideoBlend | null {
+    return this.decoded.blend(clipId, sourceMs);
   }
 
   dispose(): void {

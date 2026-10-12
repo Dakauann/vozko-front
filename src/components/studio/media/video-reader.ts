@@ -22,7 +22,7 @@ async function readableTrack(input: Input, accept: (track: InputVideoTrack) => P
   return track && (await accept(track)) && (await track.canDecode()) ? track : null;
 }
 
-async function openTrack<T>(blob: Blob, accept: (track: InputVideoTrack) => Promise<boolean>, use: (input: Input, track: InputVideoTrack) => Promise<T>): Promise<T | null> {
+export async function openTrack<T>(blob: Blob, accept: (track: InputVideoTrack) => Promise<boolean>, use: (input: Input, track: InputVideoTrack) => Promise<T>): Promise<T | null> {
   const input = new Input({ source: new BlobSource(blob), formats: ALL_FORMATS });
   const opened = await readableTrack(input, accept)
     .then((track) => (track ? use(input, track) : null))

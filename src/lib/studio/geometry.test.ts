@@ -148,6 +148,25 @@ describe("clickSelection", () => {
     expect(clickSelection(doc, ["a"], "c", true)).toEqual(["a", "b", "c"]);
     expect(clickSelection(doc, ["a", "b", "c"], "b", true)).toEqual(["a"]);
   });
+
+  it("selects a sibling directly when a layer inside the same group is already selected", () => {
+    expect(clickSelection(doc, ["b"], "c", false)).toEqual(["c"]);
+  });
+
+  it("keeps the depth of the selection across nested groups", () => {
+    const outer = { ...newShapeLayer("rect"), id: "bg", groupId: "outer" };
+    const inner1 = { ...newShapeLayer("rect"), id: "x", groupId: "inner" };
+    const inner2 = { ...newShapeLayer("rect"), id: "y", groupId: "inner" };
+    const nested = { ...docWith([outer, inner1, inner2]), groups: [{ id: "outer" }, { id: "inner", parentId: "outer" }] };
+    expect(clickSelection(nested, [], "x", false)).toEqual(["bg", "x", "y"]);
+    expect(clickSelection(nested, ["bg"], "x", false)).toEqual(["x", "y"]);
+    expect(clickSelection(nested, ["x"], "y", false)).toEqual(["y"]);
+    expect(clickSelection(nested, ["x", "y"], "bg", false)).toEqual(["bg"]);
+  });
+
+  it("captures the whole group when the selection lies outside it", () => {
+    expect(clickSelection(doc, ["a"], "b", false)).toEqual(["b", "c"]);
+  });
 });
 
 describe("squareTransform", () => {

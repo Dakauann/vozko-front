@@ -1,6 +1,6 @@
 "use client";
 
-import { estimateTextWidth, type TextMeasure } from "@/lib/studio/agent/design-check";
+import { estimateTextWidth, type TextMeasure } from "@/lib/studio/agent/text-ink";
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT, cssFontOf } from "@/lib/studio/fonts";
 
 let context: CanvasRenderingContext2D | null | undefined;

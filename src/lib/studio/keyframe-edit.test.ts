@@ -53,20 +53,20 @@ describe("keyframe editing", () => {
   });
 
   it("turns animation on with a key at the playhead and off keeping the current value", () => {
-    const on = toggleAnimation(still, "opacity", 700);
+    const on = toggleAnimation(still, "opacity", 700, 1);
     expect(on.keyframes?.opacity).toEqual([{ atMs: 700, value: 1, easing: "linear" }]);
-    const off = toggleAnimation(moving, "x", 1000);
+    const off = toggleAnimation(moving, "x", 1000, 1);
     expect(off.keyframes?.x).toBeUndefined();
     expect(off.keyframes?.scale).toHaveLength(1);
     expect(off.transform?.x).toBeCloseTo(0.5);
-    const unscaled = toggleAnimation({ ...still, keyframes: { scale: moving.keyframes.scale } }, "scale", 0);
+    const unscaled = toggleAnimation({ ...still, keyframes: { scale: moving.keyframes.scale } }, "scale", 0, 1);
     expect(unscaled.keyframes).toBeUndefined();
     expect(unscaled.transform).toMatchObject({ w: 0.8, h: 0.4 });
   });
 
   it("adds or removes the key under the playhead and sets its easing", () => {
-    expect(toggleKeyAt(moving, "x", 2005).keyframes?.x).toHaveLength(1);
-    expect(toggleKeyAt(moving, "x", 1000).keyframes?.x).toHaveLength(3);
+    expect(toggleKeyAt(moving, "x", 2005, 1).keyframes?.x).toHaveLength(1);
+    expect(toggleKeyAt(moving, "x", 1000, 1).keyframes?.x).toHaveLength(3);
     expect(setKeyEasing(moving, "x", 0, "easeOut")?.keyframes?.x?.[0].easing).toBe("easeOut");
     expect(setKeyEasing(moving, "x", 1000, "easeOut")).toBeNull();
   });
@@ -93,7 +93,7 @@ describe("keyframe editing", () => {
   });
 
   it("routes a transform edit to keys for animated properties and to the base for the rest", () => {
-    const edit = editTransform(moving, { ...box, x: 0.6, y: 0.3, w: 1.2, h: 0.6 }, 1000);
+    const edit = editTransform(moving, { ...box, x: 0.6, y: 0.3, w: 1.2, h: 0.6 }, 1000, 1);
     expect(edit.outside).toBe(false);
     expect(edit.patch.transform).toMatchObject({ x: 0.5, y: 0.3, w: 0.4 });
     expect(edit.patch.keyframes?.x?.map((f) => f.atMs)).toEqual([0, 1000, 2000]);
@@ -101,9 +101,9 @@ describe("keyframe editing", () => {
   });
 
   it("flags an animated edit made with the playhead outside the clip", () => {
-    const edit = editTransform(moving, { ...box, x: 0.1 }, null);
+    const edit = editTransform(moving, { ...box, x: 0.1 }, null, 1);
     expect(edit.outside).toBe(true);
     expect(edit.patch.keyframes).toBeUndefined();
-    expect(editTransform(still, { ...box, x: 0.1 }, null).patch.transform?.x).toBe(0.1);
+    expect(editTransform(still, { ...box, x: 0.1 }, null, 1).patch.transform?.x).toBe(0.1);
   });
 });

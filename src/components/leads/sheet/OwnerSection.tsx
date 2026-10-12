@@ -23,7 +23,7 @@ export function OwnerSection({
   const currentName = ownerName(ownerId);
 
   return (
-    <SheetSection icon={<UserCheck />} title={t("title")}>
+    <SheetSection icon={<UserCheck />} title={t("title")} anchor="owner">
       {canAssign ? (
         <LeadOwnerPicker ownerId={ownerId} onChange={onChange} />
       ) : (

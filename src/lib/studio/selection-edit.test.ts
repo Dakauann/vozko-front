@@ -16,6 +16,8 @@ import {
   setSelectionEasing,
   sharedValue,
   shownTransform,
+  selectionKeyState,
+  toggleSelectionKey,
   toggleSelectionMoment,
   transformPatch,
   trimSelectionEnd,
@@ -78,15 +80,20 @@ describe("commonFields", () => {
   it("keeps only what every clip in the selection has", () => {
     const { doc, textA, textB, image, audio, shape } = fixture();
     const texts = commonFields([clipOf(doc, textA), clipOf(doc, textB)]);
-    expect([...texts].sort()).toEqual(["fades", "keyframes", "layer", "motion", "timing", "transform"]);
+    expect([...texts].sort()).toEqual(["fades", "keyframes", "layer", "look", "motion", "parent", "textMotion", "timing", "transform"]);
     const visual = commonFields([clipOf(doc, textA), clipOf(doc, image)]);
     expect(visual.has("transform")).toBe(true);
     expect(visual.has("layer")).toBe(false);
     expect(visual.has("fit")).toBe(false);
+    expect(visual.has("masks")).toBe(false);
+    expect(commonFields([clipOf(doc, image)]).has("masks")).toBe(true);
     expect(commonFields([clipOf(doc, textA), clipOf(doc, shape)]).has("layer")).toBe(false);
+    const rig = { ...clipOf(doc, image), id: "rig", type: "null" as const };
+    expect([...commonFields([clipOf(doc, image), rig])].sort()).toEqual(["keyframes", "parent", "timing", "transform"]);
+    expect(commonFields([clipOf(doc, textA), clipOf(doc, shape)]).has("textMotion")).toBe(false);
     const mixed = commonFields([clipOf(doc, textA), clipOf(doc, audio)]);
     expect([...mixed].sort()).toEqual(["fades", "timing"]);
-    expect([...commonFields([clipOf(doc, audio)])].sort()).toEqual(["fades", "timing", "trimIn", "volume"]);
+    expect([...commonFields([clipOf(doc, audio)])].sort()).toEqual(["fades", "keyframes", "speed", "timing", "trimIn", "volume"]);
     expect(commonFields([clipOf(doc, image)]).has("fit")).toBe(true);
     expect(commonFields([]).size).toBe(0);
   });
@@ -158,21 +165,21 @@ describe("transform edits", () => {
   it("shows the animated transform at the playhead", () => {
     const { doc, textB } = fixture();
     const clip = { ...clipOf(doc, textB), keyframes: { x: [{ atMs: 0, value: 0.1, easing: "linear" as const }, { atMs: 1000, value: 0.9, easing: "linear" as const }] } };
-    expect(shownTransform(clip, 2500).x).toBeCloseTo(0.5);
-    expect(shownTransform(clip, 9000).x).toBeCloseTo(0.9);
+    expect(shownTransform(clip, 2500, 1).x).toBeCloseTo(0.5);
+    expect(shownTransform(clip, 9000, 1).x).toBeCloseTo(0.9);
   });
 
   it("sets a static value and clamps it", () => {
     const { doc, textA } = fixture();
     const clip = clipOf(doc, textA);
-    expect(transformPatch(clip, () => ({ x: 0.25 }), 500)).toEqual({ transform: { ...clip.transform, x: 0.25 } });
-    const clamped = transformPatch(clip, () => ({ x: 7 }), 500);
+    expect(transformPatch(clip, () => ({ x: 0.25 }), 500, 1)).toEqual({ transform: { ...clip.transform, x: 0.25 } });
+    const clamped = transformPatch(clip, () => ({ x: 7 }), 500, 1);
     expect(typeof clamped === "object" && clamped.transform?.x).toBe(1);
   });
 
   it("applies a delta from the shown value", () => {
     const { doc, textA, textB } = fixture();
-    const result = applyToSelection(doc, [textA, textB], (clip) => transformPatch(clip, (shown) => ({ x: shown.x + 0.1 }), 0));
+    const result = applyToSelection(doc, [textA, textB], (clip) => transformPatch(clip, (shown) => ({ x: shown.x + 0.1 }), 0, 1));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(clipOf(result.document, textA).transform.x).toBeCloseTo(0.6);
@@ -182,7 +189,7 @@ describe("transform edits", () => {
   it("writes a key when the property is animated and the playhead is inside", () => {
     const { doc, textA } = fixture();
     const clip = { ...clipOf(doc, textA), keyframes: { x: [{ atMs: 0, value: 0.2, easing: "linear" as const }] } };
-    const patch = transformPatch(clip, () => ({ x: 0.7 }), 1000);
+    const patch = transformPatch(clip, () => ({ x: 0.7 }), 1000, 1);
     expect(typeof patch === "object" && patch.keyframes?.x?.map((f) => [f.atMs, f.value])).toEqual([
       [0, 0.2],
       [1000, 0.7],
@@ -192,7 +199,7 @@ describe("transform edits", () => {
   it("refuses an animated edit while the playhead is outside the clip", () => {
     const { doc, textB } = fixture();
     const clip = { ...clipOf(doc, textB), keyframes: { x: [{ atMs: 0, value: 0.2, easing: "linear" as const }] } };
-    expect(transformPatch(clip, () => ({ x: 0.7 }), 100)).toBe("keyframeOutside");
+    expect(transformPatch(clip, () => ({ x: 0.7 }), 100, 1)).toBe("keyframeOutside");
   });
 });
 
@@ -313,5 +320,54 @@ describe("moveSelectionBy", () => {
     if (!again.ok) throw new Error("refused");
     expect(clipOf(again.document, textB).startMs).toBe(2600);
     expect(moveSelectionBy(doc, [textB], -500)).toEqual({ ok: false, reason: "noRoom" });
+  });
+});
+
+describe("property keys across a selection", () => {
+  it("starts a fill color animation from the shown color, then adds a second key elsewhere", () => {
+    const fx = fixture();
+    const fill = clipOf(fx.doc, fx.textA).layer!.fill!;
+    expect(selectionKeyState([clipOf(fx.doc, fx.textA)], "fill", 0)).toBe("static");
+    const started = toggleSelectionKey(fx.doc, [fx.textA], "fill", 0);
+    if (!started.ok) throw new Error("refused");
+    expect(clipOf(started.document, fx.textA).keyframes?.fill).toEqual([{ atMs: 0, color: fill, easing: "linear" }]);
+    expect(selectionKeyState([clipOf(started.document, fx.textA)], "fill", 0)).toBe("key");
+    expect(selectionKeyState([clipOf(started.document, fx.textA)], "fill", 1500)).toBe("interpolated");
+    const second = toggleSelectionKey(started.document, [fx.textA], "fill", 1500);
+    if (!second.ok) throw new Error("refused");
+    expect(clipOf(second.document, fx.textA).keyframes?.fill?.map((frame) => frame.atMs)).toEqual([0, 1500]);
+  });
+
+  it("removes the key under the playhead when every selected clip has one", () => {
+    const fx = fixture();
+    const started = toggleSelectionKey(fx.doc, [fx.textA, fx.textB], "opacity", 2000);
+    if (!started.ok) throw new Error("refused");
+    expect(selectionKeyState([fx.textA, fx.textB].map((id) => clipOf(started.document, id)), "opacity", 2000)).toBe("key");
+    const removed = toggleSelectionKey(started.document, [fx.textA, fx.textB], "opacity", 2000);
+    if (!removed.ok) throw new Error("refused");
+    for (const id of [fx.textA, fx.textB]) expect(clipOf(removed.document, id).keyframes?.opacity).toBeUndefined();
+  });
+
+  it("adds the key only where it is missing when the selection is mixed", () => {
+    const fx = fixture();
+    const one = toggleSelectionKey(fx.doc, [fx.textA], "rotation", 2000);
+    if (!one.ok) throw new Error("refused");
+    const clips = [fx.textA, fx.textB].map((id) => clipOf(one.document, id));
+    expect(selectionKeyState(clips, "rotation", 2000)).toBe("interpolated");
+    const both = toggleSelectionKey(one.document, [fx.textA, fx.textB], "rotation", 2000);
+    if (!both.ok) throw new Error("refused");
+    expect(clipOf(both.document, fx.textA).keyframes?.rotation).toEqual(clipOf(one.document, fx.textA).keyframes?.rotation);
+    expect(clipOf(both.document, fx.textB).keyframes?.rotation?.map((frame) => frame.atMs)).toEqual([0]);
+  });
+
+  it("refuses while the playhead is outside a selected clip", () => {
+    const fx = fixture();
+    expect(selectionKeyState([clipOf(fx.doc, fx.textA)], "fill", 3000)).toBe("static");
+    expect(toggleSelectionKey(fx.doc, [fx.textA, fx.textB], "fill", 500)).toEqual({ ok: false, reason: "keyframeOutside" });
+  });
+
+  it("refuses a property the clip cannot animate", () => {
+    const fx = fixture();
+    expect(toggleSelectionKey(fx.doc, [fx.image], "fill", 500)).toEqual({ ok: false, reason: "invalid" });
   });
 });

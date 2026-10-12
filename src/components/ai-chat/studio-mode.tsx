@@ -6,20 +6,13 @@ import { useTranslations } from "next-intl";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { readStudioMode, writeStudioMode } from "@/lib/aichat/chat-mode";
 import { CHAT_MODES, type ChatMode } from "@/lib/aichat/types";
-
-function browserStorage(): Storage | null {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
+import { localStore } from "@/lib/stored-size";
 
 export function useStudioMode(): [ChatMode, (mode: ChatMode) => void] {
-  const [mode, setMode] = useState<ChatMode>(() => readStudioMode(browserStorage()));
+  const [mode, setMode] = useState<ChatMode>(() => readStudioMode(localStore()));
   const change = useCallback((next: ChatMode) => {
     setMode(next);
-    writeStudioMode(browserStorage(), next);
+    writeStudioMode(localStore(), next);
   }, []);
   return [mode, change];
 }

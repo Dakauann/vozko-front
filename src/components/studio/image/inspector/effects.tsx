@@ -7,10 +7,11 @@ import { LINE_CAPS, LINE_JOINS, RADIAL_RADIUS_RANGE, type Gradient, type Gradien
 import { DEFAULT_SHADOW, gradientWithKind, startGradient } from "@/lib/studio/layer-effects";
 import { LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import type { LayerPatch } from "@/lib/studio/layers";
+import type { StrokeLook, StrokeLookPatch } from "@/lib/studio/layer-paint";
 import { strokeStyle } from "@/lib/studio/paint";
-import { DASH_PRESET_IDS, dashPresetOf, dashPresetPatch, type DashPreset } from "@/lib/studio/stroke-presets";
+import { DASH_PRESET_IDS, dashPresetOf, dashPresetPatch, formatDashPattern, parseDashPattern, type DashPreset } from "@/lib/studio/stroke-presets";
 
-import { ColorField, InspectorSection, LABEL_CLASS, NumberField, SelectField, SwitchRow, SwitchToggle, ToggleButton } from "../controls";
+import { ColorField, InspectorSection, LABEL_CLASS, NumberField, SelectField, SwitchRow, SwitchToggle, TextField, ToggleButton } from "../controls";
 
 export const DEFAULT_OUTLINE = { stroke: "#000000", strokeWidth: 4 };
 
@@ -20,30 +21,37 @@ interface EffectProps {
   onPatch: (patch: LayerPatch) => void;
 }
 
+export function ShadowFields({ shadow, disabled, onChange }: { shadow: Shadow; disabled: boolean; onChange: (shadow: Shadow) => void }) {
+  const t = useTranslations("studio.image.inspector.shadow");
+  const set = (patch: Partial<Shadow>) => onChange({ ...shadow, ...patch });
+  return (
+    <div className="space-y-2">
+      <ColorField label={t("color")} value={shadow.color} disabled={disabled} onCommit={(color) => set({ color })} />
+      <div className="grid grid-cols-3 gap-2">
+        <NumberField label={t("blur")} short={t("blurShort")} value={shadow.blur} min={LAYER_RANGES.shadowBlur[0]} max={LAYER_RANGES.shadowBlur[1]} disabled={disabled} onCommit={(blur) => set({ blur })} />
+        <NumberField label={t("x")} short="X" value={shadow.x} min={LAYER_RANGES.shadowOffset[0]} max={LAYER_RANGES.shadowOffset[1]} disabled={disabled} onCommit={(x) => set({ x })} />
+        <NumberField label={t("y")} short="Y" value={shadow.y} min={LAYER_RANGES.shadowOffset[0]} max={LAYER_RANGES.shadowOffset[1]} disabled={disabled} onCommit={(y) => set({ y })} />
+      </div>
+    </div>
+  );
+}
+
 export function ShadowSection({ layer, disabled, onPatch }: EffectProps) {
   const t = useTranslations("studio.image.inspector.shadow");
   const shadow = layer.shadow;
-  const set = (patch: Partial<Shadow>) => shadow && onPatch({ shadow: { ...shadow, ...patch } });
+  if ((layer.effects?.length ?? 0) > 0) return null;
   return (
     <InspectorSection
       title={t("title")}
+      group="effects"
       action={<SwitchToggle label={t("toggle")} checked={Boolean(shadow)} disabled={disabled} onChange={(on) => onPatch({ shadow: on ? DEFAULT_SHADOW : undefined })} />}
     >
-      {shadow ? (
-        <div className="space-y-2">
-          <ColorField label={t("color")} value={shadow.color} disabled={disabled} onCommit={(color) => set({ color })} />
-          <div className="grid grid-cols-3 gap-2">
-            <NumberField label={t("blur")} short={t("blurShort")} value={shadow.blur} min={LAYER_RANGES.shadowBlur[0]} max={LAYER_RANGES.shadowBlur[1]} disabled={disabled} onCommit={(blur) => set({ blur })} />
-            <NumberField label={t("x")} short="X" value={shadow.x} min={LAYER_RANGES.shadowOffset[0]} max={LAYER_RANGES.shadowOffset[1]} disabled={disabled} onCommit={(x) => set({ x })} />
-            <NumberField label={t("y")} short="Y" value={shadow.y} min={LAYER_RANGES.shadowOffset[0]} max={LAYER_RANGES.shadowOffset[1]} disabled={disabled} onCommit={(y) => set({ y })} />
-          </div>
-        </div>
-      ) : null}
+      {shadow ? <ShadowFields shadow={shadow} disabled={disabled} onChange={(next) => onPatch({ shadow: next })} /> : null}
     </InspectorSection>
   );
 }
 
-export function StrokeStyleFields({ layer, disabled, onPatch, withCaps = true }: EffectProps & { withCaps?: boolean }) {
+export function StrokeStyleFields({ layer, disabled, onPatch }: { layer: StrokeLook; disabled: boolean; onPatch: (patch: StrokeLookPatch) => void }) {
   const t = useTranslations("studio.vectors.stroke");
   const style = strokeStyle(layer);
   const preset = dashPresetOf(layer);
@@ -52,18 +60,29 @@ export function StrokeStyleFields({ layer, disabled, onPatch, withCaps = true }:
     <div className="space-y-2">
       <SelectField<DashPreset | "custom"> label={t("dash")} value={preset} options={options} disabled={disabled} onChange={(id) => id !== "custom" && onPatch(dashPresetPatch(id))} />
       {preset !== "solid" ? (
+        <TextField
+          label={t("pattern")}
+          value={formatDashPattern(layer)}
+          disabled={disabled}
+          onCommit={(text) => {
+            const values = parseDashPattern(text);
+            if (values === null || values.length === 0) return false;
+            onPatch({ dashArray: values, dash: undefined });
+          }}
+        />
+      ) : null}
+      {preset !== "solid" ? <p className="text-2xs text-muted-foreground">{t("patternHint")}</p> : null}
+      {preset !== "solid" ? (
         <NumberField label={t("dashOffset")} value={layer.dashOffset ?? 0} min={LAYER_RANGES.dashOffset[0]} max={LAYER_RANGES.dashOffset[1]} step={0.5} decimals={1} disabled={disabled} onCommit={(value) => onPatch({ dashOffset: value === 0 ? undefined : value })} />
       ) : null}
-      {withCaps ? (
-        <div role="group" aria-label={t("caps")} className="flex items-center gap-1">
-          <span className={LABEL_CLASS}>{t("caps")}</span>
-          {LINE_CAPS.map((cap) => (
-            <ToggleButton key={cap} label={t(`cap.${cap}`)} pressed={style.lineCap === cap} disabled={disabled} onClick={() => onPatch({ lineCap: cap })}>
-              <CapIcon cap={cap} className="h-4 w-4" />
-            </ToggleButton>
-          ))}
-        </div>
-      ) : null}
+      <div role="group" aria-label={t("caps")} className="flex items-center gap-1">
+        <span className={LABEL_CLASS}>{t("caps")}</span>
+        {LINE_CAPS.map((cap) => (
+          <ToggleButton key={cap} label={t(`cap.${cap}`)} pressed={style.lineCap === cap} disabled={disabled} onClick={() => onPatch({ lineCap: cap })}>
+            <CapIcon cap={cap} className="h-4 w-4" />
+          </ToggleButton>
+        ))}
+      </div>
       <div role="group" aria-label={t("joins")} className="flex items-center gap-1">
         <span className={LABEL_CLASS}>{t("joins")}</span>
         {LINE_JOINS.map((join) => (
@@ -82,6 +101,7 @@ export function StrokeStyleFields({ layer, disabled, onPatch, withCaps = true }:
 export function OutlineSection({ layer, disabled, onPatch }: EffectProps) {
   const t = useTranslations("studio.image.inspector.outline");
   const on = (layer.strokeWidth ?? 0) > 0;
+  if ((layer.strokes?.length ?? 0) > 0) return null;
   return (
     <InspectorSection
       title={t("title")}
@@ -106,7 +126,7 @@ export function OutlineSection({ layer, disabled, onPatch }: EffectProps) {
             disabled={disabled}
             onCommit={(strokeWidth) => onPatch({ strokeWidth })}
           />
-          <StrokeStyleFields layer={layer} disabled={disabled} onPatch={onPatch} withCaps={false} />
+          <StrokeStyleFields layer={layer} disabled={disabled} onPatch={onPatch} />
         </div>
       ) : null}
     </InspectorSection>

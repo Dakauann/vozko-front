@@ -1,5 +1,7 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
 
+import { createLookShots, type LookShots } from "./look-shots";
+
 export const PRESENCE_IDLE_MS = 4000;
 
 export interface PresencePoint {
@@ -26,16 +28,17 @@ export interface AgentPresenceState {
   y: number;
   label: string;
   outline: PresenceRect | null;
+  ticks: readonly PresenceRect[];
   progress: PresenceProgress | null;
 }
 
 export interface AgentPresence {
   store: StoreApi<AgentPresenceState>;
-  point: (at: PresencePoint | null, label: string, outline?: PresenceRect | null) => void;
+  shots: LookShots;
+  point: (at: PresencePoint | null, label: string, outline?: PresenceRect | null, ticks?: readonly PresenceRect[]) => void;
   progress: (progress: PresenceProgress | null) => void;
   busy: (on: boolean) => void;
   rest: () => void;
-  isBusy: () => boolean;
   dispose: () => void;
 }
 
@@ -44,7 +47,8 @@ export function centerOf(rect: PresenceRect): PresencePoint {
 }
 
 export function createAgentPresence(idleMs: number = PRESENCE_IDLE_MS): AgentPresence {
-  const store = createStore<AgentPresenceState>()(() => ({ visible: false, busy: false, x: 0, y: 0, label: "", outline: null, progress: null }));
+  const store = createStore<AgentPresenceState>()(() => ({ visible: false, busy: false, x: 0, y: 0, label: "", outline: null, ticks: [], progress: null }));
+  const shots = createLookShots();
   let timer: ReturnType<typeof setTimeout> | null = null;
 
   const cancelRest = () => {
@@ -54,9 +58,10 @@ export function createAgentPresence(idleMs: number = PRESENCE_IDLE_MS): AgentPre
 
   return {
     store,
-    point: (at, label, outline = null) => {
+    shots,
+    point: (at, label, outline = null, ticks = []) => {
       cancelRest();
-      store.setState((current) => ({ visible: true, label, outline, ...(at ? { x: at.x, y: at.y } : { x: current.x, y: current.y }) }));
+      store.setState((current) => ({ visible: true, label, outline, ticks, ...(at ? { x: at.x, y: at.y } : { x: current.x, y: current.y }) }));
     },
     progress: (progress) => store.setState({ progress }),
     busy: (on) => {
@@ -67,10 +72,12 @@ export function createAgentPresence(idleMs: number = PRESENCE_IDLE_MS): AgentPre
       cancelRest();
       timer = setTimeout(() => {
         timer = null;
-        store.setState({ visible: false, label: "", outline: null, progress: null });
+        store.setState({ visible: false, label: "", outline: null, ticks: [], progress: null });
       }, idleMs);
     },
-    isBusy: () => store.getState().busy,
-    dispose: cancelRest,
+    dispose: () => {
+      cancelRest();
+      shots.clear();
+    },
   };
 }

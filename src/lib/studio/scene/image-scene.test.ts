@@ -73,3 +73,34 @@ describe("image scene", () => {
     expect(live.box.x).toBe(600);
   });
 });
+
+describe("scene identity between frames", () => {
+  it("hands back the very same node for a layer nobody touched, so the renderer can tell what changed", () => {
+    const still = { ...newShapeLayer("rect"), id: "still" };
+    const moving = { ...newTextLayer("Oi"), id: "moving", transform: box };
+    const surface = art([still, moving]);
+    const first = imageScene(surface, { hidden: new Set<string>(), overrides: new Map([["moving", { ...box, x: 0.3 }]]) });
+    const second = imageScene(surface, { hidden: new Set<string>(), overrides: new Map([["moving", { ...box, x: 0.4 }]]) });
+    expect(second.nodes[0]).toBe(first.nodes[0]);
+    expect(second.nodes[1]).not.toBe(first.nodes[1]);
+    expect(second.nodes[1].box.x).toBe(400);
+  });
+
+  it("builds a fresh node when the layer, the canvas or its clip base changes", () => {
+    const layer = { ...newShapeLayer("rect"), id: "r" };
+    const surface = art([layer]);
+    const node = imageScene(surface, none).nodes[0];
+    expect(imageScene(surface, none).nodes[0]).toBe(node);
+    expect(imageScene(art([{ ...layer, fill: "#000000" }]), none).nodes[0]).not.toBe(node);
+    expect(imageScene({ ...surface, canvas: { ...surface.canvas, width: 500 } }, none).nodes[0]).not.toBe(node);
+    const base = { ...newShapeLayer("ellipse"), id: "base" };
+    expect(imageScene(art([base, { ...layer, clip: true }]), none).nodes[1]).not.toBe(node);
+  });
+
+  it("keeps the canvas adjustment node of a still canvas", () => {
+    const surface = { ...art([]), canvas: { ...art([]).canvas, vfx: [{ id: "g", kind: "grain" as const, seed: 1 }] } };
+    const first = imageScene(surface, none).nodes;
+    expect(first).toHaveLength(1);
+    expect(imageScene(surface, none).nodes[0]).toBe(first[0]);
+  });
+});

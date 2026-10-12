@@ -1,13 +1,13 @@
 import { FRAMES_PER_SECOND } from "./document";
 
-export const MIN_PX_PER_SECOND = 4;
+export const MIN_PX_PER_SECOND = 1;
 export const MAX_PX_PER_SECOND = 640;
 export const DEFAULT_PX_PER_SECOND = 60;
 export const ZOOM_STEP = 1.25;
 export const SNAP_RADIUS_PX = 8;
 export const MIN_LABEL_SPACING_PX = 72;
 
-const RULER_STEPS_MS = [100, 200, 500, 1000, 2000, 5000, 10_000, 15_000, 30_000, 60_000];
+const RULER_STEPS_MS = [100, 200, 500, 1000, 2000, 5000, 10_000, 15_000, 30_000, 60_000, 120_000];
 
 export function clampZoom(pxPerSecond: number): number {
   if (!Number.isFinite(pxPerSecond)) return DEFAULT_PX_PER_SECOND;
@@ -205,12 +205,6 @@ export function envelopePoints(clip: EnvelopeInput, widthPx: number, heightPx: n
     [widthPx - fadeOut, top],
     [widthPx, fadeOut > 0 ? heightPx : top],
   ];
-}
-
-export function levelFromY(y: number, heightPx: number, maxLevel: number): number {
-  if (heightPx <= 0) return 0;
-  const fraction = 1 - Math.min(heightPx, Math.max(0, y)) / heightPx;
-  return Math.round(fraction * maxLevel * 100) / 100;
 }
 
 export function formatSmpte(ms: number): string {

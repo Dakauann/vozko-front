@@ -1,3 +1,4 @@
+import { parseColor } from "../color";
 import type { Filters } from "../document";
 
 export type ColorMatrix = number[];
@@ -14,6 +15,13 @@ function multiply(outer: ColorMatrix, inner: ColorMatrix): ColorMatrix {
     }
   }
   return result;
+}
+
+export function tintMatrix(color: string, amount: number): ColorMatrix | null {
+  const rgba = parseColor(color);
+  if (!rgba || amount <= 0) return null;
+  const keep = 1 - amount;
+  return [keep, 0, 0, 0, (amount * rgba.r) / 255, 0, keep, 0, 0, (amount * rgba.g) / 255, 0, 0, keep, 0, (amount * rgba.b) / 255, 0, 0, 0, 1, 0];
 }
 
 function brighten(amount: number): ColorMatrix {

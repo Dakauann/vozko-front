@@ -474,6 +474,30 @@ export function relativeFromText(text: string): { name: string; number: string }
   return { name: typed, number: "" };
 }
 
+function sharedHome(address: AddressDraft): AddressDraft {
+  const copy: AddressDraft = { ...address, key: nextKey("address"), label: "home", primary: true };
+  delete copy.id;
+  delete copy.keepPosition;
+  return copy;
+}
+
+export function relativeSeedDraft(typed: { name: string; number: string }, home: AddressDraft | null): LeadSheetDraft {
+  return { ...emptyLeadDraft(), name: typed.name, number: typed.number, addresses: home ? [sharedHome(home)] : [] };
+}
+
+export function withLinkedRelative(draft: LeadSheetDraft, kind: LeadRelationKind, relative: LeadRecord): LeadSheetDraft {
+  if (draft.relatives.some((pending) => pending.existingLeadId === relative.id)) return draft;
+  const linked: RelativeDraft = {
+    key: nextKey("relative"),
+    kind,
+    existingLeadId: relative.id,
+    name: relative.realName ?? relative.name ?? "",
+    number: relative.number,
+    copyPrimaryAddress: false,
+  };
+  return { ...draft, relatives: [...draft.relatives, linked] };
+}
+
 export function moveNumberToContacts(draft: LeadSheetDraft, base: LeadRecord): LeadSheetDraft {
   const typed = draft.number.trim();
   const withPhone = typed ? addPhone(draft) : draft;

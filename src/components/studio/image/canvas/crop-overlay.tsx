@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { Group, Image as KonvaImage, Rect, Transformer } from "react-konva";
 
 import { loadAssetImage, useLoadedImage } from "@/components/studio/canvas/asset-images";
-import { clampCropBox } from "@/lib/studio/crop";
+import { clampCropBox, clampFramedBox } from "@/lib/studio/crop";
 import type { PixelBox } from "@/lib/studio/geometry";
 
 import { layerOf } from "@/lib/studio/artboards";
@@ -14,6 +14,7 @@ import { useEditorUi, useImageDoc, useImageEditor } from "../editor-state";
 
 const CROP_COLOR = "#6366f1";
 const DIM_OPACITY = 0.35;
+const FRAMED_ANCHORS = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
 function FlippedImage({ image, width, height, flipX, flipY, opacity }: { image: HTMLImageElement; width: number; height: number; flipX?: boolean; flipY?: boolean; opacity?: number }) {
   return (
@@ -50,7 +51,7 @@ export function CropOverlay() {
   const { frame } = crop;
 
   const commit = (next: PixelBox) => {
-    const clamped = clampCropBox(next, frame);
+    const clamped = crop.ratio ? clampFramedBox(next, frame, crop.ratio) : clampCropBox(next, frame);
     box.current?.setAttrs({ x: clamped.left, y: clamped.top, width: clamped.width, height: clamped.height, scaleX: 1, scaleY: 1 });
     commands.updateCropBox(clamped);
   };
@@ -80,7 +81,8 @@ export function CropOverlay() {
       <Transformer
         ref={transformer}
         rotateEnabled={false}
-        keepRatio={false}
+        keepRatio={crop.ratio !== undefined}
+        enabledAnchors={crop.ratio !== undefined ? FRAMED_ANCHORS : undefined}
         flipEnabled={false}
         ignoreStroke
         borderStroke={CROP_COLOR}

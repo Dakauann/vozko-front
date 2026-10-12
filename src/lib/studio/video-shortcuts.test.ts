@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { videoExtraActionFor } from "./video-shortcuts";
+import { previewZoomActionFor, videoExtraActionFor } from "./video-shortcuts";
 
 const stroke = (key: string, extra: Partial<{ ctrlKey: boolean; shiftKey: boolean; altKey: boolean; target: EventTarget }> = {}) => ({
   key,
@@ -14,14 +14,24 @@ const stroke = (key: string, extra: Partial<{ ctrlKey: boolean; shiftKey: boolea
 describe("video extra shortcuts", () => {
   it("adds a marker with M and jumps between markers with Alt and the arrows", () => {
     expect(videoExtraActionFor(stroke("m"))).toEqual({ type: "addMarker" });
-    expect(videoExtraActionFor(stroke("ArrowRight", { altKey: true }))).toEqual({ type: "jumpMarker", direction: 1 });
-    expect(videoExtraActionFor(stroke("ArrowLeft", { altKey: true }))).toEqual({ type: "jumpMarker", direction: -1 });
+    expect(videoExtraActionFor(stroke("ArrowRight", { altKey: true }))).toEqual({ type: "nudgeKeysOrJumpMarker", direction: 1, frames: 1 });
+    expect(videoExtraActionFor(stroke("ArrowLeft", { altKey: true }))).toEqual({ type: "nudgeKeysOrJumpMarker", direction: -1, frames: 1 });
   });
 
   it("stays out of typing and other chords", () => {
     expect(videoExtraActionFor(stroke("m", { ctrlKey: true }))).toBeNull();
     expect(videoExtraActionFor(stroke("m", { target: document.createElement("input") }))).toBeNull();
     expect(videoExtraActionFor(stroke("ArrowRight"))).toBeNull();
+  });
+});
+
+describe("graph editor shortcuts", () => {
+  it("toggles the graph with Shift F3 and fits it to the clip or the selected keys", () => {
+    expect(videoExtraActionFor(stroke("F3", { shiftKey: true }))).toEqual({ type: "toggleGraph" });
+    expect(videoExtraActionFor(stroke("F3"))).toBeNull();
+    expect(videoExtraActionFor(stroke("F", { shiftKey: true }))).toEqual({ type: "fitGraph", selection: false });
+    expect(videoExtraActionFor(stroke("F", { shiftKey: true, ctrlKey: true }))).toEqual({ type: "fitGraph", selection: true });
+    expect(videoExtraActionFor(stroke("F3", { shiftKey: true, target: document.createElement("input") }))).toBeNull();
   });
 });
 
@@ -58,8 +68,20 @@ describe("editing shortcuts", () => {
     [stroke("b", { ctrlKey: true }), { type: "cutAll" }],
     [stroke("k", { ctrlKey: true }), { type: "cutAll" }],
     [stroke("Z", { shiftKey: true }), { type: "zoomToFit" }],
+    [stroke("Q", { shiftKey: true }), { type: "rollToPlayhead", edge: "start" }],
+    [stroke("W", { shiftKey: true }), { type: "rollToPlayhead", edge: "end" }],
   ])("maps %o", (input, action) => {
     expect(videoExtraActionFor(input)).toEqual(action);
+  });
+});
+
+describe("work area shortcuts", () => {
+  it("plays the marked range with Ctrl+Shift+Space, toggles the loop with Shift+L and sets the area with Alt+B and Alt+N", () => {
+    expect(videoExtraActionFor(stroke(" ", { ctrlKey: true, shiftKey: true }))).toEqual({ type: "playRange" });
+    expect(videoExtraActionFor(stroke("L", { shiftKey: true }))).toEqual({ type: "toggleLoop" });
+    expect(videoExtraActionFor({ ...stroke("∫", { altKey: true }), code: "KeyB" })).toEqual({ type: "markIn" });
+    expect(videoExtraActionFor({ ...stroke("n", { altKey: true }), code: "KeyN" })).toEqual({ type: "markOut" });
+    expect(videoExtraActionFor({ ...stroke("B", { altKey: true, shiftKey: true }), code: "KeyB" })).toBeNull();
   });
 });
 
@@ -74,5 +96,38 @@ describe("paste is left to the paste event", () => {
   it("does not claim Ctrl+V so the browser fires paste", () => {
     expect(videoExtraActionFor(stroke("v", { ctrlKey: true }))).toBeNull();
     expect(videoExtraActionFor(stroke("V", { ctrlKey: true, shiftKey: true }))).toBeNull();
+  });
+});
+
+describe("keyframe curve shortcuts", () => {
+  it("eases both sides, the incoming or the outgoing side of keys with F9, and holds them with Ctrl Alt H", () => {
+    expect(videoExtraActionFor(stroke("F9"))).toEqual({ type: "easeSides", sides: "both" });
+    expect(videoExtraActionFor(stroke("F9", { shiftKey: true }))).toEqual({ type: "easeSides", sides: "in" });
+    expect(videoExtraActionFor(stroke("F9", { ctrlKey: true, shiftKey: true }))).toEqual({ type: "easeSides", sides: "out" });
+    expect(videoExtraActionFor(stroke("F9", { ctrlKey: true }))).toBeNull();
+    expect(videoExtraActionFor(stroke("h", { ctrlKey: true, altKey: true }))).toEqual({ type: "easeKeys", easing: "hold" });
+    expect(videoExtraActionFor(stroke("F9", { altKey: true }))).toBeNull();
+  });
+
+  it("opens the key velocity with Ctrl Shift K", () => {
+    expect(videoExtraActionFor(stroke("K", { ctrlKey: true, shiftKey: true }))).toEqual({ type: "keyVelocity" });
+    expect(videoExtraActionFor(stroke("k", { ctrlKey: true }))).toEqual({ type: "cutAll" });
+  });
+
+  it("nudges selected keys a frame with Alt and the arrows, ten with Shift", () => {
+    expect(videoExtraActionFor(stroke("ArrowRight", { altKey: true, shiftKey: true }))).toEqual({ type: "nudgeKeysOrJumpMarker", direction: 1, frames: 10 });
+    expect(videoExtraActionFor(stroke("ArrowLeft", { altKey: true, shiftKey: true }))).toEqual({ type: "nudgeKeysOrJumpMarker", direction: -1, frames: 10 });
+  });
+});
+
+describe("preview zoom shortcuts", () => {
+  it("zooms the preview with the image editor keys, without a selection fit", () => {
+    expect(previewZoomActionFor(stroke("=", { ctrlKey: true }))).toEqual({ type: "zoom", direction: 1 });
+    expect(previewZoomActionFor(stroke("-", { ctrlKey: true }))).toEqual({ type: "zoom", direction: -1 });
+    expect(previewZoomActionFor(stroke("0", { ctrlKey: true }))).toEqual({ type: "fit" });
+    expect(previewZoomActionFor({ ...stroke("!", { shiftKey: true }), code: "Digit1" })).toEqual({ type: "fit" });
+    expect(previewZoomActionFor({ ...stroke(")", { shiftKey: true }), code: "Digit0" })).toEqual({ type: "actualSize" });
+    expect(previewZoomActionFor({ ...stroke("@", { shiftKey: true }), code: "Digit2" })).toBeNull();
+    expect(previewZoomActionFor(stroke("="))).toBeNull();
   });
 });

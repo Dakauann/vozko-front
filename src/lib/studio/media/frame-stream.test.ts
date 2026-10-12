@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DECODE_THROUGH_SEC, FrameStream, type DecodedFrame, type StreamRequest } from "./frame-stream";
+import { DECODE_THROUGH_SEC, FrameStream, REVERSE_WINDOW_SEC, type DecodedFrame, type StreamRequest } from "./frame-stream";
 
 interface FakePicture {
   at: number;
@@ -120,5 +120,48 @@ describe("frame stream", () => {
     stream.dispose();
     expect(held.picture.closed && queued.picture.closed).toBe(true);
     expect(stream.show(1).picture).toBeNull();
+  });
+});
+
+describe("frame stream played backwards", () => {
+  it("decodes a short window ending at the time and walks it back without seeking per frame", () => {
+    const stream = new FrameStream<FakePicture>();
+    const first = stream.show(2, true);
+    expect(seekOf(first.requests)).toEqual({ kind: "seek", generation: 1, seconds: 2 - REVERSE_WINDOW_SEC, until: 2 });
+    const frames = [1.6, 1.7, 1.8, 1.9, 2].map((at) => frame(1, at));
+    frames.forEach((f) => stream.receive(f));
+    stream.end(1);
+    expect(stream.show(2, true).picture?.at).toBe(2);
+    expect(stream.exact(2)).toBe(true);
+    const back = stream.show(1.75, true);
+    expect(back.picture?.at).toBe(1.7);
+    expect(seekOf(back.requests)).toBeUndefined();
+    expect(frames[3].picture.closed && frames[4].picture.closed).toBe(true);
+    expect(frames[0].picture.closed).toBe(false);
+    expect(stream.exact(1.75)).toBe(true);
+  });
+
+  it("keeps walking back after frames arrived one by one between looks", () => {
+    const stream = new FrameStream<FakePicture>();
+    stream.show(3, true);
+    for (const at of [2.6, 2.7, 2.8, 2.9, 3]) {
+      stream.receive(frame(1, at));
+      stream.show(3, true);
+    }
+    stream.end(1);
+    expect(stream.show(3, true).picture?.at).toBe(3);
+    expect(stream.show(2.85, true).picture?.at).toBe(2.8);
+    expect(stream.show(2.75, true).picture?.at).toBe(2.7);
+  });
+
+  it("decodes the window before once it walks past the oldest frame, and turns forward again with a seek", () => {
+    const stream = new FrameStream<FakePicture>();
+    stream.show(2, true);
+    [1.6, 1.7].forEach((at) => stream.receive(frame(1, at)));
+    stream.end(1);
+    stream.show(1.6, true);
+    expect(seekOf(stream.show(1.5, true).requests)).toEqual({ kind: "seek", generation: 2, seconds: 1.5 - REVERSE_WINDOW_SEC, until: 1.5 });
+    stream.receive(frame(2, 1.4));
+    expect(seekOf(stream.show(1.45, false).requests)).toEqual({ kind: "seek", generation: 3, seconds: 1.45 });
   });
 });

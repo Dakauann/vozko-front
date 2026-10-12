@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
-import { Sparkle, Square, TextT, UploadSimple, type Icon } from "@/components/icons";
+import { Sparkle, TextT, UploadSimple, type Icon } from "@/components/icons";
+import { ElementsGlyph } from "@/components/studio/library/elements-glyph";
 import { cn } from "@/lib/utils";
 
 import { Hint } from "./controls";
@@ -12,7 +13,7 @@ import { ElementsPanel } from "./panels/elements-panel";
 import { TextPanel } from "./panels/text-panel";
 import { UploadsPanel } from "./panels/uploads-panel";
 
-const RAIL_ICONS: Record<PanelId, Icon> = { text: TextT, elements: Square, uploads: UploadSimple, ai: Sparkle };
+const RAIL_ICONS: Record<PanelId, Icon> = { text: TextT, elements: ElementsGlyph, uploads: UploadSimple, ai: Sparkle };
 
 const PANELS: Record<PanelId, () => React.JSX.Element> = { text: TextPanel, elements: ElementsPanel, uploads: UploadsPanel, ai: AiPanel };
 

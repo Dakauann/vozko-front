@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWorkspace } from "@/contexts/workspace-context";
+import { takeBackStreamed, type Streamed } from "@/lib/aichat/retract";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
 import {
   createReconnectController,
@@ -40,10 +41,20 @@ export interface BuilderChatEntry {
   streaming?: boolean;
 }
 
+function streamedEntry(entry: BuilderChatEntry): Streamed<BuilderChatEntry> | null {
+  if (entry.role !== "assistant" && entry.role !== "thinking") return null;
+  return { channel: entry.role === "assistant" ? "text" : "reasoning", text: entry.text, withText: (text) => ({ ...entry, text }) };
+}
+
+function setModelMessage(model: string, reasoning: string) {
+  return { type: "set_model", data: reasoning ? { model, reasoning } : { model } };
+}
+
 interface UseWorkflowAIBuilderOptions {
   workflowId: string;
   workflowType: WorkflowType;
   model?: string;
+  reasoning?: string;
   onGraph?: (graph: WorkflowGraph) => void;
   onMeta?: (meta: { name?: string; description?: string; workflowType?: WorkflowType }) => void;
   getGraph?: () => WorkflowGraph | null | undefined;
@@ -76,6 +87,7 @@ export function useWorkflowAIBuilder({
   workflowId,
   workflowType,
   model,
+  reasoning = "",
   onGraph,
   onMeta,
   getGraph,
@@ -106,13 +118,15 @@ export function useWorkflowAIBuilder({
   const getGraphRef = useRef(getGraph);
   const workflowTypeRef = useRef(workflowType);
   const modelRef = useRef(model);
+  const reasoningRef = useRef(reasoning);
   useEffect(() => {
     onGraphRef.current = onGraph;
     onMetaRef.current = onMeta;
     getGraphRef.current = getGraph;
     workflowTypeRef.current = workflowType;
     modelRef.current = model;
-  }, [onGraph, onMeta, getGraph, workflowType, model]);
+    reasoningRef.current = reasoning;
+  }, [onGraph, onMeta, getGraph, workflowType, model, reasoning]);
 
   const cleanup = useCallback(() => {
     intentionalRef.current = true;
@@ -165,9 +179,7 @@ export function useWorkflowAIBuilder({
             }),
           );
           if (modelRef.current) {
-            ws.send(
-              JSON.stringify({ type: "set_model", data: { model: modelRef.current } }),
-            );
+            ws.send(JSON.stringify(setModelMessage(modelRef.current, reasoningRef.current)));
           }
           const current = getGraphRef.current?.();
           if (
@@ -240,6 +252,11 @@ export function useWorkflowAIBuilder({
             }
             return [...prev, { role: "assistant", text: p.text!, streaming: true }];
           });
+          break;
+        }
+        case "assistant_retry": {
+          const p = msg.payload as { text?: string; reasoning?: string };
+          setChat((prev) => takeBackStreamed(prev, { text: p?.text ?? "", reasoning: p?.reasoning ?? "" }, streamedEntry));
           break;
         }
         case "assistant_done": {
@@ -370,9 +387,9 @@ export function useWorkflowAIBuilder({
 
   useEffect(() => {
     if (model && wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "set_model", data: { model } }));
+      wsRef.current.send(JSON.stringify(setModelMessage(model, reasoning)));
     }
-  }, [model]);
+  }, [model, reasoning]);
 
   const sendPrompt = useCallback((text: string) => {
     const trimmed = text.trim();

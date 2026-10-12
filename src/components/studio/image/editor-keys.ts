@@ -1,4 +1,5 @@
 import { bindKeymap, canvasActionFor, imageZoomActionFor, isEditableTarget, vectorModeAction, type KeyStroke } from "@/lib/studio/keymap";
+import { pixelKeyActionFor } from "@/lib/studio/pixel-tools";
 import type { ShapeOpIssue } from "@/lib/studio/shape-ops";
 import { styleActionFor } from "@/lib/studio/style";
 
@@ -8,17 +9,23 @@ import type { EditorUiStore } from "./editor-state";
 export interface EditorKeyDeps {
   commands: ImageCommands;
   ui: EditorUiStore;
-  isBusy: () => boolean;
   onShapeOp: (issue: ShapeOpIssue | null) => void;
 }
 
-export function bindEditorKeys(target: Window, { commands, ui, isBusy, onShapeOp }: EditorKeyDeps): () => void {
+export function bindEditorKeys(target: Window, { commands, ui, onShapeOp }: EditorKeyDeps): () => void {
   const resolve = (stroke: KeyStroke) => {
     const { tool, pathEditId } = ui.getState();
     return tool === "select" && !pathEditId ? canvasActionFor(stroke) : vectorModeAction(canvasActionFor(stroke));
   };
+  const unbindPixels = bindKeymap(
+    target,
+    (stroke) => {
+      const state = ui.getState();
+      return state.crop || state.editingTextId ? null : pixelKeyActionFor(stroke, { tool: state.pixelTool, hasSelection: state.pixelSelection !== null });
+    },
+    commands.pixel.runKey,
+  );
   const unbindActions = bindKeymap(target, resolve, (action) => {
-    if (isBusy()) return;
     if (ui.getState().crop && action.type !== "deselect" && action.type !== "undo" && action.type !== "redo") return;
     if (action.type === "shapeOp") return onShapeOp(commands.shapeOperation(action.kind));
     commands.runAction(action);
@@ -26,6 +33,7 @@ export function bindEditorKeys(target: Window, { commands, ui, isBusy, onShapeOp
   const unbindZoom = bindKeymap(target, imageZoomActionFor, (action) => {
     if (action.type === "fit") return commands.fit();
     if (action.type === "fitSelection") return commands.fitSelection();
+    if (action.type === "actualSize") return commands.setZoom(1);
     commands.zoomStep(action.direction);
   });
   const unbindStyle = bindKeymap(target, styleActionFor, (action) => (action.type === "copyStyle" ? commands.copyStyle() : commands.pasteStyle()));
@@ -36,6 +44,7 @@ export function bindEditorKeys(target: Window, { commands, ui, isBusy, onShapeOp
   };
   target.addEventListener("keydown", onEnter);
   return () => {
+    unbindPixels();
     unbindActions();
     unbindZoom();
     unbindStyle();

@@ -31,3 +31,15 @@ export function redirect() {
 export function notFound() {
   return undefined;
 }
+
+export function permanentRedirect() {
+  return undefined;
+}
+
+export function useSelectedLayoutSegment() {
+  return null;
+}
+
+export function useSelectedLayoutSegments() {
+  return [];
+}

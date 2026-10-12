@@ -4,11 +4,13 @@ import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { useMediaGeneration, type MediaGenerationError, type MediaGenerationStatus } from "@/hooks/use-media-generation";
+import { overlayLabelKey, pendingMediaJobs, videoJobOverlays } from "@/lib/studio/job-overlay";
+import { findClip } from "@/lib/studio/timeline";
 
 import { AgentCursor } from "../agent/agent-cursor";
 import type { AgentTask } from "../agent/agent-tasks";
 import type { AgentPresence } from "../agent/presence";
-import { useVideoEditor, useViewState } from "./editor-context";
+import { useEditorState, useVideoEditor, useViewState } from "./editor-context";
 import { placeJobResult } from "./job-placement";
 import type { VideoJob, VideoJobPurpose } from "./view-store";
 
@@ -93,6 +95,16 @@ export function VideoAgentCursor({ presence }: { presence: AgentPresence }) {
   const jobs = useViewState((s) => s.jobs);
   const tasks = useMemo(() => agentTasks(jobs), [jobs]);
   return <AgentCursor presence={presence} tasks={tasks} anchor="[data-studio-preview]" />;
+}
+
+export function useProcessingMedia(): ReadonlyMap<string, string> {
+  const t = useTranslations("mediaGeneration");
+  const jobs = useViewState((s) => s.jobs);
+  const document = useEditorState((s) => s.document);
+  return useMemo(() => {
+    const pending = pendingMediaJobs(videoJobOverlays(jobs), (clipId) => findClip(document, clipId)?.clip.assetId);
+    return new Map([...pending].map(([mediaId, entry]) => [mediaId, t(overlayLabelKey(entry.phase, entry.purpose, "generating"))]));
+  }, [jobs, document, t]);
 }
 
 export function useRunningKinds(): VideoJobPurpose[] {

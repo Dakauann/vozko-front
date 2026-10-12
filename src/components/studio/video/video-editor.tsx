@@ -7,12 +7,13 @@ import { getMediaGenerationAction, requestMediaGenerationAction } from "@/app/ac
 import TourGuide from "@/components/TourGuide";
 import { useScreenTurnEnd } from "@/components/ai-chat/screen-bridge";
 import { useStudioAgent, useStudioAgentKit } from "@/components/studio/agent/use-studio-agent";
+import { StoreGestures } from "@/components/studio/canvas/live-gesture";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import type { StudioEditorMountProps } from "@/components/studio/studio-editor-shell";
 import { studioVideoTourPalette, studioVideoTourSeed, studioVideoTourSteps } from "@/data/tour-studio-video";
 import { bindKeymap, videoActionFor, type VideoAction } from "@/lib/studio/keymap";
 import { videoAssetIds } from "@/lib/studio/media-clips";
-import { videoExtraActionFor, type VideoExtraAction } from "@/lib/studio/video-shortcuts";
+import { previewZoomActionFor, videoExtraActionFor, type PreviewZoomAction, type VideoExtraAction } from "@/lib/studio/video-shortcuts";
 
 import { AgentFollower } from "./agent-follow";
 import type { EditorCommands } from "./editor-commands";
@@ -21,14 +22,20 @@ import { EditorToolbar } from "./editor-toolbar";
 import { Inspector } from "./inspector/inspector";
 import { VideoAgentCursor, VideoJobFollowers } from "./jobs";
 import { EditorNotice } from "./editor-notice";
+import { exportLocally } from "./export/browser-export";
+import { lutReadable } from "../canvas/lut-files";
+import { createExportState, createVideoExporter } from "./export/video-exporter";
+import { VideoExportContext } from "./use-video-export";
+import { useStudioTelemetry } from "../telemetry/studio-telemetry";
 import { SidePanel } from "./panels/side-panel";
 import { Preview } from "./preview/preview";
+import { KeyframeDialogs } from "./timeline/keyframe-dialogs";
 import { Timeline } from "./timeline/timeline";
 import { bindPaste } from "./paste-handler";
 import { browserFrames } from "./playback-controller";
 import { ProxyQueue } from "./proxy-queue";
 import { createVideoEditorRuntime } from "./runtime";
-import { createVideoAgent } from "./video-agent";
+import { createVideoAgent, createVideoReveal } from "./video-agent";
 
 export type VideoEditorProps = StudioEditorMountProps<"video">;
 
@@ -36,16 +43,26 @@ function runExtraAction(action: VideoExtraAction, commands: EditorCommands) {
   switch (action.type) {
     case "addMarker":
       return commands.addMarker();
-    case "jumpMarker":
-      return commands.jumpMarker(action.direction);
+    case "addClipMarker":
+      return commands.addClipMarker();
+    case "nudgeKeysOrJumpMarker":
+      return commands.nudgeKeysOrJumpMarker(action.direction, action.frames);
+    case "easeSides":
+      return commands.easeSides(action.sides);
+    case "keyVelocity":
+      return commands.openKeyDialog("velocity");
     case "jumpKey":
       return commands.jumpKey(action.direction);
     case "toggleKey":
       return commands.toggleKey();
+    case "easeKeys":
+      return commands.easeKeys(action.easing);
     case "tool":
       return commands.setTool(action.tool);
     case "cycleTrim":
       return commands.cycleTrimTool();
+    case "rollToPlayhead":
+      return commands.rollToPlayhead(action.edge);
     case "selectForward":
       return commands.selectForward(null, action.allTracks);
     case "selectFromPlayhead":
@@ -56,6 +73,10 @@ function runExtraAction(action: VideoExtraAction, commands: EditorCommands) {
       return commands.markOut();
     case "clearRange":
       return commands.clearRange();
+    case "playRange":
+      return commands.playRange();
+    case "toggleLoop":
+      return commands.toggleLoop();
     case "lift":
       return commands.lift();
     case "extract":
@@ -74,9 +95,35 @@ function runExtraAction(action: VideoExtraAction, commands: EditorCommands) {
       return commands.zoomToFit();
     case "focus":
       return commands.enterFocus();
+    case "toggleGraph":
+      return commands.toggleGraph();
+    case "fitGraph":
+      return commands.fitGraph(action.selection);
+    case "group":
+      return commands.groupSelection();
+    case "ungroup":
+      return commands.ungroupSelection();
+    case "openGroup":
+      return commands.openSelection();
+    case "closeGroup":
+      return commands.closeGroup();
     case "escape":
       return commands.escape();
+    case "trimToPlayhead":
+      return commands.trimToPlayhead(action.edge, action.ripple);
+    case "moveToPlayhead":
+      return commands.moveToPlayhead(action.edge);
+    case "align":
+      return commands.alignSelection(action.alignment);
+    case "distribute":
+      return commands.distributeSelection(action.axis);
   }
+}
+
+function runPreviewZoom(action: PreviewZoomAction, commands: EditorCommands) {
+  if (action.type === "fit") return commands.fitPreview();
+  if (action.type === "actualSize") return commands.zoomPreview(1);
+  commands.stepPreviewZoom(action.direction);
 }
 
 function runAction(action: VideoAction, value: VideoEditorContextValue, commands: EditorCommands) {
@@ -122,7 +169,7 @@ function useEditorRuntime({ project, studio }: VideoEditorProps): VideoEditorCon
 
 export function VideoEditor(props: VideoEditorProps) {
   const value = useEditorRuntime(props);
-  const { store, clock, playback, audio, assets, commands, studio, frames } = value;
+  const { root, store, clock, playback, audio, assets, commands, studio, frames, meters } = value;
   const studioRef = useRef(studio);
   const valueRef = useRef(value);
   const kit = useStudioAgentKit();
@@ -131,11 +178,37 @@ export function VideoEditor(props: VideoEditorProps) {
   const [follower] = useState(() => new AgentFollower({ view, seek: (ms) => playback.seek(ms), frames: browserFrames, now: () => performance.now(), reduceMotion: kit.reduceMotion }));
   useEffect(() => follower.attach(), [follower]);
   useScreenTurnEnd(useCallback(() => follower.resume(), [follower]));
-  const agent = useMemo(
-    () => createVideoAgent({ editor: { store, view, clock, assets, audio, playback, commands, frames }, presence: kit.presence, follower, captionTrackName, label: kit.label, reduceMotion: kit.reduceMotion }),
-    [store, view, clock, assets, audio, playback, commands, frames, kit, follower, captionTrackName],
+  const telemetry = useStudioTelemetry();
+  const [exportState] = useState(createExportState);
+  const { flush, committed } = studio;
+  const projectId = props.project.id;
+  const exporter = useMemo(
+    () =>
+      createVideoExporter(
+        {
+          document: () => root.getState().document,
+          commit: () => root.getState().commitTransaction(),
+          flush,
+          committed,
+          lutReadable,
+          local: async (document, request, onPhase) => {
+            const local = await exportLocally(projectId, document, request, onPhase);
+            if (local.status === "done") telemetry?.exported();
+            else telemetry?.exportFailed(local.reason);
+            return local;
+          },
+          refreshLibrary: () => void assets.loadLibrary(),
+        },
+        exportState,
+      ),
+    [exportState, root, assets, flush, committed, telemetry, projectId],
   );
-  useStudioAgent(props.project.id, "video", studio.name ?? props.project.name, agent);
+  const agent = useMemo(
+    () => createVideoAgent({ editor: { root, store: root, view, clock, assets, audio, playback, commands, frames, meters }, exporter, presence: kit.presence, follower, captionTrackName, label: kit.label, reduceMotion: kit.reduceMotion, library: kit.library }),
+    [root, view, clock, assets, audio, playback, commands, frames, meters, exporter, kit, follower, captionTrackName],
+  );
+  const reveal = useMemo(() => createVideoReveal({ view, commands, playback }), [view, commands, playback]);
+  useStudioAgent(props.project.id, "video", studio.name ?? props.project.name, agent, reveal);
   const { presence } = kit;
 
   useEffect(() => {
@@ -149,41 +222,46 @@ export function VideoEditor(props: VideoEditorProps) {
 
   useEffect(() => {
     const proxies = new ProxyQueue({ request: requestMediaGenerationAction, get: getMediaGenerationAction, wait: (ms) => new Promise((done) => setTimeout(done, ms)), onReady: assets.rememberProxy });
-    const sync = () => proxies.want(videoAssetIds(store.getState().document));
+    const sync = () => proxies.want(videoAssetIds(root.getState().document));
     sync();
-    const stop = store.subscribe(sync);
+    const stop = root.subscribe(sync);
     return () => {
       stop();
       proxies.dispose();
     };
-  }, [store, assets]);
+  }, [root, assets]);
+
+  useEffect(
+    () =>
+      store.subscribe((state, previous) => {
+        if (state.document !== previous.document) playback.documentChanged();
+      }),
+    [store, playback],
+  );
 
   useEffect(() => {
-    let saved = store.getState().document;
-    return store.subscribe((state, previous) => {
-      if (state.document !== previous.document) playback.documentChanged();
+    let saved = root.getState().document;
+    return root.subscribe((state) => {
       if (state.inTransaction || state.document === saved) return;
       saved = state.document;
       studioRef.current.edit({ document: state.document });
     });
-  }, [store, playback]);
+  }, [root]);
 
   useEffect(
     () =>
-      bindKeymap(window, videoActionFor, (action) => {
-        if (!presence.isBusy()) runAction(action, valueRef.current, commands);
-      }),
-    [commands, presence],
+      bindKeymap(window, videoActionFor, (action) => runAction(action, valueRef.current, commands)),
+    [commands],
   );
 
   useEffect(() => bindPaste(commands), [commands]);
 
+  useEffect(() => bindKeymap(window, previewZoomActionFor, (action) => runPreviewZoom(action, commands)), [commands]);
+
   useEffect(
     () =>
-      bindKeymap(window, videoExtraActionFor, (action) => {
-        if (!presence.isBusy()) runExtraAction(action, commands);
-      }),
-    [commands, presence],
+      bindKeymap(window, videoExtraActionFor, (action) => runExtraAction(action, commands)),
+    [commands],
   );
 
   useEffect(
@@ -191,12 +269,15 @@ export function VideoEditor(props: VideoEditorProps) {
       playback.dispose();
       audio.dispose();
       frames.dispose();
+      meters.dispose();
     },
-    [playback, audio, frames],
+    [playback, audio, frames, meters],
   );
 
   return (
     <VideoEditorContext.Provider value={value}>
+      <VideoExportContext.Provider value={exporter}>
+      <StoreGestures store={value.store}>
       <div className="flex h-full min-h-0 flex-col bg-background">
         <EditorToolbar />
         <ResizablePanelGroup direction="vertical" autoSaveId="studio-video-rows" className="min-h-0 flex-1">
@@ -221,6 +302,7 @@ export function VideoEditor(props: VideoEditorProps) {
           </ResizablePanel>
         </ResizablePanelGroup>
         <EditorNotice />
+        <KeyframeDialogs />
       </div>
       <VideoJobFollowers />
       <VideoAgentCursor presence={presence} />
@@ -231,6 +313,8 @@ export function VideoEditor(props: VideoEditorProps) {
         introPalette={studioVideoTourPalette}
         introSeed={studioVideoTourSeed}
       />
+      </StoreGestures>
+      </VideoExportContext.Provider>
     </VideoEditorContext.Provider>
   );
 }

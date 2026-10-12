@@ -224,6 +224,16 @@ describe("MiniMapCanvas", () => {
     expect(map.jumps).toContainEqual({ center: [-43.17, -22.9], zoom: 16 });
   });
 
+  it("says the streets are still loading until the map settles, and again when it moves to new tiles", async () => {
+    renderInPortuguese(<MiniMapCanvas position={{ lat: -6.31, lng: -35.48 }} precision="postal_code" interactive draggable />);
+    const { map } = await loadedMiniMap();
+    expect(screen.getByRole("status")).toHaveTextContent("Carregando as ruas…");
+    act(() => map.fire("idle"));
+    expect(screen.queryByText("Carregando as ruas…")).not.toBeInTheDocument();
+    act(() => map.fire("dataloading"));
+    expect(screen.getByText("Carregando as ruas…")).toBeInTheDocument();
+  });
+
   it("removes the map when it unmounts", async () => {
     const { unmount } = renderInPortuguese(<MiniMapCanvas position={{ lat: -23.56, lng: -46.65 }} />);
     const { map } = await loadedMiniMap();

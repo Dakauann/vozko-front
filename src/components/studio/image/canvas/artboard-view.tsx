@@ -6,8 +6,11 @@ import { Group, Rect, Shape } from "react-konva";
 
 import { gradientFill, LayerNode } from "@/components/studio/canvas/layer-node";
 import { LayerStack, type StackNodeExtra } from "@/components/studio/canvas/layer-stack";
-import type { Artboard, CanvasSize, Layer } from "@/lib/studio/document";
+import { VfxAdjustment } from "@/components/studio/canvas/vfx-content";
+import type { Artboard, CanvasSize, ImageSurface, Layer } from "@/lib/studio/document";
+import { instanceAnchors } from "@/lib/studio/components";
 import { cachePixelRatioFor } from "@/lib/studio/paint";
+import { repeatedLayers } from "@/lib/studio/repeat-edits";
 
 import { useCheckerImage } from "./checker";
 
@@ -33,9 +36,10 @@ interface LayerItemProps extends StackNodeExtra {
   pickable: boolean;
   concealed: boolean;
   handlers: GroupProps;
+  pixelRatio?: number;
 }
 
-type ProxyProps = Omit<LayerItemProps, keyof StackNodeExtra>;
+type ProxyProps = Omit<LayerItemProps, keyof StackNodeExtra | "pixelRatio">;
 
 function drawNothing() {}
 
@@ -76,9 +80,9 @@ const LayerProxy = memo(function LayerProxy({ layer, canvas, draggable, pickable
   );
 });
 
-const LayerItem = memo(function LayerItem({ layer, canvas, draggable, pickable, concealed, handlers, composite, onReady, onError }: LayerItemProps) {
+const LayerItem = memo(function LayerItem({ layer, canvas, draggable, pickable, concealed, handlers, composite, pixelRatio, onReady, onError }: LayerItemProps) {
   const shown = concealed ? { ...layer, hidden: true } : layer;
-  return <LayerNode layer={shown} width={canvas.width} height={canvas.height} composite={composite} onReady={onReady} onError={onError} groupProps={{ ...handlers, draggable, listening: pickable }} />;
+  return <LayerNode layer={shown} width={canvas.width} height={canvas.height} composite={composite} pixelRatio={pixelRatio} onReady={onReady} onError={onError} groupProps={{ ...handlers, draggable, listening: pickable }} />;
 });
 
 export function LayerOutline({ layer, canvas, scale, solid = false }: { layer: Layer; canvas: CanvasSize; scale: number; solid?: boolean }) {
@@ -104,6 +108,7 @@ export function LayerOutline({ layer, canvas, scale, solid = false }: { layer: L
 
 export interface ArtboardViewProps {
   artboard: Artboard;
+  resolved: ImageSurface;
   gpu: boolean;
   busy: boolean;
   editingTextId: string | null;
@@ -117,9 +122,10 @@ function cachePixelRatio(scale: number): number {
   return cachePixelRatioFor(scale, typeof window === "undefined" ? 1 : window.devicePixelRatio);
 }
 
-export const ArtboardView = memo(function ArtboardView({ artboard, gpu, busy, editingTextId, croppingId, scale, handlers, register }: ArtboardViewProps) {
+export const ArtboardView = memo(function ArtboardView({ artboard, resolved, gpu, busy, editingTextId, croppingId, scale, handlers, register }: ArtboardViewProps) {
   const { canvas } = artboard;
   const pattern = useCheckerImage(!gpu && !canvas.background && !canvas.gradient);
+  const anchors = instanceAnchors(artboard, resolved);
   const layerProps = (layer: Layer) => ({
     layer,
     canvas,
@@ -153,7 +159,18 @@ export const ArtboardView = memo(function ArtboardView({ artboard, gpu, busy, ed
         {gpu ? (
           artboard.layers.map((layer) => <LayerProxy key={layer.id} {...layerProps(layer)} />)
         ) : (
-          <LayerStack layers={artboard.layers} pixelRatio={cachePixelRatio(scale)} render={(layer, extra) => <LayerItem key={layer.id} {...layerProps(layer)} {...extra} />} />
+          <>
+            <LayerStack
+              layers={repeatedLayers(resolved)}
+              pixelRatio={cachePixelRatio(scale)}
+              render={(layer, extra) => <LayerItem key={layer.id} {...layerProps(layer)} {...extra} pixelRatio={cachePixelRatio(scale)} />}
+              trailing={(run) => run.flatMap((layer) => anchors.after.get(layer.id) ?? []).map((instance) => <LayerProxy key={instance.id} {...layerProps(instance)} />)}
+            />
+            {anchors.loose.map((instance) => (
+              <LayerProxy key={instance.id} {...layerProps(instance)} />
+            ))}
+            <VfxAdjustment canvas={canvas} />
+          </>
         )}
       </Group>
     </Group>

@@ -8,6 +8,7 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { Sparkle } from "@/components/icons";
 import { MediaModelSelect } from "@/components/media-generation/media-model-select";
 import { canStart } from "@/lib/media-generation/limits";
+import { isSoundEffectLength, SOUND_EFFECT_MS, SOUND_EFFECT_PROMPT_LIMIT } from "@/lib/media-generation/sound-effects";
 import { VOICES, type MediaGenerationInput, type ModelKind, type Voice } from "@/lib/media-generation/types";
 import { STUDIO_LIMITS } from "@/lib/studio/document";
 import { placementTracks } from "@/lib/studio/job-sources";
@@ -20,8 +21,9 @@ import { useJobs, useRunningKinds } from "../jobs";
 import { useTrackNames } from "../use-track-names";
 import { JobList } from "./job-status";
 
-const KINDS: ModelKind[] = ["music", "voice", "image"];
+const KINDS: ModelKind[] = ["music", "voice", "sfx", "image"];
 const PROMPT_LIMIT = 2000;
+const PROMPT_LIMITS: Partial<Record<ModelKind, number>> = { sfx: SOUND_EFFECT_PROMPT_LIMIT };
 const MS = 1000;
 const SELECT_CLASS = "h-7 w-full rounded-md border border-border bg-background px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -35,7 +37,7 @@ function GenerateForm({ kind }: { kind: ModelKind }) {
   const promptId = useId();
   const voiceId = useId();
   const trackFieldId = useId();
-  const [{ prompt, model, voice, trackId, durationMs }, updateDraft] = useAiDraft(kind);
+  const [{ prompt, model, voice, trackId, durationMs, lengthMs }, updateDraft] = useAiDraft(kind);
   const tracks = useEditorState((s) => s.document.tracks);
   const names = useTrackNames(tracks);
   const targets = useMemo(() => laneOrder(placementTracks(tracks, kind)), [tracks, kind]);
@@ -43,14 +45,18 @@ function GenerateForm({ kind }: { kind: ModelKind }) {
   const jobs = useJobs(kind);
   const blocked = !canStart(kind, useRunningKinds());
   const text = prompt.trim();
+  const isEffect = kind === "sfx";
+  const ready = Boolean(model) && text !== "" && !blocked && (!isEffect || isSoundEffectLength(lengthMs));
 
   const submit = () => {
-    if (!model || text === "" || blocked) return;
+    if (!model || !ready) return;
     let input: MediaGenerationInput;
     if (kind === "music") input = { kind, model, prompt: text };
     else if (kind === "voice") input = { kind, model, prompt: text, voice };
+    else if (kind === "sfx") input = { kind, model, prompt: text, durationMs: lengthMs };
     else input = { kind, model, prompt: text, aspect: store.getState().document.canvas.aspect };
-    void commands.startJob(kind, input, { atMs: view.getState().playheadMs, trackId: chosenTrack ?? undefined, durationMs: durationMs ?? undefined });
+    const placedMs = isEffect ? undefined : (durationMs ?? undefined);
+    void commands.startJob(kind, input, { atMs: view.getState().playheadMs, trackId: chosenTrack ?? undefined, durationMs: placedMs });
   };
 
   return (
@@ -68,7 +74,7 @@ function GenerateForm({ kind }: { kind: ModelKind }) {
         <textarea
           id={promptId}
           rows={kind === "voice" ? 6 : 4}
-          maxLength={PROMPT_LIMIT}
+          maxLength={PROMPT_LIMITS[kind] ?? PROMPT_LIMIT}
           value={prompt}
           placeholder={t(`${kind}.placeholder`)}
           onChange={(event) => updateDraft({ prompt: event.target.value })}
@@ -105,20 +111,33 @@ function GenerateForm({ kind }: { kind: ModelKind }) {
             ))}
           </select>
         </div>
-        <NumberField
-          label={t("duration")}
-          unit="s"
-          step={0.5}
-          decimals={2}
-          min={STUDIO_LIMITS.minClipMs / MS}
-          max={STUDIO_LIMITS.maxVideoMs / MS}
-          value={durationMs === null ? null : durationMs / MS}
-          placeholder={t("auto")}
-          onCommit={(seconds) => updateDraft({ durationMs: Math.round(seconds * MS) })}
-          onClear={() => updateDraft({ durationMs: null })}
-        />
+        {isEffect ? (
+          <NumberField
+            label={t("sfx.length")}
+            unit="s"
+            step={0.1}
+            decimals={1}
+            min={SOUND_EFFECT_MS.min / MS}
+            max={SOUND_EFFECT_MS.max / MS}
+            value={lengthMs / MS}
+            onCommit={(seconds) => updateDraft({ lengthMs: Math.round(seconds * MS) })}
+          />
+        ) : (
+          <NumberField
+            label={t("duration")}
+            unit="s"
+            step={0.5}
+            decimals={2}
+            min={STUDIO_LIMITS.minClipMs / MS}
+            max={STUDIO_LIMITS.maxVideoMs / MS}
+            value={durationMs === null ? null : durationMs / MS}
+            placeholder={t("auto")}
+            onCommit={(seconds) => updateDraft({ durationMs: Math.round(seconds * MS) })}
+            onClear={() => updateDraft({ durationMs: null })}
+          />
+        )}
       </div>
-      <p className="text-2xs text-muted-foreground">{t("placement")}</p>
+      <p className="text-2xs text-muted-foreground">{isEffect ? t("sfx.placement") : t("placement")}</p>
       <Button
         type="submit"
         variant="primary"
@@ -127,7 +146,7 @@ function GenerateForm({ kind }: { kind: ModelKind }) {
         title={t(`${kind}.generate`)}
         icon={<Sparkle className="h-3.5 w-3.5" />}
         iconVisible
-        disabled={blocked || !model || text === ""}
+        disabled={!ready}
       />
       <JobList kind={kind} jobs={jobs} blocked={blocked} />
     </form>

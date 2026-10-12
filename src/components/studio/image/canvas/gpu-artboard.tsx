@@ -24,7 +24,7 @@ export function GpuArtboard({ size, onUnavailable }: { size: CanvasSize; onUnava
           const hidden = new Set([state.editingTextId, state.crop?.layerId].filter((id): id is string => Boolean(id)));
           const overrides = new Map(Object.entries(state.live ?? {}));
           const origins = state.liveOrigins;
-          const scenes = artboardScenes(store.getState().document, { hidden, overrides });
+          const scenes = artboardScenes(store.getState().document, { hidden, overrides, live: state.pixelLive });
           renderer.render(origins ? scenes.map((scene) => (scene.key && origins[scene.key] ? { ...scene, origin: origins[scene.key] } : scene)) : scenes, state.viewport);
           return false;
         },

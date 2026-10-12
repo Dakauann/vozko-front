@@ -1,5 +1,14 @@
+import { blendHex, parseColor } from "./color";
 import type { IssueCode } from "./validate";
-import type { Transform } from "./document";
+import { STUDIO_LIMITS, type Transform } from "./document";
+import { handleFault, isSpatialMode, type HandleFault, type PositionKeyframe } from "./path-keys";
+import { isMorphProperty, MORPH_PROPERTY, morphKeyFault, type MorphFault, type MorphKeyframe, type MorphProperty } from "./morph-keys";
+import { LINE_PROPERTIES, LINE_RANGES } from "./line-properties";
+import { TEXT_KEY_PROPERTIES, TEXT_KEY_RANGES } from "./text-properties";
+import { GRADE_FIELDS, GRADE_RANGES } from "./color-grade";
+import { SPEED_LIMITS, SPEED_PROPERTY } from "./speed-range";
+import { CAMERA_PROPERTIES, CAMERA_RANGES } from "./clip-camera";
+import { TILT_PROPERTIES, TILT_RANGES } from "./tilt-properties";
 
 export const EASINGS = ["linear", "hold", "easeIn", "easeOut", "easeInOut", "backIn", "backOut", "backInOut", "elastic", "bounce", "spring"] as const;
 
@@ -13,9 +22,62 @@ export const BEZIER_Y_RANGE = [-1, 2] as const;
 
 export const TRANSFORM_PROPERTIES = ["x", "y", "scale", "rotation", "opacity"] as const;
 
-export const KEYFRAME_PROPERTIES = [...TRANSFORM_PROPERTIES, "blur"] as const;
+export const AUDIO_PROPERTIES = ["gainDb", "pan"] as const;
+
+export type AudioProperty = (typeof AUDIO_PROPERTIES)[number];
+
+export function isAudioProperty(property: string): property is AudioProperty {
+  return (AUDIO_PROPERTIES as readonly string[]).includes(property);
+}
+
+export const VISUAL_KEYFRAME_PROPERTIES = [...TRANSFORM_PROPERTIES, "blur"] as const;
+
+export const AXIS_SCALE_PROPERTIES = ["scaleX", "scaleY"] as const;
+
+export const PLACEMENT_PROPERTIES: readonly string[] = ["x", "y", "position", "scale", "scaleX", "scaleY", "rotation"];
+
+export type AxisScaleProperty = (typeof AXIS_SCALE_PROPERTIES)[number];
+
+export const KEYFRAME_PROPERTIES = [...VISUAL_KEYFRAME_PROPERTIES, ...AXIS_SCALE_PROPERTIES, ...AUDIO_PROPERTIES, ...LINE_PROPERTIES, ...TEXT_KEY_PROPERTIES, ...GRADE_FIELDS, SPEED_PROPERTY, ...CAMERA_PROPERTIES, ...TILT_PROPERTIES] as const;
 
 export type TransformProperty = (typeof TRANSFORM_PROPERTIES)[number];
+
+export const COLOR_PROPERTIES = ["fill", "stroke"] as const;
+
+export type ColorProperty = (typeof COLOR_PROPERTIES)[number];
+
+export const PATH_PROPERTY = "position";
+
+export type PathProperty = typeof PATH_PROPERTY;
+
+export const ANIMATED_PROPERTIES = [...KEYFRAME_PROPERTIES, ...COLOR_PROPERTIES, PATH_PROPERTY, MORPH_PROPERTY] as const;
+
+export type AnimatedProperty = (typeof ANIMATED_PROPERTIES)[number];
+
+export function isColorProperty(property: string): property is ColorProperty {
+  return (COLOR_PROPERTIES as readonly string[]).includes(property);
+}
+
+export function isPathProperty(property: string): property is PathProperty {
+  return property === PATH_PROPERTY;
+}
+
+export function carriesValue(property: string): property is KeyframeProperty {
+  return !isColorProperty(property) && !isPathProperty(property) && !isMorphProperty(property);
+}
+
+const RIVALS: Partial<Record<AnimatedProperty, readonly AnimatedProperty[]>> = {
+  scale: AXIS_SCALE_PROPERTIES,
+  scaleX: ["scale"],
+  scaleY: ["scale"],
+  position: ["x", "y"],
+  x: [PATH_PROPERTY],
+  y: [PATH_PROPERTY],
+};
+
+export function rivalsOf(property: AnimatedProperty): readonly AnimatedProperty[] {
+  return RIVALS[property] ?? [];
+}
 
 export type KeyframeProperty = (typeof KEYFRAME_PROPERTIES)[number];
 
@@ -23,13 +85,27 @@ export interface Keyframe {
   atMs: number;
   value: number;
   easing: Easing;
+  smooth?: boolean;
 }
 
-export type Keyframes = Partial<Record<KeyframeProperty, Keyframe[]>>;
+export interface ColorKeyframe {
+  atMs: number;
+  color: string;
+  easing: Easing;
+}
+
+export interface ColorSegment {
+  from: string;
+  to: string;
+  weight: number;
+}
+
+export type TimedKey = Keyframe | ColorKeyframe | PositionKeyframe | MorphKeyframe;
+
+export type Keyframes = Partial<Record<KeyframeProperty, Keyframe[]>> & Partial<Record<ColorProperty, ColorKeyframe[]>> & Partial<Record<PathProperty, PositionKeyframe[]>> & Partial<Record<MorphProperty, MorphKeyframe[]>>;
 
 export const KEYFRAME_LIMITS = {
-  perProperty: 32,
-  maxAbsMs: 90_000,
+  maxAbsMs: STUDIO_LIMITS.maxVideoMs,
   maxAnimatedBox: 4,
 } as const;
 
@@ -37,14 +113,30 @@ export const KEYFRAME_RANGES: Record<KeyframeProperty, readonly [number, number]
   x: [-1, 2],
   y: [-1, 2],
   scale: [0.05, 5],
+  scaleX: [0.05, 5],
+  scaleY: [0.05, 5],
   rotation: [-3600, 3600],
   opacity: [0, 1],
   blur: [0, 100],
+  gainDb: [-60, 6],
+  pan: [-1, 1],
+  ...LINE_RANGES,
+  ...TEXT_KEY_RANGES,
+  ...GRADE_RANGES,
+  speed: SPEED_LIMITS,
+  ...CAMERA_RANGES,
+  ...TILT_RANGES,
 };
 
-export function animatedBlur(staticBlur: number | undefined, k: Keyframes | undefined, localMs: number): number {
+const PATH_NEIGHBOURS = 2;
+
+export type LaneValue = (property: KeyframeProperty, keyed: number) => number;
+
+export const KEYED_LANE: LaneValue = (_property, keyed) => keyed;
+
+export function animatedBlur(staticBlur: number | undefined, k: Keyframes | undefined, localMs: number, lane: LaneValue = KEYED_LANE): number {
   const frames = k?.blur ?? [];
-  return Math.max(0, frames.length === 0 ? (staticBlur ?? 0) : valueAt(frames, localMs));
+  return Math.max(0, lane("blur", frames.length === 0 ? (staticBlur ?? 0) : valueAt(frames, localMs)));
 }
 
 const BACK_PULL = 1.70158;
@@ -208,6 +300,14 @@ export function ease(easing: Easing, p: number): number {
   }
 }
 
+export const EASE_SLOPE_STEP = 1e-4;
+
+export function easeSlope(easing: Easing, p: number): number {
+  const low = Math.max(0, p - EASE_SLOPE_STEP);
+  const high = Math.min(1, p + EASE_SLOPE_STEP);
+  return (ease(easing, high) - ease(easing, low)) / (high - low);
+}
+
 export function valueAt(frames: readonly Keyframe[], atMs: number): number {
   if (frames.length === 0) return 0;
   if (atMs <= frames[0].atMs) return frames[0].value;
@@ -219,12 +319,59 @@ export function valueAt(frames: readonly Keyframe[], atMs: number): number {
   return frames[frames.length - 1].value;
 }
 
+export function colorSegment(frames: readonly ColorKeyframe[], atMs: number): ColorSegment {
+  const first = frames[0];
+  if (atMs <= first.atMs) return { from: first.color, to: first.color, weight: 0 };
+  for (let i = 0; i < frames.length - 1; i++) {
+    const from = frames[i];
+    const to = frames[i + 1];
+    if (atMs < to.atMs) return { from: from.color, to: to.color, weight: Math.min(1, Math.max(0, ease(from.easing, (atMs - from.atMs) / (to.atMs - from.atMs)))) };
+  }
+  const last = frames[frames.length - 1];
+  return { from: last.color, to: last.color, weight: 0 };
+}
+
+export function colorAt(frames: readonly ColorKeyframe[], atMs: number): string {
+  const segment = colorSegment(frames, atMs);
+  return blendHex(segment.from, segment.to, segment.weight) ?? segment.from;
+}
+
 function framesOf(k: Keyframes | undefined, property: KeyframeProperty): readonly Keyframe[] {
   return k?.[property] ?? [];
 }
 
+export function colorFramesOf(k: Keyframes | undefined, property: ColorProperty): readonly ColorKeyframe[] {
+  return k?.[property] ?? [];
+}
+
+export function isPositionKey(frame: TimedKey): frame is PositionKeyframe {
+  return "x" in frame;
+}
+
+export function pathFramesOf(k: Keyframes | undefined): readonly PositionKeyframe[] {
+  return k?.position ?? [];
+}
+
+export function morphFramesOf(k: Keyframes | undefined): readonly MorphKeyframe[] {
+  return k?.path ?? [];
+}
+
+export function isMorphKey(frame: TimedKey): frame is MorphKeyframe {
+  return "path" in frame;
+}
+
+export function timedFramesOf(k: Keyframes | undefined, property: AnimatedProperty): readonly TimedKey[] {
+  if (isMorphProperty(property)) return morphFramesOf(k);
+  if (isPathProperty(property)) return pathFramesOf(k);
+  return isColorProperty(property) ? colorFramesOf(k, property) : framesOf(k, property);
+}
+
 export function keyframeCount(k: Keyframes | undefined): number {
-  return KEYFRAME_PROPERTIES.reduce((total, property) => total + framesOf(k, property).length, 0);
+  return ANIMATED_PROPERTIES.reduce((total, property) => total + timedFramesOf(k, property).length, 0);
+}
+
+export function animatedProperties(k: Keyframes | undefined): AnimatedProperty[] {
+  return ANIMATED_PROPERTIES.filter((property) => timedFramesOf(k, property).length > 0);
 }
 
 export function curveExtent(frames: readonly Keyframe[]): readonly [number, number] {
@@ -242,95 +389,222 @@ export function curveExtent(frames: readonly Keyframe[]): readonly [number, numb
   return [low, high];
 }
 
+function reachOf(frames: readonly Keyframe[]): number {
+  return frames.length === 0 ? 1 : curveExtent(frames)[1];
+}
+
 export function maxScale(k: Keyframes | undefined): number {
-  const scale = framesOf(k, "scale");
-  return scale.length === 0 ? 1 : curveExtent(scale)[1];
+  return reachOf(framesOf(k, "scale"));
 }
 
-export function animatedTransform(base: Transform, k: Keyframes | undefined, localMs: number): Transform {
-  if (!k || keyframeCount(k) === 0) return base;
-  const at = (property: KeyframeProperty, fallback: number) => {
+export function axisReach(k: Keyframes | undefined): { x: number; y: number } {
+  const uniform = maxScale(k);
+  return { x: uniform * reachOf(framesOf(k, "scaleX")), y: uniform * reachOf(framesOf(k, "scaleY")) };
+}
+
+export function scaleAt(k: Keyframes | undefined, localMs: number, lane: LaneValue = KEYED_LANE): { x: number; y: number } {
+  const at = (property: KeyframeProperty) => {
     const frames = framesOf(k, property);
-    return frames.length === 0 ? fallback : valueAt(frames, localMs);
+    return Math.max(0, lane(property, frames.length === 0 ? 1 : valueAt(frames, localMs)));
   };
-  const scale = Math.max(0, at("scale", 1));
-  return { x: at("x", base.x), y: at("y", base.y), w: base.w * scale, h: base.h * scale, rotation: at("rotation", base.rotation), opacity: Math.min(1, Math.max(0, at("opacity", base.opacity))) };
+  const uniform = at("scale");
+  return { x: uniform * at("scaleX"), y: uniform * at("scaleY") };
 }
 
-function withProperty(k: Keyframes | undefined, property: KeyframeProperty, frames: Keyframe[]): Keyframes | undefined {
-  const next: Keyframes = { ...k };
+export function replaceLanes(base: Keyframes | undefined, incoming: Keyframes): Keyframes | undefined {
+  const arriving = animatedProperties(incoming);
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = { ...base };
+  for (const property of arriving) {
+    for (const rival of rivalsOf(property)) delete next[rival];
+    next[property] = timedFramesOf(incoming, property);
+  }
+  return keyframeCount(next as Keyframes) === 0 ? undefined : (next as Keyframes);
+}
+
+export function withLane(k: Keyframes | undefined, property: AnimatedProperty, frames: readonly TimedKey[]): Keyframes | undefined {
+  if (frames.length === 0) return withoutProperty(k, property);
+  return replaceLanes(k, { [property]: frames } as Keyframes);
+}
+
+export function droppedRivals(k: Keyframes | undefined, property: AnimatedProperty): AnimatedProperty[] {
+  return rivalsOf(property).filter((rival) => timedFramesOf(k, rival).length > 0);
+}
+
+function withTimed(k: Keyframes | undefined, property: AnimatedProperty, frames: readonly TimedKey[]): Keyframes | undefined {
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = { ...k };
   if (frames.length === 0) delete next[property];
   else next[property] = frames;
-  return keyframeCount(next) === 0 ? undefined : next;
+  return keyframeCount(next as Keyframes) === 0 ? undefined : (next as Keyframes);
+}
+
+function placedKey<F extends TimedKey>(k: Keyframes | undefined, property: AnimatedProperty, frames: readonly F[], frame: Omit<F, "easing"> & { easing?: Easing }): Keyframes | undefined {
+  const existing = frames.find((f) => f.atMs === frame.atMs);
+  const placed = { ...frame, easing: frame.easing ?? existing?.easing ?? "linear" } as F;
+  return withTimed(k, property, [...frames.filter((f) => f.atMs !== frame.atMs), placed].sort((a, b) => a.atMs - b.atMs));
 }
 
 export function setKeyframe(k: Keyframes | undefined, property: KeyframeProperty, atMs: number, value: number, easing?: Easing): Keyframes | undefined {
-  const frames = framesOf(k, property);
-  const at = Math.round(atMs);
-  const existing = frames.find((f) => f.atMs === at);
-  if (!existing && frames.length >= KEYFRAME_LIMITS.perProperty) return k;
-  const frame: Keyframe = { atMs: at, value, easing: easing ?? existing?.easing ?? "linear" };
-  const next = [...frames.filter((f) => f.atMs !== at), frame].sort((a, b) => a.atMs - b.atMs);
-  return withProperty(k, property, next);
+  return placedKey<Keyframe>(k, property, framesOf(k, property), { atMs: Math.round(atMs), value, easing });
 }
 
-export function removeKeyframe(k: Keyframes | undefined, property: KeyframeProperty, atMs: number): Keyframes | undefined {
-  return withProperty(
+export function setColorKey(k: Keyframes | undefined, property: ColorProperty, atMs: number, color: string, easing?: Easing): Keyframes | undefined {
+  return placedKey<ColorKeyframe>(k, property, colorFramesOf(k, property), { atMs: Math.round(atMs), color, easing });
+}
+
+export function manualKey<F extends TimedKey>(frame: F): F {
+  if (!("smooth" in frame)) return frame;
+  const manual = { ...frame } as F & { smooth?: boolean };
+  delete manual.smooth;
+  return manual;
+}
+
+export function setKeyEasingAt(k: Keyframes | undefined, property: AnimatedProperty, atMs: number, easing: Easing): Keyframes | undefined {
+  const frames = timedFramesOf(k, property);
+  const index = frames.findIndex((f) => f.atMs === atMs);
+  if (index < 0) return k;
+  return withTimed(k, property, frames.map((f, i) => (i === index ? { ...manualKey(f), easing } : i === index + 1 ? manualKey(f) : f)));
+}
+
+export function setPropertyEasingAll(k: Keyframes | undefined, property: AnimatedProperty, easing: Easing): Keyframes | undefined {
+  const frames = timedFramesOf(k, property);
+  return frames.length === 0 ? k : withTimed(k, property, frames.map((f) => ({ ...manualKey(f), easing })));
+}
+
+export function removeKeyframe(k: Keyframes | undefined, property: AnimatedProperty, atMs: number): Keyframes | undefined {
+  return withTimed(
     k,
     property,
-    framesOf(k, property).filter((f) => f.atMs !== Math.round(atMs)),
+    timedFramesOf(k, property).filter((f) => f.atMs !== Math.round(atMs)),
   );
+}
+
+export function withoutProperty(k: Keyframes | undefined, property: AnimatedProperty): Keyframes | undefined {
+  return withTimed(k, property, []);
+}
+
+function mapProperties(k: Keyframes, map: (frames: readonly TimedKey[]) => readonly TimedKey[]): Keyframes {
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = {};
+  for (const property of ANIMATED_PROPERTIES) {
+    const frames = timedFramesOf(k, property);
+    if (frames.length === 0) continue;
+    const mapped = map(frames);
+    if (mapped.length > 0) next[property] = mapped;
+  }
+  return next as Keyframes;
+}
+
+export function mergeKeyframes(base: Keyframes | undefined, incoming: Keyframes): Keyframes {
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = { ...base };
+  for (const property of animatedProperties(incoming)) {
+    const arriving = timedFramesOf(incoming, property);
+    const times = new Set(arriving.map((frame) => frame.atMs));
+    for (const rival of rivalsOf(property)) delete next[rival];
+    next[property] = [...timedFramesOf(base, property).filter((frame) => !times.has(frame.atMs)), ...arriving].sort((a, b) => a.atMs - b.atMs);
+  }
+  return next as Keyframes;
 }
 
 export function shiftKeyframes(k: Keyframes | undefined, deltaMs: number): Keyframes | undefined {
   if (!k || deltaMs === 0) return k;
-  const next: Keyframes = {};
-  for (const property of KEYFRAME_PROPERTIES) {
-    const frames = framesOf(k, property);
-    if (frames.length > 0) next[property] = frames.map((f) => ({ ...f, atMs: f.atMs + deltaMs }));
-  }
-  return next;
+  return mapProperties(k, (frames) => frames.map((f) => ({ ...f, atMs: f.atMs + deltaMs })));
+}
+
+export function retimeKeyframes(k: Keyframes | undefined, timeOf: (atMs: number) => number): Keyframes | undefined {
+  if (!k) return k;
+  return mapProperties(k, (frames) =>
+    frames.map((f) => ({ ...f, atMs: Math.round(timeOf(f.atMs)) })).filter((f, i, all) => i === all.length - 1 || all[i + 1].atMs > f.atMs),
+  );
+}
+
+export function stretchKeyframes(k: Keyframes | undefined, ratio: number): Keyframes | undefined {
+  if (!k || ratio === 1) return k;
+  return retimeKeyframes(k, (atMs) => atMs * ratio);
 }
 
 export function keyframesInRange(k: Keyframes | undefined, fromMs: number, toMs: number): Keyframes | undefined {
   if (!k) return k;
-  const next: Keyframes = {};
-  for (const property of KEYFRAME_PROPERTIES) {
-    const frames = framesOf(k, property);
-    if (frames.length === 0) continue;
-    const before = frames.filter((f) => f.atMs < fromMs).at(-1);
-    const after = frames.find((f) => f.atMs > toMs);
-    const inside = frames.filter((f) => f.atMs >= fromMs && f.atMs <= toMs);
-    next[property] = [...(before ? [before] : []), ...inside, ...(after ? [after] : [])];
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = {};
+  for (const property of animatedProperties(k)) {
+    const frames = timedFramesOf(k, property);
+    const reach = isPathProperty(property) ? PATH_NEIGHBOURS : 1;
+    const before = frames.filter((f) => f.atMs < fromMs).slice(-reach);
+    const after = frames.filter((f) => f.atMs > toMs).slice(0, reach);
+    next[property] = [...before, ...frames.filter((f) => f.atMs >= fromMs && f.atMs <= toMs), ...after];
   }
-  return keyframeCount(next) === 0 ? undefined : next;
+  return keyframeCount(next as Keyframes) === 0 ? undefined : (next as Keyframes);
 }
 
 export type KeyframeFault =
   | { kind: "empty" }
-  | { kind: "too_many"; property: KeyframeProperty; limit: number }
-  | { kind: "easing"; property: KeyframeProperty; atMs: number; easing: string }
-  | { kind: "time"; property: KeyframeProperty; atMs: number; limit: number }
+  | { kind: "easing"; property: AnimatedProperty; atMs: number; easing: string }
+  | { kind: "time"; property: AnimatedProperty; atMs: number; limit: number }
   | { kind: "value"; property: KeyframeProperty; atMs: number; value: number; range: readonly [number, number] }
-  | { kind: "order"; property: KeyframeProperty; atMs: number }
-  | { kind: "box"; scale: number; maxScale: number };
+  | { kind: "color"; property: ColorProperty; atMs: number; color: string }
+  | { kind: "order"; property: AnimatedProperty; atMs: number }
+  | { kind: "path"; atMs: number; problem: "position" | "spatial" | HandleFault }
+  | { kind: "morph"; atMs: number; problem: MorphFault }
+  | { kind: "rival"; property: AnimatedProperty; rival: AnimatedProperty }
+  | { kind: "box"; property: "scale" | AxisScaleProperty; scale: number; maxScale: number };
 
-function propertyFault(property: KeyframeProperty, frames: readonly Keyframe[]): KeyframeFault | null {
-  if (frames.length > KEYFRAME_LIMITS.perProperty) return { kind: "too_many", property, limit: KEYFRAME_LIMITS.perProperty };
-  const range = KEYFRAME_RANGES[property];
+function framesFault<F extends TimedKey>(property: AnimatedProperty, frames: readonly F[], contentFault: (frame: F) => KeyframeFault | null): KeyframeFault | null {
   for (const [index, f] of frames.entries()) {
     const atMs = f.atMs;
     if (!isEasing(f.easing)) return { kind: "easing", property, atMs, easing: f.easing };
     if (!Number.isFinite(atMs) || Math.abs(atMs) > KEYFRAME_LIMITS.maxAbsMs) return { kind: "time", property, atMs, limit: KEYFRAME_LIMITS.maxAbsMs };
-    if (!Number.isFinite(f.value) || f.value < range[0] || f.value > range[1]) return { kind: "value", property, atMs, value: f.value, range };
+    const content = contentFault(f);
+    if (content) return content;
     if (index > 0 && atMs <= frames[index - 1].atMs) return { kind: "order", property, atMs };
   }
   return null;
 }
 
-function largestScale(box: Transform): number {
-  const fitting = KEYFRAME_LIMITS.maxAnimatedBox / Math.max(box.w, box.h);
+function propertyFault(property: KeyframeProperty, frames: readonly Keyframe[]): KeyframeFault | null {
+  const range = KEYFRAME_RANGES[property];
+  return framesFault(property, frames, (f) => (!Number.isFinite(f.value) || f.value < range[0] || f.value > range[1] ? { kind: "value", property, atMs: f.atMs, value: f.value, range } : null));
+}
+
+function colorPropertyFault(property: ColorProperty, frames: readonly ColorKeyframe[]): KeyframeFault | null {
+  return framesFault(property, frames, (f) => (parseColor(f.color) === null ? { kind: "color", property, atMs: f.atMs, color: f.color } : null));
+}
+
+const PATH_RANGE = KEYFRAME_RANGES.x;
+
+function pathKeyFault(f: PositionKeyframe): KeyframeFault | null {
+  const inside = (value: number) => Number.isFinite(value) && value >= PATH_RANGE[0] && value <= PATH_RANGE[1];
+  if (!inside(f.x) || !inside(f.y)) return { kind: "path", atMs: f.atMs, problem: "position" };
+  if (f.spatial && !isSpatialMode(f.spatial)) return { kind: "path", atMs: f.atMs, problem: "spatial" };
+  const handles = handleFault(f);
+  return handles ? { kind: "path", atMs: f.atMs, problem: handles } : null;
+}
+
+function morphFault(f: MorphKeyframe): KeyframeFault | null {
+  const problem = morphKeyFault(f);
+  return problem ? { kind: "morph", atMs: f.atMs, problem } : null;
+}
+
+export function morphLaneFault(frames: readonly MorphKeyframe[]): KeyframeFault | null {
+  return framesFault(MORPH_PROPERTY, frames, morphFault);
+}
+
+function rivalFault(k: Keyframes): KeyframeFault | null {
+  for (const property of animatedProperties(k)) {
+    const rival = rivalsOf(property).find((other) => timedFramesOf(k, other).length > 0);
+    if (rival) return { kind: "rival", property, rival };
+  }
+  return null;
+}
+
+function largestScale(side: number): number {
+  const fitting = KEYFRAME_LIMITS.maxAnimatedBox / side;
   return Math.floor(Math.min(KEYFRAME_RANGES.scale[1], fitting) * 100) / 100;
+}
+
+function boxFault(k: Keyframes, box: Transform): KeyframeFault | null {
+  const reach = axisReach(k);
+  const lane = (axis: AxisScaleProperty) => (framesOf(k, axis).length > 0 ? axis : "scale");
+  if (box.w * reach.x > KEYFRAME_LIMITS.maxAnimatedBox) return { kind: "box", property: lane("scaleX"), scale: reach.x, maxScale: largestScale(box.w) };
+  if (box.h * reach.y > KEYFRAME_LIMITS.maxAnimatedBox) return { kind: "box", property: lane("scaleY"), scale: reach.y, maxScale: largestScale(box.h) };
+  return null;
 }
 
 export function keyframeFault(k: Keyframes | undefined, box: Transform): KeyframeFault | null {
@@ -340,54 +614,76 @@ export function keyframeFault(k: Keyframes | undefined, box: Transform): Keyfram
     const fault = propertyFault(property, framesOf(k, property));
     if (fault) return fault;
   }
-  const scale = maxScale(k);
-  const oversized = box.w * scale > KEYFRAME_LIMITS.maxAnimatedBox || box.h * scale > KEYFRAME_LIMITS.maxAnimatedBox;
-  return oversized ? { kind: "box", scale, maxScale: largestScale(box) } : null;
+  for (const property of COLOR_PROPERTIES) {
+    const fault = colorPropertyFault(property, colorFramesOf(k, property));
+    if (fault) return fault;
+  }
+  return framesFault(PATH_PROPERTY, pathFramesOf(k), pathKeyFault) ?? morphLaneFault(morphFramesOf(k)) ?? rivalFault(k) ?? boxFault(k, box);
 }
 
 const FAULT_ISSUES: Record<KeyframeFault["kind"], IssueCode> = {
   empty: "required",
-  too_many: "too_many",
   easing: "unknown",
   time: "out_of_range",
   value: "out_of_range",
+  color: "invalid",
   order: "out_of_range",
+  path: "invalid",
+  morph: "invalid",
+  rival: "invalid",
   box: "out_of_range",
 };
 
-export function keyframesIssue(k: Keyframes | undefined, box: Transform): IssueCode | null {
-  const fault = keyframeFault(k, box);
-  return fault ? FAULT_ISSUES[fault.kind] : null;
+const MORPH_ISSUES: Record<MorphFault, IssueCode> = {
+  path: "invalid",
+  vertex: "out_of_range",
+};
+
+export function faultIssue(fault: KeyframeFault): IssueCode {
+  if (fault.kind === "path") return PATH_ISSUES[fault.problem];
+  return fault.kind === "morph" ? MORPH_ISSUES[fault.problem] : FAULT_ISSUES[fault.kind];
 }
 
+export function keyframesIssue(k: Keyframes | undefined, box: Transform): IssueCode | null {
+  const fault = keyframeFault(k, box);
+  return fault ? faultIssue(fault) : null;
+}
+
+const PATH_ISSUES: Record<Extract<KeyframeFault, { kind: "path" }>["problem"], IssueCode> = {
+  position: "out_of_range",
+  spatial: "unknown",
+  missing: "invalid",
+  unexpected: "invalid",
+  range: "out_of_range",
+};
+
 export interface KeyRef {
-  property: KeyframeProperty;
+  property: AnimatedProperty;
   atMs: number;
 }
 
-function picked(k: Keyframes, keys: ReadonlyArray<KeyRef>, property: KeyframeProperty): Keyframe[] {
+function picked(k: Keyframes, keys: ReadonlyArray<KeyRef>, property: AnimatedProperty): TimedKey[] {
   const times = new Set(keys.filter((ref) => ref.property === property).map((ref) => Math.round(ref.atMs)));
-  return framesOf(k, property).filter((f) => times.has(f.atMs));
+  return timedFramesOf(k, property).filter((f) => times.has(f.atMs));
 }
 
 function placeKeys(k: Keyframes | undefined, keys: ReadonlyArray<KeyRef>, deltaMs: number, keepOriginals: boolean): Keyframes | undefined {
   const delta = Math.round(deltaMs);
   if (!k || delta === 0) return k;
-  const next: Keyframes = { ...k };
+  const next: Partial<Record<AnimatedProperty, readonly TimedKey[]>> = { ...k };
   let changed = false;
-  for (const property of KEYFRAME_PROPERTIES) {
+  for (const property of ANIMATED_PROPERTIES) {
     const chosen = picked(k, keys, property);
     if (chosen.length === 0) continue;
-    const staying = keepOriginals ? [...framesOf(k, property)] : framesOf(k, property).filter((f) => !chosen.includes(f));
+    const staying = keepOriginals ? [...timedFramesOf(k, property)] : timedFramesOf(k, property).filter((f) => !chosen.includes(f));
     const placed = chosen.map((f) => ({ ...f, atMs: f.atMs + delta }));
     const taken = new Set(staying.map((f) => f.atMs));
     if (placed.some((f) => taken.has(f.atMs) || Math.abs(f.atMs) > KEYFRAME_LIMITS.maxAbsMs)) return k;
     const frames = [...staying, ...placed].sort((a, b) => a.atMs - b.atMs);
-    if (frames.length > KEYFRAME_LIMITS.perProperty) return k;
     next[property] = frames;
     changed = true;
   }
-  return changed ? next : k;
+  return changed ? (next as Keyframes) : k;
 }
 
 export function moveKeyframes(k: Keyframes | undefined, keys: ReadonlyArray<KeyRef>, deltaMs: number): Keyframes | undefined {

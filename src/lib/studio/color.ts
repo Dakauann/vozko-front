@@ -34,6 +34,16 @@ export function hexOf(color: Pick<Rgba, "r" | "g" | "b">): string {
   return `#${[color.r, color.g, color.b].map((c) => Math.round(Math.min(255, Math.max(0, c))).toString(16).padStart(2, "0")).join("")}`;
 }
 
+export function blendHex(from: string, to: string, weight: number): string | null {
+  const a = parseColor(from);
+  const b = parseColor(to);
+  if (!a || !b) return null;
+  const t = Math.max(0, Math.min(1, weight));
+  const rgb = hexOf({ r: a.r + (b.r - a.r) * t, g: a.g + (b.g - a.g) * t, b: a.b + (b.b - a.b) * t });
+  if (from.length !== 9 && to.length !== 9) return rgb;
+  return rgb + Math.round((a.a + (b.a - a.a) * t) * 255).toString(16).padStart(2, "0");
+}
+
 export function mixColors(base: Rgba, over: Rgba, amount: number): Rgba {
   const t = Math.max(0, Math.min(1, amount));
   const channel = (from: number, to: number) => Math.round(from + (to - from) * t);

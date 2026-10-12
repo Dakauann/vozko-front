@@ -9,6 +9,15 @@ import { useImageDoc } from "./editor-state";
 
 export function useArtboardNames(): ReadonlyMap<string, string> {
   const t = useTranslations("studio.image.artboards");
+  const tc = useTranslations("studio.image.components");
   const artboards = useImageDoc((s) => s.document.artboards);
-  return useMemo(() => artboardNames(artboards, (position) => t("untitled", { number: position })), [artboards, t]);
+  return useMemo(
+    () =>
+      artboardNames(
+        artboards,
+        (position) => t("untitled", { number: position }),
+        (position) => tc("untitled", { number: position }),
+      ),
+    [artboards, t, tc],
+  );
 }

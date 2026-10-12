@@ -16,6 +16,10 @@ function distanceToSegment(point: Point, a: Point, b: Point): number {
 }
 
 export function simplifyPoints(points: readonly Point[], tolerance: number): Point[] {
+  return simplifyWith(points, tolerance, distanceToSegment);
+}
+
+export function simplifyWith<T>(points: readonly T[], tolerance: number, distance: (point: T, a: T, b: T) => number): T[] {
   if (points.length <= 2) return [...points];
   const keep = new Array<boolean>(points.length).fill(false);
   keep[0] = keep[points.length - 1] = true;
@@ -25,9 +29,9 @@ export function simplifyPoints(points: readonly Point[], tolerance: number): Poi
     let farthest = -1;
     let reach = tolerance;
     for (let i = start + 1; i < end; i++) {
-      const distance = distanceToSegment(points[i], points[start], points[end]);
-      if (distance > reach) {
-        reach = distance;
+      const away = distance(points[i], points[start], points[end]);
+      if (away > reach) {
+        reach = away;
         farthest = i;
       }
     }

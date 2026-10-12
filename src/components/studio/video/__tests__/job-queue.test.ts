@@ -35,6 +35,17 @@ describe("video editor job queue", () => {
     expect(runtime.view.getState().jobs.some((j) => j.purpose === "captions")).toBe(true);
   });
 
+  it("queues a sound effect with its length on the generation lane", async () => {
+    const { requestMediaGenerationAction } = await import("@/app/actions/media-generation");
+    const runtime = createVideoEditorRuntime(emptyVideoDocument("story"));
+    void runtime.commands.startJob("sfx", { kind: "sfx", model: "m", prompt: "whoosh", durationMs: 900 }, { atMs: 2000, trackId: "a1" });
+    expect(requestMediaGenerationAction).toHaveBeenLastCalledWith({ kind: "sfx", model: "m", prompt: "whoosh", durationMs: 900 });
+    expect(runtime.view.getState().jobs.at(-1)).toMatchObject({ purpose: "sfx", state: "running", target: { atMs: 2000, trackId: "a1" } });
+    for (let i = 1; i < MAX_PARALLEL_GENERATIONS; i++) void runtime.commands.startJob("music", { kind: "music", model: "m", prompt: `p${i}` }, { atMs: 0 });
+    void runtime.commands.startJob("sfx", { kind: "sfx", model: "m", prompt: "pop", durationMs: 500 }, { atMs: 0 });
+    expect(runtime.view.getState().notice).toEqual({ key: "tooManyJobs", tone: "error" });
+  });
+
   it("keeps every running job and only the last finished ones per kind", () => {
     const jobs = [job("a", "music", "done"), job("b", "music", "failed"), job("c", "music", "done"), job("d", "music", "done"), job("e", "music", "running"), job("f", "voice", "done")];
     expect(keepRecentJobs(jobs).map((j) => j.id)).toEqual(["b", "c", "d", "e", "f"]);

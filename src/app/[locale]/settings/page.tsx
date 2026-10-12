@@ -42,8 +42,9 @@ import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { IconBox } from "@/components/elevated-design/listing-card";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 const isRateLimitError = (message?: string | null) =>
   message?.toLowerCase().includes("rate limit") ?? false;
@@ -53,6 +54,10 @@ type PasswordResetStep = "idle" | "sending" | "code" | "resetting" | "success";
 export default function SettingsPage() {
   const tCommon = useTranslations("common");
   const tSettings = useTranslations("settings");
+  const tProfile = useTranslations("profilePage");
+  const tCustomerType = useTranslations("users.customerType");
+  const locale = useLocale();
+  const emptyText = useEmptyValue();
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<UserPlan | null>(null);
@@ -148,17 +153,17 @@ export default function SettingsPage() {
 
   const handleResetPassword = async () => {
     if (!resetCode || !newPassword || !confirmPassword) {
-      setPasswordResetError("Preencha todos os campos");
+      setPasswordResetError(tProfile("security.fillAll"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordResetError("As senhas não coincidem");
+      setPasswordResetError(tProfile("security.passwordMismatch"));
       return;
     }
 
     if (newPassword.length < 8) {
-      setPasswordResetError("A senha deve ter pelo menos 8 caracteres");
+      setPasswordResetError(tProfile("security.passwordMinLength"));
       return;
     }
 
@@ -199,17 +204,17 @@ export default function SettingsPage() {
     os: string;
     isMobile: boolean;
   } {
-    if (!ua)
-      return { browser: "Desconhecido", os: "Desconhecido", isMobile: false };
+    const unknown = tProfile("sessions.unknown");
+    if (!ua) return { browser: unknown, os: unknown, isMobile: false };
     const isMobile = /mobile|android|iphone|ipad/i.test(ua);
-    let browser = "Navegador";
+    let browser = tProfile("sessions.browser");
     if (/edg\//i.test(ua)) browser = "Edge";
     else if (/opr\//i.test(ua) || /opera/i.test(ua)) browser = "Opera";
     else if (/chrome\//i.test(ua) && !/edg/i.test(ua)) browser = "Chrome";
     else if (/safari\//i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
     else if (/firefox\//i.test(ua)) browser = "Firefox";
 
-    let os = "Desconhecido";
+    let os = unknown;
     if (/windows/i.test(ua)) os = "Windows";
     else if (/mac os/i.test(ua)) os = "macOS";
     else if (/linux/i.test(ua)) os = "Linux";
@@ -221,7 +226,7 @@ export default function SettingsPage() {
 
   function formatSessionDate(dateStr: string): string {
     try {
-      return new Date(dateStr).toLocaleDateString("pt-BR", {
+      return new Date(dateStr).toLocaleDateString(locale, {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -239,14 +244,14 @@ export default function SettingsPage() {
       { label: string; color: string; bg: string }
     > = {
       admin: {
-        label: "Administrador",
+        label: tProfile("roles.admin"),
         color: "text-muted-foreground",
         bg: "bg-muted",
       },
-      manager: { label: "Gerente", color: "text-primary-ink", bg: "bg-muted"},
-      user: { label: "Usuário", color: "text-foreground", bg: "bg-muted" },
+      manager: { label: tProfile("roles.manager"), color: "text-primary-ink", bg: "bg-muted"},
+      user: { label: tProfile("roles.user"), color: "text-foreground", bg: "bg-muted" },
       customer: {
-        label: "Cliente",
+        label: tProfile("roles.customer"),
         color: "text-healthy-ink",
         bg: "bg-muted",
       },
@@ -264,11 +269,11 @@ export default function SettingsPage() {
     const typeConfig: Record<string, { label: string; icon: React.ReactNode }> =
       {
         individual: {
-          label: "Pessoa Física",
+          label: tCustomerType("individual"),
           icon: <User className="h-4 w-4" weight="fill" />,
         },
         company: {
-          label: "Pessoa Jurídica",
+          label: tCustomerType("company"),
           icon: <Buildings className="h-4 w-4" weight="fill" />,
         },
       };
@@ -281,7 +286,7 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return <ScreenLoader fit="viewport" label="Carregando configurações..." />;
+    return <ScreenLoader fit="viewport" label={tSettings("loading")} />;
   }
 
   const roleBadge = user?.role ? getRoleBadge(user.role) : null;
@@ -301,12 +306,11 @@ export default function SettingsPage() {
                   weight="fill"
                 />
                 <h1 className="font-display text-xl font-semibold leading-tight tracking-[0.01em] text-foreground">
-                  Configurações da Conta
+                  {tSettings("title")}
                 </h1>
               </div>
               <p className="mt-0.5 max-w-2xl text-sm leading-snug text-muted-foreground">
-                Gerencie suas informações pessoais, preferências de notificação
-                e configurações de segurança da sua conta.
+                {tSettings("subtitle")}
               </p>
             </div>
           </div>
@@ -320,9 +324,9 @@ export default function SettingsPage() {
                   </IconBox>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {user?.name || "Não informado"}
+                      {user?.name || emptyText}
                     </p>
-                    <p className="text-xs text-muted-foreground">Nome</p>
+                    <p className="text-xs text-muted-foreground">{tProfile("info.name")}</p>
                   </div>
                 </div>
               </ElevatedContainer>
@@ -339,9 +343,9 @@ export default function SettingsPage() {
                       className="text-sm font-semibold text-foreground truncate"
                       title={user?.email}
                     >
-                      {user?.email || "Não informado"}
+                      {user?.email || emptyText}
                     </p>
-                    <p className="text-xs text-muted-foreground">E-mail</p>
+                    <p className="text-xs text-muted-foreground">{tProfile("info.email")}</p>
                   </div>
                 </div>
               </ElevatedContainer>
@@ -361,7 +365,7 @@ export default function SettingsPage() {
                         {roleBadge.label}
                       </span>
                     )}
-                    <p className="text-xs text-muted-foreground mt-1">Perfil</p>
+                    <p className="text-xs text-muted-foreground mt-1">{tProfile("info.role")}</p>
                   </div>
                 </div>
               </ElevatedContainer>
@@ -379,10 +383,10 @@ export default function SettingsPage() {
                   </IconBox>
                   <div>
                     <p className="text-sm font-semibold text-foreground">
-                      {customerTypeBadge?.label || "Não informado"}
+                      {customerTypeBadge?.label || emptyText}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Tipo de conta
+                      {tSettings("accountType")}
                     </p>
                   </div>
                 </div>
@@ -399,10 +403,10 @@ export default function SettingsPage() {
                   </IconBox>
                   <div>
                     <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                      Seu Plano
+                      {tSettings("plan.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Recursos e limites da sua conta
+                      {tSettings("plan.subtitle")}
                     </p>
                   </div>
                 </div>
@@ -417,7 +421,7 @@ export default function SettingsPage() {
                         {plan.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Plano atual
+                        {tSettings("plan.current")}
                       </p>
                     </div>
                   </div>
@@ -435,10 +439,10 @@ export default function SettingsPage() {
                   </IconBox>
                   <div>
                     <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                      Informações do Perfil
+                      {tProfile("info.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Seus dados pessoais
+                      {tProfile("info.subtitle")}
                     </p>
                   </div>
                 </div>
@@ -452,10 +456,10 @@ export default function SettingsPage() {
                       />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">
-                          Nome Completo
+                          {tProfile("info.name")}
                         </p>
                         <p className="text-sm font-medium text-foreground">
-                          {user?.name || "Não informado"}
+                          {user?.name || emptyText}
                         </p>
                       </div>
                     </div>
@@ -469,10 +473,10 @@ export default function SettingsPage() {
                       />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">
-                          E-mail
+                          {tProfile("info.email")}
                         </p>
                         <p className="text-sm font-medium text-foreground">
-                          {user?.email || "Não informado"}
+                          {user?.email || emptyText}
                         </p>
                       </div>
                     </div>
@@ -486,10 +490,10 @@ export default function SettingsPage() {
                       />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">
-                          ID do Usuário
+                          {tProfile("info.userId")}
                         </p>
                         <p className="text-sm font-medium text-foreground font-mono">
-                          {user?.id || "Não informado"}
+                          {user?.id || emptyText}
                         </p>
                       </div>
                     </div>
@@ -503,10 +507,10 @@ export default function SettingsPage() {
                       />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">
-                          Tipo de Conta
+                          {tSettings("accountType")}
                         </p>
                         <p className="text-sm font-medium text-foreground">
-                          {customerTypeBadge?.label || "Não informado"}
+                          {customerTypeBadge?.label || emptyText}
                         </p>
                       </div>
                     </div>
@@ -523,10 +527,10 @@ export default function SettingsPage() {
                   </IconBox>
                   <div>
                     <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                      Segurança
+                      {tProfile("security.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Gerencie a segurança da sua conta
+                      {tProfile("security.subtitle")}
                     </p>
                   </div>
                 </div>
@@ -549,11 +553,12 @@ export default function SettingsPage() {
                             />
                             <div className="flex-1">
                               <p className="text-sm font-medium text-foreground">
-                                Alterar Senha
+                                {tProfile("security.changePassword")}
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                Enviaremos um código de verificação para{" "}
-                                {user?.email}
+                                {tProfile("security.changePasswordDesc", {
+                                  email: user?.email || "",
+                                })}
                               </p>
                             </div>
                           </div>
@@ -569,7 +574,7 @@ export default function SettingsPage() {
                           <div className="mt-4">
                             <Button
                               variant="primary"
-                              title="Iniciar alteração de senha"
+                              title={tProfile("security.sendCode")}
                               icon={
                                 <PaperPlaneTilt
                                   className="h-4 w-4"
@@ -600,7 +605,7 @@ export default function SettingsPage() {
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
-                              Enviando código para seu e-mail...
+                              {tProfile("security.sendingCode")}
                             </p>
                           </div>
                         </motion.div>
@@ -622,16 +627,19 @@ export default function SettingsPage() {
                               />
                               <div>
                                 <p className="text-sm font-medium text-foreground">
-                                  Redefinir sua senha
+                                  {tProfile("security.resetTitle")}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  Digite o código enviado para{" "}
-                                  <strong>{user?.email}</strong>
+                                  {tProfile("security.codeSentTo", {
+                                    email: user?.email || "",
+                                  })}
                                 </p>
                               </div>
                             </div>
                             <button
+                              type="button"
                               onClick={handleCancelPasswordReset}
+                              aria-label={tSettings("cancel")}
                               className="p-1 rounded-lg hover:bg-border transition-colors"
                             >
                               <X
@@ -652,7 +660,7 @@ export default function SettingsPage() {
                           <div className="space-y-4">
                             <ElevatedInput
                               type="text"
-                              label="Código de verificação"
+                              label={tProfile("security.verificationCode")}
                               value={resetCode}
                               onChange={(e) => setResetCode(e.target.value)}
                               icon={
@@ -669,7 +677,7 @@ export default function SettingsPage() {
                             <div className="relative">
                               <ElevatedInput
                                 type={showNewPassword ? "text" : "password"}
-                                label="Nova senha"
+                                label={tProfile("security.newPassword")}
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 icon={
@@ -721,7 +729,7 @@ export default function SettingsPage() {
                             </div>
 
                             <p className="text-xs text-muted-foreground">
-                              A senha deve ter pelo menos 8 caracteres
+                              {tProfile("security.passwordMinLengthHint")}
                             </p>
 
                             <div className="flex items-center gap-3">
@@ -750,7 +758,7 @@ export default function SettingsPage() {
                               onClick={handleSendPasswordReset}
                               className="text-xs text-primary-ink hover:text-primary-ink font-medium transition-colors"
                             >
-                              Não recebeu o código? Enviar novamente
+                              {tProfile("security.resendCode")}
                             </button>
                           </div>
                         </motion.div>
@@ -771,7 +779,7 @@ export default function SettingsPage() {
                               weight="bold"
                             />
                             <p className="text-sm text-muted-foreground">
-                              Alterando sua senha...
+                              {tProfile("security.changingPassword")}
                             </p>
                           </div>
                         </motion.div>
@@ -793,15 +801,14 @@ export default function SettingsPage() {
                             />
                           </div>
                           <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground mb-1">
-                            Senha alterada com sucesso!
+                            {tProfile("security.passwordChanged")}
                           </h3>
                           <p className="text-sm text-muted-foreground mb-4">
-                            Sua senha foi atualizada. Use a nova senha no
-                            próximo login.
+                            {tProfile("security.passwordChangedDesc")}
                           </p>
                           <Button
                             variant="secondary"
-                            title="Concluído"
+                            title={tProfile("security.done")}
                             icon={<Check className="h-4 w-4" weight="bold" />}
                             iconVisible
                             iconSide="left"
@@ -820,13 +827,13 @@ export default function SettingsPage() {
                       />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-foreground">
-                          Autenticação em Duas Etapas
+                          {tProfile("security.twoFactor")}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Adicione uma camada extra de segurança à sua conta.
+                          {tProfile("security.twoFactorDesc")}
                         </p>
                         <span className="inline-flex items-center mt-2 rounded-[--radius] bg-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                          Em breve
+                          {tProfile("security.comingSoon")}
                         </span>
                       </div>
                     </div>
@@ -845,10 +852,10 @@ export default function SettingsPage() {
                   </IconBox>
                   <div>
                     <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                      Sessões Ativas
+                      {tProfile("sessions.title")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Dispositivos conectados à sua conta
+                      {tProfile("sessions.subtitle")}
                     </p>
                   </div>
                 </div>
@@ -892,7 +899,7 @@ export default function SettingsPage() {
                               </p>
                               {session.isCurrent && (
                                 <span className="inline-flex items-center rounded-[--radius] bg-healthy px-2 py-0.5 text-2xs font-semibold text-healthy-foreground">
-                                  Este dispositivo
+                                  {tProfile("sessions.thisDevice")}
                                 </span>
                               )}
                             </div>
@@ -929,7 +936,7 @@ export default function SettingsPage() {
                             ) : (
                               <SignOut className="h-3.5 w-3.5" weight="bold" />
                             )}
-                            Encerrar
+                            {tProfile("sessions.terminate")}
                           </button>
                         )}
                       </div>
@@ -948,10 +955,10 @@ export default function SettingsPage() {
                 </IconBox>
                 <div>
                   <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                    Alertas e Notificações
+                    {tProfile("notifications.title")}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    Configure suas preferências de comunicação
+                    {tProfile("notifications.subtitle")}
                   </p>
                 </div>
               </div>
@@ -965,11 +972,10 @@ export default function SettingsPage() {
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Atualizações de status
+                      {tSettings("notifications.statusUpdates.title")}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Receber atualizações sobre status das importações e
-                      liberações.
+                      {tSettings("notifications.statusUpdates.description")}
                     </p>
                   </div>
                 </label>
@@ -981,11 +987,10 @@ export default function SettingsPage() {
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Novidades e promoções
+                      {tSettings("notifications.news.title")}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Avisar sobre novas terapias e promoções especiais
-                      disponíveis.
+                      {tSettings("notifications.news.description")}
                     </p>
                   </div>
                 </label>
@@ -998,11 +1003,10 @@ export default function SettingsPage() {
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Alertas de segurança
+                      {tSettings("notifications.securityAlerts.title")}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Notificações sobre atividades suspeitas ou login em novos
-                      dispositivos.
+                      {tSettings("notifications.securityAlerts.description")}
                     </p>
                   </div>
                 </label>
@@ -1014,10 +1018,10 @@ export default function SettingsPage() {
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      Newsletter
+                      {tSettings("notifications.newsletter.title")}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Receber nossa newsletter semanal com dicas e novidades.
+                      {tSettings("notifications.newsletter.description")}
                     </p>
                   </div>
                 </label>

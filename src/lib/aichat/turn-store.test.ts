@@ -90,6 +90,41 @@ describe("createTurnStore", () => {
     expect(store.snapshot("th1").error).toBeNull();
   });
 
+  it("lists the conversations with a running answer as one stable snapshot", () => {
+    const store = createTurnStore();
+    const idle = store.live();
+    expect(idle).toEqual([]);
+    store.load("th1", [question]);
+    expect(store.live()).toBe(idle);
+    store.begin("th1");
+    store.begin("th2");
+    const running = store.live();
+    expect(running).toEqual(["th1", "th2"]);
+    store.apply("th1", { kind: "delta", text: "a" });
+    expect(store.live()).toBe(running);
+    store.end("th1");
+    expect(store.live()).toEqual(["th2"]);
+  });
+
+  it("aborts every running answer at once", () => {
+    const store = createTurnStore();
+    const first = store.begin("th1");
+    const second = store.begin("th2");
+    store.abortAll();
+    expect(first?.aborted).toBe(true);
+    expect(second?.aborted).toBe(true);
+  });
+
+  it("remembers which studio project a conversation belongs to", () => {
+    const store = createTurnStore();
+    expect(store.snapshot("th1").projectId).toBeNull();
+    store.bindProject("th1", "p1");
+    store.load("th1", [question]);
+    expect(store.snapshot("th1").projectId).toBe("p1");
+    store.bindProject("th1", null);
+    expect(store.snapshot("th1").projectId).toBeNull();
+  });
+
   it("stops notifying a listener that left", () => {
     const store = createTurnStore();
     const listener = vi.fn();

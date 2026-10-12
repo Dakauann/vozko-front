@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ClipboardEvent, type DragEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ClipboardEvent, type DragEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -15,10 +15,13 @@ import {
   X,
 } from "@/components/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BUTTON_GHOST, BUTTON_PRIMARY } from "@/components/ui/button-surfaces";
 import { PANEL_EASE } from "@/components/docks/dock-chrome";
-import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
+import { ChatModelSelector } from "./chat-model-selector";
+import { ChatVisionNotice } from "./vision-notice";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import type { ModelPricingInfo } from "@/lib/agents/types";
+import { readChatStreamError } from "@/lib/aichat/chat-stream";
 import type { ChatAttachment } from "@/lib/aichat/types";
 import { useCallActive } from "@/lib/call-session/call-session-control";
 import type { ListenFailure } from "@/lib/voice/browser-speech";
@@ -27,11 +30,16 @@ import { cn } from "@/lib/utils";
 
 import { AttachmentChip } from "./attachment-chip";
 import type { ChatAttachments } from "./use-chat-attachments";
+import { useComposerSize, type ComposerResize } from "./use-composer-size";
 import type { VoiceMode } from "./voice/use-voice-mode";
 import { VoiceStrip } from "./voice/voice-strip";
 
-const TOOL_BUTTON =
-  "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-muted aria-pressed:text-foreground";
+const ICON_ACTION =
+  "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] transition-colors duration-DEFAULT disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const TOOL_BUTTON = cn(ICON_ACTION, BUTTON_GHOST, "aria-pressed:bg-muted aria-pressed:text-foreground");
+const STOP_BUTTON = cn(ICON_ACTION, "border border-control-edge bg-card text-foreground hover:bg-muted");
+const SEND_BUTTON = cn(ICON_ACTION, BUTTON_PRIMARY);
+const FIELD_TEXT = "px-3.5 py-2.5 text-sm leading-6";
 
 function useDictation(input: string, setInput: (v: string) => void, onFailure: (failure: ListenFailure) => void) {
   const locale = useLocale();
@@ -51,7 +59,6 @@ function useDictation(input: string, setInput: (v: string) => void, onFailure: (
 
 export function Composer({
   docked,
-  spacious = false,
   placeholder,
   disabled = false,
   input,
@@ -70,7 +77,6 @@ export function Composer({
   files,
 }: {
   docked: boolean;
-  spacious?: boolean;
   placeholder?: string;
   disabled?: boolean;
   input: string;
@@ -122,16 +128,11 @@ export function Composer({
   }, [callActive, dictating, abortDictation]);
 
   const picker = useRef<HTMLInputElement>(null);
-  const textarea = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => {
-    const field = textarea.current;
-    if (!field || !spacious) return;
-    field.style.height = "auto";
-    field.style.height = `${Math.min(field.scrollHeight, 160)}px`;
-  }, [input, spacious]);
-  const canSend = Boolean(input.trim()) && Boolean(model) && !files.uploading && !streaming && !disabled;
+  const { field, mirror, resize } = useComposerSize(input);
+  const fieldId = useId();
+  const canSend = Boolean(input.trim()) && Boolean(model) && !files.uploading && !disabled;
 
-  const acceptsFiles = !streaming && !disabled;
+  const acceptsFiles = !disabled;
 
   const dropFiles = {
     onDragOver: (e: DragEvent<HTMLDivElement>) => {
@@ -161,6 +162,8 @@ export function Composer({
     if (onSend(files.ready)) files.clear();
   };
 
+  const streamError = error ? readChatStreamError(error) : null;
+
   return (
     <motion.div
       layout={reduceMotion ? false : "position"}
@@ -185,24 +188,32 @@ export function Composer({
         {error || files.error || voiceFailure ? (
           <Alert variant="destructive" role="alert" className="mb-2">
             <AlertDescription>
-              {error ?? (files.error ? t(`attachments.errors.${files.error}`) : t(`voice.errors.${voiceFailure}`))}
+              {error ? (streamError ? t(`streamErrors.${streamError.code}`, { minutes: streamError.minutes }) : error) : files.error ? t(`attachments.errors.${files.error}`) : t(`voice.errors.${voiceFailure}`)}
             </AlertDescription>
           </Alert>
         ) : null}
 
         {voice ? <VoiceStrip voice={voice} /> : null}
 
+        <ChatVisionNotice model={model} models={models} pricing={pricing} onModelChange={onModelChange} attachments={files.ready} />
+
         <div
           {...dropFiles}
-          className={cn("relative rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring", dropping && "ring-2 ring-ring")}
+          className={cn(
+            "relative rounded-lg border border-control-edge bg-card dark:bg-muted focus-within:ring-2 focus-within:ring-ring",
+            dropping && "ring-2 ring-ring",
+            resize.resizing && "select-none",
+          )}
         >
           {dropping ? (
             <p className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-card/90 text-sm font-medium text-foreground">
               {t("attachments.drop")}
             </p>
           ) : null}
+          <ResizeHandle label={t("resizeComposer")} controls={fieldId} resize={resize} />
           <textarea
-            ref={textarea}
+            ref={field}
+            id={fieldId}
             disabled={disabled}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -213,18 +224,27 @@ export function Composer({
                 submit();
               }
             }}
-            rows={spacious ? 2 : docked ? 1 : 2}
-            placeholder={dictating ? t("voice.dictating") : (placeholder ?? t("inputPlaceholder"))}
+            placeholder={dictating ? t("voice.dictating") : streaming ? t("queue.placeholder") : (placeholder ?? t("inputPlaceholder"))}
             aria-label={placeholder ?? t("inputPlaceholder")}
-            className={cn("block max-h-40 w-full resize-none bg-transparent px-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground", spacious ? "py-3" : "pt-2.5")}
+            style={{ minHeight: resize.height }}
+            className={cn("block w-full resize-none overflow-y-auto bg-transparent text-foreground outline-none placeholder:text-muted-foreground", FIELD_TEXT)}
+          />
+          <textarea
+            ref={mirror}
+            aria-hidden
+            tabIndex={-1}
+            readOnly
+            rows={1}
+            value={input}
+            className={cn("pointer-events-none invisible absolute inset-x-0 top-0 block h-0 w-full resize-none overflow-hidden", FIELD_TEXT)}
           />
           {dictating && dictation.interim ? (
-            <p aria-live="polite" className="truncate px-3 pb-2 text-xs italic text-muted-foreground">
+            <p aria-live="polite" className="truncate px-3.5 pb-2 text-xs italic text-muted-foreground">
               {dictation.interim}
             </p>
           ) : null}
           {files.items.length > 0 ? (
-            <ul className="flex flex-wrap gap-1.5 px-3 pb-2" aria-label={t("attachments.legend")}>
+            <ul className="flex flex-wrap gap-1.5 px-3.5 pb-2" aria-label={t("attachments.legend")}>
               {files.items.map((item) => (
                 <AttachmentChip key={item.key} name={item.name} attachment={item.attachment} uploadingLabel={t("attachments.uploading")} className="bg-muted">
                   <button
@@ -239,7 +259,7 @@ export function Composer({
               ))}
             </ul>
           ) : null}
-          <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1.5">
+          <div role="group" aria-label={t("composerTools")} className="flex items-center gap-1 px-1.5 pb-1.5">
             <input
               ref={picker}
               type="file"
@@ -250,11 +270,11 @@ export function Composer({
                 e.target.value = "";
               }}
             />
-            <div className="flex flex-shrink-0 items-center gap-0.5">
+            <div className="flex flex-shrink-0 items-center gap-1">
               <button
                 type="button"
                 onClick={() => picker.current?.click()}
-                disabled={streaming || disabled}
+                disabled={disabled}
                 className={TOOL_BUTTON}
                 aria-label={t("attachments.add")}
                 title={t("attachments.add")}
@@ -288,8 +308,8 @@ export function Composer({
                 </button>
               ) : null}
             </div>
-            <div className="min-w-0 max-w-[15rem] flex-1">
-              <AIModelSelector
+            <div className="flex min-w-0 max-w-[24rem] flex-1 items-center">
+              <ChatModelSelector
                 label={t("modelLabel")}
                 value={model}
                 onValueChange={onModelChange}
@@ -298,29 +318,60 @@ export function Composer({
                 disabled={streaming || disabled}
               />
             </div>
-            {streaming ? (
-              <button
-                type="button"
-                onClick={onStop}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] border border-control-edge bg-card text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={t("stop")}
-              >
-                <Stop weight="fill" className="h-3.5 w-3.5" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={submit}
-                disabled={!canSend}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground transition-colors duration-DEFAULT hover:bg-primary-hover active:bg-primary-active disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={t("send")}
-              >
-                <PaperPlaneTilt weight="fill" className="h-3.5 w-3.5" />
-              </button>
-            )}
+            <div className="ml-auto flex flex-shrink-0 items-center gap-1">
+              {streaming ? (
+                <button
+                  type="button"
+                  onClick={onStop}
+                  className={STOP_BUTTON}
+                  aria-label={t("stop")}
+                  title={t("stop")}
+                >
+                  <Stop weight="fill" className="h-3.5 w-3.5" />
+                </button>
+              ) : null}
+              {streaming && !canSend ? null : (
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!canSend}
+                  className={SEND_BUTTON}
+                  aria-label={streaming ? t("queue.send") : t("send")}
+                  title={streaming ? t("queue.send") : t("send")}
+                >
+                  <PaperPlaneTilt weight="fill" className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function ResizeHandle({ label, controls, resize }: { label: string; controls: string; resize: ComposerResize }) {
+  return (
+    <div
+      role="separator"
+      tabIndex={0}
+      aria-orientation="horizontal"
+      aria-label={label}
+      aria-controls={controls}
+      aria-valuenow={resize.height}
+      aria-valuemin={resize.min}
+      aria-valuemax={resize.max}
+      title={label}
+      {...resize.handleProps}
+      className="group absolute inset-x-3 -top-1.5 z-20 flex h-3 cursor-ns-resize touch-none items-center justify-center focus-visible:outline-none [@media(pointer:coarse)]:-top-3 [@media(pointer:coarse)]:h-6"
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "h-1 w-10 rounded-full bg-control-edge transition-colors duration-DEFAULT group-hover:bg-primary group-focus-visible:bg-primary group-focus-visible:ring-2 group-focus-visible:ring-ring group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-card",
+          resize.resizing && "bg-primary",
+        )}
+      />
+    </div>
   );
 }

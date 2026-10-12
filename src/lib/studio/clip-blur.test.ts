@@ -94,18 +94,18 @@ describe("editing blur", () => {
 
   it("starts animating from the static blur and stops keeping the current blur", () => {
     const soft = { ...still, blur: 5 };
-    const started = toggleAnimation(soft, "blur", 300);
+    const started = toggleAnimation(soft, "blur", 300, 1);
     expect(started.keyframes?.blur).toEqual([{ atMs: 300, value: 5, easing: "linear" }]);
     const animated = { ...still, keyframes: { blur: [{ atMs: 0, value: 0, easing: "linear" as const }, { atMs: 1000, value: 10, easing: "linear" as const }] } };
     expect(propertyValue(animated, "blur", 500)).toBeCloseTo(5);
-    expect(toggleAnimation(animated, "blur", 500)).toEqual({ keyframes: undefined, blur: 5 });
+    expect(toggleAnimation(animated, "blur", 500, 1)).toEqual({ keyframes: undefined, blur: 5 });
   });
 
   it("records a moment on the transform without adding blur keys to a sharp clip", () => {
-    const moment = recordMoment(still, 400);
+    const moment = recordMoment(still, 400, 1);
     expect(moment?.keyframes?.blur).toBeUndefined();
     expect(moment?.keyframes?.x).toHaveLength(1);
     const blurred = { ...still, keyframes: { blur: [{ atMs: 0, value: 10, easing: "linear" as const }] } };
-    expect(recordMoment(blurred, 400)?.keyframes?.blur).toHaveLength(2);
+    expect(recordMoment(blurred, 400, 1)?.keyframes?.blur).toHaveLength(2);
   });
 });

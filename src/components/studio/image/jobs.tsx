@@ -3,14 +3,17 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import { AI_PROGRESS_FRAME, AiProgressSurface, type AiProgressFrame } from "@/components/elevated-design/ai-progress-surface";
 import { X } from "@/components/icons";
 import { useMediaGeneration } from "@/hooks/use-media-generation";
+import { artboardOfItem } from "@/lib/studio/artboards";
+import { imageJobOverlays, overlayLabelKey, pendingMediaJobs } from "@/lib/studio/job-overlay";
 
 import { AgentCursor } from "../agent/agent-cursor";
 import type { AgentTask } from "../agent/agent-tasks";
 import type { AgentPresence } from "../agent/presence";
 import { IconButton, Notice } from "./controls";
-import { useEditorUi, useImageEditor, type JobPurpose, type StudioJob } from "./editor-state";
+import { useEditorUi, useImageDoc, useImageEditor, type JobPurpose, type StudioJob } from "./editor-state";
 
 function JobFollower({ job }: { job: StudioJob }) {
   const { commands } = useImageEditor();
@@ -47,7 +50,7 @@ export function JobFollowers() {
   );
 }
 
-const TASK_ACTIONS: Record<JobPurpose, string> = { generate: "job_image", edit: "job_edit", cutout: "job_cutout" };
+const TASK_ACTIONS: Record<JobPurpose, string> = { generate: "job_image", edit: "job_edit", cutout: "job_cutout", element: "job_image" };
 
 export function agentTasks(jobs: readonly StudioJob[]): AgentTask[] {
   return jobs.filter((job) => job.byAgent && !job.error).map((job) => ({ id: job.id, action: TASK_ACTIONS[job.purpose], settling: job.settling }));
@@ -64,7 +67,17 @@ export function useJobsFor(purpose: JobPurpose, layerId: string | null): StudioJ
   return jobs.filter((job) => job.purpose === purpose && job.layerId === layerId);
 }
 
-export function JobStatusList({ jobs }: { jobs: StudioJob[] }) {
+export function useProcessingMedia(): ReadonlyMap<string, string> {
+  const t = useTranslations("studio.image.jobs");
+  const jobs = useEditorUi((s) => s.jobs);
+  const document = useImageDoc((s) => s.document);
+  return useMemo(() => {
+    const pending = pendingMediaJobs(imageJobOverlays(jobs), (layerId) => artboardOfItem(document, layerId)?.layers.find((layer) => layer.id === layerId)?.assetId);
+    return new Map([...pending].map(([mediaId, entry]) => [mediaId, t(overlayLabelKey(entry.phase, entry.purpose, "running"))]));
+  }, [jobs, document, t]);
+}
+
+export function JobStatusList({ jobs, frame = "strip" }: { jobs: StudioJob[]; frame?: AiProgressFrame }) {
   const t = useTranslations("studio.image.jobs");
   const { commands } = useImageEditor();
   if (jobs.length === 0) return null;
@@ -85,7 +98,7 @@ export function JobStatusList({ jobs }: { jobs: StudioJob[] }) {
               {t(`errors.${job.error}`)}
             </Notice>
           ) : (
-            <Notice tone="progress" title={t(job.settling ? "finalizing" : `running.${job.purpose}`)} />
+            <AiProgressSurface label={t(job.settling ? "finalizing" : `running.${job.purpose}`)} className={AI_PROGRESS_FRAME[frame]} />
           )}
         </li>
       ))}

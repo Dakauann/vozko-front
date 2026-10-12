@@ -3,8 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 
-import { isActionError } from "@/app/actions/action-result";
-import { createStudioProjectAction } from "@/app/actions/studio";
 import Button from "@/components/elevated-design/button";
 import {
   ElevatedDialog,
@@ -18,10 +16,8 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import { FilmStrip, Image as ImageIcon, WarningCircle } from "@/components/icons";
-import { useRouter } from "@/i18n/routing";
+import { useStudioProjectCreator } from "@/hooks/use-studio-project-creator";
 import {
-  emptyImageDocument,
-  emptyVideoDocument,
   IMAGE_PRESETS,
   STUDIO_LIMITS,
   VIDEO_ASPECT_SIZES,
@@ -31,7 +27,7 @@ import {
   type StudioKind,
   type VideoAspect,
 } from "@/lib/studio/document";
-import { editorPathFor } from "@/lib/studio/project";
+import { NEW_IMAGE_PRESET, NEW_VIDEO_ASPECT } from "@/lib/studio/from-media";
 import { canvasSizeIssue, projectNameIssue } from "@/lib/studio/validate";
 import { cn } from "@/lib/utils";
 
@@ -70,9 +66,9 @@ function parseSide(value: string): number {
 
 export function CreateProjectDialog({ open, kind, onKindChange, onOpenChange }: CreateProjectDialogProps) {
   const t = useTranslations("studio");
-  const router = useRouter();
-  const [imageChoice, setImageChoice] = useState<ImageChoice>("instagram_post");
-  const [aspect, setAspect] = useState<VideoAspect>("story");
+  const { create } = useStudioProjectCreator();
+  const [imageChoice, setImageChoice] = useState<ImageChoice>(NEW_IMAGE_PRESET);
+  const [aspect, setAspect] = useState<VideoAspect>(NEW_VIDEO_ASPECT);
   const [customWidth, setCustomWidth] = useState("1080");
   const [customHeight, setCustomHeight] = useState("1080");
   const [name, setName] = useState("");
@@ -99,22 +95,13 @@ export function CreateProjectDialog({ open, kind, onKindChange, onOpenChange }: 
     if (submitting || nameIssue || sizeIssue) return;
     setSubmitting(true);
     setError(null);
-    const document = kind === "image" ? emptyImageDocument(imageSize) : emptyVideoDocument(aspect);
-    const result = await createStudioProjectAction({ kind, name: shownName, document });
-    if (isActionError(result)) {
-      setSubmitting(false);
-      setError(result.error);
-      return;
-    }
-    const path = editorPathFor(result.data);
-    if (!path) {
-      setSubmitting(false);
-      setError(t("create.failed"));
-      return;
-    }
+    const outcome = await create(kind === "image" ? { kind, name: shownName, sizes: [imageSize] } : { kind, name: shownName, aspect }, "dialog");
     setSubmitting(false);
+    if (!outcome.ok) {
+      setError(outcome.error);
+      return;
+    }
     onOpenChange(false);
-    router.push(path);
   };
 
   return (

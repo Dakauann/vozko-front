@@ -730,6 +730,13 @@ input:-webkit-autofill:active {
     inset: -2px;
   }
 
+  .vz-ai-job .vz-ai-ring {
+    padding: 2px;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  }
+
   .vz-ai-halo {
     inset: -7px;
     filter: blur(12px);

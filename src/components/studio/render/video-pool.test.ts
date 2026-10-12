@@ -14,7 +14,7 @@ function fakeVideo() {
   return video;
 }
 
-const source = (clipId: string, sourceMs: number): VideoSource => ({ kind: "video", clipId, assetId: `a-${clipId}`, sourceMs });
+const source = (clipId: string, sourceMs: number): VideoSource => ({ kind: "video", clipId, assetId: `a-${clipId}`, sourceMs, speed: 1, backward: false });
 
 async function settle() {
   await Promise.resolve();

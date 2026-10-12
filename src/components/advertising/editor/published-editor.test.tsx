@@ -136,7 +136,7 @@ describe("PublishedEditor", () => {
   it("previews a live ad with its destination and swaps its creative", async () => {
     updateMock.mockResolvedValue({ data: ad });
     renderEditor("a-1");
-    expect(await screen.findByRole("figure", { name: "Prévia do anúncio" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Ampliar Feed do Facebook" })).toBeTruthy();
     fireEvent.click(await screen.findByRole("button", { name: "Trocar criativo" }));
     fireEvent.change(await screen.findByDisplayValue("Fale com a gente"), { target: { value: "Novo texto" } });
     fireEvent.click(screen.getByRole("button", { name: "Salvar criativo" }));
@@ -151,6 +151,6 @@ describe("PublishedEditor", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Avançar" }));
     expect(await screen.findByRole("button", { name: "Conjunto vivo", current: true })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
-    expect(pushMock).toHaveBeenCalledWith("/dashboard/advertising?account=acc-1&campaign=c-1");
+    expect(pushMock).toHaveBeenCalledWith("/dashboard/advertising?account=acc-1&selected_campaign_ids=c-1");
   });
 });

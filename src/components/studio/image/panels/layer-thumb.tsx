@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 
+import { PuzzlePiece } from "@/components/icons";
 import { loadAssetImage, useLoadedImage } from "@/components/studio/canvas/asset-images";
 import { STUDIO_ICONS } from "@/components/studio/canvas/icon-catalog";
+import { layerSurfacePicture } from "@/components/studio/canvas/surface-canvas";
 import type { Layer } from "@/lib/studio/document";
-import { framePolygon, starPolygon } from "@/lib/studio/paint";
+import { framePolygon, regularPolygon, starPolygon } from "@/lib/studio/paint";
 import { scalePath } from "@/lib/studio/vector-path";
 
 const BOX = 24;
@@ -35,6 +38,8 @@ function ShapeThumb({ layer }: { layer: Layer }) {
       return <polygon points={framePolygon(layer.shape, size, size).map((v) => v + inset).join(" ")} fill={paint} />;
     case "star":
       return <polygon points={starPolygon(layer, size, size).map((v) => v + inset).join(" ")} fill={paint} />;
+    case "polygon":
+      return <polygon points={regularPolygon(layer, size, size).map((v) => v + inset).join(" ")} fill={paint} />;
     case "path":
       return <path d={scalePath(layer.path ?? "", size, size)} transform={`translate(${inset} ${inset})`} fillRule={layer.fillRule} fill={layer.fill ? paint : "none"} stroke={layer.fill ? undefined : paint} strokeWidth={1.5} />;
     case "line":
@@ -43,6 +48,23 @@ function ShapeThumb({ layer }: { layer: Layer }) {
     default:
       return <rect x={inset} y={inset + 2} width={size} height={size - 4} rx={(layer.radius ?? 0) * 6} fill={paint} />;
   }
+}
+
+const THUMB_PX = 48;
+
+function PaintThumb({ layer }: { layer: Layer }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const context = canvas.current?.getContext("2d");
+    const picture = context ? layerSurfacePicture(layer, "paint") : null;
+    if (!context || !picture) return;
+    const fit = Math.min(THUMB_PX / picture.canvas.width, THUMB_PX / picture.canvas.height);
+    const width = picture.canvas.width * fit;
+    const height = picture.canvas.height * fit;
+    context.clearRect(0, 0, THUMB_PX, THUMB_PX);
+    context.drawImage(picture.canvas, (THUMB_PX - width) / 2, (THUMB_PX - height) / 2, width, height);
+  }, [layer]);
+  return <canvas ref={canvas} width={THUMB_PX} height={THUMB_PX} className="h-full w-full" />;
 }
 
 export function LayerThumb({ layer }: { layer: Layer }) {
@@ -61,6 +83,8 @@ export function LayerThumb({ layer }: { layer: Layer }) {
         </span>
       ) : null}
       {Glyph ? <Glyph size={16} color={paintOf(layer)} /> : null}
+      {layer.type === "instance" ? <PuzzlePiece size={14} weight="fill" className="text-primary" /> : null}
+      {layer.type === "paint" ? <PaintThumb layer={layer} /> : null}
     </span>
   );
 }

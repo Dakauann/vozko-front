@@ -11,6 +11,7 @@ interface HistoryEntry {
   inverse: Patch[];
   selectionBefore: string[];
   selectionAfter: string[];
+  group?: string;
 }
 
 export interface StudioEditorState<D extends object> {
@@ -21,6 +22,7 @@ export interface StudioEditorState<D extends object> {
   canRedo: boolean;
   inTransaction: boolean;
   apply: (operation: (document: D) => D, nextSelection?: string[]) => void;
+  applyAs: (group: string, operation: (document: D) => D) => boolean;
   update: (recipe: (draft: Draft<D>) => void, nextSelection?: string[]) => void;
   select: (ids: string[]) => void;
   undo: () => void;
@@ -33,12 +35,14 @@ export interface StudioEditorState<D extends object> {
 
 export type StudioEditorStore<D extends object> = StoreApi<StudioEditorState<D>>;
 
-export interface StudioStoreOptions {
+export interface StudioStoreOptions<D> {
   historyLimit?: number;
+  settle?: (before: D, after: D) => D;
 }
 
-export function createStudioStore<D extends object>(initial: D, options: StudioStoreOptions = {}): StudioEditorStore<D> {
+export function createStudioStore<D extends object>(initial: D, options: StudioStoreOptions<D> = {}): StudioEditorStore<D> {
   const limit = options.historyLimit ?? HISTORY_LIMIT;
+  const settled = (before: D, after: D): D => (options.settle && after !== before ? options.settle(before, after) : after);
   let past: HistoryEntry[] = [];
   let future: HistoryEntry[] = [];
   let pending: HistoryEntry | null = null;
@@ -82,13 +86,37 @@ export function createStudioStore<D extends object>(initial: D, options: StudioS
       inTransaction: false,
       apply: (operation, nextSelection) => {
         const current = get().document;
-        const next = operation(current);
+        const next = settled(current, operation(current));
         if (next === current) return;
         const [result, patches, inverse] = produceWithPatches(current, (): D => next);
         record(result as D, patches, inverse, nextSelection);
       },
+      applyAs: (group, operation) => {
+        if (pending) return false;
+        const current = get().document;
+        const next = settled(current, operation(current));
+        if (next === current) return true;
+        const [result, patches, inverse] = produceWithPatches(current, (): D => next);
+        if (patches.length === 0) return true;
+        const { selection, revision } = get();
+        const top = past.at(-1);
+        if (top && top.group === group && future.length === 0) {
+          top.patches.push(...patches);
+          top.inverse.unshift(...inverse);
+        } else {
+          past.push({ patches, inverse, selectionBefore: selection, selectionAfter: selection, group });
+          if (past.length > limit) past = past.slice(past.length - limit);
+        }
+        future = [];
+        set({ document: result as D, revision: revision + 1, ...flags() });
+        return true;
+      },
       update: (recipe, nextSelection) => {
-        const [result, patches, inverse] = produceWithPatches(get().document, recipe);
+        const current = get().document;
+        const [drafted] = produceWithPatches(current, recipe);
+        const next = settled(current, drafted as D);
+        if (next === current) return;
+        const [result, patches, inverse] = produceWithPatches(current, (): D => next);
         record(result as D, patches, inverse, nextSelection);
       },
       select: (ids) => {

@@ -1,4 +1,4 @@
-export type ModelKind = "image" | "music" | "voice";
+export type ModelKind = "image" | "music" | "voice" | "sfx";
 
 export type ProcessingKind = "cutout" | "captions" | "denoise" | "proxy";
 
@@ -9,6 +9,8 @@ export const PROCESSING_KINDS: readonly ProcessingKind[] = ["cutout", "captions"
 export const IMAGE_ASPECTS = ["square", "portrait", "story", "landscape"] as const;
 
 export type ImageAspect = (typeof IMAGE_ASPECTS)[number];
+
+export const ASPECT_RATIO_LABEL: Record<ImageAspect, string> = { square: "1:1", portrait: "4:5", story: "9:16", landscape: "16:9" };
 
 export const MAX_REFERENCE_IMAGES = 16;
 
@@ -60,6 +62,7 @@ export type MediaGenerationInput =
   | { kind: "image"; model: string; prompt: string; aspect: ImageAspect; referenceMediaIds?: string[] }
   | { kind: "music"; model: string; prompt: string }
   | { kind: "voice"; model: string; prompt: string; voice?: Voice }
+  | { kind: "sfx"; model: string; prompt: string; durationMs: number }
   | { kind: "video"; aspect: ImageAspect; video: VideoTimeline }
   | { kind: ProcessingKind; sourceMediaId: string };
 
@@ -72,7 +75,8 @@ export type MediaJobFailureCode =
   | "enqueue_failed"
   | "insufficient_funds"
   | "reference_unavailable"
-  | "cost_unreported";
+  | "cost_unreported"
+  | "provider_busy";
 
 export interface MediaGenerationJob {
   id: string;
@@ -82,6 +86,7 @@ export interface MediaGenerationJob {
   aspect?: ImageAspect;
   referenceMediaIds: string[];
   voice?: string;
+  durationMs?: number;
   video?: VideoTimeline;
   sourceMediaId?: string;
   mediaId?: string;

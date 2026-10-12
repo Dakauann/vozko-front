@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 
 import { waveformBars } from "@/lib/studio/filmstrip";
 import type { Span } from "@/lib/studio/timeline-view";
-import { peakGain, slicePeaks } from "@/lib/studio/waveform";
+import type { Clip } from "@/lib/studio/document";
+import { peakGain, waveformSlice } from "@/lib/studio/waveform";
 
 import { usePeaks } from "../use-asset";
 
@@ -12,15 +13,14 @@ const BAR_PX = 2;
 
 interface WaveformProps {
   assetId: string;
-  trimInMs: number;
-  durationMs: number;
+  clip: Pick<Clip, "type" | "durationMs" | "trimInMs" | "speed" | "reverse" | "freeze">;
   widthPx: number;
   heightPx: number;
   span: Span;
   colorVar?: string;
 }
 
-export function Waveform({ assetId, trimInMs, durationMs, widthPx, heightPx, span, colorVar = "--plate-1" }: WaveformProps) {
+export function Waveform({ assetId, clip, widthPx, heightPx, span, colorVar = "--plate-1" }: WaveformProps) {
   const peaks = usePeaks(assetId);
   const canvas = useRef<HTMLCanvasElement>(null);
   const spanWidth = Math.max(1, Math.round(span.toPx - span.fromPx));
@@ -36,15 +36,14 @@ export function Waveform({ assetId, trimInMs, durationMs, widthPx, heightPx, spa
     context.clearRect(0, 0, spanWidth, heightPx);
     const token = getComputedStyle(element).getPropertyValue(colorVar).trim();
     context.fillStyle = token ? `hsl(${token})` : getComputedStyle(element).color;
-    const msPerPx = durationMs / widthPx;
-    const bars = slicePeaks(peaks, trimInMs + span.fromPx * msPerPx, spanWidth * msPerPx, waveformBars(spanWidth, BAR_PX));
+    const bars = waveformSlice(peaks, clip, span.fromPx, spanWidth, widthPx, waveformBars(spanWidth, BAR_PX));
     const middle = heightPx / 2;
     const gain = peakGain(peaks);
     bars.forEach((value, index) => {
       const half = Math.max(0.5, Math.min(1, value * gain) * (heightPx / 2 - 1));
       context.fillRect(index * BAR_PX, middle - half, BAR_PX - 0.5, half * 2);
     });
-  }, [peaks, trimInMs, durationMs, widthPx, heightPx, span.fromPx, spanWidth, colorVar]);
+  }, [peaks, clip, widthPx, heightPx, span.fromPx, spanWidth, colorVar]);
 
   if (!peaks) return null;
   return <canvas ref={canvas} aria-hidden className="pointer-events-none absolute top-0" style={{ left: span.fromPx, width: spanWidth, height: heightPx }} />;

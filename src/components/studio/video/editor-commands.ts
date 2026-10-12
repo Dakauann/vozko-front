@@ -5,19 +5,38 @@ import { uploadMediaAction } from "@/app/actions/medias";
 import type { MediaGenerationError } from "@/hooks/use-media-generation";
 import { canStart, KEPT_FINISHED_JOBS } from "@/lib/media-generation/limits";
 import type { MediaGenerationInput, MediaGenerationJob } from "@/lib/media-generation/types";
+import { jobStartAsset } from "@/lib/studio/job-landing";
 import { asUploadableImage } from "@/components/studio/canvas/uploadable-image";
 import type { Media } from "@/lib/medias/types";
 import { encodeClipboard } from "@/lib/studio/clip-clipboard";
-import { newStudioId, type Clip, type Layer, type Transform, type VideoAspect, type VideoDocument } from "@/lib/studio/document";
-import { adjacentKey, keyTimes, localTime } from "@/lib/studio/keyframe-edit";
-import { toggleSelectionMoment, transformPatch } from "@/lib/studio/selection-edit";
-import { closeGaps, duplicateGroup, linkClips, magnetize, placeStack, splitAt, unlinkClips, withLinked } from "@/lib/studio/edits";
-import { removeKeys } from "@/lib/studio/focus-lanes";
+import { canvasAspect, msOfFrame, newStudioId, videoCanvasSize, type Clip, type Track, type Transform, type VideoAspect, type VideoDocument } from "@/lib/studio/document";
+import { clipUnder, nearestEdge, rollCut, slideClip, type TrimEdge, type TrimEdit } from "@/lib/studio/trim-edits";
+import { adjacentKey, keyTimes, localTime, setMomentEasing } from "@/lib/studio/keyframe-edit";
+import type { AnimatedProperty, Easing } from "@/lib/studio/keyframes";
+import { placedPatch, toggleSelectionMoment } from "@/lib/studio/selection-edit";
+import { childIds, clipLookup } from "@/lib/studio/parenting";
+import { setParents } from "@/lib/studio/parent-edit";
+import { insertVideoClips } from "@/lib/studio/library/instantiate";
+import { addBehavior, bakeBehavior, defaultReactTrack, draftBehavior, randomBehaviorSeed, removeBehavior, updateBehavior, type BehaviorSettings } from "@/lib/studio/behavior-edit";
+import { NO_LEVELS, type BehaviorKind, type BehaviorProperty } from "@/lib/studio/behaviors";
+import { hasSourceTime } from "@/lib/studio/clip-time";
+import { closeGaps, duplicateGroup, linkClips, linkGroup, magnetize, splitAt, unlinkClips, withLinked } from "@/lib/studio/edits";
+import { freezeFrame, rampSpeed, retimeClip, type RampRequest, type RetimeRequest, type RetimeResult } from "@/lib/studio/retime";
+import { clearSpeedCurve, setSpeedCurve, smoothRamp, type SpeedCurveRequest } from "@/lib/studio/speed-curve";
+import { bakeDucking, duckingIssue, trackGainIssue, withDucking, type DuckingRule } from "@/lib/studio/ducking";
+import { easeKeys, propertyKeys, removeKeys } from "@/lib/studio/focus-lanes";
 import { addMarker, adjacentMarker, removeMarker } from "@/lib/studio/markers";
-import { clipTypeForMedia, mediaClips, overlayClip, sizedMediaClips } from "@/lib/studio/media-clips";
+import { addClipMarker } from "@/lib/studio/clip-marker-edits";
+import { clipTypeForMedia, mediaClips, sizedMediaClips } from "@/lib/studio/media-clips";
 import type { StudioEditorStore } from "@/lib/studio/store";
-import { textPresetClips, type TextStylePreset } from "@/lib/studio/text-presets";
-import { contentDuration, deleteClips, findClip, isClipPickable, placeClips, rippleDeleteClips, updateClip, type ClipPatch } from "@/lib/studio/timeline";
+import { clipEnd, clipsAt, contentDuration, deleteClips, findClip, isClipPickable, placeClips, rippleDeleteClips, updateClip, updateTrack, type ClipPatch, type TrackPatch } from "@/lib/studio/timeline";
+import { findTransition, removeTransition, type TransitionEdit } from "@/lib/studio/transitions";
+import { freshVfx, type VfxKind } from "@/lib/studio/vfx";
+import { loudnessAssetIds, normalizeLoudness, type NormalizeOutcome, type NormalizeTarget } from "@/lib/studio/loudness";
+import { trackPanIssue } from "@/lib/studio/audio-pan";
+import { addEffectClip } from "@/lib/studio/vfx-edit";
+import { shutterIssue, type ShutterChange } from "@/lib/studio/motion-blur";
+import { perspectiveChange } from "@/lib/studio/clip-tilt";
 
 import { fitZoom, focusView, toggledSelection, zoomBy } from "@/lib/studio/timeline-view";
 import {
@@ -37,15 +56,42 @@ import {
 } from "@/lib/studio/tools";
 
 import type { AssetCatalog } from "./asset-catalog";
+import type { AudioEngine } from "./audio-engine";
+import { speechOfTriggers } from "./speech-analysis";
+import { reactLevels } from "./react-levels";
+import { createGraphCommands, type GraphCommands } from "./graph-commands";
+import { createKeyCommands, type KeyCommands } from "./key-commands";
+import { createLayoutCommands, type LayoutCommands } from "./layout-commands";
+import { createTrackCommands, type TrackCommands } from "./track-commands";
+import { createGroupCommands, type GroupCommands } from "./group-commands";
+import { createTextEditCommands, type TextEditCommands } from "./text-edit-commands";
+import { sourceLengthOf } from "@/lib/studio/group-scope";
 import type { PlaybackController } from "./playback-controller";
+import type { PreviewQuality } from "@/lib/studio/preview-quality";
+import { workArea } from "@/lib/studio/work-area";
+import { fitViewport, stepZoom, zoomAtCenter } from "@/lib/studio/viewport";
 import { TRIM_TOOLS, type NoticeTone, type TimelineTool, type TrackHeight, type VideoJob, type VideoJobPurpose, type VideoJobTarget, type VideoViewStore } from "./view-store";
 
-export interface EditorCommands {
+export interface EditorCommands extends KeyCommands, LayoutCommands, GraphCommands, GroupCommands, TrackCommands, TextEditCommands {
   undo: () => void;
   redo: () => void;
   apply: (operation: (doc: VideoDocument) => VideoDocument, nextSelection?: string[]) => void;
   selectClip: (clipId: string, additive: boolean) => void;
   selectClips: (ids: string[]) => void;
+  selectTransition: (transitionId: string | null) => void;
+  editTransition: (edit: (doc: VideoDocument) => TransitionEdit) => boolean;
+  retime: (request: RetimeRequest) => boolean;
+  freezeFrame: (durationMs?: number) => boolean;
+  setTrackGain: (trackId: string, gainDb: number) => boolean;
+  setTrackPan: (trackId: string, pan: number) => boolean;
+  setTrackMuted: (trackId: string, muted: boolean) => boolean;
+  normalize: (target: NormalizeTarget, targetLufs: number) => Promise<NormalizeOutcome>;
+  setDucking: (trackId: string, change: Partial<DuckingRule> | null) => boolean;
+  bakeDucking: (trackId: string) => Promise<boolean>;
+  rampSpeed: (ramp: Omit<RampRequest, "atMs">, smooth: boolean) => boolean;
+  setSpeedCurve: (clipId: string, request: SpeedCurveRequest) => boolean;
+  clearSpeedCurve: (clipId: string) => boolean;
+  setFrameMix: (on: boolean) => boolean;
   split: () => void;
   remove: (ripple: boolean) => void;
   duplicate: () => void;
@@ -58,26 +104,49 @@ export interface EditorCommands {
   jobFailed: (id: string, error: MediaGenerationError) => void;
   jobFinished: (id: string) => void;
   dismissJob: (id: string) => void;
-  insertLayer: (layer: Layer) => boolean;
   insertClips: (clips: Clip[], preferTrackId?: string) => boolean;
-  insertTextPreset: (preset: TextStylePreset, content: string) => boolean;
+  insertLibrary: (clips: Clip[], trackId?: string) => boolean;
+  insertEffect: (kind: VfxKind | null) => boolean;
+  setParent: (clipIds: readonly string[], parentId: string | null, keepVisual: boolean) => boolean;
+  addBehavior: (clipId: string, kind: BehaviorKind, property: BehaviorProperty) => string | null;
+  updateBehavior: (clipId: string, behaviorId: string, settings: BehaviorSettings) => boolean;
+  removeBehavior: (clipId: string, behaviorId: string) => boolean;
+  bakeBehavior: (clipId: string, behaviorId: string) => Promise<boolean>;
+  selectChildren: (clipId: string) => void;
   addMarker: () => void;
+  addClipMarker: () => void;
+  toggleGuide: () => void;
   removeMarker: (markerId: string) => void;
   jumpMarker: (direction: 1 | -1) => void;
   setAspect: (aspect: VideoAspect) => void;
   setBackground: (color: string) => void;
+  setShutter: (change: ShutterChange) => void;
+  setPerspective: (perspective: number) => void;
+  setScrubbing: (scrubbing: boolean) => void;
+  toggleBlurWhileScrubbing: () => void;
   zoom: (direction: 1 | -1) => void;
   toggleSnapping: () => void;
   toggleSafeArea: () => void;
+  togglePerception: (overlay: "depthOverlay" | "layoutOverlay") => void;
+  toggleTransparencyGrid: () => void;
+  setPreviewQuality: (quality: PreviewQuality) => void;
+  toggleLoop: () => void;
+  playRange: () => void;
+  fitPreview: () => void;
+  zoomPreview: (scale: number) => void;
+  stepPreviewZoom: (direction: 1 | -1) => void;
   toggleMagnetic: () => void;
   toggleLinkedSelection: () => void;
   toggleSolo: (trackId: string) => void;
+  toggleMixer: () => void;
   setTrackHeight: (height: TrackHeight) => void;
   notify: (key: string, tone?: NoticeTone) => void;
   editTransform: (clipId: string, next: Transform) => void;
   jumpKey: (direction: 1 | -1) => void;
   toggleKey: () => void;
-  patchKeyframes: (clipId: string, build: (clip: Clip, localMs: number) => ClipPatch | null, anywhere?: boolean) => void;
+  easeKeys: (easing: Easing) => void;
+  selectPropertyKeys: (clipId: string, property: AnimatedProperty) => void;
+  patchKeyframes: (clipId: string, build: (clip: Clip, localMs: number, aspect: number) => ClipPatch | null, anywhere?: boolean) => void;
   setTool: (tool: TimelineTool) => void;
   cycleTrimTool: () => void;
   blade: (trackId: string | null, atMs: number, allTracks: boolean) => void;
@@ -97,6 +166,9 @@ export interface EditorCommands {
   pasteImages: (files: File[]) => Promise<void>;
   clipboardPayload: () => ClipboardPayload | null;
   nudge: (frames: number) => void;
+  roll: (clipId: string, edge: TrimEdge, atMs: number, linked: boolean) => TrimEdit;
+  slide: (clipId: string, startMs: number, linked: boolean) => TrimEdit;
+  rollToPlayhead: (edge: TrimEdge) => void;
   toggleDisabled: () => void;
   relink: () => void;
   zoomToFit: () => void;
@@ -108,9 +180,11 @@ export interface EditorCommands {
 
 interface CommandDeps {
   store: StudioEditorStore<VideoDocument>;
+  root: StudioEditorStore<VideoDocument>;
   view: VideoViewStore;
   assets: AssetCatalog;
   playback: PlaybackController;
+  audio: Pick<AudioEngine, "analysis" | "speechOf" | "loudness" | "loudnessOf">;
   requestJob: (input: MediaGenerationInput) => Promise<ActionResult<MediaGenerationJob>>;
 }
 
@@ -128,7 +202,7 @@ export function keepRecentJobs(jobs: readonly VideoJob[]): VideoJob[] {
   return kept.reverse();
 }
 
-export function createEditorCommands({ store, view, assets, playback, requestJob }: CommandDeps): EditorCommands {
+export function createEditorCommands({ store, root, view, assets, playback, audio, requestJob }: CommandDeps): EditorCommands {
   const state = () => store.getState();
   let clipboard: ClipboardPayload | null = null;
   const selectedTrackIds = () => {
@@ -137,9 +211,8 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
     return ids.size > 0 ? [...ids] : undefined;
   };
   const markedRange = () => {
-    const { inMs, outMs } = view.getState().range;
-    if (inMs === null || outMs === null || outMs <= inMs) return null;
-    return { inMs, outMs };
+    const area = workArea(view.getState().range, state().document.durationMs);
+    return area ? { inMs: area.startMs, outMs: area.endMs } : null;
   };
   const playhead = () => view.getState().playheadMs;
   const linkedSelection = () => view.getState().linkedSelection;
@@ -150,8 +223,38 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
 
   const notify = (key: string, tone: NoticeTone = "info") => view.setState({ notice: { key, tone } });
 
+  const trimNotice = (result: TrimEdit) => {
+    if (!result.ok) notify(`trim.${result.reason === "blocked" ? result.block.limit : result.reason}`, result.reason === "unchanged" ? "info" : "error");
+  };
+
+  const sourceOfClip = (doc: VideoDocument) => (clipId: string) => {
+    const clip = findClip(doc, clipId)?.clip;
+    return clip ? sourceLengthOf(clip, (assetId) => assets.store.getState().assets[assetId]?.durationMs) : undefined;
+  };
+
   const apply = (operation: (doc: VideoDocument) => VideoDocument, nextSelection?: string[]) =>
     state().apply((doc) => magnetize(operation(doc), view.getState().magnetic), nextSelection);
+
+  const retimed = (result: RetimeResult): boolean => {
+    if (!result.ok) {
+      notify(`speed.${result.reason}`, "error");
+      return false;
+    }
+    apply(() => result.document);
+    return true;
+  };
+
+  const editTrack = (trackId: string, patch: TrackPatch, issueOf: (track: Track) => string | null) => {
+    const next = updateTrack(state().document, trackId, patch);
+    const track = next.tracks.find((t) => t.id === trackId);
+    const issue = track ? issueOf(track) : "clipGone";
+    if (issue) {
+      notify(issue, "error");
+      return false;
+    }
+    apply(() => next);
+    return true;
+  };
 
   const settle = (placed: { document: VideoDocument; ids: string[] } | null): boolean => {
     if (!placed) {
@@ -167,9 +270,10 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
   const patchJob = (id: string, patch: Partial<VideoJob>) =>
     view.setState((current) => ({ jobs: current.jobs.map((job) => (job.id === id ? { ...job, ...patch } : job)) }));
 
-  const addJob = (purpose: VideoJobPurpose, target: VideoJobTarget, created: MediaGenerationJob | null, byAgent: boolean): string => {
+  const addJob = (purpose: VideoJobPurpose, target: VideoJobTarget, start: MediaGenerationInput | MediaGenerationJob, created: MediaGenerationJob | null, byAgent: boolean): string => {
     const id = newStudioId("job");
-    const job: VideoJob = { id, purpose, target, created, state: "running", settling: false, error: null, byAgent };
+    const startedFrom = jobStartAsset(start);
+    const job: VideoJob = { id, purpose, target, ...(startedFrom ? { startedFrom } : {}), created, state: "running", settling: false, error: null, byAgent };
     view.setState((current) => ({ jobs: keepRecentJobs([...current.jobs, job]) }));
     return id;
   };
@@ -177,10 +281,17 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
   const runningKinds = () => view.getState().jobs.filter((job) => job.state === "running").map((job) => job.purpose);
 
   const commands: EditorCommands = {
+    ...createKeyCommands({ store, view, notify, jumpMarker: (direction) => commands.jumpMarker(direction) }),
+    ...createLayoutCommands({ store, view, notify, apply, source: sourceOfClip }),
+    ...createTrackCommands({ store, view, notify }),
+    ...createGraphCommands({ store, view, notify, enterFocus: () => commands.enterFocus() }),
+    ...createGroupCommands({ store, root, view, notify, seek: (ms) => playback.seek(ms), pause: () => playback.pause() }),
+    ...createTextEditCommands({ store, view, playback, apply }),
     undo: () => state().undo(),
     redo: () => state().redo(),
     apply,
     selectClip: (clipId, additive) => {
+      view.setState({ selectedTransitionId: null });
       const group = expanded([clipId]);
       const current = state().selection;
       if (!additive) {
@@ -191,7 +302,134 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
       const adding = toggled.includes(clipId);
       state().select(adding ? [...new Set([...current, ...group])] : current.filter((id) => !group.includes(id)));
     },
-    selectClips: (ids) => state().select(expanded(ids)),
+    selectClips: (ids) => {
+      view.setState({ selectedTransitionId: null });
+      state().select(expanded(ids));
+    },
+    selectTransition: (transitionId) => {
+      view.setState({ selectedTransitionId: transitionId, selectedGap: null });
+      if (transitionId) state().select([]);
+    },
+    editTransition: (edit) => {
+      const result = edit(state().document);
+      if (!result.ok) {
+        notify(`transitions.${result.reason}`, "error");
+        return false;
+      }
+      state().apply(() => result.document, []);
+      view.setState({ selectedTransitionId: findTransition(result.document, result.transitionId) ? result.transitionId : null, selectedGap: null });
+      return true;
+    },
+    retime: (request) => {
+      const { document, selection } = state();
+      const targets = selection.filter((id) => {
+        const clip = findClip(document, id)?.clip;
+        return clip !== undefined && hasSourceTime(clip.type);
+      });
+      if (targets.length === 0) {
+        notify("speed.notSourced", "error");
+        return false;
+      }
+      let next = document;
+      const handled = new Set<string>();
+      for (const id of targets) {
+        if (handled.has(id)) continue;
+        const result = retimeClip(next, id, request, sourceOfClip(next));
+        if (!result.ok) {
+          notify(`speed.${result.reason}`, "error");
+          return false;
+        }
+        next = result.document;
+        for (const linked of linkGroup(next, id)) handled.add(linked);
+      }
+      apply(() => next);
+      return true;
+    },
+    setTrackGain: (trackId, gainDb) => editTrack(trackId, { gainDb: gainDb === 0 ? undefined : gainDb }, (track) => (trackGainIssue(track) ? "ducking.range" : null)),
+    setTrackMuted: (trackId, muted) => editTrack(trackId, { muted }, () => null),
+    setTrackPan: (trackId, pan) => editTrack(trackId, { pan: pan === 0 ? undefined : pan }, (track) => (trackPanIssue(track) ? "outOfRange" : null)),
+    normalize: async (target, targetLufs) => {
+      const doc = state().document;
+      const speech = "trackId" in target ? await speechOfTriggers(doc, (assetId) => audio.analysis(assetId)) : null;
+      await Promise.all(loudnessAssetIds(doc, target).map((assetId) => audio.loudness(assetId)));
+      const result = normalizeLoudness(state().document, target, targetLufs, (assetId) => audio.loudnessOf(assetId), speech ? (assetId) => speech.get(assetId) : undefined);
+      if (!result.ok) notify(`normalize.${result.reason}`, "error");
+      else apply(() => result.document);
+      return result;
+    },
+    setDucking: (trackId, change) => {
+      const current = state().document.tracks.find((t) => t.id === trackId);
+      if (!current) return false;
+      const next = updateTrack(state().document, trackId, { ducking: change === null ? undefined : withDucking(current.ducking, change) });
+      const code = duckingIssue(next.tracks.find((t) => t.id === trackId)!, next);
+      if (code) {
+        notify(code === "out_of_range" ? "ducking.range" : "ducking.invalid", "error");
+        return false;
+      }
+      apply(() => next);
+      return true;
+    },
+    bakeDucking: async (trackId) => {
+      const speech = await speechOfTriggers(state().document, (assetId) => audio.analysis(assetId));
+      const result = bakeDucking(state().document, trackId, (assetId) => speech.get(assetId));
+      if (!result.ok) {
+        notify(`ducking.${result.reason}`, "error");
+        return false;
+      }
+      apply(() => result.document);
+      return true;
+    },
+    freezeFrame: (durationMs) => {
+      const { document, selection } = state();
+      const at = playhead();
+      const covers = (clip: Clip | undefined) => clip !== undefined && clip.type === "video" && clip.startMs <= at && at < clip.startMs + clip.durationMs;
+      const target = selection.find((id) => covers(findClip(document, id)?.clip)) ?? [...clipsAt(document, at)].reverse().find((active) => covers(active.clip))?.clip.id;
+      if (!target) {
+        notify("speed.notVideo");
+        return false;
+      }
+      const result = freezeFrame(document, target, at, durationMs);
+      if (!result.ok) {
+        notify(`speed.${result.reason}`, "error");
+        return false;
+      }
+      apply(() => result.document, [result.clipId]);
+      return true;
+    },
+    setSpeedCurve: (clipId, request) => retimed(setSpeedCurve(state().document, clipId, request, sourceOfClip(state().document))),
+    clearSpeedCurve: (clipId) => retimed(clearSpeedCurve(state().document, clipId)),
+    setFrameMix: (on) => {
+      const { document, selection } = state();
+      const videos = selection.filter((id) => {
+        const clip = findClip(document, id)?.clip;
+        return clip?.type === "video" && !clip.freeze;
+      });
+      if (videos.length === 0) {
+        notify("speed.notVideo");
+        return false;
+      }
+      apply(() => videos.reduce((doc, id) => updateClip(doc, id, { frameMix: on ? true : undefined }), document));
+      return true;
+    },
+    rampSpeed: (ramp, smooth) => {
+      const { document, selection } = state();
+      const at = playhead();
+      const target = selection.find((id) => {
+        const clip = findClip(document, id)?.clip;
+        return clip !== undefined && hasSourceTime(clip.type) && clip.startMs <= at && at < clip.startMs + clip.durationMs;
+      });
+      if (!target) {
+        notify("speed.rampOutside");
+        return false;
+      }
+      const result = smooth ? smoothRamp(document, target, { atMs: at, rampMs: ramp.rampMs, toSpeed: ramp.toSpeed, easing: ramp.easing }) : rampSpeed(document, target, { ...ramp, atMs: at }, sourceOfClip(document));
+      if (!result.ok) {
+        notify(`speed.${result.reason}`, "error");
+        return false;
+      }
+      apply(() => result.document);
+      return true;
+    },
     split: () => {
       const { selection, document } = state();
       const selected = selection.filter((id) => findClip(document, id));
@@ -206,6 +444,13 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
         const found = findClip(state().document, focus.clipId);
         if (found) state().apply((doc) => updateClip(doc, focus.clipId, { keyframes: removeKeys(found.clip.keyframes, selectedKeys) }));
         view.setState({ selectedKeys: [] });
+        return;
+      }
+      const transitionId = view.getState().selectedTransitionId;
+      if (selection.length === 0 && transitionId) {
+        const removed = removeTransition(state().document, transitionId);
+        view.setState({ selectedTransitionId: null });
+        if (removed.ok) state().apply(() => removed.document, []);
         return;
       }
       const gap = view.getState().selectedGap;
@@ -253,23 +498,99 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
         notify("tooManyJobs", "error");
         return;
       }
-      const id = addJob(purpose, target, null, false);
+      const id = addJob(purpose, target, input, null, false);
       const result = await requestJob(input);
       if (isActionError(result)) patchJob(id, { state: "failed", error: { code: result.code ?? "request_failed", message: result.error } });
       else patchJob(id, { created: result.data });
     },
-    followJob: (purpose, job, target) => addJob(purpose, target, job, true),
+    followJob: (purpose, job, target) => addJob(purpose, target, job, job, true),
     jobProgress: (id, settling) => patchJob(id, { settling }),
     jobFailed: (id, error) => patchJob(id, { state: "failed", error, settling: false }),
     jobFinished: (id) => patchJob(id, { state: "done", settling: false }),
     dismissJob: (id) => view.setState((current) => ({ jobs: current.jobs.filter((job) => job.id !== id) })),
-    insertLayer: (layer) => insertClips([overlayClip(layer, playhead())]),
     insertClips,
-    insertTextPreset: (preset, content) => settle(placeStack(state().document, textPresetClips(preset, content, playhead()))),
+    insertLibrary: (clips, trackId) => settle(insertVideoClips(state().document, clips, trackId)),
+    insertEffect: (kind) => {
+      const placed = addEffectClip(state().document, kind ? [freshVfx(kind, defaultReactTrack(state().document))] : [], playhead());
+      return settle(placed && { document: placed.document, ids: [placed.clipId] });
+    },
+    addBehavior: (clipId, kind, property) => {
+      const behavior = draftBehavior(kind, property, {}, randomBehaviorSeed(), defaultReactTrack(state().document));
+      if (typeof behavior === "string") {
+        notify(`behaviors.${behavior}`, "error");
+        return null;
+      }
+      const result = addBehavior(state().document, clipId, behavior);
+      if (!result.ok) {
+        notify(`behaviors.${result.reason}`, "error");
+        return null;
+      }
+      state().apply(() => result.document);
+      return behavior.id;
+    },
+    updateBehavior: (clipId, behaviorId, settings) => {
+      const result = updateBehavior(state().document, clipId, behaviorId, settings);
+      if (!result.ok) {
+        notify(`behaviors.${result.reason}`, "error");
+        return false;
+      }
+      state().apply(() => result.document);
+      return true;
+    },
+    removeBehavior: (clipId, behaviorId) => {
+      const result = removeBehavior(state().document, clipId, behaviorId);
+      if (!result.ok) {
+        notify(`behaviors.${result.reason}`, "error");
+        return false;
+      }
+      state().apply(() => result.document);
+      return true;
+    },
+    bakeBehavior: async (clipId, behaviorId) => {
+      const levels = await reactLevels.ready(state().document);
+      const result = bakeBehavior(state().document, clipId, behaviorId, levels ?? NO_LEVELS);
+      if (!result.ok) {
+        notify(`behaviors.${result.reason}`, "error");
+        return false;
+      }
+      state().apply(() => result.document);
+      if (result.clamped > 0) notify("behaviors.clamped");
+      return true;
+    },
+    setParent: (clipIds, parentId, keepVisual) => {
+      const result = setParents(state().document, clipIds, parentId, { keepVisual, atMs: playhead() });
+      if (!result.ok) {
+        notify(`parenting.${result.reason}`, "error");
+        return false;
+      }
+      if (result.document !== state().document) state().apply(() => result.document);
+      return true;
+    },
+    selectChildren: (clipId) => {
+      const children = childIds(state().document, clipId);
+      if (children.length > 0) state().select(children);
+    },
     addMarker: () => {
       const result = addMarker(state().document, playhead());
       if (!result.markerId) notify("markerTaken");
       else state().apply(() => result.document);
+    },
+    addClipMarker: () => {
+      const clipId = state().selection.find((id) => {
+        const found = findClip(state().document, id);
+        return found !== null && found.clip.startMs <= playhead() && playhead() <= found.clip.startMs + found.clip.durationMs;
+      });
+      if (!clipId) return notify("clipMarkerOutside");
+      const result = addClipMarker(state().document, clipId, playhead(), {});
+      if (!result.ok) return notify(`clipMarker.${result.reason}`, "error");
+      state().apply(() => result.document);
+    },
+    toggleGuide: () => {
+      const ids = state().selection;
+      const clips = ids.flatMap((id) => findClip(state().document, id)?.clip ?? []).filter((clip) => clip.type !== "null");
+      if (clips.length === 0) return;
+      const on = !clips.every((clip) => clip.guide);
+      state().apply((doc) => clips.reduce((next, clip) => updateClip(next, clip.id, { guide: on || undefined }), doc));
     },
     removeMarker: (markerId) => state().apply((doc) => removeMarker(doc, markerId)),
     jumpMarker: (direction) => {
@@ -291,6 +612,41 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
     zoom: (direction) => view.setState((current) => ({ pxPerSecond: zoomBy(current.pxPerSecond, direction) })),
     toggleSnapping: () => view.setState((current) => ({ snapping: !current.snapping })),
     toggleSafeArea: () => view.setState((current) => ({ safeArea: !current.safeArea })),
+    togglePerception: (overlay) => view.setState((current) => ({ [overlay]: !current[overlay] })),
+    toggleTransparencyGrid: () => view.setState((current) => ({ transparencyGrid: !current.transparencyGrid })),
+    setShutter: (change) => {
+      const canvas = state().document.canvas;
+      const next = { ...canvas, ...change };
+      if (shutterIssue(next) || (next.shutterAngle === canvas.shutterAngle && next.shutterPhase === canvas.shutterPhase)) return;
+      state().update((draft) => {
+        Object.assign(draft.canvas, change);
+      });
+    },
+    setPerspective: (perspective) => {
+      const next = perspectiveChange(state().document.canvas, perspective);
+      if (next === null) return;
+      state().update((draft) => {
+        draft.canvas.perspective = next;
+      });
+    },
+    setScrubbing: (scrubbing) => {
+      if (view.getState().scrubbing !== scrubbing) view.setState({ scrubbing });
+    },
+    toggleBlurWhileScrubbing: () => view.setState((current) => ({ blurWhileScrubbing: !current.blurWhileScrubbing })),
+    setPreviewQuality: (previewQuality) => view.setState({ previewQuality }),
+    toggleLoop: () => playback.setLoop(!view.getState().loop),
+    playRange: () => {
+      if (!playback.playRange()) notify("rangeMissing");
+    },
+    fitPreview: () => {
+      const { previewContainer } = view.getState();
+      view.setState(previewContainer ? { previewFit: true, previewViewport: fitViewport(previewContainer, videoCanvasSize(state().document)) } : { previewFit: true });
+    },
+    zoomPreview: (scale) => {
+      const { previewViewport, previewContainer } = view.getState();
+      view.setState({ previewViewport: zoomAtCenter(previewViewport, scale, previewContainer), previewFit: false });
+    },
+    stepPreviewZoom: (direction) => commands.zoomPreview(stepZoom(view.getState().previewViewport.scale, direction)),
     toggleMagnetic: () => {
       const magnetic = !view.getState().magnetic;
       view.setState({ magnetic });
@@ -303,12 +659,13 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
       }));
       playback.documentChanged();
     },
+    toggleMixer: () => view.setState((current) => ({ mixerOpen: !current.mixerOpen })),
     setTrackHeight: (trackHeight) => view.setState({ trackHeight }),
     notify,
     editTransform: (clipId, next) => {
       const found = findClip(state().document, clipId);
       if (!found) return;
-      const patch = transformPatch(found.clip, () => next, playhead());
+      const patch = placedPatch(clipLookup(state().document), found.clip, next, playhead(), canvasAspect(state().document));
       if (typeof patch === "string") {
         notify(patch);
         return;
@@ -330,6 +687,25 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
       if (!result.ok) notify(result.reason, result.reason === "keyframeOutside" ? "info" : "error");
       else if (result.document !== document) state().apply(() => result.document);
     },
+    easeKeys: (easing) => {
+      const { focus, selectedKeys } = view.getState();
+      const keyed = focus && selectedKeys.length > 0 ? findClip(state().document, focus.clipId) : null;
+      if (keyed) {
+        const keyframes = easeKeys(keyed.clip.keyframes, selectedKeys, easing);
+        if (keyframes !== keyed.clip.keyframes) state().apply((doc) => updateClip(doc, keyed.clip.id, { keyframes }));
+        return;
+      }
+      const { selection, document } = state();
+      const clip = selection.length === 1 ? findClip(document, selection[0])?.clip : null;
+      const local = clip ? localTime(clip, playhead()) : null;
+      const patch = clip && local !== null ? setMomentEasing(clip, local, easing) : null;
+      if (!clip || !patch) notify("noKeysToEase", "info");
+      else state().apply((doc) => updateClip(doc, clip.id, patch));
+    },
+    selectPropertyKeys: (clipId, property) => {
+      const found = findClip(state().document, clipId);
+      if (found) view.setState({ selectedKeys: propertyKeys(found.clip.keyframes, property), keyProperty: property });
+    },
     patchKeyframes: (clipId, build, anywhere = false) => {
       const found = findClip(state().document, clipId);
       const inside = found ? localTime(found.clip, playhead()) : null;
@@ -338,10 +714,10 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
         notify("keyframeOutside");
         return;
       }
-      const patch = build(found.clip, local);
+      const patch = build(found.clip, local, canvasAspect(state().document));
       if (!patch) return;
       const next = updateClip(state().document, clipId, patch);
-      if (next === state().document) notify("keyframeLimit", "error");
+      if (next === state().document) notify("clipLocked", "error");
       else state().apply(() => next);
     },
     setTool: (tool) => view.setState({ tool, dragMode: null }),
@@ -421,8 +797,38 @@ export function createEditorCommands({ store, view, assets, playback, requestJob
       else apply(() => result.document, result.ids);
     },
     nudge: (frames) => {
-      const ids = expanded(state().selection);
+      const { document, selection } = state();
+      const { tool } = view.getState();
+      const target = selection.length > 0 && (tool === "roll" || tool === "slide") ? findClip(document, selection[0])?.clip : undefined;
+      if (target && tool === "slide") {
+        trimNotice(commands.slide(target.id, target.startMs + msOfFrame(frames), linkedSelection()));
+        return;
+      }
+      if (target) {
+        const edge = nearestEdge(target, playhead());
+        trimNotice(commands.roll(target.id, edge, (edge === "start" ? target.startMs : clipEnd(target)) + msOfFrame(frames), linkedSelection()));
+        return;
+      }
+      const ids = expanded(selection);
       if (ids.length > 0) apply((doc) => nudgeClips(doc, ids, frames));
+    },
+    roll: (clipId, edge, atMs, linked) => {
+      const document = state().document;
+      const result = rollCut(document, clipId, edge, atMs, sourceOfClip(document), { linked });
+      if (result.ok) apply(() => result.document);
+      return result;
+    },
+    slide: (clipId, startMs, linked) => {
+      const document = state().document;
+      const result = slideClip(document, clipId, startMs, sourceOfClip(document), { linked });
+      if (result.ok) apply(() => result.document);
+      return result;
+    },
+    rollToPlayhead: (edge) => {
+      const { document, selection } = state();
+      const clipId = clipUnder(document, selection, playhead());
+      if (!clipId) notify("trim.noClip");
+      else trimNotice(commands.roll(clipId, edge, playhead(), linkedSelection()));
     },
     toggleDisabled: () => {
       const ids = expanded(state().selection);

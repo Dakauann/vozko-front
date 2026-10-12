@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { computePeaks, peakGain, slicePeaks } from "./waveform";
+import { computePeaks, overviewBars, peakGain, slicePeaks } from "./waveform";
 
 function rounded(values: number[]): number[] {
   return values.map((value) => Math.round(value * 100) / 100);
@@ -36,5 +36,13 @@ describe("peak gain", () => {
   it("normalizes quiet sources and ignores silence", () => {
     expect(peakGain({ perSecond: 10, values: new Float32Array([0.1, 0.25]) })).toBe(4);
     expect(peakGain({ perSecond: 10, values: new Float32Array([0, 0]) })).toBe(20);
+  });
+});
+
+describe("overview bars", () => {
+  it("draws a whole sound as normalized bars for a library preview", () => {
+    const peaks = { perSecond: 10, values: new Float32Array([0.1, 0.2, 0.3, 0.4]) };
+    expect(rounded(overviewBars(peaks, 2))).toEqual([0.5, 1]);
+    expect(overviewBars({ perSecond: 10, values: new Float32Array(0) }, 4)).toEqual([0, 0, 0, 0]);
   });
 });

@@ -108,3 +108,34 @@ describe("studio editor store", () => {
     expect(s.getState().document.canvas.width).toBe(500);
   });
 });
+
+describe("a coworker's changes", () => {
+  it("folds consecutive changes of one group into a single undo step", () => {
+    const store = createStudioStore({ items: [] as string[] });
+    store.getState().applyAs("elo-1", (doc) => ({ items: [...doc.items, "a"] }));
+    store.getState().applyAs("elo-1", (doc) => ({ items: [...doc.items, "b"] }));
+    store.getState().undo();
+    expect(store.getState().document.items).toEqual([]);
+  });
+
+  it("starts a new undo step when the person edits in between, and keeps the selection", () => {
+    const store = createStudioStore({ items: [] as string[] });
+    store.getState().select(["mine"]);
+    store.getState().applyAs("elo-1", (doc) => ({ items: [...doc.items, "a"] }));
+    store.getState().apply((doc) => ({ items: [...doc.items, "mine"] }));
+    store.getState().applyAs("elo-1", (doc) => ({ items: [...doc.items, "b"] }));
+    expect(store.getState().selection).toEqual(["mine"]);
+    store.getState().undo();
+    expect(store.getState().document.items).toEqual(["a", "mine"]);
+    store.getState().undo();
+    expect(store.getState().document.items).toEqual(["a"]);
+  });
+
+  it("refuses to write while the person is in the middle of a gesture", () => {
+    const store = createStudioStore({ items: [] as string[] });
+    store.getState().beginTransaction();
+    expect(store.getState().applyAs("elo-1", (doc) => ({ items: [...doc.items, "a"] }))).toBe(false);
+    expect(store.getState().document.items).toEqual([]);
+  });
+});
+

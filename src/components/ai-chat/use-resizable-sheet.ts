@@ -1,42 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent } from "react";
 
 import { useSpineWidth } from "@/contexts/sidebar-context";
+import { useDragResize } from "@/hooks/use-drag-resize";
 import { useViewportWidth } from "@/hooks/use-viewport-width";
-import { DEFAULT_SHEET_WIDTH, parseStoredWidth, sheetLayout } from "@/lib/aichat/sheet-width";
+import { DEFAULT_SHEET_WIDTH, sheetLayout } from "@/lib/aichat/sheet-width";
+import { localStore, readStoredSize, writeStoredSize } from "@/lib/stored-size";
 
 const KEY_STEP = 24;
 const SHEET_OFFSET_VAR = "--assistant-sheet-w";
 
-function readStored(storageKey: string): number {
-  if (typeof window === "undefined") return DEFAULT_SHEET_WIDTH;
-  try {
-    return parseStoredWidth(localStorage.getItem(storageKey)) ?? DEFAULT_SHEET_WIDTH;
-  } catch {
-    return DEFAULT_SHEET_WIDTH;
-  }
-}
-
-function persist(storageKey: string, width: number) {
-  try {
-    localStorage.setItem(storageKey, String(width));
-  } catch {
-    return;
-  }
-}
-
 export function useResizableSheet(storageKey: string, open: boolean) {
   const viewport = useViewportWidth();
   const spine = useSpineWidth();
-  const [desired, setDesired] = useState<number>(() => readStored(storageKey));
+  const [desired, setDesired] = useState<number>(() => readStoredSize(localStore(), storageKey) ?? DEFAULT_SHEET_WIDTH);
   const [expanded, setExpanded] = useState(false);
-  const [resizing, setResizing] = useState(false);
   const layout = sheetLayout(desired, viewport, spine);
   const pushing = open && !expanded && layout.mode === "push";
   const latest = useRef(layout.width);
-  const drag = useRef<{ x: number; width: number } | null>(null);
 
   useEffect(() => {
     latest.current = layout.width;
@@ -60,38 +42,9 @@ export function useResizableSheet(storageKey: string, open: boolean) {
     [spine],
   );
 
-  const onPointerDown = useCallback((e: PointerEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { x: e.clientX, width: latest.current };
-    setResizing(true);
-  }, []);
-
-  const onPointerMove = useCallback(
-    (e: PointerEvent<HTMLElement>) => {
-      const start = drag.current;
-      if (start) resizeTo(start.width + start.x - e.clientX);
-    },
-    [resizeTo],
-  );
-
-  const onPointerUp = useCallback(() => {
-    if (!drag.current) return;
-    drag.current = null;
-    setResizing(false);
-    persist(storageKey, latest.current);
-  }, [storageKey]);
-
-  const onKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLElement>) => {
-      const delta: Record<string, number> = { ArrowLeft: KEY_STEP, ArrowRight: -KEY_STEP };
-      const step = delta[e.key];
-      if (!step) return;
-      e.preventDefault();
-      persist(storageKey, resizeTo(latest.current + step));
-    },
-    [resizeTo, storageKey],
-  );
+  const read = useCallback(() => latest.current, []);
+  const commit = useCallback((width: number) => writeStoredSize(localStore(), storageKey, width), [storageKey]);
+  const { resizing, handleProps } = useDragResize({ edge: "left", step: KEY_STEP, read, resizeTo, commit });
 
   const toggleExpanded = useCallback(() => setExpanded((v) => !v), []);
 
@@ -102,6 +55,6 @@ export function useResizableSheet(storageKey: string, open: boolean) {
     resizing,
     setExpanded,
     toggleExpanded,
-    handleProps: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp, onKeyDown },
+    handleProps,
   };
 }

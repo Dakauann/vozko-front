@@ -105,10 +105,37 @@ export function layersInRect(doc: ImageSurface, rect: Bounds): string[] {
   return hits.length === 0 ? [] : withGroupMembers(doc, hits);
 }
 
+function inDocumentOrder(doc: ImageSurface, ids: readonly string[]): string[] {
+  const wanted = new Set(ids);
+  return doc.layers.filter((l) => wanted.has(l.id)).map((l) => l.id);
+}
+
+function selectionLevels(doc: ImageSurface, id: string): string[][] {
+  const capture = captureGroup(doc, id);
+  if (!capture) return [];
+  const chain = layerChain(doc, id);
+  return chain
+    .slice(0, chain.indexOf(capture) + 1)
+    .reverse()
+    .filter((groupId) => {
+      const base = baseOf(doc, groupId);
+      return base === null || base === id;
+    })
+    .map((groupId) => (baseOf(doc, groupId) ? [id] : inDocumentOrder(doc, groupLayerIds(doc, groupId))));
+}
+
+function levelAtSelectionDepth(doc: ImageSurface, current: readonly string[], id: string): string[] {
+  const levels = selectionLevels(doc, id);
+  if (current.length === 0) return levels[0] ?? [id];
+  const holds = (level: string[]) => current.every((selected) => level.includes(selected)) && !sameIds(level, current);
+  const deepest = levels.reduce((found, level, index) => (holds(level) ? index : found), -1);
+  return levels[deepest + 1] ?? [id];
+}
+
 export function clickSelection(doc: ImageSurface, current: readonly string[], id: string, additive: boolean, deep: boolean = false): string[] {
   const members = deep ? [id] : withGroupMembers(doc, [id]);
   const chosen = new Set(current);
-  if (!additive) return deep ? [id] : chosen.has(id) ? [...current] : members;
+  if (!additive) return deep ? [id] : chosen.has(id) ? [...current] : levelAtSelectionDepth(doc, current, id);
   const everyChosen = members.every((m) => chosen.has(m));
   for (const m of members) {
     if (everyChosen) chosen.delete(m);
@@ -122,17 +149,8 @@ function sameIds(a: readonly string[], b: readonly string[]): boolean {
 }
 
 export function drillSelection(doc: ImageSurface, selection: readonly string[], id: string): string[] | null {
-  const capture = captureGroup(doc, id);
-  if (!capture) return null;
-  const chain = layerChain(doc, id);
-  const levels = chain
-    .slice(0, chain.indexOf(capture) + 1)
-    .reverse()
-    .filter((groupId) => {
-      const base = baseOf(doc, groupId);
-      return base === null || base === id;
-    })
-    .map((groupId) => (baseOf(doc, groupId) ? [id] : groupLayerIds(doc, groupId)));
+  const levels = selectionLevels(doc, id);
+  if (levels.length === 0) return null;
   const at = levels.findIndex((level) => sameIds(level, selection));
   if (at < 0) return null;
   const next = levels[at + 1] ?? [id];
@@ -160,13 +178,16 @@ export function parentSelection(doc: ImageSurface, ids: readonly string[]): stri
   return doc.layers.filter((l) => wanted.has(l.id)).map((l) => l.id);
 }
 
-export function containsPoint(transform: Transform, canvas: CanvasSize, point: { x: number; y: number }): boolean {
+export function localPoint(transform: Transform, canvas: CanvasSize, point: { x: number; y: number }): { x: number; y: number } {
   const radians = (transform.rotation * Math.PI) / 180;
   const dx = point.x - transform.x * canvas.width;
   const dy = point.y - transform.y * canvas.height;
-  const localX = dx * Math.cos(radians) + dy * Math.sin(radians);
-  const localY = -dx * Math.sin(radians) + dy * Math.cos(radians);
-  return Math.abs(localX) <= (transform.w * canvas.width) / 2 && Math.abs(localY) <= (transform.h * canvas.height) / 2;
+  return { x: dx * Math.cos(radians) + dy * Math.sin(radians) + (transform.w * canvas.width) / 2, y: -dx * Math.sin(radians) + dy * Math.cos(radians) + (transform.h * canvas.height) / 2 };
+}
+
+export function containsPoint(transform: Transform, canvas: CanvasSize, point: { x: number; y: number }): boolean {
+  const inside = localPoint(transform, canvas, point);
+  return inside.x >= 0 && inside.x <= transform.w * canvas.width && inside.y >= 0 && inside.y <= transform.h * canvas.height;
 }
 
 export function squareTransform(canvas: CanvasSize, share: number, heightShare: number = share): Transform {

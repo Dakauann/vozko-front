@@ -11,16 +11,20 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { Link, usePathname } from "@/i18n/routing";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
+import { askTurn } from "@/lib/aichat/ask";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
 import { attachmentOfImage } from "@/lib/aichat/attachments";
+import { mergeDraft } from "@/lib/aichat/elo-handoff";
 import type { ChatAttachment, ChatMedia } from "@/lib/aichat/types";
 import { cn } from "@/lib/utils";
 import { speechLang } from "@/lib/voice/speech-text";
 
 import { useAssistantContext } from "./assistant-context";
-import { ChatAnswerContext } from "./ask-card";
+import { AskTurnContext } from "./ask-card";
 import { AssistantLauncher } from "./assistant-launcher";
+import { useTurnLifetime } from "./background-turns";
 import { Composer } from "./composer";
+import { useEloHandoff } from "./elo-handoff";
 import { MessageBubble, useBubbleLabels } from "./message-list";
 import { useChatAttachments } from "./use-chat-attachments";
 import { useDockOpen } from "./use-dock-open";
@@ -31,6 +35,8 @@ import { useResizableSheet } from "./use-resizable-sheet";
 import { useStickToBottom } from "./use-stick-to-bottom";
 import { starterGroupsFor } from "./starter-groups";
 import { StarterList } from "./starter-list";
+import { QueuedMessages } from "./queued-messages";
+import { SessionPicker } from "./session-picker";
 import { ThreadCostBadge } from "./thread-cost";
 import { useVoiceMode } from "./voice/use-voice-mode";
 
@@ -40,6 +46,7 @@ const FULL_CHAT_PATH = "/dashboard/ai-chat";
 export function AssistantDock() {
   const allowed = useSettledPermission("ai_chat", "create");
   const pathname = usePathname();
+  useTurnLifetime();
   if (!allowed || pathname.startsWith(FULL_CHAT_PATH)) return null;
   return <Dock />;
 }
@@ -80,12 +87,16 @@ function Dock() {
   const starters = starterGroupsFor(can, pathname);
   const [open, setOpen] = useDockOpen();
   const [input, setInput] = useState("");
-  const { model, models, pricing, changeModel } = useChatModel();
+  const { model, models, pricing, changeModel, reasoning } = useChatModel();
   const [studioMode, setStudioMode] = useStudioMode();
   const inStudio = context?.kind === "studio";
+  const studioProject = context?.kind === "studio" ? context.view.projectId : undefined;
+  const [sessionsOpen, setSessionsOpen] = useState(false);
+  const noticeActionRef = useRef<HTMLButtonElement>(null);
   const chat = useChatConversation({
     view: context?.view,
-    mode: inStudio ? studioMode : undefined,
+    mode: studioMode,
+    reasoning,
     rememberKey: currentWorkspace ? activeThreadKey(currentWorkspace.id) : undefined,
     createError: tc("createError"),
   });
@@ -101,7 +112,7 @@ function Dock() {
 
   const submit = useCallback(
     (content: string, attachments: ChatAttachment[] = []) => {
-      if (!content.trim() || chat.streaming || !model) return false;
+      if (!content.trim() || !model) return false;
       void chat.ask(content, model, attachments);
       return true;
     },
@@ -135,17 +146,60 @@ function Dock() {
     requestAnimationFrame(() => launcherRef.current?.focus());
   }, [stopVoice, setOpen]);
 
+  const focusComposer = useCallback(() => {
+    const area = cardRef.current?.querySelector("textarea");
+    if (!area || area.disabled) return false;
+    area.focus();
+    return true;
+  }, []);
+
+  useEloHandoff((handoff) => {
+    if (handoff.projectId !== studioProject) return;
+    setInput((current) => mergeDraft(current, handoff.prompt));
+    handoff.attachments.forEach((attachment) => files.attach(attachment));
+    requestAnimationFrame(() => focusComposer());
+  });
+
+  useEffect(() => {
+    if (open) focusComposer();
+  }, [open, expanded, focusComposer]);
+
   useEffect(() => {
     if (!open) return;
-    cardRef.current?.querySelector("textarea")?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || sessionsOpen) return;
       if (expanded) setExpanded(false);
       else minimize();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, minimize, expanded, setExpanded]);
+  }, [open, minimize, expanded, setExpanded, sessionsOpen]);
+
+  const otherProject = Boolean(chat.otherProject);
+  useEffect(() => {
+    if (!otherProject) return;
+    const focused = document.activeElement;
+    const stranded = !focused || focused === document.body || (focused.tagName === "TEXTAREA" && Boolean(cardRef.current?.contains(focused)));
+    if (stranded) noticeActionRef.current?.focus();
+  }, [otherProject]);
+
+  const startOver = useCallback(() => {
+    chat.newChat();
+    requestAnimationFrame(() => focusComposer());
+  }, [chat, focusComposer]);
+
+  const { selectThread } = chat;
+  const pickSession = useCallback(
+    (threadId: string) => {
+      void selectThread(threadId).then(() =>
+        requestAnimationFrame(() => {
+          if (noticeActionRef.current) noticeActionRef.current.focus();
+          else focusComposer();
+        }),
+      );
+    },
+    [selectThread, focusComposer],
+  );
 
   const isEmpty = chat.messages.length === 0;
   const sizeStyle: CSSProperties = card.pushing ? { width: card.width } : { left: 0 };
@@ -204,6 +258,15 @@ function Dock() {
                 <h2 id="assistant-dock-title" className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-foreground">
                   {copy.title}
                 </h2>
+                <SessionPicker
+                  open={sessionsOpen}
+                  onOpenChange={setSessionsOpen}
+                  activeId={chat.activeId}
+                  projectId={studioProject}
+                  disabled={chat.loadingThread}
+                  onPick={pickSession}
+                  onActiveRemoved={chat.newChat}
+                />
                 {!isEmpty ? (
                   <button type="button" onClick={chat.newChat} disabled={chat.streaming} className={HEADER_ICON_BUTTON}>
                     <Plus weight="bold" className="h-3 w-3" />
@@ -259,11 +322,10 @@ function Dock() {
                   </div>
                 </div>
               ) : (
-                <ChatAnswerContext.Provider value={answer}>
-                  <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-                    {chat.messages.map((m, i) => (
+                <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+                  {chat.messages.map((m, i) => (
+                    <AskTurnContext.Provider key={m.id} value={askTurn(chat.messages[i + 1], answer)}>
                       <MessageBubble
-                        key={m.id}
                         message={m}
                         live={chat.streaming && i === chat.messages.length - 1}
                         onApprove={(id, approval) => void chat.resolveAction(id, "approve", model, approval)}
@@ -271,15 +333,32 @@ function Dock() {
                         onEditImage={editImage}
                         labels={labels}
                       />
-                    ))}
-                  </div>
-                </ChatAnswerContext.Provider>
+                    </AskTurnContext.Provider>
+                  ))}
+                  <QueuedMessages
+                    items={chat.queued}
+                    streaming={chat.streaming}
+                    awaitingApproval={chat.awaitingApproval}
+                    onRemove={(clientId) => void chat.unqueue(clientId)}
+                    onSendNow={() => void chat.sendQueued(model)}
+                  />
+                </div>
               )}
             </div>
 
+            {otherProject ? (
+              <div role="status" className="notice notice-warning mx-4 mt-2 flex items-start gap-2 px-3 py-2 text-xs">
+                <p className="min-w-0 flex-1 leading-relaxed">{tc("sessions.otherProject")}</p>
+                <button ref={noticeActionRef} type="button" onClick={startOver} className={cn(HEADER_ICON_BUTTON, "shrink-0 text-foreground")}>
+                  <Plus weight="bold" className="h-3 w-3" />
+                  {tc("newChat")}
+                </button>
+              </div>
+            ) : null}
             {inStudio ? <StudioModePicker mode={studioMode} onChange={setStudioMode} disabled={chat.streaming} /> : null}
             <Composer
               docked
+              disabled={otherProject}
               input={input}
               setInput={setInput}
               onSend={(attachments) => ask(input, attachments)}

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ptMessages from "@/i18n/messages/pt.json";
@@ -79,5 +79,26 @@ describe("video layer style fields", () => {
     expect(toggle.indeterminate).toBe(true);
     fireEvent.click(toggle);
     expect(editor.layers().map((l) => l.gradient?.from)).toEqual(["#ff0000", "#00ff00"]);
+  });
+
+  it("routes an animated color through the key edit and shows its key state", () => {
+    const onPaint = vi.fn();
+    render(
+      <NextIntlClientProvider locale="pt" messages={ptMessages}>
+        <TooltipProvider>
+          <LayerStyleFields
+            layers={[{ ...newTextLayer("Oferta"), id: "t", fill: "#ff0000" }]}
+            paints={{ fill: { value: "#808080", keyState: "interpolated", keyHint: pt.video.inspector.interpolatedHint, onToggleKey: vi.fn(), onChange: onPaint } }}
+            onChange={() => true}
+          />
+        </TooltipProvider>
+      </NextIntlClientProvider>,
+    );
+    const fill = screen.getByRole("textbox", { name: pt.video.layer.fill }) as HTMLInputElement;
+    expect(fill.value).toBe("#808080");
+    expect(screen.getByLabelText(pt.video.inspector.interpolatedHint)).toBeTruthy();
+    fireEvent.change(fill, { target: { value: "#00ff00" } });
+    fireEvent.blur(fill);
+    expect(onPaint).toHaveBeenCalledWith("#00ff00");
   });
 });

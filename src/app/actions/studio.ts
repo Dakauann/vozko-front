@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api/browser-client";
 import type { StudioDocument, StudioKind } from "@/lib/studio/document";
-import type { ExportedVideo } from "@/lib/studio/export";
+import type { ExportedMedia } from "@/lib/studio/export";
 import type { CapabilityReport } from "@/lib/studio/telemetry";
 import { ifMatchHeader, isVersionConflict, type VersionedSaveResult } from "@/lib/api/versioned-save";
 import {
@@ -30,7 +30,12 @@ export async function listStudioProjectsAction(query: StudioProjectQuery = {}): 
   return settleResult(await apiClient<StudioProjectPage>(search ? `${PROJECTS_PATH}?${search}` : PROJECTS_PATH, { method: "GET" }));
 }
 
-export async function createStudioProjectAction(input: { kind: StudioKind; name: string; document: StudioDocument }): Promise<ActionResult<StudioProject>> {
+export interface StudioProjectOrigin {
+  threadId: string;
+  commandId: string;
+}
+
+export async function createStudioProjectAction(input: { kind: StudioKind; name: string; document: StudioDocument; origin?: StudioProjectOrigin }): Promise<ActionResult<StudioProject>> {
   return settleResult(await apiClient<StudioProject>(PROJECTS_PATH, { method: "POST", body: JSON.stringify(input) }));
 }
 
@@ -63,8 +68,19 @@ export async function archiveStudioProjectAction(id: string): Promise<ActionResu
   return settleResult(await apiClient<true>(projectPath(id), { method: "DELETE" }), true);
 }
 
-export async function saveStudioExportAction(id: string, video: Blob): Promise<ActionResult<ExportedVideo>> {
+const EXPORT_EXTENSIONS: Record<string, string> = {
+  "video/mp4": ".mp4",
+  "image/gif": ".gif",
+  "image/webp": ".webp",
+  "application/pdf": ".pdf",
+  "image/svg+xml": ".svg",
+  "image/png": ".png",
+  "image/jpeg": ".jpg",
+};
+
+export async function saveStudioExportAction(id: string, file: Blob, description?: string): Promise<ActionResult<ExportedMedia>> {
   const form = new FormData();
-  form.append("video", new File([video], "export.mp4", { type: "video/mp4" }));
-  return settleResult(await apiClient<ExportedVideo>(`${projectPath(id)}/exports`, { method: "POST", body: form }));
+  if (description) form.append("description", description);
+  form.append("file", new File([file], `export${EXPORT_EXTENSIONS[file.type] ?? ""}`, { type: file.type }));
+  return settleResult(await apiClient<ExportedMedia>(`${projectPath(id)}/exports`, { method: "POST", body: form }));
 }

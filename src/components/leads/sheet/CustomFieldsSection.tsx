@@ -39,7 +39,7 @@ export function CustomFieldsSection({
     });
 
   return (
-    <SheetSection icon={<Tag />} title={t("title")}>
+    <SheetSection icon={<Tag />} title={t("title")} anchor="customFields">
       {loading ? <SheetHint>{t("loading")}</SheetHint> : null}
       {failed ? <SheetHint tone="error">{t("loadFailed")}</SheetHint> : null}
       {!loading && !failed && definitions.length === 0 ? <SheetHint>{t("empty")}</SheetHint> : null}

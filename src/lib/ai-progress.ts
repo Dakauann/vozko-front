@@ -1,0 +1,1 @@
+export const AI_PROGRESS_PILL_HEIGHT = 22;

@@ -1,3 +1,5 @@
+import { sourceAt } from "./clip-time";
+import type { Clip } from "./document";
 export const PEAKS_PER_SECOND = 100;
 
 export interface Peaks {
@@ -43,8 +45,23 @@ export function slicePeaks(peaks: Peaks, fromMs: number, durationMs: number, bar
   return out;
 }
 
+export function overviewBars(peaks: Peaks, bars: number): number[] {
+  const durationMs = (peaks.values.length * 1000) / peaks.perSecond;
+  if (durationMs <= 0) return new Array(Math.max(0, Math.floor(bars))).fill(0);
+  const gain = peakGain(peaks);
+  return slicePeaks(peaks, 0, durationMs, bars).map((value) => Math.min(1, value * gain));
+}
+
 export function peakGain(peaks: Peaks, floor: number = 0.05): number {
   let max = 0;
   for (const value of peaks.values) if (value > max) max = value;
   return 1 / Math.max(floor, max);
+}
+
+export function waveformSlice(peaks: Peaks, clip: Pick<Clip, "type" | "durationMs" | "trimInMs" | "speed" | "reverse" | "freeze">, fromPx: number, widthPx: number, clipWidthPx: number, bars: number): number[] {
+  const msPerPx = clip.durationMs / Math.max(1, clipWidthPx);
+  const a = sourceAt(clip, fromPx * msPerPx);
+  const b = sourceAt(clip, (fromPx + widthPx) * msPerPx);
+  const slice = slicePeaks(peaks, Math.min(a, b), Math.abs(b - a), bars);
+  return clip.reverse ? slice.reverse() : slice;
 }

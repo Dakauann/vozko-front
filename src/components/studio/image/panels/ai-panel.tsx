@@ -7,14 +7,14 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { Plus, Sparkle } from "@/components/icons";
 import { MediaModelSelect } from "@/components/media-generation/media-model-select";
 import { ReferenceThumbnails, type ReferenceThumbnail } from "@/components/media-generation/reference-thumbnails";
-import { loadAssetImage } from "@/components/studio/canvas/asset-images";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { canStart, MAX_PARALLEL_GENERATIONS } from "@/lib/media-generation/limits";
 import { withReference } from "@/lib/media-generation/references";
-import { IMAGE_ASPECTS, MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/media-generation/types";
+import { ASPECT_RATIO_LABEL, IMAGE_ASPECTS, MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/media-generation/types";
 import { closestAspect } from "@/lib/studio/geometry";
 import { cn } from "@/lib/utils";
 
+import { addImageReferences } from "../ai-references";
 import { FIELD_CLASS, Notice, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS } from "../controls";
 import { jobKind, useActiveArtboard, useEditorUi, useImageDoc, useImageEditor, type ImageAiDraft } from "../editor-state";
 import { ImageSourcePicker } from "../image-source-picker";
@@ -52,15 +52,8 @@ export function AiPanel() {
 
   const addFromSelection = async () => {
     setReferenceError(false);
-    for (const layer of selectedImages) {
-      const assetId = layer.assetId as string;
-      try {
-        const image = await loadAssetImage(assetId);
-        setReferences((current) => withReference(current, { mediaId: assetId, url: image.src }));
-      } catch {
-        setReferenceError(true);
-      }
-    }
+    const added = await addImageReferences(ui, selectedImages.map((layer) => layer.assetId as string));
+    if (!added) setReferenceError(true);
   };
 
   const generate = () => {
@@ -86,7 +79,7 @@ export function AiPanel() {
         </label>
         <div className="space-y-1">
           <span className="block text-xs text-muted-foreground">{t("aspect")}</span>
-          <ElevatedPillToggle<ImageAspect> aria-label={t("aspect")} size="sm" value={aspect} onChange={(next) => updateDraft({ aspect: next })} options={IMAGE_ASPECTS.map((value) => ({ value, label: tAspect(value) }))} />
+          <ElevatedPillToggle<ImageAspect> aria-label={t("aspect")} size="sm" value={aspect} onChange={(next) => updateDraft({ aspect: next })} options={IMAGE_ASPECTS.map((value) => ({ value, label: ASPECT_RATIO_LABEL[value], title: tAspect(value) }))} />
         </div>
         <MediaModelSelect kind="image" value={model} onChange={(next) => updateDraft({ model: next })} />
         <div className="space-y-1.5">

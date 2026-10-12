@@ -1,3 +1,6 @@
+import { sourceAt } from "./clip-time";
+import type { Clip } from "./document";
+
 export const MIN_BUCKET_MS = 100;
 export const DEFAULT_TILE_ASPECT = 16 / 9;
 
@@ -5,8 +8,7 @@ export interface FilmstripInput {
   clipWidthPx: number;
   heightPx: number;
   aspect?: number;
-  trimInMs: number;
-  durationMs: number;
+  clip: Pick<Clip, "type" | "durationMs" | "trimInMs" | "speed" | "reverse" | "freeze">;
   visibleFromPx: number;
   visibleToPx: number;
   sourceDurationMs?: number;
@@ -30,7 +32,8 @@ export function bucketFor(msPerTile: number): number {
 }
 
 export function planFilmstrip(input: FilmstripInput): FilmstripTile[] {
-  const { clipWidthPx, durationMs, trimInMs } = input;
+  const { clipWidthPx, clip } = input;
+  const durationMs = clip.durationMs;
   if (clipWidthPx <= 0 || durationMs <= 0 || input.heightPx <= 0) return [];
   const width = tileWidth(input.heightPx, input.aspect);
   const msPerPx = durationMs / clipWidthPx;
@@ -43,7 +46,7 @@ export function planFilmstrip(input: FilmstripInput): FilmstripTile[] {
     const leftPx = index * width;
     const widthPx = Math.min(width, clipWidthPx - leftPx);
     if (widthPx <= 0) break;
-    const centreMs = trimInMs + (leftPx + widthPx / 2) * msPerPx;
+    const centreMs = sourceAt(clip, (leftPx + widthPx / 2) * msPerPx);
     tiles.push({ index, leftPx, widthPx, sourceMs: Math.min(Math.floor(centreMs / bucket) * bucket, lastSource) });
   }
   return tiles;

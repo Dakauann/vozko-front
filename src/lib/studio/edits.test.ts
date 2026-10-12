@@ -5,6 +5,7 @@ import {
   clearRange,
   closeGaps,
   duplicateGroup,
+  edgeBounds,
   insertGroup,
   linkClips,
   linkGroup,
@@ -146,6 +147,15 @@ describe("trims", () => {
     const rippled = rippleTrim(doc(), "b", "start", 2500);
     expect(at(rippled, "b")).toMatchObject({ start: 2000, duration: 1500, trimIn: 500 });
     expect(at(rippled, "c")?.start).toBe(4500);
+  });
+
+  it("names what limits each edge of a clip", () => {
+    const b = { ...findClip(doc(), "b")!.clip, trimInMs: 300 };
+    expect(edgeBounds(b, "start", 3000)).toEqual({ low: { ms: 1700, limit: "source" }, high: { ms: 3900, limit: "minimum" } });
+    expect(edgeBounds(b, "end", 3000)).toEqual({ low: { ms: 2100, limit: "minimum" }, high: { ms: 4700, limit: "source" } });
+    const image = findClip(doc(), "c")!.clip;
+    expect(edgeBounds(image, "start", undefined).low).toEqual({ ms: 0, limit: "video" });
+    expect(edgeBounds(image, "end", undefined).high).toEqual({ ms: STUDIO_LIMITS.maxVideoMs, limit: "video" });
   });
 });
 

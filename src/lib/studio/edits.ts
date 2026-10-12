@@ -2,7 +2,11 @@ import { produce } from "immer";
 
 import { newStudioId, STUDIO_LIMITS, type Clip, type VideoDocument } from "./document";
 import { shiftKeyframes } from "./keyframes";
-import { addTrack, clampClipTiming, clipEnd, contentDuration, findClip, insertClip, isRangeFree, hasSourceTime, moveClipToward, settleTimeline, splitClip, trackAccepts } from "./timeline";
+import { freshClip } from "./clip-copy";
+import { shiftClipMarkers } from "./clip-markers";
+import { releaseChildren, remappedParents } from "./parenting";
+import { headroomMs, splitTrimIns, tailroomMs, trimInAfterEdge } from "./clip-time";
+import { addTrack, clampClipTiming, clipEnd, contentDuration, findClip, insertClip, isRangeFree, moveClipToward, settleTimeline, splitClip, trackAccepts, trimClipEnd, trimClipStart } from "./timeline";
 
 export interface ClipChange {
   trackId?: string;
@@ -20,11 +24,12 @@ export interface CreatedClip {
 export type ClipSource = (clipId: string) => number | undefined;
 
 export function rearrange(
-  doc: VideoDocument,
+  source: VideoDocument,
   changes: ReadonlyMap<string, ClipChange>,
   created: readonly CreatedClip[] = [],
   removed: readonly string[] = [],
 ): VideoDocument | null {
+  const doc = removed.length > 0 ? releaseChildren(source, removed) : source;
   const gone = new Set(removed);
   const touched = new Set<string>();
   const layout = new Map<string, Clip[]>(doc.tracks.map((t) => [t.id, []]));
@@ -49,6 +54,7 @@ export function rearrange(
         durationMs: Math.round(change.durationMs ?? clip.durationMs),
         trimInMs: Math.round(change.trimInMs ?? clip.trimInMs),
         ...(change.keyShiftMs && clip.keyframes ? { keyframes: shiftKeyframes(clip.keyframes, change.keyShiftMs) } : {}),
+        ...(change.keyShiftMs && clip.markers ? { markers: shiftClipMarkers(clip, change.keyShiftMs) } : {}),
       });
     }
   }
@@ -130,16 +136,39 @@ function targetTrack(doc: VideoDocument, clipId: string, hoveredTrackId: string 
   return hovered && !hovered.locked && trackAccepts(hovered.kind, found.clip.type) ? hovered.id : found.track.id;
 }
 
+export function laneTargets(doc: VideoDocument, primaryId: string, ids: readonly string[], hoveredTrackId: string | null): Map<string, string> {
+  const primary = findClip(doc, primaryId);
+  const lanes = new Map<string, string>();
+  const group = ids.includes(primaryId) ? ids : [primaryId, ...ids];
+  const located = group.map((id) => findClip(doc, id)).filter((found) => found !== null);
+  for (const found of located) lanes.set(found.clip.id, found.track.id);
+  const trackId = primary ? targetTrack(doc, primaryId, hoveredTrackId) : null;
+  if (!primary || !trackId) return lanes;
+  const kind = primary.track.kind;
+  const sameKind = doc.tracks.filter((t) => t.kind === kind).map((t) => t.id);
+  const moving = located.filter((found) => found.track.kind === kind).map((found) => sameKind.indexOf(found.track.id));
+  const wanted = sameKind.indexOf(trackId) - sameKind.indexOf(primary.track.id);
+  const offset = Math.min(Math.max(wanted, -Math.min(...moving)), sameKind.length - 1 - Math.max(...moving));
+  for (const found of located) if (found.track.kind === kind) lanes.set(found.clip.id, sameKind[sameKind.indexOf(found.track.id) + offset]);
+  return lanes;
+}
+
+function laneChanges(doc: VideoDocument, ids: readonly string[], deltaMs: number, lanes: ReadonlyMap<string, string>): Map<string, ClipChange> {
+  const changes = shiftChanges(doc, ids, deltaMs);
+  for (const [id, change] of changes) changes.set(id, { ...change, trackId: lanes.get(id) ?? change.trackId });
+  return changes;
+}
+
 export function moveGroup(doc: VideoDocument, primaryId: string, ids: readonly string[], hoveredTrackId: string | null, startMs: number): VideoDocument {
   const primary = findClip(doc, primaryId);
-  const trackId = targetTrack(doc, primaryId, hoveredTrackId);
-  if (!primary || !trackId) return doc;
+  if (!primary || !targetTrack(doc, primaryId, hoveredTrackId)) return doc;
   const group = ids.includes(primaryId) ? ids : [primaryId, ...ids];
   const earliest = Math.min(...group.map((id) => findClip(doc, id)?.clip.startMs ?? Infinity));
   const delta = Math.max(Math.round(startMs) - primary.clip.startMs, -earliest);
-  const exact = rearrange(doc, shiftChanges(doc, group, delta, { id: primaryId, trackId }));
+  const exact = rearrange(doc, laneChanges(doc, group, delta, laneTargets(doc, primaryId, group, hoveredTrackId)));
   if (exact) return exact;
-  return group.length === 1 ? moveClipToward(doc, primaryId, hoveredTrackId, startMs) : doc;
+  if (group.length === 1) return moveClipToward(doc, primaryId, hoveredTrackId, startMs);
+  return rearrange(doc, shiftChanges(doc, group, delta)) ?? doc;
 }
 
 function insertionPoint(doc: VideoDocument, trackId: string, atMs: number, ignore: ReadonlySet<string>): number {
@@ -151,9 +180,10 @@ function insertionPoint(doc: VideoDocument, trackId: string, atMs: number, ignor
 
 export function insertGroup(doc: VideoDocument, primaryId: string, ids: readonly string[], hoveredTrackId: string | null, atMs: number): VideoDocument {
   const primary = findClip(doc, primaryId);
-  const trackId = targetTrack(doc, primaryId, hoveredTrackId);
-  if (!primary || !trackId) return doc;
+  if (!primary || !targetTrack(doc, primaryId, hoveredTrackId)) return doc;
   const group = new Set(ids.includes(primaryId) ? ids : [primaryId, ...ids]);
+  const lanes = laneTargets(doc, primaryId, [...group], hoveredTrackId);
+  const trackId = lanes.get(primaryId)!;
   const at = insertionPoint(doc, trackId, atMs, group);
   const target = doc.tracks.find((t) => t.id === trackId)!;
   const pushed = withLinked(
@@ -161,7 +191,7 @@ export function insertGroup(doc: VideoDocument, primaryId: string, ids: readonly
     target.clips.filter((c) => !group.has(c.id) && c.startMs >= at).map((c) => c.id),
   ).filter((id) => !group.has(id));
   const changes = shiftChanges(doc, pushed, primary.clip.durationMs);
-  for (const [id, change] of shiftChanges(doc, [...group], at - primary.clip.startMs, { id: primaryId, trackId })) changes.set(id, change);
+  for (const [id, change] of laneChanges(doc, [...group], at - primary.clip.startMs, lanes)) changes.set(id, change);
   return rearrange(doc, changes) ?? doc;
 }
 
@@ -176,14 +206,14 @@ export function clearRange(doc: VideoDocument, trackId: string, fromMs: number, 
     if (ignore.has(clip.id) || end <= fromMs || clip.startMs >= toMs) continue;
     const keepLeft = fromMs - clip.startMs;
     const keepRight = end - toMs;
-    const sourced = hasSourceTime(clip.type);
-    if (keepLeft >= STUDIO_LIMITS.minClipMs) changes.set(clip.id, { durationMs: keepLeft });
+    if (keepLeft >= STUDIO_LIMITS.minClipMs) changes.set(clip.id, { durationMs: keepLeft, trimInMs: splitTrimIns(clip, keepLeft).left });
     if (keepRight >= STUDIO_LIMITS.minClipMs) {
-      const piece = { startMs: toMs, durationMs: keepRight, trimInMs: sourced ? clip.trimInMs + (toMs - clip.startMs) : clip.trimInMs, keyShiftMs: clip.startMs - toMs };
+      const piece = { startMs: toMs, durationMs: keepRight, trimInMs: splitTrimIns(clip, toMs - clip.startMs).right, keyShiftMs: clip.startMs - toMs };
       if (changes.has(clip.id)) {
         const { keyShiftMs, ...placed } = piece;
         const keyframes = shiftKeyframes(clip.keyframes, keyShiftMs);
-        created.push({ trackId, clip: { ...clip, ...placed, id: newStudioId("c"), fadeInMs: 0, motionIn: undefined, linkId: undefined, ...(keyframes ? { keyframes } : {}) } });
+        const markers = shiftClipMarkers(clip, keyShiftMs);
+        created.push({ trackId, clip: { ...freshClip(clip), ...placed, fadeInMs: 0, motionIn: undefined, linkId: undefined, ...(keyframes ? { keyframes } : {}), markers } });
       }
       else changes.set(clip.id, piece);
     }
@@ -201,7 +231,7 @@ export function overwriteGroup(doc: VideoDocument, primaryId: string, ids: reado
   const groupSet = new Set(group);
   const earliest = Math.min(...group.map((id) => findClip(doc, id)?.clip.startMs ?? Infinity));
   const delta = Math.max(Math.round(startMs) - primary.clip.startMs, -earliest);
-  const moves = shiftChanges(doc, group, delta, { id: primaryId, trackId });
+  const moves = laneChanges(doc, group, delta, laneTargets(doc, primaryId, group, hoveredTrackId));
   let cleared: VideoDocument | null = doc;
   for (const [id, change] of moves) {
     const clip = findClip(doc, id)!.clip;
@@ -222,19 +252,40 @@ function alignedPartners(doc: VideoDocument, clipId: string, edge: "start" | "en
   });
 }
 
-export function trimChange(clip: Clip, edge: "start" | "end", ms: number, sourceMs: number | undefined): ClipChange {
+export type TrimLimit = "source" | "minimum" | "video" | "neighbour";
+
+export interface EdgeBound {
+  ms: number;
+  limit: TrimLimit;
+}
+
+export function edgeBounds(clip: Clip, edge: "start" | "end", sourceMs: number | undefined): { low: EdgeBound; high: EdgeBound } {
   if (edge === "end") {
-    const sourceLimit = hasSourceTime(clip.type) && sourceMs !== undefined ? clip.startMs + sourceMs - clip.trimInMs : Infinity;
-    const end = Math.min(Math.max(Math.round(ms), clip.startMs + STUDIO_LIMITS.minClipMs), sourceLimit, STUDIO_LIMITS.maxVideoMs);
-    return { durationMs: end - clip.startMs };
+    const source = Math.floor(clipEnd(clip) + tailroomMs(clip, sourceMs));
+    return {
+      low: { ms: clip.startMs + STUDIO_LIMITS.minClipMs, limit: "minimum" },
+      high: source < STUDIO_LIMITS.maxVideoMs ? { ms: source, limit: "source" } : { ms: STUDIO_LIMITS.maxVideoMs, limit: "video" },
+    };
+  }
+  const source = Math.ceil(clip.startMs - headroomMs(clip, sourceMs));
+  return {
+    low: source > 0 ? { ms: source, limit: "source" } : { ms: 0, limit: "video" },
+    high: { ms: clipEnd(clip) - STUDIO_LIMITS.minClipMs, limit: "minimum" },
+  };
+}
+
+export function trimChange(clip: Clip, edge: "start" | "end", ms: number, sourceMs: number | undefined): ClipChange {
+  const { low, high } = edgeBounds(clip, edge, sourceMs);
+  if (edge === "end") {
+    const end = Math.min(Math.max(Math.round(ms), low.ms), high.ms);
+    return { durationMs: end - clip.startMs, trimInMs: trimInAfterEdge(clip, "end", clipEnd(clip) - end) };
   }
   const end = clipEnd(clip);
-  const lowest = hasSourceTime(clip.type) ? clip.startMs - clip.trimInMs : 0;
-  const start = Math.min(Math.max(Math.round(ms), lowest, 0), end - STUDIO_LIMITS.minClipMs);
+  const start = Math.min(Math.max(Math.round(ms), low.ms), high.ms);
   return {
     startMs: start,
     durationMs: end - start,
-    trimInMs: hasSourceTime(clip.type) ? clip.trimInMs + (start - clip.startMs) : clip.trimInMs,
+    trimInMs: trimInAfterEdge(clip, "start", start - clip.startMs),
     keyShiftMs: clip.startMs - start,
   };
 }
@@ -283,6 +334,18 @@ export function rippleTrim(doc: VideoDocument, clipId: string, edge: "start" | "
   return rearrange(doc, changes) ?? doc;
 }
 
+export interface TrimMode {
+  ripple: boolean;
+  linked: boolean;
+}
+
+export function trimClipEdge(doc: VideoDocument, clipId: string, edge: "start" | "end", ms: number, source: ClipSource, mode: TrimMode): VideoDocument {
+  if (mode.ripple) return rippleTrim(doc, clipId, edge, ms, source);
+  const linked = mode.linked ? trimLinked(doc, clipId, edge, ms, source) : doc;
+  if (linked !== doc) return linked;
+  return edge === "start" ? trimClipStart(doc, clipId, ms, source(clipId)) : trimClipEnd(doc, clipId, ms, source(clipId));
+}
+
 export function closeGaps(doc: VideoDocument, trackId: string): VideoDocument {
   const track = doc.tracks.find((t) => t.id === trackId);
   if (!track || track.locked) return doc;
@@ -311,12 +374,15 @@ export function duplicateGroup(doc: VideoDocument, ids: readonly string[]): { do
 
 function duplicateBy(doc: VideoDocument, found: { clip: Clip; track: { id: string } }[], delta: number): { document: VideoDocument; clipIds: string[] } | null {
   const links = new Map<string, string>();
-  const created = found.map(({ clip, track }) => {
+  const renamed = new Map<string, string>();
+  const copies = found.map(({ clip, track }) => {
     const linkId = clip.linkId ? (links.get(clip.linkId) ?? links.set(clip.linkId, newStudioId("k")).get(clip.linkId)!) : undefined;
-    const copy: Clip = { ...clip, id: newStudioId("c"), startMs: clip.startMs + delta, linkId };
-    if (clip.layer) copy.layer = { ...clip.layer, id: newStudioId("l") };
+    const copy: Clip = { ...freshClip(clip), startMs: clip.startMs + delta, linkId };
+    renamed.set(clip.id, copy.id);
     return { trackId: track.id, clip: copy };
   });
+  const relinked = remappedParents(copies.map((entry) => entry.clip), renamed);
+  const created = copies.map((entry, index) => ({ ...entry, clip: relinked[index] }));
   const document = rearrange(doc, new Map(), created);
   return document ? { document, clipIds: created.map((c) => c.clip.id) } : null;
 }
@@ -348,6 +414,13 @@ export function splitAt(doc: VideoDocument, atMs: number, ids?: readonly string[
       }
     }
   });
+}
+
+export function onScreenFloor(doc: VideoDocument, startMs: number, durationMs: number): number {
+  return doc.tracks.reduce((top, track, index) => {
+    const busy = track.kind === "visual" && track.clips.some((c) => c.startMs < startMs + durationMs && clipEnd(c) > startMs);
+    return busy ? index : top;
+  }, -1);
 }
 
 export function placeStack(doc: VideoDocument, clips: readonly Clip[], above: number = -1): { document: VideoDocument; ids: string[] } | null {

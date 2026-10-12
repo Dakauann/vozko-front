@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { animatedTransform } from "@/lib/studio/keyframes";
+import { animatedTransform } from "@/lib/studio/clip-placement";
 import { KEYFRAME_PRESETS, presetKeyframes, type KeyframePresetId } from "@/lib/studio/keyframe-presets";
 import { boxStyle } from "@/lib/studio/playback";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 const SAMPLE = { transform: { x: 0.5, y: 0.5, w: 0.34, h: 0.34, rotation: 0, opacity: 1 }, durationMs: 1600 };
 const SAMPLE_KEYS = Object.fromEntries(KEYFRAME_PRESETS.map((id) => [id, presetKeyframes(id, SAMPLE)])) as Record<KeyframePresetId, ReturnType<typeof presetKeyframes>>;
 const REST_MS = SAMPLE.durationMs / 2;
+const SAMPLE_ASPECT = 1;
 
 function reducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
@@ -35,7 +36,7 @@ function PresetThumb({ id, playing }: { id: KeyframePresetId; playing: boolean }
     };
   }, [animating]);
 
-  const transform = animatedTransform(SAMPLE.transform, SAMPLE_KEYS[id], animating ? atMs : REST_MS);
+  const transform = animatedTransform(SAMPLE.transform, SAMPLE_KEYS[id], animating ? atMs : REST_MS, SAMPLE_ASPECT);
   return (
     <span aria-hidden className="relative block h-8 w-full overflow-hidden rounded-sm border border-border bg-muted">
       <span className="absolute rounded-[2px] bg-foreground" style={boxStyle({ transform, opacity: transform.opacity, trackIndex: 0 })} />

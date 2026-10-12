@@ -21,7 +21,7 @@ import { PREVIEW_ENLARGED_ZOOM, PREVIEW_TILE_WIDTH, PREVIEW_TILE_ZOOM } from "@/
 import { AdPreviewCard, type AdPreviewContent } from "./ad-preview-card";
 import { DestinationPreview } from "./editor/destination-preview";
 
-type PreviewTab = "ad" | "destination";
+type PreviewTab = "ad" | "destination" | "placements";
 
 const PLATFORM_ICONS = { facebook: FacebookLogo, instagram: InstagramLogo };
 
@@ -136,11 +136,13 @@ export function AdPreviewPanel({
   title,
   destination,
   notice,
+  placementCheck,
 }: {
   content: AdPreviewContent;
   title?: string;
   destination?: ReactNode;
   notice?: ReactNode;
+  placementCheck?: ReactNode;
 }) {
   const t = useTranslations("adsWizard");
   const tEditor = useTranslations("adsEditor.preview");
@@ -158,6 +160,7 @@ export function AdPreviewPanel({
           <TabsList>
             <TabsTrigger value="ad">{tEditor("ad")}</TabsTrigger>
             <TabsTrigger value="destination">{tEditor("destination")}</TabsTrigger>
+            {placementCheck ? <TabsTrigger value="placements">{tEditor("placements")}</TabsTrigger> : null}
           </TabsList>
         </Tabs>
       </div>
@@ -179,6 +182,8 @@ export function AdPreviewPanel({
           {vertical ? <ElevatedSwitch checked={safeZone} onCheckedChange={setSafeZone} label={t("preview.showSafeZone")} description={t("preview.safeZoneHint")} /> : null}
           <p className="text-2xs text-muted-foreground">{t("previewNote")}</p>
         </>
+      ) : tab === "placements" && placementCheck ? (
+        placementCheck
       ) : (
         (destination ?? <DestinationPreview content={content} />)
       )}

@@ -31,7 +31,10 @@ export type ImageAction =
   | { type: "selectParent" }
   | { type: "tool"; tool: VectorTool }
   | { type: "shapeOp"; kind: ShapeOpKind }
-  | { type: "artboard"; direction: 1 | -1 };
+  | { type: "artboard"; direction: 1 | -1 }
+  | { type: "component" }
+  | { type: "detach" }
+  | { type: "autoLayout" };
 
 export type VideoAction =
   | HistoryAction
@@ -108,6 +111,8 @@ export function imageActionFor(stroke: KeyStroke): ImageAction | null {
       return { type: "order", direction };
     }
     if (stroke.altKey && !stroke.shiftKey && stroke.code === "KeyO") return { type: "shapeOp", kind: "outline" };
+    if (stroke.altKey && !stroke.shiftKey && stroke.code === "KeyK") return { type: "component" };
+    if (stroke.altKey && !stroke.shiftKey && stroke.code === "KeyB") return { type: "detach" };
     if (stroke.altKey) return key === "g" && !stroke.shiftKey ? { type: "scaffold" } : null;
     if (key === "g") return stroke.shiftKey ? { type: "ungroup" } : { type: "group" };
     if (key === "l" && stroke.shiftKey) return { type: "toggleLock" };
@@ -130,7 +135,8 @@ export function imageActionFor(stroke: KeyStroke): ImageAction | null {
   if (key === "Escape") return { type: "deselect" };
   if (key === "Enter") return stroke.shiftKey ? { type: "selectParent" } : { type: "selectChildren" };
   if (key === "n") return { type: "artboard", direction: stroke.shiftKey ? -1 : 1 };
-  const tool = TOOL_KEYS[key];
+  if (key === "a" && stroke.shiftKey) return { type: "autoLayout" };
+  const tool = TOOL_KEYS[stroke.shiftKey ? `shift+${key}` : key];
   return tool ? { type: "tool", tool } : null;
 }
 
@@ -183,12 +189,13 @@ export function bindKeymap<A>(target: Pick<Window, "addEventListener" | "removeE
   return () => target.removeEventListener("keydown", listener as EventListener);
 }
 
-export type ImageZoomAction = { type: "zoom"; direction: 1 | -1 } | { type: "fit" } | { type: "fitSelection" };
+export type ImageZoomAction = { type: "zoom"; direction: 1 | -1 } | { type: "fit" } | { type: "fitSelection" } | { type: "actualSize" };
 
 export function imageZoomActionFor(stroke: KeyStroke): ImageZoomAction | null {
   if (stroke.altKey || isEditableTarget(stroke.target)) return null;
   if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit1") return { type: "fit" };
   if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit2") return { type: "fitSelection" };
+  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit0") return { type: "actualSize" };
   if (!mod(stroke)) return null;
   if (stroke.key === "+" || stroke.key === "=" || stroke.code === "NumpadAdd") return { type: "zoom", direction: 1 };
   if (stroke.key === "-" || stroke.key === "_" || stroke.code === "NumpadSubtract") return { type: "zoom", direction: -1 };

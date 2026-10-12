@@ -7,6 +7,7 @@ import { CircleNotch, Info, WarningCircle } from "@/components/icons";
 import { BUTTON_OUTLINE, BUTTON_PRIMARY } from "@/components/ui/button-surfaces";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useColorDrag } from "@/components/studio/canvas/live-gesture";
 import { swatchOf, typedColor, withSwatch } from "@/lib/studio/color";
 import { clampTo, type Range } from "@/lib/studio/layer-ranges";
 import { cn } from "@/lib/utils";
@@ -40,20 +41,7 @@ export function Hint({ label, children, side = "bottom" }: { label: string; chil
   );
 }
 
-export function InspectorSection({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
-  const id = useId();
-  return (
-    <section aria-labelledby={id} className="space-y-2 border-b border-border px-3 py-2.5 last:border-b-0">
-      <div className="flex min-h-6 items-center justify-between gap-2">
-        <h3 id={id} className="legend text-muted-foreground">
-          {title}
-        </h3>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
+export { InspectorSection } from "../inspector/inspector-section";
 
 export type NoticeTone = "fault" | "info" | "progress" | "brand";
 
@@ -89,10 +77,11 @@ export interface NumberFieldProps {
   suffix?: string;
   disabled?: boolean;
   bare?: boolean;
+  mixed?: string;
 }
 
-export function NumberField({ label, short, value, onCommit, min, max, step = 1, decimals = 0, suffix, disabled, bare }: NumberFieldProps) {
-  const shown = rounded(value, decimals);
+export function NumberField({ label, short, value, onCommit, min, max, step = 1, decimals = 0, suffix, disabled, bare, mixed }: NumberFieldProps) {
+  const shown = mixed ? "" : rounded(value, decimals);
   const [draft, setDraft] = useState<string | null>(null);
   const id = useId();
 
@@ -118,6 +107,7 @@ export function NumberField({ label, short, value, onCommit, min, max, step = 1,
           type="number"
           inputMode="decimal"
           value={draft ?? shown}
+          placeholder={mixed}
           min={min}
           max={max}
           step={step}
@@ -139,7 +129,23 @@ export function NumberField({ label, short, value, onCommit, min, max, step = 1,
   );
 }
 
-export function ColorField({ label, value, onCommit, disabled, allowEmpty, emptyLabel }: { label: string; value: string; onCommit: (value: string) => void; disabled?: boolean; allowEmpty?: boolean; emptyLabel?: string }) {
+export function ColorField({
+  label,
+  value,
+  onCommit,
+  disabled,
+  allowEmpty,
+  emptyLabel,
+  mixed,
+}: {
+  label: string;
+  value: string;
+  onCommit: (value: string) => void;
+  disabled?: boolean;
+  allowEmpty?: boolean;
+  emptyLabel?: string;
+  mixed?: string;
+}) {
   const [draft, setDraft] = useState<string | null>(null);
   const id = useId();
 
@@ -147,8 +153,9 @@ export function ColorField({ label, value, onCommit, disabled, allowEmpty, empty
     setDraft(null);
     if (allowEmpty && raw.trim() === "") return value === "" ? undefined : onCommit("");
     const next = typedColor(raw, true);
-    if (next !== null && next !== value.toLowerCase()) onCommit(next);
+    if (next !== null && (mixed || next !== value.toLowerCase())) onCommit(next);
   };
+  const swatch = useColorDrag(swatchOf(value) ?? "#000000", (raw) => commit(withSwatch(value, raw)));
 
   return (
     <div className="flex min-w-0 items-center gap-1.5">
@@ -158,16 +165,15 @@ export function ColorField({ label, value, onCommit, disabled, allowEmpty, empty
       <input
         type="color"
         aria-label={label}
-        value={swatchOf(value) ?? "#000000"}
+        ref={swatch}
         disabled={disabled}
-        onChange={(event) => commit(withSwatch(value, event.target.value))}
         className="h-7 w-7 shrink-0 cursor-pointer rounded-[--radius] border border-control-edge bg-card p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed"
       />
       <input
         id={id}
         type="text"
-        value={draft ?? value}
-        placeholder={allowEmpty ? emptyLabel : undefined}
+        value={draft ?? (mixed ? "" : value)}
+        placeholder={mixed ?? (allowEmpty ? emptyLabel : undefined)}
         disabled={disabled}
         maxLength={9}
         spellCheck={false}
@@ -201,19 +207,32 @@ export interface SliderFieldProps {
   onEnd?: () => void;
   disabled?: boolean;
   entry?: SliderEntry;
+  mixed?: string;
 }
 
-function SliderEntryField({ label, value, entry, disabled, onCommit }: { label: string; value: number; entry: SliderEntry; disabled?: boolean; onCommit: (value: number) => void }) {
+function SliderEntryField({ label, value, entry, disabled, mixed, onCommit }: { label: string; value: number; entry: SliderEntry; disabled?: boolean; mixed?: string; onCommit: (value: number) => void }) {
   const scale = entry.scale ?? 1;
   const decimals = entry.decimals ?? 0;
   return (
     <div className="w-16 shrink-0">
-      <NumberField bare label={label} value={value * scale} min={entry.range[0] * scale} max={entry.range[1] * scale} step={10 ** -decimals} decimals={decimals} suffix={entry.suffix} disabled={disabled} onCommit={(typed) => onCommit(typed / scale)} />
+      <NumberField
+        bare
+        label={label}
+        value={value * scale}
+        min={entry.range[0] * scale}
+        max={entry.range[1] * scale}
+        step={10 ** -decimals}
+        decimals={decimals}
+        suffix={entry.suffix}
+        disabled={disabled}
+        mixed={mixed}
+        onCommit={(typed) => onCommit(typed / scale)}
+      />
     </div>
   );
 }
 
-export function SliderField({ label, value, min, max, step, format, onChange, onStart, onEnd, disabled, entry }: SliderFieldProps) {
+export function SliderField({ label, value, min, max, step, format, onChange, onStart, onEnd, disabled, entry, mixed }: SliderFieldProps) {
   const [dragging, setDragging] = useState(false);
   const id = useId();
 
@@ -248,9 +267,9 @@ export function SliderField({ label, value, min, max, step, format, onChange, on
         onValueChange={([next]) => onChange(next)}
       />
       {entry ? (
-        <SliderEntryField label={label} value={value} entry={entry} disabled={disabled} onCommit={onChange} />
+        <SliderEntryField label={label} value={value} entry={entry} disabled={disabled} mixed={mixed} onCommit={onChange} />
       ) : (
-        <span className="readout w-10 shrink-0 text-right text-2xs text-foreground">{format ? format(value) : value}</span>
+        <span className={cn("readout w-10 shrink-0 text-right text-2xs", mixed ? "italic text-muted-foreground" : "text-foreground")}>{mixed ?? (format ? format(value) : value)}</span>
       )}
     </div>
   );
@@ -276,7 +295,23 @@ export function IconButton({ label, onClick, children, disabled, className, show
   return showLabel ? button : <Hint label={label}>{button}</Hint>;
 }
 
-export function SelectField<T extends string | number>({ label, value, options, onChange, disabled }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (value: T) => void; disabled?: boolean }) {
+const MIXED_OPTION = "__mixed__";
+
+export function SelectField<T extends string | number>({
+  label,
+  value,
+  options,
+  onChange,
+  disabled,
+  mixed,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+  disabled?: boolean;
+  mixed?: string;
+}) {
   const id = useId();
   return (
     <div className="flex min-w-0 items-center gap-1.5">
@@ -285,14 +320,19 @@ export function SelectField<T extends string | number>({ label, value, options, 
       </label>
       <select
         id={id}
-        value={String(value)}
+        value={mixed ? MIXED_OPTION : String(value)}
         disabled={disabled}
         onChange={(event) => {
           const picked = options.find((option) => String(option.value) === event.target.value);
           if (picked) onChange(picked.value);
         }}
-        className={FIELD_CLASS}
+        className={cn(FIELD_CLASS, mixed && "italic text-muted-foreground")}
       >
+        {mixed ? (
+          <option value={MIXED_OPTION} disabled>
+            {mixed}
+          </option>
+        ) : null}
         {options.map((option) => (
           <option key={String(option.value)} value={String(option.value)}>
             {option.label}
@@ -303,8 +343,9 @@ export function SelectField<T extends string | number>({ label, value, options, 
   );
 }
 
-export function TextField({ label, value, placeholder, maxLength, onCommit }: { label: string; value: string; placeholder?: string; maxLength?: number; onCommit: (value: string) => void }) {
+export function TextField({ label, value, placeholder, maxLength, disabled, onCommit }: { label: string; value: string; placeholder?: string; maxLength?: number; disabled?: boolean; onCommit: (value: string) => boolean | void }) {
   const id = useId();
+  const [rejected, setRejected] = useState(false);
   return (
     <div className="flex min-w-0 items-center gap-1.5">
       <label htmlFor={id} className={LABEL_CLASS}>
@@ -316,8 +357,10 @@ export function TextField({ label, value, placeholder, maxLength, onCommit }: { 
         defaultValue={value}
         placeholder={placeholder}
         maxLength={maxLength}
+        disabled={disabled}
+        aria-invalid={rejected || undefined}
         onBlur={(event) => {
-          if (event.target.value !== value) onCommit(event.target.value);
+          setRejected(event.target.value !== value && onCommit(event.target.value) === false);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") event.currentTarget.blur();
@@ -326,7 +369,7 @@ export function TextField({ label, value, placeholder, maxLength, onCommit }: { 
             event.currentTarget.blur();
           }
         }}
-        className={cn(FIELD_CLASS, "select-text")}
+        className={cn(FIELD_CLASS, "select-text aria-[invalid=true]:border-destructive")}
       />
     </div>
   );

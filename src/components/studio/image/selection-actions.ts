@@ -40,7 +40,10 @@ export function useSelectionActions() {
   const t = useTranslations("studio.image.actions");
   const ta = useTranslations("studio.image.artboards");
   const tv = useTranslations("studio.vectors.svg");
+  const tc = useTranslations("studio.image.components");
+  const tlay = useTranslations("studio.image.layout");
   const to = useTranslations("studio.vectors.ops");
+  const tl = useTranslations("studio.image.panels.layers");
   const feedback = useSvgFeedback();
   const shapeFeedback = useShapeOpFeedback();
   const { commands } = useImageEditor();
@@ -64,6 +67,7 @@ export function useSelectionActions() {
     const children = childrenSelection(document, selection);
     const allHidden = count > 0 && picked.every((l) => l.hidden);
     const single = count === 1 ? picked[0] : null;
+    const clipped = count > 0 && picked.every((l) => l.clip);
 
     const edit: MenuAction[] = [
       { id: "copy", label: t("copy"), shortcut: "Ctrl+C", run: () => commands.copySelection(), disabled: count === 0 },
@@ -73,8 +77,17 @@ export function useSelectionActions() {
         ? { id: "ungroup", label: t(ungrouping), shortcut: "Ctrl+Shift+G", run: commands.ungroup, disabled: !anyUnlocked }
         : { id: "group", label: t("group"), shortcut: "Ctrl+G", run: commands.group, disabled: count < 2 },
       { id: "scaffold", label: t("scaffold"), shortcut: "Ctrl+Alt+G", run: commands.scaffold, disabled: !canCreateScaffold(document, selection) },
+      { id: "auto-layout", label: tlay("add"), shortcut: "Shift+A", run: () => void commands.addAutoLayout(), disabled: count === 0 || !anyUnlocked },
+      { id: "component", label: tc("create"), shortcut: "Ctrl+Alt+K", run: () => void commands.createComponent(), disabled: count === 0 || Boolean(document.component) || picked.some((l) => l.locked || l.type === "instance") },
+      ...(picked.length > 0 && picked.every((l) => l.type === "instance")
+        ? [
+            { id: "detach", label: tc("detach"), shortcut: "Ctrl+Alt+B", run: () => commands.detachInstances(selection), disabled: !anyUnlocked },
+            ...(single?.componentId ? [{ id: "go-to-component", label: tc("instance.goTo"), run: () => commands.showComponent(single.componentId!) }] : []),
+          ]
+        : []),
       { id: "lock", label: allLocked ? t("unlock") : t("lock"), shortcut: "Ctrl+Shift+L", run: () => commands.setLocked(selection, !allLocked), disabled: count === 0 },
       { id: "hide", label: allHidden ? t("show") : t("hide"), shortcut: "Ctrl+Shift+H", run: () => commands.setHidden(selection, !allHidden), disabled: count === 0 },
+      { id: "clip", label: clipped ? tl("unclip") : tl("clip"), run: () => commands.patchLayers(selection, { clip: clipped ? undefined : true }), disabled: !anyUnlocked },
       { id: "delete", label: t("delete"), shortcut: "Delete", run: commands.remove, disabled: !anyUnlocked && !boardsRemovable, destructive: true },
     ];
 
@@ -135,8 +148,9 @@ export function useSelectionActions() {
     const artboard: MenuAction[] = [
       { id: "artboard-add", label: ta("add"), run: () => commands.addArtboard(document.canvas) },
       { id: "artboard-duplicate", label: ta("duplicate"), run: () => commands.duplicateArtboards([document.id]) },
+      { id: "artboard-tidy", label: ta("arrange.tidy"), run: commands.tidyArtboards, disabled: artboards.length < 2 },
       { id: "artboard-delete", label: ta("delete"), run: () => commands.removeArtboards([document.id]), disabled: artboards.length < 2, destructive: true },
     ];
     return { count, edit, family, style, shapes, paths, order, align, distribute, special, artboard, selectAll: { id: "select-all", label: t("selectAll"), shortcut: "Ctrl+A", run: commands.selectAll } as MenuAction };
-  }, [t, ta, tv, to, feedback, shapeFeedback, commands, document, artboards, selection, clipboard, styleCopied]);
+  }, [t, ta, tv, tc, tlay, to, tl, feedback, shapeFeedback, commands, document, artboards, selection, clipboard, styleCopied]);
 }

@@ -79,3 +79,15 @@ export function layerCaption(layer: Layer): LayerCaption {
   if (layer.type === "shape" && layer.shape) return { kind: `shape.${layer.shape}` };
   return { kind: layer.type };
 }
+
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((id, i) => id === b[i]);
+}
+
+export function sameRow(a: LayerRow, b: LayerRow): boolean {
+  if (a.kind === "group") return b.kind === "group" && a.groupId === b.groupId && a.depth === b.depth && a.name === b.name && sameIds(a.ids, b.ids);
+  if (b.kind === "group") return false;
+  if (a.id !== b.id || a.index !== b.index || a.depth !== b.depth || a.groupId !== b.groupId) return false;
+  if (!a.family || !b.family) return a.family === b.family;
+  return a.family.scaffoldId === b.family.scaffoldId && sameIds(a.family.ids, b.family.ids);
+}

@@ -1,11 +1,15 @@
 import type { CrmFilter } from "@/lib/crm/board";
 
+import type { SubjectTarget } from "./screen";
+
 export type ChatRole = "user" | "assistant" | "system" | "tool";
 
 export interface ChatThread {
   id: string;
   title: string;
   model: string;
+  projectId?: string;
+  running?: boolean;
   lastMessageAt?: string | null;
   createdAt: string;
 }
@@ -42,6 +46,8 @@ export interface ChatMessageList {
   page: number;
   pageSize: number;
   running?: boolean;
+  queued?: unknown[];
+  projectId?: string;
 }
 
 export type ChatChartType =
@@ -157,12 +163,36 @@ export interface ConnectAdAccountCard {
   kind: "connect_ad_account";
 }
 
-export interface AskCard {
-  kind: "ask";
-  question: { text: string; options: string[] };
+export interface AskOption {
+  label: string;
+  detail?: string;
 }
 
-export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard;
+export interface AskQuestion {
+  text: string;
+  options: AskOption[];
+}
+
+export interface AskCard {
+  kind: "ask";
+  questions?: AskQuestion[];
+  question?: { text: string; options: string[] };
+}
+
+export interface StudioProjectCard {
+  kind: "studio_project";
+  studioProject: {
+    kind: "image" | "video";
+    name?: string;
+    media?: { mediaId: string; url: string; type: string }[];
+    sizes?: { width: number; height: number }[];
+    aspect?: string;
+    durationMs?: number;
+    projectId?: string;
+  };
+}
+
+export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard | StudioProjectCard;
 
 export type ActionKind = ActionCard["kind"];
 
@@ -170,6 +200,7 @@ export interface ToolSubject {
   kind: string;
   key: string;
   label: string;
+  target?: SubjectTarget;
 }
 
 export interface ToolActivity {
@@ -208,7 +239,7 @@ export interface SecretField {
   label: string;
 }
 
-export type ChoiceKind = "image_model" | "music_model" | "voice_model";
+export type ChoiceKind = "image_model" | "music_model" | "voice_model" | "sfx_model";
 
 export interface ChoiceField {
   key: string;
@@ -250,6 +281,7 @@ export interface ChatStreamEvent {
     | "reasoning_delta"
     | "reasoning_done"
     | "assistant_done"
+    | "assistant_retry"
     | "tool"
     | "tool_start"
     | "chart"
@@ -258,10 +290,19 @@ export interface ChatStreamEvent {
     | "tool_proposal"
     | "awaiting_approval"
     | "screen_command"
+    | "screen_go"
+    | "queued"
+    | "unqueued"
+    | "delivered"
     | "done"
     | "error";
   payload?: {
     text?: string;
+    reasoning?: string;
+    code?: string;
+    retryAfterSeconds?: number;
+    attempt?: number;
+    of?: number;
     name?: string;
     summary?: string;
     ok?: boolean;
@@ -279,5 +320,8 @@ export interface ChatStreamEvent {
     status?: string;
     error?: string;
     subject?: ToolSubject;
+    clientId?: string;
+    createdAt?: string;
+    messages?: unknown[];
   };
 }

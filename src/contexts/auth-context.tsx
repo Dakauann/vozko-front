@@ -225,3 +225,7 @@ export function useAuth() {
   }
   return context;
 }
+
+export function useSignedInUserId(): string | null {
+  return useContext(AuthContext)?.user?.id ?? null;
+}

@@ -33,7 +33,7 @@ describe("image keymap (Canva conventions)", () => {
     [stroke("Enter"), { type: "selectChildren" }],
     [stroke("Enter", { shiftKey: true }), { type: "selectParent" }],
     [stroke("p"), { type: "tool", tool: "pen" }],
-    [stroke("B", { shiftKey: true }), { type: "tool", tool: "draw" }],
+    [stroke("P", { shiftKey: true }), { type: "tool", tool: "draw" }],
     [stroke("v"), { type: "tool", tool: "select" }],
     [stroke("U", { altKey: true, shiftKey: true, code: "KeyU" }), { type: "shapeOp", kind: "union" }],
     [stroke("Í", { altKey: true, shiftKey: true, code: "KeyS" }), { type: "shapeOp", kind: "subtract" }],
@@ -139,6 +139,7 @@ describe("image zoom keys", () => {
     [stroke("0", ctrl), { type: "fit" }],
     [stroke("!", { shiftKey: true, code: "Digit1" }), { type: "fit" }],
     [stroke("@", { shiftKey: true, code: "Digit2" }), { type: "fitSelection" }],
+    [stroke(")", { shiftKey: true, code: "Digit0" }), { type: "actualSize" }],
   ])("maps %o", (input, action) => {
     expect(imageZoomActionFor(input)).toEqual(action);
   });

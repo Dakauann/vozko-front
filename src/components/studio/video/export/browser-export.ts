@@ -1,60 +1,61 @@
 "use client";
 
+import { isAnimation, isFrame, MP4_EXPORT, requestSpan, type Mp4ExportRequest, type VideoExportRequest } from "@/lib/studio/animated-export";
+import { exportedDocument } from "@/lib/studio/organize";
 import { videoCanvasSize, FRAMES_PER_SECOND, type VideoDocument } from "@/lib/studio/document";
-import type { ExportFailure, ExportPhase, LocalExport } from "@/lib/studio/export";
-import { EXPORT_AUDIO_BITRATE, EXPORT_CHANNELS, EXPORT_SAMPLE_RATE, exportFrameUs, MAX_BROWSER_EXPORT_BYTES } from "@/lib/studio/export-encoding";
-import type { Renderer } from "@/lib/studio/render/renderer";
+import type { ExportPhase, LocalExport } from "@/lib/studio/export";
+import { EXPORT_AUDIO_BITRATE, EXPORT_CHANNELS, EXPORT_SAMPLE_RATE, EXPORT_VIDEO_BITRATE, exportFrameUs, frameTimes, MAX_BROWSER_EXPORT_BYTES } from "@/lib/studio/export-encoding";
+import { spanLength, type TimeSpan } from "@/lib/studio/work-area";
 
-import { loadMediaFile } from "../../canvas/media-files";
-import { DecodedVideos } from "../../media/decoded-videos";
-import { openMediaWorker } from "../../media/media-worker";
 import { gpuRenderingWanted } from "../../render/gpu-preference";
-import { studioRenderSources } from "../../render/studio-sources";
 import { decodeAudioFile } from "../audio-graph";
+import { reactLevels } from "../react-levels";
+import type { TrackLevels } from "@/lib/studio/behaviors";
+import { exportAnimationInBrowser } from "./animated-encoders";
 import { mixdown } from "./audio-mixdown";
-import { renderFrames, Wake } from "./frame-loop";
+import { exportFrameInBrowser } from "./frame-export";
+import { renderFrames } from "./frame-loop";
+import { failedExport, type BrowserExport } from "./export-result";
+import { withRenderSession, type RenderSession } from "./render-session";
 import { uploadExport } from "./upload-export";
 
 type Mediabunny = typeof import("mediabunny");
-
-export type BrowserExport = { status: "done"; video: Blob } | { status: "failed"; reason: ExportFailure };
 
 export interface BrowserEncoders {
   video: boolean;
   audio: boolean;
 }
 
-function failed(reason: ExportFailure): BrowserExport {
-  return { status: "failed", reason };
-}
-
 export async function browserEncoders(width: number, height: number): Promise<BrowserEncoders> {
   if (typeof VideoEncoder === "undefined" || typeof AudioEncoder === "undefined") return { video: false, audio: false };
   const media = await import("mediabunny");
   const [video, audio] = await Promise.all([
-    media.canEncodeVideo("avc", { width, height, bitrate: media.QUALITY_HIGH, frameRate: FRAMES_PER_SECOND }),
+    media.canEncodeVideo("avc", { width, height, bitrate: EXPORT_VIDEO_BITRATE, frameRate: FRAMES_PER_SECOND }),
     media.canEncodeAudio("aac", { numberOfChannels: EXPORT_CHANNELS, sampleRate: EXPORT_SAMPLE_RATE, bitrate: EXPORT_AUDIO_BITRATE }),
   ]);
   return { video, audio };
 }
 
-async function encode(media: Mediabunny, doc: VideoDocument, canvas: HTMLCanvasElement, videos: DecodedVideos, renderer: Renderer, wake: Wake, onPhase: (phase: ExportPhase) => void): Promise<BrowserExport> {
+async function encodeMp4(media: Mediabunny, doc: VideoDocument, span: TimeSpan, session: RenderSession, onPhase: (phase: ExportPhase) => void, levels: TrackLevels): Promise<BrowserExport> {
   const target = new media.BufferTarget();
   const output = new media.Output({ format: new media.Mp4OutputFormat({ fastStart: "in-memory" }), target });
-  const video = new media.VideoSampleSource({ codec: "avc", bitrate: media.QUALITY_HIGH });
+  const video = new media.VideoSampleSource({ codec: "avc", bitrate: EXPORT_VIDEO_BITRATE });
   const audio = new media.AudioBufferSource({ codec: "aac", bitrate: EXPORT_AUDIO_BITRATE });
   output.addVideoTrack(video, { frameRate: FRAMES_PER_SECOND });
   output.addAudioTrack(audio);
   await output.start();
-  await audio.add(await mixdown(doc, (assetId) => decodeAudioFile(assetId, EXPORT_SAMPLE_RATE)));
+  await audio.add(await mixdown(doc, (assetId) => decodeAudioFile(assetId, EXPORT_SAMPLE_RATE), span));
   audio.close();
   const outcome = await renderFrames({
     doc,
-    videos,
-    renderer,
-    wake,
+    levels,
+    times: frameTimes(spanLength(span)),
+    originMs: span.startMs,
+    videos: session.videos,
+    renderer: session.renderer,
+    wake: session.wake,
     emit: async (index) => {
-      const frame = new VideoFrame(canvas, { timestamp: exportFrameUs(index), duration: exportFrameUs(index + 1) - exportFrameUs(index), alpha: "discard" });
+      const frame = new VideoFrame(session.canvas, { timestamp: exportFrameUs(index), duration: exportFrameUs(index + 1) - exportFrameUs(index), alpha: "discard" });
       const sample = new media.VideoSample(frame);
       try {
         await video.add(sample);
@@ -67,44 +68,37 @@ async function encode(media: Mediabunny, doc: VideoDocument, canvas: HTMLCanvasE
   });
   if (outcome !== "complete") {
     await output.cancel();
-    return failed(outcome);
+    return failedExport(outcome);
   }
   video.close();
   await output.finalize();
-  if (!target.buffer) return failed("failed");
-  if (target.buffer.byteLength > MAX_BROWSER_EXPORT_BYTES) return failed("too_large");
-  return { status: "done", video: new Blob([target.buffer], { type: "video/mp4" }) };
+  if (!target.buffer) return failedExport("failed");
+  if (target.buffer.byteLength > MAX_BROWSER_EXPORT_BYTES) return failedExport("too_large");
+  return { status: "done", file: new Blob([target.buffer], { type: "video/mp4" }) };
 }
 
-export async function exportInBrowser(doc: VideoDocument, onPhase: (phase: ExportPhase) => void): Promise<BrowserExport> {
-  if (!gpuRenderingWanted()) return failed("renderer_off");
-  if (typeof VideoFrame === "undefined" || typeof OfflineAudioContext === "undefined") return failed("no_encoder");
-  const { width, height } = videoCanvasSize(doc);
-  const encoders = await browserEncoders(width, height);
-  if (!encoders.video || !encoders.audio) return failed("no_encoder");
-  const port = openMediaWorker();
-  if (!port) return failed("undecodable");
-  const wake = new Wake();
-  const videos = new DecodedVideos(port, loadMediaFile, (assetId) => assetId, () => wake.notify());
-  const canvas = window.document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  let renderer: Renderer | null = null;
-  try {
-    const media = await import("mediabunny");
-    const { createPixiRenderer } = await import("../../render/pixi-renderer");
-    renderer = await createPixiRenderer(canvas, { width, height, resolution: 1 }, studioRenderSources(videos), () => wake.notify());
-    return await encode(media, doc, canvas, videos, renderer, wake, onPhase);
-  } catch {
-    return failed("failed");
-  } finally {
-    renderer?.destroy();
-    videos.dispose();
-  }
+export async function exportInBrowser(edited: VideoDocument, onPhase: (phase: ExportPhase) => void, request: Mp4ExportRequest = MP4_EXPORT): Promise<BrowserExport> {
+  const doc = exportedDocument(edited);
+  const span = requestSpan(request, doc.durationMs);
+  if (!span) return failedExport("out_of_range");
+  if (!gpuRenderingWanted()) return failedExport("renderer_off");
+  if (typeof VideoFrame === "undefined" || typeof OfflineAudioContext === "undefined") return failedExport("no_encoder");
+  const size = videoCanvasSize(doc);
+  const encoders = await browserEncoders(size.width, size.height);
+  if (!encoders.video || !encoders.audio) return failedExport("no_encoder");
+  const levels = await reactLevels.ready(doc);
+  if (!levels) return failedExport("undecodable");
+  return withRenderSession(size, async (session) => encodeMp4(await import("mediabunny"), doc, span, session, onPhase, levels));
 }
 
-export async function exportLocally(projectId: string, doc: VideoDocument, onPhase: (phase: ExportPhase) => void): Promise<LocalExport> {
-  const exported = await exportInBrowser(doc, onPhase);
+function exportOf(doc: VideoDocument, request: VideoExportRequest, onPhase: (phase: ExportPhase) => void): Promise<BrowserExport> {
+  if (isFrame(request)) return exportFrameInBrowser(doc, request, onPhase);
+  if (isAnimation(request)) return exportAnimationInBrowser(doc, request, onPhase);
+  return exportInBrowser(doc, onPhase, request);
+}
+
+export async function exportLocally(projectId: string, doc: VideoDocument, request: VideoExportRequest, onPhase: (phase: ExportPhase) => void): Promise<LocalExport> {
+  const exported = await exportOf(doc, request, onPhase);
   if (exported.status === "failed") return exported;
-  return uploadExport(projectId, exported.video, onPhase);
+  return uploadExport(projectId, exported.file, onPhase);
 }

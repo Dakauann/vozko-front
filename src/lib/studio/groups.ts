@@ -182,7 +182,7 @@ export function cleanupGroups(draft: Draft<ImageSurface>) {
     for (const l of draft.layers) for (const g of ancestry(parents, l.groupId)) live.add(g);
     for (const [id, parent] of parents) if (parent && live.has(id)) children.set(parent, (children.get(parent) ?? 0) + 1);
     for (const id of parents.keys()) {
-      if (!live.has(id) || (children.get(id) ?? 0) >= 2) continue;
+      if (!live.has(id) || (children.get(id) ?? 0) >= 2 || draft.groups?.some((g) => g.id === id && (g.repeat || g.layout))) continue;
       dissolveInDraft(draft, id);
       changed = true;
       break;
@@ -337,10 +337,11 @@ export function cloneWithGroups(
     return undefined;
   };
   const groups = [...mapped].map(([original, id]): StudioGroup => {
-    const name = meta.find((g) => g.id === original)?.name;
+    const source = meta.find((g) => g.id === original);
     const parentId = resolve(parents.get(original));
     const baseId = copied.get(baseIds.get(original) ?? "");
-    return { id, ...(parentId ? { parentId } : {}), ...(name ? { name } : {}), ...(baseId ? { baseId } : {}) };
+    const { name, repeat, layout, layoutItem } = source ?? {};
+    return { id, ...(parentId ? { parentId } : {}), ...(name ? { name } : {}), ...(baseId ? { baseId } : {}), ...(repeat ? { repeat } : {}), ...(layout && baseId ? { layout } : {}), ...(layoutItem ? { layoutItem } : {}) };
   });
   const layers = sources.map((l): Layer => {
     const copy: Layer = { ...l, id: copied.get(l.id)!, locked: undefined, transform: { ...l.transform, x: clamp(l.transform.x + offset), y: clamp(l.transform.y + offset) } };

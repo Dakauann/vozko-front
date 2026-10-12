@@ -26,6 +26,27 @@ describe("agent presence", () => {
     expect(presence.store.getState()).toMatchObject({ x: 5, y: 6, label: "b" });
   });
 
+  it("marks the moments she looks at and clears them with the rest of her trace", () => {
+    vi.useFakeTimers();
+    const presence = createAgentPresence(1000);
+    const tick = { left: 40, top: 300, width: 2, height: 120 };
+    presence.point({ x: 1, y: 1 }, "Vendo", null, [tick]);
+    expect(presence.store.getState().ticks).toEqual([tick]);
+    presence.point({ x: 2, y: 2 }, "Cortando");
+    expect(presence.store.getState().ticks).toEqual([]);
+    presence.point({ x: 1, y: 1 }, "Vendo", null, [tick]);
+    presence.rest();
+    vi.advanceTimersByTime(1000);
+    expect(presence.store.getState()).toMatchObject({ visible: false, ticks: [] });
+  });
+
+  it("keeps the pictures she saw apart from her cursor", () => {
+    const presence = createAgentPresence();
+    presence.shots.add("data:image/jpeg;base64,AA", { kind: "artboards" });
+    presence.rest();
+    expect(presence.shots.store.getState().shots).toHaveLength(1);
+  });
+
   it("does not hide while she is busy applying a step", () => {
     vi.useFakeTimers();
     const presence = createAgentPresence(1000);
@@ -34,6 +55,6 @@ describe("agent presence", () => {
     presence.busy(true);
     vi.advanceTimersByTime(5000);
     expect(presence.store.getState()).toMatchObject({ visible: true, busy: true });
-    expect(presence.isBusy()).toBe(true);
+    expect(presence.store.getState().busy).toBe(true);
   });
 });

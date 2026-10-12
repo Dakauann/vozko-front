@@ -26,7 +26,7 @@ function file(contentType = "video/mp4"): LoadedMediaFile {
 }
 
 function clip(clipId: string, assetId: string, sourceMs: number) {
-  const source: VideoSource = { kind: "video", clipId, assetId, sourceMs };
+  const source: VideoSource = { kind: "video", clipId, assetId, sourceMs, speed: 1, backward: false };
   return { source, visible: true };
 }
 

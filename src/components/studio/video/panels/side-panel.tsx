@@ -3,24 +3,37 @@
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { useTranslations } from "next-intl";
 
-import { ChatText, ImageSquare, Sparkle, TextT, Waveform, type Icon } from "@/components/icons";
+import { ChatText, ImageSquare, Lightning, Sparkle, TextT, Waveform, type Icon } from "@/components/icons";
+
+import { TransitionGlyph } from "../transition-glyph";
 import { cn } from "@/lib/utils";
 
 import { useVideoEditor, useViewState } from "../editor-context";
 import type { PanelId } from "../view-store";
 import { AiPanel } from "./ai-panel";
 import { CaptionsPanel } from "./captions-panel";
+import { EffectsPanel } from "./effects-panel";
 import { ElementsPanel } from "./elements-panel";
+import { TextPanel } from "./text-panel";
+import { ElementsGlyph } from "@/components/studio/library/elements-glyph";
 import { MediaPanel } from "./media-panel";
 import { ProcessPanel } from "./process-panel";
+import { TransitionsPanel } from "./transitions-panel";
 
 const PANELS: { id: PanelId; icon: Icon; tour: string }[] = [
   { id: "media", icon: ImageSquare, tour: "studio-video-media" },
   { id: "ai", icon: Sparkle, tour: "studio-video-ai" },
-  { id: "elements", icon: TextT, tour: "studio-video-elements" },
+  { id: "text", icon: TextT, tour: "studio-video-text" },
+  { id: "elements", icon: ElementsGlyph, tour: "studio-video-elements" },
+  { id: "transitions", icon: TransitionIcon, tour: "studio-video-transitions" },
+  { id: "effects", icon: Lightning, tour: "studio-video-effects" },
   { id: "captions", icon: ChatText, tour: "studio-video-captions" },
   { id: "process", icon: Waveform, tour: "studio-video-process" },
 ];
+
+function TransitionIcon({ className }: { className?: string }) {
+  return <TransitionGlyph kind="push" className={className} />;
+}
 
 export function SidePanel() {
   const t = useTranslations("studio.video.panels");
@@ -56,7 +69,10 @@ export function SidePanel() {
           <h2 className="border-b border-border px-3 py-2.5 text-xs font-semibold text-foreground">{t(`titles.${id}`)}</h2>
           {id === "media" ? <MediaPanel /> : null}
           {id === "ai" ? <AiPanel /> : null}
+          {id === "text" ? <TextPanel /> : null}
           {id === "elements" ? <ElementsPanel /> : null}
+          {id === "transitions" ? <TransitionsPanel /> : null}
+          {id === "effects" ? <EffectsPanel /> : null}
           {id === "captions" ? <CaptionsPanel /> : null}
           {id === "process" ? <ProcessPanel /> : null}
         </TabsPrimitive.Content>

@@ -11,10 +11,10 @@ function clamp(value: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, value));
 }
 
-export function clampClipTransform(t: Transform): Transform {
+export function clampClipTransform(t: Transform, [low, high]: readonly [number, number] = [0, 1]): Transform {
   return {
-    x: clamp(t.x, 0, 1),
-    y: clamp(t.y, 0, 1),
+    x: clamp(t.x, low, high),
+    y: clamp(t.y, low, high),
     w: clamp(t.w, 0.001, MAX_BOX),
     h: clamp(t.h, 0.001, MAX_BOX),
     rotation: clamp(t.rotation, -360, 360),
@@ -77,10 +77,14 @@ export function pointInBox(t: Transform, x: number, y: number, aspect: number): 
   return Math.abs(localX) <= t.w / 2 && Math.abs(localY) <= t.h / 2;
 }
 
+export function stackAt<T extends { transform: Transform; zIndex: number }>(items: readonly T[], x: number, y: number, aspect: number): T[] {
+  return items
+    .map((item, order) => ({ item, order }))
+    .filter(({ item }) => pointInBox(item.transform, x, y, aspect))
+    .sort((a, b) => b.item.zIndex - a.item.zIndex || b.order - a.order)
+    .map(({ item }) => item);
+}
+
 export function topmostAt<T extends { transform: Transform; zIndex: number }>(items: readonly T[], x: number, y: number, aspect: number): T | null {
-  let best: T | null = null;
-  for (const item of items) {
-    if (pointInBox(item.transform, x, y, aspect) && (best === null || item.zIndex >= best.zIndex)) best = item;
-  }
-  return best;
+  return stackAt(items, x, y, aspect)[0] ?? null;
 }

@@ -7,21 +7,21 @@ import { LINE_CAPS, LINE_JOINS, type Layer } from "@/lib/studio/document";
 import { LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import { strokeStyle } from "@/lib/studio/paint";
 import { sharedValue } from "@/lib/studio/selection-edit";
-import { DASH_PRESET_IDS, dashPresetOf, dashPresetPatch, type DashPreset } from "@/lib/studio/stroke-presets";
+import { DASH_PRESET_IDS, dashPresetOf, dashPresetPatch, formatDashPattern, parseDashPattern, type DashPreset } from "@/lib/studio/stroke-presets";
 
 import { ToolButton } from "../tool-button";
+import { CodeField } from "./code-field";
 import { FieldGrid, NumberField, SelectField } from "./fields";
 
 type DashChoice = DashPreset | "custom";
 
 interface StrokeStyleFieldsProps {
   layers: readonly Layer[];
-  withCaps: boolean;
   disabled?: boolean;
-  onPatch: (patch: Partial<Layer>) => void;
+  onPatch: (patch: Partial<Layer>) => boolean;
 }
 
-export function StrokeStyleFields({ layers, withCaps, disabled, onPatch }: StrokeStyleFieldsProps) {
+export function StrokeStyleFields({ layers, disabled, onPatch }: StrokeStyleFieldsProps) {
   const t = useTranslations("studio.vectors.stroke");
   const shared = <T,>(get: (layer: Layer) => T): T | null => {
     const value = sharedValue(layers, get);
@@ -31,6 +31,7 @@ export function StrokeStyleFields({ layers, withCaps, disabled, onPatch }: Strok
   const dashed = layers.every((layer) => dashPresetOf(layer) !== "solid");
   const cap = shared((layer) => strokeStyle(layer).lineCap);
   const join = shared((layer) => strokeStyle(layer).lineJoin);
+  const pattern = shared((layer) => formatDashPattern(layer));
   const options = [...DASH_PRESET_IDS, ...(preset === "custom" ? (["custom"] as const) : [])].map((id) => ({ value: id as DashChoice, label: t(`dashes.${id}`) }));
 
   return (
@@ -50,14 +51,25 @@ export function StrokeStyleFields({ layers, withCaps, disabled, onPatch }: Strok
           />
         ) : null}
       </FieldGrid>
-      {withCaps ? (
-        <div role="group" aria-label={t("caps")} className="flex items-center gap-1">
-          <span className="w-20 shrink-0 text-2xs text-muted-foreground">{t("caps")}</span>
-          {LINE_CAPS.map((value) => (
-            <ToolButton key={value} size="sm" label={t(`cap.${value}`)} pressed={cap === value} disabled={disabled} icon={<CapIcon cap={value} className="h-4 w-4" />} onClick={() => onPatch({ lineCap: value })} />
-          ))}
-        </div>
+      {dashed ? (
+        <CodeField
+          label={t("pattern")}
+          hint={t("patternHint")}
+          rows={1}
+          value={pattern ?? ""}
+          disabled={disabled}
+          onCommit={(text) => {
+            const values = parseDashPattern(text);
+            return values !== null && values.length > 0 && onPatch({ dashArray: values, dash: undefined });
+          }}
+        />
       ) : null}
+      <div role="group" aria-label={t("caps")} className="flex items-center gap-1">
+        <span className="w-20 shrink-0 text-2xs text-muted-foreground">{t("caps")}</span>
+        {LINE_CAPS.map((value) => (
+          <ToolButton key={value} size="sm" label={t(`cap.${value}`)} pressed={cap === value} disabled={disabled} icon={<CapIcon cap={value} className="h-4 w-4" />} onClick={() => onPatch({ lineCap: value })} />
+        ))}
+      </div>
       <div role="group" aria-label={t("joins")} className="flex items-center gap-1">
         <span className="w-20 shrink-0 text-2xs text-muted-foreground">{t("joins")}</span>
         {LINE_JOINS.map((value) => (

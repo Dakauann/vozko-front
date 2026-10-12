@@ -382,6 +382,14 @@ export const Square: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const NullObject: Icon = /*#__PURE__*/ glyph(
+  "NullObject",
+  <>
+    <rect x="4.75" y="4.75" width="14.5" height="14.5" rx="1.5" strokeDasharray="2.5 2.5" />
+    <path stroke={ACCENT} d="M12 8.5v7M8.5 12h7" />
+  </>,
+);
+
 export const Artboard: Icon = /*#__PURE__*/ glyph(
   "Artboard",
   <>
@@ -1854,6 +1862,14 @@ export const Hash: Icon = /*#__PURE__*/ glyph(
   <>
     <path d="M4.25 8.75h15.5M3.75 15.25h15.5" />
     <path stroke={ACCENT} d="M9.75 3.75 7.9 20.25M16.1 3.75l-1.85 16.5" />
+  </>,
+);
+
+export const Eyedropper: Icon = /*#__PURE__*/ glyph(
+  "Eyedropper",
+  <>
+    <path stroke={ACCENT} d="m13.4 6.9 2.35-2.35a2.5 2.5 0 0 1 3.55 3.55L16.95 10.45" />
+    <path d="m12.1 5.6 6.3 6.3M14.85 8.35 7.1 16.1a2 2 0 0 1-.9.5l-2.45.65.65-2.45a2 2 0 0 1 .5-.9l7.75-7.75" />
   </>,
 );
 

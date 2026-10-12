@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_SHEET_WIDTH, MAX_SHEET_WIDTH, MIN_PAGE_WIDTH, MIN_SHEET_WIDTH, parseStoredWidth, sheetLayout } from "./sheet-width";
+import { DEFAULT_SHEET_WIDTH, MAX_SHEET_WIDTH, MIN_PAGE_WIDTH, MIN_SHEET_WIDTH, sheetLayout } from "./sheet-width";
 
 describe("sheetLayout", () => {
   it("pushes the page and keeps the width the user chose when there is room", () => {
@@ -28,15 +28,7 @@ describe("sheetLayout", () => {
   });
 });
 
-describe("parseStoredWidth", () => {
-  it("reads a stored width and ignores anything else", () => {
-    expect(parseStoredWidth("520")).toBe(520);
-    expect(parseStoredWidth(null)).toBeNull();
-    expect(parseStoredWidth("abc")).toBeNull();
-    expect(parseStoredWidth("-3")).toBeNull();
-    expect(parseStoredWidth('{"width":480,"height":720}')).toBeNull();
-  });
-
+describe("DEFAULT_SHEET_WIDTH", () => {
   it("starts from a readable default", () => {
     expect(DEFAULT_SHEET_WIDTH).toBeGreaterThanOrEqual(MIN_SHEET_WIDTH);
   });

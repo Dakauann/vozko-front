@@ -1,4 +1,5 @@
-import { STAR_DEFAULTS, type BlendMode, type FrameKind, type Gradient, type Layer, type LineCap, type LineJoin } from "./document";
+import { POLYGON_DEFAULTS, STAR_DEFAULTS, type BlendMode, type FrameKind, type Gradient, type Layer, type LineCap, type LineJoin } from "./document";
+import type { ColorProperty } from "./keyframes";
 import type { Point } from "./viewport";
 
 export interface Box {
@@ -8,7 +9,7 @@ export interface Box {
   height: number;
 }
 
-export type Composite = "source-over" | "source-atop" | Exclude<BlendMode, "normal">;
+export type Composite = "source-over" | "source-atop" | "lighter" | Exclude<BlendMode, "normal" | "add">;
 
 export function gradientLine(angle: number, box: Box): { start: Point; end: Point } {
   const radians = (angle * Math.PI) / 180;
@@ -46,7 +47,8 @@ export function gradientPaint(gradient: Gradient, box: Box): GradientPaint {
 }
 
 export function compositeOf(mode: BlendMode | undefined): Composite {
-  return !mode || mode === "normal" ? "source-over" : mode;
+  if (!mode || mode === "normal") return "source-over";
+  return mode === "add" ? "lighter" : mode;
 }
 
 export function curvePath(width: number, height: number, curve: number): string {
@@ -70,6 +72,16 @@ export function starPolygon(star: Pick<Layer, "points" | "inner">, width: number
   return points;
 }
 
+export function regularPolygon(polygon: Pick<Layer, "points">, width: number, height: number): number[] {
+  const count = polygon.points || POLYGON_DEFAULTS.points;
+  const points: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / count;
+    points.push(width / 2 + Math.cos(angle) * 0.5 * width, height / 2 + Math.sin(angle) * 0.5 * height);
+  }
+  return points;
+}
+
 export function framePolygon(kind: Exclude<FrameKind, "ellipse">, width: number, height: number): number[] {
   if (kind === "triangle") return [width / 2, 0, width, height, 0, height];
   return starPolygon({}, width, height);
@@ -83,6 +95,15 @@ export function clipRuns(layers: readonly Layer[]): Layer[][] {
     else runs.push([layer]);
   }
   return runs;
+}
+
+function strokedShape(layer: Layer): boolean {
+  return layer.type === "shape" && (layer.shape === "line" || layer.shape === "arrow");
+}
+
+export function paintsProperty(layer: Layer, property: ColorProperty): boolean {
+  if (property === "fill") return (layer.type === "text" || layer.type === "icon" || layer.type === "shape") && !strokedShape(layer) && !layer.gradient && (layer.fills ?? []).length === 0;
+  return (layer.strokes ?? []).length === 0 && (strokedShape(layer) || ((layer.type === "text" || layer.type === "shape") && (layer.strokeWidth ?? 0) > 0));
 }
 
 export const MAX_CACHE_PIXEL_RATIO = 2;

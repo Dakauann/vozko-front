@@ -1,8 +1,18 @@
+import { coverCrop } from "./crop";
 import type { CanvasSize, Filters, ImageSurface, Layer } from "./document";
 import { fitInside } from "./geometry";
 import { deleteLayers, updateLayers, type LayerPatch } from "./layers";
+import type { TextEdit } from "./text-run-editing";
+import { hasRuns, sameRuns } from "./text-runs";
 
-export type ExportFormat = "png" | "jpeg";
+export type ExportFormat = "png" | "jpeg" | "pdf" | "svg";
+export type RasterExportFormat = Extract<ExportFormat, "png" | "jpeg">;
+
+const EXPORT_EXTENSIONS: Record<ExportFormat, string> = { png: "png", jpeg: "jpg", pdf: "pdf", svg: "svg" };
+
+export function isRasterFormat(format: ExportFormat): format is RasterExportFormat {
+  return format === "png" || format === "jpeg";
+}
 export type ExportScale = 1 | 2;
 
 export const DEFAULT_JPEG_QUALITY = 0.9;
@@ -26,14 +36,15 @@ export function isDefaultFilters(filters: Filters | undefined): boolean {
   return (Object.keys(DEFAULT_FILTERS) as (keyof Filters)[]).every((key) => filters[key] === DEFAULT_FILTERS[key]);
 }
 
-export function commitText(doc: ImageSurface, id: string, text: string): ImageSurface {
+export function commitText(doc: ImageSurface, id: string, edit: TextEdit): ImageSurface {
   const layer = doc.layers.find((l) => l.id === id);
-  if (!layer || layer.text === text) return doc;
-  if (text.trim() === "") return deleteLayers(doc, [id]);
-  return updateLayers(doc, [id], { text });
+  if (!layer || (layer.text === edit.text && sameRuns(layer.runs, edit.runs))) return doc;
+  if (edit.text.trim() === "") return deleteLayers(doc, [id]);
+  return updateLayers(doc, [id], hasRuns(layer) || edit.runs ? { text: edit.text, runs: edit.runs } : { text: edit.text });
 }
 
 export function replaceImageAsset(layer: Layer, assetId: string, natural: CanvasSize, canvas: CanvasSize): LayerPatch {
+  if (layer.clip) return { assetId, crop: coverCrop(natural, layer.transform, canvas) };
   return { assetId, crop: undefined, transform: fitInside(natural.width, natural.height, layer.transform, canvas) };
 }
 
@@ -50,7 +61,7 @@ export function exportFileName(name: string, format: ExportFormat, scale: Export
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-  return `${slug || EXPORT_FALLBACK_NAME}${scale === 2 ? "@2x" : ""}.${format === "jpeg" ? "jpg" : "png"}`;
+  return `${slug || EXPORT_FALLBACK_NAME}${scale === 2 && isRasterFormat(format) ? "@2x" : ""}.${EXPORT_EXTENSIONS[format]}`;
 }
 
 export function visibleLayers(layers: readonly Layer[]): Layer[] {
@@ -71,6 +82,7 @@ export const JOB_ERROR_CODES = [
   "reference_unavailable",
   "invalid_request",
   "cost_unreported",
+  "provider_busy",
 ] as const;
 
 export type JobErrorCode = (typeof JOB_ERROR_CODES)[number] | "unknown";

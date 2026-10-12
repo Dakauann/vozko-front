@@ -385,25 +385,64 @@ function strokeShape(paint: Paint): Partial<Layer> {
   return out;
 }
 
-function styled(layer: Layer, item: Item, ids: IdIndex, scale: number): Layer {
+export interface ArtFrame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface ArtPart {
+  subpaths: Subpath[];
+  open: boolean;
+  opacity: number;
+  fill?: string;
+  gradient?: Gradient;
+  stroke?: string;
+  strokeWidth?: number;
+  strokeShape?: Partial<Layer>;
+  evenOdd?: boolean;
+}
+
+export interface VectorArt {
+  frame: ArtFrame;
+  parts: ArtPart[];
+}
+
+export type SvgArtResult = { ok: true; art: VectorArt; skipped: number } | { ok: false; reason: "invalid" | "empty" };
+
+function artPart(item: Item, ids: IdIndex): ArtPart {
   const { paint } = item;
   const fillColor = paint.fill === "none" ? null : parseColor(paint.fill, paint.color);
   const gradient = paint.fill.startsWith("url(") ? gradientOf(paint.fill, ids, item) : null;
   const strokeColor = paint.stroke === "none" ? null : parseColor(paint.stroke, paint.color);
-  const strokeWidth = strokeColor ? Math.min(200, Math.max(0, paint.strokeWidth * item.scale * scale)) : 0;
-  const next: Layer = { ...layer, fill: undefined, stroke: undefined, strokeWidth: undefined, transform: { ...layer.transform, opacity: Math.min(1, Math.max(0, paint.opacity)) } };
-  if (gradient) next.gradient = gradient;
-  else if (fillColor) next.fill = withAlpha(fillColor, paint.fillOpacity);
-  if (strokeColor && strokeWidth > 0) {
-    next.stroke = withAlpha(strokeColor, paint.strokeOpacity);
-    next.strokeWidth = Math.round(strokeWidth * 100) / 100;
-    Object.assign(next, strokeShape(paint));
+  const part: ArtPart = { subpaths: item.subpaths, open: paint.fill === "none", opacity: Math.min(1, Math.max(0, paint.opacity)) };
+  if (gradient) part.gradient = gradient;
+  else if (fillColor) part.fill = withAlpha(fillColor, paint.fillOpacity);
+  if (strokeColor) {
+    part.stroke = withAlpha(strokeColor, paint.strokeOpacity);
+    part.strokeWidth = paint.strokeWidth * item.scale;
+    part.strokeShape = strokeShape(paint);
   }
-  if (paint.fillRule === "evenodd") next.fillRule = "evenodd" as FillRule;
+  if (paint.fillRule === "evenodd") part.evenOdd = true;
+  return part;
+}
+
+function styled(layer: Layer, part: ArtPart, scale: number): Layer {
+  const strokeWidth = part.stroke ? Math.min(200, Math.max(0, (part.strokeWidth ?? 0) * scale)) : 0;
+  const next: Layer = { ...layer, fill: undefined, stroke: undefined, strokeWidth: undefined, transform: { ...layer.transform, opacity: part.opacity } };
+  if (part.gradient) next.gradient = part.gradient;
+  else if (part.fill) next.fill = part.fill;
+  if (part.stroke && strokeWidth > 0) {
+    next.stroke = part.stroke;
+    next.strokeWidth = Math.round(strokeWidth * 100) / 100;
+    Object.assign(next, part.strokeShape);
+  }
+  if (part.evenOdd) next.fillRule = "evenodd" as FillRule;
   return next;
 }
 
-export function importSvg(text: string, canvas: CanvasSize, options: { target?: SvgTarget; name?: string } = {}): SvgImportResult {
+export function parseSvgArt(text: string): SvgArtResult {
   let parsed: Document;
   try {
     parsed = new DOMParser().parseFromString(text, "image/svg+xml");
@@ -418,6 +457,11 @@ export function importSvg(text: string, canvas: CanvasSize, options: { target?: 
   if (state.items.length === 0) return { ok: false, reason: "empty" };
   const content = pathBounds(state.items.flatMap((item) => item.subpaths));
   const frame = frameOf(root) ?? { x: content.left, y: content.top, width: content.right - content.left || 1, height: content.bottom - content.top || 1 };
+  return { ok: true, art: { frame, parts: state.items.map((item) => artPart(item, state.ids)) }, skipped: state.skipped };
+}
+
+export function artLayers(art: VectorArt, canvas: CanvasSize, options: { target?: SvgTarget; name?: string } = {}): { layers: Layer[]; groups: StudioGroup[] } {
+  const { frame } = art;
   const side = Math.min(canvas.width, canvas.height) * SVG_IMPORT_SHARE;
   const target = options.target ?? { center: { x: canvas.width / 2, y: canvas.height / 2 }, width: side, height: side, rotation: 0 };
   const scale = Math.min(target.width / frame.width, target.height / frame.height);
@@ -427,14 +471,19 @@ export function importSvg(text: string, canvas: CanvasSize, options: { target?: 
     const y = (p.y - frame.y - frame.height / 2) * scale;
     return { x: target.center.x + x * Math.cos(angle) - y * Math.sin(angle), y: target.center.y + x * Math.sin(angle) + y * Math.cos(angle) };
   };
-  const groupId = state.items.length > 1 ? newStudioId("g") : undefined;
-  const layers = state.items.map((item) => {
-    const open = item.paint.fill === "none";
-    const layer = styled(pathLayerFromCanvas(mapSubpaths(item.subpaths, toCanvas), canvas, open), item, state.ids, scale);
+  const groupId = art.parts.length > 1 ? newStudioId("g") : undefined;
+  const layers = art.parts.map((part) => {
+    const layer = styled(pathLayerFromCanvas(mapSubpaths(part.subpaths, toCanvas), canvas, part.open), part, scale);
     return groupId ? { ...layer, groupId } : layer;
   });
   const groups: StudioGroup[] = groupId ? [{ id: groupId, ...(options.name ? { name: options.name } : {}) }] : [];
-  return { ok: true, value: { layers, groups, skipped: state.skipped } };
+  return { layers, groups };
+}
+
+export function importSvg(text: string, canvas: CanvasSize, options: { target?: SvgTarget; name?: string } = {}): SvgImportResult {
+  const parsed = parseSvgArt(text);
+  if (!parsed.ok) return parsed;
+  return { ok: true, value: { ...artLayers(parsed.art, canvas, options), skipped: parsed.skipped } };
 }
 
 export function isSvgText(text: string): boolean {

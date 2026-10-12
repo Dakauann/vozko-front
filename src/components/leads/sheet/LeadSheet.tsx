@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -41,6 +41,7 @@ import {
   moveNumberToContacts,
   rebaseDraft,
   refusalShownOnField,
+  withLinkedRelative,
   type LeadConflict,
   type LeadSheetDraft,
 } from "@/lib/leads/sheet";
@@ -52,11 +53,11 @@ import { AddressesSection } from "./AddressesSection";
 import { ConflictBanner } from "./ConflictBanner";
 import { ConsentSection } from "./ConsentSection";
 import { CustomFieldsSection } from "./CustomFieldsSection";
-import { FamilySection } from "./FamilySection";
+import { FamilySection, type RelativeSignUp } from "./FamilySection";
 import { LinkOfferList } from "./LinkOfferList";
 import { OwnerSection } from "./OwnerSection";
 import { PhonesSection, type IdentityRefusal } from "./PhonesSection";
-import { SheetHint, SheetSection } from "./SheetSection";
+import { SheetHint, SheetScope, SheetSection, SheetSectionNav } from "./SheetSection";
 
 const LEAD_SHEET_ACTIONS: LeadSheetActions = {
   create: createLeadAction,
@@ -67,22 +68,31 @@ const LEAD_SHEET_ACTIONS: LeadSheetActions = {
   removeRelation: removeLeadRelationAction,
 };
 
+export interface LeadSheetSeed {
+  draft: LeadSheetDraft;
+  title: string;
+  description: string;
+}
+
 export interface LeadSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   leadId?: string | null;
+  seed?: LeadSheetSeed;
   onSaved?: (lead: LeadRecord) => void;
   onManageFields?: () => void;
 }
 
-export function LeadSheet({ open, onOpenChange, leadId = null, onSaved, onManageFields }: LeadSheetProps) {
+export function LeadSheet({ open, onOpenChange, leadId = null, seed, onSaved, onManageFields }: LeadSheetProps) {
   const t = useTranslations("leadSheet");
   const editing = !!leadId;
+  const title = editing ? t("titleEdit") : (seed?.title ?? t("titleNew"));
+  const description = !editing && seed ? seed.description : t("description");
   return (
     <ElevatedSheet open={open} onOpenChange={onOpenChange}>
       <ElevatedSheetContent
         side="right"
-        className="flex w-full flex-col gap-0 p-0 max-sm:max-w-none max-sm:rounded-none sm:max-w-xl"
+        className="flex w-full flex-col gap-0 p-0 max-sm:max-w-none max-sm:rounded-none sm:max-w-2xl lg:max-w-3xl"
       >
         <ElevatedSheetHeader className="border-b border-border px-4 pb-4 pt-6 sm:px-6">
           <div className="flex items-center gap-3 pr-10">
@@ -90,15 +100,21 @@ export function LeadSheet({ open, onOpenChange, leadId = null, onSaved, onManage
               <UserPlus className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <ElevatedSheetTitle className="text-lg">{editing ? t("titleEdit") : t("titleNew")}</ElevatedSheetTitle>
-              <ElevatedSheetDescription className="text-xs">{t("description")}</ElevatedSheetDescription>
+              <ElevatedSheetTitle className="text-lg">{title}</ElevatedSheetTitle>
+              <ElevatedSheetDescription className="text-xs">{description}</ElevatedSheetDescription>
             </div>
           </div>
         </ElevatedSheetHeader>
         {leadId ? (
           <EditLoader key={leadId} leadId={leadId} onClose={() => onOpenChange(false)} onSaved={onSaved} onManageFields={onManageFields} />
         ) : (
-          <LeadSheetForm initialBase={null} onClose={() => onOpenChange(false)} onSaved={onSaved} onManageFields={onManageFields} />
+          <LeadSheetForm
+            initialBase={null}
+            initialDraft={seed?.draft}
+            onClose={() => onOpenChange(false)}
+            onSaved={onSaved}
+            onManageFields={onManageFields}
+          />
         )}
       </ElevatedSheetContent>
     </ElevatedSheet>
@@ -163,11 +179,13 @@ interface Finished {
 
 function LeadSheetForm({
   initialBase,
+  initialDraft,
   onClose,
   onSaved,
   onManageFields,
 }: {
   initialBase: LeadRecord | null;
+  initialDraft?: LeadSheetDraft;
   onClose: () => void;
   onSaved?: (lead: LeadRecord) => void;
   onManageFields?: () => void;
@@ -177,7 +195,7 @@ function LeadSheetForm({
   const { can, currentWorkspace } = useWorkspace();
   const client = useQueryClient();
   const [base, setBase] = useState<LeadRecord | null>(initialBase);
-  const [draft, setDraft] = useState<LeadSheetDraft>(() => (initialBase ? draftFromRecord(initialBase) : emptyLeadDraft()));
+  const [draft, setDraft] = useState<LeadSheetDraft>(() => (initialBase ? draftFromRecord(initialBase) : (initialDraft ?? emptyLeadDraft())));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [identityRefusal, setIdentityRefusal] = useState<IdentityRefusal | null>(null);
   const [conflict, setConflict] = useState<Conflict | null>(null);
@@ -185,6 +203,9 @@ function LeadSheetForm({
   const [rebased, setRebased] = useState(false);
   const [saving, setSaving] = useState(false);
   const [finished, setFinished] = useState<Finished | null>(null);
+  const [relativeSignUp, setRelativeSignUp] = useState<RelativeSignUp | null>(null);
+  const scope = useId();
+  const fieldId = (name: string) => `${scope}-${name}`;
 
   const readsAddresses = can("leads", "read_addresses");
   const canAssign = can("leads", "assign");
@@ -300,8 +321,9 @@ function LeadSheetForm({
   }
 
   return (
-    <>
+    <SheetScope.Provider value={scope}>
       <div className="flex-1 overflow-y-auto">
+        <SheetSectionNav />
         {conflict ? (
           <ConflictBanner
             current={conflict.current}
@@ -329,9 +351,9 @@ function LeadSheetForm({
           </div>
         ) : null}
 
-        <SheetSection icon={<IdentificationCard />} title={t("identity.title")}>
+        <SheetSection icon={<IdentificationCard />} title={t("identity.title")} anchor="identity">
           <ElevatedInput
-            id="lead-sheet-name"
+            id={fieldId("name")}
             label={t("identity.name")}
             variant="outline"
             controlSize="sm"
@@ -345,7 +367,7 @@ function LeadSheetForm({
           />
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <ElevatedInput
-              id="lead-sheet-nickname"
+              id={fieldId("nickname")}
               label={t("identity.nickname")}
               variant="outline"
               controlSize="sm"
@@ -358,7 +380,7 @@ function LeadSheetForm({
             />
             <div className="space-y-1">
               <ElevatedDatePicker
-                id="lead-sheet-birth-date"
+                id={fieldId("birth-date")}
                 label={t("identity.birthDate")}
                 value={draft.birthDate}
                 hasError={!!errors.birthDate}
@@ -368,7 +390,7 @@ function LeadSheetForm({
               {errors.birthDate ? <SheetHint tone="error">{errors.birthDate}</SheetHint> : null}
             </div>
             <ElevatedInput
-              id="lead-sheet-email"
+              id={fieldId("email")}
               label={t("identity.email")}
               variant="outline"
               controlSize="sm"
@@ -423,6 +445,7 @@ function LeadSheetForm({
           canLink={canLink}
           canCreateRelative={canCreateRelative}
           hasPrimaryAddress={draft.addresses.some((address) => address.primary)}
+          onSignUpRelative={canCreateRelative ? setRelativeSignUp : undefined}
         />
 
         <OwnerSection
@@ -462,7 +485,23 @@ function LeadSheetForm({
           onClick={() => void save()}
         />
       </div>
-    </>
+
+      {relativeSignUp ? (
+        <LeadSheet
+          open
+          onOpenChange={(open) => {
+            if (!open) setRelativeSignUp(null);
+          }}
+          seed={{
+            draft: relativeSignUp.draft,
+            title: t("relative.title", { kind: t(`family.kinds.${relativeSignUp.kind}`) }),
+            description: t("relative.description"),
+          }}
+          onSaved={(relative) => update((current) => withLinkedRelative(current, relativeSignUp.kind, relative))}
+          onManageFields={onManageFields}
+        />
+      ) : null}
+    </SheetScope.Provider>
   );
 }
 

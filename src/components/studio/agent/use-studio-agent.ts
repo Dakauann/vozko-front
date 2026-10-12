@@ -5,29 +5,39 @@ import { useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { usePublishAssistantContext } from "@/components/ai-chat/assistant-context";
-import { useScreenHandler } from "@/components/ai-chat/screen-bridge";
+import { useScreenHandler, useScreenReveal, type ScreenReveal } from "@/components/ai-chat/screen-bridge";
 import type { ScreenHandler } from "@/lib/aichat/screen";
 import type { StudioProjectKind } from "@/lib/aichat/types";
 
+import type { LibraryLookup } from "@/lib/studio/agent/element-ops";
+
+import { libraryItems } from "../library/registry";
+import { useLibraryAssetImport } from "../library/asset-importer";
+import { useLibraryText } from "../library/use-library-text";
 import { createAgentPresence, type AgentPresence } from "./presence";
 
 export interface StudioAgentKit {
   presence: AgentPresence;
   label: (action: string) => string;
   reduceMotion: () => boolean;
+  library: () => Promise<LibraryLookup>;
 }
 
 export function useStudioAgentKit(): StudioAgentKit {
   const t = useTranslations("studio.agent.actions");
+  const text = useLibraryText();
+  useLibraryAssetImport();
   const [presence] = useState(() => createAgentPresence());
   const reduced = useReducedMotion();
   const reducedRef = useRef(Boolean(reduced));
   const translate = useRef(t);
+  const libraryText = useRef(text);
 
   useEffect(() => {
     reducedRef.current = Boolean(reduced);
     translate.current = t;
-  }, [reduced, t]);
+    libraryText.current = text;
+  }, [reduced, t, text]);
 
   useEffect(() => () => presence.dispose(), [presence]);
 
@@ -36,12 +46,14 @@ export function useStudioAgentKit(): StudioAgentKit {
       presence,
       label: (action: string) => (translate.current.has(action) ? translate.current(action) : translate.current("working")),
       reduceMotion: () => reducedRef.current,
+      library: async () => ({ items: await libraryItems(), text: (label) => libraryText.current.label(label), locale: libraryText.current.locale }),
     }),
     [presence],
   );
 }
 
-export function useStudioAgent(projectId: string, kind: StudioProjectKind, projectName: string, handler: ScreenHandler) {
+export function useStudioAgent(projectId: string, kind: StudioProjectKind, projectName: string, handler: ScreenHandler, reveal: ScreenReveal) {
   usePublishAssistantContext({ kind: "studio", view: { surface: "studio", projectId, projectKind: kind }, projectName });
   useScreenHandler(projectId, handler);
+  useScreenReveal(projectId, reveal);
 }

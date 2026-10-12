@@ -42,8 +42,8 @@ describe("video scene", () => {
     const d = film();
     d.tracks[2].clips = [{ ...newMediaClip("video", "next", 2500, 1000), id: "next" }];
     expect(videoSources(videoScene(d, visualPlan(d, 1000)))).toEqual([
-      { source: { kind: "video", clipId: "clip", assetId: "vid", sourceMs: 1500 }, visible: true },
-      { source: { kind: "video", clipId: "next", assetId: "next", sourceMs: 0 }, visible: false },
+      { source: { kind: "video", clipId: "clip", assetId: "vid", sourceMs: 1500, speed: 1, backward: false }, visible: true },
+      { source: { kind: "video", clipId: "next", assetId: "next", sourceMs: 0, speed: 1, backward: false }, visible: false },
     ]);
   });
 

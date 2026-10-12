@@ -5,7 +5,8 @@ import { FILTER_PRESETS } from "../image-edits";
 import { documentIssue } from "../validate";
 import { planBatch } from "./batch";
 import { VECTOR_PRESETS } from "../vector-presets";
-import { applyImageOperation, IMAGE_ID_FIELDS, type ImageOpContext, type ImageOperation } from "./image-ops";
+import { applyImageOperation, autoKeySources, IMAGE_ID_FIELDS, type ImageOpContext, type ImageOperation } from "./image-ops";
+import { imageOutline } from "./outline";
 
 function doc(): ImageDocument {
   const main: Artboard = {
@@ -32,6 +33,7 @@ const ctx: ImageOpContext = {
   naturalSize: (id) => (id === "photo" ? { width: 2000, height: 1000 } : undefined),
   icons: ["heart", "star", "fire"],
   activeArtboard: "main",
+  keyColor: (layer) => (layer.assetId === "photo" && !layer.crop ? "#2fbf4a" : undefined),
 };
 
 function run(ops: ImageOperation[], base: ImageDocument = doc()) {
@@ -351,12 +353,19 @@ describe("advanced image editing", () => {
     expect(refusal([{ op: "update_layer", layer_id: "bg", italic: true }])).toContain("italic só vale para camadas de texto");
   });
 
-  it("adds an icon from the catalog and lists the real ones when it does not exist", () => {
+  it("says a ref only names what an operation creates when it is used to target an existing layer", () => {
+    const reason = refusal([{ op: "update_layer", ref: "sub_topo", x: 0.5, y: 0.05 }]);
+    expect(reason).toContain('"sub_topo"');
+    expect(reason).toContain("use layer_id com o id que created devolveu para essa ref");
+    expect(refusal([{ op: "update_layer", x: 0.5 }])).toBe("informe layer_id ou layer_ids");
+  });
+
+  it("adds an icon from the catalog and suggests the closest real ones when it does not exist", () => {
     const plan = run([{ op: "add_icon", ref: "i", icon_id: "heart", fill: "#ff3366", x: 0.8, y: 0.2, w: 0.1, h: 0.1 }]);
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
     expect(layerById(plan.final, plan.created.i[0])).toMatchObject({ type: "icon", iconId: "heart", fill: "#ff3366" });
-    expect(refusal([{ op: "add_icon", icon_id: "unicorn" }])).toContain("heart, star, fire");
+    expect(refusal([{ op: "add_icon", icon_id: "hearts" }])).toMatch(/do catálogo, parecidos: heart[,)]/);
   });
 
   it("paints the art background with a radial gradient and goes back to a solid color", () => {
@@ -366,6 +375,108 @@ describe("advanced image editing", () => {
     expect(main(flat).canvas.gradient).toBeUndefined();
     expect(main(flat).canvas.background).toBe("#111111");
     expect(main(done([{ op: "update_artboard", background: "transparent" }])).canvas.background).toBe("");
+  });
+});
+
+describe("svg import", () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="40" fill="#ff0000"/><circle cx="50" cy="75" r="20" fill="#0000ff"/></svg>';
+
+  it("turns svg markup into editable vector layers in the box it is given", () => {
+    const next = done([{ op: "import_svg", ref: "logo", svg, name: "Logo", x: 0.25, y: 0.25, w: 0.3, h: 0.3 }]);
+    const imported = main(next).layers.filter((l) => l.type === "shape" && l.shape === "path");
+    expect(imported).toHaveLength(2);
+    expect(imported.every((l) => l.groupId === imported[0].groupId)).toBe(true);
+    expect(imported[0].fill).toBe("#ff0000");
+    const box = imported.map((l) => l.transform.x);
+    expect(Math.min(...box)).toBeGreaterThan(0.1);
+    expect(Math.max(...box)).toBeLessThan(0.4);
+  });
+
+  it("explains svg it cannot read", () => {
+    const broken = run([{ op: "import_svg", svg: "<svg><rect" }]);
+    expect(broken.ok).toBe(false);
+    if (!broken.ok) expect(broken.reason).toContain("svg");
+    const empty = run([{ op: "import_svg", svg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>' }]);
+    expect(empty.ok).toBe(false);
+  });
+});
+
+describe("color correction", () => {
+  it("grades a photo with a look and values, and refuses texts and values out of range", () => {
+    const next = done([
+      { op: "add_image", ref: "p", media_id: "photo" },
+      { op: "set_color", layer_id: "@p", look: "warm", look_intensity: 0.5, color_grade: { exposure: 0.4 } },
+    ]);
+    const photo = main(next).layers.find((l) => l.type === "image")!;
+    expect(photo.color).toEqual({ temperature: 17.5, tint: 2.5, vibrance: 5, exposure: 0.4 });
+    const text = run([{ op: "set_color", layer_id: "title", color_grade: { exposure: 1 } }]);
+    expect(text.ok).toBe(false);
+    if (!text.ok) expect(text.reason).toContain("imagem");
+    const range = run([{ op: "add_image", ref: "p", media_id: "photo" }, { op: "set_color", layer_id: "@p", color_grade: { saturation: 300 } }]);
+    expect(range.ok).toBe(false);
+    if (!range.ok) expect(range.reason).toContain("color_grade.saturation");
+    const reset = done([{ op: "add_image", ref: "p", media_id: "photo" }, { op: "set_color", layer_id: "@p", look: "mono" }, { op: "set_color", layer_id: "@p", reset_color: true }]);
+    expect(main(reset).layers.find((l) => l.type === "image")!.color).toBeUndefined();
+  });
+});
+
+describe("chroma key on image layers", () => {
+  const photoOf = (d: ImageDocument) => main(d).layers.find((l) => l.type === "image")!;
+
+  it("keys a green screen photo, tunes it, reads it back and removes it", () => {
+    const keyed = done([
+      { op: "add_image", ref: "p", media_id: "photo" },
+      { op: "set_chroma_key", layer_id: "@p", chroma_preset: "green", similarity: 0.3 },
+    ]);
+    expect(photoOf(keyed).chromaKey).toEqual({ color: "#00ff00", similarity: 0.3, smoothness: 0.08, spill: 0.1 });
+    const outline = imageOutline(keyed, { detail: "full", asset: () => undefined, icons: [], playheadMs: 0, selection: [], jobs: [], activeArtboard: "main" });
+    expect(JSON.stringify(outline)).toContain('"chroma_key":{"color":"#00ff00","similarity":0.3,"smoothness":0.08,"spill":0.1}');
+    const tuned = done([{ op: "set_chroma_key", layer_id: photoOf(keyed).id, spill: 0.4, chroma_color: "#20C040" }], keyed);
+    expect(photoOf(tuned).chromaKey).toMatchObject({ color: "#20c040", similarity: 0.3, spill: 0.4 });
+    const removed = done([{ op: "remove_chroma_key", layer_id: photoOf(keyed).id }], keyed);
+    expect(photoOf(removed).chromaKey).toBeUndefined();
+  });
+
+  it("detects the screen color for chroma_preset auto before the batch commits", () => {
+    const keyed = done([
+      { op: "add_image", ref: "p", media_id: "photo" },
+      { op: "set_chroma_key", layer_id: "@p", chroma_preset: "auto" },
+    ]);
+    expect(photoOf(keyed).chromaKey?.color).toBe("#2fbf4a");
+    const cropped = run([
+      { op: "add_image", ref: "p", media_id: "photo" },
+      { op: "update_layer", layer_id: "@p", crop: { x: 0.1, y: 0, w: 0.5, h: 1 } },
+      { op: "set_chroma_key", layer_id: "@p", chroma_preset: "auto" },
+    ]);
+    expect(cropped.ok).toBe(false);
+    if (!cropped.ok) expect(cropped.reason).toContain("chroma_color");
+  });
+
+  it("names the pictures to sample before a batch that asks for auto", () => {
+    const base = done([{ op: "add_image", ref: "p", media_id: "photo" }]);
+    const existing = photoOf(base);
+    const sources = autoKeySources(base, [
+      { op: "add_image", ref: "q", media_id: "studio-shot" },
+      { op: "set_chroma_key", layer_ids: ["@q", existing.id], chroma_preset: "auto" },
+      { op: "set_chroma_key", layer_id: existing.id, chroma_preset: "auto", chroma_color: "#00ff00" },
+      { op: "set_chroma_key", layer_id: "title", chroma_preset: "auto" },
+    ]);
+    expect([...sources.entries()]).toEqual([
+      ["studio-shot", { assetId: "studio-shot" }],
+      ["photo", { assetId: "photo" }],
+    ]);
+    expect(autoKeySources(base, [{ op: "set_chroma_key", layer_id: existing.id, chroma_preset: "green" }]).size).toBe(0);
+  });
+
+  it("refuses layers that are not images and values out of range", () => {
+    const text = run([{ op: "set_chroma_key", layer_id: "title", chroma_preset: "green" }]);
+    expect(text.ok).toBe(false);
+    if (!text.ok) expect(text.reason).toContain("imagem");
+    const range = run([{ op: "add_image", ref: "p", media_id: "photo" }, { op: "set_chroma_key", layer_id: "@p", spill: 3 }]);
+    expect(range.ok).toBe(false);
+    if (!range.ok) expect(range.reason).toContain("spill");
+    const bare = run([{ op: "add_image", ref: "p", media_id: "photo" }, { op: "remove_chroma_key", layer_id: "@p" }]);
+    expect(bare.ok).toBe(false);
   });
 });
 
@@ -438,5 +549,139 @@ describe("artboards", () => {
     const plan = run([{ op: "select", artboard_id: "main" }]);
     if (!plan.ok) throw new Error(plan.reason);
     expect(plan.steps[0].select).toEqual(["main"]);
+  });
+});
+
+describe("patterns, gradient maps, paint lists and effects", () => {
+  it("fills a shape with a pattern, tunes it in a second edit and takes it off", () => {
+    const first = done([{ op: "update_layer", layer_id: "bg", pattern: { preset: "stripes", color: "#ff0000", tile: "brick-row", size: 24, angle: 45 } }]);
+    expect(layerById(first, "bg")!.pattern).toEqual({ source: "preset", presetId: "stripes", color: "#ff0000", background: "", tile: "brick-row", size: 24, offset: 0.5, angle: 45, opacity: 1 });
+    const tuned = done([{ op: "update_layer", layer_id: "bg", pattern: { size: 40, spacing_x: 8 } }], first);
+    expect(layerById(tuned, "bg")!.pattern).toMatchObject({ presetId: "stripes", size: 40, spacing: { x: 8, y: 0 }, angle: 45 });
+    const cleared = done([{ op: "update_layer", layer_id: "bg", clear: ["pattern"] }], tuned);
+    expect(layerById(cleared, "bg")!.pattern).toBeUndefined();
+  });
+
+  it("tiles a library image as a pattern and refuses one that is not in the library", () => {
+    const tiled = done([{ op: "update_layer", layer_id: "bg", pattern: { media_id: "photo", size: 100 } }]);
+    expect(layerById(tiled, "bg")!.pattern).toMatchObject({ source: "asset", assetId: "photo", size: 100 });
+    expect(layerById(tiled, "bg")!.pattern?.color).toBeUndefined();
+    const plan = run([{ op: "update_layer", layer_id: "bg", pattern: { media_id: "ghost" } }]);
+    expect(plan.ok ? "" : plan.reason).toContain("ghost não está na biblioteca");
+  });
+
+  it("explains a pattern out of range, an offset on a grid and a pattern next to a gradient", () => {
+    const reason = (ops: ImageOperation[]) => {
+      const plan = run(ops);
+      return plan.ok ? "" : plan.reason;
+    };
+    expect(reason([{ op: "update_layer", layer_id: "bg", pattern: { size: 1 } }])).toContain("pattern.size vai de 2 a 4096");
+    expect(reason([{ op: "update_layer", layer_id: "bg", pattern: { tile: "grid", offset: 0.3 } }])).toContain("pattern.offset vale só para tile brick-row ou brick-column");
+    expect(reason([{ op: "update_layer", layer_id: "bg", gradient: { from: "#000000", to: "#ffffff" }, pattern: { preset: "dots" } }])).toContain("mande fills");
+    expect(reason([{ op: "update_layer", layer_id: "bg", pattern: { preset: "plaid" } }])).toContain("pattern.preset precisa ser um de");
+  });
+
+  it("maps a photo with a duotone preset, then with its own stops, and ignores the map on text", () => {
+    const plan = run([
+      { op: "add_image", ref: "p", media_id: "photo" },
+      { op: "update_layer", layer_id: "@p", gradient_map: { preset: "neon", intensity: 0.7 } },
+      { op: "update_layer", layer_ids: ["@p", "title"], gradient_map: { stops: [{ at: 0, color: "#000000" }, { at: 0.5, color: "#ff0000" }, { at: 1, color: "#ffffff" }], interpolation: "srgb" } },
+    ]);
+    if (!plan.ok) throw new Error(plan.reason);
+    const photo = layerById(plan.final, plan.created.p[0])!;
+    expect(photo.gradientMap).toEqual({ stops: [{ at: 0, color: "#000000" }, { at: 0.5, color: "#ff0000" }, { at: 1, color: "#ffffff" }], intensity: 0.7, interpolation: "srgb" });
+    expect(layerById(plan.final, "title")!.gradientMap).toBeUndefined();
+    expect(documentIssue("image", plan.final)).toBeNull();
+    const unknown = run([{ op: "add_image", ref: "p", media_id: "photo", gradient_map: { preset: "rainbow" } }]);
+    expect(unknown.ok ? "" : unknown.reason).toContain("gradient_map.preset precisa ser um de");
+  });
+
+  it("stacks fills, strokes and effects on a title and edits one effect by its id", () => {
+    const styled = done([
+      {
+        op: "update_layer",
+        layer_id: "title",
+        fills: [{ color: "#ffffff" }, { gradient: { from: "#ffffff00", to: "#ffd16680", angle: 90 }, opacity: 0.5, blend_mode: "overlay" }],
+        strokes: [{ color: "#e4003a", width: 6 }, { color: "#111111", width: 14, align: "center", dash_array: [2, 1] }],
+        effects: [{ type: "outer-glow", color: "#ff2d75", blur: 24 }, { type: "drop-shadow", y: 8 }],
+      },
+    ]);
+    const title = layerById(styled, "title")!;
+    expect(title.fill).toBeUndefined();
+    expect(title.fills).toEqual([{ type: "solid", color: "#ffffff", opacity: 1 }, { type: "gradient", gradient: { from: "#ffffff00", to: "#ffd16680", angle: 90 }, opacity: 0.5, blendMode: "overlay" }]);
+    expect(title.strokes).toEqual([{ type: "solid", color: "#e4003a", opacity: 1, width: 6, align: "outside" }, { type: "solid", color: "#111111", opacity: 1, width: 14, align: "center", dashArray: [2, 1] }]);
+    expect(title.effects?.map((e) => [e.type, e.opacity, e.blur])).toEqual([["outer-glow", 0.75, 24], ["drop-shadow", 0.4, 12]]);
+    const glow = title.effects![0].id;
+    const tuned = done([{ op: "update_layer", layer_id: "title", effects: [{ id: glow, blur: 30 }] }], styled);
+    expect(layerById(tuned, "title")!.effects).toEqual([{ ...title.effects![0], blur: 30 }]);
+  });
+
+  it("refuses mixing the single paint with the lists and explains effect fields that do not apply", () => {
+    const reason = (ops: ImageOperation[], base?: ImageDocument) => {
+      const plan = run(ops, base);
+      return plan.ok ? "" : plan.reason;
+    };
+    expect(reason([{ op: "update_layer", layer_id: "title", fill: "#000000", fills: [{ color: "#ffffff" }] }])).toContain("use fills ou fill");
+    const listed = done([{ op: "update_layer", layer_id: "title", fills: [{ color: "#ffffff" }], effects: [{ type: "drop-shadow" }] }]);
+    expect(reason([{ op: "update_layer", layer_id: "title", fill: "#000000" }], listed)).toContain("a camada usa fills");
+    expect(reason([{ op: "update_layer", layer_id: "title", shadow: { blur: 4 } }], listed)).toContain("a camada usa effects");
+    expect(reason([{ op: "update_layer", layer_id: "title", effects: [{ type: "outer-glow", blend_mode: "screen" }] }])).toContain("blend_mode vale só para inner-shadow e inner-glow");
+    expect(reason([{ op: "update_layer", layer_id: "title", effects: [{ type: "outer-glow", show_behind: true }] }])).toContain("show_behind vale só para drop-shadow");
+    expect(reason([{ op: "update_layer", layer_id: "title", effects: [{ type: "bevel" }] }])).toContain("effects[0].type precisa ser um de");
+    expect(reason([{ op: "update_layer", layer_id: "title", fills: [{ color: "#ffffff", pattern: { preset: "dots" } }] }])).toContain("exatamente um entre color, gradient e pattern");
+    expect(reason([{ op: "update_layer", layer_id: "title", strokes: [{ color: "#000000", width: 300 }] }])).toContain("strokes[0].width vai de 0 a 200");
+  });
+
+  it("outlines a picture with a traced stroke and a soft inner glow", () => {
+    const plan = run([
+      { op: "add_image", ref: "p", media_id: "photo", strokes: [{ color: "#ffffff", width: 10 }], effects: [{ type: "inner-glow", color: "#ffd166", source: "center" }] },
+    ]);
+    if (!plan.ok) throw new Error(plan.reason);
+    const photo = layerById(plan.final, plan.created.p[0])!;
+    expect(photo.strokes).toEqual([{ type: "solid", color: "#ffffff", opacity: 1, width: 10, align: "outside" }]);
+    expect(photo.effects?.[0]).toMatchObject({ type: "inner-glow", color: "#ffd166", source: "center", blendMode: "screen" });
+    const inside = run([{ op: "add_image", media_id: "photo", strokes: [{ color: "#ffffff", width: 10, align: "inside" }] }]);
+    expect(inside.ok ? "" : inside.reason).toContain("o contorno segue a silhueta");
+  });
+});
+
+describe("repeat", () => {
+  it("repeats a petal radially in one call, tunes it and reads it back", () => {
+    const plan = run([
+      { op: "add_shape", ref: "petal", shape: "ellipse", x: 0.5, y: 0.3, w: 0.04, h: 0.1 },
+      { op: "repeat_layers", ref: "flower", layer_ids: ["@petal"], repeat: { mode: "radial", count: 12 } },
+      { op: "set_repeat", group_id: "@flower", repeat: { radius: 150, upright: true } },
+    ]);
+    if (!plan.ok) throw new Error(plan.reason);
+    const group = main(plan.final).groups?.find((g) => g.id === plan.created.flower[0]);
+    expect(group?.repeat).toEqual({ mode: "radial", count: 12, radius: 150, startAngle: -90, upright: true });
+    expect(documentIssue("image", plan.final)).toBeNull();
+    const outline = imageOutline(plan.final, { detail: "summary", asset: () => undefined, playheadMs: 0, selection: [], jobs: [], activeArtboard: "main" });
+    expect(outline.artboards[0].groups.find((g) => g.id === group?.id)?.repeat).toEqual({ mode: "radial", count: 12, radius: 150, start_angle: -90, upright: true });
+  });
+
+  it("switches mode, expands into layers and clears", () => {
+    const grid = done([{ op: "repeat_layers", layer_ids: ["bg", "title"], repeat: { mode: "grid", rows: 1, columns: 2, gap_x: 10, layout: "brick-row" } }]);
+    const groupId = main(grid).groups![0].id;
+    expect(main(grid).groups![0].repeat).toEqual({ mode: "grid", rows: 1, columns: 2, gapX: 10, layout: "brick-row", offset: 0.5 });
+    const mirrored = done([{ op: "set_repeat", group_id: groupId, repeat: { mode: "mirror", angle: 0 } }], grid);
+    expect(main(mirrored).groups![0].repeat).toEqual({ mode: "mirror", angle: 0 });
+    const expanded = done([{ op: "expand_repeat", group_id: groupId }], mirrored);
+    expect(main(expanded).layers.length).toBe(main(mirrored).layers.length + 2);
+    const cleared = done([{ op: "clear_repeat", group_id: groupId }], grid);
+    expect(main(cleared).groups?.[0]?.repeat).toBeUndefined();
+  });
+
+  it("explains fields of another mode, nested repeats and missing groups", () => {
+    const reason = (ops: ImageOperation[], base?: ImageDocument) => {
+      const result = run(ops, base);
+      return result.ok ? "" : result.reason;
+    };
+    expect(reason([{ op: "repeat_layers", layer_ids: ["bg"], repeat: { mode: "mirror", rows: 2 } }])).toContain("repeat.rows não vale para mode mirror");
+    expect(reason([{ op: "repeat_layers", layer_ids: ["bg"], repeat: { mode: "radial", count: 1 } }])).toContain("repeat.count é um número inteiro a partir de 2");
+    expect(reason([{ op: "repeat_layers", layer_ids: ["bg"], repeat: { mode: "grid", rows: 1, columns: 1 } }])).toContain("pelo menos 2");
+    expect(reason([{ op: "set_repeat", group_id: "ghost", repeat: { mode: "mirror" } }])).toContain("o grupo ghost não existe");
+    const grouped = done([{ op: "repeat_layers", layer_ids: ["bg", "title"], repeat: { mode: "mirror" } }]);
+    expect(reason([{ op: "repeat_layers", layer_ids: ["bg"], repeat: { mode: "radial" } }], grouped)).toContain("repetição dentro de repetição");
   });
 });

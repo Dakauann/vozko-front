@@ -5,6 +5,7 @@ import type { ChatMessage, PendingAction } from "./types";
 export type UIMessage = ChatMessage & {
   segments?: Segment[];
   pending?: PendingAction | null;
+  clientId?: string;
 };
 
 export function hydrate(m: ChatMessage): UIMessage {

@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ptMessages from "@/i18n/messages/pt.json";
-import type { AdsOptions, MetaAdDraft } from "@/lib/advertising/draft-types";
+import type { AdMediaRef, AdsOptions, MetaAdDraft } from "@/lib/advertising/draft-types";
 import type { AdAccount, AdRow } from "@/lib/advertising/types";
 
 import { CreateCampaignDialog } from "./create-campaign-dialog";
@@ -85,13 +85,13 @@ vi.mock("@/app/actions/advertising-drafts", () => ({
   createAdDraftAction: (draft: MetaAdDraft) => createMock(draft),
 }));
 
-function renderDialog(initialParent?: { campaignId?: string; adSetId?: string }): void {
+function renderDialog(initialParent?: { campaignId?: string; adSetId?: string }, initialMedia?: AdMediaRef): void {
   const strict = (error: { code: string; message: string }) => {
     throw new Error(`${error.code}: ${error.message}`);
   };
   render(
     <NextIntlClientProvider locale="pt" messages={ptMessages} onError={strict}>
-      <CreateCampaignDialog open onOpenChange={() => undefined} accounts={[account]} accountId="acc-1" initialParent={initialParent} />
+      <CreateCampaignDialog open onOpenChange={() => undefined} accounts={[account]} accountId="acc-1" initialParent={initialParent} initialMedia={initialMedia} />
     </NextIntlClientProvider>,
   );
 }
@@ -160,5 +160,26 @@ describe("CreateCampaignDialog", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Continuar" }));
     expect(await within(dialog).findByText("Falhou")).toBeTruthy();
     expect(pushMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("CreateCampaignDialog with a creative chosen in the editor", () => {
+  beforeEach(() => {
+    createMock.mockReset();
+    createMock.mockResolvedValue({ data: { id: "d-9" } });
+    pushMock.mockReset();
+  });
+
+  it("says the exported video goes into the ad and puts it in the draft", async () => {
+    renderDialog(undefined, { kind: "video", mediaId: "m-7" });
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(ptMessages.adFromMedia.chosen.video)).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("radio", { name: "Engajamento" }));
+    const next = within(dialog).getByRole("button", { name: "Continuar" });
+    await waitFor(() => expect(next).toHaveProperty("disabled", false));
+    fireEvent.click(next);
+    await waitFor(() => expect(createMock).toHaveBeenCalledTimes(1));
+    const draft = createMock.mock.calls[0][0] as MetaAdDraft;
+    expect(draft.ads[0].creative).toMatchObject({ format: "VIDEO", media: { kind: "video", mediaId: "m-7" } });
   });
 });

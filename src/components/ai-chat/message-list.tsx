@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ArrowsLeftRight,
   ArrowSquareOut,
+  ArrowUpRight,
   Brain,
   Buildings,
   Calculator,
@@ -65,6 +66,7 @@ import {
   Queue,
   ShieldCheck,
   Sparkle,
+  SpeakerHigh,
   Tag,
   TagSimple,
   TelegramLogo,
@@ -86,6 +88,7 @@ import { ChatMarkdown } from "@/components/elevated-design/chat-markdown";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ModelBrandIcon } from "@/components/elevated-design/model-brand-icon";
 import { EloAvatar } from "./elo-mark";
+import { useLookStep } from "./look-step";
 import { hasProposalPreview, ProposalPreview } from "@/components/ai-chat/proposal-preview";
 import { ActionCardView } from "@/components/ai-chat/action-card";
 import { GeneratingMedia } from "@/components/media-generation/generating-media";
@@ -110,6 +113,7 @@ import { AttachmentChip } from "./attachment-chip";
 import { ChatChartView } from "./chat-chart";
 import { ChatMediaView } from "./chat-media";
 import { isThinkingBetweenSteps, layoutSegments, type Block } from "@/lib/aichat/segments";
+import { subjectLabelOf } from "@/lib/aichat/subject-label";
 import type { UIMessage } from "@/lib/aichat/ui-message";
 
 const TOOL_ICON: Record<string, Icon> = {
@@ -255,12 +259,15 @@ const TOOL_ICON: Record<string, Icon> = {
   load_skill: GraduationCap,
   studio_read: MagnifyingGlass,
   studio_look: Eye,
+  studio_listen: Waveform,
+  studio_library_search: MagnifyingGlass,
   studio_edit_video: FilmStrip,
   studio_edit_image: PaintBrush,
   studio_start_job: Queue,
   studio_jobs: Queue,
   studio_generate_music: Waveform,
   studio_generate_voiceover: Microphone,
+  studio_generate_sfx: SpeakerHigh,
   studio_generate_image: ImageGlyph,
   studio_ask: Question,
   diagnose_access: ShieldCheck,
@@ -330,10 +337,7 @@ export function useBubbleLabels(): BubbleLabels {
   );
   const tSubjects = useTranslations("aiChatPage.subjects");
   const subjectLabel = useCallback(
-    (subject: ToolSubject) => {
-      const key = `${subject.kind}.${subject.key}`;
-      return tSubjects.has(key) ? tSubjects(key) : subject.label;
-    },
+    (subject: ToolSubject) => subjectLabelOf(subject, (key) => (tSubjects.has(key) ? tSubjects(key) : null)),
     [tSubjects],
   );
   const tFields = useTranslations("aiChatPage.fields");
@@ -548,23 +552,39 @@ function ToolLine({
 }) {
   const note = toolNote(summary, ok, labels);
   const TileIcon = TOOL_ICON[name] ?? Wrench;
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-2 text-xs",
-        ok ? "text-muted-foreground" : "text-destructive-ink",
-      )}
-    >
+  const look = useLookStep(running ? undefined : subject);
+  const tone = cn("flex items-center gap-2 text-xs", ok ? "text-muted-foreground" : "text-destructive-ink");
+  const content = (
+    <>
       {running ? (
         <CircleNotch weight="bold" className="h-3.5 w-3.5 flex-shrink-0 animate-spin motion-reduce:animate-none" aria-hidden />
       ) : (
         <TileIcon weight="bold" className="h-3.5 w-3.5 flex-shrink-0" />
       )}
-      <span className={cn("flex-shrink-0", running && "text-foreground")}>{labels.toolLabel(name)}</span>
-      {subject ? <span className="min-w-0 truncate font-medium text-foreground">· {labels.subjectLabel(subject)}</span> : null}
+      {look ? (
+        <span className="min-w-0 truncate">{look.title}</span>
+      ) : (
+        <span className={cn("flex-shrink-0", running && "text-foreground")}>{labels.toolLabel(name)}</span>
+      )}
+      {subject && !look ? <span className="min-w-0 truncate font-medium text-foreground">· {labels.subjectLabel(subject)}</span> : null}
       {running ? null : note ? <span className="truncate opacity-80">· {note}</span> : null}
-    </div>
+    </>
   );
+  if (look?.reveal) {
+    return (
+      <button
+        type="button"
+        onClick={look.reveal}
+        title={look.hint}
+        aria-label={`${look.title}. ${look.hint}`}
+        className={cn(tone, "group -mx-1 max-w-full rounded-[--radius] px-1 text-left transition-colors duration-DEFAULT hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}
+      >
+        {content}
+        <ArrowUpRight weight="bold" aria-hidden className="h-3 w-3 flex-shrink-0 opacity-60 transition-opacity duration-DEFAULT group-hover:opacity-100" />
+      </button>
+    );
+  }
+  return <div className={tone}>{content}</div>;
 }
 
 function ApprovalCard({
@@ -704,6 +724,7 @@ const CHOICE_MODEL_KIND: Record<ChoiceKind, ModelKind> = {
   image_model: "image",
   music_model: "music",
   voice_model: "voice",
+  sfx_model: "sfx",
 };
 
 function CardChoice({

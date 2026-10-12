@@ -9,6 +9,9 @@ describe("mediaDownloadName", () => {
     );
     expect(mediaDownloadName("Promoção de Inverno", "image/png")).toBe("promocao-de-inverno.png");
     expect(mediaDownloadName("Card", "image/webp; charset=binary")).toBe("card.webp");
+    expect(mediaDownloadName("Folheto", "application/pdf")).toBe("folheto.pdf");
+    expect(mediaDownloadName("Logo", "image/svg+xml")).toBe("logo.svg");
+    expect(mediaDownloadName("Vinheta", "video/mp4")).toBe("vinheta.mp4");
   });
 
   it("keeps long prompts short without a trailing dash", () => {

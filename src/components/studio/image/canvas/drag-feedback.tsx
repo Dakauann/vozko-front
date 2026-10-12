@@ -3,11 +3,11 @@
 import { Group, Line, Rect } from "react-konva";
 
 import { artboardById } from "@/lib/studio/artboards";
+import { SNAP_GUIDE_COLOR as GUIDE_COLOR } from "@/lib/studio/snapping";
 
 import { useEditorUi, useImageDoc } from "../editor-state";
 import { LayerOutline, SELECTION_COLOR } from "./artboard-view";
 
-const GUIDE_COLOR = "#e11d74";
 const MARQUEE_FILL = "rgba(99,102,241,0.08)";
 
 export function DragFeedback() {

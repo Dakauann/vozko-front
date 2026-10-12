@@ -1,5 +1,6 @@
-import { IMAGE_DOCUMENT_VERSION, IMAGE_SCHEMA, STUDIO_LIMITS, type ImageSurface, type Layer, type StudioGroup } from "./document";
+import { IMAGE_DOCUMENT_VERSION, IMAGE_SCHEMA, STUDIO_LIMITS, type Artboard, type ImageSurface, type Layer, type StudioGroup } from "./document";
 import { ancestry, baseOf, familyOf, groupParents } from "./groups";
+import { linksOf, withoutLinks, type StudioStyle } from "./shared-styles";
 import { parseDocument } from "./validate";
 
 export const CLIPBOARD_PREFIX = "vozko-studio-layers:";
@@ -7,6 +8,8 @@ export const CLIPBOARD_PREFIX = "vozko-studio-layers:";
 export interface ClipboardContent {
   layers: Layer[];
   groups: StudioGroup[];
+  components?: Artboard[];
+  styles?: StudioStyle[];
 }
 
 export function clipboardOf(doc: ImageSurface, ids: readonly string[]): ClipboardContent {
@@ -56,7 +59,10 @@ export function decodeClipboard(text: string): ClipboardContent | null {
     return null;
   }
   if (!isRecord(raw) || !Array.isArray(raw.layers) || raw.layers.length === 0) return null;
-  if (Object.keys(raw).some((key) => key !== "layers" && key !== "groups")) return null;
+  if (Object.keys(raw).some((key) => key !== "layers" && key !== "groups" && key !== "components" && key !== "styles")) return null;
+  if ((raw.components !== undefined && !Array.isArray(raw.components)) || (raw.styles !== undefined && !Array.isArray(raw.styles))) return null;
+  const plain = (layer: unknown) => (isRecord(layer) ? withoutLinks(layer as unknown as Layer) : layer);
+  const components = ((raw.components as unknown[] | undefined) ?? []).map((component) => (isRecord(component) && Array.isArray(component.layers) ? { ...component, layers: component.layers.map(plain) } : component));
   const parsed = parseDocument("image", {
     schema: IMAGE_SCHEMA,
     version: IMAGE_DOCUMENT_VERSION,
@@ -66,12 +72,17 @@ export function decodeClipboard(text: string): ClipboardContent | null {
         x: 0,
         y: 0,
         canvas: { width: STUDIO_LIMITS.minCanvasSide, height: STUDIO_LIMITS.minCanvasSide, background: "" },
-        layers: raw.layers,
+        layers: raw.layers.map(plain),
         ...(raw.groups === undefined ? {} : { groups: raw.groups }),
       },
+      ...components,
     ],
+    ...(raw.styles === undefined ? {} : { styles: raw.styles }),
   });
   if (!parsed.ok) return null;
-  const [pasted] = parsed.document.artboards;
-  return { layers: pasted.layers, groups: pasted.groups ?? [] };
+  const [pasted, ...snapshots] = parsed.document.artboards;
+  if (snapshots.some((c) => !c.component)) return null;
+  const layers = pasted.layers.map((layer, i) => ({ ...layer, ...linksOf((raw.layers as unknown[])[i]) }));
+  const styles = parsed.document.styles ?? [];
+  return { layers, groups: pasted.groups ?? [], ...(snapshots.length > 0 ? { components: snapshots } : {}), ...(styles.length > 0 ? { styles } : {}) };
 }

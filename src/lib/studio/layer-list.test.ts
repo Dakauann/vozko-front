@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyArtboard, newIconLayer, newShapeLayer, newTextLayer, type Layer } from "./document";
-import { layerCaption, layerRows, rangeBetween, toggleIn } from "./layer-list";
+import { layerCaption, layerRows, rangeBetween, sameRow, toggleIn } from "./layer-list";
 
 function rect(id: string, groupId?: string): Layer {
   return { ...newShapeLayer("rect"), id, ...(groupId ? { groupId } : {}) };
@@ -81,5 +81,29 @@ describe("layerCaption", () => {
     expect(layerCaption(newTextLayer("  Promoção\nde verão com um título bem longo demais  "))).toEqual({ name: "Promoção de verão com um título…" });
     expect(layerCaption(rect("a"))).toEqual({ kind: "shape.rect" });
     expect(layerCaption(newIconLayer("heart"))).toEqual({ kind: "icon" });
+  });
+});
+
+describe("sameRow", () => {
+  it("treats rows rebuilt from an edited artboard as the same row when nothing about the row changed", () => {
+    const before = layerRows(nested());
+    const moved = nested();
+    const after = layerRows({ ...moved, layers: moved.layers.map((l) => (l.id === "a" ? { ...l, transform: { ...l.transform, x: 0.1 } } : l)) });
+    expect(after.every((row, i) => sameRow(row, before[i]))).toBe(true);
+  });
+
+  it("notices a different position, depth, group or family", () => {
+    const rows = layerRows(nested());
+    const group = rows.find((row) => row.kind === "group")!;
+    const layer = rows.find((row) => row.kind === "layer")!;
+    expect(sameRow(layer, { ...layer, index: layer.index + 1 })).toBe(false);
+    expect(sameRow(layer, { ...layer, depth: layer.depth + 1 })).toBe(false);
+    expect(sameRow(layer, { ...layer, groupId: "elsewhere" })).toBe(false);
+    expect(sameRow(group, { ...group, name: "Outro" })).toBe(false);
+    expect(sameRow(group, { ...group, ids: [...group.ids, "z"] })).toBe(false);
+    expect(sameRow(group, layer)).toBe(false);
+    const family = { kind: "layer" as const, id: "a", index: 0, depth: 0, groupId: "g", family: { scaffoldId: "g", ids: ["a", "b"] } };
+    expect(sameRow(family, { ...family, family: { scaffoldId: "g", ids: ["a", "b"] } })).toBe(true);
+    expect(sameRow(family, { ...family, family: { scaffoldId: "g", ids: ["a", "c"] } })).toBe(false);
   });
 });

@@ -4,13 +4,13 @@ import { useTranslations } from "next-intl";
 
 import { VectorToolIcon } from "@/components/studio/canvas/vector/tool-icons";
 
-import { takesArrowheads } from "@/lib/studio/arrowheads";
+import { endChoice, endPatch, LINE_END_CHOICES, takesArrowheads } from "@/lib/studio/arrowheads";
 import { layerNodeCount } from "@/lib/studio/shape-ops";
-import { STAR_DEFAULTS, type Layer } from "@/lib/studio/document";
+import { POLYGON_DEFAULTS, STAR_DEFAULTS, type Layer } from "@/lib/studio/document";
 import { LAYER_RANGES } from "@/lib/studio/layer-ranges";
 import type { LayerPatch } from "@/lib/studio/layers";
 
-import { ColorField, IconButton, InspectorSection, LABEL_CLASS, NumberField, SliderField, SwitchToggle, ToggleButton } from "../controls";
+import { ColorField, IconButton, InspectorSection, LABEL_CLASS, NumberField, SelectField, SliderField, SwitchToggle } from "../controls";
 import { useImageEditor } from "../editor-state";
 import { useSelectionActions, type MenuAction } from "../selection-actions";
 import { GradientFields, ShadowSection, StrokeStyleFields } from "./effects";
@@ -19,17 +19,13 @@ function isLine(layer: Layer): boolean {
   return layer.shape === "line" || layer.shape === "arrow";
 }
 
-function ArrowheadToggles({ layer, locked, onPatch }: { layer: Layer; locked: boolean; onPatch: (patch: LayerPatch) => void }) {
-  const t = useTranslations("studio.image.inspector.shape");
+function LineEndFields({ layer, locked, onPatch }: { layer: Layer; locked: boolean; onPatch: (patch: LayerPatch) => void }) {
+  const t = useTranslations("studio.lineEnds");
+  const options = LINE_END_CHOICES.map((value) => ({ value, label: t(value) }));
   return (
-    <div role="group" aria-label={t("heads")} className="flex items-center gap-1">
-      <span className={LABEL_CLASS}>{t("heads")}</span>
-      <ToggleButton label={t("headStart")} pressed={Boolean(layer.arrowStart)} disabled={locked} onClick={() => onPatch({ arrowStart: layer.arrowStart ? undefined : true })}>
-        {t("headStartShort")}
-      </ToggleButton>
-      <ToggleButton label={t("headEnd")} pressed={Boolean(layer.arrowEnd)} disabled={locked} onClick={() => onPatch({ arrowEnd: layer.arrowEnd ? undefined : true })}>
-        {t("headEndShort")}
-      </ToggleButton>
+    <div role="group" aria-label={t("title")} className="grid grid-cols-2 gap-1.5">
+      <SelectField label={t("start")} value={endChoice(layer, "start")} options={options} disabled={locked} onChange={(choice) => onPatch(endPatch("start", choice))} />
+      <SelectField label={t("end")} value={endChoice(layer, "end")} options={options} disabled={locked} onChange={(choice) => onPatch(endPatch("end", choice))} />
     </div>
   );
 }
@@ -48,7 +44,7 @@ function ShapeOpButtons({ label, actions, showLabel }: { label: string; actions:
   );
 }
 
-const CONVERTIBLE = new Set<Layer["shape"]>(["rect", "ellipse", "triangle", "star"]);
+const CONVERTIBLE = new Set<Layer["shape"]>(["rect", "ellipse", "triangle", "star", "polygon"]);
 
 function VectorFields({ layers, locked }: { layers: Layer[]; locked: boolean }) {
   const t = useTranslations("studio.vectors.inspector");
@@ -99,8 +95,11 @@ export function ShapeSection({ layers }: { layers: Layer[] }) {
   const lines = layers.every(isLine);
   const rects = layers.every((l) => l.shape === "rect");
   const stars = layers.every((l) => l.shape === "star");
+  const polygons = layers.every((l) => l.shape === "polygon");
   const patch = (next: LayerPatch) => commands.patchLayers(ids, next);
   const stroked = (first.strokeWidth ?? 0) > 0;
+  const listedFills = (first.fills?.length ?? 0) > 0;
+  const listedStrokes = (first.strokes?.length ?? 0) > 0;
   const openPaths = !lines && layers.every(takesArrowheads);
 
   return (
@@ -119,23 +118,25 @@ export function ShapeSection({ layers }: { layers: Layer[] }) {
               disabled={locked}
               onCommit={(strokeWidth) => patch({ strokeWidth })}
             />
-            <ArrowheadToggles layer={first} locked={locked} onPatch={patch} />
+            <LineEndFields layer={first} locked={locked} onPatch={patch} />
           </>
         ) : (
           <>
-            {first.gradient ? null : (
+            {first.gradient || listedFills ? null : (
               <ColorField label={t("fill")} value={first.fill ?? ""} allowEmpty emptyLabel={t("none")} disabled={locked} onCommit={(fill) => patch({ fill: fill || undefined })} />
             )}
-            <GradientFields gradient={first.gradient} fallback={first.fill ?? ""} disabled={locked} onChange={(gradient) => patch({ gradient })} />
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">{t("border")}</span>
-              <SwitchToggle
-                label={t("border")}
-                checked={stroked}
-                disabled={locked}
-                onChange={(on) => patch(on ? { stroke: first.stroke || "#111111", strokeWidth: 4 } : { strokeWidth: 0 })}
-              />
-            </div>
+            {listedFills ? null : <GradientFields gradient={first.gradient} fallback={first.fill ?? ""} disabled={locked} onChange={(gradient) => patch({ gradient })} />}
+            {listedStrokes ? null : (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">{t("border")}</span>
+                <SwitchToggle
+                  label={t("border")}
+                  checked={stroked}
+                  disabled={locked}
+                  onChange={(on) => patch(on ? { stroke: first.stroke || "#111111", strokeWidth: 4 } : { strokeWidth: 0 })}
+                />
+              </div>
+            )}
             {stroked ? (
               <>
                 <ColorField label={t("borderColor")} value={first.stroke ?? ""} disabled={locked} onCommit={(stroke) => patch({ stroke })} />
@@ -148,7 +149,7 @@ export function ShapeSection({ layers }: { layers: Layer[] }) {
                   disabled={locked}
                   onCommit={(strokeWidth) => patch({ strokeWidth })}
                 />
-                {openPaths ? <ArrowheadToggles layer={first} locked={locked} onPatch={patch} /> : null}
+                {openPaths ? <LineEndFields layer={first} locked={locked} onPatch={patch} /> : null}
               </>
             ) : null}
             {stars ? (
@@ -174,6 +175,16 @@ export function ShapeSection({ layers }: { layers: Layer[] }) {
                   onChange={(value) => patch({ inner: value / 100 })}
                 />
               </>
+            ) : null}
+            {polygons ? (
+              <NumberField
+                label={t("sides")}
+                value={first.points || POLYGON_DEFAULTS.points}
+                min={LAYER_RANGES.starPoints[0]}
+                max={LAYER_RANGES.starPoints[1]}
+                disabled={locked}
+                onCommit={(points) => patch({ points: Math.round(points) })}
+              />
             ) : null}
             {rects ? (
               <SliderField
@@ -208,9 +219,11 @@ export function IconSection({ layers }: { layers: Layer[] }) {
   const patch = (next: LayerPatch) => commands.patchLayers(ids, next);
   return (
     <>
-      <InspectorSection title={t("title")}>
-        <ColorField label={t("color")} value={first.fill ?? ""} disabled={locked} onCommit={(fill) => patch({ fill })} />
-      </InspectorSection>
+      {(first.fills?.length ?? 0) > 0 ? null : (
+        <InspectorSection title={t("title")}>
+          <ColorField label={t("color")} value={first.fill ?? ""} disabled={locked} onCommit={(fill) => patch({ fill })} />
+        </InspectorSection>
+      )}
       <ShadowSection layer={first} disabled={locked} onPatch={patch} />
     </>
   );

@@ -19,6 +19,7 @@ function deps(overrides: Partial<ExportDeps> = {}): ExportDeps {
     committed: () => ({ version: 5, settled: true }),
     document: () => doc(),
     local: vi.fn(async () => exported),
+    lutReadable: async () => true,
     ...overrides,
   };
 }
@@ -41,7 +42,7 @@ describe("startVideoExport", () => {
   });
 
   it("reports why the browser could not export, with no other way out", async () => {
-    for (const reason of EXPORT_FAILURES) {
+    for (const reason of EXPORT_FAILURES.filter((code) => code !== "lut_unavailable")) {
       const d = deps({ local: vi.fn(async () => ({ status: "failed" as const, reason })) });
       expect(await startVideoExport(d)).toEqual({ status: "failed", code: reason });
     }
@@ -56,6 +57,24 @@ describe("startVideoExport", () => {
     const blank = deps({ document: () => empty });
     expect(await startVideoExport(blank)).toEqual({ status: "failed", code: "empty" });
     expect(blank.local).not.toHaveBeenCalled();
+  });
+
+  it("refuses before rendering when a LUT a clip uses cannot be read, naming that clip", async () => {
+    const looked = doc();
+    looked.tracks[0].clips[0] = { ...looked.tracks[0].clips[0], color: { lut: { assetId: "teal" } } };
+    const d = deps({ document: () => looked, lutReadable: async (id) => id !== "teal" });
+    expect(await startVideoExport(d)).toEqual({ status: "failed", code: "lut_unavailable", clip: looked.tracks[0].clips[0] });
+    expect(d.local).not.toHaveBeenCalled();
+  });
+
+  it("names the clip when the renderer loses a LUT mid export, and fails plainly when no clip can be named", async () => {
+    const looked = doc();
+    looked.tracks[0].clips[0] = { ...looked.tracks[0].clips[0], color: { lut: { assetId: "teal" } } };
+    let reads = 0;
+    const lost = deps({ document: () => looked, lutReadable: async () => ++reads === 1, local: vi.fn(async () => ({ status: "failed" as const, reason: "lut_unavailable" as const })) });
+    expect(await startVideoExport(lost)).toEqual({ status: "failed", code: "lut_unavailable", clip: looked.tracks[0].clips[0] });
+    const unnamed = deps({ local: vi.fn(async () => ({ status: "failed" as const, reason: "lut_unavailable" as const })) });
+    expect(await startVideoExport(unnamed)).toEqual({ status: "failed", code: "failed" });
   });
 });
 

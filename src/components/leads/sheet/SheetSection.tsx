@@ -1,21 +1,68 @@
-import { useId, type ReactNode } from "react";
+"use client";
+
+import { createContext, useContext, useId, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
+
+export const SHEET_ANCHORS = ["identity", "phones", "addresses", "family", "owner", "customFields", "consent"] as const;
+
+export type SheetAnchor = (typeof SHEET_ANCHORS)[number];
+
+export const SheetScope = createContext("lead-sheet");
+
+export function useSheetFieldId(): (name: string) => string {
+  const scope = useContext(SheetScope);
+  return (name: string) => `${scope}-${name}`;
+}
+
+function anchorId(scope: string, anchor: SheetAnchor): string {
+  return `${scope}-${anchor}`;
+}
+
+export function SheetSectionNav() {
+  const t = useTranslations("leadSheet");
+  const scope = useContext(SheetScope);
+  return (
+    <nav aria-label={t("sectionsNav")} className="sticky top-0 z-10 border-b border-border bg-card px-4 py-2 sm:px-6">
+      <ul className="flex gap-1.5 overflow-x-auto">
+        {SHEET_ANCHORS.map((anchor) => (
+          <li key={anchor} className="shrink-0">
+            <button
+              type="button"
+              onClick={() => document.getElementById(anchorId(scope, anchor))?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="inline-flex min-h-[34px] items-center rounded-full border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[28px]"
+            >
+              {t(`${anchor}.title`)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
 
 export function SheetSection({
   icon,
   title,
   children,
   className,
+  anchor,
 }: {
   icon: ReactNode;
   title: string;
   children: ReactNode;
   className?: string;
+  anchor?: SheetAnchor;
 }) {
   const headingId = useId();
+  const scope = useContext(SheetScope);
   return (
-    <section aria-labelledby={headingId} className={cn("space-y-3 border-b border-border px-4 py-5 last:border-b-0 sm:px-6", className)}>
+    <section
+      id={anchor ? anchorId(scope, anchor) : undefined}
+      aria-labelledby={headingId}
+      className={cn("scroll-mt-14 space-y-3 border-b border-border px-4 py-5 last:border-b-0 sm:px-6", className)}
+    >
       <h3 id={headingId} className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <span className="flex h-4 w-4 items-center justify-center text-muted-foreground [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
         {title}

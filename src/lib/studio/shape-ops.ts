@@ -1,18 +1,19 @@
 import { produce, type Draft } from "immer";
 
-import { layerArrowheads } from "./arrowheads";
+import { layerArrowheads, polygonPoints } from "./arrowheads";
 
 import { newStudioId, type FillRule, type ImageSurface, type Layer } from "./document";
 import { cleanupGroups } from "./groups";
 import { strokeStyle } from "./paint";
 import { updateLayers, type LayerPatch } from "./layers";
 import { booleanSubpaths, reverseSubpaths, type BooleanOp } from "./path-boolean";
-import { mapSubpaths, segmentCount, subpathsToPath, type Subpath } from "./path-nodes";
+import { fitToUnit, mapSubpaths, segmentCount, subpathsToPath, type Subpath } from "./path-nodes";
 import { simplifySubpaths } from "./path-simplify";
 import { outlineStroke } from "./stroke-outline";
 import { STROKE_STYLE_KEYS } from "./style";
 import { surfaceIssue } from "./validate";
-import { canvasSubpaths, layerSubpaths, pathGeometryFromCanvas, refitPathLayer, vectorLayerOf } from "./vector-layer";
+import { canvasSubpaths, canvasToUnit, layerSubpaths, pathGeometryFromCanvas, refitPathLayer, vectorLayerOf } from "./vector-layer";
+import { newPathOp, takesPathOps, type MergeMode, type MergeOp } from "./path-ops";
 
 export type ShapeCombine = BooleanOp | "flatten";
 export type ShapeOpKind = ShapeCombine | "release" | "reverse" | "simplify" | "outline";
@@ -21,7 +22,7 @@ export type ShapeOpResult = { ok: true; document: ImageSurface; ids: string[] } 
 
 const CARRIED_KEYS = ["name", "fill", "gradient", ...STROKE_STYLE_KEYS, "shadow", "blendMode"] as const;
 const BOTTOM_STYLED = new Set<ShapeCombine>(["subtract", "exclude"]);
-const STROKE_CLEARED: Partial<Layer> = Object.fromEntries([...STROKE_STYLE_KEYS, "arrowStart", "arrowEnd"].map((key) => [key, undefined]));
+const STROKE_CLEARED: Partial<Layer> = Object.fromEntries([...STROKE_STYLE_KEYS, "arrowStart", "arrowEnd", "arrowStartKind", "arrowEndKind"].map((key) => [key, undefined]));
 const SIMPLIFY_SHARE = 0.003;
 const MIN_SIMPLIFY_PX = 0.5;
 
@@ -91,6 +92,36 @@ export function combineShapes(doc: ImageSurface, ids: readonly string[], op: Sha
     cleanupGroups(draft);
   });
   return settled(next, [merged.id]);
+}
+
+function operandOf(layer: Layer, host: Layer, doc: ImageSurface, mode: MergeMode): MergeOp | null {
+  const vector = vectorLayerOf(layer, doc.canvas);
+  if (!vector) return null;
+  const local = mapSubpaths(canvasSubpaths(vector, doc.canvas), (p) => canvasToUnit(host.transform, doc.canvas, p));
+  const { subpaths, bounds } = fitToUnit(local);
+  const w = bounds.right - bounds.left;
+  const h = bounds.bottom - bounds.top;
+  if (w <= 0 || h <= 0) return null;
+  const made = newPathOp("merge") as MergeOp;
+  return { ...made, mode, path: subpathsToPath(subpaths), ...(layer.fillRule ? { fillRule: layer.fillRule } : {}), x: (bounds.left + bounds.right) / 2, y: (bounds.top + bounds.bottom) / 2, w, h, rotation: 0 };
+}
+
+export function mergeLive(doc: ImageSurface, ids: readonly string[], mode: MergeMode): ShapeOpResult {
+  const layers = picked(doc, ids);
+  if (layers.length < 2) return refuse("too_few");
+  if (layers.some((l) => l.locked)) return refuse("locked");
+  const [host, ...rest] = layers;
+  if (!takesPathOps(host)) return refuse("unsupported");
+  const operands = rest.map((layer) => operandOf(layer, host, doc, mode));
+  if (operands.some((operand) => operand === null)) return refuse("unsupported");
+  const removed = new Set(rest.map((l) => l.id));
+  const next = produce(doc, (draft) => {
+    const target = draft.layers.find((l) => l.id === host.id)!;
+    target.pathOps = [...(target.pathOps ?? []), ...(operands as MergeOp[])] as Draft<MergeOp>[];
+    draft.layers = draft.layers.filter((l) => !removed.has(l.id));
+    cleanupGroups(draft);
+  });
+  return settled(next, [host.id]);
 }
 
 function releasable(layer: Layer): boolean {
@@ -187,7 +218,7 @@ function outlinedLayers(layer: Layer, doc: ImageSurface): Layer[] | ShapeOpIssue
   const local = localStrokePath(layer, doc, width, height);
   if (!local) return "unsupported";
   const style = strokeStyle(layer);
-  const heads = layerArrowheads(layer, width, height).map((flat) => [0, 2, 4].map((i) => ({ x: flat[i], y: flat[i + 1] })));
+  const heads = layerArrowheads(layer, width, height).map(polygonPoints);
   const outline = outlineStroke(local, { width: layer.strokeWidth ?? 0, cap: style.lineCap, join: style.lineJoin, miterLimit: style.miterLimit, dash: style.dash, dashOffset: style.dashOffset }, heads);
   if (!outline) return "failed";
   if (outline.length === 0) return "empty";

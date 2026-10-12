@@ -3,43 +3,71 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useTranslations } from "next-intl";
 
-import { topmostAt } from "@/lib/studio/clip-transform";
+import { stackAt } from "@/lib/studio/clip-transform";
 import { videoCanvasSize, type CanvasSize } from "@/lib/studio/document";
-import { animatedTransform } from "@/lib/studio/keyframes";
-import { fitFrame, focusedPlan, visualPlan, zoomAround, type VisualItem } from "@/lib/studio/playback";
+import { anchorOf } from "@/lib/studio/clip-placement";
+import { worldPlacementIn } from "@/lib/studio/parenting";
+import { focusedPlan, PREMOUNT_MS, visualPlan, zoomAround } from "@/lib/studio/playback";
+import { pickFromStack, pressMovesSelection } from "@/lib/studio/picking";
 import { findClip, isClipPickable } from "@/lib/studio/timeline";
+import { SAFE_AREA } from "@/lib/studio/frame-layout";
+import { cn } from "@/lib/utils";
 
 import { useEditorState, useVideoEditor, useViewState } from "../editor-context";
+import { useReactLevels } from "../react-levels";
 import { gpuRenderingWanted } from "@/components/studio/render/gpu-preference";
+import { useViewportGestures } from "@/components/studio/canvas/use-viewport-gestures";
+import { checkerSource } from "@/components/studio/image/canvas/checker";
+import type { VideoViewStore } from "../view-store";
 
 import { GpuStage } from "./gpu-stage";
-import { OverlayStage } from "./overlay-stage";
-import { PreviewMedia } from "./preview-media";
+import { previewPlacement, previewViewportOf } from "./preview-placement";
+import { LegacyItems } from "./legacy-items";
 import { SelectionFrame } from "./selection-frame";
+import { SelectionOutlines } from "./selection-outlines";
+import { NullOutlines } from "./null-outlines";
+import { VideoJobOverlays } from "../job-overlays";
+import { VideoPerceptionOverlay } from "./perception-overlay";
+import { TiltOutlines } from "./tilt-outline";
+import { FrameGuides } from "./frame-guides";
+import { VfxHandles } from "./vfx-handles";
+import { TrackPaths } from "./track-paths";
+import { TrackTarget } from "./track-target";
+import { PathKeyOverlay } from "./path-key-overlay";
+import { useTransformGesture, type GestureMember, type TransformGesture } from "./transform-gesture";
 import { Transport } from "./transport";
+import { TrimPreviewOverlay } from "./trim-preview";
+import { VideoTextEditOverlay, withoutEditedText } from "./text-edit-overlay";
+import { useVideoPreviewDrop } from "../library-adapter";
+import { sceneLens } from "@/lib/studio/clip-tilt";
 
-function useElementSize(ref: React.RefObject<HTMLElement | null>): CanvasSize {
-  const [size, setSize] = useState<CanvasSize>({ width: 0, height: 0 });
+function useContainerSize(ref: React.RefObject<HTMLElement | null>, view: VideoViewStore): void {
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
-    const measure = () => setSize({ width: element.clientWidth, height: element.clientHeight });
+    const measure = () => {
+      const size = { width: element.clientWidth, height: element.clientHeight };
+      const current = view.getState().previewContainer;
+      if (current?.width === size.width && current.height === size.height) return;
+      view.setState({ previewContainer: size.width > 0 && size.height > 0 ? size : null });
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [ref]);
-  return size;
+  }, [ref, view]);
 }
 
-function overlayGroups(items: VisualItem[]): [number, VisualItem[]][] {
-  const groups = new Map<number, VisualItem[]>();
-  for (const item of items) {
-    if (item.type !== "overlay") continue;
-    groups.set(item.trackIndex, [...(groups.get(item.trackIndex) ?? []), item]);
-  }
-  return [...groups.entries()];
+function useFollowFit(view: VideoViewStore, width: number, height: number): void {
+  const fit = useViewState((s) => s.previewFit);
+  const container = useViewState((s) => s.previewContainer);
+  useEffect(() => {
+    const state = view.getState();
+    const next = previewViewportOf(state, { width, height });
+    if (next !== state.previewViewport) view.setState({ previewViewport: next });
+  }, [view, fit, container, width, height]);
 }
+
 
 function LegacyLayers({ canvas, frame }: { canvas: CanvasSize; frame: CanvasSize }) {
   const document = useEditorState((s) => s.document);
@@ -47,34 +75,29 @@ function LegacyLayers({ canvas, frame }: { canvas: CanvasSize; frame: CanvasSize
   const playing = useViewState((s) => s.playing);
   const rate = useViewState((s) => s.rate);
   const focus = useViewState((s) => s.focus);
-  const items = useMemo(() => focusedPlan(visualPlan(document, playheadMs), focus?.clipId ?? null, Boolean(focus?.solo)), [document, playheadMs, focus]);
-  return (
-    <>
-      {items
-        .filter((item) => item.type !== "overlay")
-        .map((item) => (
-          <PreviewMedia key={item.clipId} item={item} playing={playing} rate={rate} />
-        ))}
-      {overlayGroups(items).map(([trackIndex, group]) => (
-        <OverlayStage key={trackIndex} items={group} canvas={canvas} frame={frame} zIndex={trackIndex + 1} />
-      ))}
-    </>
+  const levels = useReactLevels(document);
+  const editing = useViewState((s) => s.editingTextClipId);
+  const items = useMemo(
+    () => withoutEditedText(focusedPlan(visualPlan(document, playheadMs, PREMOUNT_MS, levels), focus?.clipId ?? null, Boolean(focus?.solo)), editing),
+    [document, playheadMs, focus, levels, editing],
   );
+  const lens = useMemo(() => sceneLens(document.canvas, canvas), [document.canvas, canvas]);
+  return <LegacyItems items={items} canvas={canvas} frame={frame} lens={lens} playing={playing} rate={rate} />;
 }
 
-function SelectedClipFrame({ clipId, canvas, frameRef }: { clipId: string; canvas: CanvasSize; frameRef: React.RefObject<HTMLDivElement | null> }) {
+function SelectedClipFrame({ clipId, frameRef, gesture }: { clipId: string; frameRef: React.RefObject<HTMLDivElement | null>; gesture: TransformGesture }) {
   const document = useEditorState((s) => s.document);
   const playheadMs = useViewState((s) => s.playheadMs);
   const found = findClip(document, clipId);
   const visible = found && visualPlan(document, playheadMs, 0).some((item) => item.clipId === clipId && item.active);
-  if (!found || !visible) return null;
+  if (!found || !visible || found.clip.type === "effect") return null;
   return (
     <SelectionFrame
       clipId={clipId}
-      transform={animatedTransform(found.clip.transform, found.clip.keyframes, playheadMs - found.clip.startMs)}
-      canvas={canvas}
+      transform={worldPlacementIn(document, found.clip, playheadMs - found.clip.startMs)}
       frameRef={frameRef}
       locked={Boolean(found.track.locked)}
+      gesture={gesture}
     />
   );
 }
@@ -96,58 +119,157 @@ function useFocusZoom(): { scale: number; originX: number; originY: number } | n
 
 export function Preview() {
   const t = useTranslations("studio.video.preview");
-  const { store, view } = useVideoEditor();
+  const { store, view, playback, commands } = useVideoEditor();
   const document = useEditorState((s) => s.document);
-  const selectedId = useEditorState((s) => (s.selection.length === 1 ? s.selection[0] : null));
+  const editingId = useViewState((s) => s.editingTextClipId);
+  const singleId = useEditorState((s) => (s.selection.length === 1 ? s.selection[0] : null));
+  const selectedId = singleId === editingId ? null : singleId;
+  const selected = useEditorState((s) => s.selection);
   const safeArea = useViewState((s) => s.safeArea);
   const container = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const size = useElementSize(container);
   const canvas = videoCanvasSize(document);
-  const frame = fitFrame(size, canvas);
+  useContainerSize(container, view);
+  useFollowFit(view, canvas.width, canvas.height);
+  const previewFit = useViewState((s) => s.previewFit);
+  const previewViewport = useViewState((s) => s.previewViewport);
+  const previewContainer = useViewState((s) => s.previewContainer);
+  const placement = previewPlacement({ previewFit, previewViewport, previewContainer }, canvas);
+  const grid = useViewState((s) => s.transparencyGrid);
+  const hovering = useRef(false);
+  const { spaceHeld, panning } = useViewportGestures({
+    host: container,
+    viewport: () => previewViewportOf(view.getState(), videoCanvasSize(store.getState().document)),
+    setViewport: (previewViewport) => view.setState({ previewViewport, previewFit: false }),
+    claimsSpace: () => hovering.current,
+    onSpaceTap: () => playback.toggle(),
+    wheelPans: () => !view.getState().previewFit,
+  });
+  const frame = placement?.frame ?? null;
   const zoom = useFocusZoom();
   const [gpu, setGpu] = useState(gpuRenderingWanted);
   const fallBack = useCallback(() => setGpu(false), []);
 
-  const pick = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const gesture = useTransformGesture(frameRef, canvas);
+  const libraryDrop = useVideoPreviewDrop();
+  const [overSelection, setOverSelection] = useState(false);
+
+  const stackUnder = (event: { clientX: number; clientY: number }): string[] => {
     const rect = frameRef.current?.getBoundingClientRect();
-    if (!rect || event.button !== 0) return;
+    if (!rect || rect.width === 0 || rect.height === 0) return [];
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
     const current = store.getState().document;
     const state = view.getState();
     const items = focusedPlan(visualPlan(current, state.playheadMs), state.focus?.clipId ?? null, Boolean(state.focus?.solo));
-    const candidates = items.filter((item) => item.active && isClipPickable(current, item.clipId)).map((item) => ({ ...item, zIndex: item.trackIndex }));
-    const hit = topmostAt(candidates, x, y, canvas.width / canvas.height);
-    store.getState().select(hit ? [hit.clipId] : []);
+    const candidates = items.filter((item) => item.active && item.type !== "effect" && isClipPickable(current, item.clipId)).map((item) => ({ ...item, zIndex: item.trackIndex }));
+    return stackAt(candidates, x, y, canvas.width / canvas.height).map((item) => item.clipId);
+  };
+
+  const companions = (target: string): GestureMember[] => {
+    const current = store.getState().document;
+    const { playheadMs } = view.getState();
+    const others = new Set(store.getState().selection.filter((id) => id !== target));
+    return visualPlan(current, playheadMs, 0)
+      .filter((item) => item.active && item.type !== "effect" && others.has(item.clipId) && isClipPickable(current, item.clipId))
+      .map((item) => {
+        const { clip } = findClip(current, item.clipId)!;
+        return { clipId: clip.id, box: worldPlacementIn(current, clip, playheadMs - clip.startMs) };
+      });
+  };
+
+  const pick = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    const stack = stackUnder(event);
+    const selection = store.getState().selection;
+    const target = pickFromStack(stack, selection, event.altKey);
+    if (event.shiftKey) {
+      if (target) store.getState().select(selection.includes(target) ? selection.filter((id) => id !== target) : [...selection, target]);
+      return;
+    }
+    const together = target !== null && !event.altKey && selection.length > 1 && selection.includes(target);
+    if (!together) store.getState().select(target ? [target] : []);
+    setOverSelection(target !== null && stack[0] === target);
+    const { document: current } = store.getState();
+    const found = target && !event.altKey ? findClip(current, target) : null;
+    if (!found) return;
+    const box = worldPlacementIn(current, found.clip, view.getState().playheadMs - found.clip.startMs);
+    gesture.begin(found.clip.id, { box, anchor: anchorOf(found.clip) }, { kind: "move" }, event, together ? companions(found.clip.id) : []);
+  };
+
+  const hover = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (gesture.active()) {
+      gesture.handlers.onPointerMove(event);
+      return;
+    }
+    const over = pressMovesSelection(stackUnder(event), store.getState().selection);
+    if (over !== overSelection) setOverSelection(over);
   };
 
   return (
     <section aria-label={t("label")} className="flex h-full min-w-0 flex-col bg-muted">
-      <div ref={container} className="relative flex min-h-0 flex-1 select-none items-center justify-center overflow-hidden" data-tour="studio-video-preview" data-studio-preview>
-        {frame.width > 0 ? (
+      <div
+        ref={container}
+        className="relative min-h-0 flex-1 select-none overflow-hidden"
+        data-tour="studio-video-preview"
+        data-studio-preview
+        onPointerEnter={() => (hovering.current = true)}
+        onPointerLeave={() => (hovering.current = false)}
+        style={{ cursor: panning ? "grabbing" : spaceHeld ? "grab" : undefined }}
+      >
+        {placement && frame && frame.width > 0 ? (
           <div
             ref={frameRef}
             data-studio-preview-frame
-            className="relative overflow-hidden shadow-lg ring-1 ring-border"
+            className={cn("absolute overflow-hidden shadow-lg ring-1 ring-border", overSelection || gesture.dragging ? "cursor-move" : undefined)}
+            onPointerDown={pick}
+            onPointerMove={hover}
+            onPointerUp={gesture.handlers.onPointerUp}
+            onPointerCancel={gesture.handlers.onPointerCancel}
+            onDragOver={libraryDrop.onDragOver}
+            onDrop={libraryDrop.onDrop}
+            onPointerLeave={() => setOverSelection(false)}
+            onDoubleClick={(event) => {
+              const [top] = stackUnder(event);
+              if (top) commands.startTextEdit(top);
+            }}
             style={{
+              left: frame.left,
+              top: frame.top,
               width: frame.width,
               height: frame.height,
-              backgroundColor: document.canvas.background,
+              backgroundColor: grid ? undefined : document.canvas.background,
+              backgroundImage: grid ? `url("${checkerSource()}")` : undefined,
               isolation: "isolate",
               transform: zoom ? `scale(${zoom.scale})` : undefined,
               transformOrigin: zoom ? `${zoom.originX * 100}% ${zoom.originY * 100}%` : undefined,
               transition: "transform 150ms ease",
             }}
           >
-            {gpu ? <GpuStage frame={frame} onUnavailable={fallBack} /> : <LegacyLayers canvas={canvas} frame={frame} />}
-            <div className="absolute inset-0" style={{ zIndex: 800 }} onPointerDown={pick} aria-hidden />
+            {gpu ? <GpuStage placement={placement} onUnavailable={fallBack} /> : <LegacyLayers canvas={canvas} frame={frame} />}
+            <div className="absolute inset-0" style={{ zIndex: 800 }} aria-hidden />
             {safeArea ? (
-              <div className="pointer-events-none absolute inset-[6%_6%_20%_6%] border border-dashed border-primary" style={{ zIndex: 850 }} aria-hidden />
+              <div
+                className="pointer-events-none absolute border border-dashed border-primary"
+                style={{ zIndex: 850, left: `${SAFE_AREA.left * 100}%`, top: `${SAFE_AREA.top * 100}%`, right: `${(1 - SAFE_AREA.right) * 100}%`, bottom: `${(1 - SAFE_AREA.bottom) * 100}%` }}
+                aria-hidden
+              />
             ) : null}
-            {selectedId ? <SelectedClipFrame clipId={selectedId} canvas={canvas} frameRef={frameRef} /> : null}
+            {selectedId ? <SelectedClipFrame clipId={selectedId} frameRef={frameRef} gesture={gesture} /> : null}
+            <NullOutlines />
+            <VideoPerceptionOverlay />
+            <TiltOutlines />
+            {selected.length > 1 ? <SelectionOutlines ids={selected} /> : null}
+            <VideoJobOverlays />
+            {gesture.snap ? <FrameGuides snap={gesture.snap} size={canvas} /> : null}
+            {selectedId && !gesture.dragging ? <VfxHandles clipId={selectedId} frameRef={frameRef} /> : null}
+            {selectedId ? <TrackPaths clipId={selectedId} /> : null}
+            {selectedId ? <PathKeyOverlay clipId={selectedId} frameRef={frameRef} /> : null}
+            <TrackTarget frameRef={frameRef} />
           </div>
         ) : null}
+        <TrimPreviewOverlay />
+        {frame && frame.width > 0 ? <VideoTextEditOverlay frame={frame} canvas={canvas} /> : null}
       </div>
       <Transport />
     </section>

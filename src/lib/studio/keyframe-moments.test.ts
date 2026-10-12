@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { KEYFRAME_LIMITS, TRANSFORM_PROPERTIES, type Keyframes } from "./keyframes";
+import { TRANSFORM_PROPERTIES, type Keyframes } from "./keyframes";
 import { keyState, momentEasing, momentState, recordMoment, removeMoment, setAllEasing, setMomentEasing } from "./keyframe-edit";
 
 const box = { x: 0.5, y: 0.4, w: 0.4, h: 0.2, rotation: 10, opacity: 0.8 };
@@ -17,7 +17,7 @@ const moving = {
 
 describe("keyframe moments", () => {
   it("records every property at the playhead with its current value", () => {
-    const patch = recordMoment(still, 500);
+    const patch = recordMoment(still, 500, 1);
     expect(patch).not.toBeNull();
     for (const property of TRANSFORM_PROPERTIES) expect(patch?.keyframes?.[property]?.map((f) => f.atMs)).toEqual([500]);
     expect(patch?.keyframes?.x?.[0].value).toBe(0.5);
@@ -27,24 +27,24 @@ describe("keyframe moments", () => {
   });
 
   it("records the interpolated value and keeps existing keys", () => {
-    const patch = recordMoment(moving, 1000);
+    const patch = recordMoment(moving, 1000, 1);
     expect(patch?.keyframes?.x?.map((f) => f.atMs)).toEqual([0, 1000, 2000]);
     expect(patch?.keyframes?.x?.[1].value).toBeCloseTo(0.5);
   });
 
   it("snaps to a key within tolerance instead of adding a near duplicate", () => {
-    const patch = recordMoment(moving, 2010);
+    const patch = recordMoment(moving, 2010, 1);
     expect(patch?.keyframes?.x?.map((f) => f.atMs)).toEqual([0, 2000]);
     expect(patch?.keyframes?.y?.map((f) => f.atMs)).toEqual([2010]);
   });
 
-  it("refuses when a property is already at its key limit", () => {
-    const full = { ...still, keyframes: { x: Array.from({ length: KEYFRAME_LIMITS.perProperty }, (_, i) => ({ atMs: i * 100, value: 0.5, easing: "linear" as const })) } };
-    expect(recordMoment(full, 3350)).toBeNull();
+  it("records a moment on a long lane", () => {
+    const full = { ...still, keyframes: { x: Array.from({ length: 300 }, (_, i) => ({ atMs: i * 100, value: 0.5, easing: "linear" as const })) } };
+    expect(recordMoment(full, 3350, 1).keyframes?.x).toHaveLength(301);
   });
 
   it("removes every key at the moment", () => {
-    const recorded = { ...moving, keyframes: recordMoment(moving, 1000)!.keyframes };
+    const recorded = { ...moving, keyframes: recordMoment(moving, 1000, 1)!.keyframes };
     const patch = removeMoment(recorded, 1005);
     expect(patch.keyframes?.x?.map((f) => f.atMs)).toEqual([0, 2000]);
     expect(patch.keyframes?.y).toBeUndefined();

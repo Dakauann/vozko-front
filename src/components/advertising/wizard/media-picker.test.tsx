@@ -97,6 +97,24 @@ describe("MediaPicker generation", () => {
     expect(screen.getByRole("textbox")).toBeDisabled();
   });
 
+  it("sweeps the creative slot with the AI progress surface while pending and hands over the result after", { timeout: 15_000 }, async () => {
+    requestMediaGeneration.mockResolvedValue({ data: job({ status: "running" }) });
+    getMediaGeneration.mockResolvedValue({ data: job({ status: "done", mediaId: "m1", mediaUrl: "https://cdn/m1.png" }) });
+    const onChange = await renderPicker();
+
+    const surface = await waitFor(() => {
+      const found = document.querySelector<HTMLElement>("[data-ai-progress]");
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    expect(surface).toHaveAttribute("data-ai-progress", "running");
+    expect(surface.className).toContain("aspect-square");
+    expect(screen.getByRole("status")).toHaveTextContent(ptMessages.mediaGeneration.generating.image);
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith({ kind: "image", mediaId: "m1", url: "https://cdn/m1.png" }), { timeout: 5_000 });
+    expect(document.querySelector("[data-ai-progress]")).toBeNull();
+  });
+
   it("sends the reference images the user added, and only those still kept", async () => {
     uploadMedia
       .mockResolvedValueOnce({ mediaId: "ref-1", mediaUrl: "https://cdn/ref-1.png" })
@@ -129,6 +147,13 @@ describe("MediaPicker generation", () => {
     await renderPicker();
 
     expect(await screen.findByText(ptMessages.adsWizard.media.generationErrors.storage_failed)).toBeInTheDocument();
+  });
+
+  it("explains that the AI provider was at its limit and nothing was charged", async () => {
+    requestMediaGeneration.mockResolvedValue({ data: job({ status: "failed", failureCode: "provider_busy" }) });
+    await renderPicker();
+
+    expect(await screen.findByText(ptMessages.adsWizard.media.generationErrors.provider_busy)).toBeInTheDocument();
   });
 
   it("explains a refused request by its code", async () => {

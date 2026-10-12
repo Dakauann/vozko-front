@@ -16,9 +16,3 @@ export function sheetLayout(desired: number, viewportWidth: number, sidebarWidth
   const max = Math.min(MAX_SHEET_WIDTH, room);
   return { mode: "push", width: Math.round(Math.min(Math.max(desired, MIN_SHEET_WIDTH), max)) };
 }
-
-export function parseStoredWidth(raw: string | null): number | null {
-  if (!raw || !/^\d+(\.\d+)?$/.test(raw.trim())) return null;
-  const width = Number(raw);
-  return width > 0 ? width : null;
-}

@@ -6,16 +6,20 @@ import { createChatThreadAction } from "@/app/actions/aichat";
 import { chatStreams } from "@/lib/aichat/chat-stream";
 import type { Approval, ChatAttachment, ChatMode, ChatThread, ChatView } from "@/lib/aichat/types";
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
-import { expireOpen } from "@/lib/aichat/proposal";
+import { expireOpen, isOpenProposal } from "@/lib/aichat/proposal";
+import { newClientId } from "@/lib/aichat/queue";
+import { threadPlace } from "@/lib/aichat/thread-list";
 import { chatTurns, IDLE_TURN } from "@/lib/aichat/turn-store";
 import type { UIMessage } from "@/lib/aichat/ui-message";
 
-import { openThread, refreshThread, startTurn, stopTurn } from "./chat-turns";
+import { learnProject, openThread, queueMessage, refreshThread, startTurn, stopTurn, takeQueued, unqueueMessage, type TurnStart } from "./chat-turns";
 import { useScreenStop } from "./screen-bridge";
+import { useProjectOpenedNotice } from "./use-project-opened";
 
 interface Options {
   view?: ChatView;
   mode?: ChatMode;
+  reasoning?: string;
   rememberKey?: string;
   createError: string;
   onThreadCreated?: (thread: ChatThread) => void;
@@ -24,6 +28,24 @@ interface Options {
 
 function emptyReply(model: string, createdAt: string): UIMessage {
   return { id: `a-${createdAt}`, role: "assistant", content: "", model, createdAt, segments: [] };
+}
+
+function expireProposals(messages: UIMessage[]): UIMessage[] {
+  return messages.map((m) => (m.pending ? { ...m, pending: expireOpen(m.pending) } : m));
+}
+
+function awaitsApproval(threadId: string): boolean {
+  return chatTurns.snapshot(threadId).messages.some((m) => isOpenProposal(m.pending));
+}
+
+const OTHER_PROJECT = "thread_other_project";
+
+function openProjectOf(view: ChatView | undefined): string | undefined {
+  return view?.surface === "studio" ? view.projectId : undefined;
+}
+
+function belongsElsewhere(threadId: string, openProject: string | undefined): boolean {
+  return threadPlace(chatTurns.snapshot(threadId).projectId, openProject) === "other_project";
 }
 
 function useTurnFinished(activeId: string | null, streaming: boolean, onTurnFinished?: () => void) {
@@ -41,7 +63,7 @@ function useTurnFinished(activeId: string | null, streaming: boolean, onTurnFini
   }, [activeId, streaming]);
 }
 
-export function useChatConversation({ view, mode, rememberKey, createError, onThreadCreated, onTurnFinished }: Options) {
+export function useChatConversation({ view, mode, reasoning, rememberKey, createError, onThreadCreated, onTurnFinished }: Options) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
@@ -50,7 +72,28 @@ export function useChatConversation({ view, mode, rememberKey, createError, onTh
     () => chatTurns.snapshot(activeId),
     () => IDLE_TURN,
   );
-  const { messages, streaming } = turn;
+  const { messages, queued, streaming } = turn;
+  const openProject = openProjectOf(view);
+  const otherProject = threadPlace(turn.projectId, openProject) === "other_project";
+  useProjectOpenedNotice(activeId, view, mode, turn.projectId);
+
+  const refuseElsewhere = useCallback(
+    (threadId: string) => {
+      if (!belongsElsewhere(threadId, openProject)) return false;
+      setLocalError(OTHER_PROJECT);
+      return true;
+    },
+    [openProject],
+  );
+
+  const startHere = useCallback(
+    async (threadId: string, start: TurnStart) => {
+      if (openProject && !chatTurns.snapshot(threadId).projectId) chatTurns.bindProject(threadId, openProject);
+      await startTurn(threadId, start);
+      if (chatTurns.snapshot(threadId).error === OTHER_PROJECT) await learnProject(threadId);
+    },
+    [openProject],
+  );
 
   const stop = useCallback(() => {
     if (activeId) void stopTurn(activeId);
@@ -102,8 +145,19 @@ export function useChatConversation({ view, mode, rememberKey, createError, onTh
     async (content: string, model: string, attachments: ChatAttachment[] = []) => {
       const text = content.trim();
       if (!text || !model) return;
-      if (activeId && chatTurns.isStreaming(activeId)) return;
       setLocalError(null);
+      if (activeId && refuseElsewhere(activeId)) return;
+      const now = new Date().toISOString();
+
+      if (activeId && (chatTurns.isStreaming(activeId) || awaitsApproval(activeId))) {
+        const result = await queueMessage(activeId, { clientId: newClientId(), content: text, attachments, createdAt: now });
+        if (result.outcome === "queued") return;
+        if (result.outcome === "failed") {
+          setLocalError(result.error);
+          return;
+        }
+        await chatTurns.whenIdle(activeId);
+      }
 
       let threadId = activeId;
       if (!threadId) {
@@ -118,44 +172,75 @@ export function useChatConversation({ view, mode, rememberKey, createError, onTh
         onThreadCreated?.(data);
       }
 
-      const now = new Date().toISOString();
-      await startTurn(threadId, {
-        request: chatStreams.send(threadId, { content: text, model, view, attachments: attachments.map((a) => a.mediaId), mode }),
+      const moved = takeQueued(threadId);
+      await startHere(threadId, {
+        request: chatStreams.send(threadId, { content: text, model, reasoning, view, attachments: attachments.map((a) => a.mediaId), mode }),
         open: (prev) => [
-          ...prev.map((m) => (m.pending ? { ...m, pending: expireOpen(m.pending) } : m)),
+          ...expireProposals(prev),
+          ...moved,
           { id: `u-${now}`, role: "user", content: text, attachments, createdAt: now },
           emptyReply(model, now),
         ],
       });
     },
-    [activeId, view, mode, createError, onThreadCreated, remember],
+    [activeId, view, mode, reasoning, createError, onThreadCreated, remember, refuseElsewhere, startHere],
   );
 
   const resolveAction = useCallback(
     async (actionId: string, kind: "approve" | "reject", model: string, approval?: Approval) => {
-      if (!activeId || chatTurns.isStreaming(activeId)) return;
+      if (!activeId || chatTurns.isStreaming(activeId) || refuseElsewhere(activeId)) return;
       const threadId = activeId;
       const status = kind === "approve" ? "approved" : "rejected";
       const approved = chatTurns.snapshot(threadId).messages.find((m) => m.pending?.id === actionId)?.pending ?? undefined;
       chatTurns.update(threadId, (prev) => prev.map((m) => (m.pending?.id === actionId ? { ...m, pending: { ...m.pending, status } } : m)));
       if (kind === "approve") {
         const now = new Date().toISOString();
-        await startTurn(threadId, {
+        await startHere(threadId, {
           request: chatStreams.approve(threadId, actionId, { ...approval, view, mode }),
           open: (prev) => [...prev, emptyReply(model, now)],
           approved,
         });
         return;
       }
-      await startTurn(threadId, { request: chatStreams.reject(threadId, actionId), open: (prev) => prev });
+      await startHere(threadId, { request: chatStreams.reject(threadId, actionId, { view, mode }), open: (prev) => prev });
       await refreshThread(threadId);
     },
-    [activeId, view, mode],
+    [activeId, view, mode, refuseElsewhere, startHere],
+  );
+
+  const sendQueued = useCallback(
+    async (model: string) => {
+      if (!activeId || !model || chatTurns.isStreaming(activeId) || refuseElsewhere(activeId)) return;
+      const threadId = activeId;
+      const moved = takeQueued(threadId);
+      if (moved.length === 0) return;
+      setLocalError(null);
+      const now = new Date().toISOString();
+      await startHere(threadId, {
+        request: chatStreams.send(threadId, { content: "", model, reasoning, view, mode }),
+        open: (prev) => [...expireProposals(prev), ...moved, emptyReply(model, now)],
+      });
+    },
+    [activeId, view, mode, reasoning, refuseElsewhere, startHere],
+  );
+
+  const unqueue = useCallback(
+    async (clientId: string) => {
+      if (!activeId) return;
+      const failure = await unqueueMessage(activeId, clientId);
+      if (failure) setLocalError(failure);
+    },
+    [activeId],
   );
 
   return {
     activeId,
     messages,
+    queued,
+    awaitingApproval: messages.some((m) => isOpenProposal(m.pending)),
+    otherProject,
+    sendQueued,
+    unqueue,
     error: localError ?? turn.error,
     loadingThread,
     streaming,

@@ -16,14 +16,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ShapeOpIcon } from "@/components/studio/canvas/vector/shape-op-icons";
+import { zoomPercent, ZoomMenuItems } from "@/components/studio/canvas/zoom-menu-items";
 import { VectorToolIcon } from "@/components/studio/canvas/vector/tool-icons";
 import { VECTOR_TOOL_KEYS, VECTOR_TOOLS } from "@/lib/studio/vector-tools";
-import { ZOOM_PRESETS } from "@/lib/studio/viewport";
 import { cn } from "@/lib/utils";
 
 import { ICON_BUTTON_CLASS, IconButton, ToggleButton } from "./controls";
 import { useActiveCanvas, useEditorUi, useImageDoc, useImageEditor } from "./editor-state";
 import { ExportMenu } from "./export-menu";
+import { PixelToolButtons } from "./pixel-toolbar";
 import { ResizeForm } from "./resize-form";
 import { useSelectionActions, type MenuAction } from "./selection-actions";
 
@@ -141,19 +142,11 @@ function ZoomControls() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button type="button" aria-label={t("zoomLevel", { percent: Math.round(scale * 100) })} className={cn(ICON_BUTTON_CLASS, "w-16 tabular-nums")}>
-            {Math.round(scale * 100)}%
+            {zoomPercent(scale)}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="w-40">
-          <DropdownMenuCheckboxItem checked={fit} onSelect={commands.fit}>
-            {t("fit")}
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuSeparator />
-          {ZOOM_PRESETS.filter((preset) => preset >= 0.5).map((preset) => (
-            <DropdownMenuItem key={preset} onSelect={() => commands.setZoom(preset)}>
-              {Math.round(preset * 100)}%
-            </DropdownMenuItem>
-          ))}
+          <ZoomMenuItems fit={fit} fitLabel={t("fit")} onFit={commands.fit} onZoom={commands.setZoom} />
         </DropdownMenuContent>
       </DropdownMenu>
       <IconButton label={t("zoomIn")} onClick={() => commands.zoomStep(1)}>
@@ -171,6 +164,8 @@ function ViewMenu() {
   const { ui } = useImageEditor();
   const rulers = useEditorUi((s) => s.rulers);
   const snapping = useEditorUi((s) => s.snapping);
+  const depthOverlay = useEditorUi((s) => s.depthOverlay);
+  const layoutOverlay = useEditorUi((s) => s.layoutOverlay);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -185,6 +180,13 @@ function ViewMenu() {
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem checked={snapping} onCheckedChange={(on) => ui.setState({ snapping: Boolean(on) })}>
           {t("snapping")}
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuCheckboxItem checked={depthOverlay} onCheckedChange={(on) => ui.setState({ depthOverlay: Boolean(on) })}>
+          {t("depthOverlay")}
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem checked={layoutOverlay} onCheckedChange={(on) => ui.setState({ layoutOverlay: Boolean(on) })}>
+          {t("layoutOverlay")}
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -225,6 +227,8 @@ export function EditorToolbar() {
       </IconButton>
       {DIVIDER}
       <ToolButtons />
+      {DIVIDER}
+      <PixelToolButtons />
       {DIVIDER}
       <ResizeButton />
       <ViewMenu />

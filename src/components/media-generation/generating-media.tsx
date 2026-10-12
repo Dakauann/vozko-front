@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 
+import { AiProgressSurface } from "@/components/elevated-design/ai-progress-surface";
 import { WarningCircle } from "@/components/icons";
-import { ProgressPanel } from "@/components/ui/progress-panel";
 import { useEstimatedProgress } from "@/hooks/use-estimated-progress";
 import type { MediaFrame, MediaKind } from "@/lib/media-generation/types";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,7 @@ function GeneratingProgress({ kind, frame, settling, className }: Omit<Generatin
   const t = useTranslations("mediaGeneration");
   const progress = useEstimatedProgress();
   const label = settling ? t("finalizing") : t(`generating.${kind}`);
-  return <ProgressPanel label={label} progress={progress} className={cn(MEDIA_FRAME_CLASS[frame], className)} />;
+  return <AiProgressSurface label={label} progress={progress} className={cn(MEDIA_FRAME_CLASS[frame], "rounded-[--radius] bg-muted/50", className)} />;
 }
 
 export function GeneratingMedia({ kind, frame, failed = false, settling = false, className }: GeneratingMediaProps) {

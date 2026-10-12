@@ -1,20 +1,31 @@
 "use client";
 
 import Konva from "konva";
-import { forwardRef, memo, useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
+import { forwardRef, memo, useEffect, useMemo, useRef, type ComponentProps } from "react";
 import { Arrow, Ellipse, Group, Image as KonvaImage, Line, Path, Rect, Text, TextPath } from "react-konva";
 
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT, type FontId } from "@/lib/studio/fonts";
-import type { Filters, Gradient, Layer } from "@/lib/studio/document";
-import { arrowheadSize, pathArrowheads } from "@/lib/studio/arrowheads";
-import { compositeOf, curvePath, framePolygon, gradientPaint, starPolygon, strokeStyle, type Box, type Composite } from "@/lib/studio/paint";
+import type { Layer } from "@/lib/studio/document";
+import { arrowheadSize, lineMarkers, pathArrowheads, strokedArrowEnds } from "@/lib/studio/arrowheads";
+import { paintsRichly } from "@/lib/studio/layer-paint";
+import { compositeOf, curvePath, framePolygon, regularPolygon, starPolygon, strokeStyle, type Box, type Composite } from "@/lib/studio/paint";
+import { flowsInLines } from "@/lib/studio/text-animation";
+import { hasRuns } from "@/lib/studio/text-runs";
 import { scalePath } from "@/lib/studio/vector-path";
+import { pathOpsLayer } from "@/lib/studio/path-ops";
+import { generatedPartLayers } from "@/lib/studio/generated-layers";
 
 import { loadAssetImage, loadUrlImage, useLoadedImage } from "./asset-images";
-import { ensureFont, konvaFontFamily, konvaFontStyle } from "./ensure-font";
 import { iconDataUrl } from "./icon-catalog";
+import { filterSetup, gradientFill } from "./konva-paint";
+import { konvaLut, useLoadedLut } from "./lut-files";
+import { MaskedContent, PaintContent } from "./pixel-content";
+import { hasStillVfx, VfxLayer } from "./vfx-content";
+import { RichContent, type ContentProps } from "./rich-content";
+import { RichTextContent, type TextPaint } from "./rich-text";
+import { textBlockProps, textFontProps } from "./text-props";
+import { useFontsReady } from "./use-fonts-ready";
 
-export const DEFAULT_LINE_HEIGHT = 1.2;
 export const ICON_RESOLUTION = 2;
 
 const PLACEHOLDER_FILL = "#e5e7eb";
@@ -32,18 +43,9 @@ export interface LayerNodeProps extends LayerFrame {
   layer: Layer;
   groupProps?: GroupProps;
   composite?: Composite;
+  pixelRatio?: number;
   onReady?: (layerId: string) => void;
   onError?: (layerId: string, error: Error) => void;
-}
-
-interface ContentProps {
-  layer: Layer;
-  width: number;
-  height: number;
-  fontBasePx: number;
-  composite: Composite;
-  ready: () => void;
-  fail: (error: Error) => void;
 }
 
 function color(value: string | undefined): string | undefined {
@@ -54,26 +56,7 @@ export function cornerRadiusPx(radius: number | undefined, width: number, height
   return ((radius ?? 0) * Math.min(width, height)) / 2;
 }
 
-export function gradientFill(gradient: Gradient | undefined, box: Box) {
-  if (!gradient) return {};
-  const paint = gradientPaint(gradient, box);
-  if (paint.kind === "radial") {
-    return {
-      fillPriority: "radial-gradient",
-      fillRadialGradientStartPoint: paint.center,
-      fillRadialGradientEndPoint: paint.center,
-      fillRadialGradientStartRadius: 0,
-      fillRadialGradientEndRadius: paint.radius,
-      fillRadialGradientColorStops: paint.stops,
-    };
-  }
-  return {
-    fillPriority: "linear-gradient",
-    fillLinearGradientStartPoint: paint.start,
-    fillLinearGradientEndPoint: paint.end,
-    fillLinearGradientColorStops: paint.stops,
-  };
-}
+export { gradientFill };
 
 function shadowProps(layer: Layer) {
   if (!layer.shadow) return {};
@@ -94,16 +77,6 @@ function strokeProps(layer: Layer) {
   };
 }
 
-function filterSetup(filters: Filters | undefined) {
-  if (!filters) return { list: [] as typeof Konva.Filters.Blur[], props: {} };
-  const list: (typeof Konva.Filters.Blur)[] = [];
-  if (filters.brightness !== 0) list.push(Konva.Filters.Brighten);
-  if (filters.contrast !== 0) list.push(Konva.Filters.Contrast);
-  if (filters.saturation !== 0) list.push(Konva.Filters.HSL);
-  if (filters.blur > 0) list.push(Konva.Filters.Blur);
-  return { list, props: { brightness: filters.brightness, contrast: filters.contrast, saturation: filters.saturation, blurRadius: filters.blur } };
-}
-
 function frameClip(layer: Layer, width: number, height: number) {
   const frame = layer.frame;
   if (!frame) return undefined;
@@ -120,24 +93,28 @@ function frameClip(layer: Layer, width: number, height: number) {
   };
 }
 
-function ImageContent({ layer, width, height, composite, ready, fail }: ContentProps) {
+function ImageContent({ layer, width, height, composite, pixelRatio, ready, fail }: ContentProps) {
   const loaded = useLoadedImage(layer.assetId ?? null, loadAssetImage);
+  const lut = useLoadedLut(layer.color?.lut?.assetId ?? null);
+  const atlas = konvaLut(lut);
+  const lutError = lut.status === "failed" ? lut.error : null;
   const node = useRef<Konva.Image>(null);
-  const filters = useMemo(() => filterSetup(layer.filters), [layer.filters]);
+  const filters = useMemo(() => filterSetup(layer.filters, layer.color, layer.gradientMap, layer.chromaKey, atlas), [layer.filters, layer.color, layer.gradientMap, layer.chromaKey, atlas]);
   const hasFilters = filters.list.length > 0;
   const clip = useMemo(() => frameClip(layer, width, height), [layer, width, height]);
 
   useEffect(() => {
     if (loaded.status === "failed") fail(loaded.error);
-    if (loaded.status !== "ready") return;
+    if (loaded.status !== "ready" || lut.status === "loading") return;
     const image = node.current;
     if (image) {
-      if (hasFilters) image.cache();
+      if (hasFilters) image.cache(pixelRatio ? { pixelRatio } : undefined);
       else image.clearCache();
       image.getLayer()?.batchDraw();
     }
-    ready();
-  }, [loaded, hasFilters, width, height, layer.crop, layer.radius, layer.flipX, layer.flipY, layer.frame, layer.stroke, layer.strokeWidth, layer.dash, layer.dashArray, layer.dashOffset, layer.lineJoin, layer.miterLimit, layer.shadow, composite, ready, fail]);
+    if (lutError) fail(lutError);
+    else ready();
+  }, [loaded, lut.status, lutError, hasFilters, filters, pixelRatio, width, height, layer.crop, layer.radius, layer.flipX, layer.flipY, layer.frame, layer.stroke, layer.strokeWidth, layer.dash, layer.dashArray, layer.dashOffset, layer.lineJoin, layer.miterLimit, layer.shadow, composite, ready, fail]);
 
   if (loaded.status !== "ready") {
     return (
@@ -180,72 +157,50 @@ function ImageContent({ layer, width, height, composite, ready, fail }: ContentP
   return clip ? <Group clipFunc={clip}>{picture}</Group> : picture;
 }
 
-function TextContent({ layer, width, height, fontBasePx, composite, ready, fail }: ContentProps) {
+function textPaint(layer: Layer, composite: ContentProps["composite"]): TextPaint {
+  return { fillAfterStrokeEnabled: (layer.strokeWidth ?? 0) > 0, globalCompositeOperation: composite, ...strokeProps(layer), ...shadowProps(layer) };
+}
+
+function TextHighlight({ layer, width, height, composite, curved }: Pick<ContentProps, "layer" | "width" | "height" | "composite"> & { curved: boolean }) {
+  if (!layer.highlight || curved) return null;
+  return <Rect width={width} height={height} fill={layer.highlight.color} cornerRadius={cornerRadiusPx(layer.highlight.radius, width, height)} globalCompositeOperation={composite} />;
+}
+
+function PlainTextContent({ layer, width, height, fontBasePx, composite, ready, fail }: ContentProps) {
   const fontId: FontId = layer.fontId ?? DEFAULT_FONT_ID;
   const weight = layer.fontWeight || DEFAULT_FONT_WEIGHT;
   const italic = Boolean(layer.italic);
-  const fontKey = `${fontId}:${weight}:${italic}`;
-  const [loadedFont, setLoadedFont] = useState<string | null>(null);
+  const fonts = useMemo(() => [{ fontId, weight, italic }], [fontId, weight, italic]);
+  const loaded = useFontsReady(fonts, fail);
 
   useEffect(() => {
-    let cancelled = false;
-    ensureFont(fontId, weight, italic).then(
-      () => !cancelled && setLoadedFont(fontKey),
-      (error: Error) => !cancelled && fail(error),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [fontId, weight, italic, fontKey, fail]);
+    if (loaded.ready) ready();
+  }, [loaded.ready, layer, width, height, fontBasePx, ready]);
 
-  const fontReady = loadedFont === fontKey;
-
-  useEffect(() => {
-    if (fontReady) ready();
-  }, [fontReady, layer, width, height, fontBasePx, ready]);
-
-  const fontSize = (layer.fontSize ?? 0) * fontBasePx;
-  const outlined = (layer.strokeWidth ?? 0) > 0;
-  const curved = Math.abs(layer.curve ?? 0) >= 1e-3;
+  const curved = !flowsInLines(layer);
   const paint = {
     fill: layer.gradient ? undefined : color(layer.fill),
     ...gradientFill(layer.gradient, { x: 0, y: 0, width, height }),
-    fillAfterStrokeEnabled: outlined,
-    globalCompositeOperation: composite,
-    ...strokeProps(layer),
-    ...shadowProps(layer),
+    ...textPaint(layer, composite),
   };
-  const font = {
-    fontFamily: konvaFontFamily(fontId),
-    fontStyle: konvaFontStyle(fontId, weight, italic),
-    fontSize,
-    letterSpacing: (layer.letterSpacing ?? 0) * fontSize,
-  };
-  const key = fontReady ? fontKey : "pending";
+  const font = textFontProps(layer, fontBasePx);
+  const key = loaded.ready ? loaded.key : "pending";
 
   return (
     <>
-      {layer.highlight && !curved ? (
-        <Rect width={width} height={height} fill={layer.highlight.color} cornerRadius={cornerRadiusPx(layer.highlight.radius, width, height)} globalCompositeOperation={composite} />
-      ) : null}
+      <TextHighlight layer={layer} width={width} height={height} composite={composite} curved={curved} />
       {curved ? (
         <TextPath key={key} data={curvePath(width, height, layer.curve ?? 0)} text={(layer.text ?? "").replace(/\s+/g, " ")} align="center" {...font} {...paint} />
       ) : (
-        <Text
-          key={key}
-          text={layer.text ?? ""}
-          width={width}
-          height={height}
-          verticalAlign="middle"
-          align={layer.align || "left"}
-          wrap="word"
-          lineHeight={layer.lineHeight || DEFAULT_LINE_HEIGHT}
-          {...font}
-          {...paint}
-        />
+        <Text key={key} {...textBlockProps(layer, width, height)} {...font} {...paint} />
       )}
     </>
   );
+}
+
+function TextContent(props: ContentProps) {
+  if (!hasRuns(props.layer)) return <PlainTextContent {...props} />;
+  return <RichTextContent {...props} paint={textPaint(props.layer, props.composite)} highlight={(curved) => <TextHighlight layer={props.layer} width={props.width} height={props.height} composite={props.composite} curved={curved} />} />;
 }
 
 function ShapeContent({ layer, width, height, composite, ready }: ContentProps) {
@@ -270,6 +225,8 @@ function ShapeContent({ layer, width, height, composite, ready }: ContentProps) 
       return <Line points={[width / 2, 0, width, height, 0, height]} closed {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
     case "star":
       return <Line points={starPolygon(layer, width, height)} closed {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
+    case "polygon":
+      return <Line points={regularPolygon(layer, width, height)} closed {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
     case "path": {
       const body = <Path data={scalePath(layer.path ?? "", width, height)} fillRule={layer.fillRule} {...fillIn({ x: 0, y: 0, width, height })} {...common} />;
       const heads = pathArrowheads(layer, width, height);
@@ -286,7 +243,9 @@ function ShapeContent({ layer, width, height, composite, ready }: ContentProps) 
     case "line":
     case "arrow": {
       const pointer = arrowheadSize(lineWidth);
-      return (
+      const pointers = strokedArrowEnds(layer);
+      const marks = lineMarkers(layer, width, height);
+      const line = (
         <Arrow
           points={[0, height / 2, width, height / 2]}
           stroke={lineColor}
@@ -297,13 +256,22 @@ function ShapeContent({ layer, width, height, composite, ready }: ContentProps) 
           miterLimit={stroke.miterLimit}
           dash={stroke.dash}
           dashOffset={stroke.dashOffset}
-          pointerAtBeginning={Boolean(layer.arrowStart)}
-          pointerAtEnding={Boolean(layer.arrowEnd)}
+          pointerAtBeginning={pointers.start}
+          pointerAtEnding={pointers.end}
           pointerLength={pointer}
           pointerWidth={pointer}
           globalCompositeOperation={composite}
           {...shadow}
         />
+      );
+      if (marks.length === 0) return line;
+      return (
+        <Group>
+          {line}
+          {marks.map((points, i) => (
+            <Line key={i} points={points} closed fill={lineColor} globalCompositeOperation={composite} {...shadow} />
+          ))}
+        </Group>
       );
     }
   }
@@ -326,9 +294,75 @@ function IconContent({ layer, width, height, composite, ready, fail }: ContentPr
   return <KonvaImage image={loaded.image} width={width} height={height} globalCompositeOperation={composite} {...shadowProps(layer)} />;
 }
 
-const CONTENT = { image: ImageContent, text: TextContent, shape: ShapeContent, icon: IconContent } as const;
+export interface ChartBodyProps {
+  parts: readonly Layer[];
+  width: number;
+  height: number;
+  composite?: Composite;
+  pixelRatio?: number;
+  ready: () => void;
+  fail: (error: Error) => void;
+}
 
-export const LayerNode = memo(forwardRef<Konva.Group, LayerNodeProps>(function LayerNode({ layer, width, height, fontBasePx, groupProps, composite, onReady, onError }, ref) {
+function readiness(ids: readonly string[], done: () => void): (id: string) => void {
+  const waiting = new Set(ids);
+  return (id) => {
+    if (!waiting.delete(id) || waiting.size > 0) return;
+    done();
+  };
+}
+
+export function ChartBody({ parts, width, height, composite, pixelRatio, ready, fail }: ChartBodyProps) {
+  const partReady = useMemo(() => readiness(parts.map((part) => part.id), ready), [parts, ready]);
+  const partFailed = useMemo(() => (_: string, error: Error) => fail(error), [fail]);
+
+  useEffect(() => {
+    if (parts.length === 0) ready();
+  }, [parts, ready]);
+
+  return (
+    <>
+      {parts.map((part) => (
+        <LayerNode key={part.id} layer={part} width={width} height={height} fontBasePx={height} composite={composite} pixelRatio={pixelRatio} onReady={partReady} onError={partFailed} />
+      ))}
+    </>
+  );
+}
+
+function GeneratedContent({ layer, width, height, composite, pixelRatio, ready, fail }: ContentProps) {
+  const parts = useMemo(() => generatedPartLayers(layer, { width, height }), [layer, width, height]);
+  return <ChartBody parts={parts} width={width} height={height} composite={composite === "destination-in" || composite === "destination-out" ? undefined : composite} pixelRatio={pixelRatio} ready={ready} fail={fail} />;
+}
+
+const CONTENT = { image: ImageContent, text: TextContent, shape: ShapeContent, icon: IconContent, instance: NoContent, paint: PaintContent, chart: GeneratedContent, table: GeneratedContent, qr: GeneratedContent } as const;
+
+function NoContent() {
+  return null;
+}
+
+function LayerBody(props: ContentProps) {
+  if (paintsRichly(props.layer)) return <RichContent {...props} contents={CONTENT} />;
+  const Content = CONTENT[props.layer.type];
+  return Content ? <Content {...props} /> : null;
+}
+
+interface LayerContentProps {
+  source: Layer;
+  body: Omit<ContentProps, "composite" | "ready">;
+  mode: Composite;
+  done: () => void;
+}
+
+function LayerContent({ source, body, mode, done }: LayerContentProps) {
+  if (source.type !== "image" || !source.mask) return <LayerBody {...body} composite={mode} ready={done} />;
+  return (
+    <MaskedContent layer={source} width={body.width} height={body.height} composite={mode} pixelRatio={body.pixelRatio} ready={done}>
+      {(shown) => <LayerBody {...body} composite="source-over" ready={shown} />}
+    </MaskedContent>
+  );
+}
+
+export const LayerNode = memo(forwardRef<Konva.Group, LayerNodeProps>(function LayerNode({ layer, width, height, fontBasePx, groupProps, composite, pixelRatio, onReady, onError }, ref) {
   const boxWidth = layer.transform.w * width;
   const boxHeight = layer.transform.h * height;
   const callbacks = useRef({ onReady, onError });
@@ -339,7 +373,9 @@ export const LayerNode = memo(forwardRef<Konva.Group, LayerNodeProps>(function L
 
   const ready = useMemo(() => () => callbacks.current.onReady?.(layer.id), [layer.id]);
   const fail = useMemo(() => (error: Error) => callbacks.current.onError?.(layer.id, error), [layer.id]);
-  const Content = CONTENT[layer.type];
+  const shaped = useMemo(() => pathOpsLayer(layer, { width, height }), [layer, width, height]);
+  const body = { layer: shaped, width: boxWidth, height: boxHeight, fontBasePx: fontBasePx ?? height, pixelRatio, fail };
+  const blend = composite ?? compositeOf(layer.blendMode);
 
   return (
     <Group
@@ -352,11 +388,17 @@ export const LayerNode = memo(forwardRef<Konva.Group, LayerNodeProps>(function L
       offsetY={boxHeight / 2}
       rotation={layer.transform.rotation}
       opacity={layer.transform.opacity}
+      scaleX={layer.flipX && layer.type !== "image" ? -1 : 1}
+      scaleY={layer.flipY && layer.type !== "image" ? -1 : 1}
       visible={!layer.hidden}
     >
-      {Content ? (
-        <Content layer={layer} width={boxWidth} height={boxHeight} fontBasePx={fontBasePx ?? height} composite={composite ?? compositeOf(layer.blendMode)} ready={ready} fail={fail} />
-      ) : null}
+      {layer.type === "image" && hasStillVfx(layer.vfx) ? (
+        <VfxLayer layer={layer} width={boxWidth} height={boxHeight} fontBasePx={body.fontBasePx} pixelRatio={pixelRatio} composite={blend} ready={ready}>
+          {(shown) => <LayerContent source={layer} body={body} mode="source-over" done={shown} />}
+        </VfxLayer>
+      ) : (
+        <LayerContent source={layer} body={body} mode={blend} done={ready} />
+      )}
     </Group>
   );
 }));

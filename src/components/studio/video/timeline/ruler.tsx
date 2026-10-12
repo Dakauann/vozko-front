@@ -23,10 +23,11 @@ interface RulerProps {
   range: MarkRange;
   onSeek: (ms: number) => void;
   onScrubStart: () => void;
+  onScrubEnd: () => void;
   timeAt: (clientX: number) => number;
 }
 
-export function Ruler({ width, pxPerSecond, scrollLeft, viewportWidth, durationMs, markers, range, onSeek, onScrubStart, timeAt }: RulerProps) {
+export function Ruler({ width, pxPerSecond, scrollLeft, viewportWidth, durationMs, markers, range, onSeek, onScrubStart, onScrubEnd, timeAt }: RulerProps) {
   const scrubbing = useRef<number | null>(null);
   const fromMs = Math.max(0, (scrollLeft / pxPerSecond) * 1000 - 2000);
   const toMs = ((scrollLeft + viewportWidth) / pxPerSecond) * 1000 + 2000;
@@ -46,7 +47,9 @@ export function Ruler({ width, pxPerSecond, scrollLeft, viewportWidth, durationM
   };
 
   const up = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (scrubbing.current === event.pointerId) scrubbing.current = null;
+    if (scrubbing.current !== event.pointerId) return;
+    scrubbing.current = null;
+    onScrubEnd();
   };
 
 

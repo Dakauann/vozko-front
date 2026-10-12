@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,6 +25,8 @@ const layerRaster = vi.fn();
 const toast = vi.fn();
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: (input: unknown) => toast(input) }) }));
 vi.mock("../trace/layer-raster", () => ({ layerRaster: (layer: unknown) => layerRaster(layer) }));
+const keyColor = vi.fn();
+vi.mock("../../canvas/key-color", () => ({ assetKeyColor: (...args: unknown[]) => keyColor(...args), eyeDropper: () => null }));
 
 import { createImageCommands } from "../commands";
 import { createEditorUiStore, ImageEditorContext } from "../editor-state";
@@ -42,7 +44,7 @@ function setup(layers: Layer[], selection: string[] = layers.map((l) => l.id)) {
   const commands = createImageCommands(store, ui, { requestJob: requestGeneration, naturalSize: vi.fn().mockResolvedValue({ width: 10, height: 10 }) });
   render(
     <NextIntlClientProvider locale="pt" messages={ptMessages}>
-      <ImageEditorContext.Provider value={{ store, ui, commands, projectName: "Projeto" }}>
+      <ImageEditorContext.Provider value={{ store, ui, commands, projectId: "p-1", projectName: "Projeto" }}>
         <TooltipProvider><Inspector /></TooltipProvider>
       </ImageEditorContext.Provider>
     </NextIntlClientProvider>,
@@ -60,6 +62,10 @@ function commitTyped(label: string, value: string) {
   const input = screen.getByRole("spinbutton", { name: label });
   fireEvent.change(input, { target: { value } });
   fireEvent.keyDown(input, { key: "Enter" });
+}
+
+function openTab(group: keyof typeof ptMessages.studio.inspector.groups) {
+  fireEvent.click(screen.getByRole("tab", { name: ptMessages.studio.inspector.groups[group] }));
 }
 
 function commitNumber(label: string, value: string) {
@@ -98,27 +104,40 @@ describe("Inspector", () => {
     const { store } = setup([text]);
     commitNumber(pt.inspector.text.size, "50");
     expect(layerOf(store, "t").fontSize).toBeCloseTo(0.1);
-    fireEvent.change(screen.getByLabelText(pt.inspector.text.font), { target: { value: "bebas-neue" } });
+    fireEvent.click(screen.getByRole("combobox", { name: pt.inspector.text.font }));
+    fireEvent.click(screen.getByRole("option", { name: "Bebas Neue" }));
     expect(layerOf(store, "t")).toMatchObject({ fontId: "bebas-neue", fontWeight: 400 });
     expect(screen.getByRole("button", { name: pt.inspector.text.italic })).toBeDisabled();
   });
 
-  it("turns arrow heads on and off for lines", () => {
+  it("picks the style of each line end and switches an end off", () => {
     const line = { ...newShapeLayer("line"), id: "l" };
     const { store } = setup([line]);
-    fireEvent.click(screen.getByRole("button", { name: pt.inspector.shape.headStart }));
-    expect(layerOf(store, "l").arrowStart).toBe(true);
+    const ends = ptMessages.studio.lineEnds;
+    fireEvent.change(screen.getByLabelText(ends.start), { target: { value: "dot" } });
+    expect(layerOf(store, "l")).toMatchObject({ arrowStart: true, arrowStartKind: "dot" });
+    fireEvent.change(screen.getByLabelText(ends.end), { target: { value: "none" } });
+    expect(layerOf(store, "l").arrowEnd).toBeUndefined();
+    fireEvent.change(screen.getByLabelText(ends.start), { target: { value: "arrow" } });
+    expect(layerOf(store, "l").arrowStartKind).toBeUndefined();
     expect(screen.queryByLabelText(pt.inspector.shape.fill)).toBeNull();
+  });
+
+  it("changes the number of sides of a polygon", () => {
+    const polygon = { ...newShapeLayer("polygon"), id: "p", points: 6 };
+    const { store } = setup([polygon]);
+    commitNumber(pt.inspector.shape.sides, "8");
+    expect(layerOf(store, "p").points).toBe(8);
   });
 
   it("puts arrow heads on an open vector path but never on a closed one", () => {
     const open = { id: "o", type: "shape" as const, shape: "path" as const, path: "M0 0 C0 1 1 1 1 0", stroke: "#111111", strokeWidth: 4, transform: { x: 0.5, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 } };
     const closed = { ...open, id: "c", path: "M0 0 L1 0 L1 1 Z" };
     const { store } = setup([open, closed], ["o"]);
-    fireEvent.click(screen.getByRole("button", { name: pt.inspector.shape.headEnd }));
-    expect(layerOf(store, "o").arrowEnd).toBe(true);
+    fireEvent.change(screen.getByLabelText(ptMessages.studio.lineEnds.end), { target: { value: "openArrow" } });
+    expect(layerOf(store, "o")).toMatchObject({ arrowEnd: true, arrowEndKind: "openArrow" });
     act(() => store.getState().select(["c"]));
-    expect(screen.queryByRole("button", { name: pt.inspector.shape.headEnd })).toBeNull();
+    expect(screen.queryByLabelText(ptMessages.studio.lineEnds.end)).toBeNull();
   });
 
   it("unites the selected shapes and splits a compound path back into parts", () => {
@@ -225,6 +244,7 @@ describe("Inspector", () => {
 
   it("types a saturation past the slider end, up to the filter limit", () => {
     const { store } = setup([{ ...newImageLayer("media-1"), id: "i" }]);
+    openTab("effects");
     commitTyped(pt.inspector.image.filter.saturation, "400");
     expect(layerOf(store, "i").filters?.saturation).toBe(8);
     commitTyped(pt.inspector.image.filter.saturation, "900");
@@ -247,7 +267,7 @@ describe("Inspector", () => {
     const image = { ...newImageLayer("media-1"), id: "i" };
     setup([image]);
     fireEvent.click(screen.getByRole("button", { name: pt.removeBackground.run }));
-    expect(await screen.findByText(pt.jobs.running.cutout)).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector('[data-ai-progress] [role="status"]')).toHaveTextContent(pt.jobs.running.cutout));
     expect(screen.getByRole("button", { name: pt.removeBackground.run })).toBeDisabled();
   });
 
@@ -265,6 +285,7 @@ describe("Inspector", () => {
     const { store } = setup([image]);
     fireEvent.click(screen.getByRole("button", { name: pt.inspector.image.flipX }));
     expect(layerOf(store, "i").flipX).toBe(true);
+    openTab("effects");
     fireEvent.click(screen.getByRole("button", { name: pt.inspector.image.presetNames.vivid }));
     expect(layerOf(store, "i").filters?.contrast).toBe(12);
     fireEvent.click(screen.getByRole("button", { name: pt.inspector.image.resetFilters }));
@@ -275,6 +296,7 @@ describe("Inspector", () => {
     requestGeneration.mockReturnValue(new Promise(() => {}));
     const image = { ...newImageLayer("media-1", { x: 0.5, y: 0.5, w: 0.2, h: 0.8, rotation: 0, opacity: 1 }), id: "i" };
     setup([image]);
+    openTab("effects");
     const run = screen.getByRole("button", { name: pt.inspector.image.editRun });
     expect(run).toBeDisabled();
     fireEvent.change(screen.getByLabelText(pt.inspector.image.editPrompt), { target: { value: "fundo de praia" } });
@@ -306,11 +328,14 @@ describe("Inspector", () => {
   it("curves text, adds a background highlight and a gradient fill", () => {
     const text = { ...newTextLayer("Oi"), id: "t" };
     const { store } = setup([text]);
+    openTab("effects");
     fireEvent.click(screen.getByRole("switch", { name: pt.inspector.text.highlight }));
     expect(layerOf(store, "t").highlight).toEqual({ color: "#ffe14d", radius: 0.2 });
+    openTab("basic");
     fireEvent.click(screen.getByRole("switch", { name: pt.inspector.gradient.toggle }));
     expect(layerOf(store, "t").gradient?.from).toBe(text.fill);
     expect(screen.queryByRole("textbox", { name: pt.inspector.text.color })).toBeNull();
+    openTab("effects");
     const curve = screen.getAllByRole("slider").find((el) => el.closest("div")?.parentElement?.textContent?.includes(pt.inspector.text.curve));
     expect(curve).toBeDefined();
   });
@@ -325,6 +350,7 @@ describe("Inspector", () => {
     layerRaster.mockResolvedValue({ width: 20, height: 20, data });
     const image = { ...newImageLayer("media-1"), id: "i" };
     const { store } = setup([image]);
+    openTab("effects");
     fireEvent.click(screen.getByRole("button", { name: vectors.trace.run }));
     await waitFor(() => expect(store.getState().document.artboards[0].layers.length).toBeGreaterThan(1));
     expect(layerOf(store, "i").hidden).toBe(true);
@@ -344,5 +370,232 @@ describe("Inspector", () => {
     const { store } = setup([]);
     fireEvent.click(screen.getByRole("switch", { name: pt.inspector.gradient.toggle }));
     expect(store.getState().document.artboards[0].canvas.gradient?.from).toBe("#ffffff");
+  });
+});
+
+describe("color correction on image layers", () => {
+  it("grades a photo with a slider, applies a look and resets", () => {
+    const photo = { ...newImageLayer("img", { x: 0.5, y: 0.5, w: 0.5, h: 0.5, rotation: 0, opacity: 1 }), id: "p" };
+    const { store } = setup([photo]);
+    openTab("color");
+    const section = within(screen.getByRole("group", { name: ptMessages.studio.grade.title }));
+    fireEvent.keyDown(section.getByRole("slider", { name: ptMessages.studio.grade.fields.temperature }), { key: "ArrowRight" });
+    expect(layerOf(store, "p").color).toEqual({ temperature: 1 });
+    fireEvent.click(section.getByRole("button", { name: ptMessages.studio.grade.lookNames.cool }));
+    expect(layerOf(store, "p").color).toEqual({ temperature: -35, tint: -5, contrast: 5 });
+    fireEvent.click(section.getByRole("button", { name: ptMessages.studio.grade.reset }));
+    expect(layerOf(store, "p").color).toBeUndefined();
+  });
+});
+
+describe("green screen on image layers", () => {
+  const chroma = ptMessages.studio.chroma;
+
+  it("detects the screen, tunes the key, says when nothing is found and turns it off", { timeout: 15_000 }, async () => {
+    keyColor.mockReset();
+    keyColor.mockResolvedValueOnce("#2fbf4a");
+    const photo = { ...newImageLayer("img", { x: 0.5, y: 0.5, w: 0.5, h: 0.5, rotation: 0, opacity: 1 }), id: "p" };
+    const { store } = setup([photo]);
+    openTab("cutout");
+    const section = () => within(screen.getByRole("group", { name: chroma.title }));
+    fireEvent.click(section().getByRole("button", { name: chroma.start.auto }));
+    await waitFor(() => expect(layerOf(store, "p").chromaKey).toEqual({ color: "#2fbf4a", similarity: 0.4, smoothness: 0.08, spill: 0.1 }));
+    expect(keyColor).toHaveBeenCalledWith("img", undefined);
+    fireEvent.keyDown(section().getByRole("slider", { name: chroma.fields.spill }), { key: "ArrowRight" });
+    expect(layerOf(store, "p").chromaKey?.spill).toBeCloseTo(0.105);
+    fireEvent.click(section().getByRole("button", { name: chroma.presets.blue }));
+    expect(layerOf(store, "p").chromaKey?.color).toBe("#0099ff");
+    keyColor.mockResolvedValueOnce(null);
+    fireEvent.click(section().getByRole("button", { name: chroma.detect }));
+    expect(await section().findByText(chroma.notFound)).toBeInTheDocument();
+    expect(layerOf(store, "p").chromaKey?.color).toBe("#0099ff");
+    fireEvent.click(section().getByRole("button", { name: chroma.remove }));
+    expect(layerOf(store, "p").chromaKey).toBeUndefined();
+  });
+});
+
+describe("patterns, paint lists, effects and gradient maps", () => {
+  const paint = ptMessages.studio.image.paint;
+  const region = (name: string) => within(screen.getByRole("region", { name }));
+
+  it("turns a pattern on and sets its motif, repeat and size", () => {
+    const shape = { ...newShapeLayer("rect"), id: "s" };
+    const { store } = setup([shape]);
+    fireEvent.click(screen.getByRole("switch", { name: paint.pattern.toggle }));
+    expect(layerOf(store, "s").pattern).toMatchObject({ source: "preset", presetId: "dots", size: 32, opacity: 1 });
+    const section = region(paint.pattern.title);
+    fireEvent.change(section.getByLabelText(paint.pattern.preset), { target: { value: "waves" } });
+    fireEvent.change(section.getByLabelText(paint.pattern.tile), { target: { value: "brick-row" } });
+    const size = section.getByLabelText(paint.pattern.size);
+    fireEvent.change(size, { target: { value: "48" } });
+    fireEvent.keyDown(size, { key: "Enter" });
+    expect(layerOf(store, "s").pattern).toMatchObject({ presetId: "waves", tile: "brick-row", offset: 0.5, size: 48 });
+    fireEvent.click(screen.getByRole("switch", { name: paint.pattern.toggle }));
+    expect(layerOf(store, "s").pattern).toBeUndefined();
+  });
+
+  it("stacks fills and strokes by hand and hides the single fill controls", () => {
+    const text = { ...newTextLayer("Oi"), id: "t" };
+    const { store } = setup([text]);
+    fireEvent.click(screen.getByRole("button", { name: paint.fills.add }));
+    expect(layerOf(store, "t").fills?.map((p) => p.type)).toEqual(["solid", "solid"]);
+    expect(layerOf(store, "t").fill).toBeUndefined();
+    expect(region(pt.inspector.text.title).queryByRole("textbox", { name: pt.inspector.text.color })).toBeNull();
+    const second = within(screen.getByRole("group", { name: paint.fills.row.replace("{number}", "2") }));
+    fireEvent.change(second.getByLabelText(paint.fills.type), { target: { value: "pattern" } });
+    expect(layerOf(store, "t").fills?.[1]).toMatchObject({ type: "pattern", pattern: { presetId: "dots" } });
+    fireEvent.click(screen.getByRole("button", { name: paint.strokes.add }));
+    expect(layerOf(store, "t").strokes).toEqual([{ type: "solid", color: "#000000", opacity: 1, width: 4, align: "outside" }]);
+    const stroke = within(screen.getByRole("group", { name: paint.strokes.row.replace("{number}", "1") }));
+    fireEvent.change(stroke.getByLabelText(paint.strokes.align), { target: { value: "inside" } });
+    const width = stroke.getByLabelText(paint.strokes.width);
+    fireEvent.change(width, { target: { value: "6" } });
+    fireEvent.keyDown(width, { key: "Enter" });
+    expect(layerOf(store, "t").strokes?.[0]).toMatchObject({ align: "inside", width: 6 });
+    fireEvent.click(within(screen.getByRole("group", { name: paint.fills.row.replace("{number}", "2") })).getByRole("button", { name: paint.remove }));
+    expect(layerOf(store, "t").fills).toHaveLength(1);
+  });
+
+  it("turns the single shadow into an effect list, then orders and hides effects", () => {
+    const shape = { ...newShapeLayer("rect"), id: "s", shadow: { color: "#00000066", blur: 12, x: 0, y: 6 } };
+    const { store } = setup([shape]);
+    openTab("effects");
+    expect(screen.getByRole("switch", { name: pt.inspector.shadow.toggle })).toBeInTheDocument();
+    fireEvent.click(region(paint.effects.title).getByRole("button", { name: paint.effects.types["inner-shadow"] }));
+    expect(layerOf(store, "s").shadow).toBeUndefined();
+    expect(layerOf(store, "s").effects?.map((e) => e.type)).toEqual(["drop-shadow", "inner-shadow"]);
+    expect(screen.queryByRole("switch", { name: pt.inspector.shadow.toggle })).toBeNull();
+    const inner = within(screen.getByRole("group", { name: paint.effects.types["inner-shadow"] }));
+    fireEvent.click(inner.getByRole("button", { name: paint.moveUp }));
+    expect(layerOf(store, "s").effects?.map((e) => e.type)).toEqual(["inner-shadow", "drop-shadow"]);
+    const blur = inner.getByLabelText(paint.effects.blur);
+    fireEvent.change(blur, { target: { value: "20" } });
+    fireEvent.keyDown(blur, { key: "Enter" });
+    expect(layerOf(store, "s").effects?.[0].blur).toBe(20);
+    fireEvent.click(inner.getByRole("button", { name: paint.hide }));
+    expect(layerOf(store, "s").effects?.[0].hidden).toBe(true);
+  });
+
+  it("maps a photo through a gradient with presets, stops and intensity", () => {
+    const photo = { ...newImageLayer("img"), id: "p" };
+    const { store } = setup([photo]);
+    openTab("color");
+    fireEvent.click(screen.getByRole("switch", { name: paint.gradientMap.toggle }));
+    expect(layerOf(store, "p").gradientMap).toEqual({ stops: [{ at: 0, color: "#1b1464" }, { at: 1, color: "#ffd166" }], intensity: 1 });
+    const section = region(paint.gradientMap.title);
+    fireEvent.change(section.getByLabelText(paint.gradientMap.preset), { target: { value: "menta" } });
+    expect(layerOf(store, "p").gradientMap?.stops.map((s) => s.color)).toEqual(["#123b2e", "#b8f5d2"]);
+    fireEvent.click(section.getByRole("button", { name: paint.gradientMap.addStop }));
+    expect(layerOf(store, "p").gradientMap?.stops).toHaveLength(3);
+    fireEvent.click(section.getByRole("switch", { name: paint.gradientMap.reverse }));
+    fireEvent.keyDown(section.getByRole("slider", { name: paint.gradientMap.intensity }), { key: "ArrowLeft" });
+    expect(layerOf(store, "p").gradientMap).toMatchObject({ reverse: true, intensity: 0.99 });
+  });
+
+  it("outlines a picture with a traced solid stroke only", () => {
+    const photo = { ...newImageLayer("img"), id: "p" };
+    const { store } = setup([photo]);
+    fireEvent.click(screen.getByRole("button", { name: paint.strokes.add }));
+    expect(layerOf(store, "p").strokes).toEqual([{ type: "solid", color: "#000000", opacity: 1, width: 4, align: "outside" }]);
+    const row = within(screen.getByRole("group", { name: paint.strokes.row.replace("{number}", "1") }));
+    expect(row.queryByLabelText(paint.strokes.align)).toBeNull();
+    expect(row.queryByLabelText(paint.fills.type)).toBeNull();
+    expect(row.getByText(paint.strokes.traced)).toBeInTheDocument();
+  });
+});
+
+describe("repeat", () => {
+  const repeatText = ptMessages.studio.image.repeat;
+  const section = () => within(screen.getByRole("region", { name: repeatText.title }));
+  const groups = (store: ReturnType<typeof setup>["store"]) => store.getState().document.artboards[0].groups ?? [];
+
+  it("repeats a layer radially, tunes the copies and takes the repeat off", () => {
+    const shape = { ...newShapeLayer("ellipse", { x: 0.5, y: 0.3, w: 0.04, h: 0.1, rotation: 0, opacity: 1 }), id: "s" };
+    const { store } = setup([shape]);
+    fireEvent.click(section().getByRole("button", { name: repeatText.modes.radial }));
+    expect(groups(store)[0].repeat).toEqual({ mode: "radial", count: 8, radius: 50, startAngle: -90 });
+    expect(layerOf(store, "s").groupId).toBe(groups(store)[0].id);
+    const count = section().getByLabelText(repeatText.count);
+    fireEvent.change(count, { target: { value: "12" } });
+    fireEvent.keyDown(count, { key: "Enter" });
+    expect(groups(store)[0].repeat?.count).toBe(12);
+    fireEvent.change(section().getByLabelText(repeatText.mode), { target: { value: "grid" } });
+    expect(groups(store)[0].repeat).toEqual({ mode: "grid", rows: 3, columns: 3 });
+    fireEvent.click(section().getByRole("button", { name: repeatText.remove }));
+    expect(groups(store)).toEqual([]);
+    expect(layerOf(store, "s").groupId).toBeUndefined();
+  });
+
+  it("expands a mirror into real layers", () => {
+    const shape = { ...newShapeLayer("triangle", { x: 0.3, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 }), id: "s" };
+    const { store } = setup([shape]);
+    fireEvent.click(section().getByRole("button", { name: repeatText.modes.mirror }));
+    fireEvent.click(section().getByRole("button", { name: repeatText.expand }));
+    const layers = store.getState().document.artboards[0].layers;
+    expect(layers).toHaveLength(2);
+    expect(layers[1]).toMatchObject({ type: "shape", shape: "triangle", flipX: true });
+    expect(groups(store).every((g) => !g.repeat)).toBe(true);
+  });
+});
+
+describe("stroke details by hand", () => {
+  function typePattern(scope: ReturnType<typeof within> | typeof screen, value: string) {
+    const field = scope.getByRole("textbox", { name: vectors.stroke.pattern });
+    fireEvent.change(field, { target: { value } });
+    fireEvent.blur(field);
+    return field;
+  }
+
+  it("types a custom dash pattern and rounds the ends of a dashed text outline", () => {
+    const text = { ...newTextLayer("Oi"), id: "t", stroke: "#000000", strokeWidth: 3, dashArray: [3, 2] };
+    const { store } = setup([text]);
+    typePattern(screen, "5 1 1 1");
+    expect(layerOf(store, "t").dashArray).toEqual([5, 1, 1, 1]);
+    expect(typePattern(screen, "0 0").getAttribute("aria-invalid")).toBe("true");
+    expect(layerOf(store, "t").dashArray).toEqual([5, 1, 1, 1]);
+    fireEvent.click(screen.getByRole("button", { name: vectors.stroke.cap.round }));
+    expect(layerOf(store, "t").lineCap).toBe("round");
+  });
+
+  it("gives one stroke of the list its own pattern, ends, corners and offset", () => {
+    const shape = { ...newShapeLayer("rect"), id: "s", strokes: [{ type: "solid" as const, color: "#000000", opacity: 1, width: 4, align: "center" as const }] };
+    const { store } = setup([shape]);
+    const row = within(screen.getByRole("group", { name: ptMessages.studio.image.paint.strokes.row.replace("{number}", "1") }));
+    fireEvent.change(row.getByLabelText(vectors.stroke.dash), { target: { value: "dashed" } });
+    typePattern(row, "4 2 1 2");
+    fireEvent.click(row.getByRole("button", { name: vectors.stroke.cap.square }));
+    fireEvent.click(row.getByRole("button", { name: vectors.stroke.join.bevel }));
+    const offset = row.getByLabelText(vectors.stroke.dashOffset);
+    fireEvent.change(offset, { target: { value: "2" } });
+    fireEvent.keyDown(offset, { key: "Enter" });
+    expect(layerOf(store, "s").strokes?.[0]).toMatchObject({ dashArray: [4, 2, 1, 2], lineCap: "square", lineJoin: "bevel", dashOffset: 2 });
+  });
+});
+
+describe("clipping by hand", () => {
+  it("clips a layer to the one below from the arrange section and releases it", () => {
+    const below = { ...newShapeLayer("rect"), id: "b" };
+    const above = { ...newTextLayer("Oi"), id: "t" };
+    const { store } = setup([below, above], ["t"]);
+    const layers = ptMessages.studio.image.panels.layers;
+    fireEvent.click(within(screen.getByRole("group", { name: pt.inspector.arrange.edit })).getByRole("button", { name: layers.clip }));
+    expect(layerOf(store, "t").clip).toBe(true);
+    fireEvent.click(within(screen.getByRole("group", { name: pt.inspector.arrange.edit })).getByRole("button", { name: layers.unclip }));
+    expect(layerOf(store, "t").clip).toBeUndefined();
+  });
+});
+describe("path operators in the image inspector", () => {
+  it("stacks a preset on a shape and merges two shapes live", { timeout: 15_000 }, () => {
+    const card = { ...newShapeLayer("rect", { x: 0.5, y: 0.5, w: 0.4, h: 0.4, rotation: 0, opacity: 1 }), id: "card", fill: "#ff0000" };
+    const dot = { ...newShapeLayer("ellipse", { x: 0.7, y: 0.5, w: 0.2, h: 0.2, rotation: 0, opacity: 1 }), id: "dot", fill: "#00ff00" };
+    const single = setup([card, dot], ["card"]);
+    fireEvent.click(screen.getByTitle("Aplicar Rosca"));
+    expect(layerOf(single.store, "card").pathOps?.map((op) => op.kind)).toEqual(["merge"]);
+    act(() => single.store.getState().select(["card", "dot"]));
+    fireEvent.click(screen.getByRole("tab", { name: "Efeitos" }));
+    fireEvent.click(screen.getByRole("button", { name: "Unir" }));
+    const layers = single.store.getState().document.artboards[0].layers;
+    expect(layers.map((layer) => layer.id)).toEqual(["card"]);
+    expect(layers[0].pathOps?.map((op) => op.kind)).toEqual(["merge", "merge"]);
   });
 });

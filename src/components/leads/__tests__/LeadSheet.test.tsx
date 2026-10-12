@@ -182,6 +182,30 @@ describe("LeadSheet, a new lead", () => {
     expect(await within(row).findByText("Vinculado")).toBeInTheDocument();
   });
 
+  it("signs up a relative with a full record and links them when the main lead is saved", async () => {
+    leadActions.createLeadAction
+      .mockResolvedValueOnce({ lead: { ...storedLead({ id: "relative-1", name: "Bia Souza", realName: "Bia Souza", number: "5584999990000", version: 1 }), duplicates: [] }, error: null })
+      .mockResolvedValueOnce({ lead: { ...storedLead({ id: "new-1", name: "Ana", realName: "Ana", version: 1 }), duplicates: [] }, error: null });
+    leadActions.linkLeadRelationAction.mockResolvedValue({ result: { id: "r-1" }, error: null });
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Nome completo"), { target: { value: "Ana" } });
+    fireEvent.change(screen.getByLabelText("Nome ou telefone"), { target: { value: "Bia Souza" } });
+    fireEvent.click(screen.getByRole("button", { name: "Cadastro completo do familiar" }));
+
+    const relativeSheet = await screen.findByRole("dialog", { name: "Novo familiar: Cônjuge" });
+    expect(within(relativeSheet).getByLabelText("Nome completo")).toHaveValue("Bia Souza");
+    fireEvent.change(within(relativeSheet).getByLabelText("E-mail"), { target: { value: "bia@example.com" } });
+    fireEvent.click(within(relativeSheet).getByRole("button", { name: "Salvar lead" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Novo familiar: Cônjuge" })).not.toBeInTheDocument());
+    expect(leadActions.createLeadAction).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: "Bia Souza", email: "bia@example.com" }));
+    expect(screen.getByText(/será vinculado ao salvar/)).toBeInTheDocument();
+
+    save();
+    await waitFor(() => expect(leadActions.linkLeadRelationAction).toHaveBeenCalledWith("new-1", "relative-1", "spouse"));
+    expect(leadActions.addLeadRelativeAction).not.toHaveBeenCalled();
+  });
+
   it("points at an empty contact phone row", async () => {
     renderSheet();
     fireEvent.change(screen.getByLabelText("Nome completo"), { target: { value: "Ana" } });

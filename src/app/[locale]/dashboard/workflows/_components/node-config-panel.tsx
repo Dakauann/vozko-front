@@ -110,6 +110,7 @@ import {
 import { fetchGoogleConnection } from "@/lib/calendar/client";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import type { ModelPricingInfo } from "@/lib/agents/types";
+import { REASONING_LEVEL_KEY, reasoningAfterModelChange, reasoningOptionsOf, type ReasoningAdjustment } from "@/lib/ai-models/reasoning";
 import { useAgentRequiredVariables } from "@/lib/agents/use-agent-required-variables";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
@@ -632,6 +633,7 @@ export function NodeConfigPanel({
                     const hidden = [
                       "source",
                       "model",
+                      REASONING_LEVEL_KEY,
                       "instructions",
                       "agent_id",
                       "agent_prompt",
@@ -2103,7 +2105,8 @@ function AIAgentSection({
           <div className="space-y-1">
             <ModelCombobox
               value={(config.model as string) ?? ""}
-              onValueChange={(v: string) => updateField("model", v)}
+              reasoning={(config[REASONING_LEVEL_KEY] as string) ?? ""}
+              onChoiceChange={(model, level) => updateField("model", model, { [REASONING_LEVEL_KEY]: level })}
             />
             {!config.model && (
               <p className="text-2xs text-destructive-ink">Campo obrigatório</p>
@@ -2916,16 +2919,35 @@ function ModelCombobox({
   label,
   value,
   onValueChange,
+  reasoning,
+  onChoiceChange,
 }: {
   label?: string;
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange?: (value: string) => void;
+  reasoning?: string;
+  onChoiceChange?: (model: string, reasoning: string) => void;
 }) {
   const nc = useTranslations("workflows.nodeConfig");
   const [models, setModels] = useState<string[]>([]);
   const [modelPricing, setModelPricing] = useState<ModelPricingInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [adjusted, setAdjusted] = useState<ReasoningAdjustment | null>(null);
+
+  const chooseModel = (next: string) => {
+    if (!onChoiceChange) {
+      onValueChange?.(next);
+      return;
+    }
+    const change = reasoningAfterModelChange(reasoning ?? "", reasoningOptionsOf(modelPricing, next));
+    setAdjusted(change.adjusted);
+    onChoiceChange(next, change.level);
+  };
+  const chooseReasoning = (level: string) => {
+    setAdjusted(null);
+    onChoiceChange?.(value, level);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -2969,11 +2991,15 @@ function ModelCombobox({
       <AIModelSelector
         label={label ?? nc("aiModelLabel")}
         value={value}
-        onValueChange={onValueChange}
+        onValueChange={chooseModel}
         models={models}
         modelPricing={modelPricing}
         disabled={loading || models.length === 0}
-        emptyMessage={loadError ?? "Nenhum modelo encontrado"}
+        emptyMessage={loadError ?? undefined}
+        reasoning={reasoning}
+        onReasoningChange={onChoiceChange ? chooseReasoning : undefined}
+        reasoningAdjusted={adjusted}
+        onReasoningAcknowledge={() => setAdjusted(null)}
       />
       {loadError && <p className="text-2xs text-destructive-ink">{loadError}</p>}
     </div>

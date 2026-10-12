@@ -1,9 +1,10 @@
-import { takesArrowheads } from "../arrowheads";
-import { BLEND_MODES, FILL_RULES, GRADIENT_KINDS, LINE_CAPS, LINE_JOINS, MAX_DASH_VALUES, newPathLayer, newShapeLayer, RADIAL_RADIUS_RANGE, SHAPE_KINDS, type BlendMode, type CanvasSize, type FillRule, type Gradient, type LineCap, type LineJoin, type Highlight, type Layer, type Shadow, type ShapeKind, type TextAlign, type Transform } from "../document";
+import { endPatch, takesArrowheads, type LineEnd } from "../arrowheads";
+import { BLEND_MODES, FILL_RULES, GRADIENT_KINDS, LINE_CAPS, LINE_END_KINDS, LINE_JOINS, MAX_DASH_VALUES, newPathLayer, newShapeLayer, RADIAL_RADIUS_RANGE, SHAPE_KINDS, type BlendMode, type CanvasSize, type FillRule, type Gradient, type LineCap, type LineEndKind, type LineJoin, type Highlight, type Layer, type Shadow, type ShapeKind, type TextAlign, type Transform } from "../document";
 import { FONT_IDS, type FontId } from "../fonts";
 import { DEFAULT_HIGHLIGHT, DEFAULT_SHADOW } from "../layer-effects";
 import { LAYER_RANGES, type Range } from "../layer-ranges";
 import { isValidColor } from "../validate";
+import { dashPatternFits } from "../stroke-presets";
 import { isValidPath } from "../vector-path";
 import { isVectorPreset, VECTOR_PRESET_IDS, VECTOR_PRESETS, vectorPresetLayer } from "../vector-presets";
 
@@ -66,6 +67,8 @@ export interface AgentStyle {
   dash?: boolean;
   arrow_start?: boolean;
   arrow_end?: boolean;
+  arrow_start_kind?: string;
+  arrow_end_kind?: string;
   shadow?: AgentShadow;
   gradient?: AgentGradient;
   highlight?: AgentHighlight;
@@ -95,6 +98,8 @@ const STYLE_KEYS = [
   "dash",
   "arrow_start",
   "arrow_end",
+  "arrow_start_kind",
+  "arrow_end_kind",
   "shadow",
   "clear",
   "path",
@@ -123,6 +128,12 @@ const CLEAR_PATCHES = {
   clip: { clip: undefined },
   blend_mode: { blendMode: undefined },
   crop: {},
+  pattern: { pattern: undefined },
+  gradient_map: { gradientMap: undefined },
+  fills: { fills: undefined },
+  strokes: { strokes: undefined },
+  effects: { effects: undefined },
+  mask: { mask: undefined },
 } satisfies Record<string, Partial<Layer>>;
 
 export type ClearableEffect = keyof typeof CLEAR_PATCHES;
@@ -131,7 +142,7 @@ export const SHARED_CLEARS: readonly ClearableEffect[] = ["shadow", "stroke"];
 
 export const LAYER_CLEARS: readonly ClearableEffect[] = [...SHARED_CLEARS, "gradient", "highlight", "curve", "blend_mode"];
 
-export const IMAGE_CLEARS: readonly ClearableEffect[] = [...LAYER_CLEARS, "crop", "filters", "frame", "clip"];
+export const IMAGE_CLEARS: readonly ClearableEffect[] = [...LAYER_CLEARS, "crop", "filters", "frame", "clip", "pattern", "gradient_map", "fills", "strokes", "effects", "mask"];
 
 export function hasBox(op: AgentBox): boolean {
   return BOX_KEYS.some((key) => op[key] !== undefined);
@@ -175,7 +186,7 @@ export function outOfRange(name: string, value: number | undefined, [lo, hi]: Ra
   return `${name} vai de ${lo} a ${hi}`;
 }
 
-function firstProblem(...problems: (string | null)[]): string | null {
+export function firstProblem(...problems: (string | null)[]): string | null {
   return problems.find((problem) => problem !== null) ?? null;
 }
 
@@ -252,7 +263,7 @@ export function stylePatch(op: AgentStyle, clears: readonly ClearableEffect[] = 
   }
   if (op.dash_array !== undefined) {
     const dashes = op.dash_array;
-    if (dashes.length > MAX_DASH_VALUES || dashes.some((v) => outOfRange("dash_array", v, LAYER_RANGES.dashValue) !== null) || (dashes.length > 0 && dashes.every((v) => v === 0))) {
+    if (!dashPatternFits(dashes)) {
       return { ok: false, reason: `dash_array leva até ${MAX_DASH_VALUES} valores de 0 a ${LAYER_RANGES.dashValue[1]}, nem todos zero; [] volta ao traço contínuo` };
     }
     patch.dashArray = dashes.length > 0 ? dashes : undefined;
@@ -289,8 +300,9 @@ export function stylePatch(op: AgentStyle, clears: readonly ClearableEffect[] = 
   if (op.letter_spacing !== undefined) patch.letterSpacing = op.letter_spacing;
   if (op.radius !== undefined) patch.radius = op.radius;
   if (op.dash !== undefined) patch.dash = op.dash;
-  if (op.arrow_start !== undefined) patch.arrowStart = op.arrow_start;
-  if (op.arrow_end !== undefined) patch.arrowEnd = op.arrow_end;
+  const ends = lineEndsPatch(op);
+  if (!ends.ok) return ends;
+  Object.assign(patch, ends.value);
   if (op.points !== undefined) patch.points = op.points;
   if (op.miter_limit !== undefined) patch.miterLimit = op.miter_limit;
   if (op.dash_offset !== undefined) patch.dashOffset = op.dash_offset;
@@ -302,6 +314,21 @@ export function stylePatch(op: AgentStyle, clears: readonly ClearableEffect[] = 
   }
   const effects = effectsOf(op);
   return effects.ok ? { ok: true, value: { ...patch, ...effects.value } } : effects;
+}
+
+function lineEndPatch(on: boolean | undefined, kind: string | undefined, end: LineEnd, name: string): Patched<Partial<Layer>> {
+  if (kind !== undefined && !(LINE_END_KINDS as readonly string[]).includes(kind)) return { ok: false, reason: `${name} precisa ser um de: ${LINE_END_KINDS.join(", ")}` };
+  if (kind !== undefined && on === false) return { ok: false, reason: `${name} não combina com a ponta desligada` };
+  if (kind !== undefined) return { ok: true, value: endPatch(end, kind as LineEndKind) };
+  if (on === undefined) return { ok: true, value: {} };
+  return { ok: true, value: on ? (end === "start" ? { arrowStart: true } : { arrowEnd: true }) : endPatch(end, "none") };
+}
+
+function lineEndsPatch(op: AgentStyle): Patched<Partial<Layer>> {
+  const start = lineEndPatch(op.arrow_start, op.arrow_start_kind, "start", "arrow_start_kind");
+  if (!start.ok) return start;
+  const end = lineEndPatch(op.arrow_end, op.arrow_end_kind, "end", "arrow_end_kind");
+  return end.ok ? { ok: true, value: { ...start.value, ...end.value } } : end;
 }
 
 function effectsOf(op: AgentStyle): Patched<Partial<Layer>> {
@@ -334,6 +361,7 @@ const textRule: Rule = { fits: (l) => l.type === "text", reason: "só vale para 
 const imageRule: Rule = { fits: (l) => l.type === "image", reason: "só vale para imagens" };
 const arrowheadRule: Rule = { fits: takesArrowheads, reason: "só vale para linhas, setas e caminhos abertos" };
 const starRule: Rule = { fits: (l) => l.type === "shape" && l.shape === "star", reason: "só vale para estrelas" };
+const pointsRule: Rule = { fits: (l) => l.type === "shape" && (l.shape === "star" || l.shape === "polygon"), reason: "só vale para estrelas e polígonos" };
 const strokeRule: Rule = { fits: (l) => l.type !== "icon", reason: "não vale para ícones" };
 const pathRule: Rule = { fits: (l) => l.type === "shape" && l.shape === "path", reason: "só vale para formas vetoriais (shape path)" };
 
@@ -354,7 +382,9 @@ const RULES: { [K in keyof Layer]?: Rule } = {
   dash: { fits: (l) => l.type === "shape" || l.type === "text", reason: "só vale para formas e contornos de texto" },
   arrowStart: arrowheadRule,
   arrowEnd: arrowheadRule,
-  points: starRule,
+  arrowStartKind: arrowheadRule,
+  arrowEndKind: arrowheadRule,
+  points: pointsRule,
   inner: starRule,
   path: pathRule,
   fillRule: pathRule,
@@ -379,6 +409,8 @@ const AGENT_NAMES: { [K in keyof Layer]?: string } = {
   strokeWidth: "stroke_width",
   arrowStart: "arrow_start",
   arrowEnd: "arrow_end",
+  arrowStartKind: "arrow_start_kind",
+  arrowEndKind: "arrow_end_kind",
   flipX: "flip_x",
   flipY: "flip_y",
   blendMode: "blend_mode",

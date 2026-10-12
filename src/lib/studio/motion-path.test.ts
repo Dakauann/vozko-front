@@ -18,12 +18,12 @@ const travel: Keyframes = {
 
 describe("motion path", () => {
   it("has no path without position keys", () => {
-    expect(motionPath(still)).toBeNull();
-    expect(motionPath({ ...still, keyframes: { opacity: [{ atMs: 0, value: 1, easing: "linear" }] } })).toBeNull();
+    expect(motionPath(still, 1)).toBeNull();
+    expect(motionPath({ ...still, keyframes: { opacity: [{ atMs: 0, value: 1, easing: "linear" }] } }, 1)).toBeNull();
   });
 
   it("puts a pad at every position key time with the position there", () => {
-    const path = motionPath({ ...still, keyframes: travel })!;
+    const path = motionPath({ ...still, keyframes: travel }, 1)!;
     expect(path.keys.map((k) => k.atMs)).toEqual([0, 1000, 2000]);
     expect(path.keys[1].x).toBeCloseTo(0.5);
     expect(path.keys[1].y).toBeCloseTo(0.2);
@@ -31,7 +31,7 @@ describe("motion path", () => {
   });
 
   it("samples the curve between the first and the last key", () => {
-    const path = motionPath({ ...still, keyframes: travel }, 9)!;
+    const path = motionPath({ ...still, keyframes: travel }, 1, 9)!;
     expect(path.points).toHaveLength(9);
     expect(path.points[0]).toEqual({ x: 0.1, y: 0.2 });
     expect(path.points.at(-1)!.x).toBeCloseTo(0.9);
@@ -39,7 +39,7 @@ describe("motion path", () => {
   });
 
   it("uses the static value for an axis that is not animated", () => {
-    const path = motionPath({ ...still, keyframes: { x: travel.x } })!;
+    const path = motionPath({ ...still, keyframes: { x: travel.x } }, 1)!;
     expect(path.keys.every((k) => k.y === 0.5)).toBe(true);
   });
 

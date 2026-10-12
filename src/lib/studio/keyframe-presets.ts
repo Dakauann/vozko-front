@@ -1,6 +1,6 @@
 import type { Clip } from "./document";
 import { isEditableTarget, type KeyStroke } from "./keymap";
-import { KEYFRAME_LIMITS, KEYFRAME_PROPERTIES, keyframeCount, keyframesIssue, shiftKeyframes, type Easing, type Keyframe, type KeyframeProperty, type Keyframes } from "./keyframes";
+import { animatedProperties, keyframeCount, keyframesIssue, mergeKeyframes, replaceLanes, shiftKeyframes, timedFramesOf, type Easing, type Keyframe, type Keyframes } from "./keyframes";
 import type { Refusal } from "./selection-edit";
 import type { ClipPatch } from "./timeline";
 
@@ -43,7 +43,7 @@ function fadeUp(clip: PresetClip, ms: number): Keyframe[] {
 }
 
 function evenTimes(durationMs: number, periodMs: number): number[] {
-  const count = Math.min(KEYFRAME_LIMITS.perProperty, Math.max(2, Math.floor(durationMs / periodMs) + 1));
+  const count = Math.max(2, Math.floor(durationMs / periodMs) + 1);
   return Array.from({ length: count }, (_, i) => Math.round((i * durationMs) / (count - 1)));
 }
 
@@ -76,24 +76,15 @@ export function presetKeyframes(id: KeyframePresetId, clip: PresetClip): Keyfram
 }
 
 function refusalFor(keyframes: Keyframes | undefined, clip: PresetClip): Refusal | null {
-  const issue = keyframesIssue(keyframes, clip.transform);
-  if (issue === null) return null;
-  return issue === "too_many" ? "keyframeLimit" : "outOfRange";
+  return keyframesIssue(keyframes, clip.transform) === null ? null : "outOfRange";
 }
 
 function checked(keyframes: Keyframes | undefined, clip: PresetClip): ClipPatch | Refusal {
   return refusalFor(keyframes, clip) ?? { keyframes };
 }
 
-function presentProperties(k: Keyframes): KeyframeProperty[] {
-  return KEYFRAME_PROPERTIES.filter((property) => (k[property] ?? []).length > 0);
-}
-
-export function withPreset(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): Keyframes {
-  const preset = presetKeyframes(id, clip);
-  const keyframes: Keyframes = { ...clip.keyframes };
-  for (const property of presentProperties(preset)) keyframes[property] = preset[property];
-  return keyframes;
+export function withPreset(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): Keyframes | undefined {
+  return replaceLanes(clip.keyframes, presetKeyframes(id, clip));
 }
 
 export function presetPatch(clip: PresetClip & Pick<Clip, "keyframes">, id: KeyframePresetId): ClipPatch | Refusal {
@@ -102,28 +93,21 @@ export function presetPatch(clip: PresetClip & Pick<Clip, "keyframes">, id: Keyf
 
 export function captureKeyframes(clip: Pick<Clip, "keyframes">): Keyframes | null {
   if (keyframeCount(clip.keyframes) === 0) return null;
-  const first = Math.min(...KEYFRAME_PROPERTIES.flatMap((property) => (clip.keyframes?.[property] ?? []).map((frame) => frame.atMs)));
+  const first = Math.min(...animatedProperties(clip.keyframes).flatMap((property) => timedFramesOf(clip.keyframes, property).map((frame) => frame.atMs)));
   return shiftKeyframes(clip.keyframes, -first) ?? null;
 }
 
 export function pastePatch(clip: PresetClip & Pick<Clip, "keyframes">, snippet: Keyframes, localMs: number | null): ClipPatch | Refusal {
   if (localMs === null) return "keyframeOutside";
-  const placed = shiftKeyframes(snippet, Math.round(localMs)) ?? {};
-  const keyframes: Keyframes = { ...clip.keyframes };
-  for (const property of presentProperties(placed)) {
-    const incoming = placed[property] ?? [];
-    const times = new Set(incoming.map((frame) => frame.atMs));
-    const kept = (clip.keyframes?.[property] ?? []).filter((frame) => !times.has(frame.atMs));
-    keyframes[property] = [...kept, ...incoming].sort((a, b) => a.atMs - b.atMs);
-  }
-  return checked(keyframes, clip);
+  return checked(mergeKeyframes(clip.keyframes, shiftKeyframes(snippet, Math.round(localMs)) ?? {}), clip);
 }
 
-export type KeyframeClipboardAction = "copy" | "paste";
+export type KeyframeClipboardAction = "copy" | "paste" | "reversePaste";
 
 export function keyframeClipboardAction(stroke: KeyStroke): KeyframeClipboardAction | null {
-  if (!(stroke.ctrlKey || stroke.metaKey) || !stroke.altKey || stroke.shiftKey || isEditableTarget(stroke.target)) return null;
+  if (!(stroke.ctrlKey || stroke.metaKey) || !stroke.altKey || isEditableTarget(stroke.target)) return null;
   const letter = stroke.code ? stroke.code.replace(/^Key/, "").toLowerCase() : stroke.key.toLowerCase();
+  if (stroke.shiftKey) return letter === "v" ? "reversePaste" : null;
   if (letter === "c") return "copy";
   if (letter === "v") return "paste";
   return null;

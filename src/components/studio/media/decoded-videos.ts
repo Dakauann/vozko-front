@@ -1,6 +1,7 @@
 "use client";
 
 import { FrameStream } from "@/lib/studio/media/frame-stream";
+import type { VideoBlend } from "@/lib/studio/render/renderer";
 import type { SceneVideo } from "@/lib/studio/scene/scene";
 
 import type { LoadedMediaFile } from "../canvas/media-files";
@@ -56,7 +57,7 @@ export class DecodedVideos {
       present.add(clip.source.clipId);
       const stream = this.streamFor(clip.source.clipId, file);
       if (!stream.open) continue;
-      const view = stream.frames.show(clip.source.sourceMs / 1000);
+      const view = stream.frames.show(clip.source.sourceMs / 1000, clip.source.backward);
       stream.picture = view.picture;
       for (const request of view.requests) port.send({ stream: stream.id, ...request });
     }
@@ -67,12 +68,18 @@ export class DecodedVideos {
   ready(clips: readonly SceneVideo[]): boolean {
     return clips.every((clip) => {
       const stream = this.byClip.get(clip.source.clipId);
-      return stream !== undefined && stream.open && stream.frames.exact(clip.source.sourceMs / 1000);
+      if (stream === undefined || !stream.open) return false;
+      const seconds = clip.source.sourceMs / 1000;
+      return clip.source.frameMix && !clip.source.backward ? stream.frames.mixReady(seconds) : stream.frames.exact(seconds);
     });
   }
 
   picture(clipId: string): VideoFrame | null {
     return this.byClip.get(clipId)?.picture ?? null;
+  }
+
+  blend(clipId: string, sourceMs: number): VideoBlend | null {
+    return this.byClip.get(clipId)?.frames.blend(sourceMs / 1000) ?? null;
   }
 
   dispose(): void {
@@ -101,7 +108,7 @@ export class DecodedVideos {
   }
 
   private receive(event: MediaEvent): void {
-    if (event.kind === "still") return;
+    if (!("stream" in event)) return;
     const stream = this.byId.get(event.stream);
     if (event.kind === "frame") {
       if (stream) stream.frames.receive(event);

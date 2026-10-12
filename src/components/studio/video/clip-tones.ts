@@ -1,7 +1,7 @@
-import { ImageSquare, Smiley, Square, TextT, VideoCamera, Waveform, type Icon } from "@/components/icons";
+import { ImageSquare, Lightning, NullObject, Smiley, Square, Stack, TextT, VideoCamera, Waveform, type Icon } from "@/components/icons";
 import type { Clip, ClipType, TrackKind } from "@/lib/studio/document";
 
-export type ClipKind = "video" | "image" | "text" | "shape" | "icon" | "audio";
+export type ClipKind = "video" | "image" | "text" | "shape" | "icon" | "audio" | "effect" | "null" | "group";
 
 export type PlateIndex = 1 | 2 | 3 | 4 | 5;
 
@@ -17,6 +17,9 @@ export const CLIP_KIND_TONES: Record<ClipKind, ClipTone> = {
   shape: { plate: 3, glyph: Square },
   icon: { plate: 3, glyph: Smiley },
   audio: { plate: 1, glyph: Waveform },
+  effect: { plate: 3, glyph: Lightning },
+  null: { plate: 1, glyph: NullObject },
+  group: { plate: 2, glyph: Stack },
 };
 
 const TILE: Record<PlateIndex, string> = { 1: "tile-1", 2: "tile-2", 3: "tile-3", 4: "tile-4", 5: "tile-5" };
@@ -69,6 +72,9 @@ export const CLIP_TILE: Record<ClipType, string> = {
   image: kindTile("image"),
   overlay: kindTile("text"),
   audio: kindTile("audio"),
+  effect: kindTile("effect"),
+  null: kindTile("null"),
+  group: kindTile("group"),
 };
 
 export const CLIP_PLATE: Record<ClipType, string> = {
@@ -76,6 +82,9 @@ export const CLIP_PLATE: Record<ClipType, string> = {
   image: kindFill("image"),
   overlay: kindFill("text"),
   audio: kindFill("audio"),
+  effect: kindFill("effect"),
+  null: kindFill("null"),
+  group: kindFill("group"),
 };
 
 export const CLIP_GLYPH: Record<ClipType, Icon> = {
@@ -83,6 +92,9 @@ export const CLIP_GLYPH: Record<ClipType, Icon> = {
   image: CLIP_KIND_TONES.image.glyph,
   overlay: CLIP_KIND_TONES.text.glyph,
   audio: CLIP_KIND_TONES.audio.glyph,
+  effect: CLIP_KIND_TONES.effect.glyph,
+  null: CLIP_KIND_TONES.null.glyph,
+  group: CLIP_KIND_TONES.group.glyph,
 };
 
 export const TRACK_TILE: Record<TrackKind, string> = { visual: kindTile("video"), audio: kindTile("audio") };

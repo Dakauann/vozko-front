@@ -7,7 +7,7 @@ import { planBatch } from "./batch";
 import { applyVideoOperation, VIDEO_ID_FIELDS, type VideoOpContext, type VideoOperation } from "./video-ops";
 
 function clip(id: string, startMs: number, durationMs: number, type: Clip["type"] = "video", linkId?: string): Clip {
-  return { ...newMediaClip(type === "overlay" ? "image" : type, `m-${id}`, startMs, durationMs), id, type, ...(linkId ? { linkId } : {}) };
+  return { ...newMediaClip(type === "overlay" || type === "effect" || type === "null" || type === "group" ? "image" : type, `m-${id}`, startMs, durationMs), id, type, ...(linkId ? { linkId } : {}) };
 }
 
 function doc(): VideoDocument {
@@ -33,11 +33,203 @@ const ctx: VideoOpContext = {
   captions: (id) => ({ "vtt-1": VTT, "srt-1": SRT, "notes-1": "uma lista de compras" })[id],
   captionTrackName: "Legendas",
   icons: ["heart", "star"],
+  speech: () => undefined,
+  loudness: () => undefined,
 };
 
 function run(ops: VideoOperation[], base: VideoDocument = doc()) {
   return planBatch(base, ops, (d, op) => applyVideoOperation(d, op, ctx), VIDEO_ID_FIELDS);
 }
+
+describe("transitions", () => {
+  const touching: VideoOperation = { op: "move_clip", clip_id: "b", start_ms: 2000 };
+
+  it("adds a transition on a cut, finding the next clip when only the outgoing one is named", () => {
+    const plan = run([touching, { op: "add_transition", ref: "t", clip_id: "a", transition_kind: "push", direction: "up", duration_ms: 600 }, { op: "update_transition", transition_id: "@t", easing: "spring" }]);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    expect(documentIssue("video", plan.final)).toBeNull();
+    expect(plan.final.tracks[0].transitions).toEqual([expect.objectContaining({ fromClipId: "a", toClipId: "b", kind: "push", direction: "up", durationMs: 600, easing: "spring" })]);
+  });
+
+  it("refuses clips that do not touch, options the kind lacks and an unknown transition, then removes one", () => {
+    const apart = run([{ op: "add_transition", clip_id: "a", to_clip_id: "b", transition_kind: "dissolve" }]);
+    expect(apart.ok).toBe(false);
+    if (!apart.ok) expect(apart.reason).toContain("encost");
+    const option = run([touching, { op: "add_transition", clip_id: "a", transition_kind: "dissolve", direction: "up" }]);
+    expect(option.ok).toBe(false);
+    if (!option.ok) expect(option.reason).toContain("direction");
+    const missing = run([{ op: "remove_transition", transition_id: "nope" }]);
+    expect(missing.ok).toBe(false);
+    const removed = done([touching, { op: "add_transition", ref: "t", clip_id: "a", transition_kind: "wipe", angle: 90 }, { op: "remove_transition", transition_id: "@t" }]);
+    expect(removed.tracks[0].transitions).toBeUndefined();
+  });
+});
+
+describe("sound levels and ducking", () => {
+  it("rides the volume of a song with gain keys and sets a track level in dB", () => {
+    const next = done([
+      { op: "animate", clip_id: "m", property: "gainDb", keys: [{ at_ms: 0, value: 0 }, { at_ms: 1000, value: -18 }] },
+      { op: "update_track", track_id: "au", gain_db: -3 },
+    ]);
+    expect(findClip(next, "m")!.clip.keyframes?.gainDb?.map((key) => key.value)).toEqual([0, -18]);
+    expect(next.tracks.find((t) => t.id === "au")!.gainDb).toBe(-3);
+    const visual = run([{ op: "animate", clip_id: "a", property: "gainDb", keys: [{ at_ms: 0, value: -6 }] }]);
+    expect(visual.ok).toBe(false);
+    if (!visual.ok) expect(visual.reason).toContain("áudio");
+    const opacity = run([{ op: "animate", clip_id: "m", property: "opacity", keys: [{ at_ms: 0, value: 1 }] }]);
+    expect(opacity.ok).toBe(false);
+  });
+
+  it("ducks the music under the voice track, bakes it into keys, and clears a rule", () => {
+    const base = done([{ op: "add_track", ref: "v", kind: "audio" }, { op: "add_media", media_id: "song", at_ms: 0, track_id: "@v" }]);
+    const voice = base.tracks.find((t) => t.kind === "audio" && t.id !== "au")!;
+    const ducked = done([{ op: "set_ducking", track_id: "au", trigger_track_ids: [voice.id], reduce_db: 15 }], base);
+    expect(ducked.tracks.find((t) => t.id === "au")!.ducking).toMatchObject({ triggerTrackIds: [voice.id], reduceDb: 15, attackMs: 250 });
+    const baked = done([{ op: "bake_ducking", track_id: "au" }], ducked);
+    expect(baked.tracks.find((t) => t.id === "au")!.ducking).toBeUndefined();
+    const cleared = done([{ op: "clear_ducking", track_id: "au" }], ducked);
+    expect(cleared.tracks.find((t) => t.id === "au")!.ducking).toBeUndefined();
+    const self = run([{ op: "set_ducking", track_id: "au", trigger_track_ids: ["au"] }], base);
+    expect(self.ok).toBe(false);
+    const none = run([{ op: "bake_ducking", track_id: "au" }], base);
+    expect(none.ok).toBe(false);
+  });
+});
+
+describe("links and markers", () => {
+  it("unlinks a video from its sound and links them again", () => {
+    const apart = done([{ op: "unlink_clips", clip_ids: ["a"] }]);
+    expect(findClip(apart, "a")!.clip.linkId).toBeUndefined();
+    expect(findClip(apart, "a-audio")!.clip.linkId).toBeUndefined();
+    const together = done([{ op: "link_clips", clip_ids: ["a", "a-audio"] }], apart);
+    expect(findClip(together, "a")!.clip.linkId).toBe(findClip(together, "a-audio")!.clip.linkId);
+    const lonely = run([{ op: "link_clips", clip_ids: ["a"] }], apart);
+    expect(lonely.ok).toBe(false);
+  });
+
+  it("renames, moves and removes a marker it created", () => {
+    const next = done([
+      { op: "add_marker", ref: "m", at_ms: 1000, name: "batida" },
+      { op: "update_marker", marker_id: "@m", name: "virada", at_ms: 1500 },
+    ]);
+    expect(next.markers).toEqual([expect.objectContaining({ atMs: 1500, label: "virada" })]);
+    const removed = done([{ op: "remove_marker", marker_id: next.markers![0].id }], next);
+    expect(removed.markers ?? []).toEqual([]);
+    const missing = run([{ op: "remove_marker", marker_id: "nope" }]);
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.reason).toContain("marcador");
+  });
+});
+
+describe("color correction", () => {
+  it("grades a video clip with a look, values and a reset, and refuses overlays", () => {
+    const next = done([{ op: "set_color", clip_id: "a", look: "dramatic", color_grade: { exposure: -0.5 } }]);
+    expect(findClip(next, "a")!.clip.color).toEqual({ contrast: 45, highlights: -30, shadows: -20, saturation: -15, exposure: -0.5 });
+    const reset = done([{ op: "set_color", clip_id: "a", look: "mono" }, { op: "set_color", clip_id: "a", reset_color: true }]);
+    expect(findClip(reset, "a")!.clip.color).toBeUndefined();
+    const text = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0, duration_ms: 1000 }, { op: "set_color", clip_id: "@t", look: "warm" }]);
+    expect(text.ok).toBe(false);
+    if (!text.ok) expect(text.reason).toContain("vídeo e imagem");
+  });
+});
+
+describe("clip speed", () => {
+  it("plays a clip at 2x with its sound, pulling the rest of the track, and freezes a frame", () => {
+    const next = done([
+      { op: "set_speed", clip_id: "a", speed: 2 },
+      { op: "freeze_frame", ref: "f", clip_id: "b", at_ms: 2500, duration_ms: 1000 },
+    ]);
+    expect(findClip(next, "a")!.clip).toMatchObject({ durationMs: 1000, speed: 2 });
+    expect(findClip(next, "a-audio")!.clip).toMatchObject({ durationMs: 1000, speed: 2 });
+    const frozen = next.tracks[0].clips.find((clip) => clip.freeze)!;
+    expect(frozen).toMatchObject({ startMs: 2500, durationMs: 1000, type: "video" });
+    expect(documentIssue("video", next)).toBeNull();
+  });
+
+  it("ramps a clip down to slow motion from a moment", () => {
+    const next = done([{ op: "speed_ramp", clip_id: "a", at_ms: 1000, ramp_ms: 500, speed: 0.5, ramp_mode: "steps" }]);
+    const pieces = next.tracks[0].clips.filter((clip) => clip.assetId === "m-a");
+    expect(pieces.at(-1)?.speed).toBe(0.5);
+    expect(pieces.length).toBeGreaterThan(2);
+    expect(documentIssue("video", next)).toBeNull();
+    const missing = run([{ op: "speed_ramp", clip_id: "a", speed: 0.5 }]);
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.reason).toContain("ramp_ms");
+  });
+
+  it("reverses, keeps the duration when asked, and explains refusals by field", () => {
+    const next = done([{ op: "set_speed", clip_id: "a", speed: 1.5, keep_duration: true, reverse: true, preserve_pitch: false }]);
+    expect(findClip(next, "a")!.clip).toMatchObject({ durationMs: 2000, speed: 1.5, reverse: true, preservePitch: false });
+    const range = run([{ op: "set_speed", clip_id: "a", speed: 40 }]);
+    expect(range.ok).toBe(false);
+    if (!range.ok) expect(range.reason).toContain("speed");
+    const media = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0, duration_ms: 1000 }, { op: "set_speed", clip_id: "@t", speed: 2 }]);
+    expect(media.ok).toBe(false);
+    if (!media.ok) expect(media.reason).toContain("vídeo");
+    const nothing = run([{ op: "set_speed", clip_id: "a" }]);
+    expect(nothing.ok).toBe(false);
+  });
+});
+
+describe("text animation", () => {
+  const text = (d: VideoDocument) => d.tracks.flatMap((track) => track.clips).find((clip) => clip.type === "overlay")!;
+
+  it("animates a text in by word and out by letter, filling the timing from the style", () => {
+    const next = done([
+      { op: "add_text", ref: "t", text: "Oferta de hoje", at_ms: 0, duration_ms: 3000 },
+      { op: "animate_text", clip_id: "@t", side: "in", text_style: "rise", unit: "word", stagger_ms: 120 },
+      { op: "animate_text", clip_id: "@t", side: "out", text_style: "typewriter", unit: "char" },
+    ]);
+    expect(text(next).textIn).toEqual({ unit: "word", style: "rise", durationMs: 400, staggerMs: 120, easing: "cubic-bezier(0.05,0.7,0.1,1)" });
+    expect(text(next).textOut).toMatchObject({ unit: "char", style: "typewriter" });
+    expect(documentIssue("video", next)).toBeNull();
+  });
+
+  it("removes an animation with none and refuses media clips, unknown styles and a stagger past the limit", () => {
+    const cleared = done([
+      { op: "add_text", ref: "t", text: "Oi", at_ms: 0, duration_ms: 2000 },
+      { op: "animate_text", clip_id: "@t", side: "in", text_style: "pop" },
+      { op: "animate_text", clip_id: "@t", side: "in", text_style: "none" },
+    ]);
+    expect(text(cleared).textIn).toBeUndefined();
+    const media = run([{ op: "animate_text", clip_id: "a", side: "in", text_style: "fade" }]);
+    expect(media.ok).toBe(false);
+    if (!media.ok) expect(media.reason).toContain("texto");
+    const style = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0, duration_ms: 2000 }, { op: "animate_text", clip_id: "@t", side: "in", text_style: "spin" as never }]);
+    expect(style.ok).toBe(false);
+    if (!style.ok) expect(style.reason).toContain("text_style");
+    const stagger = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0, duration_ms: 2000 }, { op: "animate_text", clip_id: "@t", side: "in", text_style: "fade", stagger_ms: 5000 }]);
+    expect(stagger.ok).toBe(false);
+    if (!stagger.ok) expect(stagger.reason).toContain("stagger_ms");
+  });
+});
+
+describe("color animation", () => {
+  it("animates the fill and outline of an overlay with color keys and any curve", () => {
+    const next = done([
+      { op: "add_text", ref: "t", text: "Oferta", at_ms: 0, duration_ms: 2000, fill: "#ff0000" },
+      { op: "animate", clip_id: "@t", property: "fill", keys: [{ at_ms: 0, color: "#ff0000" }, { at_ms: 800, color: "#0000ff", easing: "cubic-bezier(0.2,0,0,1)" }] },
+    ]);
+    const text = next.tracks.flatMap((track) => track.clips).find((clip) => clip.type === "overlay")!;
+    expect(text.keyframes?.fill?.map((key) => key.color)).toEqual(["#ff0000", "#0000ff"]);
+    expect(text.keyframes?.fill?.[0].easing).toBe("easeInOut");
+  });
+
+  it("refuses a color key without a color, a number key without a value and a paint the clip does not have", () => {
+    const noColor = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0 }, { op: "animate", clip_id: "@t", property: "fill", keys: [{ at_ms: 0, value: 1 }] }]);
+    expect(noColor.ok).toBe(false);
+    if (!noColor.ok) expect(noColor.reason).toContain("color");
+    const noValue = run([{ op: "animate", clip_id: "b", property: "x", keys: [{ at_ms: 0, color: "#ffffff" }] }]);
+    expect(noValue.ok).toBe(false);
+    if (!noValue.ok) expect(noValue.reason).toContain("value");
+    const onVideo = run([{ op: "animate", clip_id: "a", property: "fill", keys: [{ at_ms: 0, color: "#ffffff" }] }]);
+    expect(onVideo.ok).toBe(false);
+    if (!onVideo.ok) expect(onVideo.reason).toContain("fill");
+    const noOutline = run([{ op: "add_text", ref: "t", text: "Oi", at_ms: 0 }, { op: "animate", clip_id: "@t", property: "stroke", keys: [{ at_ms: 0, color: "#ffffff" }] }]);
+    expect(noOutline.ok).toBe(false);
+  });
+});
 
 describe("blur", () => {
   it("blurs a clip, animates its blur with any curve and refuses sound or a blur out of range", () => {
@@ -122,14 +314,27 @@ describe("video operations", () => {
     expect(shape.layer?.highlight).toBeUndefined();
   });
 
+  it("says a ref only names what an operation creates when it is used to target an existing clip", () => {
+    for (const op of [{ op: "update_clip", ref: "titulo", x: 0.5 }, { op: "trim_clip", ref: "titulo", end_ms: 900 }] as VideoOperation[]) {
+      const plan = run([op]);
+      expect(plan.ok).toBe(false);
+      if (plan.ok) continue;
+      expect(plan.reason).toContain('"titulo"');
+      expect(plan.reason).toContain("use clip_id com o id que created devolveu para essa ref");
+    }
+    const plain = run([{ op: "update_clip", x: 0.5 }]);
+    expect(plain.ok).toBe(false);
+    if (!plain.ok) expect(plain.reason).not.toContain("created");
+  });
+
   it("adds an icon from the catalog over the video", () => {
     const next = done([{ op: "add_icon", icon_id: "heart", at_ms: 0, duration_ms: 1500, x: 0.8, y: 0.2, w: 0.1, h: 0.1, fill: "#ff3366" }]);
     const icon = next.tracks.flatMap((t) => t.clips).find((c) => c.layer?.type === "icon")!;
     expect(icon.layer).toMatchObject({ iconId: "heart", fill: "#ff3366" });
     expect(icon.durationMs).toBe(1500);
-    const plan = run([{ op: "add_icon", icon_id: "unicorn" }]);
+    const plan = run([{ op: "add_icon", icon_id: "hearts" }]);
     expect(plan.ok).toBe(false);
-    if (!plan.ok) expect(plan.reason).toContain("heart");
+    if (!plan.ok) expect(plan.reason).toMatch(/do catálogo, parecidos: heart[,)]/);
   });
 
   it("moves a clip with its linked sound", () => {
@@ -414,6 +619,79 @@ describe("video operations", () => {
   it("changes volume and fades of a sound", () => {
     const next = done([{ op: "update_clip", clip_id: "m", volume: 0.2, fade_out_ms: 1500 }]);
     expect(findClip(next, "m")!.clip).toMatchObject({ volume: 0.2, fadeOutMs: 1500 });
+  });
+});
+
+describe("roll and slide", () => {
+  const touching: VideoOperation = { op: "move_clip", clip_id: "b", start_ms: 2000 };
+
+  function withHead(trimInMs: number): VideoDocument {
+    const base = structuredClone(done([touching]));
+    const b = findClip(base, "b")!;
+    base.tracks[0].clips[b.clipIndex] = { ...b.clip, trimInMs };
+    return base;
+  }
+
+  it("rolls a cut and names the linked clip that blocks it", () => {
+    const blocked = run([touching, { op: "roll_edit", clip_id: "a", edge: "end", at_ms: 2600 }]);
+    expect(blocked.ok).toBe(false);
+    if (!blocked.ok) {
+      expect(blocked.reason).toContain("clipe m");
+      expect(blocked.reason).toContain("linked false");
+    }
+    const rolled = done([touching, { op: "roll_edit", clip_id: "a", edge: "end", at_ms: 2600, linked: false }]);
+    expect(findClip(rolled, "a")!.clip.durationMs).toBe(2600);
+    expect(findClip(rolled, "b")!.clip).toMatchObject({ startMs: 2600, durationMs: 1400, trimInMs: 600 });
+    expect(findClip(rolled, "a-audio")!.clip.durationMs).toBe(2000);
+  });
+
+  it("notes when a roll stops short and refuses one that cannot move", () => {
+    const short = run([{ op: "roll_edit", clip_id: "b", edge: "start", at_ms: 1000, linked: false }], withHead(300));
+    expect(short.ok).toBe(true);
+    if (short.ok) {
+      expect(findClip(short.final, "b")!.clip.startMs).toBe(1700);
+      expect(short.notes.join(" ")).toContain("1700 ms");
+    }
+    const stuck = run([{ op: "roll_edit", clip_id: "b", edge: "start", at_ms: 1000, linked: false }], withHead(0));
+    expect(stuck.ok).toBe(false);
+    if (!stuck.ok) expect(stuck.reason).toContain("mídia do clipe b");
+  });
+
+  it("slides a clip between its neighbours", () => {
+    const slid = done([touching, { op: "slide_clip", clip_id: "b", start_ms: 2400 }]);
+    expect(findClip(slid, "a")!.clip.durationMs).toBe(2400);
+    expect(findClip(slid, "b")!.clip).toMatchObject({ startMs: 2400, durationMs: 2000, trimInMs: 0 });
+  });
+
+  it("reports a transition the edit shortened", () => {
+    const plan = run([
+      touching,
+      { op: "add_transition", clip_id: "a", transition_kind: "dissolve", duration_ms: 1000 },
+      { op: "roll_edit", clip_id: "a", edge: "end", at_ms: 3700, linked: false },
+    ]);
+    expect(plan.ok).toBe(true);
+    if (plan.ok) expect(plan.notes.join(" ")).toContain("300 ms");
+  });
+
+  it("asks for the fields each edit needs", () => {
+    const noEdge = run([touching, { op: "roll_edit", clip_id: "a", at_ms: 2600 }]);
+    expect(noEdge.ok).toBe(false);
+    if (!noEdge.ok) expect(noEdge.reason).toContain("edge");
+    expect(run([touching, { op: "roll_edit", clip_id: "a", edge: "end" }]).ok).toBe(false);
+    const noStart = run([touching, { op: "slide_clip", clip_id: "b" }]);
+    expect(noStart.ok).toBe(false);
+    if (!noStart.ok) expect(noStart.reason).toContain("start_ms");
+    const missing = run([{ op: "slide_clip", clip_id: "nope", start_ms: 100 }]);
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.reason).toContain("studio_read");
+  });
+
+  it("refuses a linked clip on a locked track", () => {
+    const locked = structuredClone(done([touching]));
+    locked.tracks[2].locked = true;
+    const plan = run([{ op: "slide_clip", clip_id: "a", start_ms: 300 }], locked);
+    expect(plan.ok).toBe(false);
+    if (!plan.ok) expect(plan.reason).toContain("travada");
   });
 });
 

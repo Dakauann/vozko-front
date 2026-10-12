@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyArtboard, emptyVideoDocument, IMAGE_DOCUMENT_VERSION, IMAGE_SCHEMA, newMediaClip, newShapeLayer, newTextLayer, type Artboard, type ImageDocument, type Layer, type VideoDocument } from "../document";
+import { newChromaKey, setChromaLane } from "../chroma-key";
+import { newMask } from "../masks";
+import { newEffectClip, newVfx, setVfxKey } from "../vfx";
 import { overlayClip } from "../media-clips";
+import { DEFAULT_PATTERN } from "../pattern";
 import { documentChanges, imageOutline, videoOutline, type OutlineContext } from "./outline";
 
 function video(): VideoDocument {
@@ -25,6 +29,18 @@ const ctx: OutlineContext = {
 };
 
 describe("videoOutline", () => {
+  it("reads back pan, the crossfades and the loudness of each audio track as heard", () => {
+    const d = video();
+    d.tracks[2] = { ...d.tracks[2], pan: -0.25, gainDb: -3, clips: [{ ...d.tracks[2].clips[0], pan: 0.5, durationMs: 1500 }, { ...newMediaClip("audio", "song", 1500, 1500), id: "m2" }] };
+    d.tracks[2].transitions = [{ id: "x1", fromClipId: "m1", toClipId: "m2", kind: "constantPower", durationMs: 1000, alignment: "center", easing: "linear" }];
+    const outline = videoOutline(d, { ...ctx, trackLoudness: (trackId) => (trackId === "a1" ? -17.04 : null) });
+    expect(outline.tracks[2]).toMatchObject({ pan: -0.25, gain_db: -3, loudness_lufs: -20 });
+    expect(outline.tracks[2].clips[0]).toMatchObject({ pan: 0.5 });
+    expect(outline.tracks[2].transitions).toMatchObject([{ kind: "constantPower", duration_ms: 1000 }]);
+    expect(outline.tracks[0]).not.toHaveProperty("loudness_lufs");
+    expect(videoOutline(d, ctx).tracks[2]).not.toHaveProperty("loudness_lufs");
+  });
+
   it("names media, keeps ids and times, and lists tracks bottom first", () => {
     const outline = videoOutline(video(), ctx);
     expect(outline.aspect).toBe("story");
@@ -52,6 +68,49 @@ describe("videoOutline", () => {
     const outline = videoOutline(d, { ...ctx, detail: "full", icons: ["heart"] });
     expect(outline.icons).toEqual(["heart"]);
     expect(outline.tracks[1].clips[0].style).toMatchObject({ gradient: { to: "#ff8a00" }, highlight: { color: "#111111" }, curve: 0.4, blend_mode: "screen" });
+  });
+
+  it("lists the transitions of a track with their window and options", () => {
+    const d = video();
+    d.tracks[0].clips = [{ ...newMediaClip("video", "vid", 0, 1500), id: "c1" }, { ...newMediaClip("video", "vid", 1500, 1500), id: "c2" }];
+    d.tracks[0].transitions = [{ id: "tr", fromClipId: "c1", toClipId: "c2", kind: "push", durationMs: 400, alignment: "center", easing: "easeInOut" }];
+    expect(videoOutline(d, ctx).tracks[0].transitions).toEqual([{ id: "tr", from: "c1", to: "c2", kind: "push", duration_ms: 400, window_ms: [1300, 1700], alignment: "center", easing: "easeInOut", options: { direction: "left" } }]);
+  });
+
+  it("shows the speed, direction and freeze of a clip", () => {
+    const d = video();
+    d.tracks[0].clips[0] = { ...d.tracks[0].clips[0], speed: 0.5, reverse: true, preservePitch: false, color: { exposure: 0.5 } };
+    expect(videoOutline(d, ctx).tracks[0].clips[0]).toMatchObject({ speed: 0.5, reverse: true, preserve_pitch: false, color_grade: { exposure: 0.5 } });
+  });
+
+  it("shows masks with their animated lanes, the keys only in the full detail, and the matte", () => {
+    const d = video();
+    d.tracks[0].clips[0].masks = [{ ...newMask("ellipse", "m1"), feather: 0.1, invert: true, keyframes: { opacity: [{ atMs: 0, value: 0, easing: "linear" }] } }];
+    d.tracks[1].clips[0].matte = true;
+    const summary = videoOutline(d, ctx);
+    expect(summary.tracks[0].clips[0].masks).toEqual([{ id: "m1", shape: "ellipse", mode: "add", invert: true, x: 0.5, y: 0.5, w: 0.5, h: 0.5, rotation: 0, feather: 0.1, expansion: 0, opacity: 1, animated: ["opacity"] }]);
+    expect(summary.tracks[1].clips[0].matte).toBe(true);
+    expect(videoOutline(d, { ...ctx, detail: "full" }).tracks[0].clips[0].masks?.[0].keyframes).toEqual({ opacity: [{ at_ms: 0, value: 0, easing: "linear" }] });
+  });
+
+  it("shows the chroma key with its animated values, the keys only in the full detail", () => {
+    const d = video();
+    d.tracks[0].clips[0].chromaKey = setChromaLane(newChromaKey("#0099ff"), "spill", [{ atMs: 0, value: 0.2, easing: "linear" }]);
+    expect(videoOutline(d, ctx).tracks[0].clips[0].chroma_key).toEqual({ color: "#0099ff", similarity: 0.4, smoothness: 0.08, spill: 0.1, animated: ["spill"] });
+    expect(videoOutline(d, { ...ctx, detail: "full" }).tracks[0].clips[0].chroma_key?.keyframes).toEqual({ spill: [{ at_ms: 0, value: 0.2, easing: "linear" }] });
+  });
+
+  it("shows the level and ducking of a sound track", () => {
+    const d = video();
+    d.tracks[2] = { ...d.tracks[2], gainDb: -4, ducking: { triggerTrackIds: ["v1"], reduceDb: 12, attackMs: 250, releaseMs: 500, holdMs: 300, sensitivity: 0.5 } };
+    expect(videoOutline(d, ctx).tracks[2]).toMatchObject({ gain_db: -4, ducking: { trigger_track_ids: ["v1"], reduce_db: 12, attack_ms: 250 } });
+  });
+
+  it("shows how a text animates in and out", () => {
+    const d = video();
+    d.tracks[1].clips[0].textIn = { unit: "word", style: "rise", durationMs: 400, staggerMs: 90, easing: "easeOut" };
+    expect(videoOutline(d, ctx).tracks[1].clips[0].text_in).toEqual({ unit: "word", text_style: "rise", duration_ms: 400, stagger_ms: 90, easing: "easeOut" });
+    expect(videoOutline(d, ctx).tracks[1].clips[0].text_out).toBeUndefined();
   });
 
   it("rounds numbers to keep the outline short", () => {
@@ -130,5 +189,56 @@ describe("documentChanges", () => {
     after.artboards[0].name = "Feed";
     after.artboards.splice(1, 1, artboard("three", [{ ...newShapeLayer("rect"), id: "r" }]));
     expect(documentChanges(before, after)).toEqual({ added: ["three", "r"], removed: ["two"], changed: ["one"] });
+  });
+});
+
+describe("paint readback", () => {
+  it("says which picture a frame or an image fill shows, so Elo can target the element itself", () => {
+    const box = { x: 0.5, y: 0.5, w: 0.4, h: 0.4, rotation: 0, opacity: 1 };
+    const frame: Layer = { ...newShapeLayer("rect", box), id: "f" };
+    const photo: Layer = { id: "p", type: "image", assetId: "foto", clip: true, transform: box };
+    const filled: Layer = { ...newShapeLayer("rect"), id: "s", pattern: { ...DEFAULT_PATTERN, source: "asset", presetId: "", assetId: "textura" } };
+    const plain: Layer = { ...newShapeLayer("rect"), id: "r" };
+    const [f, p, s, r] = imageOutline(single([frame, photo, filled, plain]), ctx).artboards[0].layers;
+    expect(f.shows).toEqual({ layer_id: "p", media_id: "foto" });
+    expect(p.shows).toBeUndefined();
+    expect(p.media_id).toBe("foto");
+    expect(s.shows).toEqual({ media_id: "textura" });
+    expect(r.shows).toBeUndefined();
+  });
+
+  it("reads patterns, gradient maps, paint lists and effects back in the shape Elo writes them", () => {
+    const card: Layer = { ...newShapeLayer("rect"), id: "card", pattern: { source: "preset", presetId: "dots", color: "#111111", tile: "brick-row", size: 32, offset: 0.5, spacing: { x: 4, y: 0 }, opacity: 0.8, blendMode: "multiply" } };
+    const photo: Layer = { id: "photo", type: "image", assetId: "img", transform: { x: 0.5, y: 0.5, w: 0.5, h: 0.5, rotation: 0, opacity: 1 }, gradientMap: { stops: [{ at: 0, color: "#000000" }, { at: 1, color: "#ffffff" }], intensity: 0.5, reverse: true } };
+    const title: Layer = {
+      ...newTextLayer("Oi"),
+      id: "title",
+      fill: undefined,
+      fills: [{ type: "solid", color: "#ffffff", opacity: 1 }],
+      strokes: [{ type: "solid", color: "#000000", opacity: 1, width: 6, align: "outside", dashArray: [2, 1] }],
+      effects: [{ id: "glow", type: "outer-glow", color: "#ff2d75", opacity: 0.75, x: 0, y: 0, blur: 24, spread: 0 }],
+    };
+    const [shape, picture, text] = imageOutline(single([card, photo, title]), { ...ctx, detail: "full" }).artboards[0].layers;
+    expect(shape.style?.pattern).toEqual({ preset: "dots", color: "#111111", tile: "brick-row", size: 32, spacing_x: 4, spacing_y: 0, offset: 0.5, opacity: 0.8, blend_mode: "multiply" });
+    expect(picture.style?.gradient_map).toEqual({ stops: [{ at: 0, color: "#000000" }, { at: 1, color: "#ffffff" }], intensity: 0.5, reverse: true });
+    expect(text.style).toMatchObject({
+      fills: [{ type: "solid", color: "#ffffff", opacity: 1 }],
+      strokes: [{ type: "solid", color: "#000000", opacity: 1, width: 6, align: "outside", dash_array: [2, 1] }],
+      effects: [{ id: "glow", type: "outer-glow", color: "#ff2d75", opacity: 0.75, x: 0, y: 0, blur: 24, spread: 0 }],
+    });
+  });
+});
+
+describe("vfx readback", () => {
+  it("lists every parameter of each effect with its default, colors, keys and the strength of an effect clip", () => {
+    const d = video();
+    const grain = setVfxKey({ ...newVfx("grain", "g", 7), params: { size: 3 } }, "amount", 0, 0.1);
+    d.tracks[0].clips[0].vfx = [grain];
+    d.tracks.push({ id: "fx", kind: "visual", clips: [{ ...newEffectClip([{ ...newVfx("lightLeak", "l", 2), hidden: true }], 0, 1000), id: "e", transform: { x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 0.6 } }] });
+    const outline = videoOutline(d, { ...ctx, detail: "full" });
+    expect(outline.tracks[0].clips[0].vfx).toEqual([{ id: "g", kind: "grain", seed: 7, params: { amount: 0.35, size: 3, rate: 24, chroma: 0 }, animated: ["amount"], keyframes: { amount: [{ at_ms: 0, value: 0.1, easing: "linear" }] } }]);
+    const effect = outline.tracks[3].clips[0];
+    expect(effect).toMatchObject({ type: "effect", strength: 0.6, vfx: [{ id: "l", kind: "lightLeak", hidden: true, colors: { color: "#ff7a2f", color2: "#ff2f6d" } }] });
+    expect(effect.box).toBeUndefined();
   });
 });

@@ -1,8 +1,11 @@
 import { produce } from "immer";
 
 import { msOfFrame, newStudioId, STUDIO_LIMITS, type Clip, type VideoDocument } from "./document";
-import { clearRange, rearrange, shiftChanges, splitAt, trimChange, withLinked, type ClipChange, type ClipSource, type CreatedClip } from "./edits";
-import { clipEnd, findClip, hasSourceTime, moveClipsBy, setClipTrimIn, trackAccepts } from "./timeline";
+import { clearRange, rearrange, shiftChanges, splitAt, withLinked, type CreatedClip } from "./edits";
+import { clipEnd, findClip, moveClipsBy, setClipTrimIn, trackAccepts } from "./timeline";
+import { clipLookup, remappedParents } from "./parenting";
+import { audioTrackIds, withHeardTracks } from "./behaviors";
+import { freshClip } from "./clip-copy";
 import { documentIssue } from "./validate";
 
 export function selectForward(doc: VideoDocument, clipId: string, allTracks: boolean): string[] {
@@ -65,52 +68,10 @@ export function closeGap(doc: VideoDocument, gap: Gap): VideoDocument {
   return rearrange(doc, shiftChanges(doc, followers, gap.fromMs - gap.toMs)) ?? doc;
 }
 
-export function rollEdit(doc: VideoDocument, leftId: string, rightId: string, atMs: number, source: ClipSource = () => undefined): VideoDocument {
-  const left = findClip(doc, leftId);
-  const right = findClip(doc, rightId);
-  if (!left || !right || left.track.id !== right.track.id || clipEnd(left.clip) !== right.clip.startMs) return doc;
-  const leftSource = source(leftId);
-  const low = Math.max(left.clip.startMs + STUDIO_LIMITS.minClipMs, hasSourceTime(right.clip.type) ? right.clip.startMs - right.clip.trimInMs : 0);
-  const high = Math.min(
-    clipEnd(right.clip) - STUDIO_LIMITS.minClipMs,
-    hasSourceTime(left.clip.type) && leftSource !== undefined ? left.clip.startMs + leftSource - left.clip.trimInMs : Infinity,
-  );
-  if (high < low) return doc;
-  const cut = Math.min(Math.max(Math.round(atMs), low), high);
-  if (cut === right.clip.startMs) return doc;
-  const changes = new Map<string, ClipChange>([
-    [leftId, trimChange(left.clip, "end", cut, source(leftId))],
-    [rightId, trimChange(right.clip, "start", cut, source(rightId))],
-  ]);
-  return rearrange(doc, changes) ?? doc;
-}
-
 export function slipClip(doc: VideoDocument, clipId: string, deltaMs: number, sourceDurationMs?: number): VideoDocument {
   const found = findClip(doc, clipId);
   if (!found) return doc;
   return setClipTrimIn(doc, clipId, found.clip.trimInMs + deltaMs, sourceDurationMs);
-}
-
-export function slideClip(doc: VideoDocument, clipId: string, deltaMs: number, source: ClipSource = () => undefined): VideoDocument {
-  const found = findClip(doc, clipId);
-  if (!found || found.track.locked) return doc;
-  const { clip, track } = found;
-  const previous = track.clips.find((c) => clipEnd(c) === clip.startMs);
-  const next = track.clips.find((c) => c.startMs === clipEnd(clip));
-  let delta = Math.round(deltaMs);
-  if (previous) {
-    const change = trimChange(previous, "end", clipEnd(previous) + delta, source(previous.id));
-    delta = previous.startMs + change.durationMs! - clipEnd(previous);
-  }
-  if (next) {
-    const change = trimChange(next, "start", next.startMs + delta, source(next.id));
-    delta = change.startMs! - next.startMs;
-  }
-  if (delta === 0) return doc;
-  const changes = new Map<string, ClipChange>([[clipId, { startMs: clip.startMs + delta }]]);
-  if (previous) changes.set(previous.id, trimChange(previous, "end", clipEnd(previous) + delta, source(previous.id)));
-  if (next) changes.set(next.id, trimChange(next, "start", next.startMs + delta, source(next.id)));
-  return rearrange(doc, changes) ?? doc;
 }
 
 export interface TimeRange {
@@ -165,20 +126,36 @@ export function copyClips(doc: VideoDocument, ids: readonly string[]): Clipboard
   };
 }
 
+function pastedParents(doc: VideoDocument, created: readonly CreatedClip[], renamed: ReadonlyMap<string, string>): CreatedClip[] {
+  const audio = audioTrackIds(doc);
+  const relinked = remappedParents(created.map((entry) => withHeardTracks(entry.clip, audio)), renamed);
+  const existing = clipLookup(doc);
+  const pasted = new Set(renamed.values());
+  return created.map((entry, index) => {
+    const clip = relinked[index];
+    if (!clip.parentId || pasted.has(clip.parentId) || existing.has(clip.parentId)) return { ...entry, clip };
+    const free: Clip = { ...clip };
+    delete free.parentId;
+    delete free.parentTracker;
+    return { ...entry, clip: free };
+  });
+}
+
 function pastedClips(doc: VideoDocument, payload: ClipboardPayload, atMs: number): CreatedClip[] | null {
   const links = new Map<string, string>();
+  const renamed = new Map<string, string>();
   const created: CreatedClip[] = [];
   for (const item of payload.items) {
     const original = doc.tracks.find((t) => t.id === item.trackId && !t.locked && trackAccepts(t.kind, item.clip.type));
     const track = original ?? doc.tracks.find((t) => !t.locked && t.kind === item.trackKind && trackAccepts(t.kind, item.clip.type));
     if (!track) return null;
     const linkId = item.clip.linkId ? (links.get(item.clip.linkId) ?? links.set(item.clip.linkId, newStudioId("k")).get(item.clip.linkId)!) : undefined;
-    const clip: Clip = { ...item.clip, id: newStudioId("c"), startMs: Math.round(atMs + item.offsetMs), linkId };
+    const clip: Clip = { ...freshClip(item.clip), startMs: Math.round(atMs + item.offsetMs), linkId };
     if (!linkId) delete clip.linkId;
-    if (item.clip.layer) clip.layer = { ...item.clip.layer, id: newStudioId("l") };
+    renamed.set(item.clip.id, clip.id);
     created.push({ trackId: track.id, clip });
   }
-  return created;
+  return pastedParents(doc, created, renamed);
 }
 
 export function pasteClips(doc: VideoDocument, payload: ClipboardPayload, atMs: number, mode: "overwrite" | "insert"): { document: VideoDocument; ids: string[] } | null {
@@ -221,6 +198,14 @@ export function relinkClips(doc: VideoDocument, ids: readonly string[]): VideoDo
       }
     }
   });
+}
+
+export function setClipsDisabled(doc: VideoDocument, ids: readonly string[], disabled: boolean): VideoDocument {
+  const flip = ids.filter((id) => {
+    const found = findClip(doc, id);
+    return found !== null && Boolean(found.clip.disabled) !== disabled;
+  });
+  return flip.length > 0 ? toggleDisabled(doc, flip) : doc;
 }
 
 export function toggleDisabled(doc: VideoDocument, ids: readonly string[]): VideoDocument {

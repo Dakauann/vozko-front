@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyArtboard, emptyVideoDocument, newMediaClip, newOverlayClip, newShapeLayer, newTextLayer, type Transform } from "../document";
-import { clipMarkNumbers, imageMarkTargets, markRadius, placeMarks } from "./marks";
+import { clipMarkNumbers, imageMarkTargets, markRadius, placeMarks, regionTargets } from "./marks";
 
 const box = (x: number, y: number, w: number, h: number, rotation = 0): Transform => ({ x, y, w, h, rotation, opacity: 1 });
 
@@ -32,7 +32,7 @@ describe("set of marks", () => {
       1000,
       radius,
     );
-    expect(full).toEqual({ n: 1, id: "full", x: radius, y: radius });
+    expect(full).toMatchObject({ n: 1, id: "full", x: radius, y: radius });
     expect(title).toMatchObject({ x: 200 + radius, y: 150 + radius });
     expect(turned.x).toBeCloseTo(500 - 100 * Math.SQRT2 + radius, 5);
   });
@@ -62,5 +62,31 @@ describe("set of marks", () => {
       ["clip", 1],
       ["title", 2],
     ]);
+  });
+});
+
+describe("marks inside a zoomed region", () => {
+  it("maps targets into the region and drops the ones outside it", () => {
+    const targets = [
+      { n: 1, id: "caption", transform: box(0.5, 0.85, 0.8, 0.1) },
+      { n: 2, id: "logo", transform: box(0.1, 0.1, 0.1, 0.05) },
+    ];
+    const zoomed = regionTargets(targets, { left: 0, top: 0.7, width: 1, height: 0.3 });
+    expect(zoomed.map((t) => t.id)).toEqual(["caption"]);
+    expect(zoomed[0].transform.y).toBeCloseTo(0.5, 9);
+    expect(zoomed[0].transform.h).toBeCloseTo(1 / 3, 9);
+    expect(zoomed[0].transform.w).toBeCloseTo(0.8, 9);
+  });
+
+  it("keeps the whole frame untouched without a region", () => {
+    const targets = [{ n: 1, id: "a", transform: box(0.5, 0.5, 0.2, 0.2) }];
+    expect(regionTargets(targets, null)).toBe(targets);
+  });
+});
+
+describe("mark boxes", () => {
+  it("returns the box of each target so its bounds can be outlined", () => {
+    const [mark] = placeMarks([{ n: 1, id: "title", transform: box(0.5, 0.2, 0.6, 0.1) }], 1000, 1000, 10);
+    expect(mark.box).toEqual({ left: 200, top: 150, right: 800, bottom: 250 });
   });
 });

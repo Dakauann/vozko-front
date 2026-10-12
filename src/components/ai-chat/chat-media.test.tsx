@@ -96,6 +96,7 @@ describe("an image being generated in the chat", () => {
     const bar = screen.getByRole("progressbar", { name: ptMessages.mediaGeneration.generating.image });
     expect(bar).toHaveAttribute("aria-valuenow", "0");
     expect(bar.closest("[aria-busy]")?.className).toContain("aspect-[9/16]");
+    expect(bar.closest("[data-ai-progress]")).toHaveAttribute("data-ai-progress", "running");
   });
 
   it("becomes the failure when the generation fails", () => {
@@ -113,6 +114,7 @@ describe("an image being generated in the chat", () => {
       ],
     });
     expect(screen.queryByRole("progressbar")).toBeNull();
+    expect(document.querySelector("[data-ai-progress]")).toBeNull();
     expect(screen.getByAltText(image.alt)).toBeTruthy();
   });
 });
@@ -153,6 +155,7 @@ describe("generated sound and video in the chat", () => {
   it("holds an audio frame while the music is generated", () => {
     renderBubble({ ...base, segments: [{ kind: "tool", name: "generate_music", summary: "", ok: true, running: true, frame: "audio" }] });
     expect(screen.getByRole("progressbar", { name: ptMessages.mediaGeneration.generating.music })).toBeTruthy();
+    expect(document.querySelector("[data-ai-progress]")?.className).toContain("h-[60px]");
   });
 
   it("shows the failure of a video that could not be built", () => {

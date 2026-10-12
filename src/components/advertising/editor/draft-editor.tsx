@@ -49,9 +49,11 @@ import { jobPlan, publishBlockers, type ValidationState } from "@/lib/advertisin
 import type { AdAccount, AdSavedDraft } from "@/lib/advertising/types";
 import { issuesFromExpected } from "@/lib/advertising/wizard-issues";
 import { videoOnlyPlacementsSkipped } from "@/lib/advertising/video-placements";
+import { creativeImages } from "@/lib/advertising/placement-check";
 
 import { AdPreviewPanel } from "../ad-preview-panel";
 import { VideoPlacementNotice } from "../video-placement-notice";
+import { PlacementCheck } from "../placement-check";
 import { CollapsibleNotice } from "../collapsible-notice";
 import { FundsBanner } from "../funds-banner";
 import { WizardReadinessBanner } from "../readiness";
@@ -505,6 +507,7 @@ function DraftEditorBody({
               }
               destination={<AdDestinationPreview content={content} accountId={account.id} page={value.page} />}
               notice={ad ? <VideoPlacementNotice skipped={videoOnlyPlacementsSkipped(form.placements, ad, options)} /> : null}
+              placementCheck={ad ? <PlacementCheck images={creativeImages(ad)} placements={form.placements} catalog={options} beforeStudio={autosave.flush} /> : null}
             />
           ) : undefined
         }

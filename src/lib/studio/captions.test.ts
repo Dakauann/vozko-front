@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { captionsFromText, captionWindow, isCaptionMedia } from "./captions";
+import { cuesOnTimeline } from "./caption-cues";
 import { emptyVideoDocument, newMediaClip, STUDIO_LIMITS, type Clip, type VideoDocument } from "./document";
 import { captionClip } from "./media-clips";
 import { documentIssue } from "./validate";
@@ -76,5 +77,20 @@ describe("isCaptionMedia", () => {
     expect(isCaptionMedia({ type: "document", url: "https://cdn.example/files/legenda.SRT" })).toBe(true);
     expect(isCaptionMedia({ type: "document", url: "https://cdn.example/files/contrato.pdf" })).toBe(false);
     expect(isCaptionMedia({ type: "video", url: "https://cdn.example/files/filme.vtt" })).toBe(false);
+  });
+});
+
+describe("captions on a retimed clip", () => {
+  const cues = [
+    { startMs: 0, endMs: 1000, text: "um" },
+    { startMs: 1000, endMs: 2000, text: "dois" },
+  ];
+
+  it("squeezes cues on a 2x clip and flips their order on a reversed one", () => {
+    expect(cuesOnTimeline(cues, { startMs: 500, trimInMs: 0, durationMs: 1000, speed: 2 })).toEqual([
+      { text: "um", startMs: 500, endMs: 1000 },
+      { text: "dois", startMs: 1000, endMs: 1500 },
+    ]);
+    expect(cuesOnTimeline(cues, { startMs: 0, trimInMs: 0, durationMs: 2000, reverse: true }).map((cue) => cue.text)).toEqual(["dois", "um"]);
   });
 });

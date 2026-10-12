@@ -8,15 +8,24 @@ import { Layer as KonvaLayer, Rect, Stage } from "react-konva";
 import type { ActionResult } from "@/app/actions/action-result";
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT } from "@/lib/studio/fonts";
 import type { Gradient, Layer } from "@/lib/studio/document";
+import type { Vfx } from "@/lib/studio/vfx";
 
 import { ensureFont } from "./ensure-font";
 import { gradientFill, LayerNode } from "./layer-node";
 import { LayerStack } from "./layer-stack";
 import { uploadStudioMedia, type UploadedMedia } from "./upload-media";
+import { VfxAdjustment } from "./vfx-content";
 
 export const RASTER_TIMEOUT_MS = 30_000;
 
 export type RasterMimeType = "image/png" | "image/jpeg";
+
+export interface RasterRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export interface RasterOptions {
   background?: string;
@@ -25,6 +34,7 @@ export interface RasterOptions {
   quality?: number;
   pixelRatio?: number;
   fontBasePx?: number;
+  vfx?: Vfx[];
 }
 
 export class RasterTimeoutError extends Error {
@@ -41,11 +51,12 @@ interface RasterStageProps {
   backgroundGradient?: Gradient;
   pixelRatio: number;
   fontBasePx?: number;
+  vfx?: Vfx[];
   onSettled: (stage: Konva.Stage) => void;
   onFailed: (error: Error) => void;
 }
 
-function RasterStage({ layers, width, height, background, backgroundGradient, pixelRatio, fontBasePx, onSettled, onFailed }: RasterStageProps) {
+function RasterStage({ layers, width, height, background, backgroundGradient, pixelRatio, fontBasePx, vfx, onSettled, onFailed }: RasterStageProps) {
   const stage = useRef<Konva.Stage>(null);
   const pending = useRef(new Set(layers.map((l) => l.id)));
   const done = useRef(false);
@@ -87,9 +98,10 @@ function RasterStage({ layers, width, height, background, backgroundGradient, pi
           onReady={ready}
           onError={failed}
           render={(layer, extra) => (
-            <LayerNode key={layer.id} layer={layer} width={width} height={height} fontBasePx={fontBasePx} composite={extra.composite} onReady={extra.onReady} onError={extra.onError} />
+            <LayerNode key={layer.id} layer={layer} width={width} height={height} fontBasePx={fontBasePx} composite={extra.composite} pixelRatio={pixelRatio} onReady={extra.onReady} onError={extra.onError} />
           )}
         />
+        <VfxAdjustment canvas={{ width, height, vfx }} />
       </KonvaLayer>
     </Stage>
   );
@@ -131,6 +143,7 @@ async function withRasterStage<T>(layers: readonly Layer[], widthPx: number, hei
           backgroundGradient={options.backgroundGradient}
           pixelRatio={options.pixelRatio ?? 1}
           fontBasePx={options.fontBasePx}
+          vfx={options.vfx}
           onSettled={resolve}
           onFailed={reject}
         />,
@@ -152,6 +165,13 @@ export function rasterizeLayerCanvas(layer: Layer, widthPx: number, heightPx: nu
   return withRasterStage([layer], widthPx, heightPx, options, (stage) => {
     stage.draw();
     return stage.toCanvas({ pixelRatio: options.pixelRatio ?? 1 });
+  });
+}
+
+export function rasterizeRegion(layers: readonly Layer[], widthPx: number, heightPx: number, region: RasterRegion, options: RasterOptions = {}): Promise<HTMLCanvasElement> {
+  return withRasterStage(layers, widthPx, heightPx, options, (stage) => {
+    stage.draw();
+    return stage.toCanvas({ ...region, pixelRatio: options.pixelRatio ?? 1 });
   });
 }
 

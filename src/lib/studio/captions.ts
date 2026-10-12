@@ -22,9 +22,9 @@ export function captionsFromText(doc: VideoDocument, text: string, window: Sourc
   return { status: "added", document: result.document, trackId: result.trackId, count: track?.clips.length ?? 0 };
 }
 
-export function captionWindow(source: Pick<Clip, "startMs" | "trimInMs" | "durationMs"> | null): SourceWindow {
+export function captionWindow(source: Pick<Clip, "startMs" | "trimInMs" | "durationMs" | "speed" | "reverse"> | null): SourceWindow {
   if (!source) return { startMs: 0, trimInMs: 0, durationMs: STUDIO_LIMITS.maxVideoMs };
-  return { startMs: source.startMs, trimInMs: source.trimInMs, durationMs: source.durationMs };
+  return { startMs: source.startMs, trimInMs: source.trimInMs, durationMs: source.durationMs, ...(source.speed !== undefined ? { speed: source.speed } : {}), ...(source.reverse ? { reverse: true } : {}) };
 }
 
 export function isCaptionMedia(media: { type: string; url: string }): boolean {

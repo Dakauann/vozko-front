@@ -3,6 +3,9 @@ const EXTENSIONS: Record<string, string> = {
   "image/png": ".png",
   "image/webp": ".webp",
   "image/gif": ".gif",
+  "image/svg+xml": ".svg",
+  "application/pdf": ".pdf",
+  "video/mp4": ".mp4",
 };
 
 const ACCENTS = /[̀-ͯ]/g;

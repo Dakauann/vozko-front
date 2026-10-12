@@ -8,11 +8,8 @@ import {
   boxStyle,
   clockPosition,
   clockReachedEdge,
-  fadeLevel,
-  fitFrame,
   focusedPlan,
   zoomAround,
-  gainEnvelope,
   idleClock,
   MAX_OUTPUT_LATENCY_SEC,
   outputLatencySec,
@@ -22,6 +19,8 @@ import {
   syncVideo,
   visualPlan,
 } from "./playback";
+import { gainEnvelope } from "./audio-gain";
+import { fadeLevel } from "./clip-time";
 
 function media(id: string, type: "video" | "image" | "audio", startMs: number, durationMs: number, extra: Partial<Clip> = {}): Clip {
   return { ...newMediaClip(type, `asset-${id}`, startMs, durationMs), id, ...extra };
@@ -65,9 +64,18 @@ describe("playback clock", () => {
   it("stops where it was and reports the edges", () => {
     const clock = startClock(1000, 10);
     expect(stopClock(clock, 11, 5000)).toEqual(idleClock(2000));
-    expect(clockReachedEdge(clock, 14.1, 5000)).toBe(true);
-    expect(clockReachedEdge(clock, 13, 5000)).toBe(false);
-    expect(clockReachedEdge(startClock(500, 0, -1), 0.6, 5000)).toBe(true);
+    const film = { startMs: 0, endMs: 5000 };
+    expect(clockReachedEdge(clock, 14.1, film)).toBe(true);
+    expect(clockReachedEdge(clock, 13, film)).toBe(false);
+    expect(clockReachedEdge(startClock(500, 0, -1), 0.6, film)).toBe(true);
+  });
+
+  it("reports the edges of a work area inside the film", () => {
+    const area = { startMs: 1000, endMs: 2000 };
+    expect(clockReachedEdge(startClock(1500, 0), 0.4, area)).toBe(false);
+    expect(clockReachedEdge(startClock(1500, 0), 0.5, area)).toBe(true);
+    expect(clockReachedEdge(startClock(1500, 0, -1), 0.5, area)).toBe(true);
+    expect(clockReachedEdge(idleClock(2500), 3, area)).toBe(false);
   });
 
   it("follows J K L shuttle rules", () => {
@@ -120,19 +128,19 @@ describe("visual plan", () => {
 
 describe("video sync", () => {
   it("hard seeks only past the drift tolerance while playing", () => {
-    expect(syncVideo(1000, 1050, { playing: true, rate: 1, active: true })).toEqual({ seekToMs: null, play: true, playbackRate: 1 });
-    expect(syncVideo(1000, 1100, { playing: true, rate: 1, active: true }).seekToMs).toBe(1100);
+    expect(syncVideo(1000, 1050, { playing: true, rate: 1, active: true, speed: 1, backward: false })).toEqual({ seekToMs: null, play: true, playbackRate: 1 });
+    expect(syncVideo(1000, 1100, { playing: true, rate: 1, active: true, speed: 1, backward: false }).seekToMs).toBe(1100);
   });
 
   it("parks inactive or paused videos on the exact frame", () => {
-    expect(syncVideo(0, 500, { playing: true, rate: 1, active: false })).toEqual({ seekToMs: 500, play: false, playbackRate: 1 });
-    expect(syncVideo(1000, 1020, { playing: false, rate: 0, active: true }).seekToMs).toBe(1020);
-    expect(syncVideo(1000, 1010, { playing: false, rate: 0, active: true }).seekToMs).toBeNull();
+    expect(syncVideo(0, 500, { playing: true, rate: 1, active: false, speed: 1, backward: false })).toEqual({ seekToMs: 500, play: false, playbackRate: 1 });
+    expect(syncVideo(1000, 1020, { playing: false, rate: 0, active: true, speed: 1, backward: false }).seekToMs).toBe(1020);
+    expect(syncVideo(1000, 1010, { playing: false, rate: 0, active: true, speed: 1, backward: false }).seekToMs).toBeNull();
   });
 
   it("scrubs in reverse instead of playing", () => {
-    expect(syncVideo(1000, 900, { playing: true, rate: -1, active: true })).toEqual({ seekToMs: 900, play: false, playbackRate: 1 });
-    expect(syncVideo(1000, 1000, { playing: true, rate: 2, active: true })).toEqual({ seekToMs: null, play: true, playbackRate: 2 });
+    expect(syncVideo(1000, 900, { playing: true, rate: -1, active: true, speed: 1, backward: false })).toEqual({ seekToMs: 900, play: false, playbackRate: 1 });
+    expect(syncVideo(1000, 1000, { playing: true, rate: 2, active: true, speed: 1, backward: false })).toEqual({ seekToMs: null, play: true, playbackRate: 2 });
   });
 });
 
@@ -171,6 +179,7 @@ describe("audio plan", () => {
     expect(audioPlan(doc(), 2000)).toEqual([
       {
         clipId: "m",
+        trackId: "au",
         assetId: "asset-m",
         delayMs: 0,
         offsetMs: 3000,
@@ -184,6 +193,28 @@ describe("audio plan", () => {
     ]);
   });
 
+  it("plays the sound at a preview speed in wall time, stretching it so the pitch holds", () => {
+    expect(audioPlan(doc(), 2000, { rate: 2 })).toEqual([
+      {
+        clipId: "m",
+        trackId: "au",
+        assetId: "asset-m",
+        delayMs: 0,
+        offsetMs: 1000,
+        durationMs: 1500,
+        retime: { trimInMs: 1000, spanMs: 5000, speed: 2, reverse: false, preservePitch: true },
+        gain: [
+          { atMs: 0, value: 0.5 },
+          { atMs: 1000, value: 0.5 },
+          { atMs: 1500, value: 0 },
+        ],
+      },
+    ]);
+    const later = doc();
+    later.tracks[2].clips[0] = media("m", "audio", 1500, 1000, { speed: 2, preservePitch: false });
+    expect(audioPlan(later, 500, { rate: 0.5 })[0]).toMatchObject({ delayMs: 2000, offsetMs: 0, durationMs: 2000, retime: { speed: 1, preservePitch: false } });
+  });
+
   it("delays clips that start later and skips muted or hidden audio tracks", () => {
     const d = doc();
     d.tracks[2].clips[0] = media("m", "audio", 1500, 1000);
@@ -193,14 +224,6 @@ describe("audio plan", () => {
     d.tracks[2].muted = false;
     d.tracks[2].hidden = true;
     expect(audioPlan(d, 0)).toEqual([]);
-  });
-});
-
-describe("fitFrame", () => {
-  it("fits the canvas inside the container with a margin", () => {
-    expect(fitFrame({ width: 498, height: 848 }, { width: 1080, height: 1920 })).toEqual({ width: 450, height: 800 });
-    expect(fitFrame({ width: 1048, height: 448 }, { width: 1080, height: 1080 })).toEqual({ width: 400, height: 400 });
-    expect(fitFrame({ width: 10, height: 10 }, { width: 1080, height: 1080 })).toEqual({ width: 0, height: 0 });
   });
 });
 

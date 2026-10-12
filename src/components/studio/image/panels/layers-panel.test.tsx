@@ -19,7 +19,7 @@ function setup(layers: Layer[], groups?: StudioGroup[]) {
   const commands = createImageCommands(store, ui, { requestJob: vi.fn(), naturalSize: vi.fn() });
   render(
     <NextIntlClientProvider locale="pt" messages={ptMessages}>
-      <ImageEditorContext.Provider value={{ store, ui, commands, projectName: "Projeto" }}>
+      <ImageEditorContext.Provider value={{ store, ui, commands, projectId: "p-1", projectName: "Projeto" }}>
         <TooltipProvider><LayersPanel /></TooltipProvider>
       </ImageEditorContext.Provider>
     </NextIntlClientProvider>,

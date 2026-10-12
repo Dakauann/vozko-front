@@ -4,6 +4,8 @@ import type Konva from "konva";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Layer as KonvaLayer, Group, Rect, Stage, Transformer } from "react-konva";
 
+import { lazyHitGraph, sceneless } from "@/components/studio/canvas/konva-layer-modes";
+import { useViewportGestures } from "@/components/studio/canvas/use-viewport-gestures";
 import { DrawOverlay } from "@/components/studio/canvas/vector/draw-overlay";
 import { PathEditOverlay } from "@/components/studio/canvas/vector/path-edit-overlay";
 import { PenOverlay } from "@/components/studio/canvas/vector/pen-overlay";
@@ -14,11 +16,14 @@ import type { Artboard, ImageSurface, Layer } from "@/lib/studio/document";
 import type { Subpath } from "@/lib/studio/path-nodes";
 import { clickSelection, drillSelection, layersInRect, nodeResizePatch } from "@/lib/studio/geometry";
 import { familyOf } from "@/lib/studio/groups";
+import { liveParts, partIdsOf, resolvedSurface } from "@/lib/studio/components";
 import { changedTransforms, selectionBounds, translateLayers, updateLayers, withGroupMembers, type Bounds, type LayerPatch } from "@/lib/studio/layers";
 import { dropParent, reparentOnDrop } from "@/lib/studio/reparent";
 import { SNAP_THRESHOLD_SCREEN_PX, snapMove, snapTargets, type SnapGuides, type SnapTargets } from "@/lib/studio/snapping";
-import { isEditableTarget } from "@/lib/studio/keymap";
-import { followViewport, localViewport, screenToWorld, wheelZoom, zoomAt, type Point } from "@/lib/studio/viewport";
+import { layerStackAt, pickFromStack } from "@/lib/studio/picking";
+import { isGeneratedLayer } from "@/lib/studio/generated-layers";
+import { tableCellUnder } from "@/lib/studio/generated-edits";
+import { followViewport, localViewport, screenToWorld, type Point } from "@/lib/studio/viewport";
 
 import { useArtboardNames } from "../artboard-names";
 import { useEditorUi, useImageDoc, useImageEditor, type DragFeedback as Feedback } from "../editor-state";
@@ -27,17 +32,19 @@ import { ArtboardView, backdropArtboard, LayerOutline, SELECTION_COLOR, type Gro
 import { CropOverlay } from "./crop-overlay";
 import { DragFeedback, MarqueeBox } from "./drag-feedback";
 import { GpuArtboard } from "./gpu-artboard";
+import { PixelLiveProvider, PixelOverlay } from "./pixel-overlay";
 import { gestureNodes, placeNodes, settleNodes, stageNodes } from "./stage-nodes";
 
 const ROTATION_SNAPS = [0, 45, 90, 135, 180, 225, 270, 315];
 const MIN_BOX_PX = 4;
 const MIN_MARQUEE_PX = 3;
 const LINE_ANCHORS = ["middle-left", "middle-right"];
-const RATIO_TYPES = new Set<Layer["type"]>(["image", "icon"]);
+const RATIO_TYPES = new Set<Layer["type"]>(["image", "icon", "instance"]);
 
 interface PressRecord {
   id: string;
   kept: boolean;
+  hitId: string;
 }
 
 interface DragSession {
@@ -102,6 +109,7 @@ export default function EditorStage() {
   const editingTextId = useEditorUi((s) => s.editingTextId);
   const hoverLayerId = useEditorUi((s) => s.hoverLayerId);
   const tool = useEditorUi((s) => s.tool);
+  const pixelTool = useEditorUi((s) => s.pixelTool);
   const pathEditId = useEditorUi((s) => s.pathEditId);
   const artboardId = useEditorUi((s) => s.artboardId);
   const renamingId = useEditorUi((s) => s.renamingArtboardId);
@@ -111,12 +119,11 @@ export default function EditorStage() {
   const host = useRef<HTMLDivElement>(null);
   const stage = useRef<Konva.Stage>(null);
   const transformer = useRef<Konva.Transformer>(null);
+  const contentLayer = useRef<Konva.Layer>(null);
   const drag = useRef<DragSession | null>(null);
   const press = useRef<PressRecord | null>(null);
   const transformStart = useRef<TransformSession | null>(null);
   const marqueeStart = useRef<MarqueeStart | null>(null);
-  const pan = useRef<{ pointer: Point; origin: Point } | null>(null);
-  const spaceDown = useRef(false);
   const artboardGroups = useRef(new Map<string, Konva.Group>());
   const showFeedback = useCallback(
     (next: Feedback | null) => {
@@ -124,8 +131,6 @@ export default function EditorStage() {
     },
     [ui],
   );
-  const [panning, setPanning] = useState(false);
-  const [spaceHeld, setSpaceHeld] = useState(false);
 
   const active = activeArtboard(document, artboardId);
   const area = artboardsBounds(document);
@@ -147,91 +152,29 @@ export default function EditorStage() {
     return () => observer.disconnect();
   }, [ui]);
 
+  const mounted = container !== null;
+  useEffect(() => {
+    const layer = contentLayer.current;
+    return mounted && layer ? lazyHitGraph(layer) : undefined;
+  }, [mounted]);
+
+  useEffect(() => {
+    const layer = contentLayer.current;
+    return mounted && gpu && layer ? sceneless(layer) : undefined;
+  }, [mounted, gpu]);
+
   useEffect(() => {
     const state = ui.getState();
     const next = followViewport(fit, state.viewport, container, artboardsBounds(store.getState().document));
     if (next !== state.viewport) ui.setState({ viewport: next });
   }, [fit, container, areaKey, ui, store]);
 
-  useEffect(() => {
-    const element = host.current;
-    if (!element) return;
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      const rect = element.getBoundingClientRect();
-      const { viewport: current } = ui.getState();
-      if (event.ctrlKey || event.metaKey) {
-        const anchor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-        ui.setState({ viewport: zoomAt(current, wheelZoom(current.scale, event.deltaY), anchor), fit: false });
-        return;
-      }
-      const dx = event.shiftKey && event.deltaX === 0 ? event.deltaY : event.deltaX;
-      const dy = event.shiftKey && event.deltaX === 0 ? 0 : event.deltaY;
-      ui.setState({ viewport: { ...current, x: current.x - dx, y: current.y - dy }, fit: false });
-    };
-    element.addEventListener("wheel", onWheel, { passive: false });
-    return () => element.removeEventListener("wheel", onWheel);
-  }, [ui]);
-
-  useEffect(() => {
-    const onCanvas = (target: EventTarget | null) => target === window.document.body || (target instanceof Node && Boolean(host.current?.contains(target)));
-    const down = (event: KeyboardEvent) => {
-      if (event.code !== "Space" || isEditableTarget(event.target) || !onCanvas(event.target)) return;
-      event.preventDefault();
-      spaceDown.current = true;
-      setSpaceHeld(true);
-    };
-    const up = (event: KeyboardEvent) => {
-      if (event.code !== "Space") return;
-      spaceDown.current = false;
-      setSpaceHeld(false);
-    };
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
-    };
-  }, []);
-
-  useEffect(() => {
-    const element = host.current;
-    if (!element) return;
-    const start = (event: PointerEvent) => {
-      if (!(spaceDown.current || event.button === 1)) return;
-      event.preventDefault();
-      event.stopPropagation();
-      element.setPointerCapture(event.pointerId);
-      const { viewport: current } = ui.getState();
-      pan.current = { pointer: { x: event.clientX, y: event.clientY }, origin: { x: current.x, y: current.y } };
-      setPanning(true);
-    };
-    const move = (event: PointerEvent) => {
-      const session = pan.current;
-      if (!session) return;
-      const { viewport: current } = ui.getState();
-      ui.setState({
-        viewport: { ...current, x: session.origin.x + event.clientX - session.pointer.x, y: session.origin.y + event.clientY - session.pointer.y },
-        fit: false,
-      });
-    };
-    const end = (event: PointerEvent) => {
-      if (!pan.current) return;
-      pan.current = null;
-      setPanning(false);
-      if (element.hasPointerCapture(event.pointerId)) element.releasePointerCapture(event.pointerId);
-    };
-    element.addEventListener("pointerdown", start, { capture: true });
-    element.addEventListener("pointermove", move);
-    element.addEventListener("pointerup", end);
-    element.addEventListener("pointercancel", end);
-    return () => {
-      element.removeEventListener("pointerdown", start, { capture: true });
-      element.removeEventListener("pointermove", move);
-      element.removeEventListener("pointerup", end);
-      element.removeEventListener("pointercancel", end);
-    };
-  }, [ui]);
+  const { spaceDown, spaceHeld, panning } = useViewportGestures({
+    host,
+    viewport: () => ui.getState().viewport,
+    setViewport: (viewport) => ui.setState({ viewport, fit: false }),
+    claimsSpace: (event) => event.target === window.document.body || (event.target instanceof Node && Boolean(host.current?.contains(event.target))),
+  });
 
   const selectionHome = selection.length > 0 ? artboardOfLayer(document, selection[0]) : undefined;
   const selectedLayers = useMemo(() => {
@@ -243,7 +186,7 @@ export default function EditorStage() {
 
   const pathHome = pathEditId ? artboardOfLayer(document, pathEditId) : undefined;
   const editedPath = pathHome?.layers.find((l) => l.id === pathEditId && l.shape === "path");
-  const busy = crop !== null || pathEditId !== null || tool !== "select";
+  const busy = crop !== null || pathEditId !== null || tool !== "select" || pixelTool !== null;
 
   useEffect(() => {
     if (pathEditId && !editedPath) commands.finishPathEdit();
@@ -286,14 +229,20 @@ export default function EditorStage() {
   const handlers = useMemo<GroupProps>(() => {
     const layerIdOf = (event: Konva.KonvaEventObject<Event>) => event.currentTarget.id();
     const homeOf = (id: string) => artboardOfLayer(store.getState().document, id);
-    const pressOn = (id: string, additive: boolean, deep: boolean) => {
+    const throughTarget = (home: Artboard, current: readonly string[], hitId: string) => {
+      const point = pointerWorld();
+      return (point ? pickFromStack(layerStackAt(home, local(point, home)), current, true) : null) ?? hitId;
+    };
+    const pressOn = (hitId: string, additive: boolean, deep: boolean, through: boolean) => {
       const state = store.getState();
-      const home = homeOf(id);
+      const home = homeOf(hitId);
       if (!home) return;
       const sameHome = state.selection.length > 0 && artboardOfLayer(state.document, state.selection[0])?.id === home.id;
       const current = sameHome ? state.selection : [];
+      const id = through && !additive ? throughTarget(home, current, hitId) : hitId;
       const next = clickSelection(home, current, id, sameHome && additive, deep);
-      press.current = { id, kept: !additive && !deep && next.length === current.length && next.every((value, i) => value === current[i]) };
+      const kept = !through && !additive && !deep && next.length === current.length && next.every((value, i) => value === current[i]);
+      press.current = { id, kept, hitId };
       state.select(next);
     };
     const drillOn = (id: string) => {
@@ -310,6 +259,11 @@ export default function EditorStage() {
       const layer = homeOf(id)?.layers.find((l) => l.id === id);
       if (state.selection.length !== 1 || state.selection[0] !== id || !layer) return;
       if (layer.type === "text") return commands.startTextEdit(id);
+      if (isGeneratedLayer(layer)) {
+        const point = pointerWorld();
+        const home = homeOf(id);
+        return ui.setState({ dataEditorFor: id, dataEditorCell: point && home ? tableCellUnder(layer, home.canvas, local(point, home)) : null });
+      }
       if (touch) return;
       if (layer.type === "image") commands.startCrop(id);
       if (layer.type === "shape" && layer.shape !== "line" && layer.shape !== "arrow") commands.startPathEdit(id);
@@ -318,11 +272,11 @@ export default function EditorStage() {
       onMouseDown: (event: Konva.KonvaEventObject<MouseEvent>) => {
         if (event.evt.button !== 0) return;
         event.cancelBubble = true;
-        pressOn(layerIdOf(event), event.evt.shiftKey, event.evt.ctrlKey || event.evt.metaKey);
+        pressOn(layerIdOf(event), event.evt.shiftKey, event.evt.ctrlKey || event.evt.metaKey, event.evt.altKey);
       },
       onTouchStart: (event: Konva.KonvaEventObject<TouchEvent>) => {
         event.cancelBubble = true;
-        pressOn(layerIdOf(event), false, false);
+        pressOn(layerIdOf(event), false, false, false);
       },
       onClick: (event: Konva.KonvaEventObject<MouseEvent>) => {
         if (event.evt.button === 0) drillOn(layerIdOf(event));
@@ -339,6 +293,11 @@ export default function EditorStage() {
       onDragStart: (event: Konva.KonvaEventObject<DragEvent>) => {
         if (drag.current) return;
         const id = layerIdOf(event);
+        const pressed = press.current;
+        if (pressed && pressed.hitId === id && pressed.id !== id) {
+          event.currentTarget.stopDrag();
+          return;
+        }
         const home = homeOf(id);
         if (!home) return;
         const state = store.getState();
@@ -356,7 +315,7 @@ export default function EditorStage() {
           bounds,
           targets: snapTargets(home, family),
           startSurface: home,
-          nodes: gestureNodes(event.currentTarget.getStage(), family),
+          nodes: gestureNodes(event.currentTarget.getStage(), [...family, ...partIdsOf(store.getState().document, home, family)]),
           shift: { x: 0, y: 0 },
         };
       },
@@ -375,7 +334,7 @@ export default function EditorStage() {
         }
         const start = session.startSurface;
         session.shift = { x: dx / start.canvas.width, y: dy / start.canvas.height };
-        const moved = changedTransforms(start, translateLayers(start, session.ids, session.shift.x, session.shift.y));
+        const moved = liveParts(store.getState().document, start, changedTransforms(start, translateLayers(start, session.ids, session.shift.x, session.shift.y)));
         placeNodes(session.nodes, moved, start.canvas);
         ui.setState({ live: Object.fromEntries(moved) });
         const point = pointerWorld();
@@ -403,10 +362,10 @@ export default function EditorStage() {
         });
         ui.setState({ live: null });
         const home = artboardById(store.getState().document, session.artboardId);
-        if (home) settleNodes(session.nodes, home);
+        if (home) settleNodes(session.nodes, resolvedSurface(store.getState().document, home));
       },
     };
-  }, [store, ui, commands, pointerWorld, showFeedback]);
+  }, [store, ui, commands, pointerWorld, showFeedback, spaceDown]);
 
   const transformPatches = useCallback((start: ImageSurface): Map<string, LayerPatch> => {
     const patches = new Map<string, LayerPatch>();
@@ -421,7 +380,7 @@ export default function EditorStage() {
     const doc = store.getState().document;
     const attached = (transformer.current?.nodes() ?? []).map((node) => node.id());
     const home = attached.length > 0 ? artboardOfLayer(doc, attached[0]) : undefined;
-    transformStart.current = home ? { artboardId: home.id, startSurface: home, nodes: gestureNodes(stage.current, familyOf(home, attached)) } : null;
+    transformStart.current = home ? { artboardId: home.id, startSurface: home, nodes: gestureNodes(stage.current, [...familyOf(home, attached), ...partIdsOf(doc, home, familyOf(home, attached))]) } : null;
   }, [store]);
 
   const onTransform = useCallback(() => {
@@ -429,10 +388,10 @@ export default function EditorStage() {
     if (!session) return;
     const start = session.startSurface;
     const patches = transformPatches(start);
-    const moved = changedTransforms(start, updateLayers(start, [...patches.keys()], (layer) => patches.get(layer.id) ?? {}));
+    const moved = liveParts(store.getState().document, start, changedTransforms(start, updateLayers(start, [...patches.keys()], (layer) => patches.get(layer.id) ?? {})));
     placeNodes(session.nodes, moved, start.canvas, new Set(transformer.current?.nodes() ?? []));
     ui.setState({ live: Object.fromEntries(moved) });
-  }, [transformPatches, ui]);
+  }, [store, transformPatches, ui]);
 
   const onTransformEnd = useCallback(() => {
     const session = transformStart.current;
@@ -444,7 +403,7 @@ export default function EditorStage() {
     ui.setState({ live: null });
     for (const node of transformer.current?.nodes() ?? []) node.scale({ x: 1, y: 1 });
     const home = session ? artboardById(store.getState().document, session.artboardId) : undefined;
-    if (session && home) settleNodes(session.nodes, home);
+    if (session && home) settleNodes(session.nodes, resolvedSurface(store.getState().document, home));
   }, [store, transformPatches, ui]);
 
   const onStagePointerDown = (event: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
@@ -535,6 +494,7 @@ export default function EditorStage() {
   );
 
   const allLocked = selectedLayers.every((l) => l.locked);
+  const holdsLayoutBase = selectedLayers.some((l) => selectionHome?.groups?.some((g) => g.layout && g.baseId === l.id));
   const single = selectedLayers.length === 1 ? selectedLayers[0] : null;
   const lineLike = single?.type === "shape" && (single.shape === "line" || single.shape === "arrow");
   const keepRatio = selectedLayers.length > 0 && selectedLayers.every((l) => RATIO_TYPES.has(l.type));
@@ -568,11 +528,13 @@ export default function EditorStage() {
           onMouseUp={onStagePointerUp}
           onTouchEnd={onStagePointerUp}
         >
-          <KonvaLayer>
+          <KonvaLayer ref={contentLayer}>
+            <PixelLiveProvider enabled={!gpu}>
             {document.artboards.map((artboard) => (
               <ArtboardView
                 key={artboard.id}
                 artboard={artboard}
+                resolved={resolvedSurface(document, artboard)}
                 gpu={gpu}
                 busy={busy}
                 editingTextId={editingTextId}
@@ -582,6 +544,7 @@ export default function EditorStage() {
                 register={register}
               />
             ))}
+            </PixelLiveProvider>
           </KonvaLayer>
           <KonvaLayer>
             {document.artboards
@@ -616,7 +579,7 @@ export default function EditorStage() {
             />
             <Transformer
               ref={transformer}
-              rotateEnabled={!allLocked}
+              rotateEnabled={!allLocked && !holdsLayoutBase}
               resizeEnabled={!allLocked}
               keepRatio={keepRatio}
               enabledAnchors={lineLike ? LINE_ANCHORS : undefined}
@@ -639,6 +602,7 @@ export default function EditorStage() {
       ) : null}
       {container && tool === "pen" ? <PenOverlay view={localViewport(viewport, active)} onCreate={createFromPen} onCancel={leaveTool} /> : null}
       {container && tool === "draw" ? <DrawOverlay view={localViewport(viewport, active)} onCreate={createFromPencil} /> : null}
+      {container ? <PixelOverlay viewport={viewport} document={document} active={active} /> : null}
       {container && editedPath && pathHome ? (
         <PathEditOverlay
           layer={editedPath}

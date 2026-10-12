@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CaretRight } from "@/components/icons";
+import { useId, useMemo, useState } from "react";
+import { CaretDown, CaretRight } from "@/components/icons";
 
 import { ModelPickerSheet } from "./model-picker-sheet";
 import { ModelBrandIcon } from "./model-brand-icon";
+import { ReasoningLevelControl } from "./reasoning-level-control";
 import type { ModelPricingInfo } from "@/lib/agents/types";
+import { reasoningOptionsOf, type ReasoningAdjustment } from "@/lib/ai-models/reasoning";
+import type { ModelSurface } from "@/lib/ai-models/surfaces";
 import { cn } from "@/lib/utils";
 import { softSurfaceWithInset } from "./shadow-presets";
 
@@ -35,7 +38,16 @@ interface AIModelSelectorProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   className?: string;
+  variant?: "field" | "toolbar";
+  surface?: ModelSurface;
+  reasoning?: string;
+  onReasoningChange?: (level: string) => void;
+  reasoningAdjusted?: ReasoningAdjustment | null;
+  onReasoningAcknowledge?: () => void;
 }
+
+const TOOLBAR_TRIGGER =
+  "flex h-8 min-w-0 max-w-full items-center gap-1.5 rounded-[--radius] px-2 text-left text-sm font-medium text-muted-foreground transition-colors duration-DEFAULT hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
 
 export function AIModelSelector({
   label = "Modelo de IA",
@@ -44,11 +56,19 @@ export function AIModelSelector({
   models,
   modelPricing,
   disabled,
-  searchPlaceholder = "Pesquisar modelo ou provedor...",
-  emptyMessage = "Nenhum modelo encontrado",
+  searchPlaceholder,
+  emptyMessage,
   className,
+  variant = "field",
+  surface,
+  reasoning = "",
+  onReasoningChange,
+  reasoningAdjusted,
+  onReasoningAcknowledge,
 }: AIModelSelectorProps) {
   const [open, setOpen] = useState(false);
+  const labelId = useId();
+  const nameId = useId();
   const [focused, setFocused] = useState(false);
 
   const pricing = useMemo(() => {
@@ -59,6 +79,66 @@ export function AIModelSelector({
     pricing && (pricing.promptPrice > 0 || pricing.completionPrice > 0)
       ? `${formatPrice(pricing.promptPrice)} · ${formatPrice(pricing.completionPrice)} /M`
       : null;
+  const displayName = value ? getModelDisplayName(value, pricing?.name) : null;
+
+  const sheet = (
+    <ModelPickerSheet
+      open={open}
+      onOpenChange={setOpen}
+      value={value}
+      onValueChange={(val) => onValueChange?.(val)}
+      models={models}
+      modelPricing={modelPricing}
+      surface={surface}
+      title={label}
+      searchPlaceholder={searchPlaceholder}
+      emptyMessage={emptyMessage}
+    />
+  );
+
+  const level = onReasoningChange ? (
+    <ReasoningLevelControl
+      variant={variant}
+      options={value ? reasoningOptionsOf(modelPricing, value) : undefined}
+      value={reasoning}
+      onChange={onReasoningChange}
+      adjusted={reasoningAdjusted}
+      onAcknowledge={onReasoningAcknowledge}
+      disabled={disabled}
+    />
+  ) : null;
+
+  if (variant === "toolbar") {
+    return (
+      <div className={cn("flex min-w-0", className)}>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-labelledby={`${labelId} ${nameId}`}
+          title={[displayName, priceLabel].filter(Boolean).join(" · ") || undefined}
+          className={TOOLBAR_TRIGGER}
+        >
+          <span id={labelId} className="sr-only">
+            {label}
+          </span>
+          {value ? (
+            <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center">
+              <ModelBrandIcon modelId={value} size={16} />
+            </span>
+          ) : null}
+          <span id={nameId} className="min-w-0 truncate text-foreground">
+            {displayName}
+          </span>
+          <CaretDown className="h-3.5 w-3.5 flex-shrink-0" weight="bold" />
+        </button>
+        {level}
+        {sheet}
+      </div>
+    );
+  }
 
   return (
     <div className={cn("w-full", className)}>
@@ -90,7 +170,7 @@ export function AIModelSelector({
                 <ModelBrandIcon modelId={value} size={16} />
               </span>
               <span className="truncate font-medium text-foreground">
-                {getModelDisplayName(value, pricing?.name)}
+                {displayName}
               </span>
               {priceLabel ? (
                 <span className="ml-auto flex-shrink-0 text-xs font-normal tabular-nums text-muted-foreground">
@@ -106,17 +186,8 @@ export function AIModelSelector({
         />
       </button>
 
-      <ModelPickerSheet
-        open={open}
-        onOpenChange={setOpen}
-        value={value}
-        onValueChange={(val) => onValueChange?.(val)}
-        models={models}
-        modelPricing={modelPricing}
-        title={label}
-        searchPlaceholder={searchPlaceholder}
-        emptyMessage={emptyMessage}
-      />
+      {level ? <div className="mt-3">{level}</div> : null}
+      {sheet}
     </div>
   );
 }

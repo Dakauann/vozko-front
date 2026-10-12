@@ -6,13 +6,18 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { activeArtboard } from "@/lib/studio/artboards";
 import type { CropFrame } from "@/lib/studio/crop";
+import type { GridCell } from "@/lib/studio/data-grid";
 import type { Artboard, CanvasSize, ImageCanvas, ImageDocument, Transform } from "@/lib/studio/document";
 import type { PixelBox } from "@/lib/studio/geometry";
 import type { Bounds } from "@/lib/studio/layers";
 import type { SnapGuides } from "@/lib/studio/snapping";
 import type { JobErrorCode } from "@/lib/studio/image-edits";
+import type { AssetSlot, ImageSource } from "@/lib/studio/image-sources";
 import { useStudioEditor, type StudioEditorState, type StudioEditorStore } from "@/lib/studio/store";
 import type { VectorTool } from "@/lib/studio/vector-tools";
+import type { PixelSelection } from "@/lib/studio/pixel-selection";
+import type { PixelLive } from "@/lib/studio/pixel-surface";
+import { DEFAULT_BRUSH, type BrushSettings, type PixelTool } from "@/lib/studio/pixel-tools";
 import type { Point, Viewport } from "@/lib/studio/viewport";
 import type { ImageReference } from "@/lib/media-generation/references";
 import type { ImageAspect, MediaGenerationJob } from "@/lib/media-generation/types";
@@ -23,12 +28,14 @@ export const PANEL_IDS = ["text", "elements", "uploads", "ai"] as const;
 
 export type PanelId = (typeof PANEL_IDS)[number];
 
-export type JobPurpose = "generate" | "edit" | "cutout";
+export type JobPurpose = "generate" | "edit" | "cutout" | "element";
 
 export interface StudioJob {
   id: string;
   purpose: JobPurpose;
   layerId: string | null;
+  slot?: AssetSlot;
+  startedFrom?: string;
   created: MediaGenerationJob | null;
   settling: boolean;
   error: JobErrorCode | "result_unavailable" | null;
@@ -52,6 +59,7 @@ export interface CropSession {
   layerId: string;
   frame: CropFrame;
   box: PixelBox;
+  ratio?: number;
 }
 
 export interface DragFeedback {
@@ -73,6 +81,8 @@ export interface EditorUiState {
   panel: PanelId | null;
   rulers: boolean;
   snapping: boolean;
+  depthOverlay: boolean;
+  layoutOverlay: boolean;
   crop: CropSession | null;
   editingTextId: string | null;
   tool: VectorTool;
@@ -86,6 +96,13 @@ export interface EditorUiState {
   layersOpen: boolean;
   layersHeight: number;
   aiDraft: ImageAiDraft;
+  aiEditSource: ImageSource | null;
+  pixelTool: PixelTool | null;
+  brush: BrushSettings;
+  pixelSelection: PixelSelection | null;
+  pixelLive: PixelLive | null;
+  dataEditorFor: string | null;
+  dataEditorCell: GridCell | null;
 }
 
 export type EditorUiStore = StoreApi<EditorUiState>;
@@ -103,6 +120,8 @@ export function createEditorUiStore(): EditorUiStore {
     panel: "text",
     rulers: false,
     snapping: true,
+    depthOverlay: false,
+    layoutOverlay: false,
     crop: null,
     editingTextId: null,
     tool: "select",
@@ -116,6 +135,13 @@ export function createEditorUiStore(): EditorUiStore {
     layersOpen: true,
     layersHeight: 320,
     aiDraft: EMPTY_IMAGE_AI_DRAFT,
+    aiEditSource: null,
+    pixelTool: null,
+    brush: DEFAULT_BRUSH,
+    pixelSelection: null,
+    pixelLive: null,
+    dataEditorFor: null,
+    dataEditorCell: null,
   }));
 }
 
@@ -123,6 +149,7 @@ export interface ImageEditorContextValue {
   store: StudioEditorStore<ImageDocument>;
   ui: EditorUiStore;
   commands: ImageCommands;
+  projectId: string;
   projectName: string;
 }
 

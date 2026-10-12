@@ -17,20 +17,20 @@ describe("filmstrip planner", () => {
   });
 
   it("plans only the visible tiles with bucketed source times after the trim", () => {
-    const tiles = planFilmstrip({ clipWidthPx: 400, heightPx: 45, trimInMs: 1000, durationMs: 4000, visibleFromPx: 100, visibleToPx: 300 });
+    const tiles = planFilmstrip({ clipWidthPx: 400, heightPx: 45, clip: { type: "video", trimInMs: 1000, durationMs: 4000 }, visibleFromPx: 100, visibleToPx: 300 });
     expect(tiles.map((t) => t.index)).toEqual([1, 2, 3]);
     expect(tiles[0]).toEqual({ index: 1, leftPx: 80, widthPx: 80, sourceMs: 1600 });
     expect(tiles.every((t) => t.sourceMs % 800 === 0)).toBe(true);
   });
 
   it("cuts the last tile at the clip end and never asks past the source", () => {
-    const tiles = planFilmstrip({ clipWidthPx: 200, heightPx: 45, trimInMs: 0, durationMs: 2000, visibleFromPx: 0, visibleToPx: 1000, sourceDurationMs: 1500 });
+    const tiles = planFilmstrip({ clipWidthPx: 200, heightPx: 45, clip: { type: "video", trimInMs: 0, durationMs: 2000 }, visibleFromPx: 0, visibleToPx: 1000, sourceDurationMs: 1500 });
     expect(tiles.map((t) => t.widthPx)).toEqual([80, 80, 40]);
     expect(Math.max(...tiles.map((t) => t.sourceMs))).toBeLessThanOrEqual(1499);
   });
 
   it("returns nothing for empty clips", () => {
-    expect(planFilmstrip({ clipWidthPx: 0, heightPx: 45, trimInMs: 0, durationMs: 1000, visibleFromPx: 0, visibleToPx: 100 })).toEqual([]);
+    expect(planFilmstrip({ clipWidthPx: 0, heightPx: 45, clip: { type: "video", trimInMs: 0, durationMs: 1000 }, visibleFromPx: 0, visibleToPx: 100 })).toEqual([]);
   });
 });
 
@@ -58,5 +58,14 @@ describe("frame cache and bars", () => {
   it("draws at most one bar per pixel", () => {
     expect(waveformBars(300, 2)).toBe(150);
     expect(waveformBars(300, 0)).toBe(300);
+  });
+});
+
+describe("filmstrip of a retimed clip", () => {
+  it("spreads twice the source across a clip played at 2x and runs it backwards when reversed", () => {
+    const fast = planFilmstrip({ clipWidthPx: 400, heightPx: 45, clip: { type: "video", trimInMs: 0, durationMs: 4000, speed: 2 }, visibleFromPx: 0, visibleToPx: 400 });
+    expect(fast.at(-1)!.sourceMs).toBeGreaterThan(6000);
+    const back = planFilmstrip({ clipWidthPx: 400, heightPx: 45, clip: { type: "video", trimInMs: 0, durationMs: 4000, reverse: true }, visibleFromPx: 0, visibleToPx: 400 });
+    expect(back[0].sourceMs).toBeGreaterThan(back.at(-1)!.sourceMs);
   });
 });

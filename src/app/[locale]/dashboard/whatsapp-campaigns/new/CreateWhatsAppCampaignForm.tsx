@@ -47,6 +47,7 @@ import {
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import Link from "next/link";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
@@ -1771,9 +1772,9 @@ export default function CreateWhatsAppCampaignForm({
 
             <div>
               <ElevatedCommandSelect
-                label="Funil de atendimento"
+                label={t("basicInfo.pipeline")}
                 options={[
-                  { value: "", label: "Funil padrão do workspace" },
+                  { value: "", label: t("basicInfo.pipelineDefault") },
                   ...pipelineOptions.map((p) => ({
                     value: p.id,
                     label: p.name,
@@ -1781,12 +1782,11 @@ export default function CreateWhatsAppCampaignForm({
                 ]}
                 value={selectedPipelineId}
                 onValueChange={setSelectedPipelineId}
-                searchPlaceholder="Buscar funil..."
-                emptyMessage="Nenhum funil encontrado"
+                searchPlaceholder={t("basicInfo.searchPipeline")}
+                emptyMessage={t("basicInfo.noPipelines")}
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Define em qual funil as conversas desta campanha entram e por
-                quais etapas passam. Vazio usa o funil padrão do workspace.
+                {t("basicInfo.pipelineDescription")}
               </p>
             </div>
 
@@ -1871,8 +1871,7 @@ export default function CreateWhatsAppCampaignForm({
                   </div>
 
                   <p className="text-xs text-healthy-ink border-t border-healthy/20 pt-3">
-                    A prévia do template fica no painel da direita com um
-                    contato aleatório desta campanha.
+                    {t("basicInfo.templatePreviewHint")}
                   </p>
                 </div>
               )}
@@ -2161,12 +2160,12 @@ export default function CreateWhatsAppCampaignForm({
         <ElevatedContainer className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-16" data-tour="wc-preview">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-foreground">
-              Prévia do template
+              {t("preview.title")}
             </h3>
             <Button
               type="button"
               variant="secondary"
-              title="Trocar contato"
+              title={t("preview.swapContact")}
               onClick={() => {
                 const validIndices = phoneNumbersSnapshot
                   .map((phone, idx) => ({ phone, idx }))
@@ -2184,17 +2183,18 @@ export default function CreateWhatsAppCampaignForm({
 
           {!selectedTemplate ? (
             <p className="text-sm text-muted-foreground">
-              Selecione um template para visualizar a mensagem.
+              {t("preview.selectTemplate")}
             </p>
           ) : (
             <div className="space-y-3">
               <div className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
                 <p>
-                  <strong>Contato de teste:</strong>{" "}
+                  <strong>{t("preview.testContact")}</strong>{" "}
                   {previewEntry?.name?.trim() || t("noName")}
                 </p>
                 <p>
-                  <strong>Número:</strong> {previewEntry?.number || "-"}
+                  <strong>{t("preview.number")}</strong>{" "}
+                  {previewEntry?.number || <EmptyValue />}
                 </p>
               </div>
 

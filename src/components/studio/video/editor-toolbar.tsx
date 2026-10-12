@@ -3,14 +3,13 @@
 import { useTranslations } from "next-intl";
 
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { ArrowClockwise, ArrowCounterClockwise, ArrowsLeftRight, Copy, GridFour, Trash, TrashSimple } from "@/components/icons";
+import { ArrowClockwise, ArrowCounterClockwise, ArrowsLeftRight, Copy, GridFour, Stack, Sun, Trash, TrashSimple } from "@/components/icons";
+import { ASPECT_RATIO_LABEL } from "@/lib/media-generation/types";
 import { VIDEO_ASPECTS, type VideoAspect } from "@/lib/studio/document";
 
 import { useEditorState, useVideoEditor, useViewState } from "./editor-context";
 import { ExportControl } from "./export/export-control";
 import { ToolButton, ToolDivider } from "./tool-button";
-
-const ASPECT_RATIO_LABEL: Record<VideoAspect, string> = { square: "1:1", portrait: "4:5", story: "9:16", landscape: "16:9" };
 
 export function EditorToolbar() {
   const t = useTranslations("studio.video.toolbar");
@@ -20,6 +19,8 @@ export function EditorToolbar() {
   const hasSelection = useEditorState((s) => s.selection.length > 0);
   const aspect = useEditorState((s) => s.document.canvas.aspect);
   const safeArea = useViewState((s) => s.safeArea);
+  const depthOverlay = useViewState((s) => s.depthOverlay);
+  const layoutOverlay = useViewState((s) => s.layoutOverlay);
 
   return (
     <div role="toolbar" aria-label={t("label")} className="flex h-10 shrink-0 items-center gap-0.5 overflow-x-auto border-b border-border bg-card px-2">
@@ -38,6 +39,8 @@ export function EditorToolbar() {
         options={VIDEO_ASPECTS.map((option) => ({ value: option, label: ASPECT_RATIO_LABEL[option], title: t(`aspects.${option}`) }))}
       />
       <ToolButton label={t("safeArea")} icon={<GridFour className="h-4 w-4" />} pressed={safeArea} onClick={commands.toggleSafeArea} />
+      <ToolButton label={t("depthOverlay")} icon={<Sun className="h-4 w-4" />} pressed={depthOverlay} onClick={() => commands.togglePerception("depthOverlay")} />
+      <ToolButton label={t("layoutOverlay")} icon={<Stack className="h-4 w-4" />} pressed={layoutOverlay} onClick={() => commands.togglePerception("layoutOverlay")} />
       <div className="ml-auto flex shrink-0 items-center pl-2">
         <ExportControl />
       </div>

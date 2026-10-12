@@ -4,11 +4,12 @@ import type { ComponentType, SVGProps } from "react";
 import { useTranslations } from "next-intl";
 
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { ArrowsInSimple, FlagCheckered, Link, LinkBreak, MagnifyingGlass, Minus, Plus, Question, Stack, Target, VideoCamera, Waveform } from "@/components/icons";
+import { ArrowsInSimple, Faders, FlagCheckered, FunnelSimple, Link, LinkBreak, MagnifyingGlass, Minus, Plus, Question, Stack, Target, VideoCamera, Waveform } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { TrackKind } from "@/lib/studio/document";
 import { formatSmpte, sliderToZoom, zoomToSlider } from "@/lib/studio/timeline-view";
 import { SHORTCUT_ROWS } from "@/lib/studio/video-shortcuts";
+import { shyCount } from "@/lib/studio/organize";
 import { cn } from "@/lib/utils";
 
 import { useEditorState, useVideoEditor, useViewState } from "../editor-context";
@@ -16,7 +17,8 @@ import { PlayheadTimecode } from "../playhead-timecode";
 import { RANGE_KEYS } from "../inspector/fields";
 import { ToolButton, ToolDivider } from "../tool-button";
 import type { DragMode, TimelineTool, TrackHeight } from "../view-store";
-import { BladeToolIcon, RippleToolIcon, RollToolIcon, SelectToolIcon, SlideToolIcon, SlipToolIcon } from "./tool-icons";
+import { MasterMeter } from "./level-meter";
+import { BladeToolIcon, ClearRangeIcon, MarkInIcon, MarkOutIcon, RippleToolIcon, RollToolIcon, SelectToolIcon, SlideToolIcon, SlipToolIcon } from "./tool-icons";
 
 const HEIGHTS: TrackHeight[] = ["compact", "normal", "tall"];
 
@@ -72,6 +74,8 @@ export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => v
   const pxPerSecond = useViewState((s) => s.pxPerSecond);
   const dragMode = useViewState((s) => s.dragMode);
   const tool = useViewState((s) => s.tool);
+  const mixerOpen = useViewState((s) => s.mixerOpen);
+  const tm = useTranslations("studio.video.mixer");
 
   return (
     <div role="toolbar" aria-label={t("label")} className="flex h-9 shrink-0 items-center gap-0.5 overflow-x-auto border-b border-border-strong bg-card px-2">
@@ -79,6 +83,7 @@ export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => v
         <PlayheadTimecode format={formatSmpte} />
         <span className="text-xs font-normal text-muted-foreground"> / {formatSmpte(durationMs)}</span>
       </output>
+      <MasterMeter />
       <div role="radiogroup" aria-label={t("tools")} className="flex items-center gap-0.5 rounded-[--radius] border border-border-strong bg-muted p-0.5">
         {TOOLS.map(({ id, icon: Icon, shortcut }) => (
           <ToolButton
@@ -101,9 +106,13 @@ export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => v
       <ToolButton label={t("link")} icon={<Link className="h-4 w-4" />} disabled={!hasSelection} onClick={commands.link} />
       <ToolButton label={t("unlink")} icon={<LinkBreak className="h-4 w-4" />} disabled={!hasSelection} onClick={commands.unlink} />
       <ToolButton label={t("marker")} shortcut="M" icon={<FlagCheckered className="h-4 w-4" />} onClick={commands.addMarker} />
+      <ShyToggle />
+      <ToolDivider />
+      <WorkAreaButtons />
       <ToolDivider />
       <ToolButton label={t("addVisual")} icon={<VideoCamera className="h-4 w-4" />} onClick={() => onAddTrack("visual")} />
       <ToolButton label={t("addAudio")} icon={<Waveform className="h-4 w-4" />} onClick={() => onAddTrack("audio")} />
+      <ToolButton label={tm("open")} icon={<Faders className="h-4 w-4" />} pressed={mixerOpen} onClick={commands.toggleMixer} />
       <ElevatedPillToggle<TrackHeight>
         aria-label={t("trackHeight")}
         value={trackHeight}
@@ -135,6 +144,36 @@ export function TimelineBar({ onAddTrack }: { onAddTrack: (kind: TrackKind) => v
         <ToolButton label={t("zoomIn")} shortcut="+" icon={<Plus className="h-3.5 w-3.5" />} onClick={() => commands.zoom(1)} />
         <ShortcutsHelp />
       </div>
+    </div>
+  );
+}
+
+function ShyToggle() {
+  const t = useTranslations("studio.video.timeline.bar");
+  const { view } = useVideoEditor();
+  const shy = useEditorState((s) => shyCount(s.document.tracks));
+  const showShy = useViewState((s) => s.showShy);
+  if (shy === 0) return null;
+  return (
+    <ToolButton
+      label={showShy ? t("hideShy", { count: shy }) : t("showShy", { count: shy })}
+      icon={<FunnelSimple className="h-4 w-4" />}
+      pressed={!showShy}
+      showLabel={!showShy}
+      onClick={() => view.setState({ showShy: !showShy })}
+    />
+  );
+}
+
+function WorkAreaButtons() {
+  const t = useTranslations("studio.video.timeline.bar");
+  const { commands } = useVideoEditor();
+  const marked = useViewState((s) => s.range.inMs !== null || s.range.outMs !== null);
+  return (
+    <div role="group" aria-label={t("workArea")} className="flex items-center gap-0.5">
+      <ToolButton label={t("markIn")} shortcut="I" icon={<MarkInIcon className="h-4 w-4" />} onClick={commands.markIn} />
+      <ToolButton label={t("markOut")} shortcut="O" icon={<MarkOutIcon className="h-4 w-4" />} onClick={commands.markOut} />
+      <ToolButton label={t("clearRange")} shortcut="Ctrl+Shift+X" icon={<ClearRangeIcon className="h-4 w-4" />} disabled={!marked} onClick={commands.clearRange} />
     </div>
   );
 }

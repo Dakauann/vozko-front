@@ -1,13 +1,48 @@
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
 import { announceDataChanged } from "@/lib/aichat/data-changed";
-import { isScreenCommand, type ScreenCommand } from "@/lib/aichat/screen";
+import { deliveredFromPayload, queuedFromPayload, type QueuedMessage } from "@/lib/aichat/queue";
+import type { Retraction } from "@/lib/aichat/retract";
+import { isScreenCommand, isScreenGo, type ScreenCommand, type ScreenGo } from "@/lib/aichat/screen";
 import { browserTimezone } from "@/lib/working-hours/types";
 import type { ActionCard, Approval, ChatChart, ChatMedia, ChatMode, ChatStreamEvent, ChatView, PendingAction, ToolSubject } from "@/lib/aichat/types";
+
+export const CHAT_STREAM_ERRORS = ["reply_failed", "session_expired", "request_failed", "network_failed", "provider_unreachable", "provider_busy", "thread_other_project", "model_without_tools", "model_catalog_unavailable", "reasoning_level_unsupported"] as const;
+
+export type ChatStreamError = (typeof CHAT_STREAM_ERRORS)[number];
+
+export function isChatStreamError(value: string): value is ChatStreamError {
+  return (CHAT_STREAM_ERRORS as readonly string[]).includes(value);
+}
+
+export interface ChatStreamFailure {
+  code: ChatStreamError;
+  minutes: number;
+}
+
+const WAIT_SEPARATOR = "@";
+
+export function providerBusyError(retryAfterSeconds: unknown): string {
+  const minutes = typeof retryAfterSeconds === "number" && retryAfterSeconds > 0 ? Math.ceil(retryAfterSeconds / 60) : 0;
+  return minutes > 0 ? `provider_busy${WAIT_SEPARATOR}${minutes}` : "provider_busy";
+}
+
+export function readChatStreamError(value: string): ChatStreamFailure | null {
+  const [code, wait] = value.split(WAIT_SEPARATOR);
+  if (!isChatStreamError(code)) return null;
+  const minutes = Number.parseInt(wait ?? "", 10);
+  return { code, minutes: Number.isFinite(minutes) && minutes > 0 ? minutes : 0 };
+}
+
+function streamFailure(code: string | undefined, retryAfterSeconds: unknown): string | null {
+  if (code === "provider_busy") return providerBusyError(retryAfterSeconds);
+  return code && isChatStreamError(code) ? code : null;
+}
 
 export interface StreamHandlers {
   onDelta?: (text: string) => void;
   onReasoning?: (text: string) => void;
   onReasoningDone?: () => void;
+  onRetry?: (retraction: Retraction) => void;
   onToolStart?: (name: string) => void;
   onTool?: (name: string, summary: string, ok: boolean, subject?: ToolSubject) => void;
   onChart?: (chart: ChatChart) => void;
@@ -16,6 +51,10 @@ export interface StreamHandlers {
   onProposal?: (action: PendingAction) => void;
   onAwaitingApproval?: (actionId: string) => void;
   onScreenCommand?: (command: ScreenCommand) => void;
+  onScreenGo?: (signal: ScreenGo) => void;
+  onQueued?: (item: QueuedMessage) => void;
+  onUnqueued?: (clientId: string) => void;
+  onDelivered?: (items: QueuedMessage[]) => void;
   onDone?: () => void;
   onError?: (error: string) => void;
 }
@@ -31,6 +70,9 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
       break;
     case "reasoning_done":
       h.onReasoningDone?.();
+      break;
+    case "assistant_retry":
+      h.onRetry?.({ text: p.text ?? "", reasoning: p.reasoning ?? "" });
       break;
     case "tool":
       h.onTool?.(p.name ?? "", p.summary ?? "", !!p.ok, p.subject);
@@ -57,11 +99,25 @@ export function dispatchStreamEvent(ev: ChatStreamEvent, h: StreamHandlers) {
     case "screen_command":
       if (isScreenCommand(ev.payload)) h.onScreenCommand?.(ev.payload);
       break;
+    case "screen_go":
+      if (isScreenGo(ev.payload)) h.onScreenGo?.(ev.payload);
+      break;
+    case "queued": {
+      const item = queuedFromPayload(ev.payload);
+      if (item) h.onQueued?.(item);
+      break;
+    }
+    case "unqueued":
+      if (p.clientId) h.onUnqueued?.(p.clientId);
+      break;
+    case "delivered":
+      h.onDelivered?.(deliveredFromPayload(ev.payload));
+      break;
     case "done":
       h.onDone?.();
       break;
     case "error":
-      h.onError?.(p.error ?? "Erro ao gerar resposta");
+      h.onError?.(streamFailure(p.code, p.retryAfterSeconds) ?? p.error ?? "reply_failed");
       break;
   }
 }
@@ -78,17 +134,22 @@ export type StreamOutcome = "finished" | "detached" | "aborted" | "failed" | "mi
 export interface SendBody {
   content: string;
   model: string;
+  reasoning?: string;
   view?: ChatView;
   attachments?: string[];
   mode?: ChatMode;
 }
 
-export interface ApproveBody extends Approval {
+export interface TurnContext {
   view?: ChatView;
   mode?: ChatMode;
 }
 
+export interface ApproveBody extends Approval, TurnContext {}
+
 const TERMINAL_EVENTS: ReadonlySet<ChatStreamEvent["type"]> = new Set(["done", "error", "awaiting_approval"]);
+
+const QUEUE_EVENTS: ReadonlySet<ChatStreamEvent["type"]> = new Set(["queued", "unqueued"]);
 
 function threadPath(threadId: string): string {
   return `${getApiBaseUrl()}/chat/threads/${encodeURIComponent(threadId)}`;
@@ -105,10 +166,10 @@ export const chatStreams = {
     method: "POST",
     body,
   }),
-  reject: (threadId: string, actionId: string): ChatStreamRequest => ({
+  reject: (threadId: string, actionId: string, body: TurnContext = {}): ChatStreamRequest => ({
     url: `${threadPath(threadId)}/actions/${encodeURIComponent(actionId)}/reject`,
     method: "POST",
-    body: {},
+    body,
   }),
   observe: (threadId: string): ChatStreamRequest => ({
     url: `${threadPath(threadId)}/turn/events`,
@@ -120,9 +181,10 @@ export const chatStreams = {
 async function failureMessage(res: Response): Promise<string> {
   try {
     const body = await res.json();
-    return body?.message || body?.error || `Erro ${res.status}`;
+    if (typeof body?.code === "string" && isChatStreamError(body.code)) return body.code;
+    return body?.message || body?.error || "request_failed";
   } catch {
-    return `Erro ${res.status}`;
+    return "request_failed";
   }
 }
 
@@ -152,7 +214,7 @@ export async function readChatStream(request: ChatStreamRequest, handlers: Strea
     );
     if (res.status === 404 && request.quietWhenMissing) return "missing";
     if (res.status === 401) {
-      handlers.onError?.("Sessão expirada. Faça login novamente.");
+      handlers.onError?.("session_expired");
       return "failed";
     }
     if (!res.ok || !res.body) {
@@ -176,6 +238,7 @@ export async function readChatStream(request: ChatStreamRequest, handlers: Strea
         if (!ev) continue;
         dispatchStreamEvent(ev, handlers);
         if (TERMINAL_EVENTS.has(ev.type)) ended = true;
+        else if (!QUEUE_EVENTS.has(ev.type)) ended = false;
       }
     }
     return ended ? "finished" : "detached";
@@ -183,7 +246,7 @@ export async function readChatStream(request: ChatStreamRequest, handlers: Strea
     const err = e as Error;
     if (err?.name === "AbortError" || signal.aborted) return "aborted";
     if (opened) return "detached";
-    handlers.onError?.(err?.message ?? "Erro de rede");
+    handlers.onError?.("network_failed");
     return "failed";
   }
 }

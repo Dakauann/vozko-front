@@ -3,6 +3,7 @@ import { StreamDecoder } from "@/lib/studio/media/stream-decoder";
 
 import type { MediaEvent, MediaRequest, StillRequest } from "./media-protocol";
 import { openStillReader, openVideoReader, type StillReader } from "./video-reader";
+import { cancelTrack, startTrack } from "./track-jobs";
 
 const MAX_STILL_FILES = 3;
 
@@ -34,6 +35,8 @@ function handle(request: MediaRequest): void {
     stills = stills.then(() => still(request));
     return;
   }
+  if (request.kind === "track") return void startTrack(request, post);
+  if (request.kind === "track-cancel") return cancelTrack(request.id);
   const decoder = streams.get(request.stream);
   switch (request.kind) {
     case "open":
@@ -45,7 +48,7 @@ function handle(request: MediaRequest): void {
       streams.delete(request.stream);
       return;
     case "seek":
-      decoder?.seek(request.generation, request.seconds);
+      decoder?.seek(request.generation, request.seconds, request.until);
       return;
     case "want":
       decoder?.want(request.seconds);

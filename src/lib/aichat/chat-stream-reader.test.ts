@@ -57,6 +57,13 @@ describe("readChatStream", () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
+  it("reports a turn refused for another studio project by its code, so the screen can explain it", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ error: true, code: "thread_other_project", message: "esta conversa pertence a outro projeto" }), { status: 409 })));
+    const onError = vi.fn();
+    expect(await readChatStream(chatStreams.send("th1", { content: "oi", model: "m" }), { onError }, new AbortController().signal)).toBe("failed");
+    expect(onError).toHaveBeenCalledWith("thread_other_project");
+  });
+
   it("surfaces a refused message as an error", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ message: "a Elo ainda está respondendo nesta conversa" }), { status: 409 })));
     const onError = vi.fn();
@@ -78,6 +85,27 @@ describe("readChatStream", () => {
     const onError = vi.fn();
     expect(await readChatStream(chatStreams.observe("th1"), { onError }, controller.signal)).toBe("aborted");
     expect(onError).not.toHaveBeenCalled();
+  });
+
+  it("reports an expired session with a code the screen translates", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 401 })));
+    const onError = vi.fn();
+    expect(await readChatStream(chatStreams.send("th1", { content: "oi", model: "m" }), { onError }, new AbortController().signal)).toBe("failed");
+    expect(onError).toHaveBeenCalledWith("session_expired");
+  });
+
+  it("reports a refused request without a message with a code the screen translates", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("bad gateway", { status: 502 })));
+    const onError = vi.fn();
+    await readChatStream(chatStreams.send("th1", { content: "oi", model: "m" }), { onError }, new AbortController().signal);
+    expect(onError).toHaveBeenCalledWith("request_failed");
+  });
+
+  it("reports a connection that never opened with a code instead of the browser's English message", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new TypeError("Failed to fetch"))));
+    const onError = vi.fn();
+    expect(await readChatStream(chatStreams.send("th1", { content: "oi", model: "m" }), { onError }, new AbortController().signal)).toBe("failed");
+    expect(onError).toHaveBeenCalledWith("network_failed");
   });
 
   it("watches the running answer with a GET and sends messages with a POST", () => {

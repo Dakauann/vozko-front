@@ -60,8 +60,9 @@ function homeIndex(doc: ImageDocument): Map<string, Artboard> {
   return built;
 }
 
-export function artboardNames(artboards: readonly Artboard[], untitled: (position: number) => string): Map<string, string> {
-  return new Map(artboards.map((a, i) => [a.id, a.name ?? untitled(i + 1)]));
+export function artboardNames(artboards: readonly Artboard[], untitled: (position: number) => string, untitledComponent: (position: number) => string = untitled): Map<string, string> {
+  const components = artboards.filter((a) => a.component);
+  return new Map(artboards.map((a, i) => [a.id, a.name ?? (a.component ? untitledComponent(components.indexOf(a) + 1) : untitled(i + 1))]));
 }
 
 export function artboardById(doc: ImageDocument, id: string): Artboard | undefined {
@@ -258,7 +259,7 @@ export function moveLayersToArtboard(doc: ImageDocument, ids: readonly string[],
   if (!target || !source || source.id === target.id || ids.some((id) => artboardOfLayer(doc, id) !== source)) return doc;
   const moving = new Set(familyOf(source, ids));
   const leaving = source.layers.filter((l) => moving.has(l.id));
-  if (leaving.length === 0 || leaving.some((l) => l.locked)) return doc;
+  if (leaving.length === 0 || leaving.some((l) => l.locked) || (target.component && leaving.some((l) => l.type === "instance"))) return doc;
   const carried = travellingGroups(source, moving);
   const parents = groupParents(source);
   const nearest = (groupId: string | null | undefined) => ancestry(parents, groupId).find((g) => carried.has(g));

@@ -41,7 +41,7 @@ import { cepReferenceQuery } from "@/lib/maps/reference-point";
 import type { LatLng } from "@/lib/maps/types";
 import { cn } from "@/lib/utils";
 
-import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection } from "./SheetSection";
+import { SheetHint, SheetIconButton, SheetLinkButton, SheetSection, useSheetFieldId } from "./SheetSection";
 
 type CepStatus = "searching" | "found" | "not_found" | "invalid" | "unavailable";
 
@@ -61,6 +61,8 @@ export interface AddressPinEditor {
 
 const WORKSPACE_MAP: LeadMapParams = { filter: emptyCrmFilter, q: "" };
 
+const PIN_MAP_HEIGHT = "h-64 sm:h-72";
+
 function UnsavedPinPreview({ address }: { address: AddressDraft }) {
   const t = useTranslations("leadSheet.addresses.pin");
   const reference = useReferencePoint(cepReferenceQuery(address.zipCode));
@@ -74,7 +76,7 @@ function UnsavedPinPreview({ address }: { address: AddressDraft }) {
         interactive={false}
         draggable={false}
         ariaLabel={t("previewTitle")}
-        className="h-40"
+        className={PIN_MAP_HEIGHT}
       />
       <SheetHint>{t("cepPreview", { source: reference.point.attribution })}</SheetHint>
     </div>
@@ -87,7 +89,7 @@ function UnsavedAddressPin({ address, onMove }: { address: AddressDraft; onMove:
   const shown = shownPinOf(address, reference.point);
   const workspaceMap = useLeadMapViewport(WORKSPACE_MAP, { enabled: shown === null });
   if (shown === null && (reference.loading || workspaceMap.isLoading)) {
-    return <span aria-hidden="true" className="block h-40 w-full animate-pulse rounded-lg bg-muted" />;
+    return <span aria-hidden="true" className={cn("block w-full animate-pulse rounded-lg bg-muted", PIN_MAP_HEIGHT)} />;
   }
   const frame = shown ? { position: shown.position, zoom: zoomForPrecision(shown.precision) } : pinStart(workspaceMap.data ?? null, null);
   const hint = shown?.moved ? t("unsavedMoved") : shown ? t("unsavedFromAddress") : t("unsavedPlace");
@@ -101,7 +103,7 @@ function UnsavedAddressPin({ address, onMove }: { address: AddressDraft; onMove:
         interactive
         draggable
         ariaLabel={t("title")}
-        className="h-40"
+        className={PIN_MAP_HEIGHT}
         onPinMoved={(next) => onMove(withMovedPin(address, next))}
       />
       <SheetHint>{hint}</SheetHint>
@@ -151,7 +153,7 @@ function SavedAddressPin({ addressId, leadId, zipCode, pin }: { addressId: strin
   };
 
   if (placing && (reference.loading || (!reference.point && workspaceMap.isLoading))) {
-    return <span aria-hidden="true" className="block h-40 w-full animate-pulse rounded-lg bg-muted" />;
+    return <span aria-hidden="true" className={cn("block w-full animate-pulse rounded-lg bg-muted", PIN_MAP_HEIGHT)} />;
   }
   const frame = position
     ? { position: { lat: position.lat, lng: position.lng }, zoom: undefined, placing: false }
@@ -169,7 +171,7 @@ function SavedAddressPin({ addressId, leadId, zipCode, pin }: { addressId: strin
         interactive={frame.placing}
         draggable={!saving}
         ariaLabel={t("title")}
-        className="h-40"
+        className={PIN_MAP_HEIGHT}
         onPinMoved={(next) => void save(next)}
       />
       <SheetHint>{saving ? t("saving") : frame.placing ? placingHint : t("hint")}</SheetHint>
@@ -206,12 +208,13 @@ export function AddressesSection({
   pin?: AddressPinEditor;
 }) {
   const t = useTranslations("leadSheet.addresses");
+  const fieldId = useSheetFieldId();
   const [cepStatus, setCepStatus] = useState<Record<string, CepStatus>>({});
   const latestCep = useRef<Record<string, string>>({});
 
   if (!editable) {
     return (
-      <SheetSection icon={<House />} title={t("title")}>
+      <SheetSection icon={<House />} title={t("title")} anchor="addresses">
         {draft.addresses.length === 0 ? (
           <SheetHint>{t("empty")}</SheetHint>
         ) : (
@@ -269,7 +272,7 @@ export function AddressesSection({
   };
 
   return (
-    <SheetSection icon={<House />} title={t("title")}>
+    <SheetSection icon={<House />} title={t("title")} anchor="addresses">
       {draft.addresses.length === 0 ? <SheetHint>{t("empty")}</SheetHint> : null}
       {draft.addresses.map((address, index) => {
         const status = cepStatus[address.key];
@@ -308,7 +311,7 @@ export function AddressesSection({
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-[9rem_minmax(0,1fr)_6rem]">
               <ElevatedInput
-                id={`lead-sheet-zip-${address.key}`}
+                id={fieldId(`zip-${address.key}`)}
                 label={t("zipCode")}
                 variant="outline"
                 controlSize="sm"
@@ -319,7 +322,7 @@ export function AddressesSection({
                 icon={status ? <CepStatusIcon status={status} /> : undefined}
               />
               <PlaceCombobox
-                id={`lead-sheet-street-${address.key}`}
+                id={fieldId(`street-${address.key}`)}
                 label={t("street")}
                 ariaLabel={t("suggest.streets")}
                 value={address.street}
@@ -329,7 +332,7 @@ export function AddressesSection({
                 autoComplete="address-line1"
               />
               <ElevatedInput
-                id={`lead-sheet-house-${address.key}`}
+                id={fieldId(`house-${address.key}`)}
                 label={t("number")}
                 variant="outline"
                 controlSize="sm"
@@ -338,7 +341,7 @@ export function AddressesSection({
               />
             </div>
             <ElevatedInput
-              id={`lead-sheet-complement-${address.key}`}
+              id={fieldId(`complement-${address.key}`)}
               label={t("complement")}
               variant="outline"
               controlSize="sm"
@@ -347,7 +350,7 @@ export function AddressesSection({
             />
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_5rem]">
               <PlaceCombobox
-                id={`lead-sheet-district-${address.key}`}
+                id={fieldId(`district-${address.key}`)}
                 label={t("district")}
                 ariaLabel={t("suggest.districts")}
                 value={address.district}
@@ -356,7 +359,7 @@ export function AddressesSection({
                 onPick={(place) => pickPlace(address, place)}
               />
               <PlaceCombobox
-                id={`lead-sheet-city-${address.key}`}
+                id={fieldId(`city-${address.key}`)}
                 label={t("city")}
                 ariaLabel={t("suggest.cities")}
                 value={address.city}
@@ -366,7 +369,7 @@ export function AddressesSection({
                 autoComplete="address-level2"
               />
               <ElevatedInput
-                id={`lead-sheet-state-${address.key}`}
+                id={fieldId(`state-${address.key}`)}
                 label={t("state")}
                 variant="outline"
                 controlSize="sm"

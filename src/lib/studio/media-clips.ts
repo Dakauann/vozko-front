@@ -1,4 +1,5 @@
 import { newMediaClip, newOverlayClip, newStudioId, newTextLayer, STUDIO_LIMITS, type Clip, type Layer, type Transform, type VideoDocument } from "./document";
+import { nestedClips } from "./group-scope";
 
 export const DEFAULT_STILL_MS = 3000;
 export const DEFAULT_OVERLAY_MS = 3000;
@@ -46,6 +47,6 @@ export function captionClip(cue: { text: string; startMs: number; endMs: number 
 }
 
 export function videoAssetIds(doc: VideoDocument): string[] {
-  const ids = doc.tracks.flatMap((track) => track.clips.flatMap((clip) => (clip.type === "video" && clip.assetId ? [clip.assetId] : [])));
+  const ids = [...nestedClips(doc.tracks)].flatMap(({ clip }) => (clip.type === "video" && clip.assetId ? [clip.assetId] : []));
   return [...new Set(ids)];
 }

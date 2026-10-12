@@ -1,0 +1,22 @@
+{
+  "Confetti ball": {
+    "names": {
+      "pt": "Bola de confete",
+      "en": "Confetti ball",
+      "es": "Bola de confeti",
+      "de": "Konfettiball"
+    },
+    "tags": {
+      "en": [
+        "confetti",
+        "party",
+        "celebration"
+      ],
+      "pt": [
+        "confete",
+        "festa",
+        "comemoração"
+      ]
+    }
+  }
+}

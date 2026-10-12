@@ -10,18 +10,26 @@ import { deviceResolution, useGpuRenderer, type GpuSession } from "@/components/
 import { VideoFeed } from "@/components/studio/render/video-feed";
 import { VideoPool } from "@/components/studio/render/video-pool";
 import { useStudioTelemetry } from "@/components/studio/telemetry/studio-telemetry";
-import type { CanvasSize } from "@/lib/studio/document";
-import { focusedPlan, visualPlan } from "@/lib/studio/playback";
-import { fitCamera } from "@/lib/studio/render/renderer";
+import { videoCanvasSize } from "@/lib/studio/document";
+import { withMotionBlur } from "@/lib/studio/blurred-plan";
+import { previewBlurScale, previewScale } from "@/lib/studio/preview-quality";
+import type { FramePlacement } from "@/lib/studio/viewport";
+import { focusedPlan, PREMOUNT_MS, visualPlan } from "@/lib/studio/playback";
+import { frameCamera } from "@/lib/studio/render/renderer";
 import { videoSources } from "@/lib/studio/scene/scene";
-import { videoScene } from "@/lib/studio/scene/video-scene";
+import { videoScene, withChromaView, withTransparencyGrid } from "@/lib/studio/scene/video-scene";
 
-import { useVideoEditor } from "../editor-context";
+import { useVideoEditor, useViewState } from "../editor-context";
+import { previewPlacement } from "./preview-placement";
+import { withoutEditedText } from "./text-edit-overlay";
+import { reactLevels } from "../react-levels";
 
-export function GpuStage({ frame, onUnavailable }: { frame: CanvasSize; onUnavailable: () => void }) {
+export function GpuStage({ placement, onUnavailable }: { placement: FramePlacement; onUnavailable: () => void }) {
   const { store, view, assets, playback } = useVideoEditor();
   const canvas = useRef<HTMLCanvasElement>(null);
   const telemetry = useStudioTelemetry();
+  const grid = useViewState((s) => s.transparencyGrid);
+  const quality = useViewState((s) => previewScale(s.previewQuality, s.playing));
 
   const setup = useCallback(
     (schedule: () => void): GpuSession => {
@@ -32,16 +40,23 @@ export function GpuStage({ frame, onUnavailable }: { frame: CanvasSize; onUnavai
         }),
         new VideoPool((assetId) => loadMediaFile(assets.previewOf(assetId)), () => window.document.createElement("video"), schedule),
       );
-      const unsubscribe = [store.subscribe(schedule), view.subscribe(schedule)];
+      const unsubscribe = [store.subscribe(schedule), view.subscribe(schedule), reactLevels.subscribe(schedule)];
       return {
         sources: studioRenderSources(feed),
-        frame: (renderer, viewport) => {
+        frame: (renderer) => {
           const doc = store.getState().document;
           const state = view.getState();
           const playheadMs = state.playing ? playback.position() : state.playheadMs;
-          const scene = videoScene(doc, focusedPlan(visualPlan(doc, playheadMs), state.focus?.clipId ?? null, Boolean(state.focus?.solo)));
+          const size = videoCanvasSize(doc);
+          const placed = previewPlacement(state, size);
+          reactLevels.request(doc);
+          const levels = reactLevels.current(doc);
+          const plan = withoutEditedText(visualPlan(doc, playheadMs, PREMOUNT_MS, levels), state.editingTextClipId);
+          const blurScale = placed ? previewBlurScale({ frameWidth: placed.frame.width, canvasWidth: size.width, resolution: deviceResolution() * previewScale(state.previewQuality, state.playing), scrubbing: state.scrubbing, blurWhileScrubbing: state.blurWhileScrubbing }) : null;
+          const shown = blurScale === null ? plan : withMotionBlur(doc, plan, playheadMs, blurScale, levels);
+          const scene = withTransparencyGrid(withChromaView(videoScene(doc, focusedPlan(shown, state.focus?.clipId ?? null, Boolean(state.focus?.solo))), state.chromaView), grid);
           feed.sync(videoSources(scene), { playing: state.playing, rate: state.rate });
-          renderer.render([scene], fitCamera(scene, viewport));
+          if (placed) renderer.render([scene], frameCamera(scene, placed));
           return state.playing;
         },
         dispose: () => {
@@ -50,17 +65,18 @@ export function GpuStage({ frame, onUnavailable }: { frame: CanvasSize; onUnavai
         },
       };
     },
-    [store, view, assets, playback, telemetry],
+    [store, view, assets, playback, telemetry, grid],
   );
 
   useGpuRenderer({
     canvas,
-    viewport: { width: Math.max(1, Math.round(frame.width)), height: Math.max(1, Math.round(frame.height)), resolution: deviceResolution() },
-    transparent: false,
+    viewport: { width: Math.max(1, placement.visible.width), height: Math.max(1, placement.visible.height), resolution: deviceResolution() * quality },
+    transparent: grid,
     onUnavailable,
     setup,
     telemetry,
   });
 
-  return <canvas ref={canvas} aria-hidden className="pointer-events-none absolute inset-0 block h-full w-full" style={{ zIndex: 1 }} />;
+  const { left, top, width, height } = placement.visible;
+  return <canvas ref={canvas} aria-hidden data-preview-canvas className="pointer-events-none absolute block" style={{ zIndex: 1, left, top, width, height }} />;
 }

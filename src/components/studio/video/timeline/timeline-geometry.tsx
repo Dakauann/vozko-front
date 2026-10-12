@@ -9,7 +9,7 @@ import { steppedSpan, visibleSpan, type Span } from "@/lib/studio/timeline-view"
 
 export const RULER_HEIGHT = 26;
 export const OVERVIEW_HEIGHT = 28;
-export const HEADER_WIDTH = 184;
+export const HEADER_WIDTH = 200;
 export const CLIP_INSET = 1;
 export const DRAG_SLOP_PX = 3;
 export const EDGE_SCROLL_PX = 40;

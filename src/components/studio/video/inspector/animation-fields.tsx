@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import { CaretDown, CaretLeft, CaretRight, ClipboardText, Copy, Question, X } from "@/components/icons";
+import { ArrowsLeftRight, CaretDown, CaretLeft, CaretRight, ClipboardText, Copy, Question, X } from "@/components/icons";
 import type { Clip } from "@/lib/studio/document";
 import { adjacentKey, localTime } from "@/lib/studio/keyframe-edit";
+import { reversedSnippet } from "@/lib/studio/keyframe-ease";
 import { captureKeyframes, keyframeClipboardAction, pastePatch, presetPatch } from "@/lib/studio/keyframe-presets";
+import type { Keyframes } from "@/lib/studio/keyframes";
 import { seekInside, selectionEasing, selectionKeyTimes, selectionMoment, setSelectionEasing, toggleSelectionMoment } from "@/lib/studio/selection-edit";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +17,9 @@ import { ToolButton } from "../tool-button";
 import { EasingPicker } from "./easing-picker";
 import { InspectorSection } from "./fields";
 import { dismissCoach, keyframeClipboard, noteMomentClick, openCoach, setKeyframeClipboard, useKeyframeUi } from "./keyframe-coach";
-import { KeyDiamond, PropertyKeyList } from "./keyframe-fields";
+import { KeyDiamond } from "../key-diamond";
+import { PropertyKeyList } from "./keyframe-fields";
+import { PathFields } from "./path-fields";
 import { PresetGrid } from "./preset-grid";
 import { reportSelection } from "./selection-notice";
 import type { SelectionEditor } from "./use-selection-editor";
@@ -64,6 +68,7 @@ function Coach() {
         <li>{t("coachStep2")}</li>
       </ol>
       <p className="text-foreground">{t("coachDone")}</p>
+      <p className="text-foreground">{t("coachOther")}</p>
       <button type="button" onClick={dismissCoach} className="text-2xs font-medium text-primary-ink underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         {t("coachDismiss")}
       </button>
@@ -99,23 +104,25 @@ export function AnimationFields({ clips, disabled, editor }: AnimationFieldsProp
     reportSelection("copied");
   };
 
-  const paste = () => {
+  const pasteWith = (shape: (snippet: Keyframes) => Keyframes) => {
     const snippet = keyframeClipboard();
     if (!snippet) {
       reportSelection("clipboardEmpty");
       return;
     }
-    editor.patch((clip) => pastePatch(clip, snippet, localTime(clip, editor.playheadMs())));
+    editor.patch((clip) => pastePatch(clip, shape(snippet), localTime(clip, editor.playheadMs())));
   };
+  const paste = () => pasteWith((snippet) => snippet);
+  const reversePaste = () => pasteWith(reversedSnippet);
 
-  const shortcuts = useRef({ copy, paste, disabled });
+  const shortcuts = useRef({ copy, paste, reversePaste, disabled });
   useEffect(() => {
-    shortcuts.current = { copy, paste, disabled };
+    shortcuts.current = { copy, paste, reversePaste, disabled };
   });
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const action = keyframeClipboardAction(event);
-      if (!action || (action === "paste" && shortcuts.current.disabled)) return;
+      if (!action || (action !== "copy" && shortcuts.current.disabled)) return;
       event.preventDefault();
       shortcuts.current[action]();
     };
@@ -179,11 +186,13 @@ export function AnimationFields({ clips, disabled, editor }: AnimationFieldsProp
         onPick={(next) => editor.run((doc) => setSelectionEasing(doc, editor.ids, editor.playheadMs(), next))}
       />
 
-      <PresetGrid disabled={disabled} onApply={(id) => editor.patch((clip) => presetPatch(clip, id))} />
+      {clips.every((clip) => clip.type !== "audio") ? <PresetGrid disabled={disabled} onApply={(id) => editor.patch((clip) => presetPatch(clip, id))} /> : null}
+      {clips.every((clip) => clip.type !== "audio") ? <PathFields clips={clips} disabled={disabled} editor={editor} /> : null}
 
       <div className="flex flex-wrap items-center gap-1">
         <ToolButton size="sm" showLabel label={t("copy")} shortcut="Ctrl+Alt+C" disabled={times.length === 0} icon={<Copy className="h-3.5 w-3.5" />} onClick={copy} />
         <ToolButton size="sm" showLabel label={t("paste")} shortcut="Ctrl+Alt+V" disabled={disabled || !hasClipboard || outside} icon={<ClipboardText className="h-3.5 w-3.5" />} onClick={paste} />
+        <ToolButton size="sm" showLabel label={t("reversePaste")} shortcut="Ctrl+Alt+Shift+V" disabled={disabled || !hasClipboard || outside} icon={<ArrowsLeftRight className="h-3.5 w-3.5" />} onClick={reversePaste} />
       </div>
 
       <details className="group">

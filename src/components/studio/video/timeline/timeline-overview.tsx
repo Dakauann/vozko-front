@@ -22,12 +22,13 @@ interface OverviewProps {
   range: MarkRange;
   onScroll: (scrollLeft: number) => void;
   onSeek: (ms: number) => void;
+  onScrub: (active: boolean) => void;
   onZoomRange: (fromMs: number, toMs: number) => void;
 }
 
 type Grip = { kind: "pan"; startLeft: number } | { kind: "from" | "to"; fromMs: number; toMs: number } | { kind: "scrub" };
 
-export function TimelineOverview({ tracks, durationMs, pxPerSecond, scrollLeft, viewportPx, markers, range, onScroll, onSeek, onZoomRange }: OverviewProps) {
+export function TimelineOverview({ tracks, durationMs, pxPerSecond, scrollLeft, viewportPx, markers, range, onScroll, onSeek, onScrub, onZoomRange }: OverviewProps) {
   const t = useTranslations("studio.video.timeline.overview");
   const host = useRef<HTMLDivElement>(null);
   const grip = useRef<{ grip: Grip; x: number; pointerId: number } | null>(null);
@@ -58,7 +59,9 @@ export function TimelineOverview({ tracks, durationMs, pxPerSecond, scrollLeft, 
     const toMs = overviewToMs(view.left + view.width, width, totalMs);
     const next: Grip = kind === "pan" ? { kind, startLeft: view.left } : kind === "scrub" ? { kind } : { kind, fromMs, toMs };
     grip.current = { grip: next, x: event.clientX, pointerId: event.pointerId };
-    if (kind === "scrub") scrub(event.clientX);
+    if (kind !== "scrub") return;
+    onScrub(true);
+    scrub(event.clientX);
   };
 
   const scrub = (clientX: number) => {
@@ -85,7 +88,9 @@ export function TimelineOverview({ tracks, durationMs, pxPerSecond, scrollLeft, 
   };
 
   const end = (event: ReactPointerEvent<HTMLElement>) => {
-    if (grip.current?.pointerId === event.pointerId) grip.current = null;
+    if (grip.current?.pointerId !== event.pointerId) return;
+    if (grip.current.grip.kind === "scrub") onScrub(false);
+    grip.current = null;
   };
 
   const handlers = { onPointerMove: move, onPointerUp: end, onPointerCancel: end };

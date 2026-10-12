@@ -24,22 +24,18 @@ import {
   type TreeItem,
 } from "./groups";
 import { indexOf } from "./layer-index";
+import { scaledPaint } from "./layer-paint";
+import { scaledRepeat } from "./repeat";
+import { scaledLayout } from "./auto-layout";
+import { retextLayerPatch } from "./text-runs";
 import { clampTo, LAYER_RANGES, normalizedRotation } from "./layer-ranges";
+import { alignShift, alignTarget, boxBounds, distributeShifts, isStill, unionBounds, type Alignment, type Bounds, type DistributeAxis } from "./arrange";
 
 export type LayerPatch = Partial<Omit<Layer, "id" | "type">>;
 
 export type OrderDirection = "forward" | "backward" | "front" | "back";
 
-export type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
-
-export type DistributeAxis = "horizontal" | "vertical";
-
-export interface Bounds {
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
-}
+export type { Alignment, Bounds, DistributeAxis } from "./arrange";
 
 export const DUPLICATE_OFFSET = 0.02;
 
@@ -126,7 +122,7 @@ export function updateLayers(doc: ImageSurface, ids: readonly string[], patch: L
     doc.layers.forEach((base, i) => {
       if (!targets.has(base.id)) return;
       const layer = draft.layers[i];
-      Object.assign(layer, typeof patch === "function" ? patch(base) : patch);
+      Object.assign(layer, retextLayerPatch(base, typeof patch === "function" ? patch(base) : patch));
       if (scaffoldOf(doc, base.id)) motions.set(base.id, rigidMotion(base.transform, { ...layer.transform }));
     });
     if (motions.size === 0) return;
@@ -366,31 +362,13 @@ export function ungroupLayers(doc: ImageSurface, ids: readonly string[]): ImageS
 }
 
 export function layerBounds(transform: Transform, canvas: CanvasSize): Bounds {
-  const w = transform.w * canvas.width;
-  const h = transform.h * canvas.height;
-  const radians = (transform.rotation * Math.PI) / 180;
-  const cos = Math.abs(Math.cos(radians));
-  const sin = Math.abs(Math.sin(radians));
-  const halfW = (w * cos + h * sin) / 2;
-  const halfH = (w * sin + h * cos) / 2;
-  const cx = transform.x * canvas.width;
-  const cy = transform.y * canvas.height;
-  return { left: cx - halfW, top: cy - halfH, right: cx + halfW, bottom: cy + halfH };
-}
-
-function union(bounds: Bounds[]): Bounds {
-  return {
-    left: Math.min(...bounds.map((b) => b.left)),
-    top: Math.min(...bounds.map((b) => b.top)),
-    right: Math.max(...bounds.map((b) => b.right)),
-    bottom: Math.max(...bounds.map((b) => b.bottom)),
-  };
+  return boxBounds(transform, canvas);
 }
 
 export function selectionBounds(doc: ImageSurface, ids: readonly string[]): Bounds | null {
   const wanted = new Set(ids);
   const picked = doc.layers.filter((l) => wanted.has(l.id));
-  return picked.length === 0 ? null : union(picked.map((l) => layerBounds(l.transform, doc.canvas)));
+  return picked.length === 0 ? null : unionBounds(picked.map((l) => layerBounds(l.transform, doc.canvas)));
 }
 
 interface Unit {
@@ -405,7 +383,7 @@ function units(doc: ImageSurface, ids: readonly string[]): Unit[] {
     const base = item.kind === "group" ? baseOf(doc, item.id) : null;
     const free = (base ? [base] : members).filter((id) => !layerById(doc, id)?.locked);
     if (free.length === 0) return [];
-    const bounds = union(free.map((id) => layerBounds(layerById(doc, id)!.transform, doc.canvas)));
+    const bounds = unionBounds(free.map((id) => layerBounds(layerById(doc, id)!.transform, doc.canvas)));
     return [{ ids: base ? members : free, bounds, container: containerOf(doc, item) }];
   });
 }
@@ -433,15 +411,14 @@ function shiftUnits(doc: ImageSurface, shifts: Map<string, [number, number]>): I
 export function alignLayers(doc: ImageSurface, ids: readonly string[], alignment: Alignment): ImageSurface {
   const found = units(doc, ids);
   if (found.length === 0) return doc;
-  const frame = found.length === 1 ? parentFrame(doc, found[0].container) : union(found.map((u) => u.bounds));
+  const frame = alignTarget(
+    found.map((u) => u.bounds),
+    parentFrame(doc, found[0].container),
+  );
   const shifts = new Map<string, [number, number]>();
   for (const unit of found) {
-    const b = unit.bounds;
-    const dx =
-      alignment === "left" ? frame.left - b.left : alignment === "right" ? frame.right - b.right : alignment === "center" ? (frame.left + frame.right - b.left - b.right) / 2 : 0;
-    const dy =
-      alignment === "top" ? frame.top - b.top : alignment === "bottom" ? frame.bottom - b.bottom : alignment === "middle" ? (frame.top + frame.bottom - b.top - b.bottom) / 2 : 0;
-    if (dx !== 0 || dy !== 0) for (const id of unit.ids) shifts.set(id, [dx, dy]);
+    const shift = alignShift(unit.bounds, frame, alignment);
+    if (!isStill(shift)) for (const id of unit.ids) shifts.set(id, shift);
   }
   return shiftUnits(doc, shifts);
 }
@@ -449,21 +426,13 @@ export function alignLayers(doc: ImageSurface, ids: readonly string[], alignment
 export function distributeLayers(doc: ImageSurface, ids: readonly string[], axis: DistributeAxis): ImageSurface {
   const found = units(doc, ids);
   if (found.length < 3) return doc;
-  const start = (b: Bounds) => (axis === "horizontal" ? b.left : b.top);
-  const size = (b: Bounds) => (axis === "horizontal" ? b.right - b.left : b.bottom - b.top);
-  const sorted = [...found].sort((a, b) => start(a.bounds) + size(a.bounds) / 2 - (start(b.bounds) + size(b.bounds) / 2));
-  const first = sorted[0].bounds;
-  const last = sorted[sorted.length - 1].bounds;
-  const span = start(last) + size(last) - start(first);
-  const gap = (span - sorted.reduce((sum, u) => sum + size(u.bounds), 0)) / (sorted.length - 1);
   const shifts = new Map<string, [number, number]>();
-  let cursor = start(first);
-  for (const unit of sorted) {
-    const delta = cursor - start(unit.bounds);
-    cursor += size(unit.bounds) + gap;
-    if (Math.abs(delta) < 1e-9) continue;
-    for (const id of unit.ids) shifts.set(id, axis === "horizontal" ? [delta, 0] : [0, delta]);
-  }
+  distributeShifts(
+    found.map((u) => u.bounds),
+    axis,
+  ).forEach((shift, index) => {
+    if (!isStill(shift)) for (const id of found[index].ids) shifts.set(id, shift);
+  });
   return shiftUnits(doc, shifts);
 }
 
@@ -480,6 +449,15 @@ function coversCanvas(layer: Layer): boolean {
 
 function clampSide(n: number): number {
   return clamp(Math.round(n), STUDIO_LIMITS.minCanvasSide, STUDIO_LIMITS.maxCanvasSide);
+}
+
+export function scaledUnits(layer: Layer, fit: number): LayerPatch {
+  const shadow = layer.shadow;
+  return {
+    ...(layer.strokeWidth !== undefined ? { strokeWidth: clampTo(layer.strokeWidth * fit, LAYER_RANGES.strokeWidth) } : {}),
+    ...(shadow ? { shadow: { ...shadow, blur: clampTo(shadow.blur * fit, LAYER_RANGES.shadowBlur), x: clampTo(shadow.x * fit, LAYER_RANGES.shadowOffset), y: clampTo(shadow.y * fit, LAYER_RANGES.shadowOffset) } } : {}),
+    ...scaledPaint(layer, fit),
+  };
 }
 
 export function resizeCanvas(doc: ImageSurface, size: CanvasSize): ImageSurface {
@@ -513,12 +491,11 @@ export function resizeCanvas(doc: ImageSurface, size: CanvasSize): ImageSurface 
       t.w = clamp((t.w * oldW * fit) / width, 0.001, 4);
       t.h = clamp((t.h * oldH * fit) / height, 0.001, 4);
       if (layer.fontSize !== undefined) layer.fontSize = clamp((layer.fontSize * oldH * fit) / height, 0.005, 0.5);
-      if (layer.strokeWidth !== undefined) layer.strokeWidth = clamp(layer.strokeWidth * fit, 0, 200);
-      if (layer.shadow) {
-        layer.shadow.blur = clamp(layer.shadow.blur * fit, 0, 200);
-        layer.shadow.x = clamp(layer.shadow.x * fit, -500, 500);
-        layer.shadow.y = clamp(layer.shadow.y * fit, -500, 500);
-      }
+      Object.assign(layer, scaledUnits(layer as Layer, fit));
+    }
+    for (const group of draft.groups ?? []) {
+      if (group.repeat) group.repeat = scaledRepeat(group.repeat, fit);
+      if (group.layout) group.layout = scaledLayout(group.layout, fit);
     }
   });
 }

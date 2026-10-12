@@ -5,7 +5,6 @@ import {
   clampZoom,
   contentWidthPx,
   envelopePoints,
-  levelFromY,
   followScroll,
   laneBoxes,
   laneIndexAt,
@@ -38,6 +37,7 @@ import {
   zoomBy,
   zoomToSlider,
 } from "./timeline-view";
+import { STUDIO_LIMITS } from "./document";
 
 describe("timeline view math", () => {
   it("maps zoom to a log slider and back", () => {
@@ -52,6 +52,11 @@ describe("timeline view math", () => {
     expect(zoomBy(100, -1)).toBeCloseTo(80);
     expect(zoomBy(MAX_PX_PER_SECOND, 3)).toBe(MAX_PX_PER_SECOND);
     expect(clampZoom(Number.NaN)).toBeGreaterThan(0);
+  });
+
+  it("fits a ten minute video in a narrow timeline and labels it sparsely", () => {
+    expect(fitZoom(STUDIO_LIMITS.maxVideoMs, 800)).toBeCloseTo((800 * 1000) / STUDIO_LIMITS.maxVideoMs);
+    expect(msToPx(rulerStep(fitZoom(STUDIO_LIMITS.maxVideoMs, 800)).majorMs, fitZoom(STUDIO_LIMITS.maxVideoMs, 800))).toBeGreaterThanOrEqual(72);
   });
 
   it("converts between time and pixels", () => {
@@ -144,12 +149,6 @@ describe("clip envelope", () => {
       [400, 20],
       [400, 20],
     ]);
-  });
-
-  it("reads a level from the pointer height", () => {
-    expect(levelFromY(10, 40, 2)).toBe(1.5);
-    expect(levelFromY(-5, 40, 2)).toBe(2);
-    expect(levelFromY(90, 40, 2)).toBe(0);
   });
 });
 

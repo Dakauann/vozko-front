@@ -17,6 +17,12 @@
 # copied from node_modules by scripts/copy-maplibre-worker.mjs
 /public/maplibre/
 
+# renders, channel texts and results written by scripts/elo-perception
+/scripts/elo-perception/.out/
+
+# renders, live results, judge verdicts and the gallery written by scripts/elo-bench
+/scripts/elo-bench/.out/
+
 # next.js
 /.next/
 /out/

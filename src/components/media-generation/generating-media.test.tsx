@@ -23,9 +23,18 @@ describe("GeneratingMedia", () => {
     expect((container.firstElementChild as HTMLElement).className).toContain("aspect-[9/16]");
   });
 
+  it("sweeps the placeholder with the shared AI progress surface and announces the work", () => {
+    const { container } = renderMedia({ kind: "video", frame: "landscape" });
+    const surface = container.firstElementChild as HTMLElement;
+    expect(surface).toHaveAttribute("data-ai-progress", "running");
+    expect(surface.className).toContain("aspect-video");
+    expect(screen.getByRole("status")).toHaveTextContent(ptMessages.mediaGeneration.generating.video);
+  });
+
   it("becomes the failure in the same frame", () => {
     const { container } = renderMedia({ kind: "image", frame: "portrait", failed: true });
     expect(screen.getByRole("alert")).toHaveTextContent(ptMessages.mediaGeneration.failed.image);
+    expect(container.querySelector("[data-ai-progress]")).toBeNull();
     expect(screen.queryByRole("progressbar")).toBeNull();
     expect((container.firstElementChild as HTMLElement).className).toContain("aspect-[4/5]");
   });

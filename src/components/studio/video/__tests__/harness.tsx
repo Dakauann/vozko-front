@@ -40,3 +40,28 @@ export function renderInEditor(document: VideoDocument, ui: ReactNode) {
   );
   return { ...view, editor: value };
 }
+
+export interface PreviewLayout {
+  area: { width: number; height: number };
+  frame: { width: number; height: number };
+}
+
+export function stubPreviewLayout({ area, frame }: PreviewLayout): () => void {
+  const originals = {
+    clientWidth: Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientWidth"),
+    clientHeight: Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight"),
+    rect: HTMLElement.prototype.getBoundingClientRect,
+  };
+  window.localStorage.setItem("studio-renderer", "legacy");
+  Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get: () => area.width });
+  Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get: () => area.height });
+  HTMLElement.prototype.getBoundingClientRect = function rect() {
+    return { left: 0, top: 0, right: frame.width, bottom: frame.height, width: frame.width, height: frame.height, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+  };
+  return () => {
+    window.localStorage.removeItem("studio-renderer");
+    if (originals.clientWidth) Object.defineProperty(HTMLElement.prototype, "clientWidth", originals.clientWidth);
+    if (originals.clientHeight) Object.defineProperty(HTMLElement.prototype, "clientHeight", originals.clientHeight);
+    HTMLElement.prototype.getBoundingClientRect = originals.rect;
+  };
+}

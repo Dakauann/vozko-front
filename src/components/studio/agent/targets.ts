@@ -2,6 +2,7 @@
 
 import type { ImageDocument, VideoDocument } from "@/lib/studio/document";
 import type { AgentFocus } from "@/lib/studio/agent/batch";
+import type { RegionBox } from "@/lib/studio/agent/frames";
 import { artboardById, artboardOfLayer } from "@/lib/studio/artboards";
 import { findClip } from "@/lib/studio/timeline";
 import { msToPx } from "@/lib/studio/timeline-view";
@@ -11,6 +12,7 @@ import type { PresencePoint, PresenceRect } from "./presence";
 
 const CLIP_INSET_PX = 48;
 const EDGE_PX = 12;
+const TICK_PX = 2;
 
 export interface PresenceTarget {
   point: PresencePoint;
@@ -46,6 +48,19 @@ function laneTarget(trackId: string | null, atMs: number, pxPerSecond: number): 
   if (!lane) return null;
   const rect = lane.getBoundingClientRect();
   return { point: within({ x: rect.left + msToPx(atMs, pxPerSecond), y: rect.top + rect.height / 2 }, timelineArea()), outline: null };
+}
+
+export function momentTicks(times: readonly number[], pxPerSecond: number): PresenceRect[] {
+  const lanes = query("[data-studio-lanes]")?.getBoundingClientRect();
+  const area = timelineArea();
+  if (!lanes || !area) return [];
+  const top = Math.max(lanes.top, area.top);
+  const height = Math.min(lanes.bottom, area.bottom) - top;
+  if (height <= 0) return [];
+  return times.flatMap((atMs) => {
+    const x = lanes.left + msToPx(atMs, pxPerSecond);
+    return x < area.left || x > area.right ? [] : [{ left: x - TICK_PX / 2, top, width: TICK_PX, height }];
+  });
 }
 
 export function videoTarget(focus: AgentFocus, doc: VideoDocument, pxPerSecond: number): PresenceTarget | null {
@@ -106,4 +121,12 @@ export function imageTarget(focus: AgentFocus, doc: ImageDocument, viewport: Vie
     if (artboard) return boxTarget(rect, viewport, { x: artboard.x, y: artboard.y, width: artboard.canvas.width, height: artboard.canvas.height });
   }
   return { point: within({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, rect), outline: null };
+}
+
+export function imageRegionTarget(doc: ImageDocument, artboardId: string, region: RegionBox, viewport: Viewport): PresenceTarget | null {
+  const host = query("[data-studio-canvas]");
+  const artboard = artboardById(doc, artboardId);
+  if (!host || !artboard) return null;
+  const { width, height } = artboard.canvas;
+  return boxTarget(host.getBoundingClientRect(), viewport, { x: artboard.x + region.left * width, y: artboard.y + region.top * height, width: region.width * width, height: region.height * height });
 }

@@ -16,6 +16,8 @@ interface Entry {
   video: HTMLVideoElement;
   assetId: string;
   sourceMs: number;
+  speed: number;
+  backward: boolean;
   visible: boolean;
   loaded: boolean;
 }
@@ -38,6 +40,8 @@ export class VideoPool {
     for (const clip of clips) {
       const entry = this.entries.get(clip.source.clipId) ?? this.open(clip.source);
       entry.sourceMs = clip.source.sourceMs;
+      entry.speed = clip.source.speed;
+      entry.backward = clip.source.backward;
       entry.visible = clip.visible;
       this.apply(entry);
     }
@@ -58,7 +62,7 @@ export class VideoPool {
     video.playsInline = true;
     video.preload = "auto";
     video.disablePictureInPicture = true;
-    const entry: Entry = { video, assetId: source.assetId, sourceMs: source.sourceMs, visible: false, loaded: false };
+    const entry: Entry = { video, assetId: source.assetId, sourceMs: source.sourceMs, speed: source.speed, backward: source.backward, visible: false, loaded: false };
     const refresh = () => {
       this.apply(entry);
       this.onFrame();
@@ -78,7 +82,7 @@ export class VideoPool {
   private apply(entry: Entry): void {
     const video = entry.video;
     if (!entry.loaded || video.readyState < 1) return;
-    const command = syncVideo(video.currentTime * 1000, entry.sourceMs, { playing: this.state.playing, rate: this.state.rate, active: entry.visible });
+    const command = syncVideo(video.currentTime * 1000, entry.sourceMs, { playing: this.state.playing, rate: this.state.rate, active: entry.visible, speed: entry.speed, backward: entry.backward });
     if (command.seekToMs !== null && !video.seeking) video.currentTime = command.seekToMs / 1000;
     if (video.playbackRate !== command.playbackRate) video.playbackRate = command.playbackRate;
     if (command.play && video.paused) void video.play().catch(() => undefined);

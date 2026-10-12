@@ -246,6 +246,26 @@ describe("useWorkflowAIBuilder", () => {
     void hook;
   });
 
+  it("sends the reasoning level beside the model on builder_ready", async () => {
+    renderHook(() => useWorkflowAIBuilder({ workflowId: "wf1", workflowType: "messages", model: "lab/thinker", reasoning: "high" }));
+    await waitFor(() => expect(FakeWS.instances.length).toBe(1));
+    const ws = FakeWS.instances[0];
+    act(() => ws.emit({ type: "builder_ready", payload: {} }));
+    const setModels = ws.sent.map((s) => JSON.parse(s)).filter((m) => m.type === "set_model");
+    expect(setModels.at(-1).data).toEqual({ model: "lab/thinker", reasoning: "high" });
+  });
+
+  it("sends the model again when the reasoning level changes", async () => {
+    const hook = renderHook(({ reasoning }) => useWorkflowAIBuilder({ workflowId: "wf1", workflowType: "messages", model: "lab/thinker", reasoning }), {
+      initialProps: { reasoning: "" },
+    });
+    await waitFor(() => expect(FakeWS.instances.length).toBe(1));
+    const ws = FakeWS.instances[0];
+    hook.rerender({ reasoning: "low" });
+    const setModels = ws.sent.map((s) => JSON.parse(s)).filter((m) => m.type === "set_model");
+    expect(setModels.at(-1).data).toEqual({ model: "lab/thinker", reasoning: "low" });
+  });
+
   it("surfaces error events", async () => {
     const { hook, ws } = await mountConnected();
     act(() => ws.emit({ type: "error", payload: { error: "falhou" } }));

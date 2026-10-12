@@ -14,7 +14,7 @@ export interface CropFrame {
 const FULL: Crop = { x: 0, y: 0, w: 1, h: 1 };
 const FULL_EPSILON = 1e-4;
 
-function rotate(point: Point, degrees: number): Point {
+export function rotate(point: Point, degrees: number): Point {
   const radians = (degrees * Math.PI) / 180;
   const cos = Math.cos(radians);
   const sin = Math.sin(radians);
@@ -68,4 +68,37 @@ export function applyCropBox(layer: Layer, frame: CropFrame, box: PixelBox, canv
     h: clampTo(b.height / canvas.height, LAYER_RANGES.size),
   };
   return { transform, crop: isFull(crop) ? undefined : crop };
+}
+
+export function coverCrop(natural: CanvasSize, box: Pick<Transform, "w" | "h">, canvas: CanvasSize): Crop | undefined {
+  const sourceRatio = natural.width / natural.height;
+  const boxRatio = (box.w * canvas.width) / (box.h * canvas.height);
+  const w = sourceRatio > boxRatio ? boxRatio / sourceRatio : 1;
+  const h = sourceRatio > boxRatio ? 1 : sourceRatio / boxRatio;
+  const crop: Crop = { x: (1 - w) / 2, y: (1 - h) / 2, w, h };
+  return isFull(crop) ? undefined : crop;
+}
+
+export function clampFramedBox(box: PixelBox, frame: Pick<CropFrame, "width" | "height">, ratio: number): PixelBox {
+  const widest = Math.min(frame.width, frame.height * ratio);
+  const width = clampTo(box.width, [Math.min(widest, Math.max(LAYER_RANGES.cropSide[0] * frame.width, LAYER_RANGES.cropSide[0] * frame.height * ratio)), widest]);
+  const height = width / ratio;
+  return { left: clampTo(box.left, [0, frame.width - width]), top: clampTo(box.top, [0, frame.height - height]), width, height };
+}
+
+export function framedRatio(layer: Pick<Layer, "transform">, canvas: CanvasSize): number {
+  return (layer.transform.w * canvas.width) / (layer.transform.h * canvas.height);
+}
+
+export function applyFramedCrop(layer: Layer, frame: CropFrame, box: PixelBox, canvas: CanvasSize): { crop: Crop | undefined } {
+  const b = clampFramedBox(box, frame, framedRatio(layer, canvas));
+  const w = b.width / frame.width;
+  const h = b.height / frame.height;
+  const crop: Crop = { x: displayed(b.left / frame.width, w, layer.flipX), y: displayed(b.top / frame.height, h, layer.flipY), w, h };
+  return { crop: isFull(crop) ? undefined : crop };
+}
+
+export function centeredFramedBox(frame: Pick<CropFrame, "width" | "height">, ratio: number): PixelBox {
+  const box = clampFramedBox({ left: 0, top: 0, width: frame.width, height: frame.height }, frame, ratio);
+  return { ...box, left: (frame.width - box.width) / 2, top: (frame.height - box.height) / 2 };
 }

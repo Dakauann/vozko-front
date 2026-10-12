@@ -4,16 +4,22 @@ import { useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { uploadMediaAction } from "@/app/actions/medias";
+import { AiProgressSurface } from "@/components/elevated-design/ai-progress-surface";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-import { ArrowClockwise, CircleNotch, Plus, UploadSimple, Waveform } from "@/components/icons";
+import { ArrowClockwise, CircleNotch, Plus, Sparkle, UploadSimple, Waveform } from "@/components/icons";
 import { firstFrameSrc } from "@/lib/media/first-frame";
 import type { Media } from "@/lib/medias/types";
+import { isLottieName, LOTTIE_ACCEPT } from "@/lib/studio/lottie/lottie-file";
 import { clipTypeForMedia, type MediaClipType } from "@/lib/studio/media-clips";
 
 import { useAssetState, useVideoEditor } from "../editor-context";
 import { CLIP_KIND_TONES, kindTile, MEDIA_KIND } from "../clip-tones";
+import { useProcessingMedia } from "../jobs";
+import { isLottieMedia } from "../lottie-files";
 import { MEDIA_DRAG_TYPE } from "../timeline/timeline-geometry";
+import { useLottieImport } from "../use-lottie-import";
+import { LottieRefusalNotice } from "./lottie-refusal";
 
 type Filter = "all" | MediaClipType;
 
@@ -52,9 +58,13 @@ export function MediaPanel() {
   const t = useTranslations("studio.video.media");
   const { assets, commands } = useVideoEditor();
   const library = useAssetState((s) => s.library);
+  const processing = useProcessingMedia();
   const [filter, setFilter] = useState<Filter>("all");
   const [uploading, setUploading] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const lottieInput = useRef<HTMLInputElement>(null);
+  const lottie = useLottieImport();
+  const lotties = useMemo(() => (filter === "all" ? library.medias.filter(isLottieMedia) : []), [library.medias, filter]);
 
   const items = useMemo(
     () =>
@@ -65,6 +75,10 @@ export function MediaPanel() {
   );
 
   const upload = async (file: File) => {
+    if (isLottieName(file.name)) {
+      await lottie.importFile(file);
+      return;
+    }
     const type = uploadType(file);
     if (!type) {
       commands.notify("unsupportedMedia", "error");
@@ -95,7 +109,7 @@ export function MediaPanel() {
       <input
         ref={input}
         type="file"
-        accept="image/*,video/*,audio/*"
+        accept={`image/*,video/*,audio/*,${LOTTIE_ACCEPT}`}
         className="sr-only"
         tabIndex={-1}
         aria-hidden
@@ -103,6 +117,20 @@ export function MediaPanel() {
           const file = event.target.files?.[0];
           event.target.value = "";
           if (file) void upload(file);
+        }}
+      />
+      <input
+        ref={lottieInput}
+        type="file"
+        accept={LOTTIE_ACCEPT}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+        data-lottie-input
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) void lottie.importFile(file);
         }}
       />
       <Button
@@ -115,6 +143,17 @@ export function MediaPanel() {
         disabled={uploading}
         onClick={() => input.current?.click()}
       />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full"
+        title={lottie.busy ? t("lottieBusy") : t("importLottie")}
+        icon={lottie.busy ? <CircleNotch className="h-3.5 w-3.5 animate-spin" /> : <Sparkle className="h-3.5 w-3.5" />}
+        iconVisible
+        disabled={lottie.busy}
+        onClick={() => lottieInput.current?.click()}
+      />
+      {lottie.refusal ? <LottieRefusalNotice refusal={lottie.refusal} onDismiss={lottie.dismiss} /> : null}
       <ElevatedPillToggle<Filter>
         aria-label={t("filter")}
         value={filter}
@@ -144,6 +183,7 @@ export function MediaPanel() {
             >
               <MediaThumb media={media} type={type} />
               <KindBadge type={type} />
+              {processing.has(media.id) ? <AiProgressSurface label={processing.get(media.id)} className="absolute inset-0" /> : null}
             </div>
             <span className="mt-1 block truncate text-2xs text-muted-foreground">{media.description || t(`filters.${type}`)}</span>
             <button
@@ -158,6 +198,35 @@ export function MediaPanel() {
           </li>
         ))}
       </ul>
+      {lotties.length > 0 ? (
+        <section aria-label={t("lottieTitle")} className="space-y-1.5">
+          <h3 className="legend text-muted-foreground">{t("lottieTitle")}</h3>
+          <p className="text-2xs text-muted-foreground">{t("lottieHint")}</p>
+          <ul className="grid grid-cols-2 gap-2">
+            {lotties.map((media) => (
+              <li key={media.id} className="group relative">
+                <div title={media.description} className="relative flex aspect-square items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                  <span className={`${kindTile("shape")} flex h-9 w-9 items-center justify-center`} aria-hidden>
+                    <Sparkle className="h-5 w-5" />
+                  </span>
+                </div>
+                <span className="mt-1 block truncate text-2xs text-muted-foreground">{media.description || t("lottieTitle")}</span>
+                <button
+                  type="button"
+                  data-lottie-media={media.id}
+                  aria-label={t("addLottie", { name: media.description || t("lottieTitle") })}
+                  title={t("addLottie", { name: media.description || t("lottieTitle") })}
+                  disabled={lottie.busy}
+                  onClick={() => void lottie.insertMedia(media)}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

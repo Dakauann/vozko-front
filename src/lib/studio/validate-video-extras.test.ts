@@ -36,7 +36,6 @@ describe("links, markers and motions", () => {
     ["duplicate marker", (d: VideoDocument) => (d.markers = [{ id: "m1", atMs: 0 }, { id: "m1", atMs: 10 }]), { field: "document.markers", code: "duplicate" }],
     ["bad marker id", (d: VideoDocument) => (d.markers = [{ id: "M 1", atMs: 0 }]), { field: "document.markers", code: "invalid" }],
     ["long label", (d: VideoDocument) => (d.markers = [{ id: "m1", atMs: 0, label: "a".repeat(STUDIO_LIMITS.maxMarkerLabelRunes + 1) }]), { field: "document.markers", code: "too_large" }],
-    ["too many markers", (d: VideoDocument) => (d.markers = Array.from({ length: STUDIO_LIMITS.maxMarkers + 1 }, (_, i) => ({ id: `m${i}`, atMs: i }))), { field: "document.markers", code: "too_many" }],
     ["unknown motion field", (d: VideoDocument) => (d.tracks[1].clips[0].motionIn = { edge: "top", durationMs: 500, ease: "x" } as never), { field: "document", code: "invalid" }],
   ])("refuses %s like the backend", (_, change, expected) => {
     const d = doc();

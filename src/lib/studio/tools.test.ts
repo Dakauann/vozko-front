@@ -13,11 +13,10 @@ import {
   nudgeClips,
   pasteClips,
   relinkClips,
-  rollEdit,
   selectForward,
   selectFromPlayhead,
-  slideClip,
   slipClip,
+  setClipsDisabled,
   toggleDisabled,
 } from "./tools";
 import { findClip } from "./timeline";
@@ -108,33 +107,10 @@ describe("gaps", () => {
 });
 
 describe("trim tools", () => {
-  it("rolls the cut between two neighbours keeping the total", () => {
-    const rolled = rollEdit(doc(), "a", "b", 2600);
-    expect(at(rolled, "a")?.duration).toBe(2600);
-    expect(at(rolled, "b")).toMatchObject({ start: 2600, duration: 1400, trimIn: 600 });
-    const d = doc();
-    d.tracks[0].clips[1] = clip("b", 2000, 2000, "video", { trimInMs: 300 });
-    const left = rollEdit(d, "a", "b", 1500);
-    expect(at(left, "b")).toMatchObject({ start: 1700, duration: 2300, trimIn: 0 });
-    expect(at(left, "a")?.duration).toBe(1700);
-    const fixed = doc();
-    expect(rollEdit(fixed, "a", "b", 2600, () => 2500)).toBe(fixed);
-  });
-
   it("slips the source window without moving the clip", () => {
     const slipped = slipClip(doc(), "a", -400, 10_000);
     expect(at(slipped, "a")).toMatchObject({ start: 0, duration: 2000, trimIn: 600 });
     expect(at(slipClip(doc(), "a", -5000), "a")?.trimIn).toBe(0);
-  });
-
-  it("slides a clip between its neighbours", () => {
-    const d = doc();
-    d.tracks[0].clips[2] = clip("c", 4000, 1000, "image");
-    const slid = slideClip(d, "b", 300);
-    expect(at(slid, "a")?.duration).toBe(2300);
-    expect(at(slid, "b")?.start).toBe(2300);
-    expect(at(slid, "c")).toMatchObject({ start: 4300, duration: 700 });
-    expect(documentIssue("video", slid)).toBeNull();
   });
 });
 
@@ -199,5 +175,14 @@ describe("nudge, relink and disable", () => {
     expect(findClip(off, "b")?.clip.disabled).toBe(true);
     expect(documentIssue("video", off)).toBeNull();
     expect(findClip(toggleDisabled(off, ["b"]), "b")?.clip.disabled).toBeUndefined();
+  });
+
+  it("sets clips off or on whatever each one was", () => {
+    const one = toggleDisabled(doc(), ["b"]);
+    const off = setClipsDisabled(one, ["b", "c"], true);
+    expect([findClip(off, "b")?.clip.disabled, findClip(off, "c")?.clip.disabled]).toEqual([true, true]);
+    const on = setClipsDisabled(off, ["b", "c"], false);
+    expect([findClip(on, "b")?.clip.disabled, findClip(on, "c")?.clip.disabled]).toEqual([undefined, undefined]);
+    expect(setClipsDisabled(on, ["b"], false)).toBe(on);
   });
 });

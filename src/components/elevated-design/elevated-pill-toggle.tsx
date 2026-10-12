@@ -50,13 +50,15 @@ export function ElevatedPillToggle<T extends string = string>({
         const labelText =
           typeof opt.label === "string" ? opt.label : undefined;
         const textTitle = opt.title ?? labelText;
+        const titleKeepsLabel = !labelText || !opt.title || opt.title.includes(labelText);
+        const accessibleName = titleKeepsLabel ? textTitle : labelText;
         return (
           <button
             key={opt.value}
             type="button"
             disabled={disabled}
             title={textTitle}
-            aria-label={labelText}
+            aria-label={accessibleName}
             aria-pressed={active}
             onClick={() => {
               if (!disabled) onChange(opt.value);

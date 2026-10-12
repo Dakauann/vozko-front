@@ -1,7 +1,7 @@
 import { newPathLayer, type CanvasSize, type Layer, type Transform } from "./document";
 import { LAYER_RANGES } from "./layer-ranges";
 import type { LayerPatch } from "./layers";
-import { starPolygon } from "./paint";
+import { regularPolygon, starPolygon } from "./paint";
 import { fitToUnit, mapSubpaths, pathToSubpaths, subpathsToPath, type Subpath } from "./path-nodes";
 import type { Point } from "./viewport";
 
@@ -118,6 +118,8 @@ function outlineOf(layer: Layer, canvas: CanvasSize): string | null {
       return "M0.5 0 L1 1 L0 1 Z";
     case "star":
       return polygonPath(starPolygon(layer, 1, 1));
+    case "polygon":
+      return polygonPath(regularPolygon(layer, 1, 1));
     default:
       return null;
   }

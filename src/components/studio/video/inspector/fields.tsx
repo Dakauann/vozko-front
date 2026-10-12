@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
+import { useColorDrag } from "@/components/studio/canvas/live-gesture";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { swatchOf, typedColor, withSwatch } from "@/lib/studio/color";
 import type { KeyState } from "@/lib/studio/keyframe-edit";
@@ -12,22 +13,12 @@ import { TOOLTIP_CLASS } from "../tool-button";
 
 export const RANGE_KEYS: ReadonlySet<string> = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"]);
 
-const INPUT_CLASS =
+export const INPUT_CLASS =
   "h-7 w-full min-w-0 rounded-md border border-border bg-background px-2 text-xs tabular-nums text-foreground transition-colors placeholder:italic placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
 const SCRUB_PX_PER_STEP = 3;
 
-export function InspectorSection({ title, children, className, action }: { title: string; children: ReactNode; className?: string; action?: ReactNode }) {
-  return (
-    <section className={cn("space-y-2 border-b border-border px-3 py-3", className)}>
-      <div className="flex min-h-5 items-center justify-between gap-2">
-        <h3 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
+export { InspectorSection } from "../../inspector/inspector-section";
 
 export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-2 gap-2">{children}</div>;
@@ -51,13 +42,14 @@ export function KeyMark({ state, hint }: { state: KeyState; hint: string }) {
   );
 }
 
-function FieldLabel({ htmlFor, label, mark, scrub }: { htmlFor: string; label: string; mark?: ReactNode; scrub?: (event: ReactPointerEvent<HTMLLabelElement>) => void }) {
+function FieldLabel({ htmlFor, label, mark, scrub, meta }: { htmlFor: string; label: string; mark?: ReactNode; scrub?: (event: ReactPointerEvent<HTMLLabelElement>) => void; meta?: ReactNode }) {
   return (
-    <div className="flex items-center gap-1">
-      <label htmlFor={htmlFor} onPointerDown={scrub} className={cn("block select-none text-2xs text-muted-foreground", scrub && "cursor-ew-resize")}>
+    <div className="flex min-h-4 items-center gap-1">
+      <label htmlFor={htmlFor} onPointerDown={scrub} className={cn("block min-w-0 flex-1 select-none truncate text-2xs text-muted-foreground", scrub && "cursor-ew-resize")}>
         {label}
       </label>
-      {mark}
+      {meta}
+      {mark ? <span className="inline-flex w-3 shrink-0 justify-center">{mark}</span> : null}
     </div>
   );
 }
@@ -232,10 +224,12 @@ export function SliderField({ label, value, fallback, min, max, step, valueText,
   const text = value === null ? t("mixed") : valueText;
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between">
-        <FieldLabel htmlFor={id} label={label} mark={keyHint ? <KeyMark state={keyState} hint={keyHint} /> : null} />
-        <span className={cn("text-2xs tabular-nums", value === null ? "italic text-muted-foreground" : "text-foreground", keyState === "interpolated" && "italic")}>{text}</span>
-      </div>
+      <FieldLabel
+        htmlFor={id}
+        label={label}
+        mark={keyHint ? <KeyMark state={keyState} hint={keyHint} /> : null}
+        meta={<span className={cn("shrink-0 text-2xs tabular-nums", value === null ? "italic text-muted-foreground" : "text-foreground", keyState === "interpolated" && "italic")}>{text}</span>}
+      />
       <input
         id={id}
         type="range"
@@ -307,7 +301,17 @@ export function SelectField<T extends string>({
   );
 }
 
-export function ColorField({ label, value, onChange, disabled, opaque }: { label: string; value: string | null; onChange: (value: string) => void; disabled?: boolean; opaque?: boolean }) {
+interface ColorFieldProps {
+  label: string;
+  value: string | null;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  opaque?: boolean;
+  keyState?: KeyState;
+  keyHint?: string;
+}
+
+export function ColorField({ label, value, onChange, disabled, opaque, keyState = "static", keyHint }: ColorFieldProps) {
   const t = useTranslations("studio.video.inspector");
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
@@ -316,18 +320,16 @@ export function ColorField({ label, value, onChange, disabled, opaque }: { label
     const next = typedColor(raw, !opaque);
     if (next !== null && next !== value?.toLowerCase()) onChange(next);
   };
+  const swatch = useColorDrag(swatchOf(value) ?? "#808080", (raw) => commit(withSwatch(value, raw)));
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-2xs text-muted-foreground">
-        {label}
-      </label>
+      <FieldLabel htmlFor={id} label={label} mark={keyHint ? <KeyMark state={keyState} hint={keyHint} /> : null} />
       <div className="flex items-center gap-1.5">
         <input
           type="color"
           aria-label={label}
-          value={swatchOf(value) ?? "#808080"}
+          ref={swatch}
           disabled={disabled}
-          onChange={(event) => commit(withSwatch(value, event.target.value))}
           className="h-7 w-8 shrink-0 cursor-pointer rounded-md border border-border bg-background p-0.5 disabled:cursor-not-allowed"
         />
         <input
@@ -361,5 +363,46 @@ export function ToggleField({ label, checked, onChange, disabled }: { label: str
       <input ref={ref} type="checkbox" checked={checked ?? false} disabled={disabled} onChange={(event) => onChange(event.target.checked)} className="h-3.5 w-3.5 accent-primary" />
       {label}
     </label>
+  );
+}
+
+interface TextFieldProps {
+  label: string;
+  value: string | null;
+  maxLength?: number;
+  disabled?: boolean;
+  onCommit: (value: string) => boolean;
+}
+
+export function TextField({ label, value, maxLength, disabled, onCommit }: TextFieldProps) {
+  const id = useId();
+  const [draft, setDraft] = useState<string | null>(null);
+  const [rejected, setRejected] = useState(false);
+  const commit = () => {
+    if (draft === null) return;
+    const accepted = draft === value || onCommit(draft);
+    setRejected(!accepted);
+    if (accepted) setDraft(null);
+  };
+  return (
+    <div className="space-y-1">
+      <label htmlFor={id} className="block text-2xs text-muted-foreground">
+        {label}
+      </label>
+      <input
+        id={id}
+        type="text"
+        value={draft ?? value ?? ""}
+        maxLength={maxLength}
+        disabled={disabled}
+        aria-invalid={rejected || undefined}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") commit();
+        }}
+        className={cn(INPUT_CLASS, "aria-[invalid=true]:border-destructive")}
+      />
+    </div>
   );
 }

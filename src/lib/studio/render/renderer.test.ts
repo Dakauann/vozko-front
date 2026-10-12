@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { SceneNode } from "../scene/scene";
-import { fitCamera, MAX_RASTER_SIDE, rasterRatio } from "./renderer";
+import { fitCamera, frameCamera, MAX_RASTER_SIDE, rasterRatio } from "./renderer";
 
 const raster = (boxWidth: number, widthPx = 400): SceneNode => ({
   id: "t",
@@ -15,6 +15,11 @@ const raster = (boxWidth: number, widthPx = 400): SceneNode => ({
 describe("render sizing", () => {
   it("fits the scene into the viewport when there is no camera of its own", () => {
     expect(fitCamera({ width: 1080 }, { width: 540 })).toEqual({ scale: 0.5, x: 0, y: 0 });
+  });
+
+  it("draws a zoomed frame from the part of it the canvas covers", () => {
+    const placement = { frame: { left: -300, top: 20, width: 2160, height: 1215 }, visible: { left: 300, top: 0, width: 800, height: 478 } };
+    expect(frameCamera({ width: 1080 }, placement)).toEqual({ scale: 2, x: -300, y: -0 });
   });
 
   it("rasterizes at the pixels the screen shows, in quarter steps, sharper when the overlay is scaled up", () => {

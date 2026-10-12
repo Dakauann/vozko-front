@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import enMessages from "@/i18n/messages/en.json";
 import ptMessages from "@/i18n/messages/pt.json";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 
@@ -96,15 +97,16 @@ function campaign(source?: string): WhatsAppCampaign {
   } as WhatsAppCampaign;
 }
 
-function renderForm(initial: WhatsAppCampaign) {
+function renderForm(initial: WhatsAppCampaign, locale: "pt" | "en" = "pt") {
   return render(
-    <NextIntlClientProvider locale="pt" messages={ptMessages}>
+    <NextIntlClientProvider locale={locale} messages={locale === "pt" ? ptMessages : enMessages}>
       <CreateWhatsAppCampaignForm mode="edit" initialCampaign={initial} aiModels={["openai/gpt-4o-mini"]} />
     </NextIntlClientProvider>,
   );
 }
 
 const form = ptMessages.whatsappCampaignsPage.form;
+const enForm = enMessages.whatsappCampaignsPage.form;
 const selection = ptMessages.leadSends;
 
 describe("CreateWhatsAppCampaignForm editing a send prepared from leads", () => {
@@ -166,5 +168,27 @@ describe("CreateWhatsAppCampaignForm editing a send prepared from leads", () => 
     await waitFor(() =>
       expect(toastMock.error).toHaveBeenCalledWith(form.toast.error, { description: "Template not approved" }),
     );
+  });
+});
+
+describe("CreateWhatsAppCampaignForm copy", () => {
+  it("labels the funnel picker and the template preview from the messages", async () => {
+    renderForm(campaign(undefined));
+
+    expect(await screen.findByText(form.preview.title)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: form.preview.swapContact })).toBeInTheDocument();
+    expect(screen.getByText(form.preview.selectTemplate)).toBeInTheDocument();
+    expect(screen.getByText(form.basicInfo.pipelineDescription)).toBeInTheDocument();
+  });
+
+  it("shows the English copy and no Portuguese leftovers in the English locale", async () => {
+    renderForm(campaign(undefined), "en");
+
+    expect(await screen.findByText(enForm.preview.title)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: enForm.preview.swapContact })).toBeInTheDocument();
+    expect(screen.getByText(enForm.preview.selectTemplate)).toBeInTheDocument();
+    expect(screen.getByText(enForm.basicInfo.pipelineDescription)).toBeInTheDocument();
+    expect(screen.queryByText(form.preview.title)).not.toBeInTheDocument();
+    expect(screen.queryByText(form.basicInfo.pipelineDescription)).not.toBeInTheDocument();
   });
 });

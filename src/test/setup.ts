@@ -1,3 +1,4 @@
+import { afterEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
 if (typeof globalThis.ResizeObserver === "undefined") {
@@ -42,3 +43,10 @@ if (typeof globalThis.IntersectionObserver === "undefined") {
     }
   } as unknown as typeof IntersectionObserver;
 }
+
+afterEach(() => {
+  if (typeof window === "undefined") return;
+  Object.keys(window.localStorage)
+    .filter((key) => key.startsWith("studio-inspector:"))
+    .forEach((key) => window.localStorage.removeItem(key));
+});

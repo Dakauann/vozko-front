@@ -6,8 +6,8 @@ import Button from "@/components/elevated-design/button";
 import { Sparkle, Waveform } from "@/components/icons";
 import { canStart } from "@/lib/media-generation/limits";
 import { CLIP_JOB_SOURCES } from "@/lib/studio/job-sources";
-import { findClip } from "@/lib/studio/timeline";
 
+import { startClipJob } from "../clip-jobs";
 import { useVideoEditor } from "../editor-context";
 import { useClipPick } from "../drafts";
 import { useJobs, useRunningKinds } from "../jobs";
@@ -18,16 +18,12 @@ type ProcessKind = "denoise" | "cutout";
 
 function ProcessSection({ kind }: { kind: ProcessKind }) {
   const t = useTranslations(`studio.video.process.${kind}`);
-  const { store, commands } = useVideoEditor();
+  const editor = useVideoEditor();
   const [clipId, setClipId] = useClipPick(kind);
   const jobs = useJobs(kind);
   const blocked = !canStart(kind, useRunningKinds());
 
-  const start = () => {
-    const found = clipId ? findClip(store.getState().document, clipId) : null;
-    if (!found?.clip.assetId) return;
-    void commands.startJob(kind, { kind, sourceMediaId: found.clip.assetId }, { clipId: found.clip.id });
-  };
+  const start = () => startClipJob(editor, kind, clipId);
 
   return (
     <section className="space-y-3 border-b border-border p-3">

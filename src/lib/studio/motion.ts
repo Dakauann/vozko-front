@@ -43,7 +43,7 @@ export function motionPresetPatch(side: MotionSide, preset: MotionPreset, durati
   const edge = (side === "in" ? ENTRANCE_EDGE : EXIT_EDGE)[preset];
   const fade = preset === "none" ? 0 : Math.round(durationMs);
   const motion = edge ? { edge, durationMs: Math.round(durationMs) } : undefined;
-  return side === "in" ? { motionIn: motion, fadeInMs: fade } : { motionOut: motion, fadeOutMs: fade };
+  return side === "in" ? { motionIn: motion, fadeInMs: fade, transitionIn: undefined } : { motionOut: motion, fadeOutMs: fade, transitionOut: undefined };
 }
 
 export function presetOf(clip: Pick<Clip, "motionIn" | "motionOut" | "fadeInMs" | "fadeOutMs">, side: MotionSide): MotionPreset | "custom" {

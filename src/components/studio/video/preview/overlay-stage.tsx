@@ -2,9 +2,11 @@
 
 import { Group, Layer as KonvaLayer, Stage } from "react-konva";
 
-import { LayerNode } from "@/components/studio/canvas/layer-node";
+import { ChartBody, LayerNode } from "@/components/studio/canvas/layer-node";
+import { chartFrameLayers } from "@/lib/studio/chart-animation";
 import type { CanvasSize } from "@/lib/studio/document";
-import type { VisualItem } from "@/lib/studio/playback";
+import { contentStretch, type VisualItem } from "@/lib/studio/playback";
+import { shownLayer } from "@/lib/studio/text-glyphs";
 
 interface OverlayStageProps {
   items: VisualItem[];
@@ -12,6 +14,8 @@ interface OverlayStageProps {
   frame: CanvasSize;
   zIndex: number;
 }
+
+function settled() {}
 
 export function OverlayStage({ items, canvas, frame, zIndex }: OverlayStageProps) {
   const scale = frame.width / canvas.width;
@@ -22,11 +26,16 @@ export function OverlayStage({ items, canvas, frame, zIndex }: OverlayStageProps
           {items.map((item) => {
             if (!item.layer) return null;
             const t = item.transform;
-            const width = t.w * canvas.width;
-            const height = t.h * canvas.height;
+            const stretch = contentStretch(item);
+            const width = t.w * stretch.width * canvas.width;
+            const height = t.h * stretch.height * canvas.height;
             return (
-              <Group key={item.clipId} x={t.x * canvas.width} y={t.y * canvas.height} offsetX={width / 2} offsetY={height / 2} rotation={t.rotation} opacity={item.opacity}>
-                <LayerNode layer={item.layer} width={width} height={height} fontBasePx={canvas.height} />
+              <Group key={item.clipId} x={t.x * canvas.width} y={t.y * canvas.height} offsetX={width / 2} offsetY={height / 2} scaleX={stretch.scaleX} scaleY={stretch.scaleY} rotation={t.rotation} opacity={item.opacity}>
+                {item.chart ? (
+                  <ChartBody parts={chartFrameLayers(item.layer, item.chart, { width, height })} width={width} height={height} ready={settled} fail={settled} />
+                ) : (
+                  <LayerNode layer={shownLayer(item.layer, item.glyphs)} width={width} height={height} fontBasePx={canvas.height} />
+                )}
               </Group>
             );
           })}

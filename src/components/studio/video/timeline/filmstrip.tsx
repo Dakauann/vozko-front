@@ -11,22 +11,26 @@ import { useAssetUrl } from "../use-asset";
 
 const VIDEO_ASPECT = 16 / 9;
 
-function FrameTile({ assetId, tile, heightPx }: { assetId: string; tile: FilmstripTile; heightPx: number }) {
+export function useFrame(assetId: string, sourceMs: number, heightPx: number): string | null {
   const { frames } = useVideoEditor();
   const [loaded, setLoaded] = useState<{ key: string; url: string | null } | null>(null);
-  const key = `${assetId}:${tile.sourceMs}:${heightPx}`;
-  const cached = frames.cached(assetId, tile.sourceMs, heightPx);
+  const key = `${assetId}:${sourceMs}:${heightPx}`;
+  const cached = frames.cached(assetId, sourceMs, heightPx);
 
   useEffect(() => {
     if (cached) return;
     const controller = new AbortController();
-    void frames.request(assetId, tile.sourceMs, heightPx, controller.signal).then((url) => {
+    void frames.request(assetId, sourceMs, heightPx, controller.signal).then((url) => {
       if (!controller.signal.aborted) setLoaded({ key, url });
     });
     return () => controller.abort();
-  }, [frames, assetId, tile.sourceMs, heightPx, key, cached]);
+  }, [frames, assetId, sourceMs, heightPx, key, cached]);
 
-  const url = cached ?? (loaded?.key === key ? loaded.url : null);
+  return cached ?? (loaded?.key === key ? loaded.url : null);
+}
+
+function FrameTile({ assetId, tile, heightPx }: { assetId: string; tile: FilmstripTile; heightPx: number }) {
+  const url = useFrame(assetId, tile.sourceMs, heightPx);
   return (
     <div className="absolute inset-y-0 overflow-hidden border-r border-background bg-muted" style={{ left: tile.leftPx, width: tile.widthPx }}>
       {url ? <img src={url} alt="" draggable={false} className="pointer-events-none h-full w-full object-cover" /> : null}
@@ -48,8 +52,7 @@ export const VideoFilmstrip = memo(function VideoFilmstrip({ clip, widthPx, heig
     clipWidthPx: widthPx,
     heightPx,
     aspect: VIDEO_ASPECT,
-    trimInMs: clip.trimInMs,
-    durationMs: clip.durationMs,
+    clip,
     visibleFromPx: span.fromPx,
     visibleToPx: span.toPx,
     sourceDurationMs,

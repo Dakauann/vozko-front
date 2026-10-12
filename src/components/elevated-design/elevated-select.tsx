@@ -155,7 +155,7 @@ const ElevatedSelect = forwardRef<
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-[--radius] border border-control-edge bg-card px-3 text-sm font-medium text-foreground dark:bg-muted",
+              "flex w-full min-w-0 items-center justify-between gap-3 rounded-[--radius] border border-control-edge bg-card px-3 text-sm font-medium text-foreground dark:bg-muted",
               "transition-[background-color,border-color,box-shadow] duration-150",
               "hover:border-[hsl(var(--muted-foreground)/0.5)]",
               "focus-visible:outline-none focus-visible:border-control-edge focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))] focus-visible:ring-2 focus-visible:ring-primary/15",
@@ -168,11 +168,13 @@ const ElevatedSelect = forwardRef<
               !icon && "pl-3",
             )}
           >
-            <SelectPrimitive.Value
-              placeholder={isFloating && !labelFloating ? "" : placeholder}
-            />
+            <span className="block min-w-0 flex-1 truncate text-left">
+              <SelectPrimitive.Value
+                placeholder={isFloating && !labelFloating ? "" : placeholder}
+              />
+            </span>
             <SelectPrimitive.Icon asChild>
-              <CaretDown className="h-4 w-4 opacity-50" weight="bold" />
+              <CaretDown className="h-4 w-4 flex-shrink-0 opacity-50" weight="bold" />
             </SelectPrimitive.Icon>
           </SelectPrimitive.Trigger>
 

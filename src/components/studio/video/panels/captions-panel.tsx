@@ -11,6 +11,7 @@ import { STUDIO_LIMITS } from "@/lib/studio/document";
 import { CLIP_JOB_SOURCES } from "@/lib/studio/job-sources";
 import { findClip } from "@/lib/studio/timeline";
 
+import { startClipJob } from "../clip-jobs";
 import { useAssetState, useVideoEditor } from "../editor-context";
 import { useClipPick } from "../drafts";
 import { placeCaptionText, readCaptions, type CaptionRefusal } from "../job-placement";
@@ -115,17 +116,12 @@ function CaptionFile() {
 
 export function CaptionsPanel() {
   const t = useTranslations("studio.video.captions");
-  const { store, commands } = useVideoEditor();
+  const editor = useVideoEditor();
   const [clipId, setClipId] = useClipPick("captions");
   const jobs = useJobs("captions");
   const blocked = !canStart("captions", useRunningKinds());
 
-  const start = () => {
-    const found = clipId ? findClip(store.getState().document, clipId) : null;
-    if (!found?.clip.assetId) return;
-    const { clip } = found;
-    void commands.startJob("captions", { kind: "captions", sourceMediaId: clip.assetId! }, { clipId: clip.id, window: captionWindow(clip) });
-  };
+  const start = () => startClipJob(editor, "captions", clipId);
 
   return (
     <div className="space-y-3 p-3">

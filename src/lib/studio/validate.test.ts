@@ -219,7 +219,7 @@ describe("document validation mirrors the backend", () => {
     layered.groups = Array.from({ length: 300 }, (_, i) => ({ id: `g${i}` }));
     expect(documentIssue("image", layered)).toBeNull();
     const timeline = videoDoc();
-    timeline.durationMs = 90_000;
+    timeline.durationMs = STUDIO_LIMITS.maxVideoMs;
     const overlay = timeline.tracks[1].clips[0];
     timeline.tracks[1].clips = [...timeline.tracks[1].clips, ...Array.from({ length: 300 }, (_, i) => ({ ...overlay, id: `x${i}`, startMs: 3000 + i * 200, durationMs: 200, fadeInMs: 0 }))];
     timeline.tracks = [...timeline.tracks, ...Array.from({ length: 40 }, (_, i) => ({ id: `t${i}`, kind: i % 4 === 0 ? ("audio" as const) : ("visual" as const), clips: [] }))];

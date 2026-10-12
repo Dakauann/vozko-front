@@ -261,9 +261,14 @@ function pair(point: Point): string {
   return `${format(point.x)} ${format(point.y)}`;
 }
 
+export function segmentControls(from: PathNode, to: PathNode): [Point, Point] | null {
+  if (!from.out && !to.in) return null;
+  return [from.out ?? from, to.in ?? to];
+}
+
 function segmentData(from: PathNode, to: PathNode): string {
-  if (!from.out && !to.in) return `L${pair(to)}`;
-  return `C${pair(from.out ?? from)} ${pair(to.in ?? to)} ${pair(to)}`;
+  const controls = segmentControls(from, to);
+  return controls ? `C${pair(controls[0])} ${pair(controls[1])} ${pair(to)}` : `L${pair(to)}`;
 }
 
 export function subpathsToPath(subpaths: readonly Subpath[]): string {

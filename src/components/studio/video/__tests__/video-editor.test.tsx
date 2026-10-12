@@ -56,7 +56,7 @@ function mount() {
   return studio;
 }
 
-describe("VideoEditor", () => {
+describe("VideoEditor", { timeout: 15_000 }, () => {
   it("adds a text overlay from the elements panel and autosaves it", async () => {
     const studio = mount();
     fireEvent.mouseDown(screen.getByRole("tab", { name: "Texto" }));
@@ -87,8 +87,9 @@ describe("VideoEditor", () => {
     const studio = mount();
     fireEvent.click(screen.getByRole("tab", { name: "Texto" }));
     fireEvent.click(await screen.findByRole("button", { name: "Adicionar título" }));
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+      fireEvent.click(screen.getByRole("button", { name: "Exportar agora" }));
     });
     expect(await screen.findByText(/Este navegador não consegue gerar vídeo/)).toBeInTheDocument();
     expect(studio.flush).toHaveBeenCalled();

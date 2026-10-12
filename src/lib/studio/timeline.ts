@@ -1,11 +1,29 @@
 import { produce, type Draft } from "immer";
 
+import { hasSourceTime, headroomMs, sourceSpanMs, splitTrimIns, tailroomMs, trimInAfterEdge } from "./clip-time";
 import { keyframeCount, keyframesInRange, shiftKeyframes } from "./keyframes";
+import { settleSmooth } from "./keyframe-ease";
+import { settleTransitions } from "./transitions";
+import { retextClipPatch } from "./text-runs";
+import { fittedEdges } from "./edge-transitions";
+import { splitVfx } from "./vfx";
+import { shiftMaskKeys } from "./masks";
+import { shiftEffectKeys } from "./effect-keys";
+import { audioTrackIds, splitBehaviors, withHeardTracks } from "./behaviors";
+import { splitLine } from "./line-animation";
+import { splitPathOps } from "./path-ops";
+import { splitClipRepeat } from "./clip-repeat";
+import { splitTextAnimators } from "./text-animator";
+import { placedClipMarkers, shiftClipMarkers, splitClipMarkers } from "./clip-markers";
+import { markerEndMs } from "./markers";
+import { releaseChildren, remappedParents } from "./parenting";
+import { freshClip } from "./clip-copy";
+import { tracksEnd } from "./group-scope";
 import { newStudioId, STUDIO_LIMITS, type Clip, type ClipType, type Track, type TrackKind, type VideoDocument } from "./document";
 
-export type TrackPatch = Partial<Pick<Track, "name" | "hidden" | "locked" | "muted">>;
+export type TrackPatch = Partial<Pick<Track, "name" | "hidden" | "locked" | "muted" | "gainDb" | "pan" | "ducking" | "labelColor" | "shy">>;
 
-export type ClipPatch = Partial<Pick<Clip, "volume" | "fadeInMs" | "fadeOutMs" | "fit" | "transform" | "layer" | "motionIn" | "motionOut" | "linkId" | "keyframes" | "blur">>;
+export type ClipPatch = Partial<Pick<Clip, "behaviors" | "vfx" | "volume" | "pan" | "fadeInMs" | "fadeOutMs" | "fit" | "transform" | "layer" | "motionIn" | "motionOut" | "transitionIn" | "transitionOut" | "linkId" | "keyframes" | "blur" | "textIn" | "textOut" | "textAnimators" | "color" | "gradientMap" | "frameMix" | "speed" | "chromaKey" | "lumaKey" | "masks" | "effects" | "strokes" | "matte" | "matteChannel" | "matteInvert" | "blendMode" | "line" | "anchor" | "flipX" | "flipY" | "autoOrient" | "motionBlur" | "rotationX" | "rotationY" | "camera" | "counter" | "textPath" | "repeat" | "parentId" | "parentTracker" | "trackers" | "stabilize" | "name" | "labelColor" | "markers" | "guide" | "chartIn">>;
 
 export interface ClipLocation {
   track: Track;
@@ -20,14 +38,8 @@ export interface ActiveClip {
   localMs: number;
 }
 
-const SOURCED: ReadonlySet<ClipType> = new Set<ClipType>(["video", "audio"]);
-
 export function clipEnd(clip: Pick<Clip, "startMs" | "durationMs">): number {
   return clip.startMs + clip.durationMs;
-}
-
-export function hasSourceTime(type: ClipType): boolean {
-  return SOURCED.has(type);
 }
 
 export function findClip(doc: VideoDocument, clipId: string): ClipLocation | null {
@@ -53,7 +65,7 @@ export function clipCount(doc: VideoDocument): number {
 }
 
 export function contentDuration(doc: VideoDocument): number {
-  return doc.tracks.reduce((max, track) => track.clips.reduce((m, c) => Math.max(m, clipEnd(c)), max), 0);
+  return tracksEnd(doc.tracks);
 }
 
 export function trackAccepts(kind: TrackKind, type: ClipType): boolean {
@@ -92,6 +104,15 @@ function clampFades(clip: Draft<Clip>) {
   clip.fadeInMs = Math.max(0, Math.min(Math.round(clip.fadeInMs), clip.durationMs));
   clip.fadeOutMs = Math.max(0, Math.min(Math.round(clip.fadeOutMs), clip.durationMs - clip.fadeInMs));
   clampMotions(clip);
+  clampEdgeTransitions(clip);
+}
+
+function clampEdgeTransitions(clip: Draft<Clip>) {
+  const fitted = fittedEdges(clip as Clip);
+  for (const key of ["transitionIn", "transitionOut"] as const) {
+    if (fitted[key]) clip[key] = fitted[key];
+    else delete clip[key];
+  }
 }
 
 function clampMotions(clip: Draft<Clip>) {
@@ -113,7 +134,13 @@ function clampMotions(clip: Draft<Clip>) {
 }
 
 function settle(doc: Draft<VideoDocument>) {
-  for (const track of doc.tracks) track.clips.sort((a, b) => a.startMs - b.startMs);
+  for (const track of doc.tracks) {
+    track.clips.sort((a, b) => a.startMs - b.startMs);
+    if (!track.transitions) continue;
+    const transitions = settleTransitions(track as Track);
+    if (transitions) track.transitions = transitions;
+    else delete track.transitions;
+  }
   doc.durationMs = Math.min(contentDuration(doc as VideoDocument), STUDIO_LIMITS.maxVideoMs);
 }
 
@@ -132,12 +159,6 @@ function neighbours(track: Track, clip: Clip): { previousEnd: number; nextStart:
   return { previousEnd: previous ? clipEnd(previous) : 0, nextStart: next ? next.startMs : STUDIO_LIMITS.maxVideoMs };
 }
 
-function freshClip(clip: Clip): Clip {
-  const copy: Clip = { ...clip, id: newStudioId("c") };
-  if (clip.layer) copy.layer = { ...clip.layer, id: newStudioId("l") };
-  return copy;
-}
-
 export function addTrack(doc: VideoDocument, kind: TrackKind, atIndex: number = doc.tracks.length): { document: VideoDocument; trackId: string } {
   const trackId = newStudioId("t");
   const document = produce(doc, (draft) => {
@@ -147,10 +168,14 @@ export function addTrack(doc: VideoDocument, kind: TrackKind, atIndex: number = 
 }
 
 export function removeTrack(doc: VideoDocument, trackId: string): VideoDocument {
-  return produce(doc, (draft) => {
+  const track = doc.tracks.find((t) => t.id === trackId);
+  const released = track && !track.locked ? releaseChildren(doc, track.clips.map((c) => c.id)) : doc;
+  return produce(released, (draft) => {
     const index = draft.tracks.findIndex((t) => t.id === trackId);
     if (index < 0 || draft.tracks[index].locked) return;
     draft.tracks.splice(index, 1);
+    const audio = audioTrackIds(draft as VideoDocument);
+    for (const kept of draft.tracks) kept.clips = kept.clips.map((clip) => withHeardTracks(clip as Clip, audio));
     settle(draft);
   });
 }
@@ -260,7 +285,8 @@ export function edgeBlock(doc: VideoDocument, clipId: string, edge: "start" | "e
     const next = others.filter((c) => c.startMs >= clipEnd(clip)).sort((a, b) => a.startMs - b.startMs)[0];
     const limits: Exclude<EdgeBlock, { kind: "locked" | "minimum" }>[] = [{ kind: "video", ms: STUDIO_LIMITS.maxVideoMs }];
     if (next) limits.push({ kind: "neighbour", clipId: next.id, ms: next.startMs });
-    if (hasSourceTime(clip.type) && sourceDurationMs !== undefined) limits.push({ kind: "source", ms: clip.startMs + sourceDurationMs - clip.trimInMs });
+    const tail = tailroomMs(clip, sourceDurationMs);
+    if (Number.isFinite(tail)) limits.push({ kind: "source", ms: clipEnd(clip) + tail });
     const tightest = limits.reduce((best, limit) => (limit.ms < best.ms ? limit : best));
     return tightest.ms < requestedMs ? tightest : null;
   }
@@ -268,24 +294,28 @@ export function edgeBlock(doc: VideoDocument, clipId: string, edge: "start" | "e
   const previous = others.filter((c) => clipEnd(c) <= clip.startMs).sort((a, b) => clipEnd(b) - clipEnd(a))[0];
   const limits: Exclude<EdgeBlock, { kind: "locked" | "minimum" }>[] = [{ kind: "video", ms: 0 }];
   if (previous) limits.push({ kind: "neighbour", clipId: previous.id, ms: clipEnd(previous) });
-  if (hasSourceTime(clip.type)) limits.push({ kind: "source", ms: clip.startMs - clip.trimInMs });
+  const head = headroomMs(clip, sourceDurationMs);
+  if (Number.isFinite(head)) limits.push({ kind: "source", ms: clip.startMs - head });
   const tightest = limits.reduce((best, limit) => (limit.ms > best.ms ? limit : best));
   return tightest.ms > requestedMs ? tightest : null;
 }
 
-export function trimClipStart(doc: VideoDocument, clipId: string, startMs: number): VideoDocument {
+export function trimClipStart(doc: VideoDocument, clipId: string, startMs: number, sourceDurationMs?: number): VideoDocument {
   const found = findClip(doc, clipId);
   if (!found || found.track.locked) return doc;
   const { clip, track } = found;
   const end = clipEnd(clip);
   const { previousEnd } = neighbours(track, clip);
-  const lowest = hasSourceTime(clip.type) ? Math.max(previousEnd, clip.startMs - clip.trimInMs) : previousEnd;
+  const lowest = Math.max(previousEnd, clip.startMs - headroomMs(clip, sourceDurationMs));
   const next = Math.min(Math.max(Math.round(startMs), lowest), end - STUDIO_LIMITS.minClipMs);
   if (next === clip.startMs) return doc;
   return produce(doc, (draft) => {
     const target = locate(draft, clipId)!.clip;
-    if (hasSourceTime(target.type)) target.trimInMs += next - target.startMs;
+    target.trimInMs = trimInAfterEdge(clip, "start", next - clip.startMs);
     if (target.keyframes) target.keyframes = shiftKeyframes(target.keyframes, target.startMs - next);
+    const markers = shiftClipMarkers(clip, clip.startMs - next);
+    if (markers) target.markers = markers;
+    else delete target.markers;
     target.startMs = next;
     target.durationMs = end - next;
     clampFades(target);
@@ -298,14 +328,14 @@ export function trimClipEnd(doc: VideoDocument, clipId: string, endMs: number, s
   if (!found || found.track.locked) return doc;
   const { clip, track } = found;
   const { nextStart } = neighbours(track, clip);
-  const sourceLimit = hasSourceTime(clip.type) && sourceDurationMs !== undefined ? clip.startMs + sourceDurationMs - clip.trimInMs : Infinity;
-  const highest = Math.min(nextStart, STUDIO_LIMITS.maxVideoMs, sourceLimit);
+  const highest = Math.min(nextStart, STUDIO_LIMITS.maxVideoMs, clipEnd(clip) + tailroomMs(clip, sourceDurationMs));
   const lowest = clip.startMs + STUDIO_LIMITS.minClipMs;
   if (highest < lowest) return doc;
   const next = Math.min(Math.max(Math.round(endMs), lowest), highest);
   if (next === clipEnd(clip)) return doc;
   return produce(doc, (draft) => {
     const target = locate(draft, clipId)!.clip;
+    target.trimInMs = trimInAfterEdge(clip, "end", clipEnd(clip) - next);
     target.durationMs = next - target.startMs;
     clampFades(target);
     settle(draft);
@@ -318,27 +348,47 @@ export function splitClip(doc: VideoDocument, clipId: string, atMs: number): { d
   if (!found || found.track.locked) return { document: doc, clipId: null };
   const { clip } = found;
   if (at - clip.startMs < STUDIO_LIMITS.minClipMs || clipEnd(clip) - at < STUDIO_LIMITS.minClipMs) return { document: doc, clipId: null };
+  const trimIns = splitTrimIns(clip, at - clip.startMs);
+  const markerSplit = splitClipMarkers(clip, at - clip.startMs);
   const right: Clip = {
     ...freshClip(clip),
     startMs: at,
     durationMs: clipEnd(clip) - at,
-    trimInMs: hasSourceTime(clip.type) ? clip.trimInMs + (at - clip.startMs) : clip.trimInMs,
+    trimInMs: trimIns.right,
     fadeInMs: 0,
     motionIn: undefined,
+    transitionIn: undefined,
     keyframes: keyframesInRange(shiftKeyframes(clip.keyframes, clip.startMs - at), 0, clipEnd(clip) - at),
+    ...(clip.vfx ? { vfx: splitVfx(clip.vfx, at - clip.startMs) } : {}),
+    ...(clip.masks ? { masks: shiftMaskKeys(clip.masks, clip.startMs - at) } : {}),
+    ...(clip.effects ? { effects: shiftEffectKeys(clip.effects, clip.startMs - at) } : {}),
+    ...(clip.layer?.effects ? { layer: { ...clip.layer, effects: shiftEffectKeys(clip.layer.effects, clip.startMs - at) } } : {}),
+    ...(clip.line ? { line: splitLine(clip, at - clip.startMs) } : {}),
+    ...(clip.repeat ? { repeat: splitClipRepeat(clip.repeat, at - clip.startMs) } : {}),
+    ...(clip.textAnimators ? { textAnimators: splitTextAnimators(clip.textAnimators, at - clip.startMs) } : {}),
+    ...(clip.behaviors ? { behaviors: splitBehaviors(clip.behaviors, at - clip.startMs) } : {}),
+    markers: markerSplit.right,
   };
   const leftKeyframes = keyframesInRange(clip.keyframes, 0, at - clip.startMs);
   if (!right.keyframes) delete right.keyframes;
+  if (right.layer?.pathOps) right.layer = { ...right.layer, pathOps: splitPathOps(right.layer.pathOps, at - clip.startMs) };
+  if (!right.markers) delete right.markers;
   const document = produce(doc, (draft) => {
     const { track, clip: left } = locate(draft, clipId)!;
     if (leftKeyframes) left.keyframes = leftKeyframes;
     else delete left.keyframes;
+    if (markerSplit.left) left.markers = markerSplit.left;
+    else delete left.markers;
     left.durationMs = at - left.startMs;
+    left.trimInMs = trimIns.left;
     left.fadeOutMs = 0;
     delete left.motionOut;
+    delete left.transitionOut;
     clampFades(left);
     track.clips.push(right);
     clampFades(track.clips[track.clips.length - 1]);
+    for (const transition of track.transitions ?? []) if (transition.fromClipId === clipId) transition.fromClipId = right.id;
+    for (const other of draft.tracks) for (const child of other.clips) if (child.parentId === clipId && child.startMs >= at) child.parentId = right.id;
     settle(draft);
   });
   return { document, clipId: right.id };
@@ -353,9 +403,13 @@ export function splitClipsAt(doc: VideoDocument, atMs: number, clipIds?: readonl
   return targets.reduce((current, clip) => splitClip(current, clip.id, atMs).document, doc);
 }
 
+function removable(doc: VideoDocument, ids: ReadonlySet<string>): string[] {
+  return doc.tracks.filter((track) => !track.locked).flatMap((track) => track.clips.filter((c) => ids.has(c.id)).map((c) => c.id));
+}
+
 export function deleteClips(doc: VideoDocument, clipIds: readonly string[]): VideoDocument {
   const ids = new Set(clipIds);
-  return produce(doc, (draft) => {
+  return produce(releaseChildren(doc, removable(doc, ids)), (draft) => {
     for (const track of draft.tracks) {
       if (track.locked) continue;
       track.clips = track.clips.filter((c) => !ids.has(c.id));
@@ -366,7 +420,7 @@ export function deleteClips(doc: VideoDocument, clipIds: readonly string[]): Vid
 
 export function rippleDeleteClips(doc: VideoDocument, clipIds: readonly string[]): VideoDocument {
   const ids = new Set(clipIds);
-  return produce(doc, (draft) => {
+  return produce(releaseChildren(doc, removable(doc, ids)), (draft) => {
     for (const track of draft.tracks) {
       if (track.locked || !track.clips.some((c) => ids.has(c.id))) continue;
       const removed = track.clips.filter((c) => ids.has(c.id));
@@ -384,6 +438,7 @@ export function rippleDeleteClips(doc: VideoDocument, clipIds: readonly string[]
 export function duplicateClips(doc: VideoDocument, clipIds: readonly string[]): { document: VideoDocument; clipIds: string[] } {
   let document = doc;
   const created: string[] = [];
+  const renamed = new Map<string, string>();
   for (const id of clipIds) {
     const found = findClip(document, id);
     if (!found) continue;
@@ -394,21 +449,46 @@ export function duplicateClips(doc: VideoDocument, clipIds: readonly string[]): 
     if (result.clipId) {
       document = result.document;
       created.push(result.clipId);
+      renamed.set(id, result.clipId);
     }
   }
-  return { document, clipIds: created };
+  const fresh = new Set(created);
+  const relinked = produce(document, (draft) => {
+    for (const track of draft.tracks) track.clips = track.clips.map((c) => (fresh.has(c.id) ? remappedParents([c as Clip], renamed)[0] : c));
+  });
+  return { document: relinked, clipIds: created };
 }
 
 export function updateClip(doc: VideoDocument, clipId: string, patch: ClipPatch): VideoDocument {
   const found = findClip(doc, clipId);
   if (!found || found.track.locked) return doc;
+  const retexted = retextClipPatch(found.clip, patch);
+  const settled = "keyframes" in retexted ? { ...retexted, keyframes: settleSmooth(retexted.keyframes) } : retexted;
   return produce(doc, (draft) => {
     const target = locate(draft, clipId)!.clip;
-    Object.assign(target, patch);
+    Object.assign(target, settled);
     if (!target.keyframes) delete target.keyframes;
     target.volume = Math.max(0, Math.min(target.volume, STUDIO_LIMITS.maxVolume));
     clampFades(target);
+    if ("speed" in settled || "keyframes" in settled) mirrorPace(draft, target);
   });
+}
+
+function mirrorPace(draft: Draft<VideoDocument>, source: Draft<Clip>): void {
+  if (!source.linkId) return;
+  const keys = source.keyframes?.speed;
+  for (const track of draft.tracks) {
+    for (const partner of track.clips) {
+      if (partner.id === source.id || partner.linkId !== source.linkId || partner.startMs !== source.startMs || partner.durationMs !== source.durationMs) continue;
+      if (source.speed === undefined) delete partner.speed;
+      else partner.speed = source.speed;
+      const rest = { ...partner.keyframes };
+      delete rest.speed;
+      const next = keys ? { ...rest, speed: keys } : rest;
+      if (Object.keys(next).length > 0) partner.keyframes = next;
+      else delete partner.keyframes;
+    }
+  }
 }
 
 export interface SnapOptions {
@@ -425,9 +505,16 @@ export function snapCandidates(doc: VideoDocument, options: SnapOptions = {}): n
       if (exclude.has(c.id)) continue;
       points.add(c.startMs);
       points.add(clipEnd(c));
+      for (const placed of placedClipMarkers(c)) {
+        points.add(placed.startMs);
+        points.add(placed.endMs);
+      }
     }
   }
-  for (const marker of doc.markers ?? []) points.add(marker.atMs);
+  for (const marker of doc.markers ?? []) {
+    points.add(marker.atMs);
+    points.add(markerEndMs(marker));
+  }
   return [...points].sort((a, b) => a - b);
 }
 
@@ -469,7 +556,7 @@ export interface Placement {
 
 function placementOrder(doc: VideoDocument, clip: Clip, preferTrackId?: string): Track[] {
   const compatible = doc.tracks.filter((t) => !t.locked && trackAccepts(t.kind, clip.type));
-  const ordered = clip.type === "overlay" ? [...compatible].reverse() : compatible;
+  const ordered = clip.type === "overlay" || clip.type === "null" ? [...compatible].reverse() : compatible;
   const preferred = ordered.find((t) => t.id === preferTrackId);
   return preferred ? [preferred, ...ordered.filter((t) => t !== preferred)] : ordered;
 }
@@ -520,7 +607,7 @@ export function moveClipsBy(doc: VideoDocument, clipIds: readonly string[], delt
 export function setClipTrimIn(doc: VideoDocument, clipId: string, trimInMs: number, sourceDurationMs?: number): VideoDocument {
   const found = findClip(doc, clipId);
   if (!found || found.track.locked || !hasSourceTime(found.clip.type)) return doc;
-  const highest = sourceDurationMs === undefined ? Infinity : Math.max(0, sourceDurationMs - found.clip.durationMs);
+  const highest = sourceDurationMs === undefined ? Infinity : Math.max(0, sourceDurationMs - sourceSpanMs(found.clip));
   const next = Math.min(Math.max(0, Math.round(trimInMs)), highest);
   if (next === found.clip.trimInMs) return doc;
   return produce(doc, (draft) => {

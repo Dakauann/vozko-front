@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { firstInvalidStep, parseOperations, planBatch, type AgentOutcome, type AgentStep } from "./batch";
+import { firstInvalidStep, missingTarget, parseOperations, planBatch, refAsTargetReason, type AgentOutcome, type AgentStep } from "./batch";
 
 interface Counter {
   value: number;
@@ -88,6 +88,31 @@ describe("planBatch", () => {
     expect(plan).toMatchObject({ ok: false, index: 0 });
     if (plan.ok) return;
     expect(plan.reason).toContain("@later");
+  });
+
+  it("keeps refs inside their batch: the next batch uses the ids that created returned", () => {
+    const first = planBatch<Counter, Op>({ value: 0, items: [] }, [{ op: "add", ref: "titulo" }], apply, ["target"]);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    const stale = planBatch<Counter, Op>(first.final, [{ op: "bump", target: "@titulo" }], apply, ["target"]);
+    expect(stale.ok).toBe(false);
+    if (stale.ok) return;
+    expect(stale.reason).toContain("@titulo");
+    expect(stale.reason).toContain("uma ref vale só no lote que a cria");
+    expect(stale.reason).toContain("created");
+    const next = planBatch<Counter, Op>(first.final, [{ op: "bump", target: first.created.titulo[0], amount: 3 }], apply, ["target"]);
+    expect(next).toMatchObject({ ok: true, final: { value: 3, items: ["item-1"] } });
+  });
+
+  it("turns a missing target into a ref lesson when the operation carried a ref instead of the id", () => {
+    const needsTarget = (doc: Counter, op: Op): AgentOutcome<Counter> => (op.target ? apply(doc, op) : missingTarget("target", "informe target"));
+    const withRef = planBatch<Counter, Op>({ value: 0, items: [] }, [{ op: "bump", ref: "titulo" }], needsTarget, ["target"]);
+    expect(withRef.ok).toBe(false);
+    if (withRef.ok) return;
+    expect(withRef.reason).toBe(refAsTargetReason("titulo", "target"));
+    expect(withRef.reason).toContain("use target com o id que created devolveu para essa ref");
+    const plain = planBatch<Counter, Op>({ value: 0, items: [] }, [{ op: "bump" }], needsTarget, ["target"]);
+    expect(plain).toMatchObject({ ok: false, reason: "informe target" });
   });
 
   it("resolves refs inside id lists too", () => {

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { STUDIO_LIMITS, type Track, type TrackKind } from "@/lib/studio/document";
 import { mainTrackId } from "@/lib/studio/edits";
+import { shownTracks } from "@/lib/studio/organize";
 import { addTrack, snapCandidates, snapMs } from "@/lib/studio/timeline";
 import {
   anchoredScroll,
@@ -23,6 +24,7 @@ import {
   zoomBy,
   type Rect,
 } from "@/lib/studio/timeline-view";
+import { revealScroll, revealTarget, timelineWheel } from "@/lib/studio/timeline-scroll";
 import { gapAt } from "@/lib/studio/tools";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +34,12 @@ import { TRACK_HEIGHTS } from "../view-store";
 import { clipKind, kindFill } from "../clip-tones";
 import { BLADE_CURSOR } from "./cursors";
 import { FocusLanes, focusLanesHeight } from "./focus-lanes";
+import { TransitionChips } from "./transition-chips";
+import { Mixer } from "./mixer";
 import { FocusStrip } from "./focus-strip";
 import { Ruler } from "./ruler";
 import { TimelineBar } from "./timeline-bar";
+import { GroupBreadcrumb } from "./group-breadcrumb";
 import { TimelineClip } from "./timeline-clip";
 import { TimelineContextMenu, type MenuTarget } from "./timeline-context-menu";
 import {
@@ -51,7 +56,10 @@ import {
   type TimelineScrollStore,
 } from "./timeline-geometry";
 import { TimelineOverview } from "./timeline-overview";
+import { acceptLibraryDrag, takeDroppedItem } from "@/components/studio/library/drag";
+import { useVideoLibrary } from "../library-adapter";
 import { TrackHeader } from "./track-header";
+import { LaneMarkers } from "./marker-flag";
 
 const COLLAPSED_LANE = 18;
 const EDGE_SCROLL_STEP = 18;
@@ -75,16 +83,19 @@ function AtScroll({ scroll, children }: { scroll: TimelineScrollStore; children:
 export function Timeline() {
   const t = useTranslations("studio.video.timeline");
   const { store, view, playback, commands } = useVideoEditor();
+  const library = useVideoLibrary();
   const document = useEditorState((s) => s.document);
   const selection = useEditorState((s) => s.selection);
   const pxPerSecond = useViewState((s) => s.pxPerSecond);
   const snapGuideMs = useViewState((s) => s.snapGuideMs);
   const trackHeight = useViewState((s) => s.trackHeight);
+  const mixerOpen = useViewState((s) => s.mixerOpen);
   const tool = useViewState((s) => s.tool);
   const range = useViewState((s) => s.range);
   const selectedGap = useViewState((s) => s.selectedGap);
   const feedback = useViewState((s) => s.feedback);
   const focus = useViewState((s) => s.focus);
+  const graphEditor = useViewState((s) => s.graphEditor);
   const scroller = useRef<HTMLDivElement>(null);
   const lanesRef = useRef<HTMLDivElement>(null);
   const [scroll] = useState(createTimelineScroll);
@@ -93,9 +104,15 @@ export function Timeline() {
   const [dropLane, setDropLane] = useState<string | null>(null);
   const [bladeHover, setBladeHover] = useState<{ trackId: string; ms: number } | null>(null);
   const [menuTarget, setMenuTarget] = useState<MenuTarget | null>(null);
+  const pointerInside = useRef(false);
+  const pendingReveal = useRef<string | null>(null);
+  const [revealRequest, setRevealRequest] = useState(0);
   const previousZoom = useRef(pxPerSecond);
   const wheelAnchor = useRef<{ ms: number; viewportPx: number } | null>(null);
-  const lanes = useMemo(() => laneOrder(document.tracks), [document.tracks]);
+  const showShy = useViewState((s) => s.showShy);
+  const focusHome = focus ? (document.tracks.find((track) => track.clips.some((c) => c.id === focus.clipId))?.id ?? null) : null;
+  const shown = useMemo(() => shownTracks(document.tracks, showShy, focusHome), [document.tracks, showShy, focusHome]);
+  const lanes = useMemo(() => laneOrder(shown), [shown]);
   const names = useDefaultTrackNames(document.tracks);
   const main = mainTrackId(document);
   const selected = useMemo(() => new Set(selection), [selection]);
@@ -106,9 +123,9 @@ export function Timeline() {
     (track: Track) => {
       if (focusTrackId && track.id !== focusTrackId) return COLLAPSED_LANE;
       const base = heights[track.kind];
-      return track.id === focusTrackId && focusClip ? base + focusLanesHeight() : base;
+      return track.id === focusTrackId && focusClip ? base + focusLanesHeight(focusClip, graphEditor) : base;
     },
-    [focusTrackId, focusClip, heights],
+    [focusTrackId, focusClip, heights, graphEditor],
   );
   const heightOf = useCallback((kind: TrackKind) => heights[kind], [heights]);
   const tops = useMemo(() => stackTops(lanes.map(heightOfTrack)), [lanes, heightOfTrack]);
@@ -180,24 +197,64 @@ export function Timeline() {
     const element = scroller.current;
     if (!element) return;
     const onWheel = (event: WheelEvent) => {
-      if (event.ctrlKey || event.metaKey || event.altKey) {
-        event.preventDefault();
-        const rect = element.getBoundingClientRect();
-        const viewportPx = Math.max(0, event.clientX - rect.left - HEADER_WIDTH);
-        const { pxPerSecond: current } = view.getState();
-        wheelAnchor.current = { ms: pxToMs(element.scrollLeft + viewportPx, current), viewportPx };
-        view.setState({ pxPerSecond: zoomBy(current, event.deltaY < 0 ? 1 : -1) });
+      const intent = timelineWheel(event, element.clientHeight);
+      if (intent.kind === "native") return;
+      event.preventDefault();
+      if (intent.kind === "horizontal") {
+        element.scrollLeft += intent.px;
         return;
       }
-      if (event.shiftKey) return;
-      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
-        event.preventDefault();
-        element.scrollLeft += event.deltaY;
-      }
+      if (intent.steps === 0) return;
+      const rect = element.getBoundingClientRect();
+      const viewportPx = Math.max(0, event.clientX - rect.left - HEADER_WIDTH);
+      const { pxPerSecond: current } = view.getState();
+      wheelAnchor.current = { ms: pxToMs(element.scrollLeft + viewportPx, current), viewportPx };
+      view.setState({ pxPerSecond: zoomBy(current, intent.steps) });
     };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
   }, [view]);
+
+  useEffect(() => {
+    const release = () => {
+      pointerInside.current = false;
+    };
+    window.addEventListener("pointerup", release, true);
+    window.addEventListener("pointercancel", release, true);
+    return () => {
+      window.removeEventListener("pointerup", release, true);
+      window.removeEventListener("pointercancel", release, true);
+    };
+  }, []);
+
+  useEffect(
+    () =>
+      store.subscribe((state, previous) => {
+        if (state.selection === previous.selection || pointerInside.current) return;
+        const target = revealTarget(previous.selection, state.selection);
+        if (!target) return;
+        pendingReveal.current = target;
+        setRevealRequest((count) => count + 1);
+      }),
+    [store],
+  );
+
+  useEffect(() => {
+    const element = scroller.current;
+    const target = pendingReveal.current;
+    pendingReveal.current = null;
+    if (!element || !target) return;
+    const index = lanes.findIndex((track) => track.clips.some((c) => c.id === target));
+    const clip = index < 0 ? undefined : lanes[index].clips.find((c) => c.id === target);
+    if (!clip) return;
+    const offsets = revealScroll(
+      { top: tops[index], height: heightOfTrack(lanes[index]), left: msToPx(clip.startMs, pxPerSecond), width: msToPx(clip.durationMs, pxPerSecond) },
+      { scrollTop: element.scrollTop, scrollLeft: element.scrollLeft, width: element.clientWidth - HEADER_WIDTH, height: element.clientHeight - RULER_HEIGHT },
+    );
+    if (offsets.top === null && offsets.left === null) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    element.scrollTo({ top: offsets.top ?? element.scrollTop, left: offsets.left ?? element.scrollLeft, behavior: still ? "auto" : "smooth" });
+  }, [revealRequest, lanes, tops, heightOfTrack, pxPerSecond]);
 
   const timeAt = useCallback(
     (clientX: number) => {
@@ -264,7 +321,7 @@ export function Timeline() {
     const bounds = element.getBoundingClientRect();
     const rect = normalizedRect(marquee.x - bounds.left, marquee.y - bounds.top, event.clientX - bounds.left, event.clientY - bounds.top);
     setMarquee({ ...marquee, rect });
-    const hits = idsInMarquee(laneBoxes(document.tracks, pxPerSecond, (kind) => heights[kind]), rect);
+    const hits = idsInMarquee(laneBoxes(shown, pxPerSecond, (kind) => heights[kind]), rect);
     commands.selectClips([...new Set([...marquee.base, ...hits])]);
   };
 
@@ -296,6 +353,7 @@ export function Timeline() {
   };
 
   const onDragOver = (trackId: string) => (event: DragEvent<HTMLDivElement>) => {
+    if (acceptLibraryDrag(event)) return setDropLane(trackId);
     if (!event.dataTransfer.types.includes(MEDIA_DRAG_TYPE)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
@@ -304,6 +362,8 @@ export function Timeline() {
 
   const onDrop = (trackId: string) => (event: DragEvent<HTMLDivElement>) => {
     setDropLane(null);
+    const atMs = snappedTime(event.clientX);
+    if (takeDroppedItem(event, (item) => library.insertAt(item, { atMs, trackId }), library.find)) return;
     const media = readDraggedMedia(event.dataTransfer);
     if (!media) return;
     event.preventDefault();
@@ -333,6 +393,7 @@ export function Timeline() {
     <TimelineGeometryContext.Provider value={geometry}>
       <section aria-label={t("label")} data-tour="studio-video-timeline" data-studio-timeline className="flex h-full min-h-0 select-none flex-col bg-card text-foreground [&_input]:select-text [&_textarea]:select-text">
         <TimelineBar onAddTrack={addLane} />
+        <GroupBreadcrumb />
         {focusClip ? <FocusStrip clip={focusClip} /> : null}
         <AtScroll scroll={scroll}>
           {(scrollLeft) => (
@@ -346,11 +407,19 @@ export function Timeline() {
               range={range}
               onScroll={scrollTo}
               onSeek={(ms) => playback.seek(ms)}
+              onScrub={commands.setScrubbing}
               onZoomRange={zoomRange}
             />
           )}
         </AtScroll>
-        <div ref={scroller} className="relative min-h-0 flex-1 overflow-auto overscroll-contain">
+        <div
+          ref={scroller}
+          data-studio-timeline-scroller
+          className="relative min-h-0 flex-1 overflow-auto overscroll-contain"
+          onPointerDownCapture={() => {
+            pointerInside.current = true;
+          }}
+        >
           <div className="relative" style={{ width: HEADER_WIDTH + contentWidth, minHeight: "100%" }}>
             <div className="sticky top-0 z-30 flex border-b border-border-strong bg-card" style={{ height: RULER_HEIGHT }}>
               <div className="sticky left-0 z-40 flex shrink-0 items-center border-r border-border-strong bg-card px-2" style={{ width: HEADER_WIDTH }}>
@@ -367,7 +436,11 @@ export function Timeline() {
                     markers={document.markers ?? []}
                     range={range}
                     onSeek={(ms) => playback.seek(ms)}
-                    onScrubStart={() => playback.pause()}
+                    onScrubStart={() => {
+                      playback.pause();
+                      commands.setScrubbing(true);
+                    }}
+                    onScrubEnd={() => commands.setScrubbing(false)}
                     timeAt={timeAt}
                   />
                 )}
@@ -429,10 +502,11 @@ export function Timeline() {
                           track.clips.map((clip) => <TimelineClip key={clip.id} clip={clip} track={track} selected={selected.has(clip.id)} />)
                         )}
                         {track.id === focusTrackId && focusClip ? (
-                          <div className="absolute inset-x-0 bottom-0" style={{ height: focusLanesHeight() }}>
+                          <div className="absolute inset-x-0 bottom-0" style={{ height: focusLanesHeight(focusClip, graphEditor) }}>
                             <FocusLanes clip={focusClip} />
                           </div>
                         ) : null}
+                        {collapsed ? null : <TransitionChips track={track} />}
                         {selectedGap?.trackId === track.id ? (
                           <span
                             aria-label={t("gapSelected")}
@@ -450,7 +524,7 @@ export function Timeline() {
                       </div>
                     );
                   })}
-                  {lanes.length === 0 ? <p className="p-4 text-xs text-muted-foreground">{t("noTracks")}</p> : null}
+                  {lanes.length === 0 ? <p className="p-4 text-xs text-muted-foreground">{document.tracks.length > 0 ? t("allShy") : t("noTracks")}</p> : null}
                   {rangeIn !== null && rangeOut !== null && rangeOut > rangeIn ? (
                     <span
                       aria-hidden
@@ -458,9 +532,7 @@ export function Timeline() {
                       style={{ left: msToPx(rangeIn, pxPerSecond), width: msToPx(rangeOut - rangeIn, pxPerSecond) }}
                     />
                   ) : null}
-                  {(document.markers ?? []).map((marker) => (
-                    <span key={marker.id} aria-hidden className="pointer-events-none absolute inset-y-0 z-[5] w-px bg-border-strong" style={{ left: msToPx(marker.atMs, pxPerSecond) }} />
-                  ))}
+                  <LaneMarkers markers={document.markers ?? []} pxPerSecond={pxPerSecond} />
                   {snapGuideMs !== null ? (
                     <span aria-hidden className="pointer-events-none absolute inset-y-0 z-10 w-px bg-primary" style={{ left: msToPx(snapGuideMs, pxPerSecond) }} />
                   ) : null}
@@ -477,6 +549,7 @@ export function Timeline() {
             </div>
           </div>
         </div>
+        {mixerOpen ? <Mixer /> : null}
         {feedback ? (
           <span
             role="status"
@@ -484,6 +557,7 @@ export function Timeline() {
             style={{ left: feedback.x + 14, top: feedback.y - 28 }}
           >
             {signedSmpte(feedback.deltaMs)}
+            {feedback.limit ? <span className="ml-1.5 font-sans text-destructive-ink">{t(`limits.${feedback.limit}`)}</span> : null}
           </span>
         ) : null}
       </section>

@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 import { NOTICE_MS } from "../editor-notice";
 
-export type SelectionMessage = Refusal | "copied" | "noKeys" | "clipboardEmpty";
+export type SelectionMessage = Refusal | "copied" | "noKeys" | "clipboardEmpty" | "anchorMoment";
 
-const INFO_MESSAGES: ReadonlySet<SelectionMessage> = new Set<SelectionMessage>(["copied"]);
+const INFO_MESSAGES: ReadonlySet<SelectionMessage> = new Set<SelectionMessage>(["copied", "anchorMoment"]);
 
 interface NoticeState {
   message: SelectionMessage | null;

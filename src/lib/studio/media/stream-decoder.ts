@@ -35,13 +35,13 @@ export class StreamDecoder<P> {
     private readonly emit: (event: StreamEvent<P>) => void,
   ) {}
 
-  seek(generation: number, seconds: number): void {
+  seek(generation: number, seconds: number, until?: number): void {
     if (this.closed) return;
     this.generation = generation;
     this.target = seconds;
     this.inFlight = 0;
     this.wake();
-    void this.run(generation, seconds);
+    void this.run(generation, seconds, until);
   }
 
   want(seconds: number): void {
@@ -64,15 +64,17 @@ export class StreamDecoder<P> {
     return !this.closed && generation === this.generation;
   }
 
-  private async run(generation: number, from: number): Promise<void> {
+  private async run(generation: number, from: number, until?: number): Promise<void> {
     const reader = await this.reader;
     if (!reader) return this.fail();
     if (!this.current(generation)) return;
     const samples = reader.samples(from);
     try {
-      while (await this.room(generation)) {
+      while (await this.room(generation, until !== undefined)) {
         const next = await samples.next();
-        if (next.done) {
+        const past = !next.done && until !== undefined && next.value.timestamp > until + FRAME_EPSILON_SEC;
+        if (next.done || past) {
+          if (past) next.value.close();
           if (this.current(generation)) this.emit({ kind: "end", generation });
           return;
         }
@@ -108,8 +110,8 @@ export class StreamDecoder<P> {
     this.emit({ kind: "failed" });
   }
 
-  private async room(generation: number): Promise<boolean> {
-    while (this.current(generation) && this.inFlight >= MAX_IN_FLIGHT) await new Promise<void>((resolve) => this.waiting.push(resolve));
+  private async room(generation: number, bounded: boolean): Promise<boolean> {
+    while (this.current(generation) && !bounded && this.inFlight >= MAX_IN_FLIGHT) await new Promise<void>((resolve) => this.waiting.push(resolve));
     return this.current(generation);
   }
 

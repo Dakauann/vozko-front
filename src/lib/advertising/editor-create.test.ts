@@ -68,3 +68,43 @@ describe("create choice", () => {
     expect(createdLevels({ kind: "existing", campaign, adSet })).toEqual(["ad"]);
   });
 });
+
+describe("a creative chosen before the draft", () => {
+  const studioImage = { kind: "image" as const, mediaId: "m-1" };
+  const studioVideo = { kind: "video" as const, mediaId: "m-2" };
+  const engagementRoutes: AdObjectiveRoute[] = [
+    { destination: "ON_POST", goals: ["POST_ENGAGEMENT"] },
+    { destination: "WHATSAPP", goals: ["CONVERSATIONS"] },
+  ];
+
+  it("puts an exported image into the first ad as an image creative", () => {
+    const form = initialForm("acc-1", { kind: "new", objective: "OUTCOME_LEADS" }, leadRoutes, names, studioImage);
+    expect(buildDraft(form, context).ads[0].creative).toMatchObject({ format: "IMAGE", media: studioImage });
+  });
+
+  it("puts an exported video into the first ad as a video creative", () => {
+    const form = initialForm("acc-1", { kind: "existing", campaign, adSet }, leadRoutes, names, studioVideo);
+    expect(buildDraft(form, context).ads[0].creative).toMatchObject({ format: "VIDEO", media: studioVideo });
+  });
+
+  it("moves to the first destination that can show the media", () => {
+    const form = initialForm("acc-1", { kind: "new", objective: "OUTCOME_ENGAGEMENT" }, engagementRoutes, names, studioImage);
+    const draft = buildDraft(form, context);
+    expect(draft.adSet.destination).toBe("WHATSAPP");
+    expect(draft.ads[0].creative).toMatchObject({ format: "IMAGE", media: studioImage });
+  });
+
+  it("leaves the form alone when no destination of the choice shows own media", () => {
+    const postOnly: AdObjectiveRoute[] = [{ destination: "ON_POST", goals: ["POST_ENGAGEMENT"] }];
+    const plain = initialForm("acc-1", { kind: "new", objective: "OUTCOME_ENGAGEMENT" }, postOnly, names);
+    const chosen = initialForm("acc-1", { kind: "new", objective: "OUTCOME_ENGAGEMENT" }, postOnly, names, studioImage);
+    expect(buildDraft(chosen, context)).toEqual(buildDraft(plain, context));
+  });
+
+  it("keeps the destination of an existing ad set even when it cannot show the media", () => {
+    const postSet = { ...adSet, destination: "ON_POST", goal: "POST_ENGAGEMENT" };
+    const form = initialForm("acc-1", { kind: "existing", campaign, adSet: postSet }, leadRoutes, names, studioImage);
+    expect(buildDraft(form, context).adSet.destination).toBe("ON_POST");
+    expect(buildDraft(form, context).ads[0].creative.media).toBeUndefined();
+  });
+});

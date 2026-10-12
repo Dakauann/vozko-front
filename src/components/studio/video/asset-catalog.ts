@@ -5,6 +5,7 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 import { isActionError } from "@/app/actions/action-result";
 import { getMediaAction, listLibraryAction } from "@/app/actions/medias";
 import type { Media } from "@/lib/medias/types";
+import { builtinSound, isSoundAsset } from "@/lib/studio/builtin-sounds";
 import { clipTypeForMedia } from "@/lib/studio/media-clips";
 
 export type AssetStatus = "loading" | "ready" | "missing";
@@ -37,6 +38,12 @@ export interface AssetCatalog {
 }
 
 const PROBE_TIMEOUT_MS = 15_000;
+
+export function soundEntry(assetId: string): AssetEntry {
+  const sound = builtinSound(assetId);
+  if (!sound) return { status: "missing", media: null };
+  return { status: "ready", media: { id: assetId, description: sound.id, url: sound.file, previewUrl: "", createdAt: "", type: "audio" }, durationMs: sound.durationMs };
+}
 
 function probeDuration(url: string, kind: "audio" | "video"): Promise<number | undefined> {
   return new Promise((resolve) => {
@@ -82,6 +89,11 @@ export function createAssetCatalog(): AssetCatalog {
   const ensure = (assetId: string): Promise<AssetEntry> => {
     const known = store.getState().assets[assetId];
     if (known && known.status !== "loading") return Promise.resolve(known);
+    if (isSoundAsset(assetId)) {
+      const entry = soundEntry(assetId);
+      put(assetId, entry);
+      return Promise.resolve(entry);
+    }
     const running = pending.get(assetId);
     if (running) return running;
     put(assetId, { status: "loading", media: null });

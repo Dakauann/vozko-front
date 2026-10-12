@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clampClipTransform, moveBox, pointInBox, resizeBox, rotateBox, topmostAt } from "./clip-transform";
+import { clampClipTransform, moveBox, pointInBox, resizeBox, rotateBox, stackAt, topmostAt } from "./clip-transform";
 
 const box = { x: 0.5, y: 0.5, w: 0.4, h: 0.2, rotation: 0, opacity: 1 };
 
@@ -64,5 +64,28 @@ describe("hit testing", () => {
     expect(topmostAt(items, 0.2, 0.2, 1)?.id).toBe("top");
     expect(topmostAt(items, 0.8, 0.8, 1)?.id).toBe("bottom");
     expect(topmostAt(items, 2, 2, 1)).toBeNull();
+  });
+});
+
+describe("stackAt", () => {
+  const full = { x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 1 };
+
+  it("orders every item under the point from the top down", () => {
+    const items = [
+      { id: "bottom", zIndex: 1, transform: full },
+      { id: "top", zIndex: 3, transform: { ...full, w: 0.2, h: 0.2 } },
+      { id: "middle", zIndex: 2, transform: full },
+    ];
+    expect(stackAt(items, 0.5, 0.5, 1).map((item) => item.id)).toEqual(["top", "middle", "bottom"]);
+    expect(stackAt(items, 0.9, 0.9, 1).map((item) => item.id)).toEqual(["middle", "bottom"]);
+  });
+
+  it("puts the later item first when two share a level, as they are drawn", () => {
+    const items = [
+      { id: "outgoing", zIndex: 1, transform: full },
+      { id: "incoming", zIndex: 1, transform: full },
+    ];
+    expect(stackAt(items, 0.5, 0.5, 1).map((item) => item.id)).toEqual(["incoming", "outgoing"]);
+    expect(topmostAt(items, 0.5, 0.5, 1)?.id).toBe("incoming");
   });
 });

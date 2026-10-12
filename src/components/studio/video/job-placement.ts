@@ -6,7 +6,9 @@ import { captionsFromText, type CaptionsOutcome } from "@/lib/studio/captions";
 import type { VideoDocument } from "@/lib/studio/document";
 import { generatedClipType } from "@/lib/studio/job-sources";
 import type { StudioEditorStore } from "@/lib/studio/store";
-import { findClip, replaceClipAsset } from "@/lib/studio/timeline";
+import { clipSlotAsset, withSlotAsset } from "@/lib/studio/image-sources";
+import { jobLanding } from "@/lib/studio/job-landing";
+import { findClip, replaceClipAsset, updateClip } from "@/lib/studio/timeline";
 
 import type { AssetCatalog } from "./asset-catalog";
 import type { EditorCommands } from "./editor-commands";
@@ -19,7 +21,7 @@ export interface PlacementDeps {
   captionTrackName: string;
 }
 
-export type PlacementProblem = "captionsUnreadable" | "captionsEmpty" | "captionsInvalid" | "noRoom" | "clipGone" | "clipLocked";
+export type PlacementProblem = "captionsUnreadable" | "captionsEmpty" | "captionsInvalid" | "noRoom" | "clipGone" | "clipChanged" | "clipLocked";
 
 export type CaptionRefusal = Exclude<CaptionsOutcome["status"], "added">;
 
@@ -48,8 +50,12 @@ async function placeCaptions(job: VideoJob, mediaId: string, deps: PlacementDeps
 function swapAsset(job: VideoJob, mediaId: string, deps: PlacementDeps): PlacementProblem | null {
   const clipId = job.target.clipId;
   const { document, apply } = deps.store.getState();
-  if (!clipId || !findClip(document, clipId)) return "clipGone";
-  const next = replaceClipAsset(document, clipId, mediaId);
+  const found = clipId ? findClip(document, clipId) : null;
+  if (!clipId || !found) return "clipGone";
+  const { slot } = job.target;
+  if (jobLanding(job.startedFrom, clipSlotAsset(found.clip, slot)) !== "inPlace") return "clipChanged";
+  const layer = found.clip.layer;
+  const next = slot !== undefined && layer ? updateClip(document, clipId, { layer: { ...layer, ...withSlotAsset(layer, slot, mediaId) } }) : replaceClipAsset(document, clipId, mediaId);
   if (next === document) return "clipLocked";
   apply(() => next, [clipId]);
   return null;
@@ -65,10 +71,14 @@ export async function placeJobResult(job: VideoJob, mediaId: string, deps: Place
       return swapAsset(job, mediaId, deps);
     case "music":
     case "voice":
+    case "sfx":
     case "image": {
       await deps.assets.loadLibrary();
       const placed = await deps.commands.insertMedia({ id: mediaId, type: generatedClipType(job.purpose) }, job.target.atMs, job.target.trackId, job.target.durationMs);
-      return placed ? null : "noRoom";
+      if (!placed) return "noRoom";
+      const clipId = deps.store.getState().selection[0];
+      if (job.target.thenCutout && clipId) void deps.commands.startJob("cutout", { kind: "cutout", sourceMediaId: mediaId }, { clipId });
+      return null;
     }
   }
 }

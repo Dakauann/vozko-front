@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyVideoDocument, newMediaClip, type VideoDocument } from "./document";
-import { KEYFRAME_LIMITS, valueAt, type Keyframes } from "./keyframes";
+import { valueAt, type Keyframes } from "./keyframes";
 import { duplicateClips, findClip, insertClip, splitClip, timelineKeyframeCount, trimClipStart, updateClip } from "./timeline";
 import { parseDocument } from "./validate";
 
@@ -48,7 +48,7 @@ describe("keyframes follow timeline edits", () => {
   });
 
   it("keeps animating clips without a timeline-wide keyframe budget", () => {
-    const per = KEYFRAME_LIMITS.perProperty;
+    const per = 64;
     let doc = emptyVideoDocument("story");
     for (let at = 0; at < 30_000; at += 1000) doc = insertClip(doc, doc.tracks[0].id, { ...newMediaClip("image", asset, at, 1000), keyframes: full(per) }).document;
     expect(timelineKeyframeCount(doc)).toBe(30 * per);

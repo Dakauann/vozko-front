@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 
 import { requestMediaGenerationAction } from "@/app/actions/media-generation";
 import TourGuide, { type TourStep } from "@/components/TourGuide";
-import { loadAssetImage } from "@/components/studio/canvas/asset-images";
+import { assetNaturalSize } from "@/components/studio/canvas/asset-images";
 import { useStudioAgent, useStudioAgentKit } from "@/components/studio/agent/use-studio-agent";
+import { StoreGestures } from "@/components/studio/canvas/live-gesture";
 import { asUploadableImage } from "@/components/studio/canvas/uploadable-image";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { StudioEditorMountProps } from "@/components/studio/studio-editor-shell";
@@ -20,24 +21,26 @@ import { imageFilesFrom } from "@/lib/studio/clipboard-files";
 import { newTextLayer, STUDIO_LIMITS } from "@/lib/studio/document";
 import { isEditableTarget } from "@/lib/studio/keymap";
 import { createStudioStore } from "@/lib/studio/store";
+import { settleImage } from "@/lib/studio/image-settle";
+import { relayoutDocument } from "@/lib/studio/auto-layout";
+import { createHugMeasure } from "@/components/studio/canvas/hug-measure";
+import { artboardNames } from "@/lib/studio/artboards";
 
 import { CanvasArea } from "./canvas-area";
+import { artboardTitle } from "./export-artboards";
 import { createImageCommands } from "./commands";
 import { bindEditorKeys } from "./editor-keys";
 import { EditorToolbar } from "./editor-toolbar";
+import { PixelOptions } from "./pixel-toolbar";
 import { createEditorUiStore, ImageEditorContext, PANEL_IDS, type ImageEditorContextValue, type PanelId } from "./editor-state";
-import { createImageAgent } from "./image-agent";
+import { createImageAgent, createImageReveal } from "./image-agent";
 import { uploadImageFile } from "./image-source-picker";
 import { RightDock } from "./right-dock";
+import { EditWithAiDialog } from "./edit-with-ai";
 import { ImageAgentCursor, JobFollowers } from "./jobs";
 import { SideRail } from "./side-rail";
 
 export type ImageEditorProps = StudioEditorMountProps<"image">;
-
-async function naturalSize(assetId: string) {
-  const image = await loadAssetImage(assetId);
-  return { width: image.naturalWidth, height: image.naturalHeight };
-}
 
 function hasPageSelection(): boolean {
   return (window.getSelection()?.toString() ?? "") !== "";
@@ -54,16 +57,39 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
   const svgFeedback = useSvgFeedback();
   const shapeFeedback = useShapeOpFeedback();
   const [editor] = useState(() => {
-    const store = createStudioStore(project.document);
+    let relayout = () => undefined;
+    const measure = createHugMeasure(() => relayout());
+    const store = createStudioStore(project.document, { settle: (before, after) => settleImage(before, after, measure) });
+    relayout = () => void store.getState().applyAs("hug-fonts", (doc) => relayoutDocument(doc, measure));
     const ui = createEditorUiStore();
-    const commands = createImageCommands(store, ui, { requestJob: requestMediaGenerationAction, naturalSize });
-    return { store, ui, commands };
+    const commands = createImageCommands(store, ui, { requestJob: requestMediaGenerationAction, naturalSize: assetNaturalSize, measure });
+    return { store, ui, commands, measure };
   });
   const projectName = studio.name ?? project.name;
-  const value = useMemo<ImageEditorContextValue>(() => ({ ...editor, projectName }), [editor, projectName]);
+  const projectId = project.id;
+  const value = useMemo<ImageEditorContextValue>(() => ({ ...editor, projectId, projectName }), [editor, projectId, projectName]);
   const kit = useStudioAgentKit();
-  const agent = useMemo(() => createImageAgent({ ...editor, naturalSize, presence: kit.presence, label: kit.label, reduceMotion: kit.reduceMotion }), [editor, kit]);
-  useStudioAgent(project.id, "image", projectName, agent);
+  const untitled = useTranslations("studio.image.artboards");
+  const agent = useMemo(
+    () =>
+      createImageAgent({
+        ...editor,
+        naturalSize: assetNaturalSize,
+        presence: kit.presence,
+        label: kit.label,
+        reduceMotion: kit.reduceMotion,
+        library: kit.library,
+        projectId,
+        projectName,
+        exportTitle: (artboardId) => {
+          const artboards = editor.store.getState().document.artboards;
+          return artboardTitle(projectName, artboardNames(artboards, (position) => untitled("untitled", { number: position })), artboards.length, artboardId);
+        },
+      }),
+    [editor, kit, untitled, projectId, projectName],
+  );
+  const reveal = useMemo(() => createImageReveal(editor), [editor]);
+  useStudioAgent(project.id, "image", projectName, agent, reveal);
   const { presence } = kit;
   const edit = useRef(studio.edit);
 
@@ -80,7 +106,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
     });
   }, [editor.store]);
 
-  useEffect(() => bindEditorKeys(window, { commands: editor.commands, ui: editor.ui, isBusy: presence.isBusy, onShapeOp: shapeFeedback }), [editor, presence, shapeFeedback]);
+  useEffect(() => bindEditorKeys(window, { commands: editor.commands, ui: editor.ui, onShapeOp: shapeFeedback }), [editor, shapeFeedback]);
 
   useEffect(() => {
     const { commands } = editor;
@@ -138,9 +164,11 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
 
   return (
     <ImageEditorContext.Provider value={value}>
+      <StoreGestures store={value.store}>
       <TooltipProvider delayDuration={400}>
       <div className="flex h-full min-h-0 flex-col">
         <EditorToolbar />
+        <PixelOptions />
         <div className="flex min-h-0 flex-1">
           <SideRail />
           <CanvasArea />
@@ -148,6 +176,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
         </div>
       </div>
       <JobFollowers />
+      <EditWithAiDialog />
       <ImageAgentCursor presence={presence} />
       <TourGuide
         steps={studioImageTourSteps}
@@ -161,6 +190,7 @@ export function ImageEditor({ project, studio }: ImageEditorProps) {
         }}
       />
       </TooltipProvider>
+      </StoreGestures>
     </ImageEditorContext.Provider>
   );
 }

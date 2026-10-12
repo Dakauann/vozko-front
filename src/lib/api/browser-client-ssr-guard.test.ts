@@ -1,9 +1,17 @@
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { apiClient, refreshSession } from "@/lib/api/browser-client";
 
 describe("browser-client SSR guard", () => {
+  beforeEach(() => {
+    vi.stubGlobal("window", undefined);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("apiClient rejects when called on the server (no window)", async () => {
     await expect(apiClient("/anything")).rejects.toThrow(/browser-only/i);
   });

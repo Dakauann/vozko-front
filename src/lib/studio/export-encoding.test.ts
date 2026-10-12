@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { exportFrameCount, exportFrameMs, exportFrameUs, exportSamples } from "./export-encoding";
+import { STUDIO_LIMITS } from "./document";
+import { EXPORT_AUDIO_BITRATE, EXPORT_SIZE_MARGIN, EXPORT_VIDEO_BITRATE, exportFrameCount, exportFrameMs, exportFrameUs, exportSamples, MAX_BROWSER_EXPORT_BYTES } from "./export-encoding";
+
+describe("export size", () => {
+  it("holds the longest video at the export bitrates with a margin", () => {
+    const worst = ((EXPORT_VIDEO_BITRATE + EXPORT_AUDIO_BITRATE) / 8) * (STUDIO_LIMITS.maxVideoMs / 1000) * EXPORT_SIZE_MARGIN;
+    expect(MAX_BROWSER_EXPORT_BYTES).toBeGreaterThanOrEqual(worst);
+    expect(MAX_BROWSER_EXPORT_BYTES).toBe(512 * 1024 * 1024);
+  });
+});
 
 describe("export frame clock", () => {
   it("covers the whole timeline at 30 frames per second, like the server render", () => {

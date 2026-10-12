@@ -57,6 +57,16 @@ describe("stream decoder", () => {
     expect(state.closed).toBe(log.frames().length);
   });
 
+  it("decodes a bounded window in one pass and stops after the frame that covers its end", async () => {
+    const { reader } = fakeReader(40);
+    const log = record();
+    const decoder = new StreamDecoder(Promise.resolve(reader), log.emit);
+    decoder.seek(1, 1, 2.05);
+    await settle();
+    expect(steps(log.frames())).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+    expect(log.events.at(-1)).toEqual({ kind: "end", generation: 1 });
+  });
+
   it("skips frames the playhead has already passed", async () => {
     const { reader } = fakeReader(20);
     const log = record();

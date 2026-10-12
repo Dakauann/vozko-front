@@ -3,22 +3,54 @@
 import { useEffect, useRef, useState } from "react";
 
 import { loadMediaFile } from "./media-files";
+import { AssetUnavailableError, decodeImageElement, decodePicture, type DecodedPicture } from "./picture-decode";
 
-export class AssetUnavailableError extends Error {
-  constructor(readonly source: string) {
-    super(`studio asset ${source} could not be loaded`);
-  }
-}
+export { AssetUnavailableError };
 
 const assets = new Map<string, Promise<HTMLImageElement>>();
 
 function decode(src: string, source: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new window.Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new AssetUnavailableError(source));
-    image.src = src;
+  return decodeImageElement(src).catch((error: unknown) => {
+    throw new AssetUnavailableError(source, error instanceof Error ? error.message : undefined);
   });
+}
+
+interface HeldPicture {
+  loading: Promise<DecodedPicture>;
+  holders: number;
+}
+
+const pictures = new Map<string, HeldPicture>();
+
+function closePicture(picture: DecodedPicture): void {
+  if ("close" in picture) picture.close();
+}
+
+export function acquireAssetPicture(assetId: string): Promise<DecodedPicture> {
+  const held = pictures.get(assetId);
+  if (held) {
+    held.holders += 1;
+    return held.loading;
+  }
+  const loading = loadMediaFile(assetId).then((file) => {
+    if (!file || !file.contentType.startsWith("image/")) throw new AssetUnavailableError(assetId, "not an image");
+    return decodePicture(file, assetId);
+  });
+  const entry: HeldPicture = { loading, holders: 1 };
+  pictures.set(assetId, entry);
+  loading.catch(() => {
+    if (pictures.get(assetId) === entry) pictures.delete(assetId);
+  });
+  return loading;
+}
+
+export function releaseAssetPicture(assetId: string): void {
+  const held = pictures.get(assetId);
+  if (!held) return;
+  held.holders -= 1;
+  if (held.holders > 0) return;
+  pictures.delete(assetId);
+  void held.loading.then(closePicture, () => undefined);
 }
 
 export function loadAssetImage(assetId: string): Promise<HTMLImageElement> {
@@ -31,6 +63,11 @@ export function loadAssetImage(assetId: string): Promise<HTMLImageElement> {
   assets.set(assetId, loading);
   loading.catch(() => assets.delete(assetId));
   return loading;
+}
+
+export async function assetNaturalSize(assetId: string): Promise<{ width: number; height: number }> {
+  const image = await loadAssetImage(assetId);
+  return { width: image.naturalWidth, height: image.naturalHeight };
 }
 
 export function loadUrlImage(src: string): Promise<HTMLImageElement> {

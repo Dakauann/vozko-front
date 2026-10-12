@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyArtboard, newShapeLayer, type Layer } from "./document";
-import { snapMove, snapTargets } from "./snapping";
+import { boundsTargets, frameTargets, measureGaps, mergeTargets, snapMove, snapTargets } from "./snapping";
 
 const canvas = { width: 1000, height: 1000 };
 
@@ -46,5 +46,41 @@ describe("snapMove", () => {
     const result = snapMove({ left: 1, top: 300, right: 501, bottom: 400 }, { x: [0, 500], y: [] }, 5);
     expect(result.dx).toBe(-1);
     expect(result.guides.vertical).toEqual([0, 500]);
+  });
+});
+
+describe("frameTargets and boundsTargets", () => {
+  it("offer the frame edges and center, then the edges and centers of each box", () => {
+    expect(frameTargets({ width: 100, height: 200 })).toEqual({ x: [0, 50, 100], y: [0, 100, 200] });
+    expect(boundsTargets([{ left: 10, top: 20, right: 30, bottom: 60 }])).toEqual({ x: [10, 20, 30], y: [20, 40, 60] });
+    expect(mergeTargets({ x: [1], y: [2] }, { x: [3], y: [] })).toEqual({ x: [1, 3], y: [2] });
+  });
+});
+
+describe("measureGaps", () => {
+  const frame = { left: 0, top: 0, right: 1000, bottom: 1000 };
+  const moving = { left: 400, top: 400, right: 500, bottom: 500 };
+
+  it("measures to the nearest box on each side that faces the moving box", () => {
+    const others = [
+      { left: 100, top: 420, right: 300, bottom: 480 },
+      { left: 0, top: 450, right: 350, bottom: 460 },
+      { left: 600, top: 0, right: 700, bottom: 100 },
+      { left: 420, top: 700, right: 480, bottom: 800 },
+    ];
+    expect(measureGaps(moving, others, frame)).toEqual([
+      { axis: "horizontal", from: 350, to: 400, at: 455 },
+      { axis: "horizontal", from: 500, to: 1000, at: 450 },
+      { axis: "vertical", from: 0, to: 400, at: 450 },
+      { axis: "vertical", from: 500, to: 700, at: 450 },
+    ]);
+  });
+
+  it("skips sides that touch or leave the frame", () => {
+    const gaps = measureGaps({ left: -20, top: 0, right: 80, bottom: 100 }, [], frame);
+    expect(gaps).toEqual([
+      { axis: "horizontal", from: 80, to: 1000, at: 50 },
+      { axis: "vertical", from: 100, to: 1000, at: 30 },
+    ]);
   });
 });

@@ -48,6 +48,7 @@ const GENERATION_ERROR_CODES = new Set([
   "reference_unavailable",
   "invalid_request",
   "cost_unreported",
+  "provider_busy",
 ]);
 
 function generationErrorKey(error: MediaGenerationError): string {
@@ -85,8 +86,8 @@ const PREVIEW_WIDTH: Record<ImageAspect, string> = {
 function GeneratingPreview({ aspect, settling }: { aspect: ImageAspect; settling: boolean }) {
   const t = useTranslations("adsWizard.media");
   return (
-    <div role="status" aria-live="polite" className="flex items-center gap-4 rounded-[--radius] border border-border bg-muted p-3">
-      <GeneratingMedia kind="image" frame={aspect} settling={settling} className={`${PREVIEW_WIDTH[aspect]} shrink-0 bg-background px-3`} />
+    <div className="flex items-center gap-4 rounded-[--radius] border border-border bg-muted p-3">
+      <GeneratingMedia kind="image" frame={aspect} settling={settling} className={`${PREVIEW_WIDTH[aspect]} shrink-0 bg-background`} />
       <div className="space-y-1">
         <p className="text-sm font-semibold text-foreground">{t("generatingTitle")}</p>
         <p className="text-xs text-muted-foreground">{t("generatingHint")}</p>

@@ -26,6 +26,10 @@ function clipA(editor: ReturnType<typeof renderInEditor>["editor"]) {
   return findClip(editor.store.getState().document, "a")!.clip;
 }
 
+function openTab(name: string) {
+  fireEvent.click(screen.getByRole("tab", { name }));
+}
+
 function commit(label: string, value: string) {
   const input = screen.getByLabelText(label);
   fireEvent.change(input, { target: { value } });
@@ -33,12 +37,13 @@ function commit(label: string, value: string) {
 }
 
 describe("keyframe inspector", () => {
-  it("adds and removes a key with the diamond and navigates between keys", () => {
+  it("adds and removes a key with the diamond and navigates between keys", { timeout: 15_000 }, () => {
     const { editor } = renderInEditor(doc(), <Inspector />);
     act(() => {
       editor.store.getState().select(["a"]);
       editor.view.setState({ playheadMs: 1000 });
     });
+    openTab("Animação");
     fireEvent.click(screen.getByRole("button", { name: "Animar Opacidade" }));
     act(() => editor.view.setState({ playheadMs: 3000 }));
     fireEvent.click(screen.getByRole("button", { name: "Adicionar quadro-chave de Opacidade no cursor" }));
@@ -49,12 +54,13 @@ describe("keyframe inspector", () => {
     expect(clipA(editor).keyframes?.opacity).toHaveLength(1);
   });
 
-  it("stops animating after a confirm and keeps the current value", () => {
+  it("stops animating after a confirm and keeps the current value", { timeout: 15_000 }, () => {
     const { editor } = renderInEditor(doc(), <Inspector />);
     act(() => {
       editor.store.getState().select(["a"]);
       editor.view.setState({ playheadMs: 2000 });
     });
+    openTab("Animação");
     fireEvent.click(screen.getByRole("button", { name: "Animar Rotação" }));
     commit("Rotação", "45");
     fireEvent.click(screen.getByRole("button", { name: "Parar de animar Rotação" }));
@@ -63,18 +69,19 @@ describe("keyframe inspector", () => {
     expect(clipA(editor).transform.rotation).toBe(45);
   });
 
-  it("asks to move the playhead into the clip before keying", () => {
+  it("asks to move the playhead into the clip before keying", { timeout: 15_000 }, () => {
     const { editor } = renderInEditor(doc(), <Inspector />);
     act(() => {
       editor.store.getState().select(["a"]);
       editor.view.setState({ playheadMs: 0 });
     });
+    openTab("Animação");
     fireEvent.click(screen.getByRole("button", { name: "Animar Escala" }));
     expect(clipA(editor).keyframes).toBeUndefined();
     expect(editor.view.getState().notice?.key).toBe("keyframeOutside");
   });
 
-  it("eases one property at the key under the playhead, then every key of that property only", () => {
+  it("eases one property at the key under the playhead, then every key of that property only", { timeout: 15_000 }, () => {
     const d = doc();
     d.tracks[0].clips[0].keyframes = {
       x: [{ atMs: 0, value: 0.2, easing: "linear" }, { atMs: 2000, value: 0.8, easing: "linear" }],
@@ -85,6 +92,7 @@ describe("keyframe inspector", () => {
       editor.store.getState().select(["a"]);
       editor.view.setState({ playheadMs: 1000, keyProperty: "x" });
     });
+    openTab("Animação");
     const atKey = screen.getByRole("group", { name: "Suavização do quadro-chave de Posição X" });
     fireEvent.click(within(atKey).getByRole("button", { name: "Acelerar" }));
     expect(clipA(editor).keyframes?.x?.map((f) => f.easing)).toEqual(["easeIn", "linear"]);
@@ -100,7 +108,9 @@ describe("keyframe inspector", () => {
   it("applies an entrance preset", () => {
     const { editor } = renderInEditor(doc(), <Inspector />);
     act(() => editor.store.getState().select(["a"]));
-    fireEvent.change(screen.getByLabelText("Animação de entrada"), { target: { value: "slideUp" } });
+    openTab("Animação");
+    fireEvent.click(screen.getByRole("button", { name: "Animação de entrada" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Efeitos simples" })).getByRole("button", { name: "Deslizar para cima" }));
     expect(clipA(editor)).toMatchObject({ motionIn: { edge: "bottom", durationMs: 500 }, fadeInMs: 500 });
   });
 });

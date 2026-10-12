@@ -1,4 +1,4 @@
-import { act, fireEvent, screen } from "@testing-library/react";
+import { act, createEvent, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 
@@ -26,6 +26,7 @@ import { formatSmpte } from "@/lib/studio/timeline-view";
 import { findClip } from "@/lib/studio/timeline";
 
 import { Timeline } from "../timeline/timeline";
+import { HEADER_WIDTH, RULER_HEIGHT } from "../timeline/timeline-geometry";
 import { renderInEditor } from "./harness";
 
 function doc(): VideoDocument {
@@ -220,7 +221,7 @@ describe("Timeline tools", () => {
 });
 
 describe("Timeline editing tools", () => {
-  const header = 184;
+  const header = HEADER_WIDTH;
 
   it("switches tools from the bar and with the keyboard shortcuts in the store", () => {
     const { editor } = renderInEditor(doc(), <Timeline />);
@@ -297,7 +298,113 @@ describe("Blade feedback", () => {
   it("shows the cut line with its timecode over the hovered lane", () => {
     const { editor } = renderInEditor(doc(), <Timeline />);
     act(() => editor.view.setState({ snapping: false, pxPerSecond: 100, tool: "blade" }));
-    fireEvent.pointerMove(clipElement("a"), { pointerId: 1, clientX: 184 + 150, clientY: 10 });
+    fireEvent.pointerMove(clipElement("a"), { pointerId: 1, clientX: HEADER_WIDTH + 150, clientY: 10 });
     expect(screen.getByText("00:00:01:15")).toBeInTheDocument();
+  });
+});
+
+describe("Timeline scrolling", () => {
+  const VIEW_WIDTH = 600;
+  const VIEW_HEIGHT = 120;
+
+  function scroller(): HTMLElement {
+    return document.querySelector("[data-studio-timeline-scroller]") as HTMLElement;
+  }
+
+  function stacked(): VideoDocument {
+    const d = doc();
+    const visual = Array.from({ length: 6 }, (_, i) => ({ id: `t${i}`, kind: "visual" as const, clips: [{ ...newMediaClip("image", `img${i}`, 0, 1000), id: `c${i}` }] }));
+    visual[5].clips.push({ ...newMediaClip("image", "late", 20000, 1000), id: "far" });
+    d.tracks = [...visual, d.tracks[1]];
+    d.durationMs = 21000;
+    return d;
+  }
+
+  function renderSized() {
+    const rendered = renderInEditor(stacked(), <Timeline />);
+    act(() => rendered.editor.view.setState({ pxPerSecond: 100, trackHeight: "normal" }));
+    const element = scroller();
+    Object.defineProperty(element, "clientWidth", { configurable: true, value: HEADER_WIDTH + VIEW_WIDTH });
+    Object.defineProperty(element, "clientHeight", { configurable: true, value: RULER_HEIGHT + VIEW_HEIGHT });
+    const scrollTo = vi.fn();
+    element.scrollTo = scrollTo as unknown as HTMLElement["scrollTo"];
+    return { ...rendered, element, scrollTo };
+  }
+
+  it("leaves the plain wheel to the native vertical scroll", () => {
+    renderSized();
+    const plain = createEvent.wheel(scroller(), { deltaY: 120 });
+    fireEvent(scroller(), plain);
+    expect(plain.defaultPrevented).toBe(false);
+    expect(scroller().scrollLeft).toBe(0);
+  });
+
+  it("scrolls time sideways with Shift and the wheel", () => {
+    renderSized();
+    const shifted = createEvent.wheel(scroller(), { deltaY: 120, shiftKey: true });
+    fireEvent(scroller(), shifted);
+    expect(shifted.defaultPrevented).toBe(true);
+    expect(scroller().scrollLeft).toBe(120);
+  });
+
+  it("zooms with Ctrl and the wheel", () => {
+    const { editor } = renderSized();
+    fireEvent.wheel(scroller(), { deltaY: -100, ctrlKey: true });
+    expect(editor.view.getState().pxPerSecond).toBeGreaterThan(100);
+  });
+
+  it("scrolls down to the track of a clip selected outside the timeline", async () => {
+    const { editor, scrollTo } = renderSized();
+    act(() => editor.store.getState().select(["m"]));
+    await act(async () => undefined);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 6 * 56 + 44 + 8 - VIEW_HEIGHT, left: 0, behavior: "smooth" });
+  });
+
+  it("scrolls sideways to a clip out of view on a visible track", async () => {
+    const { editor, scrollTo } = renderSized();
+    act(() => editor.store.getState().select(["far"]));
+    await act(async () => undefined);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 2000 + 100 + 48 - VIEW_WIDTH, behavior: "smooth" });
+  });
+
+  it("stays put when the selected clip is already in view or was picked in the timeline", async () => {
+    const { editor, scrollTo } = renderSized();
+    act(() => editor.store.getState().select(["c5"]));
+    await act(async () => undefined);
+    fireEvent.pointerDown(clipElement("m"), { button: 0, pointerId: 1, clientX: HEADER_WIDTH + 10 });
+    await act(async () => undefined);
+    expect(editor.store.getState().selection).toEqual(["m"]);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+});
+
+describe("Timeline clip and track design", () => {
+  it("names a clip with floating text over its media instead of a header strip", () => {
+    const d = doc();
+    d.tracks[0].clips[0] = { ...d.tracks[0].clips[0], speed: 2, linkId: "pair" };
+    renderInEditor(d, <Timeline />);
+    const label = clipElement("a").querySelector("[data-clip-label]") as HTMLElement;
+    expect(label).toHaveTextContent("Imagem");
+    expect(label).toHaveTextContent("2×");
+    expect(within(label).getByLabelText("Vinculado")).toBeInTheDocument();
+    expect(label.closest("[data-clip-well]")).not.toBeNull();
+    expect(clipElement("a").querySelector("[data-clip-well]")).toHaveClass("inset-0");
+  });
+
+  it("shows the full track name as a hint and keeps every control reachable", () => {
+    const d = doc();
+    d.tracks[1] = { ...d.tracks[1], name: "Trilha sonora principal com um nome bem comprido" };
+    renderInEditor(d, <Timeline />);
+    expect(screen.getByRole("button", { name: /^Trilha sonora principal com um nome bem comprido/ })).toHaveAttribute("title", expect.stringContaining("Trilha sonora principal com um nome bem comprido"));
+    expect(screen.getByRole("button", { name: "Ouvir só Trilha sonora principal com um nome bem comprido" })).toBeInTheDocument();
+  });
+
+  it("folds idle track controls away and pins the ones that are switched on", () => {
+    renderInEditor(doc(), <Timeline />);
+    const control = (name: string) => screen.getByRole("button", { name }).closest("[data-track-control]");
+    expect(control("Silenciar Áudio 1")).toHaveAttribute("data-pinned", "false");
+    fireEvent.click(screen.getByRole("button", { name: "Silenciar Áudio 1" }));
+    expect(control("Ativar som de Áudio 1")).toHaveAttribute("data-pinned", "true");
+    expect(control("Bloquear Vídeo 1")).toHaveAttribute("data-pinned", "false");
   });
 });

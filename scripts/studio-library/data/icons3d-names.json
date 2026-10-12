@@ -1,0 +1,398 @@
+{
+  "bag": {
+    "pt": "Sacola",
+    "en": "Shopping bag",
+    "es": "Bolsa",
+    "de": "Einkaufstasche"
+  },
+  "bookmark-fav": {
+    "pt": "Favorito",
+    "en": "Bookmark",
+    "es": "Favorito",
+    "de": "Lesezeichen"
+  },
+  "bulb": {
+    "pt": "Lâmpada",
+    "en": "Light bulb",
+    "es": "Bombilla",
+    "de": "Glühbirne"
+  },
+  "calender": {
+    "pt": "Calendário",
+    "en": "Calendar",
+    "es": "Calendario",
+    "de": "Kalender"
+  },
+  "camera": {
+    "pt": "Câmera",
+    "en": "Camera",
+    "es": "Cámara",
+    "de": "Kamera"
+  },
+  "card": {
+    "pt": "Cartão",
+    "en": "Card",
+    "es": "Tarjeta",
+    "de": "Karte"
+  },
+  "chart": {
+    "pt": "Gráfico",
+    "en": "Chart",
+    "es": "Gráfico",
+    "de": "Diagramm"
+  },
+  "chat-bubble": {
+    "pt": "Balão de conversa",
+    "en": "Chat bubble",
+    "es": "Burbuja de chat",
+    "de": "Sprechblase"
+  },
+  "chat": {
+    "pt": "Conversa",
+    "en": "Chat",
+    "es": "Chat",
+    "de": "Chat"
+  },
+  "chat-text": {
+    "pt": "Mensagem",
+    "en": "Message",
+    "es": "Mensaje",
+    "de": "Nachricht"
+  },
+  "clock": {
+    "pt": "Relógio",
+    "en": "Clock",
+    "es": "Reloj",
+    "de": "Uhr"
+  },
+  "color-palette": {
+    "pt": "Paleta de cores",
+    "en": "Color palette",
+    "es": "Paleta de colores",
+    "de": "Farbpalette"
+  },
+  "computer": {
+    "pt": "Computador",
+    "en": "Computer",
+    "es": "Ordenador",
+    "de": "Computer"
+  },
+  "cup": {
+    "pt": "Copo",
+    "en": "Cup",
+    "es": "Vaso",
+    "de": "Becher"
+  },
+  "dollar": {
+    "pt": "Dólar",
+    "en": "Dollar",
+    "es": "Dólar",
+    "de": "Dollar"
+  },
+  "file-text": {
+    "pt": "Documento",
+    "en": "Document",
+    "es": "Documento",
+    "de": "Dokument"
+  },
+  "fire": {
+    "pt": "Fogo",
+    "en": "Fire",
+    "es": "Fuego",
+    "de": "Feuer"
+  },
+  "flash": {
+    "pt": "Raio",
+    "en": "Lightning",
+    "es": "Rayo",
+    "de": "Blitz"
+  },
+  "folder": {
+    "pt": "Pasta",
+    "en": "Folder",
+    "es": "Carpeta",
+    "de": "Ordner"
+  },
+  "gift": {
+    "pt": "Presente",
+    "en": "Gift",
+    "es": "Regalo",
+    "de": "Geschenk"
+  },
+  "glass": {
+    "pt": "Taça",
+    "en": "Glass",
+    "es": "Copa",
+    "de": "Glas"
+  },
+  "headphone": {
+    "pt": "Fone de ouvido",
+    "en": "Headphones",
+    "es": "Auriculares",
+    "de": "Kopfhörer"
+  },
+  "heart": {
+    "pt": "Coração",
+    "en": "Heart",
+    "es": "Corazón",
+    "de": "Herz"
+  },
+  "key": {
+    "pt": "Chave",
+    "en": "Key",
+    "es": "Llave",
+    "de": "Schlüssel"
+  },
+  "lab": {
+    "pt": "Laboratório",
+    "en": "Lab flask",
+    "es": "Matraz",
+    "de": "Laborkolben"
+  },
+  "link": {
+    "pt": "Link",
+    "en": "Link",
+    "es": "Enlace",
+    "de": "Link"
+  },
+  "location": {
+    "pt": "Localização",
+    "en": "Location",
+    "es": "Ubicación",
+    "de": "Standort"
+  },
+  "lock": {
+    "pt": "Cadeado",
+    "en": "Lock",
+    "es": "Candado",
+    "de": "Schloss"
+  },
+  "magic-trick": {
+    "pt": "Mágica",
+    "en": "Magic trick",
+    "es": "Truco de magia",
+    "de": "Zaubertrick"
+  },
+  "mail": {
+    "pt": "E-mail",
+    "en": "Mail",
+    "es": "Correo",
+    "de": "E-Mail"
+  },
+  "map-pin": {
+    "pt": "Pino do mapa",
+    "en": "Map pin",
+    "es": "Chincheta de mapa",
+    "de": "Kartennadel"
+  },
+  "medal": {
+    "pt": "Medalha",
+    "en": "Medal",
+    "es": "Medalla",
+    "de": "Medaille"
+  },
+  "megaphone": {
+    "pt": "Megafone",
+    "en": "Megaphone",
+    "es": "Megáfono",
+    "de": "Megafon"
+  },
+  "mic": {
+    "pt": "Microfone",
+    "en": "Microphone",
+    "es": "Micrófono",
+    "de": "Mikrofon"
+  },
+  "mobile": {
+    "pt": "Celular",
+    "en": "Mobile phone",
+    "es": "Móvil",
+    "de": "Handy"
+  },
+  "money-bag": {
+    "pt": "Saco de dinheiro",
+    "en": "Money bag",
+    "es": "Bolsa de dinero",
+    "de": "Geldsack"
+  },
+  "money": {
+    "pt": "Dinheiro",
+    "en": "Money",
+    "es": "Dinero",
+    "de": "Geld"
+  },
+  "moon": {
+    "pt": "Lua",
+    "en": "Moon",
+    "es": "Luna",
+    "de": "Mond"
+  },
+  "music": {
+    "pt": "Música",
+    "en": "Music",
+    "es": "Música",
+    "de": "Musik"
+  },
+  "notify-heart": {
+    "pt": "Notificação de curtida",
+    "en": "Like notification",
+    "es": "Notificación de me gusta",
+    "de": "Like-Benachrichtigung"
+  },
+  "paint-brush": {
+    "pt": "Pincel",
+    "en": "Paint brush",
+    "es": "Pincel",
+    "de": "Pinsel"
+  },
+  "pause": {
+    "pt": "Pausa",
+    "en": "Pause",
+    "es": "Pausa",
+    "de": "Pause"
+  },
+  "pencil": {
+    "pt": "Lápis",
+    "en": "Pencil",
+    "es": "Lápiz",
+    "de": "Bleistift"
+  },
+  "picture": {
+    "pt": "Imagem",
+    "en": "Picture",
+    "es": "Imagen",
+    "de": "Bild"
+  },
+  "play": {
+    "pt": "Play",
+    "en": "Play",
+    "es": "Reproducir",
+    "de": "Abspielen"
+  },
+  "plus": {
+    "pt": "Mais",
+    "en": "Plus",
+    "es": "Más",
+    "de": "Plus"
+  },
+  "puzzle": {
+    "pt": "Quebra-cabeça",
+    "en": "Puzzle",
+    "es": "Rompecabezas",
+    "de": "Puzzle"
+  },
+  "rocket": {
+    "pt": "Foguete",
+    "en": "Rocket",
+    "es": "Cohete",
+    "de": "Rakete"
+  },
+  "setting": {
+    "pt": "Engrenagem",
+    "en": "Settings",
+    "es": "Ajustes",
+    "de": "Einstellungen"
+  },
+  "sheild": {
+    "pt": "Escudo",
+    "en": "Shield",
+    "es": "Escudo",
+    "de": "Schild"
+  },
+  "star": {
+    "pt": "Estrela",
+    "en": "Star",
+    "es": "Estrella",
+    "de": "Stern"
+  },
+  "sun": {
+    "pt": "Sol",
+    "en": "Sun",
+    "es": "Sol",
+    "de": "Sonne"
+  },
+  "takeaway-cup": {
+    "pt": "Copo para viagem",
+    "en": "Takeaway cup",
+    "es": "Vaso para llevar",
+    "de": "Kaffeebecher"
+  },
+  "target": {
+    "pt": "Alvo",
+    "en": "Target",
+    "es": "Diana",
+    "de": "Zielscheibe"
+  },
+  "tea-cup": {
+    "pt": "Xícara",
+    "en": "Tea cup",
+    "es": "Taza",
+    "de": "Teetasse"
+  },
+  "thumb-down": {
+    "pt": "Não curti",
+    "en": "Thumbs down",
+    "es": "Pulgar abajo",
+    "de": "Daumen runter"
+  },
+  "thumb-up": {
+    "pt": "Curti",
+    "en": "Thumbs up",
+    "es": "Pulgar arriba",
+    "de": "Daumen hoch"
+  },
+  "tick": {
+    "pt": "Visto",
+    "en": "Check",
+    "es": "Visto",
+    "de": "Haken"
+  },
+  "trash-can": {
+    "pt": "Lixeira",
+    "en": "Trash can",
+    "es": "Papelera",
+    "de": "Mülleimer"
+  },
+  "travel": {
+    "pt": "Viagem",
+    "en": "Travel",
+    "es": "Viaje",
+    "de": "Reise"
+  },
+  "trophy": {
+    "pt": "Troféu",
+    "en": "Trophy",
+    "es": "Trofeo",
+    "de": "Pokal"
+  },
+  "umbrella": {
+    "pt": "Guarda-chuva",
+    "en": "Umbrella",
+    "es": "Paraguas",
+    "de": "Regenschirm"
+  },
+  "video-camera": {
+    "pt": "Câmera de vídeo",
+    "en": "Video camera",
+    "es": "Videocámara",
+    "de": "Videokamera"
+  },
+  "wallet": {
+    "pt": "Carteira",
+    "en": "Wallet",
+    "es": "Cartera",
+    "de": "Geldbörse"
+  },
+  "wifi": {
+    "pt": "Wi-Fi",
+    "en": "Wi-Fi",
+    "es": "Wi-Fi",
+    "de": "WLAN"
+  },
+  "zoom": {
+    "pt": "Lupa",
+    "en": "Magnifier",
+    "es": "Lupa",
+    "de": "Lupe"
+  }
+}
