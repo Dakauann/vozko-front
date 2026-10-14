@@ -5233,7 +5233,8 @@
         "900002": "No business phone is configured for this campaign",
         "900003": "Could not resolve this campaign's WhatsApp client",
         "900006": "Could not locate the entry used to fill the template variables",
-        "900009": "Monthly send limit reached. Contact the administration to release new sends"
+        "900009": "Monthly send limit reached. Contact the administration to release new sends",
+        "900010": "Outside the workspace send window. Contact the administration to allow new sends"
       },
       "years": "years",
       "export": {
@@ -5340,9 +5341,14 @@
         "maxContactsExceeded": "Maximum limit of 150,000 numbers exceeded.",
         "duplicateNumber": "Duplicate number.",
         "missingVariablesTitle": "Required variables missing",
-        "missingVariablesDescription": "{count, plural, one {# contact has} other {# contacts have}} blank template variables.",
+        "missingVariablesDescription": "{count, plural, one {# contact is} other {# contacts are}} missing required variables:",
         "showMissingVariables": "View contacts with missing variables",
-        "cannotSubmitMissingVars": "Fill in the variables for {count, plural, one {# contact} other {# contacts}} before submitting.",
+        "cannotSubmitMissingVars": "Fill in {variables} for {count, plural, one {# contact} other {# contacts}} before sending.",
+        "missingVariableLine": "{owner}, missing in {count, plural, one {# contact} other {# contacts}}",
+        "missingVariableSuggestion": "The spreadsheet has a \"{column}\" column. If it holds the same data, rename it to \"{key}\" and import again.",
+        "missingSourceTemplate": "template variable",
+        "missingSourceWorkflow": "required by the \"{name}\" workflow",
+        "missingSourceAgent": "required by the \"{name}\" agent",
         "formHasErrors": "Please fix the errors in the form before submitting.",
         "confirmTemplateFirst": "Turn on “I confirm I reviewed the template details” in the preview panel on the right to create the campaign.",
         "confirmTemplateLabel": "I confirm I reviewed the template details above",
@@ -7434,6 +7440,7 @@
       "usageValue": "{used} of {limit}",
       "cycle": "Cycle",
       "cycleValue": "Day {day} · renews {renews}",
+      "windowValue": "Day {day} to {end} · renews on {renews}",
       "remaining": "Remaining",
       "status": "Status",
       "updated": "Last change",
@@ -7450,6 +7457,8 @@
       "createHint": "Once the limit is reached, sends fail and the user is told to contact the administration.",
       "cycleDay": "Renewal day",
       "cycleDayHint": "The cycle runs from this day to the same day next month. In shorter months, days 29 to 31 use the month's last day.",
+      "endDay": "Last send day",
+      "endDayHint": "Optional. Outside the days from the renewal day to this day, template sends are refused. Leave blank to send all cycle long.",
       "editHint": "Current limit: {current}. Here you can only keep or lower it.",
       "raiseNeedsUnlock": "Raising the limit requires an unlock with the code.",
       "raiseForbidden": "Raising the limit requires an unlock, which only authorized administration can do."
@@ -7462,6 +7471,8 @@
       "newLimit": "New monthly limit",
       "cycleDay": "Renewal day",
       "cycleDayHint": "Changing the day restarts the count from the new cycle.",
+      "endDay": "Last send day",
+      "endDayHint": "Blank or 0 sends all cycle long.",
       "code": "Unlock code",
       "codeHint": "The administration's 4 digit code.",
       "confirmRaise": "Unlock",
@@ -7474,6 +7485,7 @@
       "invalid_unlock_code": "Invalid unlock code.",
       "invalid_limit": "The limit must be a positive whole number.",
       "invalid_cycle_day": "The renewal day must be between 1 and 31.",
+      "invalid_end_day": "The last send day must be between 1 and 31, or blank.",
       "send_cap_not_found": "This workspace has no monthly limit.",
       "workspace_not_found": "Workspace not found.",
       "invalid_body": "Invalid data. Check the fields.",
@@ -10918,7 +10930,6 @@
           "replied": "Replies",
           "trackedSince": "Timeline recorded since {date}; earlier sends only appear in the funnel",
           "notTracked": "This campaign has no recorded timeline yet; the funnel comes from each contact's current status",
-          "clamped": "Showing the last {days} days of the period",
           "empty": "No sends, deliveries, reads or replies in the period"
         },
         "status": {
@@ -10980,6 +10991,11 @@
           "title": "No campaign contacts",
           "all": "No contact was added to dispatch campaigns in this period.",
           "campaign": "This campaign has no contacts in its base yet."
+        },
+        "window": {
+          "title": "This section shows at most {days} days",
+          "message": "The selected period starts on {requested}, so the sends below cover {from} to {to}. The figures above still use the whole period.",
+          "use": "Use the last {days} days on the page"
         }
       },
       "sections": {
@@ -13076,6 +13092,7 @@
       "contact_ineligible": "The contact was blocked or inside the spam protection period. Nothing was charged.",
       "insufficient_balance": "There was no balance at send time. Nothing was charged.",
       "monthly_send_cap_reached": "The workspace monthly send limit was reached. Contact the administration. Nothing was charged.",
+      "send_window_closed": "Today is outside the workspace send window. Contact the administration. Nothing was charged.",
       "billing_unavailable": "Billing was unavailable (subscription or price). Nothing was charged.",
       "outcome_unknown": "WhatsApp did not confirm the send. It may have been delivered and was charged. Check the conversation before sending again."
     },
@@ -13153,6 +13170,7 @@
       "within_spam_window": "This contact was messaged from this number recently. Wait for the interval your workspace set.",
       "insufficient_balance": "Not enough balance to send this template.",
       "monthly_send_cap_reached": "This workspace reached its monthly send limit. Contact the administration.",
+      "send_window_closed": "Today is outside this workspace's send window. Contact the administration.",
       "pricing_unavailable": "No price is configured for this template category. Contact your workspace administrator.",
       "template_not_sendable": "This template is not ready to send.",
       "template_phone_mismatch": "This template does not belong to the selected number's account.",
@@ -13400,7 +13418,7 @@
       "recipientsSkipped": "Skipped lines",
       "reasonInvalid": "invalid number",
       "reasonDuplicate": "duplicate",
-      "reasonMissingVariables": "missing variables",
+      "reasonMissingVariables": "has {found} of {required} {required, plural, one {variable} other {variables}}",
       "mediaUpload": "Upload file",
       "mediaUploading": "Uploading…",
       "mediaRemove": "Remove file",

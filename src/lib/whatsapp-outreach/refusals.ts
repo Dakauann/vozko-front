@@ -6,6 +6,7 @@ export const OUTREACH_REFUSAL_CODES = [
   "within_spam_window",
   "insufficient_balance",
   "monthly_send_cap_reached",
+  "send_window_closed",
   "pricing_unavailable",
   "quote_out_of_range",
   "quote_unavailable",

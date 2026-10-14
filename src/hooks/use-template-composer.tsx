@@ -1,6 +1,5 @@
 "use client";
 
-import { formatMicrosAsBrl } from "@/lib/pricing/currency";
 import {
     isTemplateSendable,
     templateMessageMetadata,
@@ -13,7 +12,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OutreachError, SendQuote } from "@/lib/whatsapp-outreach/types";
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
-import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { isRetryableQuoteRefusal, outreachRefusalKey } from "@/lib/whatsapp-outreach/refusals";
 import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import { quoteTemplateSendAction } from "@/app/actions/whatsapp-outreach";
@@ -83,7 +81,6 @@ export function useTemplateComposer({
     const [version, setVersion] = useState(0);
     const [quote, setQuote] = useState<Loaded<QuoteAnswer> | null>(null);
     const [quoteAttempt, setQuoteAttempt] = useState(0);
-    const exchangeRate = useExchangeRate(enabled && quoted);
 
     const templateId = selection.phoneId === businessPhoneId ? selection.templateId : "";
 
@@ -226,7 +223,6 @@ export function useTemplateComposer({
         quote: currentQuote,
         quoteError,
         retryQuote,
-        priceLabel: formatMicrosAsBrl(currentQuote?.priceMicros, exchangeRate),
         reload,
         upsertTemplate,
         reset,

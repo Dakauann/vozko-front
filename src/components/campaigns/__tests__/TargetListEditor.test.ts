@@ -55,7 +55,7 @@ describe("parseTargetList", () => {
     );
     expect(out.targets).toHaveLength(1);
     expect(out.missingVariables).toBe(1);
-    expect(out.skipped[0]).toMatchObject({ reason: "missingVariables" });
+    expect(out.skipped[0]).toMatchObject({ reason: "missingVariables", variables: 0 });
   });
 
   it("ignores blank lines rather than counting them as errors", () => {

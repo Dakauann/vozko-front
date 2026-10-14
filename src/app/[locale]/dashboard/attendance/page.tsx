@@ -2107,6 +2107,12 @@ export default function AttendanceOpsPage() {
     selectCampaign("all");
   }, [selectCampaign]);
 
+  const narrowToDispatchWindow = useCallback((from: string, to: string) => {
+    setPreset("custom");
+    setDateFrom(from);
+    setDateTo(to);
+  }, []);
+
   const applyPreset = useCallback((p: DatePreset) => {
     setPreset(p);
     if (p === "custom") {
@@ -2452,6 +2458,7 @@ export default function AttendanceOpsPage() {
               conversions={conversions}
               canReadAnalysis={canReadAnalysis}
               onSelectCampaign={selectCampaign}
+              onUseWindow={narrowToDispatchWindow}
             />
           ) : null}
 

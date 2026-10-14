@@ -5203,7 +5203,8 @@
         "900002": "Nenhum telefone comercial configurado para esta campanha",
         "900003": "Não foi possível resolver o cliente do WhatsApp desta campanha",
         "900006": "Não foi possível localizar a entrada usada para preencher as variáveis do template",
-        "900009": "Limite mensal de envios atingido. Fale com a administração para liberar novos envios"
+        "900009": "Limite mensal de envios atingido. Fale com a administração para liberar novos envios",
+        "900010": "Fora da janela de envios do workspace. Fale com a administração para liberar novos envios"
       },
       "years": "anos",
       "export": {
@@ -5310,9 +5311,14 @@
         "maxContactsExceeded": "Limite máximo de 150.000 números excedido.",
         "duplicateNumber": "Número duplicado.",
         "missingVariablesTitle": "Variáveis obrigatórias faltando",
-        "missingVariablesDescription": "{count, plural, one {# contato está} other {# contatos estão}} com variáveis do template em branco.",
+        "missingVariablesDescription": "{count, plural, one {# contato está} other {# contatos estão}} sem valor em variáveis obrigatórias:",
         "showMissingVariables": "Ver contatos com variáveis faltando",
-        "cannotSubmitMissingVars": "Preencha as variáveis de {count, plural, one {# contato} other {# contatos}} antes de enviar.",
+        "cannotSubmitMissingVars": "Preencha {variables} em {count, plural, one {# contato} other {# contatos}} antes de enviar.",
+        "missingVariableLine": "{owner}, falta em {count, plural, one {# contato} other {# contatos}}",
+        "missingVariableSuggestion": "A planilha tem a coluna \"{column}\". Se for o mesmo dado, renomeie a coluna para \"{key}\" e importe de novo.",
+        "missingSourceTemplate": "variável do modelo",
+        "missingSourceWorkflow": "exigida pelo fluxo \"{name}\"",
+        "missingSourceAgent": "exigida pelo agente \"{name}\"",
         "formHasErrors": "Por favor, corrija os erros no formulário antes de enviar.",
         "confirmTemplateFirst": "Ative “Confirmo que revisei os dados do template” no painel de prévia, à direita, para criar a campanha.",
         "confirmTemplateLabel": "Confirmo que revisei os dados do template acima",
@@ -7434,6 +7440,7 @@
       "usageValue": "{used} de {limit}",
       "cycle": "Ciclo",
       "cycleValue": "Dia {day} · renova em {renews}",
+      "windowValue": "Dia {day} a {end} · renova em {renews}",
       "remaining": "Restante",
       "status": "Situação",
       "updated": "Última alteração",
@@ -7450,6 +7457,8 @@
       "createHint": "Ao atingir o limite, os envios falham e o usuário é orientado a falar com a administração.",
       "cycleDay": "Dia de renovação",
       "cycleDayHint": "O ciclo vai deste dia até o mesmo dia do mês seguinte. Em meses mais curtos, os dias 29 a 31 usam o último dia do mês.",
+      "endDay": "Último dia de envio",
+      "endDayHint": "Opcional. Fora do intervalo entre o dia de renovação e este dia, os envios de modelos são recusados. Em branco, envia o ciclo todo.",
       "editHint": "Limite atual: {current}. Aqui só é possível manter ou baixar.",
       "raiseNeedsUnlock": "Aumentar o limite exige desbloqueio com código.",
       "raiseForbidden": "Aumentar o limite exige desbloqueio, que só a administração autorizada pode fazer."
@@ -7462,6 +7471,8 @@
       "newLimit": "Novo limite mensal",
       "cycleDay": "Dia de renovação",
       "cycleDayHint": "Mudar o dia reinicia a contagem a partir do novo ciclo.",
+      "endDay": "Último dia de envio",
+      "endDayHint": "Em branco ou 0, envia o ciclo todo.",
       "code": "Código de desbloqueio",
       "codeHint": "Código de 4 dígitos da administração.",
       "confirmRaise": "Desbloquear",
@@ -7474,6 +7485,7 @@
       "invalid_unlock_code": "Código de desbloqueio inválido.",
       "invalid_limit": "O limite precisa ser um número inteiro positivo.",
       "invalid_cycle_day": "O dia de renovação precisa ser entre 1 e 31.",
+      "invalid_end_day": "O último dia de envio precisa ser entre 1 e 31, ou em branco.",
       "send_cap_not_found": "Este workspace não tem limite mensal.",
       "workspace_not_found": "Workspace não encontrado.",
       "invalid_body": "Dados inválidos. Revise os campos.",
@@ -10918,7 +10930,6 @@
           "replied": "Respostas",
           "trackedSince": "Linha do tempo registrada desde {date}; envios anteriores aparecem só no funil",
           "notTracked": "Esta campanha ainda não tem linha do tempo registrada; o funil vem do status atual de cada contato",
-          "clamped": "Mostrando os últimos {days} dias do período",
           "empty": "Nenhum envio, entrega, leitura ou resposta no período"
         },
         "status": {
@@ -10980,6 +10991,11 @@
           "title": "Nenhum contato em campanhas",
           "all": "Nenhum contato foi incluído em campanhas de disparo neste período.",
           "campaign": "Esta campanha ainda não tem contatos na base."
+        },
+        "window": {
+          "title": "Este bloco mostra no máximo {days} dias",
+          "message": "O período escolhido começa em {requested}, então os disparos abaixo vão de {from} a {to}. Os números de cima continuam usando o período inteiro.",
+          "use": "Usar os últimos {days} dias na página"
         }
       },
       "sections": {
@@ -13076,6 +13092,7 @@
       "contact_ineligible": "O contato estava bloqueado ou dentro da proteção contra spam. Nada foi cobrado.",
       "insufficient_balance": "Não havia saldo no horário do envio. Nada foi cobrado.",
       "monthly_send_cap_reached": "O limite mensal de envios do workspace foi atingido. Fale com a administração. Nada foi cobrado.",
+      "send_window_closed": "Hoje está fora da janela de envios do workspace. Fale com a administração. Nada foi cobrado.",
       "billing_unavailable": "A cobrança não estava disponível (assinatura ou preço). Nada foi cobrado.",
       "outcome_unknown": "O WhatsApp não confirmou o envio. Ele pode ter sido entregue e foi cobrado. Verifique a conversa antes de enviar de novo."
     },
@@ -13153,6 +13170,7 @@
       "within_spam_window": "Este contato já recebeu uma mensagem deste número há pouco tempo. Aguarde o intervalo definido pelo workspace.",
       "insufficient_balance": "Saldo insuficiente para enviar este modelo.",
       "monthly_send_cap_reached": "O limite mensal de envios deste workspace foi atingido. Fale com a administração.",
+      "send_window_closed": "Hoje está fora da janela de envios deste workspace. Fale com a administração.",
       "pricing_unavailable": "Não há preço configurado para esta categoria de modelo. Fale com o administrador do workspace.",
       "template_not_sendable": "Este modelo não está pronto para envio.",
       "template_phone_mismatch": "Este modelo não pertence à conta do número selecionado.",
@@ -13400,7 +13418,7 @@
       "recipientsSkipped": "Linhas ignoradas",
       "reasonInvalid": "número inválido",
       "reasonDuplicate": "duplicado",
-      "reasonMissingVariables": "faltam variáveis",
+      "reasonMissingVariables": "tem {found} de {required} {required, plural, one {variável} other {variáveis}}",
       "mediaUpload": "Enviar arquivo",
       "mediaUploading": "Enviando…",
       "mediaRemove": "Remover arquivo",

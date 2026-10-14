@@ -21,6 +21,7 @@ const UPLOAD_TIMEOUT_MS = 10 * 60_000;
 
 const SLOW_ENDPOINTS: { prefix: string; exact?: boolean; timeoutMs: number }[] = [
   { prefix: "/attendance/", timeoutMs: 30_000 },
+  { prefix: "/crm/board", timeoutMs: 30_000 },
   { prefix: "/admin/analytics/meta-invoice-check", timeoutMs: 60_000 },
   { prefix: "/leads/actions", exact: true, timeoutMs: 120_000 },
   { prefix: "/leads/actions/sends/", timeoutMs: 120_000 },

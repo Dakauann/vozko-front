@@ -5071,7 +5071,8 @@
         "900002": "No hay ningún teléfono comercial configurado para esta campaña",
         "900003": "No se pudo resolver el cliente de WhatsApp de esta campaña",
         "900006": "No se pudo encontrar el registro usado para completar las variables de la plantilla",
-        "900009": "Se alcanzó el límite mensual de envíos. Habla con la administración para habilitar nuevos envíos"
+        "900009": "Se alcanzó el límite mensual de envíos. Habla con la administración para habilitar nuevos envíos",
+        "900010": "Fuera de la ventana de envíos del workspace. Habla con la administración para liberar nuevos envíos"
       },
       "years": "años",
       "export": {
@@ -5246,9 +5247,14 @@
         "maxContactsExceeded": "Se excedió el límite máximo de 150,000 números.",
         "duplicateNumber": "Número duplicado.",
         "missingVariablesTitle": "Faltan variables requeridas",
-        "missingVariablesDescription": "{count, plural, one {# contacto tiene} other {# contactos tienen}} variables de plantilla en blanco.",
+        "missingVariablesDescription": "{count, plural, one {# contacto está} other {# contactos están}} sin valor en variables obligatorias:",
         "showMissingVariables": "Ver contactos con variables faltantes",
-        "cannotSubmitMissingVars": "Completa las variables para {count, plural, one {# contacto} other {# contactos}} antes de enviar.",
+        "cannotSubmitMissingVars": "Completa {variables} en {count, plural, one {# contacto} other {# contactos}} antes de enviar.",
+        "missingVariableLine": "{owner}, falta en {count, plural, one {# contacto} other {# contactos}}",
+        "missingVariableSuggestion": "La planilla tiene la columna \"{column}\". Si es el mismo dato, renómbrala a \"{key}\" e importa de nuevo.",
+        "missingSourceTemplate": "variable de la plantilla",
+        "missingSourceWorkflow": "exigida por el flujo \"{name}\"",
+        "missingSourceAgent": "exigida por el agente \"{name}\"",
         "formHasErrors": "Por favor corrige los errores en el formulario antes de enviar.",
         "confirmTemplateFirst": "Activa “Confirmo que revisé los datos de la plantilla” en el panel de vista previa, a la derecha, para crear la campaña.",
         "confirmTemplateLabel": "Confirmo que revisé los datos de la plantilla de arriba",
@@ -9989,7 +9995,6 @@
           "replied": "Respuestas",
           "trackedSince": "Línea de tiempo registrada desde {date}; los envíos anteriores solo aparecen en el embudo",
           "notTracked": "Esta campaña aún no tiene línea de tiempo registrada; el embudo viene del estado actual de cada contacto",
-          "clamped": "Mostrando los últimos {days} días del período",
           "empty": "Ningún envío, entrega, lectura o respuesta en el período"
         },
         "status": {
@@ -10051,6 +10056,11 @@
           "title": "Ningún contacto en campañas",
           "all": "Ningún contacto fue incluido en campañas de envío en este período.",
           "campaign": "Esta campaña aún no tiene contactos en la base."
+        },
+        "window": {
+          "title": "Este bloque muestra como máximo {days} días",
+          "message": "El período elegido empieza el {requested}, así que los envíos de abajo van del {from} al {to}. Los números de arriba siguen usando el período completo.",
+          "use": "Usar los últimos {days} días en la página"
         }
       },
       "sections": {
@@ -11838,6 +11848,7 @@
       "usageValue": "{used} de {limit}",
       "cycle": "Ciclo",
       "cycleValue": "Día {day} · renueva el {renews}",
+      "windowValue": "Día {day} al {end} · se renueva el {renews}",
       "remaining": "Restante",
       "status": "Estado",
       "updated": "Último cambio",
@@ -11854,6 +11865,8 @@
       "createHint": "Al alcanzar el límite, los envíos fallan y se indica al usuario que hable con la administración.",
       "cycleDay": "Día de renovación",
       "cycleDayHint": "El ciclo va de este día al mismo día del mes siguiente. En meses más cortos, los días 29 a 31 usan el último día del mes.",
+      "endDay": "Último día de envío",
+      "endDayHint": "Opcional. Fuera de los días entre el día de renovación y este día, se rechazan los envíos de plantillas. En blanco, envía todo el ciclo.",
       "editHint": "Límite actual: {current}. Aquí solo se puede mantener o reducir.",
       "raiseNeedsUnlock": "Aumentar el límite requiere desbloqueo con código.",
       "raiseForbidden": "Aumentar el límite requiere un desbloqueo que solo la administración autorizada puede hacer."
@@ -11866,6 +11879,8 @@
       "newLimit": "Nuevo límite mensual",
       "cycleDay": "Día de renovación",
       "cycleDayHint": "Cambiar el día reinicia el conteo desde el nuevo ciclo.",
+      "endDay": "Último día de envío",
+      "endDayHint": "En blanco o 0, envía todo el ciclo.",
       "code": "Código de desbloqueo",
       "codeHint": "Código de 4 dígitos de la administración.",
       "confirmRaise": "Desbloquear",
@@ -11878,6 +11893,7 @@
       "invalid_unlock_code": "Código de desbloqueo inválido.",
       "invalid_limit": "El límite debe ser un número entero positivo.",
       "invalid_cycle_day": "El día de renovación debe estar entre 1 y 31.",
+      "invalid_end_day": "El último día de envío debe estar entre 1 y 31, o en blanco.",
       "send_cap_not_found": "Este workspace no tiene límite mensual.",
       "workspace_not_found": "Workspace no encontrado.",
       "invalid_body": "Datos inválidos. Revisa los campos.",
@@ -12465,6 +12481,7 @@
       "contact_ineligible": "El contacto estaba bloqueado o dentro de la protección contra spam. No se cobró nada.",
       "insufficient_balance": "No había saldo al momento del envío. No se cobró nada.",
       "monthly_send_cap_reached": "Se alcanzó el límite mensual de envíos del workspace. Habla con la administración. No se cobró nada.",
+      "send_window_closed": "Hoy está fuera de la ventana de envíos del workspace. Habla con la administración. No se cobró nada.",
       "billing_unavailable": "El cobro no estaba disponible (suscripción o precio). No se cobró nada.",
       "outcome_unknown": "WhatsApp no confirmó el envío. Puede haberse entregado y se cobró. Revisa la conversación antes de enviar de nuevo."
     },
@@ -12542,6 +12559,7 @@
       "within_spam_window": "Este contacto recibió un mensaje de este número hace poco. Espera el intervalo definido por tu espacio de trabajo.",
       "insufficient_balance": "Saldo insuficiente para enviar esta plantilla.",
       "monthly_send_cap_reached": "Este workspace alcanzó su límite mensual de envíos. Habla con la administración.",
+      "send_window_closed": "Hoy está fuera de la ventana de envíos de este workspace. Habla con la administración.",
       "pricing_unavailable": "No hay precio configurado para esta categoría de plantilla. Habla con quien administra el espacio de trabajo.",
       "template_not_sendable": "Esta plantilla no está lista para enviarse.",
       "template_phone_mismatch": "Esta plantilla no pertenece a la cuenta del número seleccionado.",
@@ -12789,7 +12807,7 @@
       "recipientsSkipped": "Líneas omitidas",
       "reasonInvalid": "número inválido",
       "reasonDuplicate": "duplicado",
-      "reasonMissingVariables": "faltan variables",
+      "reasonMissingVariables": "tiene {found} de {required} {required, plural, one {variable} other {variables}}",
       "mediaUpload": "Subir archivo",
       "mediaUploading": "Subiendo…",
       "mediaRemove": "Quitar archivo",

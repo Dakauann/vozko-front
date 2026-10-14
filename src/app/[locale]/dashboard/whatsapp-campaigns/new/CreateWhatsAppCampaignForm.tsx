@@ -75,6 +75,13 @@ import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GrainBackground from "@/components/elevated-design/grain-background";
+import { readDelimitedFile } from "@/lib/csv/parse";
+import {
+  missingVariablesOf,
+  missingVariablesReport,
+  requiredVariablesOf,
+  type MissingVariable,
+} from "@/lib/campaigns/required-variables";
 
 const ITEMS_PER_PAGE = 50;
 const CSV_BATCH_SIZE = 1000;
@@ -837,6 +844,16 @@ export default function CreateWhatsAppCampaignForm({
     [selectedTemplate],
   );
 
+  const requiredVariables = useMemo(
+    () =>
+      requiredVariablesOf(
+        templateVariables,
+        requiredCampaignVars,
+        agentRequiredVarNames.map((key) => ({ key, label: agentVarLabels[key] || key })),
+      ),
+    [templateVariables, requiredCampaignVars, agentRequiredVarNames, agentVarLabels],
+  );
+
   useEffect(() => {
     if (mode === "edit") {
       setTemplateInfoConfirmed(true);
@@ -940,86 +957,43 @@ export default function CreateWhatsAppCampaignForm({
   };
 
   const hasMissingVariables = useCallback(
-    (
-      phoneNumber:
-        | {
-            variables?: string[] | Record<string, string>;
-            metadata?: Record<string, unknown>;
-          }
-        | undefined,
-    ) => {
-      const hasTemplateVars = templateVariables.length > 0;
-      const hasCampaignVars = requiredCampaignVars.length > 0;
-
-      if (!hasTemplateVars && !hasCampaignVars) return false;
-      if (!phoneNumber) return hasTemplateVars || hasCampaignVars;
-
-      if (hasTemplateVars) {
-        const vars = phoneNumber.variables;
-        if (!vars) return true;
-
-        let varsArray: (string | undefined)[];
-
-        if (Array.isArray(vars)) {
-          varsArray = vars;
-        } else if (typeof vars === "object") {
-          varsArray = [];
-          for (let i = 0; i < templateVariables.length; i++) {
-            varsArray[i] = vars[String(i)];
-          }
-        } else {
-          return true;
-        }
-
-        for (let i = 0; i < templateVariables.length; i++) {
-          const value = varsArray[i];
-          if (
-            value === undefined ||
-            value === null ||
-            (typeof value === "string" && value.trim() === "")
-          ) {
-            return true;
-          }
-        }
-      }
-
-      if (hasCampaignVars) {
-        const meta = phoneNumber.metadata;
-        for (const key of requiredCampaignVars) {
-          const value = meta?.[key];
-          if (
-            value === undefined ||
-            value === null ||
-            (typeof value === "string" && value.trim() === "")
-          ) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    },
-    [templateVariables, requiredCampaignVars],
+    (phoneNumber: Parameters<typeof missingVariablesOf>[0]) =>
+      missingVariablesOf(phoneNumber, requiredVariables).length > 0,
+    [requiredVariables],
   );
 
-  const missingVariablesCount = useMemo(() => {
-    if (templateVariables.length === 0 && requiredCampaignVars.length === 0)
-      return 0;
-    return phoneNumbersSnapshot.filter((pn) => hasMissingVariables(pn)).length;
-  }, [
-    phoneNumbersSnapshot,
-    templateVariables,
-    requiredCampaignVars,
-    hasMissingVariables,
-  ]);
+  const missingReport = useMemo(
+    () =>
+      missingVariablesReport(
+        phoneNumbersSnapshot,
+        requiredVariables,
+        metadataFields.filter((f) => !f.required).map((f) => f.key),
+      ),
+    [phoneNumbersSnapshot, requiredVariables, metadataFields],
+  );
+  const missingVariablesCount = missingReport.contacts;
+
+  const describeMissing = useCallback(
+    (missing: MissingVariable) => {
+      const owner =
+        missing.variable.source === "workflow"
+          ? t("validation.missingSourceWorkflow", {
+              name: knownWorkflows[selectedWorkflowId ?? ""]?.name ?? "",
+            })
+          : missing.variable.source === "agent"
+            ? t("validation.missingSourceAgent", {
+                name: knownAgents[selectedAgentId ?? ""]?.name ?? "",
+              })
+            : t("validation.missingSourceTemplate");
+      return { owner };
+    },
+    [t, knownWorkflows, selectedWorkflowId, knownAgents, selectedAgentId],
+  );
 
   const filteredFields = useMemo(() => {
     let result = fields.map((field, idx) => ({ field, originalIndex: idx }));
 
-    if (
-      showOnlyMissingVars &&
-      (templateVariables.length > 0 || requiredCampaignVars.length > 0)
-    ) {
+    if (showOnlyMissingVars && requiredVariables.length > 0) {
       result = result.filter(({ originalIndex }) => {
         const pn = phoneNumbersSnapshot[originalIndex];
         return hasMissingVariables(pn);
@@ -1044,8 +1018,7 @@ export default function CreateWhatsAppCampaignForm({
     phoneNumbersSnapshot,
     showOnlyMissingVars,
     searchQuery,
-    templateVariables,
-    requiredCampaignVars,
+    requiredVariables,
     hasMissingVariables,
   ]);
 
@@ -1320,7 +1293,7 @@ export default function CreateWhatsAppCampaignForm({
       setIsLoadingCsv(true);
       setLoadingProgress(0);
 
-      const text = await file.text();
+      const text = await readDelimitedFile(file);
 
       const {
         records: parsed,
@@ -1331,7 +1304,11 @@ export default function CreateWhatsAppCampaignForm({
       });
 
       if (metadataHeaders.length > 0) {
-        setMetadataFields(metadataHeaders);
+        setMetadataFields((prev) => {
+          const required = prev.filter((f) => f.required);
+          const requiredKeys = new Set(required.map((f) => f.key));
+          return [...required, ...metadataHeaders.filter((f) => !requiredKeys.has(f.key))];
+        });
       }
 
       const items = parsed.map((record) => ({
@@ -1428,92 +1405,19 @@ export default function CreateWhatsAppCampaignForm({
       return;
     }
 
-    const checkMissingVars = (
-      pn:
-        | {
-            number: string;
-            name?: string;
-            variables?: string[] | Record<string, string>;
-            metadata?: Record<string, unknown>;
-          }
-        | undefined,
-    ): boolean => {
-      const hasTemplateVars = templateVariables.length > 0;
-      const hasCampaignVars = requiredCampaignVars.length > 0;
-      const hasAgentVars = agentRequiredVarNames.length > 0;
+    const submitReport = missingVariablesReport(
+      data.phoneNumbers ?? [],
+      requiredVariables,
+      metadataFields.filter((f) => !f.required).map((f) => f.key),
+    );
 
-      if (!hasTemplateVars && !hasCampaignVars && !hasAgentVars) return false;
-      if (!pn) return hasTemplateVars || hasCampaignVars || hasAgentVars;
-
-      if (hasTemplateVars) {
-        const vars = pn.variables;
-        if (!vars) return true;
-
-        let varsArray: (string | undefined)[];
-
-        if (Array.isArray(vars)) {
-          varsArray = vars;
-        } else if (typeof vars === "object") {
-          varsArray = [];
-          for (let i = 0; i < templateVariables.length; i++) {
-            varsArray[i] = vars[String(i)];
-          }
-        } else {
-          return true;
-        }
-
-        for (let i = 0; i < templateVariables.length; i++) {
-          const value = varsArray[i];
-          if (
-            value === undefined ||
-            value === null ||
-            (typeof value === "string" && value.trim() === "")
-          ) {
-            return true;
-          }
-        }
-      }
-
-      if (hasCampaignVars) {
-        const meta = pn.metadata;
-        for (const key of requiredCampaignVars) {
-          const value = meta?.[key];
-          if (
-            value === undefined ||
-            value === null ||
-            (typeof value === "string" && value.trim() === "")
-          ) {
-            return true;
-          }
-        }
-      }
-
-      if (hasAgentVars) {
-        const meta = pn.metadata;
-        for (const key of agentRequiredVarNames) {
-          const value = meta?.[key];
-          if (
-            value === undefined ||
-            value === null ||
-            (typeof value === "string" && value.trim() === "")
-          ) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    };
-
-    const missingPhones = data.phoneNumbers?.filter(checkMissingVars) ?? [];
-    const hasVarsToCheck =
-      templateVariables.length > 0 || requiredCampaignVars.length > 0 || agentRequiredVarNames.length > 0;
-    const actualMissingCount = hasVarsToCheck ? missingPhones.length : 0;
-
-    if (hasVarsToCheck && actualMissingCount > 0) {
-      toast.error(t("validation.missingVariablesTitle"), { description: t("validation.cannotSubmitMissingVars", {
-          count: actualMissingCount,
-        }) });
+    if (submitReport.contacts > 0) {
+      toast.error(t("validation.missingVariablesTitle"), {
+        description: t("validation.cannotSubmitMissingVars", {
+          count: submitReport.contacts,
+          variables: submitReport.variables.map((m) => m.variable.label).join(", "),
+        }),
+      });
       setShowOnlyMissingVars(true);
       setCurrentPage(0);
       return;
@@ -2446,8 +2350,7 @@ export default function CreateWhatsAppCampaignForm({
           </div>
         )}
 
-        {(templateVariables.length > 0 || requiredCampaignVars.length > 0) &&
-          missingVariablesCount > 0 && (
+        {missingVariablesCount > 0 && (
             <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
               <div className="flex items-start gap-3">
                 <Warning
@@ -2463,6 +2366,27 @@ export default function CreateWhatsAppCampaignForm({
                       count: missingVariablesCount,
                     })}
                   </p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-warning-ink">
+                    {missingReport.variables.map((missing) => (
+                      <li key={`${missing.variable.source}:${missing.variable.key}`}>
+                        <span className="font-mono font-semibold">{missing.variable.key}</span>
+                        {missing.variable.label !== missing.variable.key ? ` (${missing.variable.label})` : ""}
+                        {" · "}
+                        {t("validation.missingVariableLine", {
+                          owner: describeMissing(missing).owner,
+                          count: missing.contacts,
+                        })}
+                        {missing.suggestion ? (
+                          <span className="block text-xs">
+                            {t("validation.missingVariableSuggestion", {
+                              column: missing.suggestion,
+                              key: missing.variable.key,
+                            })}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
                   <button
                     type="button"
                     onClick={() => {

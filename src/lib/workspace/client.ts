@@ -191,10 +191,10 @@ export async function inviteMember(
     invite: WorkspaceInvite | null;
     error?: string;
 }> {
-    void departmentIds;
     const body: Record<string, unknown> = { email };
     if (role) body.role = role;
     if (roleId) body.roleId = roleId;
+    if (departmentIds?.length) body.departmentIds = departmentIds;
 
     const { data, error } = await apiClient<WorkspaceInvite>(
         `/workspaces/${workspaceId}/members/invite`,

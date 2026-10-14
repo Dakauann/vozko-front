@@ -124,8 +124,9 @@ function AdminSendCaps() {
                 key: "cycle",
                 render: (item) => (
                     <span className="text-sm text-muted-foreground">
-                        {t("table.cycleValue", {
+                        {t(item.endDay ? "table.windowValue" : "table.cycleValue", {
                             day: item.cycleDay,
+                            end: item.endDay,
                             renews: format.dateTime(new Date(item.renewsAt), { dateStyle: "short", timeZone: "America/Sao_Paulo" }),
                         })}
                     </span>

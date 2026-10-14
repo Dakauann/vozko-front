@@ -17,6 +17,7 @@ export interface SkippedLine {
   line: number;
   raw: string;
   reason: "invalid" | "duplicate" | "missingVariables";
+  variables?: number;
 }
 
 export interface ParsedTargetList {
@@ -63,7 +64,7 @@ export function parseTargetList(
 
     if (requiredVariables > 0 && variables.length < requiredVariables) {
       missingVariables += 1;
-      skipped.push({ line: index + 1, raw: trimmed, reason: "missingVariables" });
+      skipped.push({ line: index + 1, raw: trimmed, reason: "missingVariables", variables: variables.length });
       return;
     }
 
@@ -86,7 +87,11 @@ export interface TargetListEditorLabels {
     missingVariables: number;
   }) => string;
   skippedTitle: string;
-  reasons: Record<SkippedLine["reason"], string>;
+  reasons: {
+    invalid: string;
+    duplicate: string;
+    missingVariables: (found: number, required: number) => string;
+  };
   variablesNeeded: (count: number) => string;
 }
 
@@ -186,7 +191,9 @@ export function TargetListEditor({
                 <span className="shrink-0 tabular-nums">#{item.line}</span>
                 <span className="min-w-0 flex-1 truncate font-mono">{item.raw}</span>
                 <span className="shrink-0 text-warning-ink">
-                  {labels.reasons[item.reason]}
+                  {item.reason === "missingVariables"
+                    ? labels.reasons.missingVariables(item.variables ?? 0, requiredVariables)
+                    : labels.reasons[item.reason]}
                 </span>
               </li>
             ))}

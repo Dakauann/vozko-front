@@ -31,6 +31,8 @@ const item: SendCapItem = {
     cycleDay: 1,
     cycleStart: "2026-10-01T03:00:00Z",
     renewsAt: "2026-11-01T03:00:00Z",
+    endDay: 0,
+    windowEnd: "2026-11-01T03:00:00Z",
 };
 
 function renderDialog(canUnlock: boolean, onUnlockInstead = vi.fn(), onSaved = vi.fn()) {
@@ -115,7 +117,7 @@ describe("SendCapLimitDialog creating a cap", () => {
         fireEvent.click(screen.getByRole("button", { name: t.actions.save }));
 
         await waitFor(() => expect(onSaved).toHaveBeenCalled());
-        expect(setAction).toHaveBeenCalledWith("ws-9", 300, 15);
+        expect(setAction).toHaveBeenCalledWith("ws-9", 300, 15, 0);
     });
 
     it("refuses a day outside the month", async () => {
@@ -128,6 +130,38 @@ describe("SendCapLimitDialog creating a cap", () => {
         fireEvent.click(await screen.findByRole("option", { name: "Nova" }));
         fireEvent.change(screen.getByPlaceholderText("5000"), { target: { value: "300" } });
         fireEvent.change(screen.getByLabelText(t.limitDialog.cycleDay), { target: { value: "0" } });
+        expect(screen.getByRole("button", { name: t.actions.save })).toBeDisabled();
+    });
+
+    it("creates the cap with a send window", async () => {
+        setAction.mockResolvedValue({ change: { workspaceId: "ws-9", limit: 300, cycleDay: 15, endDay: 20 } });
+        const onSaved = vi.fn();
+        render(
+            <NextIntlClientProvider locale="pt" messages={ptMessages} timeZone="America/Sao_Paulo">
+                <SendCapLimitDialog item={null} canUnlock={false} onClose={vi.fn()} onSaved={onSaved} onUnlockInstead={vi.fn()} />
+            </NextIntlClientProvider>,
+        );
+        fireEvent.change(screen.getByPlaceholderText(t.limitDialog.searchPlaceholder), { target: { value: "No" } });
+        fireEvent.click(await screen.findByRole("option", { name: "Nova" }));
+        fireEvent.change(screen.getByPlaceholderText("5000"), { target: { value: "300" } });
+        fireEvent.change(screen.getByLabelText(t.limitDialog.cycleDay), { target: { value: "15" } });
+        fireEvent.change(screen.getByLabelText(t.limitDialog.endDay), { target: { value: "20" } });
+        fireEvent.click(screen.getByRole("button", { name: t.actions.save }));
+
+        await waitFor(() => expect(onSaved).toHaveBeenCalled());
+        expect(setAction).toHaveBeenCalledWith("ws-9", 300, 15, 20);
+    });
+
+    it("refuses an end day outside the month", async () => {
+        render(
+            <NextIntlClientProvider locale="pt" messages={ptMessages} timeZone="America/Sao_Paulo">
+                <SendCapLimitDialog item={null} canUnlock={false} onClose={vi.fn()} onSaved={vi.fn()} onUnlockInstead={vi.fn()} />
+            </NextIntlClientProvider>,
+        );
+        fireEvent.change(screen.getByPlaceholderText(t.limitDialog.searchPlaceholder), { target: { value: "No" } });
+        fireEvent.click(await screen.findByRole("option", { name: "Nova" }));
+        fireEvent.change(screen.getByPlaceholderText("5000"), { target: { value: "300" } });
+        fireEvent.change(screen.getByLabelText(t.limitDialog.endDay), { target: { value: "32" } });
         expect(screen.getByRole("button", { name: t.actions.save })).toBeDisabled();
     });
 });

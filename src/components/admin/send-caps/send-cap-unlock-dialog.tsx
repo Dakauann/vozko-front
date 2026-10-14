@@ -18,6 +18,7 @@ import {
     SEND_CAP_CODE_LENGTH,
     isCompleteSendCapCode,
     parseSendCapCycleDay,
+    parseSendCapEndDay,
     parseSendCapLimit,
     type SendCapItem,
     type SendCapUnlockTarget,
@@ -40,16 +41,18 @@ export function SendCapUnlockDialog({
     const [removeCap, setRemoveCap] = useState(false);
     const [limitText, setLimitText] = useState("");
     const [cycleDayText, setCycleDayText] = useState(String(item.cycleDay));
+    const [endDayText, setEndDayText] = useState(item.endDay ? String(item.endDay) : "");
     const [code, setCode] = useState("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const limit = parseSendCapLimit(limitText);
     const cycleDay = parseSendCapCycleDay(cycleDayText);
+    const endDay = parseSendCapEndDay(endDayText);
     const target: SendCapUnlockTarget | null = removeCap
         ? { kind: "remove" }
-        : limit !== null && cycleDay !== null
-          ? { kind: "raise", limit, cycleDay }
+        : limit !== null && cycleDay !== null && endDay !== null
+          ? { kind: "raise", limit, cycleDay, endDay }
           : null;
     const ready = target !== null && isCompleteSendCapCode(code);
 
@@ -108,6 +111,14 @@ export function SendCapUnlockDialog({
                                     aria-label={t("unlockDialog.cycleDay")}
                                     value={cycleDayText}
                                     onChange={(e) => setCycleDayText(e.target.value)}
+                                />
+                            </SendCapField>
+                            <SendCapField label={t("unlockDialog.endDay")} hint={t("unlockDialog.endDayHint")}>
+                                <ElevatedInput
+                                    inputMode="numeric"
+                                    aria-label={t("unlockDialog.endDay")}
+                                    value={endDayText}
+                                    onChange={(e) => setEndDayText(e.target.value)}
                                 />
                             </SendCapField>
                         </>

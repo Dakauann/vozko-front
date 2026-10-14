@@ -168,7 +168,7 @@ const ElevatedCommandSelect = ({
 
   return (
     <div className={cn("relative w-full", className)}>
-      <Popover open={open} onOpenChange={handleOpenChange}>
+      <Popover modal open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <button
             type="button"

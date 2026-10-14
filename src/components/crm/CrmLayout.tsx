@@ -300,6 +300,8 @@ export default function CrmLayout({
   const urlHydratedRef = useRef(false);
   const defaultViewAppliedRef = useRef(false);
   const [boardColumns, setBoardColumns] = useState<CrmColumn[] | null>(null);
+  const boardFetchRef = useRef({ running: false, again: false });
+  const latestRefetchBoardRef = useRef<() => Promise<void>>(async () => {});
   const [activePipelineId, setActivePipelineId] = useState<string>("");
   const [selectedPipeline, setSelectedPipeline] =
     useState<SelectedPipeline | null>(null);
@@ -439,17 +441,21 @@ export default function CrmLayout({
     if (!enabled || hasCampaign) return;
     let cancelled = false;
     (async () => {
-      const { pipelines } = await listPipelinesAction("conversation");
-      if (cancelled) return;
+      const { pipelines, error } = await listPipelinesAction("conversation");
+      if (cancelled || error) return;
       const def = pipelines.find((p) => p.isDefault) ?? pipelines[0];
       if (def) setDefaultConvPipeline({ id: def.id, name: def.name });
-      setActivePipelineId((prev) => prev || (def?.id ?? ""));
-      setSelectedPipeline(
-        (prev) =>
-          prev ??
-          (def
+      const known = (id: string) =>
+        id === ALL_FUNNELS_ID || pipelines.some((p) => p.id === id);
+      setActivePipelineId((prev) =>
+        prev && known(prev) ? prev : (def?.id ?? ""),
+      );
+      setSelectedPipeline((prev) =>
+        prev && (prev.objectType !== "conversation" || known(prev.id))
+          ? prev
+          : def
             ? { id: def.id, objectType: "conversation", name: def.name }
-            : null),
+            : null,
       );
     })();
     return () => {
@@ -457,8 +463,7 @@ export default function CrmLayout({
     };
   }, [enabled, hasCampaign]);
 
-  const refetchBoard = useCallback(async () => {
-    if (!isGlobalBoard) return;
+  const loadBoard = useCallback(async () => {
     let owners: CrmBoardOwner[] = [];
     if (groupBy === "owner" && currentWorkspace?.id) {
       const res = await listAssignableMembersAction(currentWorkspace.id, {
@@ -469,7 +474,7 @@ export default function CrmLayout({
         name: m.username?.trim() || m.email?.trim() || m.userId,
       }));
     }
-    const { board } = await getCrmBoardAction({
+    return getCrmBoardAction({
       groupBy,
       whatsappCampaignType,
       pipelineId:
@@ -480,15 +485,42 @@ export default function CrmLayout({
       owners,
       pageSize: BOARD_PAGE_SIZE,
     });
-    setBoardColumns(board?.columns ?? []);
   }, [
-    isGlobalBoard,
     groupBy,
     activePipelineId,
     currentWorkspace?.id,
     filter,
     whatsappCampaignType,
   ]);
+
+  const refetchBoard = useCallback(async () => {
+    if (!isGlobalBoard) return;
+    const fetching = boardFetchRef.current;
+    if (fetching.running) {
+      fetching.again = true;
+      return;
+    }
+    fetching.running = true;
+    try {
+      const { board, error } = await loadBoard();
+      if (fetching.again) return;
+      if (error) {
+        toast.error(error, { id: "crm-board" });
+        return;
+      }
+      setBoardColumns(board?.columns ?? []);
+    } finally {
+      fetching.running = false;
+      if (fetching.again) {
+        fetching.again = false;
+        void latestRefetchBoardRef.current();
+      }
+    }
+  }, [isGlobalBoard, loadBoard]);
+
+  useEffect(() => {
+    latestRefetchBoardRef.current = refetchBoard;
+  }, [refetchBoard]);
 
   const handleSelectPipeline = useCallback((p: SelectedPipeline) => {
     setSelectedPipeline(p);

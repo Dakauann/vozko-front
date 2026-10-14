@@ -27,6 +27,8 @@ const item: SendCapItem = {
     cycleDay: 1,
     cycleStart: "2026-10-01T03:00:00Z",
     renewsAt: "2026-11-01T03:00:00Z",
+    endDay: 0,
+    windowEnd: "2026-11-01T03:00:00Z",
 };
 
 function renderDialog(onUnlocked = vi.fn()) {
@@ -70,7 +72,7 @@ describe("SendCapUnlockDialog", () => {
         fireEvent.click(ui.confirm());
 
         await waitFor(() => expect(onUnlocked).toHaveBeenCalled());
-        expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 1 }, "1234");
+        expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 1, endDay: 0 }, "1234");
     });
 
     it("shows the translated refusal and clears the code on a wrong code", async () => {
@@ -115,7 +117,7 @@ describe("SendCapUnlockDialog cycle day", () => {
         fireEvent.change(ui.code(), { target: { value: "1234" } });
         fireEvent.click(ui.confirm());
 
-        await waitFor(() => expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 15 }, "1234"));
+        await waitFor(() => expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 15, endDay: 0 }, "1234"));
     });
 
     it("keeps the unlock disabled while the day is outside the month", () => {
@@ -124,5 +126,19 @@ describe("SendCapUnlockDialog cycle day", () => {
         fireEvent.change(screen.getByLabelText(t.unlockDialog.cycleDay), { target: { value: "32" } });
         fireEvent.change(ui.code(), { target: { value: "1234" } });
         expect(ui.confirm()).toBeDisabled();
+    });
+
+    it("sends a new send window", async () => {
+        unlockAction.mockResolvedValue({ change: { workspaceId: "ws-1", limit: 5000, cycleDay: 1, endDay: 10 } });
+        const ui = renderDialog();
+        const end = screen.getByLabelText(t.unlockDialog.endDay);
+        expect(end).toHaveValue("");
+
+        fireEvent.change(ui.limit(), { target: { value: "5000" } });
+        fireEvent.change(end, { target: { value: "10" } });
+        fireEvent.change(ui.code(), { target: { value: "1234" } });
+        fireEvent.click(ui.confirm());
+
+        await waitFor(() => expect(unlockAction).toHaveBeenCalledWith("ws-1", { kind: "raise", limit: 5000, cycleDay: 1, endDay: 10 }, "1234"));
     });
 });

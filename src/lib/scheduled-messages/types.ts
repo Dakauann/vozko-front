@@ -17,6 +17,7 @@ export type ScheduledMessageFailureReason =
     | "contact_ineligible"
     | "insufficient_balance"
     | "monthly_send_cap_reached"
+    | "send_window_closed"
     | "billing_unavailable"
     | "outcome_unknown";
 

@@ -7,7 +7,6 @@ import ptMessages from "@/i18n/messages/pt.json";
 
 const listWhatsAppTemplatesAction = vi.fn();
 const quoteTemplateSendAction = vi.fn();
-const useExchangeRate = vi.fn();
 
 vi.mock("@/app/actions/whatsapp-templates", () => ({
   listWhatsAppTemplatesAction: (...args: unknown[]) => listWhatsAppTemplatesAction(...args),
@@ -15,7 +14,6 @@ vi.mock("@/app/actions/whatsapp-templates", () => ({
 vi.mock("@/app/actions/whatsapp-outreach", () => ({
   quoteTemplateSendAction: (...args: unknown[]) => quoteTemplateSendAction(...args),
 }));
-vi.mock("@/hooks/use-exchange-rate", () => ({ useExchangeRate: (enabled: boolean) => useExchangeRate(enabled) }));
 
 import { useTemplateComposer } from "./use-template-composer";
 
@@ -49,13 +47,11 @@ describe("useTemplateComposer", () => {
     vi.resetAllMocks();
     listWhatsAppTemplatesAction.mockResolvedValue({ templates: [TEMPLATE] });
     quoteTemplateSendAction.mockResolvedValue({ quote: null, error: null });
-    useExchangeRate.mockReturnValue(null);
   });
 
   it("quotes the one-to-one send of the picked template by default", async () => {
     await pickTemplate();
     await waitFor(() => expect(quoteTemplateSendAction).toHaveBeenCalledWith("tpl-1", "bp-1"));
-    expect(useExchangeRate).toHaveBeenLastCalledWith(true);
   });
 
   it("shows why the quote was refused instead of an empty price", async () => {
@@ -110,9 +106,8 @@ describe("useTemplateComposer", () => {
     expect(hook.result.current.quoteError).toBeNull();
   });
 
-  it("asks for neither the quote nor the exchange rate when the caller prices the send itself", async () => {
+  it("does not ask for the quote when the caller prices the send itself", async () => {
     await pickTemplate(false);
     expect(quoteTemplateSendAction).not.toHaveBeenCalled();
-    expect(useExchangeRate).not.toHaveBeenCalledWith(true);
   });
 });

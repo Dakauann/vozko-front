@@ -5068,7 +5068,8 @@
         "900002": "Für diese Kampagne ist kein Geschäftstelefon konfiguriert",
         "900003": "Der WhatsApp-Client dieser Kampagne konnte nicht ermittelt werden",
         "900006": "Der Eintrag zum Ausfüllen der Vorlagenvariablen wurde nicht gefunden",
-        "900009": "Monatliches Sendelimit erreicht. Wende dich an die Administration, um neue Versände freizugeben"
+        "900009": "Monatliches Sendelimit erreicht. Wende dich an die Administration, um neue Versände freizugeben",
+        "900010": "Außerhalb des Versandfensters des Workspaces. Wende dich an die Administration, um neue Sendungen freizugeben"
       },
       "years": "Jahre",
       "export": {
@@ -5243,9 +5244,14 @@
         "maxContactsExceeded": "Maximale Grenze von 150.000 Nummern überschritten.",
         "duplicateNumber": "Doppelte Nummer.",
         "missingVariablesTitle": "Erforderliche Variablen fehlen",
-        "missingVariablesDescription": "{count, plural, one {# Kontakt hat} other {# Kontakte haben}} leere Vorlagenvariablen.",
+        "missingVariablesDescription": "{count, plural, one {# Kontakt hat} other {# Kontakte haben}} keinen Wert für Pflichtvariablen:",
         "showMissingVariables": "Kontakte mit fehlenden Variablen anzeigen",
-        "cannotSubmitMissingVars": "Variablen für {count, plural, one {# Kontakt} other {# Kontakte}} vor dem Absenden ausfüllen.",
+        "cannotSubmitMissingVars": "Fülle {variables} bei {count, plural, one {# Kontakt} other {# Kontakten}} aus, bevor du sendest.",
+        "missingVariableLine": "{owner}, fehlt bei {count, plural, one {# Kontakt} other {# Kontakten}}",
+        "missingVariableSuggestion": "Die Tabelle hat die Spalte \"{column}\". Falls es dieselben Daten sind, benenne sie in \"{key}\" um und importiere erneut.",
+        "missingSourceTemplate": "Vorlagenvariable",
+        "missingSourceWorkflow": "vom Workflow \"{name}\" verlangt",
+        "missingSourceAgent": "vom Agenten \"{name}\" verlangt",
         "formHasErrors": "Bitte behebe die Fehler im Formular vor dem Absenden.",
         "confirmTemplateFirst": "Aktiviere „Ich bestätige, dass ich die Vorlagendaten geprüft habe“ im Vorschaubereich rechts, um die Kampagne zu erstellen.",
         "confirmTemplateLabel": "Ich bestätige, dass ich die Vorlagendaten oben geprüft habe",
@@ -9892,7 +9898,6 @@
           "replied": "Antworten",
           "trackedSince": "Zeitachse erfasst seit {date}; frühere Sendungen erscheinen nur im Trichter",
           "notTracked": "Für diese Kampagne ist noch keine Zeitachse erfasst; der Trichter stammt aus dem aktuellen Status jedes Kontakts",
-          "clamped": "Es werden die letzten {days} Tage des Zeitraums gezeigt",
           "empty": "Keine Sendungen, Zustellungen, Lesungen oder Antworten im Zeitraum"
         },
         "status": {
@@ -9954,6 +9959,11 @@
           "title": "Keine Kampagnenkontakte",
           "all": "In diesem Zeitraum wurde kein Kontakt zu Versandkampagnen hinzugefügt.",
           "campaign": "Diese Kampagne hat noch keine Kontakte in ihrer Basis."
+        },
+        "window": {
+          "title": "Dieser Bereich zeigt höchstens {days} Tage",
+          "message": "Der gewählte Zeitraum beginnt am {requested}, daher umfassen die Sendungen unten {from} bis {to}. Die Zahlen oben nutzen weiter den ganzen Zeitraum.",
+          "use": "Die letzten {days} Tage für die Seite nutzen"
         }
       },
       "sections": {
@@ -11741,6 +11751,7 @@
       "usageValue": "{used} von {limit}",
       "cycle": "Zyklus",
       "cycleValue": "Tag {day} · erneuert am {renews}",
+      "windowValue": "Tag {day} bis {end} · erneuert am {renews}",
       "remaining": "Verbleibend",
       "status": "Status",
       "updated": "Letzte Änderung",
@@ -11757,6 +11768,8 @@
       "createHint": "Ist das Limit erreicht, schlagen Sendungen fehl und der Nutzer wird an die Administration verwiesen.",
       "cycleDay": "Erneuerungstag",
       "cycleDayHint": "Der Zyklus läuft von diesem Tag bis zum selben Tag im Folgemonat. In kürzeren Monaten gelten die Tage 29 bis 31 als letzter Tag des Monats.",
+      "endDay": "Letzter Versandtag",
+      "endDayHint": "Optional. Außerhalb der Tage vom Erneuerungstag bis zu diesem Tag werden Vorlagen-Sendungen abgelehnt. Leer lassen, um den ganzen Zyklus zu senden.",
       "editHint": "Aktuelles Limit: {current}. Hier kann es nur beibehalten oder gesenkt werden.",
       "raiseNeedsUnlock": "Das Erhöhen des Limits erfordert eine Entsperrung mit Code.",
       "raiseForbidden": "Das Erhöhen des Limits erfordert eine Entsperrung, die nur die berechtigte Administration vornehmen kann."
@@ -11769,6 +11782,8 @@
       "newLimit": "Neues Monatslimit",
       "cycleDay": "Erneuerungstag",
       "cycleDayHint": "Eine Änderung des Tages startet die Zählung im neuen Zyklus neu.",
+      "endDay": "Letzter Versandtag",
+      "endDayHint": "Leer oder 0 sendet den ganzen Zyklus.",
       "code": "Entsperrcode",
       "codeHint": "Vierstelliger Code der Administration.",
       "confirmRaise": "Entsperren",
@@ -11781,6 +11796,7 @@
       "invalid_unlock_code": "Ungültiger Entsperrcode.",
       "invalid_limit": "Das Limit muss eine positive ganze Zahl sein.",
       "invalid_cycle_day": "Der Erneuerungstag muss zwischen 1 und 31 liegen.",
+      "invalid_end_day": "Der letzte Versandtag muss zwischen 1 und 31 liegen oder leer sein.",
       "send_cap_not_found": "Dieser Workspace hat kein Monatslimit.",
       "workspace_not_found": "Workspace nicht gefunden.",
       "invalid_body": "Ungültige Daten. Prüfe die Felder.",
@@ -12368,6 +12384,7 @@
       "contact_ineligible": "Der Kontakt war blockiert oder im Spamschutz. Es wurde nichts berechnet.",
       "insufficient_balance": "Beim Senden war kein Guthaben vorhanden. Es wurde nichts berechnet.",
       "monthly_send_cap_reached": "Das monatliche Versandlimit des Workspace wurde erreicht. Wende dich an die Administration. Es wurde nichts berechnet.",
+      "send_window_closed": "Heute liegt außerhalb des Versandfensters des Workspaces. Wende dich an die Administration. Es wurde nichts berechnet.",
       "billing_unavailable": "Die Abrechnung war nicht verfügbar (Abo oder Preis). Es wurde nichts berechnet.",
       "outcome_unknown": "WhatsApp hat den Versand nicht bestätigt. Er wurde möglicherweise zugestellt und berechnet. Prüfe die Unterhaltung, bevor du erneut sendest."
     },
@@ -12445,6 +12462,7 @@
       "within_spam_window": "Dieser Kontakt wurde von dieser Nummer erst kürzlich angeschrieben. Warte das im Workspace festgelegte Intervall ab.",
       "insufficient_balance": "Zu wenig Guthaben, um diese Vorlage zu senden.",
       "monthly_send_cap_reached": "Dieser Workspace hat sein monatliches Versandlimit erreicht. Wende dich an die Administration.",
+      "send_window_closed": "Heute liegt außerhalb des Versandfensters dieses Workspaces. Wende dich an die Administration.",
       "pricing_unavailable": "Für diese Vorlagenkategorie ist kein Preis hinterlegt. Wende dich an die Workspace-Verwaltung.",
       "template_not_sendable": "Diese Vorlage ist nicht versandbereit.",
       "template_phone_mismatch": "Diese Vorlage gehört nicht zum Konto der gewählten Nummer.",
@@ -12692,7 +12710,7 @@
       "recipientsSkipped": "Übersprungene Zeilen",
       "reasonInvalid": "ungültige Nummer",
       "reasonDuplicate": "Duplikat",
-      "reasonMissingVariables": "Variablen fehlen",
+      "reasonMissingVariables": "hat {found} von {required} {required, plural, one {Variable} other {Variablen}}",
       "mediaUpload": "Datei hochladen",
       "mediaUploading": "Wird hochgeladen…",
       "mediaRemove": "Datei entfernen",

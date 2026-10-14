@@ -425,6 +425,7 @@ export function DispatchReportChapter({
   conversions,
   canReadAnalysis,
   onSelectCampaign,
+  onUseWindow,
 }: {
   campaignId?: string;
   departmentId?: string;
@@ -433,6 +434,7 @@ export function DispatchReportChapter({
   conversions: number | null;
   canReadAnalysis: boolean;
   onSelectCampaign: (campaignId: string) => void;
+  onUseWindow: (dateFrom: string, dateTo: string) => void;
 }) {
   const t = useTranslations("metricsOps.attendance.dispatch");
   const te = useTranslations("metricsOps.attendance.executive");
@@ -461,6 +463,15 @@ export function DispatchReportChapter({
     ? new Date(funnel.trackedSince).toLocaleDateString(localeTagFor(locale))
     : null;
   const snapshotScope = single ? t("scopeCampaign") : t("scopePeriod");
+  const reportDay = (day: string) => new Date(`${day}T00:00:00`).toLocaleDateString(localeTagFor(locale));
+  const windowNotice = period.clamped ? (
+    <SectionNotice
+      tone="warning"
+      title={t("window.title", { days: DISPATCH_REPORT_MAX_DAYS })}
+      message={t("window.message", { from: reportDay(period.from), to: reportDay(period.to), requested: reportDay(dateFrom) })}
+      action={{ label: t("window.use", { days: DISPATCH_REPORT_MAX_DAYS }), onClick: () => onUseWindow(period.from, period.to) }}
+    />
+  ) : null;
 
   const cells: KpiCell[] = stages.map((stage) => ({
     key: stage.key,
@@ -519,6 +530,7 @@ export function DispatchReportChapter({
   if (funnel && funnel.base === 0) {
     return (
       <Chapter {...heading}>
+        {windowNotice}
         <SectionNotice title={t("empty.title")} message={single ? t("empty.campaign") : t("empty.all")} />
       </Chapter>
     );
@@ -526,6 +538,7 @@ export function DispatchReportChapter({
 
   return (
     <Chapter {...heading}>
+      {windowNotice}
       <SectionState query={summary}>
         {summary.isPending || !funnel ? <ChartSkeleton height={88} /> : <KpiStrip cells={cells} />}
 
@@ -542,7 +555,6 @@ export function DispatchReportChapter({
             </SectionState>
             <p className="mt-1.5 text-2xs text-muted-foreground">
               {trackedSince ? t("daily.trackedSince", { date: trackedSince }) : funnel ? t("daily.notTracked") : null}
-              {period.clamped ? ` · ${t("daily.clamped", { days: DISPATCH_REPORT_MAX_DAYS })}` : null}
               {daily.data ? ` · ${te("timezoneNote", { timezone: daily.data.timezone })}` : null}
             </p>
           </Surface>

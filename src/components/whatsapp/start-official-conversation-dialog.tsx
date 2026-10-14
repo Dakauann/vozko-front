@@ -35,7 +35,7 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
-import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
+import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { QuoteRefusalNotice } from "@/components/whatsapp/quote-refusal-notice";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
 import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
@@ -95,7 +95,6 @@ export function StartOfficialConversationDialog({
         quote,
         quoteError,
         retryQuote,
-        priceLabel,
         reset: resetComposer,
         reload: reloadTemplates,
         upsertTemplate,
@@ -418,14 +417,8 @@ export function StartOfficialConversationDialog({
                                     />
 
                                     <div className="rounded-lg border border-border bg-muted p-3">
-                                        <div className="flex items-baseline justify-between gap-3">
-                                            <span className="text-xs text-muted-foreground">{t("cost.label")}</span>
-                                            <span className="readout text-sm font-semibold text-foreground">
-                                                {priceLabel ?? <EmptyValue />}
-                                            </span>
-                                        </div>
                                         {quote && !quote.affordable && (
-                                            <p className="mt-1.5 flex items-start gap-1.5 text-xs text-destructive-ink">
+                                            <p className="mb-2 flex items-start gap-1.5 text-xs text-destructive-ink">
                                                 <WarningCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
                                                 {t("cost.insufficient")}
                                             </p>
@@ -456,7 +449,7 @@ export function StartOfficialConversationDialog({
                             {phones.length > 0 && (
                                 <Button
                                     variant="primary"
-                                    title={busy ? t("sending") : priceLabel ? t("submitWithPrice", { price: priceLabel }) : t("submit")}
+                                    title={busy ? t("sending") : t("submit")}
                                     icon={
                                         busy ? (
                                             <CircleNotch className="h-4 w-4 animate-spin" />

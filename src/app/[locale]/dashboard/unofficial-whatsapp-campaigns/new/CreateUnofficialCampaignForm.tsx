@@ -31,6 +31,7 @@ import {
   parseTargetList,
   type ParsedTargetList,
 } from "@/components/campaigns/TargetListEditor";
+import { readDelimitedFile } from "@/lib/csv/parse";
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
 import type {
   UnofficialWhatsAppCampaign,
@@ -672,7 +673,7 @@ export default function CreateUnofficialCampaignForm({
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  setRawTargets(await file.text());
+                  setRawTargets(await readDelimitedFile(file));
                   e.target.value = "";
                 }}
               />
@@ -719,7 +720,7 @@ export default function CreateUnofficialCampaignForm({
               reasons: {
                 invalid: t("form.reasonInvalid"),
                 duplicate: t("form.reasonDuplicate"),
-                missingVariables: t("form.reasonMissingVariables"),
+                missingVariables: (found, required) => t("form.reasonMissingVariables", { found, required }),
               },
               variablesNeeded: (count) => t("form.recipientsNeedVariables", { count }),
             }}

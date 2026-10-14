@@ -8,7 +8,9 @@ export interface SendCapItem {
     remaining: number;
     level: SendCapLevel;
     cycleDay: number;
+    endDay: number;
     cycleStart: string;
+    windowEnd: string;
     renewsAt: string;
     updatedBy: string;
     updatedAt: string;
@@ -25,10 +27,11 @@ export interface SendCapChange {
     workspaceId: string;
     limit: number | null;
     cycleDay: number | null;
+    endDay: number | null;
 }
 
 export type SendCapUnlockTarget =
-    | { kind: "raise"; limit: number; cycleDay: number }
+    | { kind: "raise"; limit: number; cycleDay: number; endDay: number }
     | { kind: "remove" };
 
 export interface SendCapActionError {
@@ -61,4 +64,12 @@ export function parseSendCapCycleDay(raw: string): number | null {
     if (!/^\d{1,2}$/.test(trimmed)) return null;
     const day = Number(trimmed);
     return day >= 1 && day <= 31 ? day : null;
+}
+
+export function parseSendCapEndDay(raw: string): number | null {
+    const trimmed = raw.trim();
+    if (trimmed === "") return 0;
+    if (!/^\d{1,2}$/.test(trimmed)) return null;
+    const day = Number(trimmed);
+    return day <= 31 ? day : null;
 }
