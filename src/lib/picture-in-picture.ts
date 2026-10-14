@@ -32,6 +32,10 @@ export async function requestPictureInPictureWindow(
   return api.requestWindow(size);
 }
 
+export function setWindowTitle(target: Window, title: string) {
+  target.document.title = title;
+}
+
 function copyAttributes(from: Element, to: Element) {
   for (const { name } of [...to.attributes]) {
     if (!from.hasAttribute(name)) to.removeAttribute(name);

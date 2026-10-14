@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { HostDocumentProvider } from "@/contexts/host-document-context";
+import { setWindowTitle } from "@/lib/picture-in-picture";
 
 export function WindowPortal({
   target,
@@ -15,7 +16,7 @@ export function WindowPortal({
   children: ReactNode;
 }) {
   useEffect(() => {
-    target.document.title = title;
+    setWindowTitle(target, title);
   }, [target, title]);
 
   return createPortal(
