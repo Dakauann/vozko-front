@@ -6973,6 +6973,8 @@
       "maximize": "Maximizar",
       "close": "Fechar janela",
       "dragHint": "Arraste para mover",
+      "popOut": "Destacar janela (fica por cima das outras abas)",
+      "returnToPage": "Voltar para a página",
       "actions": "Ações da conversa",
       "statusHeading": "Status",
       "markOngoing": "Marcar em andamento",

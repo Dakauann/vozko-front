@@ -2706,6 +2706,8 @@ export default function CrmLayout({
           maximize: tWindow("maximize"),
           close: tWindow("close"),
           dragHint: tWindow("dragHint"),
+          popOut: tWindow("popOut"),
+          returnToPage: tWindow("returnToPage"),
           actions: {
             actions: tWindow("actions"),
             statusHeading: tWindow("statusHeading"),

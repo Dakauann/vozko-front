@@ -6300,6 +6300,8 @@
       "maximize": "Maximieren",
       "close": "Fenster schließen",
       "dragHint": "Zum Verschieben ziehen",
+      "popOut": "Fenster abdocken (bleibt über anderen Tabs)",
+      "returnToPage": "Zurück zur Seite",
       "actions": "Aktionen für das Gespräch",
       "statusHeading": "Status",
       "markOngoing": "Als laufend markieren",

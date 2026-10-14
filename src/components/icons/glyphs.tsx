@@ -551,6 +551,22 @@ export const ExternalLink: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const PictureInPicture: Icon = /*#__PURE__*/ glyph(
+  "PictureInPicture",
+  <>
+    <path d="M20.25 10.5V6.25a2.5 2.5 0 0 0-2.5-2.5H6.25a2.5 2.5 0 0 0-2.5 2.5v11.5a2.5 2.5 0 0 0 2.5 2.5h4.25" />
+    <rect stroke={ACCENT} x="13.75" y="13.75" width="6.5" height="6.5" rx="1.25" />
+  </>,
+);
+
+export const PictureInPictureExit: Icon = /*#__PURE__*/ glyph(
+  "PictureInPictureExit",
+  <>
+    <path d="M6.25 3.75h11.5a2.5 2.5 0 0 1 2.5 2.5v11.5a2.5 2.5 0 0 1-2.5 2.5H6.25a2.5 2.5 0 0 1-2.5-2.5V6.25a2.5 2.5 0 0 1 2.5-2.5Z" />
+    <path stroke={ACCENT} d="M16.25 7.75 9.5 14.5M9.5 9.75v4.75h4.75" />
+  </>,
+);
+
 export const Refresh: Icon = /*#__PURE__*/ glyph(
   "Refresh",
   <>

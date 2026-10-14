@@ -6,12 +6,13 @@ import * as React from "react";
 import { CaretRight, Check, Circle } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
+import { withHostContainer } from "@/contexts/host-document-context";
 
 const MenubarMenu = MenubarPrimitive.Menu;
 
 const MenubarGroup = MenubarPrimitive.Group;
 
-const MenubarPortal = MenubarPrimitive.Portal;
+const MenubarPortal = withHostContainer(MenubarPrimitive.Portal);
 
 const MenubarSub = MenubarPrimitive.Sub;
 
@@ -91,7 +92,7 @@ const MenubarContent = React.forwardRef<
     { className, align = "start", alignOffset = -4, sideOffset = 8, ...props },
     ref
   ) => (
-    <MenubarPrimitive.Portal>
+    <MenubarPortal>
       <MenubarPrimitive.Content
         ref={ref}
         align={align}
@@ -103,7 +104,7 @@ const MenubarContent = React.forwardRef<
         )}
         {...props}
       />
-    </MenubarPrimitive.Portal>
+    </MenubarPortal>
   )
 );
 MenubarContent.displayName = MenubarPrimitive.Content.displayName;

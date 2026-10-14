@@ -6,6 +6,7 @@ import * as React from "react";
 import { CaretRight, Check, Circle } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
+import { withHostContainer } from "@/contexts/host-document-context";
 
 const ContextMenu = ContextMenuPrimitive.Root;
 
@@ -13,7 +14,7 @@ const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
 
 const ContextMenuGroup = ContextMenuPrimitive.Group;
 
-const ContextMenuPortal = ContextMenuPrimitive.Portal;
+const ContextMenuPortal = withHostContainer(ContextMenuPrimitive.Portal);
 
 const ContextMenuSub = ContextMenuPrimitive.Sub;
 
@@ -59,7 +60,7 @@ const ContextMenuContent = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <ContextMenuPrimitive.Portal>
+  <ContextMenuPortal>
     <ContextMenuPrimitive.Content
       ref={ref}
       className={cn(
@@ -68,7 +69,7 @@ const ContextMenuContent = React.forwardRef<
       )}
       {...props}
     />
-  </ContextMenuPrimitive.Portal>
+  </ContextMenuPortal>
 ));
 ContextMenuContent.displayName = ContextMenuPrimitive.Content.displayName;
 

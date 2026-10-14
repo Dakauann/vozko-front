@@ -17,7 +17,10 @@ import {
   isWindowOpen,
   moveWindow,
   openWindow,
+  popOutWindow,
+  poppedOutWindow,
   resizeWindow,
+  returnToPage,
   setMinimized,
   toggleMaximized,
   windowKey,
@@ -353,5 +356,76 @@ describe("clampDeckToViewport", () => {
   it("is a no-op when everything already fits", () => {
     const deck = openWindow(emptyDeck(), lead(1), viewport);
     expect(clampDeckToViewport(deck, viewport)).toBe(deck);
+  });
+});
+
+describe("popping a window out of the page", () => {
+  it("opens every window inside the page", () => {
+    const deck = openWindow(emptyDeck(), lead(1), viewport);
+
+    expect(deck.windows[0].poppedOut).toBe(false);
+    expect(poppedOutWindow(deck)).toBeNull();
+  });
+
+  it("pops the chosen window out and leaves the others in the page", () => {
+    let deck = openWindow(emptyDeck(), lead(1), viewport);
+    deck = openWindow(deck, lead(2), viewport);
+
+    deck = popOutWindow(deck, windowKey("e2", "whatsapp"));
+
+    expect(poppedOutWindow(deck)?.key).toBe(windowKey("e2", "whatsapp"));
+    expect(
+      deck.windows.find((w) => w.key === windowKey("e1", "whatsapp"))!
+        .poppedOut,
+    ).toBe(false);
+  });
+
+  it("holds one popped-out window, because the browser hosts only one", () => {
+    let deck = openWindow(emptyDeck(), lead(1), viewport);
+    deck = openWindow(deck, lead(2), viewport);
+
+    deck = popOutWindow(deck, windowKey("e1", "whatsapp"));
+    deck = popOutWindow(deck, windowKey("e2", "whatsapp"));
+
+    expect(deck.windows.filter((w) => w.poppedOut)).toHaveLength(1);
+    expect(poppedOutWindow(deck)?.key).toBe(windowKey("e2", "whatsapp"));
+  });
+
+  it("takes a parked conversation off the dock as it leaves the page", () => {
+    let deck = openWindow(emptyDeck(), lead(1), viewport);
+    const key = windowKey("e1", "whatsapp");
+    deck = setMinimized(deck, key, true);
+
+    deck = popOutWindow(deck, key);
+
+    expect(deck.windows[0].minimized).toBe(false);
+    expect(dockHeight(deck)).toBe(0);
+  });
+
+  it("ignores a window that is not open", () => {
+    const deck = openWindow(emptyDeck(), lead(1), viewport);
+
+    expect(popOutWindow(deck, windowKey("e9", "whatsapp"))).toBe(deck);
+  });
+
+  it("returns the window to exactly where it was, on top of the others", () => {
+    let deck = openWindow(emptyDeck(), lead(1), viewport);
+    deck = openWindow(deck, lead(2), viewport);
+    const key = windowKey("e1", "whatsapp");
+    const before = deck.windows.find((w) => w.key === key)!;
+
+    deck = returnToPage(popOutWindow(deck, key));
+
+    const after = deck.windows.find((w) => w.key === key)!;
+    expect(after.poppedOut).toBe(false);
+    expect(after.x).toBe(before.x);
+    expect(after.y).toBe(before.y);
+    expect(after.z).toBe(Math.max(...deck.windows.map((w) => w.z)));
+  });
+
+  it("returning with nothing popped out changes nothing", () => {
+    const deck = openWindow(emptyDeck(), lead(1), viewport);
+
+    expect(returnToPage(deck)).toBe(deck);
   });
 });

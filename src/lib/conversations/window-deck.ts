@@ -58,6 +58,7 @@ export interface ConversationWindow extends WindowBox {
   leadName: string;
   minimized: boolean;
   maximized: boolean;
+  poppedOut: boolean;
   restore: WindowBox | null;
   slotIndex?: number;
   z: number;
@@ -177,6 +178,7 @@ export function openWindow(
         leadName: input.leadName ?? "",
         minimized: false,
         maximized: false,
+        poppedOut: false,
         restore: null,
         slotIndex: slot,
         z: deck.nextZ,
@@ -225,6 +227,34 @@ export function setMinimized(
   return {
     ...base,
     windows: base.windows.map((w) => (w.key === key ? { ...w, minimized } : w)),
+  };
+}
+
+export function poppedOutWindow(deck: WindowDeck) {
+  return deck.windows.find((w) => w.poppedOut) ?? null;
+}
+
+export function popOutWindow(deck: WindowDeck, key: string): WindowDeck {
+  if (!isWindowOpen(deck, key)) return deck;
+  return {
+    ...deck,
+    windows: deck.windows.map((w) =>
+      w.key === key
+        ? { ...w, poppedOut: true, minimized: false }
+        : { ...w, poppedOut: false },
+    ),
+  };
+}
+
+export function returnToPage(deck: WindowDeck): WindowDeck {
+  const popped = poppedOutWindow(deck);
+  if (!popped) return deck;
+  const raised = raise(deck, popped.key);
+  return {
+    ...raised,
+    windows: raised.windows.map((w) =>
+      w.key === popped.key ? { ...w, poppedOut: false } : w,
+    ),
   };
 }
 

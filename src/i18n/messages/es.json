@@ -6303,6 +6303,8 @@
       "maximize": "Maximizar",
       "close": "Cerrar ventana",
       "dragHint": "Arrastra para mover",
+      "popOut": "Desacoplar ventana (queda encima de las otras pestañas)",
+      "returnToPage": "Volver a la página",
       "actions": "Acciones de la conversación",
       "statusHeading": "Estado",
       "markOngoing": "Marcar en curso",

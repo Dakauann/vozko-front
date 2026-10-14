@@ -21,7 +21,14 @@ import {
   MIN_WINDOW_WIDTH,
 } from "@/lib/conversations/window-deck";
 
-import { ArrowsInSimple, ArrowsOut, Minus, X } from "@/components/icons";
+import {
+  ArrowsInSimple,
+  ArrowsOut,
+  Minus,
+  PictureInPicture,
+  PictureInPictureExit,
+  X,
+} from "@/components/icons";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import AssignMemberPicker from "./AssignMemberPicker";
 import type { HandBackTarget } from "@/lib/conversations/hand-back";
@@ -35,15 +42,18 @@ import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
 import { cn } from "@/lib/utils";
 import type { LiveRead } from "@/lib/live-decisions/types";
 
-
 export interface ConversationWindowTranslations {
-  conversation: React.ComponentProps<typeof CrmConversationView>["translations"];
+  conversation: React.ComponentProps<
+    typeof CrmConversationView
+  >["translations"];
   input: React.ComponentProps<typeof CrmMessageInput>["translations"];
   minimize: string;
   restore: string;
   maximize: string;
   close: string;
   dragHint: string;
+  popOut: string;
+  returnToPage: string;
   actions: ConversationWindowActionsTranslations;
 }
 
@@ -111,6 +121,7 @@ export interface ConversationWindowActionsBundle {
 interface ConversationWindowProps {
   geometry: WindowGeometry;
   dockedBox?: { x: number; y: number; width: number; height: number };
+  poppedOut?: boolean;
   state: WindowConversationState;
   translations: ConversationWindowTranslations;
   actions: ConversationWindowActionsBundle;
@@ -120,6 +131,7 @@ interface ConversationWindowProps {
   onClose: () => void;
   onToggleMinimize: () => void;
   onToggleMaximize: () => void;
+  onTogglePopOut?: () => void;
   onMove: (position: { x: number; y: number }) => void;
   onResize: (size: { width: number; height: number }) => void;
   onLoadHistory: () => void;
@@ -152,6 +164,7 @@ interface ResizeOrigin {
 export default function ConversationWindow({
   geometry,
   dockedBox,
+  poppedOut = false,
   state,
   translations: t,
   actions,
@@ -161,6 +174,7 @@ export default function ConversationWindow({
   onClose,
   onToggleMinimize,
   onToggleMaximize,
+  onTogglePopOut,
   onMove,
   onResize,
   onLoadHistory,
@@ -179,6 +193,7 @@ export default function ConversationWindow({
     conversation.entry_type,
   );
   const title = conversation.lead_name || conversation.lead_number || "…";
+  const pinned = geometry.maximized || poppedOut;
 
   useEffect(() => {
     setReplyTo(null);
@@ -188,7 +203,7 @@ export default function ConversationWindow({
     (e: React.PointerEvent<HTMLElement>) => {
       if (e.button !== 0) return;
       if ((e.target as HTMLElement).closest("button")) return;
-      if (geometry.maximized || geometry.minimized) return;
+      if (pinned || geometry.minimized) return;
 
       dragRef.current = {
         pointerX: e.clientX,
@@ -199,7 +214,7 @@ export default function ConversationWindow({
       (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
       onFocus();
     },
-    [geometry.maximized, geometry.minimized, geometry.x, geometry.y, onFocus],
+    [pinned, geometry.minimized, geometry.x, geometry.y, onFocus],
   );
 
   const handleDragPointerMove = useCallback(
@@ -289,28 +304,12 @@ export default function ConversationWindow({
       data-conversation-window={`${conversation.entry_type}-${conversation.entry_id}`}
       onPointerDown={onFocus}
       className={cn(
-        "pointer-events-auto fixed flex flex-col overflow-hidden rounded-[--radius] border border-border bg-card shadow-lg",
+        "pointer-events-auto fixed flex flex-col overflow-hidden bg-card",
+        poppedOut
+          ? "inset-0"
+          : "rounded-[--radius] border border-border shadow-lg",
       )}
-      style={
-        geometry.minimized && dockedBox
-          ? {
-              left: dockedBox.x,
-              top: dockedBox.y,
-              width: dockedBox.width,
-              maxWidth: MINIMIZED_WINDOW_WIDTH,
-              height: dockedBox.height,
-              zIndex: geometry.z,
-            }
-          : {
-              left: geometry.x,
-              top: geometry.y,
-              width: geometry.width,
-              height: geometry.minimized
-                ? MINIMIZED_WINDOW_HEIGHT
-                : geometry.height,
-              zIndex: geometry.z,
-            }
-      }
+      style={poppedOut ? undefined : boxStyle(geometry, dockedBox)}
     >
       <header
         onPointerDown={handleDragPointerDown}
@@ -325,19 +324,15 @@ export default function ConversationWindow({
               }
             : undefined
         }
-        onDoubleClick={geometry.minimized ? undefined : onToggleMaximize}
-        title={
-          geometry.minimized
-            ? t.restore
-            : geometry.maximized
-              ? undefined
-              : t.dragHint
+        onDoubleClick={
+          geometry.minimized || poppedOut ? undefined : onToggleMaximize
         }
+        title={geometry.minimized ? t.restore : pinned ? undefined : t.dragHint}
         className={cn(
           "flex shrink-0 items-center gap-2 border-b border-border bg-card px-2.5",
           geometry.minimized
             ? "h-full cursor-pointer border-b-0"
-            : geometry.maximized
+            : pinned
               ? "h-11 cursor-default"
               : "h-11 cursor-grab active:cursor-grabbing",
         )}
@@ -353,8 +348,7 @@ export default function ConversationWindow({
           <p className="truncate text-sm font-semibold text-foreground">
             {title}
           </p>
-          {
-}
+          {}
           {!geometry.minimized &&
           conversation.lead_name &&
           conversation.lead_number ? (
@@ -368,16 +362,16 @@ export default function ConversationWindow({
           {}
           {geometry.minimized && conversation.unread_count > 0 && (
             <span className="mr-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
-              {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
+              {conversation.unread_count > 99
+                ? "99+"
+                : conversation.unread_count}
             </span>
           )}
 
-          {
-}
+          {}
           {!geometry.minimized && (
             <>
-              {
-}
+              {}
               {actions.canAssign && actions.workspaceId && (
                 <AssignMemberPicker
                   workspaceId={actions.workspaceId}
@@ -425,19 +419,36 @@ export default function ConversationWindow({
                 }
               />
 
-              <WindowButton label={t.minimize} onClick={onToggleMinimize}>
-                <Minus size={14} weight="bold" />
-              </WindowButton>
-              <WindowButton
-                label={geometry.maximized ? t.restore : t.maximize}
-                onClick={onToggleMaximize}
-              >
-                {geometry.maximized ? (
-                  <ArrowsInSimple size={14} weight="bold" />
-                ) : (
-                  <ArrowsOut size={14} weight="bold" />
-                )}
-              </WindowButton>
+              {onTogglePopOut && (
+                <WindowButton
+                  label={poppedOut ? t.returnToPage : t.popOut}
+                  onClick={onTogglePopOut}
+                >
+                  {poppedOut ? (
+                    <PictureInPictureExit size={14} weight="bold" />
+                  ) : (
+                    <PictureInPicture size={14} weight="bold" />
+                  )}
+                </WindowButton>
+              )}
+
+              {!poppedOut && (
+                <>
+                  <WindowButton label={t.minimize} onClick={onToggleMinimize}>
+                    <Minus size={14} weight="bold" />
+                  </WindowButton>
+                  <WindowButton
+                    label={geometry.maximized ? t.restore : t.maximize}
+                    onClick={onToggleMaximize}
+                  >
+                    {geometry.maximized ? (
+                      <ArrowsInSimple size={14} weight="bold" />
+                    ) : (
+                      <ArrowsOut size={14} weight="bold" />
+                    )}
+                  </WindowButton>
+                </>
+              )}
             </>
           )}
           <WindowButton label={t.close} onClick={onClose} danger>
@@ -446,8 +457,7 @@ export default function ConversationWindow({
         </div>
       </header>
 
-      {
-}
+      {}
       {!geometry.minimized && (
         <>
           <div className="relative isolate flex min-h-0 flex-1 flex-col">
@@ -470,7 +480,9 @@ export default function ConversationWindow({
                   actions.canAssignStage ? actions.onMoveToFunnel : undefined
                 }
                 onEntryStageChange={
-                  actions.canAssignStage ? actions.onEntryStageChange : undefined
+                  actions.canAssignStage
+                    ? actions.onEntryStageChange
+                    : undefined
                 }
                 onAssignStage={
                   actions.canAssignStage ? actions.onAssignStage : undefined
@@ -505,7 +517,7 @@ export default function ConversationWindow({
             disabledReason={canSend ? undefined : noPermissionSend}
           />
 
-          {!geometry.maximized && (
+          {!pinned && (
             <div
               onPointerDown={handleResizePointerDown}
               onPointerMove={handleResizePointerMove}
@@ -519,6 +531,29 @@ export default function ConversationWindow({
       )}
     </section>
   );
+}
+
+function boxStyle(
+  geometry: WindowGeometry,
+  dockedBox: ConversationWindowProps["dockedBox"],
+): React.CSSProperties {
+  if (geometry.minimized && dockedBox) {
+    return {
+      left: dockedBox.x,
+      top: dockedBox.y,
+      width: dockedBox.width,
+      maxWidth: MINIMIZED_WINDOW_WIDTH,
+      height: dockedBox.height,
+      zIndex: geometry.z,
+    };
+  }
+  return {
+    left: geometry.x,
+    top: geometry.y,
+    width: geometry.width,
+    height: geometry.minimized ? MINIMIZED_WINDOW_HEIGHT : geometry.height,
+    zIndex: geometry.z,
+  };
 }
 
 function WindowButton({

@@ -175,6 +175,8 @@ export {
   PhoneDisconnect,
   PhoneIncoming,
   PhoneOutgoing,
+  PictureInPicture,
+  PictureInPictureExit,
   Pix as PixLogo,
   Play,
   PlayCircle,

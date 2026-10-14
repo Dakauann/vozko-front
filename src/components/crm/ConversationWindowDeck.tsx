@@ -1,21 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { WindowPortal } from "@/components/ui/window-portal";
+import { useDocumentPictureInPicture } from "@/hooks/use-document-picture-in-picture";
 import type { EntryType, MediaType } from "@/lib/conversations/types";
+import type { PictureInPictureSize } from "@/lib/picture-in-picture";
 import type { WindowConversations } from "@/lib/conversations/windowed-conversations";
 import {
+  type ConversationWindow as WindowGeometry,
   type Viewport,
   type WindowDeck,
   clampDeckToViewport,
   closeWindow,
+  defaultWindowSize,
   dockHeight,
   dockedBoxes,
   emptyDeck,
   focusWindow,
   moveWindow,
   openWindow,
+  popOutWindow,
+  poppedOutWindow,
   resizeWindow,
+  returnToPage,
   setMinimized,
   toggleMaximized,
 } from "@/lib/conversations/window-deck";
@@ -25,7 +33,6 @@ import ConversationWindow, {
   type ConversationWindowTranslations,
 } from "./ConversationWindow";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
-
 
 interface ConversationWindowDeckProps {
   conversations: WindowConversations;
@@ -99,6 +106,23 @@ export default function ConversationWindowDeck({
 }: ConversationWindowDeckProps) {
   const [deck, setDeck] = useState<WindowDeck>(emptyDeck);
   const [viewport, setViewport] = useState<Viewport>(currentViewport);
+  const pictureInPicture = useDocumentPictureInPicture(
+    useCallback(() => setDeck(returnToPage), []),
+  );
+  const {
+    supported: pictureInPictureSupported,
+    open: openPictureInPicture,
+    close: closePictureInPicture,
+  } = pictureInPicture;
+  const knownKeysRef = useRef<Set<string>>(new Set());
+
+  const popOut = useCallback(
+    (key: string, size: PictureInPictureSize) =>
+      openPictureInPicture(size, () =>
+        setDeck((prev) => popOutWindow(prev, key)),
+      ),
+    [openPictureInPicture],
+  );
 
   useEffect(() => {
     setDeck((prev) => {
@@ -128,9 +152,23 @@ export default function ConversationWindowDeck({
   }, [conversations]);
 
   useEffect(() => {
+    const newest = [...conversations.keys()]
+      .filter((key) => !knownKeysRef.current.has(key))
+      .at(-1);
+    knownKeysRef.current = new Set(conversations.keys());
+    if (newest && pictureInPictureSupported) {
+      void popOut(newest, defaultWindowSize(currentViewport()));
+    }
+  }, [conversations, pictureInPictureSupported, popOut]);
+
+  useEffect(() => {
     if (!focusRequest) return;
     setDeck((prev) =>
-      setMinimized(focusWindow(prev, focusRequest.key), focusRequest.key, false),
+      setMinimized(
+        focusWindow(prev, focusRequest.key),
+        focusRequest.key,
+        false,
+      ),
     );
     const restored = conversations.get(focusRequest.key);
     if (restored) {
@@ -169,73 +207,101 @@ export default function ConversationWindowDeck({
 
   useEffect(() => () => onDockHeightChange?.(0), [onDockHeightChange]);
 
+  const popped = poppedOutWindow(deck);
+  const poppedKey = popped?.key ?? null;
+  useEffect(() => {
+    if (poppedKey === null) closePictureInPicture();
+  }, [poppedKey, closePictureInPicture]);
+
   if (deck.windows.length === 0) return null;
 
+  const hostWindow = pictureInPicture.pictureWindow;
+  const hostedKey = popped && hostWindow ? popped.key : null;
+
+  const togglePopOutFor = (geometry: WindowGeometry) => {
+    if (geometry.key === hostedKey) return closePictureInPicture;
+    if (!pictureInPictureSupported) return undefined;
+    return () =>
+      void popOut(geometry.key, {
+        width: geometry.width,
+        height: geometry.height,
+      });
+  };
+
+  const renderWindow = (geometry: WindowGeometry) => {
+    const state = conversations.get(geometry.key);
+    if (!state) return null;
+
+    const { entry_id: entryId, entry_type: entryType } = state.conversation;
+    const docked = parked.get(geometry.key);
+
+    return (
+      <ConversationWindow
+        key={geometry.key}
+        geometry={geometry}
+        dockedBox={docked}
+        poppedOut={geometry.key === hostedKey}
+        state={state}
+        translations={translations}
+        actions={actions}
+        canSend={canSend}
+        noPermissionSend={noPermissionSend}
+        onFocus={() => setDeck((prev) => focusWindow(prev, geometry.key))}
+        onClose={() => onClose(entryId, entryType)}
+        onToggleMinimize={() => {
+          const nextMinimized = !geometry.minimized;
+          setDeck((prev) => setMinimized(prev, geometry.key, nextMinimized));
+          onVisibilityChange(entryId, entryType, !nextMinimized);
+        }}
+        onToggleMaximize={() =>
+          setDeck((prev) => toggleMaximized(prev, geometry.key, layoutViewport))
+        }
+        onTogglePopOut={togglePopOutFor(geometry)}
+        onMove={(position) =>
+          setDeck((prev) =>
+            moveWindow(prev, geometry.key, position, layoutViewport),
+          )
+        }
+        onResize={(size) =>
+          setDeck((prev) =>
+            resizeWindow(prev, geometry.key, size, layoutViewport),
+          )
+        }
+        onLoadHistory={() => onLoadHistory(entryId, entryType)}
+        onSend={(text, signed, replyToMessageId) =>
+          onSend(entryId, entryType, text, signed, replyToMessageId)
+        }
+        onSendMedia={(text, mediaId, mediaType, signed, replyToMessageId) =>
+          onSendMedia(
+            entryId,
+            entryType,
+            text,
+            mediaId,
+            mediaType,
+            signed,
+            replyToMessageId,
+          )
+        }
+        onSendButton={(input, replyToMessageId) =>
+          onSendButton(entryId, entryType, input, replyToMessageId)
+        }
+        onTyping={(isTyping) => onTyping(entryId, entryType, isTyping)}
+      />
+    );
+  };
+
   return (
-    <div className="pointer-events-none fixed inset-0 z-40">
-      {deck.windows.map((geometry) => {
-        const state = conversations.get(geometry.key);
-        if (!state) return null;
-
-        const { entry_id: entryId, entry_type: entryType } = state.conversation;
-        const docked = parked.get(geometry.key);
-
-        return (
-          <ConversationWindow
-            key={geometry.key}
-            geometry={geometry}
-            dockedBox={docked}
-            state={state}
-            translations={translations}
-            actions={actions}
-            canSend={canSend}
-            noPermissionSend={noPermissionSend}
-            onFocus={() => setDeck((prev) => focusWindow(prev, geometry.key))}
-            onClose={() => onClose(entryId, entryType)}
-            onToggleMinimize={() => {
-              const nextMinimized = !geometry.minimized;
-              setDeck((prev) =>
-                setMinimized(prev, geometry.key, nextMinimized),
-              );
-              onVisibilityChange(entryId, entryType, !nextMinimized);
-            }}
-            onToggleMaximize={() =>
-              setDeck((prev) =>
-                toggleMaximized(prev, geometry.key, layoutViewport),
-              )
-            }
-            onMove={(position) =>
-              setDeck((prev) =>
-                moveWindow(prev, geometry.key, position, layoutViewport),
-              )
-            }
-            onResize={(size) =>
-              setDeck((prev) =>
-                resizeWindow(prev, geometry.key, size, layoutViewport),
-              )
-            }
-            onLoadHistory={() => onLoadHistory(entryId, entryType)}
-            onSend={(text, signed, replyToMessageId) =>
-              onSend(entryId, entryType, text, signed, replyToMessageId)
-            }
-            onSendMedia={(text, mediaId, mediaType, signed, replyToMessageId) =>
-              onSendMedia(
-                entryId,
-                entryType,
-                text,
-                mediaId,
-                mediaType,
-                signed,
-                replyToMessageId,
-              )
-            }
-            onSendButton={(input, replyToMessageId) =>
-              onSendButton(entryId, entryType, input, replyToMessageId)
-            }
-            onTyping={(isTyping) => onTyping(entryId, entryType, isTyping)}
-          />
-        );
-      })}
-    </div>
+    <>
+      <div className="pointer-events-none fixed inset-0 z-40">
+        {deck.windows
+          .filter((geometry) => geometry.key !== hostedKey)
+          .map(renderWindow)}
+      </div>
+      {popped && hostWindow && (
+        <WindowPortal target={hostWindow} title={popped.leadName}>
+          {renderWindow(popped)}
+        </WindowPortal>
+      )}
+    </>
   );
 }

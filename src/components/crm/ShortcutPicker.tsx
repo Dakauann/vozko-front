@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
+import { useHostWindow } from "@/contexts/host-document-context";
 import type { MessageShortcut } from "@/lib/message-shortcuts/types";
 import { listMessageShortcutsAction } from "@/app/actions/message-shortcuts";
 import { useTranslations } from "next-intl";
@@ -38,6 +39,7 @@ export default function ShortcutPicker({
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
+  const hostWindow = useHostWindow();
   const t = useTranslations("shortcutPicker");
 
   useEffect(() => {
@@ -118,9 +120,10 @@ export default function ShortcutPicker({
 
   useEffect(() => {
     if (!visible) return;
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [visible, handleKeyDown]);
+    const view = hostWindow ?? window;
+    view.addEventListener("keydown", handleKeyDown, true);
+    return () => view.removeEventListener("keydown", handleKeyDown, true);
+  }, [visible, handleKeyDown, hostWindow]);
 
   useEffect(() => {
     const el = listRef.current?.children[selectedIndex] as

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { useHostWindow, usePortalContainer } from "@/contexts/host-document-context";
 import { cn } from "@/lib/utils";
 
 
@@ -25,12 +26,13 @@ type Placement = {
 
 function place(
   rect: DOMRect,
+  view: Window,
   width: number,
   gap: number,
   align: "start" | "end",
 ): Placement {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const vw = view.innerWidth;
+  const vh = view.innerHeight;
 
   const rawLeft = align === "end" ? rect.right - width : rect.left;
   const left = Math.max(
@@ -81,12 +83,22 @@ export function AnchoredMenu({
   children,
 }: AnchoredMenuProps) {
   const [placement, setPlacement] = useState<Placement | null>(null);
+  const hostWindow = useHostWindow();
+  const portalContainer = usePortalContainer();
 
   const reposition = useCallback(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
-    setPlacement(place(anchor.getBoundingClientRect(), width, gap, align));
-  }, [anchorRef, width, gap, align]);
+    setPlacement(
+      place(
+        anchor.getBoundingClientRect(),
+        hostWindow ?? window,
+        width,
+        gap,
+        align,
+      ),
+    );
+  }, [anchorRef, hostWindow, width, gap, align]);
 
   useLayoutEffect(() => {
     if (open) reposition();
@@ -97,15 +109,16 @@ export function AnchoredMenu({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", onKeyDown, true);
-    window.addEventListener("resize", reposition);
-    window.addEventListener("scroll", reposition, true);
+    const view = hostWindow ?? window;
+    view.addEventListener("keydown", onKeyDown, true);
+    view.addEventListener("resize", reposition);
+    view.addEventListener("scroll", reposition, true);
     return () => {
-      window.removeEventListener("keydown", onKeyDown, true);
-      window.removeEventListener("resize", reposition);
-      window.removeEventListener("scroll", reposition, true);
+      view.removeEventListener("keydown", onKeyDown, true);
+      view.removeEventListener("resize", reposition);
+      view.removeEventListener("scroll", reposition, true);
     };
-  }, [open, onClose, reposition]);
+  }, [open, onClose, reposition, hostWindow]);
 
   if (!open || !placement || typeof document === "undefined") return null;
 
@@ -152,7 +165,7 @@ export function AnchoredMenu({
         {children}
       </div>
     </>,
-    document.body,
+    portalContainer ?? document.body,
   );
 }
 

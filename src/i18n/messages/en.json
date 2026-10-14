@@ -6973,6 +6973,8 @@
       "maximize": "Maximize",
       "close": "Close window",
       "dragHint": "Drag to move",
+      "popOut": "Pop out (stays on top of other tabs)",
+      "returnToPage": "Back to the page",
       "actions": "Conversation actions",
       "statusHeading": "Status",
       "markOngoing": "Mark as ongoing",

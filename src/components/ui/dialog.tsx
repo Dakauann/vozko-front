@@ -5,12 +5,13 @@ import * as React from "react";
 
 import { X } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { withHostContainer } from "@/contexts/host-document-context";
 
 const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = DialogPrimitive.Portal;
+const DialogPortal = withHostContainer(DialogPrimitive.Portal);
 
 const DialogClose = DialogPrimitive.Close;
 

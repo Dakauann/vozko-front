@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { DownloadSimple, File as FileIcon, Image as ImageIcon, Play, SpeakerHigh, Spinner, X } from "@/components/icons";
 import { getConversationMediaAction } from "@/app/actions/conversations";
+import { useHostWindow } from "@/contexts/host-document-context";
 import { AudioPlayer, MEDIA_CARD_CLASS } from "@/components/media/audio-player";
 import { mediaFrame, type FramedMedia, type MediaFrame } from "@/lib/conversations/media-frame";
 import { placeholderDataUrl } from "@/lib/conversations/media-placeholder";
@@ -54,13 +55,16 @@ function DownloadButton({ url, className }: { url: string; className?: string })
 }
 
 function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  const hostWindow = useHostWindow();
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    const view = hostWindow ?? window;
+    view.addEventListener("keydown", onKey);
+    return () => view.removeEventListener("keydown", onKey);
+  }, [onClose, hostWindow]);
 
   return (
     <motion.div

@@ -1,4 +1,3 @@
-
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
@@ -51,6 +50,8 @@ const translations = {
   maximize: "Maximizar",
   close: "Fechar janela",
   dragHint: "Arraste para mover",
+  popOut: "Destacar janela",
+  returnToPage: "Voltar para a página",
   actions: {
     actions: "Ações da conversa",
     statusHeading: "Status",
@@ -59,9 +60,7 @@ const translations = {
     automationOn: "IA respondendo",
     automationOff: "IA pausada",
   },
-} as unknown as React.ComponentProps<
-  typeof ConversationWindow
->["translations"];
+} as unknown as React.ComponentProps<typeof ConversationWindow>["translations"];
 
 const geometry = (over: Partial<WindowGeometry> = {}): WindowGeometry => ({
   key: "whatsapp-e1",
@@ -74,12 +73,15 @@ const geometry = (over: Partial<WindowGeometry> = {}): WindowGeometry => ({
   height: 540,
   minimized: false,
   maximized: false,
+  poppedOut: false,
   restore: null,
   z: 1,
   ...over,
 });
 
-const state = (over: Partial<ActiveConversation> = {}): WindowConversationState => ({
+const state = (
+  over: Partial<ActiveConversation> = {},
+): WindowConversationState => ({
   conversation: {
     entry_id: "e1",
     entry_type: "whatsapp",
@@ -99,7 +101,9 @@ const state = (over: Partial<ActiveConversation> = {}): WindowConversationState 
   visible: true,
 });
 
-function renderWindow(over: Partial<React.ComponentProps<typeof ConversationWindow>> = {}) {
+function renderWindow(
+  over: Partial<React.ComponentProps<typeof ConversationWindow>> = {},
+) {
   const props = {
     geometry: geometry(),
     state: state(),
@@ -135,7 +139,9 @@ function renderWindow(over: Partial<React.ComponentProps<typeof ConversationWind
 describe("ConversationWindow", () => {
   it("names the window after the person, so a deck of them can be told apart", () => {
     renderWindow();
-    expect(screen.getByRole("dialog", { name: "Ana Souza" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Ana Souza" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("+5511999")).toBeInTheDocument();
   });
 
@@ -171,7 +177,9 @@ describe("ConversationWindow", () => {
 
     expect(screen.queryByTestId("thread")).not.toBeInTheDocument();
     expect(screen.queryByTestId("composer")).not.toBeInTheDocument();
-    expect(screen.getByRole("dialog", { name: "Ana Souza" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Ana Souza" }),
+    ).toBeInTheDocument();
   });
 
   it("gives the name the room, dropping the number and the window controls", () => {
@@ -185,7 +193,9 @@ describe("ConversationWindow", () => {
     expect(
       screen.queryByRole("button", { name: "Maximizar" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Fechar janela" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Fechar janela" }),
+    ).toBeInTheDocument();
   });
 
   it("shows what has gone unread while it was set aside", () => {
@@ -263,7 +273,9 @@ describe("ConversationWindow", () => {
 
   it("offers to restore, not to maximize again, once maximized", () => {
     renderWindow({ geometry: geometry({ maximized: true }) });
-    expect(screen.getByRole("button", { name: "Restaurar" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Restaurar" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Maximizar" }),
     ).not.toBeInTheDocument();
@@ -359,5 +371,60 @@ describe("ConversationWindow", () => {
     expect(
       screen.getByRole("dialog", { name: "+5511999" }),
     ).toBeInTheDocument();
+  });
+
+  describe("popping out of the page", () => {
+    it("offers the pop-out where the browser can keep the window on top", () => {
+      const onTogglePopOut = vi.fn();
+      renderWindow({ onTogglePopOut });
+
+      fireEvent.click(screen.getByRole("button", { name: "Destacar janela" }));
+
+      expect(onTogglePopOut).toHaveBeenCalledTimes(1);
+    });
+
+    it("offers no pop-out where the browser cannot host one", () => {
+      renderWindow();
+
+      expect(
+        screen.queryByRole("button", { name: "Destacar janela" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("fills its own window once popped out, dropping page-only controls", () => {
+      renderWindow({ poppedOut: true, onTogglePopOut: vi.fn() });
+
+      const dialog = screen.getByRole("dialog", { name: "Ana Souza" });
+      expect(dialog.style.left).toBe("");
+      expect(
+        screen.queryByRole("button", { name: "Minimizar" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Maximizar" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("composer")).toBeInTheDocument();
+    });
+
+    it("goes back to the page through its own control", () => {
+      const onTogglePopOut = vi.fn();
+      renderWindow({ poppedOut: true, onTogglePopOut });
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Voltar para a página" }),
+      );
+
+      expect(onTogglePopOut).toHaveBeenCalledTimes(1);
+    });
+
+    it("cannot be dragged around inside its own window", () => {
+      const onMove = vi.fn();
+      renderWindow({ poppedOut: true, onTogglePopOut: vi.fn(), onMove });
+
+      const bar = screen.getByText("Ana Souza").closest("header")!;
+      fireEvent.pointerDown(bar, { button: 0, clientX: 10, clientY: 10 });
+      fireEvent.pointerMove(bar, { clientX: 80, clientY: 90 });
+
+      expect(onMove).not.toHaveBeenCalled();
+    });
   });
 });
