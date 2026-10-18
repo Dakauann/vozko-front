@@ -232,12 +232,8 @@ export function StageLights({
   const shadowSize = size.width < 700 ? 1024 : 2048;
   const { ambient, key, fill, cool: coolIntensity, point } = palette.light;
   return (
-    <>
-      {
-}
-      <ambientLight intensity={ambient} />
-      {
-}
+    <>
+      <ambientLight intensity={ambient} />
       <directionalLight
         position={[4.5, 7, 8]}
         intensity={key}
@@ -297,29 +293,6 @@ export function Slab({ size, color, radius = R.card, roughness = 0.6, metalness 
     <RoundedBox args={size} radius={radius} smoothness={3} castShadow={castShadow} receiveShadow={receiveShadow} position={position}>
       <Surface color={color} roughness={roughness} metalness={metalness} />
     </RoundedBox>
-  );
-}
-
-export function Disc({
-  radius,
-  depth = 0.16,
-  color,
-  position,
-  roughness = 0.6,
-  castShadow = true,
-}: {
-  radius: number;
-  depth?: number;
-  color: string;
-  position?: Vec3;
-  roughness?: number;
-  castShadow?: boolean;
-}) {
-  return (
-    <mesh position={position} rotation={[Math.PI / 2, 0, 0]} castShadow={castShadow}>
-      <cylinderGeometry args={[radius, radius, depth, 48]} />
-      <Surface color={color} roughness={roughness} />
-    </mesh>
   );
 }
 

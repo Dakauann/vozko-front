@@ -1,6 +1,6 @@
 import type { CanvasSize } from "./document";
 
-export interface WebpStill {
+interface WebpStill {
   width: number;
   height: number;
   alpha: boolean;

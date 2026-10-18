@@ -21,7 +21,7 @@ import {
   type ViewportCity,
 } from "./types";
 
-export const MAX_LEAD_IDS_PER_POINT = 5;
+const MAX_LEAD_IDS_PER_POINT = 5;
 
 export class MapContractError extends Error {
   constructor(reason: string) {
@@ -163,7 +163,7 @@ function parseLeftOutDistrict(value: unknown): LeftOutDistrict {
   };
 }
 
-export interface LeftOutCounts {
+interface LeftOutCounts {
   total: number;
   districts: LeftOutDistrict[];
   filter: unknown;

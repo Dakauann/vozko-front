@@ -14,7 +14,7 @@ export type TrimRefusal = { reason: "missing" } | { reason: "locked"; trackId: s
 
 export type TrimEdit = { ok: true; document: VideoDocument; atMs: number; block: TrimBlock | null; changed: string[] } | ({ ok: false } & TrimRefusal);
 
-export interface TrimOptions {
+interface TrimOptions {
   linked: boolean;
 }
 

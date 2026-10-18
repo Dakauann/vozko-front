@@ -3,7 +3,7 @@ import { AlphaFilter, defaultFilterVert, Filter, GlProgram, Matrix, Sprite, Text
 import { TRAIL_MAP_SIZE, trailReach } from "@/lib/studio/motion-blur";
 import type { SceneBox, SceneTrail } from "@/lib/studio/scene/scene";
 
-export const TRAIL_PASS_SAMPLES = 64;
+const TRAIL_PASS_SAMPLES = 64;
 
 const ROWS_PER_SAMPLE = 2;
 const FLOATS_PER_ROW = 4;

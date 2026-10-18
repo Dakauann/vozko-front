@@ -2,7 +2,7 @@ import type { LayerSpecification, StyleSpecification } from "maplibre-gl";
 
 import type { BasemapPalette, BasemapRole } from "./palette";
 
-export type LayerRole = Exclude<BasemapRole, "halo"> | "hidden";
+type LayerRole = Exclude<BasemapRole, "halo"> | "hidden";
 
 export interface StylePatch {
   layerId: string;
@@ -11,7 +11,7 @@ export interface StylePatch {
   value: unknown;
 }
 
-export interface PatchableMap {
+interface PatchableMap {
   getLayer(id: string): unknown;
   setPaintProperty(layerId: string, name: string, value: unknown): unknown;
   setLayoutProperty(layerId: string, name: string, value: unknown): unknown;

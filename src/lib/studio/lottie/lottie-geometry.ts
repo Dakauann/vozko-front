@@ -114,7 +114,7 @@ export function ellipseBezier(center: Point, size: Point, reverse: boolean): Bez
   };
 }
 
-export interface StarSpec {
+interface StarSpec {
   center: Point;
   points: number;
   outer: number;

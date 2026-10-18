@@ -218,14 +218,14 @@ export function TrendArea({
   );
 }
 
-export interface StackedRow {
+interface StackedRow {
   key: string;
   label: string;
   href?: string;
   values: Record<string, number>;
 }
 
-export interface StackedSeries {
+interface StackedSeries {
   key: string;
   label: string;
   color: string;
@@ -437,7 +437,7 @@ export function CompositionRing({
   );
 }
 
-export interface RankedRow {
+interface RankedRow {
   key: string;
   label: string;
   value: number;

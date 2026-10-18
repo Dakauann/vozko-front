@@ -27,7 +27,7 @@ function bayerMatrix(size: number): number[] {
   return matrix.map((value) => (value + 0.5) / (size * size) - 0.5);
 }
 
-export type NearestIndex = (r: number, g: number, b: number) => number;
+type NearestIndex = (r: number, g: number, b: number) => number;
 
 export function createNearestIndex(palette: Palette): NearestIndex {
   const cache = new Int16Array(1 << (CACHE_BITS * 3)).fill(UNKNOWN);

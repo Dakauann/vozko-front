@@ -95,7 +95,7 @@ const MAX_STEP_PX = 2;
 const MIN_STEP_PX = 0.5;
 const SAMPLES_PER_FEATURE = 8;
 
-export const LINE_TRAVEL_RANGES = {
+const LINE_TRAVEL_RANGES = {
   wave: [0, 1],
   wiggle: [0, (LINE_RANGES.wiggleRate[1] * STUDIO_LIMITS.maxVideoMs) / 1000],
 } as const;
@@ -267,7 +267,7 @@ export function toggleLineGroup(clip: LineClip, group: LineGroup, on: boolean): 
   return { line: LINE_GROUPS.some((g) => rest[g]) ? rest : undefined, keyframes };
 }
 
-export interface LineOptions {
+interface LineOptions {
   mode?: WaveMode;
   sequential?: boolean;
   seed?: number;
@@ -314,10 +314,6 @@ export function lineIssue(clip: Pick<Clip, "type" | "layer" | "line" | "keyframe
     if (issue) return issue;
   }
   return keyed.every((property) => line[LINE_SLOTS[property][0]]) ? null : "invalid";
-}
-
-export function lineGroupsOn(clip: LineClip): LineGroup[] {
-  return LINE_GROUPS.filter((group) => clip.line?.[group]);
 }
 
 export function lineLaneProperties(clip: LineClip): LineProperty[] {

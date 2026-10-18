@@ -4,18 +4,18 @@ import type { Track, VideoDocument } from "./document";
 import { groupTimeline, isGroupClip, type GroupClip } from "./group-scope";
 import { valueAt } from "./keyframes";
 
-export interface GroupAudioOptions {
+interface GroupAudioOptions {
   soloTrackIds?: readonly string[];
   rate?: number;
 }
 
-export interface TimedVoice {
+interface TimedVoice {
   delayMs: number;
   durationMs: number;
   gain: GainPoint[];
 }
 
-export interface HeardGroup {
+interface HeardGroup {
   group: GroupClip;
   track: Track;
   inner: VideoDocument;

@@ -10,7 +10,7 @@ import { PLACE_DEBOUNCE_MS, coveredStatesOf, placeQueryKey, placeRequestReady, t
 
 const PLACE_STALE_MS = 60 * 60 * 1000;
 
-export interface PlaceSuggestions {
+interface PlaceSuggestions {
   places: Place[];
   coveredStates: string[];
   error: CodedRefusal | null;

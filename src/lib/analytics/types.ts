@@ -45,7 +45,7 @@ export interface ProfitReport {
     topWorkspaces?: AnalyticsWorkspaceBreakdown[];
 }
 
-export interface CallDimensionTotals {
+interface CallDimensionTotals {
     revenueMicros: number;
     costMicros: number;
     profitMicros: number;
@@ -132,7 +132,7 @@ export interface RecentSpending {
     createdAt: string;
 }
 
-export interface UsageMetric {
+interface UsageMetric {
     key: string;
     count: number;
     revenueMicros?: number;

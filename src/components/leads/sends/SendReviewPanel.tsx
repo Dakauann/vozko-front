@@ -201,7 +201,7 @@ function SkipRowLabel({ row: { reason, days, slot } }: { row: SendReviewSkipRow 
   return <>{t.has(`skipped.${reason}`) ? t(`skipped.${reason}`) : t("skipped.other")}</>;
 }
 
-export function SkipRow({ row, locale }: { row: SendReviewSkipRow; locale: string }) {
+function SkipRow({ row, locale }: { row: SendReviewSkipRow; locale: string }) {
   const nested = row.nested === true;
   return (
     <>

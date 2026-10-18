@@ -69,8 +69,8 @@ export interface ExportScene {
   items: SceneItem[];
 }
 
-export const MAX_PATCH_SIDE = 8192;
-export const MAX_PATCH_PIXELS = 4096 * 4096;
+const MAX_PATCH_SIDE = 8192;
+const MAX_PATCH_PIXELS = 4096 * 4096;
 
 const VECTOR_KEYS: ReadonlySet<string> = new Set([
   "id",
@@ -179,7 +179,7 @@ function sceneStroke(layer: Layer, color: string | undefined): SceneStroke | nul
   return { color: paint.color, alpha: paint.alpha, width, cap: style.lineCap, join: style.lineJoin, miterLimit: style.miterLimit, dash: style.dash ?? null, dashOffset: style.dashOffset };
 }
 
-export function portableBlend(mode: BlendMode | undefined): PortableBlend | null {
+function portableBlend(mode: BlendMode | undefined): PortableBlend | null {
   const blend = mode ?? "normal";
   return blend === "add" ? null : blend;
 }
@@ -224,7 +224,7 @@ export function layerVectors(layer: Layer, canvas: CanvasSize): VectorItem[] | n
   return shapeVectors(layer, canvas, blend);
 }
 
-export function vectorizable(layer: Layer): boolean {
+function vectorizable(layer: Layer): boolean {
   return layer.type === "shape" && setKeys(layer).every((key) => VECTOR_KEYS.has(key));
 }
 

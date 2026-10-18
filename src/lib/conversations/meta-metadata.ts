@@ -1,6 +1,6 @@
 export type MetaPrefix = 'instagram' | 'facebook';
 
-export type MetaMetadata = Record<string, unknown> | null | undefined;
+type MetaMetadata = Record<string, unknown> | null | undefined;
 
 export function metaPrefix(channel: string | null | undefined): MetaPrefix | null {
     return channel === 'instagram' || channel === 'facebook' ? channel : null;

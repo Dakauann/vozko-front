@@ -8,14 +8,14 @@ import { computePeaks, overviewBars } from "@/lib/studio/waveform";
 
 export const WAVE_BARS = 36;
 
-export interface SoundWave {
+interface SoundWave {
   bars: number[];
   durationMs: number;
 }
 
 const waves = new Map<string, Promise<SoundWave | null>>();
 
-export function soundWave(assetId: string): Promise<SoundWave | null> {
+function soundWave(assetId: string): Promise<SoundWave | null> {
   const known = waves.get(assetId);
   if (known) return known;
   const loading = decodeAudioFile(assetId, PREVIEW_SAMPLE_RATE).then((buffer) => (buffer ? { bars: overviewBars(computePeaks(channelsOf(buffer), buffer.sampleRate), WAVE_BARS), durationMs: Math.round(buffer.duration * 1000) } : null));

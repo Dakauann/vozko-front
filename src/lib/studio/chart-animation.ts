@@ -29,9 +29,9 @@ export interface ChartMotion {
   localMs: number;
 }
 
-export type PartEffect = "scale" | "trim" | "sweep" | "opacity" | "none";
+type PartEffect = "scale" | "trim" | "sweep" | "opacity" | "none";
 
-export interface PartPose {
+interface PartPose {
   effect: PartEffect;
   progress: number;
 }
@@ -48,7 +48,7 @@ export function isChartAnimationOrder(value: unknown): value is ChartAnimationOr
   return typeof value === "string" && (CHART_ANIMATION_ORDERS as readonly string[]).includes(value);
 }
 
-export function defaultChartStyle(kind: ChartKind): ChartAnimationStyle {
+function defaultChartStyle(kind: ChartKind): ChartAnimationStyle {
   if (isRoundChart(kind)) return "sweep";
   return drawsLines(kind) && kind !== "scatter" ? "draw" : "grow";
 }
@@ -58,7 +58,7 @@ export function defaultChartAnimator(kind: ChartKind, style: ChartAnimationStyle
   return { style, order: drawsLines(kind) && kind !== "scatter" ? "series" : "category", durationMs: 800, staggerMs: 120, easing: "easeOut" };
 }
 
-export function animatesChart(clip: Pick<Clip, "type" | "layer">): boolean {
+function animatesChart(clip: Pick<Clip, "type" | "layer">): boolean {
   return clip.type === "overlay" && clip.layer?.type === "chart" && Boolean(clip.layer.chart);
 }
 

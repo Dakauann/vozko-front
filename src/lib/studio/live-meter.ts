@@ -1,9 +1,9 @@
 import { loudnessOfPower, LOUDNESS_BLOCK_MS } from "./audio-meter";
 
 export const METER_FLOOR_DB = -60;
-export const PEAK_HOLD_MS = 1000;
-export const PEAK_FALL_DB_PER_SECOND = 20;
-export const SHORT_TERM_MS = 3000;
+const PEAK_HOLD_MS = 1000;
+const PEAK_FALL_DB_PER_SECOND = 20;
+const SHORT_TERM_MS = 3000;
 export const MOMENTARY_MS = LOUDNESS_BLOCK_MS;
 
 export interface HeldPeak {
@@ -27,7 +27,7 @@ export function tailPower(samples: Float32Array, count: number): number {
   return samples.length > from ? sum / (samples.length - from) : 0;
 }
 
-export function peakDb(peak: number): number {
+function peakDb(peak: number): number {
   return peak > 0 ? Math.max(METER_FLOOR_DB, 20 * Math.log10(peak)) : METER_FLOOR_DB;
 }
 
@@ -39,7 +39,7 @@ export function heldPeak(state: HeldPeak, db: number, nowMs: number): HeldPeak {
   return { db: shown, holdUntilMs: nowMs, atMs: nowMs };
 }
 
-export const CLIP_LEVEL = 1;
+const CLIP_LEVEL = 1;
 
 export interface StereoMeter {
   left: HeldPeak;

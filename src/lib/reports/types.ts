@@ -52,7 +52,7 @@ export interface CreateReportRequest {
     params?: Record<string, unknown>;
 }
 
-export const TERMINAL_REPORT_STATUSES: readonly ReportStatus[] = [
+const TERMINAL_REPORT_STATUSES: readonly ReportStatus[] = [
     "done",
     "failed",
     "expired",
@@ -84,25 +84,4 @@ export interface BalanceReportParams extends Record<string, unknown> {
     type?: string;
     startDate?: string;
     endDate?: string;
-}
-
-export interface ConversationEntriesReportParams extends Record<string, unknown> {
-    entryType: string;
-    containerId?: string;
-    containerType?: string;
-    departmentIds?: string[];
-    statuses?: string[];
-    stageId?: string;
-    number?: string;
-    createdFrom?: string;
-    createdTo?: string;
-    label?: string;
-}
-
-export interface OpportunitiesReportParams extends Record<string, unknown> {
-    pipelineId: string;
-    departmentIds?: string[];
-    restrict?: boolean;
-    assigneeOverrideUserId?: string;
-    label?: string;
 }

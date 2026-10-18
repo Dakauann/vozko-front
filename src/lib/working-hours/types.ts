@@ -21,7 +21,7 @@ export const WORKING_HOURS_DAY_ORDER: readonly WorkingHoursDay[] = [
     "sun",
 ] as const;
 
-export const MINUTES_PER_DAY = 24 * 60;
+const MINUTES_PER_DAY = 24 * 60;
 
 export function defaultWorkingHours(timezone: string): WorkingHoursSpec {
     const business: WorkingHoursWindow[] = [{ start: "09:00", end: "18:00" }];
@@ -45,7 +45,7 @@ export function browserTimezone(): string {
     }
 }
 
-export function parseHHMM(value: string): number | null {
+function parseHHMM(value: string): number | null {
     const parts = value.trim().split(":");
     if (parts.length !== 2) return null;
     const hours = Number(parts[0]);
@@ -55,12 +55,6 @@ export function parseHHMM(value: string): number | null {
     if (hours === 24 && minutes === 0) return MINUTES_PER_DAY;
     if (hours < 0 || hours > 23) return null;
     return hours * 60 + minutes;
-}
-
-export function formatHHMM(minutes: number): string {
-    const h = Math.floor(minutes / 60) % 24;
-    const m = minutes % 60;
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 export type WorkingHoursIssue =
@@ -116,7 +110,7 @@ export function validateWorkingHours(spec: WorkingHoursSpec): WorkingHoursIssue[
     return issues;
 }
 
-export type WorkingHoursSummary =
+type WorkingHoursSummary =
     | { kind: "alwaysOpen" }
     | { kind: "everyDay"; start: string; end: string }
     | { kind: "weekdays"; start: string; end: string }

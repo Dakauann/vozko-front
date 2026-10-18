@@ -39,7 +39,7 @@ export function AffiliateBrandChip({ brand }: { brand: AffiliateBrand }) {
   );
 }
 
-export interface PlansCarouselProps {
+interface PlansCarouselProps {
   plans: PublicPlanDetails[];
   affiliateBrand?: AffiliateBrand | null;
   currentPlanId?: string | null;

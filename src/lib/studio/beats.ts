@@ -1,8 +1,8 @@
 import { LOUDNESS_STEP_MS, type LoudnessProfile } from "./loudness";
 
-export const BEAT_TEMPO_RANGE = [60, 200] as const;
+const BEAT_TEMPO_RANGE = [60, 200] as const;
 
-export interface BeatAnalysis {
+interface BeatAnalysis {
   bpm: number;
   beatsMs: number[];
 }

@@ -6,7 +6,7 @@ import type { TextEdit } from "./text-run-editing";
 import { hasRuns, sameRuns } from "./text-runs";
 
 export type ExportFormat = "png" | "jpeg" | "pdf" | "svg";
-export type RasterExportFormat = Extract<ExportFormat, "png" | "jpeg">;
+type RasterExportFormat = Extract<ExportFormat, "png" | "jpeg">;
 
 const EXPORT_EXTENSIONS: Record<ExportFormat, string> = { png: "png", jpeg: "jpg", pdf: "pdf", svg: "svg" };
 
@@ -17,7 +17,7 @@ export type ExportScale = 1 | 2;
 
 export const DEFAULT_JPEG_QUALITY = 0.9;
 export const EXPORT_FALLBACK_BACKGROUND = "#ffffff";
-export const EXPORT_FALLBACK_NAME = "estudio";
+const EXPORT_FALLBACK_NAME = "estudio";
 
 export const DEFAULT_FILTERS: Filters = { brightness: 0, contrast: 0, saturation: 0, blur: 0 };
 

@@ -8,7 +8,7 @@ import { useAssignableMembers } from "@/hooks/use-assignable-members";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
 import { readableClassificationField } from "@/lib/crm/custom-fields";
 
-export interface LeadPresentationOptions {
+interface LeadPresentationOptions {
   directory?: boolean;
 }
 

@@ -1,6 +1,6 @@
 export const FIRST_POLL_MS = 1_500;
 export const MAX_POLL_MS = 5_000;
-export const POLL_BACKOFF = 1.5;
+const POLL_BACKOFF = 1.5;
 export const MAX_CONSECUTIVE_POLL_ERRORS = 3;
 
 export function nextPollDelay(previousMs: number | null): number {
@@ -12,7 +12,7 @@ export type PollAnswer<T, E> = { data: T; error: null } | { data: null; error: E
 
 type PollFailure<E> = { data: null; error: E };
 
-export function isPollFailure<T, E>(answer: PollAnswer<T, E>): answer is PollFailure<E> {
+function isPollFailure<T, E>(answer: PollAnswer<T, E>): answer is PollFailure<E> {
   return answer.error !== null;
 }
 
@@ -24,7 +24,7 @@ export type PollOutcome<T, E> =
 
 export type PollWake = (listener: () => void) => () => void;
 
-export interface PollOptions {
+interface PollOptions {
   maxPolls: number;
   signal?: AbortSignal;
   maxErrors?: number;

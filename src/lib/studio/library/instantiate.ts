@@ -13,9 +13,9 @@ import { placeClips, placeLayers, recolorLayer, type ColorChange, type LibraryBo
 import { mockupLayers } from "./mockup";
 import { lastFrameMs, stickerStill } from "./sticker-still";
 
-export const FRAME_SHARE = 0.5;
+const FRAME_SHARE = 0.5;
 
-export const ASSET_SHARE = 0.3;
+const ASSET_SHARE = 0.3;
 
 export interface LibraryRequest {
   canvas: CanvasSize;
@@ -32,7 +32,7 @@ export interface LibraryClipRequest extends LibraryRequest {
   durationMs?: number;
 }
 
-export type Placed<T> = { document: T; ids: string[] };
+type Placed<T> = { document: T; ids: string[] };
 
 function contextOf(editor: LibraryEditor, request: LibraryRequest): LibraryContext {
   return { editor, canvas: request.canvas, ink: LIBRARY_INK[editor], locale: request.locale, text: request.text };

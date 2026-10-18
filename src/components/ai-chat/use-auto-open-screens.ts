@@ -2,7 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 
-export type AutoOpenPreference = "ask" | "on" | "off";
+type AutoOpenPreference = "ask" | "on" | "off";
 
 const STORAGE_KEY = "ai-chat:auto-open-screens";
 const listeners = new Set<() => void>();

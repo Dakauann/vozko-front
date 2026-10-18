@@ -1,7 +1,5 @@
 
-export const MICROS = 1_000_000;
-
-export const DEFAULT_USD_TO_BRL = 6.0;
+const MICROS = 1_000_000;
 
 export function parseAmount(value: string): number | null {
   const normalized = value.trim().replace(/\s/g, "").replace(/,/g, ".");
@@ -55,7 +53,7 @@ export function parseBrlToUsdMicros(value: string, rate: number): number {
   return brlToUsdMicros(n, rate);
 }
 
-export function brlToInputDisplay(brl: number): string {
+function brlToInputDisplay(brl: number): string {
   if (!Number.isFinite(brl) || brl === 0) return "0";
   return brl.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
 }
@@ -80,14 +78,6 @@ export function formatUsdCurrency(usd: number, fractionDigits = 6): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: fractionDigits,
   }).format(usd);
-}
-
-export function formatUsdMicrosAsUsd(micros: number): string {
-  return formatUsdCurrency(microsToUsdNumber(micros));
-}
-
-export function formatUsdMicrosAsBrl(micros: number, rate: number): string {
-  return formatBrlCurrency(usdMicrosToBrl(micros, rate));
 }
 
 export function isPercentageMetric(metric: string): boolean {

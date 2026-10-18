@@ -56,7 +56,7 @@ export async function readableLuts(operations: readonly { lut_media_id?: string 
   return new Set(ids.filter((_, i) => read[i]));
 }
 
-export type LoadedLut = { status: "none" } | { status: "loading" } | { status: "ready"; atlas: LutAtlas } | { status: "failed"; error: Error };
+type LoadedLut = { status: "none" } | { status: "loading" } | { status: "ready"; atlas: LutAtlas } | { status: "failed"; error: Error };
 
 export function konvaLut(loaded: LoadedLut): LutAtlas | "missing" | null {
   if (loaded.status === "ready") return loaded.atlas;

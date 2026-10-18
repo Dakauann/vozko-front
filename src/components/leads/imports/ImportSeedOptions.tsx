@@ -10,7 +10,7 @@ import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design
 import { MessageVariantsEditor, variantsAgree } from "@/components/unofficial-whatsapp/message-variants-editor";
 import type { LeadImportOptions, LeadImportSeedScript } from "@/lib/leads/imports";
 
-export const SEED_MEDIA_KINDS = ["image", "video", "audio", "document", "sticker"] as const;
+const SEED_MEDIA_KINDS = ["image", "video", "audio", "document", "sticker"] as const;
 
 export type SeedMediaKind = (typeof SEED_MEDIA_KINDS)[number];
 

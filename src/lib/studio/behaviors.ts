@@ -114,10 +114,6 @@ export function behaviorsOn(clip: Pick<Clip, "behaviors">, property: BehaviorPro
   return (clip.behaviors ?? []).filter((behavior) => behavior.property === property);
 }
 
-export function behavedProperties(clip: Pick<Clip, "behaviors">): BehaviorProperty[] {
-  return BEHAVIOR_PROPERTIES.filter((property) => behaviorsOn(clip, property).length > 0);
-}
-
 function within(value: unknown, [low, high]: readonly [number, number]): boolean {
   return typeof value === "number" && Number.isFinite(value) && value >= low && value <= high;
 }
@@ -149,7 +145,7 @@ function paramsIssue(behavior: Behavior): IssueCode | null {
   }
 }
 
-export function behaviorIssue(behavior: Behavior, properties: readonly BehaviorProperty[]): IssueCode | null {
+function behaviorIssue(behavior: Behavior, properties: readonly BehaviorProperty[]): IssueCode | null {
   if (!isValidToken(behavior.id)) return "invalid";
   if (!isBehaviorKind(behavior.kind) || !isBehaviorProperty(behavior.property)) return "unknown";
   if (!properties.includes(behavior.property) || fieldsIssue(behavior)) return "invalid";
@@ -237,7 +233,7 @@ export function arrivalSpeed(frames: readonly Keyframe[], index: number): number
   return ((to.value - from.value) * easeSlope(from.easing, 1) * MS_PER_SECOND) / (to.atMs - from.atMs);
 }
 
-export function departureSpeed(frames: readonly Keyframe[], index: number): number {
+function departureSpeed(frames: readonly Keyframe[], index: number): number {
   if (index < 0 || index >= frames.length - 1) return 0;
   const from = frames[index];
   const to = frames[index + 1];
@@ -302,13 +298,13 @@ export function wiggleOffset(behavior: WiggleBehavior, localMs: number): number 
   return behavior.amount * layeredNoise(behavior.seed, channel, behaviorSeconds(behavior, localMs) * behavior.frequency);
 }
 
-export interface BehaviorMoment {
+interface BehaviorMoment {
   startMs: number;
   localMs: number;
   levels: TrackLevels;
 }
 
-export function behaviorOffset(behavior: Behavior, frames: readonly Keyframe[], moment: BehaviorMoment): number {
+function behaviorOffset(behavior: Behavior, frames: readonly Keyframe[], moment: BehaviorMoment): number {
   switch (behavior.kind) {
     case "wiggle":
       return wiggleOffset(behavior, moment.localMs);
@@ -339,12 +335,12 @@ const BEHAVED_BOUNDS: Partial<Record<BehaviorProperty, readonly [number, number]
   scaleY: [0, KEYFRAME_RANGES.scaleY[1]],
 };
 
-export function boundedValue(property: BehaviorProperty, value: number): number {
+function boundedValue(property: BehaviorProperty, value: number): number {
   const bounds = BEHAVED_BOUNDS[property];
   return bounds ? Math.min(bounds[1], Math.max(bounds[0], value)) : value;
 }
 
-export type BehavedClip = Pick<Clip, "startMs" | "keyframes" | "behaviors">;
+type BehavedClip = Pick<Clip, "startMs" | "keyframes" | "behaviors">;
 
 function framesOf(clip: Pick<Clip, "keyframes">, property: BehaviorProperty): readonly Keyframe[] {
   return clip.keyframes?.[property] ?? [];

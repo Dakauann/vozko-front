@@ -30,9 +30,9 @@ import { formatsFor, goalsFor, isMessaging, linkRequired, needsPixel, showsCallT
 
 export const MIN_AGE = 13;
 export const MAX_AGE = 65;
-export const RESTRICTED_MIN_AGE = 18;
-export const ADVANTAGE_MAX_AGE_MIN = 25;
-export const RESTRICTED_RADIUS_KM = 25;
+const RESTRICTED_MIN_AGE = 18;
+const ADVANTAGE_MAX_AGE_MIN = 25;
+const RESTRICTED_RADIUS_KM = 25;
 export const MIN_CITY_RADIUS_KM = 17;
 export const MAX_CITY_RADIUS_KM = 80;
 export const MAX_GREETING = 300;
@@ -45,10 +45,10 @@ export const MIN_CAROUSEL_CARDS = 2;
 export const MAX_CAROUSEL_CARDS = 10;
 export const MAX_FLEXIBLE_TEXTS = 5;
 export const MAX_FLEXIBLE_MEDIAS = 10;
-export const MAX_ROAS_FLOOR = 1000;
+const MAX_ROAS_FLOOR = 1000;
 
 export const SPECIAL_CATEGORIES: AdDraftSpecialCategory[] = ["NONE", "HOUSING", "EMPLOYMENT", "FINANCIAL_PRODUCTS_SERVICES"];
-export const BID_STRATEGIES: AdBidStrategy[] = [
+const BID_STRATEGIES: AdBidStrategy[] = [
   "LOWEST_COST_WITHOUT_CAP",
   "LOWEST_COST_WITH_BID_CAP",
   "COST_CAP",
@@ -168,7 +168,7 @@ export interface DraftContext {
   currency: string;
 }
 
-export function newAdId(): string {
+function newAdId(): string {
   return `ad-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
@@ -214,7 +214,7 @@ export function emptyAdForm(id = newAdId()): AdForm {
 
 const emptyBid = (): BidInput => ({ strategy: LOWEST_COST, amountInput: "", roasInput: "" });
 
-export function emptyTargeting(): AdDraftTargeting {
+function emptyTargeting(): AdDraftTargeting {
   return { locations: [], ageMin: RESTRICTED_MIN_AGE, ageMax: MAX_AGE, advantageAudience: true };
 }
 
@@ -589,7 +589,7 @@ export function withParents(form: WizardForm, campaign: ParentSummary | null, ad
   return next;
 }
 
-export interface CreativeSource {
+interface CreativeSource {
   metaId: string;
   name: string;
   creative: AdCreativeDraftV2;

@@ -96,7 +96,6 @@ import {
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 
 import { ScreenLoader } from "@/components/brand/screen-loader";
-import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { WorkspaceConfigTab } from "@/components/dashboard/workspace/WorkspaceConfigTab";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
@@ -1972,7 +1971,6 @@ function RolesTab({
   );
 }
 
-
 function DepartmentWorkingHours({
   department,
   onSaved,
@@ -2326,9 +2324,7 @@ function DepartmentsTab({
                     controlSize="sm"
                     className="w-full"
                   />
-                </div>
-                {
-}
+                </div>
                 {departments.length === 0 && (
                   <div
                     role="status"
@@ -2391,9 +2387,7 @@ function DepartmentsTab({
           )}
         </AnimatePresence>
       )}
-
-      {
-}
+
       {departments.length > 0 && unassignedMembers && unassignedMembers.length > 0 && (
         <UnassignedMembersNotice
           members={unassignedMembers}
@@ -2572,9 +2566,7 @@ function DepartmentsTab({
                       weight="bold"
                     />
                   </div>
-
-                  {
-}
+
                   {confirmDelete === dept.id && departments.length === 1 && (
                     <div
                       role="status"
@@ -2588,9 +2580,7 @@ function DepartmentsTab({
                       </p>
                     </div>
                   )}
-
-                  {
-}
+
                   {deptMembers[dept.id]?.length === 0 && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {ts("adminEmptyDepartment")} · {ts("adminEmptyDepartmentTooltip")}
@@ -2607,9 +2597,7 @@ function DepartmentsTab({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="border-t border-border px-4 py-3 space-y-3">
-                          {
-}
+                        <div className="border-t border-border px-4 py-3 space-y-3">
                           {canManage && (
                             <DepartmentWorkingHours
                               department={dept}

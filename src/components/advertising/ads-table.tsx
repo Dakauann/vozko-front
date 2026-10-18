@@ -18,13 +18,13 @@ import { RowSwitch } from "./manager/row-switch";
 import { DeliveryStatus } from "./status-dot";
 import { useAdsFormat, type AdsFormat } from "./use-ads-format";
 
-export interface AdsTablePermissions {
+interface AdsTablePermissions {
   canStart: boolean;
   canStop: boolean;
   canUpdate: boolean;
 }
 
-export interface AdsTableSelection {
+interface AdsTableSelection {
   selected: Set<string>;
   onChange: (keys: Set<string>) => void;
 }

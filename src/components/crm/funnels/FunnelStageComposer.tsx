@@ -33,7 +33,7 @@ export interface DraftStage {
   color: string;
 }
 
-export const DRAFT_PREFIX = "draft:";
+const DRAFT_PREFIX = "draft:";
 
 let draftCounter = 0;
 
@@ -221,9 +221,7 @@ function BoardView({
             onRemove={onRemove}
           />
         ))}
-
-        {
-}
+
         {!atCap ? (
           <button
             type="button"
@@ -275,9 +273,7 @@ function StageColumn({
       transition={{ type: "spring", damping: 26, stiffness: 320 }}
       whileDrag={{ cursor: "grabbing", zIndex: 2 }}
       className="flex w-72 min-w-[288px] flex-shrink-0 flex-col rounded-lg border border-border bg-muted"
-    >
-      {
-}
+    >
       <div className="flex items-center gap-2 border-b border-border px-2 py-2">
         <button
           type="button"
@@ -333,9 +329,7 @@ function StageColumn({
           <Trash className="h-3.5 w-3.5" weight="bold" aria-hidden="true" />
         </button>
       </div>
-
-      {
-}
+
       <div className="flex flex-1 flex-col gap-2 p-2.5">
         {isEntry ? <EntryChip /> : null}
         <InlineEdit
@@ -436,9 +430,7 @@ function StageRow({
       whileDrag={{ cursor: "grabbing" }}
       className="bg-card"
     >
-      <div className="flex items-start gap-2 px-1 py-2.5 sm:gap-3">
-        {
-}
+      <div className="flex items-start gap-2 px-1 py-2.5 sm:gap-3">
         <button
           type="button"
           aria-label={t("dragHandle", { name: stage.name || t("untitled") })}
@@ -620,9 +612,7 @@ function ColorPicker({
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 )}
                 style={{ backgroundColor: color }}
-              >
-                {
-}
+              >
                 {active ? (
                   <Check
                     className="h-3.5 w-3.5"

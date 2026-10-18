@@ -1,12 +1,12 @@
-export const POSITION_SOURCES = ["manual", "lead_pin", "import", "reference"] as const;
+const POSITION_SOURCES = ["manual", "lead_pin", "import", "reference"] as const;
 
-export type PositionSource = (typeof POSITION_SOURCES)[number];
+type PositionSource = (typeof POSITION_SOURCES)[number];
 
 function oneOf<T extends string>(values: readonly T[], value: unknown): value is T {
   return typeof value === "string" && (values as readonly string[]).includes(value);
 }
 
-export function isPositionSource(value: unknown): value is PositionSource {
+function isPositionSource(value: unknown): value is PositionSource {
   return oneOf(POSITION_SOURCES, value);
 }
 

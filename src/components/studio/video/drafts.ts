@@ -18,7 +18,7 @@ export function useClipPick(purpose: VideoJobPurpose): [string | null, (clipId: 
   return [picked, pick];
 }
 
-export function withAiDraft(drafts: Partial<Record<ModelKind, AiDraft>>, kind: ModelKind, patch: Partial<AiDraft>): Partial<Record<ModelKind, AiDraft>> {
+function withAiDraft(drafts: Partial<Record<ModelKind, AiDraft>>, kind: ModelKind, patch: Partial<AiDraft>): Partial<Record<ModelKind, AiDraft>> {
   return { ...drafts, [kind]: { ...(drafts[kind] ?? EMPTY_AI_DRAFT), ...patch } };
 }
 

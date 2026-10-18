@@ -10,7 +10,7 @@ export type RevealField =
   | { pattern: "blocks"; size: number }
   | { pattern: "fan"; angle: number; originX: number; originY: number };
 
-export type RevealPattern = RevealField["pattern"];
+type RevealPattern = RevealField["pattern"];
 
 export const REVEAL_PATTERN_CODES: Record<RevealPattern, number> = { gradient: 0, image: 1, blinds: 2, blocks: 3, fan: 4 };
 export const GRADIENT_MAP_CODES: Record<GradientWipeMap, number> = { linear: 0, radial: 1, diamond: 2, clouds: 3 };
@@ -23,14 +23,14 @@ export const BLOCK_SALT = 24_301;
 export const MIN_SOFTNESS = 1 / 1024;
 export const LUMA_WEIGHTS = [0.2126, 0.7152, 0.0722] as const;
 
-export interface FieldPoint {
+interface FieldPoint {
   u: number;
   v: number;
   width: number;
   height: number;
 }
 
-export type LumaSampler = (u: number, v: number) => number;
+type LumaSampler = (u: number, v: number) => number;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 

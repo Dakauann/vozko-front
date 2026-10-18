@@ -42,7 +42,7 @@ export interface AttendanceSectionPayloads {
   live: LiveSection;
 }
 
-export type SectionQueryParams = Record<string, string>;
+type SectionQueryParams = Record<string, string>;
 
 export {
   SectionError as AttendanceSectionError,

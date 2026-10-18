@@ -36,7 +36,7 @@ function libraryLocale(locale: string): LibraryLocale {
   return (LIBRARY_LOCALES as readonly string[]).includes(short) ? (short as LibraryLocale) : "pt";
 }
 
-export function sampleQr(look: Pick<QrLook, "dark" | "light">, locale: string): QrSpec {
+function sampleQr(look: Pick<QrLook, "dark" | "light">, locale: string): QrSpec {
   return newQrSpec({ kind: "text", text: SAMPLE_TEXT[libraryLocale(locale)] }, { dark: look.dark, light: look.light });
 }
 

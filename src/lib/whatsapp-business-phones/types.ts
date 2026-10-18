@@ -23,8 +23,6 @@ export type NameStatus =
 
 export type CodeVerificationStatus = 'VERIFIED' | 'NOT_VERIFIED' | 'EXPIRED';
 
-export type VerificationMethod = 'SMS' | 'VOICE';
-
 export type BusinessVertical =
     | 'UNDEFINED'
     | 'OTHER'
@@ -220,15 +218,6 @@ export interface RetryOnboardingResponse {
         status: string;
         phone_id: string;
         state: BusinessPhoneStatus;
-    };
-}
-
-export interface BusinessPhoneErrorResponse {
-    success: false;
-    error: {
-        message: string;
-        code?: string;
-        details?: unknown;
     };
 }
 

@@ -26,17 +26,17 @@ export type ComponentRefusal = "missing" | "locked" | "instance" | "component" |
 
 type Refused = { ok: false; reason: ComponentRefusal };
 
-export type EditOutcome = { ok: true; document: ImageDocument } | Refused;
+type EditOutcome = { ok: true; document: ImageDocument } | Refused;
 
-export type CreatedComponent = { ok: true; document: ImageDocument; componentId: string; instanceId: string } | Refused;
+type CreatedComponent = { ok: true; document: ImageDocument; componentId: string; instanceId: string } | Refused;
 
-export type AddedInstance = { ok: true; document: ImageDocument; instanceId: string } | Refused;
+type AddedInstance = { ok: true; document: ImageDocument; instanceId: string } | Refused;
 
-export type DetachedInstance = { ok: true; document: ImageDocument; groupId: string; ids: string[] } | Refused;
+type DetachedInstance = { ok: true; document: ImageDocument; groupId: string; ids: string[] } | Refused;
 
-export type SwappedComponent = { ok: true; document: ImageDocument; dropped: string[] } | Refused;
+type SwappedComponent = { ok: true; document: ImageDocument; dropped: string[] } | Refused;
 
-export type InstanceBox = Partial<Pick<Transform, "x" | "y" | "w" | "h">>;
+type InstanceBox = Partial<Pick<Transform, "x" | "y" | "w" | "h">>;
 
 interface FoundInstance {
   ok: true;
@@ -103,7 +103,7 @@ export function createComponent(doc: ImageDocument, ids: readonly string[], name
   return { ok: true, document: moved, componentId, instanceId: instance.id };
 }
 
-export function instanceBox(component: CanvasSize, host: CanvasSize, box: InstanceBox = {}): Transform {
+function instanceBox(component: CanvasSize, host: CanvasSize, box: InstanceBox = {}): Transform {
   const aspect = (component.height * host.width) / (component.width * host.height);
   const fit = Math.min(1, host.width / component.width, host.height / component.height);
   const w = box.w ?? (box.h !== undefined ? box.h / aspect : (component.width * fit) / host.width);

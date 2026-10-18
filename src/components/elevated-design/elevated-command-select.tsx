@@ -329,5 +329,5 @@ const ElevatedCommandSelect = ({
   );
 };
 
-export type { ElevatedCommandOption, ElevatedCommandSelectProps };
+export type { ElevatedCommandOption,  };
 export { ElevatedCommandSelect };

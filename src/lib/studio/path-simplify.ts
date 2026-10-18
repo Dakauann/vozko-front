@@ -2,7 +2,7 @@ import { fitCurve } from "./curve-fit";
 import { flattenSegment, segmentCount, type PathNode, type Subpath } from "./path-nodes";
 import type { Point } from "./viewport";
 
-export const CORNER_DEGREES = 40;
+const CORNER_DEGREES = 40;
 
 const CHORD_SAMPLES_PER_TOLERANCE = 8;
 const LONG_LINE_PER_TOLERANCE = 16;

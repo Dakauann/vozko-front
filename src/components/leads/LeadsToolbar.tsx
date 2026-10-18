@@ -48,7 +48,7 @@ import { PLAIN_LEAD_ENTRY_CONTROLS, useLeadEntryControls, type LeadEntryControls
 import { LeadSearchBox } from "./LeadSearchBox";
 import { useLeadFilterOptions, type LeadFilterOptionSets } from "./use-lead-filter-options";
 
-export interface LeadsToolbarProps {
+interface LeadsToolbarProps {
   filter: LeadFilter;
   onFilterChange: (filter: LeadFilter) => void;
   search: string;
@@ -60,7 +60,7 @@ export interface LeadsToolbarProps {
   onPickPlace?: (filter: LeadFilter) => void;
 }
 
-export interface LeadToolbarArea {
+interface LeadToolbarArea {
   id: string;
   name: string;
 }
@@ -330,7 +330,7 @@ export function leadFilterFieldConfigs({
   return [...catalogue, ...custom];
 }
 
-export type LeadChipField = FilterFieldConfig & { chipSuffix?: string };
+type LeadChipField = FilterFieldConfig & { chipSuffix?: string };
 
 const AREA_FIELDS: readonly string[] = [...LEAD_AREA_ADDRESSES, LEAD_FILTER_FIELD.areaApproximate];
 

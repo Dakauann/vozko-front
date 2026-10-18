@@ -53,7 +53,7 @@ import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 
-export type AgentFieldId =
+type AgentFieldId =
   | "name"
   | "description"
   | "messagingModel"
@@ -61,13 +61,13 @@ export type AgentFieldId =
   | "businessPhoneId"
   | "whatsappTemplateId";
 
-export interface AgentFieldDefinition {
+interface AgentFieldDefinition {
   id: AgentFieldId;
   stepGroup: "identity" | "models" | "prompts" | "whatsapp";
   beginner: { enabled: boolean; order: number };
 }
 
-export const agentFieldDefinitions: AgentFieldDefinition[] = [
+const agentFieldDefinitions: AgentFieldDefinition[] = [
   { id: "name", stepGroup: "identity", beginner: { enabled: true, order: 1 } },
   {
     id: "description",

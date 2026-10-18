@@ -7,7 +7,7 @@ import type { LintIssue, WorkflowGraph } from "@/lib/workflows/types";
 
 import { lintSignature } from "./workflow-lint-signature";
 
-export { lintSignature } from "./workflow-lint-signature";
+;
 
 const DEBOUNCE_MS = 600;
 
@@ -24,7 +24,7 @@ function cacheLintResult(
   }
 }
 
-export interface WorkflowLintState {
+interface WorkflowLintState {
   valid: boolean;
   issues: LintIssue[];
   linting: boolean;

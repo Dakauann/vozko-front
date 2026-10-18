@@ -6,7 +6,7 @@ import type { LaidLine } from "../text-animation";
 import type { LutAtlas } from "../cube-lut";
 import type { HaloNode, SourceSize } from "../media-halo";
 
-export const MAX_RASTER_RATIO = 4;
+const MAX_RASTER_RATIO = 4;
 export const MAX_RASTER_SIDE = 4096;
 
 export interface Viewport {

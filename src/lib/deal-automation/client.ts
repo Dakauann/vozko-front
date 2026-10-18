@@ -10,7 +10,7 @@ export interface DealAutomationChannel {
   containerId: string;
 }
 
-export interface DealAutomationSetting {
+interface DealAutomationSetting {
   pipelineId: string;
   enabled: boolean;
   updatedAt?: string;

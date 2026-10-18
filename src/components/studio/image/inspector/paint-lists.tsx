@@ -22,7 +22,7 @@ interface ListProps {
   onPatch: (patch: LayerPatch) => void;
 }
 
-export interface ListRowProps {
+interface ListRowProps {
   title: string;
   hidden: boolean;
   disabled: boolean;

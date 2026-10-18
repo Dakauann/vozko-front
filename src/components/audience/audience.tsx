@@ -323,9 +323,7 @@ export function CommentAnalysisAudience({
   ];
 
   return (
-    <div className="space-y-4">
-      {
-}
+    <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="w-full sm:w-56">
           <ElevatedSelect label={ta("channel")} value={source || ALL_CHANNELS} onValueChange={changeSource}>
@@ -384,9 +382,7 @@ export function CommentAnalysisAudience({
           <p>{error}</p>
         </Notice>
       ) : null}
-
-      {
-}
+
       {accountId && settings && !settings.enabled ? (
         <div className="rounded-[--radius] border border-border bg-card">
           <EmptyState
@@ -413,9 +409,7 @@ export function CommentAnalysisAudience({
           </div>
 
           {section === "overview" && (!error || commentStats || conversationStats) ? (
-            <div className="flex flex-col gap-6">
-              {
-}
+            <div className="flex flex-col gap-6">
               <AnalysisBudgetPanel
                 usage={usage}
                 settings={workspaceSettings}

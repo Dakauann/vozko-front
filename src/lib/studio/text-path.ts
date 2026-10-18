@@ -18,9 +18,9 @@ export type TextPathAlign = (typeof TEXT_PATH_ALIGNS)[number];
 
 export const TEXT_PATH_BEND_RANGE = [-1, 1] as const;
 
-export const DEFAULT_TEXT_PATH_BEND = 0.5;
+const DEFAULT_TEXT_PATH_BEND = 0.5;
 
-export const DEFAULT_CUSTOM_TEXT_PATH = "M0 0.75 C0.3 0.15 0.7 0.15 1 0.75";
+const DEFAULT_CUSTOM_TEXT_PATH = "M0 0.75 C0.3 0.15 0.7 0.15 1 0.75";
 
 export interface TextPath {
   shape: TextPathShape;
@@ -32,7 +32,7 @@ export interface TextPath {
   reverse?: boolean;
 }
 
-export interface BoxSize {
+interface BoxSize {
   width: number;
   height: number;
 }

@@ -18,7 +18,7 @@ import { AIModelSelector } from "@/components/elevated-design/ai-model-selector"
 import { editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
 
 
-export function useAiModelOptions(active: boolean) {
+function useAiModelOptions(active: boolean) {
   const [models, setModels] = useState<string[]>([]);
   const [modelPricing, setModelPricing] = useState<ModelPricingInfo[] | undefined>();
   useEffect(() => {

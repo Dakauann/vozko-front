@@ -1,4 +1,4 @@
-export interface TranslationUsage {
+interface TranslationUsage {
   line: number;
   key: string;
   raw: boolean;

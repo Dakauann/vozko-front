@@ -8,13 +8,13 @@ import { getOpportunityBoardAction } from "@/app/actions/opportunities";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import type { Opportunity, OpportunityColumn } from "@/lib/crm/opportunities";
 
-export interface OpportunitySetup {
+interface OpportunitySetup {
   pipelineId: string;
   columns: OpportunityColumn[];
   customFields: CustomFieldDefinition[];
 }
 
-export async function loadOpportunitySetup(pipelineId?: string): Promise<OpportunitySetup | null> {
+async function loadOpportunitySetup(pipelineId?: string): Promise<OpportunitySetup | null> {
   const [{ pipelines, error: pipelinesError }, { fields, error: fieldsError }] = await Promise.all([
     listPipelinesAction("opportunity"),
     listCustomFieldsAction("opportunity"),

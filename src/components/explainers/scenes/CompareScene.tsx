@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 import { SceneFrame, stagger } from "./scene-kit";
 
-export type CompareRow = { icon?: Icon; label: string };
-export type CompareSide = { label: string; rows: CompareRow[] };
+type CompareRow = { icon?: Icon; label: string };
+type CompareSide = { label: string; rows: CompareRow[] };
 
 function Panel({ side, active, index }: { side: CompareSide; active: boolean; index: number }) {
   return (

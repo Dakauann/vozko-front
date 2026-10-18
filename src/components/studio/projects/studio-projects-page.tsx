@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { CreateProjectDialog } from "./create-project-dialog";
 import { RenameProjectDialog } from "./rename-project-dialog";
 
-export const STUDIO_PAGE_SIZE = 20;
+const STUDIO_PAGE_SIZE = 20;
 
 const KIND_ICON: Record<StudioKind, typeof ImageIcon> = { image: ImageIcon, video: FilmStrip };
 

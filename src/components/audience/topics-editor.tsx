@@ -8,7 +8,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Plus, Trash } from "@/components/icons";
 
 
-export const MAX_TOPICS = 30;
+const MAX_TOPICS = 30;
 
 export { cleanTopics, editableTopics } from "@/lib/audience/override";
 

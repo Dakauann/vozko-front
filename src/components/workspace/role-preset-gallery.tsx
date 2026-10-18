@@ -1,6 +1,4 @@
 "use client";
-
-import * as React from "react";
 import { useTranslations } from "next-intl";
 
 import { DotMatrix } from "@/components/brand/circuit";

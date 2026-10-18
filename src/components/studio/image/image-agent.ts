@@ -73,7 +73,7 @@ async function measuredLegibility(surface: ImageSurface): Promise<string[]> {
   return legibilityReport(surface, await captureBackdrop(surface));
 }
 
-export interface ImageAgentDeps {
+interface ImageAgentDeps {
   store: StudioEditorStore<ImageDocument>;
   ui: EditorUiStore;
   commands: ImageCommands;

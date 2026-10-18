@@ -6,9 +6,9 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 
 import { useVideoEditor, useViewState } from "../editor-context";
 
-export type KeyViewMode = "composite" | "matte" | "original";
+type KeyViewMode = "composite" | "matte" | "original";
 
-export function useKeyView(clipId: string): { mode: KeyViewMode; show: (next: KeyViewMode) => void } {
+function useKeyView(clipId: string): { mode: KeyViewMode; show: (next: KeyViewMode) => void } {
   const { view } = useVideoEditor();
   const chromaView = useViewState((s) => s.chromaView);
   useEffect(() => () => view.setState((state) => (state.chromaView?.clipId === clipId ? { chromaView: null } : state)), [clipId, view]);

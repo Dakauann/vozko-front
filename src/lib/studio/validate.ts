@@ -96,7 +96,7 @@ import { qrLayerIssue } from "./qr";
 import { chartInIssue } from "./chart-animation";
 import { backgroundIssue, linkedSlots, slotIssue, STYLE_KINDS, STYLE_RANGES, STYLE_ROLES, TEXT_STYLE_FIELDS, type StudioStyle, type StyleKind } from "./shared-styles";
 
-export const ISSUE_FIELDS = {
+const ISSUE_FIELDS = {
   kind: "kind",
   name: "name",
   document: "document",
@@ -976,7 +976,7 @@ export function styleIssue(s: StudioStyle): IssueCode | null {
   return (solid ? isValidColor(s.color ?? "", true) : gradientValid(s.gradient)) ? null : "invalid";
 }
 
-export function stylesIssue(styles: readonly StudioStyle[]): IssueCode | null {
+function stylesIssue(styles: readonly StudioStyle[]): IssueCode | null {
   const seen = new Set<string>();
   for (const style of styles) {
     if (seen.has(style.id)) return "duplicate";
@@ -1263,7 +1263,7 @@ function colorKeysIssue(c: Clip): IssueCode | null {
   return layer && animated.every((property) => paintsProperty(layer, property)) ? null : "invalid";
 }
 
-export function motionIssue(motionIn: Motion | undefined, motionOut: Motion | undefined, durationMs: number): IssueCode | null {
+function motionIssue(motionIn: Motion | undefined, motionOut: Motion | undefined, durationMs: number): IssueCode | null {
   let total = 0;
   for (const motion of [motionIn, motionOut]) {
     if (!motion) continue;
@@ -1320,7 +1320,7 @@ function timelineIssue(d: VideoDocument, ids: Set<string>): DocumentIssue | null
   return null;
 }
 
-export type ParsedDocument<D extends StudioDocument> = { ok: true; document: D } | { ok: false; issue: DocumentIssue };
+type ParsedDocument<D extends StudioDocument> = { ok: true; document: D } | { ok: false; issue: DocumentIssue };
 
 export function parseDocument(kind: "image", raw: unknown): ParsedDocument<ImageDocument>;
 export function parseDocument(kind: "video", raw: unknown): ParsedDocument<VideoDocument>;

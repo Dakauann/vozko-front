@@ -91,7 +91,7 @@ export const TRANSITION_SPECS: Record<TransitionKind, KindSpec> = {
   constantGain: { sequential: false, durationMs: 1000, easing: "linear", options: {} },
 };
 
-export const TRANSITION_OPTIONS: readonly TransitionOption[] = ["direction", "moving", "color", "angle", "shape", "originX", "originY", "clockwise", "orientation", "reverse", "amount", "softness", "size", "map", "mapAssetId"];
+const TRANSITION_OPTIONS: readonly TransitionOption[] = ["direction", "moving", "color", "angle", "shape", "originX", "originY", "clockwise", "orientation", "reverse", "amount", "softness", "size", "map", "mapAssetId"];
 
 const OPTION_RIVALS: Partial<Record<TransitionOption, TransitionOption>> = { map: "mapAssetId", mapAssetId: "map" };
 
@@ -222,13 +222,13 @@ function optionValid(option: TransitionOption, value: unknown): boolean {
   }
 }
 
-export interface TransitionWindow {
+interface TransitionWindow {
   startMs: number;
   endMs: number;
   cutMs: number;
 }
 
-export function leadTrail(durationMs: number, alignment: TransitionAlignment): { lead: number; trail: number } {
+function leadTrail(durationMs: number, alignment: TransitionAlignment): { lead: number; trail: number } {
   if (alignment === "start") return { lead: 0, trail: durationMs };
   if (alignment === "end") return { lead: durationMs, trail: 0 };
   const lead = Math.floor(durationMs / 2);
@@ -243,7 +243,7 @@ export function transitionWindow(transition: Transition, track: Track): Transiti
   return { startMs: cutMs - lead, endMs: cutMs + trail, cutMs };
 }
 
-export interface Cut {
+interface Cut {
   fromClipId: string;
   toClipId: string;
   atMs: number;

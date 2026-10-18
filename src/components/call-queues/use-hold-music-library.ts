@@ -54,7 +54,7 @@ export function useHoldMusicLibrary(): HoldMusicLibrary {
   return { presets, audios, loading, upload };
 }
 
-export interface PreviewPlayer {
+interface PreviewPlayer {
   playing: string | null;
   loading: string | null;
   toggle: (key: string, source: () => Promise<string | null>) => void;

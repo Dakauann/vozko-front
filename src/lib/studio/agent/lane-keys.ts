@@ -10,7 +10,7 @@ export interface AgentLaneKey {
   easing?: Easing;
 }
 
-export const DEFAULT_KEY_EASING: Easing = "easeInOut";
+const DEFAULT_KEY_EASING: Easing = "easeInOut";
 
 export interface AgentPathKey extends AgentLaneKey {
   path?: string;

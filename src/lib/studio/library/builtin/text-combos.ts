@@ -3,7 +3,7 @@ import { DASH_PRESETS } from "../../stroke-presets";
 import { OWN_SOURCE, type LibraryCategory, type LibraryItem, type LocalizedText } from "../model";
 import { comboLayers, comboRatio, comboSlots, type ComboColor, type ComboRule, type ComboText, type TextCombo } from "../text-combo";
 
-export const COMBO_SUBCATEGORIES = ["titles", "promos", "events", "greetings", "stickers", "monograms"] as const;
+const COMBO_SUBCATEGORIES = ["titles", "promos", "events", "greetings", "stickers", "monograms"] as const;
 
 type Subcategory = (typeof COMBO_SUBCATEGORIES)[number];
 

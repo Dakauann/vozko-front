@@ -3,11 +3,11 @@ import type { LeadAddress, LeadGeoStatus } from "@/lib/leads/types";
 import { isPrecision, precisionCategory, precisionLabelKey } from "@/lib/maps/precision";
 import { positionSourceKey } from "@/lib/maps/position";
 
-export type AddressLocationTone = "healthy" | "muted" | "warning";
+type AddressLocationTone = "healthy" | "muted" | "warning";
 
-export type AddressLocationLabel = { kind: "precision"; key: string } | { kind: "status"; status: LeadGeoStatus };
+type AddressLocationLabel = { kind: "precision"; key: string } | { kind: "status"; status: LeadGeoStatus };
 
-export interface AddressLocation {
+interface AddressLocation {
   label: AddressLocationLabel;
   tone: AddressLocationTone;
   note: LeadGeoStatus | null;
@@ -36,7 +36,7 @@ export function addressLocation(address: Pick<LeadAddress, "geoStatus" | "geoQue
   return { label: { kind: "status", status }, tone, note: null };
 }
 
-export interface AddressPositionSource {
+interface AddressPositionSource {
   sourceKey: string;
   fixedAt: Date | null;
 }

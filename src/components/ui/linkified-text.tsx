@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { ArrowSquareOut, Warning } from "@/components/icons";
 import {
   HoverCard,
@@ -85,29 +83,5 @@ export function LinkPreview({ url }: { url: string }) {
         </div>
       </HoverCardContent>
     </HoverCard>
-  );
-}
-
-interface LinkifiedTextProps {
-  children: string;
-  className?: string;
-}
-
-export default function LinkifiedText({
-  children,
-  className,
-}: LinkifiedTextProps) {
-  const parts = children.split(URL_REGEX);
-
-  return (
-    <span className={className}>
-      {parts.map((part, i) =>
-        i % 2 === 1 ? (
-          <LinkPreview key={i} url={part} />
-        ) : (
-          <React.Fragment key={i}>{part}</React.Fragment>
-        ),
-      )}
-    </span>
   );
 }

@@ -16,7 +16,7 @@ export interface ElevatedStepperStep {
   optional?: boolean;
 }
 
-export interface ElevatedStepperProps {
+interface ElevatedStepperProps {
   steps: ElevatedStepperStep[];
   currentStep: number;
   onStepClick?: (index: number) => void;
@@ -180,7 +180,7 @@ export function ElevatedStepper({
   );
 }
 
-export interface ElevatedStepperFooterProps {
+interface ElevatedStepperFooterProps {
   canGoBack: boolean;
   canGoNext: boolean;
   isLast: boolean;

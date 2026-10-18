@@ -4,7 +4,7 @@ const MICROS_PER_UNIT = 1_000_000;
 
 const ZERO_DECIMAL_CURRENCIES = new Set(["CLP", "COP", "CRC", "HUF", "ISK", "IDR", "JPY", "KRW", "PYG", "TWD", "VND"]);
 
-export function normalizeCurrency(code: string | null | undefined): string | null {
+function normalizeCurrency(code: string | null | undefined): string | null {
   const upper = (code ?? "").trim().toUpperCase();
   return /^[A-Z]{3}$/.test(upper) ? upper : null;
 }
@@ -15,7 +15,7 @@ export function currencyOffset(code: string): number | null {
   return ZERO_DECIMAL_CURRENCIES.has(normalized) ? 1 : 100;
 }
 
-export function currencyFractionDigits(code: string): number {
+function currencyFractionDigits(code: string): number {
   return currencyOffset(code) === 1 ? 0 : 2;
 }
 

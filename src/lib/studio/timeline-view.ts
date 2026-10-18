@@ -3,9 +3,9 @@ import { FRAMES_PER_SECOND } from "./document";
 export const MIN_PX_PER_SECOND = 1;
 export const MAX_PX_PER_SECOND = 640;
 export const DEFAULT_PX_PER_SECOND = 60;
-export const ZOOM_STEP = 1.25;
-export const SNAP_RADIUS_PX = 8;
-export const MIN_LABEL_SPACING_PX = 72;
+const ZOOM_STEP = 1.25;
+const SNAP_RADIUS_PX = 8;
+const MIN_LABEL_SPACING_PX = 72;
 
 const RULER_STEPS_MS = [100, 200, 500, 1000, 2000, 5000, 10_000, 15_000, 30_000, 60_000, 120_000];
 
@@ -49,7 +49,7 @@ export function snapThresholdMs(pxPerSecond: number, radiusPx: number = SNAP_RAD
   return pxToMs(radiusPx, pxPerSecond);
 }
 
-export interface RulerStep {
+interface RulerStep {
   majorMs: number;
   minorMs: number;
 }
@@ -61,7 +61,7 @@ export function rulerStep(pxPerSecond: number, minLabelPx: number = MIN_LABEL_SP
   return { majorMs, minorMs: minorMs === majorMs ? majorMs / 2 : minorMs };
 }
 
-export interface RulerTick {
+interface RulerTick {
   ms: number;
   major: boolean;
 }
@@ -93,10 +93,6 @@ export function formatRulerLabel(ms: number, majorMs: number): string {
   return `${base}.${Math.floor((total % 1000) / 100)}`;
 }
 
-export function formatSeconds(ms: number): string {
-  return (Math.round(ms / 10) / 100).toFixed(2);
-}
-
 export interface Rect {
   left: number;
   top: number;
@@ -108,11 +104,11 @@ export function normalizedRect(x1: number, y1: number, x2: number, y2: number): 
   return { left: Math.min(x1, x2), top: Math.min(y1, y2), right: Math.max(x1, x2), bottom: Math.max(y1, y2) };
 }
 
-export function rectsIntersect(a: Rect, b: Rect): boolean {
+function rectsIntersect(a: Rect, b: Rect): boolean {
   return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 }
 
-export interface ClipBox {
+interface ClipBox {
   id: string;
   rect: Rect;
 }
@@ -126,7 +122,7 @@ export function toggledSelection(selection: readonly string[], id: string, addit
   return selection.includes(id) ? selection.filter((current) => current !== id) : [...selection, id];
 }
 
-export interface LaneTrack {
+interface LaneTrack {
   id: string;
   kind: "visual" | "audio";
   clips: readonly { id: string; startMs: number; durationMs: number }[];
@@ -136,7 +132,7 @@ export function laneOrder<T extends LaneTrack>(tracks: readonly T[]): T[] {
   return [...tracks.filter((t) => t.kind === "visual").reverse(), ...tracks.filter((t) => t.kind === "audio")];
 }
 
-export type LaneHeight = number | ((kind: LaneTrack["kind"]) => number);
+type LaneHeight = number | ((kind: LaneTrack["kind"]) => number);
 
 function heightOf(laneHeight: LaneHeight, kind: LaneTrack["kind"]): number {
   return typeof laneHeight === "number" ? laneHeight : laneHeight(kind);
@@ -188,7 +184,7 @@ export function followScroll(playheadPx: number, scrollLeft: number, viewportPx:
   return Math.max(0, playheadPx - viewportPx * 0.1);
 }
 
-export interface EnvelopeInput {
+interface EnvelopeInput {
   durationMs: number;
   fadeInMs: number;
   fadeOutMs: number;
@@ -231,7 +227,7 @@ export function steppedSpan(span: Span | null, stepPx: number, widthPx: number):
   return { fromPx: Math.floor(span.fromPx / stepPx) * stepPx, toPx: Math.min(widthPx, Math.ceil(span.toPx / stepPx) * stepPx) };
 }
 
-export interface OverviewWindow {
+interface OverviewWindow {
   left: number;
   width: number;
 }
@@ -263,7 +259,7 @@ export function rangeView(fromMs: number, toMs: number, viewportPx: number): { p
   return { pxPerSecond, scrollLeft: Math.max(0, msToPx(Math.min(fromMs, toMs), pxPerSecond)) };
 }
 
-export const FOCUS_MARGIN = 0.08;
+const FOCUS_MARGIN = 0.08;
 
 export function focusView(startMs: number, durationMs: number, viewportPx: number, margin: number = FOCUS_MARGIN): { pxPerSecond: number; scrollLeft: number } {
   const pad = Math.max(200, durationMs * margin);

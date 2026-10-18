@@ -99,7 +99,7 @@ function sameNumber(a: number | undefined, b: number | undefined): boolean {
   return Math.abs((a ?? 0) - (b ?? 0)) <= NUMBER_TOLERANCE;
 }
 
-export function sameGradient(a: Gradient | undefined, b: Gradient | undefined): boolean {
+function sameGradient(a: Gradient | undefined, b: Gradient | undefined): boolean {
   if (!a || !b) return !a && !b;
   return sameColor(a.from, b.from) && sameColor(a.to, b.to) && sameColor(a.via, b.via) && (a.kind ?? "") === (b.kind ?? "") && sameNumber(a.angle, b.angle) && sameNumber(a.cx, b.cx) && sameNumber(a.cy, b.cy) && sameNumber(a.radius, b.radius);
 }

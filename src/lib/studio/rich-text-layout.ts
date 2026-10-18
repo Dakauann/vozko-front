@@ -23,14 +23,14 @@ export interface RichMeasure {
   metrics: (font: RunFont) => FontMetrics;
 }
 
-export interface RichBox {
+interface RichBox {
   x: number;
   y: number;
   width: number;
   height: number;
 }
 
-export interface RichLayoutInput {
+interface RichLayoutInput {
   spans: readonly TextSpan[];
   box: RichBox;
   align: TextAlign;
@@ -41,7 +41,7 @@ export interface RichLayoutInput {
   truncate: boolean;
 }
 
-export interface RichSegment {
+interface RichSegment {
   start: number;
   end: number;
   text: string;
@@ -246,7 +246,7 @@ export function richLaidLines(layout: RichLayout): LaidLine[] {
   return layout.lines.map((line) => ({ top: line.top, height: line.height, chars: line.segments.flatMap((segment) => segment.chars) }));
 }
 
-export interface CurvedGlyphInput {
+interface CurvedGlyphInput {
   spans: readonly TextSpan[];
   path: string;
   lineHeight: number;
@@ -254,7 +254,7 @@ export interface CurvedGlyphInput {
   measure: RichMeasure;
 }
 
-export interface CurvedGlyph {
+interface CurvedGlyph {
   text: string;
   x: number;
   y: number;

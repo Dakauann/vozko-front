@@ -250,4 +250,4 @@ function StagePickerContent({
   );
 }
 
-export type { EntryStageBadgeTranslations, EntryStageBadgeProps };
+;

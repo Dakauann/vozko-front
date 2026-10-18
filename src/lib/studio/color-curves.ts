@@ -20,9 +20,9 @@ export const IDENTITY_CURVE: readonly CurvePoint[] = [
 
 export const CURVE_PRESET_IDS = ["contrast", "soften", "fade", "brighten", "darken"] as const;
 
-export type CurvePresetId = (typeof CURVE_PRESET_IDS)[number];
+type CurvePresetId = (typeof CURVE_PRESET_IDS)[number];
 
-export const CURVE_PRESETS: Record<CurvePresetId, readonly CurvePoint[]> = {
+const CURVE_PRESETS: Record<CurvePresetId, readonly CurvePoint[]> = {
   contrast: [
     { x: 0, y: 0 },
     { x: 0.25, y: 0.18 },
@@ -61,7 +61,7 @@ function within(value: number, low: number, high: number): boolean {
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-export function isCurveChannel(value: string): value is CurveChannel {
+function isCurveChannel(value: string): value is CurveChannel {
   return (CURVE_CHANNELS as readonly string[]).includes(value);
 }
 
@@ -84,7 +84,7 @@ export function curvesIssue(curves: ColorCurves): IssueCode | null {
   return null;
 }
 
-export function isIdentityCurve(points: readonly CurvePoint[] | undefined): boolean {
+function isIdentityCurve(points: readonly CurvePoint[] | undefined): boolean {
   return !points || points.every((point) => Math.abs(point.y - point.x) < IDENTITY_EPSILON);
 }
 
@@ -191,7 +191,7 @@ export function curvesPixel(rgb: readonly number[], lut: Uint8Array): number[] {
   return rgb.slice(0, 3).map((v, c) => lut[Math.round(clamp01(v) * 255) * 4 + c] / 255);
 }
 
-export type CurveEdit = { ok: true; points: CurvePoint[]; index: number } | { ok: false; reason: "crowded" | "lastPoints" | "missing" };
+type CurveEdit = { ok: true; points: CurvePoint[]; index: number } | { ok: false; reason: "crowded" | "lastPoints" | "missing" };
 
 function placed(points: readonly CurvePoint[], index: number, x: number, y: number): CurvePoint {
   const low = index === 0 ? 0 : points[index - 1].x + CURVE_POINT_GAP;

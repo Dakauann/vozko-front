@@ -66,7 +66,7 @@ const TILE_FILTERS: Partial<Record<LeadSummaryTileId, TileFilter>> = {
     windowOpen: booleanTile(LEAD_FILTER_FIELD.windowOpen, true),
 };
 
-export interface SummaryTileViewer {
+interface SummaryTileViewer {
     readsAddresses: boolean;
 }
 

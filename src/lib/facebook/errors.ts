@@ -22,8 +22,6 @@ export const FACEBOOK_ERROR_CODES = [
     'forbidden',
 ] as const;
 
-export type FacebookErrorCode = (typeof FACEBOOK_ERROR_CODES)[number];
-
 export function facebookErrorKey(code: string | undefined): string | null {
     if (!code || !(FACEBOOK_ERROR_CODES as readonly string[]).includes(code)) return null;
     return `errors.${code}`;

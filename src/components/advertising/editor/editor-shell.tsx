@@ -122,7 +122,7 @@ export function EditorTree({ entries, label }: { entries: TreeEntry[]; label: st
   );
 }
 
-export interface CrumbEntry {
+interface CrumbEntry {
   key: string;
   label: string;
   current: boolean;

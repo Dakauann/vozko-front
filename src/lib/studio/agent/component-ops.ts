@@ -6,9 +6,9 @@ import type { FontId } from "../fonts";
 import type { AgentOutcome } from "./batch";
 import type { ImageOpContext, ImageOperation } from "./image-ops";
 
-export const COMPONENT_OPERATIONS = ["create_component", "add_instance", "set_overrides", "reset_overrides", "detach_instance", "swap_component"] as const;
+const COMPONENT_OPERATIONS = ["create_component", "add_instance", "set_overrides", "reset_overrides", "detach_instance", "swap_component"] as const;
 
-export type ComponentOpName = (typeof COMPONENT_OPERATIONS)[number];
+type ComponentOpName = (typeof COMPONENT_OPERATIONS)[number];
 
 export interface AgentComponentFields {
   component_id?: string;
@@ -20,7 +20,7 @@ export interface AgentComponentFields {
 type DocumentOutcome = AgentOutcome<ImageDocument>;
 type Refusal = { ok: false; reason: string };
 
-export const AGENT_OVERRIDE_NAMES: Record<OverrideField, string> = {
+const AGENT_OVERRIDE_NAMES: Record<OverrideField, string> = {
   text: "text",
   fill: "fill",
   stroke: "stroke",

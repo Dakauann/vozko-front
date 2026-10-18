@@ -47,11 +47,6 @@ export async function getUserMeAction(): Promise<{
   return { plan: data?.plan, picture: data?.picture };
 }
 
-export async function isAuthenticatedAction(): Promise<boolean> {
-  const { data } = await apiClient<UserMeResponse>("/user/me");
-  return !!data;
-}
-
 export async function updateUserPictureAction(
   pictureUrl: string,
 ): Promise<{ success: boolean; error?: string }> {
@@ -119,19 +114,6 @@ export async function revokeSessionAction(
     `/auth/sessions/${sessionId}`,
     { method: "DELETE" },
   );
-  if (res.error) {
-    return { success: false, error: res.error.message };
-  }
-  return { success: true };
-}
-
-export async function logoutAllSessionsAction(): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  const res = await apiClient<{ message: string }>("/auth/logout-all", {
-    method: "POST",
-  });
   if (res.error) {
     return { success: false, error: res.error.message };
   }

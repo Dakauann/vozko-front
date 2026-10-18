@@ -9,7 +9,7 @@ export const MAX_VIDEO_SCHEDULE_LEAD_MS = 180 * DAY_MS;
 
 export type ScheduleProblem = 'invalid' | 'tooSoon' | 'tooFar' | 'notSchedulable';
 
-export function maxScheduleLeadMs(kind: FacebookPublishKind): number {
+function maxScheduleLeadMs(kind: FacebookPublishKind): number {
     return kind === 'video' ? MAX_VIDEO_SCHEDULE_LEAD_MS : MAX_SCHEDULE_LEAD_MS;
 }
 

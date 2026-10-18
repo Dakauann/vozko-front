@@ -3,7 +3,7 @@
 import { STUDIO_ICONS, STUDIO_ICON_IDS } from "@/components/studio/canvas/icon-catalog";
 import { cn } from "@/lib/utils";
 
-export function iconLabel(iconId: string): string {
+function iconLabel(iconId: string): string {
   return iconId.replace(/-logo$/, "").replace(/-/g, " ");
 }
 

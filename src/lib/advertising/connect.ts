@@ -2,9 +2,9 @@ import type { MetaAdsConnectResult, MetaAdsConnectStatus } from "@/lib/advertisi
 
 export const META_ADS_POPUP_SOURCE = "meta-ads-login";
 export const ADVERTISING_PATH = "/dashboard/advertising";
-export const ADVERTISING_NEW_PATH = "/dashboard/advertising/new";
-export const ADVERTISING_OVERVIEW_PATH = "/dashboard/advertising/overview";
-export const ADVERTISING_EDITOR_PATH = "/dashboard/advertising/editor";
+const ADVERTISING_NEW_PATH = "/dashboard/advertising/new";
+const ADVERTISING_OVERVIEW_PATH = "/dashboard/advertising/overview";
+const ADVERTISING_EDITOR_PATH = "/dashboard/advertising/editor";
 export const ADVERTISING_REPORTS_PATH = "/dashboard/advertising/reports";
 export const META_ADS_MANAGER_URL = "https://adsmanager.facebook.com/adsmanager/manage/campaigns";
 
@@ -52,7 +52,7 @@ export function pickAccountId(accountIds: string[], ...preferred: (string | null
   return accountIds[0] ?? null;
 }
 
-export interface ManagerFocus {
+interface ManagerFocus {
   accountId: string;
   campaignId?: string | null;
   published?: boolean;

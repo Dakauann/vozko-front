@@ -4,8 +4,8 @@ import { tableCellAt } from "./table-parts";
 import type { QrSpec } from "./qr";
 import type { TableSpec } from "./table";
 
-export const TABLE_SHARE = 0.8;
-export const QR_SHARE = 0.3;
+const TABLE_SHARE = 0.8;
+const QR_SHARE = 0.3;
 
 const ROW_SHARE = 0.11;
 const MAX_TABLE_HEIGHT = 0.9;

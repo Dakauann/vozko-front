@@ -6,7 +6,7 @@ import { collapsedSpans, counterRunStyles, drawnText, hasRuns, type RunStyle } f
 
 const SLOT_CELLS = COUNTER_DIGITS.map((_, index) => index);
 
-export interface GlyphCells {
+interface GlyphCells {
   cells: string[];
   styles?: RunStyle[];
   content: GlyphContent;

@@ -6,15 +6,15 @@ import { findClip } from "../timeline";
 import { clipKeySample, keyMoment, keySampleId, type KeySample } from "../chroma-detect";
 import { laneFrames, type AgentLaneKey } from "./lane-keys";
 
-export const AUTO_CHROMA = "auto";
+const AUTO_CHROMA = "auto";
 
 export type AgentChromaPreset = ChromaPreset | typeof AUTO_CHROMA;
 
-export const AGENT_CHROMA_PRESETS: readonly AgentChromaPreset[] = [...(Object.keys(CHROMA_PRESETS) as ChromaPreset[]), AUTO_CHROMA];
+const AGENT_CHROMA_PRESETS: readonly AgentChromaPreset[] = [...(Object.keys(CHROMA_PRESETS) as ChromaPreset[]), AUTO_CHROMA];
 
-export const KEY_COLOR_NOT_FOUND = "não achei um fundo verde ou azul dominante na borda da imagem; mande chroma_color com a cor do fundo ou chroma_preset green ou blue";
+const KEY_COLOR_NOT_FOUND = "não achei um fundo verde ou azul dominante na borda da imagem; mande chroma_color com a cor do fundo ou chroma_preset green ou blue";
 
-export type ClipKeyColor = (clip: Clip, atMs: number | undefined) => string | undefined;
+type ClipKeyColor = (clip: Clip, atMs: number | undefined) => string | undefined;
 
 export interface AgentChromaFields {
   chroma_color?: string;
@@ -25,14 +25,14 @@ export interface AgentChromaFields {
   spill?: number;
 }
 
-export interface ChromaOpInput extends AgentChromaFields {
+interface ChromaOpInput extends AgentChromaFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
   keys?: AgentLaneKey[];
 }
 
-export type ChromaOpResult = KeyerOpResult;
+type ChromaOpResult = KeyerOpResult;
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 

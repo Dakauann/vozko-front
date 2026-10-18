@@ -24,7 +24,7 @@ export function FieldGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-2 gap-2">{children}</div>;
 }
 
-export function KeyMark({ state, hint }: { state: KeyState; hint: string }) {
+function KeyMark({ state, hint }: { state: KeyState; hint: string }) {
   if (state === "static") return null;
   return (
     <Tooltip delayDuration={300}>

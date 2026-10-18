@@ -1,9 +1,9 @@
-export type DialerTabState =
+type DialerTabState =
     | { status: "idle"; label: "idle" }
     | { status: "alert"; label: "incoming" }
     | { status: "live"; label: "holding" | "ringing" | "timer" };
 
-export interface DialerTabInput {
+interface DialerTabInput {
     callStatus: "ringing" | "answered" | "waiting_slot" | "ended" | null;
     hasIncomingCall: boolean;
     transferRinging: boolean;

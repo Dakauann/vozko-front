@@ -5,9 +5,9 @@ interface PricingItemLike {
   priceMicros: number;
 }
 
-export type UsageUnit = "messages" | "minutes";
+type UsageUnit = "messages" | "minutes";
 
-export interface UsageEstimate {
+interface UsageEstimate {
   category: string;
   service: string;
   unit: UsageUnit;

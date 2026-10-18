@@ -12,7 +12,7 @@ export type StillVfxTarget = { kind: "layer"; layerId: string } | { kind: "canva
 
 export type SurfaceVfxRefusal = StillVfxRefusal | "missing" | "locked" | "notImage";
 
-export type SurfaceVfxEdit<S extends ImageSurface> = { ok: true; surface: S } | { ok: false; reason: SurfaceVfxRefusal };
+type SurfaceVfxEdit<S extends ImageSurface> = { ok: true; surface: S } | { ok: false; reason: SurfaceVfxRefusal };
 
 export function addingVfx(vfx: Vfx, index?: number): StillVfxChange {
   return (list) => insertItem(list, vfx, index);

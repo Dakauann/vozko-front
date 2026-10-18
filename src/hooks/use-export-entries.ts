@@ -23,7 +23,7 @@ interface ExportFilters {
     attendanceQualityMax?: number;
 }
 
-export type ExportScope =
+type ExportScope =
     | { kind: "campaign"; campaignId: string }
     | { kind: "workspace"; type?: string; from?: string; to?: string };
 

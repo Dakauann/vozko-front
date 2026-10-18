@@ -86,7 +86,7 @@ import { fitBounds, stepZoom, viewArea, visibleShare, zoomAt, type Point } from 
 import { currentArtboard, jobKind, type EditorUiStore, type JobPurpose, type StudioJob } from "./editor-state";
 import { createPixelCommands } from "./pixel-commands";
 
-export function runningJobKinds(ui: EditorUiStore): ("image" | "cutout")[] {
+function runningJobKinds(ui: EditorUiStore): ("image" | "cutout")[] {
   return ui.getState().jobs.filter((job) => !job.error).map((job) => jobKind(job.purpose));
 }
 
@@ -96,13 +96,13 @@ export interface CommandDeps {
   measure?: HugMeasure;
 }
 
-export interface PhotoSpot {
+interface PhotoSpot {
   artboardId: string;
   x: number;
   y: number;
 }
 
-export interface InsertImageOptions {
+interface InsertImageOptions {
   aboveId?: string;
   within?: Layer["transform"];
 }

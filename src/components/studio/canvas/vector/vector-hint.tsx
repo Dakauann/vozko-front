@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-export type VectorHintMode = "pen" | "draw" | "edit";
+type VectorHintMode = "pen" | "draw" | "edit";
 
 export function VectorHint({ mode }: { mode: VectorHintMode }) {
   const t = useTranslations("studio.vectors.hints");

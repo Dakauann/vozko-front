@@ -183,9 +183,7 @@ function NodeSlab({
           transparent={spec.dim}
           opacity={spec.dim ? 0.55 : 1}
         />
-      </RoundedBox>
-      {
-}
+      </RoundedBox>
       <Slab size={layout.node} color={palette.dark ? palette.board : palette.card} roughness={0.7} />
       <Label position={[0.04, 0, d / 2 + 0.02]} width={layout.labelWidth} className="select-none text-left">
         <p className="line-clamp-2 font-semibold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: font(10), color: palette.panelInk, opacity: spec.dim ? 0.6 : 1 }}>

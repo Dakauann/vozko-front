@@ -42,7 +42,7 @@ export interface PlacePoint {
   precision: Precision;
 }
 
-export interface ShownPin extends PlacePoint {
+interface ShownPin extends PlacePoint {
   moved: boolean;
 }
 
@@ -367,7 +367,7 @@ export function updateLeadBody(
   return body;
 }
 
-export const CUSTOM_FIELD_PATH = "customFields.";
+const CUSTOM_FIELD_PATH = "customFields.";
 
 export function customFieldKeyOf(path: string): string | null {
   return path.startsWith(CUSTOM_FIELD_PATH) ? path.slice(CUSTOM_FIELD_PATH.length) : null;
@@ -436,7 +436,7 @@ export function rebaseDraft(
   return { ...rebased, relatives: mine.relatives, removedRelationIds: mine.removedRelationIds };
 }
 
-export interface RefusalTargets {
+interface RefusalTargets {
   addressesEditable: boolean;
   readableFieldKeys: ReadonlySet<string>;
 }

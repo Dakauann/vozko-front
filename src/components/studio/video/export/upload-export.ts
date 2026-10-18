@@ -4,7 +4,7 @@ import { isActionError } from "@/app/actions/action-result";
 import { saveStudioExportAction } from "@/app/actions/studio";
 import type { ExportPhase, LocalExport } from "@/lib/studio/export";
 
-export const EXPORT_TOO_LARGE = "export_too_large";
+const EXPORT_TOO_LARGE = "export_too_large";
 
 export async function uploadExport(projectId: string, video: Blob, onPhase: (phase: ExportPhase) => void): Promise<LocalExport> {
   onPhase({ phase: "uploading" });

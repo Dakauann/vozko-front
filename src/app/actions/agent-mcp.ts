@@ -1,12 +1,4 @@
-import type {
-    AgentMCPBuiltinBinding,
-    AgentMCPCatalogEntry,
-    AgentMCPCollection,
-    AgentMCPRemoteServer,
-    CollectionInput,
-    RegisterRemoteInput,
-    StartOAuthOutput,
-} from '@/lib/agent-mcp/types';
+import type { AgentMCPCollection, AgentMCPRemoteServer, CollectionInput, RegisterRemoteInput, StartOAuthOutput } from '@/lib/agent-mcp/types';
 
 import { apiClient } from "@/lib/api/browser-client";
 
@@ -24,69 +16,6 @@ function unwrapList<T>(payload: unknown, key: string): T[] {
     }
     return [];
 }
-
-
-export async function listMCPCatalogAction() {
-    const res = await apiClient<unknown>(`${BASE}/catalog`, { method: 'GET' });
-    if (res.error) return { items: [] as AgentMCPCatalogEntry[], error: res.error.message };
-    return { items: unwrapList<AgentMCPCatalogEntry>(res.data, 'items') };
-}
-
-export async function listMCPBindingsAction() {
-    const res = await apiClient<unknown>(`${BASE}/bindings`, { method: 'GET' });
-    if (res.error) return { items: [] as AgentMCPBuiltinBinding[], error: res.error.message };
-    return { items: unwrapList<AgentMCPBuiltinBinding>(res.data, 'items') };
-}
-
-export interface CreateMCPBindingInput {
-    serverKey: string;
-    label?: string;
-    apiKey?: string;
-}
-
-export async function createMCPBindingAction(input: CreateMCPBindingInput) {
-    const body: Record<string, unknown> = { serverKey: input.serverKey };
-    if (input.label) body.label = input.label;
-    if (input.apiKey) body.apiKey = input.apiKey;
-    const res = await apiClient<AgentMCPBuiltinBinding>(`${BASE}/bindings`, {
-        method: 'POST',
-        body: JSON.stringify(body),
-    });
-    if (res.error) return { binding: null as AgentMCPBuiltinBinding | null, error: res.error.message };
-    return { binding: res.data ?? null };
-}
-
-export async function enableMCPBuiltinAction(serverKey: string) {
-    return createMCPBindingAction({ serverKey });
-}
-
-export async function configureMCPAPIKeyAction(bindingId: string, apiKey: string) {
-    const res = await apiClient<AgentMCPBuiltinBinding>(
-        `${BASE}/bindings/${encodeURIComponent(bindingId)}/api-key`,
-        { method: 'PUT', body: JSON.stringify({ apiKey }) },
-    );
-    if (res.error) return { binding: null as AgentMCPBuiltinBinding | null, error: res.error.message };
-    return { binding: res.data ?? null };
-}
-
-export async function deleteMCPBindingAction(bindingId: string) {
-    const res = await apiClient<unknown>(
-        `${BASE}/bindings/${encodeURIComponent(bindingId)}`,
-        { method: 'DELETE' },
-    );
-    if (res.error) return { ok: false, error: res.error.message };
-    return { ok: true };
-}
-
-export async function startMCPOAuthAction(bindingId: string) {
-    const res = await apiClient<StartOAuthOutput>(
-        `${BASE}/bindings/${encodeURIComponent(bindingId)}/oauth/start`,
-        { method: 'POST' },
-    );
-    if (res.error) return { authorizeUrl: '', error: res.error.message };
-    return { authorizeUrl: res.data?.authorizeUrl ?? '' };
-}
-
 
 export async function listMCPRemotesAction() {
     const res = await apiClient<unknown>(`${BASE}/remote`, { method: 'GET' });
@@ -139,17 +68,10 @@ export async function deleteMCPRemoteAction(id: string) {
     return { ok: true };
 }
 
-
 export async function listMCPCollectionsAction() {
     const res = await apiClient<unknown>(`${BASE}/collections`, { method: 'GET' });
     if (res.error) return { items: [] as AgentMCPCollection[], error: res.error.message };
     return { items: unwrapList<AgentMCPCollection>(res.data, 'items') };
-}
-
-export async function getMCPCollectionAction(id: string) {
-    const res = await apiClient<AgentMCPCollection>(`${BASE}/collections/${encodeURIComponent(id)}`, { method: 'GET' });
-    if (res.error) return { collection: null as AgentMCPCollection | null, error: res.error.message };
-    return { collection: res.data ?? null };
 }
 
 export async function createMCPCollectionAction(input: CollectionInput) {

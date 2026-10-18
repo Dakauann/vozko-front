@@ -4,7 +4,7 @@ import { readGeocodingPlatformPage, type GeocodingPlatformPage } from "@/lib/wor
 
 export type GeocodingPlatformResult = { page: GeocodingPlatformPage; error: null } | { page: null; error: CodedError };
 
-export interface GeocodingPlatformQuery {
+interface GeocodingPlatformQuery {
   page: number;
   pageSize: number;
   search: string;

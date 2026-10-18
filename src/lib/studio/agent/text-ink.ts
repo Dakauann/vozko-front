@@ -26,7 +26,7 @@ export interface TextFit {
   visible: number;
 }
 
-export interface ClippedText {
+interface ClippedText {
   fit: TextFit;
   hidden: string[];
   certain: boolean;

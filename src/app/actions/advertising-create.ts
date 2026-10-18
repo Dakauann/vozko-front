@@ -37,7 +37,7 @@ export async function searchAdTargetingAction(
   return settleAds(await apiClient<AdTargetingOption[]>(`${accountPath(accountId)}/targeting?${params.toString()}`, get), []);
 }
 
-export interface ReachEstimateInput {
+interface ReachEstimateInput {
   targeting: AdDraftTargeting;
   placements: AdPlacements;
   goal?: AdOptimizationGoal;

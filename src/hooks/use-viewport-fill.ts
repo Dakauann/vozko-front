@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { VIEWPORT_FILL_MIN_PX, documentTop, trailingInset, viewportFillHeight } from "@/lib/layout/viewport-fill";
 
-export interface ViewportFill<T extends HTMLElement> {
+interface ViewportFill<T extends HTMLElement> {
   ref: (node: T | null) => void;
   height: string | undefined;
 }

@@ -1,14 +1,4 @@
-import type {
-    BalanceOperationPayload,
-    BalanceOperationResponse,
-    BalanceSummary,
-    CreateBalancePayload,
-    FullBalanceSummary,
-    ListTransactionsParams,
-    ResourceOperationPayload,
-    Transaction,
-    TransactionListResponse,
-} from '@/lib/balance/types';
+import type { BalanceOperationResponse, BalanceSummary, CreateBalancePayload, FullBalanceSummary, ListTransactionsParams, ResourceOperationPayload, Transaction, TransactionListResponse } from '@/lib/balance/types';
 
 import type { Invoice } from '@/lib/invoices/types';
 import { apiClient } from "@/lib/api/browser-client";
@@ -131,23 +121,6 @@ export async function adminCreateBalanceAction(payload: CreateBalancePayload) {
     return { balance: response.data?.balance ?? null, error: null };
 }
 
-export async function adminGetBalanceAction(workspaceId: string) {
-    const response = await apiClient<FullBalanceSummary>(`/admin/balances/${workspaceId}`, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return { summary: null, error: response.error.message };
-    }
-
-    if (!response.data) {
-        return { summary: null, error: 'Saldo n�o encontrado' };
-    }
-
-    const summary = normalizeBalanceSummary(response.data);
-    return { summary, error: null };
-}
-
 export async function adminGetFullSummaryAction(workspaceId: string) {
     const response = await apiClient<FullBalanceSummary>(`/admin/balances/${workspaceId}/summary`, {
         method: 'GET',
@@ -163,46 +136,6 @@ export async function adminGetFullSummaryAction(workspaceId: string) {
 
     const summary = normalizeBalanceSummary(response.data);
     return { summary, error: null };
-}
-
-export async function adminCreditBalanceAction(workspaceId: string, payload: BalanceOperationPayload) {
-    const apiPayload = {
-        amount: payload.amount,
-        serviceType: payload.service_type ?? 'manual_adjustment',
-        description: payload.description,
-        referenceId: payload.reference_id,
-    };
-
-    const response = await apiClient<BalanceOperationResponse>(`/admin/balances/${workspaceId}/credit`, {
-        method: 'POST',
-        body: JSON.stringify(apiPayload),
-    });
-
-    if (response.error) {
-        return { result: null, error: response.error.message };
-    }
-
-    return { result: response.data ?? null, error: null };
-}
-
-export async function adminDebitBalanceAction(workspaceId: string, payload: BalanceOperationPayload) {
-    const apiPayload = {
-        amount: payload.amount,
-        serviceType: payload.service_type ?? 'manual_adjustment',
-        description: payload.description,
-        referenceId: payload.reference_id,
-    };
-
-    const response = await apiClient<BalanceOperationResponse>(`/admin/balances/${workspaceId}/debit`, {
-        method: 'POST',
-        body: JSON.stringify(apiPayload),
-    });
-
-    if (response.error) {
-        return { result: null, error: response.error.message };
-    }
-
-    return { result: response.data ?? null, error: null };
 }
 
 export async function adminCreditResourceAction(workspaceId: string, payload: ResourceOperationPayload) {

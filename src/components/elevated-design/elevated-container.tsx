@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import React, { type ElementType, useEffect, useMemo, useState } from "react";
 
-export interface ElevatedContainerProps extends React.HTMLAttributes<HTMLElement> {
+interface ElevatedContainerProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   as?: ElementType;
   animatedBackground?: boolean;

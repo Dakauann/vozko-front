@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  DownloadIcon,
-  SubsetProperOfIcon,
-} from "@/components/icons";
-import {
-  ElevatedDialog,
-  ElevatedDialogContent,
-  ElevatedDialogDescription,
-  ElevatedDialogFooter,
-  ElevatedDialogHeader,
-  ElevatedDialogTitle,
-} from "@/components/elevated-design/elevated-dialog";
+import { DownloadIcon } from "@/components/icons";
+import { ElevatedDialog, ElevatedDialogContent, ElevatedDialogFooter } from "@/components/elevated-design/elevated-dialog";
 
 import dynamic from "next/dynamic";
 

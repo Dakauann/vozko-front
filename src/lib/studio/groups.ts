@@ -7,7 +7,7 @@ export type TreeItem = { kind: "layer"; id: string } | { kind: "group"; id: stri
 
 export type DropPosition = "above" | "below" | "into";
 
-export interface Placement {
+interface Placement {
   toIndex: number;
   parent: string | null;
 }
@@ -65,7 +65,7 @@ export function captureGroup(doc: GroupSource, layerId: string): string | null {
   return plain.length > 0 ? plain[plain.length - 1] : null;
 }
 
-export function itemOf(doc: GroupSource, layerId: string): TreeItem {
+function itemOf(doc: GroupSource, layerId: string): TreeItem {
   const scaffold = scaffoldOf(doc, layerId);
   return scaffold ? { kind: "group", id: scaffold } : { kind: "layer", id: layerId };
 }
@@ -307,7 +307,7 @@ export function dropItem(doc: ImageSurface, item: TreeItem, target: TreeItem, po
   return placement ? moveItem(doc, item, placement.toIndex, placement.parent) : doc;
 }
 
-export interface ClonedLayers {
+interface ClonedLayers {
   layers: Layer[];
   groups: StudioGroup[];
 }

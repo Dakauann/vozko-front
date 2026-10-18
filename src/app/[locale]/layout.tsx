@@ -60,9 +60,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <ViewportIntegrityProvider>
             <Suspense fallback={null}>
               <RefCapture />
-            </Suspense>
-            {
-}
+            </Suspense>
             <LayoutWrapper>{children}</LayoutWrapper>
             <SonnerToaster position="bottom-center" />
           </ViewportIntegrityProvider>

@@ -1,24 +1,6 @@
 "use client";
 
-import {
-  CalendarBlank,
-  CalendarCheck,
-  CaretLeft,
-  CaretRight,
-  Clock,
-  MapPin,
-  Palette,
-  ArrowRight,
-  ArrowsClockwise,
-  PencilSimple,
-  Plus,
-  TextAlignLeft,
-  Trash,
-  UserCircle,
-  Users,
-  VideoCamera,
-  Warning,
-} from "@/components/icons";
+import { CalendarBlank, CaretLeft, CaretRight, Clock, MapPin, Palette, ArrowRight, ArrowsClockwise, PencilSimple, Plus, TextAlignLeft, Trash, UserCircle, Users, VideoCamera, Warning } from "@/components/icons";
 import type {
   CalendarEvent,
   CreateEventInput,
@@ -847,7 +829,6 @@ export default function CalendarPage() {
     </div>
   );
 }
-
 
 function AgendaEventCard({
   event,

@@ -35,7 +35,7 @@ export function isAiCurrentlyAttending(input: {
   return holder === null || isAutomationAssignee(input.assignedUserId);
 }
 
-export interface ConversationAttendanceSummary {
+interface ConversationAttendanceSummary {
   ownerKind: AttendanceOwnerKind;
   ownerLabel: string | null;
   aiEnabled: boolean;

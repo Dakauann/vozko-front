@@ -4,7 +4,7 @@ import { LEAD_FILTER_FIELD } from "@/lib/leads/filters";
 
 export const LEAD_COMPANY_NAME_MAX = 120;
 export const LEAD_COMPANY_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
-export const LEAD_COMPANY_IMAGE_BYTES = 5 * 1024 * 1024;
+const LEAD_COMPANY_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export interface LeadCompanyImage {
   mediaId: string;
@@ -43,7 +43,7 @@ export interface LeadCompanyChange {
   imageMediaId?: string;
 }
 
-export type LeadCompanyImageProblem = "lead_company_image_type" | "lead_company_image_too_large";
+type LeadCompanyImageProblem = "lead_company_image_type" | "lead_company_image_too_large";
 
 function imageOf(value: unknown): LeadCompanyImage | null {
   if (!isJson(value) || !isText(value.mediaId) || !isText(value.url)) return null;

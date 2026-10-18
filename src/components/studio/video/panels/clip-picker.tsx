@@ -10,7 +10,7 @@ import { formatTimecode } from "@/lib/studio/timeline-view";
 import { useEditorState } from "../editor-context";
 import { useTrackNames } from "../use-track-names";
 
-export interface PickedClip {
+interface PickedClip {
   clip: Clip;
   track: Track;
 }
@@ -24,7 +24,7 @@ interface ClipPickerProps {
   noneLabel?: string;
 }
 
-export function useEligibleClips(accepts: (clip: Clip, track: Track) => boolean): PickedClip[] {
+function useEligibleClips(accepts: (clip: Clip, track: Track) => boolean): PickedClip[] {
   const tracks = useEditorState((s) => s.document.tracks);
   return useMemo(() => tracks.flatMap((track) => track.clips.filter((clip) => accepts(clip, track)).map((clip) => ({ clip, track }))), [tracks, accepts]);
 }

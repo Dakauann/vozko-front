@@ -19,7 +19,7 @@ const STATUS_TONE: Record<CallListStatus, StatusChipTone> = {
   failed: "warning",
 };
 
-export function callListStatusTone(status: CallListStatus): StatusChipTone {
+function callListStatusTone(status: CallListStatus): StatusChipTone {
   return STATUS_TONE[status];
 }
 

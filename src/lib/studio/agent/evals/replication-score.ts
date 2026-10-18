@@ -7,13 +7,13 @@ export interface Lab {
   b: number;
 }
 
-export interface GrayImage {
+interface GrayImage {
   width: number;
   height: number;
   data: Float32Array;
 }
 
-export interface RgbaImage {
+interface RgbaImage {
   width: number;
   height: number;
   data: Uint8ClampedArray;
@@ -233,7 +233,7 @@ function pieceOf(element: SceneElement): Piece {
   };
 }
 
-export function normalizedText(value: string): string {
+function normalizedText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 

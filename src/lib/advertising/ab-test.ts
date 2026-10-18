@@ -3,9 +3,9 @@ import type { AdTestCell } from "@/lib/advertising/types";
 
 export const TEST_CONFIDENCES = [65, 80, 90, 95] as const;
 export const DEFAULT_TEST_CONFIDENCE = 90;
-export const MIN_TEST_CELLS = 2;
-export const MAX_TEST_CELLS = 5;
-export const MAX_TEST_DAYS = 30;
+const MIN_TEST_CELLS = 2;
+const MAX_TEST_CELLS = 5;
+const MAX_TEST_DAYS = 30;
 
 const START_LEAD_MS = 10 * 60_000;
 
@@ -28,7 +28,7 @@ export function sharesTotal(cells: AdTestCell[]): number {
   return cells.reduce((sum, cell) => sum + (Number.isFinite(cell.share) ? cell.share : 0), 0);
 }
 
-export type TestWindowProblem = "dates" | "endBeforeStart" | "tooLong";
+type TestWindowProblem = "dates" | "endBeforeStart" | "tooLong";
 
 export function testWindow(
   startDay: string,

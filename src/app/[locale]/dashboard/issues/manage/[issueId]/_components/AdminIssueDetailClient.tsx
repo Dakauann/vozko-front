@@ -26,7 +26,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ScreenLoader } from "@/components/brand/screen-loader";
-import Button from "@/components/elevated-design/button";
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { uploadMediaAction } from "@/app/actions/medias";

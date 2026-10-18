@@ -7,7 +7,7 @@ import type { ClipPatch } from "./timeline";
 import type { IssueCode } from "./validate";
 import { COUNTER_LIMITS, COUNTER_MINUS, counterSeparators, formatCounterNumber, isCounterLocale, plainTextIssue, type CounterLocale } from "./locale-numbers";
 
-export { COUNTER_LIMITS, COUNTER_LOCALES, COUNTER_MINUS, counterLocaleFor, counterSeparators, formatCounterNumber, isCounterLocale, plainTextIssue, type CounterLocale, type CounterSeparators } from "./locale-numbers";
+export { COUNTER_LIMITS, COUNTER_LOCALES,  counterLocaleFor,  formatCounterNumber, isCounterLocale,  type CounterLocale,  } from "./locale-numbers";
 
 export interface Counter {
   value: number;
@@ -20,7 +20,7 @@ export interface Counter {
 
 export const COUNTER_DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
-export const COUNTER_PRESET = { from: 0, to: 10_000, durationMs: 2000, easing: "easeOut" as Easing };
+const COUNTER_PRESET = { from: 0, to: 10_000, durationMs: 2000, easing: "easeOut" as Easing };
 
 export function newCounter(locale: CounterLocale): Counter {
   return { value: 0, decimals: 0, locale, grouping: true };

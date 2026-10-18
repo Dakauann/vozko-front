@@ -62,7 +62,7 @@ function merge(mode: MergeMode, values: Partial<MergeOp>): PathOp {
   return op("merge", { mode, ...values });
 }
 
-export function presetPathOps(preset: PathOpPreset): PathOp[] {
+function presetPathOps(preset: PathOpPreset): PathOp[] {
   switch (preset) {
     case "softCorners":
       return [op("roundCorners", { radius: 24 })];

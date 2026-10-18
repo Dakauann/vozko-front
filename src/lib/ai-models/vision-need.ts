@@ -4,7 +4,7 @@ import type { ChatAttachment } from "@/lib/aichat/types";
 
 import { hasCapabilities, pricingIndex } from "./capabilities";
 
-export type VisionNeed = "image" | "studio" | "ads";
+type VisionNeed = "image" | "studio" | "ads";
 
 const ADVERTISING_SEGMENT = /\/dashboard\/advertising(\/|$)/;
 

@@ -1,4 +1,4 @@
-export interface RecognitionAlternative {
+interface RecognitionAlternative {
   transcript: string;
 }
 

@@ -38,10 +38,6 @@ export function splitByPosting(rows: GroupRow[], instanceId: string): { postable
   return { postable, readOnly: rows.length - postable.length };
 }
 
-export function pickedFromRow(row: GroupRow): PickedGroup {
-  return { id: row.group.id, jid: row.group.jid, subject: row.group.subject };
-}
-
 export function groupTargets(groups: PickedGroup[]): UnofficialWhatsAppCampaignTarget[] {
   return groups.map((group) => ({ groupJid: group.jid, name: group.subject }));
 }

@@ -9,7 +9,7 @@ const SAFE_MEDIA_ID = /^[A-Za-z0-9_-]{1,100}$/;
 
 export const CREATE_MEDIA_PARAMS = [MEDIA_PARAM, MEDIA_KIND_PARAM] as const;
 
-export interface CreateRequest {
+interface CreateRequest {
   accountId?: string | null;
   campaignId?: string | null;
   adSetId?: string | null;

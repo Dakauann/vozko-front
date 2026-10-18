@@ -1,8 +1,8 @@
 import type { MapStyleFailure } from "./use-map-style";
 
-export type MapFailureCause = MapStyleFailure | "render" | null;
+type MapFailureCause = MapStyleFailure | "render" | null;
 
-export interface MapFailureView {
+interface MapFailureView {
   messageKey: "styleError" | "styleConfigError" | "renderError";
   retry: boolean;
 }
@@ -15,7 +15,7 @@ export function mapStyleFailureView(cause: MapFailureCause): MapFailureView {
 
 export type MapStartFailureCode = "create_failed" | "start_error" | "load_timeout";
 
-export type MapFailureCode = MapStartFailureCode | "style_configuration" | "style_unavailable" | "theme_tokens";
+type MapFailureCode = MapStartFailureCode | "style_configuration" | "style_unavailable" | "theme_tokens";
 
 const STYLE_FAILURE_CODES: Record<MapStyleFailure, MapFailureCode> = {
   configuration: "style_configuration",

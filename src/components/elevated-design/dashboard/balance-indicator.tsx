@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { AnimatePresence, motion } from "framer-motion";
 import type {
   BalanceSummary,
@@ -315,9 +313,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
   );
 
   return (
-    <div className={cn("relative", className)} ref={containerRef}>
-      {
-}
+    <div className={cn("relative", className)} ref={containerRef}>
       <div
         className={cn(
           "flex items-center gap-1.5 rounded-[--radius] px-1.5 py-1 transition-colors",

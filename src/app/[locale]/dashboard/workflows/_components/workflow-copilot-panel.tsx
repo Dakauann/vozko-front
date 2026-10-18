@@ -148,8 +148,6 @@ export function WorkflowCopilotPanel({
 
   return (
     <>
-      {
-}
       {!visible && <WorkflowCopilotFab onClick={onOpen} busy={isBusy} />}
     <div
       className={cn(
@@ -303,8 +301,6 @@ export function WorkflowCopilotPanel({
       >
         {chat.length === 0 && status !== "building" && (
           <>
-            {
-}
             <CircuitTraces
               tone="quiet"
               aria-hidden

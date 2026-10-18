@@ -186,9 +186,7 @@ export default function InstagramAccountsPage() {
                   ? t("status.messagingOff")
                   : t(`status.${row.status.toLowerCase()}`)}
               </span>
-
-              {
-}
+
               {key === "MESSAGING_OFF" && (
                 <span
                   className="flex max-w-[280px] items-start gap-1 text-xs text-warning-ink"

@@ -75,9 +75,9 @@ const claimScreenCommand = createScreenClaimer({ post: postScreenClaim, signals:
 
 export const answerScreenCommand = createScreenAnswerer({ run: (command) => routeScreenCommand(command, registry.run, creator), post: postScreenReply, claim: claimScreenCommand });
 
-export type ProjectOpenOutcome = "delivered" | "resumed" | "ignored";
+type ProjectOpenOutcome = "delivered" | "resumed" | "ignored";
 
-export interface ProjectOpenedNotice {
+interface ProjectOpenedNotice {
   view: ChatView;
   mode?: ChatMode;
   timezone: string;

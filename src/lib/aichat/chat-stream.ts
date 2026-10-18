@@ -8,13 +8,13 @@ import type { ActionCard, Approval, ChatChart, ChatMedia, ChatMode, ChatStreamEv
 
 export const CHAT_STREAM_ERRORS = ["reply_failed", "session_expired", "request_failed", "network_failed", "provider_unreachable", "provider_busy", "thread_other_project", "model_without_tools", "model_catalog_unavailable", "reasoning_level_unsupported"] as const;
 
-export type ChatStreamError = (typeof CHAT_STREAM_ERRORS)[number];
+type ChatStreamError = (typeof CHAT_STREAM_ERRORS)[number];
 
 export function isChatStreamError(value: string): value is ChatStreamError {
   return (CHAT_STREAM_ERRORS as readonly string[]).includes(value);
 }
 
-export interface ChatStreamFailure {
+interface ChatStreamFailure {
   code: ChatStreamError;
   minutes: number;
 }
@@ -131,7 +131,7 @@ export interface ChatStreamRequest {
 
 export type StreamOutcome = "finished" | "detached" | "aborted" | "failed" | "missing";
 
-export interface SendBody {
+interface SendBody {
   content: string;
   model: string;
   reasoning?: string;
@@ -140,12 +140,12 @@ export interface SendBody {
   mode?: ChatMode;
 }
 
-export interface TurnContext {
+interface TurnContext {
   view?: ChatView;
   mode?: ChatMode;
 }
 
-export interface ApproveBody extends Approval, TurnContext {}
+interface ApproveBody extends Approval, TurnContext {}
 
 const TERMINAL_EVENTS: ReadonlySet<ChatStreamEvent["type"]> = new Set(["done", "error", "awaiting_approval"]);
 

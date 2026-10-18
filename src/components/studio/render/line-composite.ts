@@ -6,7 +6,7 @@ import { drawLineFrame } from "@/lib/studio/line-draw";
 import { lineFrame } from "@/lib/studio/line-geometry";
 import type { LineNode, RasterSource } from "@/lib/studio/scene/scene";
 
-export interface CompositePart {
+interface CompositePart {
   image: CanvasImageSource;
   weight: number;
   id: number;

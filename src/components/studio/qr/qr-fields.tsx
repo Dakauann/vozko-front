@@ -16,7 +16,7 @@ import { ShortLinkField } from "./short-link-field";
 const PERCENT = 100;
 const MODES: readonly QrLinkKind[] = ["shortLink", "whatsapp", "url", "text"];
 
-export interface QrFieldsProps {
+interface QrFieldsProps {
   spec: QrSpec;
   disabled: boolean;
   sidePx: number;

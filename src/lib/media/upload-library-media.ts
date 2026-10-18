@@ -1,7 +1,7 @@
 import type { ActionResult } from "@/app/actions/action-result";
 import { uploadMediaAction } from "@/app/actions/medias";
 
-export type LibraryMediaType = "image" | "video";
+type LibraryMediaType = "image" | "video";
 
 export interface UploadedMedia {
   mediaId: string;

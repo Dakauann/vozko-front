@@ -19,7 +19,7 @@ const STROKES: Record<CurveChannel, string> = {
   blue: "#3e63dd",
 };
 
-export interface CurveEditorProps {
+interface CurveEditorProps {
   curves: ColorCurves | undefined;
   disabled: boolean;
   onChange: (curves: ColorCurves | undefined) => void;

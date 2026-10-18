@@ -9,7 +9,7 @@ export type RuleOperator = "GREATER_THAN" | "LESS_THAN";
 
 export type RuleWindow = "TODAY" | "YESTERDAY" | "LAST_3_DAYS" | "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "LIFETIME";
 
-export type RuleActionType = "PAUSE" | "UNPAUSE" | "CHANGE_BUDGET";
+type RuleActionType = "PAUSE" | "UNPAUSE" | "CHANGE_BUDGET";
 
 export type RuleFrequency = "SEMI_HOURLY" | "HOURLY" | "DAILY";
 
@@ -53,19 +53,19 @@ export const RULE_OPERATORS: RuleOperator[] = ["GREATER_THAN", "LESS_THAN"];
 export const RULE_WINDOWS: RuleWindow[] = ["TODAY", "YESTERDAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS", "LAST_30_DAYS", "LIFETIME"];
 export const RULE_FREQUENCIES: RuleFrequency[] = ["SEMI_HOURLY", "HOURLY", "DAILY"];
 export const MAX_RULE_CONDITIONS = 5;
-export const MAX_BUDGET_PERCENT = 100;
+const MAX_BUDGET_PERCENT = 100;
 
 export type RuleActionChoice = "PAUSE" | "UNPAUSE" | "INCREASE_BUDGET" | "DECREASE_BUDGET";
 
-export const RULE_ACTION_CHOICES: RuleActionChoice[] = ["PAUSE", "UNPAUSE", "INCREASE_BUDGET", "DECREASE_BUDGET"];
+const RULE_ACTION_CHOICES: RuleActionChoice[] = ["PAUSE", "UNPAUSE", "INCREASE_BUDGET", "DECREASE_BUDGET"];
 
 const MONEY_METRICS: RuleMetric[] = ["spent", "cost_per_result", "cpc", "cpm"];
 
-export function isMoneyMetric(metric: RuleMetric): boolean {
+function isMoneyMetric(metric: RuleMetric): boolean {
   return MONEY_METRICS.includes(metric);
 }
 
-export type MetricUnit = "money" | "percent" | "ratio" | "count";
+type MetricUnit = "money" | "percent" | "ratio" | "count";
 
 export function metricUnit(metric: RuleMetric): MetricUnit {
   if (isMoneyMetric(metric)) return "money";
@@ -137,7 +137,7 @@ export function choicesFor(entity: RuleEntity): RuleActionChoice[] {
   return entity === "AD" ? ["PAUSE", "UNPAUSE"] : RULE_ACTION_CHOICES;
 }
 
-export interface RuleSentenceParts {
+interface RuleSentenceParts {
   entity: RuleEntity;
   scope: "all" | "chosen";
   chosenCount: number;
@@ -238,7 +238,7 @@ export function parsePercent(raw: string): number | null {
   return value;
 }
 
-export interface BuiltRule {
+interface BuiltRule {
   rule: AutomatedRule | null;
   invalidConditions: number[];
   invalidPercent: boolean;

@@ -8,7 +8,7 @@ export interface FieldIssue {
   minimum?: AdBudgetMinimum;
 }
 
-export const BELOW_MINIMUM = "below_minimum";
+const BELOW_MINIMUM = "below_minimum";
 
 export function withBudgetMinimum<I extends FieldIssue>(issues: I[], minimum: AdBudgetMinimum | null | undefined): I[] {
   if (!minimum) return issues;

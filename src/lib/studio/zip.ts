@@ -1,4 +1,4 @@
-export interface ZipFile {
+interface ZipFile {
   name: string;
   data: Uint8Array;
 }

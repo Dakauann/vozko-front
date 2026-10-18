@@ -21,7 +21,7 @@ export interface BrushSettings {
 
 export const DEFAULT_BRUSH: BrushSettings = { size: 24, hardness: 0.8, opacity: 1, color: "#111111", restore: false, pressure: true };
 
-export const HARDNESS_STEP = 0.1;
+const HARDNESS_STEP = 0.1;
 
 export type PixelKeyAction =
   | { type: "tool"; tool: PixelTool | null }
@@ -34,7 +34,7 @@ export type PixelKeyAction =
   | { type: "invert" }
   | { type: "copy" };
 
-export interface PixelKeyContext {
+interface PixelKeyContext {
   tool: PixelTool | null;
   hasSelection: boolean;
 }

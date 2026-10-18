@@ -4,9 +4,9 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type CircuitRouteState = "linked" | "open" | "stale";
+type CircuitRouteState = "linked" | "open" | "stale";
 
-export type CircuitRoute = {
+type CircuitRoute = {
   key: string | number;
   name: string;
   state: CircuitRouteState;

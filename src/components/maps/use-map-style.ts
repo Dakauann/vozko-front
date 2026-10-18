@@ -17,11 +17,11 @@ import { mapStyleSetting } from "@/lib/maps/config";
 import { basemapPalette, MAP_TOKEN_NAMES, mapPalette, type MapPalette, type MapTheme, type TokenReader } from "@/lib/maps/palette";
 import { loadBaseStyle } from "@/lib/maps/style-loader";
 
-export type MapStyleStatus = "loading" | "ready" | "error";
+type MapStyleStatus = "loading" | "ready" | "error";
 
 export type MapStyleFailure = "configuration" | "unavailable" | "theme";
 
-export interface MapStyleState {
+interface MapStyleState {
   status: MapStyleStatus;
   failure: MapStyleFailure | null;
   cause: unknown;
@@ -105,7 +105,7 @@ function missingTokens(snapshot: ThemeSnapshot): string[] {
   return MAP_TOKEN_NAMES.filter((name) => snapshot.read(name) === "");
 }
 
-export const DEFAULT_MAP_LANGUAGE = "pt";
+const DEFAULT_MAP_LANGUAGE = "pt";
 
 export function useMapStyle(language: string = DEFAULT_MAP_LANGUAGE): MapStyleState {
   const setting = mapStyleSetting();

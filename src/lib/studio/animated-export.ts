@@ -4,8 +4,6 @@ import { clampSpan, filmSpan, type TimeSpan } from "./work-area";
 
 export const VIDEO_EXPORT_FORMATS = ["mp4", "gif", "webp", "png", "jpeg"] as const;
 export type VideoExportFormat = (typeof VIDEO_EXPORT_FORMATS)[number];
-export type FrameFormat = Extract<VideoExportFormat, "png" | "jpeg">;
-export type AnimationFormat = Exclude<VideoExportFormat, "mp4" | FrameFormat>;
 export type ExportKind = "video" | "animation" | "frame";
 
 export const GIF_DITHERS = ["none", "diffusion", "ordered"] as const;
@@ -13,7 +11,6 @@ export type GifDither = (typeof GIF_DITHERS)[number];
 
 export const ANIMATION_WIDTHS = [320, 480, 640, 800] as const;
 export const ANIMATION_FPS = [10, 12, 15, 20, 25] as const;
-export const ANIMATION_LOOPS = [0, 1, 3] as const;
 
 export const ANIMATION_RANGES = {
   width: [120, Number.POSITIVE_INFINITY],
@@ -23,13 +20,13 @@ export const ANIMATION_RANGES = {
   quality: [0.5, 1],
 } as const;
 
-export const MIN_ANIMATION_DELAY_MS = 20;
+const MIN_ANIMATION_DELAY_MS = 20;
 export const MAX_GIF_DELAY_CS = 65535;
 export const MAX_WEBP_DELAY_MS = 0xffffff;
-export const PALETTE_SAMPLE_FRAMES = 32;
-export const PALETTE_SAMPLE_PIXELS = 1 << 21;
+const PALETTE_SAMPLE_FRAMES = 32;
+const PALETTE_SAMPLE_PIXELS = 1 << 21;
 
-export interface AnimationSettings {
+interface AnimationSettings {
   width: number;
   fps: number;
   loop: number;
@@ -197,7 +194,7 @@ export function gifRepeat(plays: number): number {
   return plays === 1 ? -1 : plays - 1;
 }
 
-export interface FrameHold<T> {
+interface FrameHold<T> {
   add(frame: T, delay: number): void;
   extend(delay: number): void;
   flush(): void;

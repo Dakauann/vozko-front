@@ -7,7 +7,7 @@ export type LeadExitPlan =
   | { mode: "button"; text: string; action: ButtonActionChoice }
   | { mode: "word"; word: string; footerText: string; confirmation: string };
 
-export interface ExitSetup {
+interface ExitSetup {
   buttonActions: ButtonActionInput[];
   exitConfirmation: string;
 }

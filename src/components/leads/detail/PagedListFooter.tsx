@@ -18,7 +18,7 @@ export interface PagedListQuery {
   refetch: () => unknown;
 }
 
-export interface PagedSectionSource {
+interface PagedSectionSource {
   isError: boolean;
   data: unknown;
   error: unknown;

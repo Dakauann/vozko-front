@@ -13,7 +13,7 @@ export interface PixelFrame {
   surface: CanvasSize;
 }
 
-export interface MaskPlacement {
+interface MaskPlacement {
   x: number;
   y: number;
   width: number;
@@ -39,7 +39,7 @@ export function pixelFrame(layer: Layer, canvas: CanvasSize, kind: SurfaceKind):
   return { center: frame.center, width: frame.width, height: frame.height, rotation: frame.rotation, ...flips, surface };
 }
 
-export function toFrame(frame: PixelFrame, point: Point): Point {
+function toFrame(frame: PixelFrame, point: Point): Point {
   const local = rotate({ x: point.x - frame.center.x, y: point.y - frame.center.y }, -frame.rotation);
   const x = local.x + frame.width / 2;
   const y = local.y + frame.height / 2;

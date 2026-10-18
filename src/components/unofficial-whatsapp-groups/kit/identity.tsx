@@ -17,7 +17,7 @@ import { displayPhone, initialsOf, personName, type PersonNameSource } from "./f
 import { groupsRoutes } from "./routes";
 import { useGroupName } from "./use-groups-format";
 
-export type PersonAvatarSize = "xs" | "sm" | "md";
+type PersonAvatarSize = "xs" | "sm" | "md";
 
 const AVATAR_BOX: Record<PersonAvatarSize, string> = {
   xs: "h-5 w-5 text-[9px]",
@@ -31,7 +31,7 @@ const GLYPH_BOX: Record<PersonAvatarSize, string> = {
   md: "h-4 w-4",
 };
 
-export function PersonAvatar({ pictureUrl, name, size = "sm" }: { pictureUrl?: string; name: string; size?: PersonAvatarSize }) {
+function PersonAvatar({ pictureUrl, name, size = "sm" }: { pictureUrl?: string; name: string; size?: PersonAvatarSize }) {
   const initials = initialsOf(name);
   return (
     <Avatar aria-hidden className={cn("border border-border", AVATAR_BOX[size])}>
@@ -105,7 +105,7 @@ export function PersonIdentity({
   );
 }
 
-export type GroupIdentitySource = Pick<WorkspaceGroup, "id" | "subject" | "pictureUrl"> &
+type GroupIdentitySource = Pick<WorkspaceGroup, "id" | "subject" | "pictureUrl"> &
   Partial<Pick<WorkspaceGroup, "category" | "origin" | "seriesSequence" | "followedAt" | "announce" | "locked">>;
 
 export function GroupIdentity({

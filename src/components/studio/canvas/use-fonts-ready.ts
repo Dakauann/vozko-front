@@ -6,13 +6,13 @@ import type { FontId } from "@/lib/studio/fonts";
 
 import { ensureFont } from "./ensure-font";
 
-export interface FontRequest {
+interface FontRequest {
   fontId: FontId;
   weight: number;
   italic: boolean;
 }
 
-export function fontsKey(fonts: readonly FontRequest[]): string {
+function fontsKey(fonts: readonly FontRequest[]): string {
   return fonts.map((font) => `${font.fontId}:${font.weight}:${font.italic}`).join("|");
 }
 

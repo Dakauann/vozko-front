@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const COLLISION_PADDING = { top: 72, right: 16, bottom: 16, left: 16 };
 
-export type FeatureExplainerStep = { title: string; text: string };
+type FeatureExplainerStep = { title: string; text: string };
 
 export function FeatureExplainer({
   children,

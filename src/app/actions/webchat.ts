@@ -6,7 +6,7 @@ import type {
 
 import { apiClient, type ApiResult } from '@/lib/api/browser-client';
 
-export interface WebchatActionError {
+interface WebchatActionError {
     error: string;
     code?: string;
 }

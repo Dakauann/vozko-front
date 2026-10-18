@@ -56,7 +56,7 @@ export function fromInstagramComment(comment: InstagramComment, canModerate: boo
     };
 }
 
-export interface FacebookCommentPermissions {
+interface FacebookCommentPermissions {
     canModerate: boolean;
     canComment: boolean;
     canMessage: boolean;

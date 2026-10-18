@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listGroupJoinsAction, listWorkspaceGroupsAction } from "@/app/actions/unofficial-whatsapp-groups";
 import type { GroupRow, JoinTask, PageMeta, WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 
-export const FOLLOWED_PAGE_SIZE = 100;
+const FOLLOWED_PAGE_SIZE = 100;
 
 interface FollowedState {
   key: string;

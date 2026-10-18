@@ -17,7 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowsLeftRight, ArrowRight, Warning } from "@/components/icons";
 import type { FunnelStages } from "@/app/actions/stages";
 
-export function MoveToFunnelDialog({
+function MoveToFunnelDialog({
   open,
   onOpenChange,
   funnels,
@@ -99,9 +99,7 @@ export function MoveToFunnelDialog({
 
   return (
     <ElevatedDialog open={open} onOpenChange={close}>
-      <ElevatedDialogContent className="max-w-lg">
-        {
-}
+      <ElevatedDialogContent className="max-w-lg">
         <ElevatedDialogHeader className="flex-row items-start gap-3 space-y-0">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] tile-info">
             <ArrowsLeftRight className="h-6 w-6" weight="bold" />
@@ -151,9 +149,7 @@ export function MoveToFunnelDialog({
                   </ElevatedSelectItem>
                 ))}
               </ElevatedSelect>
-
-              {
-}
+
               {selectedFunnel ? (
                 <ElevatedSelect
                   label="Etapa"
@@ -188,9 +184,7 @@ export function MoveToFunnelDialog({
                 <h3 className="text-sm font-semibold text-foreground">
                   O que muda
                 </h3>
-
-                {
-}
+
                 <div className="flex items-center gap-3 rounded-[--radius] border border-border bg-muted px-3 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -221,9 +215,7 @@ export function MoveToFunnelDialog({
                     </p>
                   </div>
                 </div>
-
-                {
-}
+
                 <Alert variant="warning">
                   <Warning className="h-4 w-4" weight="fill" />
                   <AlertTitle>
@@ -249,9 +241,7 @@ export function MoveToFunnelDialog({
             ) : null}
           </div>
         )}
-
-        {
-}
+
         <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
           <Button
             variant="ghost"

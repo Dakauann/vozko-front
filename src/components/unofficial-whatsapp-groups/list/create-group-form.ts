@@ -13,7 +13,7 @@ export interface CreateGroupForm {
   follow: boolean;
 }
 
-export interface CreateGroupIssues {
+interface CreateGroupIssues {
   name?: "required" | "tooLong";
   description?: "tooLong";
   numbers?: "required";

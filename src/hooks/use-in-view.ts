@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 const DEFAULT_ROOT_MARGIN = "400px 0px";
 
-export interface InViewOptions {
+interface InViewOptions {
   once?: boolean;
 }
 

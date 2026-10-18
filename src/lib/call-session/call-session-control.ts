@@ -70,7 +70,7 @@ export function useCallActive(): boolean {
     return useSyncExternalStore(subscribeActive, getActiveSnapshot, getServerSnapshot);
 }
 
-export type CallSurfaceOwner = "dialer" | "call_list";
+type CallSurfaceOwner = "dialer" | "call_list";
 
 const surfaceListeners = new Set<() => void>();
 let surfaceClaims: readonly CallSurfaceOwner[] = [];

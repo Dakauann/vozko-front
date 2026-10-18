@@ -23,7 +23,7 @@ export type AiActionId =
   | "eloShorten"
   | "eloAsk";
 
-export type AiCost = "free" | "paid" | "elo";
+type AiCost = "free" | "paid" | "elo";
 
 export type AiActionIcon = "cutout" | "edit" | "variation" | "denoise" | "captions" | "music" | "voice" | "sfx" | "image" | "rewrite" | "translate" | "shorten" | "elo";
 
@@ -123,7 +123,7 @@ export function runningActions(purposes: readonly string[]): AiActionId[] {
   return purposes.flatMap((purpose) => (Object.hasOwn(JOB_ACTIONS, purpose) ? [JOB_ACTIONS[purpose]] : []));
 }
 
-export interface SubjectItem {
+interface SubjectItem {
   id: string;
   label: string;
   kind: string;

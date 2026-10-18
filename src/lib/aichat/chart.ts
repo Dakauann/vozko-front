@@ -45,7 +45,7 @@ export function chartRows(chart: ChatChart, otherLabel: string): ChartRow[] {
   });
 }
 
-export interface ChartDictionary {
+interface ChartDictionary {
   column: (key: string) => string | undefined;
   value: (key: string) => string | undefined;
   month: (yearMonth: string) => string;

@@ -30,7 +30,7 @@ import { CustomFieldValue } from "./CustomFieldValue";
 import { ContactInfoRow } from "./ContactInfoRow";
 import { LeadOptOutRecord } from "./LeadOptOutRecord";
 
-export interface ConversationLeadCardProps {
+interface ConversationLeadCardProps {
   entryId: string;
   entryType: EntryType;
   leadId: string;

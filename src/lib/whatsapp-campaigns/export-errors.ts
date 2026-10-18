@@ -1,4 +1,4 @@
-export type ExportErrorKey = "noEntries" | "tooLarge" | "busy" | "error";
+type ExportErrorKey = "noEntries" | "tooLarge" | "busy" | "error";
 
 export function exportErrorKey(error: string): ExportErrorKey {
     switch (error) {

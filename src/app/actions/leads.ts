@@ -1,27 +1,4 @@
-import type {
-    AnalysisListParams,
-    CreatedLead,
-    LeadRelation,
-    LeadRelationKind,
-    LeadRelativesPage,
-    AnalysisListResponse,
-    EntryConversationResponse,
-    Lead,
-    LeadAnalysis,
-    LeadAnonymizeOutcome,
-    LeadAreaInput,
-    LeadBlockOutcome,
-    LeadCard,
-    LeadDetail,
-    LeadOptOutSource,
-    LeadRecord,
-    ConversationEntryType,
-    LeadListItem,
-    LeadSortKey,
-    LeadsListMeta,
-    LeadsQueryParams,
-    OldLeadsListParams,
-} from '@/lib/leads/types';
+import type { CreatedLead, LeadRelation, LeadRelationKind, LeadRelativesPage, EntryConversationResponse, Lead, LeadAnonymizeOutcome, LeadAreaInput, LeadBlockOutcome, LeadCard, LeadDetail, LeadOptOutSource, LeadRecord, ConversationEntryType, LeadListItem, LeadSortKey, LeadsListMeta, LeadsQueryParams, OldLeadsListParams } from '@/lib/leads/types';
 
 import { emptyCrmFilter } from '@/lib/crm/board';
 import { withText } from '@/lib/filters/controls';
@@ -85,9 +62,9 @@ function leadPath(leadId: string): string {
     return `/leads/${encodeURIComponent(leadId)}`;
 }
 
-export type LeadRefusal = CodedRefusal;
+type LeadRefusal = CodedRefusal;
 
-export type LeadSaveResult = VersionedSaveResult<'lead', LeadRecord, LeadRefusal>;
+type LeadSaveResult = VersionedSaveResult<'lead', LeadRecord, LeadRefusal>;
 
 async function saveLeadRecord(
     method: 'PATCH' | 'PUT',
@@ -120,7 +97,7 @@ export async function updateLeadAction(
     return saveLeadRecord('PUT', leadId, version, { ...body });
 }
 
-export type LeadCreateResult =
+type LeadCreateResult =
     | { lead: CreatedLead; error: null }
     | { lead: null; error: LeadRefusal };
 
@@ -138,7 +115,7 @@ export async function createLeadAction(body: CreateLeadBody): Promise<LeadCreate
     return { lead: response.data, error: null };
 }
 
-export type LeadCommandResult =
+type LeadCommandResult =
     | { lead: LeadRecord; error: null }
     | { lead: null; error: LeadRefusal };
 
@@ -164,12 +141,12 @@ export async function optOutLeadAction(leadId: string, source: LeadOptOutSource)
     return postLeadCommand(leadId, 'opt-out', { source });
 }
 
-export interface LeadConsentGrant {
+interface LeadConsentGrant {
     note: string;
     purpose?: string;
 }
 
-export type LeadConsentResult =
+type LeadConsentResult =
     | { lead: LeadRecord; changed: boolean; error: null }
     | { lead: null; error: LeadRefusal };
 
@@ -215,7 +192,7 @@ export async function acceptLeadLocationAction(leadId: string, messageId: string
     return postLeadCommand(leadId, `location-candidates/${encodeURIComponent(messageId)}/accept`);
 }
 
-export type AnonymizeLeadResult =
+type AnonymizeLeadResult =
     | { outcome: LeadAnonymizeOutcome; error: null }
     | { outcome: null; error: CodedError };
 
@@ -228,7 +205,7 @@ export async function anonymizeLeadAction(leadId: string): Promise<AnonymizeLead
     return { outcome: response.data, error: null };
 }
 
-export type EntryLeadCardResult = { card: LeadCard; error: null } | { card: null; error: CodedError };
+type EntryLeadCardResult = { card: LeadCard; error: null } | { card: null; error: CodedError };
 
 function isLeadCard(value: unknown): value is LeadCard {
     return hasVersion(value) && typeof (value as { leadId?: unknown }).leadId === 'string';
@@ -246,20 +223,20 @@ export async function getEntryLeadCardAction(
     return { card: response.data, error: null };
 }
 
-export interface AddLeadRelativeInput {
+interface AddLeadRelativeInput {
     kind: LeadRelationKind;
     relative: CreateLeadBody;
     copyPrimaryAddress: boolean;
 }
 
-export interface AddedLeadRelative {
+interface AddedLeadRelative {
     lead: LeadRecord;
     relative: LeadRecord;
     relation: LeadRelation;
     duplicates: CreatedLead['duplicates'];
 }
 
-export type LeadRelationResult<T> = { result: T; error: null } | { result: null; error: LeadRefusal };
+type LeadRelationResult<T> = { result: T; error: null } | { result: null; error: LeadRefusal };
 
 function isRelation(value: unknown): value is LeadRelation {
     return typeof value === 'object' && value !== null && typeof (value as { id?: unknown }).id === 'string';
@@ -318,7 +295,7 @@ export async function listLeadRelativesAction(
     return { page: response.data, error: null };
 }
 
-export interface LeadHistoryPageParams {
+interface LeadHistoryPageParams {
     before?: string;
     limit?: number;
 }
@@ -359,7 +336,7 @@ export async function listLeadDealsAction(
     return readHistoryPage(historyPagePath(leadId, 'deals', params), readDealsPage, signal);
 }
 
-export type BlockLeadResult =
+type BlockLeadResult =
     | { outcome: LeadBlockOutcome; error: null }
     | { outcome: null; error: CodedError };
 
@@ -395,7 +372,7 @@ export async function getLeadByIdAction(leadId: string, signal?: AbortSignal): P
     return readLeadDetail(leadPath(leadId), signal);
 }
 
-export type LeadSummaryRead = { summary: LeadDetailSummary; error: null } | { summary: null; error: CodedError };
+type LeadSummaryRead = { summary: LeadDetailSummary; error: null } | { summary: null; error: CodedError };
 
 export async function getLeadSummaryAction(leadId: string, signal?: AbortSignal): Promise<LeadSummaryRead> {
     const response = await apiClient<unknown>(`${leadPath(leadId)}/summary`, { method: 'GET', signal });
@@ -411,7 +388,7 @@ export interface LeadLookupMatch {
     number: string;
 }
 
-export type LeadLookupResult = { matches: LeadLookupMatch[]; error: CodedError | null };
+type LeadLookupResult = { matches: LeadLookupMatch[]; error: CodedError | null };
 
 const LEAD_LOOKUP_PAGE_SIZE = 5;
 const NO_HOLDER_STATUSES = new Set([400, 404]);
@@ -436,57 +413,6 @@ export async function findLeadsByNameAction(name: string): Promise<LeadLookupRes
     return { matches: result.items.map(lookupMatchOf), error: null };
 }
 
-export async function listAnalysisAction(params: AnalysisListParams = {}) {
-    const queryParams = new URLSearchParams();
-    if (params.campaignId) queryParams.set('campaignId', params.campaignId);
-    if (params.whatsappCampaignId) queryParams.set('whatsappCampaignId', params.whatsappCampaignId);
-    if (params.leadId) queryParams.set('leadId', params.leadId);
-    if (params.entryType) queryParams.set('entryType', params.entryType);
-    if (params.interest) queryParams.set('interest', params.interest);
-    if (params.disposition) queryParams.set('disposition', params.disposition);
-    if (params.sentiment) queryParams.set('sentiment', params.sentiment);
-    if (params.qualification) queryParams.set('qualification', params.qualification);
-    if (params.nextAction) queryParams.set('nextAction', params.nextAction);
-    if (params.attendanceQualityMin !== undefined) {
-        queryParams.set('attendanceQualityMin', params.attendanceQualityMin.toString());
-    }
-    if (params.attendanceQualityMax !== undefined) {
-        queryParams.set('attendanceQualityMax', params.attendanceQualityMax.toString());
-    }
-    if (params.page) queryParams.set('page', params.page.toString());
-    if (params.pageSize) queryParams.set('pageSize', params.pageSize.toString());
-    if (params.sort) queryParams.set('sort', params.sort);
-    if (params.order) queryParams.set('order', params.order);
-
-    const queryString = queryParams.toString();
-    const url = `/analysis${queryString ? `?${queryString}` : ''}`;
-
-    const response = await apiClient<AnalysisListResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return {
-            analyses: [] as LeadAnalysis[],
-            meta: DEFAULT_LEADS_META,
-            error: response.error.message,
-        };
-    }
-
-    const data = response.data?.data;
-
-    return {
-        analyses: data?.items ?? [],
-        meta: {
-            page: data?.page ?? 1,
-            pageSize: data?.pageSize ?? 20,
-            totalPages: data?.totalPages ?? 1,
-            totalItems: data?.totalItems ?? 0,
-        },
-        error: null,
-    };
-}
-
 export async function getEntryConversationAction(
     entryId: string,
     entryType: ConversationEntryType = 'voice',
@@ -507,7 +433,7 @@ export async function getEntryConversationAction(
     return { conversation: response.data ?? null, error: null };
 }
 
-export interface LeadsQueryResult {
+interface LeadsQueryResult {
     items: LeadListItem[];
     meta: LeadsListMeta;
     error: string | null;

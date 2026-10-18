@@ -17,7 +17,7 @@ export type AttachMode = "link" | "keys";
 
 export const ATTACH_MODES: readonly AttachMode[] = ["link", "keys"];
 
-export interface AttachOptions {
+interface AttachOptions {
   mode: AttachMode;
   keepVisual: boolean;
   atMs: number;
@@ -52,7 +52,7 @@ export function putTracker(doc: VideoDocument, clipId: string, tracker: PointTra
   return checked(doc, updateClip(doc, clipId, { trackers: next }));
 }
 
-export function followersOf(doc: VideoDocument, clipId: string, trackerId?: string): Clip[] {
+function followersOf(doc: VideoDocument, clipId: string, trackerId?: string): Clip[] {
   return doc.tracks.flatMap((track) => track.clips.filter((clip) => clip.parentId === clipId && clip.parentTracker !== undefined && (trackerId === undefined || clip.parentTracker === trackerId)));
 }
 
@@ -181,10 +181,6 @@ export function attachChoices(doc: VideoDocument, videoId: string): Clip[] {
   if (!video) return [];
   const above = new Set(ancestorIds(lookup, video));
   return doc.tracks.flatMap((track) => track.clips.filter((clip) => clip.id !== videoId && takesParent(clip.type) && !above.has(clip.id)));
-}
-
-export function nextTrackerNumber(clip: Pick<Clip, "trackers">): number {
-  return (clip.trackers?.length ?? 0) + 1;
 }
 
 export function trackerPath(doc: VideoDocument, clipId: string, trackerId: string): PathPoint[] {

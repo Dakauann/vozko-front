@@ -208,21 +208,6 @@ export async function assignWhatsAppCampaignDepartmentAction(
     return { campaign: response.data ?? null, error: null };
 }
 
-export async function deleteWhatsAppCampaignAction(campaignId: string) {
-    const response = await apiClient<WhatsAppCampaignLifecycleResponse>(
-        `/whatsapp/campaigns/${campaignId}`,
-        {
-            method: 'DELETE',
-        }
-    );
-
-    if (response.error) {
-        return { error: response.error.message };
-    }
-
-    return { error: null };
-}
-
 async function lifecycleAction(campaignId: string, endpoint: string, body?: Record<string, unknown>) {
     const response = await apiClient<WhatsAppCampaignLifecycleResponse>(endpoint, {
         method: 'POST',
@@ -270,7 +255,6 @@ export async function prepareResetWhatsAppCampaignAction(campaignId: string): Pr
         { method: 'POST' }
     );
 
-
     if (response.error) {
         return { data: null, error: response.error.message };
     }
@@ -290,34 +274,11 @@ export async function confirmResetWhatsAppCampaignAction(campaignId: string, res
         }
     );
 
-
     if (response.error) {
         return { data: null, error: response.error.message };
     }
 
     return { data: response.data?.data ?? null, error: null };
-}
-
-export async function updateWhatsAppCampaignEntryAction(
-    campaignId: string,
-    entryId: string,
-    payload: { automationEnabled?: boolean | null; name?: string; variables?: string[] }
-) {
-    const response = await apiClient<{ success: boolean }>(
-        `/whatsapp/campaigns/${campaignId}/entries/${entryId}`,
-        {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-        }
-    );
-
-    console.log(response)
-
-    if (response.error) {
-        return { error: response.error.message };
-    }
-
-    return { error: null };
 }
 
 const DEFAULT_ENTRIES_META = {
@@ -354,14 +315,12 @@ export async function listWhatsAppCampaignEntriesAction(
     if (params.maxMessageCount !== undefined) queryParams.set('maxMessageCount', params.maxMessageCount.toString());
     if (params.errorCode !== undefined) queryParams.set('errorCode', params.errorCode.toString());
 
-
     const queryString = queryParams.toString();
     const url = `/whatsapp/campaigns/${campaignId}/entries${queryString ? `?${queryString}` : ''}`;
 
     const response = await apiClient<WhatsAppCampaignEntriesApiResponse>(url, {
         method: 'GET',
     });
-
 
     if (response.error) {
         return {
@@ -395,7 +354,6 @@ export async function prepareClearHistoryWhatsAppCampaignAction(campaignId: stri
         `/whatsapp/campaigns/${campaignId}/clear-history/prepare`,
         { method: 'POST' }
     );
-
 
     if (response.error) {
         return { data: null, error: response.error.message };

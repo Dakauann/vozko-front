@@ -8,7 +8,7 @@ export interface PixelBuffer {
   data: Uint8ClampedArray<ArrayBuffer>;
 }
 
-export interface Coverage extends PixelRect {
+interface Coverage extends PixelRect {
   data: Float32Array;
 }
 
@@ -209,7 +209,7 @@ export function areaCoverage(op: AreaOp, size: SurfaceSize): Coverage | null {
   return { ...rect, data };
 }
 
-export function opCoverage(op: PixelOp, size: SurfaceSize): Coverage | null {
+function opCoverage(op: PixelOp, size: SurfaceSize): Coverage | null {
   return op.kind === "stroke" ? strokeCoverage(op, size) : areaCoverage(op, size);
 }
 

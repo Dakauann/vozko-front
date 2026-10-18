@@ -3,7 +3,7 @@ import { Container, RenderTexture, type Renderer } from "pixi.js";
 import type { Camera } from "@/lib/studio/render/renderer";
 import type { Scene, SceneNode } from "@/lib/studio/scene/scene";
 
-export const MAX_GROUP_SIDE_PX = 4096;
+const MAX_GROUP_SIDE_PX = 4096;
 const MIN_GROUP_SCALE = 0.01;
 
 interface GroupTarget {

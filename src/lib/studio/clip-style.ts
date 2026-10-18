@@ -18,7 +18,7 @@ export function isMediaEffectType(type: EffectType): boolean {
   return (MEDIA_EFFECT_TYPES as readonly EffectType[]).includes(type);
 }
 
-export function clipStyled(clip: Pick<Clip, "effects" | "strokes">): boolean {
+function clipStyled(clip: Pick<Clip, "effects" | "strokes">): boolean {
   return (clip.effects?.length ?? 0) + (clip.strokes?.length ?? 0) > 0;
 }
 
@@ -30,11 +30,11 @@ export function clipStyleIssue(clip: StyledClip): IssueCode | null {
   return effectListIssue(withoutEffectKeys(effects)) ?? effectKeysIssue(effects) ?? strokeListIssue(clip.strokes ?? [], SILHOUETTE_OWNER, NO_GRADIENTS);
 }
 
-export function clipStyleKeyed(clip: Pick<Clip, "effects">): boolean {
+function clipStyleKeyed(clip: Pick<Clip, "effects">): boolean {
   return effectsKeyed(clip.effects);
 }
 
-export function clipEffectPlan(clip: Pick<Clip, "effects" | "strokes">, localMs: number): EffectPlan | null {
+function clipEffectPlan(clip: Pick<Clip, "effects" | "strokes">, localMs: number): EffectPlan | null {
   const effects = effectsAt((clip.effects ?? []).filter((effect) => !effect.hidden), localMs);
   const outlines = (clip.strokes ?? []).filter((stroke) => !stroke.hidden);
   return effects.length + outlines.length > 0 ? { effects, outlines } : null;

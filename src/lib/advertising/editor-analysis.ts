@@ -72,14 +72,14 @@ export type GenderKey = "all" | "male" | "female";
 const META_MALE = 1;
 const META_FEMALE = 2;
 
-export function genderKey(genders: number[] | undefined): GenderKey {
+function genderKey(genders: number[] | undefined): GenderKey {
   const chosen = new Set(genders ?? []);
   if (chosen.size !== 1) return "all";
   if (chosen.has(META_MALE)) return "male";
   return chosen.has(META_FEMALE) ? "female" : "all";
 }
 
-export function audienceFacts(targeting: AdDraftTargeting): AnalysisFact[] {
+function audienceFacts(targeting: AdDraftTargeting): AnalysisFact[] {
   return [
     fact("locations", list(targeting.locations.map((location) => location.name))),
     fact("ages", { kind: "ages", min: targeting.ageMin, max: targeting.ageMax, advantage: targeting.advantageAudience }),
@@ -90,7 +90,7 @@ export function audienceFacts(targeting: AdDraftTargeting): AnalysisFact[] {
   ];
 }
 
-export function placementsFact(placements: AdPlacements): AnalysisFact {
+function placementsFact(placements: AdPlacements): AnalysisFact {
   return fact("placements", { kind: "placements", platforms: placements.automatic ? null : (placements.platforms ?? []) });
 }
 
@@ -109,7 +109,7 @@ export function creativeText(creative: AdCreativeDraftV2 | null, field: Creative
   }
 }
 
-export function creativeFacts(creative: AdCreativeDraftV2, destination: AdDraftDestination | ""): AnalysisFact[] {
+function creativeFacts(creative: AdCreativeDraftV2, destination: AdDraftDestination | ""): AnalysisFact[] {
   const facts = [
     fact("format", label("format", creative.format)),
     fact("primaryText", text(creativeText(creative, "primaryText"))),

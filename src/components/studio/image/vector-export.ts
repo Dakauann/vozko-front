@@ -9,12 +9,12 @@ import { SVG_PATCH_RATIO, sceneToSvg, type SvgImage } from "@/lib/studio/svg-exp
 
 type RegionRaster = Pick<typeof import("@/components/studio/canvas/rasterize"), "rasterizeRegion">;
 
-export const PDF_TYPE = "application/pdf";
-export const SVG_TYPE = "image/svg+xml";
+const PDF_TYPE = "application/pdf";
+const SVG_TYPE = "image/svg+xml";
 
 const PATCH_JPEG_QUALITY = 0.92;
 
-export interface VectorExportOptions {
+interface VectorExportOptions {
   transparent: boolean;
   preset: PdfPreset;
 }

@@ -9,7 +9,7 @@ import { memberDisplayName } from "@/hooks/use-assignable-members";
 const NO_OPTIONS: ElevatedCommandOption[] = [];
 const NO_ONE: readonly string[] = [];
 
-export interface MemberCommandSelectText {
+interface MemberCommandSelectText {
   label: string;
   search: string;
   empty: string;

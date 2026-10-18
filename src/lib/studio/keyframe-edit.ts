@@ -87,7 +87,7 @@ function canonicalLanes(clip: Pick<Clip, "keyframes">, property: AnimatedPropert
   return [property];
 }
 
-export function morphable(layer: Clip["layer"]): boolean {
+function morphable(layer: Clip["layer"]): boolean {
   return layer?.type === "shape" && layer.shape === "path";
 }
 
@@ -122,7 +122,7 @@ export function localTime(clip: Pick<Clip, "startMs" | "durationMs">, playheadMs
 
 type StaticSource = Pick<Clip, "transform" | "blur"> & Partial<Pick<Clip, "line" | "pan" | "counter" | "textPath" | "color" | "speed" | "camera" | "rotationX" | "rotationY" | "keyframes">>;
 
-export function staticValue(clip: StaticSource, property: KeyframeProperty): number {
+function staticValue(clip: StaticSource, property: KeyframeProperty): number {
   if (isLineProperty(property)) return lineStaticValue(clip, property);
   if (isTextKeyProperty(property)) return textStaticValue(clip, property);
   if (isGradeProperty(property)) return gradeStaticValue(clip, property);
@@ -262,7 +262,7 @@ export function setKeyEasing(clip: KeyedClip, property: AnimatedProperty, localM
   return { keyframes: setKeyEasingAt(clip.keyframes, property, existing.atMs, easing) };
 }
 
-export interface PropertyEasing {
+interface PropertyEasing {
   scope: "key" | "all";
   easing: Easing | null;
 }

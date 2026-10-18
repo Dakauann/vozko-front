@@ -34,7 +34,7 @@ import {
   selectedFilter,
   type MapSelection,
 } from "@/lib/maps/layers";
-import { BRAZIL_BOUNDS, openingBounds } from "@/lib/maps/geometry";
+import { openingBounds } from "@/lib/maps/geometry";
 import type { MapPalette } from "@/lib/maps/palette";
 import type { AreaShape, BBox, DistrictCount, MapPoint } from "@/lib/maps/types";
 import { MAP_LOAD_TIMEOUT_MS, ensureMapLibreWorker, isFatalMapStartError } from "@/lib/maps/maplibre-worker";
@@ -51,7 +51,7 @@ import { MapZoomButtons } from "./MapZoomButtons";
 import { mapStyleFailureView, reportMapFailure, styleFailureCode, type MapStartFailureCode } from "./map-style-failure";
 import { useMapStyle } from "./use-map-style";
 
-export { BRAZIL_BOUNDS };
+;
 const NO_AREAS: readonly AreaShape[] = [];
 const NO_IDS: readonly string[] = [];
 const FIT_PADDING = 32;

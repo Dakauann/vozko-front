@@ -39,7 +39,7 @@ export function PixelLiveProvider({ enabled, children }: { enabled: boolean; chi
   return <PixelLiveContext.Provider value={live}>{children}</PixelLiveContext.Provider>;
 }
 
-export function MarchingAnts({ path }: { path: string }) {
+function MarchingAnts({ path }: { path: string }) {
   return (
     <g pointerEvents="none" data-pixel-selection="">
       <path d={path} fill="none" stroke="#ffffff" strokeWidth={1} />

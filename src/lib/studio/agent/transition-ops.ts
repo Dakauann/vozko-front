@@ -5,7 +5,7 @@ import type { ClipPatch } from "../timeline";
 import { AUDIO_TRANSITION_KINDS, isTransitionKind, optionsOf, shownOptions, TRANSITION_KINDS, TRANSITION_LIMITS, type TransitionKind, type TransitionOption, type TransitionOptions, type TransitionRefusal } from "../transitions";
 import type { VideoOpContext, VideoOperation } from "./video-ops";
 
-export const TRANSITION_FIELDS: Record<TransitionOption, keyof VideoOperation & string> = {
+const TRANSITION_FIELDS: Record<TransitionOption, keyof VideoOperation & string> = {
   direction: "direction",
   moving: "moving",
   color: "color",
@@ -88,7 +88,7 @@ export function mapMediaRefusal(op: VideoOperation, ctx: VideoOpContext): string
   return `wipe_map_media_id precisa ser uma imagem da biblioteca; ${op.wipe_map_media_id} não é`;
 }
 
-export interface EdgeChange {
+interface EdgeChange {
   patch: ClipPatch;
   notes: string[];
 }

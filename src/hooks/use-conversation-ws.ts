@@ -254,29 +254,6 @@ interface UseConversationWsReturn {
   windowLoadHistory: (entryId: string, entryType: EntryType) => void;
 }
 
-export type CallStatus = "waiting_slot" | "ringing" | "answered" | "ended";
-
-export type CallEndReason =
-  | "ended"
-  | "failed"
-  | "busy"
-  | "no_answer"
-  | "declined";
-
-export interface CallState {
-  callId?: string;
-  entryId: string;
-  entryType: EntryType;
-  status: CallStatus;
-  phoneNumber?: string;
-  answeredAt?: number;
-  endReason?: CallEndReason;
-  durationSeconds?: number;
-  leadName?: string;
-  localAudioLevel?: number;
-  remoteAudioLevel?: number;
-}
-
 interface PendingStatusChangeSnapshot {
   previousStatus?: string;
   previousInboxEntry: InboxEntry | null;

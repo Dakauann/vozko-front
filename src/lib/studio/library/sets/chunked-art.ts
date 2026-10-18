@@ -3,7 +3,7 @@ import type { LibraryItem, LibrarySource } from "../model";
 import type { Chunked } from "./chunks";
 import { centeredTarget, emojiArt, emojiMarkup, emojiPalette, localizedNames, svgDataUrl, type EmojiArt, type EmojiIndexEntry } from "./format";
 
-export interface ChunkedArtSpec {
+interface ChunkedArtSpec {
   category: string;
   subcategory: string;
   source: LibrarySource;

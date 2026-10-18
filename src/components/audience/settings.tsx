@@ -185,9 +185,7 @@ export function CommentAnalysisSettingsPanel({
         <p className="mt-1 text-xs text-muted-foreground">{t("dailyCap.hint")}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("vertical.hint")}</p>
       </Panel>
-
-      {
-}
+
       <Panel title={t("replyPolicy.title")} description={t("replyPolicy.description")}>
         <ElevatedSelect
           label={t("replyPolicy.label")}

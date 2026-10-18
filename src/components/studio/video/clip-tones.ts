@@ -1,11 +1,11 @@
 import { ImageSquare, Lightning, NullObject, Smiley, Square, Stack, TextT, VideoCamera, Waveform, type Icon } from "@/components/icons";
 import type { Clip, ClipType, TrackKind } from "@/lib/studio/document";
 
-export type ClipKind = "video" | "image" | "text" | "shape" | "icon" | "audio" | "effect" | "null" | "group";
+type ClipKind = "video" | "image" | "text" | "shape" | "icon" | "audio" | "effect" | "null" | "group";
 
-export type PlateIndex = 1 | 2 | 3 | 4 | 5;
+type PlateIndex = 1 | 2 | 3 | 4 | 5;
 
-export interface ClipTone {
+interface ClipTone {
   plate: PlateIndex;
   glyph: Icon;
 }
@@ -63,8 +63,6 @@ export function kindPlateVar(kind: ClipKind): string {
   return `--plate-${CLIP_KIND_TONES[kind].plate}`;
 }
 
-export const TRACK_KIND: Record<TrackKind, ClipKind> = { visual: "video", audio: "audio" };
-
 export const MEDIA_KIND: Record<"video" | "image" | "audio", ClipKind> = { video: "video", image: "image", audio: "audio" };
 
 export const CLIP_TILE: Record<ClipType, string> = {
@@ -75,16 +73,6 @@ export const CLIP_TILE: Record<ClipType, string> = {
   effect: kindTile("effect"),
   null: kindTile("null"),
   group: kindTile("group"),
-};
-
-export const CLIP_PLATE: Record<ClipType, string> = {
-  video: kindFill("video"),
-  image: kindFill("image"),
-  overlay: kindFill("text"),
-  audio: kindFill("audio"),
-  effect: kindFill("effect"),
-  null: kindFill("null"),
-  group: kindFill("group"),
 };
 
 export const CLIP_GLYPH: Record<ClipType, Icon> = {

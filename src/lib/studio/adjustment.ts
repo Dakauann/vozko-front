@@ -36,7 +36,7 @@ const ADJUSTMENT_FIELDS: ReadonlySet<string> = new Set([
 
 const BLUR_RANGE = [0, 100] as const;
 
-export const ADJUSTMENT_KEY_PROPERTIES: readonly AnimatedProperty[] = ["blur", ...GRADE_FIELDS, ...CAMERA_PROPERTIES];
+const ADJUSTMENT_KEY_PROPERTIES: readonly AnimatedProperty[] = ["blur", ...GRADE_FIELDS, ...CAMERA_PROPERTIES];
 
 export function takesAdjustmentKey(property: string): boolean {
   return (ADJUSTMENT_KEY_PROPERTIES as readonly string[]).includes(property);
@@ -70,7 +70,7 @@ export function cameraOutsideIssue(clip: Clip): IssueCode | null {
 
 type Cammed = Pick<Clip, "camera" | "keyframes">;
 
-export function keyedCameraProperties(clip: Cammed): CameraProperty[] {
+function keyedCameraProperties(clip: Cammed): CameraProperty[] {
   return CAMERA_PROPERTIES.filter((property) => (clip.keyframes?.[property]?.length ?? 0) > 0);
 }
 

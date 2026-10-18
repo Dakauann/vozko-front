@@ -1,15 +1,5 @@
 import type { EntryStage, EntryType, Stage } from '@/lib/conversations/types';
-import {
-    assignStageToEntry,
-    createStage,
-    deleteStage,
-    getBatchEntryStages,
-    getEntryStage,
-    removeStageFromEntry,
-    reorderStages,
-    setInitialStage,
-    updateStage,
-} from '@/lib/conversations/stages';
+import { assignStageToEntry, createStage, deleteStage, getBatchEntryStages, removeStageFromEntry, reorderStages, setInitialStage, updateStage } from '@/lib/conversations/stages';
 
 import { apiClient } from "@/lib/api/browser-client";
 
@@ -124,19 +114,6 @@ export async function removeStageFromEntryAction(
     }
 
     return { success: true };
-}
-
-export async function getEntryStageAction(
-    entryType: EntryType,
-    entryId: string,
-): Promise<{ entryStage: EntryStage | null; error?: string }> {
-    const response = await getEntryStage(entryType, entryId);
-
-    if (response.error) {
-        return { entryStage: null, error: response.error.message };
-    }
-
-    return { entryStage: response.data ?? null };
 }
 
 export async function getBatchEntryStagesAction(

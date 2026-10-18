@@ -16,7 +16,7 @@ export const PREVIEW_PAPER = "#ffffff";
 const previews = new Map<string, Promise<string>>();
 let queue: Promise<unknown> = Promise.resolve();
 
-export function renderedPreview(item: LibraryItem, locale: string, text: (slot: LibrarySlot) => string): Promise<string> {
+function renderedPreview(item: LibraryItem, locale: string, text: (slot: LibrarySlot) => string): Promise<string> {
   const key = `${item.id}:${libraryLocale(locale)}`;
   const known = previews.get(key);
   if (known) return known;

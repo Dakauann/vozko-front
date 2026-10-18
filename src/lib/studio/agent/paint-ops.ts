@@ -95,7 +95,7 @@ export interface AgentPaintFields {
   effects?: AgentEffect[];
 }
 
-export interface PaintSourceFields {
+interface PaintSourceFields {
   fill?: string;
   gradient?: AgentGradient;
   stroke?: string;
@@ -109,9 +109,7 @@ export interface PaintSourceFields {
   shadow?: unknown;
 }
 
-export type PaintOp = AgentPaintFields & PaintSourceFields;
-
-const PAINT_KEYS = ["pattern", "gradient_map", "fills", "strokes", "effects"] as const;
+type PaintOp = AgentPaintFields & PaintSourceFields;
 const SINGLE_FILL_KEYS = ["fill", "gradient"] as const;
 const SINGLE_STROKE_KEYS = ["stroke", "stroke_width", "dash", "dash_array", "dash_offset", "line_cap", "line_join", "miter_limit"] as const;
 const NORMAL = "normal";
@@ -138,11 +136,7 @@ function colorOf(name: string, value: string | undefined): string | null {
   return value === undefined || isValidColor(value, true) ? null : `${name} precisa ser uma cor #rrggbb ou #rrggbbaa`;
 }
 
-export function hasPaintFields(op: AgentPaintFields): boolean {
-  return PAINT_KEYS.some((key) => op[key] !== undefined);
-}
-
-export function patternOf(input: AgentPattern, current: Pattern | undefined, knowsImage: (mediaId: string) => boolean, name = "pattern"): Patched<Pattern> {
+function patternOf(input: AgentPattern, current: Pattern | undefined, knowsImage: (mediaId: string) => boolean, name = "pattern"): Patched<Pattern> {
   const problem = firstProblem(
     colorOf(`${name}.color`, input.color),
     colorOf(`${name}.background`, input.background),
@@ -392,7 +386,7 @@ function round(value: number): number {
   return Math.round(value * 1000) / 1000;
 }
 
-export function agentPattern(p: Pattern): AgentPattern {
+function agentPattern(p: Pattern): AgentPattern {
   return {
     ...(p.source === "asset" ? { media_id: p.assetId } : { preset: p.presetId || undefined }),
     ...(p.color ? { color: p.color } : {}),

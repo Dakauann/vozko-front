@@ -95,8 +95,6 @@ export interface AgentToolDefinition {
     configSchema?: Record<string, ToolConfigSchemaField>;
 }
 
-export type AgentToolsResponse = AgentToolDefinition[];
-
 export interface ToolConfig {
     [key: string]: unknown;
 }

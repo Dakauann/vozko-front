@@ -129,18 +129,14 @@ export function CommentPostAnalysisPanel({
           ]}
         />
       ) : null}
-
-      {
-}
+
       {effective.enabled && section === "overview" ? <CommentAnalysisOverview stats={stats} trend={trend} loading={!stats} layout="narrow" topics={effective.topics} /> : null}
       {effective.enabled && section === "feed" ? <CommentAnalysisFeed accountId={accountId} containerId={containerId} topics={effective.topics} /> : null}
 
       {!effective.enabled ? (
         <EmptyState icon={<Sparkle weight="duotone" />} title={t("offTitle")} description={canConfigure ? t("offHintConfigure") : t("offHint")} />
       ) : null}
-
-      {
-}
+
       {canConfigure && (!effective.enabled || section === "settings") ? (
         <OverrideEditor source={source} accountId={accountId} containerId={containerId} settings={settings} onSaved={setSettings} />
       ) : null}

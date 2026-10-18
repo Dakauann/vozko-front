@@ -121,7 +121,7 @@ export function useScheduleWhen(window: SchedulingWindow | null) {
     };
 }
 
-export type ScheduleWhen = ReturnType<typeof useScheduleWhen>;
+type ScheduleWhen = ReturnType<typeof useScheduleWhen>;
 
 export default function ScheduleWhenField({ when }: { when: ScheduleWhen }) {
     const t = useTranslations("scheduledMessages");

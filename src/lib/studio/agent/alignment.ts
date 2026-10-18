@@ -20,7 +20,7 @@ export interface AlignmentMiss {
   neighbor: LayoutItem;
 }
 
-export interface Symmetry {
+interface Symmetry {
   axis: LayoutItem[];
   pairs: [LayoutItem, LayoutItem][];
 }

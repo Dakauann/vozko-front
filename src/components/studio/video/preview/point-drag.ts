@@ -8,20 +8,20 @@ import { useVideoEditor } from "../editor-context";
 
 const DRAG_SLOP_PX = 3;
 
-export interface PointDragOptions {
+interface PointDragOptions {
   disabled: boolean;
   onMove: (point: PathPoint, event: ReactPointerEvent<HTMLElement>) => void;
   onTap?: () => void;
 }
 
-export interface PointDragHandlers {
+interface PointDragHandlers {
   onPointerDown: (event: ReactPointerEvent<HTMLElement>) => void;
   onPointerMove: (event: ReactPointerEvent<HTMLElement>) => void;
   onPointerUp: (event: ReactPointerEvent<HTMLElement>) => void;
   onPointerCancel: () => void;
 }
 
-export function framePoint(frameRef: RefObject<HTMLDivElement | null>, event: ReactPointerEvent<HTMLElement>): PathPoint | null {
+function framePoint(frameRef: RefObject<HTMLDivElement | null>, event: ReactPointerEvent<HTMLElement>): PathPoint | null {
   const frame = frameRef.current?.getBoundingClientRect();
   return frame && frame.width > 0 && frame.height > 0 ? { x: (event.clientX - frame.left) / frame.width, y: (event.clientY - frame.top) / frame.height } : null;
 }

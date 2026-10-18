@@ -3,7 +3,7 @@ import { MAX_CONSECUTIVE_POLL_ERRORS, mediaJobOutcome, nextPollDelay, TOO_MANY_J
 import type { MediaGenerationInput, MediaGenerationJob } from "@/lib/media-generation/types";
 
 export const BUSY_RETRY_MS = 30_000;
-export const MAX_BUSY_RETRIES = 6;
+const MAX_BUSY_RETRIES = 6;
 
 export interface ProxyDeps {
   request: (input: MediaGenerationInput) => Promise<ActionResult<MediaGenerationJob>>;

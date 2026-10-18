@@ -20,7 +20,7 @@ export interface WindowStats {
     buckets: WindowBucket[];
 }
 
-export interface ResponseTimeBucket {
+interface ResponseTimeBucket {
     label: string;
     count: number;
 }
@@ -483,7 +483,7 @@ export interface XrayDimension {
     reason?: string;
 }
 
-export interface RecordField {
+interface RecordField {
     key: string;
     filled: number;
     pct: number;

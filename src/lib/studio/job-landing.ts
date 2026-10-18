@@ -1,6 +1,6 @@
 import type { MediaGenerationInput, MediaGenerationJob } from "@/lib/media-generation/types";
 
-export type JobLanding = "inPlace" | "targetChanged";
+type JobLanding = "inPlace" | "targetChanged";
 
 export function jobStartAsset(start: MediaGenerationInput | MediaGenerationJob | null | undefined): string | null {
   if (!start) return null;

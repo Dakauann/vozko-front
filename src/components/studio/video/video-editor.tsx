@@ -37,7 +37,7 @@ import { ProxyQueue } from "./proxy-queue";
 import { createVideoEditorRuntime } from "./runtime";
 import { createVideoAgent, createVideoReveal } from "./video-agent";
 
-export type VideoEditorProps = StudioEditorMountProps<"video">;
+type VideoEditorProps = StudioEditorMountProps<"video">;
 
 function runExtraAction(action: VideoExtraAction, commands: EditorCommands) {
   switch (action.type) {

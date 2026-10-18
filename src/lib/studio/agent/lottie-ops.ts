@@ -15,7 +15,7 @@ export interface LottieSource {
 
 export type LottieLookup = (mediaId: string) => LottieSource | undefined;
 
-export interface AgentLottieFields {
+interface AgentLottieFields {
   media_id?: string;
   at_ms?: number;
 }
@@ -65,11 +65,11 @@ const FAULT_TEXT: Record<LottieFileFault, string> = {
   noAnimation: "o arquivo .lottie não traz nenhuma animação",
 };
 
-export function lottieGapsText(gaps: readonly LottieGap[]): string {
+function lottieGapsText(gaps: readonly LottieGap[]): string {
   return gaps.map((gap) => `${gap.where}: ${GAP_TEXT[gap.code]}`).join("; ");
 }
 
-export type LottiePlan = { ok: true; clip: GroupClip; notes: string[] } | { ok: false; reason: string };
+type LottiePlan = { ok: true; clip: GroupClip; notes: string[] } | { ok: false; reason: string };
 
 export function lottiePlan(op: AgentLottieFields, lookup: LottieLookup | undefined, canvas: CanvasSize, playheadMs: number): LottiePlan {
   const mediaId = op.media_id?.trim() ?? "";

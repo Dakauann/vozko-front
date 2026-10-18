@@ -9,7 +9,7 @@ import { isCubeName, LUT_MEDIA_TYPE, parseCube, type CubeFault } from "@/lib/stu
 
 export type LutImport = { ok: true; mediaId: string } | { ok: false; fault: CubeFault | "name" | "upload" };
 
-export interface LutLibrary {
+interface LutLibrary {
   luts: Media[] | null;
   importing: boolean;
   importFile: (file: File) => Promise<LutImport>;

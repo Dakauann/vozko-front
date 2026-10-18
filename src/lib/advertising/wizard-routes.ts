@@ -17,11 +17,9 @@ export const OBJECTIVES: AdObjective[] = [
   "OUTCOME_APP_PROMOTION",
 ];
 
-export const DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT", "WEBSITE", "ON_AD", "APP", "ON_POST", "CATALOG", "NONE"];
+const DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT", "WEBSITE", "ON_AD", "APP", "ON_POST", "CATALOG", "NONE"];
 
-export const MESSAGING_DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT"];
-
-export const ALL_FORMATS: AdCreativeFormat[] = ["IMAGE", "VIDEO", "CAROUSEL", "EXISTING_POST", "FLEXIBLE", "CATALOG", "COLLECTION"];
+const MESSAGING_DESTINATIONS: AdDraftDestination[] = ["WHATSAPP", "MESSENGER", "INSTAGRAM_DIRECT"];
 
 export const MAX_ADS = 10;
 
@@ -89,7 +87,7 @@ export function callsToActionFor(
   return byDestination[destination] ?? [];
 }
 
-export function defaultCallToAction(destination: AdDraftDestination | ""): string {
+function defaultCallToAction(destination: AdDraftDestination | ""): string {
   switch (destination) {
     case "WHATSAPP":
       return "WHATSAPP_MESSAGE";
@@ -124,7 +122,7 @@ export function canAddAd(objective: AdObjective | "", formats: AdCreativeFormat[
   return formats.length < MAX_ADS && !dynamicCreative(objective, formats);
 }
 
-export const POSITIONS_NEEDING_FEED = ["marketplace", "search", "profile_feed", "notification"];
+const POSITIONS_NEEDING_FEED = ["marketplace", "search", "profile_feed", "notification"];
 
 const FEED_POSITION: Record<string, string> = { facebook: "feed" };
 
@@ -156,7 +154,7 @@ export function togglePosition(placements: AdPlacements, platform: string, posit
   };
 }
 
-export type PlacementWarning = "story_alone" | "audience_network_alone" | "instagram_required" | "facebook_required" | "platforms_required";
+type PlacementWarning = "story_alone" | "audience_network_alone" | "instagram_required" | "facebook_required" | "platforms_required";
 
 export function placementWarnings(placements: AdPlacements, destination: AdDraftDestination | ""): PlacementWarning[] {
   if (placements.automatic) return [];

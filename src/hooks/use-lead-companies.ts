@@ -10,7 +10,7 @@ import { codedSectionError } from "@/lib/analytics/section-query";
 import type { ParsedAnswer } from "@/lib/api/parsed-request";
 import type { LeadCompany, LeadCompanyPage } from "@/lib/leads/companies";
 
-export const leadCompanyKeys = {
+const leadCompanyKeys = {
   all: (workspaceId: string) => ["lead-companies", workspaceId] as const,
   page: (workspaceId: string, query: LeadCompaniesQuery) =>
     ["lead-companies", workspaceId, "page", query.page, query.pageSize, query.search?.trim() ?? ""] as const,

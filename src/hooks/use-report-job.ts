@@ -19,7 +19,7 @@ const MAX_POLL_MS = 5_000;
 const POLL_BACKOFF = 1.4;
 const MAX_POLL_ATTEMPTS = 240;
 
-export type ReportRequestOutcome =
+type ReportRequestOutcome =
     | { status: "done"; job: ReportJob }
     | { status: "failed"; job: ReportJob }
     | { status: "error"; error: string };

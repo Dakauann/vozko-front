@@ -147,7 +147,7 @@ export const SETTLED_LOOK: UnitLook = { dx: 0, dy: 0, scale: 1, rotation: 0, rot
 
 const PERCENT = 100;
 
-export function styleOffsets(style: TextStyle, size: { width: number; height: number }): AnimatorProperties {
+function styleOffsets(style: TextStyle, size: { width: number; height: number }): AnimatorProperties {
   switch (style) {
     case "fade":
     case "typewriter":
@@ -198,7 +198,7 @@ function within(value: number, [low, high]: readonly [number, number]): boolean 
   return Number.isFinite(value) && value >= low && value <= high;
 }
 
-export interface TextAnimatorFault {
+interface TextAnimatorFault {
   field: keyof TextAnimator;
   code: IssueCode;
 }

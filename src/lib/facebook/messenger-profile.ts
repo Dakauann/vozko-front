@@ -8,7 +8,7 @@ export const MAX_GREETING_CHARS = 160;
 export const GET_STARTED_PAYLOAD = 'GET_STARTED';
 export const DEFAULT_PROFILE_LOCALE = 'default';
 
-export type ProfileProblem =
+type ProfileProblem =
     | 'menuNeedsGetStarted'
     | 'greetingTooLong'
     | 'tooManyIceBreakers'

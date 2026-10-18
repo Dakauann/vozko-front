@@ -16,7 +16,7 @@ import { useLibraryAssetImport } from "../library/asset-importer";
 import { useLibraryText } from "../library/use-library-text";
 import { createAgentPresence, type AgentPresence } from "./presence";
 
-export interface StudioAgentKit {
+interface StudioAgentKit {
   presence: AgentPresence;
   label: (action: string) => string;
   reduceMotion: () => boolean;

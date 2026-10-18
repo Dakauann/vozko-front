@@ -16,14 +16,14 @@ import { useVideoEditor } from "./editor-context";
 import { useWorkspaceSounds } from "./library-sounds";
 import { isGeneratedLayer } from "@/lib/studio/generated-layers";
 
-export interface VideoDropSpot {
+interface VideoDropSpot {
   x?: number;
   y?: number;
   atMs?: number;
   trackId?: string;
 }
 
-export interface VideoLibrary extends LibraryAdapter {
+interface VideoLibrary extends LibraryAdapter {
   insertAt: (item: LibraryItem, spot: VideoDropSpot) => boolean;
   find: ItemFinder;
 }

@@ -1,7 +1,7 @@
 import type { ClipboardItem, ClipboardPayload } from "./tools";
 
-export const CLIPBOARD_MARK = "vozko.studio.clips";
-export const CLIPBOARD_VERSION = 1;
+const CLIPBOARD_MARK = "vozko.studio.clips";
+const CLIPBOARD_VERSION = 1;
 
 export function encodeClipboard(payload: ClipboardPayload): string {
   return JSON.stringify({ kind: CLIPBOARD_MARK, version: CLIPBOARD_VERSION, payload });
@@ -42,7 +42,7 @@ export function decodeClipboard(text: string | null | undefined): ClipboardPaylo
   return { items, spanMs };
 }
 
-export type PasteRoute = { kind: "images"; files: File[] } | { kind: "clips"; payload: ClipboardPayload } | { kind: "none" };
+type PasteRoute = { kind: "images"; files: File[] } | { kind: "clips"; payload: ClipboardPayload } | { kind: "none" };
 
 export function pasteRoute(images: File[], text: string | null | undefined, fallback: ClipboardPayload | null): PasteRoute {
   if (images.length > 0) return { kind: "images", files: images };

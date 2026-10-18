@@ -8,15 +8,11 @@ export const ICON_WEIGHTS = ["regular", "thin", "light", "bold", "fill", "duoton
 
 export type IconWeight = (typeof ICON_WEIGHTS)[number];
 
-export const ICON_FRAME = 256;
+const ICON_FRAME = 256;
 
 export const EMOJI_GROUPS = ["smileys", "people", "animals", "food", "travel", "activities", "objects", "symbols", "flags"] as const;
 
-export type EmojiGroup = (typeof EMOJI_GROUPS)[number];
-
 export type Names = readonly [en: string, pt: string, es: string, de: string];
-
-export const NAME_ORDER: readonly LibraryLocale[] = ["en", "pt", "es", "de"];
 
 export interface IconIndexEntry {
   n: string;
@@ -29,7 +25,7 @@ export type IconPart = string | readonly [string, number];
 
 export type IconPaths = readonly IconPart[];
 
-export type StrokeShape = Partial<Pick<Layer, "lineCap" | "lineJoin" | "miterLimit" | "dashArray" | "dashOffset">>;
+type StrokeShape = Partial<Pick<Layer, "lineCap" | "lineJoin" | "miterLimit" | "dashArray" | "dashOffset">>;
 
 export interface PartStyle {
   o?: number;

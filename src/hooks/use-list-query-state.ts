@@ -11,14 +11,14 @@ import {
   type CrmFilter,
 } from "@/lib/crm/board";
 
-export type ListSortDirection = "asc" | "desc";
+type ListSortDirection = "asc" | "desc";
 
-export interface ListSort<K extends string = string> {
+interface ListSort<K extends string = string> {
   key: K;
   direction: ListSortDirection;
 }
 
-export interface ListQueryState<K extends string = string, V extends string = string> {
+interface ListQueryState<K extends string = string, V extends string = string> {
   filter: CrmFilter;
   filterInvalid: boolean;
   search: string;
@@ -42,7 +42,7 @@ export interface ListQueryState<K extends string = string, V extends string = st
   reset: () => void;
 }
 
-export interface UseListQueryStateOptions<K extends string = string, V extends string = string> {
+interface UseListQueryStateOptions<K extends string = string, V extends string = string> {
   sortKeys: readonly K[];
   defaultSorts?: ListSort<K>[];
   defaultPageSize?: number;
@@ -52,7 +52,7 @@ export interface UseListQueryStateOptions<K extends string = string, V extends s
   viewScopedParams?: readonly string[];
 }
 
-export function parseListView<V extends string>(
+function parseListView<V extends string>(
   raw: string | null,
   views: readonly V[] | undefined,
   defaultView: V | undefined,

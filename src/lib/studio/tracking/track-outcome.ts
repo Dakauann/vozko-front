@@ -7,13 +7,13 @@ export type TrackOutcome =
   | ({ frameWidth: number; frameHeight: number; size: number } & Extract<TrackRun, { kind: "tracked" }>)
   | { kind: Exclude<TrackFailure, "lost"> };
 
-export interface TrackerNaming {
+interface TrackerNaming {
   id: string;
   name?: string;
   keepPartial: boolean;
 }
 
-export type TrackerResult = { ok: true; tracker: PointTracker; loss: TrackLoss | null } | { ok: false; reason: TrackFailure; loss?: TrackLoss };
+type TrackerResult = { ok: true; tracker: PointTracker; loss: TrackLoss | null } | { ok: false; reason: TrackFailure; loss?: TrackLoss };
 
 export function trackerFromOutcome(outcome: TrackOutcome, naming: TrackerNaming): TrackerResult {
   if (outcome.kind !== "tracked") return { ok: false, reason: outcome.kind };

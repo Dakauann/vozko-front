@@ -24,7 +24,7 @@ import { MAX_REFERENCE_IMAGES, type ImageAspect } from "@/lib/media-generation/t
 import { AdImage } from "../ad-image";
 
 type Mode = "upload" | "library" | "generate";
-export type MediaAccept = AdMediaKind | "any";
+type MediaAccept = AdMediaKind | "any";
 
 const ASPECTS: ImageAspect[] = ["square", "portrait", "story"];
 const MAX_PROMPT = 4000;

@@ -325,7 +325,7 @@ function reportBulkResult(t: ReturnType<typeof useTranslations>, result: CrmBulk
   toast.success(t("updated", { count: succeeded }));
 }
 
-export interface CrmListViewProps {
+interface CrmListViewProps {
   filter: CrmFilter;
   stages: Stage[];
   labels: Label[];

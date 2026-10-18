@@ -7,7 +7,7 @@ import { libraryItems } from "./registry";
 
 export const LIBRARY_DRAG_TYPE = "application/x-vozko-studio-library";
 
-export function carriesLibraryItem(data: DataTransfer): boolean {
+function carriesLibraryItem(data: DataTransfer): boolean {
   return data.types.includes(LIBRARY_DRAG_TYPE);
 }
 
@@ -16,7 +16,7 @@ export function writeDraggedItem(data: DataTransfer, itemId: string): void {
   data.effectAllowed = "copy";
 }
 
-export function readDraggedItem(data: DataTransfer): string | null {
+function readDraggedItem(data: DataTransfer): string | null {
   const id = data.getData(LIBRARY_DRAG_TYPE).trim();
   return LIBRARY_ID_PATTERN.test(id) ? id : null;
 }

@@ -26,20 +26,20 @@ import { RichTextContent, type TextPaint } from "./rich-text";
 import { textBlockProps, textFontProps } from "./text-props";
 import { useFontsReady } from "./use-fonts-ready";
 
-export const ICON_RESOLUTION = 2;
+const ICON_RESOLUTION = 2;
 
 const PLACEHOLDER_FILL = "#e5e7eb";
 const BROKEN_STROKE = "#dc2626";
 
 type GroupProps = Omit<ComponentProps<typeof Group>, "x" | "y" | "offsetX" | "offsetY" | "rotation" | "opacity" | "visible" | "id" | "children">;
 
-export interface LayerFrame {
+interface LayerFrame {
   width: number;
   height: number;
   fontBasePx?: number;
 }
 
-export interface LayerNodeProps extends LayerFrame {
+interface LayerNodeProps extends LayerFrame {
   layer: Layer;
   groupProps?: GroupProps;
   composite?: Composite;
@@ -52,7 +52,7 @@ function color(value: string | undefined): string | undefined {
   return value ? value : undefined;
 }
 
-export function cornerRadiusPx(radius: number | undefined, width: number, height: number): number {
+function cornerRadiusPx(radius: number | undefined, width: number, height: number): number {
   return ((radius ?? 0) * Math.min(width, height)) / 2;
 }
 
@@ -294,7 +294,7 @@ function IconContent({ layer, width, height, composite, ready, fail }: ContentPr
   return <KonvaImage image={loaded.image} width={width} height={height} globalCompositeOperation={composite} {...shadowProps(layer)} />;
 }
 
-export interface ChartBodyProps {
+interface ChartBodyProps {
   parts: readonly Layer[];
   width: number;
   height: number;

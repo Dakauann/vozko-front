@@ -1,5 +1,5 @@
 
-export const FAQ_POST_SLUGS = ["novos-custos-meta"] as const;
+const FAQ_POST_SLUGS = ["novos-custos-meta"] as const;
 
 export type FaqPostSlug = (typeof FAQ_POST_SLUGS)[number];
 

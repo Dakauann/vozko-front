@@ -16,7 +16,7 @@ import { leadMapsKey } from "@/lib/leads/map-view";
 import type { DrawnArea } from "@/lib/maps/types";
 import { cn } from "@/lib/utils";
 
-export interface AreaListProps {
+interface AreaListProps {
   areas: readonly DrawnArea[];
   activeIds: readonly string[];
   onToggle: (areaId: string) => void;

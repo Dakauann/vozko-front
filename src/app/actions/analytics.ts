@@ -1,42 +1,29 @@
-import type {
-    AdminOverview,
-    CallAnalyticsReport,
-    GetAdminOverviewParams,
-    GetCallAnalyticsParams,
-    GetPlanContractionsParams,
-    GetProfitReportParams,
-    GetMetaInvoiceCheckParams,
-    GetMetaServiceMessageCostParams,
-    MetaInvoiceCheckReport,
-    PlanContractionsReport,
-    ProfitReport,
-    MetaServiceMessageCostReport,
-} from "@/lib/analytics/types";
+import type { AdminOverview, GetAdminOverviewParams, GetPlanContractionsParams, GetProfitReportParams, GetMetaInvoiceCheckParams, GetMetaServiceMessageCostParams, MetaInvoiceCheckReport, PlanContractionsReport, ProfitReport, MetaServiceMessageCostReport } from "@/lib/analytics/types";
 
 import { apiClient } from "@/lib/api/browser-client";
 
 export type {
     AdminOverview,
     AnalyticsGranularity,
-    CallAnalyticsReport,
+    
     GetAdminOverviewParams,
-    GetCallAnalyticsParams,
-    GetPlanContractionsParams,
-    GetProfitReportParams,
+    
+    
+    
     PlanContraction,
     PlanContractionsReport,
     ProfitReport,
     RecentSpending,
-    MetaCostRates,
-    MetaInvoiceAccount,
+    
+    
     MetaInvoiceCheckReport,
-    MetaNumberServiceCost,
+    
     MetaServiceMessageCostReport,
     MetaServiceMessageCostSortField,
-    MetaServiceMessageCostTotals,
-    MetaUnlinkedServiceMessages,
-    Money,
-    ServiceMessageProvider,
+    
+    
+    
+    
     WorkspaceFinancialSnapshot,
     WorkspaceMetaServiceMessageCost,
 } from "@/lib/analytics/types";
@@ -60,7 +47,7 @@ function buildQueryString(params: Record<string, unknown>): string {
     return queryString ? `?${queryString}` : "";
 }
 
-export type AnalyticsActionResult<T> = {
+type AnalyticsActionResult<T> = {
     data?: T;
     error?: string;
     expired?: boolean;
@@ -84,14 +71,6 @@ export async function getProfitReportAction(
 ): Promise<AnalyticsActionResult<ProfitReport>> {
     return fetchAnalytics<ProfitReport>(
         `/admin/analytics/profit${buildQueryString(params as unknown as Record<string, unknown>)}`,
-    );
-}
-
-export async function getCallAnalyticsAction(
-    params: GetCallAnalyticsParams,
-): Promise<AnalyticsActionResult<CallAnalyticsReport>> {
-    return fetchAnalytics<CallAnalyticsReport>(
-        `/admin/analytics/profit/calls${buildQueryString(params as unknown as Record<string, unknown>)}`,
     );
 }
 

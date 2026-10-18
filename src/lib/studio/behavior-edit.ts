@@ -22,7 +22,7 @@ import { KEYFRAME_RANGES, rivalsOf, timedFramesOf, withLane, type Keyframe } fro
 
 export type BehaviorRefusal = ClipItemsRefusal | "behaviorMissing" | "property" | "duplicate" | "track" | "field" | "path" | "rival" | "unheard";
 
-export type BehaviorEdit = ClipItemsEdit<BehaviorRefusal>;
+type BehaviorEdit = ClipItemsEdit<BehaviorRefusal>;
 
 export interface BehaviorSettings {
   frequency?: number;
@@ -42,7 +42,7 @@ const WIGGLE_AMOUNTS: Record<BehaviorProperty, number> = { x: 0.02, y: 0.02, sca
 const DRIFT_RATES: Record<BehaviorProperty, number> = { x: 0.05, y: 0.05, scale: 0.1, scaleX: 0.1, scaleY: 0.1, rotation: 90, opacity: -0.2, blur: 2 };
 const REACT_AMOUNTS: Record<BehaviorProperty, number> = { x: 0.03, y: 0.03, scale: 0.2, scaleX: 0.2, scaleY: 0.2, rotation: 10, opacity: 0.5, blur: 10 };
 
-export const BEHAVIOR_DEFAULTS = {
+const BEHAVIOR_DEFAULTS = {
   wiggleFrequency: 2,
   loopMode: "cycle" as LoopMode,
   loopSide: "out" as LoopSide,
@@ -108,7 +108,7 @@ export function addBehavior(doc: VideoDocument, clipId: string, behavior: Behavi
   });
 }
 
-export function patchBehavior(current: Behavior, settings: BehaviorSettings): Behavior | BehaviorRefusal {
+function patchBehavior(current: Behavior, settings: BehaviorSettings): Behavior | BehaviorRefusal {
   if (foreignSettings(current.kind, settings).length > 0) return "field";
   const changes = Object.fromEntries(Object.entries(settings).filter(([, value]) => value !== undefined));
   return { ...current, ...changes } as Behavior;
@@ -140,13 +140,13 @@ function bakeBlock(clip: Clip, property: BehaviorProperty): BehaviorRefusal | nu
   return rivalsOf(property).some((rival) => timedFramesOf(clip.keyframes, rival).length > 0) ? "rival" : null;
 }
 
-export interface BakeReport {
+interface BakeReport {
   keys: number;
   clamped: number;
   absorbed: string[];
 }
 
-export type BakeResult = ({ ok: true; document: VideoDocument } & BakeReport) | { ok: false; reason: BehaviorRefusal };
+type BakeResult = ({ ok: true; document: VideoDocument } & BakeReport) | { ok: false; reason: BehaviorRefusal };
 
 export function bakeBehavior(doc: VideoDocument, clipId: string, behaviorId: string, levels: TrackLevels): BakeResult {
   const report: BakeReport = { keys: 0, clamped: 0, absorbed: [] };
@@ -174,7 +174,7 @@ export function bakeBehavior(doc: VideoDocument, clipId: string, behaviorId: str
   return edit.ok ? { ...edit, ...report } : edit;
 }
 
-export interface TracePoint {
+interface TracePoint {
   ms: number;
   value: number;
 }

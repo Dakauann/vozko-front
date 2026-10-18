@@ -59,7 +59,7 @@ function place(
   };
 }
 
-export interface AnchoredMenuProps {
+interface AnchoredMenuProps {
   open: boolean;
   anchorRef: RefObject<HTMLElement | null>;
   onClose: () => void;
@@ -125,9 +125,7 @@ export function AnchoredMenu({
   const below = placement.top !== undefined;
 
   return createPortal(
-    <>
-      {
-}
+    <>
       <div
         aria-hidden="true"
         data-testid="anchored-menu-backdrop"
@@ -169,4 +167,4 @@ export function AnchoredMenu({
   );
 }
 
-export default AnchoredMenu;
+

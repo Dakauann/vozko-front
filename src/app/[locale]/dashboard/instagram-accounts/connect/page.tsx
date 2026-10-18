@@ -131,9 +131,7 @@ export default function ConnectInstagramPage() {
         />
       ) : (
         <ConnectPanel>
-          <ConnectTrack>
-            {
-}
+          <ConnectTrack>
             <ConnectTrackStep
               index={1}
               title={t("connect.prerequisite.title")}
@@ -170,9 +168,7 @@ export default function ConnectInstagramPage() {
                     OAuth 2.0
                   </span>
                 </div>
-
-                {
-}
+
                 <ul className="max-w-prose space-y-1.5 text-sm leading-relaxed text-muted-foreground">
                   <li>{t("connect.steps.step1")}</li>
                   <li>{t("connect.steps.step2")}</li>

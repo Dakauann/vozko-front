@@ -29,7 +29,7 @@ export interface AgentLineFields {
 
 type AgentLineValue = Exclude<keyof AgentLineFields, "trim_sequential" | "wave_mode" | "wiggle_seed" | "line_clear">;
 
-export const LINE_ARGS: Record<LineProperty, AgentLineValue> = {
+const LINE_ARGS: Record<LineProperty, AgentLineValue> = {
   trimStart: "trim_start",
   trimEnd: "trim_end",
   trimOffset: "trim_offset",
@@ -48,13 +48,13 @@ export const LINE_ARGS: Record<LineProperty, AgentLineValue> = {
   taperEndEase: "taper_end_ease",
 };
 
-export interface LineOpInput extends AgentLineFields {
+interface LineOpInput extends AgentLineFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
 }
 
-export type LineOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
+type LineOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
 
 export interface OutlineLine {
   trim?: { start: number; end: number; offset: number; sequential?: boolean };
@@ -69,7 +69,7 @@ function refuse(reason: string): LineOpResult {
   return { ok: false, reason };
 }
 
-export function lineLayerRefusal(clip: Clip): string | null {
+function lineLayerRefusal(clip: Clip): string | null {
   if (clip.type === "overlay" && clip.layer && takesLineAnimation(clip.layer)) return null;
   return `o clipe ${clip.id} não anima o traço: precisa ser uma linha, seta ou forma com stroke e stroke_width maior que 0, sem shadow nem effects`;
 }

@@ -8,7 +8,7 @@ export interface EloHandoff {
 
 export type HandoffListener = (handoff: EloHandoff) => void;
 
-export interface HandoffChannel {
+interface HandoffChannel {
   send: (handoff: EloHandoff) => void;
   listen: (listener: HandoffListener) => () => void;
 }

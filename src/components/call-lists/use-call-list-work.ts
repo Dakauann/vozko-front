@@ -22,7 +22,7 @@ export interface WorkCard {
   trunkRefusal: CallListNext["trunkRefusal"];
 }
 
-export interface QueueNotice {
+interface QueueNotice {
   refused: number;
   more: boolean;
   empty: boolean;

@@ -318,7 +318,7 @@ const TOOL_ICON: Record<string, Icon> = {
 
 
 
-export interface BubbleLabels {
+interface BubbleLabels {
   thinking: string;
   thinkingLive: string;
   generatingResponse: string;
@@ -762,7 +762,7 @@ function Cursor() {
   );
 }
 
-export function TypingDots({ label }: { label: string }) {
+function TypingDots({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center gap-1 py-2" aria-label={label}>
       {[0, 1, 2].map((i) => (

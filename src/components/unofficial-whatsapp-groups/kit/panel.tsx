@@ -91,18 +91,6 @@ export function GroupsChapter({
   );
 }
 
-export function SectionHeading({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0">
-        <h2 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">{title}</h2>
-        {description ? <p className="mt-0.5 text-xs text-muted-foreground">{description}</p> : null}
-      </div>
-      {action}
-    </div>
-  );
-}
-
 export function WindowLabel({
   days,
   window,

@@ -19,7 +19,7 @@ export interface Keyer<T extends Animated<P>, P extends string> {
   issue(key: T): IssueCode | null;
 }
 
-export function keyable(clip: Clip): boolean {
+function keyable(clip: Clip): boolean {
   return clip.type === "video" || clip.type === "image";
 }
 

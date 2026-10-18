@@ -25,8 +25,6 @@ interface StrokeTarget {
   mode: PixelMode;
 }
 
-export type PixelCommands = ReturnType<typeof createPixelCommands>;
-
 export function createPixelCommands(store: StudioEditorStore<ImageDocument>, ui: EditorUiStore) {
   const document = () => store.getState().document;
   const applyOn = (artboardId: string, operation: (surface: ImageSurface) => ImageSurface, next?: string[]) => store.getState().apply((d) => editArtboard(d, artboardId, operation), next);

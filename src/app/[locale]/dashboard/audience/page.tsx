@@ -38,9 +38,7 @@ function AudiencePageBody() {
   );
 
   return (
-    <div className="space-y-4">
-      {
-}
+    <div className="space-y-4">
       <DashboardPageHeader
         badge={t("badge")}
         description={currentWorkspace ? t("description") : tc("selectWorkspace")}

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Archive,
-  ChatCircle,
-  Lightning,
-  MagnifyingGlass,
-  Plus,
-  Robot,
-} from "@/components/icons";
+import { Archive, ChatCircle, MagnifyingGlass, Plus, Robot } from "@/components/icons";
 import {
   archiveAgentAction,
   assignAgentDepartmentAction,

@@ -6,7 +6,7 @@ import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
 
 import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 
-export interface WorkspaceConfigState {
+interface WorkspaceConfigState {
   config: WorkspaceConfig | null;
   loaded: boolean;
 }

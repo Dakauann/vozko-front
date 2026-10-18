@@ -1,4 +1,4 @@
-export type ChunkModule = () => Promise<{ default: string }>;
+type ChunkModule = () => Promise<{ default: string }>;
 
 export interface Chunked<T> {
   get: (chunk: number) => T | undefined;

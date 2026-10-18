@@ -1,10 +1,10 @@
 import { sourceAt } from "./clip-time";
 import type { Clip } from "./document";
 
-export const MIN_BUCKET_MS = 100;
-export const DEFAULT_TILE_ASPECT = 16 / 9;
+const MIN_BUCKET_MS = 100;
+const DEFAULT_TILE_ASPECT = 16 / 9;
 
-export interface FilmstripInput {
+interface FilmstripInput {
   clipWidthPx: number;
   heightPx: number;
   aspect?: number;

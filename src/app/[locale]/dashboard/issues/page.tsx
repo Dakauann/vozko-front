@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  MagnifyingGlass,
-  Plus,
-  Warning,
-  Clock,
-  CheckCircle,
-  Circle,
-  ArrowClockwise,
-} from "@/components/icons";
+import { MagnifyingGlass, Plus, Warning, CheckCircle, Circle, ArrowClockwise } from "@/components/icons";
 import type { Icon } from "@/components/icons";
 import {
   ElevatedSelect,

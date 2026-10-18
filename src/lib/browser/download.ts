@@ -12,7 +12,7 @@ export function downloadBlob(blob: Blob, filename: string): void {
     }
 }
 
-export function downloadTextFile(
+function downloadTextFile(
     text: string,
     filename: string,
     mimeType = "text/plain;charset=utf-8;",

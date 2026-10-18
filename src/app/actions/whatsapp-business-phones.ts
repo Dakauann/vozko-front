@@ -1,26 +1,5 @@
 import type { NumberAutomation, NumberAutomationConfig } from '@/lib/whatsapp-business-phones/automation';
-import type {
-    BusinessPhoneListMeta,
-    BusinessPhoneListParams,
-    BusinessPhoneListResponse,
-    BusinessPhoneResponse,
-    BusinessProfile,
-    DeletePhoneResponse,
-    GetBusinessProfileResponse,
-    RegisterPhonePayload,
-    RegisterPhoneResponse,
-    ReleasePhoneResponse,
-    RequestVerificationCodePayload,
-    RequestVerificationCodeResponse,
-    RetryOnboardingResponse,
-    SyncSinglePhoneResponse,
-    UpdateBusinessProfilePayload,
-    UpdateBusinessProfileResponse,
-    UploadProfilePictureResponse,
-    VerifyPhoneCodePayload,
-    VerifyPhoneCodeResponse,
-    WhatsAppBusinessPhone,
-} from '@/lib/whatsapp-business-phones/types';
+import type { BusinessPhoneListMeta, BusinessPhoneListParams, BusinessPhoneListResponse, BusinessPhoneResponse, BusinessProfile, GetBusinessProfileResponse, RegisterPhonePayload, RegisterPhoneResponse, ReleasePhoneResponse, RequestVerificationCodePayload, RequestVerificationCodeResponse, RetryOnboardingResponse, SyncSinglePhoneResponse, UpdateBusinessProfilePayload, UpdateBusinessProfileResponse, UploadProfilePictureResponse, VerifyPhoneCodePayload, VerifyPhoneCodeResponse, WhatsAppBusinessPhone } from '@/lib/whatsapp-business-phones/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 
@@ -228,18 +207,6 @@ export async function uploadProfilePictureAction(formData: FormData) {
     return { handle: response.data?.data?.profilePictureHandle ?? null, error: null };
 }
 
-export async function deleteBusinessPhoneAction(phoneId: string) {
-    const response = await apiClient<DeletePhoneResponse>(`/whatsapp/business-phones/${phoneId}`, {
-        method: 'DELETE',
-    });
-
-    if (response.error) {
-        return { error: response.error.message };
-    }
-
-    return { error: null };
-}
-
 export async function releaseBusinessPhoneAction(phoneId: string, confirmPhoneNumber: string) {
     const response = await apiClient<ReleasePhoneResponse>(`/whatsapp/business-phones/${phoneId}/release`, {
         method: 'POST',
@@ -403,7 +370,7 @@ export async function getBusinessPhoneByIdAdminAction(phoneId: string) {
     return { phone: phoneData as WhatsAppBusinessPhone | null, error: null };
 }
 
-export interface WhatsAppOnboardingConfig {
+interface WhatsAppOnboardingConfig {
     provider: string;
     requiresSlot: boolean;
 }

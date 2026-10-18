@@ -17,7 +17,7 @@ const PREVIEW_WEIGHT = 400;
 
 const CHIP_CLASS = "h-6 shrink-0 rounded-[--radius] px-2 text-2xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-export function fontFace(id: FontId): { fontFamily: string; fontWeight: number } {
+function fontFace(id: FontId): { fontFamily: string; fontWeight: number } {
   return { fontFamily: `"${STUDIO_FONTS[id].family}", system-ui, sans-serif`, fontWeight: nearestFontWeight(id, PREVIEW_WEIGHT) };
 }
 

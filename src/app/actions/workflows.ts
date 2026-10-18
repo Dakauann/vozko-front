@@ -1,23 +1,4 @@
-import type {
-    BuilderSession,
-    CreateWorkflowPayload,
-    HandleDefinition,
-    LintIssue,
-    NodeAnalysis,
-    NodeDefinition,
-    RunDetail,
-    RunListResponse,
-    StartRunPayload,
-    TestNodePayload,
-    TestNodeResult,
-    UpdateWorkflowPayload,
-    Workflow,
-    WorkflowGraph,
-    WorkflowListMeta,
-    WorkflowListResponse,
-    WorkflowNodeType,
-    WorkflowRun,
-} from '@/lib/workflows/types';
+import type { BuilderSession, CreateWorkflowPayload, HandleDefinition, LintIssue, NodeAnalysis, NodeDefinition, TestNodePayload, TestNodeResult, UpdateWorkflowPayload, Workflow, WorkflowGraph, WorkflowListMeta, WorkflowListResponse, WorkflowNodeType } from '@/lib/workflows/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 
@@ -65,32 +46,6 @@ function normalizeWorkflowList(payload?: WorkflowListResponse | Workflow[] | nul
 
     if (!meta.totalItems) meta.totalItems = workflows.length;
     return { workflows, meta };
-}
-
-function normalizeRunList(payload?: RunListResponse | WorkflowRun[] | null) {
-    const meta: WorkflowListMeta = { ...DEFAULT_META };
-    let runs: WorkflowRun[] = [];
-
-    if (!payload) return { runs, meta };
-
-    if (Array.isArray(payload)) {
-        runs = payload;
-    } else {
-        if (Array.isArray(payload.data)) {
-            runs = payload.data;
-        } else if (Array.isArray(payload.items)) {
-            runs = payload.items;
-        }
-        if (payload.meta) {
-            meta.page = payload.meta.page ?? meta.page;
-            meta.pageSize = payload.meta.pageSize ?? meta.pageSize;
-            meta.totalPages = payload.meta.totalPages ?? meta.totalPages;
-            meta.totalItems = payload.meta.totalItems ?? meta.totalItems;
-        }
-    }
-
-    if (!meta.totalItems) meta.totalItems = runs.length;
-    return { runs, meta };
 }
 
 
@@ -214,7 +169,7 @@ export interface WorkflowWebhookConfig {
     active: boolean;
 }
 
-export interface WorkflowWebhookInput {
+interface WorkflowWebhookInput {
     auth_mode?: string;
     header_name?: string;
     method?: string;
@@ -301,56 +256,6 @@ export async function pauseWorkflowAction(id: string) {
         return { workflow: null as Workflow | null, error: response.error.message };
     }
     return { workflow: response.data ?? null };
-}
-
-
-export async function listRunsAction(workflowId: string, params?: { page?: number; pageSize?: number }) {
-    const qp = new URLSearchParams();
-    if (params?.page) qp.set('page', String(params.page));
-    if (params?.pageSize) qp.set('pageSize', String(params.pageSize));
-    const qs = qp.toString();
-
-    const response = await apiClient<RunListResponse>(
-        `/workflows/${encodeURIComponent(workflowId)}/runs${qs ? `?${qs}` : ''}`,
-        { method: 'GET' },
-    );
-
-    if (response.error) {
-        return { runs: [] as WorkflowRun[], meta: DEFAULT_META, error: response.error.message };
-    }
-
-    const { runs, meta } = normalizeRunList(response.data ?? null);
-    return { runs, meta };
-}
-
-export async function startRunAction(workflowId: string, payload: StartRunPayload) {
-    const response = await apiClient<WorkflowRun>(
-        `/workflows/${encodeURIComponent(workflowId)}/runs`,
-        { method: 'POST', body: JSON.stringify(payload) },
-    );
-
-    if (response.error) {
-        return { run: null as WorkflowRun | null, error: response.error.message };
-    }
-    return { run: response.data ?? null };
-}
-
-export async function getRunAction(runId: string) {
-    const response = await apiClient<RunDetail>(`/workflow-runs/${encodeURIComponent(runId)}`, { method: 'GET' });
-
-    if (response.error) {
-        return { detail: null as RunDetail | null, error: response.error.message };
-    }
-    return { detail: response.data ?? null };
-}
-
-export async function cancelRunAction(runId: string) {
-    const response = await apiClient<WorkflowRun>(`/workflow-runs/${encodeURIComponent(runId)}/cancel`, { method: 'POST' });
-
-    if (response.error) {
-        return { run: null as WorkflowRun | null, error: response.error.message };
-    }
-    return { run: response.data ?? null };
 }
 
 

@@ -14,7 +14,7 @@ import { lottieSource } from "./lottie-files";
 
 export type LottieRefusal = { fault: LottieFileFault } | { gaps: LottieGap[] };
 
-export interface LottieImporter {
+interface LottieImporter {
   busy: boolean;
   refusal: LottieRefusal | null;
   dismiss: () => void;

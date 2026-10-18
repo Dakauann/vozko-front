@@ -8,8 +8,8 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useAccess } from "@/hooks/use-access";
 import { leadSendStates, type LeadSendStates, type SendNumbersView } from "@/lib/leads/sends";
 
-export const SEND_TEMPLATE_CAPABILITY = "leads.send_template";
-export const SEND_UNOFFICIAL_CAPABILITY = "leads.send_unofficial";
+const SEND_TEMPLATE_CAPABILITY = "leads.send_template";
+const SEND_UNOFFICIAL_CAPABILITY = "leads.send_unofficial";
 
 const CONNECTED = "CONNECTED" as const;
 const NUMBERS_STALE_MS = 60_000;

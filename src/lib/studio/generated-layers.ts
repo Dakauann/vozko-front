@@ -4,9 +4,7 @@ import { qrPartLayers } from "./qr-parts";
 import { tablePartLayers } from "./table-parts";
 import type { TableSpec } from "./table";
 
-export const GENERATED_LAYER_TYPES = ["chart", "table", "qr"] as const satisfies readonly LayerType[];
-
-export type GeneratedLayerType = (typeof GENERATED_LAYER_TYPES)[number];
+const GENERATED_LAYER_TYPES = ["chart", "table", "qr"] as const satisfies readonly LayerType[];
 
 export function isGeneratedLayer(layer: Pick<Layer, "type">): boolean {
   return (GENERATED_LAYER_TYPES as readonly string[]).includes(layer.type);
@@ -25,7 +23,7 @@ export function generatedPartLayers(layer: Layer, size: CanvasSize): Layer[] {
   }
 }
 
-export type ColorSwap = (color: string) => string;
+type ColorSwap = (color: string) => string;
 
 function tableColors(spec: TableSpec): string[] {
   const { style } = spec;

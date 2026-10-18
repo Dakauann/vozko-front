@@ -16,7 +16,7 @@ export interface LeadContext {
     name: string;
 }
 
-export interface SimulatorSessionState {
+interface SimulatorSessionState {
     transcript: TranscriptItem[];
     turns: TurnRecord[];
     lead: LeadContext | null;

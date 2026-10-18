@@ -45,7 +45,7 @@ export function RateCell({ rate }: { rate: number | null }) {
 
 export const RUN_SENTIMENT_ORDER = ["positive", "neutral", "mixed", "negative"] as const satisfies readonly RunSentiment[];
 
-export const MENTION_SENTIMENT_ORDER = ["positive", "neutral", "negative"] as const satisfies readonly MentionSentiment[];
+const MENTION_SENTIMENT_ORDER = ["positive", "neutral", "negative"] as const satisfies readonly MentionSentiment[];
 
 type SentimentCounts = Partial<Record<RunSentiment, number>> | Partial<Record<MentionSentiment, number>>;
 
@@ -80,7 +80,7 @@ export function SentimentSplit({
   );
 }
 
-export const ANALYSIS_STATUS_TONE: Record<AnalysisStatus, StatusChipTone> = {
+const ANALYSIS_STATUS_TONE: Record<AnalysisStatus, StatusChipTone> = {
   active: "healthy",
   paused: "warning",
   archived: "muted",

@@ -6,14 +6,14 @@ import { uploadMediaAction } from "@/app/actions/medias";
 import { attachmentProblem, mediaTypeFor, roomProblem, type AttachmentProblem } from "@/lib/aichat/attachments";
 import type { ChatAttachment } from "@/lib/aichat/types";
 
-export interface DraftAttachment {
+interface DraftAttachment {
   key: string;
   name: string;
   uploading: boolean;
   attachment?: ChatAttachment;
 }
 
-export type AttachmentError = AttachmentProblem | "upload";
+type AttachmentError = AttachmentProblem | "upload";
 
 export function useChatAttachments() {
   const [items, setItems] = useState<DraftAttachment[]>([]);

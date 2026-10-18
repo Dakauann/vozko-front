@@ -77,12 +77,7 @@ import {
   InteractiveNodeShell,
   type ShellBranch,
 } from "./message-node-primitives";
-import {
-  MediaNodePreview,
-  renderActionContentPreview,
-  renderConditionContentPreview,
-  renderMessageContentPreview,
-} from "./node-previews";
+import { renderActionContentPreview, renderConditionContentPreview, renderMessageContentPreview } from "./node-previews";
 
 
 const ICON_MAP: Record<string, Icon> = {
@@ -766,7 +761,7 @@ const GROUP_BORDER_COLORS: Record<string, string> = {
   transparent: "border-border/50",
 };
 
-export interface GroupNodeData {
+interface GroupNodeData {
   nodeType: "group";
   config: Record<string, unknown>;
   label?: string;

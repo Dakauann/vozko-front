@@ -40,7 +40,7 @@ import { EditWithAiDialog } from "./edit-with-ai";
 import { ImageAgentCursor, JobFollowers } from "./jobs";
 import { SideRail } from "./side-rail";
 
-export type ImageEditorProps = StudioEditorMountProps<"image">;
+type ImageEditorProps = StudioEditorMountProps<"image">;
 
 function hasPageSelection(): boolean {
   return (window.getSelection()?.toString() ?? "") !== "";

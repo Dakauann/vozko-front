@@ -6,7 +6,7 @@ export type CreateChoice =
   | { kind: "new"; objective: AdObjective }
   | { kind: "existing"; campaign: ParentSummary; adSet: ParentSummary | null };
 
-export type CreatedLevel = "campaign" | "adSet" | "ad";
+type CreatedLevel = "campaign" | "adSet" | "ad";
 
 export interface CreateNames {
   campaign: string;

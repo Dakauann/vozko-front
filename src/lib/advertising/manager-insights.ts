@@ -3,7 +3,7 @@ import type { AdLevel, AdRow } from "./types";
 
 export type InsightsTab = "performance" | "budget" | "actions" | "history" | "preview" | "comments";
 
-export type BudgetHome = { kind: "own" } | { kind: "children" } | { kind: "parent"; level: AdLevel; metaId: string } | { kind: "unknown" };
+type BudgetHome = { kind: "own" } | { kind: "children" } | { kind: "parent"; level: AdLevel; metaId: string } | { kind: "unknown" };
 
 type BudgetRow = Pick<AdRow, "dailyBudget" | "lifetimeBudget">;
 

@@ -1,12 +1,12 @@
 import { FRAMES_PER_SECOND, type CanvasSize, type Clip, type ClipType, type Transform, type VideoCanvas } from "./document";
 import type { IssueCode } from "./validate";
 
-export interface Shutter {
+interface Shutter {
   angle: number;
   phase: number;
 }
 
-export interface ShutterSpan {
+interface ShutterSpan {
   startMs: number;
   endMs: number;
 }
@@ -15,12 +15,12 @@ export interface MotionTrail {
   maps: readonly number[];
 }
 
-export interface TrailSpread {
+interface TrailSpread {
   x: number;
   y: number;
 }
 
-export type Pose = (timelineMs: number) => Transform;
+type Pose = (timelineMs: number) => Transform;
 
 export type ShutterChange = Partial<Pick<VideoCanvas, "shutterAngle" | "shutterPhase">>;
 
@@ -28,7 +28,7 @@ export const SHUTTER_ANGLE_RANGE = [0, 720] as const;
 export const SHUTTER_PHASE_RANGE = [-360, 360] as const;
 export const DEFAULT_SHUTTER: Shutter = { angle: 180, phase: -90 };
 export const SAMPLE_SPACING_PX = 1;
-export const TRAIL_PROBES = 8;
+const TRAIL_PROBES = 8;
 export const TRAIL_MAP_SIZE = 6;
 
 const FRAME_MS = 1000 / FRAMES_PER_SECOND;

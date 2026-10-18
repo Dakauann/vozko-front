@@ -42,7 +42,7 @@ export function carriesTilt(clip: TiltedClip): boolean {
   return TILT_PROPERTIES.some((property) => (clip[property] ?? 0) !== 0 || (clip.keyframes?.[property]?.length ?? 0) > 0);
 }
 
-export function isLevel(tilt: Tilt): boolean {
+function isLevel(tilt: Tilt): boolean {
   return tilt.x % FULL_TURN === 0 && tilt.y % FULL_TURN === 0;
 }
 

@@ -1384,10 +1384,6 @@ export function TeamRankingTable({
   );
 }
 
-export function verdictColorFor(verdict: Verdict | "" | undefined): string {
-  return toneColor(verdictTone(verdict));
-}
-
 function ReworkRows({
   rows,
   fmt,

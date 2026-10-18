@@ -6,7 +6,7 @@ import type { KeyState } from "@/lib/studio/keyframe-edit";
 
 import { ToolButton } from "../tool-button";
 
-export interface KeyToggleProps {
+interface KeyToggleProps {
   label: string;
   state: KeyState;
   disabled: boolean;

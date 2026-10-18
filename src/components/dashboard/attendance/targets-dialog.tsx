@@ -44,7 +44,7 @@ const SUGGESTED_METRICS = [
   "reopen_rate",
 ];
 
-export interface TargetsDialogScope {
+interface TargetsDialogScope {
   scope: TargetScope;
   scopeId?: string;
   scopeLabel: string;

@@ -1,10 +1,8 @@
 import { CHROMA_FIELDS, CHROMA_PROPERTIES, chromaIssue, newChromaKey, type ChromaKey, type ChromaProperty } from "./chroma-key";
 import type { Layer, VideoDocument } from "./document";
 import type { Keyframe } from "./keyframes";
-import { animateKeyer, editKeyer, keyerSelectionEdit, patchKeyerValues, removeKeyer, toggleKeyerKey, type Keyer, type KeyerEdit, type KeyerRefusal } from "./keyer-edit";
+import { animateKeyer, editKeyer, keyerSelectionEdit, patchKeyerValues, removeKeyer, toggleKeyerKey, type Keyer, type KeyerEdit } from "./keyer-edit";
 import type { SelectionEdit } from "./selection-edit";
-
-export type ChromaEditRefusal = KeyerRefusal;
 
 export type ChromaEdit = KeyerEdit;
 
@@ -19,7 +17,7 @@ const CHROMA_KEYER: Keyer<ChromaKey, ChromaProperty> = {
   issue: chromaIssue,
 };
 
-export function patchChroma(current: ChromaKey, patch: ChromaPatch, localMs: number | null): ChromaKey | "animated" | "invalid" {
+function patchChroma(current: ChromaKey, patch: ChromaPatch, localMs: number | null): ChromaKey | "animated" | "invalid" {
   return patchKeyerValues(CHROMA_KEYER, patch.color === undefined ? current : { ...current, color: patch.color.toLowerCase() }, patch, localMs);
 }
 

@@ -67,12 +67,12 @@ export function removeClipMarker(doc: VideoDocument, clipId: string, markerId: s
   return { ok: true, document: withList(doc, clipId, list.filter((m) => m.id !== markerId)), markerId };
 }
 
-export interface BeatPlacement {
+interface BeatPlacement {
   every?: number;
   color?: LabelColor;
 }
 
-export type BeatResult = { ok: true; document: VideoDocument; placed: number } | { ok: false; reason: Exclude<ClipMarkerRefusal, "taken" | "outside"> };
+type BeatResult = { ok: true; document: VideoDocument; placed: number } | { ok: false; reason: Exclude<ClipMarkerRefusal, "taken" | "outside"> };
 
 export function placeBeatMarkers(doc: VideoDocument, clipId: string, beatsMs: readonly number[], placement: BeatPlacement = {}): BeatResult {
   const located = locate(doc, clipId);
@@ -96,7 +96,7 @@ export function placeBeatMarkers(doc: VideoDocument, clipId: string, beatsMs: re
 
 export type BeatMarkRefusal = "missing" | "locked" | "notAudio" | "noPulse" | "outside";
 
-export type BeatMarkResult = { ok: true; document: VideoDocument; placed: number; bpm: number } | { ok: false; reason: BeatMarkRefusal };
+type BeatMarkResult = { ok: true; document: VideoDocument; placed: number; bpm: number } | { ok: false; reason: BeatMarkRefusal };
 
 export function beatSource(doc: VideoDocument, clipId: string): { ok: true; assetId: string } | { ok: false; reason: BeatMarkRefusal } {
   const found = findClip(doc, clipId);

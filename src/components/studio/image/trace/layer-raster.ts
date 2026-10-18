@@ -2,7 +2,7 @@ import { loadAssetImage } from "@/components/studio/canvas/asset-images";
 import type { Layer } from "@/lib/studio/document";
 import type { RasterImage } from "@/lib/studio/trace/trace";
 
-export const TRACE_MAX_SIDE = 1024;
+const TRACE_MAX_SIDE = 1024;
 
 export async function layerRaster(layer: Layer, maxSide: number = TRACE_MAX_SIDE): Promise<RasterImage | null> {
   if (layer.type !== "image" || !layer.assetId) return null;

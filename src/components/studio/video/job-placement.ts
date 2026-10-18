@@ -14,14 +14,14 @@ import type { AssetCatalog } from "./asset-catalog";
 import type { EditorCommands } from "./editor-commands";
 import type { VideoJob } from "./view-store";
 
-export interface PlacementDeps {
+interface PlacementDeps {
   store: StudioEditorStore<VideoDocument>;
   commands: EditorCommands;
   assets: AssetCatalog;
   captionTrackName: string;
 }
 
-export type PlacementProblem = "captionsUnreadable" | "captionsEmpty" | "captionsInvalid" | "noRoom" | "clipGone" | "clipChanged" | "clipLocked";
+type PlacementProblem = "captionsUnreadable" | "captionsEmpty" | "captionsInvalid" | "noRoom" | "clipGone" | "clipChanged" | "clipLocked";
 
 export type CaptionRefusal = Exclude<CaptionsOutcome["status"], "added">;
 

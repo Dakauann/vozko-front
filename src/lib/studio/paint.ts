@@ -25,9 +25,9 @@ export function gradientLine(angle: number, box: Box): { start: Point; end: Poin
   };
 }
 
-export type GradientStops = (number | string)[];
+type GradientStops = (number | string)[];
 
-export type GradientPaint =
+type GradientPaint =
   | { kind: "linear"; start: Point; end: Point; stops: GradientStops }
   | { kind: "radial"; center: Point; radius: number; stops: GradientStops };
 
@@ -106,17 +106,17 @@ export function paintsProperty(layer: Layer, property: ColorProperty): boolean {
   return (layer.strokes ?? []).length === 0 && (strokedShape(layer) || ((layer.type === "text" || layer.type === "shape") && (layer.strokeWidth ?? 0) > 0));
 }
 
-export const MAX_CACHE_PIXEL_RATIO = 2;
+const MAX_CACHE_PIXEL_RATIO = 2;
 
 export function cachePixelRatioFor(scale: number, devicePixelRatio: number, ceiling: number = MAX_CACHE_PIXEL_RATIO): number {
   const wanted = Math.min(ceiling, Math.max(0.25, scale * (devicePixelRatio || 1)));
   return Math.ceil(wanted * 4) / 4;
 }
 
-export const DEFAULT_MITER_LIMIT = 10;
+const DEFAULT_MITER_LIMIT = 10;
 export const LEGACY_DASH = [3, 2] as const;
 
-export interface StrokeStyle {
+interface StrokeStyle {
   lineCap: LineCap;
   lineJoin: LineJoin;
   miterLimit: number;

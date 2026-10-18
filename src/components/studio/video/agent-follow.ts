@@ -5,7 +5,7 @@ import { glidePosition, GLIDE_MS } from "@/lib/studio/agent/follow";
 import type { FrameScheduler } from "./playback-controller";
 import type { VideoViewStore } from "./view-store";
 
-export interface FollowDeps {
+interface FollowDeps {
   view: VideoViewStore;
   seek: (ms: number) => void;
   frames: FrameScheduler;

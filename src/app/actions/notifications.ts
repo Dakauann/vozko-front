@@ -11,14 +11,14 @@ import {
   type NotificationSummary,
 } from "@/lib/notifications/types";
 
-export interface NotificationListQuery {
+interface NotificationListQuery {
   category?: NotificationCategory;
   unread?: boolean;
   cursor?: string;
   limit?: number;
 }
 
-export interface NotificationChangeCount {
+interface NotificationChangeCount {
   updated: number;
 }
 

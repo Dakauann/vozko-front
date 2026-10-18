@@ -2,7 +2,7 @@
 
 import type { MediaEvent, MediaPort } from "./media-protocol";
 
-export function workerPort(worker: Worker): MediaPort {
+function workerPort(worker: Worker): MediaPort {
   return {
     send: (request) => worker.postMessage(request),
     listen: (onEvent, onBroken) => {

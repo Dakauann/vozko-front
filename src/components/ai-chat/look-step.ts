@@ -9,7 +9,7 @@ import { lookClock } from "@/lib/studio/agent/look-target";
 
 import { revealOnScreen, useCanReveal } from "./screen-bridge";
 
-export const LOOK_SUBJECT = "studio_look";
+const LOOK_SUBJECT = "studio_look";
 
 const LOOK_KINDS: ReadonlySet<string> = new Set<ScreenTarget["kind"]>(["artboard", "artboards", "moments", "media"]);
 const REVEALABLE: ReadonlySet<string> = new Set<ScreenTarget["kind"]>(["artboard", "moments"]);
@@ -36,7 +36,7 @@ export function useLookTargetText(): (target: ScreenTarget) => string {
   );
 }
 
-export interface LookStep {
+interface LookStep {
   title: string;
   hint: string;
   reveal: (() => void) | null;

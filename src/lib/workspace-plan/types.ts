@@ -1,6 +1,6 @@
 import type { BillingType, Invoice } from "@/lib/invoices/types";
 
-export type SubscriptionStatus = "active" | "cancelled" | "expired";
+type SubscriptionStatus = "active" | "cancelled" | "expired";
 
 export interface PlanPricingItem {
   id: string;

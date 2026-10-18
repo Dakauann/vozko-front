@@ -5,7 +5,7 @@ import * as React from "react";
 import { CaretDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-export type ConfigCardStatusTone = "active" | "inactive" | "warning";
+type ConfigCardStatusTone = "active" | "inactive" | "warning";
 
 const STATUS_TONE_CLASS: Record<ConfigCardStatusTone, string> = {
   active: "bg-healthy text-healthy-foreground",

@@ -4,14 +4,14 @@ import type { AgentFocus } from "./batch";
 
 export const PRESET_OPERATIONS = ["apply_animation_preset"] as const;
 
-export type PresetOpName = (typeof PRESET_OPERATIONS)[number];
+type PresetOpName = (typeof PRESET_OPERATIONS)[number];
 
 export interface AgentPresetFields {
   preset_id?: string;
   preset_timing?: PresetTiming;
 }
 
-export interface PresetOpInput extends AgentPresetFields {
+interface PresetOpInput extends AgentPresetFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
@@ -19,7 +19,7 @@ export interface PresetOpInput extends AgentPresetFields {
 
 export type PresetLookup = { ok: true; find: (id: string) => AnimationPreset | undefined } | { ok: false };
 
-export type PresetOpResult = { ok: true; document: VideoDocument; focus: AgentFocus; changed: string[]; notes: string[] } | { ok: false; reason: string };
+type PresetOpResult = { ok: true; document: VideoDocument; focus: AgentFocus; changed: string[]; notes: string[] } | { ok: false; reason: string };
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
 
@@ -37,7 +37,7 @@ const SKIPPED_TEXT: Record<string, string> = {
   transitionOut: "transição de saída",
 };
 
-export function isPresetOp(name: string): name is PresetOpName {
+function isPresetOp(name: string): name is PresetOpName {
   return (PRESET_OPERATIONS as readonly string[]).includes(name);
 }
 

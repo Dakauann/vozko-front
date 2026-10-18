@@ -9,19 +9,19 @@ import { transitionWindow } from "../transitions";
 import { argsOf, defined, numberField, numberList, textField } from "./args";
 import { edgeLengthMs } from "../edge-transitions";
 
-export const DEFAULT_LOOK_FRAMES = 6;
-export const MAX_LOOK_FRAMES = 9;
+const DEFAULT_LOOK_FRAMES = 6;
+const MAX_LOOK_FRAMES = 9;
 export const MAX_LOOK_ZOOM = 4;
 const MIN_GAP_MS = 100;
 
-export interface VisionBudget {
+interface VisionBudget {
   longEdge: number;
   pixels: number;
 }
 
 export const VISION_BUDGET: VisionBudget = { longEdge: 1568, pixels: 1_150_000 };
 
-export interface LookRequest {
+interface LookRequest {
   times_ms?: number[];
   count?: number;
   from_ms?: number;
@@ -99,9 +99,9 @@ export function lookTimes(doc: VideoDocument, request: LookRequest): number[] {
   return chosen.sort((a, b) => a - b);
 }
 
-export type MotionKind = "transition" | "entrance" | "exit" | "keyframes" | "text_in" | "text_out" | "text_animators";
+type MotionKind = "transition" | "entrance" | "exit" | "keyframes" | "text_in" | "text_out" | "text_animators";
 
-export interface MotionWindow {
+interface MotionWindow {
   id: string;
   kind: MotionKind;
   from_ms: number;
@@ -202,7 +202,7 @@ function clipSpan(doc: VideoDocument, clipId: string): TimeSpan | null {
   return null;
 }
 
-export type LookPlan = { ok: true; times: number[]; dense: boolean; windows: MotionWindow[] } | { ok: false; reason: string };
+type LookPlan = { ok: true; times: number[]; dense: boolean; windows: MotionWindow[] } | { ok: false; reason: string };
 
 function unique(times: readonly number[]): number[] {
   return [...new Set(times)].sort((a, b) => a - b);
@@ -233,7 +233,7 @@ export function lookPlan(doc: VideoDocument, request: LookRequest): LookPlan {
   return { ok: true, times: lookTimes(doc, request), dense: false, windows: [] };
 }
 
-export interface ClipState {
+interface ClipState {
   x: number;
   y: number;
   w: number;
@@ -361,7 +361,7 @@ export function regionOf(region: Partial<LookRegion> | undefined): RegionBox | n
   return { left: Math.min(Math.max(region.x - width / 2, 0), 1 - width), top: Math.min(Math.max(region.y - height / 2, 0), 1 - height), width, height };
 }
 
-export interface PixelSize {
+interface PixelSize {
   width: number;
   height: number;
 }
@@ -397,14 +397,14 @@ export function sheetLayout(count: number, frameAspect: number, budget: VisionBu
   return best;
 }
 
-export interface SheetCell {
+interface SheetCell {
   x: number;
   y: number;
   width: number;
   height: number;
 }
 
-export interface RowSheet {
+interface RowSheet {
   width: number;
   height: number;
   cells: SheetCell[];

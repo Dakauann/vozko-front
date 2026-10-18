@@ -231,9 +231,7 @@ export function CrmScene({
               position={[x, y, 0.18]}
             >
               <Slab size={layout.row} color={sheet(palette)} roughness={0.58} castShadow />
-              <Bar position={[-rowW / 2 + 0.12, 0, rowD / 2 + 0.015]} size={[0.06, rowH * 0.66, 0.02]} color={channelTone(row.channel, palette)} />
-              {
-}
+              <Bar position={[-rowW / 2 + 0.12, 0, rowD / 2 + 0.015]} size={[0.06, rowH * 0.66, 0.02]} color={channelTone(row.channel, palette)} />
               <mesh position={[0, 0, -rowD / 2 - 0.03]}>
                 <boxGeometry args={[rowW + 0.14, rowH + 0.14, 0.04]} />
                 <meshBasicMaterial
@@ -278,9 +276,7 @@ export function CrmScene({
             position={[0, layout.thread.size[1] / 2 - layout.threadRows.header - 0.3, threadD / 2 + 0.02]}
             size={[threadW - 0.24, 0.025, 0.025]}
             color={palette.edge}
-          />
-        {
-}
+          />
         <Label
           position={[0, 0, threadD / 2 + 0.025]}
           width={px(threadW - 0.44)}

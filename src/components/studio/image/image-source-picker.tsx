@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 import { ICON_BUTTON_CLASS, Notice, OUTLINE_BUTTON_CLASS } from "./controls";
 import { writeDraggedPhoto } from "./photo-drag";
 
-export const IMAGE_ACCEPT = "image/jpeg,image/png";
+const IMAGE_ACCEPT = "image/jpeg,image/png";
 
-export type UploadOutcome = { mediaId: string; url: string } | { error: string | null };
+type UploadOutcome = { mediaId: string; url: string } | { error: string | null };
 
 export async function uploadImageFile(file: File): Promise<UploadOutcome> {
   if (!IMAGE_ACCEPT.split(",").includes(file.type)) return { error: null };
@@ -29,7 +29,7 @@ export async function uploadImageFile(file: File): Promise<UploadOutcome> {
   return { mediaId: result.mediaId, url: result.mediaUrl };
 }
 
-export interface ImageSourcePickerProps {
+interface ImageSourcePickerProps {
   onPick: (mediaId: string, url: string) => Promise<boolean>;
   uploadLabel: string;
   compact?: boolean;

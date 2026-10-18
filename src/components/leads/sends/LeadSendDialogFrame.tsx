@@ -28,9 +28,9 @@ import { SendSteps } from "./SendSteps";
 import { useSendErrorText } from "./send-copy";
 import { useLeadSendFlow } from "./use-lead-send-flow";
 
-export const STEP_COMPOSE = 0;
-export const STEP_VARIABLES = 1;
-export const STEP_REVIEW = 2;
+const STEP_COMPOSE = 0;
+const STEP_VARIABLES = 1;
+const STEP_REVIEW = 2;
 
 export interface LeadSendDialogProps {
   selection: LeadSelection;
@@ -114,7 +114,7 @@ export function useLeadSendDialog({
   };
 }
 
-export type LeadSendDialogState = ReturnType<typeof useLeadSendDialog>;
+type LeadSendDialogState = ReturnType<typeof useLeadSendDialog>;
 
 export function LeadSendDialogFrame({
   state,

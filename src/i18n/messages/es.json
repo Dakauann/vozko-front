@@ -1906,9 +1906,6 @@
     "title": "{brandLegalName}",
     "description": "Plataforma unificada de automatización e inteligencia artificial que ofrece precisión, velocidad y escala para organizaciones que venden en múltiples mercados y canales."
   },
-  "products": {
-    "highlights": {}
-  },
   "pricing": {
     "badge": "Precios",
     "title": "Planes que crecen contigo",
@@ -2031,7 +2028,6 @@
     "pricing": "Planes",
     "login": "Iniciar sesión",
     "requestQuote": "Solicitar cotización",
-    "searchProducts": "Buscar productos...",
     "adminBadge": "Administrador",
     "closeMenu": "Cerrar menú"
   },
@@ -2048,14 +2044,6 @@
       "profile": {
         "label": "Mi perfil",
         "description": "Datos personales, contraseña y preferencias"
-      },
-      "orders": {
-        "label": "Pedidos",
-        "description": "Ver tus pedidos y suscripciones activas"
-      },
-      "addresses": {
-        "label": "Direcciones",
-        "description": "Gestionar tus direcciones de entrega"
       },
       "settings": {
         "label": "Configuración",
@@ -30096,5 +30084,20 @@
       "customer_portfolio_list_invalid": "Búsqueda inválida",
       "failed": "No se pudo actualizar la cartera"
     }
+  },
+  "inboxMenu": {
+    "open": "Abrir conversación",
+    "openInWindow": "Abrir en una ventana",
+    "openLead": "Abrir ficha del lead",
+    "copyContact": "Copiar contacto",
+    "copied": "Contacto copiado",
+    "copyFailed": "No se pudo copiar el contacto",
+    "assign": "Asignar a",
+    "assignEmpty": "Ningún miembro disponible",
+    "online": "En línea",
+    "stage": "Mover de etapa",
+    "labels": "Etiquetas",
+    "more": "Más acciones",
+    "moreHint": "Más acciones (también con el botón derecho)"
   }
 }

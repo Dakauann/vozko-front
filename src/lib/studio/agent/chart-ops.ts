@@ -72,13 +72,13 @@ export interface AgentChartFields {
   chart_order?: string;
 }
 
-export interface AgentChartTiming {
+interface AgentChartTiming {
   duration_ms?: number;
   stagger_ms?: number;
   easing?: string;
 }
 
-export interface ChartDefaults {
+interface ChartDefaults {
   locale: string;
   ink: string;
   palette?: readonly string[];
@@ -94,10 +94,6 @@ function refuse<T>(reason: string): Built<T> {
 
 export function isChartImageOperation(op: string): op is ChartImageOpName {
   return (CHART_IMAGE_OPERATIONS as readonly string[]).includes(op);
-}
-
-export function isChartVideoOperation(op: string): op is ChartVideoOpName {
-  return (CHART_VIDEO_OPERATIONS as readonly string[]).includes(op);
 }
 
 function kindOf(raw: string | undefined, fallback: ChartKind | null): Built<ChartKind> {

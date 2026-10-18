@@ -6,7 +6,7 @@ import { isActionError } from "@/app/actions/action-result";
 import { listLibraryAction } from "@/app/actions/medias";
 import type { Media } from "@/lib/medias/types";
 
-export type MediaLibraryState = { status: "loading" } | { status: "failed" } | { status: "ready"; medias: Media[] };
+type MediaLibraryState = { status: "loading" } | { status: "failed" } | { status: "ready"; medias: Media[] };
 
 type Loaded = { attempt: number; state: Exclude<MediaLibraryState, { status: "loading" }> };
 

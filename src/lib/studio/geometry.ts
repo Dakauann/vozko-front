@@ -12,7 +12,7 @@ export interface PixelBox {
   height: number;
 }
 
-export interface NodeAttrs {
+interface NodeAttrs {
   x: number;
   y: number;
   scaleX: number;
@@ -20,8 +20,8 @@ export interface NodeAttrs {
   rotation: number;
 }
 
-export const DEFAULT_FIT_SHARE = 0.6;
-export const KEEP_RATIO_TOLERANCE = 0.01;
+const DEFAULT_FIT_SHARE = 0.6;
+const KEEP_RATIO_TOLERANCE = 0.01;
 
 
 export function boxPx(t: Transform, canvas: CanvasSize): PixelBox {

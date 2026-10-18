@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 import { Brain, CaretDown, CaretRight, Robot, User, Wrench } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-export interface CopilotMessageProps {
+interface CopilotMessageProps {
   role: "user" | "assistant" | "system" | "tool";
   text: string;
   ok?: boolean;

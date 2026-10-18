@@ -28,7 +28,7 @@ export function endKind(layer: Ends, end: LineEnd): LineEndKind | null {
 
 export const LINE_END_CHOICES = ["none", ...LINE_END_KINDS] as const;
 
-export type LineEndChoice = (typeof LINE_END_CHOICES)[number];
+type LineEndChoice = (typeof LINE_END_CHOICES)[number];
 
 export function endChoice(layer: Ends, end: LineEnd): LineEndChoice {
   return endKind(layer, end) ?? "none";
@@ -157,7 +157,7 @@ function lineEnd(kind: LineEndKind, tip: Point, direction: Point, strokeWidth: n
   return headTriangle({ x: tip.x - direction.x * size, y: tip.y - direction.y * size }, direction, size);
 }
 
-export function lineArrowheads(layer: Pick<Layer, "strokeWidth"> & Ends, width: number, height: number): number[][] {
+function lineArrowheads(layer: Pick<Layer, "strokeWidth"> & Ends, width: number, height: number): number[][] {
   const strokeWidth = layer.strokeWidth ?? 0;
   if (strokeWidth <= 0) return [];
   const middle = height / 2;

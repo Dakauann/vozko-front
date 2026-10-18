@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { InlineEdit } from "./InlineEdit";
 
-export const MAX_NAME_LENGTH = 120;
+const MAX_NAME_LENGTH = 120;
 
 interface EditableFunnelNameProps {
   name: string;

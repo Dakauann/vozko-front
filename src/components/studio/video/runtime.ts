@@ -20,7 +20,7 @@ import { browserFrames, PlaybackController } from "./playback-controller";
 import { FrameExtractor } from "./timeline/frame-extractor";
 import { createVideoViewStore } from "./view-store";
 
-export type VideoEditorRuntime = Omit<VideoEditorContextValue, "projectId" | "studio">;
+type VideoEditorRuntime = Omit<VideoEditorContextValue, "projectId" | "studio">;
 
 export function createVideoEditorRuntime(document: VideoDocument): VideoEditorRuntime {
   const root = createStudioStore<VideoDocument>(document);

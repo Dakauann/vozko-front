@@ -3,7 +3,7 @@ export interface Point {
   y: number;
 }
 
-export interface Point3 extends Point {
+interface Point3 extends Point {
   z: number;
 }
 
@@ -21,7 +21,7 @@ export type Homography = readonly [number, number, number, number, number, numbe
 
 export type Affine = readonly [number, number, number, number, number, number];
 
-export interface TiltedPiece {
+interface TiltedPiece {
   x: number;
   y: number;
   width: number;
@@ -39,7 +39,6 @@ export const DEFAULT_PERSPECTIVE = 40;
 
 const NEAR = 1e-6;
 const DEGREES = Math.PI / 180;
-const IDENTITY: Homography = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 const PIECE_CORNERS = [
   [-0.5, -0.5],
   [0.5, -0.5],
@@ -111,10 +110,6 @@ export function tiltHomography(lens: Lens, pivot: Point, tilt: Tilt): Homography
 
 export function scaledHomography(h: Homography, width: number, height: number): Homography {
   return multiplyHomography(multiplyHomography([1 / width, 0, 0, 0, 1 / height, 0, 0, 0, 1], h), [width, 0, 0, 0, height, 0, 0, 0, 1]);
-}
-
-export function isIdentity(h: Homography): boolean {
-  return h.every((value, i) => Math.abs(value - IDENTITY[i]) < 1e-12);
 }
 
 export function cssMatrix3d(h: Homography): string {

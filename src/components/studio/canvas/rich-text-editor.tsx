@@ -14,7 +14,7 @@ import { runes } from "@/lib/studio/tokens";
 import { domMatches, editableText, FALLBACK_INK, partCss, placeSelection, readSelection, renderParts } from "./rich-text-dom";
 import { TextRunToolbar } from "./text-run-toolbar";
 
-export interface RichTextBox {
+interface RichTextBox {
   centerX: number;
   centerY: number;
   width: number;
@@ -29,7 +29,7 @@ export interface RichTextCounter {
   number: string;
 }
 
-export interface RichTextEditorProps {
+interface RichTextEditorProps {
   layer: Layer;
   box: RichTextBox;
   fontScale: number;

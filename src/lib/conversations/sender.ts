@@ -2,7 +2,7 @@ import type { ConversationMessage } from "@/lib/conversations/types";
 
 export type SenderKind = "contact" | "human" | "ai" | "workflow" | "campaign" | "external" | "system";
 
-export type MessageSender = { kind: SenderKind; id: string };
+type MessageSender = { kind: SenderKind; id: string };
 
 const SENDER_KINDS: readonly SenderKind[] = ["contact", "human", "ai", "workflow", "campaign", "external", "system"];
 

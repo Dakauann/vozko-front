@@ -7,7 +7,7 @@ import type { Peaks } from "@/lib/studio/waveform";
 import type { AssetEntry } from "./asset-catalog";
 import { useAssetState, useVideoEditor } from "./editor-context";
 
-export function useAsset(assetId: string | undefined): AssetEntry | undefined {
+function useAsset(assetId: string | undefined): AssetEntry | undefined {
   const { assets } = useVideoEditor();
   const entry = useAssetState((s) => (assetId ? s.assets[assetId] : undefined));
 

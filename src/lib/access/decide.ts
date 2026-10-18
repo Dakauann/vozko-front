@@ -14,7 +14,7 @@ export interface AccessState {
   has: (permission: PermissionEntry) => boolean;
 }
 
-export type AccessDecision =
+type AccessDecision =
   | { status: "loading" }
   | { status: "allowed" }
   | { status: "upcoming" }

@@ -17,7 +17,7 @@ export interface BulkForm {
   matchCase: boolean;
 }
 
-export type BulkFormProblem = "fieldNotForLevel" | "valueRequired" | "findRequired";
+type BulkFormProblem = "fieldNotForLevel" | "valueRequired" | "findRequired";
 
 export interface BulkOutcome {
   metaId: string;

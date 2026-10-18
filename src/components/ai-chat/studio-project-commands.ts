@@ -44,7 +44,7 @@ export function projectCommandHandler(deps: ProjectCommandDeps): ScreenHandler {
   };
 }
 
-export function useStudioProjectCommands() {
+function useStudioProjectCommands() {
   const { decideScreen } = useAccess();
   const { preference } = useAutoOpenScreens();
   const { create } = useStudioProjectCreator();

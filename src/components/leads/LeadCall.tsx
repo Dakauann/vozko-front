@@ -65,7 +65,7 @@ function CallControl({ blocker, onCall, label, ariaLabel, compact = false, class
   );
 }
 
-export interface LeadCallProps {
+interface LeadCallProps {
   leadId: string;
   revision?: number;
   className?: string;
@@ -83,7 +83,7 @@ export function LeadCallButton(props: LeadCallProps) {
   return <LeadCallButtonView {...props} />;
 }
 
-export interface LeadNumberCallProps {
+interface LeadNumberCallProps {
   leadId: string;
   revision?: number;
   identity?: boolean;

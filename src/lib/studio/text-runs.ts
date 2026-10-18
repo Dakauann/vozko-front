@@ -46,7 +46,7 @@ export interface TextSpan {
   style: RunStyle;
 }
 
-export type RangeValue<K extends RunStyleKey> = { mixed: false; value: RunStyle[K] } | { mixed: true };
+type RangeValue<K extends RunStyleKey> = { mixed: false; value: RunStyle[K] } | { mixed: true };
 
 export const COUNTER_SLOT = "";
 
@@ -141,10 +141,6 @@ export function styleRuns(runs: readonly TextRun[], length: number, base: RunSty
   const styles = charOverrides(runs, length);
   for (let i = Math.max(0, range.start); i < Math.min(length, range.end); i++) styles[i] = patched(styles[i], patch);
   return runsOf(styles, base);
-}
-
-export function normalizedRuns(runs: readonly TextRun[], length: number, base: RunStyle): TextRun[] {
-  return runsOf(charOverrides(runs, length), base);
 }
 
 export function sameRuns(a: readonly TextRun[] | undefined, b: readonly TextRun[] | undefined): boolean {
@@ -262,7 +258,7 @@ export function rangeValue<K extends RunStyleKey>(layer: Styled, range: TextRang
   return { mixed: false, value: first };
 }
 
-export function spansOf(text: string, runs: readonly TextRun[], base: RunStyle): TextSpan[] {
+function spansOf(text: string, runs: readonly TextRun[], base: RunStyle): TextSpan[] {
   const chars = codePoints(text);
   const styles = charOverrides(runs, chars.length);
   const spans: TextSpan[] = [];
@@ -307,7 +303,7 @@ export function drawnText(text: string, style: Pick<RunStyle, "caps">): string {
   return style.caps ? codePoints(text).map((char) => char.toUpperCase()).join("") : text;
 }
 
-export interface CounterRunStyles {
+interface CounterRunStyles {
   prefix: RunStyle[];
   number: RunStyle;
   suffix: RunStyle[];

@@ -36,7 +36,7 @@ function useCostRefreshes(streaming: boolean): number {
   return refreshes;
 }
 
-export function useThreadCost(threadId: string | null, streaming: boolean) {
+function useThreadCost(threadId: string | null, streaming: boolean) {
   const refreshes = useCostRefreshes(streaming);
   const key = threadCostKey(threadId, refreshes);
   const [loaded, setLoaded] = useState<LoadedCost | null>(null);

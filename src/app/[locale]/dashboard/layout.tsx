@@ -69,9 +69,7 @@ export default function DashboardLayout({
               </Suspense>
 
               <DashboardMainContent className="pt-[var(--dashboard-header-h)]">
-                <DashboardCrmWrapper>
-                  {
-}
+                <DashboardCrmWrapper>
                   <CallSessionProvider>
                     <div className="p-3 sm:p-6">
                       <RouteGate>{children}</RouteGate>

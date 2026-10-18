@@ -41,9 +41,7 @@ export default function RootLayout({
     >
       <body
         className={`${inter.variable} ${oxanium.variable} font-sans antialiased bg-background text-foreground`}
-      >
-        {
-}
+      >
         <div
           hidden
           dangerouslySetInnerHTML={{

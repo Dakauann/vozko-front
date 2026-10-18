@@ -32,7 +32,7 @@ export interface ClipLocation {
   clipIndex: number;
 }
 
-export interface ActiveClip {
+interface ActiveClip {
   track: Track;
   clip: Clip;
   localMs: number;
@@ -491,7 +491,7 @@ function mirrorPace(draft: Draft<VideoDocument>, source: Draft<Clip>): void {
   }
 }
 
-export interface SnapOptions {
+interface SnapOptions {
   playheadMs?: number;
   exclude?: readonly string[];
 }
@@ -544,11 +544,11 @@ export function clipsAt(doc: VideoDocument, ms: number): ActiveClip[] {
   return active;
 }
 
-export interface PlaceOptions {
+interface PlaceOptions {
   preferTrackId?: string;
 }
 
-export interface Placement {
+interface Placement {
   document: VideoDocument;
   clipId: string | null;
   trackId: string | null;
@@ -624,7 +624,7 @@ export function replaceClipAsset(doc: VideoDocument, clipId: string, assetId: st
   });
 }
 
-export interface TimedText {
+interface TimedText {
   startMs: number;
   endMs: number;
   text: string;

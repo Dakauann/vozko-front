@@ -9,7 +9,7 @@ import {
 } from "@/app/actions/whatsapp-business-phones";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-export const INACTIVE_STATUSES = new Set<string>([
+const INACTIVE_STATUSES = new Set<string>([
   "ONBOARDING_FAILED",
   "SUSPENDED",
   "DELETED",

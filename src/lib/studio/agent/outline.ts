@@ -89,7 +89,7 @@ export interface OutlineContext {
   timeline?: VideoDocument;
 }
 
-export interface OutlineGroup {
+interface OutlineGroup {
   name?: string;
   content_ms: number;
   tracks: OutlineTrack[];
@@ -152,7 +152,7 @@ interface OutlineStyle extends AgentPaintOutline {
   arrow_end_kind?: string;
 }
 
-export interface OutlineClip {
+interface OutlineClip {
   id: string;
   type: Clip["type"];
   name?: string;
@@ -233,7 +233,7 @@ export interface OutlineClip {
   qr?: OutlineQr;
 }
 
-export interface OutlineVfx {
+interface OutlineVfx {
   id: string;
   kind: Vfx["kind"];
   seed: number;
@@ -246,7 +246,7 @@ export interface OutlineVfx {
   keyframes?: Record<string, { at_ms: number; value: number; easing: string }[]>;
 }
 
-export interface OutlineChroma {
+interface OutlineChroma {
   color: string;
   similarity: number;
   smoothness: number;
@@ -255,7 +255,7 @@ export interface OutlineChroma {
   keyframes?: Record<string, { at_ms: number; value: number; easing: string }[]>;
 }
 
-export interface OutlineLuma {
+interface OutlineLuma {
   mode: LumaKey["mode"];
   threshold: number;
   softness: number;
@@ -263,7 +263,7 @@ export interface OutlineLuma {
   keyframes?: Record<string, { at_ms: number; value: number; easing: string }[]>;
 }
 
-export interface OutlineMask {
+interface OutlineMask {
   id: string;
   shape: Mask["shape"];
   mode: Mask["mode"];
@@ -284,9 +284,9 @@ export interface OutlineMask {
   keyframes?: Record<string, ({ at_ms: number; value: number; easing: string } | OutlineMorphFrame)[]>;
 }
 
-export type OutlineMorphFrame = { at_ms: number; easing: string } & OutlineMorphKey;
+type OutlineMorphFrame = { at_ms: number; easing: string } & OutlineMorphKey;
 
-export interface OutlineTextAnimation {
+interface OutlineTextAnimation {
   unit: TextAnimator["unit"];
   text_style: TextAnimator["style"];
   duration_ms: number;
@@ -298,7 +298,7 @@ function textAnimationOf(animator: TextAnimator): OutlineTextAnimation {
   return { unit: animator.unit, text_style: animator.style, duration_ms: animator.durationMs, stagger_ms: animator.staggerMs, easing: animator.easing };
 }
 
-export interface OutlineTrack {
+interface OutlineTrack {
   id: string;
   index: number;
   kind: "visual" | "audio";
@@ -316,7 +316,7 @@ export interface OutlineTrack {
   transitions?: OutlineTransition[];
 }
 
-export interface OutlineDucking {
+interface OutlineDucking {
   trigger_track_ids: string[];
   reduce_db: number;
   attack_ms: number;
@@ -325,7 +325,7 @@ export interface OutlineDucking {
   sensitivity: number;
 }
 
-export interface OutlineTransition {
+interface OutlineTransition {
   id: string;
   from: string;
   to: string;
@@ -337,7 +337,7 @@ export interface OutlineTransition {
   options?: Record<string, string | number | boolean>;
 }
 
-export interface OutlineEdgeTransition {
+interface OutlineEdgeTransition {
   kind: string;
   duration_ms: number;
   easing: string;
@@ -371,7 +371,7 @@ function outlineTransitions(track: Track): OutlineTransition[] | undefined {
   return transitions.length > 0 ? transitions : undefined;
 }
 
-export interface VideoOutline {
+interface VideoOutline {
   kind: "video";
   aspect: string;
   size: string;
@@ -390,7 +390,7 @@ export interface VideoOutline {
   library?: readonly OutlineLibraryItem[];
 }
 
-export interface OutlineLayer {
+interface OutlineLayer {
   id: string;
   z: number;
   type: Layer["type"];
@@ -420,7 +420,7 @@ export interface OutlineLayer {
   qr?: OutlineQr;
 }
 
-export interface OutlineArtboard {
+interface OutlineArtboard {
   id: string;
   name?: string;
   width: number;
@@ -437,7 +437,7 @@ export interface OutlineArtboard {
   groups: { id: string; parent?: string; name?: string; base?: string; repeat?: AgentRepeat; layout?: OutlineLayout; item?: LayoutItem }[];
 }
 
-export interface ImageOutline {
+interface ImageOutline {
   kind: "image";
   active_artboard: string;
   selection: string[];
@@ -635,9 +635,9 @@ function vfxOutline(vfx: Vfx, full: boolean, params: readonly VfxParam[] = vfxPa
   };
 }
 
-export type OutlinePathOp = AgentPathOp & Pick<OutlineChroma, "animated" | "keyframes">;
+type OutlinePathOp = AgentPathOp & Pick<OutlineChroma, "animated" | "keyframes">;
 
-export type OutlineClipRepeat = AgentClipRepeat & Pick<OutlineChroma, "animated" | "keyframes">;
+type OutlineClipRepeat = AgentClipRepeat & Pick<OutlineChroma, "animated" | "keyframes">;
 
 function pathOpOutline(op: PathOp, full: boolean): OutlinePathOp {
   return { ...agentPathOp(op), ...lanesOutline(op.keyframes, full) };

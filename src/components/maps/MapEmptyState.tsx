@@ -9,7 +9,7 @@ import type { GeoSummary } from "@/lib/maps/types";
 
 import { MapNotice } from "./MapNotice";
 
-export type MapEmptyAction = "importAddresses" | "requestAddress" | "createLead";
+type MapEmptyAction = "importAddresses" | "requestAddress" | "createLead";
 
 export type MapEmptyActionProps =
   | { onSelect: () => void; disabledReason?: string | null }
@@ -19,14 +19,14 @@ function explained(props: MapEmptyActionProps | undefined): props is MapEmptyAct
   return props !== undefined && (typeof props.onSelect === "function" || Boolean(props.disabledReason));
 }
 
-export type MapEmptyScope = "workspace" | "filter";
+type MapEmptyScope = "workspace" | "filter";
 
 const SCOPE_COPY: Record<MapEmptyScope, { title: string; description: string }> = {
   workspace: { title: "title", description: "description" },
   filter: { title: "unplacedTitle", description: "unplacedDescription" },
 };
 
-export interface MapEmptyStateProps {
+interface MapEmptyStateProps {
   summary: GeoSummary | null;
   scope?: MapEmptyScope;
   importAddresses?: MapEmptyActionProps;

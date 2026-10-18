@@ -12,8 +12,6 @@ const DropdownMenu = DropdownMenuPrimitive.Root;
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
-const DropdownMenuGroup = DropdownMenuPrimitive.Group;
-
 const DropdownMenuPortal = withHostContainer(DropdownMenuPrimitive.Portal);
 
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
@@ -208,8 +206,8 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
+  
+  
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,

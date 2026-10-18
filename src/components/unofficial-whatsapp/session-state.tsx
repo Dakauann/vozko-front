@@ -36,7 +36,7 @@ const ISSUE_ICON: Record<Exclude<InstanceIssue, null>, typeof CheckCircle> = {
   "provision-failed": ShieldWarning,
 };
 
-export function sessionStateKey(instance: UnofficialWhatsAppInstance): string {
+function sessionStateKey(instance: UnofficialWhatsAppInstance): string {
   return instanceIssue(instance) ?? "live";
 }
 

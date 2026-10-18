@@ -19,7 +19,7 @@ function projectPath(id: string): string {
   return `${PROJECTS_PATH}/${encodeURIComponent(id)}`;
 }
 
-export type StudioSaveResult = VersionedSaveResult<"project", StudioProject, ActionError>;
+type StudioSaveResult = VersionedSaveResult<"project", StudioProject, ActionError>;
 
 export async function listStudioProjectsAction(query: StudioProjectQuery = {}): Promise<ActionResult<StudioProjectPage>> {
   const params = new URLSearchParams();

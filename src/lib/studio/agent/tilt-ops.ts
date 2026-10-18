@@ -15,7 +15,7 @@ const FIELDS: readonly (readonly ["rotation_x" | "rotation_y", TiltProperty])[] 
   ["rotation_y", "rotationY"],
 ];
 
-export type TiltPatch = { ok: true; patch: Pick<ClipPatch, TiltProperty> } | { ok: false; reason: string };
+type TiltPatch = { ok: true; patch: Pick<ClipPatch, TiltProperty> } | { ok: false; reason: string };
 
 function within(value: number, [low, high]: readonly [number, number]): boolean {
   return Number.isFinite(value) && value >= low && value <= high;

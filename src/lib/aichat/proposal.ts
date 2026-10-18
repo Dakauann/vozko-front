@@ -6,7 +6,7 @@ export interface ProposalDictionary {
   no: string;
 }
 
-export interface ProposalRow {
+interface ProposalRow {
   key: string;
   label: string;
   value: string;

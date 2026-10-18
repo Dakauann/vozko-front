@@ -3,14 +3,7 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import * as React from "react";
 
-import {
-  type Icon as PhosphorIcon,
-  CaretDown,
-  SquaresFour,
-  SignOut,
-  Gear,
-  ShieldCheck,
-} from "@/components/icons";
+import { type Icon as PhosphorIcon, CaretDown, SquaresFour, SignOut, ShieldCheck } from "@/components/icons";
 
 import Image from "next/image";
 import Link from "next/link";

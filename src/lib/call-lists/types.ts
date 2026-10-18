@@ -89,7 +89,7 @@ export interface CallListItemsCursor {
   asOf?: string;
 }
 
-export interface CallListItemPage {
+interface CallListItemPage {
   items: CallListItem[];
   next?: CallListItemsCursor;
 }

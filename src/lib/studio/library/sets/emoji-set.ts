@@ -4,9 +4,9 @@ import { chunkedData, parsedModule } from "./chunks";
 import { EMOJI_CHUNKS, EMOJI_INDEX } from "./data/loaders";
 import { EMOJI_GROUPS, type EmojiArt, type EmojiIndexEntry } from "./format";
 
-export const EMOJI_SET_SOURCE: LibrarySource = { set: "fluent-emoji", license: "MIT" };
+const EMOJI_SET_SOURCE: LibrarySource = { set: "fluent-emoji", license: "MIT" };
 
-export const EMOJI_SHARE = 0.25;
+const EMOJI_SHARE = 0.25;
 
 const chunks = chunkedData<EmojiArt[]>(EMOJI_CHUNKS);
 

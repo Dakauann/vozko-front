@@ -21,7 +21,7 @@ import { uploadExport } from "./upload-export";
 
 type Mediabunny = typeof import("mediabunny");
 
-export interface BrowserEncoders {
+interface BrowserEncoders {
   video: boolean;
   audio: boolean;
 }

@@ -2,7 +2,7 @@ export const DISPATCH_REPORT_SECTIONS = ["summary", "daily", "failures", "tags",
 
 export type DispatchReportSection = (typeof DISPATCH_REPORT_SECTIONS)[number];
 
-export const ALL_CAMPAIGNS = "all";
+const ALL_CAMPAIGNS = "all";
 
 export interface DispatchFunnel {
   base: number;
@@ -40,7 +40,7 @@ export interface DispatchReportDaily {
   days: DispatchDay[];
 }
 
-export interface DispatchFailureReason {
+interface DispatchFailureReason {
   code: number;
   count: number;
 }
@@ -49,7 +49,7 @@ export interface DispatchReportFailures {
   reasons: DispatchFailureReason[];
 }
 
-export interface DispatchTag {
+interface DispatchTag {
   labelId: string;
   name: string;
   color: string;

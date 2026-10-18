@@ -22,7 +22,7 @@ import { leadSavedViewInput } from "@/lib/leads/saved-view";
 import type { LeadSort } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
 
-export interface LeadSavedViewsProps {
+interface LeadSavedViewsProps {
   filter: LeadFilter;
   sorts: LeadSort[];
   columns: string[];

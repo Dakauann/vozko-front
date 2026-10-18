@@ -13,7 +13,7 @@ import { stillLooks } from "../still-vfx";
 const NEUTRAL: Transform = { x: 0.5, y: 0.5, w: 1, h: 1, rotation: 0, opacity: 1 };
 const SINGLE_SURFACE = "surface";
 
-export interface ImageSceneOptions {
+interface ImageSceneOptions {
   hidden: ReadonlySet<string>;
   overrides: ReadonlyMap<string, Transform>;
   live?: PixelLive | null;

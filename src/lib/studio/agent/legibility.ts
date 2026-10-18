@@ -11,7 +11,7 @@ export interface PixelGrid {
   height: number;
 }
 
-export interface BackdropContrast {
+interface BackdropContrast {
   low: number;
   typical: number;
 }

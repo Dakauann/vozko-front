@@ -12,7 +12,7 @@ import { rangeValue, type RunStyle, type RunStyleKey, type RunStylePatch, type T
 
 type Styled = Parameters<typeof rangeValue>[0];
 
-export interface TextRunToolbarProps {
+interface TextRunToolbarProps {
   layer: Styled;
   range: TextRange | null;
   length: number;

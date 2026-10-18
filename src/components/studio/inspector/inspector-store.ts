@@ -9,11 +9,11 @@ import {
 
 import { browserStorage, type StudioStorage } from "../browser-storage";
 
-export { browserStorage };
+;
 
 export type InspectorScope = "video" | "image";
 
-export type InspectorStorage = StudioStorage;
+type InspectorStorage = StudioStorage;
 
 interface Entry {
   group: InspectorGroupId;

@@ -6,7 +6,7 @@ import { isTransitionKind, TRANSITION_KINDS, type TransitionKind } from "../tran
 
 export const LAYOUT_OPERATIONS = ["align_clips", "distribute_clips", "sequence_clips", "stagger_clips"] as const;
 
-export type LayoutOpName = (typeof LAYOUT_OPERATIONS)[number];
+type LayoutOpName = (typeof LAYOUT_OPERATIONS)[number];
 
 export interface AgentLayoutFields {
   frame_align?: Alignment;
@@ -16,7 +16,7 @@ export interface AgentLayoutFields {
   step_ms?: number;
 }
 
-export interface LayoutOpInput extends AgentLayoutFields {
+interface LayoutOpInput extends AgentLayoutFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
@@ -25,7 +25,7 @@ export interface LayoutOpInput extends AgentLayoutFields {
   duration_ms?: number;
 }
 
-export type LayoutOpResult = { ok: true; document: VideoDocument; changed: string[]; created: string[]; notes: string[]; clipId: string } | { ok: false; reason: string };
+type LayoutOpResult = { ok: true; document: VideoDocument; changed: string[]; created: string[]; notes: string[]; clipId: string } | { ok: false; reason: string };
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
 

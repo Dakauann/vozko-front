@@ -5,7 +5,7 @@ import type { LatLng, MapViewport } from "./types";
 
 export const COUNTRY_ZOOM = 3;
 
-export interface PinStart {
+interface PinStart {
   position: LatLng;
   zoom: number;
 }

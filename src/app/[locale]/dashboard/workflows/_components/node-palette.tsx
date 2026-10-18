@@ -123,9 +123,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
         "transition-[width] duration-DEFAULT motion-reduce:transition-none",
         collapsed ? "w-12" : "w-64",
       )}
-    >
-      {
-}
+    >
       <div
         className={cn(
           "flex items-center gap-2 border-b border-border p-3",
@@ -205,9 +203,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
             {grouped.map(({ category, items }) => {
               const styles = CATEGORY_STYLES[category];
               return (
-                <div key={category}>
-                  {
-}
+                <div key={category}>
                   <p className="mb-1.5 flex items-center gap-1.5 px-1 text-2xs font-semibold text-muted-foreground">
                     <span
                       aria-hidden

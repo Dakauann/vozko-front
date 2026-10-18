@@ -1,11 +1,11 @@
 import { formatPhoneForDisplay } from "@/lib/phone/display";
 
-export type LeadNameDetail =
+type LeadNameDetail =
   | { kind: "identity"; text: string }
   | { kind: "noName" }
   | { kind: "noWhatsApp" };
 
-export interface LeadNameLines {
+interface LeadNameLines {
   title: string;
   titleMono: boolean;
   detail: LeadNameDetail;

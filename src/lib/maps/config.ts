@@ -1,8 +1,8 @@
 export const DEFAULT_MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
-export type MapStyleConfigError = "not_https" | "invalid_url";
+type MapStyleConfigError = "not_https" | "invalid_url";
 
-export type MapStyleSetting = { ok: true; url: string } | { ok: false; reason: MapStyleConfigError };
+type MapStyleSetting = { ok: true; url: string } | { ok: false; reason: MapStyleConfigError };
 
 function isSameOriginPath(value: string): boolean {
   return value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/\\");

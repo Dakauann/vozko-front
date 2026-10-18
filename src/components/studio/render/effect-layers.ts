@@ -10,7 +10,7 @@ import { ColorChain, type LutLookup } from "./color-chain";
 import { fillGradient } from "./fill-gradient";
 import { VfxStack } from "./vfx-filter";
 
-export interface EffectContext {
+interface EffectContext {
   camera: Camera;
   resolution: number;
   luts: LutLookup;

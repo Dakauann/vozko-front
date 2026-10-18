@@ -2,7 +2,7 @@ import type { Icon } from "@/components/icons";
 
 import { SceneFrame, SceneTile, type SceneTone } from "./scene-kit";
 
-export type TimelineEvent = { at: number; icon: Icon; label: string; tone?: SceneTone };
+type TimelineEvent = { at: number; icon: Icon; label: string; tone?: SceneTone };
 
 export function TimelineScene({ events, start, end, label }: { events: TimelineEvent[]; start?: string; end?: string; label: string }) {
   return (

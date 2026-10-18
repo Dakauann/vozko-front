@@ -2,7 +2,7 @@ import type { SavedView, SavedViewInput } from '@/lib/crm/saved-views';
 import { emptyLeadFilter, type LeadFilter } from '@/lib/leads/filters';
 import type { LeadSort, LeadSortKey } from '@/lib/leads/types';
 
-export interface LeadViewState<C extends string> {
+interface LeadViewState<C extends string> {
     filter: LeadFilter;
     sort?: LeadSort;
     columns: C[];

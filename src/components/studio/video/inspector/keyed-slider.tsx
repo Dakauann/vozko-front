@@ -12,7 +12,7 @@ import { SliderField } from "./fields";
 import { KeyedField } from "./key-toggle";
 import type { SelectionEditor } from "./use-selection-editor";
 
-export interface KeyedSliderProps {
+interface KeyedSliderProps {
   clips: readonly Clip[];
   property: KeyframeProperty;
   label: string;

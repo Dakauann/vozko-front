@@ -11,5 +11,5 @@ export const routing = defineRouting({
 });
 
 
-export const { Link, redirect, usePathname, useRouter, getPathname } =
+export const { Link, redirect, usePathname, useRouter,  } =
     createNavigation(routing);

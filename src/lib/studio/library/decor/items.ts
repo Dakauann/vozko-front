@@ -6,7 +6,7 @@ import { artItems } from "../sets/art-set";
 import { centeredTarget, emojiArt, emojiMarkup } from "../sets/format";
 import { DECOR_SPECS, type DecorSpec } from "./packs";
 
-export const DECOR_SHARE = 0.4;
+const DECOR_SHARE = 0.4;
 
 const PREVIEW_CANVAS: CanvasSize = { width: 400, height: 400 };
 
@@ -15,7 +15,7 @@ function targetOf(spec: DecorSpec, canvas: CanvasSize): SvgTarget {
   return centeredTarget(canvas, spec.share ?? DECOR_SHARE, spec.ratio);
 }
 
-export function decorPreview(spec: DecorSpec): LibraryPreview {
+function decorPreview(spec: DecorSpec): LibraryPreview {
   return { kind: "svg", markup: emojiMarkup(spec.draw({ ink: PREVIEW_INK, canvas: PREVIEW_CANVAS })) };
 }
 
@@ -34,7 +34,7 @@ function decorItem(spec: DecorSpec): LibraryItem {
   };
 }
 
-export function decorItems(): LibraryItem[] {
+function decorItems(): LibraryItem[] {
   return DECOR_SPECS.map(decorItem);
 }
 

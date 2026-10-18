@@ -6,7 +6,7 @@ import { isValidPosition } from "./geometry";
 import { isPrecision } from "./precision";
 import type { LatLng, Precision } from "./types";
 
-export const REFERENCE_POINT_PATH = "/leads/map/reference-point";
+const REFERENCE_POINT_PATH = "/leads/map/reference-point";
 
 const QUERY_FIELDS = ["zipCode", "district", "city", "state"] as const;
 

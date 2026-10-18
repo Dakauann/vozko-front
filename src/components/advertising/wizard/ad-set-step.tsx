@@ -63,7 +63,7 @@ function dayDate(day: string | null): Date | undefined {
   return day ? new Date(`${day}T00:00:00`) : undefined;
 }
 
-export function pageDependent(destination: AdDraftDestination | ""): boolean {
+function pageDependent(destination: AdDraftDestination | ""): boolean {
   return isMessaging(destination) || destination === "ON_AD" || destination === "ON_POST";
 }
 

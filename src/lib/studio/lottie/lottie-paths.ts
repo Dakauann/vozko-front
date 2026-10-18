@@ -86,7 +86,7 @@ function blend(a: Bezier, b: Bezier, w: number): Bezier {
   return { closed: a.closed, points: a.points.map((p, i) => lerp(p, b.points[i], w)), ins: a.ins.map((p, i) => lerp(p, b.ins[i], w)), outs: a.outs.map((p, i) => lerp(p, b.outs[i], w)) };
 }
 
-export function bezierAtFrame(value: Animated<Bezier>, frame: number): Bezier {
+function bezierAtFrame(value: Animated<Bezier>, frame: number): Bezier {
   if (!value.keyed) return value.value;
   const keys = value.keys;
   if (frame <= keys[0].frame) return keys[0].value;

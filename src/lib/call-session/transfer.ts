@@ -4,7 +4,7 @@ export const WS_EVENT_CALL_TRANSFER_STATUS = "call:transfer_status" as const;
 
 export const MAX_TRANSFER_NOTES = 500;
 
-export const TRANSFER_STATUSES = ["ringing", "queued", "connected", "returned", "ended"] as const;
+const TRANSFER_STATUSES = ["ringing", "queued", "connected", "returned", "ended"] as const;
 
 export type TransferStatus = (typeof TRANSFER_STATUSES)[number];
 
@@ -46,7 +46,7 @@ export interface TransferContext {
     notes?: string;
 }
 
-export interface PresenceEntry {
+interface PresenceEntry {
     userId: string;
     username?: string;
     busy: boolean;
@@ -103,7 +103,7 @@ export function availableColleagues(presence: PresenceEntry[], selfUserId: strin
         .sort((a, b) => (a.username ?? a.userId).localeCompare(b.username ?? b.userId));
 }
 
-export const TRANSFER_ERROR_CODES = [
+const TRANSFER_ERROR_CODES = [
     "target_unavailable",
     "conversation_out_of_reach",
     "transfer_to_self",
@@ -119,7 +119,7 @@ export const TRANSFER_ERROR_CODES = [
     "transfer_failed",
 ] as const;
 
-export type TransferErrorCode = (typeof TRANSFER_ERROR_CODES)[number];
+type TransferErrorCode = (typeof TRANSFER_ERROR_CODES)[number];
 
 export function transferErrorCode(code: string | null | undefined): TransferErrorCode | null {
     return (TRANSFER_ERROR_CODES as readonly string[]).includes(code ?? "") ? (code as TransferErrorCode) : null;

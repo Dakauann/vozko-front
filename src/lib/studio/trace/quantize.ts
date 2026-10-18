@@ -4,13 +4,13 @@ export const TRACE_MODES = ["color", "grayscale", "bw"] as const;
 
 export type TraceMode = (typeof TRACE_MODES)[number];
 
-export interface QuantizeOptions {
+interface QuantizeOptions {
   mode: TraceMode;
   colors: number;
   threshold: number;
 }
 
-export interface Quantized {
+interface Quantized {
   classes: Int16Array;
   palette: string[];
 }

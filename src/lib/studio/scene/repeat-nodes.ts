@@ -10,7 +10,7 @@ function boundsOf(box: SceneBox): RepeatBox {
   return { left: box.x - halfWidth, top: box.y - halfHeight, right: box.x + halfWidth, bottom: box.y + halfHeight };
 }
 
-export function movedBox(box: SceneBox, place: Affine, flipX: boolean): { box: SceneBox; flipX: boolean } {
+function movedBox(box: SceneBox, place: Affine, flipX: boolean): { box: SceneBox; flipX: boolean } {
   const pose = placeBy(place, { x: box.x, y: box.y, rotation: box.rotation, flipX });
   return { box: { x: pose.x, y: pose.y, width: box.width * pose.scale, height: box.height * pose.scale, rotation: pose.rotation }, flipX: pose.flipX };
 }

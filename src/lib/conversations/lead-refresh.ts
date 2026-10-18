@@ -5,7 +5,7 @@ export interface LeadFetched {
   applyFields: (fields: readonly string[]) => void;
 }
 
-export type LeadFetch = (leadId: string, fields: readonly string[]) => Promise<LeadFetched | null>;
+type LeadFetch = (leadId: string, fields: readonly string[]) => Promise<LeadFetched | null>;
 
 interface LeadRefreshState {
   wanted: number;

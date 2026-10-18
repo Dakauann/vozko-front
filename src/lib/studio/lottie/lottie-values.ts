@@ -48,7 +48,7 @@ function isKeyList(raw: unknown): raw is LottieKey[] {
   return Array.isArray(raw) && raw.length > 0 && raw.every((key) => key !== null && typeof key === "object" && typeof (key as LottieKey).t === "number");
 }
 
-export function hasExpression(prop: LottieProp | undefined): boolean {
+function hasExpression(prop: LottieProp | undefined): boolean {
   return typeof prop?.x === "string" && prop.x.trim() !== "";
 }
 
@@ -129,11 +129,11 @@ export function valueAtFrame(value: Animated<Vec>, frame: number): Vec {
   return keys[keys.length - 1].value;
 }
 
-export function isStill<T>(value: Animated<T>, same: (a: T, b: T) => boolean): boolean {
+function isStill<T>(value: Animated<T>, same: (a: T, b: T) => boolean): boolean {
   return !value.keyed || value.keys.every((key) => same(key.value, value.keys[0].value));
 }
 
-export function sameVec(a: Vec, b: Vec): boolean {
+function sameVec(a: Vec, b: Vec): boolean {
   return a.length === b.length && a.every((value, i) => value === b[i]);
 }
 

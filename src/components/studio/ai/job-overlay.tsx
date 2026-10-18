@@ -25,7 +25,7 @@ export interface JobOverlayView {
 const OVERLAY_DEPTH = 860;
 const INDICATOR: Record<PillMode, AiProgressIndicator> = { inside: "bottom", outside: "none", spinner: "badge" };
 
-export function useFailureShown(key: string, phase: OverlayPhase): boolean {
+function useFailureShown(key: string, phase: OverlayPhase): boolean {
   const [expired, setExpired] = useState<string | null>(null);
   useEffect(() => {
     if (phase !== "failed") return;

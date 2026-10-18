@@ -17,7 +17,7 @@ const DEFAULT_META: PaginationMeta = {
   totalItems: 0,
 };
 
-export interface ListLinksParams {
+interface ListLinksParams {
   page?: number;
   pageSize?: number;
   departmentId?: string;

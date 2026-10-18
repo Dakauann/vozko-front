@@ -21,9 +21,7 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
           <span className="block truncate text-sm font-medium text-foreground">
             {row.name}
           </span>
-          <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
-            {
-}
+          <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
             <span
               aria-hidden
               className={cn(

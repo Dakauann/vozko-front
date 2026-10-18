@@ -8,7 +8,7 @@ export const CAPTION_TRANSFORM: Transform = { x: 0.5, y: 0.82, w: 0.9, h: 0.14, 
 export type MediaClipType = "video" | "image" | "audio";
 
 export function clipTypeForMedia(mediaType: string): MediaClipType | null {
-  if (mediaType === "video" || mediaType === "vsl_video") return "video";
+  if (mediaType === "video") return "video";
   if (mediaType === "image" || mediaType === "sticker") return "image";
   if (mediaType === "audio") return "audio";
   return null;

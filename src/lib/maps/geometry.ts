@@ -1,14 +1,14 @@
 import type { BBox, LatLng } from "./types";
 
-export const EARTH_RADIUS_M = 6371008.8;
-export const METERS_PER_DEGREE_LAT = (EARTH_RADIUS_M * Math.PI) / 180;
+const EARTH_RADIUS_M = 6371008.8;
+const METERS_PER_DEGREE_LAT = (EARTH_RADIUS_M * Math.PI) / 180;
 export const CIRCLE_VERTICES = 64;
 
-export function radians(degrees: number): number {
+function radians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-export function degrees(radians: number): number {
+function degrees(radians: number): number {
   return (radians * 180) / Math.PI;
 }
 

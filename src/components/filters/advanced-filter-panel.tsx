@@ -69,7 +69,7 @@ export interface FilterGroupConfig {
   icon?: ReactNode;
 }
 
-export interface AdvancedFilterPanelLabels {
+interface AdvancedFilterPanelLabels {
   trigger: string;
   title: string;
   clearAll: string;
@@ -86,7 +86,7 @@ export interface AdvancedFilterPanelLabels {
   done: string;
 }
 
-export interface AdvancedFilterPanelProps {
+interface AdvancedFilterPanelProps {
   value: CrmFilter;
   onChange: (filter: CrmFilter) => void;
   fields: FilterFieldConfig[];
@@ -389,4 +389,4 @@ export function AdvancedFilterPanel({
   );
 }
 
-export default AdvancedFilterPanel;
+

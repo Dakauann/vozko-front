@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const OFF_MAP: Array<keyof GeoSummary> = ["approximate", "withoutAddress", "notFound", "pending"];
 
-export interface MapSummaryProps {
+interface MapSummaryProps {
   summary: GeoSummary | null;
   visibleCount?: number | null;
   visibleApproximate?: number | null;

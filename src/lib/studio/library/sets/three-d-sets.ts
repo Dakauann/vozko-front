@@ -3,7 +3,7 @@ import type { Names } from "./format";
 
 export const THREE_D_PUBLIC_DIR = "images/studio/library-3d";
 
-export interface ThreeDSet {
+interface ThreeDSet {
   id: string;
   subcategory: "icons" | "emoji";
   source: LibrarySource;

@@ -4,7 +4,7 @@ import { textAdvance } from "./font-metrics";
 import { nearestFontWeight } from "./fonts";
 import { columnShares, type TableSpec } from "./table";
 
-export interface TableLayout {
+interface TableLayout {
   fontPx: number;
   padPx: number;
   borderPx: number;

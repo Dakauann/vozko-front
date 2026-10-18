@@ -328,9 +328,7 @@ export function AdminAddonsManager() {
           >
             <ElevatedSelectItem value="whatsapp_business_phones">
               {KIND_LABELS.whatsapp_business_phones}
-            </ElevatedSelectItem>
-            {
-}
+            </ElevatedSelectItem>
             <ElevatedSelectItem value="unofficial_whatsapp_instances">
               {KIND_LABELS.unofficial_whatsapp_instances}
             </ElevatedSelectItem>
@@ -417,4 +415,4 @@ export function AdminAddonsManager() {
   );
 }
 
-export default AdminAddonsManager;
+

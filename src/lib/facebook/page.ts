@@ -39,7 +39,7 @@ export function displayStatus(page: FacebookPage): FacebookDisplayStatus {
     return page.status;
 }
 
-export type FacebookPageNotice =
+type FacebookPageNotice =
     | 'reconnect'
     | 'restricted'
     | 'webhook'
@@ -58,7 +58,7 @@ export function pageNotices(page: FacebookPage): FacebookPageNotice[] {
     return notices;
 }
 
-export type CapabilityGate =
+type CapabilityGate =
     | { allowed: true }
     | { allowed: false; reason: 'reconnect' | 'notConnected' | 'missing' };
 

@@ -21,7 +21,7 @@ import {
   type ImportTranslator,
 } from "./import-messages";
 
-export const NO_IMPORT_FIELD = "__none";
+const NO_IMPORT_FIELD = "__none";
 
 function sampleOf(job: LeadImportJob, index: number): string {
   for (const row of job.preview.sample) {

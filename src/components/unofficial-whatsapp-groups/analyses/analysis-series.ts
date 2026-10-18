@@ -161,7 +161,7 @@ export function numericStats(points: SeriesPoint<number>[]): { min: number; max:
   return { min: Math.min(...values), max: Math.max(...values), avg: sum / values.length };
 }
 
-export interface CycleHighlights {
+interface CycleHighlights {
   busiest: TrendPoint | null;
   best: TrendPoint | null;
   worst: TrendPoint | null;

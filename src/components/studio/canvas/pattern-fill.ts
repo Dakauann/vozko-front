@@ -6,7 +6,7 @@ import { drawPresetTile, patternLayout, patternPlacement, patternTileSize, type 
 
 import { loadAssetImage, useLoadedImage } from "./asset-images";
 
-export interface PatternFillProps {
+interface PatternFillProps {
   fillPriority: "pattern";
   fillPatternImage: HTMLImageElement;
   fillPatternRepeat: "repeat";
@@ -19,7 +19,7 @@ export interface PatternFillProps {
   fillPatternOffsetY: number;
 }
 
-export type PatternFillState = { status: "loading" } | { status: "failed"; error: Error } | { status: "ready"; props: PatternFillProps };
+type PatternFillState = { status: "loading" } | { status: "failed"; error: Error } | { status: "ready"; props: PatternFillProps };
 
 const MAX_TILE_SIDE = 4096;
 

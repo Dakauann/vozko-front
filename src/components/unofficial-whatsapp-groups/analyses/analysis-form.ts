@@ -11,8 +11,8 @@ import {
 } from "@/lib/unofficial-whatsapp-groups/types";
 
 export const TRACKED_FIELD_KEY_MAX = 40;
-export const DEFAULT_MESSAGES_PER_CYCLE = 50;
-export const DEFAULT_SCHEDULE_TIME = "20:00";
+const DEFAULT_MESSAGES_PER_CYCLE = 50;
+const DEFAULT_SCHEDULE_TIME = "20:00";
 
 export interface AnalysisForm {
   groupId: string;

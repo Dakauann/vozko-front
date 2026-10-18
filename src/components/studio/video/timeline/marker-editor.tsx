@@ -12,7 +12,7 @@ import { LabelColorPicker } from "../label-colors";
 
 const MS = 1000;
 
-export type MarkerEditRefusal = "taken" | "outside" | "locked" | "missing";
+type MarkerEditRefusal = "taken" | "outside" | "locked" | "missing";
 
 interface MarkerEditorProps {
   title: string;

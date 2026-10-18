@@ -16,7 +16,7 @@ export interface DuckingRule {
   sensitivity: number;
 }
 
-export type DuckingSettings = Omit<DuckingRule, "triggerTrackIds">;
+type DuckingSettings = Omit<DuckingRule, "triggerTrackIds">;
 
 export const DUCKING_DEFAULTS: DuckingSettings = { reduceDb: 12, attackMs: 250, releaseMs: 500, holdMs: 300, sensitivity: 0.5 };
 
@@ -193,7 +193,7 @@ function bakedLane(clip: Clip, regions: readonly TimeRegion[], rule: DuckingRule
     });
 }
 
-export type BakeResult = { ok: true; document: VideoDocument; keys: number } | { ok: false; reason: "missing" };
+type BakeResult = { ok: true; document: VideoDocument; keys: number } | { ok: false; reason: "missing" };
 
 export function bakeDucking(doc: VideoDocument, trackId: string, speechOf: SpeechSource): BakeResult {
   const track = doc.tracks.find((t) => t.id === trackId);

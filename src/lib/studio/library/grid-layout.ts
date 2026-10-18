@@ -8,14 +8,14 @@ export type GridDirection = "row" | "column";
 
 export type GridNode = { weight?: number } & ({ cell: FrameShape } | { split: GridDirection; children: readonly GridNode[] });
 
-export interface GridRect {
+interface GridRect {
   left: number;
   top: number;
   width: number;
   height: number;
 }
 
-export interface GridCell {
+interface GridCell {
   rect: GridRect;
   shape: FrameShape;
 }
@@ -27,9 +27,9 @@ export interface GridArea {
   h: number;
 }
 
-export const GRID_GAP_SHARE = 0.012;
-export const GRID_BACKGROUND = "#ffffff";
-export const GRID_CLEAR = "#ffffff00";
+const GRID_GAP_SHARE = 0.012;
+const GRID_BACKGROUND = "#ffffff";
+const GRID_CLEAR = "#ffffff00";
 export const FULL_AREA: GridArea = { x: 0.5, y: 0.5, w: 1, h: 1 };
 
 const PREVIEW_GAP = 1.5;
@@ -44,7 +44,7 @@ export function splitNode(split: GridDirection, children: readonly GridNode[], w
   return { split, children, ...(weight !== undefined ? { weight } : {}) };
 }
 
-export function gridGap(canvas: CanvasSize, area: GridArea = FULL_AREA): number {
+function gridGap(canvas: CanvasSize, area: GridArea = FULL_AREA): number {
   return Math.min(canvas.width * area.w, canvas.height * area.h) * GRID_GAP_SHARE;
 }
 
@@ -73,7 +73,7 @@ function collect(node: GridNode, rect: GridRect, gap: number, into: GridCell[]):
   childRects(node, rect, gap).forEach((child, index) => collect(node.children[index], child, gap, into));
 }
 
-export function areaRect(canvas: CanvasSize, area: GridArea): GridRect {
+function areaRect(canvas: CanvasSize, area: GridArea): GridRect {
   const width = area.w * canvas.width;
   const height = area.h * canvas.height;
   return { left: area.x * canvas.width - width / 2, top: area.y * canvas.height - height / 2, width, height };

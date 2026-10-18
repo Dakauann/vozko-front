@@ -22,7 +22,7 @@ const GLYPHS: Record<Exclude<PixelTool, "brush">, { d: string; dashed?: boolean 
   lasso: [{ d: "M7.5 16.5C4.8 15.3 3.5 13.4 3.5 11.2 3.5 7.5 7.4 4.5 12.2 4.5S20.5 7.2 20.5 10.6c0 3.5-3.9 6.1-8.6 6.1-1.6 0-3 .4-3.8 1.1" }, { d: "M8.1 17.8c-.9.8-.4 2.2 1 2.7" }],
 };
 
-export function PixelToolGlyph({ tool, className }: { tool: PixelTool; className?: string }) {
+function PixelToolGlyph({ tool, className }: { tool: PixelTool; className?: string }) {
   if (tool === "brush") return <PaintBrush className={className} aria-hidden />;
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden>

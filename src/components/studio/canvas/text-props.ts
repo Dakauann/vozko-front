@@ -5,14 +5,14 @@ import { konvaFontFamily, konvaFontStyle } from "./ensure-font";
 
 export const DEFAULT_LINE_HEIGHT = 1.2;
 
-export interface TextFontProps {
+interface TextFontProps {
   fontFamily: string;
   fontStyle: string;
   fontSize: number;
   letterSpacing: number;
 }
 
-export interface TextBlockProps {
+interface TextBlockProps {
   text: string;
   width: number;
   height: number;

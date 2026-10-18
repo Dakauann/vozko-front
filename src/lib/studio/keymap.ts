@@ -51,9 +51,9 @@ export type VideoAction =
   | { type: "zoom"; direction: 1 | -1 }
   | { type: "toggleSnapping" };
 
-export const NUDGE_PX = 1;
-export const NUDGE_SHIFT_PX = 10;
-export const STEP_SHIFT_MS = 1000;
+const NUDGE_PX = 1;
+const NUDGE_SHIFT_PX = 10;
+const STEP_SHIFT_MS = 1000;
 
 const EDITABLE_INPUTS = new Set(["text", "search", "email", "number", "password", "tel", "url", "date", "time", "datetime-local", "month", "week", ""]);
 

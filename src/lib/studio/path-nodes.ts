@@ -18,14 +18,14 @@ export interface NodeRef {
   node: number;
 }
 
-export interface SegmentRef {
+interface SegmentRef {
   path: number;
   segment: number;
 }
 
 export type HandleSide = "in" | "out";
 
-export interface PathHit extends SegmentRef {
+interface PathHit extends SegmentRef {
   t: number;
   distance: number;
   point: Point;

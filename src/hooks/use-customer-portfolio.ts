@@ -17,7 +17,7 @@ import type { ParsedAnswer } from "@/lib/api/parsed-request";
 import type { EntryType } from "@/lib/conversations/types";
 import { holderParam, type PortfolioHolding, type PortfolioPage } from "@/lib/customer-portfolio/portfolio";
 
-export const portfolioKeys = {
+const portfolioKeys = {
   all: (workspaceId: string) => ["customer-portfolio", workspaceId] as const,
   page: (workspaceId: string, query: PortfolioListQuery) =>
     ["customer-portfolio", workspaceId, "page", holderParam(query.scope) ?? "mine", query.page, query.pageSize, query.search?.trim() ?? ""] as const,

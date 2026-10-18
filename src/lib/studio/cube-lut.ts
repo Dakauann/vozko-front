@@ -1,12 +1,12 @@
 import type { IssueCode } from "./validate";
 
-export const LUT_SIZE_RANGE = [2, 65] as const;
-export const CUBE_EXTENSION = ".cube";
+const LUT_SIZE_RANGE = [2, 65] as const;
+const CUBE_EXTENSION = ".cube";
 export const LUT_MEDIA_TYPE = "lut";
 
 export type Triple = [number, number, number];
 
-export interface CubeLut {
+interface CubeLut {
   size: number;
   domainMin: Triple;
   domainMax: Triple;
@@ -16,7 +16,7 @@ export interface CubeLut {
 
 export type CubeFault = "empty" | "size" | "oneDimensional" | "rows" | "number" | "domain" | "keyword";
 
-export type CubeParse = { ok: true; lut: CubeLut } | { ok: false; fault: CubeFault };
+type CubeParse = { ok: true; lut: CubeLut } | { ok: false; fault: CubeFault };
 
 export interface GradeLut {
   assetId: string;

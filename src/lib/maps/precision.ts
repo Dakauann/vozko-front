@@ -1,6 +1,6 @@
 import { PRECISIONS, type Precision } from "./types";
 
-export type PrecisionCategory = "house" | "approximate" | "unknown";
+type PrecisionCategory = "house" | "approximate" | "unknown";
 
 const CATEGORY: Record<Precision, PrecisionCategory> = {
   exact: "house",

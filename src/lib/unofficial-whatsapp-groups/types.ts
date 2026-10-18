@@ -64,12 +64,12 @@ export interface GroupActivity {
   leaves: number;
 }
 
-export interface LabelCount {
+interface LabelCount {
   label: string;
   count: number;
 }
 
-export interface MentionTotal {
+interface MentionTotal {
   entity: string;
   frequency: number;
   sentiments: Partial<Record<MentionSentiment, number>>;

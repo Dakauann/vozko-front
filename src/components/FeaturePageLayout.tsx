@@ -80,9 +80,7 @@ export default function FeaturePageLayout({
           <VisuallyHidden.Root>
             <ElevatedDialogTitle>{title}</ElevatedDialogTitle>
           </VisuallyHidden.Root>
-          <div className="overflow-hidden rounded-[--radius]">
-            {
-}
+          <div className="overflow-hidden rounded-[--radius]">
             <div className="rule-engraved px-5 py-3">
               <span className="legend">{badge}</span>
             </div>

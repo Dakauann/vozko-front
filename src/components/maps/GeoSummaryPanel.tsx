@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 import { MapPanel } from "./MapPanel";
 
-export interface GeoSummaryColour {
+interface GeoSummaryColour {
   field: string;
   rows: ColourLegendRow[];
   failed?: boolean;
@@ -30,12 +30,12 @@ export interface GeoLeftOutView {
   onList?: (pair?: string) => void;
 }
 
-export interface GeoExactOnlyView {
+interface GeoExactOnlyView {
   on: boolean;
   onChange: (on: boolean) => void;
 }
 
-export interface GeoSummaryPanelProps {
+interface GeoSummaryPanelProps {
   summary: GeoSummary | null;
   areaNames: readonly string[];
   exactOnly?: GeoExactOnlyView | null;

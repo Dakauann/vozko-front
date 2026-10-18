@@ -19,7 +19,7 @@ export interface AgentSpeedFields {
   frame_mix?: boolean;
 }
 
-export interface SpeedCurveInput extends AgentSpeedFields {
+interface SpeedCurveInput extends AgentSpeedFields {
   clip_id?: string;
   smooth?: boolean;
   keep_duration?: boolean;
@@ -28,7 +28,7 @@ export interface SpeedCurveInput extends AgentSpeedFields {
 
 export type SpeedOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string } | { ok: false; refusal: RetimeRefusal };
 
-export const SPEED_POINTS_TEXT = `speed_points vai do início (at 0) ao fim (at 1) do clipe, com at crescente e pelo menos ${MIN_CURVE_GAP} entre dois pontos, e speed de ${SPEED_LIMITS[0]} a ${SPEED_LIMITS[1]}`;
+const SPEED_POINTS_TEXT = `speed_points vai do início (at 0) ao fim (at 1) do clipe, com at crescente e pelo menos ${MIN_CURVE_GAP} entre dois pontos, e speed de ${SPEED_LIMITS[0]} a ${SPEED_LIMITS[1]}`;
 
 export function liftRefusal(result: RetimeResult): SpeedOpResult {
   return result.ok ? result : { ok: false, refusal: result.reason };

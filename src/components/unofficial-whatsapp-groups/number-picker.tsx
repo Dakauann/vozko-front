@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { numberLabel } from "./use-workspace-numbers";
 
-export interface PickableNumber {
+interface PickableNumber {
   number: UnofficialWhatsAppInstance;
   disabled: boolean;
   note?: ReactNode;

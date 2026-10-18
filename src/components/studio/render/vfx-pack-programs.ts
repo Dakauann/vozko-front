@@ -29,7 +29,7 @@ export type Uniforms = Record<string, { value: unknown; type: string; size?: num
 
 export type Values = Record<string, unknown>;
 
-export interface PackProgram {
+interface PackProgram {
   body: string;
   uniforms: () => Uniforms;
   values: (look: VfxLook, frame: FrameSize) => Values;

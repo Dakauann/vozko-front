@@ -1,6 +1,6 @@
-export type CircuitPoint = readonly [number, number];
-export type CircuitRoute = { points: CircuitPoint[]; phase: number; depth: number };
-export type CircuitParameters = {
+type CircuitPoint = readonly [number, number];
+type CircuitRoute = { points: CircuitPoint[]; phase: number; depth: number };
+type CircuitParameters = {
   seed?: number;
   width?: number;
   height?: number;

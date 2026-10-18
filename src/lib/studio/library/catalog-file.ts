@@ -10,11 +10,11 @@ import { layerColors } from "./placement";
 import { loadItems } from "./store";
 
 export const CATALOG_VERSION = 2;
-export const CATALOG_CANVAS: CanvasSize = VIDEO_ASPECT_SIZES.square;
+const CATALOG_CANVAS: CanvasSize = VIDEO_ASPECT_SIZES.square;
 const FIXTURE_LOCALE: LibraryLocale = "pt";
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
 
-export type LocalizedMessages = Readonly<Record<LibraryLocale, unknown>>;
+type LocalizedMessages = Readonly<Record<LibraryLocale, unknown>>;
 
 export interface CatalogSlot {
   id: string;
@@ -37,7 +37,7 @@ export interface CatalogItem {
   asset?: LibraryAsset;
 }
 
-export interface CatalogCategory {
+interface CatalogCategory {
   id: string;
   panel: string;
   names: LocalizedText;
@@ -45,13 +45,13 @@ export interface CatalogCategory {
   subcategories?: { id: string; names: LocalizedText }[];
 }
 
-export interface CatalogFile {
+interface CatalogFile {
   version: number;
   categories: CatalogCategory[];
   items: CatalogItem[];
 }
 
-export type LocaleTranslate = (locale: LibraryLocale, key: string) => string;
+type LocaleTranslate = (locale: LibraryLocale, key: string) => string;
 
 export function translatorOf(messages: LocalizedMessages): LocaleTranslate {
   return (locale, key) => {
@@ -106,7 +106,7 @@ async function readyLists(categories: readonly LibraryCategory[]): Promise<(read
   return lists;
 }
 
-export function fixtureItems(category: LibraryCategory, items: readonly LibraryItem[]): readonly LibraryItem[] {
+function fixtureItems(category: LibraryCategory, items: readonly LibraryItem[]): readonly LibraryItem[] {
   if (category.fixture !== "sample") return items;
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -117,7 +117,7 @@ export function fixtureItems(category: LibraryCategory, items: readonly LibraryI
   });
 }
 
-export async function catalogFile(categories: readonly LibraryCategory[], translate: LocaleTranslate): Promise<CatalogFile> {
+async function catalogFile(categories: readonly LibraryCategory[], translate: LocaleTranslate): Promise<CatalogFile> {
   const lists = await readyLists(categories);
   return {
     version: CATALOG_VERSION,
@@ -132,7 +132,7 @@ export async function catalogFile(categories: readonly LibraryCategory[], transl
   };
 }
 
-export function stableIds(json: string): string {
+function stableIds(json: string): string {
   const seen = new Map<string, string>();
   return json.replace(UUID, (uuid) => {
     const known = seen.get(uuid);
@@ -143,7 +143,7 @@ export function stableIds(json: string): string {
   });
 }
 
-export function imageFixture(items: readonly LibraryItem[], translate: LocaleTranslate): ImageDocument {
+function imageFixture(items: readonly LibraryItem[], translate: LocaleTranslate): ImageDocument {
   const empty = emptyImageDocument(CATALOG_CANVAS);
   const board = empty.artboards[0];
   const request = requestOf(translate, board.canvas);
@@ -152,7 +152,7 @@ export function imageFixture(items: readonly LibraryItem[], translate: LocaleTra
   return editArtboard(empty, board.id, (surface) => insertImageContent(surface, merged).document);
 }
 
-export const FIXTURE_PHOTO = "library-photo";
+const FIXTURE_PHOTO = "library-photo";
 
 const FIXTURE_STEP_MS = 1000;
 
@@ -164,7 +164,7 @@ function framedFixture(doc: VideoDocument, item: LibraryItem, atMs: number): Vid
   return framed.document;
 }
 
-export function videoFixture(items: readonly LibraryItem[], translate: LocaleTranslate): VideoDocument {
+function videoFixture(items: readonly LibraryItem[], translate: LocaleTranslate): VideoDocument {
   const request = requestOf(translate, CATALOG_CANVAS);
   return items
     .filter((item) => supports(item, "video"))

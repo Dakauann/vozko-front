@@ -23,7 +23,7 @@ import type { LeadDetail } from "@/lib/leads/types";
 type Confirmation = "block" | "optOut" | "anonymize";
 type Confirmed = Exclude<Confirmation, "optOut">;
 
-export interface LeadDetailPermissions {
+interface LeadDetailPermissions {
   edit: boolean;
   block: boolean;
   anonymize: boolean;

@@ -22,7 +22,7 @@ import type { FacebookPageConfig } from '@/lib/facebook/page';
 import { apiClient, getApiBaseUrl, type ApiResult } from '@/lib/api/browser-client';
 import { withWorkspaceScope } from '@/lib/browser/scoped-download-url';
 
-export interface FacebookActionError {
+interface FacebookActionError {
     error: string;
     code?: string;
     status?: number;
@@ -125,12 +125,6 @@ export async function listFacebookStoriesAction(pageId: string) {
     const response = await apiClient<{ items: FacebookStory[] }>(`${pagePath(pageId)}/stories`, { method: 'GET' });
     if (response.error) return { stories: [] as FacebookStory[], ...failure(response) };
     return { stories: response.data?.items ?? [] };
-}
-
-export async function getFacebookPostAction(pageId: string, postId: string) {
-    const response = await apiClient<FacebookPost>(`${pagePath(pageId)}/posts/${postId}`, { method: 'GET' });
-    if (response.error) return failure(response);
-    return { post: response.data };
 }
 
 export async function createFacebookPostAction(pageId: string, payload: CreateFacebookPostPayload) {
@@ -316,12 +310,4 @@ export async function takeFacebookThreadControlAction(conversationId: string) {
     );
     if (response.error) return failure(response);
     return { ok: true as const, threadOwnerAppId: response.data?.threadOwnerAppId };
-}
-
-export async function releaseFacebookThreadControlAction(conversationId: string) {
-    const response = await apiClient<{ ok: boolean }>(`/facebook/conversations/${conversationId}/release-control`, {
-        method: 'POST',
-    });
-    if (response.error) return failure(response);
-    return { ok: true as const };
 }

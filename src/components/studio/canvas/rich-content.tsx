@@ -24,7 +24,7 @@ export interface ContentProps {
   fail: (error: Error) => void;
 }
 
-export type ContentMap = Record<Layer["type"], ComponentType<ContentProps>>;
+type ContentMap = Record<Layer["type"], ComponentType<ContentProps>>;
 
 interface RichContentProps extends ContentProps {
   contents: ContentMap;

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export interface RetryNoticeProps {
+interface RetryNoticeProps {
   message: string;
   retryLabel: string;
   onRetry?: () => void;

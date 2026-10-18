@@ -11,7 +11,7 @@ export type ElevatedPillOption<T extends string = string> = {
   title?: string;
 };
 
-export type ElevatedPillToggleProps<T extends string = string> = {
+type ElevatedPillToggleProps<T extends string = string> = {
   options: ElevatedPillOption<T>[];
   value: T;
   onChange: (value: T) => void;

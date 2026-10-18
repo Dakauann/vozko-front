@@ -114,17 +114,17 @@ export function boxToLocal(frame: ParentFrame, box: Transform, aspect: number): 
   return { ...box, x: center.x, y: center.y, w: box.w / axes.x, h: box.h / axes.y, rotation };
 }
 
-export function composeFrame(parent: ParentFrame, local: ParentFrame, aspect: number): ParentFrame {
+function composeFrame(parent: ParentFrame, local: ParentFrame, aspect: number): ParentFrame {
   const pivot = pointToWorld(parent, local, aspect);
   const axes = axesOf(parent, local.rotation);
   return { x: pivot.x, y: pivot.y, rotation: axes.rotation, scaleX: local.scaleX * axes.x, scaleY: local.scaleY * axes.y };
 }
 
-export function frameScale(clip: Pick<Clip, "type" | "keyframes">, placed: Transform, localMs: number, lane?: LaneValue): PathPoint {
+function frameScale(clip: Pick<Clip, "type" | "keyframes">, placed: Transform, localMs: number, lane?: LaneValue): PathPoint {
   return clip.type === "null" ? { x: placed.w / NULL_BOX, y: placed.h / NULL_BOX } : scaleAt(clip.keyframes, localMs, lane);
 }
 
-export function ownFrame(clip: Clip, localMs: number, aspect: number, levels: TrackLevels = NO_LEVELS): ParentFrame {
+function ownFrame(clip: Clip, localMs: number, aspect: number, levels: TrackLevels = NO_LEVELS): ParentFrame {
   const lane = behaviorLane(clip, localMs, levels);
   const placed = placementAt(clip, localMs, aspect, lane);
   const pivot = placedPivot(placed, anchorOf(clip), aspect);
@@ -132,11 +132,11 @@ export function ownFrame(clip: Clip, localMs: number, aspect: number, levels: Tr
   return { x: pivot.x, y: pivot.y, rotation: placed.rotation, scaleX: scale.x, scaleY: scale.y };
 }
 
-export function parentOf(lookup: ClipLookup, clip: Pick<Clip, "parentId">): Clip | null {
+function parentOf(lookup: ClipLookup, clip: Pick<Clip, "parentId">): Clip | null {
   return clip.parentId ? (lookup.get(clip.parentId) ?? null) : null;
 }
 
-export type LinkedClip = Pick<Clip, "parentId" | "parentTracker">;
+type LinkedClip = Pick<Clip, "parentId" | "parentTracker">;
 
 function linkedFrame(lookup: ClipLookup, clip: LinkedClip, timelineMs: number, aspect: number, levels: TrackLevels, depth: number): ParentFrame {
   const parent = parentOf(lookup, clip);
@@ -223,9 +223,9 @@ export function nullClipIssue(clip: Clip): IssueCode | null {
   return animatedProperties(clip.keyframes).every((property) => PLACEMENT_PROPERTIES.includes(property)) ? null : "invalid";
 }
 
-export type ReframeRefusal = "degenerate" | "outOfRange";
+type ReframeRefusal = "degenerate" | "outOfRange";
 
-export interface ReframeTarget {
+interface ReframeTarget {
   from: ParentFrame;
   to: ParentFrame;
   parented: boolean;

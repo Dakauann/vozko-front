@@ -1,10 +1,10 @@
-export type AwarenessCampaign = {
+type AwarenessCampaign = {
   id: string;
   month: number;
   messagesKey: string;
 };
 
-export const CAMPAIGNS: readonly AwarenessCampaign[] = [
+const CAMPAIGNS: readonly AwarenessCampaign[] = [
   { id: "outubro-rosa", month: 9, messagesKey: "pinkOctober" },
 ];
 

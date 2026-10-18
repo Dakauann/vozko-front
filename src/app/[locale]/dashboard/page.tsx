@@ -90,8 +90,6 @@ function Meter({
     <div className="min-w-0">
       <dt className="legend sm:truncate">{legend}</dt>
       <dd>
-        {
-}
         <span
           className={cn(
             "readout font-display mt-1.5 block text-3xl font-semibold leading-none tracking-[-0.03em]",
@@ -612,8 +610,6 @@ function UserDashboard() {
         />
       </div>
 
-      {
-}
       {meters.length > 0 ? (
         <section className="well overflow-hidden">
           <header className="rule-engraved flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
@@ -636,15 +632,11 @@ function UserDashboard() {
         </section>
       ) : null}
 
-      {
-}
       {canReadAttendance && overview?.kpis ? (
         <AttendanceGlance overview={overview} loading={loading} />
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_296px]">
-        {
-}
         {canReadWaCampaigns ? (
           <section className="well overflow-hidden">
             <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
@@ -762,8 +754,6 @@ function UserDashboard() {
         ) : null}
 
         <div className="space-y-4">
-          {
-}
           <section className="well h-fit overflow-hidden">
             <header className="rule-engraved px-4 py-2.5">
               <p className="legend">{t("quickActions.sectionTitle")}</p>

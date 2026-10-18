@@ -1,6 +1,6 @@
 import { fieldValue, lanesIssue, shiftLanes, type AnimatedFields, type Lanes } from "./animated-fields";
 import { FILL_RULES, LINE_JOINS, newStudioId, type CanvasSize, type FillRule, type Layer, type LineJoin } from "./document";
-import { curveExtent, type Keyframe } from "./keyframes";
+import { curveExtent } from "./keyframes";
 import { BOOLEAN_OPS, type BooleanOp } from "./path-boolean";
 import { mergeShape, offsetShape, placedOperand, puckerBloatShape, roundCornersShape, twistShape, ZIG_ZAG_POINTS, zigZagShape, type Shape, type ZigZagPoints } from "./path-op-geometry";
 import { mapSubpaths, pathBounds, pathToSubpaths, subpathsToPath } from "./path-nodes";
@@ -76,9 +76,9 @@ export interface MergeOp extends PathOpBase {
 
 export type PathOp = OffsetOp | PuckerBloatOp | RoundCornersOp | ZigZagOp | TwistOp | MergeOp;
 
-export const UNBOUNDED = Number.POSITIVE_INFINITY;
+const UNBOUNDED = Number.POSITIVE_INFINITY;
 
-export const PATH_OP_RANGES: { [K in PathOpKind]: Partial<Record<PathOpField, readonly [number, number]>> } = {
+const PATH_OP_RANGES: { [K in PathOpKind]: Partial<Record<PathOpField, readonly [number, number]>> } = {
   offset: { amount: [-1000, 1000], copies: [1, UNBOUNDED], copyOffset: [-1000, 1000], miterLimit: [1, 20] },
   puckerBloat: { amount: [-100, 100] },
   roundCorners: { radius: [0, 2000] },
@@ -210,7 +210,7 @@ export function pathOpValue(op: PathOp, field: PathOpField, localMs: number): nu
   return fieldValue(PATH_OP_SPEC, op, field, localMs);
 }
 
-export function pathOpsAt(ops: readonly PathOp[], localMs: number): PathOp[] {
+function pathOpsAt(ops: readonly PathOp[], localMs: number): PathOp[] {
   return ops.map((op) => {
     if (!op.keyframes) return op;
     const resolved = { ...op } as PathOp;
@@ -229,10 +229,6 @@ export function splitPathOps(ops: readonly PathOp[], atLocalMs: number): PathOp[
     const keyframes = shiftLanes(op.keyframes, -atLocalMs);
     return keyframes ? { ...op, keyframes } : op;
   });
-}
-
-export function pathOpKeyTimes(ops: readonly PathOp[] | undefined): number[] {
-  return (ops ?? []).flatMap((op) => Object.values(op.keyframes ?? {}).flatMap((frames) => (frames ?? []).map((frame: Keyframe) => frame.atMs)));
 }
 
 function activeOps(layer: Layer): PathOp[] {

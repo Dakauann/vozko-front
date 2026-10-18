@@ -26,7 +26,7 @@ function activeJobs(jobs: readonly VideoJob[]): VideoJob[] {
   return jobs.filter((job) => job.state === "running");
 }
 
-export function clipAiSubject(clip: Clip, track: Track, selected: number, jobs: readonly VideoJob[], canAskElo: boolean): AiActionSubject {
+function clipAiSubject(clip: Clip, track: Track, selected: number, jobs: readonly VideoJob[], canAskElo: boolean): AiActionSubject {
   const active = activeJobs(jobs);
   return {
     editor: "video",
@@ -39,14 +39,14 @@ export function clipAiSubject(clip: Clip, track: Track, selected: number, jobs: 
   };
 }
 
-export function laneAiSubject(track: Track, jobs: readonly VideoJob[], canAskElo: boolean): AiActionSubject {
+function laneAiSubject(track: Track, jobs: readonly VideoJob[], canAskElo: boolean): AiActionSubject {
   return { editor: "video", kind: laneSubjectKind(track), locked: Boolean(track.locked), hasSource: false, running: [], activeKinds: activeJobs(jobs).map((job) => job.purpose), canAskElo };
 }
 
 const GENERATORS: Partial<Record<AiActionId, ModelKind>> = { generateMusic: "music", generateVoice: "voice", generateSfx: "sfx", generateImage: "image" };
 const PROCESSES: Partial<Record<AiActionId, ClipJobKind>> = { removeBackground: "cutout", denoise: "denoise", captions: "captions" };
 
-export function useTimelineAiActions(target: MenuTarget | null): AiActionEntry[] {
+function useTimelineAiActions(target: MenuTarget | null): AiActionEntry[] {
   const t = useTranslations("studio.aiActions");
   const tc = useTranslations("studio.video.timeline.clipTypes");
   const label = useClipLabeler();

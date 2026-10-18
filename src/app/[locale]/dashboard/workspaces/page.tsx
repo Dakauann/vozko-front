@@ -1,22 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Buildings,
-  CalendarCheck,
-  CaretDown,
-  CaretUp,
-  CircleNotch,
-  CurrencyDollar,
-  Envelope,
-  Eye,
-  MagnifyingGlass,
-  Star,
-  UserCircle,
-  UsersFour,
-  Wallet,
-  X,
-} from "@/components/icons";
+import { motion } from "framer-motion";
+import { Buildings, CalendarCheck, CaretDown, CaretUp, CircleNotch, Envelope, Eye, MagnifyingGlass, Star, UserCircle, UsersFour, Wallet, X } from "@/components/icons";
 import type { Workspace, WorkspaceMember } from "@/lib/workspace/types";
 import {
   adminListAllWorkspacesAction,

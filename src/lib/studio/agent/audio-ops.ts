@@ -15,7 +15,7 @@ interface NormalizeFields extends AgentAudioFields {
   track_id?: string;
 }
 
-export type AudioOpResult = { ok: true; document: VideoDocument; changed: string[]; notes: string[] } | { ok: false; reason: string };
+type AudioOpResult = { ok: true; document: VideoDocument; changed: string[]; notes: string[] } | { ok: false; reason: string };
 
 export const PAN_TEXT = `pan vai de ${PAN_RANGE[0]} (tudo à esquerda) a ${PAN_RANGE[1]} (tudo à direita) e 0 é o centro`;
 

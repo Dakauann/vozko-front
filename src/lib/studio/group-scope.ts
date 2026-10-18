@@ -10,9 +10,9 @@ export type GroupClip = Clip & { type: "group"; tracks: Track[] };
 
 export type GroupPath = readonly string[];
 
-export const ROOT_PATH: GroupPath = [];
+const ROOT_PATH: GroupPath = [];
 
-export const GROUP_FIELDS: ReadonlySet<string> = new Set([
+const GROUP_FIELDS: ReadonlySet<string> = new Set([
   ...CLIP_TAG_FIELDS,
   GUIDE_FIELD,
   "id",
@@ -158,7 +158,7 @@ export function withTimelineAt(doc: VideoDocument, path: GroupPath, operation: (
   });
 }
 
-export interface PlacedClip {
+interface PlacedClip {
   clip: Clip;
   track: Track;
   path: GroupPath;

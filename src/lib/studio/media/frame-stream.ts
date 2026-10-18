@@ -18,7 +18,7 @@ export type StreamRequest =
   | { kind: "want"; seconds: number }
   | { kind: "release"; generation: number; count: number };
 
-export interface StreamView<P extends Picture> {
+interface StreamView<P extends Picture> {
   picture: P | null;
   requests: StreamRequest[];
 }

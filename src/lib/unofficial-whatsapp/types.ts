@@ -210,7 +210,7 @@ export interface UnofficialWhatsAppAllowance {
     overLimit: boolean;
 }
 
-export type AllowanceBlock = 'none-included' | 'all-in-use' | null;
+type AllowanceBlock = 'none-included' | 'all-in-use' | null;
 
 export function allowanceBlock(a: UnofficialWhatsAppAllowance | null): AllowanceBlock {
     if (!a || a.canConnect) return null;

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export { placeFilterOf };
 export type { Place };
 
-export interface MapPlaceSearchProps {
+interface MapPlaceSearchProps {
   onSelect: (place: Place) => void;
   onFilter?: (place: Place) => void;
   filter?: CrmFilter;

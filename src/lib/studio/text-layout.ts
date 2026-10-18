@@ -1,7 +1,7 @@
 import type { TextAlign } from "./document";
 import type { LaidLine } from "./text-animation";
 
-export interface TextFlow {
+interface TextFlow {
   lines: readonly { text: string; width: number }[];
   align: TextAlign;
   box: { x: number; y: number; width: number; height: number };

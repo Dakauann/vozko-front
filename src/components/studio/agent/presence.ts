@@ -2,7 +2,7 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { createLookShots, type LookShots } from "./look-shots";
 
-export const PRESENCE_IDLE_MS = 4000;
+const PRESENCE_IDLE_MS = 4000;
 
 export interface PresencePoint {
   x: number;
@@ -40,10 +40,6 @@ export interface AgentPresence {
   busy: (on: boolean) => void;
   rest: () => void;
   dispose: () => void;
-}
-
-export function centerOf(rect: PresenceRect): PresencePoint {
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
 export function createAgentPresence(idleMs: number = PRESENCE_IDLE_MS): AgentPresence {

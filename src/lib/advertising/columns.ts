@@ -55,7 +55,7 @@ export const DEFAULT_COLUMNS: MetricColumn[] = presetColumns("performance");
 
 export type SortableColumn = "name" | MetricColumn;
 
-export function isMetricColumn(value: unknown): value is MetricColumn {
+function isMetricColumn(value: unknown): value is MetricColumn {
   return typeof value === "string" && (METRIC_COLUMNS as readonly string[]).includes(value);
 }
 
@@ -84,7 +84,7 @@ export function needsLiveData(visible: MetricColumn[]): boolean {
 
 type SortableRow = AdRow & Partial<Pick<ManagerRow, "live">>;
 
-export function sortValue(row: SortableRow, column: SortableColumn): string | number | null {
+function sortValue(row: SortableRow, column: SortableColumn): string | number | null {
   if (isLiveColumn(column)) return liveValue(row.live ?? null, column);
   switch (column) {
     case "name":
@@ -148,8 +148,4 @@ export function nextSort(current: RowSort | null, key: SortableColumn): RowSort 
   const firstDirection = key === "name" ? "asc" : "desc";
   if (current.direction === firstDirection) return { key, direction: firstDirection === "asc" ? "desc" : "asc" };
   return null;
-}
-
-export function isSortableColumn(value: string): value is SortableColumn {
-  return value === "name" || isMetricColumn(value);
 }

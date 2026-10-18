@@ -37,8 +37,7 @@ export interface StudioChange {
   document?: StudioDocument;
 }
 
-export { VERSION_CONFLICT } from "@/lib/api/versioned-save";
-export const INVALID_DOCUMENT = "invalid_document";
+;
 
 export function readProject<K extends StudioKind>(project: StudioProject, kind: K): { ok: true; project: StudioProject<DocumentOf<K>> } | { ok: false; issue: DocumentIssue } {
   if (project.kind !== kind) return { ok: false, issue: { field: "kind", code: "unknown" } };

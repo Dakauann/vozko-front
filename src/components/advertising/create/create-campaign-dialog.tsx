@@ -44,7 +44,7 @@ export interface CreateParent {
   adSetId?: string;
 }
 
-export interface CreateCampaignDialogProps {
+interface CreateCampaignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accounts: AdAccount[];

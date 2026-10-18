@@ -1,6 +1,6 @@
 import type { AttendanceView, LeadsView, StudioView } from "./types";
 
-export interface AssistantScope {
+interface AssistantScope {
   period: string;
   department: string;
   member: string;
@@ -33,7 +33,7 @@ export interface LeadsAssistantContext {
 
 export type AssistantContext = AttendanceAssistantContext | StudioAssistantContext | LeadsAssistantContext;
 
-export interface AssistantContextStore {
+interface AssistantContextStore {
   get: () => AssistantContext | null;
   set: (next: AssistantContext | null) => void;
   subscribe: (listener: () => void) => () => void;

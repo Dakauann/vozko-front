@@ -28,21 +28,21 @@ export interface ConversionRecord {
   updatedAt: string;
 }
 
-export const SKIP_REASONS = ["not_enabled", "event_off", "no_ad_identity", "too_old", "no_dataset", "value_missing"] as const;
+const SKIP_REASONS = ["not_enabled", "event_off", "no_ad_identity", "too_old", "no_dataset", "value_missing"] as const;
 
-export type SkipReason = (typeof SKIP_REASONS)[number];
+type SkipReason = (typeof SKIP_REASONS)[number];
 
 export function knownReason(reason: string | undefined): SkipReason | null {
   return reason && (SKIP_REASONS as readonly string[]).includes(reason) ? (reason as SkipReason) : null;
 }
 
-export type ConversionStatusKey = ConversionStatus | "unknown";
+type ConversionStatusKey = ConversionStatus | "unknown";
 
 export function conversionStatusKey(status: string): ConversionStatusKey {
   return status === "sent" || status === "skipped" || status === "failed" ? status : "unknown";
 }
 
-export type EventKey = "lead" | "purchase" | "other";
+type EventKey = "lead" | "purchase" | "other";
 
 export function eventKey(eventName: string): EventKey {
   if (eventName === "LeadSubmitted") return "lead";
@@ -59,7 +59,7 @@ export function settingsForAccount(settings: ConversionSettings | null, adAccoun
   return { ...settings, adAccountId };
 }
 
-export type SettingsProblem = "needs_target" | "nothing_to_send";
+type SettingsProblem = "needs_target" | "nothing_to_send";
 
 export function settingsProblems(settings: ConversionSettings): SettingsProblem[] {
   if (!settings.enabled) return [];

@@ -1,6 +1,6 @@
 import { VERTICAL_SAFE_ZONE, type SafeInsets } from "./placement-frames";
 
-export type SafeZone = SafeInsets;
+type SafeZone = SafeInsets;
 
 export const FEED_MEDIA_RATIO = "4 / 5";
 export const CAROUSEL_CARD_RATIO = "1 / 1";

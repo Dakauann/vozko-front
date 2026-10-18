@@ -3,7 +3,7 @@ import type { SnappedViewport, Viewport } from "./types";
 
 export const VIEWPORT_DEBOUNCE_MS = 300;
 
-export interface ViewportEmitter {
+interface ViewportEmitter {
   push(viewport: Viewport): void;
   cancel(): void;
 }

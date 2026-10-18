@@ -24,7 +24,7 @@ export const STANCE_COLOR: Record<CommentStance, string> = {
   hostile: "hsl(var(--destructive))",
 };
 
-export const STANCE_TEXT: Record<CommentStance, string> = {
+const STANCE_TEXT: Record<CommentStance, string> = {
   supporter: "text-healthy-ink",
   neutral: "text-muted-foreground",
   critic: "text-warning-ink",
@@ -50,7 +50,7 @@ export function topicLabel(topics: CommentTopic[], key: string, otherLabel: stri
   return topics.find((t) => t.key === key)?.label ?? key;
 }
 
-export function severityTone(severity: number): "healthy" | "warning" | "destructive" | "muted" {
+function severityTone(severity: number): "healthy" | "warning" | "destructive" | "muted" {
   if (severity >= HIGH_SEVERITY_THRESHOLD) return "destructive";
   if (severity >= 30) return "warning";
   if (severity > 0) return "healthy";

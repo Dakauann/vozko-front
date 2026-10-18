@@ -4,14 +4,14 @@ import { isLabelColor } from "./labels";
 import { runes } from "./tokens";
 import type { IssueCode } from "./validate";
 
-export function clipNameIssue(clip: Pick<Clip, "name">): IssueCode | null {
+function clipNameIssue(clip: Pick<Clip, "name">): IssueCode | null {
   const name = clip.name ?? "";
   if (name === "") return null;
   if (name.trim() === "") return "invalid";
   return runes(name) > STUDIO_LIMITS.maxLayerNameRunes ? "too_large" : null;
 }
 
-export function labelColorIssue(value: string | undefined): IssueCode | null {
+function labelColorIssue(value: string | undefined): IssueCode | null {
   return (value ?? "") === "" || isLabelColor(value) ? null : "unknown";
 }
 

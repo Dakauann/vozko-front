@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { Layer } from "@/lib/studio/document";
 import { layerCaption } from "@/lib/studio/layer-list";
 
-export type LayerLabeler = (layer: Layer) => string;
+type LayerLabeler = (layer: Layer) => string;
 
 export function useLayerLabeler(): LayerLabeler {
   const t = useTranslations("studio.image.layerKinds");

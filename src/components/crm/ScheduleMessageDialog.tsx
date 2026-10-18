@@ -27,7 +27,7 @@ import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";
 
-export interface ScheduleDraft {
+interface ScheduleDraft {
     text: string;
     mediaId?: string;
     mediaType?: MediaType;
@@ -172,9 +172,7 @@ export default function ScheduleMessageDialog({
                 <ElevatedDialogHeader>
                     <ElevatedDialogTitle>{t("dialog.title")}</ElevatedDialogTitle>
                     <ElevatedDialogDescription>
-                        {recipientName ? `${t("dialog.to", { name: recipientName })} · ` : ""}
-                        {
-}
+                        {recipientName ? `${t("dialog.to", { name: recipientName })} · ` : ""}
                         {liveWindow?.expiresAt
                             ? t("dialog.description")
                             : t("dialog.descriptionNoWindow")}

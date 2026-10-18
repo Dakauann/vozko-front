@@ -1,8 +1,8 @@
 import type { PricingAuditEntry } from "@/lib/pricing/types";
 
-export type AuditChangeKind = "price" | "cost";
+type AuditChangeKind = "price" | "cost";
 
-export interface AuditChange {
+interface AuditChange {
     kind: AuditChangeKind;
     oldMicros: number;
     newMicros: number;

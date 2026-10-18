@@ -28,7 +28,7 @@ interface MultiTarget {
   metaIds: string[];
 }
 
-export interface ObjectValue<T> {
+interface ObjectValue<T> {
   metaId: string;
   name: string;
   value: T;
@@ -41,7 +41,7 @@ export interface MultiValues {
   text: Record<CreativeField, string>;
 }
 
-export interface MultiObject extends MultiValues {
+interface MultiObject extends MultiValues {
   detail: AdEditableObject;
 }
 
@@ -73,7 +73,7 @@ interface MultiCrumb {
   count: number;
 }
 
-export interface MultiSavePlan {
+interface MultiSavePlan {
   edit: AdObjectEdit;
   changes: AdBulkChange[];
 }

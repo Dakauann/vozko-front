@@ -8,23 +8,23 @@ export interface WheelInput {
   altKey: boolean;
 }
 
-export type WheelIntent = { kind: "native" } | { kind: "horizontal"; px: number } | { kind: "zoom"; steps: number };
+type WheelIntent = { kind: "native" } | { kind: "horizontal"; px: number } | { kind: "zoom"; steps: number };
 
-export interface RevealBox {
+interface RevealBox {
   top: number;
   height: number;
   left: number;
   width: number;
 }
 
-export interface RevealView {
+interface RevealView {
   scrollTop: number;
   scrollLeft: number;
   width: number;
   height: number;
 }
 
-export interface RevealOffsets {
+interface RevealOffsets {
   top: number | null;
   left: number | null;
 }

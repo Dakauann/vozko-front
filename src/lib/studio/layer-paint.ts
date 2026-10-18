@@ -213,7 +213,7 @@ export function scaledPaint(layer: Layer, fit: number): Partial<Layer> {
   return patch;
 }
 
-export type GradientCheck = (gradient: Gradient | undefined) => boolean;
+type GradientCheck = (gradient: Gradient | undefined) => boolean;
 
 function colorValid(value: string | undefined): boolean {
   return Boolean(value) && parseColor(value) !== null;

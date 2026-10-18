@@ -137,9 +137,7 @@ export function CommentAnalysisTab({ source, accountId }: { source: CommentSourc
         options={options}
         collapseLabels="sm"
       />
-
-      {
-}
+
       {section !== "settings" && section !== "alerts" ? (
         <PeriodPicker className="mb-4" value={period} onChange={setPeriod} />
       ) : null}

@@ -69,7 +69,7 @@ export function buildLeadImportTemplate(): string {
   ]);
 }
 
-export const LEAD_IMPORT_TEMPLATE_FILENAME = "leads-modelo.csv";
+const LEAD_IMPORT_TEMPLATE_FILENAME = "leads-modelo.csv";
 
 export function downloadLeadImportTemplate(): void {
   downloadCsv(buildLeadImportTemplate(), LEAD_IMPORT_TEMPLATE_FILENAME);

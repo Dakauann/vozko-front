@@ -16,7 +16,7 @@ export function pivotRows(rows: AdReportRunRow[]): PivotRow[] {
   return rows.map((row, index) => ({ ...row, groupStart: index === 0 || rows[index - 1].objectId !== row.objectId }));
 }
 
-export interface Bar {
+interface Bar {
   key: string;
   label: string;
   value: number | null;

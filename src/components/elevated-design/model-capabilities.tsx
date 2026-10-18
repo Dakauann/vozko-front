@@ -6,7 +6,7 @@ import { CurrencyDollar, Eye, ImageSquare, Lightbulb, Microphone, Stack, Tag, Wr
 import type { ModelCapability } from "@/lib/ai-models/capabilities";
 import { cn } from "@/lib/utils";
 
-export const CAPABILITY_ICONS: Record<ModelCapability, Icon> = {
+const CAPABILITY_ICONS: Record<ModelCapability, Icon> = {
   vision: Eye,
   tools: Wrench,
   reasoning: Lightbulb,

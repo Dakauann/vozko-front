@@ -1,24 +1,6 @@
 import type { TourStep } from "@/components/TourGuide";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
-import {
-  WhatsappLogo,
-  FlowArrow,
-  DeviceMobile,
-  TextT,
-  Cursor,
-  Warning,
-  Image as ImageIcon,
-  VideoCamera,
-  File,
-  MapPin,
-  Gif,
-  Plus,
-  ChatCircle,
-  Link,
-  Phone,
-  Copy,
-  CheckCircle,
-} from "@/components/icons";
+import { WhatsappLogo, FlowArrow, DeviceMobile, TextT, Cursor, Warning, Image as ImageIcon, MapPin, Plus, ChatCircle, Link, Phone, Copy, CheckCircle } from "@/components/icons";
 
 export const whatsappTemplatesTourPalette: ColorGroup[] = [
   { colors: ["#10b981", "#059669"], weight: 35 },

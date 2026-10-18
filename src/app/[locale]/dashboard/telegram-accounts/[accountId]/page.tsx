@@ -149,9 +149,7 @@ export default function TelegramAccountPage() {
           </Link>
         }
       />
-
-      {
-}
+
       <ElevatedContainer className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-foreground">{t("profile.webhookTitle")}</h2>
@@ -209,17 +207,11 @@ export default function TelegramAccountPage() {
           />
         )}
       </ElevatedContainer>
-
-      {
-}
+
       <TelegramAutomationPanel account={account} onUpdated={setAccount} />
-
-      {
-}
+
       <TelegramBusinessPanel account={account} />
-
-      {
-}
+
       <ElevatedContainer className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-sm font-semibold text-foreground">{t("links.title")}</h2>

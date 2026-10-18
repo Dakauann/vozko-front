@@ -6,7 +6,7 @@ const RESERVED_OUTCOMES = {
   _workflow_unspecified: "workflowUnspecified",
 } as const;
 
-export type ReservedOutcomeKey =
+type ReservedOutcomeKey =
   (typeof RESERVED_OUTCOMES)[keyof typeof RESERVED_OUTCOMES];
 
 export function reservedOutcomeKey(code: string): ReservedOutcomeKey | null {

@@ -33,8 +33,6 @@ export const ANIMATOR_NUMBER_RANGES: Record<AnimatorNumber, readonly [number, nu
   tracking: [-1000, 1000],
 };
 
-export const ANIMATOR_RESTING: Record<AnimatorNumber, number> = { x: 0, y: 0, scale: 100, rotation: 0, rotationX: 0, rotationY: 0, opacity: 100, blur: 0, tracking: 0 };
-
 export type AnimatorProperties = Partial<Record<AnimatorNumber, number>> & Partial<Record<AnimatorColor, string>>;
 
 export function turnsInDepth(properties: AnimatorProperties): boolean {
@@ -42,7 +40,7 @@ export function turnsInDepth(properties: AnimatorProperties): boolean {
 }
 
 export const RANGE_KEYS = ["start", "end", "offset", "amount"] as const;
-export const WIGGLY_KEYS = ["amount"] as const;
+const WIGGLY_KEYS = ["amount"] as const;
 export type SelectorKey = (typeof RANGE_KEYS)[number];
 
 export const RANGE_LIMITS = {
@@ -146,8 +144,6 @@ const WIGGLE_HARMONICS: readonly { step: number; lift: number; weight: number }[
 ];
 const WIGGLE_WEIGHT = WIGGLE_HARMONICS.reduce((sum, harmonic) => sum + harmonic.weight, 0);
 
-export const SELECTOR_CHANNELS = CHANNELS.length;
-
 export function channelOf(property: AnimatorNumber | AnimatorColor): number {
   const index = (CHANNELS as readonly string[]).indexOf(property);
   return index >= 0 ? index : COLOR_CHANNEL;
@@ -247,7 +243,7 @@ export function rangeAmounts(selector: RangeSelector, count: number): number[] {
   });
 }
 
-export function wiggleHarmonic(rate: number, loopMs: number): number {
+function wiggleHarmonic(rate: number, loopMs: number): number {
   return Math.max(1, Math.round((rate * loopMs) / 1000));
 }
 
@@ -264,7 +260,7 @@ export function wigglyAmount(selector: Extract<SelectorFrame, { kind: "wiggly" }
   return (sum / WIGGLE_WEIGHT) * (selector.amount / PERCENT);
 }
 
-export type SelectorAmounts = (channel: number, index: number) => number;
+type SelectorAmounts = (channel: number, index: number) => number;
 
 export function selectorAmounts(selector: SelectorFrame, count: number): SelectorAmounts {
   if (selector.kind === "range") {

@@ -13,7 +13,7 @@ export interface GpuSession {
   dispose: () => void;
 }
 
-export interface GpuRendererOptions {
+interface GpuRendererOptions {
   canvas: RefObject<HTMLCanvasElement | null>;
   viewport: Viewport;
   transparent: boolean;

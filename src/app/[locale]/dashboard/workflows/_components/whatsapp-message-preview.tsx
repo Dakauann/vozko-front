@@ -21,9 +21,9 @@ import {
 export { centerWithin };
 
 
-export type InteractiveKind = "button" | "copy_code" | "list";
+type InteractiveKind = "button" | "copy_code" | "list";
 
-export interface InteractiveOption {
+interface InteractiveOption {
   id: string;
   title: string;
   description?: string;
@@ -31,9 +31,9 @@ export interface InteractiveOption {
   copyCode?: string;
 }
 
-export type InteractiveHeaderType = "" | "text" | "image" | "video";
+type InteractiveHeaderType = "" | "text" | "image" | "video";
 
-export interface ParsedInteractive {
+interface ParsedInteractive {
   interactiveType: "buttons" | "list";
   headerType: InteractiveHeaderType;
   headerText: string;
@@ -117,7 +117,7 @@ export function parseInteractiveConfig(
 }
 
 
-export interface WhatsAppMessagePreviewProps {
+interface WhatsAppMessagePreviewProps {
   parsed: ParsedInteractive;
   rowRef?: (el: HTMLDivElement | null, optionId: string) => void;
   className?: string;

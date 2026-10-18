@@ -1,4 +1,4 @@
-export interface TextLimitState {
+interface TextLimitState {
     count: number;
     limit: number;
     over: boolean;

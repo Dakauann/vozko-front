@@ -13,20 +13,20 @@ import { useInheritedGroup, useInspectorStore, useInspectorValue } from "./inspe
 const LABEL_SELECTOR = "label, legend, dt, h4, [aria-label]";
 const HIT = "data-search-hit";
 
-export interface SectionToggle {
+interface SectionToggle {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   label?: string;
 }
 
-export interface SectionReset {
+interface SectionReset {
   onReset: () => void;
   disabled?: boolean;
   label?: string;
 }
 
-export interface InspectorSectionProps {
+interface InspectorSectionProps {
   title: string;
   children: ReactNode;
   className?: string;

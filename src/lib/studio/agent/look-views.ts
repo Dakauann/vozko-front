@@ -14,9 +14,9 @@ const NEAR_ANGLE = 3;
 const FOCUS_MARGIN = 0.25;
 const MIN_FOCUS = 0.08;
 
-export type GuideAxis = "x" | "y";
+type GuideAxis = "x" | "y";
 
-export interface GuideLine {
+interface GuideLine {
   axis: GuideAxis;
   at: number;
   ids: string[];
@@ -27,7 +27,7 @@ export interface AngleGroup {
   ids: string[];
 }
 
-export interface GuideReport {
+interface GuideReport {
   lines: GuideLine[];
   angles: AngleGroup[];
   notes: string[];

@@ -8,7 +8,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { forgetLeadQueries, refreshLeadQueries } from "@/hooks/use-lead-records";
 import { isNewerVersion } from "@/lib/leads/version";
 
-export const LEAD_ANONYMIZED_FIELD = "anonymized";
+const LEAD_ANONYMIZED_FIELD = "anonymized";
 
 export function useLeadChangeRefetch(leadId: string, { version, onAnonymized }: { version: number | undefined; onAnonymized: () => void }) {
   const crm = useOptionalCrm();

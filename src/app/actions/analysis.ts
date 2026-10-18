@@ -1,22 +1,7 @@
-import type {
-    Analysis,
-    AnalysisEntryType,
-    AnalysisListParams,
-    AnalysisPagination,
-    AnalysisSingleResponse,
-    AnalysisStats,
-    AnalysisStatsParams,
-} from '@/lib/analysis/types';
+import type { Analysis, AnalysisEntryType, AnalysisListParams, AnalysisStats, AnalysisStatsParams } from '@/lib/analysis/types';
 import type { SubjectCount } from '@/lib/audience/types';
 
 import { apiClient } from "@/lib/api/browser-client";
-
-const DEFAULT_PAGINATION: AnalysisPagination = {
-    page: 1,
-    pageSize: 20,
-    totalPages: 1,
-    totalItems: 0,
-};
 
 const DEFAULT_STATS: AnalysisStats = {
     totalAnalyses: 0,
@@ -56,38 +41,7 @@ function buildQueryString(params: Record<string, string | number | undefined>): 
     return queryString ? `?${queryString}` : '';
 }
 
-export async function listAnalysesAction(params: AnalysisListParams = {}) {
-    const queryString = buildQueryString({
-        ...audienceQuery(params),
-        nextAction: params.nextAction,
-        page: params.page,
-        pageSize: params.pageSize,
-        sortBy: params.sortBy,
-        sortOrder: params.sortOrder,
-    });
-
-    const url = `/audience${queryString}`;
-
-    const response = await apiClient<{ data?: AudienceRow[]; pagination?: AnalysisPagination }>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return {
-            analyses: [] as Analysis[],
-            pagination: DEFAULT_PAGINATION,
-            error: response.error.message,
-        };
-    }
-
-    return {
-        analyses: (response.data?.data ?? []).map(toAnalysis),
-        pagination: response.data?.pagination ?? DEFAULT_PAGINATION,
-        error: null,
-    };
-}
-
-export async function getAnalysisStatsAction(params: AnalysisStatsParams = {}) {
+async function getAnalysisStatsAction(params: AnalysisStatsParams = {}) {
     const queryString = buildQueryString(audienceQuery(params));
 
     const url = `/audience/stats${queryString}`;
@@ -111,79 +65,6 @@ export async function getAnalysisStatsAction(params: AnalysisStatsParams = {}) {
     };
 }
 
-export async function getLeadCampaignAnalysisAction(leadId: string, campaignId: string) {
-    const url = `/admin/leads/${leadId}/campaigns/${campaignId}/analysis`;
-
-    const response = await apiClient<AnalysisSingleResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return {
-            analysis: null as Analysis | null,
-            error: response.error.message,
-        };
-    }
-
-    return {
-        analysis: response.data?.data ?? null,
-        error: null,
-    };
-}
-
-export async function getLeadWhatsAppCampaignAnalysisAction(leadId: string, whatsappCampaignId: string) {
-    const url = `/admin/leads/${leadId}/whatsapp-campaigns/${whatsappCampaignId}/analysis`;
-
-    const response = await apiClient<AnalysisSingleResponse>(url, {
-        method: 'GET',
-    });
-
-    if (response.error) {
-        return {
-            analysis: null as Analysis | null,
-            error: response.error.message,
-        };
-    }
-
-    return {
-        analysis: response.data?.data ?? null,
-        error: null,
-    };
-}
-
-export async function getVoiceCampaignAnalysesAction(
-    campaignId: string,
-    params: Omit<AnalysisListParams, 'campaignId' | 'whatsappCampaignId'> = {}
-) {
-    return listAnalysesAction({
-        ...params,
-        campaignId,
-        entryType: 'voice',
-    });
-}
-
-export async function getWhatsAppCampaignAnalysesAction(
-    whatsappCampaignId: string,
-    params: Omit<AnalysisListParams, 'campaignId' | 'whatsappCampaignId'> = {}
-) {
-    return listAnalysesAction({
-        ...params,
-        whatsappCampaignId,
-        entryType: 'whatsapp',
-    });
-}
-
-export async function getVoiceCampaignStatsAction(
-    campaignId: string,
-    params: Omit<AnalysisStatsParams, 'campaignId' | 'whatsappCampaignId'> = {}
-) {
-    return getAnalysisStatsAction({
-        ...params,
-        campaignId,
-        entryType: 'voice',
-    });
-}
-
 export async function getWhatsAppCampaignStatsAction(
     whatsappCampaignId: string,
     params: Omit<AnalysisStatsParams, 'campaignId' | 'whatsappCampaignId'> = {}
@@ -192,48 +73,6 @@ export async function getWhatsAppCampaignStatsAction(
         ...params,
         whatsappCampaignId,
         entryType: 'whatsapp',
-    });
-}
-
-export async function getLeadAnalysesAction(
-    leadId: string,
-    params: Omit<AnalysisListParams, 'leadId'> = {}
-) {
-    return listAnalysesAction({
-        ...params,
-        leadId,
-    });
-}
-
-export async function getHighValueLeadsAnalysesAction(
-    campaignId?: string,
-    whatsappCampaignId?: string,
-    minQuality: number = 80,
-    params: Omit<AnalysisListParams, 'campaignId' | 'whatsappCampaignId' | 'qualification' | 'attendanceQualityMin'> = {}
-) {
-    return listAnalysesAction({
-        ...params,
-        campaignId,
-        whatsappCampaignId,
-        qualification: 'hot_lead',
-        attendanceQualityMin: minQuality,
-        sortBy: 'attendanceQuality',
-        sortOrder: 'desc',
-    });
-}
-
-export async function getNegativeSentimentAnalysesAction(
-    campaignId?: string,
-    whatsappCampaignId?: string,
-    params: Omit<AnalysisListParams, 'campaignId' | 'whatsappCampaignId' | 'sentiment'> = {}
-) {
-    return listAnalysesAction({
-        ...params,
-        campaignId,
-        whatsappCampaignId,
-        sentiment: 'negative',
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
     });
 }
 
@@ -257,7 +96,6 @@ export async function getEntryAnalysisAction(entryId: string, entryType: Analysi
     const [row] = response.data?.data ?? [];
     return { analysis: row ? toAnalysis(row) : null, error: null };
 }
-
 
 interface AudienceRow {
     id: string;

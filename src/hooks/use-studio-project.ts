@@ -9,7 +9,7 @@ import { readProject, type StudioChange, type StudioProject } from "@/lib/studio
 import type { DocumentIssue } from "@/lib/studio/validate";
 
 export const AUTOSAVE_DELAY_MS = 1500;
-export const KEEPALIVE_LIMIT_BYTES = 60 * 1024;
+const KEEPALIVE_LIMIT_BYTES = 60 * 1024;
 
 export type StudioSaveStatus = "saved" | "saving" | "unsaved" | "conflict" | "error";
 

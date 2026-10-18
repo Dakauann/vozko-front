@@ -71,13 +71,13 @@ const LEAD_SHEET_ACTIONS: LeadSheetActions = {
   removeRelation: removeLeadRelationAction,
 };
 
-export interface LeadSheetSeed {
+interface LeadSheetSeed {
   draft: LeadSheetDraft;
   title: string;
   description: string;
 }
 
-export interface LeadSheetProps {
+interface LeadSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   leadId?: string | null;

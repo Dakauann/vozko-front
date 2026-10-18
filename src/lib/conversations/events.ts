@@ -79,7 +79,7 @@ const TRANSFER_OR_QUEUE = new Set([
   "call_linked",
 ]);
 
-export function isTransferOrQueueEvent(type: string): boolean {
+function isTransferOrQueueEvent(type: string): boolean {
   return TRANSFER_OR_QUEUE.has(type);
 }
 
@@ -215,7 +215,7 @@ function firstName(
   return null;
 }
 
-export interface EventParticipants {
+interface EventParticipants {
   actor: string | null;
   from: string | null;
   to: string | null;

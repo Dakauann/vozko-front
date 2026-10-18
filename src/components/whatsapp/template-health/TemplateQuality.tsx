@@ -8,7 +8,7 @@ import { StatusChip } from "@/components/elevated-design/status-chip";
 import { FlagCheckered } from "@/components/icons";
 import { knownQuality, qualityTone, type TemplateHealth, type TemplateHealthChange } from "@/lib/whatsapp-templates/health";
 
-export type TemplateHealthState = { health: TemplateHealth | null; error: boolean };
+type TemplateHealthState = { health: TemplateHealth | null; error: boolean };
 
 export function useTemplateHealth(templateId: string | null | undefined): TemplateHealthState {
   const [state, setState] = useState<TemplateHealthState & { id: string | null }>({ id: null, health: null, error: false });

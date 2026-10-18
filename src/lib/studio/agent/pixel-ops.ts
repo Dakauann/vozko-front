@@ -6,7 +6,7 @@ import { isValidColor } from "../validate";
 import type { AgentOutcome } from "./batch";
 import { hasBox, outOfRange, withBox, type AgentBox, type Patched } from "./layer-style";
 
-export const AREA_SHAPES = ["rect", "ellipse", "polygon"] as const;
+const AREA_SHAPES = ["rect", "ellipse", "polygon"] as const;
 
 export interface AgentArea {
   shape?: (typeof AREA_SHAPES)[number];
@@ -26,7 +26,7 @@ export interface AgentPixelFields {
   paint_opacity?: number;
 }
 
-export interface PixelOperation extends AgentPixelFields, AgentBox {
+interface PixelOperation extends AgentPixelFields, AgentBox {
   op: "add_paint_layer" | "paint_area" | "crop_to_area" | "copy_area_to_layer";
   layer_id?: string;
   name?: string;
@@ -62,7 +62,7 @@ function shapePoints(area: AgentArea, canvas: CanvasSize): Patched<number[]> {
   return { ok: true, value: shape === "rect" ? rectPoints(a, b) : ellipsePoints(a, b) };
 }
 
-export function areaSelection(area: AgentArea | undefined, canvas: CanvasSize): Patched<PixelSelection> {
+function areaSelection(area: AgentArea | undefined, canvas: CanvasSize): Patched<PixelSelection> {
   if (!area) return { ok: false, reason: AREA_HELP };
   const feather = outOfRange("area.feather", area.feather, PIXEL_RANGES.feather);
   if (feather) return { ok: false, reason: feather };

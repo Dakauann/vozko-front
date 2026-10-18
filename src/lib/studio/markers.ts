@@ -22,9 +22,9 @@ export interface MarkerPatch {
 
 export type MarkerRefusal = "missing" | "taken";
 
-export type MarkerListResult<M extends Marker> = { ok: true; list: M[] } | { ok: false; reason: MarkerRefusal };
+type MarkerListResult<M extends Marker> = { ok: true; list: M[] } | { ok: false; reason: MarkerRefusal };
 
-export type MarkerResult = { ok: true; document: VideoDocument } | { ok: false; reason: MarkerRefusal };
+type MarkerResult = { ok: true; document: VideoDocument } | { ok: false; reason: MarkerRefusal };
 
 function clampTo(value: number, low: number, high: number): number {
   return Math.min(Math.max(low, Math.round(value)), high);
@@ -34,7 +34,7 @@ function cleanText(value: string, limit: number): string {
   return [...value.trim()].slice(0, limit).join("");
 }
 
-export function shapedMarker<M extends Marker>(marker: M, patch: MarkerPatch, maxAtMs: number): M {
+function shapedMarker<M extends Marker>(marker: M, patch: MarkerPatch, maxAtMs: number): M {
   const atMs = clampTo(patch.atMs ?? marker.atMs, 0, maxAtMs);
   const durationMs = clampTo(patch.durationMs ?? marker.durationMs ?? 0, 0, maxAtMs - atMs);
   const label = cleanText(patch.label ?? marker.label ?? "", STUDIO_LIMITS.maxMarkerLabelRunes);
@@ -66,7 +66,7 @@ export function editMarkerIn<M extends Marker>(list: readonly M[], markerId: str
   return { ok: true, list: sorted(list.map((m) => (m.id === markerId ? shaped : m))) };
 }
 
-export function markerFieldsIssue(marker: Marker, maxAtMs: number): IssueCode | null {
+function markerFieldsIssue(marker: Marker, maxAtMs: number): IssueCode | null {
   const durationMs = marker.durationMs ?? 0;
   if (!Number.isInteger(marker.atMs) || marker.atMs < 0 || marker.atMs > maxAtMs) return "out_of_range";
   if (!Number.isInteger(durationMs) || durationMs < 0 || marker.atMs + durationMs > maxAtMs) return "out_of_range";

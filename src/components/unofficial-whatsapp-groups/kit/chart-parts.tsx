@@ -1,6 +1,4 @@
 "use client";
-
-import { Skeleton } from "@/components/audience/shared";
 import { cn } from "@/lib/utils";
 
 export interface TipRow {
@@ -63,16 +61,5 @@ export function Readout({ label, value }: { label: string; value: string }) {
       {label}
       <span className="readout text-xs font-semibold tabular-nums text-foreground">{value}</span>
     </span>
-  );
-}
-
-export function PanelSkeleton({ height = 220 }: { height?: number }) {
-  return (
-    <div className="space-y-3">
-      <Skeleton className="h-3 w-1/3" />
-      <div style={{ height }}>
-        <Skeleton className="h-full w-full" />
-      </div>
-    </div>
   );
 }

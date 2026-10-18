@@ -2,8 +2,8 @@ import type { ColorStop, ExportScene, PortableBlend, RasterItem, SceneStroke, Sc
 import type { Box } from "./paint";
 import { segmentControls, type Subpath } from "./path-nodes";
 
-export const PT_PER_PX = 0.75;
-export const PDF_CREATOR = "Vozko Estúdio";
+const PT_PER_PX = 0.75;
+const PDF_CREATOR = "Vozko Estúdio";
 export const PDF_PRESETS = ["digital", "print"] as const;
 export type PdfPreset = (typeof PDF_PRESETS)[number];
 export const PDF_PATCH_RATIOS: Record<PdfPreset, number> = { digital: 2, print: 300 / 96 };
@@ -35,7 +35,7 @@ export interface PdfPage {
   images: ReadonlyMap<string, PlacedPdfImage>;
 }
 
-export interface PdfDocument {
+interface PdfDocument {
   title: string;
   created: Date;
   pages: readonly PdfPage[];

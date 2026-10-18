@@ -11,9 +11,9 @@ import { loudnessProfile, type LoudnessProfile } from "@/lib/studio/loudness";
 import { decodeAudioFile, PREVIEW_SAMPLE_RATE } from "./audio-graph";
 import { channelsOf } from "./export/audio-mixdown";
 
-export type ProfileLoader = (assetId: string) => Promise<LoudnessProfile | null>;
+type ProfileLoader = (assetId: string) => Promise<LoudnessProfile | null>;
 
-export type SpectrumLoader = (assetId: string) => Promise<SpectrumProfile | null>;
+type SpectrumLoader = (assetId: string) => Promise<SpectrumProfile | null>;
 
 async function decodedProfile(assetId: string): Promise<LoudnessProfile | null> {
   const buffer = await decodeAudioFile(assetId, PREVIEW_SAMPLE_RATE);
@@ -50,7 +50,7 @@ class AssetCache<T> {
   }
 }
 
-export class ReactLevels {
+class ReactLevels {
   private readonly profiles: AssetCache<LoudnessProfile>;
   private readonly spectra: AssetCache<SpectrumProfile>;
   private memo: { key: string; levels: TrackLevels } | null = null;

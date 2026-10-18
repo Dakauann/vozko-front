@@ -1,6 +1,6 @@
 export const LIMIT_CEILING = 0.95;
-export const LIMIT_ATTACK_MS = 5;
-export const LIMIT_RELEASE_MS = 50;
+const LIMIT_ATTACK_MS = 5;
+const LIMIT_RELEASE_MS = 50;
 
 function wantedGain(channels: readonly Float32Array[], length: number): Float32Array | null {
   const gain = new Float32Array(length);

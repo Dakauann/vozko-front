@@ -1,4 +1,4 @@
-export const DATA_CHANGED_EVENT = "vozko:data-changed";
+const DATA_CHANGED_EVENT = "vozko:data-changed";
 
 interface DataChangedDetail {
   resource: string;

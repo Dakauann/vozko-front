@@ -6,7 +6,7 @@ export type LeadImportStatus = (typeof LEAD_IMPORT_STATUSES)[number];
 
 export type LeadImportStage = "rows" | "links" | "seed";
 
-export const LEAD_IMPORT_GROUPS = ["identity", "phones", "contact", "address", "owner", "consent", "custom", "family"] as const;
+const LEAD_IMPORT_GROUPS = ["identity", "phones", "contact", "address", "owner", "consent", "custom", "family"] as const;
 
 export type LeadImportFieldGroup = (typeof LEAD_IMPORT_GROUPS)[number];
 
@@ -16,7 +16,7 @@ export type LeadImportStep = "file" | "columns" | "importing" | "done";
 
 export const LEAD_IMPORT_ACCEPT = ".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain";
 
-export interface LeadImportColumn {
+interface LeadImportColumn {
   index: number;
   header: string;
   field: string;
@@ -84,7 +84,7 @@ export type LeadImportPlacement = Record<(typeof LEAD_IMPORT_PLACEMENT_KEYS)[num
 
 export type LeadImportPlacementBucket = "precise" | "approximate" | "pending" | "notLocated" | "noAddress";
 
-export interface LeadImportPlacementRow {
+interface LeadImportPlacementRow {
   key: LeadImportPlacementBucket;
   value: number | null;
   percent: number | null;

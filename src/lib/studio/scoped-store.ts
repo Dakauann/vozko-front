@@ -4,7 +4,7 @@ import type { VideoDocument } from "./document";
 import { timelineAt, validPath, withTimelineAt, type GroupPath } from "./group-scope";
 import type { StudioEditorState, StudioEditorStore } from "./store";
 
-export interface ScopeSource {
+interface ScopeSource {
   path: () => GroupPath;
   subscribe: (listener: () => void) => () => void;
 }

@@ -16,7 +16,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 
 
-export interface CampaignsListLabels {
+interface CampaignsListLabels {
   badge: string;
   description: string;
   newButton: string;
@@ -29,7 +29,7 @@ export interface CampaignsListLabels {
   errorTitle: string;
 }
 
-export interface CampaignsListShellProps<T extends { id: string; status: string }> {
+interface CampaignsListShellProps<T extends { id: string; status: string }> {
   labels: CampaignsListLabels;
   icon: ReactNode;
   headerColorClass?: string;

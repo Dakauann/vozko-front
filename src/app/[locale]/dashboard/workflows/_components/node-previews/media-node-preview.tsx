@@ -51,7 +51,7 @@ export function MediaNodePreview({
   const { url, type, loading } = useResolvedMedia(mediaId, initialUrl, mediaType);
 
   const isImage = type.includes("image") || type === "sticker";
-  const isVideo = type.includes("video") || type === "vsl_video";
+  const isVideo = type.includes("video");
   const isAudio = type.includes("audio");
   const isPdf = type.includes("pdf") || type.includes("document");
 

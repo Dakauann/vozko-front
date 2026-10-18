@@ -95,7 +95,7 @@ function libraryLocale(locale: string): LibraryLocale {
   return (LIBRARY_LOCALES as readonly string[]).includes(short) ? (short as LibraryLocale) : "pt";
 }
 
-export function sampleTable(look: Pick<TableLook, "sample" | "header" | "style" | "align" | "widths">, locale: string, ink: string): TableSpec {
+function sampleTable(look: Pick<TableLook, "sample" | "header" | "style" | "align" | "widths">, locale: string, ink: string): TableSpec {
   const base = newTableSpec(SAMPLES[look.sample][libraryLocale(locale)], tableInk(ink), look.header);
   const solid = ink.slice(0, 7);
   return {

@@ -46,7 +46,7 @@ interface SectionProps {
   onSave: SaveWidget;
 }
 
-export function CopyButton({ value, label, copiedLabel }: { value: string; label: string; copiedLabel: string }) {
+function CopyButton({ value, label, copiedLabel }: { value: string; label: string; copiedLabel: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -64,7 +64,7 @@ export function CopyButton({ value, label, copiedLabel }: { value: string; label
   );
 }
 
-export function CodeBlock({ code, copyLabel, copiedLabel }: { code: string; copyLabel: string; copiedLabel: string }) {
+function CodeBlock({ code, copyLabel, copiedLabel }: { code: string; copyLabel: string; copiedLabel: string }) {
   return (
     <div className="relative rounded-lg border border-border bg-muted">
       <div className="absolute right-2 top-2">

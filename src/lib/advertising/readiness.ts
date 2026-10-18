@@ -1,6 +1,6 @@
 import type { AdInAppAction, AdReadiness, AdReadinessItem, AdReadinessKey, AdReadinessState } from "@/lib/advertising/types";
 
-export const READINESS_KEYS: AdReadinessKey[] = [
+const READINESS_KEYS: AdReadinessKey[] = [
   "connection",
   "advertiser_role",
   "account_status",
@@ -31,7 +31,7 @@ export function blockingItems(readiness: Pick<AdReadiness, "blocking" | "items">
   return readiness.items.filter((item) => readiness.blocking.includes(item.key));
 }
 
-export type ItemAction = { kind: "inApp"; key: AdInAppAction } | { kind: "portal"; url: string };
+type ItemAction = { kind: "inApp"; key: AdInAppAction } | { kind: "portal"; url: string };
 
 export function metaPortalUrl(raw: string | undefined): string | null {
   if (!raw) return null;

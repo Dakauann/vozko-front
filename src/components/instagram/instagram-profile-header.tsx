@@ -22,9 +22,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
 
   return (
     <ElevatedContainer className="flex flex-col gap-5 p-6">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {
-}
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <InstagramAvatar
           accountId={account.id}
           username={account.username}
@@ -67,9 +65,7 @@ export function InstagramProfileHeader({ account }: { account: InstagramAccount 
             <ProfileStat value={account.followersCount} label={t("card.followers")} />
             <ProfileStat value={account.followsCount} label={t("card.following")} />
           </dl>
-
-          {
-}
+
           <div className="flex flex-wrap gap-1.5 pt-0.5">
             <CapabilityChip enabled={account.canSendMessages} label={t("capability.messages")} />
             <CapabilityChip enabled={account.canManageComments} label={t("capability.comments")} />

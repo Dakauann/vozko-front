@@ -2,7 +2,7 @@ import type { Icon } from "@/components/icons";
 
 import { SceneFrame, SceneTile, stagger, type SceneTone } from "./scene-kit";
 
-export type FanOutNode = { icon: Icon; label: string; tone?: SceneTone };
+type FanOutNode = { icon: Icon; label: string; tone?: SceneTone };
 
 const ROWS = [16, 50, 84];
 

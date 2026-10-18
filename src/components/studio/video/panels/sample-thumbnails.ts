@@ -16,7 +16,7 @@ import { drawWhenReady, Wake } from "../export/frame-loop";
 const SAMPLE_STALL_MS = 8000;
 const NO_VIDEOS = { sync: () => [], ready: () => true };
 
-export interface ThumbnailSample<K> {
+interface ThumbnailSample<K> {
   key: K;
   doc: VideoDocument;
   atMs: number;

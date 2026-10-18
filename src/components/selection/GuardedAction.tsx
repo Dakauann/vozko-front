@@ -6,7 +6,7 @@ import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import type { ActionState } from "@/lib/selection/action-state";
 import { cn } from "@/lib/utils";
 
-export type ReasonText<R extends string = string> = (state: ActionState<R>) => string | null;
+type ReasonText<R extends string = string> = (state: ActionState<R>) => string | null;
 
 export const BULK_CONTROL = cn(
   "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[--radius] border border-control-edge bg-card px-2.5 text-xs font-medium text-foreground transition-colors",

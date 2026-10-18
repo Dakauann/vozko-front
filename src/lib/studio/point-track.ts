@@ -65,7 +65,7 @@ export function trackerOf(clip: Pick<Clip, "trackers">, trackerId: string | unde
   return trackerId === undefined ? undefined : clip.trackers?.find((tracker) => tracker.id === trackerId);
 }
 
-export function frameSizeOf(tracker: Pick<PointTracker, "frameWidth" | "frameHeight">): FrameSize {
+function frameSizeOf(tracker: Pick<PointTracker, "frameWidth" | "frameHeight">): FrameSize {
   return { width: tracker.frameWidth, height: tracker.frameHeight };
 }
 
@@ -148,7 +148,7 @@ export function stabilizeIssue(clip: Pick<Clip, "type" | "freeze" | "trackers" |
 
 const SMOOTHED = new WeakMap<readonly TrackSample[], Map<number, TrackSample[]>>();
 
-export function smoothedSamples(samples: readonly TrackSample[], smoothMs: number): readonly TrackSample[] {
+function smoothedSamples(samples: readonly TrackSample[], smoothMs: number): readonly TrackSample[] {
   let byWidth = SMOOTHED.get(samples);
   if (!byWidth) {
     byWidth = new Map();
@@ -249,7 +249,7 @@ export function stabilizedWindow(clip: Pick<Clip, "type" | "trimInMs" | "duratio
   return window ? { window } : {};
 }
 
-export interface WindowPlacement {
+interface WindowPlacement {
   x: number;
   y: number;
   scale: number;
@@ -324,7 +324,7 @@ export function framePointOfBox(point: PathPoint, size: FrameSize, boxAspect: nu
   return { x: (r.sx + ((point.x * boxAspect - r.dx) * r.sw) / r.dw) / size.width, y: (r.sy + ((point.y - r.dy) * r.sh) / r.dh) / size.height };
 }
 
-export function framePixelsPerBoxHeight(size: FrameSize, boxAspect: number, fit: Fit): number {
+function framePixelsPerBoxHeight(size: FrameSize, boxAspect: number, fit: Fit): number {
   const r = fitOf(size, boxAspect, fit);
   return r.sh / r.dh;
 }
@@ -337,13 +337,13 @@ function flipped(point: PathPoint, clip: Pick<Clip, "flipX" | "flipY">): PathPoi
   return { x: clip.flipX ? 1 - point.x : point.x, y: clip.flipY ? 1 - point.y : point.y };
 }
 
-export function shownTrackerPoint(clip: Pick<Clip, "trackers" | "stabilize">, tracker: PointTracker, sourceMs: number): PathPoint {
+function shownTrackerPoint(clip: Pick<Clip, "trackers" | "stabilize">, tracker: PointTracker, sourceMs: number): PathPoint {
   const raw = trackerPointAt(tracker, sourceMs);
   const window = frameWindowAt(clip, sourceMs);
   return window ? shownOfReal(window, frameSizeOf(tracker), raw) : raw;
 }
 
-export type TrackedClip = Pick<Clip, "type" | "trimInMs" | "durationMs" | "speed" | "reverse" | "freeze" | "trackers" | "stabilize" | "transform" | "fit" | "flipX" | "flipY">;
+type TrackedClip = Pick<Clip, "type" | "trimInMs" | "durationMs" | "speed" | "reverse" | "freeze" | "trackers" | "stabilize" | "transform" | "fit" | "flipX" | "flipY">;
 
 export function trackedPoint(clip: TrackedClip, tracker: PointTracker, localMs: number, placed: Transform, canvasAspect: number): PathPoint {
   const shown = shownTrackerPoint(clip, tracker, sourceAt(clip, localMs));
@@ -377,11 +377,7 @@ export function frameJobOf(request: BoxTrackRequest, size: FrameSize): TrackJob 
   return { point, size: size01, atMs: request.atMs, fromMs: request.fromMs, toMs: request.toMs, direction: request.direction };
 }
 
-export function trackerSpan(tracker: Pick<PointTracker, "samples">): [number, number] {
-  return [tracker.samples[0].atMs, tracker.samples[tracker.samples.length - 1].atMs];
-}
-
-export interface TrackerSummary {
+interface TrackerSummary {
   frames: number;
   meanConfidence: number;
   lowestConfidence: number;

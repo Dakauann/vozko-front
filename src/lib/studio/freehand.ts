@@ -1,7 +1,7 @@
 import type { PathNode, Subpath } from "./path-nodes";
 import type { Point } from "./viewport";
 
-export interface FreehandOptions {
+interface FreehandOptions {
   tolerance: number;
   closeDistance: number;
 }

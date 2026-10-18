@@ -3,26 +3,7 @@
 import * as React from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowCounterClockwise,
-  Calculator,
-  CalendarCheck,
-  CircleNotch,
-  CurrencyDollar,
-  Eye,
-  FloppyDisk,
-  Gear,
-  Lightning,
-  Megaphone,
-  MonitorPlay,
-  PencilSimple,
-  Phone,
-  Scales,
-  WhatsappLogo,
-  X,
-} from "@/components/icons";
-import type {
-} from "@/app/actions/pricing";
+import { ArrowCounterClockwise, CalendarCheck, CircleNotch, CurrencyDollar, Eye, FloppyDisk, Gear, Lightning, Megaphone, PencilSimple, Phone, Scales, WhatsappLogo, X } from "@/components/icons";
 import type {
   PricingAuditEntry,
   PricingItem,
@@ -62,7 +43,6 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { Icon } from "@/components/icons";
-import { IconBox } from "@/components/elevated-design/listing-card";
 import { toast } from "sonner";
 import { auditChangeOf } from "@/lib/pricing/audit";
 import { useTranslations } from "next-intl";
@@ -732,85 +712,6 @@ export default function AdminPricingPage() {
         </Tabs>
       </div>
     </main>
-  );
-}
-
-
-function CalculatorSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
-      <div className="px-5 py-3 border-b border-border">
-        <h4 className="text-xs font-semibold text-muted-foreground">
-          {title}
-        </h4>
-      </div>
-      <div className="p-5 grid gap-4 sm:grid-cols-2">{children}</div>
-    </div>
-  );
-}
-
-function CalcField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function ResultCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-[--radius] border border-border bg-card overflow-hidden shadow-sm">
-      <div className="px-5 py-3 border-b border-border">
-        <h4 className="text-xs font-semibold text-muted-foreground">
-          {title}
-        </h4>
-      </div>
-      <div className="divide-y divide-border/30">{children}</div>
-    </div>
-  );
-}
-
-function ResultRow({
-  label,
-  value,
-  bold,
-  color,
-}: {
-  label: string;
-  value: string;
-  bold?: boolean;
-  color?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between px-5 py-2.5">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span
-        className={`text-sm tabular-nums ${bold ? "font-semibold" : "font-medium"} ${color ?? "text-foreground"}`}
-      >
-        {value}
-      </span>
-    </div>
   );
 }
 

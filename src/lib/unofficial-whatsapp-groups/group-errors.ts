@@ -1,4 +1,4 @@
-export type GroupErrorKey =
+type GroupErrorKey =
   | "inviteInvalid"
   | "numberOffline"
   | "numberReconnect"

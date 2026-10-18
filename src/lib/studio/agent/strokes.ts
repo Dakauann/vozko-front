@@ -6,9 +6,9 @@ import { isUpright } from "./look-views";
 import { paintOf, type Box, type SceneElement, type SceneGround } from "./scene";
 import { inkBox, isText, type TextElement, type TextMeasure } from "./text-ink";
 
-export type StrokeKind = "line" | "arrow" | "bar" | "border";
+type StrokeKind = "line" | "arrow" | "bar" | "border";
 
-export interface StrokeCrossing {
+interface StrokeCrossing {
   stroke: SceneElement;
   text: TextElement;
   kind: StrokeKind;

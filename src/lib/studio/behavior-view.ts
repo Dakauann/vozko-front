@@ -8,7 +8,7 @@ import { AXIS_SCALE_PROPERTIES, PATH_PROPERTY, type AnimatedProperty } from "./k
 
 const PX_PER_SAMPLE = 2;
 
-export function behaviorLanes(clip: Pick<Clip, "keyframes">, property: BehaviorProperty): AnimatedProperty[] {
+function behaviorLanes(clip: Pick<Clip, "keyframes">, property: BehaviorProperty): AnimatedProperty[] {
   if (property === "x" || property === "y") return onPath(clip) ? [PATH_PROPERTY] : [property];
   if (property === "scale") return axisScaled(clip) ? [...AXIS_SCALE_PROPERTIES] : ["scale"];
   if (property === "scaleX" || property === "scaleY") return axisScaled(clip) ? [property] : ["scale"];

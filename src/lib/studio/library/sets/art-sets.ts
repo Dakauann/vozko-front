@@ -3,7 +3,7 @@ import type { EmojiIndexEntry } from "./format";
 
 export const ART_SHARE = 0.5;
 
-export interface ArtSet {
+interface ArtSet {
   id: string;
   subcategory: "people" | "illustrations";
   source: LibrarySource;

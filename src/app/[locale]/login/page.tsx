@@ -198,9 +198,7 @@ function LoginContent() {
 
   return (
     <main className="relative flex min-h-[calc(100vh-3rem)] items-center justify-center overflow-hidden bg-background px-4 py-10 sm:py-16">
-      <LightPool />
-      {
-}
+      <LightPool />
       <CircuitTraces className="pointer-events-none absolute -right-12 -top-12 hidden h-80 w-80 sm:block lg:-right-16 lg:-top-16 lg:h-[30rem] lg:w-[30rem]" />
       <DotMatrix className="pointer-events-none absolute bottom-10 left-8 hidden h-24 w-36 sm:block" />
       <div className="relative w-full max-w-[400px]">
@@ -270,9 +268,7 @@ function LoginContent() {
                   {t("form.forgotPassword")}
                 </Link>
               </div>
-
-              {
-}
+
               <Button
                 variant="primary"
                 size="lg"

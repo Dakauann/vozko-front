@@ -6,7 +6,7 @@ export const QR_OPERATIONS = ["add_qr_code", "update_qr_code"] as const;
 
 export type QrOpName = (typeof QR_OPERATIONS)[number];
 
-export const AGENT_QR_LINKS = ["short_link", "whatsapp", "url", "text"] as const;
+const AGENT_QR_LINKS = ["short_link", "whatsapp", "url", "text"] as const;
 
 export type AgentQrLink = (typeof AGENT_QR_LINKS)[number];
 
@@ -26,7 +26,7 @@ export interface AgentQrFields {
   qr_remove_logo?: boolean;
 }
 
-export interface QrOpContext {
+interface QrOpContext {
   shortLinkUrl: (id: string) => string | undefined;
   naturalSize: (mediaId: string) => CanvasSize | undefined;
 }
@@ -53,7 +53,7 @@ function isAgentLink(value: string): value is AgentQrLink {
   return (AGENT_QR_LINKS as readonly string[]).includes(value);
 }
 
-export function agentLinkKind(fields: AgentQrFields, current: QrLink | null): AgentQrLink | null {
+function agentLinkKind(fields: AgentQrFields, current: QrLink | null): AgentQrLink | null {
   if (fields.qr_link !== undefined) return isAgentLink(fields.qr_link) ? fields.qr_link : null;
   if (fields.qr_phone !== undefined) return "whatsapp";
   if (fields.qr_text !== undefined) return "text";
@@ -202,7 +202,7 @@ export function qrOutline(spec: QrSpec): OutlineQr {
   };
 }
 
-export const SHORT_LINKS_ARG = "short_links";
+const SHORT_LINKS_ARG = "short_links";
 
 export function shortLinksOf(args: unknown): ReadonlyMap<string, string> {
   const raw = args && typeof args === "object" ? (args as Record<string, unknown>)[SHORT_LINKS_ARG] : undefined;

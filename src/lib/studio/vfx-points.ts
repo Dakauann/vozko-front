@@ -5,7 +5,7 @@ import type { VfxPatch } from "./vfx-edit";
 
 const POINT_DECIMALS = 1e4;
 
-export interface VfxPoint {
+interface VfxPoint {
   id: string;
   kind: VfxKind;
   x: number;

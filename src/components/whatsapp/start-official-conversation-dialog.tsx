@@ -264,9 +264,7 @@ export function StartOfficialConversationDialog({
                             <ElevatedDialogTitle>{t("title")}</ElevatedDialogTitle>
                             <ElevatedDialogDescription>{t("description")}</ElevatedDialogDescription>
                         </ElevatedDialogHeader>
-
-                        {
-}
+
                         <div className="-mx-7 min-h-0 flex-1 overflow-y-auto px-7">
                             {phones.length === 0 ? (
                                 <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
@@ -281,9 +279,7 @@ export function StartOfficialConversationDialog({
                                         onChange={setPhoneId}
                                         legend={t("fromLabel")}
                                     />
-
-                                    {
-}
+
                                     <div className="space-y-1.5">
                                         <ElevatedCommandSelect
                                             label={t("templateLabel")}
@@ -348,9 +344,7 @@ export function StartOfficialConversationDialog({
                                             </p>
                                         )}
                                     </div>
-
-                                    {
-}
+
                                     <div className="space-y-3">
                                       <div className="space-y-1.5">
                                         <ElevatedInput
@@ -392,9 +386,7 @@ export function StartOfficialConversationDialog({
                                           className="w-full"
                                       />
                                     </div>
-
-                                    {
-}
+
                                     <TemplateVariableFields
                                         slots={slots}
                                         bodyValues={bodyValues}
@@ -404,9 +396,7 @@ export function StartOfficialConversationDialog({
                                     />
 
                                   </div>
-
-                                  {
-}
+
                                   <div className="space-y-3 lg:sticky lg:top-0 lg:self-start">
                                     <span className="legend">{t("previewLabel")}</span>
                                     <TemplateConversationPreview
@@ -501,9 +491,7 @@ export function StartOfficialConversationDialog({
                                         {t("create.phoneHint")}
                                     </p>
                                 )}
-
-                                {
-}
+
                                 <div className="space-y-2">
                                     <span className="legend">{t("create.startersLabel")}</span>
                                     <div className="grid gap-2">
@@ -539,9 +527,7 @@ export function StartOfficialConversationDialog({
                                     <p className="text-xs leading-relaxed text-muted-foreground">
                                         {t("create.utilityNote")}
                                     </p>
-
-                                    {
-}
+
                                     <a
                                         href="/dashboard/whatsapp-templates/new"
                                         target="_blank"
@@ -614,9 +600,7 @@ export function StartOfficialConversationDialog({
                                     </Notice>
                                 )}
                               </div>
-
-                              {
-}
+
                               <div className="space-y-3 lg:sticky lg:top-0 lg:self-start">
                                 <span className="legend">{t("create.previewLabel")}</span>
                                 <TemplateConversationPreview
@@ -628,9 +612,7 @@ export function StartOfficialConversationDialog({
                                 <p className="text-xs leading-relaxed text-muted-foreground">
                                     {t("create.previewHint")}
                                 </p>
-
-                                {
-}
+
                                 <div className="rounded-lg border border-border bg-muted p-3">
                                     <div className="flex items-start gap-2.5">
                                         <Clock

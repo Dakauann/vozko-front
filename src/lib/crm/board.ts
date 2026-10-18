@@ -1,6 +1,6 @@
 import type { InboxEntry, WhatsAppCampaignTypeFilter } from '@/lib/conversations/types';
 
-export type CrmFilterConjunction = 'and' | 'or';
+type CrmFilterConjunction = 'and' | 'or';
 
 export interface CrmFilterPredicate {
     field: string;
@@ -22,7 +22,7 @@ export const emptyCrmFilter: CrmFilter = { groups: [] };
 
 const KEYED_FIELD_SEPARATOR = ':';
 
-export interface CrmFilterTarget {
+interface CrmFilterTarget {
     field: string;
     key?: string;
 }
@@ -253,7 +253,7 @@ export function encodeFilterParam(filter: CrmFilter | null | undefined): string 
     return encodeBase64(JSON.stringify(filter));
 }
 
-export type FilterParam =
+type FilterParam =
     | { status: 'empty'; filter: CrmFilter }
     | { status: 'valid'; filter: CrmFilter }
     | { status: 'invalid' };

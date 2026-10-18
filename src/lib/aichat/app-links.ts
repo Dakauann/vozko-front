@@ -2,7 +2,7 @@ import { defaultUrlTransform } from "react-markdown";
 
 import { conversationHref, isEntryId, isEntryType } from "@/lib/conversations/deep-link";
 
-export type AppLink = { kind: "internal"; path: string } | { kind: "external"; href: string };
+type AppLink = { kind: "internal"; path: string } | { kind: "external"; href: string };
 
 const CAMPAIGN = /^campaign:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 const APP_SCHEMES = ["campaign:", "conversation:"];

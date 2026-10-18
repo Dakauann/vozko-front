@@ -16,14 +16,14 @@ export interface PathKey extends PathPoint {
   out?: PathPoint;
 }
 
-export interface MotionPath {
+interface MotionPath {
   keys: PathKey[];
   points: PathPoint[];
   dots: PathPoint[];
   curved: boolean;
 }
 
-export const PATH_SAMPLES = 96;
+const PATH_SAMPLES = 96;
 
 const AXES = ["x", "y"] as const;
 const FRAME_MS = 1000 / FRAMES_PER_SECOND;
@@ -102,7 +102,7 @@ export function pathHandlePoint(clip: PathClip, tip: PathPoint): PathPoint {
   return { x: tip.x - shift.x, y: tip.y - shift.y };
 }
 
-export interface FloatingPosition {
+interface FloatingPosition {
   left: number;
   top: number;
   inside: boolean;

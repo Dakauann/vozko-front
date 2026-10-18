@@ -16,7 +16,6 @@ type BaseVariant =
   | "secondary"
   | "outline"
   | "ghost"
-  | "vsl"
   | "action"
   | "search";
 
@@ -24,8 +23,7 @@ type LegacyVariant =
   | "main-cta"
   | "secondary-cta"
   | "main-cta-mobile"
-  | "secondary-cta-mobile"
-  | "vsl-cta";
+  | "secondary-cta-mobile";
 
 type ButtonVariant = BaseVariant | LegacyVariant;
 type ElevatedInputSize = "sm" | "default" | "lg";
@@ -46,14 +44,12 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   secondary: "secondary",
   outline: "outline",
   ghost: "ghost",
-  vsl: "vsl",
   action: "action",
   search: "search",
   "main-cta": "primary",
   "main-cta-mobile": "primary",
   "secondary-cta": "secondary",
   "secondary-cta-mobile": "secondary",
-  "vsl-cta": "vsl",
 };
 
 const floatingSize: Record<ElevatedInputSize, string> = {
@@ -112,7 +108,6 @@ const inputVariantClasses: Record<BaseVariant, string> = {
     "focus-visible:shadow-[inset_0_-2px_0_0_hsl(var(--primary-edge))]",
     "focus-visible:ring-2 focus-visible:ring-primary/15",
   ),
-  vsl: FIELD,
   action:
     "bg-primary text-primary-foreground border border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   search: FIELD,
@@ -133,7 +128,6 @@ const iconColorByVariant: Record<BaseVariant, string> = {
   secondary: "text-muted-foreground",
   outline: "text-muted-foreground",
   ghost: "text-muted-foreground",
-  vsl: "text-muted-foreground",
   action: "text-primary-foreground",
   search: "text-muted-foreground",
 };
@@ -261,9 +255,7 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
               inputClassName,
             )}
           />
-
-          {
-}
+
           {isFloating ? (
             <label
               htmlFor={inputId}
@@ -289,9 +281,7 @@ const ElevatedInput = forwardRef<HTMLInputElement, ElevatedInputProps>(
             </button>
           )}
         </div>
-
-        {
-}
+
         {error ? (
           <p
             id={errorId}

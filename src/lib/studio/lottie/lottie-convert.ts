@@ -14,7 +14,7 @@ import { readTransform, stillAffine, transformMoves, type TransformSpec } from "
 import type { LottieAnimation, LottieAsset, LottieLayer } from "./lottie-types";
 import { readBezier, readValue, stillVec, valueAtFrame, type Animated, type Vec } from "./lottie-values";
 
-export interface LottieConvertOptions {
+interface LottieConvertOptions {
   canvas: CanvasSize;
   atMs: number;
   name: string;

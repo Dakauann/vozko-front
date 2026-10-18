@@ -30,7 +30,7 @@ import type { FrameExtractor } from "../video/timeline/frame-extractor";
 
 const RASTER_QUALITY = 0.92;
 const FALLBACK_QUALITIES = [0.82, 0.68, 0.55, 0.42];
-export const MAX_CAPTURE_URL_CHARS = 2_000_000;
+const MAX_CAPTURE_URL_CHARS = 2_000_000;
 const MAX_ARTBOARD_RASTER_PIXELS = 16_000_000;
 const LOOK_STALL_MS = 8000;
 const ARTBOARD_SHEET_GAP = 24;
@@ -59,7 +59,7 @@ export interface LookOverlay {
 
 export const PLAIN_LOOK: LookOverlay = { view: "render", targets: [], numbered: false };
 
-export interface CapturedFrame {
+interface CapturedFrame {
   canvas: HTMLCanvasElement;
   label: string;
 }
@@ -380,7 +380,7 @@ function contactSheet(frames: readonly CapturedFrame[], layout: SheetLayout): st
   return encodeWithin(sheet);
 }
 
-export function encodeWithin(canvas: HTMLCanvasElement, maxChars: number = MAX_CAPTURE_URL_CHARS): string {
+function encodeWithin(canvas: HTMLCanvasElement, maxChars: number = MAX_CAPTURE_URL_CHARS): string {
   for (const quality of FALLBACK_QUALITIES) {
     const url = canvas.toDataURL("image/jpeg", quality);
     if (url.length <= maxChars) return url;
@@ -390,7 +390,7 @@ export function encodeWithin(canvas: HTMLCanvasElement, maxChars: number = MAX_C
   return encodeWithin(half, maxChars);
 }
 
-export interface VideoLook {
+interface VideoLook {
   times: readonly number[];
   dense: boolean;
   region: RegionBox | null;
@@ -487,7 +487,7 @@ async function surfaceBitmap(doc: ImageSurface, pixelRatio: number, keep: (layer
   return createImageBitmap(blob);
 }
 
-export interface ArtboardShot {
+interface ArtboardShot {
   surface: ImageSurface;
   label: string;
   overlay: LookOverlay;

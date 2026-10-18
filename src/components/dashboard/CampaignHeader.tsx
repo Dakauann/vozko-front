@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { useCrm } from "@/contexts/crm-context";
 
 
-export interface CampaignHeaderTranslations {
+interface CampaignHeaderTranslations {
   back: string;
   badge: string;
   crm: string;

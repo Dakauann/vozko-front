@@ -6,7 +6,7 @@ export interface SearchableNode {
   config?: Record<string, unknown>;
 }
 
-export function nodeSearchText(node: SearchableNode): string {
+function nodeSearchText(node: SearchableNode): string {
   const parts: string[] = [node.id, node.label ?? "", node.nodeType];
   const walk = (value: unknown) => {
     if (value == null) return;
@@ -30,7 +30,7 @@ export function nodeSearchText(node: SearchableNode): string {
   return parts.join("  ").toLowerCase();
 }
 
-export interface MatchOptions {
+interface MatchOptions {
   type?: string | null;
 }
 

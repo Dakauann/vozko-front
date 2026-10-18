@@ -50,7 +50,7 @@ const CHAR_WIDTHS: [RegExp, number][] = [
   [/[A-Z]/, 0.66],
 ];
 
-export function textWidth(text: string, px: number): number {
+function textWidth(text: string, px: number): number {
   let width = 0;
   for (const char of text) width += (CHAR_WIDTHS.find(([pattern]) => pattern.test(char))?.[1] ?? 0.56) * px;
   return width;

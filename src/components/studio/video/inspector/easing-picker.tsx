@@ -31,7 +31,7 @@ function curvePath(easing: Easing): string {
   return points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`).join("");
 }
 
-export const EASING_PATHS: Record<NamedEasing, string> = Object.fromEntries(EASINGS.map((easing) => [easing, curvePath(easing)])) as Record<NamedEasing, string>;
+const EASING_PATHS: Record<NamedEasing, string> = Object.fromEntries(EASINGS.map((easing) => [easing, curvePath(easing)])) as Record<NamedEasing, string>;
 
 function withHandle(curve: Bezier, index: number, value: number): Bezier {
   return [0, 1, 2, 3].map((i) => (i === index ? value : curve[i])) as unknown as Bezier;

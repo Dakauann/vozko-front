@@ -1,22 +1,6 @@
 "use client";
 
-import {
-  WarningCircle,
-  ArrowLeft,
-  CheckCircle,
-  CircleNotch,
-  Code,
-  File,
-  Image as ImageIcon,
-  PaperPlaneTilt,
-  Phone,
-  TextT,
-  User,
-  VideoCamera,
-  Warning,
-  WhatsappLogo,
-  XCircle,
-} from "@/components/icons";
+import { WarningCircle, ArrowLeft, CheckCircle, CircleNotch, Code, File, Image as ImageIcon, PaperPlaneTilt, Phone, TextT, User, VideoCamera, Warning, XCircle } from "@/components/icons";
 import {
   extractPlaceholders,
   templateParamSlots,

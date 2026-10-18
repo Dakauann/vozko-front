@@ -15,7 +15,7 @@ export interface StackNodeExtra {
   onError: (layerId: string, error: Error) => void;
 }
 
-export type RenderStackNode = (layer: Layer, extra: StackNodeExtra) => ReactNode;
+type RenderStackNode = (layer: Layer, extra: StackNodeExtra) => ReactNode;
 
 interface LayerStackProps {
   layers: readonly Layer[];

@@ -34,12 +34,12 @@ import { RowIssueList } from "./name-cell";
 import { RowSwitch } from "./row-switch";
 import { SyncFreshness } from "./sync-freshness";
 
-export interface InsightsChain {
+interface InsightsChain {
   campaign?: AdRow;
   adSet?: AdRow;
 }
 
-export interface InsightsPanelProps {
+interface InsightsPanelProps {
   account: AdAccount;
   row: TableRow | null;
   chain: InsightsChain;

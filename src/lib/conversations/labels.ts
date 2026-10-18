@@ -3,11 +3,6 @@ import type { EntryLabel, EntryType, Label } from './types';
 import { apiClient } from '@/lib/api/browser-client';
 import { normalizeEntryType } from './types';
 
-
-export function listLabels() {
-    return apiClient<Label[]>('/labels', { method: 'GET' });
-}
-
 export function createLabel(name: string, color: string) {
     return apiClient<Label>('/labels', {
         method: 'POST',
@@ -33,7 +28,6 @@ export function reorderLabels(labelIds: string[]) {
     });
 }
 
-
 export function assignLabelToEntry(
     labelId: string,
     entryId: string,
@@ -53,11 +47,5 @@ export function removeLabelFromEntry(
     return apiClient<void>('/labels/entries', {
         method: 'DELETE',
         body: JSON.stringify({ labelId, entryId, entryType: normalizeEntryType(entryType) }),
-    });
-}
-
-export function getEntryLabels(entryType: EntryType, entryId: string) {
-    return apiClient<EntryLabel[]>(`/labels/entries/${normalizeEntryType(entryType)}/${entryId}`, {
-        method: 'GET',
     });
 }

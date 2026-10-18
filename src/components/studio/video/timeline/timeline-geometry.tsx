@@ -58,7 +58,7 @@ export function useVisibleSpan(scroll: TimelineScrollStore, leftPx: number, widt
   return fromPx < 0 ? null : { fromPx, toPx };
 }
 
-export interface DraggedMedia {
+interface DraggedMedia {
   id: string;
   type: string;
 }

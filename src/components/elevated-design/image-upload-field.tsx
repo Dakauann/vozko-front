@@ -15,9 +15,9 @@ export interface ImageUploadLabels {
   hint: string;
 }
 
-export type ImageUploadAnswer<T> = { value: T } | { error: string };
+type ImageUploadAnswer<T> = { value: T } | { error: string };
 
-export interface ImageUploadFieldProps<T> {
+interface ImageUploadFieldProps<T> {
   labels: ImageUploadLabels;
   previewUrl: string;
   accept: readonly string[];

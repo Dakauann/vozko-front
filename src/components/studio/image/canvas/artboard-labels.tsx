@@ -18,7 +18,7 @@ const COMPONENT_COLOR = "#7c3aed";
 const BADGE_PX = 7;
 const BADGE_GAP_PX = 5;
 
-export function labelTop(artboard: Artboard, scale: number): number {
+function labelTop(artboard: Artboard, scale: number): number {
   return artboard.y - (LABEL_PX + LABEL_GAP_PX) / scale;
 }
 

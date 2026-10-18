@@ -4,7 +4,7 @@ import { generatedBoard } from "./components";
 import { newStudioId, type CanvasSize, type ImageSurface, type Layer, type Transform } from "./document";
 import { squareTransform } from "./geometry";
 
-export const CHART_SHARE = 0.7;
+const CHART_SHARE = 0.7;
 
 export function chartRatio(kind: ChartKind): number {
   return isRoundChart(kind) ? 1.3 : 1.6;
@@ -18,7 +18,7 @@ export function newChartLayer(spec: ChartSpec, transform: Transform, name?: stri
   return { id: newStudioId("l"), type: "chart", ...(name ? { name } : {}), transform, chart: spec };
 }
 
-export type ExpandedChart = { ok: true; document: ImageSurface; groupId: string; ids: string[] } | { ok: false; reason: "missing" | "locked" };
+type ExpandedChart = { ok: true; document: ImageSurface; groupId: string; ids: string[] } | { ok: false; reason: "missing" | "locked" };
 
 export function expandChart(surface: ImageSurface, layerId: string): ExpandedChart {
   const layer = surface.layers.find((candidate) => candidate.id === layerId);

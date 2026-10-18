@@ -6,11 +6,11 @@ import { applyImageOperation, IMAGE_ID_FIELDS, IMAGE_OPERATIONS, imageIds, type 
 import { imageMarkTargets } from "../marks";
 import { guideReport, type AngleGroup } from "../look-views";
 
-export const EVAL_ARTBOARD_ID = "ab-1";
-export const EVAL_ARTBOARD = { width: 1080, height: 1350 };
-export const FAKE_ID_SUFFIX = "-eval";
+const EVAL_ARTBOARD_ID = "ab-1";
+const EVAL_ARTBOARD = { width: 1080, height: 1350 };
+const FAKE_ID_SUFFIX = "-eval";
 
-export interface BriefGrade {
+interface BriefGrade {
   ok: boolean;
   failures: string[];
   ignored: string[];
@@ -23,7 +23,7 @@ export interface BriefGrade {
   document: ImageDocument;
 }
 
-export function evalDocument(): ImageDocument {
+function evalDocument(): ImageDocument {
   return imageDocument([{ ...emptyArtboard(EVAL_ARTBOARD), id: EVAL_ARTBOARD_ID, name: "Arte" }]);
 }
 

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { isRecordEdit, leadActionSkipRows } from "@/lib/leads/actions";
 
-export interface LeadActionCountsProps {
+interface LeadActionCountsProps {
   action: string;
   selected: number;
   eligible: number;

@@ -17,7 +17,7 @@ import { renderPdf, renderSvg } from "./vector-export";
 
 export type Raster = typeof import("@/components/studio/canvas/rasterize");
 
-export interface ImageExportRequest {
+interface ImageExportRequest {
   format: ExportFormat;
   scale: ExportScale;
   quality: number;
@@ -36,7 +36,7 @@ export interface RenderedArtboard {
 
 export type ExportFailureKey = "errors.font" | "errors.asset" | "errors.timeout" | "errors.render" | "errors.lut";
 
-export type ExportFailure = { key: Exclude<ExportFailureKey, "errors.lut"> } | { key: "errors.lut"; layer: Layer };
+type ExportFailure = { key: Exclude<ExportFailureKey, "errors.lut"> } | { key: "errors.lut"; layer: Layer };
 
 export function loadRaster(): Promise<Raster> {
   return import("@/components/studio/canvas/rasterize");
@@ -65,13 +65,13 @@ async function rasterBlob(raster: Raster, artboard: Artboard, request: ImageExpo
   });
 }
 
-export async function renderArtboard(raster: Raster, artboard: Artboard, request: ImageExportRequest, title: string): Promise<RenderedArtboard> {
+async function renderArtboard(raster: Raster, artboard: Artboard, request: ImageExportRequest, title: string): Promise<RenderedArtboard> {
   if (request.format === "pdf") return renderPdfArtboards(raster, [artboard], request, title);
   const blob = request.format === "svg" ? await renderSvg(raster, artboard, request) : await rasterBlob(raster, artboard, request);
   return rendered([artboard], request, blob, title);
 }
 
-export async function renderPdfArtboards(raster: Raster, artboards: readonly Artboard[], request: ImageExportRequest, title: string): Promise<RenderedArtboard> {
+async function renderPdfArtboards(raster: Raster, artboards: readonly Artboard[], request: ImageExportRequest, title: string): Promise<RenderedArtboard> {
   return rendered(artboards, request, await renderPdf(raster, artboards, title, request), title);
 }
 
@@ -91,9 +91,9 @@ export function rasterizedLayers(artboards: readonly Artboard[], transparent: bo
   return artboards.reduce((sum, artboard) => sum + rasterLayerCount(exportScene(artboard, { transparent })), 0);
 }
 
-export type SavedMedia = UploadedMedia & { artboardId: string; artboardIds: readonly string[] };
+type SavedMedia = UploadedMedia & { artboardId: string; artboardIds: readonly string[] };
 
-export type SavedArtboards = { ok: true; saved: SavedMedia[] } | { ok: false; reason: string };
+type SavedArtboards = { ok: true; saved: SavedMedia[] } | { ok: false; reason: string };
 
 async function saveOne(raster: Raster, item: RenderedArtboard, projectId: string): Promise<{ data: UploadedMedia } | { error: string }> {
   const result = isRasterFormat(item.format) ? await raster.uploadRaster(item.blob, item.title, item.fileName) : await saveStudioExportAction(projectId, item.blob, item.title);
@@ -110,7 +110,7 @@ export async function saveRendered(raster: Raster, items: readonly RenderedArtbo
   return { ok: true, saved };
 }
 
-export type ExportScope = "active" | "all";
+type ExportScope = "active" | "all";
 
 const FORMATS: readonly ExportFormat[] = ["png", "jpeg", "pdf", "svg"];
 const SCALES: readonly ExportScale[] = [1, 2];

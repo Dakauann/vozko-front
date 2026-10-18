@@ -22,7 +22,7 @@ interface JobStatusProps {
   frame?: AiProgressFrame;
 }
 
-export function JobStatus({ kind, status, settling, error, frame = "strip" }: JobStatusProps) {
+function JobStatus({ kind, status, settling, error, frame = "strip" }: JobStatusProps) {
   const t = useTranslations("mediaGeneration");
   const tj = useTranslations("studio.video.jobs");
   if (status === "generating") return <AiProgressSurface label={settling ? t("finalizing") : t(`generating.${kind}`)} className={AI_PROGRESS_FRAME[frame]} />;

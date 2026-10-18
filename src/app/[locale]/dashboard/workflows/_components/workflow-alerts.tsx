@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { LintIssue } from "@/lib/workflows/types";
 
-export interface WorkflowAlertsProps {
+interface WorkflowAlertsProps {
   valid: boolean;
   issues: LintIssue[];
   linting: boolean;

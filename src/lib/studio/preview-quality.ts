@@ -6,14 +6,14 @@ type FixedQuality = Exclude<PreviewQuality, "auto">;
 
 const SCALES: Record<FixedQuality, number> = { full: 1, half: 0.5, quarter: 0.25 };
 
-export const AUTO_PLAYING_QUALITY: FixedQuality = "half";
+const AUTO_PLAYING_QUALITY: FixedQuality = "half";
 
 export function previewScale(quality: PreviewQuality, playing: boolean): number {
   if (quality === "auto") return SCALES[playing ? AUTO_PLAYING_QUALITY : "full"];
   return SCALES[quality];
 }
 
-export interface PreviewBlurState {
+interface PreviewBlurState {
   frameWidth: number;
   canvasWidth: number;
   resolution: number;

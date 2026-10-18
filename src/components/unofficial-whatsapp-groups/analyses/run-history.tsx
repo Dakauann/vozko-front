@@ -40,7 +40,7 @@ interface LoadedRuns {
   error: string | null;
 }
 
-export interface RunHistoryProps {
+interface RunHistoryProps {
   analysis: GroupAnalysis;
   participantGroups: Record<string, GroupRef[]>;
   timezone: string;

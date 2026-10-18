@@ -26,7 +26,7 @@ interface Pointer {
   y: number;
 }
 
-export interface AreaDrawControlProps {
+interface AreaDrawControlProps {
   onAreaDrawn: (area: AreaShape) => void;
   className?: string;
 }

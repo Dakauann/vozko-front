@@ -16,7 +16,7 @@ import {
 } from "@/lib/leads/search";
 import { cn } from "@/lib/utils";
 
-export interface LeadSearchBoxProps {
+interface LeadSearchBoxProps {
   search: string;
   onSearchChange: (search: string) => void;
   filter: LeadFilter;

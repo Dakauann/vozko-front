@@ -25,7 +25,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedButton from "@/components/elevated-design/button";
 import { cn } from "@/lib/utils";
 
-export interface CrmFilterStatusOption {
+interface CrmFilterStatusOption {
   value: string;
   label: string;
 }
@@ -40,7 +40,7 @@ const OWNER_ALL = "__all_owners__";
 const OWNER_UNASSIGNED = "__unassigned__";
 
 
-export interface CrmFilterBarProps {
+interface CrmFilterBarProps {
   value: CrmFilter;
   onChange: (filter: CrmFilter) => void;
   labels: Label[];
@@ -183,9 +183,7 @@ export default function CrmFilterBar({
           emptyMessage="Nenhum status"
         />
       ) : null}
-
-      {
-}
+
       {stageOptions.length > 0 ? (
         <FilterMultiSelect
           triggerLabel="Etapa"

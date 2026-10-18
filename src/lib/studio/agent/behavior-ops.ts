@@ -24,7 +24,7 @@ import { findClip } from "../timeline";
 
 export const BEHAVIOR_OPERATIONS = ["add_behavior", "update_behavior", "remove_behavior", "bake_behavior"] as const;
 
-export type BehaviorOpName = (typeof BEHAVIOR_OPERATIONS)[number];
+type BehaviorOpName = (typeof BEHAVIOR_OPERATIONS)[number];
 
 export interface AgentBehaviorParams {
   frequency?: number;
@@ -46,13 +46,13 @@ export interface AgentBehaviorFields {
   audio_track_id?: string;
 }
 
-export interface BehaviorOpInput extends AgentBehaviorFields {
+interface BehaviorOpInput extends AgentBehaviorFields {
   op: string;
   clip_id?: string;
   property?: string;
 }
 
-export type BehaviorOpResult = { ok: true; document: VideoDocument; behaviorId: string; notes: string[] } | { ok: false; reason: string };
+type BehaviorOpResult = { ok: true; document: VideoDocument; behaviorId: string; notes: string[] } | { ok: false; reason: string };
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
 
@@ -62,7 +62,7 @@ function agentName(field: string): string {
   return AGENT_FIELD[field] ?? field;
 }
 
-export function isBehaviorOp(name: string): name is BehaviorOpName {
+function isBehaviorOp(name: string): name is BehaviorOpName {
   return (BEHAVIOR_OPERATIONS as readonly string[]).includes(name);
 }
 
@@ -70,7 +70,7 @@ function refuse(reason: string): BehaviorOpResult {
   return { ok: false, reason };
 }
 
-export function behaviorRefusalText(reason: BehaviorRefusal, op: BehaviorOpInput): string {
+function behaviorRefusalText(reason: BehaviorRefusal, op: BehaviorOpInput): string {
   switch (reason) {
     case "missing":
       return `o clipe ${op.clip_id ?? "(sem id)"} não existe; ${READ_AGAIN}`;

@@ -1,11 +1,11 @@
 import type { JoinTask } from "./types";
 
-export interface ScheduledJoin {
+interface ScheduledJoin {
   instanceId: string;
   at: Date;
 }
 
-export interface JoinPlan {
+interface JoinPlan {
   planId: string;
   inviteLink: string;
   follow: boolean;

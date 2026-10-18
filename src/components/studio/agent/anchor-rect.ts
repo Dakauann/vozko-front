@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export const ANCHOR_INSET = 12;
 const ANCHOR_ATTEMPTS = 120;
 
-export interface AnchorRect {
+interface AnchorRect {
   top: number;
   right: number;
   bottom: number;

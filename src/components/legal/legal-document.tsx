@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { getBrand } from "@/config/brand";
 import { useLocale, useTranslations } from "next-intl";
 
-export interface LegalDocumentProps {
+interface LegalDocumentProps {
   namespace: "termsOfService" | "privacyPolicy";
   sections: string[];
   lastUpdated: string;
@@ -105,9 +105,7 @@ export default function LegalDocument({
           <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted-foreground">
             {t("intro", values)}
           </p>
-
-          {
-}
+
           <dl className="mt-6 flex flex-wrap items-baseline gap-x-10 gap-y-3">
             {[
               { label: t("meta.version"), value: version },

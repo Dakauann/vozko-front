@@ -162,9 +162,7 @@ export default function ConnectTelegramPage() {
                       : "border-border focus:border-primary/60",
                   )}
                 />
-
-                {
-}
+
                 <div className="min-h-[1.25rem]">
                   {showMalformed && (
                     <p

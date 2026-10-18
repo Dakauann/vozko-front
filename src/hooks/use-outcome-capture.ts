@@ -4,12 +4,12 @@ import type { OutcomeCaptureSpec } from "@/lib/workspace/workspace-config/types"
 
 import { useWorkspaceConfig } from "@/hooks/use-workspace-config";
 
-export interface OutcomeCaptureState {
+interface OutcomeCaptureState {
   capture: OutcomeCaptureSpec | null;
   loaded: boolean;
 }
 
-export function outcomeCaptureApplies(
+function outcomeCaptureApplies(
   capture: OutcomeCaptureSpec | null,
   departmentId?: string | null,
 ): boolean {

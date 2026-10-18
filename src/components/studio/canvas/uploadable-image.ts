@@ -1,6 +1,6 @@
 const UPLOADABLE_TYPES = ["image/png", "image/jpeg"];
 
-export function isUploadableImage(file: File): boolean {
+function isUploadableImage(file: File): boolean {
   return UPLOADABLE_TYPES.includes(file.type);
 }
 

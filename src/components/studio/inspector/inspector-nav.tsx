@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { panelId, tabId, useInspectorStore, useInspectorValue } from "./inspector-context";
 import type { InspectorStore } from "./inspector-store";
 
-export const SEARCH_MIN_SECTIONS = 6;
+const SEARCH_MIN_SECTIONS = 6;
 
 const GROUP_ICONS: Record<InspectorGroupId, Icon> = {
   basic: SlidersHorizontal,

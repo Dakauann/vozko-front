@@ -1,6 +1,6 @@
 export type CallBlocker = "noPermission" | "connecting" | "busy";
 
-export interface CallBlockerInput {
+interface CallBlockerInput {
   permitted: boolean;
   online: boolean;
   live: boolean;

@@ -17,7 +17,7 @@ function clamp(value: number | undefined, limits: { min: number; max: number }, 
   return Math.min(value, limits.max);
 }
 
-export type HandOffRules = {
+type HandOffRules = {
   mode: RouletteMode;
   windowHours: number;
   skipAdmins: boolean;

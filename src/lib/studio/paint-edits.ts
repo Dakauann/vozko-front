@@ -3,7 +3,7 @@ import { DEFAULT_STROKE_WIDTH, fillPaints, legacyStroke, newEffect, shadowEffect
 import type { LayerPatch } from "./layers";
 
 export const NEW_FILL_COLOR = "#c4c4c4";
-export const NEW_STROKE_COLOR = "#000000";
+const NEW_STROKE_COLOR = "#000000";
 
 export function newEffectId(): string {
   return newStudioId("fx");

@@ -344,7 +344,7 @@ export function leaveFamily(doc: ImageSurface, ids: readonly string[]): ImageSur
     }, doc);
 }
 
-export type UngroupKind = "ungroup" | "release" | "leave";
+type UngroupKind = "ungroup" | "release" | "leave";
 
 export function ungroupKind(doc: ImageSurface, ids: readonly string[]): UngroupKind | null {
   const targets = ungroupTargets(doc, ids);

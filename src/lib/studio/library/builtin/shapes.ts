@@ -84,7 +84,7 @@ function headsMarkup(heads: readonly number[][], dx: number, dy: number): string
   return heads.map((points) => `<polygon points="${points.map((value, i) => round(value + (i % 2 === 0 ? dx : dy))).join(" ")}" fill="currentColor"/>`).join("");
 }
 
-export function presetMarkup(preset: VectorPreset, evenOdd = false, ends?: LineEnds): string {
+function presetMarkup(preset: VectorPreset, evenOdd = false, ends?: LineEnds): string {
   const { width, height, offset } = room(preset.ratio);
   if (preset.kind === "star") return polygonMarkup(starPolygon(preset, width, height), offset);
   const data = scalePath(preset.data, width, height);
@@ -93,7 +93,7 @@ export function presetMarkup(preset: VectorPreset, evenOdd = false, ends?: LineE
   return svg(`<g transform="${offset}"><path d="${data}" ${STROKE}/>${headsMarkup(heads, 0, 0)}</g>`);
 }
 
-export function vectorPresetMarkup(id: VectorPresetId): string {
+function vectorPresetMarkup(id: VectorPresetId): string {
   return presetMarkup(VECTOR_PRESETS[id]);
 }
 

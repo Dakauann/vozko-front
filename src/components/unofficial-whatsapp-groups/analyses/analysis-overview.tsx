@@ -41,7 +41,7 @@ const TOP_RANKED = 10;
 const CHART_HEIGHT = 236;
 const RING_SIZE = 120;
 
-export function useWindowOptions() {
+function useWindowOptions() {
   const t = useTranslations("unofficialGroups.analyses.period");
   return ANALYSIS_WINDOWS.map((value) => ({ value, label: value === -1 ? t("windows.all") : t("windows.days", { count: value }) }));
 }

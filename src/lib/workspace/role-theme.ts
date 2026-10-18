@@ -13,9 +13,9 @@ import {
 
 import type { RolePresetKey } from "./types";
 
-export type RolePlate = "plate-1" | "plate-2" | "plate-3" | "plate-4" | "plate-5" | "plate-neutral";
+type RolePlate = "plate-1" | "plate-2" | "plate-3" | "plate-4" | "plate-5" | "plate-neutral";
 
-export interface RoleTheme {
+interface RoleTheme {
   plate: RolePlate;
   icon: Icon;
 }

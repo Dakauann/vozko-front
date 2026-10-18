@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 const DEFAULT_THRESHOLD = 30;
 const MAX_CODE_LENGTH = 64;
 
-export function emptyCapture(): OutcomeCaptureSpec {
+function emptyCapture(): OutcomeCaptureSpec {
   return {
     enabled: false,
     requireOnFinish: true,
@@ -40,7 +40,7 @@ function normalizeCode(raw: string): string {
     .slice(0, MAX_CODE_LENGTH);
 }
 
-export function validateCapture(
+function validateCapture(
   capture: OutcomeCaptureSpec,
   t: (key: string) => string,
 ): string[] {

@@ -2,7 +2,7 @@ import { emptyFormBuilder, type FormBuilderState, type LeadForm } from "@/lib/ad
 
 export type ChatChannel = "whatsapp" | "messenger" | "instagram";
 
-export type DestinationView =
+type DestinationView =
   | { kind: "chat"; channel: ChatChannel; greeting: string; iceBreakers: string[] }
   | { kind: "form"; formId: string }
   | { kind: "website"; link: string; address: string }
@@ -10,7 +10,7 @@ export type DestinationView =
   | { kind: "post" }
   | { kind: "none" };
 
-export interface DestinationSource {
+interface DestinationSource {
   greeting?: string;
   iceBreakers?: string[];
   leadFormId?: string;

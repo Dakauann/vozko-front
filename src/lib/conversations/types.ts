@@ -3,7 +3,6 @@ import type { AdOrigin } from './ad-origin';
 import type { LiveRead } from '@/lib/live-decisions/types';
 import type { LeadsBulkUpdateEvent, LeadUpdateEvent } from '@/lib/leads/types';
 
-
 export interface Stage {
     id: string;
     userId: string;
@@ -34,7 +33,6 @@ export interface InboxEntryStage {
     color: string;
 }
 
-
 export interface Label {
     id: string;
     userId: string;
@@ -61,7 +59,6 @@ export interface InboxEntryLabel {
     name: string;
     color: string;
 }
-
 
 export type EntryType =
     | 'whatsapp'
@@ -159,7 +156,6 @@ export interface MediaLayout {
     thumbhash?: string;
 }
 
-
 export interface MatchedMessage {
     message_id: string;
     text: string;
@@ -230,8 +226,7 @@ export interface InboxEntry {
     ai_handler?: AIHandler | null;
 }
 
-
-export interface TemplateMetadataButton {
+interface TemplateMetadataButton {
     type: string;
     text: string;
     url?: string;
@@ -303,58 +298,6 @@ export interface MessageLocation {
     candidate: boolean;
 }
 
-
-export interface ConversationMedia {
-    media_id: string;
-    media_type: MediaType;
-    url: string;
-    filename: string;
-}
-
-
-export interface WsSubscribePayload {
-    entry_id: string;
-    entry_type: EntryType;
-    page_size?: number;
-}
-
-export interface WsUnsubscribePayload {
-    entry_id: string;
-    entry_type: EntryType;
-}
-
-export interface WsSendPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    text: string;
-    media_id?: string;
-    media_type?: MediaType;
-}
-
-export interface WsMarkReadPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    message_ids: string[];
-}
-
-export interface WsTypingPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    is_typing: boolean;
-}
-
-export interface WsLoadHistoryPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    before: string;
-    page_size?: number;
-}
-
-export interface WsRequestInboxPagePayload {
-    page: number;
-    page_size?: number;
-}
-
 export interface WsSearchInboxPayload {
     query?: string;
     stage_id?: string;
@@ -375,52 +318,6 @@ export interface WsSearchInboxPayload {
     page_size?: number;
 }
 
-export interface WsSearchMessagesPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    query: string;
-    page?: number;
-    page_size?: number;
-}
-
-
-export interface WsStartCallPayload {
-    entry_id: string;
-    entry_type: EntryType;
-    request_id?: string;
-}
-
-export interface WsCallAudioPayload {
-    audio: string;
-    sample_rate?: number;
-}
-
-export interface WsEndCallPayload {
-    request_id?: string;
-}
-
-export type WsClientEvent =
-    | { type: 'subscribe'; payload: WsSubscribePayload }
-    | { type: 'unsubscribe'; payload: WsUnsubscribePayload }
-    | { type: 'send'; payload: WsSendPayload }
-    | { type: 'mark_read'; payload: WsMarkReadPayload }
-    | { type: 'typing'; payload: WsTypingPayload }
-    | { type: 'load_history'; payload: WsLoadHistoryPayload }
-    | { type: 'request_inbox_page'; payload: WsRequestInboxPagePayload }
-    | { type: 'search_inbox'; payload: WsSearchInboxPayload }
-    | { type: 'search_messages'; payload: WsSearchMessagesPayload }
-    | { type: 'start_call'; payload: WsStartCallPayload }
-    | { type: 'call_audio'; payload: WsCallAudioPayload }
-    | { type: 'end_call'; payload: WsEndCallPayload }
-    | { type: 'switch_view'; payload: WsSwitchViewPayload };
-
-export interface WsSwitchViewPayload {
-    campaign_id?: string;
-    campaign_type?: CampaignType;
-    whatsapp_campaign_type?: WhatsAppCampaignTypeFilter;
-    conversation_status?: 'new' | 'ongoing' | 'finished';
-}
-
 export type ViewMode = 'campaign' | 'global';
 
 export interface WsViewSwitchedPayload {
@@ -430,7 +327,6 @@ export interface WsViewSwitchedPayload {
     whatsapp_campaign_type?: WhatsAppCampaignTypeFilter;
     conversation_status?: 'new' | 'ongoing' | 'finished';
 }
-
 
 export interface WsInboxPayload {
     entries: InboxEntry[];
@@ -585,9 +481,7 @@ export interface WsSearchMessagesResultsPayload {
     total_pages: number;
 }
 
-
-export type CallStatus = 'ringing' | 'answered' | 'ended' | 'waiting_slot';
-
+type CallStatus = 'ringing' | 'answered' | 'ended' | 'waiting_slot';
 
 export interface WsFunnelColumnPayload {
     stage_id: string;
@@ -598,7 +492,7 @@ export interface WsFunnelColumnPayload {
     total_pages: number;
 }
 
-export interface WsFunnelColumnSummary {
+interface WsFunnelColumnSummary {
     stage_id: string;
     total_items: number;
 }
@@ -607,10 +501,9 @@ export interface WsFunnelSummaryPayload {
     columns: WsFunnelColumnSummary[];
 }
 
+type CallEndReason = 'ended' | 'failed' | 'busy' | 'no_answer' | 'declined';
 
-export type CallEndReason = 'ended' | 'failed' | 'busy' | 'no_answer' | 'declined';
-
-export type CallErrorCode =
+type CallErrorCode =
     | 'already_in_call'
     | 'no_phone'
     | 'not_configured'
@@ -670,7 +563,6 @@ export interface WsConversationStatusCountsUpdatePayload {
     counts: Record<string, number>;
 }
 
-
 export interface WSConnectedUsersPayload {
     users: ConnectedUser[]
 }
@@ -709,14 +601,12 @@ export type WsServerEvent =
     | { type: 'notification:created'; payload: unknown }
     | { type: 'conversation:error'; payload: WsErrorPayload };
 
-
 export interface WsAnalysisUpdatePayload {
     entry_id: string;
     entry_type: EntryType;
     analysis?: Analysis | null;
     pending?: boolean;
 }
-
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 

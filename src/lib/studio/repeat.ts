@@ -224,14 +224,14 @@ function mirrorPlaces(r: Repeat, box: RepeatBox): Affine[] {
   return [IDENTITY, reflectionAcross(angle, px, py)];
 }
 
-export interface Pose {
+interface Pose {
   x: number;
   y: number;
   rotation: number;
   flipX: boolean;
 }
 
-export interface PlacedPose extends Pose {
+interface PlacedPose extends Pose {
   scale: number;
 }
 

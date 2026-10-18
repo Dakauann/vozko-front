@@ -4,9 +4,9 @@ import { chunkedData, parsedModule, type Chunked } from "./chunks";
 import { ICON_CHUNK_SIZE, ICON_CHUNKS, ICON_INDEX } from "./data/loaders";
 import { centeredTarget, iconArt, iconMarkup, ICON_WEIGHTS, localizedNames, type IconIndexEntry, type IconPaths, type IconWeight } from "./format";
 
-export const ICON_SET_SOURCE: LibrarySource = { set: "phosphor", license: "MIT" };
+const ICON_SET_SOURCE: LibrarySource = { set: "phosphor", license: "MIT" };
 
-export const ICON_SET_SHARE = 0.2;
+const ICON_SET_SHARE = 0.2;
 
 export const ICON_WEIGHT_LABELS: Readonly<Record<IconWeight, LocalizedText>> = {
   regular: { pt: "Regular", en: "Regular", es: "Regular", de: "Normal" },
@@ -17,7 +17,7 @@ export const ICON_WEIGHT_LABELS: Readonly<Record<IconWeight, LocalizedText>> = {
   duotone: { pt: "Duotom", en: "Duotone", es: "Bitono", de: "Zweifarbig" },
 };
 
-export { centeredTarget };
+;
 
 function weightedLabel(names: Record<LibraryLocale, string>, weight: IconWeight): LocalizedText {
   if (weight === "regular") return names;

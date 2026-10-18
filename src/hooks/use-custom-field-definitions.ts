@@ -9,7 +9,7 @@ import type { CustomFieldDefinition, CustomFieldObjectType } from "@/lib/crm/cus
 
 const DEFINITIONS_STALE_MS = 60_000;
 
-export function customFieldDefinitionsKey(objectType: CustomFieldObjectType, workspaceId: string) {
+function customFieldDefinitionsKey(objectType: CustomFieldObjectType, workspaceId: string) {
   return ["custom-fields", objectType, workspaceId] as const;
 }
 

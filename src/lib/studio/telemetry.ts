@@ -38,7 +38,7 @@ export interface CapabilityReport {
   usage: SessionUsage;
 }
 
-export interface DueReport {
+interface DueReport {
   report: CapabilityReport;
   revision: number;
 }

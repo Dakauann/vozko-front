@@ -14,7 +14,7 @@ import { RadiusFromPlace, type RadiusCenter } from "./RadiusFromPlace";
 const FIRST_PAGE = 10;
 const NEXT_PAGE = 50;
 
-export interface DistrictListProps {
+interface DistrictListProps {
   districts: readonly DistrictCount[] | null;
   activeKey?: string | null;
   failed?: boolean;

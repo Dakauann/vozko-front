@@ -13,14 +13,12 @@ export const PLACE_KINDS = ["city", "district", "street", "cep"] as const;
 
 export type PlaceKind = (typeof PLACE_KINDS)[number];
 
-export type AddressPlaceKind = Exclude<PlaceKind, "cep">;
-
-export const PLACE_SEARCH_PATH = "/leads/places/search";
-export const PLACE_SUGGEST_PATH = "/leads/places/suggest";
+const PLACE_SEARCH_PATH = "/leads/places/search";
+const PLACE_SUGGEST_PATH = "/leads/places/suggest";
 export const PLACE_DEBOUNCE_MS = 250;
-export const PLACE_QUERY_MIN = 2;
-export const PLACE_QUERY_MAX = 60;
-export const RECENT_PLACES_MAX = 5;
+const PLACE_QUERY_MIN = 2;
+const PLACE_QUERY_MAX = 60;
+const RECENT_PLACES_MAX = 5;
 
 const CITY_SCOPED_KINDS: ReadonlySet<PlaceKind> = new Set(["district", "street"]);
 

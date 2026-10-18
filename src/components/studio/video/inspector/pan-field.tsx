@@ -8,7 +8,7 @@ import { SliderField } from "./fields";
 
 const PERCENT = 100;
 
-export function usePanText(): (pan: number) => string {
+function usePanText(): (pan: number) => string {
   const t = useTranslations("studio.video.sound");
   return (pan) => {
     const shown = Math.round(pan * PERCENT);

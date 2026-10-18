@@ -17,7 +17,7 @@ import { LabelSwatch, useLabelName } from "../label-colors";
 
 const ITEM = "gap-2 text-xs focus:bg-accent-hover focus:text-foreground";
 
-export interface TrackAction {
+interface TrackAction {
   id: "addAbove" | "addBelow" | "moveUp" | "moveDown" | "shy" | "remove";
   label: string;
   disabled: boolean;
@@ -41,7 +41,7 @@ export function useTrackActions(track: Track, name: string): TrackAction[] {
   ];
 }
 
-export interface TrackLabels {
+interface TrackLabels {
   value: LabelColor | undefined;
   choose: (color: LabelColor | undefined) => void;
 }

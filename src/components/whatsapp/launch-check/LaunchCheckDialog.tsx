@@ -42,7 +42,7 @@ const FIX_OF: Partial<Record<LaunchCode, FixKind>> = {
   balance_short: "balance",
 };
 
-export interface LaunchLinks {
+interface LaunchLinks {
   templateId?: string;
 }
 

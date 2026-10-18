@@ -1,28 +1,6 @@
 "use client";
 
-import {
-  ArrowsInSimple,
-  ArrowsOut,
-  Buildings,
-  CaretDown,
-  ChartBar,
-  ChartPie,
-  CheckCircle,
-  CircleNotch,
-  Clock,
-  Headset,
-  Hourglass,
-  Lightning,
-  Phone,
-  Pulse,
-  Robot,
-  Timer,
-  UserMinus,
-  Users,
-  Warning,
-  WhatsappLogo,
-  X,
-} from "@/components/icons";
+import { ArrowsInSimple, ArrowsOut, Buildings, CaretDown, ChartBar, ChartPie, CheckCircle, CircleNotch, Clock, Hourglass, Lightning, Phone, Pulse, Robot, Timer, UserMinus, Users, WhatsappLogo, X } from "@/components/icons";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import {
   Bar,
@@ -173,7 +151,7 @@ function OpsFilterSelect({
 type WidthBand = "wide" | "mid" | "stack";
 type HeightBand = "roomy" | "tight" | "cramped";
 
-export type LiveOpsPanelProps = {
+type LiveOpsPanelProps = {
   open: boolean;
   onClose: () => void;
   campaignType?: CampaignType;
@@ -599,99 +577,6 @@ function DeptChart({
   );
 }
 
-function DirectionMix({
-  slices,
-  loading,
-  height = 150,
-}: {
-  slices: { direction: string; count: number; pct: number }[] | undefined;
-  loading: boolean;
-  height?: number;
-}) {
-  const t = useTranslations("liveChat.opsDashboard");
-  const fmt = useFmt();
-  const data = useMemo(() => {
-    if (!slices?.length) return [];
-    return slices.map((s) => ({
-      key: s.direction,
-      name:
-        s.direction === "inbound"
-          ? t("inbound")
-          : s.direction === "outbound"
-            ? t("outbound")
-            : s.direction,
-      value: s.count,
-      pct: s.pct,
-      color:
-        s.direction === "inbound"
-          ? COLORS.finished
-          : s.direction === "outbound"
-            ? COLORS.ongoing
-            : COLORS.pending,
-    }));
-  }, [slices, t]);
-  const total = data.reduce((a, d) => a + d.value, 0);
-  if (loading) return <Skeleton h={height} />;
-  if (!data.length || !total) {
-    return (
-      <p className="py-8 text-center text-xs text-muted-foreground">
-        {t("inbound")} / {t("outbound")}: 0
-      </p>
-    );
-  }
-  const pie = Math.min(128, Math.max(88, height - 8));
-  const outer = Math.round(pie * 0.38);
-  return (
-    <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(88px,112px)_minmax(0,1fr)]">
-      <ChartContainer
-        config={{ v: { label: "v", color: COLORS.signal } }}
-        className="mx-auto aspect-auto max-w-full"
-        style={{ height: pie, width: pie }}
-      >
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            {...vozRing(outer, outer - 12)}
-          >
-            {data.map((s) => (
-              <Cell key={s.key} fill={s.color} />
-            ))}
-          </Pie>
-          <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-        </PieChart>
-      </ChartContainer>
-      <div className="min-w-0 space-y-1.5">
-        {data.map((s) => (
-          <div key={s.key} className="min-w-0">
-            <div className="flex items-center justify-between gap-2 text-2xs">
-              <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
-                <span
-                  className="h-1.5 w-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: s.color }}
-                />
-                <span className="truncate">{s.name}</span>
-              </span>
-              <span className="shrink-0 font-semibold tabular-nums text-foreground">
-                {fmt.num(s.value)} · {fmt.pct(s.pct)}
-              </span>
-            </div>
-            <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${s.pct}%`, backgroundColor: s.color }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function TeamRank({
   rows,
   loading,
@@ -955,14 +840,6 @@ export default function LiveOpsPanel({
 
   const range = useMemo(() => presetRange(preset), [preset]);
 
-  const memberNames = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const m of members) {
-      map[m.userId] = m.username || m.email || m.userId;
-    }
-    return map;
-  }, [members]);
-
   const departmentOptions = useMemo<OpsFilterOption[]>(
     () => [
       { value: "all", label: tc("all") },
@@ -992,26 +869,6 @@ export default function LiveOpsPanel({
       },
     ],
     [tc],
-  );
-
-  const directionOptions = useMemo<OpsFilterOption[]>(
-    () => [
-      { value: "all", label: tc("all") },
-      { value: "inbound", label: t("inbound") },
-      { value: "outbound", label: t("outbound") },
-    ],
-    [t, tc],
-  );
-
-  const callTypeOptions = useMemo<OpsFilterOption[]>(
-    () => [
-      { value: "all", label: tc("all") },
-      { value: "crm", label: t("typeCrm") },
-      { value: "trunk_inbound", label: t("typeTrunkIn") },
-      { value: "trunk_outbound", label: t("typeTrunkOut") },
-      { value: "workflow", label: t("typeWorkflow") },
-    ],
-    [t, tc],
   );
 
   useEffect(() => {

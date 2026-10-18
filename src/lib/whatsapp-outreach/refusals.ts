@@ -25,7 +25,7 @@ export const OUTREACH_REFUSAL_CODES = [
   "send_failed",
 ] as const;
 
-export type OutreachRefusalCode = (typeof OUTREACH_REFUSAL_CODES)[number];
+type OutreachRefusalCode = (typeof OUTREACH_REFUSAL_CODES)[number];
 
 const KNOWN: ReadonlySet<string> = new Set(OUTREACH_REFUSAL_CODES);
 

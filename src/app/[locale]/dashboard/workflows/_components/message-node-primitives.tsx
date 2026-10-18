@@ -19,14 +19,14 @@ import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 
-export const WA_CHAT_BG = "bg-[#efeae2] dark:bg-[#0b141a]";
-export const WA_BUBBLE_BG = "bg-[#d9fdd3] dark:bg-[#005c4b]";
+const WA_CHAT_BG = "bg-[#efeae2] dark:bg-[#0b141a]";
+const WA_BUBBLE_BG = "bg-[#d9fdd3] dark:bg-[#005c4b]";
 export const WA_BUBBLE_TEXT = "text-[#111b21] dark:text-[#e9edef]";
 export const WA_BUBBLE_MUTED = "text-[#4a7663] dark:text-[#9ec4b6]";
 export const WA_SURFACE_BG = "bg-white dark:bg-[#233138]";
 export const WA_MUTED_TEXT = "text-[#667781] dark:text-[#8696a0]";
 export const WA_ACTION_TEXT = "text-[#008069] dark:text-[#00a884]";
-export const WA_DIVIDER = "border-black/[0.06] dark:border-white/10";
+const WA_DIVIDER = "border-black/[0.06] dark:border-white/10";
 
 export function centerWithin(el: HTMLElement, root: HTMLElement): number {
   let top = 0;
@@ -130,7 +130,7 @@ export function MessageBubble({
   );
 }
 
-export function MediaHeader({
+function MediaHeader({
   url,
   kind,
 }: {
@@ -245,7 +245,7 @@ const HANDLE_PAD_CLASS =
   "hover:!border-primary [&.connectingfrom]:!border-primary " +
   "[&.connectingto]:!border-primary [&.valid]:!border-primary [&.valid]:!bg-primary";
 
-export function branchDotClass(id: string): string {
+function branchDotClass(id: string): string {
   const k = id.trim().toLowerCase();
   if (/(erro|error|falh|fail|send_failed)/.test(k)) return "!border-destructive";
   if (/(timeout|no_reply|tempo|esgotad|expir)/.test(k)) return "!border-warning";
@@ -313,7 +313,7 @@ function RequiredHandleMarker() {
   );
 }
 
-export interface InteractiveNodeShellProps {
+interface InteractiveNodeShellProps {
   id: string;
   label: string;
   icon: Icon;

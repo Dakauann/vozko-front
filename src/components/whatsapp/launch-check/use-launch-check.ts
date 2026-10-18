@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { getWhatsAppCampaignLaunchCheckAction, startWhatsAppCampaignAction } from "@/app/actions/whatsapp-campaigns";
 import { hasFindings, LAUNCH_REFUSAL_CODES, type LaunchReport } from "@/lib/whatsapp-campaigns/launch-check";
 
-export type LaunchPhase = "idle" | "checking" | "review" | "starting";
+type LaunchPhase = "idle" | "checking" | "review" | "starting";
 
 export interface LaunchRefusal {
   code?: string;

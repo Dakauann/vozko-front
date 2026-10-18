@@ -10,9 +10,9 @@ export type ChannelFilter =
     | "unofficial_whatsapp"
     | "webchat";
 
-export type ChannelFilterKind = "all" | "campaign" | "entry";
+type ChannelFilterKind = "all" | "campaign" | "entry";
 
-export interface ChannelFilterSpec {
+interface ChannelFilterSpec {
     value: ChannelFilter;
     kind: ChannelFilterKind;
     labelKey: string;

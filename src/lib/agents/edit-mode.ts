@@ -42,7 +42,7 @@ export function useRememberCreateMode(mode: AgentEditMode) {
     }, [mode]);
 }
 
-export function recallCreateMode(): AgentEditMode | null {
+function recallCreateMode(): AgentEditMode | null {
     if (typeof window === "undefined") return null;
     try {
         const value = window.localStorage.getItem(CREATE_MODE_KEY);
@@ -61,7 +61,7 @@ export function useRememberEditMode(agentId: string, mode: AgentEditMode) {
     }, [agentId, mode]);
 }
 
-export function recallEditMode(agentId: string): AgentEditMode | null {
+function recallEditMode(agentId: string): AgentEditMode | null {
     if (typeof window === "undefined") return null;
     try {
         const value = window.localStorage.getItem(storageKey(agentId));

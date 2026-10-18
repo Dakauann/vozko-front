@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 type ConfirmTone = "danger" | "default";
 
-export interface ConfirmDialogProps {
+interface ConfirmDialogProps {
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;

@@ -2,7 +2,7 @@ import type { Clip, MotionEdge } from "../document";
 import type { Easing, Keyframe } from "../keyframes";
 import type { PerceptionFinding } from "./perception";
 
-export interface MotionVariety {
+interface MotionVariety {
   line: string | null;
   findings: PerceptionFinding[];
 }

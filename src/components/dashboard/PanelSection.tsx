@@ -4,7 +4,7 @@ import { useId, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface PanelSectionProps {
+interface PanelSectionProps {
   legend?: string;
   title: ReactNode;
   description?: string;
@@ -43,9 +43,7 @@ export function PanelSection({
               {description}
             </p>
           ) : null}
-        </div>
-        {
-}
+        </div>
         {legend || actions ? (
           <div className="flex shrink-0 items-center gap-3">
             {legend ? <p className="legend">{legend}</p> : null}
@@ -63,4 +61,4 @@ export function PanelSection({
   );
 }
 
-export default PanelSection;
+

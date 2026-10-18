@@ -16,7 +16,7 @@ import { tileId, type MapTile } from '@/lib/maps/tiles';
 import { MAP_LAYER_MODES, type BBox, type DistrictCount, type GeoSummary, type LatLng, type LeftOutDistrict, type MapLayerMode, type MapLayerResponse, type MapPlacement, type MapPoint, type MapSpot, type MapView, type MapViewport, type Precision, type SnappedViewport } from '@/lib/maps/types';
 import { formatCep } from '@/lib/address/cep';
 
-export { offMapRows, type ColourLegendRow, type OffMapKey, type OffMapRow } from '@/lib/maps/summary';
+export { offMapRows,  type OffMapKey,  } from '@/lib/maps/summary';
 
 export const LEAD_VIEWS = ['table', 'map'] as const;
 
@@ -33,7 +33,7 @@ export function leadViewOf(chosen: LeadView | undefined, readsAddresses: boolean
     return chosen ?? defaultLeadView(readsAddresses);
 }
 
-export type LeadMapSection = 'summary' | 'districts' | 'viewport' | 'tile' | 'point' | 'left-out';
+type LeadMapSection = 'summary' | 'districts' | 'viewport' | 'tile' | 'point' | 'left-out';
 
 export interface LeadMapParams {
     filter: CrmFilter;
@@ -71,7 +71,7 @@ export function leadMapPointPath(params: LeadMapParams, at: MapSpot): string {
     return withParams('/leads/map/point', params, { lat: String(at.lat), lng: String(at.lng), placement: at.placement });
 }
 
-export const LEAD_MAP_FOCUS_PARAM = 'focus';
+const LEAD_MAP_FOCUS_PARAM = 'focus';
 
 export const LEAD_MAP_VIEW_PARAMS: readonly string[] = [LEAD_MAP_FOCUS_PARAM];
 
@@ -81,7 +81,7 @@ export function leadMapHref(leadId: string): string {
     return `${screenPaths.leads}?${query.toString()}`;
 }
 
-export interface LeadMapSearchParams {
+interface LeadMapSearchParams {
     get(name: string): string | null;
     toString(): string;
 }
@@ -112,7 +112,7 @@ export function isSameLeadMapSection(previous: readonly unknown[], next: readonl
         && previous.slice(0, MAP_SECTION_IDENTITY_PARTS).every((part, index) => part === next[index]);
 }
 
-export type LeadMapAvailability = 'ready' | 'unavailable';
+type LeadMapAvailability = 'ready' | 'unavailable';
 
 const UNAVAILABLE_CODES = new Set(['lead_map_unavailable', 'lead_areas_unavailable']);
 
@@ -221,7 +221,7 @@ export function leftOutListFilter(leftOut: MapLeftOut, pair?: string): CrmFilter
     return pair ? withSet(leftOut.filter, LEAD_FILTER_FIELD.district, [pair]) : leftOut.filter;
 }
 
-export interface VisibleCounts {
+interface VisibleCounts {
     onMap: number;
     approximate: number;
 }
@@ -242,9 +242,9 @@ export function nothingOnMap(summary: GeoSummary | null, districts: readonly Dis
     return summary.onMap === 0 && districts.length === 0;
 }
 
-export type MapEmptyKind = 'dayOne' | 'filter' | 'unplaced';
+type MapEmptyKind = 'dayOne' | 'filter' | 'unplaced';
 
-export interface MapEmptyInput {
+interface MapEmptyInput {
     filtering: boolean;
     summary: GeoSummary | null;
     districts: readonly DistrictCount[] | null;
@@ -350,7 +350,7 @@ export function parseMapPeek(value: unknown): MapPeek {
 
 const PEEK_GAP = 12;
 
-export interface Size {
+interface Size {
     width: number;
     height: number;
 }
@@ -409,7 +409,7 @@ export function addressPosition(address: LeadAddress): AddressPosition | null {
 
 const FOCUS_TONE = 'neutral' as const;
 
-export function pointId(at: LatLng, placement: MapPlacement): string {
+function pointId(at: LatLng, placement: MapPlacement): string {
     const position = `${at.lat},${at.lng}`;
     return placement === 'approximate' ? `approximate:${position}` : position;
 }
@@ -431,9 +431,9 @@ export function focusPoint(lead: Pick<LeadRecord, 'id' | 'addresses'>): MapPoint
     };
 }
 
-export type ApproximatePlaceKind = 'postal_code' | 'district' | 'city';
+type ApproximatePlaceKind = 'postal_code' | 'district' | 'city';
 
-export interface ApproximatePlace {
+interface ApproximatePlace {
     kind: ApproximatePlaceKind;
     name: string | null;
 }

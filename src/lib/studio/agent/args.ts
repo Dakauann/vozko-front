@@ -1,4 +1,4 @@
-export type Args = Record<string, unknown>;
+type Args = Record<string, unknown>;
 
 export function argsOf(value: unknown): Args {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Args) : {};

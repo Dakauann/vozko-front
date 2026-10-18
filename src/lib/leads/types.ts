@@ -11,7 +11,7 @@ export type ConversationEntryType =
     | 'unofficial_whatsapp'
     | 'webchat';
 
-export type VoiceEntryStatus =
+type VoiceEntryStatus =
     | 'PENDING'
     | 'RINGING'
     | 'ONGOING'
@@ -25,14 +25,14 @@ export type VoiceEntryStatus =
     | 'CANCELLED'
     | 'VOICEMAIL';
 
-export type WhatsAppEntryStatus =
+type WhatsAppEntryStatus =
     | 'PENDING'
     | 'SENT'
     | 'DELIVERED'
     | 'READ'
     | 'FAILED';
 
-export type LeadEntryStatus = VoiceEntryStatus | WhatsAppEntryStatus;
+type LeadEntryStatus = VoiceEntryStatus | WhatsAppEntryStatus;
 
 export interface LeadEntry {
     id: string;

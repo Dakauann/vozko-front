@@ -173,8 +173,6 @@ function DistributionConfigCard({
         </div>
       </div>
 
-      {
-}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
           <div className="flex items-center gap-1.5">
@@ -243,8 +241,6 @@ function RouletteModeOption({
       >
         {title}
       </p>
-      {
-}
       <p
         className={cn(
           "mt-0.5 text-xs",
@@ -491,8 +487,6 @@ function WorkingHoursConfigCard({
       statusLabel={statusLabel}
       statusTone={saved ? "active" : "inactive"}
     >
-      {
-}
       {!rescueActive ? (
         <Alert variant="warning">
           <Warning weight="fill" className="h-4 w-4" />

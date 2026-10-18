@@ -33,7 +33,7 @@ export type StretchAnchor = "first" | "last";
 
 type Handle = readonly [number, number];
 
-export interface Side {
+interface Side {
   influence: number;
   rise: number;
 }
@@ -189,7 +189,7 @@ export type VelocityRefusal =
   | { kind: "flat"; property: AnimatedProperty; atMs: number; side: EaseSide }
   | { kind: "steep"; property: AnimatedProperty; atMs: number; side: EaseSide; range?: readonly [number, number] };
 
-export type VelocityResult = { ok: true; keyframes: Keyframes | undefined; applied: number } | { ok: false; refusal: VelocityRefusal };
+type VelocityResult = { ok: true; keyframes: Keyframes | undefined; applied: number } | { ok: false; refusal: VelocityRefusal };
 
 interface SegmentContext {
   property: AnimatedProperty;

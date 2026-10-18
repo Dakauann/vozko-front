@@ -13,7 +13,7 @@ export interface Shape {
   fillRule: FillRule;
 }
 
-export interface OffsetSpec {
+interface OffsetSpec {
   amount: number;
   copies: number;
   copyOffset: number;
@@ -21,13 +21,13 @@ export interface OffsetSpec {
   miterLimit: number;
 }
 
-export interface ZigZagSpec {
+interface ZigZagSpec {
   size: number;
   ridges: number;
   points: ZigZagPoints;
 }
 
-export interface Operand {
+interface Operand {
   subpaths: Subpath[];
   fillRule: FillRule;
 }
@@ -255,7 +255,7 @@ export function mergeShape(shape: Shape, operand: Operand, mode: BooleanOp): Sha
   return { subpaths: merged ?? [], fillRule: "evenodd" };
 }
 
-export interface OperandBox {
+interface OperandBox {
   x: number;
   y: number;
   w: number;

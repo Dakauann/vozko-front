@@ -105,12 +105,12 @@ interface SendDraftBase {
   slots: number;
 }
 
-export interface TemplateSendDraft extends SendDraftBase {
+interface TemplateSendDraft extends SendDraftBase {
   businessPhoneId: string;
   templateId: string;
 }
 
-export interface MessageSendDraft extends SendDraftBase {
+interface MessageSendDraft extends SendDraftBase {
   instanceId: string;
   message: UnofficialWhatsAppMessageSpec;
   sendDelayMinMs: number;
@@ -294,7 +294,7 @@ function parseMissingVariable(value: unknown): SendMissingVariable | null {
   return { slot: value.slot, source: value.source, count: value.count };
 }
 
-export function parseMissingVariables(value: unknown): SendMissingVariable[] | null {
+function parseMissingVariables(value: unknown): SendMissingVariable[] | null {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value)) return null;
   const parsed = value.map(parseMissingVariable);
@@ -477,7 +477,7 @@ export type LeadSendBlocker =
 
 export type SendNumbersView = "loading" | "failed" | { connected: boolean };
 
-export interface LeadSendNumbers {
+interface LeadSendNumbers {
   official: SendNumbersView;
   unofficial: SendNumbersView;
 }

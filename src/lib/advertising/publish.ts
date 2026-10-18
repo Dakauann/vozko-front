@@ -42,9 +42,9 @@ export function publishBlockers(
   return blockers;
 }
 
-export type JobStepKey = "campaign" | "adSet" | "ads" | "activate";
+type JobStepKey = "campaign" | "adSet" | "ads" | "activate";
 
-export interface JobStep {
+interface JobStep {
   key: JobStepKey;
   done: boolean;
   created?: number;
@@ -78,7 +78,7 @@ export function jobSteps(progress: AdJobProgress | null | undefined, plan: JobPl
   return steps;
 }
 
-export type JobOutcome = "working" | "published" | "failed" | "needsReview";
+type JobOutcome = "working" | "published" | "failed" | "needsReview";
 
 export function jobOutcome(status: string): JobOutcome {
   switch (jobStatusKey(status)) {

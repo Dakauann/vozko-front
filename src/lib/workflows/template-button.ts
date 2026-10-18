@@ -1,6 +1,6 @@
 import { configText } from "./config-text";
 
-export const TEMPLATE_BUTTON_VARIABLE = "{{selected_option_id}}";
+const TEMPLATE_BUTTON_VARIABLE = "{{selected_option_id}}";
 
 const TEMPLATE_BUTTON_OPERATOR = "eq";
 const TEMPLATE_BUTTON_PREFIX = "template_button:";

@@ -1,32 +1,4 @@
-import type {
-    AlertRule,
-    AlertRuleDraft,
-    AlertVocabulary,
-    AnalyzedComment,
-    AuthorContainersPage,
-    AuthorSort,
-    EscalationRecipient,
-    EscalationResult,
-    BackfillEstimate,
-    CommentAnalysisSettings,
-    CommentAnalysisSettingsPatch,
-    CommentAnalysisSpend,
-    CommentAnalysisStats,
-    CommentAuthor,
-    CommentAuthorDetail,
-    CommentBackfill,
-    CommentContainerOverridePut,
-    CommentContainerSettings,
-    CommentListFilters,
-    AudienceSource,
-    CommentSource,
-    CommentStance,
-    ModerationState,
-    PaginatedMeta,
-    ReplySuggestion,
-    RollupScope,
-    TrendPoint,
-} from '@/lib/audience/types';
+import type { AlertRule, AlertRuleDraft, AlertVocabulary, AnalyzedComment, AuthorContainersPage, AuthorSort, EscalationRecipient, EscalationResult, BackfillEstimate, CommentAnalysisSettings, CommentAnalysisSettingsPatch, CommentAnalysisSpend, CommentAnalysisStats, CommentAuthor, CommentBackfill, CommentContainerOverridePut, CommentContainerSettings, CommentListFilters, AudienceSource, CommentSource, CommentStance, ModerationState, PaginatedMeta, ReplySuggestion, RollupScope, TrendPoint } from '@/lib/audience/types';
 import { EMPTY_COUNTERS, EMPTY_META } from '@/lib/audience/types';
 
 import { apiClient } from '@/lib/api/browser-client';
@@ -148,16 +120,6 @@ export async function listCommentAuthorsAction(input: {
         return { items: [] as CommentAuthor[], meta: EMPTY_META, error: response.error.message };
     }
     return { items: response.data?.data ?? [], meta: response.data?.meta ?? EMPTY_META };
-}
-
-export async function getCommentAuthorAction(authorId: string, page = 1, pageSize = 20) {
-    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
-    const response = await apiClient<CommentAuthorDetail>(
-        `/audience/authors/${authorId}?${params.toString()}`,
-        { method: 'GET' },
-    );
-    if (response.error) return { error: response.error.message };
-    return { detail: response.data };
 }
 
 export async function listAuthorContainersAction(

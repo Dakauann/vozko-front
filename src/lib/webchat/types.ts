@@ -20,8 +20,6 @@ export const MAX_SHORT_TEXT_LENGTH = 60;
 
 export const MAX_WELCOME_MESSAGE_LENGTH = 500;
 
-export const DEFAULT_COUNTRY_CODE = '55';
-
 export const ATTACHMENT_TYPES = ['JPG', 'PNG', 'WEBP', 'GIF', 'PDF'] as const;
 
 export const ATTACHMENT_MAX_MB = 10;
@@ -100,9 +98,9 @@ export interface WebchatWidgetRequest {
     enableAutoMemory?: boolean;
 }
 
-export type OriginIssue = 'invalid' | 'insecure' | 'duplicate';
+type OriginIssue = 'invalid' | 'insecure' | 'duplicate';
 
-export type OriginCheck = { ok: true; origin: string } | { ok: false; issue: Exclude<OriginIssue, 'duplicate'> };
+type OriginCheck = { ok: true; origin: string } | { ok: false; issue: Exclude<OriginIssue, 'duplicate'> };
 
 const FORBIDDEN_ORIGIN_CHARACTERS = /[\s;,'"]/;
 const WILDCARD_PREFIX = /^([a-z][a-z0-9+.-]*):\/\/\*\.(.*)$/;
@@ -150,7 +148,7 @@ export function checkOrigin(raw: string): OriginCheck {
     return { ok: true, origin: `${scheme}://${wildcard ? '*.' : ''}${host}${port}` };
 }
 
-export interface OriginsCheck {
+interface OriginsCheck {
     origins: string[];
     rowIssues: Array<OriginIssue | null>;
     listIssue: 'required' | 'too_many' | null;
@@ -207,8 +205,6 @@ export const WEBCHAT_ERROR_CODES = [
     'widget_not_found',
     'conversation_not_found',
 ] as const;
-
-export type WebchatErrorCode = (typeof WEBCHAT_ERROR_CODES)[number];
 
 export function webchatErrorKey(code: string | undefined): string | null {
     if (!code || !(WEBCHAT_ERROR_CODES as readonly string[]).includes(code)) return null;

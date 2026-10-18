@@ -13,7 +13,7 @@ export const TRACKING = {
   refineSettled: 0.002,
 } as const;
 
-export interface PatternBox {
+interface PatternBox {
   x: number;
   y: number;
   side: number;
@@ -29,7 +29,7 @@ export interface TrackStep extends TrackPoint {
   lost: boolean;
 }
 
-export type TrackRefusal = "flat" | "outside";
+type TrackRefusal = "flat" | "outside";
 
 interface Template {
   width: number;

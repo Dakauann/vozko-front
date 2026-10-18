@@ -6,7 +6,7 @@ import { styleActionFor } from "@/lib/studio/style";
 import type { ImageCommands } from "./commands";
 import type { EditorUiStore } from "./editor-state";
 
-export interface EditorKeyDeps {
+interface EditorKeyDeps {
   commands: ImageCommands;
   ui: EditorUiStore;
   onShapeOp: (issue: ShapeOpIssue | null) => void;

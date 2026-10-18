@@ -1,11 +1,11 @@
 
-export type CsvCell = string | number | boolean | null | undefined;
+type CsvCell = string | number | boolean | null | undefined;
 
-export const CSV_DELIMITER = ";";
+const CSV_DELIMITER = ";";
 
-export const CSV_DECIMAL = ",";
+const CSV_DECIMAL = ",";
 
-export interface CsvSection {
+interface CsvSection {
     title?: string;
     header?: string[];
     rows: CsvCell[][];

@@ -7,9 +7,9 @@ import type { AgentOutcome } from "./batch";
 import type { ImageOperation } from "./image-ops";
 import { gradientOf, type AgentGradient, type AgentShadow } from "./layer-style";
 
-export const STYLE_OPERATIONS = ["create_style", "update_style", "apply_style", "detach_style", "delete_style"] as const;
+const STYLE_OPERATIONS = ["create_style", "update_style", "apply_style", "detach_style", "delete_style"] as const;
 
-export type StyleOpName = (typeof STYLE_OPERATIONS)[number];
+type StyleOpName = (typeof STYLE_OPERATIONS)[number];
 
 export interface AgentStyleValues {
   color?: string;

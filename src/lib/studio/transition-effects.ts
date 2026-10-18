@@ -4,8 +4,8 @@ import type { MotionSide } from "./motion";
 import type { RevealField } from "./reveal-field";
 import { optionValue, TRANSITION_SPECS, type IrisShape, type SplitOrientation, type TransitionDirection, type TransitionShape } from "./transitions";
 
-export const TRANSITION_BLUR_PX = 40;
-export const WHIP_BLUR_PX = 60;
+const TRANSITION_BLUR_PX = 40;
+const WHIP_BLUR_PX = 60;
 const CIRCLE_SEGMENTS = 64;
 const ARC_STEP_DEG = 5;
 

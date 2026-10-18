@@ -15,7 +15,7 @@ export interface ElevatedStepFlowStep {
 
 type StepState = "done" | "active" | "upcoming";
 
-export interface ElevatedStepFlowProps {
+interface ElevatedStepFlowProps {
   steps: ElevatedStepFlowStep[];
   currentStep: number;
   onStepClick?: (index: number) => void;

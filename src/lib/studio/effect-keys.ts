@@ -1,4 +1,4 @@
-import { editFieldValue, fieldKeyState, fieldValue, lanesIssue, setFieldKey, setFieldLane, shiftLanes, toggleFieldKey, type AnimatedFields } from "./animated-fields";
+import { editFieldValue, fieldKeyState, fieldValue, lanesIssue, setFieldLane, shiftLanes, toggleFieldKey, type AnimatedFields } from "./animated-fields";
 import type { KeyState } from "./keyframe-edit";
 import type { Keyframe } from "./keyframes";
 import { EFFECT_RANGES, type Effect } from "./layer-paint";
@@ -23,7 +23,7 @@ const EFFECT_FIELDS: AnimatedFields<Effect, EffectProperty> = {
   range: (property) => effectRange(property),
 };
 
-export function effectValue(effect: Effect, property: EffectProperty, localMs: number): number {
+function effectValue(effect: Effect, property: EffectProperty, localMs: number): number {
   return fieldValue(EFFECT_FIELDS, effect, property, localMs);
 }
 
@@ -50,10 +50,6 @@ export function withoutEffectKeys(effects: readonly Effect[]): Effect[] {
     delete plain.keyframes;
     return plain;
   });
-}
-
-export function setEffectKey(effect: Effect, property: EffectProperty, atMs: number, value: number): Effect {
-  return setFieldKey(EFFECT_FIELDS, effect, property, atMs, value);
 }
 
 export function setEffectLane(effect: Effect, property: EffectProperty, frames: readonly Keyframe[]): Effect {

@@ -43,7 +43,7 @@ function isNewer(read: LiveRead, analysis: Analysis | null): boolean {
   return new Date(read.decidedAt).getTime() > new Date(analysis.createdAt).getTime();
 }
 
-export interface AnalysisSubject {
+interface AnalysisSubject {
   entryId: string;
   entryType: AnalysisEntryType;
 }

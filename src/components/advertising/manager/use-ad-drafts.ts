@@ -63,5 +63,3 @@ export function useAdDrafts(accountId: string | null, enabled: boolean, onPublis
     reload,
   };
 }
-
-export type AdDraftsState = ReturnType<typeof useAdDrafts>;

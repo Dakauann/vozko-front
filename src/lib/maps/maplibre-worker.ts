@@ -16,7 +16,7 @@ export function ensureMapLibreWorker(): void {
   configured = true;
 }
 
-export interface MapStartErrorEvent {
+interface MapStartErrorEvent {
   error?: unknown;
   sourceId?: unknown;
   tile?: unknown;

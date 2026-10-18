@@ -12,20 +12,6 @@ function ElevatedSheet({
   return <SheetPrimitive.Root data-slot="elevated-sheet" {...props} />;
 }
 
-function ElevatedSheetTrigger({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
-  return (
-    <SheetPrimitive.Trigger data-slot="elevated-sheet-trigger" {...props} />
-  );
-}
-
-function ElevatedSheetClose({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Close>) {
-  return <SheetPrimitive.Close data-slot="elevated-sheet-close" {...props} />;
-}
-
 function ElevatedSheetPortal({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
@@ -148,8 +134,8 @@ function ElevatedSheetDescription({
 
 export {
   ElevatedSheet,
-  ElevatedSheetTrigger,
-  ElevatedSheetClose,
+  
+  
   ElevatedSheetContent,
   ElevatedSheetHeader,
   ElevatedSheetFooter,

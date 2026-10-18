@@ -66,7 +66,7 @@ export function isAgentMessage(
   return messageType === "audio" && isOutgoingMessage(msg, leadNumber);
 }
 
-export type SenderBadge = "human" | "ai" | "workflow" | "campaign" | "external";
+type SenderBadge = "human" | "ai" | "workflow" | "campaign" | "external";
 
 const BADGED: readonly SenderKind[] = ["human", "ai", "workflow", "campaign", "external"];
 

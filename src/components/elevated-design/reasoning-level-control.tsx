@@ -12,7 +12,7 @@ const TOOLBAR_SELECT =
 const FIELD_SELECT =
   "h-9 w-full appearance-none rounded-[--radius] border border-border bg-muted pl-8 pr-8 text-sm font-medium text-foreground transition-colors hover:border-control-edge focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60";
 
-export interface ReasoningLevelControlProps {
+interface ReasoningLevelControlProps {
   options: ReasoningOptions | undefined;
   value: string;
   onChange: (level: string) => void;

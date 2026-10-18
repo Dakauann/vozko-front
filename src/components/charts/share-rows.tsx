@@ -2,7 +2,7 @@
 
 import { Meter } from "@/components/charts/vozko";
 
-export type ShareRow = {
+type ShareRow = {
   key: string;
   label: string;
   value: number;

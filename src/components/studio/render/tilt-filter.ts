@@ -39,7 +39,7 @@ function programOf(): GlProgram {
   return program;
 }
 
-export class TiltFilter extends Filter {
+class TiltFilter extends Filter {
   private readonly values: UniformGroup;
 
   constructor(private readonly frame: Sprite) {
@@ -80,7 +80,7 @@ function boundsCorners(target: Container): { x: number; y: number }[] {
   ].map((point) => applyAffine(affine, point));
 }
 
-export function tiltReach(tilt: SceneTilt, corners: readonly { x: number; y: number }[]): number {
+function tiltReach(tilt: SceneTilt, corners: readonly { x: number; y: number }[]): number {
   return Math.min(quadReach(corners, corners.map((point) => projectHomography(tilt.matrix, point))), Math.hypot(tilt.width, tilt.height));
 }
 

@@ -22,7 +22,7 @@ const TILE_ICONS: Record<LeadSummaryTileId, ReactNode> = {
   windowOpen: <Clock className="h-4 w-4 text-healthy-ink" weight="fill" />,
 };
 
-export interface LeadStatsStripProps {
+interface LeadStatsStripProps {
   filter: LeadFilter;
   search: string;
   onFilterChange: (filter: LeadFilter) => void;

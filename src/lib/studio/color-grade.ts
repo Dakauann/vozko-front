@@ -15,7 +15,7 @@ export interface GradeExtras {
   lut?: GradeLut;
 }
 
-export const GRADE_EXTRAS = ["curves", "hsl", "lut"] as const satisfies readonly (keyof GradeExtras)[];
+const GRADE_EXTRAS = ["curves", "hsl", "lut"] as const satisfies readonly (keyof GradeExtras)[];
 
 export type GradeExtra = (typeof GRADE_EXTRAS)[number];
 
@@ -81,7 +81,7 @@ export function extrasOf(grade: ColorGrade | undefined): GradeExtras {
   return extras;
 }
 
-export function primaryOf(grade: ColorGrade | undefined): PrimaryGrade {
+function primaryOf(grade: ColorGrade | undefined): PrimaryGrade {
   const primary: PrimaryGrade = {};
   for (const field of GRADE_FIELDS) {
     const v = grade?.[field];
@@ -169,7 +169,7 @@ function luma(rgb: readonly number[]): number {
   return LUMA[0] * rgb[0] + LUMA[1] * rgb[1] + LUMA[2] * rgb[2];
 }
 
-export function whiteBalanceGains(temperature: number, tint: number): [number, number, number] {
+function whiteBalanceGains(temperature: number, tint: number): [number, number, number] {
   const t = temperature / 100;
   const m = tint / 100;
   const raw: [number, number, number] = [1 + WHITE_BALANCE_SHIFT * t, 1 - WHITE_BALANCE_SHIFT * m, 1 - WHITE_BALANCE_SHIFT * t];
@@ -203,7 +203,7 @@ function toneAt(l: number, tone: GradeUniforms["tone"]): number {
   return clamp01(l + tone[0] * l * dark * dark + tone[1] * l * l * dark + tone[2] * dark ** 3 + tone[3] * l ** 3);
 }
 
-export function applyGrade(rgb: readonly number[], u: GradeUniforms): number[] {
+function applyGrade(rgb: readonly number[], u: GradeUniforms): number[] {
   let out = rgb.map((v, i) => toDisplay(clamp01(toLinear(v) * u.gain * u.balance[i])));
   out = out.map((v) => clamp01((v - 0.5) * u.contrast + 0.5));
   const before = luma(out);
@@ -270,7 +270,7 @@ export const GRADE_STEPS: Record<GradeField, number> = {
   vibrance: 1,
 };
 
-export interface GradeSummary {
+interface GradeSummary {
   warmth: "warm" | "cool" | null;
   exposure: number | null;
   others: number;

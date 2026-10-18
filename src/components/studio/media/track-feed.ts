@@ -7,10 +7,10 @@ import { runTrack, type FeedFrame, type FrameFeed } from "@/lib/studio/tracking/
 
 import { openTrack } from "./video-reader";
 
-export const PATTERN_PIXELS = 40;
+const PATTERN_PIXELS = 40;
 const END_SLACK_SEC = 0.001;
 
-export function analysisSize(frame: FrameSize, patternPx: number): FrameSize {
+function analysisSize(frame: FrameSize, patternPx: number): FrameSize {
   const scale = Math.min(1, PATTERN_PIXELS / Math.max(1, patternPx));
   return { width: Math.max(1, Math.round(frame.width * scale)), height: Math.max(1, Math.round(frame.height * scale)) };
 }

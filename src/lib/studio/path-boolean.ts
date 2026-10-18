@@ -7,7 +7,7 @@ import type { Point } from "./viewport";
 export const BOOLEAN_OPS = ["union", "subtract", "intersect", "exclude"] as const;
 export type BooleanOp = (typeof BOOLEAN_OPS)[number];
 
-export interface BooleanInput {
+interface BooleanInput {
   subpaths: readonly Subpath[];
   fillRule?: FillRule;
 }

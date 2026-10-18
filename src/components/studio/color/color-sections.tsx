@@ -19,7 +19,7 @@ import { useLutLibrary, type LutImport } from "./use-lut-library";
 const PERCENT = 100;
 const NONE = "";
 
-export interface FinishSectionProps {
+interface FinishSectionProps {
   disabled: boolean;
   onGrade: (change: ExtrasChange) => void;
   onStart: () => void;

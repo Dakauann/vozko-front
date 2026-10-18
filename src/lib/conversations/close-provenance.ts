@@ -93,7 +93,7 @@ export function resolveCloseProvenance(
   return null;
 }
 
-export type ConversationStatusDisplay = {
+type ConversationStatusDisplay = {
   baseLabel: string;
   label: string;
   dotClassName: string;

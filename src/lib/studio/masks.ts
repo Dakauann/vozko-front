@@ -54,7 +54,7 @@ export const MASK_RANGES: Record<MaskProperty, readonly [number, number]> = {
 };
 
 export const MASK_POINTS_RANGE = [3, 64] as const;
-export const MASK_STAR_DEFAULTS = { points: 5, inner: 0.45 } as const;
+const MASK_STAR_DEFAULTS = { points: 5, inner: 0.45 } as const;
 export const MASK_DEFAULT_PATH = "M0.5 0 L1 0.5 L0.5 1 L0 0.5 Z";
 
 const AA_PX = 0.75;

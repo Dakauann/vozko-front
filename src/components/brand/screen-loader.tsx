@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
-export type ScreenLoaderFit = "viewport" | "screen" | "fill" | "inline";
+type ScreenLoaderFit = "viewport" | "screen" | "fill" | "inline";
 
 interface ScreenLoaderProps {
   fit?: ScreenLoaderFit;
@@ -44,7 +44,7 @@ const PADS = [
   { x: 66, y: 8, delay: "1.57s" },
 ];
 
-export function TraceMark({ className }: { className?: string }) {
+function TraceMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 72 32" fill="none" aria-hidden="true" className={cn("vz-loader-mark h-auto shrink-0 overflow-visible", className)}>
       <path d={FAINT_ROUTE} className="vz-loader-route" strokeWidth={1} opacity={0.55} />

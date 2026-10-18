@@ -100,7 +100,7 @@ function wideWordText(word: MeasuredWord, boxPx: number, canvas: CanvasSize, fit
   return `tem a palavra "${word.text}" mais larga que a caixa (${Math.round(word.width)} px numa caixa de ${Math.round(boxPx)} px), e a arte parte a palavra no meio; ${fitAdvice(fitting)} ou alargue w para pelo menos ${width}`;
 }
 
-export interface ClippedFinding {
+interface ClippedFinding {
   level: Level;
   key: "word" | "fit";
   text: string;

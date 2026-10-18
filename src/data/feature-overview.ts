@@ -1,30 +1,8 @@
 import type { Icon } from "@/components/icons";
-import {
-  Brain,
-  Phone,
-  Monitor,
-  Clock,
-  Gear,
-  WhatsappLogo,
-  PaperPlaneTilt,
-  ChatCircle,
-  Megaphone,
-  Users,
-  FileText,
-  Lightning,
-  Plugs,
-  PhoneCall,
-  CalendarBlank,
-  Shield,
-  ChartBar,
-  Waveform,
-  Buildings,
-  GitBranch,
-  ArrowsClockwise,
-} from "@/components/icons";
+import { Brain, Phone, Monitor, Clock, Gear, WhatsappLogo, PaperPlaneTilt, ChatCircle, Megaphone, Users, FileText, Lightning, Plugs, PhoneCall, CalendarBlank, Shield, Buildings, GitBranch, ArrowsClockwise } from "@/components/icons";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
 
-export interface FeatureOverviewConfig {
+interface FeatureOverviewConfig {
   palette: ColorGroup[];
   seed: number;
   features: { icon: Icon; textKey: string }[];

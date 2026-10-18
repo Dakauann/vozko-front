@@ -1906,9 +1906,6 @@
     "title": "{brandLegalName}",
     "description": "Unified automation and artificial intelligence platform that delivers precision, speed, and scale for organizations selling across multiple markets and channels."
   },
-  "products": {
-    "highlights": {}
-  },
   "pricing": {
     "badge": "Pricing",
     "title": "Plans that grow with you",
@@ -2031,7 +2028,6 @@
     "pricing": "Pricing",
     "login": "Sign in",
     "requestQuote": "Request a quote",
-    "searchProducts": "Search products...",
     "adminBadge": "Administrator",
     "closeMenu": "Close menu"
   },
@@ -2048,14 +2044,6 @@
       "profile": {
         "label": "My profile",
         "description": "Personal data, password and preferences"
-      },
-      "orders": {
-        "label": "Orders and policies",
-        "description": "View your orders and active policies"
-      },
-      "addresses": {
-        "label": "Addresses",
-        "description": "Manage your delivery addresses"
       },
       "settings": {
         "label": "Settings",
@@ -30096,5 +30084,20 @@
       "customer_portfolio_list_invalid": "Invalid search",
       "failed": "Could not update the portfolio"
     }
+  },
+  "inboxMenu": {
+    "open": "Open conversation",
+    "openInWindow": "Open in a window",
+    "openLead": "Open lead record",
+    "copyContact": "Copy contact",
+    "copied": "Contact copied",
+    "copyFailed": "Could not copy the contact",
+    "assign": "Assign to",
+    "assignEmpty": "No member available",
+    "online": "Online",
+    "stage": "Move to stage",
+    "labels": "Labels",
+    "more": "More actions",
+    "moreHint": "More actions (also with right click)"
   }
 }

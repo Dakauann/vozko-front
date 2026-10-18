@@ -16,7 +16,7 @@ function capability(key: string, requires: string[], screens: string[] = []) {
   return { key, description: "", requires: requires.map(need), managersOnly: false, screens };
 }
 
-export const CALL_LIST_CATALOG: Feature[] = [
+const CALL_LIST_CATALOG: Feature[] = [
   {
     key: "call_lists",
     name: "Listas de ligação",

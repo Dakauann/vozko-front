@@ -18,7 +18,7 @@ export interface CallListsQuery {
   status?: CallListStatus;
 }
 
-export interface CallListItemsQuery {
+interface CallListItemsQuery {
   state?: CallListItemState;
   limit?: number;
   cursor?: CallListItemsCursor;

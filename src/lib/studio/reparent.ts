@@ -3,7 +3,7 @@ import { containsPoint } from "./geometry";
 import { baseOf, containerOf, dropItem, itemLayerIds, scaffoldOf, selectionItems, type TreeItem } from "./groups";
 import { isPickable, layerBounds, layerById, selectionBounds } from "./layers";
 
-export interface CanvasPoint {
+interface CanvasPoint {
   x: number;
   y: number;
 }

@@ -2,10 +2,6 @@ import type { CanvasSize } from "./document";
 import { surfaceScale, toSurface, type PixelFrame } from "./pixel-space";
 import { clipRect, PIXEL_RANGES, snapPixel, SUBTRACT, type AreaOp, type AreaPart, type PixelMode, type PixelRect } from "./pixel-surface";
 import type { Point } from "./viewport";
-
-export const SELECTION_TOOLS = ["rect", "ellipse", "lasso"] as const;
-
-export type SelectionTool = (typeof SELECTION_TOOLS)[number];
 export type SelectionMode = "add" | "subtract";
 export type SelectionCombine = SelectionMode | "replace";
 
@@ -21,7 +17,7 @@ export interface PixelSelection {
   invert: boolean;
 }
 
-export interface AreaInk {
+interface AreaInk {
   mode: PixelMode;
   color?: string;
   opacity: number;

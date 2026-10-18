@@ -29,7 +29,7 @@ import type { ExplainerId } from "@/components/explainers/catalog";
 
 type Mode = "agent" | "workflow";
 
-export interface ChannelAutomationAccount {
+interface ChannelAutomationAccount {
   id: string;
   agentId?: string | null;
   workflowId?: string | null;
@@ -423,9 +423,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             </ElevatedSelect>
           </div>
         ) : null}
-
-        {
-}
+
         {showHandling ? (
           <div className="space-y-3 border-t border-border pt-4">
             <p className="text-xs font-medium text-muted-foreground">{t("handlingTitle")}</p>

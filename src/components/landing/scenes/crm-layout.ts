@@ -67,11 +67,11 @@ export function rowEntryX(layout: CrmLayout): number {
   return layout.inbox.at[0] - 2.2;
 }
 
-export function threadY(layout: CrmLayout, down: number): number {
+function threadY(layout: CrmLayout, down: number): number {
   return layout.thread.at[1] + halfH(layout.thread) - down;
 }
 
-export function composerY(layout: CrmLayout): number {
+function composerY(layout: CrmLayout): number {
   return layout.thread.at[1] - halfH(layout.thread) + layout.composer;
 }
 

@@ -7,7 +7,7 @@ export type CounterLocale = (typeof COUNTER_LOCALES)[number];
 
 export const COUNTER_LIMITS = { decimals: [0, 3], affixRunes: 16 } as const;
 
-export interface CounterSeparators {
+interface CounterSeparators {
   group: string;
   decimal: string;
 }

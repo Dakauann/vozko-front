@@ -44,7 +44,7 @@ export interface StyleSpec {
   sources: PathSource[];
 }
 
-export interface ShapeTree {
+interface ShapeTree {
   styles: StyleSpec[];
   groups: ShapeGroup[];
 }

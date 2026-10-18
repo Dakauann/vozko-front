@@ -10,7 +10,7 @@ import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "@/components/ui/button-surface
 import type { AgentEditMode, AgentModeLead } from "@/lib/agents/edit-mode";
 import { cn } from "@/lib/utils";
 
-export type AgentModeOption = {
+type AgentModeOption = {
   mode: AgentEditMode;
   title: string;
   description: string;

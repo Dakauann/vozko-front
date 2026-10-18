@@ -50,11 +50,6 @@ export async function updateWorkspaceConfigAction(
     return { config: response.data ?? null };
 }
 
-export async function fetchWorkspaceConfig(workspaceId: string): Promise<WorkspaceConfig | null> {
-    const result = await getWorkspaceConfigAction(workspaceId);
-    return result.config;
-}
-
 export async function adminUpdateWorkspaceConfigAction(
     workspaceId: string,
     data: {

@@ -23,9 +23,9 @@ export interface LayerRowEntry {
   family?: FamilyInfo;
 }
 
-export type LayerRow = LayerRowEntry | GroupRow;
+type LayerRow = LayerRowEntry | GroupRow;
 
-export const CAPTION_RUNES = 32;
+const CAPTION_RUNES = 32;
 
 export function layerRows(doc: ImageSurface, collapsed: ReadonlySet<string> = new Set()): LayerRow[] {
   const rows: LayerRow[] = [];
@@ -67,7 +67,7 @@ export function toggleIn(current: readonly string[], ids: readonly string[]): st
   return all ? current.filter((id) => !ids.includes(id)) : [...current, ...ids.filter((id) => !current.includes(id))];
 }
 
-export type LayerCaption = { name: string } | { kind: string };
+type LayerCaption = { name: string } | { kind: string };
 
 export function layerCaption(layer: Layer): LayerCaption {
   if (layer.name) return { name: layer.name };

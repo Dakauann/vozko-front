@@ -91,7 +91,7 @@ export function TelegramLogoColor({ className }: IconProps) {
   );
 }
 
-export function FacebookMessengerLogoColor({ className }: IconProps) {
+function FacebookMessengerLogoColor({ className }: IconProps) {
   const gradientId = useId();
 
   return (

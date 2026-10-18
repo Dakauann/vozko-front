@@ -1,6 +1,6 @@
 import type { AdAccount } from "@/lib/advertising/types";
 
-export type SpendCapProblem = "invalid" | "notAboveSpent";
+type SpendCapProblem = "invalid" | "notAboveSpent";
 
 export function activeSpendCap(account: Pick<AdAccount, "spendCap">): number | null {
   return account.spendCap && account.spendCap > 0 ? account.spendCap : null;

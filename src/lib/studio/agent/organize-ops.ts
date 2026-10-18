@@ -1,7 +1,7 @@
 import { addClipMarker, beatSource, markBeats, removeClipMarker, updateClipMarker, type BeatMarkRefusal, type ClipMarkerRefusal } from "../clip-marker-edits";
 import { placedClipMarkers } from "../clip-markers";
 import type { Clip, ClipMarker, Marker, Track, VideoDocument } from "../document";
-import { LABEL_COLORS, type LabelColor } from "../labels";
+import { type LabelColor } from "../labels";
 import type { LoudnessSource } from "../loudness";
 import { addMarker, markerEndMs, removeMarker, updateMarker, type MarkerFields, type MarkerPatch } from "../markers";
 import { cleanClipName } from "../organize";
@@ -10,15 +10,9 @@ import type { AgentFocus } from "./batch";
 
 export const ORGANIZE_OPERATIONS = ["mark_beats"] as const;
 
-export const MARKER_OPERATIONS = ["add_marker", "update_marker", "remove_marker", ...ORGANIZE_OPERATIONS] as const;
-
-export type MarkerOpName = (typeof MARKER_OPERATIONS)[number];
-
-export const NO_LABEL = "none";
+const NO_LABEL = "none";
 
 export type AgentLabel = LabelColor | typeof NO_LABEL;
-
-export const AGENT_LABELS: readonly AgentLabel[] = [...LABEL_COLORS, NO_LABEL];
 
 export interface AgentOrganizeFields {
   marker_color?: AgentLabel;
@@ -30,7 +24,7 @@ export interface AgentOrganizeFields {
   unset?: ("name" | "note")[];
 }
 
-export interface MarkerOpInput extends AgentOrganizeFields {
+interface MarkerOpInput extends AgentOrganizeFields {
   op: string;
   marker_id?: string;
   clip_id?: string;
@@ -39,7 +33,7 @@ export interface MarkerOpInput extends AgentOrganizeFields {
   name?: string;
 }
 
-export type MarkerOpResult = { ok: true; document: VideoDocument; focus: AgentFocus; created: string[]; changed: string[]; notes: string[] } | { ok: false; reason: string };
+type MarkerOpResult = { ok: true; document: VideoDocument; focus: AgentFocus; created: string[]; changed: string[]; notes: string[] } | { ok: false; reason: string };
 
 export interface OutlineMarker {
   id: string;
@@ -59,10 +53,6 @@ const REFUSALS: Record<ClipMarkerRefusal, string> = {
   locked: "a faixa do clipe está travada; destrave antes",
   outside: "o instante cai fora do clipe; use at_ms entre start_ms e end_ms do clipe",
 };
-
-export function isMarkerOp(name: string): name is MarkerOpName {
-  return (MARKER_OPERATIONS as readonly string[]).includes(name);
-}
 
 function colorOf(label: AgentLabel | undefined): LabelColor | null | undefined {
   if (label === undefined) return undefined;

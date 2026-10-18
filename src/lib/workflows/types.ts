@@ -314,7 +314,7 @@ export interface TestNodePayload {
   skipExecution?: boolean;
 }
 
-export type BuilderMessageRole = "user" | "assistant" | "tool" | "system";
+type BuilderMessageRole = "user" | "assistant" | "tool" | "system";
 
 export interface BuilderSessionMessage {
   role: BuilderMessageRole;

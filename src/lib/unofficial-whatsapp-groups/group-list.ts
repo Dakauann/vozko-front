@@ -1,6 +1,6 @@
 import type { GroupActivity, GroupRow, GroupSort, PageMeta } from "./types";
 
-export interface ListStats {
+interface ListStats {
   followed: number;
   members: number;
   net: number;
@@ -12,11 +12,11 @@ export interface ListStats {
 
 export const PAGE_SIZES = [25, 50, 100] as const;
 
-export type PageSize = (typeof PAGE_SIZES)[number];
+type PageSize = (typeof PAGE_SIZES)[number];
 
 export const DEFAULT_PAGE_SIZE: PageSize = 50;
 
-export type ServerSortColumn = "group" | "members";
+type ServerSortColumn = "group" | "members";
 
 export type ClientSortColumn = "net" | "messages" | "analysis" | "numbers" | "lastActivity";
 
@@ -27,7 +27,7 @@ export interface ClientSort {
   direction: SortDirection;
 }
 
-export interface ColumnSort {
+interface ColumnSort {
   key: ServerSortColumn | ClientSortColumn;
   direction: SortDirection;
 }

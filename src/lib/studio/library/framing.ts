@@ -9,11 +9,11 @@ import type { LibraryItem } from "./model";
 
 export type FramingRefusal = "noClips" | "notMedia" | "locked" | "tooMany";
 
-export type Framed = { ok: true; document: VideoDocument; ids: string[] } | { ok: false; reason: FramingRefusal; count?: number };
+type Framed = { ok: true; document: VideoDocument; ids: string[] } | { ok: false; reason: FramingRefusal; count?: number };
 
 const FRAMED_TYPES = new Set<Clip["type"]>(["video", "image"]);
 
-export function framesClip(clip: Pick<Clip, "type">): boolean {
+function framesClip(clip: Pick<Clip, "type">): boolean {
   return FRAMED_TYPES.has(clip.type);
 }
 
@@ -30,7 +30,7 @@ function targets(doc: VideoDocument, clipIds: readonly string[]): { ok: true; cl
   return { ok: true, clips };
 }
 
-export function frameClips(doc: VideoDocument, clipIds: readonly string[], shape: FrameShape, ratio: number): Framed {
+function frameClips(doc: VideoDocument, clipIds: readonly string[], shape: FrameShape, ratio: number): Framed {
   const found = targets(doc, clipIds);
   if (!found.ok) return found;
   const canvas = videoCanvasSize(doc);
@@ -56,7 +56,7 @@ export function gridClips(doc: VideoDocument, clipIds: readonly string[], root: 
   return { ok: true, document, ids: found.clips.map((clip) => clip.id) };
 }
 
-export function mockupClips(doc: VideoDocument, clipIds: readonly string[], design: MockupDesign): Framed {
+function mockupClips(doc: VideoDocument, clipIds: readonly string[], design: MockupDesign): Framed {
   const found = targets(doc, clipIds);
   if (!found.ok) return found;
   if (found.clips.length > 1) return { ok: false, reason: "tooMany", count: 1 };

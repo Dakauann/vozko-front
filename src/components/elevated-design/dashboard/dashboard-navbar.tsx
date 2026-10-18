@@ -28,7 +28,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useSidebar } from "@/contexts/sidebar-context";
 import { useTranslations } from "next-intl";
 
-export interface DashboardNavbarProps {
+interface DashboardNavbarProps {
   translationsNamespace?: string;
   logoLink?: string;
   settingsLink?: string;

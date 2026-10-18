@@ -66,12 +66,6 @@ export interface AnalysisPagination {
     totalItems: number;
 }
 
-export interface AnalysisListResponse {
-    success: boolean;
-    data: Analysis[];
-    pagination: AnalysisPagination;
-}
-
 export interface AnalysisSingleResponse {
     success: boolean;
     data: Analysis;
@@ -105,9 +99,4 @@ export interface AnalysisStats {
     qualificationColdLead: number;
 
     subjects: SubjectCount[];
-}
-
-export interface AnalysisStatsResponse {
-    success: boolean;
-    data: AnalysisStats;
 }

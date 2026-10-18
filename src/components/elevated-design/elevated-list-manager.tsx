@@ -29,7 +29,7 @@ const DEFAULT_PRESET_COLORS = [
 ];
 
 
-export interface ColoredItem {
+interface ColoredItem {
   id: string;
   name: string;
   description?: string;
@@ -37,7 +37,7 @@ export interface ColoredItem {
   position: number;
 }
 
-export interface ElevatedListManagerProps<T extends ColoredItem> {
+interface ElevatedListManagerProps<T extends ColoredItem> {
   items: T[];
   onItemsChange?: (items: T[]) => void;
   trigger: ReactNode;

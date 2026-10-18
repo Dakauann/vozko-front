@@ -20,7 +20,7 @@ export type StageLabels = {
   steps: StageStep[];
 };
 export type StageControlLabels = { play: string; pause: string; steps: string; step: string };
-export type SceneRenderer = (progress: MotionValue<number>, reduced: boolean, palette: ScenePalette) => ReactNode;
+type SceneRenderer = (progress: MotionValue<number>, reduced: boolean, palette: ScenePalette) => ReactNode;
 
 type StageSectionProps = {
   id: string;
@@ -192,9 +192,7 @@ export function StageSection({ id, labels, controls, scene, side = "left", overv
 
         <div ref={host} className={styles.stageBody}>
           <p className={styles.stageLede}>{labels.lede}</p>
-
-          {
-}
+
           <div className={styles.stageScene}>
             <CircuitTracesWide
               tone="quiet"

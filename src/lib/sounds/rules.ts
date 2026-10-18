@@ -11,7 +11,7 @@ export function dtmfFrequencies(key: string): [number, number] | null {
     return [DTMF_ROWS[row], DTMF_COLUMNS[DTMF_LAYOUT[row].indexOf(key)]];
 }
 
-export interface MessageChimeInput {
+interface MessageChimeInput {
     silent: boolean;
     muted: boolean;
     entryId: string;

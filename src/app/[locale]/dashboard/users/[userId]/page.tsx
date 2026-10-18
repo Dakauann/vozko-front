@@ -30,18 +30,6 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
 function formatDateTime(value?: string | null) {
   if (!value) return "-";
   const date = new Date(value);

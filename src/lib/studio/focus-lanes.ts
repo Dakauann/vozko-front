@@ -1,16 +1,16 @@
 import { ANIMATED_PROPERTIES, colorAt, isMorphKey, isPositionKey, KEYFRAME_RANGES, removeKeyframe, setKeyEasingAt, timedFramesOf, valueAt, type AnimatedProperty, type ColorKeyframe, type Easing, type Keyframe, type KeyframeProperty, type Keyframes, type TimedKey } from "./keyframes";
 
 export const KEY_LANE_HEIGHT = 26;
-export const KEY_HIT_PX = 6;
+const KEY_HIT_PX = 6;
 export const CURVE_SAMPLES = 48;
-export const COLOR_STOPS = 16;
+const COLOR_STOPS = 16;
 
 export interface KeySpot {
   property: AnimatedProperty;
   atMs: number;
 }
 
-export interface ColorStop {
+interface ColorStop {
   offset: number;
   color: string;
 }

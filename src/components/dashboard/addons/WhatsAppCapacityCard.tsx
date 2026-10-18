@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { CheckCircle, PuzzlePiece, WarningCircle } from "@/components/icons";
 import { ChannelTile } from "@/components/channels/channel-tile";
 import { motion, useReducedMotion } from "framer-motion";
@@ -22,7 +20,7 @@ export interface CapacitySnapshot {
   atLimit: boolean;
 }
 
-export interface CapacityLabels {
+interface CapacityLabels {
   label: string;
   breakdown: string;
   remaining: string;
@@ -88,9 +86,7 @@ export function CapacityCard({
   return (
     <section className={shell} aria-label={t.label}>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
-          {
-}
+        <div className="flex min-w-0 items-center gap-3">
           <ChannelTile channel={channel} size="lg" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">

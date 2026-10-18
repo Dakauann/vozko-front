@@ -104,7 +104,7 @@ export function canSaveSmartPolicy(policy: SmartPolicy): boolean {
   return hasOpenDay && validateWorkingHours(policy.sendHours).length === 0;
 }
 
-export function failedCount(outcome: SmartWaveOutcome): number {
+function failedCount(outcome: SmartWaveOutcome): number {
   return Object.values(outcome.failures ?? {}).reduce((total, n) => total + n, 0);
 }
 

@@ -6,9 +6,9 @@ import { analyzeNodeAction } from "@/app/actions/workflows";
 import type { NodeAnalysis } from "@/lib/workflows/types";
 
 
-export type AnalysisStatus = "idle" | "loading" | "success" | "error";
+type AnalysisStatus = "idle" | "loading" | "success" | "error";
 
-export interface UseNodeAnalysisReturn {
+interface UseNodeAnalysisReturn {
     analysis: NodeAnalysis | null;
     status: AnalysisStatus;
     error: string | null;

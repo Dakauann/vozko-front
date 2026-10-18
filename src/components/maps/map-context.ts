@@ -5,7 +5,7 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 
 import type { MapPalette } from "@/lib/maps/palette";
 
-export interface LeadMapContextValue {
+interface LeadMapContextValue {
   map: MapLibreMap | null;
   palette: MapPalette | null;
   setDrawing: (active: boolean) => void;

@@ -15,7 +15,7 @@ export interface DraftMark {
 
 export type TableRow = ManagerRow & { draft: DraftMark | null };
 
-export type DraftNode = { kind: "campaign" } | { kind: "adset" } | { kind: "ad"; index: number };
+type DraftNode = { kind: "campaign" } | { kind: "adset" } | { kind: "ad"; index: number };
 
 export interface DraftScope {
   campaigns: ReadonlySet<string>;
@@ -23,7 +23,7 @@ export interface DraftScope {
   adSetCampaigns: ReadonlyMap<string, string>;
 }
 
-export type DraftRemoval = { kind: "draft"; draftId: string } | { kind: "ads"; draftId: string; content: MetaAdDraft; version: number };
+type DraftRemoval = { kind: "draft"; draftId: string } | { kind: "ads"; draftId: string; content: MetaAdDraft; version: number };
 
 const AD_INDEX = /^\d+$/;
 
@@ -212,7 +212,7 @@ export function draftRemovals(drafts: AdSavedDraft[], keys: Iterable<string>): D
   });
 }
 
-export interface PublishedScope {
+interface PublishedScope {
   campaignIds: string[];
   adSetIds: string[];
   adSetsOutOfScope: boolean;

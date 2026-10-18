@@ -11,8 +11,6 @@ export const MAP_CONTROL_BUTTON_ON = "bg-primary text-primary-foreground shadow-
 
 export const MAP_TOOLS_TOP = "top-3";
 
-export const BELOW_MAP_TOOLS = "top-[3.25rem]";
-
 export const MAP_PANEL_PLACEMENT = "sm:inset-x-auto sm:bottom-3 sm:right-3 sm:top-3 sm:max-h-none sm:w-[300px]";
 
 export const BESIDE_MAP_PANEL = "sm:right-[calc(300px+1.5rem)]";

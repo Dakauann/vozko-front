@@ -10,7 +10,7 @@ import { area, cornersOf, EDGES, imageScene, overlapShare, paintOf, type Box, ty
 import { STROKE_NOUNS, strokeCrossings } from "./strokes";
 import { estimateTextWidth, isText, type TextMeasure } from "./text-ink";
 
-export interface LayoutReport {
+interface LayoutReport {
   margins: string;
   levels: string | null;
   reading: string | null;

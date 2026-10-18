@@ -7,7 +7,7 @@ export interface RequiredVariable {
   index?: number;
 }
 
-export interface CampaignContactValues {
+interface CampaignContactValues {
   variables?: (string | undefined | null)[] | Record<string, string>;
   metadata?: Record<string, unknown>;
 }
@@ -18,7 +18,7 @@ export interface MissingVariable {
   suggestion?: string;
 }
 
-export interface MissingVariablesReport {
+interface MissingVariablesReport {
   contacts: number;
   variables: MissingVariable[];
 }

@@ -2,7 +2,7 @@ import type { FacebookPublishJob, FacebookPublishJobStatus } from '@/lib/faceboo
 
 export const PUBLISH_JOB_POLL_MS = 2500;
 
-export type PublishJobOutcome = 'pending' | 'published' | 'scheduled' | 'failed' | 'ambiguous';
+type PublishJobOutcome = 'pending' | 'published' | 'scheduled' | 'failed' | 'ambiguous';
 
 export function isTerminalJob(status: FacebookPublishJobStatus): boolean {
     return status === 'PUBLISHED' || status === 'SCHEDULED' || status === 'FAILED';

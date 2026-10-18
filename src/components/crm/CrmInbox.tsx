@@ -11,7 +11,6 @@ import {
   ArrowSquareOut,
   CalendarBlank,
   ChatCircleDots,
-  Check,
   Clock,
   CircleNotch,
   Funnel,
@@ -33,6 +32,9 @@ import type { FunnelStages } from "@/app/actions/stages";
 import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
 import { AiHandlerChip } from "@/components/crm/AiHandlerChip";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
+import { InboxEntryContextMenu, InboxEntryMenuButton, type InboxEntryMenuActions } from "@/components/crm/InboxEntryContextMenu";
+import { useRouter } from "@/i18n/routing";
+import { leadDetailHref } from "@/lib/leads/detail";
 import { ownerLineNamesTheAutomation } from "@/lib/conversations/attendance-summary";
 import {
   RESPONSIBLE_AI,
@@ -169,6 +171,8 @@ interface CrmInboxProps {
     entryId: string,
     entryType: EntryType,
   ) => void;
+  onAssignTo?: (entryId: string, entryType: EntryType, userId: string) => void;
+  onlineUserIds?: ReadonlySet<string>;
 }
 
 
@@ -259,6 +263,8 @@ export default function CrmInbox({
   labels: availableLabels = [],
   onAssignLabel,
   onRemoveLabel,
+  onAssignTo,
+  onlineUserIds,
 }: CrmInboxProps) {
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -266,7 +272,6 @@ export default function CrmInbox({
   const [stateFilter, setStateFilter] =
     useState<ConversationStatusFilter>("all");
   const [tagMenuEntryId, setTagMenuEntryId] = useState<string | null>(null);
-  const [labelMenuEntryId, setLabelMenuEntryId] = useState<string | null>(null);
   const [expandedLabelsEntryId, setExpandedLabelsEntryId] = useState<
     string | null
   >(null);
@@ -283,6 +288,7 @@ export default function CrmInbox({
   const blockedByDepartment = useBlockedByMissingDepartment();
   const tAnalysis = useTranslations("crmAnalysis");
   const tInbox = useTranslations("liveChat.inbox");
+  const router = useRouter();
 
   const [members, setMembers] = useState<AssignableMember[]>([]);
   useEffect(() => {
@@ -297,6 +303,23 @@ export default function CrmInbox({
     };
   }, [currentWorkspace?.id]);
   const canReadAnalysis = can("audience", "read");
+  const opensLeads = can("leads", "read");
+  const togglesLabels = can("labels", "assign") && availableLabels.length > 0 && Boolean(onAssignLabel && onRemoveLabel);
+  const menuActions = (entry: InboxEntry): InboxEntryMenuActions => ({
+    onOpen: () => onSelect(entry.entry_id, entry.entry_type),
+    onOpenInWindow: onOpenInWindow ? () => onOpenInWindow(entry) : undefined,
+    onOpenLead: opensLeads && entry.lead_id ? () => router.push(leadDetailHref(entry.lead_id ?? "")) : undefined,
+    members,
+    onlineUserIds,
+    onAssignTo: onAssignTo ? (userId) => onAssignTo(entry.entry_id, entry.entry_type, userId) : undefined,
+    onMoveStage: onEntryStageChange
+      ? (stageId) => onEntryStageChange(entry.entry_id, entry.entry_type, stageId, entry.stage?.stage_id ?? null)
+      : undefined,
+    labels: availableLabels,
+    onToggleLabel: togglesLabels
+      ? (labelId, assigned) => (assigned ? onRemoveLabel : onAssignLabel)?.(labelId, entry.entry_id, entry.entry_type)
+      : undefined,
+  });
   const inboxListRef = useRef<HTMLDivElement>(null);
   const loadMoreCalledRef = useRef(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1199,399 +1222,327 @@ export default function CrmInbox({
                       : "border-l-transparent hover:bg-muted",
                   )}
                 >
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => onSelect(entry.entry_id, entry.entry_type)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onSelect(entry.entry_id, entry.entry_type);
-                      }
-                    }}
-                    onContextMenu={(e) => {
-                      if (
-                        availableLabels.length > 0 &&
-                        (onAssignLabel || onRemoveLabel)
-                      ) {
-                        e.preventDefault();
-                        const key = `${entry.entry_type}-${entry.entry_id}`;
-                        setLabelMenuEntryId(
-                          labelMenuEntryId === key ? null : key,
-                        );
-                        setTagMenuEntryId(null);
-                      }
-                    }}
-                    className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <ChannelAvatar
-                        name={entry.lead_name || entry.lead_number}
-                        pictureUrl={entry.lead_picture}
-                        entryType={entry.entry_type}
-                        isGroup={entry.is_group}
-                        size="md"
-                      />
-                      {entry.window_open && (
-                        <span
-                          className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border border-card bg-healthy"
+                  <InboxEntryContextMenu entry={entry} actions={menuActions(entry)}>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => onSelect(entry.entry_id, entry.entry_type)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelect(entry.entry_id, entry.entry_type);
+                        }
+                      }}
+                      className="group flex w-full items-start gap-3 px-4 py-3 text-left relative cursor-pointer"
+                    >
+                      <div className="relative flex-shrink-0">
+                        <ChannelAvatar
+                          name={entry.lead_name || entry.lead_number}
+                          pictureUrl={entry.lead_picture}
+                          entryType={entry.entry_type}
+                          isGroup={entry.is_group}
+                          size="md"
                         />
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline gap-2">
-                        <span
-                          className={cn(
-                            "min-w-0 flex-1 truncate text-sm text-foreground",
-                            hasUnread ? "font-semibold" : "font-medium",
-                          )}
-                        >
-                          {entry.lead_name || entry.lead_number}
-                        </span>
-                        <span
-                          className={cn(
-                            "flex-shrink-0 text-2xs font-medium",
-                            hasUnread ? "text-primary-ink" : "text-muted-foreground",
-                          )}
-                        >
-                          {relativeTime(entry.last_message_at)}
-                        </span>
-                        {onOpenInWindow && (
-                          <button
-                            type="button"
-                            aria-label={openInWindowLabel ?? "Open in a window"}
-                            title={openInWindowLabel ?? "Open in a window"}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenInWindow(entry);
-                            }}
-                            className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
-                          >
-                            <ArrowSquareOut size={12} weight="bold" />
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-0.5 flex items-center gap-2">
-                        <p
-                          className={cn(
-                            "min-w-0 flex-1 truncate text-xs",
-                            hasUnread
-                              ? "font-medium text-foreground"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {truncate(previewWithAuthor(entry, tInbox("lastMessageYou")), 60)}
-                        </p>
-                        {hasUnread && (
-                          <span className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
-                            {entry.unread_count > 99
-                              ? "99+"
-                              : entry.unread_count}
-                          </span>
+                        {entry.window_open && (
+                          <span
+                            className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border border-card bg-healthy"
+                          />
                         )}
                       </div>
 
-                      <div className="mt-1.5 flex items-center gap-1.5">
-                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline gap-2">
                           <span
                             className={cn(
-                              "inline-flex max-w-full items-center gap-1 text-2xs font-medium",
-                              conversationStatusMeta.isSilence
-                                ? "text-warning-ink"
+                              "min-w-0 flex-1 truncate text-sm text-foreground",
+                              hasUnread ? "font-semibold" : "font-medium",
+                            )}
+                          >
+                            {entry.lead_name || entry.lead_number}
+                          </span>
+                          <span
+                            className={cn(
+                              "flex-shrink-0 text-2xs font-medium",
+                              hasUnread ? "text-primary-ink" : "text-muted-foreground",
+                            )}
+                          >
+                            {relativeTime(entry.last_message_at)}
+                          </span>
+                          {onOpenInWindow && (
+                            <button
+                              type="button"
+                              aria-label={openInWindowLabel ?? "Open in a window"}
+                              title={openInWindowLabel ?? "Open in a window"}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenInWindow(entry);
+                              }}
+                              className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                            >
+                              <ArrowSquareOut size={12} weight="bold" />
+                            </button>
+                          )}
+                          <InboxEntryMenuButton />
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <p
+                            className={cn(
+                              "min-w-0 flex-1 truncate text-xs",
+                              hasUnread
+                                ? "font-medium text-foreground"
                                 : "text-muted-foreground",
                             )}
                           >
-                            <span
-                              className={cn(
-                                "h-1.5 w-1.5 flex-shrink-0 rounded-full",
-                                conversationStatusMeta.className,
-                              )}
-                            />
-                            <span className="truncate">
-                              {conversationStatusMeta.label}
+                            {truncate(previewWithAuthor(entry, tInbox("lastMessageYou")), 60)}
+                          </p>
+                          {hasUnread && (
+                            <span className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">
+                              {entry.unread_count > 99
+                                ? "99+"
+                                : entry.unread_count}
                             </span>
-                          </span>
-                          {!ownerLineNamesTheAutomation(entry.assigned_user_id, entry.automation_enabled) && (
-                            <AiHandlerChip
-                              handler={entry.ai_handler}
-                              automationEnabled={entry.automation_enabled}
-                              conversationStatus={entry.conversation_status}
-                              assignedUserId={entry.assigned_user_id}
-                              size="sm"
-                            />
-                          )}
-                          {canReadAnalysis && entry.analysis_phase && (
-                            <span
-                              title={tAnalysis(`${entry.analysis_phase}Hint`)}
-                              className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-muted-foreground shadow-sm"
-                            >
-                              {entry.analysis_phase === "queued" ? (
-                                <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
-                              ) : (
-                                <Clock className="h-3 w-3" weight="bold" />
-                              )}
-                              <span className="truncate">
-                                {tAnalysis(entry.analysis_phase)}
-                              </span>
-                            </span>
-                          )}
-                          {entry.stage && (
-                            <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">
-                              <span
-                                className="h-1.5 w-1.5 flex-shrink-0 rounded-full"
-                                style={{ backgroundColor: entry.stage.color }}
-                              />
-                              {entry.stage.name}
-                            </span>
-                          )}
-                          {entry.labels?.slice(0, 2).map((label) => (
-                            <span
-                              key={label.label_id}
-                              className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
-                              style={{
-                                backgroundColor: label.color,
-                                color: readableInkFor(label.color),
-                              }}
-                            >
-                              {label.name}
-                            </span>
-                          ))}
-                          {entry.labels && entry.labels.length > 2 && (
-                            <div className="relative">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const key = `${entry.entry_type}-${entry.entry_id}`;
-                                  setExpandedLabelsEntryId(
-                                    expandedLabelsEntryId === key ? null : key,
-                                  );
-                                }}
-                                className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground hover:bg-border transition-colors"
-                              >
-                                +{entry.labels.length - 2}
-                              </button>
-                              {expandedLabelsEntryId ===
-                                `${entry.entry_type}-${entry.entry_id}` && (
-                                <>
-                                  <div
-                                    className="fixed inset-0 z-40"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setExpandedLabelsEntryId(null);
-                                    }}
-                                  />
-                                  <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-card shadow-lg py-1.5 px-2">
-                                    <div className="px-1 pb-1 text-2xs font-semibold text-muted-foreground">
-                                      Todos os labels
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      {entry.labels.map((label) => (
-                                        <span
-                                          key={label.label_id}
-                                          className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
-                                          style={{
-                                            backgroundColor: label.color,
-                                            color: readableInkFor(label.color),
-                                          }}
-                                        >
-                                          {label.name}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-                            </div>
                           )}
                         </div>
 
-                        {availableTags.length > 0 && (
-                          <div className="relative flex-shrink-0">
-                            {onEntryStageChange ? (
-                              <>
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                            <span
+                              className={cn(
+                                "inline-flex max-w-full items-center gap-1 text-2xs font-medium",
+                                conversationStatusMeta.isSilence
+                                  ? "text-warning-ink"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "h-1.5 w-1.5 flex-shrink-0 rounded-full",
+                                  conversationStatusMeta.className,
+                                )}
+                              />
+                              <span className="truncate">
+                                {conversationStatusMeta.label}
+                              </span>
+                            </span>
+                            {!ownerLineNamesTheAutomation(entry.assigned_user_id, entry.automation_enabled) && (
+                              <AiHandlerChip
+                                handler={entry.ai_handler}
+                                automationEnabled={entry.automation_enabled}
+                                conversationStatus={entry.conversation_status}
+                                assignedUserId={entry.assigned_user_id}
+                                size="sm"
+                              />
+                            )}
+                            {canReadAnalysis && entry.analysis_phase && (
+                              <span
+                                title={tAnalysis(`${entry.analysis_phase}Hint`)}
+                                className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-muted-foreground shadow-sm"
+                              >
+                                {entry.analysis_phase === "queued" ? (
+                                  <CircleNotch className="h-3 w-3 animate-spin" weight="bold" />
+                                ) : (
+                                  <Clock className="h-3 w-3" weight="bold" />
+                                )}
+                                <span className="truncate">
+                                  {tAnalysis(entry.analysis_phase)}
+                                </span>
+                              </span>
+                            )}
+                            {entry.stage && (
+                              <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground shadow-sm">
+                                <span
+                                  className="h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                                  style={{ backgroundColor: entry.stage.color }}
+                                />
+                                {entry.stage.name}
+                              </span>
+                            )}
+                            {entry.labels?.slice(0, 2).map((label) => (
+                              <span
+                                key={label.label_id}
+                                className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
+                                style={{
+                                  backgroundColor: label.color,
+                                  color: readableInkFor(label.color),
+                                }}
+                              >
+                                {label.name}
+                              </span>
+                            ))}
+                            {entry.labels && entry.labels.length > 2 && (
+                              <div className="relative">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const key = `${entry.entry_type}-${entry.entry_id}`;
-                                    setTagMenuEntryId(
-                                      tagMenuEntryId === key ? null : key,
+                                    setExpandedLabelsEntryId(
+                                      expandedLabelsEntryId === key ? null : key,
                                     );
                                   }}
-                                  className="flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors"
-                                  title="Mover para outra tag"
+                                  className="inline-flex items-center rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground hover:bg-border transition-colors"
                                 >
-                                  <TagIcon weight="bold" className="h-3 w-3" />
+                                  +{entry.labels.length - 2}
                                 </button>
-                                {tagMenuEntryId ===
+                                {expandedLabelsEntryId ===
                                   `${entry.entry_type}-${entry.entry_id}` && (
                                   <>
                                     <div
                                       className="fixed inset-0 z-40"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setTagMenuEntryId(null);
+                                        setExpandedLabelsEntryId(null);
                                       }}
                                     />
-                                    <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-lg border border-border bg-card shadow-lg py-1">
-                                      <div className="px-2 py-1 text-2xs font-semibold text-muted-foreground">
-                                        Mover para
+                                    <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-card shadow-lg py-1.5 px-2">
+                                      <div className="px-1 pb-1 text-2xs font-semibold text-muted-foreground">
+                                        Todos os labels
                                       </div>
-                                      {availableTags.map((tag) => {
-                                        const isCurrentTag =
-                                          entry.stage?.stage_id === tag.id;
-                                        return (
-                                          <button
-                                            key={tag.id}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (!isCurrentTag) {
-                                                const currentTagId =
-                                                  entry.stage?.stage_id ?? null;
-                                                onEntryStageChange(
-                                                  entry.entry_id,
-                                                  entry.entry_type,
-                                                  tag.id,
-                                                  currentTagId,
-                                                );
-                                              }
-                                              setTagMenuEntryId(null);
+                                      <div className="flex flex-wrap gap-1">
+                                        {entry.labels.map((label) => (
+                                          <span
+                                            key={label.label_id}
+                                            className="inline-flex items-center rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold"
+                                            style={{
+                                              backgroundColor: label.color,
+                                              color: readableInkFor(label.color),
                                             }}
-                                            disabled={isCurrentTag}
-                                            className={cn(
-                                              "flex w-full items-center gap-2 px-2 py-1.5 text-left text-2xs transition-colors",
-                                              isCurrentTag
-                                                ? "text-muted-foreground cursor-not-allowed"
-                                                : "text-foreground hover:bg-muted",
-                                            )}
                                           >
-                                            <span
-                                              className="h-2.5 w-2.5 rounded-full ring-1 ring-black/5 flex-shrink-0"
-                                              style={{
-                                                backgroundColor: tag.color,
-                                              }}
-                                            />
-                                            <span className="truncate">
-                                              {tag.name}
-                                            </span>
-                                            {isCurrentTag && (
-                                              <span className="ml-auto text-2xs text-muted-foreground">
-                                                atual
-                                              </span>
-                                            )}
-                                          </button>
-                                        );
-                                      })}
+                                            {label.name}
+                                          </span>
+                                        ))}
+                                      </div>
                                     </div>
                                   </>
                                 )}
-                              </>
-                            ) : (
-                              <TooltipWrapper
-                                content={
-                                  noPermissionStageAssign ??
-                                  "You don't have permission to manage tags"
-                                }
-                                enabled={true}
-                                side="top"
-                              >
-                                <button
-                                  disabled
-                                  className="flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground cursor-not-allowed"
-                                >
-                                  <TagIcon weight="bold" className="h-3 w-3" />
-                                </button>
-                              </TooltipWrapper>
+                              </div>
                             )}
+                          </div>
+
+                          {(entry.available_stages?.length ?? 0) > 0 && (
+                            <div className="relative flex-shrink-0">
+                              {onEntryStageChange ? (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const key = `${entry.entry_type}-${entry.entry_id}`;
+                                      setTagMenuEntryId(
+                                        tagMenuEntryId === key ? null : key,
+                                      );
+                                    }}
+                                    className="flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors"
+                                    title="Mover para outra tag"
+                                  >
+                                    <TagIcon weight="bold" className="h-3 w-3" />
+                                  </button>
+                                  {tagMenuEntryId ===
+                                    `${entry.entry_type}-${entry.entry_id}` && (
+                                    <>
+                                      <div
+                                        className="fixed inset-0 z-40"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTagMenuEntryId(null);
+                                        }}
+                                      />
+                                      <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-lg border border-border bg-card shadow-lg py-1">
+                                        <div className="px-2 py-1 text-2xs font-semibold text-muted-foreground">
+                                          Mover para
+                                        </div>
+                                        {(entry.available_stages ?? []).map((tag) => {
+                                          const isCurrentTag =
+                                            entry.stage?.stage_id === tag.stage_id;
+                                          return (
+                                            <button
+                                              key={tag.stage_id}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (!isCurrentTag) {
+                                                  const currentTagId =
+                                                    entry.stage?.stage_id ?? null;
+                                                  onEntryStageChange(
+                                                    entry.entry_id,
+                                                    entry.entry_type,
+                                                    tag.stage_id,
+                                                    currentTagId,
+                                                  );
+                                                }
+                                                setTagMenuEntryId(null);
+                                              }}
+                                              disabled={isCurrentTag}
+                                              className={cn(
+                                                "flex w-full items-center gap-2 px-2 py-1.5 text-left text-2xs transition-colors",
+                                                isCurrentTag
+                                                  ? "text-muted-foreground cursor-not-allowed"
+                                                  : "text-foreground hover:bg-muted",
+                                              )}
+                                            >
+                                              <span
+                                                className="h-2.5 w-2.5 rounded-full ring-1 ring-black/5 flex-shrink-0"
+                                                style={{
+                                                  backgroundColor: tag.color,
+                                                }}
+                                              />
+                                              <span className="truncate">
+                                                {tag.name}
+                                              </span>
+                                              {isCurrentTag && (
+                                                <span className="ml-auto text-2xs text-muted-foreground">
+                                                  atual
+                                                </span>
+                                              )}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </>
+                                  )}
+                                </>
+                              ) : (
+                                <TooltipWrapper
+                                  content={
+                                    noPermissionStageAssign ??
+                                    "You don't have permission to manage tags"
+                                  }
+                                  enabled={true}
+                                  side="top"
+                                >
+                                  <button
+                                    disabled
+                                    className="flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground cursor-not-allowed"
+                                  >
+                                    <TagIcon weight="bold" className="h-3 w-3" />
+                                  </button>
+                                </TooltipWrapper>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {(entry.assigned_username || entry.campaign_name) && (
+                          <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
+                            {entry.assigned_username ? (
+                              <span className="inline-flex min-w-0 max-w-[60%] items-center gap-1">
+                                <AssigneeGlyph
+                                  assignedUserId={entry.assigned_user_id}
+                                  className="h-3 w-3 flex-shrink-0"
+                                />
+                                <span className="truncate font-semibold text-foreground/80">
+                                  {entry.assigned_username}
+                                </span>
+                              </span>
+                            ) : null}
+                            {entry.assigned_username && entry.campaign_name ? (
+                              <span className="text-muted-foreground">·</span>
+                            ) : null}
+                            {entry.campaign_name ? (
+                              <span className="min-w-0 truncate">{entry.campaign_name}</span>
+                            ) : null}
                           </div>
                         )}
                       </div>
-
-                      {(entry.assigned_username || entry.campaign_name) && (
-                        <div className="mt-1 flex items-center gap-1.5 text-2xs text-muted-foreground">
-                          {entry.assigned_username ? (
-                            <span className="inline-flex min-w-0 max-w-[60%] items-center gap-1">
-                              <AssigneeGlyph
-                                assignedUserId={entry.assigned_user_id}
-                                className="h-3 w-3 flex-shrink-0"
-                              />
-                              <span className="truncate font-semibold text-foreground/80">
-                                {entry.assigned_username}
-                              </span>
-                            </span>
-                          ) : null}
-                          {entry.assigned_username && entry.campaign_name ? (
-                            <span className="text-muted-foreground">·</span>
-                          ) : null}
-                          {entry.campaign_name ? (
-                            <span className="min-w-0 truncate">{entry.campaign_name}</span>
-                          ) : null}
-                        </div>
-                      )}
-
-                      {labelMenuEntryId ===
-                        `${entry.entry_type}-${entry.entry_id}` && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-40"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setLabelMenuEntryId(null);
-                            }}
-                          />
-                          <div className="absolute right-4 top-10 z-50 w-52 rounded-[--radius] border border-border bg-card shadow-xl py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                            <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
-                              Labels
-                            </div>
-                            <div className="max-h-52 overflow-y-auto">
-                              {availableLabels.map((label) => {
-                                const isAssigned = entry.labels?.some(
-                                  (l) => l.label_id === label.id,
-                                );
-                                return (
-                                  <button
-                                    key={label.id}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (isAssigned && onRemoveLabel) {
-                                        onRemoveLabel(
-                                          label.id,
-                                          entry.entry_id,
-                                          entry.entry_type,
-                                        );
-                                      } else if (!isAssigned && onAssignLabel) {
-                                        onAssignLabel(
-                                          label.id,
-                                          entry.entry_id,
-                                          entry.entry_type,
-                                        );
-                                      }
-                                      setLabelMenuEntryId(null);
-                                    }}
-                                    className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-2xs transition-colors hover:bg-muted"
-                                  >
-                                    <span
-                                      className="h-2.5 w-2.5 rounded-full ring-1 ring-black/5 flex-shrink-0"
-                                      style={{ backgroundColor: label.color }}
-                                    />
-                                    <span className="flex-1 truncate font-medium text-foreground">
-                                      {label.name}
-                                    </span>
-                                    {isAssigned && (
-                                      <Check
-                                        weight="bold"
-                                        className="h-3 w-3 text-chart-4 flex-shrink-0"
-                                      />
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </>
-                      )}
                     </div>
-                  </div>
+                  </InboxEntryContextMenu>
 
                 </motion.div>
               );

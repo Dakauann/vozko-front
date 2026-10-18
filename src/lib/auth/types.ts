@@ -1,12 +1,4 @@
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
 
-export interface AuthTokens {
-    accessToken: string;
-    refreshToken: string;
-}
 
 export interface UserPlan {
     name: string;
@@ -36,9 +28,5 @@ export interface AuthResponse {
     picture?: string;
     role: string;
     customerType: "company" | "individual";
-}
-
-export interface RefreshTokenRequest {
-    refreshToken: string;
 }
 

@@ -61,9 +61,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
           </div>
         </div>
       </header>
-
-      {
-}
+
       <Section title={t("announcement.title")} intro={t("announcement.body1")}>
         <p className={styles.body}>{t("announcement.body2")}</p>
         <p className={styles.body}>{t("announcement.body3")}</p>
@@ -114,9 +112,7 @@ export function MetaServiceCostsPost({ entry }: { entry: FaqPostEntry }) {
           </Callout>
         </div>
       </Section>
-
-      {
-}
+
       <Section title={t("actions.title")} intro={t("actions.intro")}>
         <StepList
           steps={steps}

@@ -28,7 +28,7 @@ export interface ClipTransition extends TransitionOptions {
   easing: Easing;
 }
 
-export interface EdgeTransitionInput extends TransitionOptions {
+interface EdgeTransitionInput extends TransitionOptions {
   kind: EdgeTransitionKind;
   durationMs?: number;
   easing?: Easing;
@@ -52,7 +52,7 @@ function durationFits(durationMs: number): boolean {
   return Number.isInteger(durationMs) && durationMs >= TRANSITION_LIMITS.minMs && durationMs <= TRANSITION_LIMITS.maxMs;
 }
 
-export function clipTransitionIssue(transition: ClipTransition): EdgeIssue | null {
+function clipTransitionIssue(transition: ClipTransition): EdgeIssue | null {
   if (!isEdgeTransitionKind(transition.kind)) return "kind";
   if (!durationFits(transition.durationMs)) return "duration";
   if (!isEasing(transition.easing) || transition.easing === "hold") return "easing";
@@ -120,7 +120,7 @@ export function coveringTransition(track: Track, clipId: string, side: MotionSid
   return (track.transitions ?? []).find((transition) => (side === "in" ? transition.toClipId : transition.fromClipId) === clipId);
 }
 
-export interface EdgePart {
+interface EdgePart {
   transition: ClipTransition;
   side: MotionSide;
   t: number;

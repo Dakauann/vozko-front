@@ -61,7 +61,7 @@ export const VECTOR_PRESETS: Record<VectorPresetId, VectorPreset> = {
   seal: { kind: "star", points: 24, inner: 0.88, ratio: 1 },
 };
 
-export const VECTOR_PRESET_SHARE = 0.4;
+const VECTOR_PRESET_SHARE = 0.4;
 
 export function isVectorPreset(id: string): id is VectorPresetId {
   return (VECTOR_PRESET_IDS as readonly string[]).includes(id);

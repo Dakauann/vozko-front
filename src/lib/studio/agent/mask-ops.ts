@@ -19,7 +19,7 @@ export interface AgentMaskFields {
   expansion?: number;
 }
 
-export interface MaskOpInput extends AgentMaskFields, AgentBox {
+interface MaskOpInput extends AgentMaskFields, AgentBox {
   op: string;
   clip_id?: string;
   at_ms?: number;
@@ -27,7 +27,7 @@ export interface MaskOpInput extends AgentMaskFields, AgentBox {
   keys?: AgentPathKey[];
 }
 
-export type MaskOpResult = { ok: true; document: VideoDocument; maskId: string } | { ok: false; reason: string };
+type MaskOpResult = { ok: true; document: VideoDocument; maskId: string } | { ok: false; reason: string };
 
 const RANGES_TEXT = MASK_PROPERTIES.map((property) => `${property} de ${MASK_RANGES[property][0]} a ${MASK_RANGES[property][1]}`).join(", ");
 

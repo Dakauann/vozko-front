@@ -1,4 +1,4 @@
-export const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job", "export", "listen", "save_preset", "create_project"] as const;
+const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job", "export", "listen", "save_preset", "create_project"] as const;
 
 export type ScreenCommandName = (typeof SCREEN_COMMANDS)[number];
 
@@ -50,14 +50,14 @@ export function isScreenCommand(value: unknown): value is ScreenCommand {
   );
 }
 
-export interface ScreenRegistry {
+interface ScreenRegistry {
   register: (projectId: string, handler: ScreenHandler) => () => void;
   run: (command: ScreenCommand) => Promise<ScreenReply>;
   has: (projectId: string) => boolean;
 }
 
-export const NO_EDITOR_MESSAGE = "o projeto não está aberto nesta aba; peça ao usuário para abrir o projeto no Estúdio";
-export const NO_CREATOR_MESSAGE = "esta aba não pode criar o projeto agora";
+const NO_EDITOR_MESSAGE = "o projeto não está aberto nesta aba; peça ao usuário para abrir o projeto no Estúdio";
+const NO_CREATOR_MESSAGE = "esta aba não pode criar o projeto agora";
 export const EDITOR_GRACE_MS = 3000;
 
 async function runSafely(handler: ScreenHandler, command: ScreenCommand): Promise<ScreenReply> {
@@ -129,12 +129,12 @@ export function createScreenRegistry(): ScreenRegistry {
 
 export type ReplyDelivery = "delivered" | "retry" | "gone";
 
-export const REPLY_RETRY_DELAYS_MS = [400, 1000, 2500, 5000] as const;
+const REPLY_RETRY_DELAYS_MS = [400, 1000, 2500, 5000] as const;
 const REMEMBERED_ANSWERS = 64;
 
-export type ScreenClaim = (threadId: string, commandId: string) => Promise<boolean>;
+type ScreenClaim = (threadId: string, commandId: string) => Promise<boolean>;
 
-export interface ScreenAnswererDeps {
+interface ScreenAnswererDeps {
   run: (command: ScreenCommand) => Promise<ScreenReply>;
   post: (threadId: string, commandId: string, reply: ScreenReply) => Promise<ReplyDelivery>;
   claim: ScreenClaim;
@@ -152,7 +152,7 @@ export function isScreenGo(value: unknown): value is ScreenGo {
   return typeof candidate.id === "string" && candidate.id.length > 0 && typeof candidate.claimant === "string" && candidate.claimant.length > 0;
 }
 
-export interface GoSignals {
+interface GoSignals {
   expect: (id: string, claimant: string, waitMs: number) => { done: Promise<boolean>; cancel: () => void };
   arrive: (signal: ScreenGo) => void;
 }
@@ -178,7 +178,7 @@ export function createGoSignals(): GoSignals {
   };
 }
 
-export interface ScreenClaimerDeps {
+interface ScreenClaimerDeps {
   post: (threadId: string, commandId: string, claimant: string) => Promise<boolean>;
   signals: GoSignals;
   newClaimant: () => string;
@@ -199,7 +199,7 @@ export function mayApply(command: ScreenCommand): Promise<boolean> {
   return command.claim ? command.claim() : Promise.resolve(true);
 }
 
-export const EXPIRED_MESSAGE = "o pedido expirou antes de o editor aplicar; nada mudou";
+const EXPIRED_MESSAGE = "o pedido expirou antes de o editor aplicar; nada mudou";
 export const EXPIRED_REPLY = screenRefusal("expired", EXPIRED_MESSAGE);
 
 interface Answer {

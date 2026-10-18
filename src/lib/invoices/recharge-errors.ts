@@ -1,9 +1,9 @@
-export const ACTIVE_SUBSCRIPTION_REQUIRED_RECHARGE_ERROR =
+const ACTIVE_SUBSCRIPTION_REQUIRED_RECHARGE_ERROR =
   "active workspace subscription required to recharge balance";
 
 const FAILED_CREATE_INVOICE_ERROR = "failed to create invoice";
 
-export const CUSTOMER_DOCUMENT_REQUIRED_CODE = "customer_document_required";
+const CUSTOMER_DOCUMENT_REQUIRED_CODE = "customer_document_required";
 
 const CUSTOMER_DOCUMENT_REQUIRED_HINTS = [
   CUSTOMER_DOCUMENT_REQUIRED_CODE,

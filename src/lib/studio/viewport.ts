@@ -13,10 +13,10 @@ export interface Point {
 
 export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 4;
-export const ZOOM_PRESETS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
+const ZOOM_PRESETS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
 export const ZOOM_MENU_PRESETS: readonly number[] = ZOOM_PRESETS.filter((preset) => preset >= 0.5);
 export const FIT_PADDING_PX = 24;
-export const MIN_RULER_GAP_PX = 50;
+const MIN_RULER_GAP_PX = 50;
 
 const WHEEL_SENSITIVITY = 0.0015;
 
@@ -25,7 +25,7 @@ export function clampZoom(scale: number): number {
   return Math.min(Math.max(scale, MIN_ZOOM), MAX_ZOOM);
 }
 
-export interface Area {
+interface Area {
   left: number;
   top: number;
   right: number;
@@ -83,7 +83,7 @@ export function wheelZoom(scale: number, deltaY: number): number {
   return clampZoom(scale * Math.exp(-deltaY * WHEEL_SENSITIVITY));
 }
 
-export interface WheelInput {
+interface WheelInput {
   deltaX: number;
   deltaY: number;
   ctrlKey: boolean;
@@ -134,7 +134,7 @@ export function visibleFrame(frame: ScreenRect, container: CanvasSize): ScreenRe
   return { left, top, width, height };
 }
 
-export interface RulerTick {
+interface RulerTick {
   screen: number;
   value: number;
 }

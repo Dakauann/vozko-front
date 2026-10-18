@@ -145,9 +145,7 @@ function BoardCard({
     <group ref={cardRef}>
       <RoundedBox args={layout.card} radius={R.card} smoothness={3} castShadow>
         <Surface color={sheet(palette)} roughness={0.58} metalness={0.02} />
-      </RoundedBox>
-      {
-}
+      </RoundedBox>
       <mesh position={[-w / 2 + BAR_INSET, 0, d / 2 + 0.015]}>
         <boxGeometry args={[BAR_WIDTH, h * 0.78, 0.025]} />
         <meshBasicMaterial ref={barRef} color={tone} />
@@ -165,9 +163,7 @@ function BoardCard({
           <p className="mt-1.5 truncate leading-none" style={{ fontSize: font(9.5), color: palette.panelMuted }}>
             {card.meta}
           </p>
-        )}
-        {
-}
+        )}
         <span className="flex min-w-0 items-center justify-between gap-2" style={{ marginTop: font(compact ? 2 : 5) }}>
           <span className="inline-flex shrink-0" style={{ width: mark, height: mark }}>
             <Mark className="h-full w-full" />
@@ -311,9 +307,7 @@ export function KanbanBoardScene({
             }}
           />
         ))}
-
-        {
-}
+
         <group ref={agent} position={[home[0], home[1], 1.1]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[agentR + 0.06, agentR + 0.06, 0.18, 6]} />
@@ -322,9 +316,7 @@ export function KanbanBoardScene({
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <cylinderGeometry args={[agentR, agentR, 0.24, 6]} />
             <Surface color={sheet(palette)} roughness={0.6} />
-          </mesh>
-          {
-}
+          </mesh>
           <Label position={[0, 0, 0.18]} width={px(agentR * 1.7)} className="flex select-none items-center justify-center">
             <Sparkle size={font(16)} color={palette.ink.ai} style={{ ["--icon-accent" as string]: palette.ink.ai }} />
             <span className="sr-only">{labels.agent}</span>

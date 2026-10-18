@@ -2,9 +2,8 @@ import { fullFrame, newStudioId, type CanvasSize, type Layer, type Transform } f
 import { isValidToken } from "./tokens";
 import type { IssueCode } from "./validate";
 
-export const PAINT_MODES = ["paint", "erase"] as const;
-export const MASK_MODES = ["hide", "reveal"] as const;
-export const PIXEL_OP_KINDS = ["stroke", "area"] as const;
+const PAINT_MODES = ["paint", "erase"] as const;
+const MASK_MODES = ["hide", "reveal"] as const;
 
 export type PaintMode = (typeof PAINT_MODES)[number];
 export type MaskMode = (typeof MASK_MODES)[number];
@@ -63,9 +62,9 @@ export const PIXEL_RANGES = {
   pressure: [0, 1],
 } as const;
 
-export const PIXEL_REACH = 8192;
+const PIXEL_REACH = 8192;
 export const PIXEL_INPUT_MARGIN = 4096;
-export const PIXEL_STEP = 0.25;
+const PIXEL_STEP = 0.25;
 export const SUBTRACT = "subtract";
 
 const MODES: Record<SurfaceKind, readonly PixelMode[]> = { paint: PAINT_MODES, mask: MASK_MODES };
@@ -124,7 +123,7 @@ function areaIssue(op: AreaOp, surface: PixelSurface): IssueCode | null {
   return null;
 }
 
-export function pixelOpIssue(op: PixelOp, kind: SurfaceKind, surface: PixelSurface): IssueCode | null {
+function pixelOpIssue(op: PixelOp, kind: SurfaceKind, surface: PixelSurface): IssueCode | null {
   if (!isValidToken(op.id)) return "invalid";
   if (op.kind !== "stroke" && op.kind !== "area") return "unknown";
   return inkIssue(op, kind) ?? (op.kind === "stroke" ? strokeIssue(op, surface) : areaIssue(op, surface));

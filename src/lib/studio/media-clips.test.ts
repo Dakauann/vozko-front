@@ -7,7 +7,6 @@ import { layerIssue } from "./validate";
 describe("media clips", () => {
   it("maps library media types to clip types", () => {
     expect(clipTypeForMedia("video")).toBe("video");
-    expect(clipTypeForMedia("vsl_video")).toBe("video");
     expect(clipTypeForMedia("image")).toBe("image");
     expect(clipTypeForMedia("audio")).toBe("audio");
     expect(clipTypeForMedia("document_pdf")).toBeNull();

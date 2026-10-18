@@ -21,7 +21,7 @@ export class SectionError extends Error {
   }
 }
 
-export interface SectionResponse<T> {
+interface SectionResponse<T> {
   data?: T;
   error?: { message: string; status?: number; code?: string };
 }

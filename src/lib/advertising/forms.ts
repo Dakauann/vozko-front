@@ -270,7 +270,7 @@ export function questionIssuePrefix(index: number): string {
   return `questions[${index}]`;
 }
 
-export interface LeadContactView {
+interface LeadContactView {
   name: string | null;
   phone: string | null;
   email: string | null;

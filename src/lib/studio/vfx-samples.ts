@@ -63,7 +63,7 @@ function sampleVfx(kind: VfxKind): Vfx {
   return { ...newVfx(kind, "vfx-sample", SAMPLE_SEED), ...(params ? { params } : {}), ...(listensToTrack(kind) ? { trackId: SAMPLE_SOUND_TRACK } : {}) };
 }
 
-export interface EffectSample {
+interface EffectSample {
   doc: VideoDocument;
   atMs: number;
   levels: TrackLevels;

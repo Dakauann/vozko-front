@@ -1,6 +1,6 @@
 import { localAtSource, sourceSpanMs } from "./clip-time";
 
-export interface CaptionCue {
+interface CaptionCue {
   startMs: number;
   endMs: number;
   text: string;

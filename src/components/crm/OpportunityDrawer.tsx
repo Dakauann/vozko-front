@@ -63,7 +63,7 @@ interface OpportunityDrawerProps {
   onSaved?: () => void;
 }
 
-export interface OpportunityCreatedNotice {
+interface OpportunityCreatedNotice {
   message: string;
   action?: { label: string; onClick: () => void };
 }

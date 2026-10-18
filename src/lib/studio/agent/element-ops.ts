@@ -22,7 +22,7 @@ export interface LibraryLookup {
   locale: string;
 }
 
-export type ElementPlan = { ok: true; item: LibraryItem; name: string; locale: string; text: (slot: LibrarySlot) => string; colors: ColorChange[]; box: LibraryBox; notes: string[] } | { ok: false; reason: string };
+type ElementPlan = { ok: true; item: LibraryItem; name: string; locale: string; text: (slot: LibrarySlot) => string; colors: ColorChange[]; box: LibraryBox; notes: string[] } | { ok: false; reason: string };
 
 const SUGGESTIONS = 5;
 const SEARCH_HINT = "busque com studio_library_search";
@@ -79,7 +79,7 @@ export function elementPlan(op: AgentElementFields & AgentBox & AgentStyle, edit
   };
 }
 
-export type IconPlan = { ok: true; kind: "catalog"; iconId: string } | { ok: true; kind: "library"; element: Required<Pick<AgentElementFields, "item_id">> & Pick<AgentElementFields, "colors"> } | { ok: false; reason: string };
+type IconPlan = { ok: true; kind: "catalog"; iconId: string } | { ok: true; kind: "library"; element: Required<Pick<AgentElementFields, "item_id">> & Pick<AgentElementFields, "colors"> } | { ok: false; reason: string };
 
 const ICON_CATEGORY = "icons";
 

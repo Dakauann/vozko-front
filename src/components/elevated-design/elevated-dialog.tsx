@@ -13,7 +13,6 @@ const panelShadow =
 const ElevatedDialog = DialogPrimitive.Root;
 const ElevatedDialogTrigger = DialogPrimitive.Trigger;
 const ElevatedDialogPortal = DialogPrimitive.Portal;
-const ElevatedDialogClose = DialogPrimitive.Close;
 
 const ElevatedDialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
@@ -163,10 +162,10 @@ ElevatedDialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
   ElevatedDialog,
-  ElevatedDialogPortal,
-  ElevatedDialogOverlay,
+  
+  
   ElevatedDialogTrigger,
-  ElevatedDialogClose,
+  
   ElevatedDialogContent,
   ElevatedDialogHeader,
   ElevatedDialogBody,

@@ -58,7 +58,7 @@ export interface TableSpec {
 
 export type TableGrid = CellGrid;
 
-export interface TableInk {
+interface TableInk {
   text: string;
   line: string;
   band: string;
@@ -66,14 +66,10 @@ export interface TableInk {
   headerText: string;
 }
 
-export const TABLE_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "table", "layoutItem"];
+const TABLE_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "table", "layoutItem"];
 
 const TRANSPARENT = "#00000000";
 const HEX = /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/;
-
-export function isTableLayer(layer: Pick<Layer, "type">): boolean {
-  return layer.type === "table";
-}
 
 export function isTableBorders(value: unknown): value is TableBorders {
   return typeof value === "string" && (TABLE_BORDERS as readonly string[]).includes(value);
@@ -88,7 +84,7 @@ export function tableInk(ink: string): TableInk {
   return { text: solid, line: `${solid}40`, band: `${solid}0f`, header: solid, headerText: solid.toLowerCase() === "#ffffff" ? "#111111" : "#ffffff" };
 }
 
-export function newTableStyle(ink: TableInk): TableStyle {
+function newTableStyle(ink: TableInk): TableStyle {
   return {
     fontId: DEFAULT_FONT_ID,
     fontSize: 0.06,
@@ -108,7 +104,7 @@ export function newTableStyle(ink: TableInk): TableStyle {
   };
 }
 
-export function cellsOf(grid: TableGrid): TableCell[][] {
+function cellsOf(grid: TableGrid): TableCell[][] {
   const width = Math.max(1, ...grid.map((row) => row.length));
   return grid.map((row) => Array.from({ length: width }, (_, c) => ({ text: row[c] ?? "" })));
 }

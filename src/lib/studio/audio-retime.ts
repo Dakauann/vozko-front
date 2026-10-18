@@ -50,7 +50,7 @@ function curvedChannels(windowed: readonly Float32Array[], sampleRate: number, r
   return { channels: retime.preservePitch ? stretchMapped(windowed, map, outLength, sampleRate) : resampled(windowed, map, outLength), rate: 1 };
 }
 
-export interface RetimedChannels {
+interface RetimedChannels {
   channels: Float32Array<ArrayBuffer>[];
   rate: number;
 }

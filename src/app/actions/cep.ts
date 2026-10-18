@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/browser-client";
 import { codedErrorOf, type CodedError } from "@/lib/api/coded-error";
 import type { CepAddress } from "@/lib/address/cep";
 
-export type CepLookup =
+type CepLookup =
   | { status: "found"; address: CepAddress }
   | { status: "not_found" }
   | { status: "invalid" }

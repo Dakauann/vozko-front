@@ -17,7 +17,7 @@ const MODES: Array<{ mode: DrawMode; icon: Icon }> = [
   { mode: "circle", icon: Radius },
 ];
 
-export interface AreaDrawButtonsProps {
+interface AreaDrawButtonsProps {
   activeMode: DrawMode | null;
   onSelectMode: (mode: DrawMode) => void;
   onCancel: () => void;

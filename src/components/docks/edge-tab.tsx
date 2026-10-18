@@ -4,8 +4,8 @@ import { forwardRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type EdgeTabSlot = "upper" | "lower";
-export type EdgeTabStatus = "idle" | "live" | "alert";
+type EdgeTabSlot = "upper" | "lower";
+type EdgeTabStatus = "idle" | "live" | "alert";
 
 const SLOT: Record<EdgeTabSlot, string> = {
   upper: "top-[calc(50%-7rem-3px)]",

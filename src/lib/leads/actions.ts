@@ -67,7 +67,7 @@ export interface LeadActionRequest {
 
 export const LEAD_ACTION_SKIP_REASONS = ["unchanged", "gone"] as const;
 
-export const RESTORE_OPT_OUT = "restore_opt_out";
+const RESTORE_OPT_OUT = "restore_opt_out";
 
 export const RESTORE_OPT_OUT_SKIP_REASONS = ["lead_opt_out_not_restorable", ...LEAD_ACTION_SKIP_REASONS] as const;
 

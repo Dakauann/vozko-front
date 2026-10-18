@@ -14,15 +14,15 @@ import { carriesTilt } from "./clip-tilt";
 
 export type GroupRefusal = "empty" | "missing" | "locked" | "nothingVisible" | "transitionCut" | "interleaved" | "seesThrough" | "matteAbove" | "ducking";
 
-export type GroupResult = { ok: true; document: VideoDocument; groupId: string; clipIds: string[] } | { ok: false; reason: GroupRefusal; clipIds: string[] };
+type GroupResult = { ok: true; document: VideoDocument; groupId: string; clipIds: string[] } | { ok: false; reason: GroupRefusal; clipIds: string[] };
 
 export const KEPT_PROPERTIES = ["opacity", "fades", "volume", "masks", "matte", "blend", "vfx", "color", "blur", "motion", "transitionIn", "transitionOut", "cutTransition", "scaleAxes", "anchor", "flip", "tilt", "shape", "scaledLooks", "effectClips", "speed"] as const;
 
 export type KeptProperty = (typeof KEPT_PROPERTIES)[number];
 
-export type UngroupRefusal = "missing" | "locked" | "keeps" | "seesThrough";
+type UngroupRefusal = "missing" | "locked" | "keeps" | "seesThrough";
 
-export type UngroupResult = { ok: true; document: VideoDocument; clipIds: string[]; nullId: string | null } | { ok: false; reason: UngroupRefusal; properties: KeptProperty[]; clipIds: string[] };
+type UngroupResult = { ok: true; document: VideoDocument; clipIds: string[]; nullId: string | null } | { ok: false; reason: UngroupRefusal; properties: KeptProperty[]; clipIds: string[] };
 
 const CARRIED_LANES: ReadonlySet<AnimatedProperty> = new Set(["x", "y", "position", "scale", "rotation"]);
 

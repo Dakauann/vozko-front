@@ -3,9 +3,9 @@ export const MIN_SHEET_WIDTH = 400;
 export const MAX_SHEET_WIDTH = 640;
 export const MIN_PAGE_WIDTH = 640;
 
-export type SheetMode = "push" | "full";
+type SheetMode = "push" | "full";
 
-export interface SheetLayout {
+interface SheetLayout {
   mode: SheetMode;
   width: number;
 }

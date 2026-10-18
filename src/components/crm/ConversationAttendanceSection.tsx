@@ -299,7 +299,7 @@ function outcomeLabel(
   return outcome;
 }
 
-export interface ConversationAttendanceSectionProps {
+interface ConversationAttendanceSectionProps {
   entryType: EntryType | string;
   entryId: string;
   active?: boolean;

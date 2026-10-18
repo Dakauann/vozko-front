@@ -55,9 +55,9 @@ import { useFollowedGroups } from "./use-followed-groups";
 const FIELD_TYPES: TrackedFieldType[] = ["text", "number", "percentage", "boolean"];
 const TRIGGERS: AnalysisTrigger[] = ["message_count", "scheduled"];
 
-export type FormGroup = Pick<WorkspaceGroup, "id" | "subject" | "pictureUrl" | "memberCount">;
+type FormGroup = Pick<WorkspaceGroup, "id" | "subject" | "pictureUrl" | "memberCount">;
 
-export interface AnalysisFormSheetProps {
+interface AnalysisFormSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   analysis?: GroupAnalysis;

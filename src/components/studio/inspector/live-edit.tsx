@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-export interface LiveEdit {
+interface LiveEdit {
   start: () => void;
   end: () => void;
 }

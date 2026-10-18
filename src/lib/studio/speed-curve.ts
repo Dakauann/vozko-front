@@ -16,9 +16,9 @@ export interface SpeedCurvePoint {
 
 export const SPEED_CURVE_PRESET_IDS = ["montage", "hero", "bullet", "jumpCut", "flashIn", "flashOut"] as const;
 
-export type SpeedCurvePreset = (typeof SPEED_CURVE_PRESET_IDS)[number];
+type SpeedCurvePreset = (typeof SPEED_CURVE_PRESET_IDS)[number];
 
-export const SPEED_CURVE_PRESETS: Record<SpeedCurvePreset, readonly SpeedCurvePoint[]> = {
+const SPEED_CURVE_PRESETS: Record<SpeedCurvePreset, readonly SpeedCurvePoint[]> = {
   montage: [
     { at: 0, speed: 1 },
     { at: 0.25, speed: 4 },
@@ -66,7 +66,7 @@ export interface SpeedCurveRequest {
   ripple?: boolean;
 }
 
-export interface SmoothRampRequest {
+interface SmoothRampRequest {
   atMs: number;
   rampMs: number;
   toSpeed: number;
@@ -93,7 +93,7 @@ export function speedCurvePointsIssue(points: readonly SpeedCurvePoint[]): boole
   return points.some((point, i) => !Number.isFinite(point.at) || !withinSpeed(point.speed) || (i > 0 && point.at - points[i - 1].at < MIN_CURVE_GAP - 1e-9));
 }
 
-export type SpeedPointEdit = { ok: true; points: SpeedCurvePoint[]; index: number } | { ok: false; reason: "crowded" | "ends" | "missing" };
+type SpeedPointEdit = { ok: true; points: SpeedCurvePoint[]; index: number } | { ok: false; reason: "crowded" | "ends" | "missing" };
 
 function clampSpeed(speed: number): number {
   return Math.min(SPEED_LIMITS[1], Math.max(SPEED_LIMITS[0], Math.round(speed * 100) / 100));

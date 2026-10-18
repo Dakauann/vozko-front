@@ -3,13 +3,13 @@ import { readZip } from "./zip";
 
 export const LOTTIE_MEDIA_TYPE = "lottie";
 
-export const LOTTIE_EXTENSIONS = [".json", ".lottie"] as const;
+const LOTTIE_EXTENSIONS = [".json", ".lottie"] as const;
 
 export const LOTTIE_ACCEPT = LOTTIE_EXTENSIONS.join(",");
 
 export type LottieFileFault = "notLottie" | "brokenArchive" | "noAnimation";
 
-export type LottieRead = { ok: true; animation: LottieAnimation } | { ok: false; fault: LottieFileFault };
+type LottieRead = { ok: true; animation: LottieAnimation } | { ok: false; fault: LottieFileFault };
 
 const ZIP_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 const MANIFEST = "manifest.json";

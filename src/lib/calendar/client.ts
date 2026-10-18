@@ -8,7 +8,6 @@ import type {
     UpdateEventInput,
 } from "@/lib/calendar/types";
 
-
 export async function fetchCalendarEvents(opts?: ListEventsParams): Promise<{
     items: CalendarEvent[];
     page?: number;
@@ -48,23 +47,6 @@ export async function fetchCalendarEvents(opts?: ListEventsParams): Promise<{
     };
 }
 
-
-export async function fetchCalendarEvent(id: string): Promise<{
-    event: CalendarEvent | null;
-    error?: string;
-}> {
-    const res = await apiClient<{ event?: CalendarEvent }>(`/calendar/events/${id}`, {
-        method: "GET",
-    });
-
-    if (res.error) {
-        return { event: null, error: res.error.message || "Failed to fetch event" };
-    }
-
-    return { event: res.data?.event ?? null };
-}
-
-
 export async function createCalendarEvent(input: CreateEventInput): Promise<{
     event: CalendarEvent | null;
     error?: string;
@@ -80,7 +62,6 @@ export async function createCalendarEvent(input: CreateEventInput): Promise<{
 
     return { event: res.data?.event ?? null };
 }
-
 
 export async function updateCalendarEvent(
     id: string,
@@ -101,7 +82,6 @@ export async function updateCalendarEvent(
     return { event: res.data?.event ?? null };
 }
 
-
 export async function deleteCalendarEvent(id: string): Promise<{
     error?: string;
 }> {
@@ -115,7 +95,6 @@ export async function deleteCalendarEvent(id: string): Promise<{
 
     return {};
 }
-
 
 export async function fetchGoogleAuthURL(): Promise<{
     authUrl: string | null;
@@ -131,7 +110,6 @@ export async function fetchGoogleAuthURL(): Promise<{
 
     return { authUrl: res.data?.authUrl ?? null };
 }
-
 
 export async function fetchGoogleConnection(): Promise<{
     connected: boolean;
@@ -153,7 +131,6 @@ export async function fetchGoogleConnection(): Promise<{
     };
 }
 
-
 export async function connectGoogleCalendar(code: string, redirectUri: string): Promise<{
     connection: GoogleCalendarConnection | null;
     error?: string;
@@ -172,7 +149,6 @@ export async function connectGoogleCalendar(code: string, redirectUri: string): 
 
     return { connection: res.data?.connection ?? null };
 }
-
 
 export async function disconnectGoogleCalendar(): Promise<{
     error?: string;

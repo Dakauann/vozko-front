@@ -28,9 +28,7 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
                 : t("paired")}
             </span>
           </p>
-
-          {
-}
+
           {!canReply && (
             <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
               <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive-ink" />
@@ -51,9 +49,7 @@ export function TelegramBusinessPanel({ account }: { account: TelegramAccount })
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {
-}
+        <div className="space-y-3">
           <ol className="space-y-2.5">
             {[t("step1"), t("step2"), t("step3"), t("step4")].map((step, i) => (
               <li key={i} className="flex gap-2.5 text-xs leading-relaxed text-muted-foreground">

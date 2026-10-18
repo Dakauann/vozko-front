@@ -71,15 +71,11 @@ export function AnalysisBudgetPanel({
           label={t("title")}
           color={constrained ? "hsl(var(--destructive))" : "hsl(var(--chart-1))"}
         />
-
-        {
-}
+
         <p className="text-xs text-muted-foreground">
           {spent && freesAt ? t("freesAt", { when: freesAt }) : t("window")}
         </p>
-
-        {
-}
+
         {waiting > 0 &&
           (constrained ? (
             <Notice tone="fault">

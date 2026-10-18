@@ -1,4 +1,4 @@
-import type { SipActiveCall, SipTrunk, SipTrunkPayload } from '@/lib/sip-trunks/types';
+import type { SipTrunk, SipTrunkPayload } from '@/lib/sip-trunks/types';
 
 import { apiClient } from '@/lib/api/browser-client';
 import { DialTargetsError, dialTargetsFailure, readDialTargets, type DialTargets } from '@/lib/dialer/dial-targets';
@@ -33,14 +33,6 @@ export async function deleteSipTrunkAction(trunkId: string) {
     });
     if (response.error) return { error: response.error.message };
     return { success: true as const };
-}
-
-export async function listSipTrunkCallsAction(trunkId: string) {
-    const response = await apiClient<SipActiveCall[]>(`/sip-trunks/${encodeURIComponent(trunkId)}/calls`, {
-        method: 'GET',
-    });
-    if (response.error) return { calls: [] as SipActiveCall[], error: response.error.message };
-    return { calls: response.data ?? [] };
 }
 
 export async function fetchDialTargets(leadId: string | null, signal?: AbortSignal): Promise<DialTargets> {

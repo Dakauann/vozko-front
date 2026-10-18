@@ -33,7 +33,7 @@ export interface LineFrame {
   color: string;
 }
 
-export interface LineFrameInput {
+interface LineFrameInput {
   layer: Layer;
   widthPx: number;
   heightPx: number;
@@ -52,7 +52,7 @@ export interface BasePath {
   length: number;
 }
 
-export interface Sample {
+interface Sample {
   x: number;
   y: number;
   nx: number;

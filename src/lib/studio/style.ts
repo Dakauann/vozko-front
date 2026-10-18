@@ -10,7 +10,7 @@ const COMMON: StyleKey[] = ["shadow", "effects", "blendMode", "effectStyleId"];
 export const STROKE_STYLE_KEYS: StyleKey[] = ["stroke", "strokeWidth", "dash", "dashArray", "dashOffset", "lineCap", "lineJoin", "miterLimit", "strokes", "strokeStyleId"];
 const PAINT_STYLE_KEYS: StyleKey[] = ["fill", "gradient", "pattern", "fills", "fillStyleId"];
 
-export const STYLE_KEYS: Record<LayerType, readonly StyleKey[]> = {
+const STYLE_KEYS: Record<LayerType, readonly StyleKey[]> = {
   text: [...COMMON, "fontId", "fontSize", "fontWeight", "italic", "align", "lineHeight", "letterSpacing", "textStyleId", ...PAINT_STYLE_KEYS, ...STROKE_STYLE_KEYS, "highlight", "curve"],
   shape: [...COMMON, ...PAINT_STYLE_KEYS, ...STROKE_STYLE_KEYS, "radius", "arrowStart", "arrowEnd", "arrowStartKind", "arrowEndKind"],
   image: [...COMMON, "filters", "gradientMap", "radius", ...STROKE_STYLE_KEYS, "frame", "flipX", "flipY"],
@@ -43,7 +43,7 @@ export function stylePatch(style: CopiedStyle, target: Layer): LayerPatch {
   return { ...(patch as LayerPatch), transform: { ...target.transform, opacity: style.opacity } };
 }
 
-export type StyleAction = { type: "copyStyle" } | { type: "pasteStyle" };
+type StyleAction = { type: "copyStyle" } | { type: "pasteStyle" };
 
 export function styleActionFor(stroke: KeyStroke): StyleAction | null {
   if (!(stroke.ctrlKey || stroke.metaKey) || !stroke.altKey || stroke.shiftKey || isEditableTarget(stroke.target)) return null;

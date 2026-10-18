@@ -18,7 +18,7 @@ export function useSelectionSendRefusalText() {
   );
 }
 
-export type SelectionSendNoteReason = "fromLeads" | "contentLocked" | "templateLocked" | "contactsLocked";
+type SelectionSendNoteReason = "fromLeads" | "contentLocked" | "templateLocked" | "contactsLocked";
 
 export function SelectionSendNote({
   reason = "fromLeads",

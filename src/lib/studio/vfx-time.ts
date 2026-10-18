@@ -36,7 +36,7 @@ export function trackTimes(doc: VideoDocument, ms: number): number[] {
   return times;
 }
 
-export function clipTime(clip: Clip, trackMs: number): number {
+function clipTime(clip: Clip, trackMs: number): number {
   const own = clip.type === "effect" ? null : shown(clip, "posterizeTime");
   return own && within(clip, trackMs) ? steppedMs(clip, own, trackMs) : trackMs;
 }

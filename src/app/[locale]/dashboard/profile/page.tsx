@@ -1,27 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Camera,
-  Check,
-  CheckCircle,
-  CircleNotch,
-  Desktop,
-  DeviceMobile,
-  Eye,
-  EyeSlash,
-  Globe,
-  Lock,
-  MapPin,
-  PaperPlaneTilt,
-  PencilSimple,
-  ShieldCheck,
-  SignOut,
-  Trash,
-  User,
-  UserCircle,
-  X,
-} from "@/components/icons";
+import { Camera, Check, CheckCircle, CircleNotch, Desktop, DeviceMobile, Eye, EyeSlash, Globe, Lock, MapPin, PaperPlaneTilt, PencilSimple, ShieldCheck, SignOut, Trash, UserCircle, X } from "@/components/icons";
 import type { UserPlan, User as UserType } from "@/lib/auth/types";
 import { forgotPassword, resetPassword } from "@/lib/auth/auth-api";
 import {

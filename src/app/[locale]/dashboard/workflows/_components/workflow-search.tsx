@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-export interface WorkflowSearchTypeOption {
+interface WorkflowSearchTypeOption {
   value: string;
   label: string;
 }
 
-export interface WorkflowSearchProps {
+interface WorkflowSearchProps {
   query: string;
   onQueryChange: (query: string) => void;
   matchCount: number;

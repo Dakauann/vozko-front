@@ -13,7 +13,7 @@ import { DASH_PRESET_IDS, dashPresetOf, dashPresetPatch, formatDashPattern, pars
 
 import { ColorField, InspectorSection, LABEL_CLASS, NumberField, SelectField, SwitchRow, SwitchToggle, TextField, ToggleButton } from "../controls";
 
-export const DEFAULT_OUTLINE = { stroke: "#000000", strokeWidth: 4 };
+const DEFAULT_OUTLINE = { stroke: "#000000", strokeWidth: 4 };
 
 interface EffectProps {
   layer: Layer;

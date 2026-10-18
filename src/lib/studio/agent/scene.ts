@@ -44,7 +44,7 @@ export function textAnchor(layer: Layer): TextAlign {
   return layer.align ?? "left";
 }
 
-export function boxOf(t: Transform, canvas: CanvasSize): Box {
+function boxOf(t: Transform, canvas: CanvasSize): Box {
   const radians = (t.rotation * Math.PI) / 180;
   const cos = Math.abs(Math.cos(radians));
   const sin = Math.abs(Math.sin(radians));
@@ -96,7 +96,7 @@ export function paintOf(layer: Layer): Rgba | null {
   return layer.gradient ? gradientColor(layer.gradient) : parseColor(layer.fill);
 }
 
-export function canvasPaint(background: string, gradient: Gradient | undefined): Rgba | null {
+function canvasPaint(background: string, gradient: Gradient | undefined): Rgba | null {
   return gradient ? gradientColor(gradient) : parseColor(background);
 }
 

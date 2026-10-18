@@ -87,23 +87,6 @@ export async function fetchWorkspace(workspaceId: string): Promise<{
 }
 
 
-export async function createWorkspace(name: string): Promise<{
-    workspace: Workspace | null;
-    error?: string;
-}> {
-    const { data, error } = await apiClient<Workspace>("/workspaces", {
-        method: "POST",
-        body: JSON.stringify({ name }),
-    });
-
-    if (error) {
-        return { workspace: null, error: error.message || "Failed to create workspace" };
-    }
-
-    return { workspace: data ?? null };
-}
-
-
 export async function updateWorkspace(
     workspaceId: string,
     options: { name?: string },
@@ -226,55 +209,6 @@ export async function fetchWorkspaceInvites(workspaceId: string): Promise<{
     }
 
     return { invites: data ?? [] };
-}
-
-
-export async function fetchMyInvites(): Promise<{
-    invites: WorkspaceInvite[];
-    error?: string;
-}> {
-    const { data, error } = await apiClient<WorkspaceInvite[]>("/workspaces/invites", {
-        method: "GET",
-    });
-
-    if (error) {
-        return { invites: [], error: error.message || "Failed to fetch invites" };
-    }
-
-    return { invites: data ?? [] };
-}
-
-
-export async function acceptInvite(inviteToken: string): Promise<{
-    member: WorkspaceMember | null;
-    error?: string;
-}> {
-    const { data, error } = await apiClient<WorkspaceMember>("/workspaces/invites/accept", {
-        method: "POST",
-        body: JSON.stringify({ token: inviteToken }),
-    });
-
-    if (error) {
-        return { member: null, error: error.message || "Failed to accept invite" };
-    }
-
-    return { member: data ?? null };
-}
-
-
-export async function declineInvite(inviteId: string): Promise<{
-    error?: string;
-}> {
-    const { error } = await apiClient<{ message: string }>(
-        `/workspaces/invites/${inviteId}/decline`,
-        { method: "POST" },
-    );
-
-    if (error) {
-        return { error: error.message || "Failed to decline invite" };
-    }
-
-    return {};
 }
 
 

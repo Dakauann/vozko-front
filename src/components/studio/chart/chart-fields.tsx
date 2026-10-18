@@ -31,7 +31,7 @@ import { ChartDataDialog } from "./chart-data-dialog";
 
 const PERCENT = 100;
 
-export interface ChartFieldsProps {
+interface ChartFieldsProps {
   spec: ChartSpec;
   disabled: boolean;
   onChange: (spec: ChartSpec) => boolean;

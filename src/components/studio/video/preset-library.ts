@@ -13,16 +13,16 @@ export interface PresetApi {
   remove: (id: string) => Promise<ActionResult<true>>;
 }
 
-export interface PresetLibraryState {
+interface PresetLibraryState {
   status: "idle" | "loading" | "ready" | "failed";
   presets: AnimationPreset[];
 }
 
 export type SaveRefusal = CaptureRefusal | "missing" | "name" | "failed";
 
-export type SaveResult = { ok: true; preset: AnimationPreset; skipped: string[] } | { ok: false; reason: SaveRefusal; message?: string };
+type SaveResult = { ok: true; preset: AnimationPreset; skipped: string[] } | { ok: false; reason: SaveRefusal; message?: string };
 
-export interface PresetLibrary {
+interface PresetLibrary {
   store: StoreApi<PresetLibraryState>;
   load: (force?: boolean) => Promise<AnimationPreset[] | null>;
   find: (id: string) => AnimationPreset | undefined;

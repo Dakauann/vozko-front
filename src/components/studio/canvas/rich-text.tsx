@@ -18,7 +18,7 @@ import { useFontsReady } from "./use-fonts-ready";
 
 export type TextPaint = Konva.ShapeConfig;
 
-export interface RichTextProps extends ContentProps {
+interface RichTextProps extends ContentProps {
   paint: TextPaint;
   highlight: (curved: boolean) => ReactNode;
 }

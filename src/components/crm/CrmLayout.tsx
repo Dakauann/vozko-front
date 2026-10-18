@@ -23,22 +23,7 @@ import type {
   FunnelColumnState,
   SendButtonWsInput,
 } from "@/hooks/use-conversation-ws";
-import {
-  ArrowSquareOut,
-  Bell,
-  BellSlash,
-  CaretDown,
-  CaretLeft,
-  ChatCircleDots,
-  Check,
-  Info,
-  PhoneCall,
-  Robot,
-  InstagramLogo,
-  MessengerLogo,
-  TelegramLogo,
-  WhatsappLogo,
-} from "@/components/icons";
+import { ArrowSquareOut, Bell, BellSlash, CaretDown, CaretLeft, ChatCircleDots, Check, Info, PhoneCall, Robot, WhatsappLogo } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -230,21 +215,6 @@ function coerceGroupBy(value: string): CrmGroupBy {
 }
 
 const BOARD_PAGE_SIZE = 20;
-
-const CHANNEL_BADGES: Record<
-  string,
-  { className: string; Icon: typeof WhatsappLogo }
-> = {
-  whatsapp: { className: "bg-healthy", Icon: WhatsappLogo },
-  instagram: {
-    className: "bg-muted",
-    Icon: InstagramLogo,
-  },
-  facebook: { className: "bg-[#0099FF]", Icon: MessengerLogo },
-  telegram: { className: "bg-[#229ED9]", Icon: TelegramLogo },
-  webchat: { className: "bg-[#0D9488]", Icon: ChatCircleDots },
-  unofficial_whatsapp: { className: "bg-muted-foreground", Icon: WhatsappLogo },
-};
 
 function columnPredicate(
   groupBy: CrmGroupBy,
@@ -2533,6 +2503,8 @@ export default function CrmLayout({
                   labels={labels}
                   onAssignLabel={handleAssignLabel}
                   onRemoveLabel={handleRemoveLabel}
+                  onAssignTo={can("conversations", "assign") ? assignTo : undefined}
+                  onlineUserIds={onlineUserIdSet}
                   onEntryStageChange={
                     can("stages", "assign") ? handleEntryStageChange : undefined
                   }

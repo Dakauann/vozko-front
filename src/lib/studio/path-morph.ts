@@ -28,7 +28,7 @@ interface PreparedPair {
   to: Cubic[];
 }
 
-export interface MorphPins {
+interface MorphPins {
   from?: VertexPin;
   to?: VertexPin;
 }

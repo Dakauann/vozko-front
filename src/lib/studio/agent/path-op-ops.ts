@@ -60,7 +60,7 @@ export interface AgentPathOpFields {
 
 type NumberArg = Exclude<{ [K in keyof AgentPathOp]-?: AgentPathOp[K] extends number | undefined ? K : never }[keyof AgentPathOp], undefined>;
 
-export const PATH_OP_ARGS: Record<PathOpField, NumberArg> = {
+const PATH_OP_ARGS: Record<PathOpField, NumberArg> = {
   amount: "amount",
   copies: "copies",
   copyOffset: "copy_offset",
@@ -80,7 +80,7 @@ export const PATH_OP_ARGS: Record<PathOpField, NumberArg> = {
 
 const TEXT_OWNERS = { join: "offset", points: "zigZag", mode: "merge", operand: "merge", path: "merge", fill_rule: "merge" } as const satisfies Partial<Record<keyof AgentPathOp, PathOpKind>>;
 
-export type PathOpsOutcome = { ok: true; ops: PathOp[] } | { ok: false; reason: string };
+type PathOpsOutcome = { ok: true; ops: PathOp[] } | { ok: false; reason: string };
 
 function listed(list: readonly string[], value: string | undefined): boolean {
   return value === undefined || list.includes(value);
@@ -166,7 +166,7 @@ export function pathOpsFrom(items: readonly AgentPathOp[], current: readonly Pat
   return { ok: true, ops };
 }
 
-export function pathOpLaneFrom(ops: readonly PathOp[] | undefined, id: string | undefined, property: string | undefined, frames: readonly Keyframe[]): PathOpsOutcome {
+function pathOpLaneFrom(ops: readonly PathOp[] | undefined, id: string | undefined, property: string | undefined, frames: readonly Keyframe[]): PathOpsOutcome {
   const target = (ops ?? []).find((op) => op.id === id);
   if (!target) return { ok: false, reason: `o operador ${id ?? "(sem path_op_id)"} não existe nesta forma; leia o projeto de novo com studio_read` };
   if (!property || !(PATH_OP_FIELDS as readonly string[]).includes(property) || !pathOpRange(target.kind, property as PathOpField)) {
@@ -196,14 +196,14 @@ export function agentPathOp(op: PathOp): AgentPathOp {
 
 export const PATH_OP_VIDEO_OPERATIONS = ["set_path_ops", "animate_path_op"] as const;
 
-export interface PathOpVideoInput extends AgentPathOpFields {
+interface PathOpVideoInput extends AgentPathOpFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
   keys?: AgentLaneKey[];
 }
 
-export type PathOpVideoResult = { ok: true; document: VideoDocument; clipId: string; created: string[] } | { ok: false; reason: string };
+type PathOpVideoResult = { ok: true; document: VideoDocument; clipId: string; created: string[] } | { ok: false; reason: string };
 
 function shapeClip(doc: VideoDocument, clipId: string | undefined): { clip: Clip; layer: Layer } | string {
   const found = clipId ? findClip(doc, clipId) : null;

@@ -1,4 +1,4 @@
-export interface PlacedBox {
+interface PlacedBox {
   left: number;
   top: number;
   width: number;

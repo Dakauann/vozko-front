@@ -1,18 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  CaretDown,
-  ChartBar,
-  Fire,
-  Smiley,
-  SmileyMeh,
-  SmileySad,
-  Sparkle,
-  Target,
-  ThumbsDown,
-  ThumbsUp,
-} from "@/components/icons";
+import { CaretDown, ChartBar, Fire, SmileyMeh, Sparkle, Target, ThumbsDown, ThumbsUp } from "@/components/icons";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { useEffect, useRef, useState } from "react";
 

@@ -2,7 +2,7 @@ import type { CodedRefusal } from "@/lib/api/coded-error";
 import { isCount, isJson, isText, type Json } from "@/lib/json/guards";
 import { formatPhoneForDisplay } from "@/lib/phone/display";
 
-export const HELD_BY_OTHER = "customer_portfolio_held_by_other";
+const HELD_BY_OTHER = "customer_portfolio_held_by_other";
 
 export type PortfolioContactChannel = "unofficial_whatsapp" | "telegram" | "instagram" | "facebook" | "webchat";
 
@@ -56,9 +56,9 @@ export interface PortfolioPage {
 
 export type PortfolioHolderScope = { kind: "mine" } | { kind: "all" } | { kind: "member"; userId: string };
 
-export type HoldingState = "free" | "mine" | "other";
+type HoldingState = "free" | "mine" | "other";
 
-export interface HeldByOther {
+interface HeldByOther {
   entryId: string;
   holderId: string;
   holderName: string;

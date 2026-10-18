@@ -2,7 +2,7 @@
 const MIN_DIGITS = 10;
 const MAX_DIGITS = 15;
 
-export interface ParsedRecipients {
+interface ParsedRecipients {
     valid: string[];
     duplicates: number;
     invalid: number;

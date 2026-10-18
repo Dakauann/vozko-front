@@ -26,7 +26,7 @@ import type { FeatureCatalog } from "@/lib/access/decide";
 
 import { useAuth } from "@/contexts/auth-context";
 
-export type PermissionsMap = Record<string, Set<string>>;
+type PermissionsMap = Record<string, Set<string>>;
 
 interface WorkspaceContextType {
   workspaces: Workspace[];

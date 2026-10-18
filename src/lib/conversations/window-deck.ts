@@ -7,7 +7,7 @@ export const MIN_WINDOW_HEIGHT = 320;
 const WIDTH_SHARE = 0.27;
 const HEIGHT_SHARE = 0.66;
 export const MAX_DEFAULT_WINDOW_WIDTH = 460;
-export const MAX_DEFAULT_WINDOW_HEIGHT = 720;
+const MAX_DEFAULT_WINDOW_HEIGHT = 720;
 
 export function defaultWindowSize(viewport: Viewport): {
   width: number;
@@ -69,7 +69,7 @@ export interface WindowDeck {
   nextZ: number;
 }
 
-export interface OpenWindowInput {
+interface OpenWindowInput {
   entryId: string;
   entryType: EntryType;
   leadName?: string;
@@ -87,7 +87,7 @@ export function isWindowOpen(deck: WindowDeck, key: string) {
   return deck.windows.some((w) => w.key === key);
 }
 
-export function findWindow(deck: WindowDeck, key: string) {
+function findWindow(deck: WindowDeck, key: string) {
   return deck.windows.find((w) => w.key === key) ?? null;
 }
 
@@ -191,10 +191,6 @@ export function openWindow(
 export function closeWindow(deck: WindowDeck, key: string): WindowDeck {
   if (!isWindowOpen(deck, key)) return deck;
   return { ...deck, windows: deck.windows.filter((w) => w.key !== key) };
-}
-
-export function closeAllWindows(deck: WindowDeck): WindowDeck {
-  return deck.windows.length === 0 ? deck : { ...deck, windows: [] };
 }
 
 function raise(deck: WindowDeck, key: string): WindowDeck {

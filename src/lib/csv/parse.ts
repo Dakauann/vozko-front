@@ -32,7 +32,7 @@ export function detectDelimiter(line: string): string {
     return ",";
 }
 
-export interface DelimitedRow {
+interface DelimitedRow {
     line: number;
     cells: string[];
     raw: string;

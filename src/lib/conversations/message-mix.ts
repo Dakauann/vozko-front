@@ -6,7 +6,7 @@ import {
 import { senderOf, type SenderKind } from "@/lib/conversations/sender";
 import type { ConversationMessage } from "@/lib/conversations/types";
 
-export type MessageMix = {
+type MessageMix = {
   customer: number;
   team: number;
   ai: number;

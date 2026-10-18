@@ -5,9 +5,9 @@ import { fitCamera, type Renderer } from "@/lib/studio/render/renderer";
 import { videoSources, type Scene, type SceneVideo } from "@/lib/studio/scene/scene";
 import { videoScene } from "@/lib/studio/scene/video-scene";
 
-export const STALL_MS = 20_000;
+const STALL_MS = 20_000;
 
-export type FrameLoopOutcome = "complete" | "undecodable" | "stalled" | "lut_unavailable";
+type FrameLoopOutcome = "complete" | "undecodable" | "stalled" | "lut_unavailable";
 
 export class Wake {
   private waiter: ((woken: boolean) => void) | null = null;

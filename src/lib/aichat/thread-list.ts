@@ -7,7 +7,7 @@ export const THREAD_SEARCH_DELAY_MS = 250;
 
 export type ThreadPlace = "here" | "other_project" | "studio" | "general";
 
-export interface ThreadActivity {
+interface ThreadActivity {
   day: RelativeDay;
   text: string;
 }

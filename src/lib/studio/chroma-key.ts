@@ -1,4 +1,4 @@
-import { editFieldValue, fieldKeyState, fieldValue, lanesIssue, setFieldKey, setFieldLane, toggleFieldKey, type AnimatedFields, type Lanes } from "./animated-fields";
+import { editFieldValue, fieldKeyState, fieldValue, lanesIssue, setFieldLane, toggleFieldKey, type AnimatedFields, type Lanes } from "./animated-fields";
 import type { KeyState } from "./keyframe-edit";
 import type { Keyframe } from "./keyframes";
 import type { IssueCode } from "./validate";
@@ -52,10 +52,6 @@ export function chromaValue(key: ChromaKey, property: ChromaProperty, localMs: n
 export function chromaAt(key: ChromaKey, localMs: number): ChromaKey {
   if (!key.keyframes) return key;
   return { color: key.color, similarity: chromaValue(key, "similarity", localMs), smoothness: chromaValue(key, "smoothness", localMs), spill: chromaValue(key, "spill", localMs) };
-}
-
-export function setChromaKey(key: ChromaKey, property: ChromaProperty, atMs: number, value: number): ChromaKey {
-  return setFieldKey(CHROMA_FIELDS, key, property, atMs, value);
 }
 
 export function setChromaLane(key: ChromaKey, property: ChromaProperty, frames: readonly Keyframe[]): ChromaKey {

@@ -26,7 +26,7 @@ import {
 import { createTileLimiter, mergeTileLayers, tileId, visibleTiles, type MapTile } from "@/lib/maps/tiles";
 import type { DistrictCount, DrawnArea, GeoSummary, MapLayerResponse, MapSpot, MapViewport } from "@/lib/maps/types";
 
-export const TILE_GC_MS = 30 * 60_000;
+const TILE_GC_MS = 30 * 60_000;
 
 const tileLimiter = createTileLimiter();
 

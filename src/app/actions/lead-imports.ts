@@ -9,9 +9,9 @@ import {
   type LeadImportList,
 } from "@/lib/leads/imports";
 
-export type LeadImportActionResult = { job: LeadImportJob } | { error: CodedRefusal };
+type LeadImportActionResult = { job: LeadImportJob } | { error: CodedRefusal };
 
-export type LeadImportListActionResult = { list: LeadImportList } | { error: CodedRefusal };
+type LeadImportListActionResult = { list: LeadImportList } | { error: CodedRefusal };
 
 export const LEAD_IMPORT_RATE_LIMITED = "lead_import_rate_limited";
 

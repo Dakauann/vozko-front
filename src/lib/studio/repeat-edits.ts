@@ -62,10 +62,6 @@ export function repeatedLayers(surface: ImageSurface): Layer[] {
   return expanded;
 }
 
-export function isRepeatCopy(id: string): boolean {
-  return id.includes(INSTANCE_MARK);
-}
-
 export function repeatSourceId(id: string): string {
   return id.split(INSTANCE_MARK)[0];
 }
@@ -104,7 +100,7 @@ function wrapSingle(surface: ImageSurface, layerId: string, repeat: Repeat): { d
   return { document, groupId };
 }
 
-export interface RepeatOutcome {
+interface RepeatOutcome {
   document: ImageSurface;
   groupId: string | null;
 }
@@ -134,7 +130,7 @@ export function setRepeat(surface: ImageSurface, groupId: string, repeat: Repeat
   });
 }
 
-export type ExpandOutcome = { ok: true; document: ImageSurface; created: string[] } | { ok: false; reason: "missing" | "out_of_range" };
+type ExpandOutcome = { ok: true; document: ImageSurface; created: string[] } | { ok: false; reason: "missing" | "out_of_range" };
 
 function inRange(layer: Layer): boolean {
   const [lo, hi] = LAYER_RANGES.position;

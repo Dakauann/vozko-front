@@ -18,7 +18,7 @@ export const ANALYSIS_WINDOWS: readonly AnalysisWindow[] = [7, 30, 90, -1];
 
 export const DEFAULT_ANALYSIS_WINDOW: AnalysisWindow = 30;
 
-export const SETUP_STEPS: readonly SetupStep[] = ["description", "admins_only", "promote_numbers"];
+const SETUP_STEPS: readonly SetupStep[] = ["description", "admins_only", "promote_numbers"];
 
 const GROUP_SORTS: readonly GroupSort[] = ["recent", "oldest", "name", "name_desc", "members"];
 
@@ -46,18 +46,18 @@ export interface GroupLinkOptions {
   setup?: SetupStep[];
 }
 
-export interface AnalysesQuery {
+interface AnalysesQuery {
   groupId?: string;
   status?: AnalysisStatus;
   action?: "create";
 }
 
-export interface AnalysisLinkOptions {
+interface AnalysisLinkOptions {
   days?: AnalysisWindow;
   run?: string;
 }
 
-export interface PeopleQuery {
+interface PeopleQuery {
   search?: string;
   minGroups?: number;
 }

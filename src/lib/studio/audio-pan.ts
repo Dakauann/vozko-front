@@ -7,7 +7,7 @@ export const PAN_RANGE = KEYFRAME_RANGES.pan;
 
 const QUARTER_TURN = Math.PI / 2;
 
-export interface ChannelGains {
+interface ChannelGains {
   left: number;
   right: number;
 }

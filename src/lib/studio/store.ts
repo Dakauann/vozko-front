@@ -35,7 +35,7 @@ export interface StudioEditorState<D extends object> {
 
 export type StudioEditorStore<D extends object> = StoreApi<StudioEditorState<D>>;
 
-export interface StudioStoreOptions<D> {
+interface StudioStoreOptions<D> {
   historyLimit?: number;
   settle?: (before: D, after: D) => D;
 }

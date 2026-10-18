@@ -14,9 +14,9 @@ type Refused = { ok: false; reason: LayoutRefusal };
 
 export type LayoutTarget = { groupId: string } | { ids: readonly string[] };
 
-export type SetLayoutOutcome = { ok: true; document: ImageSurface; groupId: string } | Refused;
+type SetLayoutOutcome = { ok: true; document: ImageSurface; groupId: string } | Refused;
 
-export type LayoutItemOutcome = { ok: true; document: ImageSurface; fixed: ("width" | "height")[] } | Refused;
+type LayoutItemOutcome = { ok: true; document: ImageSurface; fixed: ("width" | "height")[] } | Refused;
 
 const CLEAR = "#00000000";
 const TURN_EPSILON = 1e-9;
@@ -93,7 +93,7 @@ export function scaffoldFor(surface: ImageSurface, ids: readonly string[]): Stud
   return ids.length === 1 ? surface.groups?.find((g) => g.baseId === ids[0]) : undefined;
 }
 
-export function cleanLayout(layout: Layout): Layout {
+function cleanLayout(layout: Layout): Layout {
   const padding = layout.padding;
   const auto = Boolean(layout.autoGap);
   return {

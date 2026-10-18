@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { LABEL_COLORS, type LabelColor } from "@/lib/studio/labels";
 import { cn } from "@/lib/utils";
 
-export const LABEL_HEX: Record<LabelColor, string> = {
+const LABEL_HEX: Record<LabelColor, string> = {
   red: "#e5484d",
   orange: "#f76b15",
   yellow: "#f5c518",

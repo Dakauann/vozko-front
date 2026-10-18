@@ -2,7 +2,7 @@ import { LEAD_FILTER_FIELD, readSet, withSet, type LeadFilter } from "@/lib/lead
 import type { LeadPlacesSection } from "@/lib/leads/sections";
 
 export const LEAD_SEARCH_DEBOUNCE_MS = 300;
-export const LEAD_SEARCH_MIN_LENGTH = 2;
+const LEAD_SEARCH_MIN_LENGTH = 2;
 
 export type LeadSearchOption =
   | { kind: "leads"; id: string; query: string }

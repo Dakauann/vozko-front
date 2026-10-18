@@ -14,7 +14,7 @@ import { apiClient } from "@/lib/api/browser-client";
 import { REF_COOKIE_NAME } from "@/lib/affiliate/ref-cookie.client";
 import { clearClientCookie, readClientCookie } from "@/lib/browser/client-cookie";
 
-export interface PublicAffiliateBrand {
+interface PublicAffiliateBrand {
   code: string;
   brandName: string;
   brandLogoUrl: string;
@@ -105,24 +105,6 @@ export async function adminListPlansAction(includeArchived = false): Promise<{
   }
 
   return { plans: response.data ?? [], error: null };
-}
-
-export async function adminGetPlanAction(planId: string): Promise<{
-  plan: PlanDefinition | null;
-  error?: string | null;
-}> {
-  const response = await apiClient<PlanDefinition>(
-    `/admin/plans/${encodeURIComponent(planId)}`,
-    {
-      method: "GET",
-    },
-  );
-
-  if (response.error) {
-    return { plan: null, error: response.error.message };
-  }
-
-  return { plan: response.data ?? null, error: null };
 }
 
 export async function adminCreatePlanAction(input: PlanMutationInput): Promise<{

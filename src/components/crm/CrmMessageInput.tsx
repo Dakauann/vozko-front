@@ -32,8 +32,6 @@ import {
 import { textLimitState } from "@/lib/conversations/text-limit";
 import { FacebookThreadBanner } from "./FacebookThreadBanner";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-import Badge from "../elevated-design/badge";
 import Button from "@/components/elevated-design/button";
 import ElevatedSwitch from "../elevated-design/elevated-switch";
 import { ExplainerHint } from "@/components/explainers/ExplainerHint";
@@ -42,7 +40,6 @@ import MessageShortcutSheet from "@/components/message-shortcuts/MessageShortcut
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
 import { ShieldWarning } from "@/components/icons";
 import ShortcutPicker from "./ShortcutPicker";
-import { Toggle } from "../ui/toggle";
 import toWav from "audiobuffer-to-wav";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
 import { useTranslations } from "next-intl";

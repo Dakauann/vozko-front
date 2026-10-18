@@ -27,7 +27,7 @@ export const templateExitKeys = {
   audience: (workspaceId: string, list: string) => ["template-exit", workspaceId, "audience", list] as const,
 };
 
-export const EXIT_READ_DEBOUNCE_MS = 500;
+const EXIT_READ_DEBOUNCE_MS = 500;
 
 function listKey(numbers: readonly string[]): string {
   let hash = 2166136261;

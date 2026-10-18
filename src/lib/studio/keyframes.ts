@@ -24,7 +24,7 @@ export const TRANSFORM_PROPERTIES = ["x", "y", "scale", "rotation", "opacity"] a
 
 export const AUDIO_PROPERTIES = ["gainDb", "pan"] as const;
 
-export type AudioProperty = (typeof AUDIO_PROPERTIES)[number];
+type AudioProperty = (typeof AUDIO_PROPERTIES)[number];
 
 export function isAudioProperty(property: string): property is AudioProperty {
   return (AUDIO_PROPERTIES as readonly string[]).includes(property);
@@ -39,8 +39,6 @@ export const PLACEMENT_PROPERTIES: readonly string[] = ["x", "y", "position", "s
 export type AxisScaleProperty = (typeof AXIS_SCALE_PROPERTIES)[number];
 
 export const KEYFRAME_PROPERTIES = [...VISUAL_KEYFRAME_PROPERTIES, ...AXIS_SCALE_PROPERTIES, ...AUDIO_PROPERTIES, ...LINE_PROPERTIES, ...TEXT_KEY_PROPERTIES, ...GRADE_FIELDS, SPEED_PROPERTY, ...CAMERA_PROPERTIES, ...TILT_PROPERTIES] as const;
-
-export type TransformProperty = (typeof TRANSFORM_PROPERTIES)[number];
 
 export const COLOR_PROPERTIES = ["fill", "stroke"] as const;
 
@@ -144,10 +142,10 @@ const BACK_PULL_IN_OUT = BACK_PULL * 1.525;
 const ELASTIC_PERIOD = (2 * Math.PI) / 3;
 const BOUNCE_GAIN = 7.5625;
 const BOUNCE_STEP = 2.75;
-export const SPRING_DAMPING = 0.5;
-export const SPRING_FREQUENCY = 10;
+const SPRING_DAMPING = 0.5;
+const SPRING_FREQUENCY = 10;
 
-export const EASING_REACH: Record<NamedEasing, readonly [number, number]> = {
+const EASING_REACH: Record<NamedEasing, readonly [number, number]> = {
   linear: [0, 1],
   hold: [0, 1],
   easeIn: [0, 1],
@@ -300,7 +298,7 @@ export function ease(easing: Easing, p: number): number {
   }
 }
 
-export const EASE_SLOPE_STEP = 1e-4;
+const EASE_SLOPE_STEP = 1e-4;
 
 export function easeSlope(easing: Easing, p: number): number {
   const low = Math.max(0, p - EASE_SLOPE_STEP);
@@ -397,7 +395,7 @@ export function maxScale(k: Keyframes | undefined): number {
   return reachOf(framesOf(k, "scale"));
 }
 
-export function axisReach(k: Keyframes | undefined): { x: number; y: number } {
+function axisReach(k: Keyframes | undefined): { x: number; y: number } {
   const uniform = maxScale(k);
   return { x: uniform * reachOf(framesOf(k, "scaleX")), y: uniform * reachOf(framesOf(k, "scaleY")) };
 }
@@ -514,11 +512,6 @@ export function retimeKeyframes(k: Keyframes | undefined, timeOf: (atMs: number)
   return mapProperties(k, (frames) =>
     frames.map((f) => ({ ...f, atMs: Math.round(timeOf(f.atMs)) })).filter((f, i, all) => i === all.length - 1 || all[i + 1].atMs > f.atMs),
   );
-}
-
-export function stretchKeyframes(k: Keyframes | undefined, ratio: number): Keyframes | undefined {
-  if (!k || ratio === 1) return k;
-  return retimeKeyframes(k, (atMs) => atMs * ratio);
 }
 
 export function keyframesInRange(k: Keyframes | undefined, fromMs: number, toMs: number): Keyframes | undefined {

@@ -63,7 +63,7 @@ export interface StartCallOptions {
     requestId?: string;
 }
 
-export const CONNECTION_LOST_REASON = "connection_lost";
+const CONNECTION_LOST_REASON = "connection_lost";
 const NO_ACTIVE_CALL_CODE = "no_active_call";
 
 export interface CallSessionState {

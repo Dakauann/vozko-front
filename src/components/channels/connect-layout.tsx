@@ -24,8 +24,6 @@ const item = {
   },
 };
 
-export const connectMotion = { container, item };
-
 export function ConnectShell({
   children,
   className,
@@ -150,9 +148,7 @@ export function ConnectTrackStep({
 }) {
   return (
     <li className="relative flex gap-4">
-      <div className="relative flex flex-col items-center">
-        {
-}
+      <div className="relative flex flex-col items-center">
         <span
           className={cn(
             "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums",
@@ -242,12 +238,8 @@ export function ConnectFacts({
   items: { term: string; detail: string }[];
 }) {
   return (
-    <motion.section variants={item}>
-      {
-}
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      {
-}
+    <motion.section variants={item}>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       <dl className="mt-4 grid gap-x-8 gap-y-4 [grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
         {items.map((fact) => (
           <div key={fact.term} className="min-w-0">
@@ -325,9 +317,7 @@ export function ConnectResult({
             {details && details.length > 0 && (
               <dl className="flex flex-wrap gap-x-6 gap-y-2 rounded-[--radius] border border-border bg-muted px-4 py-3">
                 {details.map((d) => (
-                  <div key={d.label} className="min-w-0">
-                    {
-}
+                  <div key={d.label} className="min-w-0">
                     <dt className="text-2xs font-medium text-foreground/80">
                       {d.label}
                     </dt>

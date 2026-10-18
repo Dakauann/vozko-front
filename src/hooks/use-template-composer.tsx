@@ -228,5 +228,3 @@ export function useTemplateComposer({
         reset,
     };
 }
-
-export type TemplateComposer = ReturnType<typeof useTemplateComposer>;

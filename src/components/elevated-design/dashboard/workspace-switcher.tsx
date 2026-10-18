@@ -191,9 +191,7 @@ export function WorkspaceSwitcher({
   }
 
   return (
-    <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
-      {
-}
+    <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}

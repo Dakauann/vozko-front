@@ -16,7 +16,7 @@ export interface SnapGuides {
   horizontal: number[];
 }
 
-export interface SnapResult {
+interface SnapResult {
   dx: number;
   dy: number;
   guides: SnapGuides;

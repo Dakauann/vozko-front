@@ -12,7 +12,7 @@ import {
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 
-export type BuilderStatus =
+type BuilderStatus =
   | "idle"
   | "connecting"
   | "ready"
@@ -20,7 +20,7 @@ export type BuilderStatus =
   | "done"
   | "error";
 
-export interface BuilderLintIssue {
+interface BuilderLintIssue {
   code: string;
   severity: "blocking" | "advisory";
   nodeId?: string;
@@ -29,12 +29,12 @@ export interface BuilderLintIssue {
   hint?: string;
 }
 
-export interface BuilderResourceMatch {
+interface BuilderResourceMatch {
   id: string;
   name: string;
 }
 
-export interface BuilderChatEntry {
+interface BuilderChatEntry {
   role: "user" | "assistant" | "system" | "tool" | "thinking";
   text: string;
   ok?: boolean;
@@ -60,13 +60,13 @@ interface UseWorkflowAIBuilderOptions {
   getGraph?: () => WorkflowGraph | null | undefined;
 }
 
-export type BuilderConnection =
+type BuilderConnection =
   | "connecting"
   | "online"
   | "reconnecting"
   | "offline";
 
-export interface UseWorkflowAIBuilderReturn {
+interface UseWorkflowAIBuilderReturn {
   status: BuilderStatus;
   connection: BuilderConnection;
   reconnectNow: () => void;

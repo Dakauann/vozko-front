@@ -56,10 +56,6 @@ export function circle(cx: number, cy: number, r: number): string {
   return `M${num(cx - r)} ${num(cy)} A${num(r)} ${num(r)} 0 1 0 ${num(cx + r)} ${num(cy)} A${num(r)} ${num(r)} 0 1 0 ${num(cx - r)} ${num(cy)} Z`;
 }
 
-export function ring(cx: number, cy: number, outer: number, inner: number): string {
-  return `${circle(cx, cy, outer)} ${circle(cx, cy, inner)}`;
-}
-
 export function roundedRect(x: number, y: number, width: number, height: number, radius: number): string {
   const r = Math.max(0, Math.min(radius, width / 2, height / 2));
   if (r === 0) return polyline([{ x, y }, { x: x + width, y }, { x: x + width, y: y + height }, { x, y: y + height }], true);
@@ -151,7 +147,7 @@ export function taperedStroke(points: readonly Spot[], width: number, rough: num
   return closedCurve([...edge(1, 5), ...edge(-1, 6).reverse()], 0.6);
 }
 
-export function samplePolyline(points: readonly Spot[], samples: number): Spot[] {
+function samplePolyline(points: readonly Spot[], samples: number): Spot[] {
   const lengths = points.slice(1).map((point, i) => Math.hypot(point.x - points[i].x, point.y - points[i].y));
   const total = lengths.reduce((sum, length) => sum + length, 0);
   if (total === 0) return [points[0], points[0]];

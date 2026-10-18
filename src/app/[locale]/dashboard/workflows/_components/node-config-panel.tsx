@@ -12,25 +12,7 @@ import {
 } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { useTranslations } from "next-intl";
-import {
-  X,
-  Plus,
-  Trash,
-  CaretDown,
-  CaretRight,
-  Copy,
-  Info,
-  UploadSimple,
-  Image as ImageIcon,
-  VideoCamera,
-  SpeakerHigh,
-  File as FileIcon,
-  Wrench,
-  Check,
-  ArrowRight,
-  Play,
-  Pause,
-} from "@/components/icons";
+import { X, Plus, Trash, CaretDown, CaretRight, Copy, Info, UploadSimple, Image as ImageIcon, VideoCamera, SpeakerHigh, File as FileIcon, Wrench, Check, ArrowRight } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import {
   ChannelReachLegend,
@@ -1891,7 +1873,6 @@ function SchemaField({
   }
 }
 
-
 function AIAgentSection({
   config,
   updateField,
@@ -2157,7 +2138,6 @@ function AIAgentSection({
     </div>
   );
 }
-
 
 function usePaginatedConfigOptions(
   source?: string,
@@ -2477,7 +2457,6 @@ function useDynamicOptions(
   return { options, loading, refresh };
 }
 
-
 interface TemplateParam {
   name: string;
   component: "body" | "header";
@@ -2511,7 +2490,6 @@ function extractTemplateParams(
   }
   return params;
 }
-
 
 function TemplateParamsSection({
   params,
@@ -2602,7 +2580,6 @@ function TemplateParamsSection({
     </div>
   );
 }
-
 
 function SelectField({
   field,
@@ -2743,7 +2720,6 @@ function SelectField({
   );
 }
 
-
 const ACCEPTED_MEDIA_TYPES =
   "image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,audio/mpeg,audio/ogg,audio/wav,application/pdf";
 
@@ -2758,7 +2734,7 @@ function mediaTypeIcon(type: string) {
   const t = type?.toLowerCase() ?? "";
   if (t.includes("image") || t === "sticker")
     return <ImageIcon size={14} weight="duotone" />;
-  if (t.includes("video") || t === "vsl_video")
+  if (t.includes("video"))
     return <VideoCamera size={14} weight="duotone" />;
   if (t.includes("audio")) return <SpeakerHigh size={14} weight="duotone" />;
   return <FileIcon size={14} weight="duotone" />;
@@ -2904,7 +2880,6 @@ function MediaSelectField({
   );
 }
 
-
 function ModelCombobox({
   label,
   value,
@@ -2995,7 +2970,6 @@ function ModelCombobox({
     </div>
   );
 }
-
 
 interface ToolParam {
   name: string;
@@ -3451,7 +3425,6 @@ function ToolsField({
   );
 }
 
-
 interface ButtonItem {
   Type: "reply" | "copy_code";
   ID: string;
@@ -3671,7 +3644,6 @@ function ButtonsField({
     </div>
   );
 }
-
 
 interface ListRowItem {
   id: string;
@@ -3970,7 +3942,6 @@ function ExpressionsField({
   );
 }
 
-
 interface CaseItem {
   value: string;
 }
@@ -4055,7 +4026,6 @@ function CasesField({
     </div>
   );
 }
-
 
 interface VarGroup {
   label: string;
@@ -4223,13 +4193,12 @@ function buildAvailableVariables(
   return groups;
 }
 
-
 function MediaPreviewSection({ media }: { media: Media }) {
   const url = media.previewUrl || media.url;
   const mediaType = media.type?.toLowerCase() ?? "";
 
   const isImage = mediaType.includes("image") || mediaType === "sticker";
-  const isVideo = mediaType.includes("video") || mediaType === "vsl_video";
+  const isVideo = mediaType.includes("video");
   const isAudio = mediaType.includes("audio");
 
   return (

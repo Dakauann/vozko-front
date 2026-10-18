@@ -4,7 +4,7 @@ import type { Icon } from "@/components/icons";
 
 import { SceneConnector, SceneFrame, SceneTile, type SceneTone } from "./scene-kit";
 
-export type FlowNode = { icon: Icon; label: string; tone?: SceneTone };
+type FlowNode = { icon: Icon; label: string; tone?: SceneTone };
 
 export function FlowScene({ nodes, label }: { nodes: FlowNode[]; label: string }) {
   return (

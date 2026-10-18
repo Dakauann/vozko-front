@@ -41,7 +41,7 @@ export function renderInEditor(document: VideoDocument, ui: ReactNode) {
   return { ...view, editor: value };
 }
 
-export interface PreviewLayout {
+interface PreviewLayout {
   area: { width: number; height: number };
   frame: { width: number; height: number };
 }

@@ -92,9 +92,7 @@ export function StartConversationDialog({
               {t("noNumbers")}
             </p>
           ) : (
-            <>
-              {
-}
+            <>
               {instances.length > 1 && (
                 <div className="space-y-2">
                   <span className="legend">{t("fromLabel")}</span>
@@ -132,9 +130,7 @@ export function StartConversationDialog({
                   </div>
                 </div>
               )}
-
-              {
-}
+
               <div className="space-y-1.5">
                 <ElevatedInput
                   label={t("phoneLabel")}
@@ -143,9 +139,7 @@ export function StartConversationDialog({
                   placeholder="5511999999999"
                   inputMode="tel"
                   className="w-full font-mono"
-                />
-                {
-}
+                />
                 {validPhone ? (
                   <p className="flex items-center gap-1.5 text-xs text-healthy-ink">
                     <CheckCircle className="h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
@@ -175,9 +169,7 @@ export function StartConversationDialog({
                 placeholder={t("namePlaceholder")}
                 className="w-full"
               />
-
-              {
-}
+
               <Notice tone="warning">
                 <p>{t("risk")}</p>
               </Notice>

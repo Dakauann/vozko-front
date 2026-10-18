@@ -12,7 +12,7 @@ import { leadNameLines } from "@/lib/leads/display";
 const LEAD_NAMES_STALE_MS = 60_000;
 const LEAD_ID_FIELD = "id";
 
-export interface LeadNames {
+interface LeadNames {
   names: ReadonlyMap<string, string>;
   pending: boolean;
   failed: boolean;

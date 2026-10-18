@@ -88,7 +88,7 @@ function ItemRow({ item, account, state, canCreate }: { item: AdReadinessItem; a
   );
 }
 
-export function ReadinessChecklist({
+function ReadinessChecklist({
   items,
   account,
   state,

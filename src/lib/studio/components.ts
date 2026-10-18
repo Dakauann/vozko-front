@@ -107,7 +107,7 @@ function canvasPart(component: Artboard): Layer | null {
   return { id: CANVAS_PART, type: "shape", shape: "rect", transform: fullFrame(), ...(gradient ? { gradient } : { fill: background }) };
 }
 
-export function overriddenLayers(component: ImageSurface, overrides: readonly InstanceOverride[]): Layer[] {
+function overriddenLayers(component: ImageSurface, overrides: readonly InstanceOverride[]): Layer[] {
   if (overrides.length === 0) return component.layers;
   const byId = new Map(overrides.map((o) => [o.layerId, o]));
   return component.layers.map((layer) => {
@@ -246,7 +246,7 @@ export function partIdsOf(doc: ImageDocument, surface: ImageSurface, ids: readon
   return surface.layers.flatMap((layer) => (wanted.has(layer.id) ? resolvedParts(doc, layer, surface.canvas).map((part) => part.id) : []));
 }
 
-export interface InstanceAnchors {
+interface InstanceAnchors {
   after: Map<string, Layer[]>;
   loose: Layer[];
 }

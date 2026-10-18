@@ -9,7 +9,7 @@ import type { DocumentIssue } from "@/lib/studio/validate";
 import type { AgentPresence } from "./presence";
 import type { ReplayOutcome } from "./replay";
 
-export const FACT_TIMEOUT_MS = 6000;
+const FACT_TIMEOUT_MS = 6000;
 
 export function pageHidden(): boolean {
   return typeof document !== "undefined" && document.visibilityState === "hidden";
@@ -52,7 +52,7 @@ export async function withTimeout<T>(work: Promise<T>, ms: number = FACT_TIMEOUT
   }
 }
 
-export interface FollowRequest<P extends string> {
+interface FollowRequest<P extends string> {
   job: MediaGenerationJob;
   purpose: P;
   clipId?: string;
@@ -101,7 +101,7 @@ export function ignoredOf(plan: Extract<BatchPlan<unknown>, { ok: true }>): { ig
   return plan.notes.length > 0 ? { ignored: plan.notes } : {};
 }
 
-export interface OperationNote {
+interface OperationNote {
   operation: number;
   op: string;
   reason: string;

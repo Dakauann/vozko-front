@@ -16,7 +16,7 @@ import { PropertyReadout } from "../property-readout";
 import { ToolButton } from "../tool-button";
 import { EasingPicker } from "./easing-picker";
 
-export interface PropertyKeyListProps {
+interface PropertyKeyListProps {
   clip: Clip;
   disabled: boolean;
 }

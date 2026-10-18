@@ -11,20 +11,12 @@ import type {
 type PermissionLike = { resource: string; action: string };
 export type PermissionMap = Record<string, Set<string>>;
 
-export function permissionKey(entry: PermissionLike): string {
+function permissionKey(entry: PermissionLike): string {
   return `${entry.resource}:${entry.action}`;
 }
 
 function keySet(entries: PermissionLike[]): Set<string> {
   return new Set(entries.map(permissionKey));
-}
-
-export function permissionMapToEntries(map: PermissionMap): PermissionLike[] {
-  const entries: PermissionLike[] = [];
-  for (const [resource, actions] of Object.entries(map)) {
-    for (const action of actions) entries.push({ resource, action });
-  }
-  return entries;
 }
 
 export function samePermissions(a: PermissionLike[], b: PermissionLike[]): boolean {
@@ -82,7 +74,7 @@ export function matchingPreset(
   return presets.find((preset) => samePermissions(own, presetPermissions(preset, available))) ?? null;
 }
 
-export interface CapabilityGroup {
+interface CapabilityGroup {
   featureKey: string;
   featureName: string;
   capabilities: Array<{ key: string; description: string }>;
@@ -115,7 +107,7 @@ export function autofillValue(current: string, lastSuggestion: string, nextSugge
   return untouched ? nextSuggestion : current;
 }
 
-export interface PresetRisk {
+interface PresetRisk {
   kind: PermissionRisk["kind"];
   level: PermissionRisk["level"];
 }
@@ -178,7 +170,7 @@ export interface RoleDraft {
   source: RoleSource;
 }
 
-export interface CreateRolePayload {
+interface CreateRolePayload {
   name: string;
   description?: string;
   permissions: PermissionEntry[];
@@ -186,7 +178,7 @@ export interface CreateRolePayload {
   linked?: boolean;
 }
 
-export interface UpdateRolePayload {
+interface UpdateRolePayload {
   name: string;
   description?: string;
   permissions?: PermissionEntry[];
@@ -221,7 +213,7 @@ export function buildUpdatePayload(
     : { ...base, permissions: draft.permissions };
 }
 
-export type RoleSaveError =
+type RoleSaveError =
   | { field: "name"; messageKey: "errors.nameTaken" }
   | { field: "form"; messageKey: "errors.roleLinked" | "errors.unknownPreset" }
   | { field: "form"; message: string };

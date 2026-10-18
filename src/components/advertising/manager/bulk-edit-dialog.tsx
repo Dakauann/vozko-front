@@ -33,7 +33,7 @@ export interface BulkEditRequest {
 
 const MODES: BulkMode[] = ["set", "replace"];
 
-export function BulkResults({ rows, outcomes }: { rows: TableRow[]; outcomes: BulkOutcome[] }) {
+function BulkResults({ rows, outcomes }: { rows: TableRow[]; outcomes: BulkOutcome[] }) {
   const t = useTranslations("adsManager.bulk");
   const names = new Map(rows.map((row) => [row.metaId, row.name]));
   return (

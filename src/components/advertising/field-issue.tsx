@@ -8,7 +8,7 @@ import { issueFieldKey, type FieldIssue } from "@/lib/advertising/issues";
 
 import { useBudgetMinimumText } from "./budget-minimum";
 
-export type IssueNamespace = "adsManager" | "adsAudiences" | "adsForms" | "adsRules" | "adsConversions";
+type IssueNamespace = "adsManager" | "adsAudiences" | "adsForms" | "adsRules" | "adsConversions";
 
 export function useIssueText(namespace: IssueNamespace) {
   const t = useTranslations(namespace);

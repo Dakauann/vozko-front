@@ -8,13 +8,13 @@ export const LEADS_LIVE_REFETCH_INTERVAL_MS = 3_000;
 
 export const LEADS_LIVE_AGGREGATES_INTERVAL_MS = 30_000;
 
-export interface RefetchThrottle {
+interface RefetchThrottle {
   request: () => void;
   resume: () => void;
   cancel: () => void;
 }
 
-export function createRefetchThrottle(run: () => void, intervalMs: number, hidden: () => boolean): RefetchThrottle {
+function createRefetchThrottle(run: () => void, intervalMs: number, hidden: () => boolean): RefetchThrottle {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let pending = false;
   let cancelled = false;
@@ -54,7 +54,7 @@ export function createRefetchThrottle(run: () => void, intervalMs: number, hidde
   };
 }
 
-export interface QuietReloadGate {
+interface QuietReloadGate {
   markLive: () => void;
   quiet: (request: string) => boolean;
 }
@@ -79,7 +79,7 @@ function pageHidden(): boolean {
   return typeof document !== "undefined" && document.visibilityState === "hidden";
 }
 
-export interface LeadsLiveRefetchOptions {
+interface LeadsLiveRefetchOptions {
   enabled?: boolean;
   intervalMs?: number;
 }

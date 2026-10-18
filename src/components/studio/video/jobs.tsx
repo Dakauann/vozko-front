@@ -69,7 +69,7 @@ export function VideoJobFollowers() {
   );
 }
 
-export interface JobStatusView {
+interface JobStatusView {
   status: MediaGenerationStatus;
   settling: boolean;
   error?: MediaGenerationError;

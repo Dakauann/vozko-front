@@ -5,7 +5,7 @@ import { repeatSourceId } from "../repeat-edits";
 import type { RasterPlan } from "./raster";
 import type { PixelMaskNode, PixelsSource, SceneNode } from "./scene";
 
-export function pixelsSource(layer: Layer, kind: SurfaceKind, live: PixelLive | null | undefined): PixelsSource | null {
+function pixelsSource(layer: Layer, kind: SurfaceKind, live: PixelLive | null | undefined): PixelsSource | null {
   const surface = kind === "paint" ? layer.surface : layer.mask;
   if (!surface) return null;
   const sourceId = repeatSourceId(layer.id);

@@ -7,7 +7,7 @@ import type { SceneVideo } from "@/lib/studio/scene/scene";
 import type { LoadedMediaFile } from "../canvas/media-files";
 import type { MediaEvent, MediaPort } from "./media-protocol";
 
-export interface DecodeObserver {
+interface DecodeObserver {
   undecodable(): void;
   broken(): void;
 }

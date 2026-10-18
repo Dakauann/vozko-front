@@ -3,7 +3,6 @@ import type { ELK, ElkNode } from "elkjs/lib/elk-api";
 
 
 const NODE_W = 260;
-const NODE_H = 120;
 
 const COL_GAP = 140;
 const ROW_GAP = 64;
@@ -151,7 +150,7 @@ async function runElkLayered(
   return rel;
 }
 
-export interface CopilotLayoutInput {
+interface CopilotLayoutInput {
   nodes: Node[];
   edges: Edge[];
   touchedIds: Set<string>;

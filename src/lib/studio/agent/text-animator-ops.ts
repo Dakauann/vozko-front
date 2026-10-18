@@ -73,7 +73,7 @@ export interface AgentTextAnimatorFields {
   selector_property?: SelectorKey;
 }
 
-export interface TextAnimatorOpInput extends AgentTextAnimatorFields {
+interface TextAnimatorOpInput extends AgentTextAnimatorFields {
   op: string;
   clip_id?: string;
   unit?: TextUnit;
@@ -82,7 +82,7 @@ export interface TextAnimatorOpInput extends AgentTextAnimatorFields {
   keys?: { at_ms: number; value?: number; easing?: Easing }[];
 }
 
-export type TextAnimatorOpResult = { ok: true; document: VideoDocument; animatorId: string } | { ok: false; reason: string };
+type TextAnimatorOpResult = { ok: true; document: VideoDocument; animatorId: string } | { ok: false; reason: string };
 
 export interface OutlineTextAnimator {
   id: string;

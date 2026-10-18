@@ -36,7 +36,7 @@ export function linkScale(clip: MotionClip, keep: ScaleAxis): MotionEdit {
   return edited(withLane(clip.keyframes, "scale", kept));
 }
 
-export type JoinSpatial = Extract<SpatialMode, "auto" | "linear">;
+type JoinSpatial = Extract<SpatialMode, "auto" | "linear">;
 
 export function curvePath(clip: MotionClip, spatial: JoinSpatial): MotionEdit {
   if (onPath(clip)) return NOTHING;

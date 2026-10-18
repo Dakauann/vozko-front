@@ -36,7 +36,7 @@ export interface QrSymbol {
   blocks: number;
 }
 
-export function qrSize(version: number): number {
+function qrSize(version: number): number {
   return version * 4 + 17;
 }
 
@@ -50,7 +50,7 @@ function rawDataModules(version: number): number {
   return result;
 }
 
-export function dataCodewords(version: number, ecc: QrEcc): number {
+function dataCodewords(version: number, ecc: QrEcc): number {
   return Math.floor(rawDataModules(version) / 8) - ECC_PER_BLOCK[ecc][version] * BLOCK_COUNT[ecc][version];
 }
 

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 
-export type SentimentType = "positive" | "neutral" | "negative";
+type SentimentType = "positive" | "neutral" | "negative";
 
 export function ProgressBar({
   label,

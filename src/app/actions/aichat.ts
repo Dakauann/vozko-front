@@ -50,7 +50,7 @@ export async function stopChatTurnAction(threadId: string) {
   return { error: res.error?.message ?? null };
 }
 
-export interface QueueChatMessageInput {
+interface QueueChatMessageInput {
   clientId: string;
   content: string;
   attachments: string[];
@@ -72,15 +72,6 @@ export async function unqueueChatMessageAction(threadId: string, clientId: strin
   });
   if (res.error) return { error: { message: res.error.message, code: res.error.code ?? null } };
   return { error: null };
-}
-
-export async function renameChatThreadAction(threadId: string, title: string) {
-  const res = await apiClient<{ ok: boolean }>(`/chat/threads/${threadId}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
-  });
-  return { error: res.error?.message ?? null };
 }
 
 export async function deleteChatThreadAction(threadId: string) {

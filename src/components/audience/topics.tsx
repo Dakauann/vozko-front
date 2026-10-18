@@ -74,9 +74,7 @@ export function CommentAnalysisTopics({
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
                     <div className="h-full rounded-full" style={{ width: `${max > 0 ? (s.count / max) * 100 : 0}%`, backgroundColor: color }} />
-                  </div>
-                  {
-}
+                  </div>
                   <div className="mt-1.5 flex items-center gap-3 text-2xs text-muted-foreground">
                     <div className="flex h-1.5 w-24 gap-0.5 overflow-hidden rounded-full" aria-hidden>
                       <span className="bg-healthy" style={{ width: `${percent(s.sentimentPositive, s.count)}%` }} />

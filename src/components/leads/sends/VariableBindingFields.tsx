@@ -6,7 +6,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { LITERAL_SOURCE, type BindingChoice, type BindingSource, type VariableBinding } from "@/lib/leads/sends";
 
-export interface VariableBindingControls {
+interface VariableBindingControls {
   choices: readonly BindingChoice[];
   values: readonly VariableBinding[];
   onChange: (index: number, binding: VariableBinding) => void;

@@ -32,7 +32,7 @@ export type TourStep = Omit<Step, "content"> & {
   ctaOnClick?: () => void;
 };
 
-export interface TourGuideProps {
+interface TourGuideProps {
   steps: TourStep[];
   storageKey?: string;
   i18nNamespace?: string;

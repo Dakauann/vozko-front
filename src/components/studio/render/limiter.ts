@@ -1,10 +1,10 @@
-export class AbortedTaskError extends Error {
+class AbortedTaskError extends Error {
   constructor() {
     super("render task aborted before it started");
   }
 }
 
-export type Limiter = <T>(task: () => Promise<T>, signal: AbortSignal) => Promise<T>;
+type Limiter = <T>(task: () => Promise<T>, signal: AbortSignal) => Promise<T>;
 
 export function limiter(limit: number): Limiter {
   let active = 0;

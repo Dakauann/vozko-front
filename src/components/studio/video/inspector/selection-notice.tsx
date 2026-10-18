@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 import { NOTICE_MS } from "../editor-notice";
 
-export type SelectionMessage = Refusal | "copied" | "noKeys" | "clipboardEmpty" | "anchorMoment";
+type SelectionMessage = Refusal | "copied" | "noKeys" | "clipboardEmpty" | "anchorMoment";
 
 const INFO_MESSAGES: ReadonlySet<SelectionMessage> = new Set<SelectionMessage>(["copied", "anchorMoment"]);
 

@@ -18,13 +18,13 @@ import { acceptPhotoDrag, takeDroppedPhoto } from "./photo-drag";
 import { currentArtboard, useImageEditor } from "./editor-state";
 import { isGeneratedLayer } from "@/lib/studio/generated-layers";
 
-export interface ImageDropSpot {
+interface ImageDropSpot {
   artboardId: string;
   x: number;
   y: number;
 }
 
-export interface ImageLibrary extends LibraryAdapter {
+interface ImageLibrary extends LibraryAdapter {
   insertAt: (item: LibraryItem, spot: ImageDropSpot | null) => boolean;
 }
 

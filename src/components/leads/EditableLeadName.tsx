@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const MAX_NAME_LENGTH = 120;
 
-export interface LeadNameState {
+interface LeadNameState {
     name: string;
     version: number;
 }

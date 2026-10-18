@@ -489,9 +489,7 @@ export default function UserAddonsCatalog() {
                   </button>
                 </div>
               </div>
-
-              {
-}
+
               <div className="space-y-2 rounded-[--radius] border border-border bg-background p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{t("purchase.payNow")}</span>

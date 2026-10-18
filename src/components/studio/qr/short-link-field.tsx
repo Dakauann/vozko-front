@@ -14,7 +14,7 @@ import { FIELD_CLASS, Notice, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS, Select
 const LINK_PAGE = 50;
 const NONE = "";
 
-export interface ShortLinkFieldProps {
+interface ShortLinkFieldProps {
   link: QrLink;
   disabled: boolean;
   autoFocus?: boolean;

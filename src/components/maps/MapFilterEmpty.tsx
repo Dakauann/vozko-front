@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 
 import { MapNotice } from "./MapNotice";
 
-export interface MapIncludeApproximate {
+interface MapIncludeApproximate {
   count: number;
   onSelect: () => void;
 }
 
-export interface MapFilterEmptyProps {
+interface MapFilterEmptyProps {
   onClear: () => void;
   includeApproximate?: MapIncludeApproximate | null;
   className?: string;

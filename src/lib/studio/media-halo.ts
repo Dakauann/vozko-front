@@ -29,7 +29,7 @@ export interface HaloLayout {
   scale: number;
 }
 
-export interface PixelRect {
+interface PixelRect {
   x: number;
   y: number;
   width: number;

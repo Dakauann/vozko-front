@@ -1,4 +1,4 @@
-export interface DeliveryError {
+interface DeliveryError {
     code?: number;
     message?: string;
 }

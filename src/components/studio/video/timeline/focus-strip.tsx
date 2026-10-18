@@ -11,7 +11,7 @@ import { useVideoEditor, useViewState } from "../editor-context";
 import { ToolButton } from "../tool-button";
 import { GraphControls } from "./graph-controls";
 
-export function clipName(clip: Clip, fallback: string): string {
+function clipName(clip: Clip, fallback: string): string {
   if (clip.layer?.type === "text" && shownText(clip)) return shownText(clip);
   return fallback;
 }

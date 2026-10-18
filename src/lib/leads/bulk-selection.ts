@@ -15,7 +15,7 @@ export function effectiveLeadFilter(filter: CrmFilter, search: string): CrmFilte
   return search.trim() ? withText(filter, LEAD_SEARCH_FIELD, search) : filter;
 }
 
-export interface LeadSelectionContext {
+interface LeadSelectionContext {
   filter: CrmFilter;
   search: string;
   sorts: readonly LeadSort[];
@@ -43,7 +43,7 @@ export function leadSelection(state: BulkSelectionState, context: LeadSelectionC
   return { mode: "first_n", filter, sort: leadSelectionSort(context.sorts), limit: wide.limit };
 }
 
-export interface SelectionConfirmation {
+interface SelectionConfirmation {
   expectedCount: number;
   fingerprint: string;
 }
@@ -149,7 +149,7 @@ const LEAD_BULK_CAPABILITIES: Record<keyof LeadBulkPermissions | "readsAddresses
   readsSensitive: "leads.read_sensitive",
 };
 
-export interface LeadBulkAccess {
+interface LeadBulkAccess {
   checking: boolean;
   permissions: LeadBulkPermissions;
   readsAddresses: boolean;
@@ -276,7 +276,7 @@ export function leadActionParams(action: LeadActionKind, draft: LeadActionDraft)
   }
 }
 
-export interface RestoreOptOutConfirmation {
+interface RestoreOptOutConfirmation {
   note: string;
   typed: string;
   selected: number;

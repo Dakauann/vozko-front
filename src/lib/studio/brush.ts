@@ -3,8 +3,8 @@ import { PIXEL_INPUT_MARGIN, snapPixel } from "./pixel-surface";
 
 export const BRUSH_SPACING = 0.1;
 export const MIN_DAB_STEP = 0.5;
-export const COMMIT_TOLERANCE = 0.3;
-export const SMOOTH_STEPS = 6;
+const COMMIT_TOLERANCE = 0.3;
+const SMOOTH_STEPS = 6;
 
 const PRESSURE_WEIGHT = 100;
 const PRESSURE_DIGITS = 100;

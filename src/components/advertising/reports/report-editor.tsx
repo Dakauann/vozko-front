@@ -53,7 +53,7 @@ import { UnsavedChangesDialog } from "./unsaved-changes-dialog";
 import { useReportLabels } from "./use-report-labels";
 import { useReportRun } from "./use-report-run";
 
-export type ReportEntry = { kind: "new"; templateKey: string | null; accountId: string | null } | { kind: "saved"; reportId: string };
+type ReportEntry = { kind: "new"; templateKey: string | null; accountId: string | null } | { kind: "saved"; reportId: string };
 
 interface ReportSource {
   savedId: string | null;

@@ -12,7 +12,7 @@ const TOOL_MEDIA: Record<string, MediaKind> = {
 const DEFAULT_ASPECT: ImageAspect = "square";
 const ASPECT_FIELD = "format";
 
-export interface MediaPlaceholder {
+interface MediaPlaceholder {
   kind: MediaKind;
   frame: MediaFrame;
   failed: boolean;

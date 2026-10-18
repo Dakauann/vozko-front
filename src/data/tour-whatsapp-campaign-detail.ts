@@ -1,18 +1,6 @@
 import type { TourStep } from "@/components/TourGuide";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
-import {
-  WhatsappLogo,
-  ChartPie,
-  CheckCircle,
-  Warning,
-  MagnifyingGlass,
-  Eye,
-  PlayCircle,
-  PauseCircle,
-  Brain,
-  Lightning,
-  Tag,
-} from "@/components/icons";
+import { WhatsappLogo, ChartPie, CheckCircle, Warning, MagnifyingGlass, Eye, PlayCircle, Brain, Lightning, Tag } from "@/components/icons";
 
 export const whatsappDetailTourPalette: ColorGroup[] = [
   { colors: ["#25d366", "#128c7e"], weight: 35 },

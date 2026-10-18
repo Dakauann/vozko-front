@@ -14,7 +14,7 @@ export const LOUDNESS_HOP_MS = 100;
 const ABSOLUTE_GATE = -70;
 const RELATIVE_GATE = -10;
 
-export interface Biquad {
+interface Biquad {
   b: [number, number, number];
   a: [number, number];
 }

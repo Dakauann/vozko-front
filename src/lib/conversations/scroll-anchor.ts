@@ -1,6 +1,6 @@
-export const PINNED_DISTANCE_PX = 80;
+const PINNED_DISTANCE_PX = 80;
 
-export interface ScrollMetrics {
+interface ScrollMetrics {
   scrollTop: number;
   scrollHeight: number;
   clientHeight: number;

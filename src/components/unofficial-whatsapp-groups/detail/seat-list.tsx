@@ -23,7 +23,7 @@ function useSeatLabels() {
   };
 }
 
-export function SeatRow({ seat, layout = "line", trailing }: { seat: NumberSeat; layout?: "line" | "card"; trailing?: ReactNode }) {
+function SeatRow({ seat, layout = "line", trailing }: { seat: NumberSeat; layout?: "line" | "card"; trailing?: ReactNode }) {
   const labels = useSeatLabels();
   const phone = displayPhone(seat.phone);
   const connection = seat.connected ? labels.connected : labels.offline;

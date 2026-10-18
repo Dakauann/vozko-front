@@ -5,7 +5,6 @@ import { ChatCircle, InstagramLogo, MessengerLogo, Phone, TelegramLogo, Whatsapp
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-
 type ChannelTileSpec = {
   plate: string;
   Glyph: Icon;
@@ -32,10 +31,6 @@ const SIZES = {
   md: { box: "h-9 w-9 rounded-[--radius]", glyph: "h-4 w-4" },
   lg: { box: "h-12 w-12 rounded-[--radius]", glyph: "h-6 w-6" },
 } as const;
-
-export function hasChannelTile(channel: string | null | undefined): boolean {
-  return Boolean(channel && channel in CHANNEL_TILES);
-}
 
 export function channelPlate(channel: string | null | undefined): string {
   const spec = CHANNEL_TILES[channel ?? ""];

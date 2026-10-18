@@ -19,7 +19,7 @@ interface Whip {
   to: { x: number; y: number };
 }
 
-export function clipUnder(x: number, y: number): string | null {
+function clipUnder(x: number, y: number): string | null {
   const element = document.elementFromPoint(x, y);
   return element instanceof HTMLElement ? (element.closest<HTMLElement>("[data-clip-id]")?.dataset.clipId ?? null) : null;
 }

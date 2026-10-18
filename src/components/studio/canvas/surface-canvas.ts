@@ -5,7 +5,7 @@ import { surfaceOf, type PixelSurface, type StrokeOp, type SurfaceKind } from "@
 import { repeatSourceId } from "@/lib/studio/repeat-edits";
 import { SurfaceRaster } from "@/lib/studio/surface-raster";
 
-export interface SurfacePicture {
+interface SurfacePicture {
   canvas: HTMLCanvasElement;
   version: number;
 }

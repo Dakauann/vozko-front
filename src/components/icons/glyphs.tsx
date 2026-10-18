@@ -53,7 +53,6 @@ function glyph(displayName: string, children: React.ReactNode): Icon {
   return Glyph;
 }
 
-
 export const Dashboard: Icon = /*#__PURE__*/ glyph(
   "Dashboard",
   <>
@@ -92,23 +91,6 @@ export const Oportunidades: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
-export const Atividades: Icon = /*#__PURE__*/ glyph(
-  "Atividades",
-  <>
-    <rect x="3.25" y="4.5" width="17.5" height="16" rx="2.75" />
-    <path stroke={ACCENT} d="M3.25 9.25h17.5" />
-    <path d="M7.5 13.25h9M7.5 16.75h5.5" />
-  </>,
-);
-
-export const Tarefas: Icon = /*#__PURE__*/ glyph(
-  "Tarefas",
-  <>
-    <rect x="3.5" y="3.5" width="17" height="17" rx="3.75" />
-    <path stroke={ACCENT} d="m8.25 12.15 2.7 2.7 5.05-5.7" />
-  </>,
-);
-
 export const Agenda: Icon = /*#__PURE__*/ glyph(
   "Agenda",
   <>
@@ -124,16 +106,6 @@ export const Mensagens: Icon = /*#__PURE__*/ glyph(
   <>
     <path d="M7 4h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-3l-4.5 3.9a.6.6 0 0 1-1-.45V16H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z" />
     <circle cx="8.6" cy="10" r="1.0" fill={ACCENT} stroke="none" /><circle cx="12" cy="10" r="1.0" fill={ACCENT} stroke="none" /><circle cx="15.4" cy="10" r="1.0" fill={ACCENT} stroke="none" />
-  </>,
-);
-
-export const Negocios: Icon = /*#__PURE__*/ glyph(
-  "Negocios",
-  <>
-    <rect x="3" y="7.25" width="18" height="13.5" rx="2.75" />
-    <path stroke={ACCENT} d="M8.75 7.25V5.9a2.4 2.4 0 0 1 2.4-2.4h1.7a2.4 2.4 0 0 1 2.4 2.4v1.35" />
-    <path d="M3 12.75h18" />
-    <path d="M10.5 12.75h3" />
   </>,
 );
 
@@ -450,15 +422,6 @@ export const Flag: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
-export const Siren: Icon = /*#__PURE__*/ glyph(
-  "Siren",
-  <>
-    <path d="M6.5 17.5v-3.75a5.5 5.5 0 0 1 11 0v3.75" />
-    <rect x="3.75" y="17.5" width="16.5" height="3.75" rx="1.6" />
-    <path stroke={ACCENT} d="M12 2.75v2.25M4.9 6.15 6.5 7.7M19.1 6.15 17.5 7.7" />
-  </>,
-);
-
 export const CaretDown: Icon = /*#__PURE__*/ glyph(
   "CaretDown",
   <>
@@ -674,14 +637,6 @@ export const Shuffle: Icon = /*#__PURE__*/ glyph(
     <path d="M3.5 16.5h2.75a4 4 0 0 0 3.3-1.75" />
     <path d="M13.7 9.6a4 4 0 0 1 2.55-2.1" />
     <path stroke={ACCENT} d="m17.25 4.5 3.25 3-3.25 3M17.25 13.5l3.25 3-3.25 3" />
-  </>,
-);
-
-export const Command: Icon = /*#__PURE__*/ glyph(
-  "Command",
-  <>
-    <rect x="8.75" y="8.75" width="6.5" height="6.5" rx="1.25" />
-    <path stroke={ACCENT} d="M8.75 8.75H6.5a2.75 2.75 0 1 1 2.75-2.75v2.75ZM15.25 8.75h2.25a2.75 2.75 0 1 0-2.75-2.75v2.75ZM8.75 15.25H6.5a2.75 2.75 0 1 0 2.75 2.75v-2.75ZM15.25 15.25h2.25a2.75 2.75 0 1 1-2.75 2.75v-2.75Z" />
   </>,
 );
 
@@ -1846,30 +1801,6 @@ export const TextAlignLeft: Icon = /*#__PURE__*/ glyph(
   <>
     <path d="M3.75 5.75h16.5M3.75 15.25h16.5" />
     <path stroke={ACCENT} d="M3.75 10.5h10.5M3.75 20h10.5" />
-  </>,
-);
-
-export const TextH1: Icon = /*#__PURE__*/ glyph(
-  "TextH1",
-  <>
-    <path d="M3.5 5.5v13M3.5 12h7.25M10.75 5.5v13" />
-    <path stroke={ACCENT} d="m15 10 2.6-1.5v10" />
-  </>,
-);
-
-export const TextH2: Icon = /*#__PURE__*/ glyph(
-  "TextH2",
-  <>
-    <path d="M3.5 5.5v13M3.5 12h7.25M10.75 5.5v13" />
-    <path stroke={ACCENT} d="M14.9 10.15a2.6 2.6 0 1 1 4.5 2.2l-4.5 6.15h5" />
-  </>,
-);
-
-export const TextH3: Icon = /*#__PURE__*/ glyph(
-  "TextH3",
-  <>
-    <path d="M3.5 5.5v13M3.5 12h7.25M10.75 5.5v13" />
-    <path stroke={ACCENT} d="M14.9 9.4a2.5 2.5 0 1 1 2.2 3.6 2.6 2.6 0 1 1-2.2 3.9" />
   </>,
 );
 

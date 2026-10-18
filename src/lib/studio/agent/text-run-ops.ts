@@ -7,7 +7,7 @@ import { firstProblem, outOfRange, type AgentStyle, type Patched } from "./layer
 
 export const RUN_CLEAR_FIELDS = ["fill", "font_id", "font_weight", "font_size", "italic", "underline", "caps", "letter_spacing"] as const;
 
-export type RunClearField = (typeof RUN_CLEAR_FIELDS)[number];
+type RunClearField = (typeof RUN_CLEAR_FIELDS)[number];
 
 const CLEAR_KEYS: Record<RunClearField, RunStyleKey> = {
   fill: "fill",
@@ -43,7 +43,7 @@ export interface AgentTextRunFields {
 
 export type TextRunInput = AgentTextRunFields & Pick<AgentStyle, "fill" | "font_id" | "font_weight" | "font_size" | "italic" | "letter_spacing">;
 
-export interface StyledText {
+interface StyledText {
   patch: Partial<Layer>;
   ranges: TextRange[] | null;
 }

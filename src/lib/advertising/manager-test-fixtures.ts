@@ -1,6 +1,6 @@
 import type { MetaAdDraft } from "./draft-types";
 import type { ManagerRow } from "./live";
-import type { AdAccount, AdDraftRow, AdMetrics, AdOutcome, AdSavedDraft } from "./types";
+import type { AdDraftRow, AdMetrics, AdOutcome, AdSavedDraft } from "./types";
 
 export function fixtureMetrics(overrides: Partial<AdMetrics> = {}): AdMetrics {
   return {
@@ -22,7 +22,7 @@ export function fixtureMetrics(overrides: Partial<AdMetrics> = {}): AdMetrics {
   };
 }
 
-export function fixtureOutcome(overrides: Partial<AdOutcome> = {}): AdOutcome {
+function fixtureOutcome(overrides: Partial<AdOutcome> = {}): AdOutcome {
   return {
     conversations: 0,
     leads: 0,
@@ -55,24 +55,6 @@ export function fixtureRow(overrides: Partial<ManagerRow> = {}): ManagerRow {
   };
 }
 
-export function fixtureAccount(overrides: Partial<AdAccount> = {}): AdAccount {
-  return {
-    id: "a1",
-    metaAccountId: "act_1",
-    name: "Conta",
-    currency: "BRL",
-    timezone: "America/Sao_Paulo",
-    metaStatus: "active",
-    connection: "CONNECTED",
-    hasFunding: true,
-    canSpend: true,
-    canManage: true,
-    canSetSpendCap: true,
-    role: "admin",
-    ...overrides,
-  };
-}
-
 export function fixtureContent(overrides: Partial<MetaAdDraft> = {}): MetaAdDraft {
   return {
     adAccountId: "a1",
@@ -91,7 +73,7 @@ export function fixtureContent(overrides: Partial<MetaAdDraft> = {}): MetaAdDraf
   };
 }
 
-export function fixtureDraftRows(id: string): AdDraftRow[] {
+function fixtureDraftRows(id: string): AdDraftRow[] {
   return [
     { key: `${id}:campaign`, level: "campaign", name: "Nova campanha de Leads", budget: { kind: "DAILY", amount: 2000 } },
     { key: `${id}:adset`, level: "adset", name: "Novo conjunto de anúncios de Leads", parentKey: `${id}:campaign` },

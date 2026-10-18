@@ -66,7 +66,7 @@ interface ComponentPaletteItem {
   opensChoice?: boolean;
 }
 
-export interface PalettePicker {
+interface PalettePicker {
   onPick: () => void;
   used: boolean;
   hint?: string;
@@ -82,7 +82,7 @@ interface DragDropBuilderProps {
   renderEditor?: (component: DraggableComponent) => ReactNode;
 }
 
-export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
+const DEFAULT_PALETTE: ComponentPaletteItem[] = [
   {
     type: "HEADER",
     icon: TextT,
@@ -125,7 +125,7 @@ export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
   },
 ];
 
-export const LEAD_EXIT_PIECE: ComponentPaletteItem = {
+const LEAD_EXIT_PIECE: ComponentPaletteItem = {
   type: "LEAD_EXIT",
   icon: ShieldCheck,
   label: "Lead exit",

@@ -90,33 +90,6 @@ export async function scheduleMessageAction(
     };
 }
 
-export async function rescheduleMessageAction(
-    id: string,
-    scheduledAt: string,
-): Promise<{
-    scheduledMessage: ScheduledMessage | null;
-    window: SchedulingWindow | null;
-    error?: SchedulingError;
-}> {
-    const response = await apiClient<ScheduledMessageEnvelope>(`/scheduled-messages/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ scheduled_at: scheduledAt }),
-    });
-
-    if (response.error) {
-        return {
-            scheduledMessage: null,
-            window: null,
-            error: toSchedulingError(response.error),
-        };
-    }
-
-    return {
-        scheduledMessage: response.data?.scheduledMessage ?? null,
-        window: response.data?.window ?? null,
-    };
-}
-
 export async function cancelScheduledMessageAction(
     id: string,
 ): Promise<{ error?: SchedulingError }> {

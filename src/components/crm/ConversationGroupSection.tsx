@@ -329,9 +329,7 @@ export default function ConversationGroupSection({
             <Badge tone="healthy" icon={<Crown weight="fill" className="h-3 w-3" />}>
               {t("youAreAdmin")}
             </Badge>
-          )}
-          {
-}
+          )}
           {group.adminsOnlyMessages && (
             <Badge tone={group.canPost ? "muted" : "warning"}>
               {group.canPost ? t("announceOnly") : t("cannotPost")}
@@ -367,9 +365,7 @@ export default function ConversationGroupSection({
           )}
         </section>
       )}
-
-      {
-}
+
       <section>
         <div className="mb-2 flex items-center gap-1.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
@@ -445,9 +441,7 @@ export default function ConversationGroupSection({
           </button>
         )}
       </section>
-
-      {
-}
+
       <section className="border-t border-border pt-3">
         {confirmingLeave ? (
           <div className="flex flex-col gap-2">

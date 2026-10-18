@@ -1,6 +1,6 @@
 import { dtmfFrequencies, type SoundCue } from "./rules";
 
-export type SoundName = SoundCue | "incomingCall";
+type SoundName = SoundCue | "incomingCall";
 
 export const SOUND_FILES: Record<SoundName, string> = {
     message: "/audio/message.mp3",

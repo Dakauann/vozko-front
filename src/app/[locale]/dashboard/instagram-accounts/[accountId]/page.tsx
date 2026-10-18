@@ -144,9 +144,7 @@ export default function InstagramAccountProfilePage({
           account && (
             <>
               <InstagramProfileHeader account={account} />
-
-              {
-}
+
               <Tabs defaultValue="posts">
                 <TabsList>
                   <TabsTrigger value="posts" className="gap-1.5">
@@ -195,16 +193,12 @@ export default function InstagramAccountProfilePage({
                     </div>
                   </ElevatedContainer>
                 </TabsContent>
-
-                {
-}
+
                 <TabsContent value="automation" className="mt-4 space-y-6">
                   <InstagramAutomationPanel account={account} onUpdated={setAccount} />
                   <InstagramCommentRulesPanel accountId={accountId} />
                 </TabsContent>
-
-                {
-}
+
                 <TabsContent value="audience" className="mt-4">
                   <CommentAnalysisTab source="instagram" accountId={accountId} />
                 </TabsContent>

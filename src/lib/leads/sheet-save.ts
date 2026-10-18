@@ -28,7 +28,7 @@ export interface LeadSheetActions {
   removeRelation: (relationId: string) => Promise<{ error: CodedRefusal | null }>;
 }
 
-export interface LeadSheetAccess {
+interface LeadSheetAccess {
   addresses: boolean;
   assign: boolean;
   membership: boolean;
@@ -46,7 +46,7 @@ export interface LinkOffer {
   leadId: string;
 }
 
-export type LeadSheetOutcome =
+type LeadSheetOutcome =
   | { kind: "invalid"; issues: string[] }
   | { kind: "refused"; error: CodedRefusal; path: string | null }
   | { kind: "conflict"; current: LeadRecord }

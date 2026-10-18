@@ -37,7 +37,7 @@ import { useLeadActionTracker } from "./use-lead-action-tracker";
 const NAMESPACE = "leadsPage.selection";
 const NO_DIALABLE_TRUNK = "no_dialable_trunk";
 
-export interface UseLeadBulkOptions {
+interface UseLeadBulkOptions {
   filter: CrmFilter;
   search: string;
   sorts: readonly LeadSort[];

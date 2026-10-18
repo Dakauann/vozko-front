@@ -54,7 +54,7 @@ export function parameterCount(spec: UnofficialWhatsAppMessageSpec): number {
   return parameterCountIn(spec.bodies);
 }
 
-export function messageNeedsMedia(kind: UnofficialWhatsAppMessageKind): boolean {
+function messageNeedsMedia(kind: UnofficialWhatsAppMessageKind): boolean {
   return NEEDS_MEDIA.includes(kind);
 }
 
@@ -67,7 +67,7 @@ export function unofficialMessageReady(spec: UnofficialWhatsAppMessageSpec): boo
   return messageBodiesReady(spec) && (!messageNeedsMedia(spec.kind) || Boolean(spec.mediaId)) && messageShowsExit(spec);
 }
 
-export interface CampaignMessageComposerProps {
+interface CampaignMessageComposerProps {
   value: UnofficialWhatsAppMessageSpec;
   onChange: (next: UnofficialWhatsAppMessageSpec) => void;
   mediaSlot?: React.ReactNode;
@@ -285,9 +285,7 @@ function MenuEditor({
         >
           <Plus className="h-3.5 w-3.5" weight="bold" />
           {t("form.addOption", { max })}
-        </button>
-        {
-}
+        </button>
         <p className="text-2xs text-muted-foreground">{t("form.optionCapHelp", { max })}</p>
       </div>
     </div>

@@ -13,7 +13,7 @@ export interface CrossfadeWindow {
   role: CrossfadeRole;
 }
 
-export interface VoiceEdges {
+interface VoiceEdges {
   headMs: number;
   tailMs: number;
   fadeIn?: CrossfadeWindow;

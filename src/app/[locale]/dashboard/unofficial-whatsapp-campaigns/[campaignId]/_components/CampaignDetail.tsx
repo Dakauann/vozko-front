@@ -333,9 +333,7 @@ export default function UnofficialCampaignDetail({
           <p className="text-sm">{t("detail.numberOffline")}</p>
         </div>
       ) : null}
-
-      {
-}
+
       <div className="grid gap-4">
         <div
           className="max-h-max rounded-[--radius] border border-border bg-card p-6"
@@ -392,9 +390,7 @@ export default function UnofficialCampaignDetail({
                 </div>
               </div>
             </div>
-
-            {
-}
+
             <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               <span>
                 {t("detail.pacing", {
@@ -426,9 +422,7 @@ export default function UnofficialCampaignDetail({
         </div>
       </div>
 
-
-      {
-}
+
       <EntryFiltersBar
         campaignType="unofficial_whatsapp"
         values={entryFilters}
@@ -514,9 +508,7 @@ export default function UnofficialCampaignDetail({
                     className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20 hover:shadow-md"
                   >
                     <div className="mb-4 flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        {
-}
+                      <div className="flex items-center gap-3">
                         {entry.conversationId ? (
                           <EntryConversationDialog
                             entryId={entry.conversationId}
@@ -592,9 +584,7 @@ export default function UnofficialCampaignDetail({
                         </p>
                       </div>
                     ) : null}
-
-                    {
-}
+
                     {campaign.message.bodies.length > 1 ? (
                       <div className="mb-3">
                         <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-2xs text-foreground">
@@ -673,9 +663,7 @@ export default function UnofficialCampaignDetail({
           </div>
         )}
       </div>
-
-      {
-}
+
       <CrmDialog
         isOpen={showCrmDialog}
         onClose={() => setShowCrmDialog(false)}

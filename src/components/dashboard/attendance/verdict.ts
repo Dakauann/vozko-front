@@ -2,7 +2,7 @@ import type { MemberClass, Verdict } from "@/lib/attendance/types";
 
 import { ATTENDANCE_COLORS } from "@/components/dashboard/attendance/primitives";
 
-export type VerdictTone = "healthy" | "warning" | "destructive" | "muted";
+type VerdictTone = "healthy" | "warning" | "destructive" | "muted";
 
 const VERDICT_TONES: Record<Verdict, VerdictTone> = {
   on_track: "healthy",

@@ -1,6 +1,6 @@
 const ACCESS_TOKEN_REFRESH_THRESHOLD_MS = 5 * 60 * 1000;
 
-export interface AccessTokenPayload {
+interface AccessTokenPayload {
     sub?: string;
     email?: string;
     role?: string;

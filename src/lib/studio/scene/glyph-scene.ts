@@ -13,7 +13,7 @@ interface Size {
   height: number;
 }
 
-export function layerBox(layer: Layer, size: Size): Tile {
+function layerBox(layer: Layer, size: Size): Tile {
   const t = layer.transform;
   return { x: (t.x - t.w / 2) * size.width, y: (t.y - t.h / 2) * size.height, width: t.w * size.width, height: t.h * size.height };
 }

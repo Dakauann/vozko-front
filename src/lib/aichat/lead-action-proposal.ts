@@ -14,7 +14,7 @@ import type { ProposalPreview } from "./types";
 
 export const LEAD_ACTION_PROPOSAL_KIND = "lead_action";
 
-export const LEAD_ACTION_PROPOSAL_STAGES = ["prepare", "start", "cancel"] as const;
+const LEAD_ACTION_PROPOSAL_STAGES = ["prepare", "start", "cancel"] as const;
 
 export type LeadActionProposalStage = (typeof LEAD_ACTION_PROPOSAL_STAGES)[number];
 
@@ -33,7 +33,7 @@ export interface LeadActionProposal {
   parts: SendPart[];
 }
 
-export interface LeadActionProposalCounts {
+interface LeadActionProposalCounts {
   selected: number;
   eligible: number;
   skipped: SendSkipRow[];

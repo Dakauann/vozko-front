@@ -10,7 +10,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import type { ReactNode } from "react";
 import type { Stage as StageType } from "@/lib/conversations/types";
-import type { WhatsAppCampaignPhoneStatus } from "@/lib/whatsapp-campaigns/types";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 
@@ -257,4 +256,4 @@ export default function EntryFiltersBar({
   );
 }
 
-export type { EntryFiltersBarTranslations, EntryFiltersBarProps };
+;

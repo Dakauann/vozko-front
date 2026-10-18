@@ -9,7 +9,7 @@ export function clipTime(clip: Pick<Clip, "startMs" | "durationMs">, playheadMs:
   return Math.min(Math.max(0, playheadMs - clip.startMs), clip.durationMs);
 }
 
-export const REVERSE_INSET_MS = 2;
+const REVERSE_INSET_MS = 2;
 
 const SOURCED: ReadonlySet<ClipType> = new Set(["video", "audio", "group"]);
 
@@ -122,7 +122,7 @@ export function travelMs(clip: Paced, fromMs: number, toMs: number): number {
   return keys.length > 0 ? travelAlong(keys, fromMs, toMs) : (toMs - fromMs) * clipSpeed(clip);
 }
 
-export function localAfterTravel(clip: Paced, fromMs: number, distance: number): number {
+function localAfterTravel(clip: Paced, fromMs: number, distance: number): number {
   if (clip.freeze) return fromMs;
   const keys = speedKeys(clip);
   return keys.length > 0 ? timeAfterTravel(keys, fromMs, distance) : fromMs + distance / clipSpeed(clip);
@@ -214,7 +214,7 @@ export function splitTrimIns(clip: Timed, atLocalMs: number): { left: number; ri
   return { left: trimInAfterEdge(clip, "end", clip.durationMs - atLocalMs), right: clip.trimInMs };
 }
 
-export function speedCurveIssue(clip: Pick<Clip, "type" | "speed" | "freeze" | "keyframes">): IssueCode | null {
+function speedCurveIssue(clip: Pick<Clip, "type" | "speed" | "freeze" | "keyframes">): IssueCode | null {
   const keys = speedKeys(clip);
   if (keys.length === 0) return null;
   if ((clip.type !== "video" && clip.type !== "audio") || clip.speed !== undefined || clip.freeze) return "invalid";
@@ -222,7 +222,7 @@ export function speedCurveIssue(clip: Pick<Clip, "type" | "speed" | "freeze" | "
   return low >= SPEED_LIMITS[0] && high <= SPEED_LIMITS[1] ? null : "out_of_range";
 }
 
-export function frameMixIssue(clip: Pick<Clip, "type" | "freeze" | "frameMix">): IssueCode | null {
+function frameMixIssue(clip: Pick<Clip, "type" | "freeze" | "frameMix">): IssueCode | null {
   return clip.frameMix && (clip.type !== "video" || clip.freeze) ? "invalid" : null;
 }
 

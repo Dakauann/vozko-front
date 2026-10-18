@@ -14,10 +14,10 @@ export interface TurnStart {
   approved?: PendingAction;
 }
 
-export type OpenedThread = "live" | "loaded" | "missing";
+type OpenedThread = "live" | "loaded" | "missing";
 
-export const REATTACH_LIMIT = 20;
-export const REATTACH_DELAY_MS = 250;
+const REATTACH_LIMIT = 20;
+const REATTACH_DELAY_MS = 250;
 const MAX_REATTACH_DELAY_MS = 3000;
 
 interface TurnRun {
@@ -146,7 +146,7 @@ export async function stopTurn(threadId: string): Promise<void> {
   chatTurns.abort(threadId);
 }
 
-export type QueueResult = { outcome: "queued" } | { outcome: "idle" } | { outcome: "failed"; error: string };
+type QueueResult = { outcome: "queued" } | { outcome: "idle" } | { outcome: "failed"; error: string };
 
 export async function queueMessage(threadId: string, item: QueuedMessage): Promise<QueueResult> {
   chatTurns.queue(threadId, (queued) => addQueued(queued, item));

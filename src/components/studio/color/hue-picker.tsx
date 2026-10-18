@@ -10,7 +10,7 @@ const TURN = 360;
 const BIG_STEP = 10;
 const SPECTRUM = `linear-gradient(to right, ${Array.from({ length: 13 }, (_, i) => `hsl(${i * 30} 90% 50%)`).join(", ")})`;
 
-export interface HuePickerProps {
+interface HuePickerProps {
   secondary: HueSecondary;
   disabled: boolean;
   onChange: (next: HueSecondary) => void;

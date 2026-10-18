@@ -189,8 +189,6 @@ export default function UnofficialWhatsAppInstancePage() {
       <SessionPanel instance={instance} />
       <RestrictionNotice instance={instance} />
 
-      {
-}
       {instance.status === "BANNED" && (
         <div className="rounded-lg border border-border bg-muted p-4">
           <p className="text-sm font-semibold text-destructive-ink">{t("detail.bannedTitle")}</p>
@@ -198,10 +196,6 @@ export default function UnofficialWhatsAppInstancePage() {
         </div>
       )}
 
-      {
-}
-      {
-}
       <ElevatedContainer className="space-y-3">
         <div>
           <h3 className="text-sm font-semibold text-foreground">
@@ -240,8 +234,6 @@ export default function UnofficialWhatsAppInstancePage() {
         </div>
       </ElevatedContainer>
 
-      {
-}
       {canUpdate && (
         <DepartmentAssignmentCard
           departmentId={instance.departmentId}

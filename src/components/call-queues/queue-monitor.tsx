@@ -52,7 +52,7 @@ function useVisibleInterval(callback: () => void, delayMs: number) {
   }, [callback, delayMs]);
 }
 
-export function useQueueMonitor() {
+function useQueueMonitor() {
   const [live, setLive] = useState<QueueLive[] | null>(null);
   const [fetchedAt, setFetchedAt] = useState(0);
   const [now, setNow] = useState(0);

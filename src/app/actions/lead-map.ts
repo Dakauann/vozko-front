@@ -74,13 +74,13 @@ export async function listLeadAreas(signal?: AbortSignal): Promise<DrawnArea[]> 
   return parseDrawnAreas(await section<unknown>("/lead-areas", "lead areas", signal));
 }
 
-export interface DrawnAreaDraft {
+interface DrawnAreaDraft {
   name: string;
   visibility: AreaVisibility;
   shape: AreaShape;
 }
 
-export type DrawnAreaResult = { area: DrawnArea; error: null } | { area: null; error: CodedError };
+type DrawnAreaResult = { area: DrawnArea; error: null } | { area: null; error: CodedError };
 
 const EMPTY_AREA_ANSWER: CodedError = { message: "lead area came back empty" };
 
@@ -110,7 +110,7 @@ export async function updateLeadAreaAction(id: string, patch: DrawnAreaPatch): P
   return areaResult(await apiClient<unknown>(areaPath(id), { method: "PATCH", body: JSON.stringify(patch) }));
 }
 
-export interface AreaDeleteResult {
+interface AreaDeleteResult {
   error: CodedError | null;
 }
 
@@ -119,7 +119,7 @@ export async function deleteLeadAreaAction(id: string): Promise<AreaDeleteResult
   return { error: response.error ? codedErrorOf(response.error) : null };
 }
 
-export type ReferencePointResult = { point: ReferencePoint; error: null } | { point: null; error: CodedError };
+type ReferencePointResult = { point: ReferencePoint; error: null } | { point: null; error: CodedError };
 
 const EMPTY_REFERENCE_QUERY: CodedError = { message: "reference point needs a query" };
 

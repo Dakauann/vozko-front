@@ -15,19 +15,17 @@ import { findClip, updateClip, type ClipPatch } from "./timeline";
 import { clipIssue, parseDocument, type IssueCode } from "./validate";
 import { listensToTrack, type Vfx } from "./vfx";
 
-export const PRESET_SCOPES = ["visual", "text"] as const;
+const PRESET_SCOPES = ["visual", "text"] as const;
 
 export type PresetScope = (typeof PRESET_SCOPES)[number];
 
-export const PRESET_LANES = ["x", "y", "position", "scale", "scaleX", "scaleY", "rotation", "opacity", "blur"] as const satisfies readonly AnimatedProperty[];
+const PRESET_LANES = ["x", "y", "position", "scale", "scaleX", "scaleY", "rotation", "opacity", "blur"] as const satisfies readonly AnimatedProperty[];
 
 export const PRESET_TIMINGS = ["stretch", "edges", "keep"] as const;
 
 export type PresetTiming = (typeof PRESET_TIMINGS)[number];
 
 export const PRESET_LIMITS = { nameRunes: 120, descriptionRunes: 500, animationBytes: 1 << 20 } as const;
-
-export const BUILTIN_PRESET_PREFIX = "builtin.";
 
 export interface PresetAnimation {
   scope: PresetScope;
@@ -59,7 +57,7 @@ export interface AnimationPreset {
   updatedAt?: string;
 }
 
-export interface PresetSummary {
+interface PresetSummary {
   scope: PresetScope;
   duration_ms: number;
   keys: string[];
@@ -93,11 +91,11 @@ function movedKeyframes(keyframes: Keyframes, base: Transform, sign: 1 | -1): Ke
   return next as Keyframes;
 }
 
-export function presetKeyframesAt(relative: Keyframes, base: Transform): Keyframes {
+function presetKeyframesAt(relative: Keyframes, base: Transform): Keyframes {
   return movedKeyframes(relative, base, 1);
 }
 
-export function relativeKeyframes(absolute: Keyframes, base: Transform): Keyframes {
+function relativeKeyframes(absolute: Keyframes, base: Transform): Keyframes {
   return movedKeyframes(absolute, base, -1);
 }
 
@@ -156,7 +154,7 @@ function scopeOf(clip: Clip): PresetScope {
 
 export type CaptureRefusal = "notVisual" | "nothing";
 
-export type CaptureResult = { ok: true; animation: PresetAnimation; skipped: string[] } | { ok: false; reason: CaptureRefusal };
+type CaptureResult = { ok: true; animation: PresetAnimation; skipped: string[] } | { ok: false; reason: CaptureRefusal };
 
 const CAPTURED_TYPES: ReadonlySet<Clip["type"]> = new Set(["video", "image", "overlay", "group", "null"]);
 
@@ -235,12 +233,12 @@ function fitted<T extends { durationMs: number }>(edge: T | undefined, durationM
   return edge ? { ...edge, durationMs: Math.min(edge.durationMs, Math.floor(durationMs / 2)) } : undefined;
 }
 
-export interface PresetPartsResult {
+interface PresetPartsResult {
   patch: ClipPatch;
   skipped: string[];
 }
 
-export function presetPatch(clip: Clip, animation: PresetAnimation, timing: PresetTiming): PresetPartsResult {
+function presetPatch(clip: Clip, animation: PresetAnimation, timing: PresetTiming): PresetPartsResult {
   const skipped: string[] = [];
   const timeOf = timeMap(timing, animation.durationMs, clip.durationMs);
   const patch: ClipPatch = {};
@@ -288,9 +286,9 @@ export function presetPatch(clip: Clip, animation: PresetAnimation, timing: Pres
   return { patch, skipped };
 }
 
-export type ApplyRefusal = "missing" | "locked" | "invalid";
+type ApplyRefusal = "missing" | "locked" | "invalid";
 
-export type ApplyResult = { ok: true; document: VideoDocument; skipped: Record<string, string[]> } | { ok: false; reason: ApplyRefusal; clipId: string; code?: IssueCode };
+type ApplyResult = { ok: true; document: VideoDocument; skipped: Record<string, string[]> } | { ok: false; reason: ApplyRefusal; clipId: string; code?: IssueCode };
 
 function withoutEmptyKeys(clip: Clip): Clip {
   return produce(clip, (draft) => {
@@ -331,7 +329,7 @@ export function presetDescription(preset: AnimationPreset, locale: string): stri
   return preset.descriptions?.[key] ?? preset.description;
 }
 
-export const PREVIEW_ASPECT = 1;
+const PREVIEW_ASPECT = 1;
 
 export function presetPreviewClip(animation: PresetAnimation): Clip {
   const base: Clip = {

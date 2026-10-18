@@ -7,9 +7,9 @@ import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { useDepartment } from "@/contexts/department-context";
 
-export type SendDepartmentStatus = "loading" | "failed" | "ready";
+type SendDepartmentStatus = "loading" | "failed" | "ready";
 
-export interface SendDepartment {
+interface SendDepartment {
   status: SendDepartmentStatus;
   required: boolean;
   departmentId: string;

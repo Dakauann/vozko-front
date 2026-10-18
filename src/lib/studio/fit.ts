@@ -1,6 +1,6 @@
 import type { Fit } from "./document";
 
-export interface FitRect {
+interface FitRect {
   sx: number;
   sy: number;
   sw: number;

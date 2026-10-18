@@ -35,9 +35,7 @@ export function Hero({ labels }: { labels: HeroLabels }) {
             <span>{labels.titleLine1}</span>
             <span>{labels.titleLine2}</span>
           </motion.h1>
-
-          {
-}
+
           <div className={styles.heroTrails} aria-hidden>
             <CircuitTraces dynamic seed={271} branches={7} className="h-full w-full" />
           </div>

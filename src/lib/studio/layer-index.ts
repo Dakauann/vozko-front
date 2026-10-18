@@ -1,6 +1,6 @@
 import type { ImageSurface, Layer, StudioGroup } from "./document";
 
-export type IndexSource = Pick<ImageSurface, "layers" | "groups">;
+type IndexSource = Pick<ImageSurface, "layers" | "groups">;
 
 export interface LayerIndex {
   layers: ReadonlyMap<string, Layer>;

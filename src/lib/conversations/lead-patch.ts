@@ -14,12 +14,12 @@ export type LeadPatch = Partial<Pick<LeadCarrier, "lead_name" | "lead_number" | 
   lead_version: number;
 };
 
-export interface LeadPresence {
+interface LeadPresence {
   shown: boolean;
   version?: number;
 }
 
-export type LeadUpdatePlan = "ignore" | "advance" | "refetch";
+type LeadUpdatePlan = "ignore" | "advance" | "refetch";
 
 const FIELDS_SHOWN_WITH_CONVERSATIONS: ReadonlySet<string> = new Set([
   LEAD_FIELD.name,

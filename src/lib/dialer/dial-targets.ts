@@ -9,7 +9,7 @@ const UNKNOWN_REFUSAL = "refused";
 export type DialNumberRefusal = (typeof NUMBER_REFUSALS)[number];
 export type DialLeadRefusal = (typeof LEAD_REFUSALS)[number];
 export type DialTrunkRefusal = (typeof TRUNK_REFUSALS)[number];
-export type DialTargetsFailure = (typeof FAILURES)[number];
+type DialTargetsFailure = (typeof FAILURES)[number];
 
 export interface DialTargetNumber {
   number: string;
@@ -143,7 +143,7 @@ export class DialTargetsError extends Error {
   }
 }
 
-export interface DialBlockerInput {
+interface DialBlockerInput {
   readiness: CallBlocker | null;
   status: "loading" | "ready" | "error";
   failure: DialTargetsFailure | null;

@@ -13,16 +13,16 @@ import {
   type BroadcastRequest,
 } from "@/lib/notifications/broadcast";
 
-export interface NotificationImage {
+interface NotificationImage {
   url: string;
 }
 
-export interface BroadcastListQuery {
+interface BroadcastListQuery {
   cursor?: string;
   limit?: number;
 }
 
-export interface BroadcastRecipientQuery extends BroadcastListQuery {
+interface BroadcastRecipientQuery extends BroadcastListQuery {
   status: BroadcastRecipientStatus;
 }
 

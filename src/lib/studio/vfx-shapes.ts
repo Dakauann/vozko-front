@@ -23,7 +23,7 @@ export function centerOf(look: VfxLook, frame: FrameSize): [number, number] {
   return [lookValue(look, "x") * frame.width, lookValue(look, "y") * frame.height];
 }
 
-export function farthestCorner(cx: number, cy: number, frame: FrameSize): number {
+function farthestCorner(cx: number, cy: number, frame: FrameSize): number {
   return Math.hypot(Math.max(cx, frame.width - cx), Math.max(cy, frame.height - cy));
 }
 
@@ -75,7 +75,7 @@ export function wrap(value: number): number {
   return value - Math.floor(value);
 }
 
-export function seconds(look: VfxLook): number {
+function seconds(look: VfxLook): number {
   return look.timeMs / 1000;
 }
 
@@ -112,7 +112,7 @@ export function reachRadius(look: VfxLook, frame: FrameSize): number {
   return lookValue(look, "size") * Math.min(frame.width, frame.height);
 }
 
-export type Corners = readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]];
+type Corners = readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]];
 
 export function pinCorners(look: VfxLook): Corners {
   return [
@@ -178,7 +178,7 @@ function fade(t: number): number {
   return t * t * (3 - 2 * t);
 }
 
-export function valueNoise(seed: number, octave: number, x: number, y: number, z: number): number {
+function valueNoise(seed: number, octave: number, x: number, y: number, z: number): number {
   const ix = Math.floor(x);
   const iy = Math.floor(y);
   const iz = Math.floor(z);
@@ -229,7 +229,7 @@ export function rampPosition(look: VfxLook, frame: FrameSize, px: number, py: nu
   return Math.min(1, Math.max(0, linear + (round - linear) * radial));
 }
 
-export const GRADIENT_POWER = [6, 1] as const;
+const GRADIENT_POWER = [6, 1] as const;
 const MIN_DISTANCE = 1e-3;
 
 export function gradientPower(look: VfxLook): number {
@@ -282,7 +282,7 @@ export function lookReach(look: VfxLook, frame: FrameSize): number {
 
 export const SOUND_MIN_BAR_PX = 2;
 
-export interface BarLayout {
+interface BarLayout {
   left: number;
   slot: number;
   barWidth: number;
@@ -309,7 +309,7 @@ export function barLayout(look: VfxLook, frame: FrameSize, count: number): BarLa
   };
 }
 
-export function barHeight(layout: BarLayout, share: number): number {
+function barHeight(layout: BarLayout, share: number): number {
   return Math.max(SOUND_MIN_BAR_PX, share * layout.reach);
 }
 
@@ -320,7 +320,7 @@ function roundRectDistance(qx: number, qy: number, halfW: number, halfH: number,
   return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0) - r;
 }
 
-export interface BarHit {
+interface BarHit {
   cover: number;
   tone: number;
 }

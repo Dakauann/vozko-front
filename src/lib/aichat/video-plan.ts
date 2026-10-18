@@ -1,6 +1,6 @@
 import { IMAGE_ASPECTS, type ImageAspect } from "@/lib/media-generation/types";
 
-export interface VideoPlanScene {
+interface VideoPlanScene {
   mediaId: string;
   url: string;
   kind: "image" | "video";
@@ -12,7 +12,7 @@ export interface VideoPlanTrack {
   url: string;
 }
 
-export interface VideoPlan {
+interface VideoPlan {
   aspect: ImageAspect;
   scenes: VideoPlanScene[];
   music?: VideoPlanTrack;

@@ -2,7 +2,7 @@ import { LOUDNESS_STEP_MS, type LoudnessProfile } from "./loudness";
 
 export const SPECTRUM_BANDS = 48;
 export const SPECTRUM_FFT = 1024;
-export const SPECTRUM_HZ = [40, 16_000] as const;
+const SPECTRUM_HZ = [40, 16_000] as const;
 
 const FULL_SCALE = (SPECTRUM_FFT / 4) ** 2;
 

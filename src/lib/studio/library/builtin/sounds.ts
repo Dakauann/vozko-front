@@ -61,12 +61,12 @@ function builtinItem(sound: BuiltinSound): LibraryItem {
   });
 }
 
-export interface MediaSound {
+interface MediaSound {
   id: string;
   description: string;
 }
 
-export interface MediaTiming {
+interface MediaTiming {
   durationMs: () => number | undefined;
   assets: LibraryAssets;
 }

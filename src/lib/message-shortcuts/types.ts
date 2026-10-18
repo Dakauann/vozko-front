@@ -1,7 +1,6 @@
 export type ShortcutMessageType = "text" | "button" | "media";
-export type ShortcutMediaType = "image" | "video" | "audio" | "document";
 
-export interface ShortcutButton {
+interface ShortcutButton {
     id: string;
     title: string;
 }

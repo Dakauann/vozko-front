@@ -57,7 +57,7 @@ export const FONT_CATEGORIES = ["sans", "serif", "display", "handwriting", "mono
 
 export type FontCategory = (typeof FONT_CATEGORIES)[number];
 
-export interface StudioFont {
+interface StudioFont {
   family: string;
   category: FontCategory;
   weights: readonly number[];

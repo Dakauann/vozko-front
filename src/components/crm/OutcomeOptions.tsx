@@ -12,7 +12,7 @@ export interface OutcomeOption {
   icon?: ReactNode;
 }
 
-export type OutcomeOptionsLayout = "list" | "chips";
+type OutcomeOptionsLayout = "list" | "chips";
 
 const OPTION_CLASS: Record<OutcomeOptionsLayout, { base: string; on: string; off: string }> = {
   list: {

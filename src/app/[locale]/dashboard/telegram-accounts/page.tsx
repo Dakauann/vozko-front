@@ -156,9 +156,7 @@ export default function TelegramAccountsPage() {
               >
                 {t(`status.${row.status.toLowerCase()}`)}
               </span>
-
-              {
-}
+
               {issue === "webhook" && (
                 <span
                   className="flex max-w-[320px] items-start gap-1 text-xs text-warning-ink dark:text-warning-ink"
@@ -220,9 +218,7 @@ export default function TelegramAccountsPage() {
               )}
             >
               {row.webhookHealthy ? t("webhook.healthy") : t("webhook.failing")}
-            </span>
-            {
-}
+            </span>
             {row.webhookPendingCount > 0 && (
               <span className="text-xs text-warning-ink dark:text-warning-ink tabular-nums">
                 {t("webhook.pending", { count: row.webhookPendingCount })}

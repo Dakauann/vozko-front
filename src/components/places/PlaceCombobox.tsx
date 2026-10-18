@@ -26,7 +26,7 @@ const GROUP_ICON: Record<OptionGroup, ReactNode> = {
   recent: <ClockCounterClockwise weight="bold" className="h-3.5 w-3.5" />,
 };
 
-export interface PlaceComboboxProps {
+interface PlaceComboboxProps {
   id?: string;
   label?: string;
   ariaLabel: string;

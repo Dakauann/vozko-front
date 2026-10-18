@@ -2,7 +2,7 @@ import type { GeoSummary, ToneKey } from "./types";
 
 export type OffMapKey = "approximate" | "withoutAddress" | "notFound" | "pending";
 
-export interface OffMapRow {
+interface OffMapRow {
   key: OffMapKey;
   count: number;
 }

@@ -28,7 +28,7 @@ export interface RelativeSignUp {
   draft: LeadSheetDraft;
 }
 
-export interface FamilySectionProps {
+interface FamilySectionProps {
   leadId: string | null;
   draft: LeadSheetDraft;
   onUpdate: (update: (draft: LeadSheetDraft) => LeadSheetDraft) => void;

@@ -35,7 +35,7 @@ const WEBP_TYPE = "image/webp";
 class ExportTooLarge extends Error {}
 class EncoderMissing extends Error {}
 
-export interface FrameReader {
+interface FrameReader {
   canvas: HTMLCanvasElement;
   read: () => Uint8ClampedArray;
 }
@@ -65,7 +65,7 @@ export function canvasBlob(canvas: HTMLCanvasElement, type: string, quality?: nu
   return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
 }
 
-export async function webpEncodable(): Promise<boolean> {
+async function webpEncodable(): Promise<boolean> {
   const probe = window.document.createElement("canvas");
   probe.width = 1;
   probe.height = 1;

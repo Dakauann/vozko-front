@@ -4,63 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import {
-  Archive,
-  ArrowsInSimple,
-  ArrowsOut,
-  Buildings,
-  Check,
-  CaretDown,
-  ChatCircle,
-  PlusCircle,
-  ClipboardText,
-  DeviceMobile,
-  Files,
-  FilmStrip,
-  Image as ImageIcon,
-  Palette,
-  SquaresFour,
-  Sparkle,
-  Package,
-  Phone,
-  PhoneCall,
-  PhoneOutgoing,
-  Waveform,
-  Bell,
-  FileText,
-  Megaphone,
-  Robot,
-  Gear,
-  GitBranch,
-  Handshake,
-  UserCircle,
-  UserCheck,
-  UsersFour,
-  UserPlus,
-  Wallet,
-  LinkSimple,
-  Plugs,
-  PuzzlePiece,
-  EnvelopeSimple,
-  Headset,
-  ClockCounterClockwise,
-  Tag,
-  CurrencyDollar,
-  Receipt,
-  Scales,
-  LockKey,
-  MapTrifold,
-  Wrench,
-  CalendarBlank,
-  Lightning,
-  GearSix,
-  Kanban,
-  ChartBar,
-  UsersThree,
-  Pulse,
-  Storefront,
-  X,
-} from "@/components/icons";
+import { Archive, ArrowsInSimple, ArrowsOut, Buildings, Check, CaretDown, ChatCircle, PlusCircle, ClipboardText, DeviceMobile, Files, FilmStrip, Image as ImageIcon, Palette, SquaresFour, Sparkle, Package, Phone, PhoneOutgoing, Bell, FileText, Megaphone, Robot, Gear, GitBranch, Handshake, UserCircle, UserCheck, UsersFour, UserPlus, Wallet, LinkSimple, Plugs, PuzzlePiece, EnvelopeSimple, Headset, ClockCounterClockwise, CurrencyDollar, Receipt, Scales, LockKey, MapTrifold, Wrench, CalendarBlank, Lightning, GearSix, Kanban, ChartBar, UsersThree, Pulse, Storefront, X } from "@/components/icons";
 import type { Icon, IconProps } from "@/components/icons";
 import type { ComponentType } from "react";
 
@@ -168,7 +112,7 @@ export function navItemVisible(item: NavItem, canOpen: (href: string) => boolean
   return canOpen(item.href);
 }
 
-export interface Product {
+interface Product {
   id: string;
   nameKey: string;
   icon: NavIcon;
@@ -176,7 +120,7 @@ export interface Product {
   navItems: NavItem[];
 }
 
-export interface DashboardSidebarProps {
+interface DashboardSidebarProps {
   products: Product[];
   adminNavItems?: NavItem[];
   translationsNamespace?: string;

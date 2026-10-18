@@ -40,9 +40,9 @@ import { clipTiltAt, type ClipTilt } from "./clip-tilt";
 import type { TimeSpan } from "./work-area";
 
 export const PREMOUNT_MS = 1500;
-export const DRIFT_TOLERANCE_MS = 80;
-export const PAUSED_TOLERANCE_MS = 17;
-export const MAX_SHUTTLE_RATE = 8;
+const DRIFT_TOLERANCE_MS = 80;
+const PAUSED_TOLERANCE_MS = 17;
+const MAX_SHUTTLE_RATE = 8;
 export const MAX_OUTPUT_LATENCY_SEC = 0.5;
 
 export interface PlaybackClock {
@@ -83,7 +83,7 @@ export function clockReachedEdge(clock: PlaybackClock, nowSec: number, span: Tim
   return clock.rate > 0 ? position >= span.endMs : position <= span.startMs;
 }
 
-export interface OutputLatency {
+interface OutputLatency {
   outputLatency?: number;
   baseLatency?: number;
 }
@@ -99,7 +99,7 @@ export function outputLatencySec(context: OutputLatency): number {
 export type ShuttleDirection = -1 | 0 | 1;
 
 export const PREVIEW_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2] as const;
-export const MAX_AUDIO_RATE = 2;
+const MAX_AUDIO_RATE = 2;
 
 export function audibleRate(rate: number): boolean {
   return rate > 0 && rate <= MAX_AUDIO_RATE;
@@ -357,13 +357,13 @@ function framePlan(doc: VideoDocument, ms: number, premountMs: number, levels: T
   return items;
 }
 
-export interface VideoCommand {
+interface VideoCommand {
   seekToMs: number | null;
   play: boolean;
   playbackRate: number;
 }
 
-export interface VideoSyncState {
+interface VideoSyncState {
   playing: boolean;
   rate: number;
   active: boolean;
@@ -371,7 +371,7 @@ export interface VideoSyncState {
   backward: boolean;
 }
 
-export const MAX_ELEMENT_RATE = 16;
+const MAX_ELEMENT_RATE = 16;
 
 export function syncVideo(currentMs: number, targetMs: number, state: VideoSyncState): VideoCommand {
   const flowing = state.playing && state.active && state.rate > 0 && state.speed > 0 && !state.backward;
@@ -491,7 +491,7 @@ export function audioVoiceKeys(doc: VideoDocument, options: AudioPlanOptions = {
   ]);
 }
 
-export interface AudioPlanChange {
+interface AudioPlanChange {
   stop: string[];
   start: string[];
 }
@@ -503,7 +503,7 @@ export function audioPlanChange(previous: ReadonlyMap<string, string>, next: Rea
   };
 }
 
-export interface BoxStyle {
+interface BoxStyle {
   left: string;
   top: string;
   width: string;
@@ -526,7 +526,7 @@ export function boxStyle(item: Pick<VisualItem, "transform" | "opacity" | "track
   };
 }
 
-export interface ContentStretch {
+interface ContentStretch {
   width: number;
   height: number;
   scaleX: number;
@@ -541,7 +541,7 @@ export function contentStretch(item: Pick<VisualItem, "transform" | "base" | "fl
   return { width, height, scaleX: (item.flipX ? -1 : 1) / width, scaleY: (item.flipY ? -1 : 1) / height };
 }
 
-export const FOCUS_DIM = 0.3;
+const FOCUS_DIM = 0.3;
 
 export function focusedPlan(items: readonly VisualItem[], focusClipId: string | null, solo: boolean): VisualItem[] {
   if (!focusClipId) return [...items];

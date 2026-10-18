@@ -15,7 +15,7 @@ const LEGACY_INTERNAL_ERROR_CODES_BY_MESSAGE: Record<string, number> = {
         WHATSAPP_CAMPAIGN_INTERNAL_ERROR_CODES.missingEntryVariables,
 };
 
-export interface ResolveWhatsAppCampaignErrorDisplayInput {
+interface ResolveWhatsAppCampaignErrorDisplayInput {
     errorCode?: number | null;
     errorMessage?: string | null;
     hasTranslation: (key: string) => boolean;
@@ -23,7 +23,7 @@ export interface ResolveWhatsAppCampaignErrorDisplayInput {
     unknownMessage: string;
 }
 
-export interface WhatsAppCampaignErrorDisplay {
+interface WhatsAppCampaignErrorDisplay {
     show: boolean;
     code: number | null;
     description: string;

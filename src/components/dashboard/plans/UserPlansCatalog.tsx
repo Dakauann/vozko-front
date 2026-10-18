@@ -1207,7 +1207,7 @@ const CATEGORY_INK: Record<string, { ink: string; glyph: React.ReactNode }> = {
   llm: { ink: "ink-3", glyph: <Brain className="h-3.5 w-3.5" /> },
 };
 
-export function CategoryMark({
+function CategoryMark({
   category,
   className,
 }: {

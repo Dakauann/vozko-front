@@ -3,7 +3,7 @@ import { LIBRARY_ID_PATTERN, LIBRARY_LOCALES, type LibraryEditor, type LibraryIt
 
 export const RECENT_LIMIT = 12;
 
-export type Translate = (key: string) => string;
+type Translate = (key: string) => string;
 
 export interface LibraryEntry {
   item: LibraryItem;

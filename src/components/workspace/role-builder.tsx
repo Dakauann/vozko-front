@@ -67,7 +67,7 @@ type PendingChange =
   | { kind: "blank" }
   | { kind: "link"; preset: RolePreset };
 
-export interface RoleBuilderProps {
+interface RoleBuilderProps {
   wsId: string;
   role?: CustomRole;
   compact?: boolean;

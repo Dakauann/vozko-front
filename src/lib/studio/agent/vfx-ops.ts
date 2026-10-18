@@ -21,7 +21,7 @@ export interface AgentVfxFields {
   vfx_track_id?: string;
 }
 
-export interface VfxOpInput extends AgentVfxFields {
+interface VfxOpInput extends AgentVfxFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
@@ -29,7 +29,7 @@ export interface VfxOpInput extends AgentVfxFields {
   keys?: { at_ms: number; value?: number; easing?: Easing }[];
 }
 
-export type VfxOpResult = { ok: true; document: VideoDocument; vfxId: string } | { ok: false; reason: string };
+type VfxOpResult = { ok: true; document: VideoDocument; vfxId: string } | { ok: false; reason: string };
 
 function rangesOf(kind: VfxKind): string {
   return vfxParams(kind)

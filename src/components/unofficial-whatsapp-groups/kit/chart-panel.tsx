@@ -12,15 +12,15 @@ import { Readout } from "./chart-parts";
 import { QuietEmpty } from "./empty";
 import { GroupsPanel } from "./panel";
 
-export type ChartPanelState = "loading" | "error" | "empty" | "ready";
+type ChartPanelState = "loading" | "error" | "empty" | "ready";
 
-export interface ChartPanelEmpty {
+interface ChartPanelEmpty {
   icon: ReactNode;
   message: string;
   action?: ReactNode;
 }
 
-export interface ChartPanelError {
+interface ChartPanelError {
   message?: string;
   onRetry: () => void;
   retrying?: boolean;

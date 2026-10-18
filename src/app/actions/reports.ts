@@ -5,15 +5,9 @@ import {
     scopeHeaders,
 } from "@/lib/api/browser-client";
 import { filenameFromDisposition } from "@/lib/browser/download";
-import type {
-    CreateReportRequest,
-    ReportJob,
-    ReportKind,
-    ReportKindDescriptor,
-    ReportStatus,
-} from "@/lib/reports/types";
+import type { CreateReportRequest, ReportJob, ReportKind, ReportStatus } from "@/lib/reports/types";
 
-export interface ReportActionResult<T> {
+interface ReportActionResult<T> {
     data: T | null;
     error: string | null;
 }
@@ -55,7 +49,7 @@ export interface ReportListFilters {
     offset?: number;
 }
 
-export interface ReportListPage {
+interface ReportListPage {
     reports: ReportJob[];
     total: number;
 }
@@ -85,21 +79,7 @@ export async function listReportsAction(
     };
 }
 
-export async function listReportKindsAction(): Promise<
-    ReportActionResult<ReportKindDescriptor[]>
-> {
-    const response = await apiClient<{ kinds: ReportKindDescriptor[] }>(
-        "/reports/kinds",
-        { method: "GET" },
-    );
-
-    if (response.error) {
-        return { data: null, error: response.error.message };
-    }
-    return { data: response.data?.kinds ?? [], error: null };
-}
-
-export interface ReportFile {
+interface ReportFile {
     blob: Blob;
     filename: string;
 }

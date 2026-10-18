@@ -3,7 +3,7 @@ import type { AdDayPart } from "@/lib/advertising/draft-types";
 export const DAYS = [0, 1, 2, 3, 4, 5, 6];
 export const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
-export type ScheduleGrid = boolean[][];
+type ScheduleGrid = boolean[][];
 
 export function emptyGrid(): ScheduleGrid {
   return DAYS.map(() => HOURS.map(() => false));

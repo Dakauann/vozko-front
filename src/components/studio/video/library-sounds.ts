@@ -10,7 +10,7 @@ import { clipTypeForMedia } from "@/lib/studio/media-clips";
 import type { AssetCatalog } from "./asset-catalog";
 import { useAssetState, useVideoEditor } from "./editor-context";
 
-export function workspaceSounds(medias: readonly Media[], assets: AssetCatalog): LibraryItem[] {
+function workspaceSounds(medias: readonly Media[], assets: AssetCatalog): LibraryItem[] {
   const measured = (id: string) => assets.store.getState().assets[id]?.durationMs;
   return medias
     .filter((media) => clipTypeForMedia(media.type) === "audio")

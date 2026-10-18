@@ -73,12 +73,6 @@ export async function disconnectInstagramAccountAction(accountId: string) {
     return { ok: true };
 }
 
-export function instagramConnectUrl(returnPath?: string): string {
-    const params = new URLSearchParams({ redirect: '1' });
-    if (returnPath) params.set('returnPath', returnPath);
-    return `${getApiBaseUrl()}/oauth/instagram/start?${params.toString()}`;
-}
-
 
 export async function listInstagramMediaAction(accountId: string, after?: string, limit = 24) {
     const params = new URLSearchParams({ limit: limit.toString() });
@@ -92,15 +86,6 @@ export async function listInstagramMediaAction(accountId: string, after?: string
         return { page: { items: [], hasNext: false } as InstagramPage<InstagramMedia>, error: response.error.message };
     }
     return { page: response.data ?? { items: [], hasNext: false } };
-}
-
-export async function getInstagramMediaAction(accountId: string, mediaId: string) {
-    const response = await apiClient<InstagramMedia>(
-        `/instagram/accounts/${accountId}/media/${mediaId}`,
-        { method: 'GET' },
-    );
-    if (response.error) return { error: response.error.message };
-    return { media: response.data };
 }
 
 export async function createInstagramMediaAction(

@@ -16,7 +16,7 @@ export interface ExportedMedia {
 
 export type LocalExport = { status: "done"; result: ExportedMedia } | { status: "failed"; reason: ExportFailure };
 
-export type ExportOutcome = { status: "done"; result: ExportedMedia; document: VideoDocument } | { status: "failed"; code: ExportFailureCode; clip?: Clip };
+type ExportOutcome = { status: "done"; result: ExportedMedia; document: VideoDocument } | { status: "failed"; code: ExportFailureCode; clip?: Clip };
 
 export interface ExportDeps {
   flush: () => Promise<void>;

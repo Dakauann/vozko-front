@@ -47,7 +47,7 @@ export function toggleInSet(
     );
 }
 
-export type RangeBound = 'gte' | 'lte';
+type RangeBound = 'gte' | 'lte';
 
 export function readBound(
     filter: CrmFilter,

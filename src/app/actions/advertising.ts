@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api/browser-client";
 import { downloadApiFile } from "@/lib/api/download-file";
-import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
+import { isActionError, type ActionResult } from "@/app/actions/action-result";
 import { settleAds } from "@/app/actions/advertising-result";
 import {
   accountPath,
@@ -35,15 +35,13 @@ import type {
   AdTrend,
 } from "@/lib/advertising/types";
 
-export type AdsActionError = ActionError;
-
 export type AdsResult<T> = ActionResult<T>;
 
 const DEFAULT_CSV_NAME = "anuncios.csv";
 
 export const isAdsError = isActionError;
 
-export type { LiveQuery, ReportFilters, TrendFilters };
+;
 
 export async function listAdAccountsAction(): Promise<AdsResult<AdAccount[]>> {
   return settleAds(await apiClient<AdAccount[]>("/ads/accounts", { method: "GET" }), []);

@@ -95,7 +95,7 @@ export const PILL = { height: AI_PROGRESS_PILL_HEIGHT, margin: 8, gap: 6, smalle
 
 export type PillMode = "inside" | "outside" | "spinner";
 
-export interface PillLayout {
+interface PillLayout {
   mode: PillMode;
   width: number;
   inside: { left: number; top: number };

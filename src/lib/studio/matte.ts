@@ -17,7 +17,7 @@ export interface MatteChange {
   invert?: boolean;
 }
 
-export type MatteFields = Pick<Clip, "matte" | "matteChannel" | "matteInvert">;
+type MatteFields = Pick<Clip, "matte" | "matteChannel" | "matteInvert">;
 
 export const PLAIN_MATTE: Matte = { channel: "alpha", invert: false };
 

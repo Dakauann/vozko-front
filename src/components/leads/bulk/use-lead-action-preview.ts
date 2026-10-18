@@ -44,7 +44,7 @@ function watched(read: () => ReturnType<typeof getLeadActionPreviewAction>, onRe
   };
 }
 
-export async function finishedLeadActionPreview(previewId: string, signal: AbortSignal, onRead?: PreviewWatcher): Promise<LeadActionPreview> {
+async function finishedLeadActionPreview(previewId: string, signal: AbortSignal, onRead?: PreviewWatcher): Promise<LeadActionPreview> {
   const read = watched(() => getLeadActionPreviewAction(previewId, signal), onRead);
   const last = await pollUntil<LeadActionPreview, CodedError>(read, (next) => next.status !== "running", {
     signal,
@@ -76,7 +76,7 @@ function refusalOf(error: Error | null): CodedError | null {
 
 export type FinishedPreviewProblem = { kind: "expired" } | { kind: "failed"; refusal: CodedError } | { kind: "unavailable"; refusal: CodedError };
 
-export function finishedPreviewProblem(error: Error | null): FinishedPreviewProblem | null {
+function finishedPreviewProblem(error: Error | null): FinishedPreviewProblem | null {
   if (!error) return null;
   if (!(error instanceof LeadActionPreviewError)) return { kind: "unavailable", refusal: { message: error.message } };
   if (error.countFailed) return { kind: "failed", refusal: error.refusal };

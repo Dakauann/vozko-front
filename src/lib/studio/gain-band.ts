@@ -6,7 +6,7 @@ import type { ClipPatch } from "./timeline";
 
 const BAND_TOP = dbToGain(MAX_GAIN_DB);
 const TAPER = 4;
-export const BAND_KEY_HIT_PX = 6;
+const BAND_KEY_HIT_PX = 6;
 
 type BandClip = Pick<Clip, "startMs" | "durationMs" | "fadeInMs" | "fadeOutMs" | "volume" | "keyframes" | "transform" | "blur" | "layer" | "type">;
 

@@ -18,7 +18,7 @@ import { newPathOp, takesPathOps, type MergeMode, type MergeOp } from "./path-op
 export type ShapeCombine = BooleanOp | "flatten";
 export type ShapeOpKind = ShapeCombine | "release" | "reverse" | "simplify" | "outline";
 export type ShapeOpIssue = "too_few" | "unsupported" | "locked" | "empty" | "failed" | "too_large" | "invalid" | "unchanged";
-export type ShapeOpResult = { ok: true; document: ImageSurface; ids: string[] } | { ok: false; issue: ShapeOpIssue };
+type ShapeOpResult = { ok: true; document: ImageSurface; ids: string[] } | { ok: false; issue: ShapeOpIssue };
 
 const CARRIED_KEYS = ["name", "fill", "gradient", ...STROKE_STYLE_KEYS, "shadow", "blendMode"] as const;
 const BOTTOM_STYLED = new Set<ShapeCombine>(["subtract", "exclude"]);
@@ -254,7 +254,7 @@ export function outlineStrokes(doc: ImageSurface, ids: readonly string[]): Shape
   return settled(next, [...replacements.values()].flat().map((l) => l.id));
 }
 
-export interface ShapeOps {
+interface ShapeOps {
   combine: boolean;
   release: boolean;
   reverse: boolean;

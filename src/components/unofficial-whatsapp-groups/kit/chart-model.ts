@@ -64,7 +64,7 @@ export function clipLabel(label: string, max: number): string {
   return `${characters.slice(0, Math.max(1, max)).join("").trimEnd()}…`;
 }
 
-export const STACKED_MIN_HEIGHT = 200;
+const STACKED_MIN_HEIGHT = 200;
 
 export function stackedHeight(rows: number, rowHeight: number): number {
   return Math.max(STACKED_MIN_HEIGHT, rows * rowHeight);

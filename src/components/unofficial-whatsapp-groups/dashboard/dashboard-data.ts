@@ -51,7 +51,7 @@ export function sumOf<T>(items: T[], pick: (item: T) => number): number {
   return items.reduce((total, item) => total + pick(item), 0);
 }
 
-export interface VolumeStats {
+interface VolumeStats {
   total: number;
   average: number;
   peak: { day: string; messages: number } | null;
@@ -66,7 +66,7 @@ export function volumeStats(points: DailyPoint[]): VolumeStats {
   return { total, average: points.length > 0 ? total / points.length : 0, peak };
 }
 
-export interface ResponseStats {
+interface ResponseStats {
   average: number | null;
   samples: number;
   daysAboveGoal: number;
@@ -109,7 +109,7 @@ export function rankSentimentByGroup(groups: GroupSentiment[], order: SentimentG
     .map((entry) => entry.group);
 }
 
-export interface CategoryRank {
+interface CategoryRank {
   category: string;
   count: number;
   share: number | null;

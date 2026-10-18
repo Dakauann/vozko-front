@@ -13,7 +13,7 @@ import { useVideoEditor, useViewState } from "../editor-context";
 import { KeyDiamond } from "../key-diamond";
 import { KeyframeMenu, type KeyMenuTarget } from "./keyframe-menu";
 
-export interface ClipKeyframesProps {
+interface ClipKeyframesProps {
   clip: Clip;
   widthPx: number;
   heightPx: number;

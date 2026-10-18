@@ -26,12 +26,12 @@ export interface AgentColorFields {
   clear_color?: ColorClear[];
 }
 
-export interface ColorTarget {
+interface ColorTarget {
   color: ColorGrade | undefined;
   gradientMap: GradientMap | undefined;
 }
 
-export type GradeChange = { ok: true; apply: (current: ColorTarget) => ColorTarget | string } | { ok: false; reason: string };
+type GradeChange = { ok: true; apply: (current: ColorTarget) => ColorTarget | string } | { ok: false; reason: string };
 
 function rangeText(field: (typeof GRADE_FIELDS)[number]): string {
   const [low, high] = GRADE_RANGES[field];

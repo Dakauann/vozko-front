@@ -25,7 +25,7 @@ export interface DashboardTableColumn<T> {
   sortKey?: string;
 }
 
-export type DashboardTableSortDirection = "asc" | "desc";
+type DashboardTableSortDirection = "asc" | "desc";
 
 export interface DashboardTableSort {
   key: string;
@@ -37,7 +37,7 @@ export interface DashboardTableSorting {
   onToggle: (key: string, options: { additive: boolean }) => void;
 }
 
-export interface DashboardTablePagination {
+interface DashboardTablePagination {
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -71,7 +71,7 @@ export interface DashboardTableSelection {
   hideSummary?: boolean;
 }
 
-export interface DashboardTableProps<T> {
+interface DashboardTableProps<T> {
   data: T[];
   columns: DashboardTableColumn<T>[];
   rowKey: (row: T, index: number) => string;
@@ -449,9 +449,7 @@ export function DashboardTable<T>({
       {}
       {showsTable && !hasData && !loading && (
         <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
-          <LightPool />
-          {
-}
+          <LightPool />
           <CircuitTraces
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-2 h-40 w-40 -translate-x-1/2 sm:h-48 sm:w-48"
@@ -535,9 +533,7 @@ export function DashboardTable<T>({
                 </select>
               </label>
             ) : null}
-          </div>
-          {
-}
+          </div>
           <div className={cn("flex gap-1", pagination.totalPages <= 1 && "hidden")}>
             <button
               type="button"

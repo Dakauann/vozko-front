@@ -27,7 +27,7 @@ export function isLeadOptionalColumn(value: string): value is LeadOptionalColumn
 const DAY_FORMAT = { day: "2-digit", month: "short", year: "numeric" } as const;
 const MOMENT_FORMAT = { ...DAY_FORMAT, hour: "2-digit", minute: "2-digit" } as const;
 
-export interface LeadColumnsOptions {
+interface LeadColumnsOptions {
   optional: ReadonlySet<LeadOptionalColumn>;
   classification?: CustomFieldDefinition;
   ownerName: (ownerId: string | undefined, sentName?: string) => string | null;

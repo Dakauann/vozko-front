@@ -49,7 +49,7 @@ export function headingOf(clip: Pick<Clip, "keyframes" | "autoOrient">, localMs:
   return clip.autoOrient ? (headingAt(pathFramesOf(clip.keyframes), localMs, aspect) ?? 0) : 0;
 }
 
-export function placedTransform(clip: PlacedClip, shown: Transform, localMs: number, aspect: number): Transform {
+function placedTransform(clip: PlacedClip, shown: Transform, localMs: number, aspect: number): Transform {
   const anchor = anchorOf(clip);
   const rotation = shown.rotation + headingOf(clip, localMs, aspect);
   if (isCentered(anchor)) return rotation === shown.rotation ? shown : { ...shown, rotation };

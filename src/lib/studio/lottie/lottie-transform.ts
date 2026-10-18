@@ -36,7 +36,7 @@ export function readTransform(raw: LottieTransform | undefined, gaps: LottieGaps
   };
 }
 
-export function positionValues(position: PositionSpec): Animated<Vec>[] {
+function positionValues(position: PositionSpec): Animated<Vec>[] {
   return position.separated ? [position.x, position.y] : [position.value];
 }
 

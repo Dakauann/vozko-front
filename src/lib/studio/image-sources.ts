@@ -50,9 +50,9 @@ function sourcesOfLayer(surface: ImageSurface, layer: Layer): ImageSource[] {
   return patternSources(layer);
 }
 
-export type ClipSlot = "clip" | AssetSlot;
+type ClipSlot = "clip" | AssetSlot;
 
-export interface ClipImageSource {
+interface ClipImageSource {
   slot: ClipSlot;
   assetId: string | null;
 }

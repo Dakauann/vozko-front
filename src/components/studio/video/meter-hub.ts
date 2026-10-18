@@ -10,7 +10,7 @@ export interface MasterReading {
   shortTermLufs: number | null;
 }
 
-export interface MeterHubDeps {
+interface MeterHubDeps {
   read: () => MeterFrame | null;
   playing: () => boolean;
   frames: FrameScheduler;

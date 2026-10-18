@@ -38,7 +38,7 @@ export const LEAD_MAP_LAYERS = {
   areaHandles: "leads-area-handles",
 } as const;
 
-export type LeadMapLayerId = (typeof LEAD_MAP_LAYERS)[keyof typeof LEAD_MAP_LAYERS];
+type LeadMapLayerId = (typeof LEAD_MAP_LAYERS)[keyof typeof LEAD_MAP_LAYERS];
 
 export const AREA_HANDLE_IMAGE = "lead-map-area-handle";
 
@@ -61,7 +61,7 @@ export interface MapSelection {
   all: boolean;
 }
 
-export const CLUSTER_MAX_ZOOM = 13;
+const CLUSTER_MAX_ZOOM = 13;
 const CLUSTER_RADIUS = 24;
 const CLUSTER_MIN_POINTS = 5;
 const BUBBLE_SPACING_PX = 40;
@@ -500,7 +500,7 @@ export function areaHandleFeatureCollection(areas: readonly AreaShape[]): Featur
   };
 }
 
-export interface HandleImage {
+interface HandleImage {
   width: number;
   height: number;
   data: Uint8Array;

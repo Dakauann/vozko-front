@@ -2,7 +2,7 @@ import type { QueuedMessage } from "./queue";
 import { applyTurnEvent, type TurnEvent } from "./turn-events";
 import type { UIMessage } from "./ui-message";
 
-export interface TurnState {
+interface TurnState {
   messages: UIMessage[];
   queued: QueuedMessage[];
   streaming: boolean;
@@ -14,7 +14,7 @@ export const IDLE_TURN: TurnState = Object.freeze({ messages: [], queued: [], st
 
 const NO_LIVE_THREADS: readonly string[] = Object.freeze([]);
 
-export interface TurnStore {
+interface TurnStore {
   subscribe: (listener: () => void) => () => void;
   snapshot: (threadId: string | null) => TurnState;
   isStreaming: (threadId: string) => boolean;

@@ -33,7 +33,7 @@ export type MatchKey = "EMAIL" | "PHONE" | "FN" | "LN" | "CT" | "ST" | "ZIP" | "
 
 export const MATCH_KEYS: MatchKey[] = ["EMAIL", "PHONE", "FN", "LN", "CT", "ST", "ZIP", "COUNTRY", "EXTERN_ID", "GEN", "DOBY"];
 
-export const IDENTIFYING_KEYS: MatchKey[] = ["EMAIL", "PHONE", "EXTERN_ID"];
+const IDENTIFYING_KEYS: MatchKey[] = ["EMAIL", "PHONE", "EXTERN_ID"];
 
 export type ColumnMapping = MatchKey | "";
 
@@ -64,12 +64,12 @@ export interface LookalikeDraft {
 
 export const DEFAULT_LOOKALIKE_COUNTRY = "BR";
 
-export const LOOKALIKE_COUNTRIES = [
+const LOOKALIKE_COUNTRIES = [
   "BR", "AR", "BO", "CL", "CO", "EC", "MX", "PY", "PE", "UY", "VE", "US", "CA", "PT", "ES", "FR", "DE", "IT", "GB", "IE",
   "NL", "BE", "CH", "AT", "AO", "MZ", "JP", "AU",
 ];
 
-export interface CountryOption {
+interface CountryOption {
   code: string;
   name: string;
 }
@@ -100,7 +100,7 @@ export interface SavedAudience {
 
 export type SavedAudienceInput = Pick<SavedAudience, "name" | "targeting" | "placements">;
 
-export type AudienceSize = { kind: "calculating" } | { kind: "range"; lower: number; upper: number } | { kind: "unknown" };
+type AudienceSize = { kind: "calculating" } | { kind: "range"; lower: number; upper: number } | { kind: "unknown" };
 
 export function audienceSize(audience: Pick<Audience, "approxLower" | "approxUpper">): AudienceSize {
   const { approxLower: lower, approxUpper: upper } = audience;
@@ -109,7 +109,7 @@ export function audienceSize(audience: Pick<Audience, "approxLower" | "approxUpp
   return { kind: "range", lower, upper: Math.max(lower, upper) };
 }
 
-export type AudienceState = "ready" | "too_small" | "processing" | "unavailable";
+type AudienceState = "ready" | "too_small" | "processing" | "unavailable";
 
 const READY_CODE = 200;
 const TOO_SMALL_CODE = 300;
@@ -248,14 +248,14 @@ export function looksLikeHeader(rows: string[][]): boolean {
   return first.some((value, column) => value !== "" && guessKeyFromValues(rest.map((row) => row[column] ?? "")) !== "");
 }
 
-export interface CsvPreview {
+interface CsvPreview {
   hasHeader: boolean;
   headers: string[];
   rows: string[][];
   columns: ColumnMapping[];
 }
 
-export const CSV_SAMPLE_ROWS = 5;
+const CSV_SAMPLE_ROWS = 5;
 
 export function previewCsv(text: string, header?: boolean, sampleRows = CSV_SAMPLE_ROWS): CsvPreview {
   const parsed = parseCsv(text, sampleRows + 1);
@@ -282,7 +282,7 @@ export function hasIdentifyingColumn(columns: ColumnMapping[]): boolean {
 
 export const AUDIENCE_MIN_AGE = 13;
 export const AUDIENCE_MAX_AGE = 65;
-export const DEFAULT_MIN_AGE = 18;
+const DEFAULT_MIN_AGE = 18;
 
 export type GenderChoice = "all" | "male" | "female";
 

@@ -4,15 +4,15 @@ import { callOutcome } from "@/lib/dialer/dial-string";
 
 import { CALLBACK_DISPOSITION, type CallListItem, type CallListTrunk, type CallListTrunkRefusal } from "./types";
 
-export type WorkStage = "idle" | "ready" | "calling" | "ended" | "lost" | "notStarted";
+type WorkStage = "idle" | "ready" | "calling" | "ended" | "lost" | "notStarted";
 
-export interface EndedCall {
+interface EndedCall {
   callId?: string;
   reason?: string;
   durationSeconds?: number;
 }
 
-export interface ItemCallView {
+interface ItemCallView {
   status: "ringing" | "answered" | "waiting_slot" | "ended";
   callId?: string;
   reason?: string;
@@ -30,7 +30,7 @@ export interface ItemDial {
   track: ItemCallTrack;
 }
 
-export interface CallSnapshot extends ItemCallView {
+interface CallSnapshot extends ItemCallView {
   requestId?: string;
 }
 
@@ -102,7 +102,7 @@ export function workStage({ item, dial }: { item: CallListItem | null; dial: Ite
   return item.closable ? "ended" : "ready";
 }
 
-export type CloseBlocker = "notCalled" | "callLive" | "noOutcome" | "callbackTime";
+type CloseBlocker = "notCalled" | "callLive" | "noOutcome" | "callbackTime";
 
 export function closeBlocker({
   item,
@@ -151,7 +151,7 @@ export function heldItem(items: readonly CallListItem[], userId: string): CallLi
   return items.find((candidate) => candidate.state === "reserved" && candidate.reservedBy === userId) ?? null;
 }
 
-export type RestorePlan = "next" | "card" | "none";
+type RestorePlan = "next" | "card" | "none";
 
 export function restorePlan({
   held,

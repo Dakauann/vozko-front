@@ -6,7 +6,7 @@ import { applyCurvesPixels, curvesLut, isNeutralCurves, type ColorCurves } from 
 import { hueImageData, hueUniforms, isNeutralHue, type HueSecondary } from "@/lib/studio/hue-secondary";
 import { applyLutPixels, applyLutWarningPixels, isNeutralLut, lutIntensity, type LutAtlas } from "@/lib/studio/cube-lut";
 
-export type KonvaLut = LutAtlas | "missing" | null;
+type KonvaLut = LutAtlas | "missing" | null;
 import type { Filters, Gradient } from "@/lib/studio/document";
 import { applyLayerEffects } from "@/lib/studio/effect-pixels";
 import { gradientMapLut, mapGradientPixels, type GradientMap } from "@/lib/studio/gradient-map";
@@ -84,7 +84,7 @@ export function effectsFilter(plan: EffectPlan): KonvaFilter {
   return (imageData: ImageData, pixelRatio?: number) => applyLayerEffects(imageData.data, imageData.width, imageData.height, plan, pixelRatio ?? 1);
 }
 
-export interface FilterSetup {
+interface FilterSetup {
   list: KonvaFilter[];
   props: Partial<Pick<Konva.NodeConfig, "brightness" | "contrast" | "saturation" | "blurRadius">>;
 }

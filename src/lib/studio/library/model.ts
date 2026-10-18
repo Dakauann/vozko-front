@@ -40,7 +40,7 @@ export interface LibraryContext {
   text: (slot: LibrarySlot) => string;
 }
 
-export interface LibraryClipContext extends LibraryContext {
+interface LibraryClipContext extends LibraryContext {
   atMs: number;
   documentMs: number;
 }
@@ -62,8 +62,6 @@ export type LibraryTemplate =
   | { kind: "sticker"; slots?: readonly LibrarySlot[]; durationMs: number; build: (ctx: LibraryStickerContext) => Clip[] }
   | { kind: "mockup"; slots?: readonly LibrarySlot[]; design: MockupDesign }
   | { kind: "asset"; slots?: readonly LibrarySlot[]; asset: LibraryAsset };
-
-export type LibraryTemplateKind = LibraryTemplate["kind"];
 
 export type LibraryPreview =
   | { kind: "deferred"; load: () => Promise<LibraryPreview> }

@@ -25,7 +25,7 @@ import type {
   EntryConversationMessage,
   ConversationEntryType,
 } from "@/lib/leads/types";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ScreenLoader } from "@/components/brand/screen-loader";

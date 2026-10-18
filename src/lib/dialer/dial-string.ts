@@ -2,7 +2,7 @@ const MAX_DIAL_LENGTH = 32;
 
 export const DIAL_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"] as const;
 
-export type DialKey = (typeof DIAL_KEYS)[number] | "+";
+type DialKey = (typeof DIAL_KEYS)[number] | "+";
 
 const SEPARATORS = /[\s().-]/g;
 
@@ -31,7 +31,7 @@ export const CALL_OUTCOMES = [
   "caller_hung_up",
 ] as const;
 
-export type CallOutcome = (typeof CALL_OUTCOMES)[number];
+type CallOutcome = (typeof CALL_OUTCOMES)[number];
 
 export function callOutcome(reason: string | undefined): CallOutcome {
   return (CALL_OUTCOMES as readonly string[]).includes(reason ?? "") ? (reason as CallOutcome) : "ended";

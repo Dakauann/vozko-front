@@ -18,7 +18,7 @@ import type { WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 import { groupsRoutes } from "../kit/routes";
 import { rememberSetupWarnings } from "./setup-warnings-store";
 
-export type GroupActionKind = "follow" | "unfollow" | "refresh" | "invite" | "export" | "series";
+type GroupActionKind = "follow" | "unfollow" | "refresh" | "invite" | "export" | "series";
 
 export function useGroupActions(group: WorkspaceGroup, onChanged: () => void) {
   const t = useTranslations("unofficialGroups.detail.actions");

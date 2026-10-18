@@ -1,6 +1,6 @@
 import type { LineProperty } from "@/lib/studio/line-properties";
 
-export interface LineUnit {
+interface LineUnit {
   scale: number;
   unit: string;
   decimals: number;

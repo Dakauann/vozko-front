@@ -25,20 +25,20 @@ export const FIRST_ARTBOARD_ID = "artboard-1";
 
 export type LayerTransfer = "keep-place" | "keep-relative";
 
-export interface NewArtboard {
+interface NewArtboard {
   name?: string;
   background?: string;
   gradient?: Gradient;
   after?: string;
 }
 
-export interface ArtboardCopy {
+interface ArtboardCopy {
   document: ImageDocument;
   id: string;
   copies: Record<string, string>;
 }
 
-export interface ArtboardPatch {
+interface ArtboardPatch {
   name?: string;
   x?: number;
   y?: number;
@@ -111,7 +111,7 @@ export function artboardAt(doc: ImageDocument, point: Point): Artboard | undefin
   });
 }
 
-export function readingOrder(doc: ImageDocument): Artboard[] {
+function readingOrder(doc: ImageDocument): Artboard[] {
   return [...doc.artboards].sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
@@ -141,7 +141,7 @@ function overlapsRow(a: Artboard, top: number, height: number): boolean {
   return a.y < top + height && a.y + a.canvas.height > top;
 }
 
-export function nextArtboardPlace(doc: ImageDocument, fromId: string | undefined, size: CanvasSize): Point {
+function nextArtboardPlace(doc: ImageDocument, fromId: string | undefined, size: CanvasSize): Point {
   const from = (fromId ? artboardById(doc, fromId) : undefined) ?? doc.artboards[doc.artboards.length - 1];
   if (!from) return { x: 0, y: 0 };
   const row = doc.artboards.filter((a) => overlapsRow(a, from.y, Math.max(size.height, from.canvas.height)));
@@ -211,10 +211,6 @@ export function updateArtboard(doc: ImageDocument, id: string, patch: ArtboardPa
     if (patch.x !== undefined) artboard.x = clampCoordinate(patch.x);
     if (patch.y !== undefined) artboard.y = clampCoordinate(patch.y);
   });
-}
-
-export function resizeArtboard(doc: ImageDocument, id: string, size: CanvasSize): ImageDocument {
-  return editArtboard(doc, id, (surface) => resizeCanvas(surface, size));
 }
 
 export function deleteArtboards(doc: ImageDocument, ids: readonly string[]): ImageDocument {

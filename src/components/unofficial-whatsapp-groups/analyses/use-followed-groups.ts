@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { listWorkspaceGroupsAction } from "@/app/actions/unofficial-whatsapp-groups";
 import type { WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 
-export const FOLLOWED_GROUPS_PAGE_SIZE = 100;
+const FOLLOWED_GROUPS_PAGE_SIZE = 100;
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export interface FollowedGroups {
+interface FollowedGroups {
   groups: WorkspaceGroup[];
   totalItems: number;
   loading: boolean;

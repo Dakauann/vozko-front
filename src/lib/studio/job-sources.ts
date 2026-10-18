@@ -15,7 +15,7 @@ export const CLIP_JOB_SOURCES: Record<ClipJobKind, (clip: Clip, track: Track) =>
   cutout: (clip) => Boolean(clipImageSource(clip)?.assetId),
 };
 
-export interface ClipJobRequest {
+interface ClipJobRequest {
   input: { kind: ClipJobKind; sourceMediaId: string };
   target: { clipId: string; window?: SourceWindow; slot?: AssetSlot };
 }

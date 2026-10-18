@@ -1,4 +1,4 @@
-export interface Merged<T> {
+interface Merged<T> {
   value: T;
   conflicts: string[];
 }

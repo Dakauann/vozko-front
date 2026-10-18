@@ -4,14 +4,14 @@ import { containsPoint } from "./geometry";
 import { addLayersAbove, isPickable, updateLayers } from "./layers";
 import { pathToSubpaths } from "./path-nodes";
 
-export interface FillTarget {
+interface FillTarget {
   frameId: string;
   photoId?: string;
 }
 
-export type FillRefusal = "noFrame" | "locked";
+type FillRefusal = "noFrame" | "locked";
 
-export type FillOutcome = { ok: true; document: ImageSurface; photoId: string } | { ok: false; reason: FillRefusal };
+type FillOutcome = { ok: true; document: ImageSurface; photoId: string } | { ok: false; reason: FillRefusal };
 
 const CLOSED_SHAPES = new Set<Layer["shape"]>(["rect", "ellipse", "triangle", "star"]);
 
@@ -61,7 +61,7 @@ export function fillTargetAt(surface: ImageSurface, point: { x: number; y: numbe
   return null;
 }
 
-export function framedPhoto(frame: Layer, assetId: string, natural: CanvasSize, canvas: CanvasSize): Layer {
+function framedPhoto(frame: Layer, assetId: string, natural: CanvasSize, canvas: CanvasSize): Layer {
   const crop = coverCrop(natural, frame.transform, canvas);
   return { ...newImageLayer(assetId, { ...frame.transform, opacity: 1 }), clip: true, ...(crop ? { crop } : {}) };
 }

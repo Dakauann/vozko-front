@@ -43,7 +43,7 @@ export function Hint({ label, children, side = "bottom" }: { label: string; chil
 
 export { InspectorSection } from "../inspector/inspector-section";
 
-export type NoticeTone = "fault" | "info" | "progress" | "brand";
+type NoticeTone = "fault" | "info" | "progress" | "brand";
 
 export function Notice({ tone, title, children, action }: { tone: NoticeTone; title: string; children?: ReactNode; action?: ReactNode }) {
   const Glyph = tone === "fault" ? WarningCircle : tone === "progress" ? CircleNotch : Info;
@@ -65,7 +65,7 @@ function rounded(value: number, decimals: number): string {
   return String(Math.round(value * factor) / factor);
 }
 
-export interface NumberFieldProps {
+interface NumberFieldProps {
   label: string;
   short?: string;
   value: number;
@@ -188,14 +188,14 @@ export function ColorField({
   );
 }
 
-export interface SliderEntry {
+interface SliderEntry {
   range: Range;
   scale?: number;
   decimals?: number;
   suffix?: string;
 }
 
-export interface SliderFieldProps {
+interface SliderFieldProps {
   label: string;
   value: number;
   min: number;

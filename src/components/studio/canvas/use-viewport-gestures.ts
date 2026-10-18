@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { isEditableTarget } from "@/lib/studio/keymap";
 import { wheelViewport, type Point, type Viewport } from "@/lib/studio/viewport";
 
-export interface ViewportGestureOptions {
+interface ViewportGestureOptions {
   host: RefObject<HTMLElement | null>;
   viewport: () => Viewport;
   setViewport: (next: Viewport) => void;
@@ -14,7 +14,7 @@ export interface ViewportGestureOptions {
   wheelPans?: () => boolean;
 }
 
-export interface ViewportGestures {
+interface ViewportGestures {
   spaceDown: RefObject<boolean>;
   spaceHeld: boolean;
   panning: boolean;

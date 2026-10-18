@@ -23,7 +23,7 @@ import {
 } from "@/components/crm/kanban-card";
 
 
-export interface KanbanColumnModel {
+interface KanbanColumnModel {
   id: string;
   name: string;
   color?: string;
@@ -317,9 +317,7 @@ export default function KanbanBoard<T>({
           );
         })}
       </div>
-
-      {
-}
+
       {overlay ? (
         <div
           ref={overlayElRef}

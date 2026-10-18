@@ -115,7 +115,7 @@ export function editInputProblems(form: EditForm, currency: string): EditInputPr
   return problems;
 }
 
-export type EditField = keyof EditForm;
+type EditField = keyof EditForm;
 
 const EDIT_FIELDS: EditField[] = ["name", "budget", "bid", "endDay", "schedule", "targeting", "placements"];
 

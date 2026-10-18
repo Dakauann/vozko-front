@@ -18,9 +18,9 @@ export type GraphTarget = "keys" | EaseSide;
 export const GRAPH_HEIGHT = 240;
 export const GRAPH_PAD_PX = 16;
 export const GRAPH_HIT_PX = 7;
-export const GRAPH_GRIP_PX = 6;
-export const GRAPH_SEGMENT_SAMPLES = 32;
-export const GRAPH_RANGE_PAD = 0.08;
+const GRAPH_GRIP_PX = 6;
+const GRAPH_SEGMENT_SAMPLES = 32;
+const GRAPH_RANGE_PAD = 0.08;
 
 const MS_PER_SECOND = 1000;
 const PEAK_SAMPLES = 64;
@@ -29,7 +29,7 @@ const PATH_MIN_SPAN = 1e-3;
 const JOIN_TOLERANCE = 1e-3;
 const MIN_BOX_SCALE = 0.01;
 
-export interface GraphPoint {
+interface GraphPoint {
   ms: number;
   value: number;
 }
@@ -50,25 +50,25 @@ export interface GraphBox {
   bottom: number;
 }
 
-export interface GraphHandle {
+interface GraphHandle {
   side: EaseSide;
   point: GraphPoint;
 }
 
-export interface GraphKeyMark {
+interface GraphKeyMark {
   property: AnimatedProperty;
   atMs: number;
   x: number;
   y: number;
 }
 
-export interface GraphHandleMark extends GraphKeyMark {
+interface GraphHandleMark extends GraphKeyMark {
   side: EaseSide;
   keyXPx: number;
   keyYPx: number;
 }
 
-export interface GraphLayer {
+interface GraphLayer {
   property: AnimatedProperty;
   scale: GraphScale;
   points: [number, number][];
@@ -76,11 +76,11 @@ export interface GraphLayer {
   handles: GraphHandleMark[];
 }
 
-export type GraphHit = { kind: "key"; property: AnimatedProperty; atMs: number } | { kind: "handle"; property: AnimatedProperty; atMs: number; side: EaseSide };
+type GraphHit = { kind: "key"; property: AnimatedProperty; atMs: number } | { kind: "handle"; property: AnimatedProperty; atMs: number; side: EaseSide };
 
 export type BoxGrip = "move" | "left" | "right" | "top" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 
-export interface PixelTransform {
+interface PixelTransform {
   pivotX: number;
   scaleX: number;
   offsetX: number;
@@ -89,7 +89,7 @@ export interface PixelTransform {
   offsetY: number;
 }
 
-export interface HandleOffset {
+interface HandleOffset {
   influence: number;
   value: number;
 }

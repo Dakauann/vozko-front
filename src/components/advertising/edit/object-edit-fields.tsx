@@ -17,7 +17,7 @@ import { BudgetBidFields } from "./budget-bid-fields";
 import { PlacementsFields } from "./placements-fields";
 import { TargetingFields } from "./targeting-fields";
 
-export type FieldSlot = (group: EditGroup, input: ReactNode) => ReactNode;
+type FieldSlot = (group: EditGroup, input: ReactNode) => ReactNode;
 
 const PLAIN_SLOT: FieldSlot = (_group, input) => input;
 

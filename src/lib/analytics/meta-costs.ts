@@ -77,7 +77,7 @@ export function formatShare(
     }).format(share);
 }
 
-export function formatPercentPoints(
+function formatPercentPoints(
     percent: number | null | undefined,
     locale: string,
 ): string | null {
@@ -92,13 +92,13 @@ export function formatPercentPoints(
 
 export type AnswerSegmentKey = "charged" | "free" | "noAnswer";
 
-export interface AnswerSegment {
+interface AnswerSegment {
     key: AnswerSegmentKey;
     count: number;
     share: number | null;
 }
 
-export interface AnswerBreakdown {
+interface AnswerBreakdown {
     total: number;
     segments: AnswerSegment[];
 }
@@ -120,9 +120,9 @@ export function answerBreakdown(
     };
 }
 
-export type MoneySign = "negative" | "zero" | "positive";
+type MoneySign = "negative" | "zero" | "positive";
 
-export function moneySign(money: Money | null | undefined): MoneySign | null {
+function moneySign(money: Money | null | undefined): MoneySign | null {
     const brl = money?.brlMicros;
     if (brl === null || brl === undefined) return null;
     if (brl < 0) return "negative";
@@ -208,7 +208,7 @@ export function invoiceStatusTone(state: string): MetaCostTone {
     return "default";
 }
 
-export interface InvoiceCounts {
+interface InvoiceCounts {
     ours: string;
     meta: string | null;
     metaCharged: string | null;

@@ -3,7 +3,7 @@ import type { AreaShape } from "./types";
 
 export type AreaSize = { kind: "box"; widthM: number; heightM: number } | { kind: "radius"; radiusM: number };
 
-export interface DistanceValue {
+interface DistanceValue {
   unit: "meters" | "kilometers";
   value: number;
 }

@@ -19,7 +19,7 @@ export type FrameLayoutResult =
   | { ok: true; document: VideoDocument; changed: string[]; keyed: string[]; skipped: string[] }
   | { ok: false; reason: FrameLayoutRefusal; clipId?: string };
 
-export interface FrameLayoutOptions {
+interface FrameLayoutOptions {
   playheadMs: number;
   relativeTo?: AlignTo;
 }
@@ -30,7 +30,7 @@ export function hasFrame(type: ClipType): boolean {
   return FRAMED.has(type);
 }
 
-export function placedAt(parents: ClipLookup, clip: Clip, playheadMs: number, aspect: number): Transform {
+function placedAt(parents: ClipLookup, clip: Clip, playheadMs: number, aspect: number): Transform {
   return worldPlacementAt(parents, clip, clipTime(clip, playheadMs), aspect);
 }
 
@@ -38,11 +38,11 @@ export function clipEdgesPx(parents: ClipLookup, clip: Clip, playheadMs: number,
   return boxBounds(placedAt(parents, clip, playheadMs, size.width / size.height), size);
 }
 
-export function frameBounds(size: CanvasSize): Bounds {
+function frameBounds(size: CanvasSize): Bounds {
   return { left: 0, top: 0, right: size.width, bottom: size.height };
 }
 
-export function safeAreaTargets(size: CanvasSize): SnapTargets {
+function safeAreaTargets(size: CanvasSize): SnapTargets {
   return { x: [SAFE_AREA.left * size.width, SAFE_AREA.right * size.width], y: [SAFE_AREA.top * size.height, SAFE_AREA.bottom * size.height] };
 }
 

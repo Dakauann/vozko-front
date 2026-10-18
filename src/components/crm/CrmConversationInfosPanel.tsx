@@ -336,8 +336,6 @@ export default function CrmConversationInfosPanel({
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                {
-}
                 {leadId && !isGroup ? (
                   <EditableLeadName
                     leadId={leadId}
@@ -356,8 +354,6 @@ export default function CrmConversationInfosPanel({
                     {leadName || (isGroup ? t("unnamedGroup") : formatPhoneForDisplay(leadNumber))}
                   </p>
                 )}
-                {
-}
                 {isGroup ? (
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     {t("groupSubtitle")}
@@ -384,8 +380,6 @@ export default function CrmConversationInfosPanel({
                 )}
                 {leadCard ? <ConversationLeadSummary key={`${leadCard.entryType}:${leadCard.entryId}`} {...leadCard} /> : null}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  {
-}
                   <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-semibold text-foreground">
                     {channelName ? (
                       <ChannelLogo
@@ -497,8 +491,6 @@ export default function CrmConversationInfosPanel({
                   )}
                 </InfoRow>
 
-                {
-}
                 {stage && (
                   <InfoRow label={t("stage")}>
                     <span className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-medium text-foreground">
@@ -601,8 +593,6 @@ export default function CrmConversationInfosPanel({
 
                 <div>
                   <div className="mb-2 flex items-center gap-1.5">
-                    {
-}
                     <TrendUp
                       weight="bold"
                       className="h-3.5 w-3.5 text-primary-ink"
@@ -658,8 +648,6 @@ export default function CrmConversationInfosPanel({
         </>
       )}
 
-      {
-}
       {conversation && canBlock && !isGroup && (
         <div className="shrink-0 border-t border-border bg-card px-3 py-3">
           {isBlocked ? (

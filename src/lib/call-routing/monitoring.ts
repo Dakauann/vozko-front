@@ -2,7 +2,7 @@ import type { QueueLive, QueueStats } from "@/lib/call-routing/types";
 
 export const LIVE_REFRESH_MS = 3_000;
 export const STATS_REFRESH_MS = 60_000;
-export const LONG_WAIT_SECONDS = 60;
+const LONG_WAIT_SECONDS = 60;
 
 export function localDayWindow(day: Date): { from: string; to: string } {
     const start = new Date(day.getFullYear(), day.getMonth(), day.getDate());

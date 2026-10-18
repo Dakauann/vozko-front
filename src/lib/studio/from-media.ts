@@ -63,7 +63,7 @@ export interface ProjectMedia {
   frame: MediaFrame;
 }
 
-export interface StudioProjectRequest {
+interface StudioProjectRequest {
   kind: StudioKind;
   media?: readonly ProjectMedia[];
   sizes?: readonly CanvasSize[];
@@ -71,9 +71,9 @@ export interface StudioProjectRequest {
   durationMs?: number;
 }
 
-export type ProjectDocumentIssue = "size" | "aspect" | "media" | "duration";
+type ProjectDocumentIssue = "size" | "aspect" | "media" | "duration";
 
-export type ProjectDocumentResult = { ok: true; document: StudioDocument } | { ok: false; issue: ProjectDocumentIssue };
+type ProjectDocumentResult = { ok: true; document: StudioDocument } | { ok: false; issue: ProjectDocumentIssue };
 
 function presetSize(preset: CanvasSize): CanvasSize {
   return { width: preset.width, height: preset.height };

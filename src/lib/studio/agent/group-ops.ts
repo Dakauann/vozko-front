@@ -5,34 +5,28 @@ import { findClip } from "../timeline";
 
 export const GROUP_OPERATIONS = ["group_clips", "ungroup_clips"] as const;
 
-export type GroupOpName = (typeof GROUP_OPERATIONS)[number];
-
 export interface AgentGroupFields {
   group_id?: string;
 }
 
-export interface GroupOpInput extends AgentGroupFields {
+interface GroupOpInput extends AgentGroupFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
   name?: string;
 }
 
-export type GroupOpResult = { ok: true; document: VideoDocument; clipId: string; created: string[]; changed: string[]; notes: string[] } | { ok: false; reason: string };
+type GroupOpResult = { ok: true; document: VideoDocument; clipId: string; created: string[]; changed: string[]; notes: string[] } | { ok: false; reason: string };
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
 
 const SCOPED_FIELDS = ["clip_id", "clip_ids", "track_id", "to_clip_id", "transition_id", "parent_id", "trigger_track_ids"] as const;
 
-export function isGroupOp(name: string): name is GroupOpName {
-  return (GROUP_OPERATIONS as readonly string[]).includes(name);
-}
-
 function listed(ids: readonly string[]): string {
   return ids.length > 0 ? ` (${ids.join(", ")})` : "";
 }
 
-export function groupRefusalText(reason: GroupRefusal, ids: readonly string[]): string {
+function groupRefusalText(reason: GroupRefusal, ids: readonly string[]): string {
   switch (reason) {
     case "empty":
       return "group_clips precisa de clip_ids com pelo menos um clipe";
@@ -79,7 +73,7 @@ const KEPT_TEXT: Record<KeptProperty, string> = {
   speed: "a velocidade diferente de 1",
 };
 
-export function keptText(properties: readonly KeptProperty[]): string {
+function keptText(properties: readonly KeptProperty[]): string {
   return `para desagrupar mantendo o resultado, tire do grupo antes: ${properties.map((property) => KEPT_TEXT[property]).join(", ")}`;
 }
 

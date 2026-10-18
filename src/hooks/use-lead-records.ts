@@ -17,9 +17,9 @@ import { SectionError, codedSectionError } from "@/lib/analytics/section-query";
 import type { LeadDetailSummary } from "@/lib/leads/detail-summary";
 import type { ConversationEntryType, LeadDetail } from "@/lib/leads/types";
 
-export const LEAD_RELATIVES_PAGE_SIZE = 50;
+const LEAD_RELATIVES_PAGE_SIZE = 50;
 
-export const LEAD_HISTORY_PAGE_SIZE = 30;
+const LEAD_HISTORY_PAGE_SIZE = 30;
 
 export const leadQueryKeys = {
   lead: (workspaceId: string, leadId: string) => ["lead", workspaceId, leadId] as const,

@@ -24,7 +24,7 @@ export interface TrackCommands {
   unstabilizeClip: (clipId: string) => boolean;
 }
 
-export type PointTrackRunner = (assetId: string, request: Parameters<typeof trackAssetPoint>[1], watch: TrackWatch) => Promise<TrackOutcome>;
+type PointTrackRunner = (assetId: string, request: Parameters<typeof trackAssetPoint>[1], watch: TrackWatch) => Promise<TrackOutcome>;
 
 interface TrackCommandDeps {
   store: StudioEditorStore<VideoDocument>;

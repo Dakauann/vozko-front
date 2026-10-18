@@ -35,7 +35,7 @@ export function hasAdminSeat(seats: NumberSeat[]): boolean {
   return seats.some((seat) => seat.admin);
 }
 
-export interface SeatTally {
+interface SeatTally {
   connected: number;
   admin: number;
   posting: number;
@@ -99,7 +99,7 @@ export function isFiltered(filters: MemberFilters): boolean {
   );
 }
 
-export type MemberLink = GroupLinkOptions["members"];
+type MemberLink = GroupLinkOptions["members"];
 
 export function memberFiltersFromLink(link: MemberLink): MemberFilters {
   return {
@@ -138,8 +138,8 @@ export function withMemberLink(current: string, link: MemberLink): string {
   return text ? `?${text}` : "";
 }
 
-export const PHONE_MIN_DIGITS = 10;
-export const PHONE_MAX_DIGITS = 15;
+const PHONE_MIN_DIGITS = 10;
+const PHONE_MAX_DIGITS = 15;
 
 export function parsePhoneList(text: string): { valid: string[]; invalid: string[] } {
   const valid: string[] = [];
@@ -164,13 +164,13 @@ export function isAdminRefusal(error: string | undefined): boolean {
   return ADMIN_REFUSALS.some((refusal) => text.includes(refusal));
 }
 
-export interface MemberGrants {
+interface MemberGrants {
   update: boolean;
   remove: boolean;
   addLeads: boolean;
 }
 
-export interface MemberMenu {
+interface MemberMenu {
   promote: boolean;
   demote: boolean;
   remove: boolean;
@@ -206,7 +206,7 @@ const FAILED_ENTRIES = new Set(["FAILED", "NOT_ELIGIBLE_POSSIBLE_SPAM", "SKIPPED
 
 export const GROUP_CAMPAIGNS_LIMIT = 100;
 
-export interface CampaignTally {
+interface CampaignTally {
   total: number;
   running: number;
   delivered: number;
@@ -251,7 +251,7 @@ export function seriesBaseName(subject: string): string {
 export const SUBJECT_MAX_CHARS = 25;
 export const DESCRIPTION_MAX_CHARS = 512;
 
-export interface WhatsAppDraft {
+interface WhatsAppDraft {
   subject: string;
   description: string;
   imageUrl?: string;
@@ -270,7 +270,7 @@ export function whatsAppPatch(group: Pick<WorkspaceGroup, "subject" | "descripti
   return patch;
 }
 
-export type DraftProblem = "required" | "tooLong";
+type DraftProblem = "required" | "tooLong";
 
 export function whatsAppDraftProblems(draft: Pick<WhatsAppDraft, "subject" | "description">): { subject?: DraftProblem; description?: DraftProblem } {
   const subject = Array.from(draft.subject.trim()).length;
@@ -282,7 +282,7 @@ export function whatsAppDraftProblems(draft: Pick<WhatsAppDraft, "subject" | "de
 }
 
 export const GROUP_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
-export const GROUP_PHOTO_BYTES = 5 * 1024 * 1024;
+const GROUP_PHOTO_BYTES = 5 * 1024 * 1024;
 
 export function groupPhotoProblem(file: { type: string; size: number }): "type" | "size" | null {
   if (!(GROUP_PHOTO_TYPES as readonly string[]).includes(file.type)) return "type";

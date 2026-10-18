@@ -16,8 +16,8 @@ import type { CodedError } from "@/lib/api/coded-error";
 import type { ParsedAnswer } from "@/lib/api/parsed-request";
 import { decodeItemsCursor, encodeItemsCursor, type CallList, type CallListItemState, type CallListPage } from "@/lib/call-lists/types";
 
-export const CALL_LIST_ITEMS_PAGE_SIZE = 50;
-export const CALL_LIST_BUILD_POLL_MS = 4_000;
+const CALL_LIST_ITEMS_PAGE_SIZE = 50;
+const CALL_LIST_BUILD_POLL_MS = 4_000;
 
 function itemsOf(workspaceId: string, listId: string) {
   return ["call-lists", workspaceId, "items", listId] as const;
@@ -31,7 +31,7 @@ export const callListKeys = {
   items: (workspaceId: string, listId: string, state: CallListItemState) => [...itemsOf(workspaceId, listId), state] as const,
 };
 
-export function callListSectionError(error: CodedError): SectionError {
+function callListSectionError(error: CodedError): SectionError {
   return codedSectionError(error, "call list request");
 }
 

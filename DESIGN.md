@@ -578,7 +578,7 @@ ramp (`--primary` → `-hover` → `-active` — a pressed button is a different
 colour, never a fade), `shadow-button` with the inset bottom rule,
 `shadow-quiet` on secondary, flat neutral chip when disabled. Heights 28/32/40
 (`ui`), with the 34px phone floor via `sm:` prefixes in `elevated`. Only
-`primary`/`vsl`/`action`/`destructive` carry a fill — a screen with four
+`primary`/`action`/`destructive` carry a fill — a screen with four
 accent buttons has no primary action left. The **`link`** variant is the
 board's "Botão de Texto": `text-primary-ink`, no box, underline arriving on
 hover, `active:text-primary-active`.

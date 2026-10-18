@@ -2028,7 +2028,6 @@
     "pricing": "Pläne",
     "login": "Anmelden",
     "requestQuote": "Angebot anfordern",
-    "searchProducts": "Produkte suchen...",
     "adminBadge": "Administrator",
     "closeMenu": "Menü schließen"
   },
@@ -2045,14 +2044,6 @@
       "profile": {
         "label": "Mein Profil",
         "description": "Persönliche Daten, Passwort und Einstellungen"
-      },
-      "orders": {
-        "label": "Bestellungen und Policen",
-        "description": "Deine Bestellungen und aktiven Policen anzeigen"
-      },
-      "addresses": {
-        "label": "Adressen",
-        "description": "Deine Lieferadressen verwalten"
       },
       "settings": {
         "label": "Einstellungen",
@@ -30093,5 +30084,20 @@
       "customer_portfolio_list_invalid": "Ungültige Suche",
       "failed": "Kundenstamm konnte nicht aktualisiert werden"
     }
+  },
+  "inboxMenu": {
+    "open": "Gespräch öffnen",
+    "openInWindow": "In einem Fenster öffnen",
+    "openLead": "Lead-Datensatz öffnen",
+    "copyContact": "Kontakt kopieren",
+    "copied": "Kontakt kopiert",
+    "copyFailed": "Kontakt konnte nicht kopiert werden",
+    "assign": "Zuweisen an",
+    "assignEmpty": "Kein Mitglied verfügbar",
+    "online": "Online",
+    "stage": "In Phase verschieben",
+    "labels": "Labels",
+    "more": "Weitere Aktionen",
+    "moreHint": "Weitere Aktionen (auch per Rechtsklick)"
   }
 }

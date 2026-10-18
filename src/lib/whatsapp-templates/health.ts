@@ -2,7 +2,7 @@ import type { StatusChipTone } from "@/components/elevated-design/status-chip";
 
 export const TEMPLATE_QUALITIES = ["GREEN", "YELLOW", "RED", "UNKNOWN"] as const;
 
-export type TemplateQuality = (typeof TEMPLATE_QUALITIES)[number];
+type TemplateQuality = (typeof TEMPLATE_QUALITIES)[number];
 
 export type TemplateHealthChange = {
   signal: "quality" | "status" | "category";

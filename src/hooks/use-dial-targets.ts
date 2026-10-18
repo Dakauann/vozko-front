@@ -30,7 +30,7 @@ export interface UseDialTargetsOptions {
   revision?: number;
 }
 
-export interface DialTargetsState {
+interface DialTargetsState {
   status: "idle" | "loading" | "ready" | "error";
   targets: DialTargets | null;
   number: DialTargetNumber | null;

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function ConsoleBank({
+function ConsoleBank({
   legend,
   children,
   className,

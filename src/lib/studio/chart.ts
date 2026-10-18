@@ -72,7 +72,7 @@ export interface ChartSpec {
   format: ChartFormat;
 }
 
-export const CHART_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "chart", "layoutItem"];
+const CHART_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "chart", "layoutItem"];
 
 const ROUND_KINDS: ReadonlySet<ChartKind> = new Set(["pie", "donut"]);
 const SINGLE_KINDS: ReadonlySet<ChartKind> = new Set(["bar", "barHorizontal", "line", "area", "pie", "donut"]);
@@ -95,7 +95,7 @@ export function drawsLines(kind: ChartKind): boolean {
   return LINE_KINDS.has(kind);
 }
 
-export function usesOneSeries(kind: ChartKind): boolean {
+function usesOneSeries(kind: ChartKind): boolean {
   return SINGLE_KINDS.has(kind);
 }
 
@@ -107,10 +107,6 @@ export function shownSeries(spec: Pick<ChartSpec, "kind" | "data">): number[] {
 
 export function minimumSeries(kind: ChartKind): number {
   return kind === "scatter" ? 2 : 1;
-}
-
-export function isChartLayer(layer: Pick<Layer, "type">): boolean {
-  return layer.type === "chart";
 }
 
 export function paletteColor(style: Pick<ChartStyle, "palette">, index: number): string {
@@ -133,7 +129,7 @@ export function withStylePalette(layer: Layer, styles: readonly StudioStyle[] | 
   return { ...layer, chart: { ...layer.chart, style: { ...layer.chart.style, palette: stylePalette(styles) } } };
 }
 
-export interface ChartInk {
+interface ChartInk {
   text: string;
   grid: string;
 }
@@ -144,7 +140,7 @@ export function chartInk(ink: string): ChartInk {
   return { text: ink, grid: `${ink.slice(0, 7)}${GRID_ALPHA}` };
 }
 
-export function newChartStyle(ink: ChartInk, palette: readonly string[] = CHART_PALETTE): ChartStyle {
+function newChartStyle(ink: ChartInk, palette: readonly string[] = CHART_PALETTE): ChartStyle {
   return {
     palette: [...palette],
     fontId: DEFAULT_FONT_ID,
@@ -243,7 +239,7 @@ export function chartLayerIssue(layer: Layer): IssueCode | null {
   return chartIssue(layer.chart);
 }
 
-export function formatChartNumber(value: number, format: ChartFormat, decimals: number = format.decimals): string {
+function formatChartNumber(value: number, format: ChartFormat, decimals: number = format.decimals): string {
   return formatCounterNumber(value, decimals, format.locale, true);
 }
 
@@ -257,7 +253,7 @@ export function chartPercentText(share: number, format: ChartFormat): string {
 
 export type ChartGrid = CellGrid;
 
-export function plainNumberText(value: number | null | undefined, locale: CounterLocale): string {
+function plainNumberText(value: number | null | undefined, locale: CounterLocale): string {
   if (value === null || value === undefined) return "";
   return String(value).replace(".", counterSeparators(locale).decimal);
 }
@@ -303,4 +299,4 @@ export function dataOfGrid(grid: ChartGrid, locale: CounterLocale): ChartData {
   return { labels: body.map((row) => (row[0] ?? "").trim()), series };
 }
 
-export { delimiterOf, gridColumns, insertColumn, insertRow, parseDelimited, pasteCells, removeColumn, removeRow, setCell, type GridCell } from "./data-grid";
+export {   insertColumn, insertRow, parseDelimited, pasteCells, removeColumn, removeRow,   } from "./data-grid";

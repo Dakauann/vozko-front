@@ -7,9 +7,9 @@ import type { StudioEditorStore } from "@/lib/studio/store";
 import type { AgentPresence } from "./presence";
 import type { PresenceTarget } from "./targets";
 
-export const MIN_STEP_MS = 120;
-export const MAX_STEP_MS = 420;
-export const BATCH_ANIMATION_MS = 2400;
+const MIN_STEP_MS = 120;
+const MAX_STEP_MS = 420;
+const BATCH_ANIMATION_MS = 2400;
 
 const RENDER_MS = 16;
 const GESTURE_POLL_MS = 50;

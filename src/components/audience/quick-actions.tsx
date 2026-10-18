@@ -68,9 +68,7 @@ export function CommentQuickActions({
 
   return (
     <>
-      <div className={cn("flex flex-wrap items-center gap-2", className)}>
-        {
-}
+      <div className={cn("flex flex-wrap items-center gap-2", className)}>
         {canSend ? (
           <Button
             size="sm"

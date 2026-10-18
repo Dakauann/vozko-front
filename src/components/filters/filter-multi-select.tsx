@@ -26,7 +26,7 @@ export interface FilterMultiSelectOption {
   count?: number;
 }
 
-export interface FilterMultiSelectProps {
+interface FilterMultiSelectProps {
   triggerLabel: string;
   icon: React.ReactNode;
   options: FilterMultiSelectOption[];

@@ -18,7 +18,7 @@ export type VideoExportState =
   | { status: "done"; result: ExportedMedia; outdated: boolean; request: VideoExportRequest }
   | { status: "failed"; code: ExportFailureCode; request: VideoExportRequest; clip?: Clip };
 
-export interface VideoExporterDeps extends Omit<ExportDeps, "onPhase" | "local"> {
+interface VideoExporterDeps extends Omit<ExportDeps, "onPhase" | "local"> {
   local: (document: VideoDocument, request: VideoExportRequest, onPhase: (phase: ExportPhase) => void) => Promise<LocalExport>;
   commit: () => void;
   refreshLibrary: () => void;
@@ -39,7 +39,7 @@ export function exportStatus(state: ExporterState, current: VideoDocument): Vide
   return { status: "idle" };
 }
 
-export interface ExportState {
+interface ExportState {
   store: StoreApi<ExporterState>;
   running: { now: boolean };
 }
@@ -78,7 +78,7 @@ interface ExportFacts {
   at_ms?: number;
 }
 
-export type ExportSummary =
+type ExportSummary =
   | (ExportFacts & { status: "preparing"; phase: ExportPhase["phase"]; progress?: number })
   | (ExportFacts & { status: "done"; media_id: string; url: string; outdated: boolean })
   | (ExportFacts & { status: "failed"; code: ExportFailureCode; clip_id?: string });

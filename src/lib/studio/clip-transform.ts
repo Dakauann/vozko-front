@@ -1,7 +1,7 @@
 import type { Transform } from "./document";
 
-export const MIN_BOX = 0.02;
-export const MAX_BOX = 4;
+const MIN_BOX = 0.02;
+const MAX_BOX = 4;
 
 export type Handle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 
@@ -33,7 +33,7 @@ function handleSigns(handle: Handle): { sx: -1 | 0 | 1; sy: -1 | 0 | 1 } {
   };
 }
 
-export interface ResizeOptions {
+interface ResizeOptions {
   aspect: number;
   keepRatio: boolean;
 }

@@ -1,32 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Bell,
-  Buildings,
-  CalendarBlank,
-  Check,
-  CheckCircle,
-  CircleNotch,
-  CrownSimple,
-  Desktop,
-  DeviceMobile,
-  Envelope,
-  Eye,
-  EyeSlash,
-  GearSix,
-  Globe,
-  IdentificationBadge,
-  Lock,
-  MapPin,
-  PaperPlaneTilt,
-  Phone,
-  ShieldCheck,
-  SignOut,
-  User,
-  UserCircle,
-  X,
-} from "@/components/icons";
+import { Bell, Buildings, CalendarBlank, Check, CheckCircle, CircleNotch, CrownSimple, Desktop, DeviceMobile, Envelope, Eye, EyeSlash, GearSix, Globe, IdentificationBadge, Lock, MapPin, PaperPlaneTilt, ShieldCheck, SignOut, User, UserCircle, X } from "@/components/icons";
 import type { UserPlan, User as UserType } from "@/lib/auth/types";
 import {
   getCurrentUserAction,

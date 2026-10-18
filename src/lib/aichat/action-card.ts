@@ -2,13 +2,13 @@ import type { CapabilityBlocker, OfferCard } from "./types";
 
 export type CardState = "ready" | CapabilityBlocker;
 
-export interface LiveCapacity {
+interface LiveCapacity {
   used: number;
   total: number;
   canAdd: boolean;
 }
 
-export interface CardContext {
+interface CardContext {
   permitted: boolean;
   live?: LiveCapacity;
 }

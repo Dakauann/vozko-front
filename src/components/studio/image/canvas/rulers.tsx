@@ -4,7 +4,7 @@ import { rulerTicks } from "@/lib/studio/viewport";
 
 import { useEditorUi } from "../editor-state";
 
-export const RULER_PX = 20;
+const RULER_PX = 20;
 
 export function Rulers() {
   const on = useEditorUi((s) => s.rulers);

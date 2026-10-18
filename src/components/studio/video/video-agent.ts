@@ -71,7 +71,7 @@ const MAX_LISTED_MOTION = 24;
 const APPROXIMATE_FRAMES =
   "estes quadros saíram simplificados porque a renderização de vídeo do navegador não está disponível: transições, desfoque, animação de texto, cores animadas e correção de cor não aparecem neles; confira posição e opacidade pelos valores em frames";
 
-export interface VideoAgentDeps {
+interface VideoAgentDeps {
   editor: Omit<VideoEditorContextValue, "projectId" | "studio">;
   exporter: Pick<VideoExporter, "store" | "start" | "busy">;
   presence: AgentPresence;

@@ -59,7 +59,7 @@ function libraryLocale(locale: string): LibraryLocale {
   return (LIBRARY_LOCALES as readonly string[]).includes(short) ? (short as LibraryLocale) : "pt";
 }
 
-export function sampleChartData(kind: ChartKind, locale: string): ChartData {
+function sampleChartData(kind: ChartKind, locale: string): ChartData {
   const lang = libraryLocale(locale);
   if (isRoundChart(kind)) return { labels: [...SLICE_LABELS[lang]], series: [{ name: SERIES_NAMES[lang][0], values: [...SHARES] }] };
   if (kind === "scatter") return { labels: ["A", "B", "C", "D", "E"], series: [{ name: SCATTER_NAMES[lang][0], values: [...PRICES] }, { name: SCATTER_NAMES[lang][1], values: [...VOLUMES] }] };
@@ -80,7 +80,7 @@ function kebab(id: string): string {
   return id.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }
 
-export const CHART_ITEM_PREFIX = "chart-";
+const CHART_ITEM_PREFIX = "chart-";
 
 function chartItem(kind: ChartKind): LibraryItem {
   return {

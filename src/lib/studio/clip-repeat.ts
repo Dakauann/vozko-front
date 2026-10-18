@@ -150,11 +150,7 @@ export function splitClipRepeat(repeat: ClipRepeat, atLocalMs: number): ClipRepe
   return keyframes ? { ...repeat, keyframes } : repeat;
 }
 
-export function clipRepeatKeyTimes(repeat: ClipRepeat | undefined): number[] {
-  return Object.values(repeat?.keyframes ?? {}).flatMap((frames) => (frames ?? []).map((frame) => frame.atMs));
-}
-
-export interface RepeatCopy {
+interface RepeatCopy {
   index: number;
   place: Affine;
   opacity: number;

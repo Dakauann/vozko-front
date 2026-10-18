@@ -21,20 +21,18 @@ type BaseVariant =
   | "outline-subtle"
   | "ghost"
   | "destructive"
-  | "vsl"
   | "action"
   | "command";
 type LegacyVariant =
   | "main-cta"
   | "secondary-cta"
   | "main-cta-mobile"
-  | "secondary-cta-mobile"
-  | "vsl-cta";
+  | "secondary-cta-mobile";
 
 type ButtonVariant = BaseVariant | LegacyVariant;
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   title?: string;
   titleClassName?: string;
   link?: string;
@@ -55,14 +53,12 @@ const variantAlias: Record<ButtonVariant, BaseVariant> = {
   "outline-subtle": "outline-subtle",
   ghost: "ghost",
   destructive: "destructive",
-  vsl: "vsl",
   action: "action",
   command: "command",
   "main-cta": "primary",
   "main-cta-mobile": "primary",
   "secondary-cta": "secondary",
   "secondary-cta-mobile": "secondary",
-  "vsl-cta": "vsl",
 };
 
 const variantClasses: Record<BaseVariant, string> = {
@@ -72,7 +68,6 @@ const variantClasses: Record<BaseVariant, string> = {
   "outline-subtle": BUTTON_OUTLINE_SUBTLE,
   ghost: BUTTON_GHOST,
   destructive: BUTTON_DESTRUCTIVE,
-  vsl: "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))] hover:shadow-button-primary-hover active:shadow-button-primary",
   action: cn(BUTTON_PRIMARY, "min-h-[32px] px-3 gap-1.5 disabled:cursor-not-allowed"),
   command:
     "bg-transparent text-foreground hover:bg-muted active:bg-[hsl(var(--accent-hover))]",
@@ -88,7 +83,6 @@ const sizeClasses: Record<ButtonSize, string> = {
 function resolveIconColorClass(variant: BaseVariant) {
   switch (variant) {
     case "primary":
-    case "vsl":
     case "action":
       return "text-primary-foreground";
     case "secondary":

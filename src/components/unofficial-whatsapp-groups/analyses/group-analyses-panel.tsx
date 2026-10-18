@@ -24,7 +24,7 @@ import { NextCycle, RowAction } from "./analysis-parts";
 
 type PanelGroup = Pick<WorkspaceGroup, "id" | "subject" | "pictureUrl" | "memberCount" | "followedAt">;
 
-export type GroupAnalysesPanelProps = {
+type GroupAnalysesPanelProps = {
   analyses: GroupAnalysisRow[];
   onChanged: () => void;
   onFollow?: () => void;

@@ -147,80 +147,8 @@ export async function startConversationAction(
     return { conversation: response.data };
 }
 
-
-function groupPath(instanceId: string, groupJid: string, suffix = '') {
-    return `${BASE}/instances/${instanceId}/groups/${encodeURIComponent(groupJid)}${suffix}`;
-}
-
 function conversationGroupPath(entryId: string, suffix = '') {
     return `${BASE}/conversations/${encodeURIComponent(entryId)}/group${suffix}`;
-}
-
-export async function listGroupsAction(instanceId: string) {
-    const response = await apiClient<UnofficialWhatsAppGroup[]>(
-        `${BASE}/instances/${instanceId}/groups`,
-        { method: 'GET' },
-    );
-    if (response.error) return { groups: [] as UnofficialWhatsAppGroup[], error: response.error.message };
-    return { groups: response.data ?? [] };
-}
-
-export async function getGroupAction(instanceId: string, groupJid: string, refresh = false) {
-    const response = await apiClient<UnofficialWhatsAppGroup>(
-        groupPath(instanceId, groupJid, refresh ? '?refresh=true' : ''),
-        { method: 'GET' },
-    );
-    if (response.error) return { error: response.error.message };
-    return { group: response.data };
-}
-
-export async function getGroupInviteLinkAction(instanceId: string, groupJid: string) {
-    const response = await apiClient<{ inviteLink: string }>(
-        groupPath(instanceId, groupJid, '/invite-link'),
-        { method: 'GET' },
-    );
-    if (response.error) return { error: response.error.message };
-    return { inviteLink: response.data?.inviteLink ?? '' };
-}
-
-export async function updateGroupAction(
-    instanceId: string,
-    groupJid: string,
-    payload: UpdateGroupPayload,
-) {
-    const response = await apiClient<UnofficialWhatsAppGroup>(groupPath(instanceId, groupJid), {
-        method: 'PATCH',
-        body: JSON.stringify(payload),
-    });
-    if (response.error) return { error: response.error.message };
-    return { group: response.data };
-}
-
-export async function updateGroupParticipantsAction(
-    instanceId: string,
-    groupJid: string,
-    action: GroupParticipantAction,
-    participants: string[],
-) {
-    const destructive = DESTRUCTIVE_GROUP_ACTIONS.includes(action);
-    const response = await apiClient<UnofficialWhatsAppGroup>(
-        groupPath(instanceId, groupJid, '/participants'),
-        {
-            method: destructive ? 'DELETE' : 'POST',
-            body: JSON.stringify({ action, participants }),
-        },
-    );
-    if (response.error) return { error: response.error.message };
-    return { group: response.data };
-}
-
-export async function leaveGroupAction(instanceId: string, groupJid: string) {
-    const response = await apiClient<{ left: boolean }>(
-        groupPath(instanceId, groupJid, '/leave'),
-        { method: 'POST' },
-    );
-    if (response.error) return { error: response.error.message };
-    return { success: true };
 }
 
 

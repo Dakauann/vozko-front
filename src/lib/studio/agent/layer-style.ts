@@ -136,9 +136,9 @@ const CLEAR_PATCHES = {
   mask: { mask: undefined },
 } satisfies Record<string, Partial<Layer>>;
 
-export type ClearableEffect = keyof typeof CLEAR_PATCHES;
+type ClearableEffect = keyof typeof CLEAR_PATCHES;
 
-export const SHARED_CLEARS: readonly ClearableEffect[] = ["shadow", "stroke"];
+const SHARED_CLEARS: readonly ClearableEffect[] = ["shadow", "stroke"];
 
 export const LAYER_CLEARS: readonly ClearableEffect[] = [...SHARED_CLEARS, "gradient", "highlight", "curve", "blend_mode"];
 
@@ -152,7 +152,7 @@ export function hasStyle(op: AgentStyle): boolean {
   return STYLE_KEYS.some((key) => op[key] !== undefined);
 }
 
-export function boxPatch(op: AgentBox): Partial<Transform> {
+function boxPatch(op: AgentBox): Partial<Transform> {
   const patch: Partial<Transform> = {};
   for (const key of BOX_KEYS) {
     const value = op[key];
@@ -190,7 +190,7 @@ export function firstProblem(...problems: (string | null)[]): string | null {
   return problems.find((problem) => problem !== null) ?? null;
 }
 
-export function shadowOf(input: AgentShadow): Patched<Shadow> {
+function shadowOf(input: AgentShadow): Patched<Shadow> {
   const shadow: Shadow = { ...DEFAULT_SHADOW, ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) };
   if (!isValidColor(shadow.color, true)) return { ok: false, reason: "shadow.color precisa ser uma cor #rrggbb ou #rrggbbaa" };
   const problem = firstProblem(
@@ -219,14 +219,14 @@ export function gradientOf(input: AgentGradient): Patched<Gradient> {
   return problem ? { ok: false, reason: problem } : { ok: true, value: radial };
 }
 
-export function highlightOf(input: AgentHighlight): Patched<Highlight> {
+function highlightOf(input: AgentHighlight): Patched<Highlight> {
   if (!input.color || !isValidColor(input.color, true)) return { ok: false, reason: "highlight precisa de color, uma cor #rrggbb ou #rrggbbaa" };
   const highlight = { color: input.color, radius: input.radius ?? DEFAULT_HIGHLIGHT.radius };
   const problem = outOfRange("highlight.radius", highlight.radius, LAYER_RANGES.radius);
   return problem ? { ok: false, reason: problem } : { ok: true, value: highlight };
 }
 
-export function clearPatch(names: readonly string[] | undefined, allowed: readonly ClearableEffect[]): Patched<Partial<Layer>> {
+function clearPatch(names: readonly string[] | undefined, allowed: readonly ClearableEffect[]): Patched<Partial<Layer>> {
   const patch: Partial<Layer> = {};
   for (const name of names ?? []) {
     if (!(allowed as readonly string[]).includes(name)) return { ok: false, reason: `clear aceita: ${allowed.join(", ")}` };
@@ -442,7 +442,7 @@ export function fitsLayer(layer: Layer | undefined, patch: Partial<Layer>): Note
   return { ok: true, value, ignored };
 }
 
-export const ISSUE_TEXT: Record<string, string> = {
+const ISSUE_TEXT: Record<string, string> = {
   required: "falta um valor obrigatório",
   invalid: "há um valor inválido",
   unknown: "há um valor desconhecido",

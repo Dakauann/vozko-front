@@ -28,11 +28,11 @@ export type StyleTarget = { kind: "layer"; layerId: string } | { kind: "backgrou
 
 type Refused = { ok: false; reason: StyleRefusal; ids: string[] };
 
-export type StyleOutcome = { ok: true; document: ImageDocument } | Refused;
+type StyleOutcome = { ok: true; document: ImageDocument } | Refused;
 
-export type CreatedStyle = { ok: true; document: ImageDocument; styleId: string } | Refused;
+type CreatedStyle = { ok: true; document: ImageDocument; styleId: string } | Refused;
 
-export type UpdatedStyle = { ok: true; document: ImageDocument; changed: string[] } | Refused;
+type UpdatedStyle = { ok: true; document: ImageDocument; changed: string[] } | Refused;
 
 export type StyleValuesInput = Partial<Pick<StudioStyle, "color" | "gradient" | "fontId" | "fontWeight" | "italic" | "fontSizePx" | "lineHeight" | "letterSpacing" | "shadow">>;
 
@@ -54,7 +54,7 @@ export interface NewStyle {
   link?: boolean;
 }
 
-export interface StyleUse {
+interface StyleUse {
   artboardId: string;
   layerId?: string;
   slot: StyleSlot;
@@ -66,7 +66,7 @@ function refuse(reason: StyleRefusal, ids: string[] = []): Refused {
   return { ok: false, reason, ids };
 }
 
-export function defaultSlot(kind: StyleKind): LayerSlot {
+function defaultSlot(kind: StyleKind): LayerSlot {
   return kind === "color" ? "fill" : kind;
 }
 

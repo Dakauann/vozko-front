@@ -19,7 +19,6 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 

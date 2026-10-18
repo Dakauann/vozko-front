@@ -12,12 +12,12 @@ export interface AgentStillVfxFields extends Omit<AgentVfxFields, "vfx_property"
   to_index?: number;
 }
 
-export interface StillVfxOpInput extends AgentStillVfxFields {
+interface StillVfxOpInput extends AgentStillVfxFields {
   op: StillVfxOpName;
   layer_id?: string;
 }
 
-export type StillVfxOpResult = { ok: true; surface: ImageSurface; vfxId: string } | { ok: false; reason: string };
+type StillVfxOpResult = { ok: true; surface: ImageSurface; vfxId: string } | { ok: false; reason: string };
 
 const KIND_LIST = STILL_VFX_KINDS.join(", ");
 

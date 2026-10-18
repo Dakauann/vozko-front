@@ -9,7 +9,7 @@ const POPUP_WIDTH = 520;
 const POPUP_HEIGHT = 720;
 const CLOSED_POLL_MS = 600;
 
-export type EmbeddedSignupOutcome = "success" | "failed" | "no_workspace";
+type EmbeddedSignupOutcome = "success" | "failed" | "no_workspace";
 
 function apiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";

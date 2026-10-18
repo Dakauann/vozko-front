@@ -22,7 +22,7 @@ export const CAMERA_ARGS: Record<CameraProperty, keyof Omit<AgentCameraFields, "
   cameraRotation: "camera_rotation",
 };
 
-export type CameraPatch = { ok: true; patch: Pick<ClipPatch, "camera" | "keyframes"> } | { ok: false; reason: string };
+type CameraPatch = { ok: true; patch: Pick<ClipPatch, "camera" | "keyframes"> } | { ok: false; reason: string };
 
 function rangeText(property: CameraProperty): string {
   const [low, high] = CAMERA_RANGES[property];

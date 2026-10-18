@@ -1,51 +1,8 @@
-import type {
-    AvailablePermission,
-    MemberPermission,
-    PermissionEntry,
-    ResourceAssignment,
-    ResourceType,
-    Workspace,
-    WorkspaceInvite,
-    WorkspaceMember,
-    WorkspaceRole,
-} from "@/lib/workspace/types";
+import type { Workspace, WorkspaceInvite, WorkspaceMember } from "@/lib/workspace/types";
 import { REF_COOKIE_NAME } from "@/lib/affiliate/ref-cookie.client";
-import {
-    clearClientCookie,
-    readClientCookie,
-    setClientCookie,
-} from "@/lib/browser/client-cookie";
+import { clearClientCookie, readClientCookie } from "@/lib/browser/client-cookie";
 
 import { apiClient } from "@/lib/api/browser-client";
-
-const WORKSPACE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
-
-export async function setActiveWorkspaceAction(
-    workspaceId: string
-): Promise<{ success: boolean }> {
-    setClientCookie("workspaceId", workspaceId, WORKSPACE_COOKIE_MAX_AGE_SECONDS);
-    return { success: true };
-}
-
-export async function listWorkspacesAction(): Promise<{
-    workspaces: Workspace[];
-    error?: string;
-}> {
-    const response = await apiClient<
-        Workspace[] | { items: Workspace[]; page: number; page_size: number; total_items: number; total_pages: number }
-    >("/workspaces", { method: "GET" });
-
-    if (response.error) {
-        return { workspaces: [], error: response.error.message };
-    }
-
-    const raw = response.data;
-    const workspaces = Array.isArray(raw)
-        ? raw
-        : (raw as { items?: Workspace[] })?.items ?? [];
-
-    return { workspaces };
-}
 
 export async function getWorkspaceAction(
     workspaceId: string
@@ -79,44 +36,6 @@ export async function createWorkspaceAction(
     }
 
     return { workspace: response.data ?? null };
-}
-
-export async function updateWorkspaceAction(
-    workspaceId: string,
-    name: string
-): Promise<{ workspace: Workspace | null; error?: string }> {
-    const response = await apiClient<Workspace>(`/workspaces/${workspaceId}`, {
-        method: "PUT",
-        body: JSON.stringify({ name }),
-    });
-
-    if (response.error)
-        return { workspace: null, error: response.error.message };
-    return { workspace: response.data ?? null };
-}
-
-export async function inviteMemberAction(
-    workspaceId: string,
-    email: string,
-    role: WorkspaceRole,
-    permissions?: PermissionEntry[]
-): Promise<{ invite: WorkspaceInvite | null; error?: string }> {
-    const body: Record<string, unknown> = { email, role };
-    if (permissions && permissions.length > 0) {
-        body.permissions = permissions;
-    }
-
-    const response = await apiClient<WorkspaceInvite>(
-        `/workspaces/${workspaceId}/members/invite`,
-        {
-            method: "POST",
-            body: JSON.stringify(body),
-        }
-    );
-
-    if (response.error)
-        return { invite: null, error: response.error.message };
-    return { invite: response.data ?? null };
 }
 
 export async function listMyInvitesAction(): Promise<{
@@ -171,20 +90,6 @@ export async function declineInviteAction(
     return {};
 }
 
-export async function cancelInviteAction(
-    workspaceId: string,
-    inviteId: string
-): Promise<{ error?: string }> {
-    const response = await apiClient<{ message: string }>(
-        `/workspaces/${workspaceId}/invites/${inviteId}`,
-        { method: "DELETE" }
-    );
-
-    if (response.error)
-        return { error: response.error.message };
-    return {};
-}
-
 export async function listMembersAction(
     workspaceId: string
 ): Promise<{ members: WorkspaceMember[]; error?: string }> {
@@ -207,7 +112,7 @@ export interface AssignableMember extends WorkspaceMember {
     departments?: MemberDepartmentRef[];
 }
 
-export interface AssignableMembersResult {
+interface AssignableMembersResult {
     members: AssignableMember[];
     page: number;
     pageSize: number;
@@ -256,133 +161,6 @@ export async function listAssignableMembersAction(
         totalPages: payload?.meta?.totalPages ?? 0,
         totalItems: payload?.meta?.totalItems ?? 0,
     };
-}
-
-export async function removeMemberAction(
-    workspaceId: string,
-    userId: string
-): Promise<{ error?: string }> {
-    const response = await apiClient<{ message: string }>(
-        `/workspaces/${workspaceId}/members/${userId}`,
-        { method: "DELETE" }
-    );
-
-    if (response.error)
-        return { error: response.error.message };
-    return {};
-}
-
-export async function updateMemberRoleAction(
-    workspaceId: string,
-    userId: string,
-    role: WorkspaceRole
-): Promise<{ member: WorkspaceMember | null; error?: string }> {
-    const response = await apiClient<WorkspaceMember>(
-        `/workspaces/${workspaceId}/members/${userId}/role`,
-        {
-            method: "PUT",
-            body: JSON.stringify({ role }),
-        }
-    );
-
-    if (response.error)
-        return { member: null, error: response.error.message };
-    return { member: response.data ?? null };
-}
-
-export async function listAvailablePermissionsAction(): Promise<{
-    permissions: AvailablePermission[];
-    error?: string;
-}> {
-    const response = await apiClient<AvailablePermission[]>("/workspaces/permissions", {
-        method: "GET",
-    });
-
-    if (response.error)
-        return { permissions: [], error: response.error.message };
-    return { permissions: response.data ?? [] };
-}
-
-export async function getMemberPermissionsAction(
-    workspaceId: string,
-    userId: string
-): Promise<{ permissions: MemberPermission[]; error?: string }> {
-    const response = await apiClient<MemberPermission[]>(
-        `/workspaces/${workspaceId}/members/${userId}/permissions`,
-        { method: "GET" }
-    );
-
-    if (response.error)
-        return { permissions: [], error: response.error.message };
-    return { permissions: response.data ?? [] };
-}
-
-export async function setMemberPermissionsAction(
-    workspaceId: string,
-    userId: string,
-    permissions: PermissionEntry[]
-): Promise<{ permissions: MemberPermission[]; error?: string }> {
-    const response = await apiClient<MemberPermission[]>(
-        `/workspaces/${workspaceId}/members/${userId}/permissions`,
-        {
-            method: "PUT",
-            body: JSON.stringify({ permissions }),
-        }
-    );
-
-    if (response.error)
-        return { permissions: [], error: response.error.message };
-    return { permissions: response.data ?? [] };
-}
-
-export async function assignResourceAction(
-    workspaceId: string,
-    resourceType: ResourceType,
-    resourceId: string,
-    memberUserId: string
-): Promise<{ assignment: ResourceAssignment | null; error?: string }> {
-    const response = await apiClient<ResourceAssignment>(
-        `/workspaces/${workspaceId}/assignments`,
-        {
-            method: "POST",
-            body: JSON.stringify({ resourceType, resourceId, memberUserId }),
-        }
-    );
-
-    if (response.error)
-        return { assignment: null, error: response.error.message };
-    return { assignment: response.data ?? null };
-}
-
-export async function unassignResourceAction(
-    workspaceId: string,
-    resourceType: ResourceType,
-    resourceId: string,
-    userId: string
-): Promise<{ error?: string }> {
-    const response = await apiClient<{ message: string }>(
-        `/workspaces/${workspaceId}/assignments/${resourceType}/${resourceId}/members/${userId}`,
-        { method: "DELETE" }
-    );
-
-    if (response.error)
-        return { error: response.error.message };
-    return {};
-}
-
-export async function listResourceAssignmentsAction(
-    workspaceId: string,
-    resourceType: ResourceType,
-    resourceId: string
-): Promise<{ assignments: ResourceAssignment[]; error?: string }> {
-    const response = await apiClient<ResourceAssignment[]>(
-        `/workspaces/${workspaceId}/assignments/${resourceType}/${resourceId}`,
-        { method: "GET" }
-    );
-
-    if (response.error)
-        return { assignments: [], error: response.error.message };
-    return { assignments: response.data ?? [] };
 }
 
 export async function adminListAllWorkspacesAction(params: {

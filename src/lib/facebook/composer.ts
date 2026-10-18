@@ -1,10 +1,10 @@
 import { scheduleProblem, type ScheduleProblem } from '@/lib/facebook/schedule';
 import type { CreateFacebookPostPayload, FacebookMediaRef, FacebookPublishKind } from '@/lib/facebook/types';
 
-export const MIN_ALBUM_PHOTOS = 2;
+const MIN_ALBUM_PHOTOS = 2;
 export const MAX_ALBUM_PHOTOS = 10;
 export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
-export const MAX_VIDEO_BYTES = 1024 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 1024 * 1024 * 1024;
 export const MAX_REELS_PER_DAY = 30;
 export const PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff'] as const;
 export const VIDEO_MIME_TYPE = 'video/mp4';

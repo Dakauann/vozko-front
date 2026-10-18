@@ -12,7 +12,7 @@ import { IconButton, OUTLINE_BUTTON_CLASS } from "../image/controls";
 const CELL_CLASS =
   "h-7 w-full min-w-[5.5rem] border-0 bg-transparent px-2 text-xs tabular-nums text-foreground placeholder:text-muted-foreground focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-export type DataGridLayout = "series" | "table";
+type DataGridLayout = "series" | "table";
 
 interface DataGridProps {
   grid: CellGrid;

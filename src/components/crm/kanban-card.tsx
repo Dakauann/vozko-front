@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import type { TargetAndTransition, Transition, Variants } from "framer-motion";
 import { cn, readableInkFor } from "@/lib/utils";
-import { initials } from "@/lib/format/initials";
 
 
 export const kanbanCardVariants: Variants = {
@@ -68,7 +67,7 @@ export function kanbanCardClass(
 }
 
 
-export function KanbanCardHeader({
+function KanbanCardHeader({
   tile,
   title,
   strongTitle = true,
@@ -176,7 +175,7 @@ export function CardTile({
 }
 
 
-export type PillTone =
+type PillTone =
   | "success"
   | "warning"
   | "danger"
@@ -234,9 +233,7 @@ export function CardLabelChip({ name, color }: { name: string; color: string }) 
     <span
       className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold shadow-sm"
       style={{ backgroundColor: color, color: readableInkFor(color) }}
-    >
-      {
-}
+    >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current opacity-40" />
       <span className="truncate">{name}</span>
     </span>
@@ -244,4 +241,4 @@ export function CardLabelChip({ name, color }: { name: string; color: string }) 
 }
 
 
-export { initials };
+;

@@ -21,7 +21,7 @@ interface TrackingFieldsProps {
   disabled: boolean;
 }
 
-export function trackerLabel(tracker: PointTracker, index: number, numbered: (n: number) => string): string {
+function trackerLabel(tracker: PointTracker, index: number, numbered: (n: number) => string): string {
   return tracker.name || numbered(index + 1);
 }
 

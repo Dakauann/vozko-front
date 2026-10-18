@@ -12,7 +12,7 @@ import type { ConflictGroup } from "./series-model";
 
 export { parseSeriesConflict, type ConflictGroup } from "./series-model";
 
-export const PAUSE_AFTER_FAILURES = 5;
+const PAUSE_AFTER_FAILURES = 5;
 
 export function NotFollowedNotice({ onFollow, busy }: { onFollow?: () => void; busy?: boolean }) {
   const t = useTranslations("unofficialGroups.kit.notices");

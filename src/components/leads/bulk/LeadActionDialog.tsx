@@ -51,7 +51,7 @@ import { CallListFields } from "./CallListFields";
 import { LeadActionCountRows } from "./LeadActionCounts";
 import { useLeadActionPreview } from "./use-lead-action-preview";
 
-export interface LeadActionDialogProps {
+interface LeadActionDialogProps {
   action: LeadActionKind;
   selection: LeadSelection;
   size: number;

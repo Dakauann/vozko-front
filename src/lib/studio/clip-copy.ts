@@ -18,7 +18,7 @@ function copiedClip(clip: Clip, ids: ReadonlyMap<string, string>, links: Map<str
   return copy;
 }
 
-export function freshTracks(tracks: readonly Track[]): Track[] {
+function freshTracks(tracks: readonly Track[]): Track[] {
   const ids = new Map<string, string>();
   for (const track of tracks) {
     ids.set(track.id, newStudioId("t"));

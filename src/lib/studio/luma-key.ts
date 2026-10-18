@@ -1,4 +1,4 @@
-import { editFieldValue, fieldKeyState, fieldValue, lanesIssue, setFieldLane, type AnimatedFields, type Lanes } from "./animated-fields";
+import { fieldKeyState, fieldValue, lanesIssue, setFieldLane, type AnimatedFields, type Lanes } from "./animated-fields";
 import type { KeyState } from "./keyframe-edit";
 import type { Keyframe } from "./keyframes";
 import type { IssueCode } from "./validate";
@@ -25,7 +25,7 @@ export const LUMA_DEFAULTS = { threshold: 0.1, softness: 0.1 } as const;
 
 const LUMA = [0.2126, 0.7152, 0.0722] as const;
 
-export type Rgb = readonly [number, number, number];
+type Rgb = readonly [number, number, number];
 
 export function isLumaKeyMode(value: unknown): value is LumaKeyMode {
   return (LUMA_KEY_MODES as readonly unknown[]).includes(value);
@@ -56,10 +56,6 @@ export function setLumaLane(key: LumaKey, property: LumaProperty, frames: readon
 
 export function lumaKeyState(key: LumaKey, property: LumaProperty, localMs: number | null): KeyState {
   return fieldKeyState(key, property, localMs);
-}
-
-export function editLumaValue(key: LumaKey, property: LumaProperty, value: number, localMs: number | null): LumaKey | null {
-  return editFieldValue(LUMA_FIELDS, key, property, value, localMs);
 }
 
 function within(value: number, [low, high]: readonly [number, number]): boolean {

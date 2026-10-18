@@ -12,7 +12,7 @@ export interface KeyerWords {
 
 export type KeyerOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
 
-export function keyerRefusalText(reason: ClipItemsRefusal | KeyerRefusal, clipId: string | undefined, words: KeyerWords): string {
+function keyerRefusalText(reason: ClipItemsRefusal | KeyerRefusal, clipId: string | undefined, words: KeyerWords): string {
   switch (reason) {
     case "missing":
     case "locked":

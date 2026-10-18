@@ -18,7 +18,7 @@ const AT_STEP = 0.01;
 const BIG_AT_STEP = 0.05;
 const MS = 1000;
 
-export interface SpeedCurveEditorProps {
+interface SpeedCurveEditorProps {
   points: readonly SpeedCurvePoint[];
   durationMs: number;
   smooth: boolean;

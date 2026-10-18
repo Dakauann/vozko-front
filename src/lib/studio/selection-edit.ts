@@ -27,13 +27,9 @@ export function sharedValue<C, T>(items: readonly C[], get: (item: C) => T): Sha
   return items.every((item) => sameValue(get(item), first)) ? { kind: "same", value: first } : { kind: "mixed" };
 }
 
-export function sharedOr<T>(shared: Shared<T>, fallback: T): T {
-  return shared.kind === "same" ? shared.value : fallback;
-}
+const FIELD_GROUPS = ["timing", "trimIn", "fit", "transform", "volume", "fades", "motion", "keyframes", "layer", "textMotion", "speed", "grade", "masks", "vfx", "strength", "chroma", "blend", "line", "counter", "textPath", "look", "parent", "behaviors", "group", "groupSound", "tracking", "chart", "table", "qr", "camera"] as const;
 
-export const FIELD_GROUPS = ["timing", "trimIn", "fit", "transform", "volume", "fades", "motion", "keyframes", "layer", "textMotion", "speed", "grade", "masks", "vfx", "strength", "chroma", "blend", "line", "counter", "textPath", "look", "parent", "behaviors", "group", "groupSound", "tracking", "chart", "table", "qr", "camera"] as const;
-
-export type FieldGroup = (typeof FIELD_GROUPS)[number];
+type FieldGroup = (typeof FIELD_GROUPS)[number];
 
 const GENERATED_GROUPS: Partial<Record<string, FieldGroup>> = { chart: "chart", table: "table", qr: "qr" };
 
@@ -76,7 +72,7 @@ export function asSelectionEdit<R extends string>(edit: { ok: true; document: Vi
   return edit.ok ? edit : { ok: false, reason: refusals[edit.reason] };
 }
 
-export type ClipEdit = (doc: VideoDocument, location: ClipLocation) => VideoDocument | Refusal;
+type ClipEdit = (doc: VideoDocument, location: ClipLocation) => VideoDocument | Refusal;
 
 export function checkedDocument(before: VideoDocument, after: VideoDocument): SelectionEdit {
   if (after === before) return { ok: true, document: before };
@@ -188,7 +184,7 @@ export function moveSelectionTo(doc: VideoDocument, clipIds: readonly string[], 
 
 export type SourceDurations = Readonly<Record<string, number | undefined>>;
 
-export function sourceDurationOf(clip: Pick<Clip, "type" | "assetId" | "tracks">, durations: SourceDurations): number | undefined | null {
+function sourceDurationOf(clip: Pick<Clip, "type" | "assetId" | "tracks">, durations: SourceDurations): number | undefined | null {
   if (!hasSourceTime(clip.type)) return undefined;
   return sourceLengthOf(clip, (assetId) => durations[assetId]) ?? null;
 }
@@ -250,7 +246,7 @@ export function toggleSelectionKey(doc: VideoDocument, clipIds: readonly string[
   });
 }
 
-export interface SelectionEasing {
+interface SelectionEasing {
   scope: "moment" | "all";
   easing: Easing | null;
 }

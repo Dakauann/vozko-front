@@ -25,7 +25,7 @@ export type LoudnessSource = (assetId: string) => LoudnessProfile | undefined;
 
 export type NormalizeRefusal = "missing" | "locked" | "notAudio" | "target" | "unmeasured" | "silent";
 
-export type NormalizeResult = { ok: true; document: VideoDocument; measured: number; gainDb: number; limited: boolean } | { ok: false; reason: NormalizeRefusal };
+type NormalizeResult = { ok: true; document: VideoDocument; measured: number; gainDb: number; limited: boolean } | { ok: false; reason: NormalizeRefusal };
 
 type Measure = { ok: true; lufs: number | null } | { ok: false };
 

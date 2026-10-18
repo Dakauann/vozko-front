@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const NEXT_PAGE_ROOT_MARGIN = "400px 0px";
 
-export interface NextPageOnView {
+interface NextPageOnView {
   hasNextPage: boolean;
   busy: boolean;
   auto: boolean;

@@ -7,7 +7,7 @@ import { frameMask, frameSlotLayer, needsMask, WHOLE_BOX, type FrameShape } from
 import type { LibraryLayers } from "./model";
 import { emojiArt, type EmojiPart } from "./sets/format";
 
-export const MOCKUP_SHARE = 0.6;
+const MOCKUP_SHARE = 0.6;
 
 export interface MockupScreen {
   x: number;
@@ -36,7 +36,7 @@ export function mockupRatio(design: MockupDesign): number {
   return design.w / design.h;
 }
 
-export function screenShape(design: MockupDesign): FrameShape {
+function screenShape(design: MockupDesign): FrameShape {
   const { w, h, radius } = design.screen;
   return { kind: "rect", radius: Math.min(1, (2 * radius) / Math.min(w, h)) };
 }

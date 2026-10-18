@@ -1,5 +1,5 @@
 
-export interface Brand {
+interface Brand {
   key: string;
   name: string;
   legalName: string;

@@ -1,4 +1,4 @@
-import { parsedRequest, type ParsedAnswer } from "@/lib/api/parsed-request";
+import { parsedRequest } from "@/lib/api/parsed-request";
 import {
   parseLeadActionPreview,
   parseLeadActionRun,
@@ -10,8 +10,6 @@ import {
   type LeadActionStart,
   type LeadAudienceJob,
 } from "@/lib/leads/actions";
-
-export type LeadActionAnswer<T> = ParsedAnswer<T>;
 
 const read = parsedRequest;
 

@@ -1,35 +1,6 @@
 "use client";
 
-import {
-  ArrowClockwise,
-  Buildings,
-  ChartBar,
-  ChartLineUp,
-  ChartPie,
-  CheckCircle,
-  Clock,
-  ClockCounterClockwise,
-  FlowArrow,
-  Headset,
-  Hourglass,
-  Kanban,
-  Lightning,
-  CurrencyDollar,
-  DotsThree,
-  SlidersHorizontal,
-  PaperPlaneTilt,
-  PhoneIncoming,
-  Pulse,
-  Robot,
-  SealCheck,
-  Target,
-  Timer,
-  TrendUp,
-  UserCircle,
-  UserMinus,
-  Users,
-  UsersThree,
-} from "@/components/icons";
+import { ArrowClockwise, Buildings, ChartBar, ChartLineUp, ChartPie, CheckCircle, Clock, FlowArrow, Hourglass, Kanban, Lightning, CurrencyDollar, DotsThree, SlidersHorizontal, PaperPlaneTilt, Pulse, Robot, SealCheck, Target, Timer, TrendUp, UserCircle, UserMinus, Users, UsersThree } from "@/components/icons";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import {
   Bar,
@@ -71,25 +42,7 @@ import {
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import type {
-  AttendanceOverview,
-  AttendanceOverviewParams,
-  ChannelSlice,
-  DepartmentRow,
-  MemberRow,
-  OverviewAI,
-  OverviewFinishedBySource,
-  OverviewFRT,
-  OverviewKPIs,
-  OverviewLive,
-  OverviewMessaging,
-  OverviewOccupancy,
-  OverviewQueue,
-  OverviewReopen,
-  OverviewStages,
-  StageFunnelGroup,
-  StatusDistribution,
-} from "@/lib/attendance/types";
+import type { AttendanceOverview, AttendanceOverviewParams, ChannelSlice, DepartmentRow, MemberRow, OverviewAI, OverviewFinishedBySource, OverviewFRT, OverviewKPIs, OverviewMessaging, OverviewReopen, OverviewStages, StageFunnelGroup, StatusDistribution } from "@/lib/attendance/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { useInView } from "@/hooks/use-in-view";
@@ -130,32 +83,8 @@ import { DonutBreakdown } from "@/components/charts/donut-breakdown";
 import { ShareRows } from "@/components/charts/share-rows";
 import { TeamResponseChart } from "@/components/charts/team-response-chart";
 import { entityColorIndex, share } from "@/lib/charts/data";
-import {
-  ATTENDANCE_COLORS as COLORS,
-  LOCALE_TAG,
-  ChartSkeleton,
-  Chapter,
-  EmptyChart,
-  KpiGroup,
-  MemberActivityLink,
-  PresenceBadge,
-  SectionTitle,
-  Surface,
-  type KpiTile,
-  useActorKindLabel,
-  useMetricsFmt,
-  usePresenceLabel,
-} from "@/components/dashboard/attendance/primitives";
-import {
-  BacklogXraySection,
-  PeriodProgressStrip,
-  ProjectionGrid,
-  QualitySection,
-  RevenueCard,
-  ReworkSection,
-  TeamRankingTable,
-  TrendSection,
-} from "@/components/dashboard/attendance/executive-panels";
+import { ATTENDANCE_COLORS as COLORS, LOCALE_TAG, ChartSkeleton, Chapter, EmptyChart, KpiGroup, MemberActivityLink, PresenceBadge, SectionTitle, Surface, type KpiTile, useActorKindLabel, useMetricsFmt } from "@/components/dashboard/attendance/primitives";
+import { BacklogXraySection, PeriodProgressStrip, ProjectionGrid, QualitySection, RevenueCard, TeamRankingTable, TrendSection } from "@/components/dashboard/attendance/executive-panels";
 import { TargetsDialog } from "@/components/dashboard/attendance/targets-dialog";
 import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
 import { hasMemberActivity, memberActivitySubject } from "@/lib/attendance/member-activity";
@@ -998,7 +927,6 @@ function TeamResolutionChart({
   loading: boolean;
 }) {
   const st = useTranslations("metricsOps.attendance.status");
-  const tc = useTranslations("metricsOps.common");
   const tl = useTranslations("metricsOps.attendance.labels");
   const fmt = useMetricsFmt();
   const actorKindLabel = useActorKindLabel();
@@ -1963,8 +1891,6 @@ export default function AttendanceOpsPage() {
   });
   const te = useTranslations("metricsOps.attendance.executive");
   const td = useTranslations("metricsOps.attendance.dispatch");
-  const actorKindLabel = useActorKindLabel();
-  const presenceLabel = usePresenceLabel();
   const fmt = useMetricsFmt();
   const canWriteTargets =
     !permissionsLoading && can("attendance_targets", "update");

@@ -14,29 +14,7 @@ import type {
 } from "@/lib/agents/types";
 import { listMCPCollectionsAction } from "@/app/actions/agent-mcp";
 import type { AgentMCPCollection } from "@/lib/agent-mcp/types";
-import {
-  CaretDown,
-  CaretUp,
-  ChatCircle,
-  CheckCircle,
-  File,
-  Files,
-  Gear,
-  GearSix,
-  ImageSquare,
-  Info,
-  MagnifyingGlass,
-  Pause,
-  Phone,
-  Play,
-  PlugsConnected,
-  Plus,
-  Sliders,
-  Trash,
-  UploadSimple,
-  Warning,
-  WhatsappLogo,
-} from "@/components/icons";
+import { CaretDown, CaretUp, ChatCircle, CheckCircle, File, Files, Gear, GearSix, ImageSquare, Info, MagnifyingGlass, Play, PlugsConnected, Plus, Trash, UploadSimple, Warning, WhatsappLogo } from "@/components/icons";
 import { Controller, useForm } from "react-hook-form";
 import {
   Dialog,
@@ -46,9 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import ElevatedSelect, {
-  ElevatedSelectItem,
-} from "@/components/elevated-design/elevated-select";
 import {
   createAgentAction,
   getAgentOptionsAction,
@@ -91,7 +66,6 @@ import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
 import { StatusChip } from "@/components/elevated-design/status-chip";
 import { Notice } from "@/components/ui/notice";
-import { getBrand } from "@/config/brand";
 
 import TourGuide from "@/components/TourGuide";
 import { agentsTourSteps, agentsTourPalette, agentsTourSeed } from "@/data/tour-agents";
@@ -111,8 +85,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-} from "@/lib/branding/ai-models";
 
 const toolBindingSchema = z.object({
   name: z.string(),

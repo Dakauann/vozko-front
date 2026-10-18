@@ -127,7 +127,7 @@ export interface BroadcastRecipientPage {
   next: string;
 }
 
-export type ActionLinkKind = "internal" | "external";
+type ActionLinkKind = "internal" | "external";
 
 const UNSAFE_LINK_CHARACTERS = /[\s\\]/;
 const EXTERNAL_PREFIX = "https://";

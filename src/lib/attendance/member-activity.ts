@@ -55,7 +55,7 @@ export function memberActivityKey(workspaceId: string, subject: MemberActivitySu
   return ["member-activity", workspaceId, subject.mode === "self" ? "me" : subject.memberId, period.dateFrom, period.dateTo] as const;
 }
 
-export interface LocalClock {
+interface LocalClock {
   date: string;
   minutes: number;
 }
@@ -77,7 +77,7 @@ export function localClock(iso: string, timezone: string): LocalClock {
   };
 }
 
-export interface SessionBar {
+interface SessionBar {
   offsetPct: number;
   widthPct: number;
   onCallShare: number;
@@ -113,7 +113,7 @@ export function receivedTotal(received: Record<string, number>): number {
   return Object.values(received).reduce((sum, count) => sum + count, 0);
 }
 
-export interface HeatmapCell {
+interface HeatmapCell {
   weekday: number;
   hour: number;
   minutes: number;

@@ -3,13 +3,13 @@ import { localStore } from "@/lib/stored-size";
 import { isModelCapability, type ModelCapability } from "./capabilities";
 import { reasoningAfterModelChange, type ReasoningAdjustment, type ReasoningOptions } from "./reasoning";
 
-export interface ModelChoiceState {
+interface ModelChoiceState {
   model: string;
   reasoning: string;
   adjusted: ReasoningAdjustment | null;
 }
 
-export interface ModelChoiceStore {
+interface ModelChoiceStore {
   get: () => ModelChoiceState;
   getServer: () => ModelChoiceState;
   subscribe: (listener: () => void) => () => void;

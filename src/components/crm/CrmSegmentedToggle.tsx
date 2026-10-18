@@ -6,7 +6,7 @@ import {
   type ElevatedPillOption,
 } from "@/components/elevated-design/elevated-pill-toggle";
 
-export interface CrmSegmentedOption<T extends string> {
+interface CrmSegmentedOption<T extends string> {
   value: T;
   label: string;
   icon?: ReactNode;

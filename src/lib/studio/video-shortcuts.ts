@@ -43,7 +43,7 @@ export type VideoExtraAction =
   | { type: "closeGroup" }
   | { type: "escape" };
 
-export interface ShortcutRow {
+interface ShortcutRow {
   id: string;
   keys: string;
 }

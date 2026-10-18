@@ -3,15 +3,6 @@ import type { EntryStage, EntryType, Stage } from './types';
 import { apiClient } from '@/lib/api/browser-client';
 import { normalizeEntryType } from './types';
 
-
-export function listStages(campaignId?: string, campaignType?: string) {
-    const params = new URLSearchParams();
-    if (campaignId) params.set('campaignId', campaignId);
-    if (campaignType) params.set('campaignType', campaignType);
-    const qs = params.toString();
-    return apiClient<Stage[]>(`/stages${qs ? `?${qs}` : ''}`, { method: 'GET' });
-}
-
 export function createStage(name: string, color: string, description: string, campaignId?: string, campaignType?: string, pipelineId?: string) {
     return apiClient<Stage>('/stages', {
         method: 'POST',

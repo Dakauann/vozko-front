@@ -24,7 +24,7 @@ const STEPS: Record<string, (index: number, count: number) => number> = {
   End: (_, count) => count - 1,
 };
 
-export interface EffectTilesProps<K extends VfxKind> {
+interface EffectTilesProps<K extends VfxKind> {
   kinds: readonly K[];
   label: string;
   tileLabel: (kind: K) => string;

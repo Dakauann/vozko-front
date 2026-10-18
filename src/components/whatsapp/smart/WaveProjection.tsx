@@ -10,7 +10,7 @@ const SETTLE_MS = 400;
 
 type ProjectionState = { key: string; projection: WaveProjection | null; failed: boolean };
 
-export function useWaveProjection(policy: SmartPolicy, contacts: number, startAt?: string | null) {
+function useWaveProjection(policy: SmartPolicy, contacts: number, startAt?: string | null) {
   const key = JSON.stringify({ policy, contacts, startAt: startAt ?? null });
   const [state, setState] = useState<ProjectionState>({ key: "", projection: null, failed: false });
 

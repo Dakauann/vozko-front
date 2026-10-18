@@ -1,17 +1,5 @@
 import { editFieldValue, setFieldLane } from "../animated-fields";
-import {
-  CLIP_REPEAT_FIELDS,
-  CLIP_REPEAT_MODES,
-  CLIP_REPEAT_RANGES,
-  CLIP_REPEAT_SPEC,
-  clipRepeatFields,
-  clipRepeatIssue,
-  defaultClipRepeat,
-  REPEAT_ORDERS,
-  type ClipRepeat,
-  type ClipRepeatField,
-  type ClipRepeatMode,
-} from "../clip-repeat";
+import { CLIP_REPEAT_MODES, CLIP_REPEAT_RANGES, CLIP_REPEAT_SPEC, clipRepeatFields, clipRepeatIssue, defaultClipRepeat, REPEAT_ORDERS, type ClipRepeat, type ClipRepeatField, type ClipRepeatMode } from "../clip-repeat";
 import { videoCanvasSize, type Clip, type VideoDocument } from "../document";
 import type { Keyframe } from "../keyframes";
 import type { RepeatBox } from "../repeat";
@@ -42,7 +30,7 @@ const OWN_ARGS: Record<OwnArg, ClipRepeatField> = { copies: "copies", shift: "sh
 const LINEAR_ARGS: readonly OwnArg[] = ["copies", "shift", "x", "y", "scale", "rotation"];
 const SHARED_ARGS: Partial<Record<keyof AgentRepeat, ClipRepeatField>> = { radius: "radius", start_angle: "startAngle", sweep: "sweep", gap_x: "gapX", gap_y: "gapY", angle: "angle", gap: "gap" };
 
-export type ClipRepeatOutcome = { ok: true; value: ClipRepeat } | { ok: false; reason: string };
+type ClipRepeatOutcome = { ok: true; value: ClipRepeat } | { ok: false; reason: string };
 
 function rangeText(field: ClipRepeatField): string {
   const [low, high] = CLIP_REPEAT_RANGES[field];
@@ -77,7 +65,7 @@ function keyedValue(repeat: ClipRepeat, field: ClipRepeatField, value: number, a
   return edited ?? `repeat ${field} está animado; mande at_ms (ms dentro do clipe) para gravar uma chave nesse momento, ou troque as chaves com animate_repeat`;
 }
 
-export function clipRepeatFrom(input: AgentClipRepeat, current: ClipRepeat | undefined, box: RepeatBox, atMs: number | null): ClipRepeatOutcome {
+function clipRepeatFrom(input: AgentClipRepeat, current: ClipRepeat | undefined, box: RepeatBox, atMs: number | null): ClipRepeatOutcome {
   const mode = (input.mode ?? current?.mode) as ClipRepeatMode | undefined;
   if (!mode || !(CLIP_REPEAT_MODES as readonly string[]).includes(mode)) return { ok: false, reason: `repeat.mode precisa ser um de: ${CLIP_REPEAT_MODES.join(", ")}` };
   const problem = ownProblem(input, mode);
@@ -111,7 +99,7 @@ export function clipRepeatFrom(input: AgentClipRepeat, current: ClipRepeat | und
   return code ? { ok: false, reason: `a repetição ficaria inválida (${code})` } : { ok: true, value: cleaned };
 }
 
-export function clipRepeatLaneFrom(repeat: ClipRepeat | undefined, property: string | undefined, frames: readonly Keyframe[]): ClipRepeatOutcome {
+function clipRepeatLaneFrom(repeat: ClipRepeat | undefined, property: string | undefined, frames: readonly Keyframe[]): ClipRepeatOutcome {
   if (!repeat) return { ok: false, reason: "o clipe não tem repetição; ligue com set_repeat antes de animar" };
   const allowed = clipRepeatFields(repeat.mode);
   if (!property || !allowed.includes(property as ClipRepeatField)) return { ok: false, reason: `repeat_property no mode ${repeat.mode} precisa ser um de: ${allowed.join(", ")}` };
@@ -132,11 +120,9 @@ export function agentClipRepeat(repeat: ClipRepeat): AgentClipRepeat {
   return { ...agentRepeat({ ...repeat, mode: repeat.mode }), ...own, mode: repeat.mode };
 }
 
-export const CLIP_REPEAT_PROPERTIES = CLIP_REPEAT_FIELDS;
-
 export const CLIP_REPEAT_OPERATIONS = ["set_repeat", "clear_repeat", "animate_repeat"] as const;
 
-export interface ClipRepeatInput extends AgentClipRepeatFields {
+interface ClipRepeatInput extends AgentClipRepeatFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
@@ -144,7 +130,7 @@ export interface ClipRepeatInput extends AgentClipRepeatFields {
   keys?: AgentLaneKey[];
 }
 
-export type ClipRepeatResult = { ok: true; document: VideoDocument; clipIds: string[] } | { ok: false; reason: string };
+type ClipRepeatResult = { ok: true; document: VideoDocument; clipIds: string[] } | { ok: false; reason: string };
 
 function repeatTarget(doc: VideoDocument, clipId: string): Clip | string {
   const found = findClip(doc, clipId);

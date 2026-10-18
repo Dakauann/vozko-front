@@ -22,9 +22,9 @@ const PREPARING_ATTEMPTS = 6;
 const PREPARING_RETRY_MS = 2_000;
 const EMPTY_ANSWER: CodedError = { message: "Empty response" };
 
-export type PrepareOutcome = "ready" | "changed" | "department" | "failed";
+type PrepareOutcome = "ready" | "changed" | "department" | "failed";
 
-export type LeadSendBusy = "preparing" | "starting" | null;
+type LeadSendBusy = "preparing" | "starting" | null;
 
 interface Prepared {
   signature: string;
@@ -37,7 +37,7 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function refusedBeforeAnyPart(error: CodedError): boolean {
+function refusedBeforeAnyPart(error: CodedError): boolean {
   const status = error.status ?? 0;
   return status >= 400 && status < 500 && !RETRYABLE_STATUSES.includes(status) && !KEY_HOLDING_CODES.includes(error.code ?? "");
 }

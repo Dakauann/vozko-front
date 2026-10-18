@@ -1,7 +1,7 @@
 import { isEntryId, isEntryType, type ConversationDeepLink } from "@/lib/conversations/deep-link";
 import type { Opportunity } from "@/lib/crm/opportunities";
 
-export const LEAD_TIMELINE_KINDS = [
+const LEAD_TIMELINE_KINDS = [
   "conversation",
   "campaign_sent",
   "campaign_delivered",
@@ -16,7 +16,7 @@ export const LEAD_TIMELINE_KINDS = [
 
 export type LeadTimelineKind = (typeof LEAD_TIMELINE_KINDS)[number];
 
-export type LeadTimelineRefType = "entry" | "call" | "deal" | "memory" | "lead_event";
+type LeadTimelineRefType = "entry" | "call" | "deal" | "memory" | "lead_event";
 
 export interface LeadTimelineRef {
   type: LeadTimelineRefType;

@@ -14,7 +14,7 @@ import { SelectField } from "./fields";
 
 const AUTO = "auto";
 
-export interface PathKeyListProps {
+interface PathKeyListProps {
   keys: readonly MorphKeyframe[];
   startMs: number;
   localMs: number | null;

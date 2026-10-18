@@ -15,14 +15,14 @@ export interface AgentClipStyleFields {
   effect_property?: string;
 }
 
-export interface AnimateEffectInput extends AgentClipStyleFields {
+interface AnimateEffectInput extends AgentClipStyleFields {
   clip_id?: string;
   keys?: AgentLaneKey[];
 }
 
-export type ClipStylePatch = { ok: true; patch: ClipPatch; ignored: string[] } | { ok: false; reason: string };
+type ClipStylePatch = { ok: true; patch: ClipPatch; ignored: string[] } | { ok: false; reason: string };
 
-export type ClipStyleResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
+type ClipStyleResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
 
 export const CLIP_STYLE_OPERATIONS = ["animate_effect"] as const;
 

@@ -2,7 +2,7 @@ import type { TrackSample } from "../point-track";
 import type { LumaImage } from "./luma";
 import { PatternTracker, type TrackPoint, type TrackStep } from "./pattern-tracker";
 
-export const TRACK_RUN = {
+const TRACK_RUN = {
   chunkBytes: 64 * 1024 * 1024,
   assumedFps: 60,
   minChunkSec: 0.25,
@@ -50,7 +50,7 @@ export type TrackRun =
   | { kind: "empty" }
   | { kind: "cancelled" };
 
-export interface TrackRunOptions {
+interface TrackRunOptions {
   onProgress?: (done: number) => void;
   signal?: AbortSignal;
   chunkBytes?: number;

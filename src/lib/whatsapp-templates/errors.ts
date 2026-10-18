@@ -88,11 +88,11 @@ export const TEMPLATE_ERROR_CODES = [
     "template_provider_unavailable",
 ] as const;
 
-export type TemplateErrorCode = (typeof TEMPLATE_ERROR_CODES)[number];
+type TemplateErrorCode = (typeof TEMPLATE_ERROR_CODES)[number];
 
 const CODE_SET = new Set<string>(TEMPLATE_ERROR_CODES);
 
-export function isTemplateErrorCode(code: string | undefined): code is TemplateErrorCode {
+function isTemplateErrorCode(code: string | undefined): code is TemplateErrorCode {
     return !!code && CODE_SET.has(code);
 }
 
@@ -127,9 +127,9 @@ export function templateErrorMessage(
     return t(`${I18N_PREFIX}.template_unknown_error`);
 }
 
-export const TEMPLATE_EDIT_WINDOW = "template_edit_window";
+const TEMPLATE_EDIT_WINDOW = "template_edit_window";
 
-export interface TemplateEditRefusal {
+interface TemplateEditRefusal {
     code?: string;
     error: string;
     expected?: Record<string, string>;

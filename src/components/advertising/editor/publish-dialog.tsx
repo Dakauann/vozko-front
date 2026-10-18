@@ -23,7 +23,7 @@ import { useAdsErrorText, type AdsErrorLike } from "../use-ads-error";
 import { FeeSummary, IssueLinks, PublishBlockers, PublishNotes, type BlockerReadiness } from "../wizard/publish-check";
 import { PublishProgress } from "../wizard/publish-progress";
 
-export interface PublishJobView {
+interface PublishJobView {
   job: AdPublishJob;
   plan: JobPlan;
   pollError: string | null;

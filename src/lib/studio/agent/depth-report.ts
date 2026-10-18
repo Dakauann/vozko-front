@@ -8,7 +8,7 @@ import { directionWord, rounded, type PerceptionFinding, type PerceptionShape, t
 import { backdrop, covers, imageScene, intersection, type SceneGround } from "./scene";
 import { angleApart, lightDirection, lightOutliers, shadowCasts, shadowShows, type ShadowCast } from "./shadow-light";
 
-export interface DepthReport {
+interface DepthReport {
   light: string | null;
   shadows: string[];
   covered: string[];

@@ -15,7 +15,7 @@ import { TableDataDialog } from "./table-data-dialog";
 
 const PERCENT = 100;
 
-export interface TableFieldsProps {
+interface TableFieldsProps {
   spec: TableSpec;
   disabled: boolean;
   onChange: (spec: TableSpec) => boolean;

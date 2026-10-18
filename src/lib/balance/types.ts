@@ -56,25 +56,6 @@ export interface Transaction {
     createdAt: string;
 }
 
-export interface TransactionDisplay {
-    id: string;
-    user_id: string;
-    resource_type: ResourceType;
-    transaction_type: TransactionType;
-    amount: number;
-    description?: string;
-    service_type?: ServiceType;
-    reference_id?: string;
-    created_at: string;
-}
-
-export interface BalanceListMeta {
-    page: number;
-    page_size: number;
-    total_pages: number;
-    total_items: number;
-}
-
 export interface TransactionListResponse {
     items: Transaction[];
     page: number;
@@ -119,37 +100,3 @@ export interface BalanceOperationResponse {
     transaction?: Transaction;
     message?: string;
 }
-
-export const RESOURCE_TYPE_CONFIG: Record<ResourceType, { labelKey: string; color: string; bgColor: string; iconColor: string }> = {
-    whatsapp_sendings: {
-        labelKey: 'resourceType.whatsappSendings',
-        color: 'text-healthy-ink',
-        bgColor: 'tile-healthy',
-        iconColor: 'text-healthy-ink',
-    },
-    voip_minutes: {
-        labelKey: 'resourceType.voipMinutes',
-        color: 'text-primary-ink',
-        bgColor: 'tile-brand',
-        iconColor: 'text-primary-ink',
-    },
-    money: {
-        labelKey: 'resourceType.money',
-        color: 'text-warning-ink',
-        bgColor: 'tile-warning',
-        iconColor: 'text-warning-ink',
-    },
-};
-
-export const TRANSACTION_TYPE_CONFIG: Record<TransactionType, { labelKey: string; color: string; bgColor: string }> = {
-    credit: {
-        labelKey: 'transactionType.credit',
-        color: 'text-healthy-ink',
-        bgColor: 'bg-muted',
-    },
-    debit: {
-        labelKey: 'transactionType.debit',
-        color: 'text-destructive-ink',
-        bgColor: 'bg-muted',
-    },
-};

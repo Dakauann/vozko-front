@@ -179,12 +179,12 @@ export function dealActorName(
     return members.get(id) ?? (name || labels.unknownMember);
 }
 
-export interface DealEventLabels {
+interface DealEventLabels {
     removedStage: string;
     money: (cents: number, currency: string) => string;
 }
 
-export interface DealEventMessage {
+interface DealEventMessage {
     key: OpportunityEventType;
     values: { actor: string; from: string; to: string; value: string };
 }
@@ -224,14 +224,14 @@ export function formatValueCompact(cents: number, currency = 'BRL'): string {
 }
 
 
-export function idleDays(iso?: string | null): number {
+function idleDays(iso?: string | null): number {
     if (!iso) return 0;
     const then = new Date(iso).getTime();
     if (Number.isNaN(then)) return 0;
     return Math.max(0, Math.floor((Date.now() - then) / 86_400_000));
 }
 
-export type DealSignalTone = "success" | "warning" | "danger" | "info" | "neutral";
+type DealSignalTone = "success" | "warning" | "danger" | "info" | "neutral";
 
 export function rotSignal(
     status: OpportunityStatus,
@@ -255,7 +255,7 @@ export function relativeAge(iso?: string | null): string {
     return shortDate(iso);
 }
 
-export function shortDate(iso: string): string {
+function shortDate(iso: string): string {
     const t = new Date(iso).getTime();
     if (Number.isNaN(t)) return "";
     return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(t));

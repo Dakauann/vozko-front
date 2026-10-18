@@ -4,11 +4,11 @@ import { DEFAULT_PATTERN, type Pattern } from "../pattern";
 
 export type FrameShape = { kind: "ellipse" } | { kind: "rect"; radius: number } | { kind: "path"; path: string };
 
-export const FRAME_PLACEHOLDER_FILL = "#e4e4e7";
+const FRAME_PLACEHOLDER_FILL = "#e4e4e7";
 
-export const FRAME_PLACEHOLDER_PATTERN: Pattern = { ...DEFAULT_PATTERN, presetId: "diagonal", color: "#a1a1aa", size: 24, opacity: 0.45 };
+const FRAME_PLACEHOLDER_PATTERN: Pattern = { ...DEFAULT_PATTERN, presetId: "diagonal", color: "#a1a1aa", size: 24, opacity: 0.45 };
 
-export interface MaskBox {
+interface MaskBox {
   x: number;
   y: number;
   w: number;

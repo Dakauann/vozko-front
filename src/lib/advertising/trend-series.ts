@@ -3,7 +3,7 @@ import type { AdLiveRow, AdMetrics } from "./types";
 
 export type TrendMetric = "results" | "costPerResult" | "spend" | "impressions" | "linkClicks" | "cpm" | "ctr" | "conversations";
 
-export type MetricFormat = "count" | "micros" | "percent";
+type MetricFormat = "count" | "micros" | "percent";
 
 export type TrendGranularity = "day" | "week" | "month" | "hour";
 

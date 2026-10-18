@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  ArrowSquareOut,
-  CopySimple,
-  File as FileIcon,
-  Image as ImageIcon,
-  Link as LinkIcon,
-  Phone,
-  Play,
-  Video,
-} from "@/components/icons";
+import { ArrowSquareOut, CopySimple, File as FileIcon, Image as ImageIcon, Link as LinkIcon, Phone, Video } from "@/components/icons";
 
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 

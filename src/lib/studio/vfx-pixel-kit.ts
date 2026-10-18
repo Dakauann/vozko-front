@@ -24,7 +24,7 @@ export interface Place {
   py: number;
 }
 
-export function unit(value: number): number {
+function unit(value: number): number {
   return value <= 0 ? 0 : value >= 1 ? 1 : value;
 }
 
@@ -66,7 +66,7 @@ export function premultiplied(source: Uint8ClampedArray, width: number, height: 
   return out;
 }
 
-export type Sample = (u: number, v: number, out: Float32Array) => void;
+type Sample = (u: number, v: number, out: Float32Array) => void;
 
 export function sampleFrom(source: Float32Array, width: number, height: number, frame: VfxFrame): Sample {
   return (u, v, out) => {

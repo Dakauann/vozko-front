@@ -1,6 +1,6 @@
 export const VIEWPORT_FILL_MIN_PX = 520;
 
-export interface ViewportFillOffset {
+interface ViewportFillOffset {
   top: number;
   bottom: number;
 }

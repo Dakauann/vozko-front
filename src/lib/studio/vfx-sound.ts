@@ -3,10 +3,10 @@ import { levelDbAt, type TrackLevel, type TrackLevels } from "./behaviors";
 import { listensToTrack, lookValue, type Vfx, type VfxLook } from "./vfx";
 
 export const SOUND_BAR_SLOTS = 512;
-export const SPECTRUM_RANGE_DB = [-60, -6] as const;
-export const WAVEFORM_RANGE_DB = [-50, -6] as const;
+const SPECTRUM_RANGE_DB = [-60, -6] as const;
+const WAVEFORM_RANGE_DB = [-50, -6] as const;
 
-export function barCount(look: VfxLook): number {
+function barCount(look: VfxLook): number {
   return Math.round(lookValue(look, "count"));
 }
 

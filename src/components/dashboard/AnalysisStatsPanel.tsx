@@ -382,9 +382,7 @@ export default function AnalysisStatsPanel({
           </span>
         </div>
 
-        {}
-        {
-}
+        {}
         <div className="mb-8">
           <InstrumentStrip
             columns={4}

@@ -2,11 +2,11 @@ import type { GroupSort, ListGroupsParams } from "@/lib/unofficial-whatsapp-grou
 
 import type { AllGroupsQuery } from "../kit/routes";
 
-export const DEFAULT_GROUP_SORT: GroupSort = "recent";
+const DEFAULT_GROUP_SORT: GroupSort = "recent";
 
 export type ListFilterKey = "search" | "followed" | "origin" | "category" | "instanceId" | "hasAnalysis" | "adminsOnly";
 
-export const NARROWING_FILTERS: readonly Exclude<ListFilterKey, "search">[] = ["followed", "origin", "category", "instanceId", "hasAnalysis", "adminsOnly"];
+const NARROWING_FILTERS: readonly Exclude<ListFilterKey, "search">[] = ["followed", "origin", "category", "instanceId", "hasAnalysis", "adminsOnly"];
 
 export function listParams(query: AllGroupsQuery, page: number, pageSize: number): ListGroupsParams {
   const params: ListGroupsParams = { page, pageSize, sort: query.sort ?? DEFAULT_GROUP_SORT };

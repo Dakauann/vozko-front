@@ -80,9 +80,3 @@ export const GLYPH_PLATE = {
   Book: "tile-neutral",
   BookOpen: "tile-neutral",
 } as const;
-
-export type GlyphName = keyof typeof GLYPH_PLATE;
-
-export function glyphPlate(name: string): string {
-  return GLYPH_PLATE[name as GlyphName] ?? "tile-neutral";
-}

@@ -23,7 +23,7 @@ import { MAP_FLOATY } from "@/components/maps/map-layout";
 
 export const PEEK_SIZE = { width: 236, height: 240 };
 
-export interface LeadMapPeekProps {
+interface LeadMapPeekProps {
   point: MapPoint;
   params: LeadMapParams;
   placement: { left: number; top: number };

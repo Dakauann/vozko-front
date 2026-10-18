@@ -7,7 +7,7 @@ import { canSaveSmartPolicy, type SmartDefaults, type SmartPolicy } from "@/lib/
 
 import { SmartPolicyEditor } from "./SmartPolicyEditor";
 
-export type SmartPolicyDraft = {
+type SmartPolicyDraft = {
   policy: SmartPolicy | null;
   setPolicy: (next: SmartPolicy | null) => void;
   defaults: SmartDefaults | null;

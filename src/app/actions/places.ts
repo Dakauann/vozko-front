@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/browser-client";
 import { codedRefusalOf, type CodedRefusal } from "@/lib/api/coded-error";
 import { parsePlaceAnswer, placeRequestPath, placeRequestReady, type PlaceAnswer, type PlaceRequest } from "@/lib/maps/places";
 
-export interface PlacesResult {
+interface PlacesResult {
   answer: PlaceAnswer | null;
   error: CodedRefusal | null;
 }

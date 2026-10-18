@@ -8,7 +8,7 @@ export interface AgentMotionBlurFields {
   shutter_phase?: number;
 }
 
-export type MotionBlurPatch = { ok: true; patch: Pick<ClipPatch, "motionBlur"> } | { ok: false; reason: string };
+type MotionBlurPatch = { ok: true; patch: Pick<ClipPatch, "motionBlur"> } | { ok: false; reason: string };
 
 export function motionBlurPatch(clip: Clip, op: AgentMotionBlurFields): MotionBlurPatch {
   if (op.motion_blur === undefined) return { ok: true, patch: {} };

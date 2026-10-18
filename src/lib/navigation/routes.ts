@@ -104,7 +104,7 @@ export const screenPaths = {
 
 export type ScreenKey = keyof typeof screenPaths;
 
-export type RouteRule =
+type RouteRule =
   | { kind: "screen"; screen: ScreenKey }
   | { kind: "personal" }
   | { kind: "platform_admin" }

@@ -35,7 +35,7 @@ export interface NormalizedTransform {
   opacity: number;
 }
 
-export interface TimelineClip {
+interface TimelineClip {
   mediaId: string;
   startMs: number;
   durationMs: number;
@@ -47,7 +47,7 @@ export interface TimelineClip {
   fadeOutMs: number;
 }
 
-export interface TimelineTrack {
+interface TimelineTrack {
   clips: TimelineClip[];
 }
 

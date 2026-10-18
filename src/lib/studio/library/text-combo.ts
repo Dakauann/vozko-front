@@ -95,7 +95,7 @@ export interface TextCombo {
   parts: readonly ComboPart[];
 }
 
-export interface ComboContext {
+interface ComboContext {
   canvas: CanvasSize;
   ink: string;
   text: (slot: LibrarySlot) => string;
@@ -108,14 +108,14 @@ export interface Box {
   h: number;
 }
 
-export interface TextSpan {
+interface TextSpan {
   left: number;
   top: number;
   width: number;
   room: number;
 }
 
-export interface PlacedText {
+interface PlacedText {
   part: ComboText;
   text: string;
   size: number;

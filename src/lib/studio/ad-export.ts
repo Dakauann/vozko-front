@@ -1,4 +1,4 @@
-export type AdExportBlock = "oneArtboard" | "rasterOnly";
+type AdExportBlock = "oneArtboard" | "rasterOnly";
 
 const AD_IMAGE_FORMATS: readonly string[] = ["png", "jpeg"];
 

@@ -9,7 +9,7 @@ import {
   type Node,
 } from "@xyflow/react";
 import { useMemo } from "react";
-import type { HandleDefinition, WorkflowNodeType } from "@/lib/workflows/types";
+import type { HandleDefinition } from "@/lib/workflows/types";
 
 const DOT_PATTERN_STYLE = {
   backgroundImage:

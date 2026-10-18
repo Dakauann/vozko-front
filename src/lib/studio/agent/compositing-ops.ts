@@ -3,7 +3,7 @@ import { BLEND_MODES, type Clip } from "../document";
 import { changedMatte, isMatteChannel, MATTE_CHANNELS, matteOf, mattePatch, type MatteChannel } from "../matte";
 import type { ClipPatch } from "../timeline";
 
-export interface AgentCompositingFields {
+interface AgentCompositingFields {
   matte?: boolean;
   matte_channel?: MatteChannel;
   matte_invert?: boolean;

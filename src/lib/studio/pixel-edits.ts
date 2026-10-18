@@ -22,7 +22,7 @@ export const PIXEL_ACTIONS = ["fill", "erase", "hide", "reveal"] as const;
 
 export type PixelAction = (typeof PIXEL_ACTIONS)[number];
 
-export interface PixelInk {
+interface PixelInk {
   color?: string;
   opacity: number;
 }

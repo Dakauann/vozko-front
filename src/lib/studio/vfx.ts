@@ -94,17 +94,17 @@ export const VFX_COLORS = ["color", "color2", "color3", "color4"] as const;
 
 export type VfxColor = (typeof VFX_COLORS)[number];
 
-export const VFX_GROUPS = ["light", "stylize", "blur", "distort", "generate", "time", "sound"] as const;
+const VFX_GROUPS = ["light", "stylize", "blur", "distort", "generate", "time", "sound"] as const;
 
-export type VfxGroup = (typeof VFX_GROUPS)[number];
+type VfxGroup = (typeof VFX_GROUPS)[number];
 
-export interface ParamSpec {
+interface ParamSpec {
   range: readonly [number, number];
   fallback: number;
   keyed: boolean;
 }
 
-export interface VfxKindSpec {
+interface VfxKindSpec {
   group: VfxGroup;
   params: Partial<Record<VfxParam, ParamSpec>>;
   colors: Partial<Record<VfxColor, string>>;
@@ -173,11 +173,7 @@ export const VFX_SPECS: Record<VfxKind, VfxKindSpec> = {
   echo: { group: "time", params: { amount: param(0, 1, 1), count: pace(1, 32, 6), delay: pace(10, 1000, 80), decay: param(0, 1, 0.6) }, colors: {} },
 };
 
-export function vfxGroup(kind: VfxKind): VfxGroup {
-  return VFX_SPECS[kind].group;
-}
-
-export function kindsInGroup<K extends VfxKind>(kinds: readonly K[], group: VfxGroup): K[] {
+function kindsInGroup<K extends VfxKind>(kinds: readonly K[], group: VfxGroup): K[] {
   return kinds.filter((kind) => VFX_SPECS[kind].group === group);
 }
 
@@ -189,7 +185,7 @@ export function listensToTrack(kind: VfxKind): boolean {
   return VFX_SPECS[kind].group === "sound";
 }
 
-export const PLAN_KINDS = ["posterizeTime", "echo"] as const satisfies readonly VfxKind[];
+const PLAN_KINDS = ["posterizeTime", "echo"] as const satisfies readonly VfxKind[];
 
 export type PlanVfxKind = (typeof PLAN_KINDS)[number];
 
@@ -432,7 +428,7 @@ export function grainFrame(look: VfxLook): number {
 
 export const GLITCH_SLOTS_PER_SECOND = 12;
 
-export interface GlitchBurst {
+interface GlitchBurst {
   slot: number;
   strength: number;
 }
@@ -444,11 +440,11 @@ export function glitchBurst(look: VfxLook): GlitchBurst {
   return { slot, strength: fires ? 0.35 + 0.65 * hash01(look.seed, 2, slot) : 0 };
 }
 
-export const SHAKE_REACH = 0.06;
+const SHAKE_REACH = 0.06;
 
 export const CHROMATIC_REACH = 40;
 
-export interface ShakeOffset {
+interface ShakeOffset {
   dx: number;
   dy: number;
   rotation: number;
@@ -499,7 +495,7 @@ export function shakeCover(look: VfxLook, width: number, height: number): number
   return Math.max(1, across, down);
 }
 
-export interface LeakBlob {
+interface LeakBlob {
   x: number;
   y: number;
   radius: number;
@@ -523,7 +519,7 @@ export function leakBlobs(look: VfxLook, width: number, height: number): LeakBlo
   }));
 }
 
-export interface FlareGhost {
+interface FlareGhost {
   along: number;
   radius: number;
   strength: number;

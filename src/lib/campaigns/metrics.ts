@@ -19,12 +19,3 @@ export interface CampaignMetrics {
 }
 
 export type CampaignStatus = "STOPPED" | "RUNNING" | "PAUSED" | "COMPLETED";
-
-export type CampaignSendStatus =
-    | "PENDING"
-    | "SENT"
-    | "DELIVERED"
-    | "READ"
-    | "FAILED"
-    | "NOT_ELIGIBLE_POSSIBLE_SPAM"
-    | "SKIPPED_NOT_ON_WHATSAPP";

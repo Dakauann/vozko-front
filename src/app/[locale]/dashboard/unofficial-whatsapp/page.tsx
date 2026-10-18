@@ -158,8 +158,6 @@ export default function UnofficialWhatsAppPage() {
         header: t("table.number"),
         render: (instance) => (
           <div className="flex min-w-0 items-center gap-3">
-            {
-}
             <WhatsAppLogoColor className="h-5 w-5 shrink-0" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">
@@ -200,8 +198,6 @@ export default function UnofficialWhatsAppPage() {
   const renderRowActions = useCallback(
     (instance: UnofficialWhatsAppInstance) => (
       <div className="flex items-center gap-1">
-        {
-}
         {canUpdate && (
           <DepartmentRowSwitcher
             departmentId={instance.departmentId}
@@ -287,8 +283,6 @@ export default function UnofficialWhatsAppPage() {
         colorClass="text-healthy-ink"
         actions={
           <div className="flex items-center gap-2">
-            {
-}
             {allowance && (
               <span
                 className={cn(
@@ -327,18 +321,12 @@ export default function UnofficialWhatsAppPage() {
         }
       />
 
-      {
-}
       <UnofficialWhatsAppCapacityCard allowance={allowance} />
 
-      {
-}
       {restricted.map((instance) => (
         <RestrictionNotice key={instance.id} instance={instance} />
       ))}
 
-      {
-}
       <div className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-card px-5 py-3 shadow-sm">
         <div className="relative w-full max-w-xs">
           <ElevatedInput
@@ -410,8 +398,6 @@ export default function UnofficialWhatsAppPage() {
         />
       ) : (
         <div className="space-y-4">
-          {
-}
           <ElevatedContainer className="overflow-hidden rounded-lg border border-border !p-0">
             <DashboardTable<UnofficialWhatsAppInstance>
               data={instances}

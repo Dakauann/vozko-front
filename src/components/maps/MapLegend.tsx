@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { MAP_FLOATY } from "./map-layout";
 import { useLeadMap } from "./map-context";
 
-export interface MapLegendProps {
+interface MapLegendProps {
   mode: MapLayerMode;
   coloured?: boolean;
   districtsCount?: number | null;

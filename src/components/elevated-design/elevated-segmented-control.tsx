@@ -9,21 +9,19 @@ type BaseVariant =
   | "secondary"
   | "outline"
   | "ghost"
-  | "vsl"
   | "action";
 
 type LegacyVariant =
   | "main-cta"
   | "secondary-cta"
   | "main-cta-mobile"
-  | "secondary-cta-mobile"
-  | "vsl-cta";
+  | "secondary-cta-mobile";
 
 type SegmentedVariant = BaseVariant | LegacyVariant;
 
 type ControlSize = "sm" | "md" | "lg";
 
-export interface ElevatedSegmentOption {
+interface ElevatedSegmentOption {
   value: string;
   label: string;
   description?: string;
@@ -46,13 +44,11 @@ const variantAlias: Record<SegmentedVariant, BaseVariant> = {
   secondary: "secondary",
   outline: "outline",
   ghost: "ghost",
-  vsl: "vsl",
   action: "action",
   "main-cta": "primary",
   "main-cta-mobile": "primary",
   "secondary-cta": "secondary",
   "secondary-cta-mobile": "secondary",
-  "vsl-cta": "vsl",
 };
 
 const basePadding: Record<ControlSize, string> = {
@@ -69,7 +65,6 @@ const activeVariantClasses: Record<BaseVariant, string> = {
     "bg-muted text-foreground border border-dashed border-primary",
   ghost:
     "bg-background text-foreground border border-dashed border-foreground/30",
-  vsl: "bg-muted text-muted-foreground border border-dashed border-info",
   action: "bg-muted text-foreground border border-dashed border-primary",
 };
 
@@ -82,7 +77,6 @@ const inactiveVariantClasses: Record<BaseVariant, string> = {
     "bg-transparent text-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
   ghost:
     "bg-transparent text-foreground border border-dashed border-border hover:border-foreground/20 hover:bg-muted",
-  vsl: "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-border hover:bg-muted",
   action:
     "bg-transparent text-muted-foreground border border-dashed border-foreground/20 hover:border-foreground/30 hover:bg-muted",
 };
@@ -92,7 +86,6 @@ const iconColorByVariant: Record<BaseVariant, string> = {
   secondary: "text-secondary-foreground",
   outline: "text-primary-ink",
   ghost: "text-foreground",
-  vsl: "text-muted-foreground",
   action: "text-primary-ink",
 };
 

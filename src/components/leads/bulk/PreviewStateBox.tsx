@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const BOX = "rounded-[--radius] border border-border bg-muted px-3 py-2.5 text-sm";
 
-export type PreviewState = { refusal: string; onRetry: () => void } | { pending: string };
+type PreviewState = { refusal: string; onRetry: () => void } | { pending: string };
 
 export function PreviewStateBox(props: PreviewState) {
   const t = useTranslations("leadsPage.bulk.dialog");

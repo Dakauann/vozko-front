@@ -1,4 +1,4 @@
-export type Catalog = Record<string, unknown>;
+
 
 export function flattenCatalog(node: unknown, prefix = ""): Map<string, unknown> {
   const entries = new Map<string, unknown>();

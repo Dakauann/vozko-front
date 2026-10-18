@@ -6,7 +6,7 @@ import type { PointerEvent as ReactPointerEvent, DragEvent, ReactNode } from "re
 import { cn } from "@/lib/utils";
 
 
-export const columnPulseVariants = {
+const columnPulseVariants = {
   idle: {
     borderColor: "hsl(var(--border))",
   },
@@ -20,7 +20,7 @@ export const columnPulseVariants = {
   },
 } satisfies Record<string, Variant>;
 
-export interface KanbanColumnShellProps {
+interface KanbanColumnShellProps {
   columnId: string;
   name: string;
   color?: string;
@@ -112,9 +112,7 @@ export default function KanbanColumnShell({
           )}
         >
           {name}
-        </span>
-        {
-}
+        </span>
         <span className="readout ml-auto rounded-full border border-border bg-card px-1.5 py-px text-2xs font-semibold text-muted-foreground">
           {count}
         </span>
@@ -128,9 +126,7 @@ export default function KanbanColumnShell({
       <div className={cn("flex-1 space-y-2 overflow-y-auto p-2.5", bodyClassName)}>
         {children}
       </div>
-
-      {
-}
+
       {footer ? (
         <div className="flex-shrink-0 border-t border-border p-2.5">{footer}</div>
       ) : null}

@@ -101,7 +101,7 @@ export const CLASSIFICATION_PRESET_TONES = {
     notInformed: 'neutral',
 } as const satisfies Record<string, CustomFieldTone>;
 
-export interface ClassificationPresetCopy {
+interface ClassificationPresetCopy {
     label: string;
     options: Record<keyof typeof CLASSIFICATION_PRESET_TONES, string>;
 }

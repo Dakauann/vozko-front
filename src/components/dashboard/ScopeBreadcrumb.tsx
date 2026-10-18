@@ -58,9 +58,7 @@ export function ScopeBreadcrumb({ className }: { className?: string }) {
       )}
     >
       {breadcrumbs.map((crumb, index) => (
-        <React.Fragment key={crumb.href}>
-          {
-}
+        <React.Fragment key={crumb.href}>
           {index > 0 && (
             <span
               aria-hidden="true"

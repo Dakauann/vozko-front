@@ -29,17 +29,17 @@ const BOUNDED_SCROLL =
 
 type MissingFilter = "all" | "missing";
 
-export interface CampaignContactListMissing<T> {
+interface CampaignContactListMissing<T> {
   count: number;
   isMissing: (row: T) => boolean;
 }
 
-export interface ContactListCount {
+interface ContactListCount {
   label: string;
   count: number;
 }
 
-export interface CampaignContactListProps<T> {
+interface CampaignContactListProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
   number: (row: T) => ReactNode;

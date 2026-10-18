@@ -3,9 +3,9 @@ import { SOUND_FILES } from "@/lib/sounds/sound-player";
 import type { Clip } from "./document";
 import type { IssueCode } from "./validate";
 
-export const SOUND_ASSET_PREFIX = "sound:";
+const SOUND_ASSET_PREFIX = "sound:";
 
-export const SOUND_GROUPS = ["interface", "effects"] as const;
+const SOUND_GROUPS = ["interface", "effects"] as const;
 
 export type SoundGroup = (typeof SOUND_GROUPS)[number];
 

@@ -14,7 +14,7 @@ import type { MediaGenerationInput, MediaGenerationJob, MediaJobStatus } from "@
 
 export type MediaGenerationStatus = "idle" | "generating" | "done" | "failed";
 
-export interface MediaGenerationResult {
+interface MediaGenerationResult {
   mediaId: string;
   mediaUrl: string;
 }
@@ -24,9 +24,9 @@ export interface MediaGenerationError {
   message: string;
 }
 
-export const POLL_FAILED = "poll_failed";
-export const TIMED_OUT = "timed_out";
-export const REQUEST_FAILED = "request_failed";
+const POLL_FAILED = "poll_failed";
+const TIMED_OUT = "timed_out";
+const REQUEST_FAILED = "request_failed";
 
 type Settled =
   | { status: "done"; result: MediaGenerationResult }

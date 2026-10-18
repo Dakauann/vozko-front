@@ -1,5 +1,5 @@
 
-export function getApiBaseUrl(): string {
+function getApiBaseUrl(): string {
     return (
         process.env.API_BASE_URL ||
         process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -7,14 +7,14 @@ export function getApiBaseUrl(): string {
     );
 }
 
-export interface ApiError {
+interface ApiError {
     message: string;
     status: number;
     code?: string;
     error?: unknown;
 }
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
     data?: T;
     error?: ApiError;
 }

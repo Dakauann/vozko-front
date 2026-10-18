@@ -7,7 +7,7 @@ import type { UnofficialWhatsAppInstance } from "@/lib/unofficial-whatsapp/types
 
 const NUMBERS_PAGE_SIZE = 100;
 
-export interface WorkspaceNumbers {
+interface WorkspaceNumbers {
   numbers: UnofficialWhatsAppInstance[];
   loading: boolean;
   error: string | null;

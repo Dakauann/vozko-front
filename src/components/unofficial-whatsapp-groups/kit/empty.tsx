@@ -20,7 +20,7 @@ export function QuietEmpty({ icon, message, action, className }: { icon: ReactNo
   );
 }
 
-export interface TableEmpty {
+interface TableEmpty {
   error(message: string, onRetry: () => void): DashboardTableEmptyState;
   noMatches(noun: string, onClear: () => void): DashboardTableEmptyState;
   firstUse(options: { icon: ReactNode; title: string; description?: string; action?: ReactNode }): DashboardTableEmptyState;

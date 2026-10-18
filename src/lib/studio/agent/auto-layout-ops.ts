@@ -5,9 +5,9 @@ import type { Artboard, ImageDocument, StudioGroup } from "../document";
 import type { AgentOutcome } from "./batch";
 import type { ImageOpContext, ImageOperation } from "./image-ops";
 
-export const LAYOUT_OPERATIONS = ["set_layout", "remove_layout", "set_layout_item"] as const;
+const LAYOUT_OPERATIONS = ["set_layout", "remove_layout", "set_layout_item"] as const;
 
-export type LayoutOpName = (typeof LAYOUT_OPERATIONS)[number];
+type LayoutOpName = (typeof LAYOUT_OPERATIONS)[number];
 
 export interface AgentLayoutFields {
   layout_direction?: string;
@@ -52,7 +52,7 @@ function spacing(name: string, value: number | undefined): string | null {
   return value === undefined || (value >= LAYOUT_SPACING_RANGE[0] && value <= LAYOUT_SPACING_RANGE[1]) ? null : `${name} vai de ${LAYOUT_SPACING_RANGE[0]} a ${LAYOUT_SPACING_RANGE[1]} pixels`;
 }
 
-export function paddingOf(values: readonly number[]): LayoutPadding | null {
+function paddingOf(values: readonly number[]): LayoutPadding | null {
   if (values.length === 1) return { top: values[0], right: values[0], bottom: values[0], left: values[0] };
   if (values.length === 2) return { top: values[0], right: values[1], bottom: values[0], left: values[1] };
   if (values.length === 4) return { top: values[0], right: values[1], bottom: values[2], left: values[3] };

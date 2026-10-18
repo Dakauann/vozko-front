@@ -261,9 +261,7 @@ export default function CrmPipelineSelector({
             Nenhum funil disponível
           </div>
         ) : null}
-
-        {
-}
+
         <div className="my-1 h-px bg-border" />
         {canCreate ? (
           <button
@@ -278,9 +276,7 @@ export default function CrmPipelineSelector({
             <Plus weight="bold" className="h-3.5 w-3.5 flex-shrink-0 text-primary-ink" />
             <span className="flex-1 truncate">{tFunnels("list.new")}</span>
           </button>
-        ) : null}
-        {
-}
+        ) : null}
         <Link
           href="/dashboard/funnels"
           onClick={() => setOpen(false)}
@@ -330,9 +326,7 @@ function NewFunnelDialog({
     draft.stages.some((s) => s.name.trim().length > 0);
 
   return (
-    <ElevatedDialog open={open} onOpenChange={onOpenChange}>
-      {
-}
+    <ElevatedDialog open={open} onOpenChange={onOpenChange}>
       <ElevatedDialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
         <ElevatedDialogHeader>
           <ElevatedDialogTitle>{t("create.title")}</ElevatedDialogTitle>

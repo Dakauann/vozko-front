@@ -454,9 +454,9 @@ export function magnetize(doc: VideoDocument, enabled: boolean): VideoDocument {
   return enabled && main ? closeGaps(doc, main) : doc;
 }
 
-export type PlacementMode = "move" | "insert" | "overwrite";
+type PlacementMode = "move" | "insert" | "overwrite";
 
-export interface DragModifiers {
+interface DragModifiers {
   insert: boolean;
   overwrite: boolean;
   magnetic: boolean;

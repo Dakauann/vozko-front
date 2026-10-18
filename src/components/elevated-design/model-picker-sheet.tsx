@@ -75,7 +75,7 @@ type ModelGroup = {
   models: ModelEntry[];
 };
 
-export interface ModelPickerSheetProps {
+interface ModelPickerSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   value?: string | null;

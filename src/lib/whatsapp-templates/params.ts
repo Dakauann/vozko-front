@@ -95,7 +95,7 @@ export function templateMessageMetadata(
     };
 }
 
-export function templateBodyText(template: Pick<WhatsAppTemplate, "components"> | null | undefined): string {
+function templateBodyText(template: Pick<WhatsAppTemplate, "components"> | null | undefined): string {
     return componentsOf(template).find((c) => c.type?.toUpperCase() === "BODY")?.text ?? "";
 }
 

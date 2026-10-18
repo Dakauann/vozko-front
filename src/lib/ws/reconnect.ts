@@ -20,7 +20,7 @@ type DocLike = Pick<Document, "addEventListener" | "removeEventListener"> & {
     readonly visibilityState: DocumentVisibilityState;
 };
 
-export interface ReconnectConfig {
+interface ReconnectConfig {
     connect: () => void;
     shouldReconnect: () => boolean;
     baseDelayMs?: number;

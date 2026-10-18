@@ -102,9 +102,7 @@ const ElevatedSelect = forwardRef<
               <SelectPrimitive.ScrollUpButton className="flex cursor-default items-center justify-center py-1">
                 <CaretUp className="h-4 w-4" weight="bold" />
               </SelectPrimitive.ScrollUpButton>
-
-              {
-}
+
               <SelectPrimitive.Viewport className="p-1">
                 {children}
               </SelectPrimitive.Viewport>
@@ -177,9 +175,7 @@ const ElevatedSelect = forwardRef<
               <CaretDown className="h-4 w-4 flex-shrink-0 opacity-50" weight="bold" />
             </SelectPrimitive.Icon>
           </SelectPrimitive.Trigger>
-
-          {
-}
+
           {isFloating ? (
             <label
               className={cn(
@@ -291,7 +287,6 @@ const ElevatedSelectItem = forwardRef<
 ElevatedSelectItem.displayName = SelectPrimitive.Item.displayName;
 
 const ElevatedSelectGroup = SelectPrimitive.Group;
-const ElevatedSelectValue = SelectPrimitive.Value;
 const ElevatedSelectLabel = forwardRef<
   React.ElementRef<typeof SelectPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
@@ -322,10 +317,10 @@ ElevatedSelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 export {
   ElevatedSelect,
   ElevatedSelectGroup,
-  ElevatedSelectValue,
+  
   ElevatedSelectItem,
   ElevatedSelectLabel,
-  ElevatedSelectSeparator,
+  
 };
 
 export default ElevatedSelect;

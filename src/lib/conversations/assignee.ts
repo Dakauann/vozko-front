@@ -1,6 +1,6 @@
 import { normalizeActorKind } from "@/lib/conversations/events";
 
-export type AssigneeKind = "human" | "ai" | "workflow";
+type AssigneeKind = "human" | "ai" | "workflow";
 
 export function assigneeKind(assignedUserId?: string | null): AssigneeKind | null {
   const id = String(assignedUserId ?? "").trim();

@@ -11,7 +11,7 @@ import type { DraftIssue } from "@/lib/advertising/wizard-issues";
 
 import { useAdsResource, type Resource } from "./use-ads-resource";
 
-export interface WizardContextValue {
+interface WizardContextValue {
   form: WizardForm;
   patch: (changes: Partial<WizardForm>) => void;
   update: (change: (form: WizardForm) => WizardForm) => void;

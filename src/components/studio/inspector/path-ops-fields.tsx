@@ -77,12 +77,12 @@ function PresetThumb({ preset }: { preset: PathOpPreset }) {
   );
 }
 
-export interface PathOpsKeying {
+interface PathOpsKeying {
   localMs: number | null;
   onToggleKey: (opId: string, field: PathOpField) => void;
 }
 
-export interface PathOpsFieldsProps {
+interface PathOpsFieldsProps {
   ops: readonly PathOp[];
   disabled: boolean;
   onChange: (change: (ops: readonly PathOp[]) => PathOp[]) => void;

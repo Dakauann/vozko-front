@@ -2,7 +2,7 @@ import { parseColor } from "./color";
 import { BLEND_MODES, type BlendMode } from "./document";
 import type { IssueCode } from "./validate";
 
-export const PATTERN_SOURCES = ["preset", "asset"] as const;
+const PATTERN_SOURCES = ["preset", "asset"] as const;
 
 export type PatternSource = (typeof PATTERN_SOURCES)[number];
 
@@ -101,7 +101,7 @@ export function patternIssue(p: Pattern): IssueCode | null {
   return null;
 }
 
-export interface TileSize {
+interface TileSize {
   width: number;
   height: number;
 }
@@ -111,7 +111,7 @@ export function patternTileSize(p: Pattern, natural: TileSize | null): TileSize 
   return { width: p.size, height: (p.size * natural.height) / natural.width };
 }
 
-export interface PatternLayout {
+interface PatternLayout {
   width: number;
   height: number;
   pitchX: number;
@@ -159,7 +159,7 @@ export function patternLayout(p: Pattern, tileWidth: number, tileHeight: number)
   return { width, height, pitchX, pitchY, placements };
 }
 
-export interface PatternPlacement {
+interface PatternPlacement {
   x: number;
   y: number;
   rotation: number;

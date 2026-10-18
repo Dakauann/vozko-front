@@ -68,7 +68,7 @@ export function newWigglySelector(seed: number = randomSeed()): WigglySelector {
   return { kind: "wiggly", rate: 2, loopMs: 2000, correlation: 50, amount: 100, seed };
 }
 
-export function newSelector(kind: SelectorKind, seed: number = randomSeed()): TextSelector {
+function newSelector(kind: SelectorKind, seed: number = randomSeed()): TextSelector {
   return kind === "range" ? newRangeSelector(seed) : newWigglySelector(seed);
 }
 
@@ -79,7 +79,7 @@ export function newTextUnitAnimator(unit: TextUnit = "char", properties: Animato
 const RANGE_ONLY = ["units", "start", "end", "offset", "order", "shape", "easeHigh", "easeLow"] as const;
 const WIGGLY_ONLY = ["rate", "loopMs", "correlation", "offsetMs"] as const;
 
-export function selectorIssue(selector: TextSelector): IssueCode | null {
+function selectorIssue(selector: TextSelector): IssueCode | null {
   if (!listed(SELECTOR_KINDS, selector.kind)) return "unknown";
   const foreign = selector.kind === "range" ? WIGGLY_ONLY : RANGE_ONLY;
   if (foreign.some((field) => (selector as unknown as Record<string, unknown>)[field] !== undefined)) return "invalid";
@@ -95,7 +95,7 @@ export function selectorIssue(selector: TextSelector): IssueCode | null {
   return null;
 }
 
-export function propertiesIssue(properties: AnimatorProperties, layer: Layer): IssueCode | null {
+function propertiesIssue(properties: AnimatorProperties, layer: Layer): IssueCode | null {
   for (const [name, value] of Object.entries(properties)) {
     if (value === undefined) continue;
     if (isAnimatorColor(name)) {
@@ -108,7 +108,7 @@ export function propertiesIssue(properties: AnimatorProperties, layer: Layer): I
   return null;
 }
 
-export function textUnitAnimatorIssue(animator: TextUnitAnimator, layer: Layer): IssueCode | null {
+function textUnitAnimatorIssue(animator: TextUnitAnimator, layer: Layer): IssueCode | null {
   if (!listed(TEXT_UNITS, animator.unit)) return "unknown";
   if (typeof animator.properties !== "object" || animator.properties === null || typeof animator.selector !== "object" || animator.selector === null) return "invalid";
   return (
@@ -200,13 +200,13 @@ export const TEXT_ANIMATOR_PRESETS = ["cascadeIn", "riseIn", "centerReveal", "ra
 
 export type TextAnimatorPreset = (typeof TEXT_ANIMATOR_PRESETS)[number];
 
-export interface PresetContext {
+interface PresetContext {
   durationMs: number;
   fontPx: number;
   layer: Layer;
 }
 
-export const PRESET_SWEEP_COLOR = "#ffcc00";
+const PRESET_SWEEP_COLOR = "#ffcc00";
 
 const PRESET_MS = 1000;
 const REVEAL_WIDTH = 25;

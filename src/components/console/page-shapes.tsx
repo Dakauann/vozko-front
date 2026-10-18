@@ -35,7 +35,7 @@ const TONE_BAR: Record<ReadoutTone, string> = {
   warning: "bg-warning",
 };
 
-export interface Readout {
+interface Readout {
   label: string;
   value: ReactNode;
   tone?: ReadoutTone;
@@ -191,7 +191,7 @@ function InfoGlyph() {
 }
 
 
-export interface StatusSegment {
+interface StatusSegment {
   key: string;
   label: string;
   count: number;
@@ -261,9 +261,7 @@ export function StatusRail({
             >
               {bank.count}
             </span>
-
-            {
-}
+
             <span
               aria-hidden
               className="absolute inset-x-0 bottom-0 block h-0.5 rounded-full bg-border"
@@ -281,54 +279,5 @@ export function StatusRail({
         );
       })}
     </div>
-  );
-}
-
-
-export function GalleryGrid({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "grid gap-px border border-border bg-border",
-        "sm:grid-cols-2 xl:grid-cols-3",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-export function GalleryCell({
-  children,
-  onClick,
-  className,
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  className?: string;
-}) {
-  const base = cn(
-    "flex min-w-0 flex-col gap-2 bg-card p-4 text-left transition-colors duration-DEFAULT",
-    className,
-  );
-  if (!onClick) return <div className={base}>{children}</div>;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        base,
-        "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-      )}
-    >
-      {children}
-    </button>
   );
 }

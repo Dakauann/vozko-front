@@ -39,7 +39,7 @@ export interface SceneReveal {
   inverse: boolean;
 }
 
-export interface ImageSource {
+interface ImageSource {
   kind: "image";
   assetId: string;
 }
@@ -64,7 +64,7 @@ export interface RasterSource {
   fontBasePx: number;
 }
 
-export interface EffectSource {
+interface EffectSource {
   kind: "effect";
 }
 

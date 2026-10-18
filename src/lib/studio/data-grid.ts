@@ -1,6 +1,6 @@
 export type CellGrid = string[][];
 
-export function delimiterOf(text: string): string {
+function delimiterOf(text: string): string {
   const firstLine = text.split(/\r?\n/, 1)[0] ?? "";
   if (firstLine.includes("\t")) return "\t";
   const semicolons = (firstLine.match(/;/g) ?? []).length;

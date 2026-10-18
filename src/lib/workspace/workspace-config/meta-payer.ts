@@ -6,7 +6,7 @@ export function parseMetaPayer(value: unknown): MetaPayer | null {
     return META_PAYERS.includes(value as MetaPayer) ? (value as MetaPayer) : null;
 }
 
-export type MetaPayerSaveOutcome =
+type MetaPayerSaveOutcome =
     | { ok: true; metaPayer: MetaPayer; config: WorkspaceConfig }
     | { ok: false; error: string | null };
 

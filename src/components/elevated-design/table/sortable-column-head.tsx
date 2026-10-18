@@ -6,9 +6,9 @@ import { ArrowDown, ArrowUp, ArrowsDownUp } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 
-export type SortDirection = "asc" | "desc";
+type SortDirection = "asc" | "desc";
 
-export interface ColumnSort {
+interface ColumnSort {
   key: string;
   direction: SortDirection;
 }
@@ -51,9 +51,7 @@ export function SortableColumnHead({
             buttonClassName,
           )}
         >
-          <span>{label}</span>
-          {
-}
+          <span>{label}</span>
           {active ? (
             active.direction === "asc" ? (
               <ArrowUp weight="bold" className="h-3 w-3" />
@@ -62,9 +60,7 @@ export function SortableColumnHead({
             )
           ) : (
             <ArrowsDownUp weight="bold" className="h-3 w-3 opacity-0 transition-opacity group-hover/sort:opacity-60" />
-          )}
-          {
-}
+          )}
           {active && (sorts?.length ?? 0) > 1 ? (
             <span className="text-2xs tabular-nums text-muted-foreground">{activeIndex + 1}</span>
           ) : null}

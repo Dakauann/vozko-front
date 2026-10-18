@@ -54,17 +54,17 @@ import type {
   NotificationSummary,
 } from "@/lib/notifications/types";
 
-export const NOTIFICATION_PAGE_SIZE = 20;
+const NOTIFICATION_PAGE_SIZE = 20;
 
-export const NOTIFICATION_SUMMARY_REFRESH_MS = 60_000;
+const NOTIFICATION_SUMMARY_REFRESH_MS = 60_000;
 
-export const BROADCAST_PAGE_SIZE = 20;
+const BROADCAST_PAGE_SIZE = 20;
 
-export const BROADCAST_RECIPIENT_PAGE_SIZE = 30;
+const BROADCAST_RECIPIENT_PAGE_SIZE = 30;
 
-export const BROADCAST_REACH_SETTLE_MS = 400;
+const BROADCAST_REACH_SETTLE_MS = 400;
 
-export const broadcastKeys = {
+const broadcastKeys = {
   list: () => ["notification-broadcasts"] as const,
   reach: (reachKey: string) => ["notification-broadcast-reach", reachKey] as const,
   recipients: (broadcastId: string, status: BroadcastRecipientStatus) => ["notification-broadcast-recipients", broadcastId, status] as const,

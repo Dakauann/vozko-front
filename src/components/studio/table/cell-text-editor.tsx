@@ -13,7 +13,7 @@ import { SelectField } from "../image/controls";
 
 const CELL_SURFACE = 1;
 
-export interface CellTextEditorProps {
+interface CellTextEditorProps {
   spec: TableSpec;
   disabled: boolean;
   onChange: (spec: TableSpec) => void;

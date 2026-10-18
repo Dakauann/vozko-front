@@ -80,9 +80,7 @@ export function DepartmentSwitcher({
   const label = currentDepartment?.name ?? t("allDepartments");
 
   return (
-    <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
-      {
-}
+    <div className={cn("relative", fullWidth && "w-full")} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="menu"

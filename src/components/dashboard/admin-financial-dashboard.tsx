@@ -191,19 +191,6 @@ function formatBRL(valueMicros: number, exchangeRate: number) {
   }).format(brl);
 }
 
-function formatCompactBRL(valueMicros: number, exchangeRate: number) {
-  const brl = (valueMicros / 1_000_000) * exchangeRate;
-  if (Math.abs(brl) < 1000) {
-    return formatBRL(valueMicros, exchangeRate);
-  }
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(brl);
-}
-
 function formatBRLDirect(brlMicros: number) {
   const brl = brlMicros / 1_000_000;
   return new Intl.NumberFormat("pt-BR", {
@@ -865,9 +852,7 @@ export default function AdminFinancialDashboard() {
           </ElevatedContainer>
         </div>
       )}
-
-      {
-}
+
       <div>
         <InstrumentStrip
           loading={loading}

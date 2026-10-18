@@ -20,7 +20,7 @@ function measuring(): CanvasRenderingContext2D {
   return context;
 }
 
-export function runFontCss(font: RunFont): string {
+function runFontCss(font: RunFont): string {
   return `${konvaFontStyle(font.fontId, font.weight, font.italic)} normal ${font.sizePx}px ${konvaFontFamily(font.fontId)}`;
 }
 
@@ -49,7 +49,7 @@ export async function ensureRunFonts(spans: readonly TextSpan[]): Promise<void> 
   await Promise.all(runFontsOf(spans).map((font) => ensureFont(font.fontId, font.weight, font.italic)));
 }
 
-export interface RichBlock {
+interface RichBlock {
   box: { x: number; y: number; width: number; height: number };
   fontBasePx: number;
   wrap?: boolean;

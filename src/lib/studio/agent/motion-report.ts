@@ -12,7 +12,7 @@ export interface MotionWindow {
   toMs: number;
 }
 
-export interface MotionReport {
+interface MotionReport {
   moves: string[];
   variety: string | null;
   findings: PerceptionFinding[];

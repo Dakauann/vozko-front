@@ -47,12 +47,3 @@ export interface UserResponse {
 export interface UpdateUserRolePayload {
     role: UserRole;
 }
-
-export interface UserApiError {
-    success: false;
-    error: {
-        message: string;
-        details?: Record<string, unknown>;
-        fields?: Record<string, string>;
-    };
-}

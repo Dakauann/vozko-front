@@ -13,7 +13,7 @@ export interface AgentLumaFields {
   luma_property?: LumaProperty;
 }
 
-export interface LumaOpInput extends AgentLumaFields {
+interface LumaOpInput extends AgentLumaFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
@@ -24,7 +24,7 @@ const LUMA_WORDS: KeyerWords = { name: "recorte por brilho", setOp: "set_luma_ke
 
 const AGENT_VALUES: Record<LumaProperty, keyof AgentLumaFields> = { threshold: "luma_threshold", softness: "luma_softness" };
 
-export function lumaPatchOf(op: AgentLumaFields): LumaPatch | string {
+function lumaPatchOf(op: AgentLumaFields): LumaPatch | string {
   if (op.luma_mode !== undefined && !isLumaKeyMode(op.luma_mode)) return `luma_mode precisa ser um de: ${LUMA_KEY_MODES.join(", ")}`;
   const patch: LumaPatch = op.luma_mode ? { mode: op.luma_mode } : {};
   for (const property of LUMA_PROPERTIES) {

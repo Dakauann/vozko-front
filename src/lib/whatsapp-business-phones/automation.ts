@@ -41,7 +41,7 @@ export function withNumberAutomation(
     return { ...numberAutomationConfig(automation), ...patch };
 }
 
-export type NumberAutomationView = "configure" | "ownedElsewhere" | "noOwner" | "hidden";
+type NumberAutomationView = "configure" | "ownedElsewhere" | "noOwner" | "hidden";
 
 export function numberAutomationView({
     connected,

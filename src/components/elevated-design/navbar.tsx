@@ -1,16 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowRight,
-  Stack,
-  SquaresFour,
-  SignOut,
-  List,
-  Question,
-  User,
-  X,
-} from "@/components/icons";
+import { SquaresFour, SignOut, List, Question, User, X } from "@/components/icons";
 import { useEffect, useState } from "react";
 
 import Button from "./button";

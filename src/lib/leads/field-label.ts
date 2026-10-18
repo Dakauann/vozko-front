@@ -2,7 +2,7 @@ import type { CodedTranslator } from "@/lib/api/coded-error";
 import { translatedLabel } from "@/lib/format/translated-label";
 import { customFieldKeyOf } from "@/lib/leads/sheet";
 
-export interface LabelledField {
+interface LabelledField {
   key: string;
   label: string;
 }

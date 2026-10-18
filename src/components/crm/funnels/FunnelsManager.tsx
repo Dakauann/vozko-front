@@ -272,9 +272,7 @@ function FunnelGroup({
             const active =
               selection?.kind === "funnel" && selection.id === funnel.id;
             return (
-              <li key={funnel.id}>
-                {
-}
+              <li key={funnel.id}>
                 <button
                   type="button"
                   onClick={() => onSelect(funnel.id)}
@@ -562,9 +560,7 @@ function FunnelDetailPane({
             showTemplates={false}
             showName={false}
           />
-
-          {
-}
+
           {dirty ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] bg-muted px-3 py-2.5">
               <p className="text-sm text-muted-foreground">{t("detail.unsaved")}</p>

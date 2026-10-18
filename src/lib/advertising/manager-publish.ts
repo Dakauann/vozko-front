@@ -7,7 +7,7 @@ import type { AdPublishJob, AdReadiness, AdSavedDraft } from "./types";
 
 export type ReviewBlocker = PublishBlocker | "publishing";
 
-export interface DraftSummary {
+interface DraftSummary {
   name: string | null;
   existingCampaignId: string | null;
   adSets: number;

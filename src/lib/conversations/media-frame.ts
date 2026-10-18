@@ -1,6 +1,6 @@
 export type FramedMedia = "image" | "video" | "sticker";
 
-export interface MediaDimensions {
+interface MediaDimensions {
   width: number;
   height: number;
 }

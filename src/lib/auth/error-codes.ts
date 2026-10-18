@@ -1,4 +1,4 @@
-export const AUTH_ERROR_CODES = {
+const AUTH_ERROR_CODES = {
     INVALID_CREDENTIALS: "AUTH_INVALID_CREDENTIALS",
     ACCOUNT_INACTIVE: "AUTH_ACCOUNT_INACTIVE",
 
@@ -27,9 +27,6 @@ export const AUTH_ERROR_CODES = {
     INTERNAL: "AUTH_INTERNAL_ERROR",
     UNAUTHORIZED: "AUTH_UNAUTHORIZED",
 } as const;
-
-export type AuthErrorCode =
-    (typeof AUTH_ERROR_CODES)[keyof typeof AUTH_ERROR_CODES];
 
 export function authErrorTranslationKey(code?: string | null): string {
     switch (code) {

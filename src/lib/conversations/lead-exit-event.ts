@@ -16,7 +16,7 @@ export interface LeadExitPhrase {
   values: Record<string, string>;
 }
 
-export interface LeadExitView {
+interface LeadExitView {
   tone: LeadExitTone;
   trigger: LeadExitPhrase | null;
   result: LeadExitPhrase;

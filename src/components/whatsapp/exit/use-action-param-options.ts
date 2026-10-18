@@ -24,7 +24,7 @@ export interface ParamOptions {
   failed: boolean;
 }
 
-export interface LeadSelectField {
+interface LeadSelectField {
   key: string;
   label: string;
   options: string[];

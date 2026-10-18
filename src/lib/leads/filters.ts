@@ -75,7 +75,7 @@ export const LEAD_FILTER_FIELD = {
     custom: 'custom',
 } as const;
 
-export type LeadFilterField =
+type LeadFilterField =
     (typeof LEAD_FILTER_FIELD)[keyof typeof LEAD_FILTER_FIELD];
 
 export type LeadFilterControl =
@@ -87,7 +87,7 @@ export type LeadFilterControl =
     | 'boolean'
     | 'presence';
 
-export type LeadFilterGroup =
+type LeadFilterGroup =
     | 'identity'
     | 'address'
     | 'family'
@@ -109,7 +109,7 @@ export type LeadRuntimeOptions =
 
 export type LeadFilterEntry = 'zip' | 'lead';
 
-export type LeadFacetKey = 'memoryCategories' | 'channels' | 'campaignStatuses' | 'sources';
+type LeadFacetKey = 'memoryCategories' | 'channels' | 'campaignStatuses' | 'sources';
 
 export interface LeadFilterOption {
     value: string;
@@ -119,12 +119,12 @@ export interface LeadFilterOption {
     tone?: ToneKey;
 }
 
-export interface LeadFilterSides {
+interface LeadFilterSides {
     true: string;
     false: string;
 }
 
-export interface LeadFilterFieldSpec {
+interface LeadFilterFieldSpec {
     field: LeadFilterField;
     control: LeadFilterControl;
     group: LeadFilterGroup;
@@ -156,9 +156,7 @@ export const LEAD_CHANNELS = [
     'webchat',
 ] as const;
 
-export type LeadChannel = (typeof LEAD_CHANNELS)[number];
-
-export const LEAD_CAMPAIGN_STATUSES = [
+const LEAD_CAMPAIGN_STATUSES = [
     'PENDING',
     'SENT',
     'DELIVERED',
@@ -166,11 +164,11 @@ export const LEAD_CAMPAIGN_STATUSES = [
     'FAILED',
 ] as const;
 
-export const LEAD_MEMORY_AUTHORS = ['ai', 'human', 'system'] as const;
+const LEAD_MEMORY_AUTHORS = ['ai', 'human', 'system'] as const;
 
-export const LEAD_BIRTHDAY_WINDOWS = ['today', 'this_week', 'this_month'] as const;
+const LEAD_BIRTHDAY_WINDOWS = ['today', 'this_week', 'this_month'] as const;
 
-export const LEAD_SOURCES = ['manual', 'import', 'channel'] as const;
+const LEAD_SOURCES = ['manual', 'import', 'channel'] as const;
 
 export const LEAD_OPT_OUT_ORIGINS = [
     'button_reply',
@@ -204,7 +202,7 @@ export const LEAD_GEO_PLACEMENTS = [
 
 export type LeadGeoPlacement = (typeof LEAD_GEO_PLACEMENTS)[number];
 
-export const LEAD_STATES = [
+const LEAD_STATES = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
     'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
 ] as const;
@@ -382,7 +380,7 @@ export const LEAD_ZIP_FILTER_MAX = 200;
 
 export const LEAD_REFERRER_FILTER_MAX = 20;
 
-export interface ZipFilterEntries {
+interface ZipFilterEntries {
     values: string[];
     invalid: string[];
 }
@@ -401,12 +399,6 @@ export function zipFilterEntries(text: string): ZipFilterEntries {
 
 export function leadFilterFieldSpecs(viewer: { readsAddresses: boolean; readsCompanies: boolean }): LeadFilterFieldSpec[] {
     return LEAD_FILTER_FIELDS.filter((spec) => (!spec.readsAddresses || viewer.readsAddresses) && (!spec.readsCompanies || viewer.readsCompanies));
-}
-
-export function leadFilterSpec(
-    field: string,
-): LeadFilterFieldSpec | undefined {
-    return LEAD_FILTER_FIELDS.find((spec) => spec.field === field);
 }
 
 export function leadQuickFilterFields(classificationField: string | undefined): string[] {
@@ -461,7 +453,7 @@ export {
     withPresence,
     withSet,
     withText,
-    type RangeBound as LeadRangeBound,
+    
 } from '@/lib/filters/controls';
 
 const CUSTOM_PREDICATE_ORDER = LEAD_FILTER_FIELDS.length;

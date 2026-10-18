@@ -13,7 +13,7 @@ import { optionTone, toggleChoice, type CustomFieldDefinition } from "@/lib/crm/
 import { EMPTY_CHOICE, fromSelectValue } from "@/lib/forms/optional-select";
 import { cn } from "@/lib/utils";
 
-export interface CustomFieldInputProps {
+interface CustomFieldInputProps {
   field: CustomFieldDefinition;
   value: unknown;
   onChange: (value: unknown) => void;

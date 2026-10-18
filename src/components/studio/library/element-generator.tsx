@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { FIELD_CLASS, OUTLINE_BUTTON_CLASS, PRIMARY_BUTTON_CLASS } from "../image/controls";
 import { LIBRARY_CATEGORIES } from "./registry";
 
-export interface ElementGeneratorProps {
+interface ElementGeneratorProps {
   style: ElementStyle;
   blocked: boolean;
   onGenerate: (prompt: string, model: string) => void;

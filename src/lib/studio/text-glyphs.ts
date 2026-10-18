@@ -8,7 +8,7 @@ export interface GlyphFrame {
   path?: { textPath: TextPath; offset: number };
 }
 
-export function composesGlyphs(clip: Pick<Clip, "type" | "layer" | "counter" | "textPath">): boolean {
+function composesGlyphs(clip: Pick<Clip, "type" | "layer" | "counter" | "textPath">): boolean {
   return clip.type === "overlay" && clip.layer?.type === "text" && (clip.counter !== undefined || clip.textPath !== undefined);
 }
 

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMayPlaceCalls } from "@/hooks/use-call-readiness";
 
-export interface LeadRowActionsProps {
+interface LeadRowActionsProps {
   leadId: string;
   revision?: number;
   label: string;

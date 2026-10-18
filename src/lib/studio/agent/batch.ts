@@ -1,4 +1,4 @@
-export const MAX_AGENT_OPERATIONS = 40;
+const MAX_AGENT_OPERATIONS = 40;
 
 export type AgentFocus =
   | { kind: "clip"; clipId: string }
@@ -114,7 +114,7 @@ function stripped(value: unknown): unknown {
   return Object.keys(out).length === 0 ? undefined : out;
 }
 
-export function normalizeOperation<O extends WithRef>(raw: O, idFields: readonly string[]): O {
+function normalizeOperation<O extends WithRef>(raw: O, idFields: readonly string[]): O {
   const op: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(raw)) {
     if (key === "op") {
@@ -220,7 +220,7 @@ export function firstInvalidStep<D, I>(steps: readonly AgentStep<D>[], check: St
   return null;
 }
 
-export type ParsedOperations<O> = { ok: true; operations: O[] } | { ok: false; reason: string };
+type ParsedOperations<O> = { ok: true; operations: O[] } | { ok: false; reason: string };
 
 export function parseOperations<O extends WithRef>(args: unknown, allowed: readonly string[]): ParsedOperations<O> {
   const list = args && typeof args === "object" ? (args as { operations?: unknown }).operations : undefined;

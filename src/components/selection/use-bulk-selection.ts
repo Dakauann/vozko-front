@@ -24,7 +24,7 @@ export interface WideCount {
   limit?: number;
 }
 
-export interface BulkSelection {
+interface BulkSelection {
   scope: string;
   state: BulkSelectionState;
   picked: ReadonlySet<string>;

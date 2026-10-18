@@ -2,28 +2,9 @@
 
 
 import type { AuthResponse, User } from "@/lib/auth/types";
-import { REF_COOKIE_NAME } from "@/lib/affiliate/ref-cookie.client";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 
-export type RegisterPayload =
-  | {
-      name: string;
-      email: string;
-      password: string;
-      customerType: "individual";
-      cpf: string;
-      verificationToken: string;
-    }
-  | {
-      name: string;
-      email: string;
-      password: string;
-      customerType: "company";
-      cnpj: string;
-      verificationToken: string;
-    };
-
-export interface AuthResult {
+interface AuthResult {
   success?: boolean;
   user?: User;
   message?: string;
@@ -87,14 +68,6 @@ function mapUser(data: AuthResponse): User {
   };
 }
 
-function readReferralCode(): string {
-  if (typeof document === "undefined") return "";
-  const match = document.cookie.match(
-    new RegExp(`(?:^|;\\s*)${REF_COOKIE_NAME}=([^;]*)`),
-  );
-  return match?.[1] ? decodeURIComponent(match[1]).trim() : "";
-}
-
 export async function login(
   email: string,
   password: string,
@@ -102,18 +75,6 @@ export async function login(
   const { data, error, status } = await postAuth<AuthResponse>(
     "/auth/login",
     { email, password },
-    true,
-  );
-  if (error) return { error: error.message, code: error.code, statusCode: status };
-  return { success: true, user: mapUser(data!) };
-}
-
-export async function register(payload: RegisterPayload): Promise<AuthResult> {
-  const referralCode = readReferralCode();
-  const body = referralCode ? { ...payload, referralCode } : payload;
-  const { data, error, status } = await postAuth<AuthResponse>(
-    "/auth/register",
-    body,
     true,
   );
   if (error) return { error: error.message, code: error.code, statusCode: status };
@@ -146,14 +107,4 @@ export async function resetPassword(
   );
   if (error) return { error: error.message, statusCode: status };
   return { success: true, message: data?.message };
-}
-
-export async function sendEmailVerification(email: string): Promise<AuthResult> {
-  const { data, error, status } = await postAuth<{ success: boolean }>(
-    "/auth/send-email-verification",
-    { email },
-    false,
-  );
-  if (error) return { error: error.message, code: error.code, statusCode: status };
-  return { success: data?.success ?? true };
 }

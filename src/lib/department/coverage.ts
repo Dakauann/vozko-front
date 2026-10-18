@@ -2,7 +2,7 @@ import type { WorkspaceMember } from "@/lib/workspace/types";
 
 import type { Department, DepartmentMember } from "./types";
 
-export function scopedByDepartment(member: WorkspaceMember): boolean {
+function scopedByDepartment(member: WorkspaceMember): boolean {
   return member.role !== "owner" && member.role !== "admin";
 }
 

@@ -73,11 +73,11 @@ export interface MapPalette {
 }
 
 export const DISTRICT_FILL_ALPHA = 0.28;
-export const AREA_FILL_ALPHA = 0.07;
-export const CLUSTER_STROKE_ALPHA = 0.9;
+const AREA_FILL_ALPHA = 0.07;
+const CLUSTER_STROKE_ALPHA = 0.9;
 export const HEAT_TOKEN = "--chart-2";
 export const APPROXIMATE_TOKEN = "--warning-ink";
-export const PRIMARY_EDGE_TOKEN = "--primary-edge";
+const PRIMARY_EDGE_TOKEN = "--primary-edge";
 const MUTED_INK_TOKEN = "--muted-foreground";
 
 type Triple = [number, number, number];

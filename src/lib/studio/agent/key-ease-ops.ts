@@ -6,7 +6,7 @@ import { keyframeFaultText } from "./keyframe-text";
 
 export const KEY_EASE_OPERATIONS = ["ease_keys", "smooth_keys", "reverse_keys", "time_stretch_keys", "rove_keys"] as const;
 
-export type KeyEaseOpName = (typeof KEY_EASE_OPERATIONS)[number];
+type KeyEaseOpName = (typeof KEY_EASE_OPERATIONS)[number];
 
 export interface AgentKeyEaseFields {
   keys_ms?: number[];
@@ -17,14 +17,14 @@ export interface AgentKeyEaseFields {
   from_key?: StretchAnchor;
 }
 
-export interface KeyEaseOpInput extends AgentKeyEaseFields {
+interface KeyEaseOpInput extends AgentKeyEaseFields {
   op: string;
   clip_id?: string;
   property?: AnimatedProperty;
   side?: string;
 }
 
-export type KeyEaseResult = { ok: true; document: VideoDocument; clipId: string } | { ok: false; reason: string };
+type KeyEaseResult = { ok: true; document: VideoDocument; clipId: string } | { ok: false; reason: string };
 
 const PERCENT = 100;
 const EASE_SIDES: readonly EaseSides[] = ["in", "out", "both"];

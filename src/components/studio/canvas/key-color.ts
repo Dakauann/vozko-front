@@ -20,7 +20,7 @@ export function eyeDropper(): EyeDropperApi | null {
   return ctor ? new ctor() : null;
 }
 
-export function keyColorOfImage(image: HTMLImageElement, crop?: Crop): string | null {
+function keyColorOfImage(image: HTMLImageElement, crop?: Crop): string | null {
   const sx = (crop?.x ?? 0) * image.naturalWidth;
   const sy = (crop?.y ?? 0) * image.naturalHeight;
   const sw = (crop?.w ?? 1) * image.naturalWidth;

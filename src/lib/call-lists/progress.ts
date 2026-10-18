@@ -1,6 +1,6 @@
 import { CALL_LIST_SKIP_REASONS, type CallList } from "./types";
 
-export interface CallListProgress {
+interface CallListProgress {
   total: number;
   open: number;
   closed: number;
@@ -16,9 +16,9 @@ export function callListProgress(list: CallList): CallListProgress {
   return { total, open: list.openCount, closed, skipped, percent };
 }
 
-export type SkippedReason = (typeof CALL_LIST_SKIP_REASONS)[number] | "other";
+type SkippedReason = (typeof CALL_LIST_SKIP_REASONS)[number] | "other";
 
-export interface SkippedCount {
+interface SkippedCount {
   reason: SkippedReason;
   count: number;
 }

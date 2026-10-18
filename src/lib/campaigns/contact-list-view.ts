@@ -6,7 +6,7 @@ export interface ContactListView {
   page: number;
 }
 
-export interface ContactPage<T> {
+interface ContactPage<T> {
   rows: T[];
   page: number;
   pages: number;

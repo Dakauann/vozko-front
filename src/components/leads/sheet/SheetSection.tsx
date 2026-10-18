@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
-export const SHEET_ANCHORS = ["identity", "phones", "addresses", "family", "owner", "company", "customFields", "consent"] as const;
+const SHEET_ANCHORS = ["identity", "phones", "addresses", "family", "owner", "company", "customFields", "consent"] as const;
 
-export type SheetAnchor = (typeof SHEET_ANCHORS)[number];
+type SheetAnchor = (typeof SHEET_ANCHORS)[number];
 
 export const SheetScope = createContext("lead-sheet");
 

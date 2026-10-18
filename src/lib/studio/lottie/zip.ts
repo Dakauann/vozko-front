@@ -18,7 +18,7 @@ interface Entry {
   start: number;
 }
 
-export interface ZipArchive {
+interface ZipArchive {
   names: () => string[];
   bytes: (name: string) => Promise<Uint8Array | null>;
   text: (name: string) => Promise<string | null>;

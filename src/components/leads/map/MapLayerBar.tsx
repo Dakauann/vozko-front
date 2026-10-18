@@ -18,7 +18,7 @@ import { NO_COLOUR } from "@/lib/leads/map-view";
 import type { MapLayerMode } from "@/lib/maps/types";
 import { cn } from "@/lib/utils";
 
-export interface MapLayerBarProps {
+interface MapLayerBarProps {
   mode: MapLayerMode;
   onModeChange: (mode: MapLayerMode) => void;
   fields: readonly CustomFieldDefinition[];

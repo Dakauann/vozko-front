@@ -14,12 +14,12 @@ import { repeatedLayers } from "@/lib/studio/repeat-edits";
 
 import { useCheckerImage } from "./checker";
 
-export const BACKDROP_NAME = "studio-backdrop";
-export const ARTBOARD_NAME = "studio-artboard";
+const BACKDROP_NAME = "studio-backdrop";
+const ARTBOARD_NAME = "studio-artboard";
 export const SELECTION_COLOR = "#6366f1";
 const BACKDROP_PREFIX = "backdrop:";
 
-export function backdropId(artboardId: string): string {
+function backdropId(artboardId: string): string {
   return `${BACKDROP_PREFIX}${artboardId}`;
 }
 
@@ -106,7 +106,7 @@ export function LayerOutline({ layer, canvas, scale, solid = false }: { layer: L
   );
 }
 
-export interface ArtboardViewProps {
+interface ArtboardViewProps {
   artboard: Artboard;
   resolved: ImageSurface;
   gpu: boolean;

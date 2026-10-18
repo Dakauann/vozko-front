@@ -1,6 +1,6 @@
 export const ZOOM_SETTLE_MS = 160;
 
-export interface SettledReading {
+interface SettledReading {
   scale: number;
   wakeInMs: number | null;
 }

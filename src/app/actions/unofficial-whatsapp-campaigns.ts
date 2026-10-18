@@ -1,14 +1,5 @@
 
-import type {
-    AddEntriesResult,
-    QuickSendResult,
-    UnofficialWhatsAppCampaign,
-    UnofficialWhatsAppCampaignEntry,
-    UnofficialWhatsAppCampaignListMeta,
-    UnofficialWhatsAppCampaignPayload,
-    UnofficialWhatsAppCampaignTarget,
-    ValidateTargetsResult,
-} from '@/lib/unofficial-whatsapp-campaigns/types';
+import type { UnofficialWhatsAppCampaign, UnofficialWhatsAppCampaignEntry, UnofficialWhatsAppCampaignListMeta, UnofficialWhatsAppCampaignPayload, ValidateTargetsResult } from '@/lib/unofficial-whatsapp-campaigns/types';
 import type { CampaignMetrics } from '@/lib/campaigns/metrics';
 
 import { apiClient } from '@/lib/api/browser-client';
@@ -38,7 +29,6 @@ function unwrap<T>(payload?: Envelope<T> | T | null): T | undefined {
     }
     return (payload as T) ?? undefined;
 }
-
 
 export async function listUnofficialCampaignsAction(params?: {
     page?: number;
@@ -128,7 +118,6 @@ export async function listUnofficialCampaignEntriesAction(
     };
 }
 
-
 export async function createUnofficialCampaignAction(payload: UnofficialWhatsAppCampaignPayload) {
     const response = await apiClient<Envelope<UnofficialWhatsAppCampaign>>(BASE, {
         method: 'POST',
@@ -148,12 +137,6 @@ export async function updateUnofficialCampaignAction(
     });
     if (response.error) return { error: response.error.message, code: response.error.code };
     return { campaign: unwrap(response.data) };
-}
-
-export async function deleteUnofficialCampaignAction(campaignId: string) {
-    const response = await apiClient(`${BASE}/${campaignId}`, { method: 'DELETE' });
-    if (response.error) return { error: response.error.message };
-    return { deleted: true };
 }
 
 export async function assignUnofficialCampaignDepartmentAction(campaignId: string) {
@@ -177,7 +160,6 @@ export async function unarchiveUnofficialCampaignAction(campaignId: string) {
     return { archived: false };
 }
 
-
 async function lifecycle(campaignId: string, action: 'start' | 'pause' | 'stop') {
     const response = await apiClient(`${BASE}/${campaignId}/${action}`, { method: 'POST' });
     if (response.error) return { error: response.error.message, code: response.error.code };
@@ -188,18 +170,6 @@ export const startUnofficialCampaignAction = (id: string) => lifecycle(id, 'star
 export const pauseUnofficialCampaignAction = (id: string) => lifecycle(id, 'pause');
 export const stopUnofficialCampaignAction = (id: string) => lifecycle(id, 'stop');
 
-export async function quickSendUnofficialCampaignAction(
-    campaignId: string,
-    numbers?: UnofficialWhatsAppCampaignTarget[],
-) {
-    const response = await apiClient<Envelope<QuickSendResult>>(`${BASE}/${campaignId}/quick-send`, {
-        method: 'POST',
-        body: JSON.stringify({ numbers: numbers ?? [] }),
-    });
-    if (response.error) return { error: response.error.message };
-    return { result: unwrap(response.data) };
-}
-
 export async function validateUnofficialCampaignTargetsAction(campaignId: string) {
     const response = await apiClient<Envelope<ValidateTargetsResult>>(
         `${BASE}/${campaignId}/validate`,
@@ -208,28 +178,6 @@ export async function validateUnofficialCampaignTargetsAction(campaignId: string
     if (response.error) return { error: response.error.message };
     return { result: unwrap(response.data) };
 }
-
-
-export async function addUnofficialCampaignEntriesAction(
-    campaignId: string,
-    numbers: UnofficialWhatsAppCampaignTarget[],
-) {
-    const response = await apiClient<Envelope<AddEntriesResult>>(`${BASE}/${campaignId}/entries`, {
-        method: 'POST',
-        body: JSON.stringify({ numbers }),
-    });
-    if (response.error) return { error: response.error.message };
-    return { result: unwrap(response.data) };
-}
-
-export async function deleteUnofficialCampaignEntryAction(campaignId: string, entryId: string) {
-    const response = await apiClient(`${BASE}/${campaignId}/entries/${entryId}`, {
-        method: 'DELETE',
-    });
-    if (response.error) return { error: response.error.message };
-    return { deleted: true };
-}
-
 
 export async function prepareResetUnofficialCampaignAction(campaignId: string) {
     const response = await apiClient<Envelope<{ resetCode: string; message: string }>>(
@@ -269,7 +217,6 @@ export async function confirmClearHistoryUnofficialCampaignAction(
     if (response.error) return { error: response.error.message };
     return { data: unwrap(response.data) };
 }
-
 
 export async function exportUnofficialCampaignEntriesAction(
     campaignId: string,

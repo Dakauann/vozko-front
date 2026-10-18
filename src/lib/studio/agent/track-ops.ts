@@ -11,8 +11,6 @@ import { parentRefusalText } from "./parent-ops";
 
 export const TRACK_OPERATIONS = ["track_point", "attach_to_track", "stabilize_clip", "remove_tracker"] as const;
 
-export type TrackOpName = (typeof TRACK_OPERATIONS)[number];
-
 export interface AgentPoint {
   x: number;
   y: number;
@@ -35,7 +33,7 @@ export interface AgentTrackFields {
   unstabilize?: boolean;
 }
 
-export interface TrackOpInput extends AgentTrackFields {
+interface TrackOpInput extends AgentTrackFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
@@ -47,9 +45,9 @@ export interface TrackOpInput extends AgentTrackFields {
 
 export type TrackOutcomes = (key: string) => TrackOutcome | undefined;
 
-export type TrackOpResult = { ok: true; document: VideoDocument; clipId: string; changed: string[]; created: string[]; notes: string[] } | { ok: false; reason: string };
+type TrackOpResult = { ok: true; document: VideoDocument; clipId: string; changed: string[]; created: string[]; notes: string[] } | { ok: false; reason: string };
 
-export interface TrackPlan {
+interface TrackPlan {
   key: string;
   clipId: string;
   assetId: string;
@@ -57,10 +55,6 @@ export interface TrackPlan {
 }
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
-
-export function isTrackOp(name: string): name is TrackOpName {
-  return (TRACK_OPERATIONS as readonly string[]).includes(name);
-}
 
 function refuse(reason: string): TrackOpResult {
   return { ok: false, reason };
@@ -70,9 +64,9 @@ function unit(value: number): boolean {
   return Number.isFinite(value) && value >= 0 && value <= 1;
 }
 
-export type TrackPlanRefusal = "missing" | "notVideo" | "frozen" | "momentOutside" | "noPoint" | "size" | "span" | "direction" | "pointOutside";
+type TrackPlanRefusal = "missing" | "notVideo" | "frozen" | "momentOutside" | "noPoint" | "size" | "span" | "direction" | "pointOutside";
 
-export interface TrackAim {
+interface TrackAim {
   clipId: string;
   point?: AgentPoint;
   size: number;
@@ -165,7 +159,7 @@ function timelineMs(clip: Clip, sourceMs: number): number {
   return Math.round(clip.startMs + Math.min(clip.durationMs, Math.max(0, localAtSource(clip, sourceMs))));
 }
 
-export function trackFailureText(reason: TrackFailure, loss: TrackLoss | undefined, clip: Clip | null): string {
+function trackFailureText(reason: TrackFailure, loss: TrackLoss | undefined, clip: Clip | null): string {
   switch (reason) {
     case "lost": {
       const at = clip && loss ? timelineMs(clip, loss.atMs) : null;
@@ -188,7 +182,7 @@ export function trackFailureText(reason: TrackFailure, loss: TrackLoss | undefin
   }
 }
 
-export function trackEditText(reason: TrackEditRefusal, parentId: string | null): string {
+function trackEditText(reason: TrackEditRefusal, parentId: string | null): string {
   switch (reason) {
     case "notVideo":
       return "só clipes de vídeo têm pontos rastreados";

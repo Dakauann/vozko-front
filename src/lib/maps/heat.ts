@@ -3,7 +3,7 @@ import type { ExpressionSpecification } from "maplibre-gl";
 
 import type { MapLayerResponse } from "./types";
 
-export type HeatTheme = "light" | "dark";
+type HeatTheme = "light" | "dark";
 
 export interface HeatStop {
   at: number;
@@ -15,7 +15,7 @@ export interface HeatLegendRamp {
   to: string;
 }
 
-export const HEAT_FLOOR = 0.04;
+const HEAT_FLOOR = 0.04;
 export const HEAT_POINT_RADIUS = 26;
 export const HEAT_INTENSITY = Math.sqrt(2 * Math.PI);
 const HEAT_CELL_SPREAD = 1.25;

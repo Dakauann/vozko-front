@@ -60,7 +60,7 @@ function fitted(ratio: number): { width: number; height: number; x: number; y: n
   return { width, height, x: (VIEW - width) / 2, y: (VIEW - height) / 2 };
 }
 
-export function frameMarkup(shape: FrameShape, ratio: number): string {
+function frameMarkup(shape: FrameShape, ratio: number): string {
   const { width, height, x, y } = fitted(ratio);
   if (shape.kind === "ellipse") return svg(`<ellipse cx="20" cy="20" rx="${round(width / 2)}" ry="${round(height / 2)}" fill="currentColor"/>`);
   if (shape.kind === "rect") return svg(`<rect x="${round(x)}" y="${round(y)}" width="${round(width)}" height="${round(height)}" rx="${round((shape.radius * Math.min(width, height)) / 2)}" fill="currentColor"/>`);

@@ -7,9 +7,9 @@ import { clipEnd, findClip, placeClip, updateClip } from "./timeline";
 
 export type ParentRefusal = "missing" | "locked" | "notParentable" | "self" | "cycle" | "degenerate" | "outOfRange" | "noRoom" | "noTracker" | "invalid";
 
-export type ParentEdit = { ok: true; document: VideoDocument } | { ok: false; reason: ParentRefusal };
+type ParentEdit = { ok: true; document: VideoDocument } | { ok: false; reason: ParentRefusal };
 
-export interface ParentOptions {
+interface ParentOptions {
   keepVisual: boolean;
   atMs: number;
   trackerId?: string;
@@ -20,7 +20,7 @@ function checked(before: VideoDocument, after: VideoDocument): ParentEdit {
   return documentIssue("video", after) ? { ok: false, reason: "invalid" } : { ok: true, document: after };
 }
 
-export function parentRefusal(doc: VideoDocument, clipId: string, parentId: string): ParentRefusal | null {
+function parentRefusal(doc: VideoDocument, clipId: string, parentId: string): ParentRefusal | null {
   const child = findClip(doc, clipId);
   const parent = findClip(doc, parentId);
   if (!child || !parent) return "missing";
@@ -64,7 +64,7 @@ export function parentChoices(doc: VideoDocument, clipIds: readonly string[]): C
   return doc.tracks.flatMap((track) => track.clips.filter((candidate) => clipIds.every((id) => parentRefusal(doc, id, candidate.id) === null)));
 }
 
-export interface NullPlacement {
+interface NullPlacement {
   startMs: number;
   durationMs?: number;
   x?: number;

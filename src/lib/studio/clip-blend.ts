@@ -10,10 +10,6 @@ export function blendsAsMedia(clip: Pick<Clip, "type">): boolean {
   return clip.type === "video" || clip.type === "image" || clip.type === "group";
 }
 
-export function blendsClip(clip: Pick<Clip, "type" | "layer">): boolean {
-  return blendsAsMedia(clip) || (clip.type === "overlay" && Boolean(clip.layer));
-}
-
 export function clipBlend(clip: Pick<Clip, "type" | "layer" | "blendMode">): BlendMode {
   if (clip.type === "overlay") return clip.layer?.blendMode ?? "normal";
   return blendsAsMedia(clip) ? (clip.blendMode ?? "normal") : "normal";

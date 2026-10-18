@@ -5,7 +5,7 @@ import type { ComponentProps } from "react";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { EXIT_WORD_PREFIX } from "@/lib/whatsapp-templates/exit";
 
-export type ExitWordInputProps = Omit<ComponentProps<typeof ElevatedInput>, "icon">;
+type ExitWordInputProps = Omit<ComponentProps<typeof ElevatedInput>, "icon">;
 
 export function ExitWordInput(props: ExitWordInputProps) {
   return (

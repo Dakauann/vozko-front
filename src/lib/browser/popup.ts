@@ -2,7 +2,7 @@ const POPUP_WIDTH = 520;
 const POPUP_HEIGHT = 720;
 const CLOSE_POLL_MS = 600;
 
-export interface PopupSize {
+interface PopupSize {
   width: number;
   height: number;
 }

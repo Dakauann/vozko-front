@@ -2,7 +2,7 @@
 
 import { loadUrlImage, useLoadedImage } from "@/components/studio/canvas/asset-images";
 
-export const CHECKER_CELL_PX = 8;
+const CHECKER_CELL_PX = 8;
 
 const LIGHT = "#ffffff";
 const DARK = "#e5e7eb";

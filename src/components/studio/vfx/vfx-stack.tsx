@@ -18,7 +18,7 @@ export function sliderStep([low, high]: readonly [number, number]): { step: numb
   return { step: 10 ** exponent, decimals: Math.max(0, -exponent) };
 }
 
-export interface OpenVfx {
+interface OpenVfx {
   open: Vfx | null;
   openIndex: number;
   setOpenId: (id: string | null) => void;

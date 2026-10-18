@@ -26,7 +26,7 @@ export interface GeocodingPlatformPage {
   totalPages: number;
 }
 
-export type GeocodingPlatformErrorKey = "forbidden" | "unavailable" | "busy" | "slow" | "default";
+type GeocodingPlatformErrorKey = "forbidden" | "unavailable" | "busy" | "slow" | "default";
 
 const COVERAGE_COUNTS = ["total", "withAddress", "withoutAddress", "onMap", "approximate", "pending", "notFound"] as const;
 const COVERAGE_SHARES = ["addressShare", "mapShare"] as const;

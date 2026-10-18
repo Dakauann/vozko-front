@@ -62,7 +62,7 @@ interface PendingRemoval {
   participants: string[];
 }
 
-export interface ParticipantsManagerProps {
+interface ParticipantsManagerProps {
   group: WorkspaceGroup;
   seats: NumberSeat[];
   mode: "browse" | "manage";

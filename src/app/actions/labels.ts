@@ -1,15 +1,7 @@
 import type { EntryLabel, EntryType, Label } from '@/lib/conversations/types';
-import {
-    assignLabelToEntry,
-    createLabel,
-    deleteLabel,
-    removeLabelFromEntry,
-    reorderLabels,
-    updateLabel,
-} from '@/lib/conversations/labels';
+import { assignLabelToEntry, createLabel, deleteLabel, removeLabelFromEntry, updateLabel } from '@/lib/conversations/labels';
 
 import { apiClient } from "@/lib/api/browser-client";
-
 
 export async function listLabelsAction(workspaceId?: string): Promise<{ labels: Label[]; error?: string }> {
     const wsHeaders: Record<string, string> = workspaceId ? { 'X-Workspace-ID': workspaceId } : {};
@@ -59,19 +51,6 @@ export async function deleteLabelAction(
 
     return { success: true };
 }
-
-export async function reorderLabelsAction(
-    labelIds: string[],
-): Promise<{ labels: Label[]; error?: string }> {
-    const response = await reorderLabels(labelIds);
-
-    if (response.error) {
-        return { labels: [], error: response.error.message };
-    }
-
-    return { labels: response.data ?? [] };
-}
-
 
 export async function assignLabelToEntryAction(
     labelId: string,

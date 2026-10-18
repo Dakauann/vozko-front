@@ -4,29 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import {
-  BacklogXraySection,
-  PeriodProgressStrip,
-  ProjectionGrid,
-  QualitySection,
-  RevenueCard,
-  ReworkSection,
-  TeamRankingTable,
-  TrendSection,
-} from "@/components/dashboard/attendance/executive-panels";
+import { BacklogXraySection, PeriodProgressStrip, ProjectionGrid, QualitySection, RevenueCard, TeamRankingTable, TrendSection } from "@/components/dashboard/attendance/executive-panels";
 import {
   SectionLabel,
   useMetricsFmt,
 } from "@/components/dashboard/attendance/primitives";
-import {
-  ChartLineUp,
-  ClockCounterClockwise,
-  CurrencyDollar,
-  Hourglass,
-  Pulse,
-  SealCheck,
-  Target,
-} from "@/components/icons";
+import { ChartLineUp, CurrencyDollar, Hourglass, Pulse, SealCheck, Target } from "@/components/icons";
 import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import type { AttendanceOverview } from "@/lib/attendance/types";

@@ -188,7 +188,3 @@ export function ModelBrandIcon({ modelId, size = 16, className }: ModelBrandIcon
     />
   );
 }
-
-export function getModelBrandIcon(modelId: string, size = 16) {
-  return <ModelBrandIcon modelId={modelId} size={size} />;
-}

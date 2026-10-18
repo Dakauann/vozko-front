@@ -48,13 +48,13 @@ function FilterHint({ tone = "muted", children }: { tone?: "muted" | "problem"; 
   );
 }
 
-export interface LeadZipFilterProps {
+interface LeadZipFilterProps {
   label: string;
   selected: readonly string[];
   onChange: (values: string[]) => void;
 }
 
-export function LeadZipFilter({ label, selected, onChange }: LeadZipFilterProps) {
+function LeadZipFilter({ label, selected, onChange }: LeadZipFilterProps) {
   const t = useTranslations("leadsPage.filters.zip");
   const [draft, setDraft] = useState("");
   const [problem, setProblem] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export function LeadZipFilter({ label, selected, onChange }: LeadZipFilterProps)
   );
 }
 
-export interface LeadReferrerFilterProps {
+interface LeadReferrerFilterProps {
   label: string;
   selected: readonly string[];
   nameOf: (leadId: string) => string;
@@ -120,7 +120,7 @@ export interface LeadReferrerFilterProps {
   onPicked: (lead: LeadLookupMatch) => void;
 }
 
-export function LeadReferrerFilter({ label, selected, nameOf, onChange, onPicked }: LeadReferrerFilterProps) {
+function LeadReferrerFilter({ label, selected, nameOf, onChange, onPicked }: LeadReferrerFilterProps) {
   const t = useTranslations("leadsPage.filters.referredBy");
   const [text, setText] = useState("");
   const full = selected.length >= LEAD_REFERRER_FILTER_MAX;

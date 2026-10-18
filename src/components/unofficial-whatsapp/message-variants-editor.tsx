@@ -29,7 +29,7 @@ export function variantsAgree(bodies: string[]): boolean {
   return bodies.every((b) => placeholdersIn(b).join(",") === first);
 }
 
-export interface MessageVariantsLabels {
+interface MessageVariantsLabels {
   title: string;
   help: string;
   addVariant: string;
@@ -40,7 +40,7 @@ export interface MessageVariantsLabels {
   variablesDetected: (count: number) => string;
 }
 
-export interface MessageVariantsEditorProps {
+interface MessageVariantsEditorProps {
   bodies: string[];
   onChange: (next: string[]) => void;
   labels: MessageVariantsLabels;
@@ -141,4 +141,4 @@ export function MessageVariantsEditor({
   );
 }
 
-export default MessageVariantsEditor;
+

@@ -13,7 +13,7 @@ export interface PlacedClipMarker {
   endMs: number;
 }
 
-export function onSourceTime(clip: Pick<Clip, "type" | "freeze">): boolean {
+function onSourceTime(clip: Pick<Clip, "type" | "freeze">): boolean {
   return hasSourceTime(clip.type) && !clip.freeze;
 }
 
@@ -21,7 +21,7 @@ export function markerContentMs(clip: Timed, localMs: number): number {
   return Math.round(onSourceTime(clip) ? sourceAt(clip, localMs) : localMs);
 }
 
-export function markerLocalMs(clip: Timed, contentMs: number): number {
+function markerLocalMs(clip: Timed, contentMs: number): number {
   return onSourceTime(clip) ? localAtSource(clip, contentMs) : contentMs;
 }
 

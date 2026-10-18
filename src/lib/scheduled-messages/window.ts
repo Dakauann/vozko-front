@@ -5,9 +5,9 @@ export const MIN_SCHEDULE_LEAD_MS = 60_000;
 
 export const MAX_SCHEDULE_HORIZON_MS = 30 * 24 * 60 * 60 * 1000;
 
-export type ScheduleBoundReason = "window_closed";
+type ScheduleBoundReason = "window_closed";
 
-export interface ScheduleBounds {
+interface ScheduleBounds {
     earliest: Date | null;
     latest: Date | null;
     reason?: ScheduleBoundReason;
@@ -42,7 +42,7 @@ export function scheduleBounds(
     return { earliest, latest: expires < horizon ? expires : horizon };
 }
 
-export type ScheduleValidity =
+type ScheduleValidity =
     | { ok: true }
     | { ok: false; code: "window_closed" | "too_soon" | "past_window" | "too_far" };
 

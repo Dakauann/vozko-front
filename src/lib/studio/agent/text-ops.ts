@@ -27,7 +27,7 @@ export interface AgentTextFields {
   path_reverse?: boolean;
 }
 
-export interface TextOpInput extends AgentTextFields {
+interface TextOpInput extends AgentTextFields {
   op: string;
   clip_id?: string;
   at_ms?: number;
@@ -35,11 +35,11 @@ export interface TextOpInput extends AgentTextFields {
   path?: string;
 }
 
-export type TextOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
+type TextOpResult = { ok: true; document: VideoDocument } | { ok: false; reason: string };
 
 export const TEXT_OPERATIONS = ["set_counter", "remove_counter", "set_text_path", "remove_text_path"] as const;
 
-export const DEFAULT_COUNTER_LOCALE: CounterLocale = "pt-BR";
+const DEFAULT_COUNTER_LOCALE: CounterLocale = "pt-BR";
 
 const DEFAULT_COUNT_EASING: Easing = "easeOut";
 

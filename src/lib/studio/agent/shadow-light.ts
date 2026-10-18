@@ -19,7 +19,7 @@ export interface ShadowCast {
   side: number;
 }
 
-export interface LightOutlier {
+interface LightOutlier {
   cast: ShadowCast;
   light: number;
   apart: number;

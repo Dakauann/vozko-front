@@ -1,6 +1,6 @@
 import { traceRaster, type RasterImage, type TraceOptions, type TraceResult } from "@/lib/studio/trace/trace";
 
-export const TRACE_TIMEOUT_MS = 30_000;
+const TRACE_TIMEOUT_MS = 30_000;
 
 function startWorker(): Worker | null {
   if (typeof Worker === "undefined") return null;

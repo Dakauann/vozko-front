@@ -6,9 +6,9 @@ import { analyzeNodeAction, testNodeAction } from "@/app/actions/workflows";
 import type { NodeAnalysis, TestNodePayload, TestNodeResult } from "@/lib/workflows/types";
 
 
-export type TestStatus = "idle" | "analyzing" | "ready" | "testing" | "success" | "error";
+type TestStatus = "idle" | "analyzing" | "ready" | "testing" | "success" | "error";
 
-export interface UseTestNodeReturn {
+interface UseTestNodeReturn {
     status: TestStatus;
     analysis: NodeAnalysis | null;
     result: TestNodeResult | null;

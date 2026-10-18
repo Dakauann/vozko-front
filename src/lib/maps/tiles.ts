@@ -1,7 +1,7 @@
 import type { BBox, MapCell, MapLayerResponse, MapPlacement, MapPoint, SnappedViewport, TileRange, Viewport } from "./types";
 
 export const MAX_TILE_ZOOM = 22;
-export const MAX_MERCATOR_LAT = 85.0511287798066;
+const MAX_MERCATOR_LAT = 85.0511287798066;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -136,9 +136,9 @@ export function mergeTileLayers(answers: readonly MapLayerResponse[]): MapLayerR
   return firstCells?.kind === "cells" ? sumCells(answers, firstCells.cellSizeDegrees) : joinPoints(answers);
 }
 
-export const MAX_TILE_REQUESTS = 6;
+const MAX_TILE_REQUESTS = 6;
 
-export interface TileLimiter {
+interface TileLimiter {
   run<T>(signal: AbortSignal | undefined, task: () => Promise<T>): Promise<T>;
 }
 

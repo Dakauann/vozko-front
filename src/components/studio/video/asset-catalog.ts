@@ -39,7 +39,7 @@ export interface AssetCatalog {
 
 const PROBE_TIMEOUT_MS = 15_000;
 
-export function soundEntry(assetId: string): AssetEntry {
+function soundEntry(assetId: string): AssetEntry {
   const sound = builtinSound(assetId);
   if (!sound) return { status: "missing", media: null };
   return { status: "ready", media: { id: assetId, description: sound.id, url: sound.file, previewUrl: "", createdAt: "", type: "audio" }, durationMs: sound.durationMs };

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { MAP_PANEL_PLACEMENT } from "./map-layout";
 
-export interface MapPanelProps {
+interface MapPanelProps {
   title: string;
   children: ReactNode;
   actions?: ReactNode;

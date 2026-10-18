@@ -41,7 +41,7 @@ function formatDisplayDate(value?: Date | null) {
   return format(value, "dd/MM/yyyy");
 }
 
-export type ElevatedDatePickerProps = {
+type ElevatedDatePickerProps = {
   id: string;
   value?: string;
   label?: string;

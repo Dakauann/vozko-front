@@ -12,14 +12,14 @@ const NONE: readonly string[] = [];
 const ignore = () => undefined;
 const quiet = () => ignore;
 
-export interface RecentStore {
+interface RecentStore {
   ids: (key: string) => readonly string[];
   remember: (key: string, id: string) => void;
   clear: (key: string) => void;
   subscribe: (listener: () => void) => () => void;
 }
 
-export function createRecentStore(storage: StudioStorage): RecentStore {
+function createRecentStore(storage: StudioStorage): RecentStore {
   const lists = new Map<string, readonly string[]>();
   const listeners = new Set<() => void>();
   const ids = (key: string) => {
@@ -47,7 +47,7 @@ export function createRecentStore(storage: StudioStorage): RecentStore {
 
 const persisted = createRecentStore(browserStorage);
 
-export interface RecentItems {
+interface RecentItems {
   ids: readonly string[];
   remember: (id: string) => void;
   clear: () => void;

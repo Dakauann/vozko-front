@@ -2,9 +2,9 @@ import { BACKGROUND_SHARE } from "./alignment";
 import { area, type Box, type SceneGround } from "./scene";
 import { inkBox, isText, type TextMeasure } from "./text-ink";
 
-export type BandAxis = "x" | "y";
+type BandAxis = "x" | "y";
 
-export interface EmptyBand {
+interface EmptyBand {
   axis: BandAxis;
   from: number;
   to: number;

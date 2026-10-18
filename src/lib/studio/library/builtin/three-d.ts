@@ -1,6 +1,6 @@
 import type { LibraryCategory } from "../model";
 
-export const THREE_D_SUBCATEGORIES = ["icons", "emoji"] as const;
+const THREE_D_SUBCATEGORIES = ["icons", "emoji"] as const;
 
 export const THREE_D_CATEGORY: LibraryCategory = {
   id: "threeD",

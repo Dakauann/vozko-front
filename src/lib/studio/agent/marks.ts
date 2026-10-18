@@ -4,8 +4,8 @@ import { layerBounds, type Bounds } from "../layers";
 import { boxCorners } from "../arrange";
 import type { RegionBox } from "./frames";
 
-export const MARK_SHARE = 0.025;
-export const MIN_MARK_RADIUS = 9;
+const MARK_SHARE = 0.025;
+const MIN_MARK_RADIUS = 9;
 
 export interface MarkTarget {
   n: number;
@@ -14,7 +14,7 @@ export interface MarkTarget {
   kind?: string;
 }
 
-export interface Mark {
+interface Mark {
   n: number;
   id: string;
   x: number;

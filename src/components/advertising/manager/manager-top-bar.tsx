@@ -14,7 +14,7 @@ import type { AdAccount, AdLevel } from "@/lib/advertising/types";
 import { AccountPicker } from "../account-picker";
 import { SyncFreshness } from "./sync-freshness";
 
-export interface TopBarMenu {
+interface TopBarMenu {
   canConnect: boolean;
   connecting: boolean;
   onConnect: () => void;
@@ -24,7 +24,7 @@ export interface TopBarMenu {
   onTests: (() => void) | null;
 }
 
-export interface TopBarDrafts {
+interface TopBarDrafts {
   count: number | null;
   blocker: string | null;
   onDiscard: () => void;

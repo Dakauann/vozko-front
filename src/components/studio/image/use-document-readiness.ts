@@ -7,7 +7,7 @@ import { ensureFont } from "@/components/studio/canvas/ensure-font";
 import type { Layer } from "@/lib/studio/document";
 import { DEFAULT_FONT_ID, DEFAULT_FONT_WEIGHT, isFontId } from "@/lib/studio/fonts";
 
-export type Readiness = "loading" | "ready" | "failed";
+type Readiness = "loading" | "ready" | "failed";
 
 function requirements(layers: readonly Layer[]): string[] {
   const keys = new Set<string>();

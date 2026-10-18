@@ -194,8 +194,6 @@ export interface StudioProjectCard {
 
 export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard | StudioProjectCard;
 
-export type ActionKind = ActionCard["kind"];
-
 export interface ToolSubject {
   kind: string;
   key: string;

@@ -22,7 +22,7 @@ export function RecheckButton({ checking, onRecheck }: { checking: boolean; onRe
   );
 }
 
-export function RequirementSteps({
+function RequirementSteps({
   title,
   steps,
   href,

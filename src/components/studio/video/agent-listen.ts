@@ -13,7 +13,7 @@ import { analyzeBuffer } from "./speech-analysis";
 
 type Plan = Extract<ListenPlan, { ok: true }>;
 
-export type Heard = ListenReadout & { unreadable_clips?: string[] };
+type Heard = ListenReadout & { unreadable_clips?: string[] };
 
 function sampleOf(ms: number, rate: number): number {
   return Math.round((ms * rate) / 1000);

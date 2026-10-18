@@ -167,7 +167,7 @@ export function abTestState({ level, selected, permissions, manageBlocked }: Too
   ]);
 }
 
-export type TabLabel = { kind: "plain" } | { kind: "forCampaigns"; count: number } | { kind: "forAdSets"; count: number };
+type TabLabel = { kind: "plain" } | { kind: "forCampaigns"; count: number } | { kind: "forAdSets"; count: number };
 
 export function tabLabel(level: AdLevel, campaigns: number, adSets: number): TabLabel {
   if (level === "ad" && adSets > 0) return { kind: "forAdSets", count: adSets };

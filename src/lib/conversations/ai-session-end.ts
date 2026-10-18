@@ -1,13 +1,13 @@
 import type { ConversationActorKind } from "./events";
 
-export interface AiSessionEndInput {
+interface AiSessionEndInput {
   reason: string;
   enderKind: ConversationActorKind;
   ender: string | null;
   to: string | null;
 }
 
-export interface AiSessionEndLine {
+interface AiSessionEndLine {
   key: string;
   values: Record<string, string>;
 }

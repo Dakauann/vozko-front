@@ -17,7 +17,7 @@ const LUMA_KEYER: Keyer<LumaKey, LumaProperty> = {
   issue: lumaIssue,
 };
 
-export function patchLuma(current: LumaKey, patch: LumaPatch, localMs: number | null): LumaKey | "animated" | "invalid" {
+function patchLuma(current: LumaKey, patch: LumaPatch, localMs: number | null): LumaKey | "animated" | "invalid" {
   return patchKeyerValues(LUMA_KEYER, patch.mode === undefined ? current : { ...current, mode: patch.mode }, patch, localMs);
 }
 

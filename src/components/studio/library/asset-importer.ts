@@ -8,7 +8,7 @@ import { importLibraryAssetAction } from "@/app/actions/studio-library";
 import { setAssetImporter, type AssetImporter } from "@/lib/studio/library/asset-import";
 import { libraryLocale } from "@/lib/studio/library/catalog";
 
-export function browserAssetImporter(locale: string, load: typeof fetch = fetch): AssetImporter {
+function browserAssetImporter(locale: string, load: typeof fetch = fetch): AssetImporter {
   return async (itemId, asset) => {
     const response = await load(`/${asset.path}`);
     if (!response.ok) throw new Error(`the library picture ${itemId} could not be read`);

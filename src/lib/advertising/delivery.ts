@@ -26,7 +26,7 @@ export function deliveryTone(delivery: string): DeliveryTone {
   return DELIVERY_TONES[deliveryKey(delivery)];
 }
 
-export type DeliveryHint = "in_review" | "awaitingImpressions";
+type DeliveryHint = "in_review" | "awaitingImpressions";
 
 export function deliveryHintKey(delivery: string, delivered: boolean): DeliveryHint | null {
   const key = deliveryKey(delivery);
@@ -35,7 +35,7 @@ export function deliveryHintKey(delivery: string, delivered: boolean): DeliveryH
   return null;
 }
 
-export type ResultKind = "conversations" | "leads" | "linkClicks" | "landingPageViews" | "engagement" | "impressions";
+type ResultKind = "conversations" | "leads" | "linkClicks" | "landingPageViews" | "engagement" | "impressions";
 
 const RESULT_KINDS: Record<string, ResultKind> = {
   "onsite_conversion.messaging_conversation_started_7d": "conversations",
@@ -63,7 +63,7 @@ export function rowIssues(row: Pick<AdRow, "issues" | "reviewFeedback">): IssueE
   return [...issues, ...feedback].filter((entry) => entry.title || entry.message);
 }
 
-export type AccountNotice = "reconnect" | "readOnly" | "funding" | "metaStatus";
+type AccountNotice = "reconnect" | "readOnly" | "funding" | "metaStatus";
 
 export function accountNotices(account: AdAccount): AccountNotice[] {
   if (account.connection !== "CONNECTED") return ["reconnect"];
@@ -106,7 +106,7 @@ export function jobIsTerminal(status: string): boolean {
   return key === "PUBLISHED" || key === "FAILED" || key === "NEEDS_REVIEW";
 }
 
-export type ManageBlocker = "reconnect" | "readOnly" | "unknown";
+type ManageBlocker = "reconnect" | "readOnly" | "unknown";
 
 export function manageBlockerKey(account: AdAccount): ManageBlocker | null {
   if (account.canManage) return null;
@@ -119,7 +119,7 @@ export function accountWritePermissions<P extends { [K in keyof P]: boolean }>(p
   return Object.fromEntries(Object.keys(permissions).map((key) => [key, false])) as P;
 }
 
-export type SpendCapBlocker = ManageBlocker | "adminRequired" | "prepaid" | "billingUnknown";
+type SpendCapBlocker = ManageBlocker | "adminRequired" | "prepaid" | "billingUnknown";
 
 export function spendCapBlockerKey(account: AdAccount): SpendCapBlocker | null {
   if (account.canSetSpendCap) return null;
@@ -130,7 +130,7 @@ export function spendCapBlockerKey(account: AdAccount): SpendCapBlocker | null {
   return "adminRequired";
 }
 
-export type ToggleBlocker = "locked" | "permission" | AccountNotice | "unknown";
+type ToggleBlocker = "locked" | "permission" | AccountNotice | "unknown";
 
 export function toggleBlockerKey(
   row: Pick<AdRow, "isOn" | "canToggle">,

@@ -19,7 +19,7 @@ export interface RichPart {
   css: string;
 }
 
-export const TAIL_ATTRIBUTE = "data-rich-tail";
+const TAIL_ATTRIBUTE = "data-rich-tail";
 
 const BLOCK_TAGS: ReadonlySet<string> = new Set(["DIV", "P"]);
 

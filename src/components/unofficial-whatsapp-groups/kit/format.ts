@@ -4,7 +4,7 @@ export type KpiMark = "fault" | "warning" | "healthy";
 
 export const RESPONSE_GOAL_MINUTES = 5;
 
-export const HIGH_ALERT_FAULT_PCT = 40;
+const HIGH_ALERT_FAULT_PCT = 40;
 
 export interface PersonNameSource {
   displayName?: string;
@@ -77,7 +77,7 @@ export function initialsOf(name: string): string {
     .join("");
 }
 
-export type RunDuration = { unit: "ms" | "s" | "min"; value: number; seconds?: number };
+type RunDuration = { unit: "ms" | "s" | "min"; value: number; seconds?: number };
 
 export function runDuration(startedAt: string, completedAt?: string): RunDuration | null {
   const start = parseInstant(startedAt);
@@ -92,7 +92,7 @@ export function runDuration(startedAt: string, completedAt?: string): RunDuratio
   return { unit: "min", value: Math.floor(totalSeconds / 60), seconds: totalSeconds % 60 };
 }
 
-export type LastEventBucket = { kind: "today" | "yesterday" | "days" | "months" | "date" | "none"; count?: number };
+type LastEventBucket = { kind: "today" | "yesterday" | "days" | "months" | "date" | "none"; count?: number };
 
 function dayNumber(date: Date, timeZone?: string): number {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);

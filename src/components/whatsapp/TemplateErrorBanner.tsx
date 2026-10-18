@@ -3,7 +3,7 @@
 import { X } from "@/components/icons";
 import { Notice } from "@/components/ui/notice";
 
-export interface TemplateErrorBannerProps {
+interface TemplateErrorBannerProps {
     title: string;
     message: string;
     details?: string[];

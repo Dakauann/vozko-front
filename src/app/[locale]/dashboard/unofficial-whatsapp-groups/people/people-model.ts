@@ -11,7 +11,7 @@ export const PEOPLE_PAGE_SIZES = [25, 50, 100] as const;
 
 export const DEFAULT_PEOPLE_PAGE_SIZE = 50;
 
-export interface PeopleFilters {
+interface PeopleFilters {
   search: string;
   minGroups: number;
 }

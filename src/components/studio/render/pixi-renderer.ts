@@ -1234,7 +1234,7 @@ class PixiSceneRenderer implements Renderer {
   }
 }
 
-export interface PixiRendererOptions {
+interface PixiRendererOptions {
   transparent: boolean;
 }
 

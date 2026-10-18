@@ -707,9 +707,7 @@ function InspectorRail({
             <aside className="hidden w-[24rem] shrink-0 flex-col border-l border-border xl:w-[26rem] lg:flex">
                 {body}
             </aside>
-
-            {
-}
+
             <div
                 aria-hidden={!openMobile}
                 inert={!openMobile}

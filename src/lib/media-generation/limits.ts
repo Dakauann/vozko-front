@@ -4,7 +4,7 @@ export const MAX_PARALLEL_GENERATIONS = 3;
 export const MAX_PARALLEL_PROCESSING = 2;
 export const KEPT_FINISHED_JOBS = 3;
 
-export function isProcessingKind(kind: MediaKind): kind is ProcessingKind {
+function isProcessingKind(kind: MediaKind): kind is ProcessingKind {
   return (PROCESSING_KINDS as readonly string[]).includes(kind);
 }
 
@@ -12,7 +12,7 @@ export function ceilingFor(kind: MediaKind): number {
   return isProcessingKind(kind) || kind === "video" ? MAX_PARALLEL_PROCESSING : MAX_PARALLEL_GENERATIONS;
 }
 
-export function sameLane(a: MediaKind, b: MediaKind): boolean {
+function sameLane(a: MediaKind, b: MediaKind): boolean {
   return ceilingFor(a) === ceilingFor(b) && (isProcessingKind(a) || a === "video") === (isProcessingKind(b) || b === "video");
 }
 

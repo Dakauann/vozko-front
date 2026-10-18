@@ -27,7 +27,7 @@ function StatusIcon({ failed, still }: { failed: boolean; still: boolean }) {
   return failed ? <WarningCircle className="h-3 w-3 shrink-0 text-destructive-ink" aria-hidden /> : <CircleNotch className={cn("h-3 w-3 shrink-0", !still && "animate-spin")} aria-hidden />;
 }
 
-export interface AiProgressPillProps {
+interface AiProgressPillProps {
   label: string;
   detail?: string;
   progress?: number;
@@ -69,7 +69,7 @@ function Sweep({ still, flush }: { still: boolean; flush: boolean }) {
   );
 }
 
-export interface AiProgressSurfaceProps {
+interface AiProgressSurfaceProps {
   label?: string;
   detail?: string;
   progress?: number;

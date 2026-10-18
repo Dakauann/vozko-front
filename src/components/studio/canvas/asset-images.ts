@@ -74,7 +74,7 @@ export function loadUrlImage(src: string): Promise<HTMLImageElement> {
   return decode(src, src);
 }
 
-export type LoadedImage = { status: "loading" } | { status: "ready"; image: HTMLImageElement } | { status: "failed"; error: Error };
+type LoadedImage = { status: "loading" } | { status: "ready"; image: HTMLImageElement } | { status: "failed"; error: Error };
 
 export function useLoadedImage(key: string | null, load: (key: string) => Promise<HTMLImageElement>): LoadedImage {
   const [state, setState] = useState<{ key: string | null; value: LoadedImage }>({ key: null, value: { status: "loading" } });

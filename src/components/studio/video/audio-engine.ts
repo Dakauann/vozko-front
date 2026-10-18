@@ -12,7 +12,7 @@ import { LoudnessTap, PeakTap, stereoBus, type MeterFrame } from "./audio-meters
 import { channelsOf } from "./export/audio-mixdown";
 import { analyzeBuffer, speechOfTriggers } from "./speech-analysis";
 
-export const SCHEDULE_LEAD_SEC = 0.05;
+const SCHEDULE_LEAD_SEC = 0.05;
 
 type AudioContextClass = typeof AudioContext;
 

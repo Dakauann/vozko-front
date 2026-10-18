@@ -4,7 +4,7 @@ import { findClip } from "../timeline";
 
 export const PARENT_OPERATIONS = ["parent_clip", "add_null"] as const;
 
-export type ParentOpName = (typeof PARENT_OPERATIONS)[number];
+type ParentOpName = (typeof PARENT_OPERATIONS)[number];
 
 export interface AgentParentFields {
   parent_id?: string;
@@ -12,7 +12,7 @@ export interface AgentParentFields {
   keep_position?: boolean;
 }
 
-export interface ParentOpInput extends AgentParentFields {
+interface ParentOpInput extends AgentParentFields {
   op: string;
   clip_id?: string;
   clip_ids?: string[];
@@ -23,11 +23,11 @@ export interface ParentOpInput extends AgentParentFields {
   y?: number;
 }
 
-export type ParentOpResult = { ok: true; document: VideoDocument; clipId: string; changed: string[]; created: string[] } | { ok: false; reason: string };
+type ParentOpResult = { ok: true; document: VideoDocument; clipId: string; changed: string[]; created: string[] } | { ok: false; reason: string };
 
 const READ_AGAIN = "leia o projeto de novo com studio_read";
 
-export function isParentOp(name: string): name is ParentOpName {
+function isParentOp(name: string): name is ParentOpName {
   return (PARENT_OPERATIONS as readonly string[]).includes(name);
 }
 

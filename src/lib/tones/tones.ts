@@ -2,7 +2,7 @@ export const TONE_KEYS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
 
 export type ToneKey = (typeof TONE_KEYS)[number];
 
-export interface ToneStyle {
+interface ToneStyle {
   token: string;
   hollow: boolean;
 }

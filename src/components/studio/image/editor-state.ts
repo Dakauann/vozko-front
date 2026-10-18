@@ -49,13 +49,13 @@ export interface ImageAiDraft {
   references: ImageReference[];
 }
 
-export const EMPTY_IMAGE_AI_DRAFT: ImageAiDraft = { prompt: "", model: null, aspect: null, references: [] };
+const EMPTY_IMAGE_AI_DRAFT: ImageAiDraft = { prompt: "", model: null, aspect: null, references: [] };
 
 export function jobKind(purpose: JobPurpose): "image" | "cutout" {
   return purpose === "cutout" ? "cutout" : "image";
 }
 
-export interface CropSession {
+interface CropSession {
   layerId: string;
   frame: CropFrame;
   box: PixelBox;

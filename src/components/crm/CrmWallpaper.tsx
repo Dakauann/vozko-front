@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const PATTERN = "/images/assets/crm-pattern.webp";
 
-export function CrmWallpaper({ className }: { className?: string }) {
+function CrmWallpaper({ className }: { className?: string }) {
   const [decoded, setDecoded] = React.useState(false);
 
   React.useEffect(() => {

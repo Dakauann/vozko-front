@@ -6,7 +6,7 @@ import { isActionError } from "@/app/actions/action-result";
 import { listMediaModelsAction } from "@/app/actions/media-generation";
 import type { MediaModel, ModelKind } from "@/lib/media-generation/types";
 
-export type MediaModelsState = { status: "loading" } | { status: "failed" } | { status: "ready"; models: MediaModel[] };
+type MediaModelsState = { status: "loading" } | { status: "failed" } | { status: "ready"; models: MediaModel[] };
 
 type Loaded = { kind: ModelKind; state: Exclude<MediaModelsState, { status: "loading" }> };
 

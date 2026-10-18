@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export type SceneTone = "neutral" | "accent" | "warning" | "danger" | "muted";
 
-export const TILE_TONE: Record<SceneTone, string> = {
+const TILE_TONE: Record<SceneTone, string> = {
   neutral: "border-border bg-card text-foreground",
   accent: "border-primary bg-primary text-primary-foreground",
   warning: "border-warning bg-card text-warning-ink",

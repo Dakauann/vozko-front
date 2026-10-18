@@ -9,7 +9,7 @@ import type { AdAccount } from "@/lib/advertising/types";
 
 type AccountsState = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; accounts: AdAccount[] };
 
-export interface UseAdAccountsOptions {
+interface UseAdAccountsOptions {
   enabled: boolean;
   requested?: string | null;
 }

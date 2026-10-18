@@ -1,6 +1,6 @@
 import { sourceAt } from "./clip-time";
 import type { Clip } from "./document";
-export const PEAKS_PER_SECOND = 100;
+const PEAKS_PER_SECOND = 100;
 
 export interface Peaks {
   perSecond: number;

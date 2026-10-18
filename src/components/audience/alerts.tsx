@@ -229,9 +229,7 @@ export function CommentAnalysisAlerts({
                     <Chip>
                       {rule.source ? tChannelName(rule.source) : t("fields.watchedChannelAll")}
                     </Chip>
-                    <Chip>{t(`channels.${rule.channel}`)}</Chip>
-                    {
-}
+                    <Chip>{t(`channels.${rule.channel}`)}</Chip>
                     {rule.enabled && blockedChannels.has(rule.channel) ? (
                       <StatusChip
                         tone="warning"
@@ -476,9 +474,7 @@ function AlertRuleDialog({
               onChange={(e) => set("threshold", Number(e.target.value))}
             />
           </div>
-
-          {
-}
+
           {metric?.supportsMinMessages ? (
             <div className="flex flex-col gap-1">
               <ElevatedInput
@@ -492,9 +488,7 @@ function AlertRuleDialog({
               <p className="text-2xs text-muted-foreground">{t("fields.minMessagesHint")}</p>
             </div>
           ) : null}
-
-          {
-}
+
           {metric?.windowed ? (
             <ElevatedInput
               label={t("fields.window")}
@@ -510,9 +504,7 @@ function AlertRuleDialog({
             label={t("fields.watchedChannel")}
             value={draft.source ?? ""}
             onValueChange={(v) => set("source", (v || undefined) as AudienceSource | undefined)}
-          >
-            {
-}
+          >
             <ElevatedSelectItem value="">{t("fields.watchedChannelAll")}</ElevatedSelectItem>
             {AUDIENCE_SOURCES.filter((s) => s !== "instagram").map((s) => (
               <ElevatedSelectItem key={s} value={s}>
@@ -554,17 +546,13 @@ function AlertRuleDialog({
               placeholder="5511999999999"
             />
           </div>
-
-          {
-}
+
           {channelBlocked ? (
             <Notice tone="warning">
               <p>{t(`channelUnavailable.${currentStatus?.reason ?? "no_sender"}`)}</p>
             </Notice>
           ) : null}
-
-          {
-}
+
           {!official && unofficialSenders.length > 0 ? (
             <ElevatedSelect
               label={t("fields.instance")}
@@ -636,9 +624,7 @@ function AlertRuleDialog({
               ) : null}
             </div>
           ) : null}
-
-          {
-}
+
           <div className="grid grid-cols-2 gap-3">
             <ElevatedInput
               label={t("fields.cooldown")}
@@ -673,9 +659,7 @@ function AlertRuleDialog({
             />
           </label>
           <p className="text-2xs text-muted-foreground">{t("briefHint")}</p>
-
-          {
-}
+
           <label className={cn("flex items-center justify-between gap-3 rounded-[--radius] border border-border px-3 py-2")}>
             <span className="text-sm text-foreground">{t("fields.enabled")}</span>
             <ElevatedSwitch

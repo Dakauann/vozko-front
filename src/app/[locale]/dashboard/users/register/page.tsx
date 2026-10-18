@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  ArrowRight,
-  Buildings,
-  CheckCircle,
-  Envelope,
-  IdentificationCard,
-  Lock,
-  LockKey,
-  User,
-  UserPlus,
-} from "@/components/icons";
+import { Buildings, CheckCircle, Envelope, IdentificationCard, Lock, LockKey, User, UserPlus } from "@/components/icons";
 import {
   adminRegisterUserAction,
   adminSendEmailVerificationAction,

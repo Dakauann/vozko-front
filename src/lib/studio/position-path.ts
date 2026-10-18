@@ -7,7 +7,7 @@ export interface PathPoint {
   y: number;
 }
 
-export interface KeyHandles {
+interface KeyHandles {
   in: Tangent;
   out: Tangent;
 }
@@ -27,8 +27,8 @@ interface PathGeometry {
   segments: PathSegment[];
 }
 
-export const SEGMENT_SAMPLES = 64;
-export const DRAW_SAMPLES = 24;
+const SEGMENT_SAMPLES = 64;
+const DRAW_SAMPLES = 24;
 const EPSILON = 1e-12;
 const ZERO: Tangent = { x: 0, y: 0 };
 

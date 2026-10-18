@@ -1,4 +1,4 @@
-export interface ChangeStamp {
+interface ChangeStamp {
   by: string | null;
   at: string;
 }
@@ -7,13 +7,13 @@ const STAMP_FIELDS = ["ChangedBy", "ChangedByName", "ChangedAt"] as const;
 
 type Read = { ok: boolean; text?: string };
 
-export function readOptionalText(value: unknown): Read {
+function readOptionalText(value: unknown): Read {
   if (value === undefined || value === null) return { ok: true };
   if (typeof value !== "string") return { ok: false };
   return { ok: true, text: value === "" ? undefined : value };
 }
 
-export function readOptionalInstant(value: unknown): Read {
+function readOptionalInstant(value: unknown): Read {
   const read = readOptionalText(value);
   if (!read.ok || read.text === undefined) return read;
   return Number.isNaN(Date.parse(read.text)) ? { ok: false } : read;

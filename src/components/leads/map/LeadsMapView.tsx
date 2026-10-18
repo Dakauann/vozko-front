@@ -84,7 +84,7 @@ import { AreaManager } from "./AreaManager";
 import { LeadMapPeek, PEEK_SIZE } from "./LeadMapPeek";
 import { MapLayerBar } from "./MapLayerBar";
 
-export interface LeadsMapViewProps {
+interface LeadsMapViewProps {
   filter: LeadFilter;
   search: string;
   onFilterChange: (filter: LeadFilter) => void;

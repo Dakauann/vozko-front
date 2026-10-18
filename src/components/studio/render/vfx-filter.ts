@@ -348,7 +348,7 @@ function uniformsOf(kind: DrawnVfxKind): Uniforms {
   return isPackKind(kind) ? PACK_PROGRAMS[kind].uniforms() : OWN_UNIFORMS[kind]();
 }
 
-export interface VfxPlacement {
+interface VfxPlacement {
   width: number;
   height: number;
   mix: number;
@@ -415,7 +415,7 @@ class GlowAcross extends Filter {
   }
 }
 
-export class VfxFilter extends Filter {
+class VfxFilter extends Filter {
   private readonly base: UniformGroup;
   private readonly own: UniformGroup;
   private readonly across: GlowAcross | null;

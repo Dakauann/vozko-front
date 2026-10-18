@@ -74,7 +74,7 @@ export function slipClip(doc: VideoDocument, clipId: string, deltaMs: number, so
   return setClipTrimIn(doc, clipId, found.clip.trimInMs + deltaMs, sourceDurationMs);
 }
 
-export interface TimeRange {
+interface TimeRange {
   inMs: number;
   outMs: number;
 }

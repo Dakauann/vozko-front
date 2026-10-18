@@ -1,4 +1,4 @@
-export type { Icon, IconProps, IconWeight } from "./types";
+export type { Icon, IconProps,  } from "./types";
 
 export {
   Archive,
@@ -62,7 +62,7 @@ export {
   Timer as ClockCountdown,
   History as ClockCounterClockwise,
   Code,
-  Command,
+  
   Confetti,
   Copy,
   Copy as CopySimple,
@@ -78,7 +78,7 @@ export {
   DotsThree,
   DotsThree as DotsThreeOutline,
   DotsThreeVertical,
-  Exportar as Download,
+  
   Exportar as DownloadIcon,
   Exportar as DownloadSimple,
   Envelope,
@@ -145,7 +145,7 @@ export {
   Menu as ListDashes,
   ListNumbers,
   Lock,
-  Lock as LockIcon,
+  
   LockKey,
   Buscar as MagnifyingGlass,
   MapPin,
@@ -204,7 +204,7 @@ export {
   Shuffle,
   SignIn,
   SignOut,
-  Siren,
+  
   Filtros as Sliders,
   Filtros as SlidersHorizontal,
   Smiley,
@@ -236,9 +236,9 @@ export {
   TextT as TextAa,
   TextAlignLeft,
   TextBold as TextB,
-  TextH1 as TextHOne,
-  TextH3 as TextHThree,
-  TextH2 as TextHTwo,
+  
+  
+  
   TextItalic,
   TextT,
   Thermometer as ThermometerSimple,

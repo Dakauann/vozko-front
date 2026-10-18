@@ -75,7 +75,7 @@ export function parseTargetList(
   return { targets, skipped, duplicates, invalid, missingVariables };
 }
 
-export interface TargetListEditorLabels {
+interface TargetListEditorLabels {
   title: string;
   placeholder: string;
   upload: string;

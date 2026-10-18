@@ -15,7 +15,7 @@ import type { CampaignMetrics } from "@/lib/campaigns/metrics";
 import { channelPlate } from "@/components/channels/channel-tile";
 import { cn } from "@/lib/utils";
 
-export interface CampaignMetricsLabels {
+interface CampaignMetricsLabels {
   total: string;
   pending: string;
   sent: string;

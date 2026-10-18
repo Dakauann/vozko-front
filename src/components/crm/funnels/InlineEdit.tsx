@@ -107,9 +107,7 @@ export function InlineEdit({
     >
       <span className={cn("truncate", empty && "text-muted-foreground")}>
         {empty ? placeholder : value}
-      </span>
-      {
-}
+      </span>
       {pencil ? (
         <PencilSimple
           className="h-3 w-3 flex-none text-muted-foreground opacity-0 transition-opacity group-hover/inline:opacity-100 group-focus-visible/inline:opacity-100"

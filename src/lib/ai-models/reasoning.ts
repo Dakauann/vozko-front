@@ -1,6 +1,6 @@
 import type { ModelPricingInfo } from "@/lib/agents/types";
 
-export const REASONING_LEVELS = ["none", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
+const REASONING_LEVELS = ["none", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
 
 export const REASONING_LEVEL_KEY = "reasoning_level";
 

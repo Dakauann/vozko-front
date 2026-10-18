@@ -292,9 +292,7 @@ export function RouletteScene({
           <mesh position={[0, 0, -0.05]}>
             <ringGeometry args={[table - 0.16, table, 96]} />
             <Surface color={palette.edge} roughness={0.85} metalness={0.05} />
-          </mesh>
-          {
-}
+          </mesh>
           <mesh ref={dealer} position={[0, 0, -0.015]}>
             <torusGeometry args={[table - 0.08, 0.045, 8, 48, ARC_LENGTH]} />
             <meshBasicMaterial color={palette.accent.ai} />

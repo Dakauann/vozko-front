@@ -80,14 +80,14 @@ const PALETTES = {
   ] as const,
 } as const;
 
-export type GrainPalette = keyof typeof PALETTES;
+type GrainPalette = keyof typeof PALETTES;
 
 export interface ColorGroup {
   colors: string[];
   weight?: number;
 }
 
-export function createSeededGradient(
+function createSeededGradient(
   palette: GrainPalette | string[] | ColorGroup[],
   seed: number,
 ): string {

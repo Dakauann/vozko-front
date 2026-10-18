@@ -37,9 +37,9 @@ import { LeadFamilyTab } from "./LeadFamilyTab";
 import { LeadOverview } from "./LeadOverview";
 import { LeadTimelineTab } from "./LeadTimelineTab";
 
-export const LEAD_DETAIL_TABS = ["overview", "family", "timeline", "deals", "memories", "campaigns"] as const;
+const LEAD_DETAIL_TABS = ["overview", "family", "timeline", "deals", "memories", "campaigns"] as const;
 
-export type LeadDetailTab = (typeof LEAD_DETAIL_TABS)[number];
+type LeadDetailTab = (typeof LEAD_DETAIL_TABS)[number];
 
 function tabOf(value: string | undefined): LeadDetailTab {
   return (LEAD_DETAIL_TABS as readonly string[]).includes(value ?? "") ? (value as LeadDetailTab) : "overview";

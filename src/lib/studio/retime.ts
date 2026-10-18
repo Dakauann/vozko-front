@@ -26,7 +26,7 @@ export type RetimeRefusal = "missing" | "locked" | "notSourced" | "notVideo" | "
 
 export type RetimeResult = { ok: true; document: VideoDocument } | { ok: false; reason: RetimeRefusal };
 
-export type FreezeResult = { ok: true; document: VideoDocument; clipId: string } | { ok: false; reason: RetimeRefusal };
+type FreezeResult = { ok: true; document: VideoDocument; clipId: string } | { ok: false; reason: RetimeRefusal };
 
 function refuse(reason: RetimeRefusal): { ok: false; reason: RetimeRefusal } {
   return { ok: false, reason };

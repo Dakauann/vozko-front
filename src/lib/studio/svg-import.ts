@@ -11,13 +11,13 @@ export interface SvgTarget {
   rotation: number;
 }
 
-export interface SvgImport {
+interface SvgImport {
   layers: Layer[];
   groups: StudioGroup[];
   skipped: number;
 }
 
-export type SvgImportResult = { ok: true; value: SvgImport } | { ok: false; reason: "invalid" | "empty" };
+type SvgImportResult = { ok: true; value: SvgImport } | { ok: false; reason: "invalid" | "empty" };
 
 export const SVG_IMPORT_SHARE = 0.6;
 

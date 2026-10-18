@@ -474,7 +474,7 @@ export const VIDEO_ASPECT_SIZES: Record<VideoAspect, CanvasSize> = {
 };
 
 export const DEFAULT_IMAGE_BACKGROUND = "#ffffff";
-export const DEFAULT_VIDEO_BACKGROUND = "#000000";
+const DEFAULT_VIDEO_BACKGROUND = "#000000";
 
 export function newStudioId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -615,8 +615,4 @@ export function newOverlayClip(layer: Layer, startMs: number, durationMs: number
     transform,
     layer: { ...layer, transform: fullFrame() },
   };
-}
-
-export function documentBytes(doc: StudioDocument): number {
-  return new TextEncoder().encode(JSON.stringify(doc)).length;
 }

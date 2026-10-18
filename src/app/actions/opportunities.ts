@@ -1,22 +1,6 @@
 import { apiClient } from "@/lib/api/browser-client";
 import { encodeBase64, emptyCrmFilter } from '@/lib/crm/board';
-import type {
-    CreateOpportunityInput,
-    FetchOpportunityBoardParams,
-    FetchOpportunityListParams,
-    MoveOpportunityInput,
-    Opportunity,
-    OpportunityBoard,
-    OpportunityConversationLink,
-    OpportunityEvent,
-    OpportunityListResult,
-    UpdateOpportunityInput,
-} from '@/lib/crm/opportunities';
-
-function combinedSort(sortField?: string, sortOrder?: string): string {
-    if (!sortField) return '';
-    return sortOrder ? `${sortField}:${sortOrder}` : sortField;
-}
+import type { CreateOpportunityInput, FetchOpportunityBoardParams, MoveOpportunityInput, Opportunity, OpportunityBoard, OpportunityConversationLink, OpportunityEvent, UpdateOpportunityInput } from '@/lib/crm/opportunities';
 
 function fetchBoard(params: FetchOpportunityBoardParams) {
     const qs = new URLSearchParams();
@@ -45,22 +29,6 @@ export async function getOpportunityBoardAction(
     const response = await fetchBoard(params);
     if (response.error) return { board: null, error: response.error.message };
     return { board: response.data ?? null };
-}
-
-export async function getOpportunityListAction(
-    params: FetchOpportunityListParams,
-): Promise<{ result: OpportunityListResult | null; error?: string }> {
-    const qs = new URLSearchParams();
-    qs.set('filter', encodeBase64(JSON.stringify(params.filter ?? emptyCrmFilter)));
-    const sort = combinedSort(params.sortField, params.sortOrder);
-    if (sort) qs.set('sort', sort);
-    if (params.page) qs.set('page', String(params.page));
-    if (params.pageSize) qs.set('pageSize', String(params.pageSize));
-    const response = await apiClient<OpportunityListResult>(`/opportunities/list?${qs.toString()}`, {
-        method: 'GET',
-    });
-    if (response.error) return { result: null, error: response.error.message };
-    return { result: response.data ?? null };
 }
 
 export async function createOpportunityAction(
@@ -106,14 +74,6 @@ export async function deleteOpportunityAction(
     return { success: true };
 }
 
-export async function getOpportunityAction(
-    id: string,
-): Promise<{ opportunity: Opportunity | null; error?: string }> {
-    const response = await apiClient<Opportunity>(`/opportunities/${id}`, { method: 'GET' });
-    if (response.error) return { opportunity: null, error: response.error.message };
-    return { opportunity: response.data ?? null };
-}
-
 export async function listOpportunityEventsAction(
     id: string,
 ): Promise<{ events: OpportunityEvent[]; error?: string }> {
@@ -142,19 +102,6 @@ export async function listOpportunitiesForEntryAction(
     });
     if (response.error) return { opportunities: [], error: response.error.message };
     return { opportunities: response.data ?? [] };
-}
-
-export async function linkOpportunityConversationAction(
-    id: string,
-    entryId: string,
-    entryType: string,
-): Promise<{ success: boolean; error?: string }> {
-    const response = await apiClient<unknown>(`/opportunities/${id}/conversations`, {
-        method: 'POST',
-        body: JSON.stringify({ entryId, entryType }),
-    });
-    if (response.error) return { success: false, error: response.error.message };
-    return { success: true };
 }
 
 export async function unlinkOpportunityConversationAction(

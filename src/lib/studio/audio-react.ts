@@ -9,7 +9,7 @@ import { vfxTrackIds } from "./vfx-tracks";
 
 const SILENT_POWER = 1e-12;
 
-export interface HeardTrack {
+interface HeardTrack {
   timeline: VideoDocument;
   trackId: string;
   spectrum: boolean;
@@ -27,7 +27,7 @@ export function heardTracks(doc: VideoDocument): HeardTrack[] {
   });
 }
 
-export function trackBands(doc: VideoDocument, trackId: string, spectra: SpectrumSource): Float32Array[] | null {
+function trackBands(doc: VideoDocument, trackId: string, spectra: SpectrumSource): Float32Array[] | null {
   const track = doc.tracks.find((candidate) => candidate.id === trackId && candidate.kind === "audio");
   if (!track) return null;
   const bands: Float32Array[] = [];
@@ -42,11 +42,11 @@ export function trackBands(doc: VideoDocument, trackId: string, spectra: Spectru
   return bands;
 }
 
-export const REACT_WINDOW_MS = 100;
+const REACT_WINDOW_MS = 100;
 
 const WINDOW_STEPS = REACT_WINDOW_MS / LOUDNESS_STEP_MS;
 
-export function trackLevel(doc: VideoDocument, trackId: string, profiles: LoudnessSource): TrackLevel | null {
+function trackLevel(doc: VideoDocument, trackId: string, profiles: LoudnessSource): TrackLevel | null {
   const track = doc.tracks.find((candidate) => candidate.id === trackId && candidate.kind === "audio");
   if (!track) return null;
   const powers = trackPowers(doc, track, profiles, { trackGainDb: 0 });

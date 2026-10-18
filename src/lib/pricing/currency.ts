@@ -1,5 +1,5 @@
 
-export function microsToUsd(micros: number): number {
+function microsToUsd(micros: number): number {
     return micros / 1_000_000;
 }
 
@@ -13,7 +13,7 @@ export function microsToBrl(micros: number, exchangeRate: number | null): number
     return microsToUsd(micros) * exchangeRate;
 }
 
-export function formatBrl(value: number, locale = "pt-BR"): string {
+function formatBrl(value: number, locale = "pt-BR"): string {
     return new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(value);
 }
 

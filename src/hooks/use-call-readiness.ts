@@ -4,7 +4,7 @@ import { useCallSession } from "@/contexts/call-session-context";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { callBlocker, isCallLive, type CallBlocker } from "@/lib/call-session/call-readiness";
 
-export interface CallReadiness {
+interface CallReadiness {
   online: boolean;
   live: boolean;
   blocker: CallBlocker | null;

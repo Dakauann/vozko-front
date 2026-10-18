@@ -10,8 +10,8 @@ import { useEditorUi, useImageDoc, useImageEditor } from "./editor-state";
 import { Inspector } from "./inspector/inspector";
 import { LayersPanel } from "./panels/layers-panel";
 
-export const MIN_LAYERS_PX = 120;
-export const MIN_INSPECTOR_PX = 160;
+const MIN_LAYERS_PX = 120;
+const MIN_INSPECTOR_PX = 160;
 const KEY_STEP_PX = 24;
 
 export function RightDock() {

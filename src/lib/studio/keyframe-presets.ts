@@ -102,7 +102,7 @@ export function pastePatch(clip: PresetClip & Pick<Clip, "keyframes">, snippet: 
   return checked(mergeKeyframes(clip.keyframes, shiftKeyframes(snippet, Math.round(localMs)) ?? {}), clip);
 }
 
-export type KeyframeClipboardAction = "copy" | "paste" | "reversePaste";
+type KeyframeClipboardAction = "copy" | "paste" | "reversePaste";
 
 export function keyframeClipboardAction(stroke: KeyStroke): KeyframeClipboardAction | null {
   if (!(stroke.ctrlKey || stroke.metaKey) || !stroke.altKey || isEditableTarget(stroke.target)) return null;

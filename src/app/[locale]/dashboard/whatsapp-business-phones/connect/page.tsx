@@ -155,8 +155,6 @@ export default function ConnectWhatsAppPage() {
         />
       ) : (
         <ConnectPanel className="space-y-6">
-          {
-}
           <div className="rounded-lg border border-border bg-muted p-4">
             <WhatsAppCapacityCard capacity={capacity} variant="bare" />
           </div>
@@ -190,8 +188,6 @@ export default function ConnectWhatsAppPage() {
                   </span>
                 </div>
 
-                {
-}
                 <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
                   <li>{t("connect.steps.step1")}</li>
                   <li>{t("connect.steps.step2")}</li>

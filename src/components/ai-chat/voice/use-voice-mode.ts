@@ -19,7 +19,7 @@ export type VoicePhase =
   | "thinking"
   | "speaking";
 
-export const ECHO_GRACE_MS = 1500;
+const ECHO_GRACE_MS = 1500;
 
 interface Options {
   messages: UIMessage[];
@@ -30,7 +30,7 @@ interface Options {
   stop: () => void;
 }
 
-export function answerText(message: UIMessage): string {
+function answerText(message: UIMessage): string {
   const texts = (message.segments ?? []).flatMap((s) =>
     s.kind === "text" ? [s.text] : [],
   );

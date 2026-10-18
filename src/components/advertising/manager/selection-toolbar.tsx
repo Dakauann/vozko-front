@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { TOOLBAR_CONTROL } from "../report-controls";
 import type { BlockerText } from "./use-blocker-text";
 
-export interface ToolbarStates {
+interface ToolbarStates {
   create: ActionState;
   publish: ActionState;
   duplicate: ActionState;
@@ -34,7 +34,7 @@ export interface ToolbarStates {
   abTest: ActionState | null;
 }
 
-export interface ToolbarHandlers {
+interface ToolbarHandlers {
   onCreate: () => void;
   onPublish: () => void;
   onDuplicate: () => void;

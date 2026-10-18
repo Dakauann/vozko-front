@@ -696,9 +696,7 @@ export function AdminPlansManager() {
           icon={<Package className="h-6 w-6" weight="fill" />}
         />
       </div>
-
-      {
-}
+
       <section className="well">
         <div className="flex flex-col gap-x-8 gap-y-4 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
           <dl className="flex flex-wrap items-end gap-x-8 gap-y-3">
@@ -751,9 +749,7 @@ export function AdminPlansManager() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
-        {
-}
+      <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
         <section className="well h-fit overflow-hidden">
           <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
             <p className="legend">{t("register")}</p>
@@ -838,9 +834,7 @@ export function AdminPlansManager() {
             </ul>
           )}
         </section>
-
-        {
-}
+
         <section className="well overflow-hidden">
           {!draft ? null : (
             <>

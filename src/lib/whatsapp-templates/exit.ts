@@ -100,7 +100,7 @@ export interface TemplateActionsChange {
 
 export type ExitVerdictState = "ok" | "none";
 
-export interface ExitGates {
+interface ExitGates {
   templateExitRequired: boolean;
   campaignAcknowledgementRequired: boolean;
 }
@@ -140,11 +140,11 @@ export interface CampaignButtonRoutes {
 
 export type ButtonChoices = Record<number, ButtonActionChoice | null>;
 
-export function inputOf(action: ButtonActionInput): ButtonActionInput {
+function inputOf(action: ButtonActionInput): ButtonActionInput {
   return { buttonIndex: action.buttonIndex, buttonText: action.buttonText, kind: action.kind, params: action.params, confirmation: action.confirmation };
 }
 
-export type SeenTexts = Record<number, string>;
+type SeenTexts = Record<number, string>;
 
 export function seenTexts(buttons: readonly ButtonRoute[], actions: readonly ButtonActionView[], confirmed: ReadonlySet<number>): SeenTexts {
   const shown: SeenTexts = Object.fromEntries(buttons.map((button) => [button.index, button.text]));

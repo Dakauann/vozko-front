@@ -21,7 +21,7 @@ import { ColorField, IconButton, InspectorSection, NumberField, SelectField, Sli
 
 const CUSTOM = "custom";
 
-export interface GradientMapSectionProps {
+interface GradientMapSectionProps {
   map: GradientMap | undefined;
   disabled: boolean;
   onChange: (map: GradientMap | undefined) => void;

@@ -23,7 +23,7 @@ export type PricingItemDraft = {
   defaultMarkupPct: number;
 };
 
-export function pricingItemKey(
+function pricingItemKey(
   category: string,
   service: string,
   metric: string,

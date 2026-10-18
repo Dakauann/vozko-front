@@ -44,9 +44,9 @@ export const QR_LOGO_MAX: Readonly<Record<QrEcc, number>> = { L: 0, M: 0.2, Q: 0
 
 export const QR_DEFAULTS = { ecc: "M", logoEcc: "H", quietZone: 4, dark: "#111111", light: "#ffffff", logoScale: 0.22 } as const satisfies { ecc: QrEcc; logoEcc: QrEcc; quietZone: number; dark: string; light: string; logoScale: number };
 
-export const QR_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "qr", "layoutItem"];
+const QR_LAYER_FIELDS: readonly string[] = ["id", "type", "name", "transform", "hidden", "locked", "groupId", "qr", "layoutItem"];
 
-export const WHATSAPP_LINK_BASE = "https://wa.me/";
+const WHATSAPP_LINK_BASE = "https://wa.me/";
 
 const URL_PATTERN = /^https?:\/\/[^\s/?#]+[^\s]*$/i;
 const PHONE_PATTERN = /^[1-9]\d{7,14}$/;
@@ -58,15 +58,11 @@ const TEXT_BREAKS = new Set(["\n", "\r", "\t"]);
 
 export type QrScanProblem = "contrast" | "inverted" | "quietZone" | "tooLong" | "logoEcc" | "logoSize";
 
-export function isQrLayer(layer: Pick<Layer, "type">): boolean {
-  return layer.type === "qr";
-}
-
 export function isQrEcc(value: unknown): value is QrEcc {
   return typeof value === "string" && (QR_ECC_LEVELS as readonly string[]).includes(value);
 }
 
-export function isQrLinkKind(value: unknown): value is QrLinkKind {
+function isQrLinkKind(value: unknown): value is QrLinkKind {
   return typeof value === "string" && (QR_LINK_KINDS as readonly string[]).includes(value);
 }
 
@@ -197,7 +193,7 @@ export function qrLayerIssue(layer: Layer): IssueCode | null {
   return qrIssue(layer.qr);
 }
 
-export interface ModuleRect {
+interface ModuleRect {
   start: number;
   side: number;
 }
@@ -208,7 +204,7 @@ export function logoPlate(size: number, logo: QrLogo): ModuleRect {
   return { start: (size - side) / 2, side };
 }
 
-export function hiddenPerBlock(symbol: QrSymbol, plate: ModuleRect): number[] {
+function hiddenPerBlock(symbol: QrSymbol, plate: ModuleRect): number[] {
   const hidden = Array.from({ length: symbol.blocks }, () => new Set<number>());
   for (let y = plate.start; y < plate.start + plate.side; y++) {
     for (let x = plate.start; x < plate.start + plate.side; x++) {

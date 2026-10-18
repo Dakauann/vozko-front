@@ -16,7 +16,7 @@ export type LutState = LutAtlas | "loading" | "missing";
 
 export type LutLookup = (assetId: string) => LutState;
 
-export interface ColorLook {
+interface ColorLook {
   grade?: ColorGrade;
   gradientMap?: GradientMap;
   blurPx?: number;
