@@ -190,6 +190,7 @@ export interface LeadRecord {
     customFields?: Record<string, unknown>;
     relativesCount: number;
     referredCount: number;
+    companyId?: string;
     version: number;
     createdAt?: string;
     updatedAt?: string;
@@ -223,10 +224,20 @@ export interface LeadCard {
     ownerName?: string;
     optedOutAt?: string | null;
     optOutSource?: LeadOptOutSource;
+    optOut?: LeadCardOptOut;
     area?: LeadArea;
     customFields?: Record<string, unknown>;
     relativesCount: number;
     referredCount: number;
+}
+
+export interface LeadCardOptOut {
+    at: string;
+    source: string;
+    actorType: string;
+    evidenceType?: string;
+    excerpt?: string;
+    confirmationSentAt?: string;
 }
 
 export interface LeadAreaInput {

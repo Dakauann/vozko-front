@@ -204,6 +204,8 @@ export interface InboxEntry {
     last_message_type: MessageType;
     last_message_sender: string;
     last_message_sender_avatar: string;
+    last_message_author?: string;
+    last_message_from_us?: boolean;
     window_open: boolean;
     window_expires_at: string | null;
     business_phone_id: string;
@@ -704,6 +706,7 @@ export type WsServerEvent =
     | { type: 'conversation:analysis_update'; payload: WsAnalysisUpdatePayload }
     | { type: 'conversation:lead_update'; payload: LeadUpdateEvent }
     | { type: 'conversation:leads_bulk_update'; payload: LeadsBulkUpdateEvent }
+    | { type: 'notification:created'; payload: unknown }
     | { type: 'conversation:error'; payload: WsErrorPayload };
 
 

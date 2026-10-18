@@ -156,8 +156,42 @@ export async function setLeadOwnerAction(leadId: string, ownerId: string): Promi
     return postLeadCommand(leadId, 'owner', { ownerId });
 }
 
+export async function setLeadCompanyAction(leadId: string, companyId: string | null): Promise<LeadCommandResult> {
+    return postLeadCommand(leadId, 'company', { companyId });
+}
+
 export async function optOutLeadAction(leadId: string, source: LeadOptOutSource): Promise<LeadCommandResult> {
     return postLeadCommand(leadId, 'opt-out', { source });
+}
+
+export interface LeadConsentGrant {
+    note: string;
+    purpose?: string;
+}
+
+export type LeadConsentResult =
+    | { lead: LeadRecord; changed: boolean; error: null }
+    | { lead: null; error: LeadRefusal };
+
+function consentGrantBody(grant: LeadConsentGrant): Record<string, unknown> {
+    const purpose = grant.purpose?.trim();
+    return {
+        kind: 'grant',
+        source: 'manual',
+        ...(purpose ? { purpose } : {}),
+        evidence: { type: 'note', excerpt: grant.note.trim() },
+    };
+}
+
+export async function grantLeadConsentAction(leadId: string, grant: LeadConsentGrant): Promise<LeadConsentResult> {
+    const response = await apiClient<{ lead?: unknown; changed?: unknown }>(`${leadPath(leadId)}/consent`, {
+        method: 'POST',
+        body: JSON.stringify(consentGrantBody(grant)),
+    });
+    if (response.error) return { lead: null, error: codedRefusalOf(response.error) };
+    const recorded = response.data?.lead;
+    if (!isLeadRecord(recorded)) return { lead: null, error: EMPTY_ANSWER };
+    return { lead: recorded, changed: response.data?.changed === true, error: null };
 }
 
 export async function setLeadDistrictAction(leadId: string, area: LeadAreaInput): Promise<LeadCommandResult> {

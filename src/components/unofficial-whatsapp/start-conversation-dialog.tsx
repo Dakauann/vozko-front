@@ -15,7 +15,8 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { SessionState } from "@/components/unofficial-whatsapp/session-state";
 import type { UnofficialWhatsAppInstance } from "@/lib/unofficial-whatsapp/types";
-import { CheckCircle, Warning } from "@/components/icons";
+import { CheckCircle } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 import { cn } from "@/lib/utils";
 import { normalizeRecipients } from "@/lib/unofficial-whatsapp/recipients";
 import { useTranslations } from "next-intl";
@@ -177,15 +178,14 @@ export function StartConversationDialog({
 
               {
 }
-              <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted p-3">
-                <Warning className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink" aria-hidden />
-                <p className="text-xs leading-relaxed text-muted-foreground">{t("risk")}</p>
-              </div>
+              <Notice tone="warning">
+                <p>{t("risk")}</p>
+              </Notice>
 
               {error && (
-                <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-destructive-ink">
-                  {error}
-                </p>
+                <Notice tone="fault">
+                  <p>{error}</p>
+                </Notice>
               )}
             </>
           )}

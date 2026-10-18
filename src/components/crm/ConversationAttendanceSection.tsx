@@ -11,8 +11,10 @@ import {
   ClockCounterClockwise,
   FlowArrow,
   Phone,
+  Prohibit,
   Queue,
   Robot,
+  ShieldCheck,
   Tag,
   UserCircle,
   UserMinus,
@@ -32,6 +34,8 @@ import type { EntryType } from "@/lib/conversations/types";
 import { closeOutcomeLabel } from "@/lib/conversations/close-outcome";
 import { useOutcomeCapture } from "@/hooks/use-outcome-capture";
 import { aiSessionEndLine } from "@/lib/conversations/ai-session-end";
+import { LEAD_EXIT_ACTION, LEAD_SEND_REFUSED, leadExitView, type LeadExitTone } from "@/lib/conversations/lead-exit-event";
+import { LeadExitEventLine } from "./LeadExitEventLine";
 import {
   eventMatchesFilter,
   isHandoffEvent,
@@ -91,9 +95,17 @@ const KNOWN_EVENT_TYPES = new Set([
   "queue_abandoned",
   "queue_overflow",
   "call_linked",
+  LEAD_EXIT_ACTION,
+  LEAD_SEND_REFUSED,
 ]);
 
 type IconComp = typeof UserPlus;
+
+const EXIT_TONE_VISUAL: Record<LeadExitTone, { Icon: IconComp; tile: string }> = {
+  ok: { Icon: ShieldCheck, tile: "tile-healthy" },
+  neutral: { Icon: ShieldCheck, tile: "tile-neutral" },
+  refused: { Icon: Prohibit, tile: "tile-warning" },
+};
 
 function iconForEvent(type: string): { Icon: IconComp; tile: string } {
   switch (type) {
@@ -689,14 +701,15 @@ export default function ConversationAttendanceSection({
                 </p>
                 <ul className="space-y-1.5">
                   {dayEvents.map((ev) => {
-                    const { Icon: EvIcon, tile: evTile } = iconForEvent(
-                      ev.event_type,
-                    );
                     const kind = normalizeActorKind(
                       ev.actor_kind,
                       ev.actor_id,
                     );
                     const details = parseEventDetails(ev.details);
+                    const exitView = leadExitView(ev.event_type, details);
+                    const { Icon: EvIcon, tile: evTile } = exitView
+                      ? EXIT_TONE_VISUAL[exitView.tone]
+                      : iconForEvent(ev.event_type);
                     const who = resolveEventParticipants(
                       ev,
                       details,
@@ -711,7 +724,10 @@ export default function ConversationAttendanceSection({
                             to: who.to,
                           })
                         : null;
-                    const sub = aiEnd
+                    const exitEvent = exitView !== null;
+                    const sub = exitEvent
+                      ? null
+                      : aiEnd
                       ? t(`aiSessionEnd.${aiEnd.key}` as "aiSessionEnd.paused", aiEnd.values)
                       : detailLine(details, (key, values) =>
                           t(`details.${key}` as "details.assignedTo", values),
@@ -799,6 +815,7 @@ export default function ConversationAttendanceSection({
                               {sub}
                             </p>
                           ) : null}
+                          {exitEvent ? <LeadExitEventLine type={ev.event_type} details={details} /> : null}
                         </div>
                       </li>
                     );

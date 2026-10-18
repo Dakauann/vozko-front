@@ -2,6 +2,8 @@
 
 import { ArrowDown, ArrowsLeftRight, CalendarBlank, Receipt } from "@/components/icons";
 import { useLocale, useTranslations } from "next-intl";
+import { StatusChip } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 
 import {
   ElevatedDialog,
@@ -11,7 +13,6 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import type { Invoice, InvoiceLineItem } from "@/lib/invoices/types";
-import { cn } from "@/lib/utils";
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -102,16 +103,9 @@ export function InvoiceDetailDialog({
                         ) : null}
                       </p>
                       <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1 rounded-[--radius] px-1.5 py-0.5 text-2xs font-medium",
-                            item.creditable
-                              ? "bg-muted text-healthy-ink"
-                              : "bg-muted text-muted-foreground",
-                          )}
-                        >
+                        <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
                           {item.creditable ? (
-                            <ArrowDown className="h-2.5 w-2.5" weight="bold" />
+                            <ArrowDown className="h-2.5 w-2.5 text-healthy" weight="bold" />
                           ) : (
                             <ArrowsLeftRight className="h-2.5 w-2.5" weight="bold" />
                           )}
@@ -120,9 +114,12 @@ export function InvoiceDetailDialog({
                             : t("detail.passthroughTag")}
                         </span>
                         {item.prorated ? (
-                          <span className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-2xs font-medium text-warning-ink">
-                            {t("detail.proratedTag")}
-                          </span>
+                          <StatusChip
+                            tone="outline"
+                            label={t("detail.proratedTag")}
+                            icon={<span className="h-1.5 w-1.5 rounded-full bg-warning" />}
+                            className="px-1.5 text-2xs"
+                          />
                         ) : null}
                       </div>
                     </div>
@@ -153,12 +150,9 @@ export function InvoiceDetailDialog({
           )}
 
           {creditedBRL > 0 ? (
-            <p className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2.5 text-xs text-healthy-ink">
-              <ArrowDown className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="bold" />
-              <span>
-                {t("detail.saldoNote", { amount: formatBRL(creditedBRL) })}
-              </span>
-            </p>
+            <Notice tone="healthy" icon={<ArrowDown weight="bold" />}>
+              <p>{t("detail.saldoNote", { amount: formatBRL(creditedBRL) })}</p>
+            </Notice>
           ) : null}
 
           {invoice.purpose === "MONTHLY_BILLING" &&

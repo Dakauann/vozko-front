@@ -11,6 +11,7 @@ const blockLeadAction = vi.fn();
 const renameLeadAction = vi.fn();
 const getEntryLeadCardAction = vi.fn();
 
+vi.mock("@/components/customer-portfolio/ConversationPortfolio", () => ({ ConversationPortfolio: () => null }));
 vi.mock("@/app/actions/leads", () => ({
   blockLeadAction: (...args: unknown[]) => blockLeadAction(...args),
   renameLeadAction: (...args: unknown[]) => renameLeadAction(...args),

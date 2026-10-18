@@ -52,9 +52,6 @@ export interface CallDimensionTotals {
 }
 
 export interface CallDimensionBreakdown {
-    stt: CallDimensionTotals;
-    tts: CallDimensionTotals;
-    llm: CallDimensionTotals;
     telephony: CallDimensionTotals;
     total: CallDimensionTotals;
 }

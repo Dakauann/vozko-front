@@ -160,7 +160,7 @@ export async function createWorkflowAction(payload: CreateWorkflowPayload) {
     const response = await apiClient<Workflow>('/workflows', { method: 'POST', body: JSON.stringify(payload) });
 
     if (response.error) {
-        return { workflow: null as Workflow | null, error: response.error.message };
+        return { workflow: null as Workflow | null, error: response.error.message, code: response.error.code };
     }
     return { workflow: response.data ?? null };
 }
@@ -172,7 +172,7 @@ export async function updateWorkflowAction(id: string, payload: UpdateWorkflowPa
     });
 
     if (response.error) {
-        return { workflow: null as Workflow | null, error: response.error.message };
+        return { workflow: null as Workflow | null, error: response.error.message, code: response.error.code };
     }
     return { workflow: response.data ?? null };
 }
@@ -289,7 +289,7 @@ export async function activateWorkflowAction(id: string) {
     const response = await apiClient<Workflow>(`/workflows/${encodeURIComponent(id)}/activate`, { method: 'POST' });
 
     if (response.error) {
-        return { workflow: null as Workflow | null, error: response.error.message };
+        return { workflow: null as Workflow | null, error: response.error.message, code: response.error.code };
     }
     return { workflow: response.data ?? null };
 }

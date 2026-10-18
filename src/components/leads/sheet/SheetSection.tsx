@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
-export const SHEET_ANCHORS = ["identity", "phones", "addresses", "family", "owner", "customFields", "consent"] as const;
+export const SHEET_ANCHORS = ["identity", "phones", "addresses", "family", "owner", "company", "customFields", "consent"] as const;
 
 export type SheetAnchor = (typeof SHEET_ANCHORS)[number];
 

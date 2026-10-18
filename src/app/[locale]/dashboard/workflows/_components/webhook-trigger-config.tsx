@@ -12,7 +12,6 @@ import {
   LinkSimple,
   CircleNotch,
   Code,
-  Warning,
 } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -26,6 +25,7 @@ import {
   TabsTrigger,
 } from "@/components/elevated-design/elevated-tabs";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import { Notice } from "@/components/ui/notice";
 import { cn } from "@/lib/utils";
 import {
   getWorkflowWebhookAction,
@@ -941,17 +941,12 @@ function Mono({ children }: { children: React.ReactNode }) {
 
 function NoticeLine({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-1.5 rounded-[--radius] border border-border bg-muted px-2.5 py-2 text-warning-ink">
-      <Warning className="mt-px h-3.5 w-3.5 shrink-0" weight="bold" />
-      <p className="text-2xs leading-relaxed">{children}</p>
-    </div>
+    <Notice tone="warning">{children}</Notice>
   );
 }
 
 function ErrorLine({ message }: { message: string }) {
   return (
-    <p className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-destructive-ink dark:border-border dark:text-destructive-ink">
-      {message}
-    </p>
+    <Notice tone="fault">{message}</Notice>
   );
 }

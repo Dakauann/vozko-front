@@ -17,6 +17,11 @@ import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
+  StatusChip,
+  type StatusChipTone,
+} from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
+import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
@@ -51,21 +56,21 @@ function formatBRL(value: number): string {
 
 const STATUS_CONFIG: Record<
   string,
-  { icon: Icon; className: string; fallbackLabel: string }
+  { icon: Icon; tone: StatusChipTone; fallbackLabel: string }
 > = {
   pending: {
     icon: Clock,
-    className: "bg-muted text-warning-ink border-border",
+    tone: "warning",
     fallbackLabel: "Pending",
   },
   paid: {
     icon: CheckCircle,
-    className: "bg-muted text-healthy-ink border-border",
+    tone: "healthy",
     fallbackLabel: "Paid",
   },
   cancelled: {
     icon: XCircle,
-    className: "bg-muted text-destructive-ink border-border",
+    tone: "fault",
     fallbackLabel: "Cancelled",
   },
 };
@@ -167,12 +172,11 @@ export default function AffiliateEarningsPage() {
           const known = key in STATUS_CONFIG;
           const label = known ? t(`status.${key}`) : cfg.fallbackLabel;
           return (
-            <span
-              className={`inline-flex items-center gap-1 rounded-[--radius] border px-2.5 py-0.5 text-xs font-semibold ${cfg.className}`}
-            >
-              <StatusIcon className="h-3 w-3" weight="fill" />
-              {label}
-            </span>
+            <StatusChip
+              tone={cfg.tone}
+              label={label}
+              icon={<StatusIcon className="h-3 w-3" weight="fill" />}
+            />
           );
         },
       },
@@ -218,11 +222,7 @@ export default function AffiliateEarningsPage() {
         description={headerT("earnings.headerDescription")}
       />
 
-      {error ? (
-        <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
-          {error}
-        </div>
-      ) : null}
+      {error ? <Notice tone="fault">{error}</Notice> : null}
 
       {loading && rows.length === 0 ? (
         <ScreenLoader fit="fill" className="min-h-[30vh]" />

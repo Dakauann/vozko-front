@@ -4,11 +4,12 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type StatusChipTone = "healthy" | "warning" | "muted" | "neutral" | "outline";
+export type StatusChipTone = "healthy" | "warning" | "fault" | "muted" | "neutral" | "outline";
 
 const TONE_CLASS: Record<StatusChipTone, string> = {
   healthy: "bg-healthy text-healthy-foreground",
   warning: "bg-warning text-warning-foreground",
+  fault: "bg-destructive text-destructive-foreground",
   muted: "bg-muted text-muted-foreground",
   neutral: "bg-[hsl(var(--plate-neutral))] text-white",
   outline: "border border-border bg-card text-foreground",

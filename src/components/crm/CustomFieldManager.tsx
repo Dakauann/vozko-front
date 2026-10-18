@@ -17,6 +17,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { ToneSwatch } from "@/components/elevated-design/tone-swatch";
 import { SectionError } from "@/components/dashboard/attendance/primitives";
@@ -377,6 +378,7 @@ function DraftForm({
         label={t("required")}
         checked={draft.required}
         onCheckedChange={(checked) => setDraft({ ...draft, required: checked })}
+        explainer={<ExplainerHint id="crm.requiredField" />}
       />
 
       {lead ? (
@@ -417,6 +419,7 @@ function DraftForm({
           description={t("role.classificationHint")}
           checked={draft.classification}
           onCheckedChange={(checked) => setDraft({ ...draft, classification: checked })}
+          explainer={<ExplainerHint id="crm.classificationField" />}
         />
       ) : null}
 

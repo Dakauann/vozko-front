@@ -18,7 +18,7 @@ import { LEAD_ACTION_PROPOSAL_KIND } from "@/lib/aichat/lead-action-proposal";
 import type { ProposalPreview as Preview } from "@/lib/aichat/types";
 import { parseVideoPlan, type VideoPlanTrack } from "@/lib/aichat/video-plan";
 import { formatMicrosAsBrl } from "@/lib/pricing/currency";
-import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
+import { toDraftComponents } from "@/lib/whatsapp-templates/draft";
 import type { TemplateComponent } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +35,7 @@ function TemplateProposalPreview({ data }: { data: TemplatePreviewData }) {
   return (
     <div className="mx-auto w-full max-w-sm overflow-hidden rounded-[--radius] border border-border shadow-md">
       <WhatsAppPreview
-        components={toPreviewComponents(data.components ?? [], data.headerMediaUrl)}
+        components={toDraftComponents(data.components ?? [], data.headerMediaUrl)}
         templateName={data.name}
         language={data.language}
       />

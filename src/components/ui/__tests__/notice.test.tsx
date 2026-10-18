@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Notice } from "../notice";
 
 describe("Notice", () => {
-  it("draws on the system notice ground and spends the tone on the mark and the title", () => {
+  it("draws on the card ground and spends the tone only on the mark", () => {
     render(
       <Notice tone="warning" title="Lista pausada">
         Ninguém pega novos contatos.
@@ -12,8 +12,9 @@ describe("Notice", () => {
     );
     const notice = screen.getByRole("status");
     expect(notice).toHaveClass("notice", "notice-warning");
-    expect(screen.getByText("Lista pausada")).toHaveClass("notice-ink");
-    expect(notice.querySelector("svg")?.closest(".notice-ink")).not.toBeNull();
+    expect(screen.getByText("Lista pausada")).toHaveClass("text-foreground");
+    expect(screen.getByText("Lista pausada").closest(".notice-mark")).toBeNull();
+    expect(notice.querySelector("svg")?.closest(".notice-mark")).not.toBeNull();
     expect(notice.className).not.toMatch(/bg-/);
   });
 
@@ -28,7 +29,7 @@ describe("Notice", () => {
         Encerrada
       </Notice>,
     );
-    expect(screen.getByTestId("own-glyph").closest(".notice-ink")).not.toBeNull();
+    expect(screen.getByTestId("own-glyph").closest(".notice-mark")).not.toBeNull();
     expect(screen.getByRole("status")).toHaveClass("notice-healthy");
   });
 });

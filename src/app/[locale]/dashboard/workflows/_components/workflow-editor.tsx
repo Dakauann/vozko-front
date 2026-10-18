@@ -117,6 +117,8 @@ import {
   workflowTypeOfTriggerDefinition,
 } from "@/lib/workflows/workflow-types";
 import { nextShortNodeId } from "@/lib/workflows/node-ids";
+import { localizedLintIssues } from "@/lib/workflows/lint-copy";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 
 interface WorkflowEditorProps {
   workflow?: Workflow | null;
@@ -694,6 +696,7 @@ export function WorkflowEditor({
 
   const domainGraph = useMemo(() => flowToDomain(nodes, edges), [nodes, edges]);
   const lint = useWorkflowLint({ workflowType, graph: domainGraph });
+  const lintIssues = useMemo(() => localizedLintIssues(t, lint.issues), [t, lint.issues]);
 
   const nodeLabelById = useMemo(() => {
     const map = new Map<string, string>();
@@ -1445,7 +1448,7 @@ export function WorkflowEditor({
       };
       const result = await createWorkflowAction(payload);
       if (result.error) {
-        toast.error(result.error);
+        toast.error(codedErrorMessage(t, { code: result.code }, result.error));
       } else if (result.workflow) {
         toast.success(t("saved"));
         setWorkflowState(result.workflow);
@@ -1481,7 +1484,7 @@ export function WorkflowEditor({
 
       const result = await updateWorkflowAction(workflowState.id, payload);
       if (result.error) {
-        toast.error(result.error);
+        toast.error(codedErrorMessage(t, { code: result.code }, result.error));
       } else {
         toast.success(t("saved"));
         const latest = await getWorkflowAction(workflowState.id);
@@ -1498,7 +1501,7 @@ export function WorkflowEditor({
     if (!workflowState) return;
     const result = await activateWorkflowAction(workflowState.id);
     if (result.error) {
-      toast.error(result.error);
+      toast.error(codedErrorMessage(t, { code: result.code }, result.error));
     } else {
       toast.success(t("activated"));
       if (result.workflow) {
@@ -1607,7 +1610,7 @@ export function WorkflowEditor({
 
         <WorkflowAlerts
           valid={lint.valid}
-          issues={lint.issues}
+          issues={lintIssues}
           linting={lint.linting}
           nodeLabel={(id) => nodeLabelById.get(id)}
           onFocusNode={focusNode}

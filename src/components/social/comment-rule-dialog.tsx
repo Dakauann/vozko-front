@@ -1,6 +1,5 @@
 "use client";
 
-import { Warning } from "@/components/icons";
 import { useState } from "react";
 
 import Button from "@/components/elevated-design/button";
@@ -13,6 +12,8 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
+import { Notice } from "@/components/ui/notice";
 import {
   commentRuleFieldsErrors,
   type CommentRule,
@@ -120,7 +121,10 @@ export function CommentRuleDialog({
           {(containerId || rule?.containerId) && (
             <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
               <div className="min-w-0 space-y-0.5">
-                <span className="text-sm font-medium text-foreground">{t("fieldScope")}</span>
+                <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  {t("fieldScope")}
+                  <ExplainerHint id="social.commentRuleScope" />
+                </span>
                 <p className="text-xs text-muted-foreground">
                   {scopeToPost ? t("fieldScopePost") : t("fieldScopeAccount")}
                 </p>
@@ -131,17 +135,19 @@ export function CommentRuleDialog({
 
           <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
             <div className="min-w-0 space-y-0.5">
-              <span className="text-sm font-medium text-foreground">{t("fieldEnabled")}</span>
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                {t("fieldEnabled")}
+                <ExplainerHint id="social.commentRuleEnabled" />
+              </span>
               <p className="text-xs text-muted-foreground">{t("fieldEnabledHint")}</p>
             </div>
             <ElevatedSwitch checked={enabled} onCheckedChange={setEnabled} aria-label={t("fieldEnabled")} />
           </div>
 
           {error && (
-            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-              <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {error}
-            </p>
+            <Notice tone="fault">
+              <p>{error}</p>
+            </Notice>
           )}
         </div>
 

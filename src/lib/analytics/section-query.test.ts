@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   SectionError,
+  codedSectionError,
   isBusySectionError,
   requireSectionData,
   sectionErrorCode,
@@ -56,5 +57,19 @@ describe("section error codes", () => {
     const off = new SectionError("off", 503, "lead_map_unavailable");
     expect(shouldRetrySection(0, off)).toBe(false);
     expect(isBusySectionError(off)).toBe(false);
+  });
+});
+
+describe("codedSectionError", () => {
+  it("keeps the code and the status of a refused request", () => {
+    const error = codedSectionError({ message: "gone", code: "lead_company_not_found", status: 404 }, "lead company");
+    expect(error).toBeInstanceOf(SectionError);
+    expect(error.message).toBe("lead_company_not_found");
+    expect(error.status).toBe(404);
+    expect(sectionErrorCode(error)).toBe("lead_company_not_found");
+  });
+
+  it("names what failed when the refusal carries nothing", () => {
+    expect(codedSectionError({ message: "" }, "lead company").message).toBe("lead company failed");
   });
 });

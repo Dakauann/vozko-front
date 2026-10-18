@@ -4,8 +4,11 @@ import { ChatCircleDots, Pencil, Plus, Trash, Warning } from "@/components/icons
 import { useEffect, useState } from "react";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Notice } from "@/components/ui/notice";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import {
   toDraft,
   type CommentRule,
@@ -132,10 +135,9 @@ export function CommentRulesPanel({
         )}
 
         {error && (
-          <p className="mb-4 flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-            <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            {error}
-          </p>
+          <Notice tone="fault" className="mb-4">
+            <p>{error}</p>
+          </Notice>
         )}
 
         {loading ? (
@@ -210,6 +212,7 @@ export function CommentRulesPanel({
                     onCheckedChange={(v) => void handleToggle(rule, v)}
                     disabled={busyId === rule.id || !canManage}
                     aria-label={t("toggle", { name: rule.name })}
+                    explainer={<ExplainerHint id="social.commentRuleEnabled" align="end" />}
                   />
                   <button
                     type="button"
@@ -266,18 +269,19 @@ export function CommentRulesPanel({
 function ActionChip({ action, label }: { action: CommentRuleAction; label: string }) {
   const Icon = RULE_ACTION_ICONS[action];
   return (
-    <span
-      className={cn(
-        "flex items-center gap-1 rounded-[--radius] px-2 py-0.5 text-2xs font-medium",
-        action === "hide"
-          ? "bg-muted text-warning-ink dark:text-warning-ink"
-          : action === "delete"
-            ? "bg-muted text-destructive-ink"
-            : "bg-muted text-primary-ink",
-      )}
-    >
-      <Icon className="h-3 w-3" weight="fill" />
-      {label}
-    </span>
+    <StatusChip
+      tone="outline"
+      label={label}
+      className="gap-1 px-2 text-2xs"
+      icon={
+        <Icon
+          className={cn(
+            "h-3 w-3",
+            action === "hide" ? "text-warning-ink" : action === "delete" ? "text-destructive-ink" : "text-primary-ink",
+          )}
+          weight="fill"
+        />
+      }
+    />
   );
 }

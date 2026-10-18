@@ -21,6 +21,7 @@ const leadActions = vi.hoisted(() => ({
 const fieldDefinitions = vi.hoisted(() => ({ value: [] as CustomFieldDefinition[] }));
 const grants = vi.hoisted(() => ({ value: new Set<string>() }));
 
+vi.mock("@/components/customer-portfolio/ConversationPortfolio", () => ({ ConversationPortfolio: () => null }));
 vi.mock("@/app/actions/leads", () => leadActions);
 vi.mock("@/app/actions/opportunities", () => ({
   listOpportunitiesForEntryAction: () => Promise.resolve({ opportunities: [], error: null }),

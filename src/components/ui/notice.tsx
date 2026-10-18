@@ -29,12 +29,12 @@ export function Notice({
 }) {
   const Glyph = tone === "warning" || tone === "fault" ? WarningCircle : Info;
   return (
-    <div role={tone === "fault" ? "alert" : "status"} className={cn("notice flex items-start gap-2 px-3 py-2.5 text-xs", TONE_CLASS[tone], className)}>
-      <span aria-hidden className="notice-ink mt-0.5 inline-flex shrink-0 [&_svg]:h-4 [&_svg]:w-4">
+    <div role={tone === "fault" ? "alert" : "status"} className={cn("notice flex items-start gap-3 px-4 py-3.5 text-xs leading-relaxed", TONE_CLASS[tone], className)}>
+      <span aria-hidden className="notice-mark inline-flex h-5 shrink-0 items-center [&_svg]:h-[1.125rem] [&_svg]:w-[1.125rem]">
         {icon ?? <Glyph weight="fill" />}
       </span>
-      <div className="min-w-0 flex-1 space-y-0.5">
-        {title ? <p className="notice-ink font-semibold">{title}</p> : null}
+      <div className="min-w-0 flex-1 space-y-2">
+        {title ? <p className="text-sm font-semibold leading-5 text-foreground">{title}</p> : null}
         {children}
       </div>
     </div>

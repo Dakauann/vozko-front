@@ -12,13 +12,14 @@ type ElevatedSwitchProps = React.ComponentPropsWithoutRef<
   label?: string;
   description?: string;
   icon?: ReactNode;
+  explainer?: ReactNode;
   className?: string;
 };
 
 const ElevatedSwitch = forwardRef<
   React.ElementRef<typeof SwitchPrimitive.Root>,
   ElevatedSwitchProps
->(({ label, description, icon, className, id, ...props }, ref) => {
+>(({ label, description, icon, explainer, className, id, ...props }, ref) => {
   const generatedId = useId();
   const switchId = id ?? generatedId;
   return (
@@ -69,6 +70,7 @@ const ElevatedSwitch = forwardRef<
             {label}
           </label>
         )}
+        {explainer}
       </div>
 
       {description && (

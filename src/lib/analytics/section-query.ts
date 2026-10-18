@@ -1,3 +1,5 @@
+import type { CodedError } from "@/lib/api/coded-error";
+
 const BUSY_STATUS = 503;
 const BUSY_RETRIES = 3;
 const BUSY_RETRY_DELAY_MS = 5_000;
@@ -32,6 +34,10 @@ export function requireSectionData<T>(response: SectionResponse<T>, what: string
     throw new SectionError(`${what} came back empty`);
   }
   return response.data;
+}
+
+export function codedSectionError(error: CodedError, what: string): SectionError {
+  return new SectionError(error.code || error.message || `${what} failed`, error.status, error.code);
 }
 
 export function sectionErrorCode(error: unknown): string | undefined {

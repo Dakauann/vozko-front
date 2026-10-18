@@ -9,7 +9,6 @@ import {
   Plus,
   TelegramLogo,
   Trash,
-  Warning,
 } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 
@@ -32,6 +31,7 @@ import { TelegramAutomationPanel } from "@/components/telegram/telegram-automati
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
@@ -124,10 +124,7 @@ export default function TelegramAccountPage() {
 
   if (error || !account) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-        <Warning className="h-4 w-4" />
-        {error ?? t("profile.notFound")}
-      </div>
+      <Notice tone="fault">{error ?? t("profile.notFound")}</Notice>
     );
   }
 
@@ -171,20 +168,14 @@ export default function TelegramAccountPage() {
         </div>
 
         {issue === "webhook" && (
-          <p className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-foreground">
-            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-warning-ink dark:text-warning-ink" />
-            <span>
-              {t("profile.webhookLosingMessages")}
-              {account.webhookLastError ? `, ${account.webhookLastError}` : ""}
-            </span>
-          </p>
+          <Notice tone="warning">
+            {t("profile.webhookLosingMessages")}
+            {account.webhookLastError ? `, ${account.webhookLastError}` : ""}
+          </Notice>
         )}
 
         {issue === "token" && (
-          <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs leading-relaxed text-destructive-ink">
-            <Warning weight="fill" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-            {t("profile.tokenInvalidHelp")}
-          </p>
+          <Notice tone="fault">{t("profile.tokenInvalidHelp")}</Notice>
         )}
 
         <dl className="grid gap-3 sm:grid-cols-3">

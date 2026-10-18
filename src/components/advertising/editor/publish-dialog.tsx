@@ -13,6 +13,7 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { PaperPlaneTilt } from "@/components/icons";
 import type { EditorNode } from "@/lib/advertising/editor-tree";
 import type { JobPlan, PublishBlocker, ValidationState } from "@/lib/advertising/publish";
@@ -91,6 +92,7 @@ export function PublishDialog({
                 onCheckedChange={onKeepPaused}
                 label={tReview("keepPaused")}
                 description={tReview("keepPausedHint")}
+                explainer={<ExplainerHint id="ads.publishPaused" />}
               />
               <PublishNotes />
               {publishError ? <p className="text-sm text-destructive-ink">{errorText(publishError)}</p> : null}

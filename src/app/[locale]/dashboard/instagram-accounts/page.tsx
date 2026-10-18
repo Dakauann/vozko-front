@@ -32,6 +32,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { ChannelListPagination, ChannelListStat } from "@/components/channels/channel-list-parts";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { translateAccountType } from "@/lib/instagram/account-type";
@@ -351,12 +352,7 @@ export default function InstagramAccountsPage() {
         )}
       </div>
 
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {error}
-        </div>
-      )}
+      {error && <Notice tone="fault">{error}</Notice>}
 
       {loading ? (
         <DashboardTable<InstagramAccount>

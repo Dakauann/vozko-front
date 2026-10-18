@@ -11,7 +11,7 @@ import {
 } from "@/app/actions/call-lists";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useSectionPagesQuery, useSectionQuery } from "@/hooks/use-section-query";
-import { SectionError } from "@/lib/analytics/section-query";
+import { codedSectionError, type SectionError } from "@/lib/analytics/section-query";
 import type { CodedError } from "@/lib/api/coded-error";
 import type { ParsedAnswer } from "@/lib/api/parsed-request";
 import { decodeItemsCursor, encodeItemsCursor, type CallList, type CallListItemState, type CallListPage } from "@/lib/call-lists/types";
@@ -32,7 +32,7 @@ export const callListKeys = {
 };
 
 export function callListSectionError(error: CodedError): SectionError {
-  return new SectionError(error.code ?? error.message ?? "call list request failed", error.status, error.code);
+  return codedSectionError(error, "call list request");
 }
 
 function required<T>(answer: ParsedAnswer<T>): T {

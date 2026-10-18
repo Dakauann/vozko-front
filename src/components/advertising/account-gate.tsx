@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
 import { DashboardTable } from "@/components/elevated-design/table/dashboard-table";
-import { Megaphone, Plugs, Warning } from "@/components/icons";
+import { Megaphone, Plugs } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 import type { AdAccountsState } from "@/hooks/use-ad-accounts";
 import { ADVERTISING_PATH } from "@/lib/advertising/connect";
 import type { AdAccount } from "@/lib/advertising/types";
@@ -49,17 +50,18 @@ export function AccountGate({
     return (
       <div className="w-full space-y-6">
         {header}
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {accounts.error}
-          <button
-            type="button"
-            onClick={() => void accounts.reload()}
-            className="ml-auto font-semibold text-primary-ink hover:underline"
-          >
-            {t("retry")}
-          </button>
-        </div>
+        <Notice tone="fault">
+          <div className="flex items-center gap-2">
+            <p>{accounts.error}</p>
+            <button
+              type="button"
+              onClick={() => void accounts.reload()}
+              className="ml-auto font-semibold text-primary-ink hover:underline"
+            >
+              {t("retry")}
+            </button>
+          </div>
+        </Notice>
       </div>
     );
   }

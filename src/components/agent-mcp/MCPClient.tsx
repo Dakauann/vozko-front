@@ -16,7 +16,6 @@ import {
   PuzzlePiece,
   Stack,
   Trash,
-  Warning,
   WarningCircle,
 } from "@/components/icons";
 import {
@@ -44,6 +43,8 @@ import CollectionsTab from "@/components/agent-mcp/CollectionsTab";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 import { cn } from "@/lib/utils";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { toast } from "sonner";
@@ -71,41 +72,35 @@ function statusLabel(t: TranslateText, status: AgentMCPBindingStatus): string {
   }
 }
 
-function statusChipClasses(status: AgentMCPBindingStatus): string {
+function statusChipTone(status: AgentMCPBindingStatus): StatusChipTone {
   switch (status) {
     case "connected":
-      return "bg-muted border-border text-healthy-ink";
+      return "healthy";
     case "pending":
-      return "bg-muted border-border text-warning-ink";
+      return "warning";
     case "disconnected":
-      return "bg-muted border-border text-warning-ink";
-    case "revoked":
-      return "bg-muted border-border text-muted-foreground";
+      return "warning";
     case "error":
-      return "bg-muted border-border text-destructive-ink";
+      return "fault";
     default:
-      return "bg-muted border-border text-muted-foreground";
+      return "muted";
   }
 }
 
-function StatusChip({ status }: { status: AgentMCPBindingStatus }) {
+function BindingStatusChip({ status }: { status: AgentMCPBindingStatus }) {
   const t = useTranslations("mcpPage");
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
-        statusChipClasses(status),
-      )}
-    >
-      {status === "connected" ? (
-        <CheckCircle weight="fill" className="h-3.5 w-3.5" />
-      ) : status === "disconnected" ? (
-        <WarningCircle weight="fill" className="h-3.5 w-3.5" />
-      ) : status === "error" ? (
-        <WarningCircle weight="fill" className="h-3.5 w-3.5" />
-      ) : null}
-      {statusLabel(t, status)}
-    </span>
+    <StatusChip
+      tone={statusChipTone(status)}
+      label={statusLabel(t, status)}
+      icon={
+        status === "connected" ? (
+          <CheckCircle weight="fill" className="h-3.5 w-3.5" />
+        ) : status === "disconnected" || status === "error" ? (
+          <WarningCircle weight="fill" className="h-3.5 w-3.5" />
+        ) : undefined
+      }
+    />
   );
 }
 
@@ -472,7 +467,7 @@ export default function MCPClient() {
                                 <p className="min-w-0 truncate text-sm font-semibold text-foreground">
                                   {server.name}
                                 </p>
-                                <StatusChip status={server.status} />
+                                <BindingStatusChip status={server.status} />
                               </div>
                               <p className="mt-1 truncate font-mono text-2xs text-muted-foreground">
                                 {server.url}
@@ -642,7 +637,7 @@ function RemoteDetail({
             {t("detail.statusLabel")}
           </p>
           <div className="mt-2">
-            <StatusChip status={server.status} />
+            <BindingStatusChip status={server.status} />
           </div>
         </div>
         <div className="rounded-[--radius] border border-border bg-background p-4">
@@ -679,37 +674,13 @@ function RemoteDetail({
       </div>
 
       {server.status === "disconnected" ? (
-        <div
-          role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-warning-ink"
-        >
-          <Warning
-            weight="fill"
-            className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink"
-          />
-          <div>
-            <p className="font-semibold">{t("detail.disconnectedTitle")}</p>
-            <p className="mt-1 text-warning-ink/80">
-              {t("detail.disconnectedDescription")}
-            </p>
-          </div>
-        </div>
+        <Notice tone="fault" title={t("detail.disconnectedTitle")}>
+          <p>{t("detail.disconnectedDescription")}</p>
+        </Notice>
       ) : server.status === "error" ? (
-        <div
-          role="alert"
-          className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink"
-        >
-          <Warning
-            weight="fill"
-            className="mt-0.5 h-4 w-4 shrink-0 text-destructive-ink"
-          />
-          <div>
-            <p className="font-semibold">{t("detail.errorTitle")}</p>
-            <p className="mt-1 text-destructive-ink/80">
-              {t("detail.errorDescription")}
-            </p>
-          </div>
-        </div>
+        <Notice tone="fault" title={t("detail.errorTitle")}>
+          <p>{t("detail.errorDescription")}</p>
+        </Notice>
       ) : null}
     </>
   );

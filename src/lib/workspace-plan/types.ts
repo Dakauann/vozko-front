@@ -32,7 +32,6 @@ export interface PlanDefinition {
   description: string;
   basePriceBRLCents: number;
   maxCallChannels: number;
-  maxTtsConcurrency?: number;
   includedWhatsAppBusinessPhones?: number;
   maxBranches?: number;
   isGloballyVisible: boolean;
@@ -59,7 +58,6 @@ export interface PlanMutationInput {
   description: string;
   basePriceBRLCents: number;
   maxCallChannels: number;
-  maxTtsConcurrency?: number;
   includedWhatsAppBusinessPhones?: number;
   maxBranches?: number;
   isGloballyVisible?: boolean;

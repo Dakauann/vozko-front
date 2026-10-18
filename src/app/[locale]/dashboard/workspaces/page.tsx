@@ -353,7 +353,7 @@ export default function AdminWorkspacesPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-[--radius] border px-3 py-1.5 text-xs font-semibold transition-all",
                 isExpanded
-                  ? "bg-muted border-border text-primary-ink"
+                  ? "bg-muted border-border text-foreground"
                   : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-border hover:text-primary-ink",
               )}
             >

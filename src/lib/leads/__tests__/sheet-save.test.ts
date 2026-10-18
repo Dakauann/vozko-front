@@ -29,6 +29,7 @@ function actions(overrides: Partial<LeadSheetActions> = {}): LeadSheetActions {
     create: vi.fn().mockResolvedValue({ lead: created(), error: null }),
     update: vi.fn().mockResolvedValue({ status: "saved", lead: record({ version: 4 }) }),
     setOwner: vi.fn().mockResolvedValue({ lead: record(), error: null }),
+    setCompany: vi.fn().mockResolvedValue({ lead: record(), error: null }),
     addRelative: vi.fn().mockResolvedValue({ result: { lead: record(), relative: record({ id: "rel-1" }), relation: { id: "r-1" }, duplicates: [] }, error: null }),
     linkRelation: vi.fn().mockResolvedValue({ result: { id: "r-2" }, error: null }),
     removeRelation: vi.fn().mockResolvedValue({ error: null }),
@@ -36,7 +37,7 @@ function actions(overrides: Partial<LeadSheetActions> = {}): LeadSheetActions {
   };
 }
 
-const fullAccess = { addresses: true, assign: true };
+const fullAccess = { addresses: true, assign: true, membership: true };
 
 function draft(overrides: Partial<LeadSheetDraft>): LeadSheetDraft {
   return { ...emptyLeadDraft(), ...overrides };
@@ -101,7 +102,7 @@ describe("saveLeadSheet on a new lead", () => {
 
   it("never sets an owner without leads:assign", async () => {
     const deps = actions();
-    await saveLeadSheet({ base: null, draft: draft({ name: "Ana", ownerId: "u-9" }), access: { addresses: true, assign: false }, actions: deps });
+    await saveLeadSheet({ base: null, draft: draft({ name: "Ana", ownerId: "u-9" }), access: { addresses: true, assign: false, membership: true }, actions: deps });
     expect(deps.setOwner).not.toHaveBeenCalled();
   });
 
@@ -182,5 +183,41 @@ describe("saveLeadSheet on an existing lead", () => {
     });
     expect(outcome).toEqual({ kind: "conflict", current });
     expect(deps.setOwner).not.toHaveBeenCalled();
+  });
+});
+
+describe("saveLeadSheet and the company of the lead", () => {
+  it("puts a new lead in the chosen company after creating it", async () => {
+    const deps = actions();
+    await saveLeadSheet({ base: null, draft: draft({ name: "Ana", companyId: "c-1" }), access: fullAccess, actions: deps });
+    expect(deps.setCompany).toHaveBeenCalledWith("new-1", "c-1");
+  });
+
+  it("moves or clears the company of an existing lead without saving the record", async () => {
+    const base = record({ companyId: "c-1" });
+    const moved = actions();
+    await saveLeadSheet({ base, draft: { ...draftFromRecord(base), companyId: "c-2" }, access: fullAccess, actions: moved });
+    expect(moved.update).not.toHaveBeenCalled();
+    expect(moved.setCompany).toHaveBeenCalledWith("lead-1", "c-2");
+    const cleared = actions();
+    await saveLeadSheet({ base, draft: { ...draftFromRecord(base), companyId: "" }, access: fullAccess, actions: cleared });
+    expect(cleared.setCompany).toHaveBeenCalledWith("lead-1", null);
+  });
+
+  it("leaves the company alone when it did not change or the person cannot change it", async () => {
+    const base = record({ companyId: "c-1" });
+    const same = actions();
+    await saveLeadSheet({ base, draft: { ...draftFromRecord(base), nickname: "Mari" }, access: fullAccess, actions: same });
+    expect(same.setCompany).not.toHaveBeenCalled();
+    const denied = actions();
+    await saveLeadSheet({ base, draft: { ...draftFromRecord(base), companyId: "c-2" }, access: { ...fullAccess, membership: false }, actions: denied });
+    expect(denied.setCompany).not.toHaveBeenCalled();
+  });
+
+  it("reports a closed company as a follow up failure, keeping the saved lead", async () => {
+    const refusal = { message: "closed", code: "lead_company_closed" };
+    const deps = actions({ setCompany: vi.fn().mockResolvedValue({ lead: null, error: refusal }) });
+    const outcome = await saveLeadSheet({ base: null, draft: draft({ name: "Ana", companyId: "c-1" }), access: fullAccess, actions: deps });
+    expect(outcome).toMatchObject({ kind: "saved", followUpFailures: [{ step: "company", error: refusal }] });
   });
 });

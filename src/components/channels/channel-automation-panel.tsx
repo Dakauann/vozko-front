@@ -23,6 +23,8 @@ import { getWorkflowAction, listWorkflowsAction } from "@/app/actions/workflows"
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useTranslations } from "next-intl";
 import { DealAutomationSetting } from "@/components/channels/deal-automation-setting";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
+import type { ExplainerId } from "@/components/explainers/catalog";
 
 
 type Mode = "agent" | "workflow";
@@ -53,6 +55,12 @@ export interface ChannelAutomationPayload {
 const HANDLING_TOGGLES = ["enableAnalysis", "enableAutoStaging", "enableAutoMemory"] as const;
 
 type HandlingKey = (typeof HANDLING_TOGGLES)[number];
+
+const HANDLING_EXPLAINERS = {
+  enableAnalysis: "settings.conversationAnalysis",
+  enableAutoStaging: "settings.autoStaging",
+  enableAutoMemory: "settings.autoMemory",
+} as const satisfies Record<HandlingKey, ExplainerId>;
 
 export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   account,
@@ -366,15 +374,18 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
 
         <div className="flex items-start justify-between gap-4 border-t border-border pt-5">
           <div className="min-w-0 space-y-1">
-            <label
-              htmlFor={controlId}
-              className={cn(
-                "text-sm font-medium",
-                selectedId ? "text-foreground" : "text-muted-foreground",
-              )}
-            >
-              {t("enableLabel")}
-            </label>
+            <div className="flex items-center gap-1.5">
+              <label
+                htmlFor={controlId}
+                className={cn(
+                  "text-sm font-medium",
+                  selectedId ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {t("enableLabel")}
+              </label>
+              <ExplainerHint id="settings.channelAutoReply" />
+            </div>
             <p className="text-xs text-muted-foreground">
               {selectedId
                 ? t("enableHint")
@@ -421,9 +432,12 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             {HANDLING_TOGGLES.map((key) => (
               <div key={key} className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <label htmlFor={`${controlId}-${key}`} className="text-sm text-foreground">
-                    {t(`${key}Label`)}
-                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <label htmlFor={`${controlId}-${key}`} className="text-sm text-foreground">
+                      {t(`${key}Label`)}
+                    </label>
+                    <ExplainerHint id={HANDLING_EXPLAINERS[key]} />
+                  </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{t(`${key}Hint`)}</p>
                 </div>
                 <Switch

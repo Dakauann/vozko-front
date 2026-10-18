@@ -10,6 +10,7 @@ import {
 } from "@/app/actions/workspace";
 
 import type { WorkspaceInvite } from "@/lib/workspace/types";
+import { Notice } from "@/components/ui/notice";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -88,9 +89,7 @@ export default function InvitesPage() {
       </div>
 
       {error && (
-        <div className="rounded-[--radius] bg-muted border border-border px-4 py-3 text-sm text-destructive-ink">
-          {error}
-        </div>
+        <Notice tone="fault">{error}</Notice>
       )}
 
       {invites.length === 0 ? (

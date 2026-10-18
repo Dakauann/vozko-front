@@ -8,6 +8,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedSelect, { ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import {
   ElevatedSheet,
@@ -124,7 +125,7 @@ function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onC
 
         <ElevatedInput label={t("domain")} placeholder={t("domainPlaceholder")} value={draft.domain} onChange={(e) => update("domain", e.target.value)} />
 
-        <ElevatedSwitch label={t("enabled")} description={t("enabledHint")} checked={draft.enabled} onCheckedChange={(checked) => update("enabled", checked)} />
+        <ElevatedSwitch label={t("enabled")} description={t("enabledHint")} explainer={<ExplainerHint id="settings.sipTrunkEnabled" />} checked={draft.enabled} onCheckedChange={(checked) => update("enabled", checked)} />
 
         <button
           type="button"
@@ -138,7 +139,7 @@ function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onC
 
         {showAdvanced ? (
           <div className="space-y-4">
-            <ElevatedSwitch label={t("skipRegistration")} description={t("skipRegistrationHint")} checked={draft.skipRegistration} onCheckedChange={(checked) => update("skipRegistration", checked)} />
+            <ElevatedSwitch label={t("skipRegistration")} description={t("skipRegistrationHint")} explainer={<ExplainerHint id="settings.sipSkipRegistration" />} checked={draft.skipRegistration} onCheckedChange={(checked) => update("skipRegistration", checked)} />
             <div className="grid gap-4 sm:grid-cols-2">
               <ElevatedInput label={t("authUsername")} value={draft.authUsername} onChange={(e) => update("authUsername", e.target.value)} />
               <ElevatedInput label={t("outboundProxy")} placeholder="proxy.provider.com:5060" value={draft.outboundProxy} onChange={(e) => update("outboundProxy", e.target.value)} />
@@ -161,7 +162,7 @@ function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onC
                       onClick={() => update("codecs", selected ? draft.codecs.filter((c) => c !== codec) : [...draft.codecs, codec])}
                       className={cn(
                         "rounded-[--radius] border px-3 py-1.5 text-xs font-semibold transition-colors",
-                        selected ? "border-primary bg-muted text-primary-ink" : "border-border text-muted-foreground hover:bg-muted",
+                        selected ? "border-primary bg-muted text-foreground" : "border-border text-muted-foreground hover:bg-muted",
                       )}
                     >
                       {codec}
@@ -180,7 +181,7 @@ function SipTrunkForm({ trunk, onClose, onSaved }: { trunk: SipTrunk | null; onC
               <ElevatedSelectItem value="REQUIRED">{t("srtpModes.required")}</ElevatedSelectItem>
             </ElevatedSelect>
 
-            <ElevatedSwitch label={t("stun")} description={t("stunHint")} checked={draft.stunEnabled} onCheckedChange={(checked) => update("stunEnabled", checked)} />
+            <ElevatedSwitch label={t("stun")} description={t("stunHint")} explainer={<ExplainerHint id="settings.sipStun" />} checked={draft.stunEnabled} onCheckedChange={(checked) => update("stunEnabled", checked)} />
             <ElevatedInput label={t("publicAddress")} placeholder="203.0.113.10" value={draft.publicAddress} onChange={(e) => update("publicAddress", e.target.value)} />
             <ElevatedTextarea
               label={t("inboundSources")}

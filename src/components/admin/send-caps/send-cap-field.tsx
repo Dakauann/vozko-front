@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Warning } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 
 export function SendCapField({
     label,
@@ -23,9 +23,8 @@ export function SendCapField({
 export function SendCapDialogError({ message }: { message: string | null }) {
     if (!message) return null;
     return (
-        <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink" role="alert">
-            <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            {message}
-        </p>
+        <Notice tone="fault">
+            <p>{message}</p>
+        </Notice>
     );
 }

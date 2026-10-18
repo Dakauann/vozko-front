@@ -22,6 +22,7 @@ import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup"
 import { Link, useRouter } from "@/i18n/routing";
 import { openDock } from "@/lib/aichat/dock-state";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { AskCardView } from "@/components/ai-chat/ask-card";
 import { CallCardView } from "@/components/ai-chat/call-card";
 import { StudioProjectCardView } from "@/components/ai-chat/studio-project-card";
@@ -217,7 +218,10 @@ function NavigationCardView({ card, live }: { card: NavigationCard; live: boolea
           </div>
         ) : (
           <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
-            <span className="text-xs text-muted-foreground">{t("autoOpen")}</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">{t("autoOpen")}</span>
+              <ExplainerHint id="crm.autoOpenScreens" />
+            </span>
             <ElevatedSwitch
               checked={preference !== "off"}
               onCheckedChange={(next: boolean) => choose(next ? "on" : "off")}

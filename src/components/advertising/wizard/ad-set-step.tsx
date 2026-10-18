@@ -6,6 +6,7 @@ import ElevatedDatePicker from "@/components/elevated-design/elevated-date-picke
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import {
   ClipboardText,
   DeviceMobile,
@@ -110,6 +111,7 @@ function ScheduleSection() {
             onCheckedChange={(scheduleOn) => patch({ scheduleOn })}
             label={t("hoursOn")}
             description={t("hoursHint")}
+            explainer={<ExplainerHint id="ads.adSchedule" />}
           />
           {form.scheduleOn ? <ScheduleGrid value={form.schedule} onChange={(schedule) => patch({ schedule })} /> : null}
         </div>

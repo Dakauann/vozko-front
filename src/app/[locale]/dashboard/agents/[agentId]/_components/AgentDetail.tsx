@@ -33,7 +33,6 @@ import {
   Phone,
   Play,
   Robot,
-  Sparkle,
   Tag,
   TextT,
   User,
@@ -644,9 +643,8 @@ export default function AgentDetail({
     });
   };
 
-  const promptCount = [agent.initialMessage, agent.messagingPrompt].filter(
-    isConfigured,
-  ).length;
+  const prompts = [agent.messagingPrompt];
+  const promptCount = prompts.filter(isConfigured).length;
   const toolCount = agent.internalTools?.length ?? 0;
   const hasMetadata = Boolean(
     agent.metadata && Object.keys(agent.metadata).length > 0,
@@ -812,20 +810,14 @@ export default function AgentDetail({
             accent="blue"
             action={
               <span className="rounded-[--radius] bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                {promptCount} / 4
+                {promptCount} / {prompts.length}
               </span>
             }
             icon={<Code weight="bold" />}
             subtitle={t("detail.prompts.description")}
             title={t("detail.prompts.title")}
           >
-            <div className="grid gap-3 lg:grid-cols-2">
-              <PromptCard
-                accent="violet"
-                icon={<Sparkle weight="fill" />}
-                label={t("detail.prompts.initial")}
-                value={agent.initialMessage}
-              />
+            <div className="grid gap-3">
               <PromptCard
                 accent="emerald"
                 icon={<ChatCircle weight="fill" />}

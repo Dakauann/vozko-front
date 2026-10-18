@@ -41,6 +41,7 @@ import {
 } from "@/lib/conversations/windowed-conversations";
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
 import { patchColumns, patchEntries } from "@/lib/conversations/entry-patch";
+import { placeUpdatedEntry } from "@/lib/conversations/inbox-placement";
 import {
   leadPatchFromRecord,
   leadPresence,
@@ -76,6 +77,8 @@ import { messageSoundsMuted } from "@/lib/sounds/message-sound-preference";
 import { shouldChimeForMessage } from "@/lib/sounds/rules";
 import { soundPlayer } from "@/lib/sounds/sound-player";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { emitNotificationCreated } from "@/lib/notifications/bus";
+import { isNotificationCreatedEvent } from "@/lib/notifications/types";
 
 export interface FunnelColumnState {
   entries: InboxEntry[];
@@ -846,6 +849,14 @@ export function useConversationWs({
           (raw.last_message_sender_avatar as string) ??
           (raw.lastMessageSenderAvatar as string) ??
           "",
+        last_message_author:
+          (raw.last_message_author as string) ??
+          (raw.lastMessageAuthor as string) ??
+          undefined,
+        last_message_from_us:
+          (raw.last_message_from_us as boolean) ??
+          (raw.lastMessageFromUs as boolean) ??
+          false,
         window_open:
           (raw.window_open as boolean) ?? (raw.windowOpen as boolean) ?? false,
         window_expires_at:
@@ -1067,14 +1078,7 @@ export function useConversationWs({
               return filtered;
             }
 
-            const filtered = prev.filter(
-              (e) =>
-                !(
-                  e.entry_id === updated.entry_id &&
-                  e.entry_type === updated.entry_type
-                ),
-            );
-            const newInbox = [withLead(oldEntry), ...filtered];
+            const newInbox = placeUpdatedEntry(prev, withLead(oldEntry));
             inboxRef.current = newInbox;
 
             if (!existed) {
@@ -1108,15 +1112,7 @@ export function useConversationWs({
               );
             }
 
-            const filtered = prev.filter(
-              (e) =>
-                !(
-                  e.entry_id === updated.entry_id &&
-                  e.entry_type === updated.entry_type
-                ),
-            );
-
-            return existed ? [withLead(oldSearchEntry), ...filtered] : prev;
+            return existed ? placeUpdatedEntry(prev, withLead(oldSearchEntry)) : prev;
           });
 
           if (
@@ -1878,6 +1874,11 @@ export function useConversationWs({
 
         case "conversation:leads_bulk_update": {
           handleLeadsBulkUpdate(event.payload);
+          break;
+        }
+
+        case "notification:created": {
+          if (isNotificationCreatedEvent(event.payload)) emitNotificationCreated(event.payload);
           break;
         }
 

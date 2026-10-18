@@ -187,7 +187,8 @@ function CommentRow({
               <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">{t("you")}</span>
             )}
             {comment.hidden && (
-              <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs text-warning-ink dark:text-warning-ink">
+              <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                 {t("hidden")}
               </span>
             )}

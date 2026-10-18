@@ -10,6 +10,7 @@ import {
     LEAD_FILTER_FIELD,
     LEAD_FILTER_FIELDS,
     LEAD_FILTER_GROUP_ORDER,
+    LEAD_OPT_OUT_ORIGINS,
     LEAD_ZIP_FILTER_MAX,
     activeLeadPredicates,
     customFieldFilterSpecs,
@@ -81,14 +82,14 @@ describe("the lead ERP filter groups", () => {
     });
 
     it("leaves street level fields out for a viewer without leads:read_addresses", () => {
-        const open = leadFilterFieldSpecs({ readsAddresses: false }).map((spec) => spec.field);
+        const open = leadFilterFieldSpecs({ readsAddresses: false, readsCompanies: true }).map((spec) => spec.field);
         expect(open).not.toContain(LEAD_FILTER_FIELD.geoPrecision);
         expect(open).not.toContain(LEAD_FILTER_FIELD.geoStatus);
         expect(open).toContain(LEAD_FILTER_FIELD.district);
         expect(open).toContain(LEAD_FILTER_FIELD.city);
         expect(open).toContain(LEAD_FILTER_FIELD.hasAddress);
 
-        const full = leadFilterFieldSpecs({ readsAddresses: true }).map((spec) => spec.field);
+        const full = leadFilterFieldSpecs({ readsAddresses: true, readsCompanies: true }).map((spec) => spec.field);
         expect(full).toContain(LEAD_FILTER_FIELD.geoPrecision);
         expect(full).toContain(LEAD_FILTER_FIELD.geoStatus);
     });
@@ -102,6 +103,20 @@ describe("the lead ERP filter groups", () => {
         const spec = LEAD_FILTER_FIELDS.find((s) => s.field === LEAD_FILTER_FIELD.state);
         expect(spec?.options).toHaveLength(27);
         expect(spec?.options?.every((option) => /^[A-Z]{2}$/.test(option.value))).toBe(true);
+    });
+
+    it("filters opted-out leads by how they left, one option per origin the server knows, and by when", () => {
+        const how = LEAD_FILTER_FIELDS.find((s) => s.field === LEAD_FILTER_FIELD.optOutSource);
+        expect(LEAD_FILTER_FIELD.optOutSource).toBe("opt_out_source");
+        expect(how?.control).toBe("enum");
+        expect(how?.group).toBe("identity");
+        expect(how?.options?.map((option) => option.value)).toEqual([...LEAD_OPT_OUT_ORIGINS]);
+        expect(LEAD_OPT_OUT_ORIGINS).toEqual(expect.arrayContaining(["button_reply", "template_word", "campaign_word", "workspace_word", "ai_agent", "workflow", "manual"]));
+
+        const when = LEAD_FILTER_FIELDS.find((s) => s.field === LEAD_FILTER_FIELD.optedOutAt);
+        expect(LEAD_FILTER_FIELD.optedOutAt).toBe("opted_out_at");
+        expect(when?.control).toBe("date");
+        expect(when?.group).toBe("identity");
     });
 
     it("names every static option in all four locales", () => {
@@ -217,14 +232,25 @@ describe("CEP, Indicado por and Sem responsável", () => {
     it("filters by CEP only for a viewer with leads:read_addresses, as typed values under Endereço", () => {
         expect(LEAD_FILTER_FIELD.zip).toBe("zip");
         expect(specOf(LEAD_FILTER_FIELD.zip)).toMatchObject({ control: "idset", group: "address", entry: "zip", readsAddresses: true });
-        expect(leadFilterFieldSpecs({ readsAddresses: false }).map((spec) => spec.field)).not.toContain(LEAD_FILTER_FIELD.zip);
-        expect(leadFilterFieldSpecs({ readsAddresses: true }).map((spec) => spec.field)).toContain(LEAD_FILTER_FIELD.zip);
+        expect(leadFilterFieldSpecs({ readsAddresses: false, readsCompanies: true }).map((spec) => spec.field)).not.toContain(LEAD_FILTER_FIELD.zip);
+        expect(leadFilterFieldSpecs({ readsAddresses: true, readsCompanies: true }).map((spec) => spec.field)).toContain(LEAD_FILTER_FIELD.zip);
     });
 
     it("filters by the lead who referred, picked from the leads, under Família", () => {
         expect(LEAD_FILTER_FIELD.referredBy).toBe("referred_by");
         expect(specOf(LEAD_FILTER_FIELD.referredBy)).toMatchObject({ control: "idset", group: "family", entry: "lead" });
-        expect(leadFilterFieldSpecs({ readsAddresses: false }).map((spec) => spec.field)).toContain(LEAD_FILTER_FIELD.referredBy);
+        expect(leadFilterFieldSpecs({ readsAddresses: false, readsCompanies: true }).map((spec) => spec.field)).toContain(LEAD_FILTER_FIELD.referredBy);
+    });
+
+    it("filters by company, picked from the companies under CRM, only for a viewer who reads companies", () => {
+        expect(LEAD_FILTER_FIELD.company).toBe("company");
+        expect(specOf(LEAD_FILTER_FIELD.company)).toMatchObject({ control: "idset", group: "crm", runtimeOptions: "companies", readsCompanies: true });
+        expect(specOf(LEAD_FILTER_FIELD.company)?.presence).toEqual({
+            true: "leadsPage.filters.options.companyPresence.true",
+            false: "leadsPage.filters.options.companyPresence.false",
+        });
+        expect(leadFilterFieldSpecs({ readsAddresses: true, readsCompanies: false }).map((spec) => spec.field)).not.toContain(LEAD_FILTER_FIELD.company);
+        expect(leadFilterFieldSpecs({ readsAddresses: false, readsCompanies: true }).map((spec) => spec.field)).toContain(LEAD_FILTER_FIELD.company);
     });
 
     it("lets the owner filter ask for leads with or without an owner", () => {

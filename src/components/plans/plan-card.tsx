@@ -140,8 +140,6 @@ function highlightText(highlight: PlanHighlight, t: PlansTranslate, locale: stri
       return t("card.balance", { amount: formatCentsAsBrl(highlight.cents, locale) });
     case "whatsappNumbers":
       return t("card.whatsappNumbers", { count: highlight.count });
-    case "voices":
-      return t("card.voices", { count: highlight.count });
     case "category": {
       const key = `card.services.${highlight.category}` as const;
       return t.has(key) ? t(key) : highlight.category;

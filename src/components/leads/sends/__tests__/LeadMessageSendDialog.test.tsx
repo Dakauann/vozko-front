@@ -116,7 +116,7 @@ describe("LeadMessageSendDialog", () => {
     const dialog = await screen.findByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: new RegExp(`^${t.message.instance}`) }));
     fireEvent.click(await screen.findByRole("option", { name: /Loja Centro/ }));
-    fireEvent.change(screen.getByPlaceholderText(new RegExp(`^${form.bodyPlaceholder.split(".")[0]}`)), { target: { value: "Oi {{1}}, temos novidades." } });
+    fireEvent.change(screen.getByPlaceholderText(new RegExp(`^${form.bodyPlaceholder.split(".")[0]}`)), { target: { value: "Oi {{1}}, temos novidades. Responda /sair para não receber mais." } });
     await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
 
@@ -129,7 +129,7 @@ describe("LeadMessageSendDialog", () => {
     expect(request.action).toBe("send_unofficial");
     expect(request.params.send).toMatchObject({
       instanceId: "in-1",
-      message: { kind: "text", bodies: ["Oi {{1}}, temos novidades."] },
+      message: { kind: "text", bodies: ["Oi {{1}}, temos novidades. Responda /sair para não receber mais."] },
       sendDelayMinMs: 3000,
       sendDelayMaxMs: 12000,
       bindings: [{ source: "lead.first_name" }],

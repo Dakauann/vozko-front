@@ -11,6 +11,7 @@ import {
 } from "@/lib/conversations/search";
 import { useCallback, useEffect, useState } from "react";
 
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import type { WsSearchInboxPayload } from "@/lib/conversations/types";
 import { useConversationWs } from "@/hooks/use-conversation-ws";
 
@@ -453,9 +454,7 @@ export function ConversationSearchExample({
                     activeConversation.lead_number}
                 </h2>
                 {!activeConversation.window_open && (
-                  <span className="text-xs bg-muted text-destructive-ink px-2 py-1 rounded">
-                    Window Closed
-                  </span>
+                  <StatusChip tone="fault" label="Window Closed" />
                 )}
               </div>
 

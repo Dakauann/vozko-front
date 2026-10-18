@@ -1,5 +1,6 @@
 import type {
   CreateTemplatePayload,
+  EditTemplateContentPayload,
   TemplateListMeta,
   TemplateListParams,
   TemplateListResponse,
@@ -112,6 +113,24 @@ export async function createWhatsAppTemplateAction(payload: CreateTemplatePayloa
   }
 
   return { template: response.data ?? null, error: null, errorCode: undefined };
+}
+
+export async function editWhatsAppTemplateContentAction(templateId: string, payload: EditTemplateContentPayload) {
+  const response = await apiClient<WhatsAppTemplate>(`/whatsapp/templates/${encodeURIComponent(templateId)}/content`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+
+  if (response.error) {
+    return {
+      template: null,
+      error: response.error.message,
+      errorCode: response.error.code,
+      expected: response.error.expected,
+    };
+  }
+
+  return { template: response.data ?? null, error: null, errorCode: undefined, expected: undefined };
 }
 
 export async function syncAllWhatsAppTemplatesAction(businessPhoneId: string) {

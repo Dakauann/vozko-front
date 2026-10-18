@@ -31,10 +31,12 @@ import { blockLeadAction } from "@/app/actions/leads";
 import { EditableLeadName } from "@/components/leads/EditableLeadName";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
 import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
+import { Notice } from "@/components/ui/notice";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
 import { ContactInfoRow as InfoRow } from "@/components/crm/ContactInfoRow";
 import { ConversationLeadRows, ConversationLeadSummary } from "@/components/crm/ConversationLeadCard";
+import { ConversationPortfolio } from "@/components/customer-portfolio/ConversationPortfolio";
 import ConversationGroupSection from "@/components/crm/ConversationGroupSection";
 import LeadMemoriesSection from "@/components/crm/LeadMemoriesSection";
 import ConversationPathChart from "@/components/crm/ConversationPathChart";
@@ -310,15 +312,9 @@ export default function CrmConversationInfosPanel({
           {}
           <div className="shrink-0 border-b border-border px-3 py-3">
             {isBlocked && (
-              <div className="mb-2.5 flex items-start gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 text-destructive-ink">
-                <Prohibit weight="fill" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-2xs font-semibold">{t("blockedTitle")}</p>
-                  <p className="mt-0.5 text-2xs leading-snug text-destructive-ink/90">
-                    {t("blockedDescription")}
-                  </p>
-                </div>
-              </div>
+              <Notice tone="fault" title={t("blockedTitle")} icon={<Prohibit weight="fill" />} className="mb-2.5">
+                <p>{t("blockedDescription")}</p>
+              </Notice>
             )}
 
             <div className="flex items-center gap-3">
@@ -411,6 +407,14 @@ export default function CrmConversationInfosPanel({
                     </span>
                   ) : null}
                 </div>
+                {conversation && !isGroup ? (
+                  <ConversationPortfolio
+                    key={`${conversation.entry_type}:${conversation.entry_id}`}
+                    entryType={conversation.entry_type}
+                    entryId={conversation.entry_id}
+                    active={open}
+                  />
+                ) : null}
               </div>
             </div>
 

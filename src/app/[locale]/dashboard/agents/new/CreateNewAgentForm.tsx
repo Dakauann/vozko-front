@@ -77,16 +77,20 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import HttpRequestConfigDialog from "./HttpRequestConfigDialog";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { KnowledgeBaseSelector } from "@/components/agents/KnowledgeBaseSelector";
+import { AgentOptOutNote } from "@/components/agents/AgentOptOutNote";
 import { apiClient } from "@/lib/api/browser-client";
 import type { Media } from "@/lib/medias/types";
 import { extractAgentVariableNames } from "@/lib/agents/extract-variable-names";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import ToolConfigDialog from "./ToolConfigDialog";
 import { hasToolSettings } from "@/lib/agents/tool-settings";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
+import { StatusChip } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 import { getBrand } from "@/config/brand";
 
 import TourGuide from "@/components/TourGuide";
@@ -124,23 +128,12 @@ const createAgentSchema = (t: (key: string) => string) => {
       messagingModel: z.string().min(1, t("validation.messagingModelRequired")),
       internalTools: z.array(toolBindingSchema),
       description: z.string().optional(),
-      initialMessage: z.string().optional().default(""),
-      useInitialMessage: z.boolean().default(true),
       messagingPrompt: z
         .string()
         .trim()
         .min(1, t("validation.messagingPromptRequired")),
       whatsappTemplateId: z.string().optional(),
       mediaIds: z.array(z.string()).optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.useInitialMessage && !data.initialMessage.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["initialMessage"],
-          message: t("validation.initialMessageRequired"),
-        });
-      }
     });
 };
 
@@ -193,20 +186,18 @@ const FormErrorSummary = ({
     name: t("labels.name"),
     provider: t("labels.provider"),
     messagingModel: t("labels.messagingModel"),
-    initialMessage: t("labels.initialMessage"),
     messagingPrompt: t("labels.messagingPrompt"),
     internalTools: t("sections.tools.title"),
   };
 
   return (
-    <div className="rounded-[--radius] border border-border bg-muted dark:bg-muted px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center gap-2 text-destructive-ink">
-        <Warning weight="fill" className="h-5 w-5 flex-shrink-0" />
-        <p className="text-sm font-semibold">
-          {t("validation.formErrorTitle")}
-        </p>
-      </div>
-      <ul className="list-disc list-inside space-y-0.5 text-xs text-destructive-ink pl-1">
+    <Notice
+      tone="fault"
+      icon={<Warning weight="fill" />}
+      title={t("validation.formErrorTitle")}
+      className="animate-in fade-in slide-in-from-top-2 duration-300"
+    >
+      <ul className="list-disc list-inside space-y-0.5 text-xs text-foreground pl-1">
         {errorKeys.map((key) => {
           const err = errors[key] as { message?: string } | undefined;
           const label = fieldLabels[key] || key;
@@ -218,7 +209,7 @@ const FormErrorSummary = ({
           );
         })}
       </ul>
-    </div>
+    </Notice>
   );
 };
 
@@ -345,10 +336,12 @@ const SelectedToolItem = ({
                   {name}
                 </span>
                 {hasSettings && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-2xs font-medium text-primary-ink">
-                    <Gear weight="fill" className="h-3 w-3" />
-                    {t("tools.configurable")}
-                  </span>
+                  <StatusChip
+                    tone="outline"
+                    className="gap-1 px-1.5 text-2xs"
+                    icon={<Gear weight="fill" className="h-3 w-3 text-primary" />}
+                    label={t("tools.configurable")}
+                  />
                 )}
               </div>
               {description && (
@@ -399,19 +392,19 @@ const SelectedToolItem = ({
                   : "border-border bg-muted",
               )}
             >
-              <span className="flex items-center gap-1.5 text-xs font-medium">
-                {isConfigComplete ? (
-                  <>
-                    <CheckCircle weight="fill" className="h-4 w-4 text-healthy-ink" />
-                    <span className="text-healthy-ink">{t("tools.configComplete")}</span>
-                  </>
-                ) : (
-                  <>
-                    <Warning weight="fill" className="h-4 w-4 text-warning-ink" />
-                    <span className="text-warning-ink">{t("tools.configRequired")}</span>
-                  </>
-                )}
-              </span>
+              {isConfigComplete ? (
+                <StatusChip
+                  tone="healthy"
+                  icon={<CheckCircle weight="fill" className="h-3.5 w-3.5" />}
+                  label={t("tools.configComplete")}
+                />
+              ) : (
+                <StatusChip
+                  tone="warning"
+                  icon={<Warning weight="fill" className="h-3.5 w-3.5" />}
+                  label={t("tools.configRequired")}
+                />
+              )}
               <button
                 type="button"
                 onClick={onConfigureClick}
@@ -451,9 +444,12 @@ const SelectedToolItem = ({
                           {parameter?.type ?? "string"}
                         </span>
                         {requiredParameters.has(key) && (
-                          <span className="rounded bg-muted px-1.5 py-0.5 text-2xs font-medium text-warning-ink">
-                            {t("tools.required")}
-                          </span>
+                          <StatusChip
+                            tone="outline"
+                            className="px-1.5 text-2xs"
+                            icon={<span className="h-1.5 w-1.5 rounded-full bg-warning" />}
+                            label={t("tools.required")}
+                          />
                         )}
                       </div>
                       {(parameter?.displayDescription || parameter?.description) && (
@@ -574,8 +570,6 @@ export default function CreateNewAgentForm({
       messagingModel: initialAgent?.messagingModel ?? "",
       internalTools: initialAgent?.internalTools ?? [],
       description: initialAgent?.description ?? "",
-      initialMessage: initialAgent?.initialMessage ?? "",
-      useInitialMessage: initialAgent?.useInitialMessage ?? true,
       messagingPrompt: initialAgent?.messagingPrompt ?? "",
       whatsappTemplateId: initialAgent?.whatsappTemplateId ?? "",
       mediaIds: initialAgent?.mediaIds ?? [],
@@ -585,13 +579,9 @@ export default function CreateNewAgentForm({
   const selectedWhatsAppTemplateId = watch("whatsappTemplateId");
 
   const watchedMessagingPrompt = watch("messagingPrompt") ?? "";
-  const watchedInitialMessage = watch("initialMessage") ?? "";
 
   useEffect(() => {
-    const detected = extractAgentVariableNames(
-      watchedMessagingPrompt,
-      watchedInitialMessage,
-    );
+    const detected = extractAgentVariableNames(watchedMessagingPrompt);
     if (detected.length === 0) return;
 
     setAgentVariables((prev) => {
@@ -606,7 +596,7 @@ export default function CreateNewAgentForm({
       }
       return changed ? merged : prev;
     });
-  }, [watchedMessagingPrompt, watchedInitialMessage]);
+  }, [watchedMessagingPrompt]);
 
   const mapBusinessPhoneOption = useCallback(
     (phone: WhatsAppBusinessPhone): ElevatedCommandOption => ({
@@ -807,8 +797,6 @@ export default function CreateNewAgentForm({
         messagingModel: initialAgent.messagingModel ?? "",
         internalTools: initialAgent.internalTools ?? [],
         description: initialAgent.description ?? "",
-        initialMessage: initialAgent.initialMessage ?? "",
-        useInitialMessage: initialAgent.useInitialMessage ?? true,
         messagingPrompt: initialAgent.messagingPrompt ?? "",
         whatsappTemplateId: initialAgent.whatsappTemplateId ?? "",
         mediaIds: initialAgent.mediaIds ?? [],
@@ -1369,8 +1357,6 @@ export default function CreateNewAgentForm({
       }
       const basePayload = {
         name: data.name.trim(),
-        initialMessage: data.initialMessage.trim(),
-        useInitialMessage: data.useInitialMessage,
         messagingPrompt: data.messagingPrompt.trim(),
         messagingModel: data.messagingModel,
         provider: data.provider,
@@ -1501,17 +1487,9 @@ onStep={(_index, step) => {
            if (tab) setActiveTab(tab);
         }}
       />
-      {optionsError ? (
-        <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
-          {optionsError}
-        </div>
-      ) : null}
+      {optionsError ? <Notice tone="fault">{optionsError}</Notice> : null}
 
-      {toolsError ? (
-        <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-warning-foreground">
-          {toolsError}
-        </div>
-      ) : null}
+      {toolsError ? <Notice tone="warning">{toolsError}</Notice> : null}
 
       {isSubmitted && Object.keys(errors).length > 0 && (
         <div data-error-summary>
@@ -1609,38 +1587,6 @@ onStep={(_index, step) => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="md:col-span-2 space-y-3">
-            <Controller
-              control={control}
-              name="useInitialMessage"
-              render={({ field }) => (
-                <div className="flex items-start justify-between gap-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium text-foreground">
-                      {t("labels.useInitialMessage")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t("hints.useInitialMessage")}
-                    </p>
-                  </div>
-                  <Switch
-                    checked={field.value ?? true}
-                    onCheckedChange={field.onChange}
-                    aria-label={t("labels.useInitialMessage")}
-                  />
-                </div>
-              )}
-            />
-            <ElevatedTextarea
-              {...register("initialMessage")}
-              label={t("labels.initialMessage")}
-              placeholder={t("placeholders.initialMessage")}
-              rows={3}
-              disabled={!(watch("useInitialMessage") ?? true)}
-            />
-            <FieldError message={errors.initialMessage?.message} />
-          </div>
-
           <div>
             <ElevatedTextarea
               {...register("messagingPrompt")}
@@ -1761,9 +1707,7 @@ onStep={(_index, step) => {
         </div>
 
         {templatesError ? (
-          <div className="rounded-[--radius] border border-warning bg-warning px-4 py-3 text-sm text-warning-foreground">
-            {templatesError}
-          </div>
+          <Notice tone="warning">{templatesError}</Notice>
         ) : null}
 
         <div className="mb-4">
@@ -1827,32 +1771,22 @@ onStep={(_index, step) => {
         {selectedTemplateMissingMedia &&
           isAdmin &&
           selectedWhatsAppTemplate && (
-            <div className="rounded-lg border border-border bg-muted p-4">
-              <div className="flex items-start gap-3">
-                <ImageSquare
-                  className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
-                  weight="fill"
-                />
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-warning-ink">
-                    {t("templateMedia.missingTitle")}
-                  </h4>
-                  <p className="text-xs text-warning-ink mt-1">
-                    {t("templateMedia.missingDescription")}
-                  </p>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    title={t("templateMedia.configureButton")}
-                    icon={<ImageSquare className="h-4 w-4" weight="bold" />}
-                    iconVisible
-                    iconSide="left"
-                    onClick={() => setTemplateMediaModalOpen(true)}
-                    className="mt-3"
-                  />
-                </div>
-              </div>
-            </div>
+            <Notice
+              tone="warning"
+              icon={<ImageSquare weight="fill" />}
+              title={t("templateMedia.missingTitle")}
+            >
+              <p>{t("templateMedia.missingDescription")}</p>
+              <Button
+                type="button"
+                variant="secondary"
+                title={t("templateMedia.configureButton")}
+                icon={<ImageSquare className="h-4 w-4" weight="bold" />}
+                iconVisible
+                iconSide="left"
+                onClick={() => setTemplateMediaModalOpen(true)}
+              />
+            </Notice>
           )}
       </section>
       </div>
@@ -1923,7 +1857,7 @@ onStep={(_index, step) => {
                           className={cn(
                             "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
                             toolsCategory === cat.value
-                              ? "bg-muted text-primary-ink"
+                              ? "bg-primary text-primary-foreground"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                         >
@@ -1972,7 +1906,7 @@ onStep={(_index, step) => {
                       className={cn(
                         "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 text-xs font-semibold",
                         selectedToolList.length > 0
-                          ? "bg-muted text-primary-ink"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground",
                       )}
                     >
@@ -2021,6 +1955,9 @@ onStep={(_index, step) => {
               </div>
             );
           })()}
+        {!loadingTools ? (
+          <AgentOptOutNote tools={tools} selected={selectedInternalTools ?? []} onAdd={handleToggleTool} />
+        ) : null}
         <FieldError message={errors.internalTools?.message} />
       </section>
       </div>
@@ -2151,7 +2088,10 @@ onStep={(_index, step) => {
         {selectedKnowledgeBaseIds.length > 0 && (
           <div className="flex items-center justify-between rounded-[--radius] border border-border bg-muted px-4 py-3">
             <div>
-              <p className="text-sm font-medium text-foreground">{t("sections.knowledgeBases.ragToggleLabel")}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-foreground">{t("sections.knowledgeBases.ragToggleLabel")}</p>
+                <ExplainerHint id="campaigns.agentKnowledge" />
+              </div>
               <p className="text-xs text-muted-foreground">{t("sections.knowledgeBases.ragToggleDescription")}</p>
             </div>
             <Switch checked={ragEnabled} onCheckedChange={setRagEnabled} />

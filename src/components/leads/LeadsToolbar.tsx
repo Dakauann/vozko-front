@@ -250,6 +250,7 @@ export function leadFilterFieldConfigs({
       case "campaigns":
       case "stages":
       case "labels":
+      case "companies":
         return keepSelected(sets[kind], selected, (value) => value);
       case "owners":
         return ownerOptions({
@@ -270,7 +271,7 @@ export function leadFilterFieldConfigs({
     }
   };
 
-  const catalogue = leadFilterFieldSpecs({ readsAddresses: sets.readsAddresses }).map((spec) => {
+  const catalogue = leadFilterFieldSpecs({ readsAddresses: sets.readsAddresses, readsCompanies: sets.readsCompanies }).map((spec) => {
     const config: FilterFieldConfig = {
       field: spec.field,
       control: spec.control,

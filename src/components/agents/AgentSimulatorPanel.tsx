@@ -19,6 +19,7 @@ import type { AgentToolDefinition } from "@/lib/agents/types";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Notice } from "@/components/ui/notice";
 import { getAgentToolsAction } from "@/app/actions/agents";
 import { useReducedMotion } from "framer-motion";
 import { useSimulatorSession } from "@/lib/agent-simulator/use-simulator-session";
@@ -204,20 +205,20 @@ export default function AgentSimulatorPanel({ agentId, agentName }: AgentSimulat
             {}
             <div className="shrink-0 border-t border-border px-3 pb-2 pt-2">
                 {error && (
-                    <div className="mb-2 flex items-start justify-between gap-2 rounded-lg border border-border border-t-destructive/60 bg-muted px-2.5 py-1.5">
-                        <p className="min-w-0 break-words text-2xs leading-relaxed text-destructive-ink">
-                            {error}
-                        </p>
-                        {failedMessage && (
-                            <button
-                                type="button"
-                                onClick={retry}
-                                className="shrink-0 rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-primary-ink transition-colors duration-DEFAULT hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            >
-                                {t("retry")}
-                            </button>
-                        )}
-                    </div>
+                    <Notice tone="fault" className="mb-2">
+                        <div className="flex items-start justify-between gap-2">
+                            <p className="min-w-0 break-words">{error}</p>
+                            {failedMessage && (
+                                <button
+                                    type="button"
+                                    onClick={retry}
+                                    className="shrink-0 rounded-[--radius] px-1.5 py-0.5 text-2xs font-semibold text-primary-ink transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                >
+                                    {t("retry")}
+                                </button>
+                            )}
+                        </div>
+                    </Notice>
                 )}
                 <div className="flex items-end gap-1.5 rounded-lg border border-border bg-muted p-1.5 focus-within:ring-2 focus-within:ring-ring">
                     <textarea

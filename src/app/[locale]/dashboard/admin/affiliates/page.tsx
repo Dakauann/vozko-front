@@ -24,6 +24,8 @@ import { ScreenLoader } from "@/components/brand/screen-loader";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { StatusChip } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 import { StatusRail } from "@/components/console/page-shapes";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -242,9 +244,7 @@ function AdminAffiliatesTable() {
         {loading ? (
           <ScreenLoader fit="fill" />
         ) : error ? (
-          <div className="rounded-[--radius] border border-border bg-muted px-4 py-6 text-center text-sm text-destructive-ink">
-            {error}
-          </div>
+          <Notice tone="fault">{error}</Notice>
         ) : filteredItems.length === 0 ? (
           <div className="rounded-[--radius] border border-dashed border-border bg-background px-4 py-16 text-center">
             <UserCircle
@@ -341,18 +341,14 @@ function AdminAffiliatesTable() {
                         )}
                       </td>
                       <td className="px-3 py-3">
-                        <span
-                          className={cn(
-                            "rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
+                        <StatusChip
+                          tone={aff.active ? "healthy" : "warning"}
+                          label={
                             aff.active
-                              ? "bg-muted text-healthy-ink"
-                              : "bg-muted text-warning-ink",
-                          )}
-                        >
-                          {aff.active
-                            ? t("status.active")
-                            : t("status.inactive")}
-                        </span>
+                              ? t("status.active")
+                              : t("status.inactive")
+                          }
+                        />
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex items-center justify-end gap-2">
@@ -500,9 +496,7 @@ export default function AdminAffiliatesPage() {
 
   if (!isSystemAdmin(user?.role)) {
     return (
-      <div className="rounded-[--radius] border border-border bg-muted px-4 py-8 text-center text-sm text-destructive-ink">
-        {t("forbidden")}
-      </div>
+      <Notice tone="fault">{t("forbidden")}</Notice>
     );
   }
 

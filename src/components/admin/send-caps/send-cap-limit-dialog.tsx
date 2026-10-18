@@ -12,6 +12,7 @@ import {
     ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import { adminSetSendCapAction } from "@/app/actions/send-caps";
 import { adminListAllWorkspacesAction } from "@/app/actions/workspace";
 import {
@@ -189,7 +190,7 @@ export function SendCapLimitDialog({
                     )}
 
                     {raising ? (
-                        <div className="space-y-2 rounded-lg bg-muted p-3 text-xs text-warning-ink">
+                        <Notice tone="warning">
                             <p>{canUnlock ? t("limitDialog.raiseNeedsUnlock") : t("limitDialog.raiseForbidden")}</p>
                             {canUnlock ? (
                                 <Button
@@ -198,7 +199,7 @@ export function SendCapLimitDialog({
                                     onClick={() => onUnlockInstead(item)}
                                 />
                             ) : null}
-                        </div>
+                        </Notice>
                     ) : null}
 
                     <SendCapDialogError message={error} />

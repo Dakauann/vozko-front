@@ -12,8 +12,9 @@ import Button from "@/components/elevated-design/button";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { Tabs, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowClockwise, Archive, Eye, FilmStrip, Image as ImageIcon, Palette, PencilSimple, Plus, WarningCircle } from "@/components/icons";
+import { ArrowClockwise, Archive, Eye, FilmStrip, Image as ImageIcon, Palette, PencilSimple, Plus } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Notice } from "@/components/ui/notice";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { useToast } from "@/hooks/use-toast";
@@ -227,11 +228,12 @@ export function StudioProjectsPage() {
       </div>
 
       {failed ? (
-        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <WarningCircle className="h-4 w-4 shrink-0" aria-hidden />
-          <span className="flex-1">{t("list.failed")}</span>
-          <Button variant="outline" size="sm" title={t("list.retry")} onClick={reload} />
-        </div>
+        <Notice tone="fault">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="flex-1">{t("list.failed")}</span>
+            <Button variant="outline" size="sm" title={t("list.retry")} onClick={reload} />
+          </div>
+        </Notice>
       ) : loading || !listed ? (
         <DashboardTable<StudioProjectSummary> data={[]} columns={columns} rowKey={(row) => row.id} loading />
       ) : listed.items.length === 0 ? (

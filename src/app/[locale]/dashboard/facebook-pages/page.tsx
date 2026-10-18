@@ -17,6 +17,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Notice } from "@/components/ui/notice";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useFacebookConnect } from "@/hooks/use-facebook-connect";
 import { toast } from "sonner";
@@ -303,12 +304,7 @@ export default function FacebookPagesPage() {
         )}
       </div>
 
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {error}
-        </div>
-      )}
+      {error && <Notice tone="fault">{error}</Notice>}
 
       {loading ? (
         <DashboardTable<FacebookPage> data={[]} columns={columns} rowKey={(row) => row.id} loading />

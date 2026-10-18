@@ -6,6 +6,7 @@ import { listAudiencesAction } from "@/app/actions/advertising-audiences";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { Hint, Section } from "@/components/advertising/wizard/choice-row";
 import { LocationPicker } from "@/components/advertising/wizard/location-picker";
 import { RefChips, addRef, removeRef } from "@/components/advertising/wizard/ref-chips";
@@ -153,6 +154,7 @@ export function TargetingFields({
           onCheckedChange={(on) => onChange(withAdvantageAudience(targeting, on))}
           label={t("advantage")}
           description={t("advantageHint")}
+          explainer={<ExplainerHint id="ads.advantageAudience" />}
         />
         {targeting.advantageAudience ? <Hint>{t("advantageAgeNote")}</Hint> : null}
       </Section>

@@ -20,9 +20,10 @@ export function useSendErrorText() {
   const tLeads = useTranslations("leadsPage");
   const tFields = useTranslations("customFields");
   const tSelection = useTranslations("selection");
+  const tExit = useTranslations("templateExit");
   return useCallback(
-    (error: CodedError) => leadActionErrorMessage([tSends, tBulk, tLeads, tFields, tSelection], error),
-    [tSends, tBulk, tLeads, tFields, tSelection],
+    (error: CodedError) => leadActionErrorMessage([tSends, tBulk, tLeads, tFields, tExit, tSelection], error),
+    [tSends, tBulk, tLeads, tFields, tExit, tSelection],
   );
 }
 

@@ -24,6 +24,7 @@ import {
   getLeadByIdAction,
   linkLeadRelationAction,
   removeLeadRelationAction,
+  setLeadCompanyAction,
   setLeadOwnerAction,
   updateLeadAction,
 } from "@/app/actions/leads";
@@ -55,6 +56,7 @@ import { ConsentSection } from "./ConsentSection";
 import { CustomFieldsSection } from "./CustomFieldsSection";
 import { FamilySection, type RelativeSignUp } from "./FamilySection";
 import { LinkOfferList } from "./LinkOfferList";
+import { CompanySection } from "./CompanySection";
 import { OwnerSection } from "./OwnerSection";
 import { PhonesSection, type IdentityRefusal } from "./PhonesSection";
 import { SheetHint, SheetScope, SheetSection, SheetSectionNav } from "./SheetSection";
@@ -63,6 +65,7 @@ const LEAD_SHEET_ACTIONS: LeadSheetActions = {
   create: createLeadAction,
   update: updateLeadAction,
   setOwner: setLeadOwnerAction,
+  setCompany: setLeadCompanyAction,
   addRelative: addLeadRelativeAction,
   linkRelation: linkLeadRelationAction,
   removeRelation: removeLeadRelationAction,
@@ -210,6 +213,7 @@ function LeadSheetForm({
   const readsAddresses = can("leads", "read_addresses");
   const canAssign = can("leads", "assign");
   const canLink = can("leads", "update");
+  const canChangeCompany = canLink && can("lead_companies", "read");
   const canCreateRelative = canLink && can("leads", "create");
   const { fields, ownerName } = useLeadPresentation();
   const summary = useLeadSummary(base?.id ?? "", !!base && can("leads", "read"));
@@ -229,6 +233,7 @@ function LeadSheetForm({
   const followUpMessage = (failure: FollowUpFailure) => {
     const reason = refusalMessage(failure.error);
     if (failure.step === "owner") return t("followUp.owner", { reason });
+    if (failure.step === "company") return t("followUp.company", { reason });
     if (failure.step === "unlink") return t("followUp.unlink", { reason });
     return t("followUp.relative", { name: failure.label ?? "", reason });
   };
@@ -246,7 +251,7 @@ function LeadSheetForm({
     const outcome = await saveLeadSheet({
       base,
       draft,
-      access: { addresses: addressesEditable, assign: canAssign },
+      access: { addresses: addressesEditable, assign: canAssign, membership: canChangeCompany },
       actions: LEAD_SHEET_ACTIONS,
     });
     setSaving(false);
@@ -453,6 +458,12 @@ function LeadSheetForm({
           canAssign={canAssign}
           ownerName={ownerName}
           onChange={(ownerId) => update((current) => ({ ...current, ownerId }))}
+        />
+
+        <CompanySection
+          companyId={draft.companyId}
+          canChange={canChangeCompany}
+          onChange={(companyId) => update((current) => ({ ...current, companyId }))}
         />
 
         <CustomFieldsSection

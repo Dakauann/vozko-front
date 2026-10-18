@@ -36,6 +36,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import {
   ElevatedDialog,
@@ -45,6 +46,8 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import { Chip, EmptyState, Panel, Skeleton } from "@/components/audience/shared";
+import { StatusChip } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 import { Bell, PaperPlaneTilt, Plus, Trash, Warning } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
@@ -230,10 +233,12 @@ export function CommentAnalysisAlerts({
                     {
 }
                     {rule.enabled && blockedChannels.has(rule.channel) ? (
-                      <span className="inline-flex items-center gap-1 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold text-warning-ink">
-                        <Warning className="h-3 w-3" weight="fill" />
-                        {t("channelGoneChip")}
-                      </span>
+                      <StatusChip
+                        tone="warning"
+                        label={t("channelGoneChip")}
+                        icon={<Warning className="h-3 w-3" weight="fill" />}
+                        className="px-2 text-2xs"
+                      />
                     ) : null}
                     <Chip>{rule.recipient}</Chip>
                     <Chip>{t("cooldownChip", { minutes: rule.cooldownMinutes })}</Chip>
@@ -257,6 +262,7 @@ export function CommentAnalysisAlerts({
                     <ElevatedSwitch
                       checked={rule.enabled}
                       aria-label={t("enabledLabel")}
+                      explainer={<ExplainerHint id="social.alertRuleEnabled" align="end" />}
                       onCheckedChange={(checked: boolean) => void toggle(rule, checked)}
                     />
                     <Button
@@ -552,10 +558,9 @@ function AlertRuleDialog({
           {
 }
           {channelBlocked ? (
-            <p className="flex items-start gap-2 rounded-[--radius] bg-muted px-3 py-2 text-2xs text-warning-ink">
-              <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-              <span>{t(`channelUnavailable.${currentStatus?.reason ?? "no_sender"}`)}</span>
-            </p>
+            <Notice tone="warning">
+              <p>{t(`channelUnavailable.${currentStatus?.reason ?? "no_sender"}`)}</p>
+            </Notice>
           ) : null}
 
           {
@@ -661,7 +666,11 @@ function AlertRuleDialog({
 
           <label className={cn("flex items-center justify-between gap-3 rounded-[--radius] border border-border px-3 py-2")}>
             <span className="text-sm text-foreground">{t("fields.brief")}</span>
-            <ElevatedSwitch checked={draft.brief ?? false} onCheckedChange={(checked: boolean) => set("brief", checked)} />
+            <ElevatedSwitch
+              checked={draft.brief ?? false}
+              onCheckedChange={(checked: boolean) => set("brief", checked)}
+              explainer={<ExplainerHint id="social.alertBrief" align="end" />}
+            />
           </label>
           <p className="text-2xs text-muted-foreground">{t("briefHint")}</p>
 
@@ -673,6 +682,7 @@ function AlertRuleDialog({
               checked={draft.enabled}
               disabled={channelBlocked && !draft.enabled}
               onCheckedChange={(checked: boolean) => set("enabled", checked)}
+              explainer={<ExplainerHint id="social.alertRuleEnabled" align="end" />}
             />
           </label>
           {channelBlocked && !draft.enabled ? (

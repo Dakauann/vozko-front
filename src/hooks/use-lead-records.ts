@@ -13,8 +13,7 @@ import {
 } from "@/app/actions/leads";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useSectionPagesQuery, useSectionQuery } from "@/hooks/use-section-query";
-import { SectionError } from "@/lib/analytics/section-query";
-import type { CodedError } from "@/lib/api/coded-error";
+import { SectionError, codedSectionError } from "@/lib/analytics/section-query";
 import type { LeadDetailSummary } from "@/lib/leads/detail-summary";
 import type { ConversationEntryType, LeadDetail } from "@/lib/leads/types";
 
@@ -57,10 +56,6 @@ export function forgetLeadQueries(client: QueryClient, workspaceId: string, lead
   }
 }
 
-function sectionErrorOf(error: CodedError, what: string): SectionError {
-  return new SectionError(error.code ?? error.message ?? `${what} failed`, error.status);
-}
-
 export function isMissingSection(error: unknown): boolean {
   return error instanceof SectionError && error.status === 404;
 }
@@ -79,7 +74,7 @@ export function useLeadDetail(leadId: string) {
     queryKey: key,
     queryFn: async (signal) => {
       const result = await getLeadByIdAction(leadId, signal);
-      if (result.error) throw sectionErrorOf(result.error, "lead detail");
+      if (result.error) throw codedSectionError(result.error, "lead detail");
       return result.lead;
     },
     enabled: workspaceId !== "" && leadId !== "",
@@ -103,7 +98,7 @@ export function useLeadSummary(leadId: string, enabled = true) {
     queryKey: leadQueryKeys.summary(workspaceId, leadId),
     queryFn: async (signal) => {
       const result = await getLeadSummaryAction(leadId, signal);
-      if (result.error) throw sectionErrorOf(result.error, "lead summary");
+      if (result.error) throw codedSectionError(result.error, "lead summary");
       return result.summary;
     },
     enabled: enabled && workspaceId !== "" && leadId !== "",
@@ -117,7 +112,7 @@ export function useLeadRelatives(leadId: string, enabled: boolean) {
     queryKey: leadQueryKeys.relatives(workspaceId, leadId),
     queryFn: async (after, signal) => {
       const { page, error } = await listLeadRelativesAction(leadId, { after: after || undefined, limit: LEAD_RELATIVES_PAGE_SIZE }, signal);
-      if (!page) throw sectionErrorOf(error ?? {}, "lead relatives");
+      if (!page) throw codedSectionError(error ?? {}, "lead relatives");
       return page;
     },
     nextCursor: (page) => page.next,
@@ -132,7 +127,7 @@ export function useLeadTimeline(leadId: string, enabled: boolean) {
     queryKey: leadQueryKeys.timeline(workspaceId, leadId),
     queryFn: async (before, signal) => {
       const { page, error } = await listLeadTimelineAction(leadId, { before: before || undefined, limit: LEAD_HISTORY_PAGE_SIZE }, signal);
-      if (!page) throw sectionErrorOf(error ?? {}, "lead timeline");
+      if (!page) throw codedSectionError(error ?? {}, "lead timeline");
       return page;
     },
     nextCursor: (page) => page.next,
@@ -147,7 +142,7 @@ export function useLeadDeals(leadId: string, enabled: boolean) {
     queryKey: leadQueryKeys.deals(workspaceId, leadId),
     queryFn: async (before, signal) => {
       const { page, error } = await listLeadDealsAction(leadId, { before: before || undefined, limit: LEAD_HISTORY_PAGE_SIZE }, signal);
-      if (!page) throw sectionErrorOf(error ?? {}, "lead deals");
+      if (!page) throw codedSectionError(error ?? {}, "lead deals");
       return page;
     },
     nextCursor: (page) => page.next,
@@ -179,7 +174,7 @@ export function useEntryLeadCard({
     queryKey: leadQueryKeys.entryCard(workspaceId, entryType, entryId, leadVersion),
     queryFn: async (signal) => {
       const result = await getEntryLeadCardAction(entryId, entryType, signal);
-      if (result.error) throw sectionErrorOf(result.error, "lead card");
+      if (result.error) throw codedSectionError(result.error, "lead card");
       return result.card;
     },
     enabled: enabled && workspaceId !== "" && entryId !== "",

@@ -1,6 +1,7 @@
 "use client";
 
-import { Warning, X } from "@/components/icons";
+import { X } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 
 export interface TemplateErrorBannerProps {
     title: string;
@@ -20,22 +21,12 @@ export function TemplateErrorBanner({
     dismissLabel,
 }: TemplateErrorBannerProps) {
     return (
-        <div
-            role="alert"
-            aria-live="assertive"
-            className="mb-4 flex items-start gap-3 rounded-[--radius] border border-destructive-ink/30 bg-destructive-ink/5 p-4"
-        >
-            <Warning
-                className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive-ink"
-                weight="fill"
-            />
-
-            <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-destructive-ink">{title}</p>
-                <p className="mt-1 text-sm text-foreground">{message}</p>
+        <div className="relative mb-4">
+            <Notice tone="fault" title={title} className="pr-12">
+                <p className="text-sm text-foreground">{message}</p>
 
                 {details && details.length > 0 && (
-                    <ul className="mt-2 list-disc space-y-1 pl-4">
+                    <ul className="list-disc space-y-1 pl-4">
                         {details.map((detail, index) => (
                             <li key={index} className="text-sm text-muted-foreground">
                                 {detail}
@@ -45,15 +36,15 @@ export function TemplateErrorBanner({
                 )}
 
                 {code && (
-                    <p className="mt-2 font-mono text-2xs text-muted-foreground">{code}</p>
+                    <p className="font-mono text-2xs text-muted-foreground">{code}</p>
                 )}
-            </div>
+            </Notice>
 
             <button
                 type="button"
                 onClick={onDismiss}
                 aria-label={dismissLabel}
-                className="flex-shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="absolute right-3 top-3 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
                 <X className="h-4 w-4" weight="bold" />
             </button>

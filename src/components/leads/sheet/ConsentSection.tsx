@@ -4,6 +4,7 @@ import { useFormatter, useTranslations } from "next-intl";
 
 import { ShieldCheck } from "@/components/icons";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { translatedLabel } from "@/lib/format/translated-label";
 import { instantOf } from "@/lib/leads/detail";
 import type { LeadConsent } from "@/lib/leads/types";
@@ -30,7 +31,7 @@ export function ConsentSection({
   return (
     <SheetSection icon={<ShieldCheck />} title={t("title")} anchor="consent">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1">
-        <ElevatedSwitch id={fieldId("opt-in")} label={t("optIn")} checked={optIn} onCheckedChange={(checked) => onChange(checked)} />
+        <ElevatedSwitch id={fieldId("opt-in")} label={t("optIn")} checked={optIn} onCheckedChange={(checked) => onChange(checked)} explainer={<ExplainerHint id="crm.whatsappOptIn" />} />
         {source ? <span className="text-sm text-muted-foreground">{t("source", { source })}</span> : null}
       </div>
       {optedOut ? <SheetHint tone="info">{t("optedOut", { date: format.dateTime(optedOut, { dateStyle: "medium" }) })}</SheetHint> : null}

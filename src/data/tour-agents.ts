@@ -61,7 +61,6 @@ export const agentsTourSteps: TourStep[] = [
     seed: agentsTourSeed + 4,
     data: { _tab: "conversa" },
     features: [
-      { icon: ChatCircleDots, text: "steps.experience.f0" },
       { icon: ChatCircleDots, text: "steps.experience.f1" },
     ],
   },

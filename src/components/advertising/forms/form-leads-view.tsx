@@ -7,7 +7,8 @@ import { listFormLeadsAction, syncLeadFormAction } from "@/app/actions/advertisi
 import { isAdsError } from "@/app/actions/advertising";
 import Button from "@/components/elevated-design/button";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
-import { ArrowClockwise, ArrowLeft, ArrowSquareOut, ClipboardText, Warning } from "@/components/icons";
+import { ArrowClockwise, ArrowLeft, ArrowSquareOut, ClipboardText } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
 import { toast } from "sonner";
@@ -127,13 +128,14 @@ export function FormLeadsView({ account, page: adPage, form, onBack }: { account
         />
       </div>
       {error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" aria-hidden />
-          {error}
-          <button type="button" onClick={leads.reload} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
+        <Notice tone="fault">
+          <div className="flex items-center gap-2">
+            <p>{error}</p>
+            <button type="button" onClick={leads.reload} className="ml-auto font-semibold text-primary-ink hover:underline">
+              {t("retry")}
+            </button>
+          </div>
+        </Notice>
       ) : null}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <DashboardTable

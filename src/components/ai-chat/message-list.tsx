@@ -112,6 +112,7 @@ import { cn } from "@/lib/utils";
 import { AttachmentChip } from "./attachment-chip";
 import { ChatChartView } from "./chat-chart";
 import { ChatMediaView } from "./chat-media";
+import { ExitRiskAcknowledgement } from "@/components/whatsapp/exit/ExitRiskAcknowledgement";
 import { isThinkingBetweenSteps, layoutSegments, type Block } from "@/lib/aichat/segments";
 import { subjectLabelOf } from "@/lib/aichat/subject-label";
 import type { UIMessage } from "@/lib/aichat/ui-message";
@@ -124,7 +125,6 @@ const TOOL_ICON: Record<string, Icon> = {
   list_agents: ListBullets,
   count_agents: ListNumbers,
   list_models: Sparkle,
-  list_voices: Microphone,
   list_departments: Buildings,
   list_agent_tools: Wrench,
   attendance_metrics: ChartBar,
@@ -186,6 +186,7 @@ const TOOL_ICON: Record<string, Icon> = {
   number_automation: DeviceMobile,
   configure_number_automation: DeviceMobile,
   create_template: EnvelopeSimple,
+  edit_template: PencilSimple,
   preview_campaign_import: FileCsv,
   create_campaign: Megaphone,
   start_campaign: PlayCircle,
@@ -196,6 +197,12 @@ const TOOL_ICON: Record<string, Icon> = {
   preview_unofficial_campaign_import: FileCsv,
   create_unofficial_campaign: Megaphone,
   start_unofficial_campaign: PlayCircle,
+  unofficial_groups_dashboard: ChartBar,
+  list_unofficial_groups: UsersThree,
+  unofficial_group_overview: UsersThree,
+  unofficial_group_people: UsersThree,
+  create_unofficial_group_campaign: Megaphone,
+  create_unofficial_group_analysis: Sparkle,
   list_workspace_members: Users,
   list_workspace_invites: EnvelopeSimple,
   get_member_permissions: ShieldCheck,
@@ -720,7 +727,9 @@ function ApprovalActions({
   );
 }
 
-const CHOICE_MODEL_KIND: Record<ChoiceKind, ModelKind> = {
+const EXIT_RISK_ACKNOWLEDGED = "acknowledged";
+
+const CHOICE_MODEL_KIND: Partial<Record<ChoiceKind, ModelKind>> = {
   image_model: "image",
   music_model: "music",
   voice_model: "voice",
@@ -739,6 +748,9 @@ function CardChoice({
   disabled: boolean;
 }) {
   const pick = useCallback((next: string) => onChange(field.key, next), [field.key, onChange]);
+  if (field.kind === "exit_risk_acknowledgement") {
+    return <ExitRiskAcknowledgement checked={value === EXIT_RISK_ACKNOWLEDGED} onCheckedChange={(checked) => pick(checked ? EXIT_RISK_ACKNOWLEDGED : "")} disabled={disabled} />;
+  }
   const kind = CHOICE_MODEL_KIND[field.kind];
   if (!kind) return null;
   return <MediaModelSelect kind={kind} value={value} onChange={pick} preferred={field.default} disabled={disabled} />;

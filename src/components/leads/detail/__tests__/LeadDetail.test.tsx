@@ -33,6 +33,7 @@ const dealSetup = vi.hoisted(() => ({
   getOpportunityBoardAction: vi.fn(),
 }));
 
+vi.mock("@/components/customer-portfolio/LeadPortfolioRow", () => ({ LeadPortfolioRow: () => null }));
 vi.mock("@/app/actions/leads", () => leadActions);
 vi.mock("@/app/actions/custom-fields", () => ({
   listCustomFieldsAction: () =>

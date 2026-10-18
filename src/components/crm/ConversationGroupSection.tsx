@@ -28,6 +28,7 @@ import {
   type UnofficialWhatsAppGroup,
 } from "@/lib/unofficial-whatsapp/types";
 import { cn } from "@/lib/utils";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 
 
 const MEMBER_PAGE_SIZE = 20;
@@ -498,25 +499,9 @@ function Badge({
 }: {
   tone: "healthy" | "warning" | "muted";
   icon?: React.ReactNode;
-  children: React.ReactNode;
+  children: string;
 }) {
-  const TONES = {
-    healthy: "border-border bg-card text-healthy-ink",
-    warning: "border-border bg-card text-warning-ink",
-    muted: "border-border bg-muted text-muted-foreground",
-  } as const;
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-[--radius] border px-2 py-0.5 text-2xs font-semibold",
-        TONES[tone],
-      )}
-    >
-      {icon}
-      {children}
-    </span>
-  );
+  return <StatusChip tone={tone} label={children} icon={icon} className="gap-1 px-2 text-2xs font-semibold" />;
 }
 
 function IconAction({

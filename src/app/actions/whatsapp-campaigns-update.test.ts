@@ -17,7 +17,6 @@ const payload: WhatsAppCampaignPayload = {
     templateId: "tpl-1",
     businessPhoneId: "phone-1",
     enableAgentResponses: false,
-    preferAudio: false,
     showTemplateInCrm: false,
     enableAnalysis: false,
     enableAutoStaging: false,

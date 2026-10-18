@@ -21,6 +21,7 @@ import type { Period } from "@/lib/audience/period";
 import { DEFAULT_AUTHORS_PERIOD, isPeriodReady, periodRange } from "@/lib/audience/period";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import {
   ElevatedDialog,
   ElevatedDialogContent,
@@ -129,9 +130,12 @@ export function CommentAnalysisAuthorView({
                   <StanceChip stance={author.derivedStance} />
                   <AuthorRoleChip role={author.role} displayable={author.roleDisplayable} />
                   {author.isFlagged ? (
-                    <Chip className="text-destructive-ink">
-                      <ShieldWarning className="h-3 w-3" weight="fill" /> {t("flagged")}
-                    </Chip>
+                    <StatusChip
+                      tone="fault"
+                      label={t("flagged")}
+                      icon={<ShieldWarning className="h-3 w-3" weight="fill" />}
+                      className="px-2 text-2xs"
+                    />
                   ) : null}
                   <ModerationChip state={author.moderationState} />
                 </span>
@@ -281,7 +285,7 @@ function AuthorPosts({
                 <StanceChip stance={c.derivedStance} />
                 <Chip>{t("commentsOnPost", { count: c.comments })}</Chip>
                 {c.severityHighCount > 0 ? (
-                  <Chip className="text-destructive-ink">{t("highOnPost", { count: c.severityHighCount })}</Chip>
+                  <Chip dot="hsl(var(--destructive))">{t("highOnPost", { count: c.severityHighCount })}</Chip>
                 ) : null}
               </span>
             </span>

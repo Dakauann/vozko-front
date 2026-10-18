@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { getFacebookPublishJobAction } from "@/app/actions/facebook";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
+import { Notice } from "@/components/ui/notice";
 import { PUBLISH_JOB_POLL_MS, isTerminalJob, jobOutcome } from "@/lib/facebook/publish-job";
 import type { FacebookPublishJob, FacebookPublishJobStatus } from "@/lib/facebook/types";
 import { cn } from "@/lib/utils";
@@ -52,37 +53,34 @@ export function PublishJobStatus({
 
   if (outcome === "published" || outcome === "scheduled") {
     return (
-      <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-healthy-ink">
-        <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-        {outcome === "published"
-          ? t("published")
-          : t("scheduled", { date: job.scheduledAt ? new Date(job.scheduledAt).toLocaleString() : "" })}
-      </p>
+      <Notice tone="healthy" icon={<CheckCircle weight="fill" />}>
+        <p>
+          {outcome === "published"
+            ? t("published")
+            : t("scheduled", { date: job.scheduledAt ? new Date(job.scheduledAt).toLocaleString() : "" })}
+        </p>
+      </Notice>
     );
   }
 
   if (outcome === "ambiguous") {
     return (
-      <div className="space-y-1 rounded-lg bg-muted p-3 text-xs text-warning-ink">
-        <p className="flex items-start gap-2 font-medium">
-          <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-          {t("ambiguous")}
-        </p>
+      <Notice tone="warning">
+        <p className="font-medium text-foreground">{t("ambiguous")}</p>
         {pageLink ? (
-          <a href={pageLink} target="_blank" rel="noreferrer noopener" className="ml-5 inline-block text-primary-ink hover:underline">
+          <a href={pageLink} target="_blank" rel="noreferrer noopener" className="inline-block text-primary-ink hover:underline">
             {t("openPage")}
           </a>
         ) : null}
-      </div>
+      </Notice>
     );
   }
 
   if (outcome === "failed") {
     return (
-      <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-        <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-        {t("failed", { error: job.error?.message || t("noReason") })}
-      </p>
+      <Notice tone="fault">
+        <p>{t("failed", { error: job.error?.message || t("noReason") })}</p>
+      </Notice>
     );
   }
 
@@ -98,12 +96,13 @@ export function PublishJobStatus({
               className={cn(
                 "inline-flex items-center gap-1 rounded-full px-2 py-0.5",
                 index < current
-                  ? "bg-muted text-healthy-ink"
+                  ? "bg-muted text-foreground"
                   : index === current
                     ? "bg-muted font-semibold text-foreground"
                     : "text-muted-foreground",
               )}
             >
+              {index < current ? <span className="h-1.5 w-1.5 rounded-full bg-healthy" /> : null}
               {index === current && !pollError ? <CircleNotch className="h-3 w-3 animate-spin" /> : null}
               {t(`status.${step.toLowerCase()}`)}
             </li>

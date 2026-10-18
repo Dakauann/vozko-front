@@ -12,6 +12,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { editableTopics, TopicsEditor } from "@/components/audience/topics-editor";
@@ -99,6 +100,7 @@ export function OverrideFields({
         <ElevatedSwitch
           id={`${id}-own-topics`}
           label={t("topics.own")}
+          explainer={<ExplainerHint id="social.postOwnTopics" />}
           checked={draft.ownTopics}
           disabled={disabled}
           onCheckedChange={(checked: boolean) => set("ownTopics", checked)}

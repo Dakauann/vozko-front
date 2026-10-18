@@ -19,6 +19,7 @@ import {
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { LeadOwnerPicker } from "@/components/leads/LeadOwnerPicker";
@@ -39,6 +40,7 @@ import {
   EMPTY_LEAD_ACTION_DRAFT,
   confirmedSelection,
   leadActionParams,
+  restoreOptOutCommit,
   typedCountMatches,
   type LeadActionDraft,
 } from "@/lib/leads/bulk-selection";
@@ -97,8 +99,14 @@ export function LeadActionDialog({
   const { preview, refusal, loading, progress, refetch } = useLeadActionPreview(request);
 
   const everyone = selection.mode === "everyone";
+  const restoring = action === "restore_opt_out";
+  const restorable = preview?.result.eligible ?? 0;
+  const restoreCommit =
+    restoring && preview ? restoreOptOutCommit({ note: draft.note, typed, selected: preview.result.selected, eligible: restorable }) : null;
   const confirmable = preview !== null && preview.result.expectedCount > 0;
-  const typedOk = !everyone || (preview !== null && typedCountMatches(typed, preview.result.expectedCount));
+  const typedOk = restoring
+    ? restoreCommit !== null
+    : !everyone || (preview !== null && typedCountMatches(typed, preview.result.expectedCount));
   const ready = request !== null && confirmable && typedOk && !loading && !busy;
 
   const change = (next: Partial<LeadActionDraft>) => {
@@ -121,6 +129,7 @@ export function LeadActionDialog({
     setFailure(null);
     const confirmed: LeadActionRequest = {
       ...request,
+      params: restoreCommit ? { ...request.params, ...restoreCommit } : request.params,
       selection: confirmedSelection(request.selection, preview.result),
     };
     const answer = await startLeadActionAction(confirmed, keyFor(preview));
@@ -226,6 +235,8 @@ export function LeadActionDialog({
 
           {action === "call_list" ? <CallListFields draft={draft.callList} onChange={(callList) => change({ callList })} /> : null}
 
+          {restoring ? <p className="text-sm text-muted-foreground">{t("dialog.restoreOptOut.explain")}</p> : null}
+
           <PreviewBox
             action={action}
             preview={preview}
@@ -241,7 +252,18 @@ export function LeadActionDialog({
             </p>
           ) : null}
 
-          {everyone && preview ? (
+          {restoring && preview && !loading ? (
+            <RestoreOptOutConfirm
+              eligible={restorable}
+              selected={preview.result.selected}
+              note={draft.note}
+              typed={typed}
+              onNote={(note) => change({ note })}
+              onTyped={setTyped}
+            />
+          ) : null}
+
+          {everyone && preview && !restoring ? (
             <TypedCountConfirm count={preview.result.expectedCount} value={typed} onChange={setTyped} />
           ) : null}
 
@@ -288,6 +310,43 @@ function PreviewBox({
     <dl role="status" className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 rounded-[--radius] border border-border bg-muted px-3 py-2.5 text-sm">
       <LeadActionCountRows action={action} selected={preview.result.selected} eligible={preview.result.eligible} skipped={preview.result.skipped} />
     </dl>
+  );
+}
+
+function RestoreOptOutConfirm({
+  eligible,
+  selected,
+  note,
+  typed,
+  onNote,
+  onTyped,
+}: {
+  eligible: number;
+  selected: number;
+  note: string;
+  typed: string;
+  onNote: (note: string) => void;
+  onTyped: (typed: string) => void;
+}) {
+  const t = useTranslations("leadsPage.bulk.dialog.restoreOptOut");
+  if (eligible < 1) {
+    return (
+      <p role="status" className="text-sm font-medium text-foreground">
+        {t("nothing")}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1">
+        <ElevatedTextarea label={t("note")} value={note} rows={2} required onChange={(event) => onNote(event.target.value)} />
+        <p className="text-xs text-muted-foreground">{t("noteHint")}</p>
+      </div>
+      <div className="space-y-1">
+        <TypedCountConfirm count={selected} value={typed} onChange={onTyped} />
+        <p className="text-xs text-muted-foreground">{t("typeCountHint")}</p>
+      </div>
+    </div>
   );
 }
 

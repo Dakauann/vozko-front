@@ -17,7 +17,7 @@ import type { ReportJob } from "@/lib/reports/types";
 import type { SelectionMode } from "@/lib/selection/bulk-state";
 import { selectionErrorMessage } from "@/lib/selection/errors";
 
-export type LeadActionKind = "classify" | "assign_owner" | "block" | "export" | "meta_audience" | "call_list" | LeadSendAction;
+export type LeadActionKind = "classify" | "assign_owner" | "block" | "export" | "meta_audience" | "call_list" | "restore_opt_out" | LeadSendAction;
 
 export interface LeadSelectionSort {
   field: string;
@@ -48,6 +48,8 @@ export interface LeadActionParams {
   description?: string;
   callList?: CallListParams;
   send?: LeadSendParams;
+  note?: string;
+  confirmCount?: number;
 }
 
 export interface CallListParams {
@@ -64,6 +66,10 @@ export interface LeadActionRequest {
 }
 
 export const LEAD_ACTION_SKIP_REASONS = ["unchanged", "gone"] as const;
+
+export const RESTORE_OPT_OUT = "restore_opt_out";
+
+export const RESTORE_OPT_OUT_SKIP_REASONS = ["lead_opt_out_not_restorable", ...LEAD_ACTION_SKIP_REASONS] as const;
 
 export type LeadActionSkips = Record<string, number>;
 
@@ -162,6 +168,8 @@ export const LEAD_ACTION_ERROR_CODES = [
   "lead_action_snapshot_lost",
   "lead_action_audience_not_found",
   "lead_owner_out_of_reach",
+  "lead_action_note_required",
+  "lead_action_note_too_long",
   "report_forbidden",
   "reports_unavailable",
   "audience_sensitive_filter",
@@ -178,16 +186,27 @@ export const LEAD_ACTION_FAILURE_CODES = ["stalled", "forbidden", "invalid", "in
 const PREVIEW_STATUSES: readonly string[] = ["running", "done", "failed"];
 const RUN_STATUSES: readonly string[] = ["queued", "running", "done", "failed"];
 const AUDIENCE_STATUSES: readonly string[] = ["pending", "done", "failed"];
-const ACTIONS: readonly string[] = ["classify", "assign_owner", "block", "export", "meta_audience", "call_list", "send_template", "send_unofficial"];
+const ACTIONS: readonly string[] = ["classify", "assign_owner", "block", "export", "meta_audience", "call_list", RESTORE_OPT_OUT, "send_template", "send_unofficial"];
 const SENDS: readonly string[] = ["send_template", "send_unofficial"];
 const RECORD_EDITS: readonly string[] = ["classify", "assign_owner", "block"];
+const RUN_ACTIONS: readonly string[] = [...RECORD_EDITS, RESTORE_OPT_OUT];
+
+function knownSkipReasons(action: string): readonly string[] {
+  if (isLeadSendAction(action)) return SEND_SKIP_REASONS;
+  if (action === RESTORE_OPT_OUT) return RESTORE_OPT_OUT_SKIP_REASONS;
+  return LEAD_ACTION_SKIP_REASONS;
+}
 
 export function leadActionSkipRows(action: string, skipped: Record<string, number>): SendSkipRow[] {
-  return reasonRows(skipped, isLeadSendAction(action) ? SEND_SKIP_REASONS : LEAD_ACTION_SKIP_REASONS);
+  return reasonRows(skipped, knownSkipReasons(action));
 }
 
 export function isRecordEdit(action: string): boolean {
   return RECORD_EDITS.includes(action);
+}
+
+export function isRunAction(action: string): boolean {
+  return RUN_ACTIONS.includes(action);
 }
 
 export function isLeadSendAction(action: string): action is LeadSendAction {
@@ -306,7 +325,7 @@ function isReportJob(value: unknown): value is ReportJob {
 export function parseLeadActionStart(value: unknown): LeadActionStart | null {
   if (!isJson(value) || typeof value.action !== "string" || !ACTIONS.includes(value.action)) return null;
   const action = value.action as LeadActionKind;
-  if (isRecordEdit(action)) {
+  if (isRunAction(action)) {
     const run = parseLeadActionRun(value.run);
     return run ? { action, run } : null;
   }

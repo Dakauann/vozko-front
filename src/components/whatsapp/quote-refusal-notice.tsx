@@ -18,8 +18,8 @@ export function QuoteRefusalNotice({
     return (
         <div role="status">
             {message && (
-                <p className={cn("flex items-start gap-1.5 text-xs text-warning-ink", className)}>
-                    <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
+                <p className={cn("flex items-start gap-1.5 text-xs text-foreground", className)}>
+                    <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" weight="fill" aria-hidden />
                     <span>
                         {message}
                         {onRetry && (

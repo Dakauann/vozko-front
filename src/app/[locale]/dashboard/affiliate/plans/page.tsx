@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { PlanCatalogRail } from "@/components/dashboard/plans/PlanCatalogRail";
+import { Notice } from "@/components/ui/notice";
 import type { PublicPlanDetails } from "@/lib/workspace-plan/types";
 import { getExchangeRateAction } from "@/app/actions/pricing";
 import { getMyAffiliateAction } from "@/app/actions/affiliate";
@@ -133,14 +134,7 @@ export default function AffiliatePlansPage() {
         description={t("headerDescription")}
       />
 
-      {error ? (
-        <div
-          className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink"
-          role="alert"
-        >
-          {error}
-        </div>
-      ) : null}
+      {error ? <Notice tone="fault">{error}</Notice> : null}
 
       {loading ? (
         <ScreenLoader fit="fill" className="min-h-[30vh]" />

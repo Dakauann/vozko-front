@@ -10,8 +10,10 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import Textarea from "@/components/elevated-design/elevated-textarea";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
+import { Notice } from "@/components/ui/notice";
 import {
   DEFAULT_PROFILE_LOCALE,
   GET_STARTED_PAYLOAD,
@@ -184,7 +186,10 @@ export function MessengerProfileEditor({
 
         <section className="flex items-start justify-between gap-4 border-t border-border pt-5">
           <div className="min-w-0 space-y-0.5">
-            <span className="text-sm font-medium text-foreground">{t("getStarted")}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-foreground">{t("getStarted")}</span>
+              <ExplainerHint id="settings.messengerGetStarted" />
+            </div>
             <p className="text-xs text-muted-foreground">{t("getStartedHint")}</p>
           </div>
           <ElevatedSwitch
@@ -273,7 +278,10 @@ export function MessengerProfileEditor({
 
           {menu ? (
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted px-3 py-2">
-              <span className="text-xs text-foreground">{t("composerDisabled")}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-foreground">{t("composerDisabled")}</span>
+                <ExplainerHint id="settings.messengerComposerHidden" />
+              </div>
               <ElevatedSwitch
                 checked={menu.composerInputDisabled}
                 disabled={disabled}
@@ -356,10 +364,9 @@ export function MessengerProfileEditor({
         ) : null}
 
         {saveError ? (
-          <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-            <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            {saveError}
-          </p>
+          <Notice tone="fault">
+            <p>{saveError}</p>
+          </Notice>
         ) : null}
 
         <div className="flex items-center justify-end gap-3 border-t border-border pt-4">

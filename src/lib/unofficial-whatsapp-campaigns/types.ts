@@ -35,7 +35,10 @@ export interface UnofficialWhatsAppMessageSpec {
     footer?: string;
     button?: string;
     options?: UnofficialWhatsAppMenuOption[];
+    exitText?: string;
 }
+
+export type UnofficialWhatsAppCampaignAudience = "leads" | "groups";
 
 export interface UnofficialWhatsAppCampaign {
     source?: string;
@@ -45,6 +48,7 @@ export interface UnofficialWhatsAppCampaign {
     instanceId: string;
 
     name: string;
+    audience?: UnofficialWhatsAppCampaignAudience;
     message: UnofficialWhatsAppMessageSpec;
 
     instanceLabel?: string;
@@ -59,7 +63,6 @@ export interface UnofficialWhatsAppCampaign {
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
     enableAutoMemory: boolean;
-    preferAudio: boolean;
     aiModel?: string;
 
     sendDelayMinMs: number;
@@ -78,7 +81,8 @@ export interface UnofficialWhatsAppCampaign {
 }
 
 export interface UnofficialWhatsAppCampaignTarget {
-    number: string;
+    number?: string;
+    groupJid?: string;
     name?: string;
     variables?: string[];
     metadata?: Record<string, string | number | boolean | null>;
@@ -91,6 +95,7 @@ export interface UnofficialWhatsAppCampaignSeedOutcome {
 
 export interface UnofficialWhatsAppCampaignPayload {
     name: string;
+    audience?: UnofficialWhatsAppCampaignAudience;
     instanceId: string;
     message: UnofficialWhatsAppMessageSpec;
 
@@ -102,7 +107,6 @@ export interface UnofficialWhatsAppCampaignPayload {
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
     enableAutoMemory: boolean;
-    preferAudio: boolean;
     aiModel?: string;
 
     sendDelayMinMs?: number;
@@ -121,6 +125,8 @@ export interface UnofficialWhatsAppCampaignEntry {
     leadId: string;
     number: string;
     name?: string;
+    jid?: string;
+    isGroup?: boolean;
     conversationId?: string;
     status: UnofficialWhatsAppCampaignEntryStatus;
     variantIndex: number;

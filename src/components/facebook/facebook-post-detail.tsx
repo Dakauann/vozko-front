@@ -17,6 +17,7 @@ import { ChannelAvatarImage } from "@/components/channels/channel-avatar-image";
 import Button from "@/components/elevated-design/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 import Textarea from "@/components/elevated-design/elevated-textarea";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
 import { CommentRulesPanel } from "@/components/social/comment-rules-panel";
 import { CommentThread } from "@/components/social/comment-thread";
@@ -279,7 +280,7 @@ export function FacebookPostDetail({ page, post, onClose, onUpdated, onDeleted }
                 {post.commentsCount}
               </span>
               <span>{t("shareCount", { count: post.sharesCount })}</span>
-              {post.isHidden ? <span className="rounded bg-muted px-1.5 py-0.5 text-warning-ink">{t("hidden")}</span> : null}
+              {post.isHidden ? <StatusChip tone="warning" label={t("hidden")} /> : null}
 
               <div className="ml-auto flex flex-wrap items-center gap-1.5">
                 {post.editable && !editing ? (

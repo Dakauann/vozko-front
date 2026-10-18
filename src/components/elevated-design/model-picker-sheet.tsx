@@ -307,7 +307,7 @@ function ModelRow({
 
 function NewBadge({ label }: { label: string }): ReactNode {
   return (
-    <span className="flex-shrink-0 rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-semibold leading-none text-primary-ink">
+    <span className="flex-shrink-0 rounded-[--radius] bg-primary px-1.5 py-0.5 text-2xs font-semibold leading-none text-primary-foreground">
       {label}
     </span>
   );

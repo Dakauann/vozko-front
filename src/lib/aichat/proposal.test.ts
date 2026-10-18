@@ -24,14 +24,14 @@ describe("proposalRows", () => {
         [
           { key: "name", value: "Vendas" },
           { key: "isActive", value: "true" },
-          { key: "useInitialMessage", value: "false" },
+          { key: "enabled", value: "false" },
         ],
         dict,
       ),
     ).toEqual([
       { key: "name", label: "Nome", value: "Vendas" },
       { key: "isActive", label: "Is active", value: "Sim" },
-      { key: "useInitialMessage", label: "Use initial message", value: "Não" },
+      { key: "enabled", label: "Enabled", value: "Não" },
     ]);
   });
 

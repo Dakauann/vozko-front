@@ -48,7 +48,6 @@ export interface UnofficialWhatsAppInstance {
     dailySendCap: number;
     sendDelayMinMs: number;
     sendDelayMaxMs: number;
-    autoRejectCalls: boolean;
     warmupStartedAt?: string | null;
 
     agentId?: string | null;
@@ -96,7 +95,6 @@ export interface UpdateInstancePayload {
     dailySendCap?: number;
     sendDelayMinMs?: number;
     sendDelayMaxMs?: number;
-    autoRejectCalls?: boolean;
 }
 
 

@@ -24,6 +24,7 @@ export const LEAD_CATALOG: Feature[] = [
       capability("leads.meta_audience", ["leads:read", "ads:create"]),
       capability("leads.read_addresses", ["leads:read", "leads:read_addresses"]),
       capability("leads.read_sensitive", ["leads:read", "leads:read_sensitive"]),
+      capability("leads.consent", ["leads:read", "leads:update", "leads:consent"]),
       capability("leads.send_template", [
         "leads:read",
         "whatsapp_campaigns:create",

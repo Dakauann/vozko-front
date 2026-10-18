@@ -29,6 +29,8 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
+import type { ExplainerId } from "@/components/explainers/catalog";
 import { UnofficialWhatsAppAutomationPanel } from "@/components/unofficial-whatsapp/automation-panel";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
@@ -348,27 +350,36 @@ function ConversationHandlingPanel({
 }) {
   const t = useTranslations("unofficialWhatsapp");
 
-  const toggles: Array<{ key: keyof UpdateInstancePayload; on: boolean; hint: string }> = [
+  const toggles: Array<{ key: keyof UpdateInstancePayload; on: boolean; hint: string; explainer: ExplainerId }> = [
     {
       key: "enableAnalysis",
       on: instance.enableAnalysis,
       hint: t("handling.analysisHint"),
+      explainer: "settings.conversationAnalysis",
     },
     {
       key: "enableAutoStaging",
       on: instance.enableAutoStaging,
       hint: t("handling.autoStagingHint"),
+      explainer: "settings.autoStaging",
     },
     {
       key: "enableAutoMemory",
       on: instance.enableAutoMemory,
       hint: t("handling.autoMemoryHint"),
+      explainer: "settings.autoMemory",
     },
-    { key: "handleGroups", on: instance.handleGroups, hint: t("automation.groupsHint") },
+    {
+      key: "handleGroups",
+      on: instance.handleGroups,
+      hint: t("automation.groupsHint"),
+      explainer: "settings.handleGroups",
+    },
     {
       key: "importHistory",
       on: instance.importHistory,
       hint: t("automation.importHistoryHint"),
+      explainer: "settings.importHistory",
     },
   ];
 
@@ -381,22 +392,28 @@ function ConversationHandlingPanel({
 
       <div className="divide-y divide-border">
         {toggles.map((toggle) => (
-          <label
+          <div
             key={toggle.key}
             className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0"
           >
             <span className="min-w-0">
-              <span className="block text-sm text-foreground">{t(`automation.${toggle.key}`)}</span>
+              <span className="flex items-center gap-1.5">
+                <label htmlFor={`uw-handling-${toggle.key}`} className="block text-sm text-foreground">
+                  {t(`automation.${toggle.key}`)}
+                </label>
+                <ExplainerHint id={toggle.explainer} />
+              </span>
               <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                 {toggle.hint}
               </span>
             </span>
             <Switch
+              id={`uw-handling-${toggle.key}`}
               checked={toggle.on}
               disabled={!canUpdate}
               onCheckedChange={(next) => onChange({ [toggle.key]: next })}
             />
-          </label>
+          </div>
         ))}
       </div>
       <DealAutomationSetting
@@ -466,20 +483,6 @@ function SafetyPanel({
         onChange={setCap}
         onBlur={commit}
       />
-
-      <label className="flex items-start justify-between gap-4 border-t border-border pt-3">
-        <span className="min-w-0">
-          <span className="block text-sm text-foreground">{t("safety.autoRejectCalls")}</span>
-          <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-            {t("safety.autoRejectCallsHint")}
-          </span>
-        </span>
-        <Switch
-          checked={instance.autoRejectCalls}
-          disabled={!canUpdate}
-          onCheckedChange={(next) => onChange({ autoRejectCalls: next })}
-        />
-      </label>
     </ElevatedContainer>
   );
 }

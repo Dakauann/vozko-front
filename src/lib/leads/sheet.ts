@@ -63,6 +63,7 @@ export interface LeadSheetDraft {
   birthDate: string;
   whatsappOptIn: boolean;
   ownerId: string;
+  companyId: string;
   phones: PhoneDraft[];
   addresses: AddressDraft[];
   customFields: Record<string, unknown>;
@@ -138,6 +139,7 @@ export function emptyLeadDraft(): LeadSheetDraft {
     birthDate: "",
     whatsappOptIn: false,
     ownerId: "",
+    companyId: "",
     phones: [],
     addresses: [],
     customFields: {},
@@ -159,6 +161,7 @@ export function draftFromRecord(lead: LeadRecord): LeadSheetDraft {
     birthDate: lead.birthDate ?? "",
     whatsappOptIn: !!lead.whatsappOptIn,
     ownerId: lead.owner ?? "",
+    companyId: lead.companyId ?? "",
     phones: (lead.phones ?? []).map((phone) => ({
       key: phone.id,
       id: phone.id,
@@ -374,6 +377,7 @@ function changedFields(before: LeadSheetDraft, after: LeadSheetDraft): string[] 
   const fields: string[] = [...changedTextFields(before, after)];
   if (before.whatsappOptIn !== after.whatsappOptIn) fields.push("whatsappOptIn");
   if (before.ownerId !== after.ownerId) fields.push("owner");
+  if (before.companyId !== after.companyId) fields.push("company");
   if (phonesChanged(before, after)) fields.push("phones");
   if (addressesChanged(before, after)) fields.push("addresses");
   for (const key of changedCustomKeys(before.customFields, after.customFields)) fields.push(`${CUSTOM_FIELD_PATH}${key}`);
@@ -411,6 +415,7 @@ function withFieldFrom(target: LeadSheetDraft, source: LeadSheetDraft, field: st
   if (isTextField(field)) return { ...target, [field]: source[field] };
   if (field === "whatsappOptIn") return { ...target, whatsappOptIn: source.whatsappOptIn };
   if (field === "owner") return { ...target, ownerId: source.ownerId };
+  if (field === "company") return { ...target, companyId: source.companyId };
   if (field === "phones") return { ...target, phones: source.phones };
   if (field === "addresses") return { ...target, addresses: source.addresses };
   return target;

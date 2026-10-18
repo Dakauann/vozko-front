@@ -30,6 +30,7 @@ vi.mock("next-intl", async () => (await import("@/test/next-intl-pt")).nextIntlI
 import { toast } from "sonner";
 import ptMessages from "@/i18n/messages/pt.json";
 import { useConversationWs } from "@/hooks/use-conversation-ws";
+import { subscribeNotificationCreated } from "@/lib/notifications/bus";
 
 class FakeWebSocket {
   static CONNECTING = 0;
@@ -705,5 +706,54 @@ describe("useConversationWs template send refusals", () => {
   it("keeps the status change refusal on its own path", async () => {
     await refuse({ ...refusal, code: "forbidden", status: "finished", previous_status: "ongoing", message: "status refused" });
     expect(toast.error).toHaveBeenCalledWith("status refused");
+  });
+});
+
+describe("useConversationWs notification events", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    FakeWebSocket.instances = [];
+    mockWorkspace = { id: "ws-1" };
+    mockDepartment = null;
+    hasUserDataCookie.mockReturnValue(true);
+    vi.stubGlobal("WebSocket", FakeWebSocket);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function deliver(payload: unknown) {
+    renderHook((props) => useConversationWs(props), { initialProps: baseProps });
+    await flushConnect();
+    const socket = FakeWebSocket.instances[0];
+    await act(async () => {
+      socket.simulateOpen();
+    });
+    await act(async () => {
+      socket.simulateMessage({ type: "notification:created", payload });
+    });
+  }
+
+  const item = { id: "n1", category: "campaigns", severity: "warning", title: "Campanha pausada", body: "", createdAt: "2026-10-16T12:00:00Z" };
+
+  it("hands a created notification to the notification bus", async () => {
+    const listener = vi.fn();
+    const stop = subscribeNotificationCreated(listener);
+
+    await deliver({ workspaceId: "ws-1", item });
+
+    expect(listener).toHaveBeenCalledWith({ workspaceId: "ws-1", item });
+    stop();
+  });
+
+  it("drops a malformed notification frame", async () => {
+    const listener = vi.fn();
+    const stop = subscribeNotificationCreated(listener);
+
+    await deliver({ workspaceId: "ws-1", item: { id: "n1" } });
+
+    expect(listener).not.toHaveBeenCalled();
+    stop();
   });
 });

@@ -44,7 +44,7 @@ describe("plan catalog", () => {
   });
 
   it("says what the plan gives, leading with the balance the payment becomes", () => {
-    const pro = plan("pro", 50_300, { includedWhatsAppBusinessPhones: 2, maxTtsConcurrency: 0, pricingItems: [item("whatsapp"), item("llm")] }).plan;
+    const pro = plan("pro", 50_300, { includedWhatsAppBusinessPhones: 2, pricingItems: [item("whatsapp"), item("llm")] }).plan;
     expect(planHighlights(pro)).toEqual([
       { kind: "balance", cents: 50_300 },
       { kind: "whatsappNumbers", count: 2 },

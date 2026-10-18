@@ -121,6 +121,19 @@ describe("lead timeline tab", () => {
     expect(screen.getByText(`${ptMessages.dealActors.system} alterou ${t.wholeRecord}`)).toBeInTheDocument();
   });
 
+  it("names who undid an automated opt-out", async () => {
+    leadActions.listLeadTimelineAction.mockResolvedValue(
+      page([
+        item({ id: "record:ev-9", kind: "record", actor: "u-2", actorName: "Clara M.", ref: { type: "lead_event", id: "ev-9" }, summary: { event: "consent_withdrawal_reverted", fields: ["consent"] } }),
+      ]),
+    );
+
+    renderTab();
+
+    expect(t.record.consent_withdrawal_reverted).toEqual(expect.any(String));
+    expect(await screen.findByText(t.record.consent_withdrawal_reverted.replace("{actor}", "Clara M."))).toBeInTheDocument();
+  });
+
   it("names who pinned a position on the map and who used the location the lead sent", async () => {
     leadActions.listLeadTimelineAction.mockResolvedValue(
       page([

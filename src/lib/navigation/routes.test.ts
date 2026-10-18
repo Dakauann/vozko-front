@@ -42,6 +42,11 @@ describe("route rules", () => {
     expect(ruleForPath("/dashboard/funnels?tab=x")).toEqual({ kind: "screen", screen: "funnels" });
   });
 
+  it("opens the lead companies through their own screen, never as a lead id", () => {
+    expect(ruleForPath("/dashboard/leads/companies")).toEqual({ kind: "screen", screen: "lead_companies" });
+    expect(ruleForPath("/dashboard/leads/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "lead_detail" });
+  });
+
   it("opens the call lists and their worker page through their own screens", () => {
     expect(ruleForPath("/dashboard/call-lists")).toEqual({ kind: "screen", screen: "call_lists" });
     expect(ruleForPath("/dashboard/call-lists/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "call_list_detail" });

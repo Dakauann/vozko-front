@@ -23,7 +23,8 @@ import { bulkSetAdObjectsOnAction } from "@/app/actions/advertising-bulk";
 import { getAdsOptionsAction } from "@/app/actions/advertising-create";
 import { deleteAdDraftAction, discardAdDraftsAction, duplicateAdDraftAction, updateAdDraftAction } from "@/app/actions/advertising-drafts";
 import { DashboardTable } from "@/components/elevated-design/table/dashboard-table";
-import { Megaphone, Plus, Warning } from "@/components/icons";
+import { Megaphone, Plus } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 import Button from "@/components/elevated-design/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -874,13 +875,14 @@ export function AdsManager() {
     return (
       <div className="w-full space-y-4">
         {topBar}
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {accounts.error}
-          <button type="button" onClick={() => void accounts.reload()} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
+        <Notice tone="fault">
+          <div className="flex items-center gap-2">
+            <p>{accounts.error}</p>
+            <button type="button" onClick={() => void accounts.reload()} className="ml-auto font-semibold text-primary-ink hover:underline">
+              {t("retry")}
+            </button>
+          </div>
+        </Notice>
       </div>
     );
   }
@@ -953,20 +955,20 @@ export function AdsManager() {
       {report && !firstCampaign ? <ManagerReadinessBanner account={account} state={readiness} /> : null}
 
       {!today ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {t("errors.timezone")}
-        </div>
+        <Notice tone="fault">
+          <p>{t("errors.timezone")}</p>
+        </Notice>
       ) : null}
 
       {drafts.error ? (
-        <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-4 py-3 text-sm text-warning-ink" role="status">
-          <Warning className="h-4 w-4" />
-          {t("drafts.loadFailed", { message: drafts.error })}
-          <button type="button" onClick={reloadDrafts} className="ml-auto font-semibold text-primary-ink hover:underline">
-            {t("retry")}
-          </button>
-        </div>
+        <Notice tone="warning">
+          <div className="flex items-center gap-2">
+            <p>{t("drafts.loadFailed", { message: drafts.error })}</p>
+            <button type="button" onClick={reloadDrafts} className="ml-auto font-semibold text-primary-ink hover:underline">
+              {t("retry")}
+            </button>
+          </div>
+        </Notice>
       ) : null}
 
       <ViewsRow view={view} onView={setView} search={searchInput} onSearch={setSearchInput} />

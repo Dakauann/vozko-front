@@ -1,11 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { templateButtonIndexOf } from "@/lib/workflows/template-button";
 import type { WorkflowNodeType } from "@/lib/workflows/types";
 
 import { ConditionBranchPreview } from "./condition-branch-preview";
 import { ConditionFilterPreview } from "./condition-filter-preview";
 import { ConditionTextMatchPreview } from "./condition-text-match-preview";
+import { TemplateButtonBranchPreview } from "./template-button-branch-preview";
 import {
   ConditionCheckLabelPreview,
   ConditionCheckOpportunityPreview,
@@ -17,8 +19,10 @@ export function renderConditionContentPreview(
   config: Record<string, unknown>,
 ): ReactNode | undefined {
   switch (nodeType) {
-    case "condition_branch":
-      return <ConditionBranchPreview config={config} />;
+    case "condition_branch": {
+      const button = templateButtonIndexOf(config);
+      return button === null ? <ConditionBranchPreview config={config} /> : <TemplateButtonBranchPreview index={button} />;
+    }
     case "condition_filter":
       return <ConditionFilterPreview config={config} />;
     case "condition_text_match":

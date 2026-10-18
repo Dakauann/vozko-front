@@ -69,7 +69,7 @@ function Run({ d, width, opacity = 1, pulse }: RunProps) {
 }
 
 function discharge(spark: Element) {
-  spark.querySelectorAll("animate, animateMotion").forEach((animation) => (animation as unknown as { beginElement: () => void }).beginElement());
+  spark.querySelectorAll("animate, animateMotion").forEach((animation) => (animation as unknown as { beginElement?: () => void }).beginElement?.());
 }
 
 function CircuitSvg({ viewBox, preserveAspectRatio, tone = "bold", className, pulse, speed = 1, children }: {

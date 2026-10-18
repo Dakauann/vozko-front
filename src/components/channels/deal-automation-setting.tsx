@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import type { Pipeline } from "@/lib/crm/pipelines";
 import { type DealAutomationChannel, getDealAutomation, saveDealAutomation } from "@/lib/deal-automation/client";
 
@@ -71,9 +72,12 @@ function DealAutomationControl({
     layout === "row" ? (
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <label htmlFor={controlId} className="text-sm text-foreground">
-            {t("label")}
-          </label>
+          <div className="flex items-center gap-1.5">
+            <label htmlFor={controlId} className="text-sm text-foreground">
+              {t("label")}
+            </label>
+            <ExplainerHint id="settings.dealAutomation" />
+          </div>
           <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
         </div>
         <ElevatedSwitch id={controlId} checked={on} onCheckedChange={handleToggle} disabled={locked} aria-label={t("label")} />
@@ -87,6 +91,7 @@ function DealAutomationControl({
         label={t("label")}
         aria-label={t("label")}
         description={hint}
+        explainer={<ExplainerHint id="settings.dealAutomation" />}
       />
     );
 

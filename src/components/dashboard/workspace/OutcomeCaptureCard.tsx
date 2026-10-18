@@ -15,6 +15,7 @@ import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_THRESHOLD = 30;
@@ -71,15 +72,20 @@ function SettingRow({
   title,
   hint,
   control,
+  explainer,
 }: {
   title: string;
   hint: string;
   control: React.ReactNode;
+  explainer?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] border border-border bg-muted/20 px-3 py-2.5">
       <div className="min-w-[200px] flex-1">
-        <p className="text-sm font-medium text-foreground">{title}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-medium text-foreground">{title}</p>
+          {explainer}
+        </div>
         <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
       </div>
       <div className="shrink-0">{control}</div>
@@ -180,6 +186,7 @@ export function OutcomeCaptureCard({
         <SettingRow
           title={t("enabled")}
           hint={t("enabledHint")}
+          explainer={<ExplainerHint id="settings.outcomeCapture" />}
           control={
             <Switch
               checked={draft.enabled}
@@ -194,6 +201,7 @@ export function OutcomeCaptureCard({
         <SettingRow
           title={t("requireOnFinish")}
           hint={t("requireOnFinishHint")}
+          explainer={<ExplainerHint id="settings.outcomeRequired" />}
           control={
             <Switch
               checked={draft.requireOnFinish}

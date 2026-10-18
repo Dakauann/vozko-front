@@ -8,7 +8,6 @@ import {
   MagnifyingGlass,
   Plus,
   Trash,
-  Warning,
 } from "@/components/icons";
 import {
   DashboardTable,
@@ -35,6 +34,7 @@ import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitc
 import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -292,13 +292,16 @@ export default function UnofficialWhatsAppPage() {
             {allowance && (
               <span
                 className={cn(
-                  "hidden rounded-[--radius] border px-2.5 py-1 text-xs font-medium tabular-nums sm:inline-flex",
+                  "hidden items-center gap-1.5 rounded-[--radius] border px-2.5 py-1 text-xs font-medium tabular-nums sm:inline-flex",
                   allowance.canConnect
                     ? "border-border bg-card text-muted-foreground"
-                    : "border-border bg-muted text-warning-ink",
+                    : "border-border bg-card text-foreground",
                 )}
                 title={t("allowance.tooltip")}
               >
+                {!allowance.canConnect && (
+                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-warning" />
+                )}
                 {t("allowance.counter", {
                   used: allowance.used,
                   limit: allowance.limit,
@@ -370,10 +373,7 @@ export default function UnofficialWhatsAppPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {error}
-        </div>
+        <Notice tone="fault">{error}</Notice>
       )}
 
       {loading ? (

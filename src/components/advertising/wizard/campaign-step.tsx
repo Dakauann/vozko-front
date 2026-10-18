@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { Lock } from "@/components/icons";
 import { LOWEST_COST, MAX_NAME, SPECIAL_CATEGORIES, isRestrictedCategory, withSpecialCategory } from "@/lib/advertising/draft";
 import type { AdDraftSpecialCategory } from "@/lib/advertising/draft-types";
@@ -77,6 +78,7 @@ export function CampaignStep() {
           onCheckedChange={toggleCampaignBudget}
           label={t("cbo")}
           description={t("cboHint")}
+          explainer={<ExplainerHint id="ads.campaignBudget" />}
         />
         {form.campaignBudgetOn ? (
           <BudgetFields

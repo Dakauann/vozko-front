@@ -80,12 +80,6 @@ export interface TargetListEditorLabels {
   placeholder: string;
   upload: string;
   columnsHelp: string;
-  summary: (counts: {
-    valid: number;
-    duplicates: number;
-    invalid: number;
-    missingVariables: number;
-  }) => string;
   skippedTitle: string;
   reasons: {
     invalid: string;
@@ -159,26 +153,18 @@ export function TargetListEditor({
         value={value}
         onChange={(e) => update(e.target.value)}
         disabled={disabled}
-        rows={8}
+        rows={5}
         placeholder={labels.placeholder}
         className="w-full resize-y rounded-[--radius] border border-border bg-background px-3 py-2 font-mono text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
       />
 
       <p className="text-xs text-muted-foreground">{labels.columnsHelp}</p>
       {requiredVariables > 0 ? (
-        <p className="text-xs font-semibold text-warning-ink">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+          <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-warning" />
           {labels.variablesNeeded(requiredVariables)}
         </p>
       ) : null}
-
-      <p className="text-xs text-muted-foreground">
-        {labels.summary({
-          valid: parsed.targets.length,
-          duplicates: parsed.duplicates,
-          invalid: parsed.invalid,
-          missingVariables: parsed.missingVariables,
-        })}
-      </p>
 
       {parsed.skipped.length > 0 ? (
         <details className="rounded-[--radius] border border-border px-3 py-2">
@@ -190,7 +176,7 @@ export function TargetListEditor({
               <li key={item.line} className="flex gap-2 text-2xs text-muted-foreground">
                 <span className="shrink-0 tabular-nums">#{item.line}</span>
                 <span className="min-w-0 flex-1 truncate font-mono">{item.raw}</span>
-                <span className="shrink-0 text-warning-ink">
+                <span className="shrink-0 text-foreground">
                   {item.reason === "missingVariables"
                     ? labels.reasons.missingVariables(item.variables ?? 0, requiredVariables)
                     : labels.reasons[item.reason]}

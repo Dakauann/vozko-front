@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise, Eye, MagnifyingGlass, Plus, Trash, Warning } from "@/components/icons";
+import { ArrowClockwise, Eye, MagnifyingGlass, Plus, Trash } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DashboardTable,
@@ -14,6 +14,7 @@ import { originsSummary, type WebchatWidget, type WebchatWidgetListMeta } from "
 import Button from "@/components/elevated-design/button";
 import { ChannelListPagination, ChannelListStat } from "@/components/channels/channel-list-parts";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Notice } from "@/components/ui/notice";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -216,10 +217,7 @@ export default function WebchatWidgetsPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-          <Warning className="h-4 w-4" />
-          {error}
-        </div>
+        <Notice tone="fault">{error}</Notice>
       )}
 
       {loading ? (

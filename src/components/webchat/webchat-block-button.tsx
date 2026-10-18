@@ -58,7 +58,7 @@ export function WebchatBlockButton({
           className={cn(
             "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-2xs font-semibold transition-colors disabled:opacity-50",
             current
-              ? "bg-muted text-destructive-ink hover:bg-muted/80"
+              ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
               : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >

@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import { CampaignConfirmModal } from "@/components/campaigns/CampaignConfirmModal";
 import CrmDialog from "@/components/crm/CrmDialog";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
@@ -205,6 +206,7 @@ export default function UnofficialCampaignDetail({
   const selectionSend = selectionSendControls(campaign.source, campaign.status);
   const canRunStart = can("unofficial_whatsapp_campaigns", "start");
   const canRunStop = can("unofficial_whatsapp_campaigns", "stop");
+  const sendsToGroups = campaign.audience === "groups";
 
   return (
     <main className="w-full space-y-4">
@@ -222,7 +224,7 @@ export default function UnofficialCampaignDetail({
         hasPermissionStart={canRunStart}
         hasPermissionStop={canRunStop}
         extraActions={
-          canUpdate
+          canUpdate && !sendsToGroups
             ? (close) => (
                 <Button
                   variant="ghost"
@@ -361,6 +363,12 @@ export default function UnofficialCampaignDetail({
                   <span>
                     {t("detail.messageKind")}: {t(`messageKind.${campaign.message.kind}`)}
                   </span>
+                  {sendsToGroups ? (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span>{t("detail.groupsAudience")}</span>
+                    </>
+                  ) : null}
                   {campaign.message.bodies.length > 1 ? (
                     <>
                       <span className="text-muted-foreground">•</span>
@@ -513,7 +521,7 @@ export default function UnofficialCampaignDetail({
                           <EntryConversationDialog
                             entryId={entry.conversationId}
                             entryType="unofficial_whatsapp"
-                            phoneNumber={entry.number}
+                            phoneNumber={entry.isGroup ? (entry.jid ?? "") : entry.number}
                             contactName={entry.name}
                             trigger={
                               <button
@@ -530,6 +538,19 @@ export default function UnofficialCampaignDetail({
                             <ChatCircle weight="fill" className="h-5 w-5" />
                           </span>
                         )}
+                        {entry.isGroup ? (
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate text-lg font-semibold tracking-wide text-foreground">
+                                {entry.name || <EmptyValue />}
+                              </p>
+                              <StatusChip tone="outline" label={t("entries.groupMark")} />
+                            </div>
+                            {entry.jid ? (
+                              <p className="readout mt-0.5 truncate text-xs text-muted-foreground">{entry.jid}</p>
+                            ) : null}
+                          </div>
+                        ) : (
                         <div>
                           <p className="text-lg font-semibold tracking-wide text-foreground">
                             {entry.number}
@@ -546,6 +567,7 @@ export default function UnofficialCampaignDetail({
                             )}
                           </div>
                         </div>
+                        )}
                       </div>
                       <span
                         className={cn(

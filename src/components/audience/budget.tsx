@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Meter } from "@/components/charts/vozko";
-import { WarningCircle } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 import { Panel } from "@/components/audience/shared";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
@@ -80,23 +80,16 @@ export function AnalysisBudgetPanel({
 
         {
 }
-        {waiting > 0 && (
-          <div
-            className={cn(
-              "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
-              constrained
-                ? "bg-destructive/10 text-destructive-ink"
-                : "bg-muted/40 text-muted-foreground",
-            )}
-          >
-            {constrained ? <WarningCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden /> : null}
-            <span>
-              {constrained
-                ? t("constrained", { count: nf.format(waiting), hours: clearsInHours })
-                : t("waiting", { count: nf.format(waiting) })}
-            </span>
-          </div>
-        )}
+        {waiting > 0 &&
+          (constrained ? (
+            <Notice tone="fault">
+              <p>{t("constrained", { count: nf.format(waiting), hours: clearsInHours })}</p>
+            </Notice>
+          ) : (
+            <div className="flex items-start gap-2 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <span>{t("waiting", { count: nf.format(waiting) })}</span>
+            </div>
+          ))}
 
         {canEdit && settings ? (
           <SettingsEditor settings={settings} onChanged={onChanged} />

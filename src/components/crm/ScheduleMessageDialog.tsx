@@ -21,6 +21,7 @@ import { useCallback, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
@@ -206,7 +207,7 @@ export default function ScheduleMessageDialog({
 
                             <label className="inline-flex items-center gap-2 text-2xs font-medium text-muted-foreground">
                                 {t("dialog.sign")}
-                                <ElevatedSwitch checked={signed} onCheckedChange={setSigned} />
+                                <ElevatedSwitch checked={signed} onCheckedChange={setSigned} explainer={<ExplainerHint id="crm.signMessage" side="top" align="end" />} />
                             </label>
                         </div>
 

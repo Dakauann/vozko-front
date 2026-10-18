@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 
 import { EdgeTab } from "@/components/docks/edge-tab";
+import { AiGlow } from "@/components/elevated-design/ai-glow";
 
 import { EloMark } from "./elo-mark";
 
@@ -16,15 +17,6 @@ const BARS = [
 
 const CORNER =
   "bottom-4 right-4 h-14 w-14 rounded-full hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-6 sm:right-6";
-
-function Glow() {
-  return (
-    <>
-      <span aria-hidden className="vz-ai-halo" />
-      <span aria-hidden className="vz-ai-ring" />
-    </>
-  );
-}
 
 function ChartGlyph() {
   return (
@@ -67,7 +59,7 @@ export const AssistantLauncher = forwardRef<
         tabLabel={tabLabel ?? ""}
         icon={<EloMark className="h-5 w-5 text-foreground" />}
         onClick={onClick}
-        decoration={<Glow />}
+        decoration={<AiGlow />}
         dataBusy={busy}
         className={cn("vz-ai-launcher", className)}
       />
@@ -86,7 +78,7 @@ export const AssistantLauncher = forwardRef<
         className,
       )}
     >
-      <Glow />
+      <AiGlow />
       <span aria-hidden className="absolute inset-0 rounded-[inherit] border border-border-strong bg-card" />
       <ChartGlyph />
       <span

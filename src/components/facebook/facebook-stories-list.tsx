@@ -4,8 +4,8 @@ import { ArrowSquareOut, FilmStrip, Image as ImageIcon } from "@/components/icon
 import { useTranslations } from "next-intl";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import type { FacebookStory } from "@/lib/facebook/types";
-import { cn } from "@/lib/utils";
 
 export function FacebookStoriesList({ stories }: { stories: FacebookStory[] }) {
   const t = useTranslations("facebook.stories");
@@ -29,14 +29,11 @@ export function FacebookStoriesList({ stories }: { stories: FacebookStory[] }) {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-foreground">{isVideo ? t("video") : t("photo")}</p>
               <p className="text-2xs text-muted-foreground">
-                <span
-                  className={cn(
-                    "mr-1.5 rounded px-1 py-0.5",
-                    story.status === "PUBLISHED" ? "bg-muted text-healthy-ink" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {story.status === "PUBLISHED" ? t("live") : t("archived")}
-                </span>
+                <StatusChip
+                  tone={story.status === "PUBLISHED" ? "healthy" : "muted"}
+                  label={story.status === "PUBLISHED" ? t("live") : t("archived")}
+                  className="mr-1.5 px-1.5 text-2xs"
+                />
                 {story.createdTime ? new Date(story.createdTime).toLocaleString() : null}
               </p>
             </div>

@@ -40,6 +40,7 @@ import {
   RESPONSIBLE_WORKFLOW,
   responsibleFilterPayload,
 } from "@/lib/conversations/responsible-filter";
+import { previewWithAuthor } from "@/lib/conversations/group-preview";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
@@ -281,6 +282,7 @@ export default function CrmInbox({
   const { can, currentWorkspace } = useWorkspace();
   const blockedByDepartment = useBlockedByMissingDepartment();
   const tAnalysis = useTranslations("crmAnalysis");
+  const tInbox = useTranslations("liveChat.inbox");
 
   const [members, setMembers] = useState<AssignableMember[]>([]);
   useEffect(() => {
@@ -1279,7 +1281,7 @@ export default function CrmInbox({
                               : "text-muted-foreground",
                           )}
                         >
-                          {truncate(entry.last_message_preview, 60)}
+                          {truncate(previewWithAuthor(entry, tInbox("lastMessageYou")), 60)}
                         </p>
                         {hasUnread && (
                           <span className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-[--radius] bg-healthy px-1 text-2xs font-semibold text-healthy-foreground">

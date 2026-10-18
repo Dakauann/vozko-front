@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleNotch, TreeStructure, Warning } from "@/components/icons";
+import { CircleNotch, TreeStructure } from "@/components/icons";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
@@ -156,19 +156,16 @@ export function DepartmentAssignmentCard({
 
   return (
     <ElevatedContainer
-      className={cn(
-        "!p-5 border-warning/60 bg-warning/70 dark:border-border dark:bg-muted",
-        className,
-      )}
+      className={cn("!p-5", className)}
     >
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-[--radius] bg-warning text-warning-foreground shadow-sm">
-              <Warning weight="fill" className="h-5 w-5" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-[--radius] border border-control-edge bg-card text-foreground shadow-sm">
+              <TreeStructure weight="regular" className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xs font-semibold text-warning-ink">
+              <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("scopeLabel")}
               </p>
               <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
@@ -183,7 +180,7 @@ export function DepartmentAssignmentCard({
               : t("description")}
           </p>
 
-          <span className="inline-flex items-center gap-2 rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-warning-foreground">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-semibold text-foreground">
             <TreeStructure weight="fill" className="h-3.5 w-3.5" />
             {currentDepartmentName}
           </span>

@@ -144,7 +144,8 @@ export function useLeadActionTracker({ onSettled }: { onSettled: () => void }) {
         return;
       }
       const skipped = Object.values(last.result.skipped).reduce((sum, count) => sum + count, 0);
-      toast.success(t("runDone", { changed: last.result.changed, skipped }));
+      const done = t.has(`runDoneOf.${last.action}`) ? `runDoneOf.${last.action}` : "runDone";
+      toast.success(t(done, { changed: last.result.changed, skipped }));
     },
     [t, failureText],
   );

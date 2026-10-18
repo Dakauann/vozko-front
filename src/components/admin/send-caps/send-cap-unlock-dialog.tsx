@@ -13,6 +13,7 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { adminUnlockSendCapAction } from "@/app/actions/send-caps";
 import {
     SEND_CAP_CODE_LENGTH,
@@ -84,7 +85,10 @@ export function SendCapUnlockDialog({
 
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 space-y-0.5">
-                            <span className="text-sm font-medium text-foreground">{t("unlockDialog.removeCap")}</span>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-medium text-foreground">{t("unlockDialog.removeCap")}</span>
+                                <ExplainerHint id="settings.sendCapRemove" />
+                            </div>
                             <p className="text-xs text-muted-foreground">{t("unlockDialog.removeCapHint")}</p>
                         </div>
                         <ElevatedSwitch

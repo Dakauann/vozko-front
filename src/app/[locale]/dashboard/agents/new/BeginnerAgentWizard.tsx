@@ -1,24 +1,21 @@
 "use client";
 
-
 import {
-  ChatCircle,
+  ArrowLeft,
+  ArrowRight,
   CheckCircle,
+  CircleNotch,
   GraduationCap,
   Lightbulb,
-  Microphone,
-  PaperPlaneTilt,
-  Pause,
-  Play,
-  Robot,
-  Sparkle,
+  Wrench,
 } from "@/components/icons";
 import { Controller, useForm } from "react-hook-form";
 import {
-  ElevatedStepper,
-  ElevatedStepperFooter,
-  type ElevatedStepperStep,
-} from "@/components/elevated-design/elevated-stepper";
+  ElevatedStepFlow,
+  type ElevatedStepFlowStep,
+} from "@/components/elevated-design/elevated-step-flow";
+import Button from "@/components/elevated-design/button";
+import { Notice } from "@/components/ui/notice";
 import {
   getAgentOptionsAction,
   getAgentToolsAction,
@@ -61,7 +58,6 @@ export type AgentFieldId =
   | "description"
   | "messagingModel"
   | "messagingPrompt"
-  | "initialMessage"
   | "businessPhoneId"
   | "whatsappTemplateId";
 
@@ -89,11 +85,6 @@ export const agentFieldDefinitions: AgentFieldDefinition[] = [
     beginner: { enabled: true, order: 2 },
   },
   {
-    id: "initialMessage",
-    stepGroup: "prompts",
-    beginner: { enabled: true, order: 3 },
-  },
-  {
     id: "businessPhoneId",
     stepGroup: "whatsapp",
     beginner: { enabled: true, order: 1 },
@@ -114,7 +105,6 @@ const beginnerSchema = (t: (k: string) => string) =>
       .string()
       .trim()
       .min(1, t("validation.messagingPromptRequired")),
-    initialMessage: z.string().optional().default(""),
     businessPhoneId: z.string().optional().default(""),
     whatsappTemplateId: z.string().optional().default(""),
   });
@@ -133,48 +123,31 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 text-xs font-semibold text-destructive-ink">{message}</p>;
 }
 
-function StepHeader({
-  Icon,
-  title,
-  intro,
-  gradientFrom,
-  gradientTo,
+function WizardField({
+  hint,
+  error,
+  example,
+  children,
 }: {
-  Icon: typeof Robot;
-  title: string;
-  intro: string;
-  gradientFrom: string;
-  gradientTo: string;
+  hint?: string;
+  error?: string;
+  example?: { label: string; body: string };
+  children: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex items-start gap-4">
-      <div
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${gradientFrom} ${gradientTo}`}
-      >
-        <Icon className="h-7 w-7" weight="fill" />
-      </div>
-      <div>
-        <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{intro}</p>
-      </div>
-    </div>
-  );
-}
-
-function ExampleBlock({ label, body }: { label: string; body: string }) {
-  return (
-    <div className="mt-3 rounded-[--radius] border border-border bg-muted p-3">
-      <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow">
-          <Lightbulb className="h-4 w-4" weight="fill" />
-        </div>
-        <p className="text-xs font-semibold text-foreground">
-          {label}
+    <div className="space-y-1.5">
+      {children}
+      <FieldError message={error} />
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+      {example ? (
+        <p className="flex items-start gap-1.5 pt-0.5 text-xs text-muted-foreground">
+          <Lightbulb className="mt-px h-3.5 w-3.5 shrink-0 text-foreground" weight="fill" aria-hidden />
+          <span className="whitespace-pre-line">
+            <span className="font-semibold text-foreground">{example.label}: </span>
+            {example.body}
+          </span>
         </p>
-      </div>
-      <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
-        {body}
-      </p>
+      ) : null}
     </div>
   );
 }
@@ -212,7 +185,6 @@ export default function BeginnerAgentWizard({
       description: initialAgent?.description ?? "",
       messagingModel: initialAgent?.messagingModel ?? "",
       messagingPrompt: initialAgent?.messagingPrompt ?? "",
-      initialMessage: initialAgent?.initialMessage ?? "",
       businessPhoneId: initialAgent?.businessPhoneId ?? "",
       whatsappTemplateId: initialAgent?.whatsappTemplateId ?? "",
     },
@@ -247,7 +219,6 @@ export default function BeginnerAgentWizard({
   const [phoneSearch, setPhoneSearch] = useState("");
   const [phonePage, setPhonePage] = useState(1);
   const [phoneHasMore, setPhoneHasMore] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const phoneReqRef = useRef(0);
 
   const loadPhones = useCallback(
@@ -317,39 +288,14 @@ export default function BeginnerAgentWizard({
   const messagingModelIds = useMemo(() => options?.messaging ?? [], [options]);
   const modelPricing = options?.modelPricing;
 
-  const steps: ElevatedStepperStep[] = useMemo(
-    () => [
-      {
-        id: "identity",
-        title: tWizard("steps.identity.title"),
-        description: tWizard("steps.identity.short"),
-        icon: Robot,
-      },
-      {
-        id: "models",
-        title: tWizard("steps.models.title"),
-        description: tWizard("steps.models.short"),
-        icon: Sparkle,
-      },
-      {
-        id: "prompts",
-        title: tWizard("steps.prompts.title"),
-        description: tWizard("steps.prompts.short"),
-        icon: ChatCircle,
-      },
-      {
-        id: "whatsapp",
-        title: tWizard("steps.whatsapp.title"),
-        description: tWizard("steps.whatsapp.short"),
-        icon: PaperPlaneTilt,
-      },
-      {
-        id: "review",
-        title: tWizard("steps.review.title"),
-        description: tWizard("steps.review.short"),
-        icon: CheckCircle,
-      },
-    ],
+  const steps: ElevatedStepFlowStep[] = useMemo(
+    () =>
+      (["identity", "models", "prompts", "whatsapp", "review"] as const).map((id) => ({
+        id,
+        title: tWizard(`steps.${id}.title`),
+        description: tWizard(`steps.${id}.intro`),
+        caption: tWizard(`steps.${id}.short`),
+      })),
     [tWizard],
   );
 
@@ -429,16 +375,12 @@ export default function BeginnerAgentWizard({
       });
     }
 
-    const trimmedInitial = (data.initialMessage ?? "").trim();
-
     const basePayload: CreateAgentPayload = {
       name: data.name,
       description: data.description,
       provider: initialAgent?.provider ?? "platform",
       messagingModel: data.messagingModel,
       messagingPrompt: data.messagingPrompt,
-      initialMessage: trimmedInitial,
-      useInitialMessage: trimmedInitial.length > 0,
       internalTools,
       isActive: initialAgent?.isActive ?? true,
       whatsappTemplateId: templateId || undefined,
@@ -506,211 +448,161 @@ export default function BeginnerAgentWizard({
     ];
   }, [templates, tWizard]);
 
+  const exampleOf = (field: string) => ({
+    label: tWizard("exampleLabel"),
+    body: tWizard(`fields.${field}.example`),
+  });
+
+  const phoneLabel = currentValues.businessPhoneId
+    ? phones.find((p) => p.id === currentValues.businessPhoneId)?.displayPhoneNumber ?? currentValues.businessPhoneId
+    : "";
+  const templateLabel = currentValues.whatsappTemplateId
+    ? templates.find((t) => t.id === currentValues.whatsappTemplateId)?.name ?? currentValues.whatsappTemplateId
+    : "";
+
+  const summaries: Record<string, string> = {
+    identity: [currentValues.name, currentValues.description].filter(Boolean).join(" · ") || empty,
+    models: currentValues.messagingModel || empty,
+    prompts: currentValues.messagingPrompt || empty,
+    whatsapp: phoneLabel
+      ? [phoneLabel, templateLabel].filter(Boolean).join(" · ")
+      : tWizard("fields.businessPhone.none"),
+  };
+
+  const activeId = steps[step].id;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <ElevatedStepper
-        steps={steps}
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (isLast) void handleSubmit(onSubmit)();
+        else void goNext();
+      }}
+      noValidate
+      className="w-full max-w-3xl space-y-3"
+    >
+      <ElevatedStepFlow
+        steps={steps.map((s) => ({ ...s, summary: summaries[s.id] }))}
         currentStep={step}
-        onStepClick={(i) => i < step && setStep(i)}
-        footer={
-          <div className="flex items-center justify-between gap-3">
-            {onSwitchMode ? (
-              <button
-                type="button"
-                onClick={onSwitchMode}
-                className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                {tWizard("switchToPro")}
-              </button>
-            ) : (
-              <span />
-            )}
-            <ElevatedStepperFooter
-              canGoBack={step > 0}
-              canGoNext={true}
-              isLast={isLast}
-              loading={isSubmitting}
-              onBack={goBack}
-              onNext={goNext}
-              onSubmit={handleSubmit(onSubmit)}
-              labels={{
-                back: tWizard("nav.back"),
-                next: tWizard("nav.next"),
-                submit:
-                  mode === "edit"
+        onStepClick={(i) => {
+          if (i < step) setStep(i);
+        }}
+        editLabel={tWizard("nav.edit")}
+        actions={
+          <>
+            <Button
+              type="submit"
+              variant="primary"
+              title={
+                isLast
+                  ? mode === "edit"
                     ? tWizard("nav.submitEdit")
-                    : tWizard("nav.submit"),
-              }}
+                    : tWizard("nav.submit")
+                  : tWizard("nav.next")
+              }
+              icon={
+                isSubmitting ? (
+                  <CircleNotch className="h-4 w-4 animate-spin" />
+                ) : isLast ? (
+                  <CheckCircle className="h-4 w-4" weight="fill" />
+                ) : (
+                  <ArrowRight className="h-4 w-4" weight="bold" />
+                )
+              }
+              iconVisible
+              iconSide={isLast || isSubmitting ? "left" : "right"}
+              disabled={isSubmitting}
             />
-          </div>
+            {step > 0 ? (
+              <Button
+                type="button"
+                variant="ghost"
+                title={tWizard("nav.back")}
+                icon={<ArrowLeft className="h-4 w-4" weight="bold" />}
+                iconVisible
+                iconSide="left"
+                onClick={goBack}
+                disabled={isSubmitting}
+              />
+            ) : null}
+          </>
         }
       >
-        {steps[step].id === "identity" && (
-          <div>
-            <StepHeader
-              Icon={Robot}
-              title={tWizard("steps.identity.title")}
-              intro={tWizard("steps.identity.intro")}
-              gradientFrom="tile-1"
-              gradientTo=""
-            />
+        {activeId === "identity" && (
+          <div className="space-y-6">
+            <WizardField
+              hint={tWizard("fields.name.description")}
+              error={errors.name?.message}
+              example={exampleOf("name")}
+            >
+              <ElevatedInput
+                label={tWizard("fields.name.label")}
+                placeholder={tWizard("fields.name.placeholder")}
+                {...register("name")}
+              />
+            </WizardField>
 
-            <div className="space-y-5">
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.name.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.name.description")}
-                </p>
-                <ElevatedInput
-                  placeholder={tWizard("fields.name.placeholder")}
-                  {...register("name")}
-                />
-                <FieldError message={errors.name?.message} />
-                <ExampleBlock
-                  label={tWizard("exampleLabel")}
-                  body={tWizard("fields.name.example")}
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.description.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.description.description")}
-                </p>
-                <ElevatedTextarea
-                  rows={3}
-                  placeholder={tWizard("fields.description.placeholder")}
-                  {...register("description")}
-                />
-                <FieldError message={errors.description?.message} />
-                <ExampleBlock
-                  label={tWizard("exampleLabel")}
-                  body={tWizard("fields.description.example")}
-                />
-              </div>
-
-            </div>
+            <WizardField
+              hint={tWizard("fields.description.description")}
+              error={errors.description?.message}
+              example={exampleOf("description")}
+            >
+              <ElevatedTextarea
+                rows={3}
+                label={tWizard("fields.description.label")}
+                placeholder={tWizard("fields.description.placeholder")}
+                {...register("description")}
+              />
+            </WizardField>
           </div>
         )}
 
-        {steps[step].id === "models" && (
-          <div>
-            <StepHeader
-              Icon={Sparkle}
-              title={tWizard("steps.models.title")}
-              intro={tWizard("steps.models.intro")}
-              gradientFrom="tile-4"
-              gradientTo=""
-            />
-
-            <div className="space-y-5">
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.messagingModel.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.messagingModel.description")}
-                </p>
-                <Controller
-                  control={control}
-                  name="messagingModel"
-                  render={({ field }) => (
-                    <AIModelSelector
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      models={messagingModelIds}
-                      modelPricing={modelPricing}
-                      label={tWizard("fields.messagingModel.label")}
-                    />
-                  )}
+        {activeId === "models" && (
+          <WizardField
+            hint={tWizard("fields.messagingModel.description")}
+            error={errors.messagingModel?.message}
+          >
+            <Controller
+              control={control}
+              name="messagingModel"
+              render={({ field }) => (
+                <AIModelSelector
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  models={messagingModelIds}
+                  modelPricing={modelPricing}
+                  label={tWizard("fields.messagingModel.label")}
                 />
-                <FieldError message={errors.messagingModel?.message} />
-              </div>
-            </div>
-          </div>
+              )}
+            />
+          </WizardField>
         )}
 
-        {steps[step].id === "prompts" && (
-          <div>
-            <StepHeader
-              Icon={ChatCircle}
-              title={tWizard("steps.prompts.title")}
-              intro={tWizard("steps.prompts.intro")}
-              gradientFrom="tile-3"
-              gradientTo=""
+        {activeId === "prompts" && (
+          <WizardField
+            hint={tWizard("fields.messagingPrompt.description")}
+            error={errors.messagingPrompt?.message}
+            example={exampleOf("messagingPrompt")}
+          >
+            <ElevatedTextarea
+              rows={7}
+              label={tWizard("fields.messagingPrompt.label")}
+              placeholder={tWizard("fields.messagingPrompt.placeholder")}
+              {...register("messagingPrompt")}
             />
-
-            <div className="space-y-5">
-
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.messagingPrompt.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.messagingPrompt.description")}
-                </p>
-                <ElevatedTextarea
-                  rows={5}
-                  placeholder={tWizard("fields.messagingPrompt.placeholder")}
-                  {...register("messagingPrompt")}
-                />
-                <FieldError message={errors.messagingPrompt?.message} />
-                <ExampleBlock
-                  label={tWizard("exampleLabel")}
-                  body={tWizard("fields.messagingPrompt.example")}
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.initialMessage.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.initialMessage.description")}
-                </p>
-                <ElevatedTextarea
-                  rows={2}
-                  placeholder={tWizard("fields.initialMessage.placeholder")}
-                  {...register("initialMessage")}
-                />
-                <FieldError message={errors.initialMessage?.message} />
-                <ExampleBlock
-                  label={tWizard("exampleLabel")}
-                  body={tWizard("fields.initialMessage.example")}
-                />
-              </div>
-            </div>
-          </div>
+          </WizardField>
         )}
 
-        {steps[step].id === "whatsapp" && (
-          <div>
-            <StepHeader
-              Icon={PaperPlaneTilt}
-              title={tWizard("steps.whatsapp.title")}
-              intro={tWizard("steps.whatsapp.intro")}
-              gradientFrom="tile-2"
-              gradientTo=""
-            />
-
-            <div className="space-y-5">
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.businessPhone.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.businessPhone.description")}
-                </p>
+        {activeId === "whatsapp" && (
+          <div className="space-y-6">
+            <WizardField hint={tWizard("fields.businessPhone.description")}>
                 <Controller
                   control={control}
                   name="businessPhoneId"
                   render={({ field }) => (
                     <ElevatedCommandSelect
                       fullWidth
+                      label={tWizard("fields.businessPhone.label")}
                       options={phoneSelectOptions}
                       value={field.value}
                       onValueChange={(v) => field.onChange(v)}
@@ -734,21 +626,22 @@ export default function BeginnerAgentWizard({
                     />
                   )}
                 />
-              </div>
+            </WizardField>
 
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {tWizard("fields.whatsappTemplate.label")}
-                </label>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tWizard("fields.whatsappTemplate.description")}
-                </p>
+            <WizardField
+              hint={
+                selectedPhoneId
+                  ? tWizard("fields.whatsappTemplate.description")
+                  : tWizard("fields.whatsappTemplate.requiresPhone")
+              }
+            >
                 <Controller
                   control={control}
                   name="whatsappTemplateId"
                   render={({ field }) => (
                     <ElevatedCommandSelect
                       fullWidth
+                      label={tWizard("fields.whatsappTemplate.label")}
                       options={templateSelectOptions}
                       value={field.value}
                       onValueChange={(v) => field.onChange(v)}
@@ -786,93 +679,33 @@ export default function BeginnerAgentWizard({
                     />
                   )}
                 />
-                {!selectedPhoneId ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {tWizard("fields.whatsappTemplate.requiresPhone")}
-                  </p>
-                ) : null}
-              </div>
-            </div>
+            </WizardField>
           </div>
         )}
 
-        {steps[step].id === "review" && (
-          <div>
-            <StepHeader
-              Icon={CheckCircle}
-              title={tWizard("steps.review.title")}
-              intro={tWizard("steps.review.intro")}
-              gradientFrom="tile-2"
-              gradientTo=""
-            />
-
-            <div className="space-y-3">
-              <ReviewRow
-                label={tWizard("fields.name.label")}
-                value={currentValues.name || empty}
-              />
-              <ReviewRow
-                label={tWizard("fields.description.label")}
-                value={currentValues.description || empty}
-              />
-              <ReviewRow
-                label={tWizard("fields.messagingModel.label")}
-                value={currentValues.messagingModel || empty}
-              />
-              <ReviewRow
-                label={tWizard("fields.initialMessage.label")}
-                value={currentValues.initialMessage || empty}
-              />
-              <ReviewRow
-                label={tWizard("fields.businessPhone.label")}
-                value={
-                  phones.find((p) => p.id === currentValues.businessPhoneId)
-                    ?.displayPhoneNumber ??
-                  (currentValues.businessPhoneId || empty)
-                }
-              />
-              <ReviewRow
-                label={tWizard("fields.whatsappTemplate.label")}
-                value={
-                  templates.find(
-                    (t) => t.id === currentValues.whatsappTemplateId,
-                  )?.name ??
-                  (currentValues.whatsappTemplateId || empty)
-                }
-              />
-            </div>
-
-            <div className="mt-6 rounded-[--radius] border border-border bg-muted p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-primary text-primary-foreground shadow-lg">
-                  <GraduationCap className="h-5 w-5" weight="fill" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {tWizard("review.nextStepTitle")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {tWizard("review.nextStepDescription")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        {activeId === "review" && (
+          <Notice
+            tone="info"
+            icon={<GraduationCap weight="fill" />}
+            title={tWizard("review.nextStepTitle")}
+          >
+            <p className="text-muted-foreground">{tWizard("review.nextStepDescription")}</p>
+          </Notice>
         )}
-      </ElevatedStepper>
+      </ElevatedStepFlow>
+
+      {onSwitchMode ? (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onSwitchMode}
+            className="inline-flex items-center gap-1.5 rounded-[--radius] px-2 py-1 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Wrench className="h-3.5 w-3.5" aria-hidden />
+            {tWizard("switchToPro")}
+          </button>
+        </div>
+      ) : null}
     </form>
-  );
-}
-
-function ReviewRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-4 rounded-[--radius] border border-border bg-card px-4 py-3">
-      <p className="text-xs font-semibold text-muted-foreground">
-        {label}
-      </p>
-      <p className="max-w-[60%] truncate text-right text-sm text-foreground">
-        {value}
-      </p>
-    </div>
   );
 }

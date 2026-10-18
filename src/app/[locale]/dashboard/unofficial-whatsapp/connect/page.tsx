@@ -23,8 +23,10 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import UnofficialWhatsAppCapacityCard from "@/components/dashboard/addons/UnofficialWhatsAppCapacityCard";
 import { UnofficialNotice } from "@/components/unofficial-whatsapp/session-state";
+import { Notice } from "@/components/ui/notice";
 import { WhatsAppLogoColor } from "@/components/icons/channel-logos";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -291,15 +293,20 @@ function DisclosureStep({
         )}
 
         {!isReconnect && (
-          <label className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4">
             <span className="min-w-0">
-              <span className="block text-sm text-foreground">{t("connect.importHistoryLabel")}</span>
+              <span className="flex items-center gap-1.5">
+                <label htmlFor="uw-import-history" className="block text-sm text-foreground">
+                  {t("connect.importHistoryLabel")}
+                </label>
+                <ExplainerHint id="settings.importHistory" />
+              </span>
               <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                 {t("connect.importHistoryHint")}
               </span>
             </span>
-            <Switch checked={importHistory} onCheckedChange={onImportHistoryChange} />
-          </label>
+            <Switch id="uw-import-history" checked={importHistory} onCheckedChange={onImportHistoryChange} />
+          </div>
         )}
 
         <div className="space-y-1">
@@ -338,11 +345,7 @@ function DisclosureStep({
           </div>
         )}
 
-        {error && (
-          <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-destructive-ink">
-            {error}
-          </p>
-        )}
+        {error && <Notice tone="fault">{error}</Notice>}
 
         <div className="flex justify-end pt-1">
           <Button
@@ -390,7 +393,7 @@ function MethodCard({
       <p
         className={cn(
           "text-sm",
-          selected ? "font-semibold text-primary-ink" : "font-medium text-foreground",
+          selected ? "font-semibold text-foreground" : "font-medium text-foreground",
         )}
       >
         {title}

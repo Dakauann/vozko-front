@@ -1,11 +1,12 @@
 "use client";
 
-import { Plus, Trash } from "@/components/icons";
+import { Microphone, Plus, Trash } from "@/components/icons";
 import type {
   UnofficialWhatsAppMessageKind,
   UnofficialWhatsAppMessageSpec,
 } from "@/lib/unofficial-whatsapp-campaigns/types";
 
+import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
   ElevatedSelect,
@@ -17,6 +18,15 @@ import {
   placeholdersIn,
   variantsAgree,
 } from "@/components/unofficial-whatsapp/message-variants-editor";
+import { OutgoingBubble } from "@/components/leads/sends/OutgoingBubble";
+import { Notice } from "@/components/ui/notice";
+import { exitWordLabel } from "@/lib/whatsapp-templates/exit";
+import {
+  exitWordsShownIn,
+  messageShowsExit,
+  shownTexts,
+  withExitLine,
+} from "@/lib/unofficial-whatsapp-campaigns/exit-line";
 import { useTranslations } from "next-intl";
 
 
@@ -54,7 +64,7 @@ export function messageBodiesReady(spec: UnofficialWhatsAppMessageSpec): boolean
 }
 
 export function unofficialMessageReady(spec: UnofficialWhatsAppMessageSpec): boolean {
-  return messageBodiesReady(spec) && (!messageNeedsMedia(spec.kind) || Boolean(spec.mediaId));
+  return messageBodiesReady(spec) && (!messageNeedsMedia(spec.kind) || Boolean(spec.mediaId)) && messageShowsExit(spec);
 }
 
 export interface CampaignMessageComposerProps {
@@ -62,6 +72,7 @@ export interface CampaignMessageComposerProps {
   onChange: (next: UnofficialWhatsAppMessageSpec) => void;
   mediaSlot?: React.ReactNode;
   disabled?: boolean;
+  showExitLine?: boolean;
 }
 
 export function CampaignMessageComposer({
@@ -69,11 +80,12 @@ export function CampaignMessageComposer({
   onChange,
   mediaSlot,
   disabled,
+  showExitLine = true,
 }: CampaignMessageComposerProps) {
   const t = useTranslations("unofficialWhatsappCampaigns");
 
   const setKind = (kind: UnofficialWhatsAppMessageKind) =>
-    onChange({ ...value, kind });
+    onChange({ ...value, kind, exitText: kind === "audio" ? value.exitText : undefined });
 
   const needsMedia = messageNeedsMedia(value.kind);
 
@@ -124,9 +136,58 @@ export function CampaignMessageComposer({
         }}
       />
 
+      {showExitLine ? <ExitLine value={value} onChange={onChange} disabled={disabled} /> : null}
+
       {value.kind === "menu" ? (
         <MenuEditor value={value} onChange={onChange} disabled={disabled} />
       ) : null}
+    </div>
+  );
+}
+
+export function ExitLine({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: UnofficialWhatsAppMessageSpec;
+  onChange: (next: UnofficialWhatsAppMessageSpec) => void;
+  disabled?: boolean;
+}) {
+  const t = useTranslations("unofficialWhatsappCampaigns.form.exitLine");
+  const audio = value.kind === "audio";
+
+  const verdict = messageShowsExit(value) ? (
+    <p className="text-xs text-muted-foreground">
+      {t("shown", { commands: [...new Set(shownTexts(value).flatMap(exitWordsShownIn).map(exitWordLabel))].join(", ") })}
+    </p>
+  ) : (
+    <Notice tone="warning">
+      <p>{t(audio ? "missingAudio" : "missing")}</p>
+      {disabled ? null : (
+        <Button variant="secondary" size="sm" title={t("insert")} onClick={() => onChange(withExitLine(value, t("sentence")))} />
+      )}
+    </Notice>
+  );
+
+  if (!audio) return verdict;
+  return (
+    <div className="space-y-3">
+      <ElevatedInput
+        label={t("textLabel")}
+        value={value.exitText ?? ""}
+        onChange={(e) => onChange({ ...value, exitText: e.target.value })}
+        disabled={disabled}
+        controlSize="sm"
+      />
+      {verdict}
+      <div className="space-y-1.5" aria-label={t("previewLabel")}>
+        <div className="ml-auto flex max-w-[360px] items-center gap-2 rounded-lg rounded-br-sm border border-border bg-card px-3 py-2.5 text-sm shadow-sm">
+          <Microphone className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <span className="truncate">{value.fileName || t("audioBubble")}</span>
+        </div>
+        <OutgoingBubble text={value.exitText ?? ""} emptyLabel={t("previewEmpty")} className="ml-auto" />
+      </div>
     </div>
   );
 }

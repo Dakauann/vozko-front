@@ -239,7 +239,7 @@ export interface SecretField {
   label: string;
 }
 
-export type ChoiceKind = "image_model" | "music_model" | "voice_model" | "sfx_model";
+export type ChoiceKind = "image_model" | "music_model" | "voice_model" | "sfx_model" | "exit_risk_acknowledgement";
 
 export interface ChoiceField {
   key: string;

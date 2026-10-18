@@ -8,6 +8,7 @@ import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import Button from "@/components/elevated-design/button";
 import { Info, WarningCircle, type Icon } from "@/components/icons";
 import { ProgressPanel } from "@/components/ui/progress-panel";
+import { Notice } from "@/components/ui/notice";
 
 export const ATTENDANCE_COLORS = {
   signal: "hsl(var(--chart-1))",
@@ -338,8 +339,8 @@ export function SectionNotice({
     >
       <span
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]",
-          tone === "warning" ? "bg-warning/15 text-warning-ink" : "bg-muted text-muted-foreground",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] bg-muted",
+          tone === "warning" ? "text-warning" : "text-muted-foreground",
         )}
       >
         <Icon className="h-4 w-4" weight="fill" />
@@ -366,15 +367,12 @@ export function SectionError({
 }) {
   const t = useTranslations("metricsOps.common");
   return (
-    <div
-      role="alert"
-      className="flex flex-wrap items-center justify-between gap-3 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm"
-    >
-      <span className="text-destructive-ink">
-        {busy ? t("sectionBusy") : message ?? t("sectionError")}
-      </span>
-      <Button variant="secondary" title={t("retry")} onClick={onRetry} disabled={retrying} />
-    </div>
+    <Notice tone="fault">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p>{busy ? t("sectionBusy") : message ?? t("sectionError")}</p>
+        <Button variant="secondary" title={t("retry")} onClick={onRetry} disabled={retrying} />
+      </div>
+    </Notice>
   );
 }
 

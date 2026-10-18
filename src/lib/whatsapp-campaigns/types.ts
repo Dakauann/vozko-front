@@ -1,3 +1,5 @@
+import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
+
 export type WhatsAppCampaignType = "standard" | "organic";
 
 export type WhatsAppCampaignStatus = "STOPPED" | "RUNNING" | "PAUSED" | "COMPLETED";
@@ -60,7 +62,6 @@ export interface WhatsAppCampaign {
     agentName?: string;
     workflowId?: string | null;
     enableAgentResponses: boolean;
-    preferAudio: boolean;
     showTemplateInCrm: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
@@ -105,7 +106,6 @@ export interface WhatsAppCampaignPayload {
     stageGroupId?: string;
     pipelineId?: string;
     enableAgentResponses: boolean;
-    preferAudio: boolean;
     showTemplateInCrm: boolean;
     enableAnalysis: boolean;
     enableAutoStaging: boolean;
@@ -113,6 +113,8 @@ export interface WhatsAppCampaignPayload {
     aiModel?: string;
     scheduledStart?: string | null;
     phoneNumbers: Omit<WhatsAppCampaignPhoneNumber, 'id' | 'status' | 'createdAt' | 'updatedAt'>[];
+    exitRiskAcknowledged?: true;
+    smartPolicy?: SmartPolicy;
 }
 
 export interface WhatsAppCampaignLifecycleResponse {

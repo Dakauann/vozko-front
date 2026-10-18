@@ -72,10 +72,10 @@ describe("dollarsToMicros", () => {
 
 describe("round-trip micros -> dollars -> micros", () => {
     const testCases = [
-        { label: "TTS multilingual cost", micros: 180_000_000 },
-        { label: "TTS turbo cost", micros: 90_000_000 },
-        { label: "STT scribe cost", micros: 330_000 },
-        { label: "STT realtime cost", micros: 460_000 },
+        { label: "Published ad price", micros: 180_000_000 },
+        { label: "Published ad cost", micros: 90_000_000 },
+        { label: "Phone line call cost", micros: 330_000 },
+        { label: "Phone line call price", micros: 460_000 },
         { label: "WhatsApp utility cost", micros: 6_800 },
         { label: "WhatsApp utility price", micros: 16_667 },
         { label: "WhatsApp marketing cost", micros: 62_500 },

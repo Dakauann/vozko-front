@@ -20,6 +20,7 @@ import {
   type ElevatedStepperStep,
 } from "@/components/elevated-design/elevated-stepper";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -262,20 +263,18 @@ export function BecomeAffiliateForm() {
   return (
     <div className="space-y-4">
       {submitError ? (
-        <div role="alert" className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
-          <Info className="mt-0.5 h-4 w-4 shrink-0" weight="bold" />
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">{t("toast.errorTitle")}</p>
-            <p className="mt-0.5 text-xs opacity-90">{submitError}</p>
+        <Notice tone="fault" title={t("toast.errorTitle")}>
+          <div className="flex items-start gap-3">
+            <p className="min-w-0 flex-1">{submitError}</p>
+            <button
+              type="button"
+              onClick={() => setSubmitError(null)}
+              className="text-xs font-medium text-foreground underline-offset-2 hover:underline"
+            >
+              {t("buttons.dismiss")}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setSubmitError(null)}
-            className="text-xs font-medium underline-offset-2 hover:underline"
-          >
-            {t("buttons.dismiss")}
-          </button>
-        </div>
+        </Notice>
       ) : null}
 
       <ElevatedStepper

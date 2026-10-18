@@ -28,7 +28,6 @@ export interface AgentVariableInfo {
     required: boolean;
     usedIn: {
         messagingPrompt: boolean;
-        initialMessage: boolean;
     };
 }
 
@@ -36,8 +35,6 @@ export interface Agent {
     id: string;
     name: string;
     description: string;
-    initialMessage: string;
-    useInitialMessage: boolean;
     messagingPrompt: string;
     messagingModel: string;
     avatarUrl: string;
@@ -112,8 +109,6 @@ export interface ToolBinding {
 
 export interface CreateAgentPayload {
     name: string;
-    initialMessage?: string;
-    useInitialMessage?: boolean;
     messagingPrompt?: string;
     description?: string;
     messagingModel: string;

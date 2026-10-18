@@ -21,9 +21,15 @@ describe("messageBodiesReady", () => {
 
 describe("unofficialMessageReady", () => {
   it("also needs the file when the kind asks for one", () => {
-    expect(unofficialMessageReady({ kind: "image", bodies: [""] })).toBe(false);
-    expect(unofficialMessageReady({ kind: "image", bodies: [""], mediaId: "m-1" })).toBe(true);
-    expect(unofficialMessageReady(text("Oi"))).toBe(true);
+    expect(unofficialMessageReady({ kind: "image", bodies: ["Promo /sair"] })).toBe(false);
+    expect(unofficialMessageReady({ kind: "image", bodies: ["Promo /sair"], mediaId: "m-1" })).toBe(true);
+    expect(unofficialMessageReady(text("Oi /sair"))).toBe(true);
+  });
+
+  it("needs every variant to show the contact how to leave", () => {
+    expect(unofficialMessageReady(text("Oi"))).toBe(false);
+    expect(unofficialMessageReady({ kind: "image", bodies: [""], mediaId: "m-1" })).toBe(false);
+    expect(unofficialMessageReady(text("Oi /sair", "Olá"))).toBe(false);
   });
 });
 

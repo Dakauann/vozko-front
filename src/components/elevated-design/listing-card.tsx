@@ -245,11 +245,10 @@ function Badge({ label, color = "slate" }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-        colorConfig.light,
-        colorConfig.text,
+        "inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2.5 py-0.5 text-xs font-medium text-foreground",
       )}
     >
+      <span className={cn("h-1.5 w-1.5 rounded-full", colorConfig.solid)} />
       {label}
     </span>
   );
@@ -271,9 +270,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-xs font-medium",
-        colorMap[color].light,
-        colorMap[color].text,
+        "inline-flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground",
       )}
     >
       {pulse ? (
@@ -292,7 +289,7 @@ export function StatusBadge({
           />
         </span>
       ) : icon ? (
-        <span className="[&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>
+        <span className={cn("[&>svg]:h-3.5 [&>svg]:w-3.5", colorMap[color].text)}>{icon}</span>
       ) : (
         <span
           className={cn("h-1.5 w-1.5 rounded-full", colorMap[color].solid)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 
 import CreateUnofficialCampaignForm from "./CreateUnofficialCampaignForm";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -8,12 +8,19 @@ import { ChannelTile } from "@/components/channels/channel-tile";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { getAgentOptionsAction } from "@/app/actions/agents";
+import { readGroupPrefill } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-export default function NewUnofficialCampaignPage() {
+export default function NewUnofficialCampaignPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const router = useRouter();
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const query = use(searchParams);
+  const groupPrefill = useMemo(() => readGroupPrefill(query), [query]);
 
   const [aiModels, setAiModels] = useState<string[]>([]);
   const [modelPricing, setModelPricing] = useState<ModelPricingInfo[]>([]);
@@ -72,6 +79,7 @@ export default function NewUnofficialCampaignPage() {
           mode="create"
           aiModels={aiModels}
           modelPricing={modelPricing}
+          groupPrefill={groupPrefill}
         />
       ) : null}
     </main>

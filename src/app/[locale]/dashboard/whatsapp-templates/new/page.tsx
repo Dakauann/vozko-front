@@ -5,27 +5,20 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
-  Check,
   CheckCircle,
   CircleNotch,
-  DeviceMobile,
-  FlowArrow,
-  Info,
   Warning,
   WhatsappLogo,
 } from "@/components/icons";
 import type {
   CreateTemplatePayload,
   TemplateCategory,
-  TemplateComponent,
-  HeaderFormat,
-  ButtonType,
-  OtpType,
 } from "@/lib/whatsapp-templates/types";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { PanelSection } from "@/components/dashboard/PanelSection";
+import { Notice } from "@/components/ui/notice";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import {
@@ -36,14 +29,24 @@ import { createWhatsAppTemplateAction } from "@/app/actions/whatsapp-templates";
 import { templateErrorMessage } from "@/lib/whatsapp-templates/errors";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
-import DragDropBuilder, {
+import {
   type DraggableComponent,
   getDefaultData as getDefaultComponentData,
-  paletteForCategory,
 } from "@/components/whatsapp/DragDropBuilder";
-import ComponentEditor from "@/components/whatsapp/ComponentEditor";
 import { TemplateErrorBanner } from "@/components/whatsapp/TemplateErrorBanner";
-import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
+import { TemplateDraftPreview } from "@/components/whatsapp/builder/TemplateDraftPreview";
+import { TemplateGuidelines } from "@/components/whatsapp/builder/TemplateGuidelines";
+import { BUILDER_PROBLEMS_ANCHOR, TemplateMessageSection } from "@/components/whatsapp/builder/TemplateMessageSection";
+import { useTemplateDraft } from "@/components/whatsapp/builder/use-template-draft";
+import { MarketingExitDialog } from "@/components/whatsapp/exit/MarketingExitDialog";
+import { MARKETING_TEMPLATE_NEEDS_EXIT } from "@/lib/whatsapp-templates/exit";
+import { computeParameterFormat, headerMediaOf, toTemplateComponents } from "@/lib/whatsapp-templates/draft";
+import {
+  collectExitSetup,
+  exitSetupFields,
+  leadExitRoom,
+  type LeadExitPlan,
+} from "@/lib/whatsapp-templates/exit-draft";
 import TourGuide from "@/components/TourGuide";
 import type { TourStep } from "@/components/TourGuide";
 import {
@@ -64,26 +67,7 @@ const languages = [
   { value: "es", label: "Español" },
 ];
 
-type ParameterFormatState = "named" | "positional" | "none" | "mixed";
-
-const computeParameterFormat = (
-  components: DraggableComponent[],
-): ParameterFormatState => {
-  let hasPositional = false;
-  let hasNamed = false;
-  for (const c of components) {
-    const isTextComp =
-      c.type === "BODY" || (c.type === "HEADER" && c.data.format === "TEXT");
-    const text = isTextComp ? c.data.text || "" : "";
-    if (!text) continue;
-    if (/\{\{\d+\}\}/.test(text)) hasPositional = true;
-    if (/\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/.test(text)) hasNamed = true;
-  }
-  if (hasPositional && hasNamed) return "mixed";
-  if (hasNamed) return "named";
-  if (hasPositional) return "positional";
-  return "none";
-};
+type FieldProblems = Partial<Record<"name" | "businessPhone", string>>;
 
 export default function NewWhatsAppTemplatePage() {
   const router = useRouter();
@@ -91,13 +75,16 @@ export default function NewWhatsAppTemplatePage() {
   const tRoot = useTranslations();
   const [name, setName] = useState("");
   const [language, setLanguage] = useState("pt_BR");
-  const [category, setCategory] = useState<TemplateCategory>("MARKETING");
   const [businessPhoneId, setBusinessPhoneId] = useState("");
-  const [components, setComponents] = useState<DraggableComponent[]>([]);
-  const [selectedComponent, setSelectedComponent] =
-    useState<DraggableComponent | null>(null);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<FieldProblems>({});
+  const [exitRefused, setExitRefused] = useState(false);
+  const draft = useTemplateDraft({
+    purpose: "create",
+    initialComponents: [],
+    initialCategory: "MARKETING",
+  });
+  const { components, category } = draft;
 
   const [failure, setFailure] = useState<{
     title: string;
@@ -127,49 +114,6 @@ export default function NewWhatsAppTemplatePage() {
     ),
   });
 
-  const detectVariablesForValidation = (
-    text: string,
-  ): { type: "positional" | "named"; variables: string[] } => {
-    const positionalMatches = [...text.matchAll(/\{\{(\d+)\}\}/g)].map(
-      (m) => m[1],
-    );
-    const namedMatches = [
-      ...text.matchAll(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g),
-    ].map((m) => m[1]);
-
-    if (positionalMatches.length > 0) {
-      return {
-        type: "positional",
-        variables: [...new Set(positionalMatches)].sort(
-          (a, b) => parseInt(a) - parseInt(b),
-        ),
-      };
-    }
-    if (namedMatches.length > 0) {
-      return { type: "named", variables: [...new Set(namedMatches)] };
-    }
-    return { type: "positional", variables: [] };
-  };
-
-  const checkVariablePosition = (
-    text: string,
-  ): { atStart: boolean; atEnd: boolean } => {
-    const variablePattern = /\{\{[^}]+\}\}/;
-    const trimmedText = text.trim();
-
-    const atStart =
-      variablePattern.test(trimmedText) && /^\{\{[^}]+\}\}/.test(trimmedText);
-
-    const atEnd =
-      variablePattern.test(trimmedText) && /\{\{[^}]+\}\}$/.test(trimmedText);
-
-    return { atStart, atEnd };
-  };
-
-  const hasConsecutiveVariables = (text: string): boolean => {
-    return /\{\{[^}]+\}\}\s*\{\{[^}]+\}\}/.test(text);
-  };
-
   const scrollToFirstError = (problemKeys: string[]) => {
     const anchors: Record<string, string> = {
       name: "template-error-anchor-name",
@@ -182,7 +126,7 @@ export default function NewWhatsAppTemplatePage() {
       (problemKeys.some((k) => inBuilder.includes(k)) ? "builder" : undefined);
     if (!key) return;
 
-    const id = anchors[key] ?? "template-error-anchor-builder";
+    const id = anchors[key] ?? BUILDER_PROBLEMS_ANCHOR;
     const el = document.getElementById(id);
     if (!el) return;
 
@@ -192,379 +136,29 @@ export default function NewWhatsAppTemplatePage() {
     }
   };
 
-  const validateForm = (): Record<string, string> => {
-    const newErrors: Record<string, string> = {};
+  const validateFields = (): FieldProblems => {
+    const found: FieldProblems = {};
 
     if (!name.trim()) {
-      newErrors.name = t("form.validation.nameRequired");
+      found.name = t("form.validation.nameRequired");
     } else if (!/^[a-z0-9_]+$/.test(name)) {
-      newErrors.name = t("form.validation.nameInvalid");
+      found.name = t("form.validation.nameInvalid");
     } else if (name.length > 512) {
-      newErrors.name = t("form.validation.nameTooLong");
+      found.name = t("form.validation.nameTooLong");
     }
 
     if (!businessPhoneId) {
-      newErrors.businessPhone = t("form.validation.businessPhoneRequired");
+      found.businessPhone = t("form.validation.businessPhoneRequired");
     }
 
-    if (category === "AUTHENTICATION") {
-      if (components.some((c) => c.type === "HEADER")) {
-        newErrors.header = t("form.validation.authNoHeader");
-      }
-      const buttonsComp = components.find((c) => c.type === "BUTTONS");
-      const hasOtp = buttonsComp?.data.buttons?.some((b) => b.type === "OTP");
-      if (!hasOtp) {
-        newErrors.buttons = t("form.validation.authNeedsOtpButton");
-      }
-    }
-
-    const bodyComponent = components.find((c) => c.type === "BODY");
-    const authorsOwnBody = category !== "AUTHENTICATION";
-    if (!bodyComponent) {
-      newErrors.body = t("form.validation.bodyRequired");
-    } else if (authorsOwnBody && !bodyComponent.data.text?.trim()) {
-      newErrors.body = t("form.validation.bodyRequired");
-    } else if (authorsOwnBody) {
-      const bodyText = bodyComponent.data.text || "";
-
-      if (bodyText.length > 1024) {
-        newErrors.body = t("form.validation.bodyTooLong");
-      }
-
-      const bodyVarPosition = checkVariablePosition(bodyText);
-      if (bodyVarPosition.atStart) {
-        newErrors.body = t("form.validation.noVariableAtStart");
-      } else if (bodyVarPosition.atEnd) {
-        newErrors.body = t("form.validation.noVariableAtEnd");
-      }
-
-      if (!newErrors.body && hasConsecutiveVariables(bodyText)) {
-        newErrors.body = t("form.validation.noConsecutiveVariables");
-      }
-
-      if (!newErrors.body) {
-        const bodyVars = detectVariablesForValidation(bodyText);
-        if (bodyVars.variables.length > 0) {
-          if (bodyVars.type === "positional") {
-            const examples = bodyComponent.data.variableExamples || [];
-            const missingExamples = bodyVars.variables.filter(
-              (varNum) => !examples[parseInt(varNum) - 1]?.trim(),
-            );
-            if (missingExamples.length > 0) {
-              newErrors.body = t("form.validation.examplesRequired", {
-                variables: missingExamples.map((v) => `{{${v}}}`).join(", "),
-              });
-            }
-          } else {
-            const examples = bodyComponent.data.namedVariableExamples || {};
-            const missingExamples = bodyVars.variables.filter(
-              (varName) => !examples[varName]?.trim(),
-            );
-            if (missingExamples.length > 0) {
-              newErrors.body = t("form.validation.examplesRequired", {
-                variables: missingExamples.map((v) => `{{${v}}}`).join(", "),
-              });
-            }
-          }
-        }
-      }
-    }
-
-    const headerComponent = components.find((c) => c.type === "HEADER");
-    if (headerComponent) {
-      if (headerComponent.data.format === "TEXT" && headerComponent.data.text) {
-        const headerText = headerComponent.data.text;
-
-        if (headerText.length > 60) {
-          newErrors.header = t("form.validation.headerTooLong");
-        }
-
-        const headerVars = detectVariablesForValidation(headerText);
-        if (headerVars.variables.length > 1) {
-          newErrors.header = t("form.validation.headerMaxOneVariable");
-        }
-
-        if (!newErrors.header) {
-          const headerVarPosition = checkVariablePosition(headerText);
-          if (headerVarPosition.atStart) {
-            newErrors.header = t("form.validation.noVariableAtStart");
-          } else if (headerVarPosition.atEnd) {
-            newErrors.header = t("form.validation.noVariableAtEnd");
-          }
-        }
-
-        if (!newErrors.header && headerVars.variables.length > 0) {
-          if (headerVars.type === "positional") {
-            const examples = headerComponent.data.variableExamples || [];
-            const missingExamples = headerVars.variables.filter(
-              (varNum) => !examples[parseInt(varNum) - 1]?.trim(),
-            );
-            if (missingExamples.length > 0) {
-              newErrors.header = t("form.validation.headerExamplesRequired", {
-                variables: missingExamples.map((v) => `{{${v}}}`).join(", "),
-              });
-            }
-          } else {
-            const examples = headerComponent.data.namedVariableExamples || {};
-            const missingExamples = headerVars.variables.filter(
-              (varName) => !examples[varName]?.trim(),
-            );
-            if (missingExamples.length > 0) {
-              newErrors.header = t("form.validation.headerExamplesRequired", {
-                variables: missingExamples.map((v) => `{{${v}}}`).join(", "),
-              });
-            }
-          }
-        }
-      }
-
-      if (
-        ["IMAGE", "VIDEO", "DOCUMENT", "GIF"].includes(
-          headerComponent.data.format || "",
-        )
-      ) {
-        if (!headerComponent.data.example?.trim()) {
-          newErrors.header = t("form.validation.mediaHeaderRequiresExample");
-        }
-      }
-    }
-
-    const footerComponent = components.find((c) => c.type === "FOOTER");
-    if (footerComponent && footerComponent.data.text) {
-      const footerText = footerComponent.data.text;
-
-      if (footerText.length > 60) {
-        newErrors.footer = t("form.validation.footerTooLong");
-      }
-
-      const footerVars = detectVariablesForValidation(footerText);
-      if (footerVars.variables.length > 0) {
-        newErrors.footer = t("form.validation.footerNoVariables");
-      }
-    }
-
-    const buttonsComponent = components.find((c) => c.type === "BUTTONS");
-    if (buttonsComponent && buttonsComponent.data.buttons) {
-      const buttons = buttonsComponent.data.buttons;
-
-      if (buttons.length > 10) {
-        newErrors.buttons = t("form.validation.maxButtons");
-      }
-
-      for (let i = 0; i < buttons.length; i++) {
-        const btn = buttons[i];
-        if (btn.text && btn.text.length > 25) {
-          newErrors.buttons = t("form.validation.buttonTextTooLong", {
-            index: i + 1,
-          });
-          break;
-        }
-
-        if (btn.type === "URL" && !btn.url?.trim()) {
-          newErrors.buttons = t("form.validation.urlButtonRequiresUrl", {
-            index: i + 1,
-          });
-          break;
-        }
-
-        if (btn.type === "URL" && btn.url) {
-          const urlVars = detectVariablesForValidation(btn.url);
-          if (urlVars.variables.length > 0 && !btn.example?.trim()) {
-            newErrors.buttons = t("form.validation.urlButtonRequiresExample", {
-              index: i + 1,
-            });
-            break;
-          }
-          if (urlVars.variables.length > 1) {
-            newErrors.buttons = t("form.validation.urlMaxOneVariable", {
-              index: i + 1,
-            });
-            break;
-          }
-        }
-
-        if (btn.type === "PHONE_NUMBER" && !btn.phone_number?.trim()) {
-          newErrors.buttons = t("form.validation.phoneButtonRequiresNumber", {
-            index: i + 1,
-          });
-          break;
-        }
-
-        if (btn.type === "COPY_CODE" && !btn.example?.trim()) {
-          newErrors.buttons = t("form.validation.copyCodeRequiresExample", {
-            index: i + 1,
-          });
-          break;
-        }
-      }
-
-      if (!newErrors.buttons && buttons.length > 1) {
-        let foundNonQuickReply = false;
-        let foundQuickReplyAfterOther = false;
-
-        for (const btn of buttons) {
-          if (btn.type === "QUICK_REPLY") {
-            if (foundNonQuickReply) {
-              foundQuickReplyAfterOther = true;
-              break;
-            }
-          } else {
-            if (!foundNonQuickReply) {
-              const priorButtons = buttons.slice(0, buttons.indexOf(btn));
-              if (priorButtons.some((b) => b.type === "QUICK_REPLY")) {
-                foundNonQuickReply = true;
-              }
-            }
-          }
-        }
-
-        const quickReplyIndices = buttons
-          .map((btn, idx) => (btn.type === "QUICK_REPLY" ? idx : -1))
-          .filter((i) => i >= 0);
-        if (quickReplyIndices.length > 1) {
-          for (let i = 1; i < quickReplyIndices.length; i++) {
-            if (quickReplyIndices[i] - quickReplyIndices[i - 1] !== 1) {
-              newErrors.buttons = t("form.validation.quickRepliesMustBeGrouped");
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    const hasCallPermission = components.some(
-      (c) => c.type === "CALL_PERMISSION_REQUEST",
-    );
-    if (hasCallPermission && buttonsComponent) {
-      newErrors.buttons = t("form.validation.callPermissionWithButtons");
-    }
-
-    if (computeParameterFormat(components) === "mixed") {
-      newErrors.format = t("form.validation.mixedVariableFormat");
-    }
-
-    setErrors(newErrors);
-    return newErrors;
-  };
-
-  const convertToTemplateComponents = (
-    draggableComponents: DraggableComponent[],
-  ): TemplateComponent[] => {
-    const result = draggableComponents.map((comp) => {
-      const templateComp: TemplateComponent = {
-        type: comp.type as TemplateComponent["type"],
-      };
-
-      if (comp.data.add_security_recommendation !== undefined) {
-        templateComp.add_security_recommendation =
-          comp.data.add_security_recommendation;
-      }
-      if (comp.data.code_expiration_minutes !== undefined) {
-        templateComp.code_expiration_minutes = comp.data.code_expiration_minutes;
-      }
-
-      if (comp.type === "HEADER" && comp.data.format) {
-        templateComp.format = comp.data.format as HeaderFormat;
-        if (comp.data.format === "TEXT") {
-          templateComp.text = comp.data.text;
-          const headerVars = detectVariablesForValidation(comp.data.text || "");
-          if (headerVars.variables.length > 0) {
-            if (headerVars.type === "named") {
-              const namedExamples = comp.data.namedVariableExamples || {};
-              templateComp.example = {
-                header_text_named_params: headerVars.variables.map(
-                  (varName) => ({
-                    param_name: varName,
-                    example: namedExamples[varName] || "",
-                  }),
-                ),
-              };
-            } else if (comp.data.variableExamples) {
-              const headerExamples = headerVars.variables.map(
-                (varNum) =>
-                  comp.data.variableExamples?.[parseInt(varNum) - 1] || "",
-              );
-              if (headerExamples.some((e) => e)) {
-                templateComp.example = {
-                  header_text: headerExamples,
-                };
-              }
-            }
-          }
-        } else {
-          if (comp.data.format === "LOCATION") {
-            templateComp.text = `${comp.data.locationName}\n${comp.data.locationAddress}`;
-          }
-          if (
-            ["IMAGE", "VIDEO", "DOCUMENT", "GIF"].includes(comp.data.format) &&
-            comp.data.example
-          ) {
-            templateComp.example = {
-              header_handle: [comp.data.example],
-            };
-          }
-        }
-      } else if (comp.type === "BODY") {
-        templateComp.text = comp.data.text;
-        const bodyVars = detectVariablesForValidation(comp.data.text || "");
-        if (bodyVars.variables.length > 0) {
-          if (bodyVars.type === "named") {
-            const namedExamples = comp.data.namedVariableExamples || {};
-            templateComp.example = {
-              body_text_named_params: bodyVars.variables.map((varName) => ({
-                param_name: varName,
-                example: namedExamples[varName] || "",
-              })),
-            };
-          } else if (comp.data.variableExamples) {
-            const bodyExamples = bodyVars.variables.map(
-              (varNum) =>
-                comp.data.variableExamples?.[parseInt(varNum) - 1] || "",
-            );
-            if (bodyExamples.some((e) => e)) {
-              templateComp.example = {
-                body_text: [bodyExamples],
-              };
-            }
-          }
-        }
-      } else if (comp.type === "FOOTER") {
-        templateComp.text = comp.data.text;
-      } else if (comp.type === "BUTTONS" && comp.data.buttons) {
-        templateComp.buttons = comp.data.buttons.map((btn) => {
-          const button: {
-            type: ButtonType;
-            text: string;
-            url?: string;
-            phone_number?: string;
-            example?: string | string[];
-            otp_type?: OtpType;
-          } = {
-            type: btn.type as ButtonType,
-            text: btn.text || "",
-          };
-          if (btn.url) button.url = btn.url;
-          if (btn.phone_number) button.phone_number = btn.phone_number;
-          if (btn.example) {
-            button.example = btn.type === "URL" ? [btn.example] : btn.example;
-          }
-          if (btn.type === "OTP") {
-            button.otp_type = (btn.otp_type as OtpType) || "COPY_CODE";
-          }
-          return button;
-        });
-      }
-
-      return templateComp;
-    });
-
-    return result;
+    setFieldErrors(found);
+    return found;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const problems = validateForm();
+    const problems: Record<string, string> = { ...validateFields(), ...draft.check() };
     const problemKeys = Object.keys(problems);
     if (problemKeys.length > 0) {
       setFailure({
@@ -582,36 +176,34 @@ export default function NewWhatsAppTemplatePage() {
       return;
     }
     setFailure(null);
+    await submitTemplate(components);
+  };
 
+  const submitTemplate = async (submitted: DraggableComponent[]) => {
     setSaving(true);
 
-    const headerComponent = components.find((c) => c.type === "HEADER");
-    const isMediaHeader =
-      headerComponent?.data.format &&
-      ["IMAGE", "VIDEO", "DOCUMENT", "GIF"].includes(
-        headerComponent.data.format,
-      );
-
-    const detectedFormat = computeParameterFormat(components);
+    const detectedFormat = computeParameterFormat(submitted);
+    const headerMediaUrl = headerMediaOf(submitted);
 
     const payload: CreateTemplatePayload = {
       businessPhoneId,
       name,
       language,
       category,
-      components: convertToTemplateComponents(components),
+      components: toTemplateComponents(submitted),
       ...(detectedFormat === "named" || detectedFormat === "positional"
         ? { parameterFormat: detectedFormat }
         : {}),
-      ...(isMediaHeader && headerComponent?.data.example
-        ? { headerMediaUrl: headerComponent.data.example }
-        : {}),
+      ...(headerMediaUrl ? { headerMediaUrl } : {}),
+      ...exitSetupFields(collectExitSetup(submitted)),
     };
 
     try {
       const result = await createWhatsAppTemplateAction(payload);
 
-      if (result.error) {
+      if (result.errorCode === MARKETING_TEMPLATE_NEEDS_EXIT) {
+        setExitRefused(true);
+      } else if (result.error) {
         setFailure({
           title: t("toast.createError"),
           message: templateErrorMessage(tRoot, result.errorCode, result.error),
@@ -639,54 +231,28 @@ export default function NewWhatsAppTemplatePage() {
     }
   };
 
-  const changeCategory = (next: TemplateCategory) => {
-    setCategory(next);
-
-    const keepsOTP = next === "AUTHENTICATION";
-    const prune = (comp: DraggableComponent): DraggableComponent => {
-      if (comp.type !== "BUTTONS" || !comp.data.buttons) return comp;
-      const kept = comp.data.buttons.filter((btn) =>
-        keepsOTP ? btn.type === "OTP" : btn.type !== "OTP",
-      );
-      if (kept.length === comp.data.buttons.length) return comp;
-      return { ...comp, data: { ...comp.data, buttons: kept } };
-    };
-
-    const allowed = new Set(paletteForCategory(next).map((p) => p.type));
-
-    setComponents((current) =>
-      current.filter((c) => allowed.has(c.type)).map(prune),
-    );
-    setSelectedComponent((current) => {
-      if (!current) return current;
-      if (!allowed.has(current.type)) return null;
-      return prune(current);
-    });
+  const createWithExit = (plan: LeadExitPlan) => {
+    setExitRefused(false);
+    void submitTemplate(draft.applyExitPlan(plan));
   };
 
-  const handleComponentChange = (updatedComponent: DraggableComponent) => {
-    setComponents(
-      components.map((c) =>
-        c.id === updatedComponent.id ? updatedComponent : c,
-      ),
-    );
-    setSelectedComponent(updatedComponent);
-  };
+  const footerText = components.find((c) => c.type === "FOOTER")?.data.text ?? "";
 
   const handleTourStep = (_index: number, step: TourStep) => {
-    const componentType = (step.data as any)?._selectComponent as string | undefined;
+    const tourData = step.data as { _selectComponent?: string; _injectVar?: boolean } | undefined;
+    const componentType = tourData?._selectComponent;
     if (!componentType) return;
 
-    const shouldInjectVar = (step.data as any)?._injectVar;
+    const shouldInjectVar = tourData?._injectVar;
     const existing = components.find((c) => c.type === componentType);
 
     if (existing) {
       if (shouldInjectVar && componentType === "BODY" && !/\{\{/.test(existing.data.text || "")) {
         const updated = { ...existing, data: { ...existing.data, text: (existing.data.text || "") + " {{1}}" } };
-        setComponents(components.map((c) => c.id === updated.id ? updated : c));
-        setSelectedComponent(updated);
+        draft.setComponents(components.map((c) => c.id === updated.id ? updated : c));
+        draft.setSelected(updated);
       } else {
-        setSelectedComponent(existing);
+        draft.setSelected(existing);
       }
       return;
     }
@@ -715,40 +281,38 @@ export default function NewWhatsAppTemplatePage() {
       }
     }
 
-    setComponents(newComponents);
-    setSelectedComponent(newComponent);
+    draft.setComponents(newComponents);
+    draft.setSelected(newComponent);
   };
 
-  const detectedFormat = computeParameterFormat(components);
-  const hasCallComponent = components.some(
-    (c) => c.type === "CALL_PERMISSION_REQUEST",
+  const createButton = (
+    <Button
+      variant="primary"
+      type="submit"
+      title={saving ? t("button.creating") : t("form.buttons.create")}
+      icon={
+        saving ? (
+          <CircleNotch className="h-4 w-4 animate-spin" />
+        ) : (
+          <CheckCircle className="h-4 w-4" weight="fill" />
+        )
+      }
+      iconVisible
+      iconSide="left"
+      disabled={saving}
+      className="h-9"
+      onClick={handleSubmit}
+    />
   );
-  const formatBadge = {
-    named: {
-      label: t("new.guidelines.formatNamed"),
-      cls: "bg-info text-info-foreground border-transparent",
-    },
-    positional: {
-      label: t("new.guidelines.formatPositional"),
-      cls: "bg-info text-info-foreground border-transparent",
-    },
-    none: {
-      label: t("new.guidelines.formatNone"),
-      cls: "bg-muted text-muted-foreground border-border",
-    },
-    mixed: {
-      label: t("new.guidelines.formatMixed"),
-      cls: "bg-muted text-warning-ink border-border",
-    },
-  }[detectedFormat];
-  const guidelineKeys = [
-    "variables",
-    "position",
-    "examples",
-    "completeSentence",
-    "footer",
-    ...(hasCallComponent ? ["callPermission"] : []),
-  ];
+  const cancelButton = (
+    <Button
+      variant="secondary"
+      title={t("form.buttons.cancel")}
+      link="/dashboard/whatsapp-templates"
+      newTab={false}
+      className="h-9"
+    />
+  );
 
   return (
     <>
@@ -761,54 +325,30 @@ export default function NewWhatsAppTemplatePage() {
         onStep={handleTourStep}
       />
     <main className="w-full space-y-5">
-      {}
-      <div>
-        <DashboardPageHeader
-          back={{
-            onClick: () => router.push("/dashboard/whatsapp-templates"),
-            label: t("button.back"),
-          }}
-          icon={<WhatsappLogo className="h-5 w-5" weight="fill" />}
-          badge={t("new.title")}
-          title={t("new.title")}
-          description={t("new.description")}
-          colorClass="text-muted-foreground"
-          actions={
-            <div className="flex items-center gap-2" data-tour="wt-submit">
-              <Button
-                variant="secondary"
-                title={t("form.buttons.cancel")}
-                link="/dashboard/whatsapp-templates"
-                newTab={false}
-                className="h-9"
-              />
-              <Button
-                variant="primary"
-                type="submit"
-                title={saving ? t("button.creating") : t("form.buttons.create")}
-                icon={
-                  saving ? (
-                    <CircleNotch className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4" weight="fill" />
-                  )
-                }
-                iconVisible
-                iconSide="left"
-                disabled={saving}
-                className="h-9"
-                onClick={handleSubmit}
-              />
-            </div>
-          }
-        />
-      </div>
+      <DashboardPageHeader
+        back={{
+          onClick: () => router.push("/dashboard/whatsapp-templates"),
+          label: t("button.back"),
+        }}
+        icon={<WhatsappLogo className="h-5 w-5" weight="fill" />}
+        badge={t("new.badge")}
+        title={t("new.title")}
+        description={t("new.description")}
+        colorClass="text-muted-foreground"
+        actions={
+          <div className="flex items-center gap-2" data-tour="wt-submit">
+            {cancelButton}
+            {createButton}
+          </div>
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="flex gap-5 items-start">
-        {}
-        <div className="flex-1 min-w-0 space-y-5">
-          {
-}
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,22rem)]"
+      >
+        <div className="min-w-0 space-y-4">
           {failure && (
             <TemplateErrorBanner
               title={failure.title}
@@ -819,20 +359,10 @@ export default function NewWhatsAppTemplatePage() {
               dismissLabel={tRoot("common.close")}
             />
           )}
-          {}
-          <div data-tour="wt-template-info">
-            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
-              <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-healthy">
-                  <WhatsappLogo
-                    className="h-3.5 w-3.5 text-healthy-foreground"
-                    weight="fill"
-                  />
-                </div>
-                {t("new.templateInfo")}
-              </h2>
-
-              <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-border bg-card shadow-sm">
+          <div className="p-5 sm:p-6" data-tour="wt-template-info">
+            <PanelSection title={t("new.templateInfo")} description={t("new.detailsHint")}>
+              <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
                 <div>
                   <ElevatedInput
                     type="text"
@@ -847,13 +377,9 @@ export default function NewWhatsAppTemplatePage() {
                       )
                     }
                     id="template-error-anchor-name"
-                    className={errors.name ? "border-destructive/30" : ""}
+                    error={fieldErrors.name}
                   />
-                  {errors.name ? (
-                    <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
-                      <Warning className="h-3 w-3" /> {errors.name}
-                    </p>
-                  ) : (
+                  {fieldErrors.name ? null : (
                     <p className="mt-1 text-xs text-muted-foreground">
                       {t("form.hints.name")}
                     </p>
@@ -876,9 +402,9 @@ export default function NewWhatsAppTemplatePage() {
                     onOpenChange={businessPhoneSelect.onOpenChange}
                     isLoading={businessPhoneSelect.isLoading}
                   />
-                  {errors.businessPhone ? (
+                  {fieldErrors.businessPhone ? (
                     <p className="mt-1 text-xs text-destructive-ink flex items-center gap-1">
-                      <Warning className="h-3 w-3" /> {errors.businessPhone}
+                      <Warning className="h-3 w-3" /> {fieldErrors.businessPhone}
                     </p>
                   ) : (
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -902,7 +428,7 @@ export default function NewWhatsAppTemplatePage() {
                 <ElevatedSelect
                   value={category}
                   onValueChange={(v) =>
-                    changeCategory(v as TemplateCategory)
+                    draft.changeCategory(v as TemplateCategory)
                   }
                   label={t("form.labels.category")}
                 >
@@ -913,167 +439,45 @@ export default function NewWhatsAppTemplatePage() {
                   ))}
                 </ElevatedSelect>
               </div>
-            </ElevatedContainer>
+            </PanelSection>
           </div>
 
-          {}
-          <div>
-            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <div className="tile-brand flex h-6 w-6 items-center justify-center">
-                    <FlowArrow
-                      className="h-3.5 w-3.5"
-                      weight="bold"
-                    />
-                  </div>
-                  {t("new.buildTemplate")}
-                </h2>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                  {t("new.dragDropBadge")}
-                </span>
-              </div>
-
-              <div className="grid gap-5 lg:grid-cols-3">
-                <div className="lg:col-span-2 min-h-[400px]">
-                  <DragDropBuilder
-                    components={components}
-                    onChange={setComponents}
-                    onComponentSelect={setSelectedComponent}
-                    selectedComponentId={selectedComponent?.id}
-                    palette={paletteForCategory(category)}
-                  />
-                </div>
-
-                <div className="border border-border rounded-[--radius] bg-muted min-h-[400px] overflow-hidden" data-tour="wt-component-editor">
-                  <ComponentEditor
-                    component={selectedComponent}
-                    onChange={handleComponentChange}
-                    category={category}
-                  />
-                </div>
-              </div>
-
-              {}
-              <span id="template-error-anchor-builder" aria-hidden />
-              {(errors.body ||
-                errors.header ||
-                errors.footer ||
-                errors.buttons ||
-                errors.format) && (
-                <div className="mt-4 space-y-2">
-                  {[
-                    errors.header,
-                    errors.body,
-                    errors.footer,
-                    errors.buttons,
-                    errors.format,
-                  ]
-                    .filter(Boolean)
-                    .map((error, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 p-2.5 rounded-lg bg-muted border border-border"
-                      >
-                        <Warning
-                          className="h-3.5 w-3.5 text-destructive-ink flex-shrink-0"
-                          weight="fill"
-                        />
-                        <p className="text-xs text-destructive-ink">{error}</p>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </ElevatedContainer>
+          <div className="border-t border-border p-5 sm:p-6">
+            <TemplateMessageSection draft={draft} />
           </div>
 
-          {}
-          <div>
-            <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
-              <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-                <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <div className="tile-info flex h-6 w-6 items-center justify-center">
-                    <Info className="h-3.5 w-3.5" weight="fill" />
-                  </div>
-                  {t("new.guidelines.title")}
-                </h2>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-2xs text-muted-foreground">
-                    {t("new.guidelines.formatLabel")}
-                  </span>
-                  <span
-                    className={`inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-2xs font-medium ${formatBadge.cls}`}
-                  >
-                    {formatBadge.label}
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mb-3">
-                {t("new.guidelines.subtitle")}
-              </p>
-              <ul className="space-y-2">
-                {guidelineKeys.map((key) => (
-                  <li
-                    key={key}
-                    className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed"
-                  >
-                    <Check
-                      className="h-3.5 w-3.5 text-info-ink flex-shrink-0 mt-0.5"
-                      weight="bold"
-                    />
-                    <span>{t(`new.guidelines.${key}`)}</span>
-                  </li>
-                ))}
-              </ul>
-            </ElevatedContainer>
+          <div className="border-t border-border p-5 sm:p-6">
+            <TemplateGuidelines components={components} />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border px-5 py-4 sm:px-6">
+            {cancelButton}
+            {createButton}
+          </div>
           </div>
         </div>
 
-        {}
-        <div
-          className="hidden xl:block w-[340px] flex-shrink-0 sticky top-6"
-          data-tour="wt-preview"
+        <TemplateDraftPreview
+          components={components}
+          templateName={name || t("new.untitledTemplate")}
+          language={language}
         >
-          <ElevatedContainer className="rounded-lg border border-border bg-card p-5">
-            <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="tile-neutral flex h-6 w-6 items-center justify-center">
-                <DeviceMobile
-                  className="h-3.5 w-3.5"
-                  weight="fill"
-                />
-              </div>
-              {t("new.preview")}
-            </h2>
-
-            <div className="rounded-[--radius] overflow-hidden border border-border">
-              <div className="h-[520px]">
-                <WhatsAppPreview
-                  components={components}
-                  templateName={name || t("new.untitledTemplate")}
-                  language={language}
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 p-3 rounded-lg bg-muted border border-border">
-              <div className="flex items-start gap-2.5">
-                <Warning
-                  className="h-4 w-4 text-warning-ink flex-shrink-0 mt-0.5"
-                  weight="fill"
-                />
-                <div>
-                  <h4 className="text-xs font-semibold text-warning-ink mb-0.5">
-                    {t("new.approvalRequired.title")}
-                  </h4>
-                  <p className="text-2xs text-warning-ink leading-relaxed">
-                    {t("new.approvalRequired.description")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ElevatedContainer>
-        </div>
+          <Notice tone="info" title={t("new.approvalRequired.title")}>
+            <p className="text-muted-foreground">{t("new.approvalRequired.description")}</p>
+          </Notice>
+        </TemplateDraftPreview>
       </form>
+      <MarketingExitDialog
+        open={exitRefused}
+        onOpenChange={setExitRefused}
+        templateName={name}
+        room={leadExitRoom(components)}
+        allowedKinds={draft.exitVerdict.allowedKinds}
+        footerText={footerText}
+        busy={saving}
+        purpose="create"
+        onApplyPlan={createWithExit}
+      />
     </main>
     </>
   );

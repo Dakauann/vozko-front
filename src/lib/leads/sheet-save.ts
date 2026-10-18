@@ -19,6 +19,7 @@ export interface LeadSheetActions {
   create: (body: CreateLeadBody) => Promise<{ lead: CreatedLead; error: null } | { lead: null; error: CodedRefusal }>;
   update: (leadId: string, version: number, body: UpdateLeadBody) => Promise<VersionedSaveResult<"lead", LeadRecord, CodedRefusal>>;
   setOwner: (leadId: string, ownerId: string) => Promise<{ lead: LeadRecord | null; error: CodedRefusal | null }>;
+  setCompany: (leadId: string, companyId: string | null) => Promise<{ lead: LeadRecord | null; error: CodedRefusal | null }>;
   addRelative: (
     leadId: string,
     input: { kind: LeadRelationKind; relative: CreateLeadBody; copyPrimaryAddress: boolean },
@@ -30,10 +31,11 @@ export interface LeadSheetActions {
 export interface LeadSheetAccess {
   addresses: boolean;
   assign: boolean;
+  membership: boolean;
 }
 
 export interface FollowUpFailure {
-  step: "owner" | "relative" | "unlink";
+  step: "owner" | "company" | "relative" | "unlink";
   label?: string;
   error: CodedRefusal;
 }
@@ -110,6 +112,11 @@ export async function saveLeadSheet({
   if (access.assign && draft.ownerId !== (base?.owner ?? "")) {
     const owner = await actions.setOwner(leadId, draft.ownerId);
     if (owner.error) followUpFailures.push({ step: "owner", error: owner.error });
+  }
+
+  if (access.membership && draft.companyId !== (base?.companyId ?? "")) {
+    const company = await actions.setCompany(leadId, draft.companyId || null);
+    if (company.error) followUpFailures.push({ step: "company", error: company.error });
   }
 
   for (const relationId of draft.removedRelationIds) {

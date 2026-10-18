@@ -13,6 +13,7 @@ import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones
 import Button from "@/components/elevated-design/button";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { CheckCircle, ShieldCheck, Warning, WhatsappLogo } from "@/components/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useKeyedLoad } from "@/hooks/use-keyed-load";
@@ -153,6 +154,7 @@ function SettingsForm({
         onCheckedChange={(enabled) => patch({ enabled })}
         label={t("enabled")}
         description={t("enabledHint")}
+        explainer={<ExplainerHint id="ads.conversionsApi" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -162,6 +164,7 @@ function SettingsForm({
           onCheckedChange={(sendLeads) => patch({ sendLeads })}
           label={t("sendLeads")}
           description={t("sendLeadsHint")}
+          explainer={<ExplainerHint id="ads.conversionLead" />}
         />
         <ElevatedSwitch
           checked={form.enabled && form.sendPurchases}
@@ -169,6 +172,7 @@ function SettingsForm({
           onCheckedChange={(sendPurchases) => patch({ sendPurchases })}
           label={t("sendPurchases")}
           description={t("sendPurchasesHint")}
+          explainer={<ExplainerHint id="ads.conversionPurchase" />}
         />
       </div>
       {problems.includes("nothing_to_send") ? <p className="text-xs text-warning-ink">{t("problems.nothing_to_send")}</p> : null}

@@ -10,6 +10,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AllowedOriginsEditor } from "@/components/webchat/allowed-origins-editor";
 import { WebchatPreview } from "@/components/webchat/webchat-preview";
@@ -352,6 +353,7 @@ export function ConversationOptionsSection({ widget, canUpdate, onSave }: Sectio
           onCheckedChange={(checked) => setDraft({ ...draft, allowHumanRequest: checked })}
           label={t("humanRequest.label")}
           description={t("humanRequest.hint")}
+          explainer={<ExplainerHint id="settings.webchatHumanRequest" />}
         />
         <Switch
           id="webchat-attachments"
@@ -359,6 +361,7 @@ export function ConversationOptionsSection({ widget, canUpdate, onSave }: Sectio
           disabled={!canUpdate}
           onCheckedChange={(checked) => setDraft({ ...draft, allowAttachments: checked })}
           label={t("attachments.label")}
+          explainer={<ExplainerHint id="settings.webchatAttachments" />}
           description={t("attachments.hint", { types: ATTACHMENT_TYPES.join(", "), size: ATTACHMENT_MAX_MB })}
         />
       </div>
@@ -519,6 +522,7 @@ export function AvailabilitySection({ widget, canUpdate, onSave }: SectionProps)
         disabled={!canUpdate || saving}
         onCheckedChange={(checked) => void toggle(checked)}
         label={t("label")}
+        explainer={<ExplainerHint id="settings.webchatActive" />}
       />
     </WidgetSection>
   );

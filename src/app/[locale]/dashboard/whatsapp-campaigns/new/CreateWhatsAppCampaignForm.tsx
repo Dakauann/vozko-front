@@ -11,11 +11,10 @@ import {
   CaretRight,
   DownloadSimple,
   ImageSquare,
-  MagnifyingGlass,
   Plus,
+  Tag,
   Trash,
   UploadSimple,
-  Warning,
   X,
 } from "@/components/icons";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -36,6 +35,7 @@ import {
   useRef,
   useState,
   useTransition,
+  type ReactNode,
 } from "react";
 
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -47,13 +47,27 @@ import {
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
-import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { EmptyValue, useEmptyValue } from "@/components/elevated-design/empty-value";
+import type { DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
+import { Notice } from "@/components/ui/notice";
 import Link from "next/link";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
+import { ButtonDestinations } from "@/components/whatsapp/exit/ButtonDestinations";
+import { CampaignExitSection } from "@/components/whatsapp/exit/CampaignExitSection";
+import { SmartCampaignSection, useSmartPolicyDraft } from "@/components/whatsapp/smart/SmartCampaignSection";
+import { useCampaignExit } from "@/components/whatsapp/exit/use-campaign-exit";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
+import { CampaignContactList, MissingValueMark } from "@/components/campaigns/CampaignContactList";
+import {
+  OPEN_CONTACT_LIST_VIEW,
+  onlyMissingView,
+  viewShowingContact,
+  type ContactListView,
+} from "@/lib/campaigns/contact-list-view";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { templateParamSlots } from "@/lib/whatsapp-templates/params";
 import type { Workflow } from "@/lib/workflows/types";
@@ -76,15 +90,24 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GrainBackground from "@/components/elevated-design/grain-background";
 import { readDelimitedFile } from "@/lib/csv/parse";
+import { metadataKeyOf } from "@/lib/campaigns/metadata-key";
 import {
   missingVariablesOf,
   missingVariablesReport,
   requiredVariablesOf,
   type MissingVariable,
+  type RequiredVariable,
 } from "@/lib/campaigns/required-variables";
 
-const ITEMS_PER_PAGE = 50;
 const CSV_BATCH_SIZE = 1000;
+
+interface ContactRow {
+  id: string;
+  originalIndex: number;
+}
+
+const requiredVariablePath = (variable: RequiredVariable) =>
+  variable.source === "template" ? `variables.${variable.index ?? 0}` : `metadata.${variable.key}`;
 
 const extractTemplateVariables = (
   template: WhatsAppTemplate | undefined,
@@ -181,7 +204,6 @@ const createWhatsAppCampaignSchema = (
       agentId: z.string().optional().nullable(),
       workflowId: z.string().optional().nullable(),
       enableAgentResponses: z.boolean().default(false),
-      preferAudio: z.boolean().default(false),
       showTemplateInCrm: z.boolean().default(false),
       enableAnalysis: z.boolean().default(false),
       enableAutoStaging: z.boolean().default(false),
@@ -321,11 +343,10 @@ export default function CreateWhatsAppCampaignForm({
   const [csvError, setCsvError] = useState<string | null>(null);
   const [isLoadingCsv, setIsLoadingCsv] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [contactView, setContactView] = useState<ContactListView>(OPEN_CONTACT_LIST_VIEW);
   const [metadataFields, setMetadataFields] = useState<MetadataField[]>([]);
   const [newFieldKey, setNewFieldKey] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showOnlyMissingVars, setShowOnlyMissingVars] = useState(false);
+  const [metadataEditorOpen, setMetadataEditorOpen] = useState(false);
   const [skippedLines, setSkippedLines] = useState<SkippedLine[]>([]);
   const [skippedLinesOpen, setSkippedLinesOpen] = useState(false);
   const [skippedPage, setSkippedPage] = useState(0);
@@ -371,6 +392,8 @@ export default function CreateWhatsAppCampaignForm({
     Record<string, Workflow>
   >({});
   const t = useTranslations("whatsappCampaignsPage.form");
+  const tContactList = useTranslations("campaignContactList");
+  const emptyValue = useEmptyValue();
   const tDeals = useTranslations("dealAutomation");
 
   useEffect(() => {
@@ -420,7 +443,6 @@ export default function CreateWhatsAppCampaignForm({
       agentId: null,
       workflowId: null,
       enableAgentResponses: false,
-      preferAudio: false,
       showTemplateInCrm: false,
       enableAnalysis: false,
       enableAutoStaging: false,
@@ -451,6 +473,8 @@ export default function CreateWhatsAppCampaignForm({
   const selectedBusinessPhoneId = watch("businessPhoneId");
   const selectedAgentId = watch("agentId");
   const selectedWorkflowId = watch("workflowId");
+  const campaignExit = useCampaignExit({ templateId: selectedTemplateId, campaignId: initialCampaign?.id, mode, initialTemplateId: initialCampaign?.templateId });
+  const smartPolicy = useSmartPolicyDraft(mode);
 
   const { variables: agentRequiredVars } = useAgentRequiredVariables(
     responseMode === "agent" ? selectedAgentId : null,
@@ -990,43 +1014,84 @@ export default function CreateWhatsAppCampaignForm({
     [t, knownWorkflows, selectedWorkflowId, knownAgents, selectedAgentId],
   );
 
-  const filteredFields = useMemo(() => {
-    let result = fields.map((field, idx) => ({ field, originalIndex: idx }));
-
-    if (showOnlyMissingVars && requiredVariables.length > 0) {
-      result = result.filter(({ originalIndex }) => {
-        const pn = phoneNumbersSnapshot[originalIndex];
-        return hasMissingVariables(pn);
-      });
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      result = result.filter(({ originalIndex }) => {
-        const pn = phoneNumbersSnapshot[originalIndex];
-        if (!pn) return false;
-        return (
-          pn.number.toLowerCase().includes(query) ||
-          (pn.name && pn.name.toLowerCase().includes(query))
-        );
-      });
-    }
-
-    return result;
-  }, [
-    fields,
-    phoneNumbersSnapshot,
-    showOnlyMissingVars,
-    searchQuery,
-    requiredVariables,
-    hasMissingVariables,
-  ]);
-
-  const totalPages = Math.ceil(filteredFields.length / ITEMS_PER_PAGE);
-  const paginatedFields = filteredFields.slice(
-    currentPage * ITEMS_PER_PAGE,
-    (currentPage + 1) * ITEMS_PER_PAGE,
+  const contactRows = useMemo<ContactRow[]>(
+    () => fields.map((field, originalIndex) => ({ id: field.id, originalIndex })),
+    [fields],
   );
+
+  const searchableContact = useCallback(
+    (row: ContactRow) => {
+      const contact = phoneNumbersSnapshot[row.originalIndex];
+      return contact ? [contact.number, contact.name] : [];
+    },
+    [phoneNumbersSnapshot],
+  );
+
+  const isContactMissing = useCallback(
+    (row: ContactRow) => hasMissingVariables(phoneNumbersSnapshot[row.originalIndex]),
+    [hasMissingVariables, phoneNumbersSnapshot],
+  );
+
+  const requiredVariableByPath = useMemo(
+    () => new Map(requiredVariables.map((variable) => [requiredVariablePath(variable), variable])),
+    [requiredVariables],
+  );
+
+  const contactValueCell = (
+    originalIndex: number,
+    path: string,
+    input: ReactNode,
+    error: string | undefined,
+  ) => {
+    const required = requiredVariableByPath.get(path);
+    const missing =
+      required !== undefined &&
+      missingVariablesOf(phoneNumbersSnapshot[originalIndex], [required]).length > 0;
+    return (
+      <div>
+        <div className="flex items-center gap-1.5">
+          {input}
+          {missing ? <MissingValueMark /> : null}
+        </div>
+        <FieldError message={error} />
+      </div>
+    );
+  };
+
+  const contactValueColumns: DashboardTableColumn<ContactRow>[] = [
+    ...templateVariables.map((placeholder, varIdx) => ({
+      key: `variables.${varIdx}`,
+      header: placeholder,
+      render: ({ originalIndex }: ContactRow) =>
+        contactValueCell(
+          originalIndex,
+          `variables.${varIdx}`,
+          <ElevatedInput
+            aria-label={placeholder}
+            {...register(`phoneNumbers.${originalIndex}.variables.${varIdx}`)}
+            controlSize="sm"
+            placeholder={emptyValue}
+          />,
+          errors.phoneNumbers?.[originalIndex]?.variables?.[varIdx]?.message,
+        ),
+    })),
+    ...metadataFields.map((metaField) => ({
+      key: `metadata.${metaField.key}`,
+      header: metaField.required ? `${metaField.label} *` : metaField.label,
+      render: ({ originalIndex }: ContactRow) =>
+        contactValueCell(
+          originalIndex,
+          `metadata.${metaField.key}`,
+          <ElevatedInput
+            aria-label={metaField.label}
+            {...register(`phoneNumbers.${originalIndex}.metadata.${metaField.key}`)}
+            controlSize="sm"
+            placeholder={emptyValue}
+          />,
+          undefined,
+        ),
+    })),
+  ];
 
   useEffect(() => {
     if (initialCampaign && mode === "edit") {
@@ -1055,7 +1120,6 @@ export default function CreateWhatsAppCampaignForm({
         agentId: initialCampaign.agentId || null,
         workflowId: initialCampaign.workflowId || null,
         enableAgentResponses: initialCampaign.enableAgentResponses,
-        preferAudio: initialCampaign.preferAudio ?? false,
         showTemplateInCrm: initialCampaign.showTemplateInCrm ?? false,
         enableAnalysis: initialCampaign.enableAnalysis ?? false,
         enableAutoStaging: initialCampaign.enableAutoStaging ?? false,
@@ -1143,16 +1207,10 @@ export default function CreateWhatsAppCampaignForm({
         label: string;
       }[] = [];
       headers.forEach((header, index) => {
-        if (
-          !reservedHeaders.has(header) &&
-          header.length > 0 &&
-          !header.match(/^var\d+$/)
-        ) {
-          const sanitizedKey = header
-            .replace(/\s+/g, "_")
-            .replace(/[^a-z0-9_]/g, "");
+        const metadataKey = metadataKeyOf(header);
+        if (!reservedHeaders.has(header) && metadataKey && !header.match(/^var\d+$/)) {
           const label = rows[0].split(delimiter)[index].trim();
-          metadataColumnIndices.push({ index, key: sanitizedKey, label });
+          metadataColumnIndices.push({ index, key: metadataKey, label });
         }
       });
 
@@ -1321,7 +1379,7 @@ export default function CreateWhatsAppCampaignForm({
       setLoadingProgress(90);
 
       replace(items);
-      setCurrentPage(0);
+      setContactView((view) => ({ ...view, page: 0 }));
       setCsvError(null);
       setSkippedLines(skipped);
       setSkippedLinesOpen(false);
@@ -1351,10 +1409,8 @@ export default function CreateWhatsAppCampaignForm({
   };
 
   const addMetadataField = () => {
-    if (!newFieldKey) return;
-    const sanitizedKey = newFieldKey
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
+    const sanitizedKey = metadataKeyOf(newFieldKey);
+    if (!sanitizedKey) return;
     if (!metadataFields.find((f) => f.key === sanitizedKey)) {
       setMetadataFields([
         ...metadataFields,
@@ -1418,8 +1474,7 @@ export default function CreateWhatsAppCampaignForm({
           variables: submitReport.variables.map((m) => m.variable.label).join(", "),
         }),
       });
-      setShowOnlyMissingVars(true);
-      setCurrentPage(0);
+      setContactView(onlyMissingView);
       return;
     }
 
@@ -1439,7 +1494,6 @@ export default function CreateWhatsAppCampaignForm({
           workflowId: workflowEnabled ? data.workflowId || null : null,
           enableAgentResponses: agentResponsesEnabled,
           enableWorkflow: workflowEnabled,
-          preferAudio: agentResponsesEnabled ? data.preferAudio : false,
           showTemplateInCrm: data.showTemplateInCrm,
           enableAnalysis: campaignToolsEnabled ? data.enableAnalysis : false,
           enableAutoStaging: campaignToolsEnabled
@@ -1460,6 +1514,8 @@ export default function CreateWhatsAppCampaignForm({
               ? data.scheduledStart
               : undefined,
           ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
+          ...campaignExit.fields,
+          ...smartPolicy.fields,
           phoneNumbers: (data.phoneNumbers ?? []).map((pn) => {
                 let varsArray: string[] | undefined;
                 if (pn.variables) {
@@ -1507,7 +1563,7 @@ export default function CreateWhatsAppCampaignForm({
             : await createWhatsAppCampaignAction(payload);
 
         if (result.error) {
-          toast.error(t("toast.error"), { description: refusalText(result.errorCode, result.error) });
+          toast.error(t("toast.error"), { description: campaignExit.refusal(result.errorCode) ?? refusalText(result.errorCode, result.error) });
         } else {
           toast(t("toast.success"), { description: mode === "edit"
                 ? t("toast.campaignUpdated")
@@ -1524,6 +1580,8 @@ export default function CreateWhatsAppCampaignForm({
           ) {
             toast.error(tDeals("notAppliedTitle"), { description: tDeals("notApplied") });
           }
+          const routesProblem = campaignId ? await campaignExit.saveOverrides(campaignId) : null;
+          if (routesProblem) toast.error(routesProblem);
           pendingRedirectRef.current = campaignId
             ? `/dashboard/whatsapp-campaigns/${campaignId}`
             : "/dashboard/whatsapp-campaigns";
@@ -1601,9 +1659,7 @@ export default function CreateWhatsAppCampaignForm({
     toast.error(t("toast.validationError"), { description: message });
 
     if (contactIndex !== undefined) {
-      setShowOnlyMissingVars(false);
-      setSearchQuery("");
-      setCurrentPage(Math.floor(contactIndex / ITEMS_PER_PAGE));
+      setContactView(viewShowingContact(contactIndex));
     }
   };
 
@@ -1725,42 +1781,33 @@ export default function CreateWhatsAppCampaignForm({
               {selectedTemplateMissingMedia &&
                 isAdmin &&
                 selectedTemplate && (
-                  <div className="mt-3 rounded-lg border border-border bg-muted p-4">
-                    <div className="flex items-start gap-3">
-                      <ImageSquare
-                        className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
-                        weight="fill"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-warning-ink">
-                          {t("media.missingTitle")}
-                        </h4>
-                        <p className="text-xs text-warning-ink mt-1">
-                          {t("media.missingDescription")}
-                        </p>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          title={t("media.configureButton")}
-                          icon={
-                            <ImageSquare className="h-4 w-4" weight="bold" />
-                          }
-                          iconVisible
-                          iconSide="left"
-                          onClick={() => setMediaModalOpen(true)}
-                          className="mt-3"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <Notice
+                    tone="warning"
+                    title={t("media.missingTitle")}
+                    icon={<ImageSquare weight="fill" />}
+                    className="mt-3"
+                  >
+                    <p>{t("media.missingDescription")}</p>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      title={t("media.configureButton")}
+                      icon={
+                        <ImageSquare className="h-4 w-4" weight="bold" />
+                      }
+                      iconVisible
+                      iconSide="left"
+                      onClick={() => setMediaModalOpen(true)}
+                    />
+                  </Notice>
                 )}
 
               {selectedTemplate && templateVariables.length > 0 && !contentLocked && (
                 <div className="mt-3 rounded-lg border border-border bg-muted p-4"data-tour="wc-template-variables">
-                  <h4 className="text-sm font-semibold text-healthy-ink mb-2">
+                  <h4 className="text-sm font-semibold text-foreground mb-2">
                     {t("basicInfo.templateVariables")}
                   </h4>
-                  <p className="text-xs text-healthy-ink mb-3">
+                  <p className="text-xs text-muted-foreground mb-3">
                     {t("basicInfo.templateVariablesDescription")}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -1774,7 +1821,7 @@ export default function CreateWhatsAppCampaignForm({
                     ))}
                   </div>
 
-                  <p className="text-xs text-healthy-ink border-t border-healthy/20 pt-3">
+                  <p className="text-xs text-muted-foreground border-t border-border pt-3">
                     {t("basicInfo.templatePreviewHint")}
                   </p>
                 </div>
@@ -1808,7 +1855,6 @@ export default function CreateWhatsAppCampaignForm({
                     setResponseMode("workflow");
                     setValue("agentId", null);
                     setValue("enableAgentResponses", false);
-                    setValue("preferAudio", false);
                   }}
                   className={cn(
                     "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
@@ -1842,19 +1888,6 @@ export default function CreateWhatsAppCampaignForm({
                     )}
                   />
                   <FieldError message={errors.agentId?.message} />
-
-                  <Controller
-                    name="preferAudio"
-                    control={control}
-                    render={({ field }) => (
-                      <ElevatedSwitch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        label={t("basicInfo.preferAudio")}
-                        description={t("basicInfo.preferAudioDescription")}
-                      />
-                    )}
-                  />
                 </div>
               )}
 
@@ -1898,6 +1931,7 @@ export default function CreateWhatsAppCampaignForm({
                         onCheckedChange={field.onChange}
                         label={t("basicInfo.enableAnalysis")}
                         description={t("basicInfo.enableAnalysisDescription")}
+                        explainer={<ExplainerHint id="settings.conversationAnalysis" />}
                       />
                     )}
                   />
@@ -1915,6 +1949,7 @@ export default function CreateWhatsAppCampaignForm({
                         onCheckedChange={field.onChange}
                         label={t("basicInfo.enableAutoStaging")}
                         description={t("basicInfo.enableAutoTaggingDescription")}
+                        explainer={<ExplainerHint id="settings.autoStaging" />}
                       />
                     )}
                   />
@@ -1932,6 +1967,7 @@ export default function CreateWhatsAppCampaignForm({
                         onCheckedChange={field.onChange}
                         label={t("basicInfo.enableAutoMemory")}
                         description={t("basicInfo.enableAutoMemoryDescription")}
+                        explainer={<ExplainerHint id="settings.autoMemory" />}
                       />
                     )}
                   />
@@ -1957,6 +1993,7 @@ export default function CreateWhatsAppCampaignForm({
                       onCheckedChange={field.onChange}
                       label={t("basicInfo.showTemplateInCrm")}
                       description={t("basicInfo.showTemplateInCrmDescription")}
+                      explainer={<ExplainerHint id="campaigns.templateInCrm" />}
                     />
                   )}
                 />
@@ -1997,6 +2034,7 @@ export default function CreateWhatsAppCampaignForm({
                     }
                   }}
                   label={t("basicInfo.scheduleToggle")}
+                  explainer={<ExplainerHint id="campaigns.scheduledStart" />}
                 />
               </div>
               <p className="text-xs text-muted-foreground mb-3">
@@ -2058,6 +2096,8 @@ export default function CreateWhatsAppCampaignForm({
               )}
             </div>
             )}
+
+            {mode === "create" ? <SmartCampaignSection draft={smartPolicy} contacts={fields.length} startAt={watch("scheduledStart")} /> : null}
           </div>
         </ElevatedContainer>
 
@@ -2161,6 +2201,8 @@ export default function CreateWhatsAppCampaignForm({
                 </div>
               </div>
 
+              {contentLocked && campaignExit.verdict ? <ButtonDestinations buttons={campaignExit.verdict.buttons} overrides={campaignExit.overrides} /> : null}
+
               <div ref={templateConfirmRef}>
                 <GrainBackground
                   palette={"alert"}
@@ -2193,6 +2235,15 @@ export default function CreateWhatsAppCampaignForm({
         </ElevatedContainer>
       </div>
 
+      {contentLocked ? null : (
+        <CampaignExitSection
+          exit={campaignExit}
+          templateName={selectedTemplate?.name ?? ""}
+          onUseAnotherTemplate={() => setValue("templateId", "", { shouldDirty: true })}
+          numbers={phoneNumbersSnapshot.map((pn) => pn.number)}
+        />
+      )}
+
       {contentLocked ? (
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
           <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">
@@ -2202,11 +2253,11 @@ export default function CreateWhatsAppCampaignForm({
         </ElevatedContainer>
       ) : (
       <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
             {t("contacts.title")}
           </h2>
-          <div className="flex items-center gap-2" data-tour="wc-csv-buttons">
+          <div className="flex flex-wrap items-center gap-2" data-tour="wc-csv-buttons">
             <input
               ref={fileInputRef}
               type="file"
@@ -2257,13 +2308,13 @@ export default function CreateWhatsAppCampaignForm({
         )}
 
         {csvError && (
-          <div className="mb-4 rounded-lg border border-border bg-muted p-3">
-            <p className="text-sm text-destructive-ink">{csvError}</p>
-          </div>
+          <Notice tone="fault" className="mb-4">
+            {csvError}
+          </Notice>
         )}
 
         {skippedLines.length > 0 && (
-          <div className="mb-4 rounded-[--radius] border border-border bg-muted px-4 py-3">
+          <Notice tone="warning" className="mb-4">
             <button
               type="button"
               className="flex w-full items-center gap-2 text-left"
@@ -2272,15 +2323,11 @@ export default function CreateWhatsAppCampaignForm({
                 setSkippedPage(0);
               }}
             >
-              <Warning
-                className="h-5 w-5 flex-shrink-0 text-warning-ink"
-                weight="bold"
-              />
-              <span className="flex-1 text-sm font-semibold text-warning-ink">
+              <span className="flex-1 text-sm font-semibold text-foreground">
                 {t("csv.skippedTitle", { count: skippedLines.length })}
               </span>
               <CaretDown
-                className={`h-4 w-4 text-warning-ink transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${skippedLinesOpen ? "rotate-180" : ""}`}
                 weight="bold"
               />
             </button>
@@ -2295,17 +2342,17 @@ export default function CreateWhatsAppCampaignForm({
                   start + SKIPPED_PAGE_SIZE,
                 );
                 return (
-                  <div className="mt-3">
+                  <div>
                     <div className="max-h-60 space-y-1.5 overflow-y-auto">
                       {pageItems.map((sl) => (
                         <div
                           key={sl.line}
-                          className="rounded-lg bg-warning px-3 py-2 text-xs text-warning-foreground"
+                          className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground"
                         >
                           <span className="font-semibold">
                             {t("csv.skippedLineLabel", { line: sl.line })}
                           </span>{" "}
-                          <span className="break-all font-mono text-warning-ink">
+                          <span className="break-all font-mono text-muted-foreground">
                             {sl.rawContent}
                           </span>
                         </div>
@@ -2313,7 +2360,7 @@ export default function CreateWhatsAppCampaignForm({
                     </div>
                     {totalPages > 1 && (
                       <div className="mt-2 flex items-center justify-between">
-                        <span className="text-xs text-warning-ink">
+                        <span className="text-xs text-muted-foreground">
                           {start + 1} →{" "}
                           {Math.min(
                             start + SKIPPED_PAGE_SIZE,
@@ -2326,18 +2373,18 @@ export default function CreateWhatsAppCampaignForm({
                             type="button"
                             disabled={skippedPage === 0}
                             onClick={() => setSkippedPage((p) => p - 1)}
-                            className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
+                            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40"
                           >
                             <CaretLeft className="h-4 w-4" weight="bold" />
                           </button>
-                          <span className="text-xs text-warning-ink">
+                          <span className="text-xs text-muted-foreground">
                             {skippedPage + 1} / {totalPages.toLocaleString()}
                           </span>
                           <button
                             type="button"
                             disabled={skippedPage >= totalPages - 1}
                             onClick={() => setSkippedPage((p) => p + 1)}
-                            className="rounded p-1 text-warning-ink hover:bg-muted disabled:opacity-40"
+                            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40"
                           >
                             <CaretRight className="h-4 w-4" weight="bold" />
                           </button>
@@ -2347,338 +2394,156 @@ export default function CreateWhatsAppCampaignForm({
                   </div>
                 );
               })()}
-          </div>
+          </Notice>
         )}
 
         {missingVariablesCount > 0 && (
-            <div className="mb-4 rounded-lg border border-border bg-muted p-4"data-tour="wc-missing-vars">
-              <div className="flex items-start gap-3">
-                <Warning
-                  className="h-5 w-5 text-warning-ink flex-shrink-0 mt-0.5"
-                  weight="bold"
-                />
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-warning-ink">
-                    {t("validation.missingVariablesTitle")}
-                  </h4>
-                  <p className="text-sm text-warning-ink mt-1">
-                    {t("validation.missingVariablesDescription", {
-                      count: missingVariablesCount,
-                    })}
-                  </p>
-                  <ul className="mt-2 space-y-1.5 text-sm text-warning-ink">
-                    {missingReport.variables.map((missing) => (
-                      <li key={`${missing.variable.source}:${missing.variable.key}`}>
-                        <span className="font-mono font-semibold">{missing.variable.key}</span>
-                        {missing.variable.label !== missing.variable.key ? ` (${missing.variable.label})` : ""}
-                        {" · "}
-                        {t("validation.missingVariableLine", {
-                          owner: describeMissing(missing).owner,
-                          count: missing.contacts,
-                        })}
-                        {missing.suggestion ? (
-                          <span className="block text-xs">
-                            {t("validation.missingVariableSuggestion", {
-                              column: missing.suggestion,
-                              key: missing.variable.key,
-                            })}
-                          </span>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowOnlyMissingVars(true);
-                      setCurrentPage(0);
-                    }}
-                    className="mt-2 text-sm font-medium text-warning-ink hover:text-warning-ink underline"
-                  >
-                    {t("validation.showMissingVariables")}
-                  </button>
-                </div>
-              </div>
+            <div className="mb-4" data-tour="wc-missing-vars">
+              <Notice tone="warning" title={t("validation.missingVariablesTitle")}>
+                <ul className="space-y-1.5 text-foreground">
+                  {missingReport.variables.map((missing) => (
+                    <li key={`${missing.variable.source}:${missing.variable.key}`}>
+                      <span className="font-mono font-semibold">{missing.variable.key}</span>
+                      {missing.variable.label !== missing.variable.key ? ` (${missing.variable.label})` : ""}
+                      {" · "}
+                      {t("validation.missingVariableLine", {
+                        owner: describeMissing(missing).owner,
+                        count: missing.contacts,
+                      })}
+                      {missing.suggestion ? (
+                        <span className="block text-xs">
+                          {t("validation.missingVariableSuggestion", {
+                            column: missing.suggestion,
+                            key: missing.variable.key,
+                          })}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setContactView(onlyMissingView)}
+                  className="text-xs font-medium text-foreground underline hover:text-muted-foreground"
+                >
+                  {t("validation.showMissingVariables")}
+                </button>
+              </Notice>
             </div>
           )}
 
-        <div className="mb-4 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <MagnifyingGlass
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-              weight="bold"
+        <CampaignContactList<ContactRow>
+          rows={contactRows}
+          rowKey={(row) => row.id}
+          number={({ originalIndex }) => (
+            <div>
+              <ElevatedInput
+                aria-label={tContactList("number")}
+                {...register(`phoneNumbers.${originalIndex}.number`)}
+                controlSize="sm"
+                placeholder="558499999999"
+              />
+              <FieldError message={errors.phoneNumbers?.[originalIndex]?.number?.message} />
+            </div>
+          )}
+          name={({ originalIndex }) => (
+            <div>
+              <ElevatedInput
+                aria-label={tContactList("name")}
+                {...register(`phoneNumbers.${originalIndex}.name`)}
+                controlSize="sm"
+                placeholder={t("contacts.namePlaceholder")}
+              />
+              <FieldError message={errors.phoneNumbers?.[originalIndex]?.name?.message} />
+            </div>
+          )}
+          valueColumns={contactValueColumns}
+          searchable={searchableContact}
+          missing={
+            requiredVariables.length > 0
+              ? { count: missingVariablesCount, isMissing: isContactMissing }
+              : undefined
+          }
+          view={contactView}
+          onViewChange={setContactView}
+          actions={
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              title={t("contacts.metadataFields")}
+              icon={<Tag className="h-4 w-4" weight="bold" />}
+              iconVisible
+              iconSide="left"
+              aria-expanded={metadataEditorOpen}
+              data-tour="wc-metadata"
+              onClick={() => setMetadataEditorOpen((open) => !open)}
             />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(0);
-              }}
-              placeholder={t("contacts.searchPlaceholder")}
-              className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-healthy focus:border-transparent"
-            />
-            {searchQuery && (
+          }
+          panel={
+            metadataEditorOpen ? (
+              <div className="flex w-full flex-wrap items-center gap-2">
+                {metadataFields.map((field) => (
+                  <span
+                    key={field.key}
+                    className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground"
+                  >
+                    {field.required ? `${field.label} *` : field.label}
+                    {field.required ? null : (
+                      <button
+                        type="button"
+                        aria-label={t("contacts.removeMetadataField", { label: field.label })}
+                        onClick={() => removeMetadataField(field.key)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" weight="bold" />
+                      </button>
+                    )}
+                  </span>
+                ))}
+                <div className="flex min-w-0 flex-1 basis-64 items-center gap-2">
+                  <ElevatedInput
+                    aria-label={t("contacts.newMetadataField")}
+                    placeholder={t("contacts.metadataFieldPlaceholder")}
+                    value={newFieldKey}
+                    onChange={(e) => setNewFieldKey(e.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      addMetadataField();
+                    }}
+                    controlSize="sm"
+                    className="min-w-0 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    title={t("contacts.addField")}
+                    icon={<Plus className="h-4 w-4" weight="bold" />}
+                    iconVisible
+                    iconSide="left"
+                    onClick={addMetadataField}
+                    disabled={!newFieldKey}
+                  />
+                </div>
+              </div>
+            ) : null
+          }
+          renderRowActions={({ originalIndex }) =>
+            fields.length > 1 ? (
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
+                aria-label={t("contacts.removeContact")}
+                title={t("contacts.removeContact")}
+                onClick={() => remove(originalIndex)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive-ink transition-colors hover:bg-muted"
               >
-                <X className="h-4 w-4" weight="bold" />
+                <Trash className="h-4 w-4" weight="bold" />
               </button>
-            )}
-          </div>
-
-          {(templateVariables.length > 0 ||
-            requiredCampaignVars.length > 0) && (
-            <button
-              type="button"
-              onClick={() => {
-                setShowOnlyMissingVars(!showOnlyMissingVars);
-                setCurrentPage(0);
-              }}
-              className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                showOnlyMissingVars
-                  ? "bg-warning border-warning text-warning-foreground"
-                  : "bg-card border-border text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              <Warning
-                className="h-4 w-4"
-                weight={showOnlyMissingVars ? "fill" : "bold"}
-              />
-              {t("contacts.filterMissingVars")}
-              {missingVariablesCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-muted text-warning-ink">
-                  {missingVariablesCount}
-                </span>
-              )}
-            </button>
-          )}
-        </div>
-
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {t("contacts.total")}: <strong>{fields.length}</strong>
-            {(searchQuery || showOnlyMissingVars) && (
-              <span className="ml-2 text-muted-foreground">
-                ({t("contacts.showing")} {filteredFields.length})
-              </span>
-            )}
-          </p>
-          {(searchQuery || showOnlyMissingVars) && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setShowOnlyMissingVars(false);
-                setCurrentPage(0);
-              }}
-              className="text-sm text-healthy-ink hover:text-healthy-ink font-medium"
-            >
-              {t("contacts.clearFilters")}
-            </button>
-          )}
-        </div>
-
-        {metadataFields.length > 0 && (
-          <div className="mb-4 space-y-2" data-tour="wc-metadata">
-            <h3 className="text-sm font-semibold text-foreground">
-              {t("contacts.metadataFields")}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {metadataFields.map((field) => (
-                <div
-                  key={field.key}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
-                    field.required ? "bg-muted" : "bg-muted"
-                  }`}
-                >
-                  <span
-                    className={`text-sm ${field.required ? "text-warning-ink font-medium" : "text-healthy-ink"}`}
-                  >
-                    {field.label}
-                    {field.required ? " *" : ""}
-                  </span>
-                  {!field.required && (
-                    <button
-                      type="button"
-                      onClick={() => removeMetadataField(field.key)}
-                      className="text-healthy-ink hover:text-healthy-ink"
-                    >
-                      <X className="h-3 w-3" weight="bold" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mb-4 flex items-center gap-2">
-          <ElevatedInput
-            label={t("contacts.newMetadataField")}
-            value={newFieldKey}
-            onChange={(e) => setNewFieldKey(e.target.value)}
-            controlSize="sm"
-            placeholder={t("contacts.metadataFieldPlaceholder")}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            title={t("contacts.addField")}
-            icon={<Plus className="h-4 w-4" weight="bold" />}
-            iconVisible
-            onClick={addMetadataField}
-            disabled={!newFieldKey}
-          />
-        </div>
-
-        <div className="space-y-3">
-          {paginatedFields.map(({ field, originalIndex }, index) => {
-            const hasVariables = templateVariables.length > 0;
-            const hasMetadata = metadataFields.length > 0;
-            const isMissingVars =
-              (hasVariables || requiredCampaignVars.length > 0) &&
-              hasMissingVariables(phoneNumbersSnapshot[originalIndex] || {});
-
-            const numberSpan =
-              hasVariables || hasMetadata ? "col-span-3" : "col-span-5";
-            const nameSpan =
-              hasVariables || hasMetadata ? "col-span-2" : "col-span-6";
-            const variablesSpan = hasVariables
-              ? hasMetadata
-                ? "col-span-3"
-                : "col-span-6"
-              : "";
-            const metadataSpan = hasMetadata
-              ? hasVariables
-                ? "col-span-3"
-                : "col-span-4"
-              : "";
-
-            return (
-              <div
-                key={field.id}
-                className={`grid grid-cols-12 gap-3 items-start rounded-lg p-2 -mx-2 ${
-                  isMissingVars
-                    ? "bg-muted border border-border"
-                    : ""
-                }`}
-              >
-                <div className={numberSpan}>
-                  <ElevatedInput
-                    label={index === 0 ? t("contacts.number") : undefined}
-                    {...register(`phoneNumbers.${originalIndex}.number`)}
-                    controlSize="sm"
-                    placeholder="558499999999"
-                  />
-                  <FieldError
-                    message={
-                      errors.phoneNumbers?.[originalIndex]?.number?.message
-                    }
-                  />
-                </div>
-                <div className={nameSpan}>
-                  <ElevatedInput
-                    label={index === 0 ? t("contacts.name") : undefined}
-                    {...register(`phoneNumbers.${originalIndex}.name`)}
-                    controlSize="sm"
-                    placeholder={t("contacts.namePlaceholder")}
-                  />
-                  <FieldError
-                    message={
-                      errors.phoneNumbers?.[originalIndex]?.name?.message
-                    }
-                  />
-                </div>
-                {hasVariables && (
-                  <div className={variablesSpan}>
-                    <div className="flex gap-2">
-                      {templateVariables.map((varPlaceholder, varIdx) => (
-                        <div key={`var-${varIdx}`} className="flex-1">
-                          <ElevatedInput
-                            label={index === 0 ? varPlaceholder : undefined}
-                            {...register(
-                              `phoneNumbers.${originalIndex}.variables.${varIdx}`,
-                            )}
-                            controlSize="sm"
-                            placeholder={varPlaceholder}
-                          />
-                          <FieldError
-                            message={
-                              errors.phoneNumbers?.[originalIndex]
-                                ?.variables?.[varIdx]?.message
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {hasMetadata && (
-                  <div className={metadataSpan}>
-                    <div className="flex gap-2">
-                      {metadataFields.map((metaField) => (
-                        <ElevatedInput
-                          key={metaField.key}
-                          label={index === 0 ? metaField.label : undefined}
-                          {...register(
-                            `phoneNumbers.${originalIndex}.metadata.${metaField.key}`,
-                          )}
-                          controlSize="sm"
-                          placeholder={metaField.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="col-span-1 flex items-end justify-end">
-                  {fields.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => remove(originalIndex)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive-ink transition-colors hover:bg-muted"
-                    >
-                      <Trash className="h-4 w-4" weight="bold" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
-              disabled={currentPage === 0}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CaretLeft className="h-4 w-4" weight="bold" />
-              {t("contacts.previous")}
-            </button>
-            <span className="text-sm text-muted-foreground">
-              {t("contacts.page", {
-                current: currentPage + 1,
-                total: totalPages,
-              })}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                setCurrentPage((p) => Math.min(totalPages - 1, p + 1))
-              }
-              disabled={currentPage === totalPages - 1}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t("contacts.next")}
-              <CaretRight className="h-4 w-4" weight="bold" />
-            </button>
-          </div>
-        )}
+            ) : null
+          }
+        />
       </ElevatedContainer>
       )}
 
@@ -2690,7 +2555,7 @@ export default function CreateWhatsAppCampaignForm({
           type="submit"
           variant="primary"
           title={mode === "edit" ? t("actions.update") : t("actions.create")}
-          disabled={isSubmitting}
+          disabled={isSubmitting || campaignExit.blocks || smartPolicy.blocks}
         />
       </div>
 

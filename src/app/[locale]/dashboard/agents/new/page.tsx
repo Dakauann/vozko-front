@@ -1,12 +1,9 @@
 "use client";
 
-import { CaretRight, GraduationCap, Robot, Wrench } from "@/components/icons";
-import { type AgentEditMode, recallCreateMode } from "@/lib/agents/edit-mode";
-import { useEffect, useState } from "react";
-
+import { AgentModeChooser } from "@/components/agents/AgentModeChooser";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Robot } from "@/components/icons";
+import { useCreateModeLead } from "@/lib/agents/edit-mode";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -14,6 +11,7 @@ export default function NewAgentPage() {
   const router = useRouter();
   const t = useTranslations("agents.new");
   const tChooser = useTranslations("agents.new.chooser");
+  const lead = useCreateModeLead();
 
   return (
     <main className="w-full space-y-6">
@@ -27,115 +25,27 @@ export default function NewAgentPage() {
         title={t("title")}
         description={tChooser("description")}
       />
-      <ModeList />
+      <AgentModeChooser
+        legend={tChooser("legend")}
+        lead={lead}
+        leadLabels={{ remembered: tChooser("lastUsed"), suggested: tChooser("suggested") }}
+        options={[
+          {
+            mode: "beginner",
+            title: tChooser("beginner.title"),
+            description: tChooser("beginner.description"),
+            cta: tChooser("beginner.cta"),
+            href: "/dashboard/agents/new/beginner",
+          },
+          {
+            mode: "professional",
+            title: tChooser("professional.title"),
+            description: tChooser("professional.description"),
+            cta: tChooser("professional.cta"),
+            href: "/dashboard/agents/new/professional",
+          },
+        ]}
+      />
     </main>
-  );
-}
-
-function ModeList() {
-  const tChooser = useTranslations("agents.new.chooser");
-
-  const [lead, setLead] = useState<{
-    mode: AgentEditMode;
-    remembered: boolean;
-  } | null>(null);
-
-  useEffect(() => {
-    const remembered = recallCreateMode();
-    setLead(
-      remembered
-        ? { mode: remembered, remembered: true }
-        :
-          { mode: "beginner", remembered: false },
-    );
-  }, []);
-
-  const modes: {
-    mode: AgentEditMode;
-    title: string;
-    description: string;
-    icon: React.ReactNode;
-    tile: string;
-  }[] = [
-    {
-      mode: "beginner",
-      title: tChooser("beginner.title"),
-      description: tChooser("beginner.description"),
-      icon: <GraduationCap className="h-5 w-5" weight="bold" />,
-      tile: "tile-info",
-    },
-    {
-      mode: "professional",
-      title: tChooser("professional.title"),
-      description: tChooser("professional.description"),
-      icon: <Wrench className="h-5 w-5" weight="bold" />,
-      tile: "tile-brand",
-    },
-  ];
-
-  const ordered = lead
-    ? [...modes].sort((a, b) =>
-        a.mode === lead.mode ? -1 : b.mode === lead.mode ? 1 : 0,
-      )
-    : modes;
-
-  return (
-    <section aria-label={tChooser("legend")} className="mx-auto w-full max-w-2xl">
-      <h2 className="legend mb-2">{tChooser("legend")}</h2>
-      <ul className="flex flex-col gap-3">
-        {ordered.map(({ mode, title, description, icon, tile }) => {
-          const isLead = lead?.mode === mode;
-          return (
-            <li key={mode}>
-              <Link
-                href={`/dashboard/agents/new/${mode}`}
-                className={cn(
-                  "group flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm transition-all duration-DEFAULT",
-                  "hover:-translate-y-px hover:shadow motion-reduce:transform-none",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  "max-sm:min-h-[34px] sm:p-5",
-                  isLead ? "border-border-strong" : "border-border",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-[--radius] shadow-sm",
-                    tile,
-                  )}
-                >
-                  {icon}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        "text-sm text-foreground",
-                        isLead ? "font-semibold" : "font-medium",
-                      )}
-                    >
-                      {title}
-                    </span>
-                    {isLead && lead ? (
-                      <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-primary-ink">
-                        {lead.remembered
-                          ? tChooser("lastUsed")
-                          : tChooser("suggested")}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="mt-0.5 block text-sm text-muted-foreground">
-                    {description}
-                  </span>
-                </span>
-                <CaretRight
-                  className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-DEFAULT group-hover:translate-x-0.5 motion-reduce:transform-none"
-                  weight="bold"
-                />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }

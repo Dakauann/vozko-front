@@ -13,6 +13,8 @@ export type ResourceType =
     | "conversations"
     | "media"
     | "leads"
+    | "lead_companies"
+    | "customer_portfolios"
     | "analysis"
     | "sip_trunks"
     | "call_queues"
@@ -42,6 +44,7 @@ export type ResourceType =
     | "webchat_widgets"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
+    | "unofficial_whatsapp_groups"
     | "mcp"
     | "knowledge_bases"
     | "calendar"
@@ -71,7 +74,9 @@ export type ResourceAction =
     | "configure"
     | "anonymize"
     | "export"
-    | "bulk_update";
+    | "bulk_update"
+    | "manage"
+    | "consent";
 
 export interface Workspace {
     id: string;

@@ -13,6 +13,7 @@ import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
+import { Notice } from "@/components/ui/notice";
 import type { AffiliateReferral, PaginationMeta } from "@/lib/affiliate/types";
 
 const PAGE_SIZE = 15;
@@ -106,11 +107,7 @@ export default function AffiliateReferralsPage() {
         description={headerT("referrals.headerDescription")}
       />
 
-      {error ? (
-        <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
-          {error}
-        </div>
-      ) : null}
+      {error ? <Notice tone="fault">{error}</Notice> : null}
 
       {loading && rows.length === 0 ? (
         <ScreenLoader fit="fill" className="min-h-[30vh]" />

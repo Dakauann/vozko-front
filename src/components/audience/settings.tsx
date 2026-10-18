@@ -26,6 +26,7 @@ import { MAX_INSTRUCTIONS_LENGTH, SELECTABLE_REPLY_MODES, VERTICALS } from "@/li
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -140,6 +141,7 @@ export function CommentAnalysisSettingsPanel({
             disabled={saving}
             onCheckedChange={(checked: boolean) => void patch({ enabled: checked })}
             aria-label={t("switch.title")}
+            explainer={<ExplainerHint id="social.commentAnalysis" align="end" />}
           />
         }
       >

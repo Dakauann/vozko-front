@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Warning } from "@/components/icons";
+import { ArrowLeft } from "@/components/icons";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -14,6 +14,7 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { DepartmentAssignmentCard } from "@/components/dashboard/DepartmentAssignmentCard";
 import Link from "next/link";
+import { Notice } from "@/components/ui/notice";
 import { WebchatAutomationPanel } from "@/components/webchat/webchat-automation-panel";
 import { WebchatLogoColor } from "@/components/icons/channel-logos";
 import { WebchatStatusChip } from "@/components/webchat/webchat-status-chip";
@@ -101,10 +102,7 @@ export default function WebchatWidgetPage() {
 
   if (error || !widget) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-4 py-3 text-sm text-destructive-ink">
-        <Warning className="h-4 w-4" />
-        {error ?? t("detail.notFound")}
-      </div>
+      <Notice tone="fault">{error ?? t("detail.notFound")}</Notice>
     );
   }
 

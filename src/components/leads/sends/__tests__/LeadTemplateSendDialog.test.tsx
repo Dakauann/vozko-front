@@ -31,6 +31,10 @@ vi.mock("@/app/actions/whatsapp-templates", () => ({
   listWhatsAppTemplatesAction: (...args: unknown[]) => listWhatsAppTemplatesAction(...args),
 }));
 vi.mock("@/app/actions/whatsapp-outreach", () => ({ quoteTemplateSendAction: async () => ({ quote: null }) }));
+const getTemplateExitVerdictAction = vi.fn();
+vi.mock("@/app/actions/template-exit", () => ({
+  getTemplateExitVerdictAction: (...args: unknown[]) => getTemplateExitVerdictAction(...args),
+}));
 vi.mock("@/app/actions/whatsapp-business-phones", () => ({
   listBusinessPhonesAction: (...args: unknown[]) => listBusinessPhonesAction(...args),
 }));
@@ -92,6 +96,16 @@ const HEADER_TEMPLATE = {
   components: [{ type: "HEADER", format: "TEXT", text: "Oi {{1}}" }, { type: "BODY", text: "Olá {{1}}." }],
 };
 
+const EXIT_OK = {
+  state: "ok",
+  buttons: [],
+  exitWords: ["parar"],
+  templateExitRequired: false,
+  campaignAcknowledgementRequired: false,
+};
+
+const EXIT_NONE = { ...EXIT_OK, state: "none", exitWords: [], campaignAcknowledgementRequired: true };
+
 const QUOTE = {
   count: 12,
   parts: 1,
@@ -138,6 +152,7 @@ async function chooseTemplate(name: string) {
 async function reachReview() {
   renderDialog();
   await chooseTemplate(TEMPLATE.name);
+  await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
   fireEvent.change(screen.getByRole("textbox", { name: t.bindings.literalValue.replace("{slot}", "{{2}}") }), { target: { value: "Norte" } });
   await waitFor(() => expect(screen.getByRole("button", { name: t.actions.review })).toBeEnabled());
@@ -166,6 +181,47 @@ describe("LeadTemplateSendDialog", () => {
     startLeadActionAction.mockResolvedValue({ data: { action: "send_template", send: REVIEW }, error: null });
     startLeadSendAction.mockResolvedValue({ data: { ...REVIEW, started: true, parts: [{ ...REVIEW.parts[0], status: "RUNNING" }] }, error: null });
     cancelLeadSendAction.mockResolvedValue({ data: { cancelled: true }, error: null });
+    getTemplateExitVerdictAction.mockResolvedValue({ data: EXIT_OK });
+  });
+
+  it("sends a template with an exit without any acknowledgement", async () => {
+    await reachReview();
+    expect(getTemplateExitVerdictAction).toHaveBeenCalledWith("tpl-1", undefined);
+    expect(startLeadActionAction.mock.calls[0][0].params.send).not.toHaveProperty("exitRiskAcknowledged");
+  });
+
+  it("asks for the risk acknowledgement before sending a template with no exit and carries it", async () => {
+    getTemplateExitVerdictAction.mockResolvedValue({ data: EXIT_NONE });
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    const acknowledge = await screen.findByRole("checkbox", { name: ptMessages.templateExit.risk.confirm });
+    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+    fireEvent.click(acknowledge);
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
+    fireEvent.change(screen.getByRole("textbox", { name: t.bindings.literalValue.replace("{slot}", "{{2}}") }), { target: { value: "Norte" } });
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.review })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: t.actions.review }));
+    await screen.findByText(t.review.stopped);
+    expect(startLeadActionAction.mock.calls[0][0].params.send).toMatchObject({ templateId: "tpl-1", exitRiskAcknowledged: true });
+  });
+
+  it("waits for the template exit check before letting the person go on", async () => {
+    getTemplateExitVerdictAction.mockReturnValue(new Promise(() => undefined));
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    expect(await screen.findByText(ptMessages.templateExit.verdict.loading)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+  });
+
+  it("blocks when the template exit could not be checked and lets the person check again", async () => {
+    getTemplateExitVerdictAction.mockResolvedValueOnce({ error: "down", status: 503 }).mockResolvedValue({ data: EXIT_OK });
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    expect(await screen.findByText(ptMessages.templateExit.verdict.failed)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.templateExit.verdict.retry }));
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
   });
 
   it("binds the variables to lead fields and prepares a stopped send with the dialog's key", async () => {
@@ -342,6 +398,7 @@ describe("LeadTemplateSendDialog", () => {
     startLeadActionAction.mockResolvedValue({ data: null, error: { status: 400, code: "send_department_required" } });
     renderDialog();
     await chooseTemplate(TEMPLATE.name);
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
     fireEvent.change(screen.getByRole("textbox", { name: t.bindings.literalValue.replace("{slot}", "{{2}}") }), { target: { value: "Norte" } });
     await waitFor(() => expect(screen.getByRole("button", { name: t.actions.review })).toBeEnabled());

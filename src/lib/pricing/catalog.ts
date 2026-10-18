@@ -224,8 +224,6 @@ export function resetDraftToDefault(
 }
 
 export const PRICING_CATEGORY_ORDER = [
-  "tts",
-  "stt",
   "llm",
   "whatsapp",
   "telephony",

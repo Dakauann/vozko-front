@@ -26,7 +26,6 @@ import {
   UserGear,
   UserMinus,
   Users,
-  Warning,
   X,
 } from "@/components/icons";
 import type {
@@ -46,6 +45,7 @@ import {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { UnassignedMembersNotice } from "@/components/departments/unassigned-members-notice";
+import { Notice } from "@/components/ui/notice";
 import { membersWithoutDepartment } from "@/lib/department/coverage";
 import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
 import { memberActivitySubject, type MemberActivitySubject } from "@/lib/attendance/member-activity";
@@ -567,11 +567,7 @@ function MembersTab({
         </div>
       </ElevatedContainer>
 
-      {error && (
-        <ElevatedContainer className="!bg-muted !border-border !p-3">
-          <p className="text-sm text-destructive-ink">{error}</p>
-        </ElevatedContainer>
-      )}
+      {error && <Notice tone="fault">{error}</Notice>}
 
       {filteredMembers.length === 0 ? (
         <ElevatedContainer className="!border-dashed !bg-muted !p-10 text-center">
@@ -748,20 +744,9 @@ function MembersTab({
             </div>
           )}
 
-          <div className="flex gap-3 rounded-[--radius] border border-border bg-muted p-3.5">
-            <Warning
-              className="mt-0.5 h-5 w-5 shrink-0 text-warning-ink"
-              weight="fill"
-            />
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
-                {t("removeMemberDepartmentsTitle")}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {t("removeMemberDepartmentsBody")}
-              </p>
-            </div>
-          </div>
+          <Notice tone="warning" title={t("removeMemberDepartmentsTitle")}>
+            {t("removeMemberDepartmentsBody")}
+          </Notice>
 
           <ElevatedDialogDescription>
             {t("removeMemberIrreversible")}
@@ -963,15 +948,9 @@ function InvitesTab({
 
                   {}
                   {selectedValue === "admin" && (
-                    <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-                      <Shield
-                        className="h-4 w-4 text-primary-ink mt-0.5 flex-shrink-0"
-                        weight="fill"
-                      />
-                      <p className="text-2xs text-primary-ink leading-relaxed">
-                        {t("adminRoleHint")}
-                      </p>
-                    </div>
+                    <Notice tone="brand" icon={<Shield weight="fill" />}>
+                      {t("adminRoleHint")}
+                    </Notice>
                   )}
 
                   {}
@@ -1038,17 +1017,7 @@ function InvitesTab({
                     </div>
                   )}
 
-                  {error && (
-                    <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-                      <X
-                        className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
-                        weight="bold"
-                      />
-                      <p className="text-xs text-destructive-ink">
-                        {error}
-                      </p>
-                    </div>
-                  )}
+                  {error && <Notice tone="fault">{error}</Notice>}
 
                   {}
                   <div className="flex items-center justify-between pt-1">
@@ -1490,35 +1459,22 @@ function PermissionsTab({
           </div>
         </div>
 
-        {error && (
-          <ElevatedContainer className="!bg-muted !border-border !p-3">
-            <p className="text-sm text-destructive-ink">{error}</p>
-          </ElevatedContainer>
-        )}
+        {error && <Notice tone="fault">{error}</Notice>}
 
         {!showAssignments ? (
           <>
             {selectedMember.role === "owner" ||
             selectedMember.role === "admin" ? (
               <div className="space-y-4">
-                <ElevatedContainer className="!bg-muted !border-border !p-4">
-                  <div className="flex items-start gap-3">
-                    <Shield
-                      className="h-5 w-5 text-primary-ink mt-0.5 flex-shrink-0"
-                      weight="fill"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-primary-ink">
-                        {t("fullAccessTitle")}
-                      </p>
-                      <p className="text-xs text-primary-ink/80 mt-1 leading-relaxed">
-                        {t("fullAccessDescription", {
-                          role: t(`roles.${selectedMember.role}`),
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                </ElevatedContainer>
+                <Notice
+                  tone="brand"
+                  icon={<Shield weight="fill" />}
+                  title={t("fullAccessTitle")}
+                >
+                  {t("fullAccessDescription", {
+                    role: t(`roles.${selectedMember.role}`),
+                  })}
+                </Notice>
 
                 {isLoadingPerms ? (
                   <ScreenLoader fit="fill" />
@@ -2011,15 +1967,7 @@ function RolesTab({
         </div>
       )}
 
-      {error && (
-        <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-          <X
-            className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
-            weight="bold"
-          />
-          <p className="text-xs text-destructive-ink">{error}</p>
-        </div>
-      )}
+      {error && <Notice tone="fault">{error}</Notice>}
     </div>
   );
 }
@@ -2823,15 +2771,7 @@ function DepartmentsTab({
         </div>
       )}
 
-      {error && (
-        <div className="flex items-start gap-2 rounded-[--radius] bg-muted border border-border px-3 py-2.5">
-          <X
-            className="h-4 w-4 text-destructive-ink dark:text-destructive-ink mt-0.5 flex-shrink-0"
-            weight="bold"
-          />
-          <p className="text-xs text-destructive-ink">{error}</p>
-        </div>
-      )}
+      {error && <Notice tone="fault">{error}</Notice>}
     </div>
   );
 }

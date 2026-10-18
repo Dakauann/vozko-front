@@ -4,6 +4,7 @@ import { useCallback, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import {
+  ArrowCounterClockwise,
   ChatText,
   DotsThree,
   DownloadSimple,
@@ -37,10 +38,11 @@ const ICONS: Record<LeadBulkAction, ReactNode> = {
   export: <DownloadSimple className={ICON} aria-hidden />,
   meta_audience: <Target className={ICON} aria-hidden />,
   block: <Prohibit className={ICON} aria-hidden />,
+  restore_opt_out: <ArrowCounterClockwise className={ICON} aria-hidden />,
 };
 
 const BAR: readonly LeadBulkAction[] = ["send_template", "send_message", "call_list", "classify", "assign_owner"];
-const MORE: readonly LeadBulkAction[] = ["export", "meta_audience", "block"];
+const MORE: readonly LeadBulkAction[] = ["export", "meta_audience", "block", "restore_opt_out"];
 const ALL: readonly LeadBulkAction[] = [...BAR, ...MORE];
 
 const RUNNABLE: Partial<Record<LeadBulkAction, LeadActionKind>> = {
@@ -52,6 +54,7 @@ const RUNNABLE: Partial<Record<LeadBulkAction, LeadActionKind>> = {
   export: "export",
   meta_audience: "meta_audience",
   block: "block",
+  restore_opt_out: "restore_opt_out",
 };
 
 function useLeadBulkReason() {

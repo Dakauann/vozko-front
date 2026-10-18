@@ -9,6 +9,7 @@ import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
 import type { FilterMultiSelectOption } from "@/components/filters/filter-multi-select";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAssignableMembers } from "@/hooks/use-assignable-members";
+import { useLeadCompaniesPage } from "@/hooks/use-lead-companies";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
 import { useLeadSection } from "@/hooks/use-lead-section";
 import { readableClassificationField, type CustomFieldDefinition } from "@/lib/crm/custom-fields";
@@ -24,6 +25,7 @@ import type { LeadCityCount, LeadDistrictCount } from "@/lib/leads/sections";
 
 const OPTION_SETS_STALE_MS = 60_000;
 const CAMPAIGN_OPTIONS_LIMIT = 100;
+const COMPANY_OPTIONS_LIMIT = 100;
 
 const CRM_OPTION_SETS = ["campaigns", "stages", "labels"] as const;
 
@@ -62,6 +64,7 @@ export interface LeadFilterOptionSets {
   campaigns: FilterMultiSelectOption[];
   stages: FilterMultiSelectOption[];
   labels: FilterMultiSelectOption[];
+  companies: FilterMultiSelectOption[];
   cities: LeadCityCount[];
   districts: LeadDistrictCount[];
   members: ReadonlyMap<string, string>;
@@ -69,6 +72,7 @@ export interface LeadFilterOptionSets {
   customFields: LeadCustomFilterSpec[];
   classification?: CustomFieldDefinition;
   readsAddresses: boolean;
+  readsCompanies: boolean;
   pending: LeadRuntimeOptions[];
   failed: LeadRuntimeOptions[];
   fieldsFailed: boolean;
@@ -84,6 +88,7 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
   const workspaceId = currentWorkspace?.id ?? "";
   const readsAddresses = can("leads", "read_addresses");
   const readsMembers = can("members", "read");
+  const readsCompanies = can("lead_companies", "read");
 
   const crm = useQuery({
     queryKey: leadFilterOptionsKey(workspaceId),
@@ -94,6 +99,7 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
   });
   const fields = useLeadFieldDefinitions();
   const members = useAssignableMembers(readsMembers);
+  const companyPage = useLeadCompaniesPage({ page: 1, pageSize: COMPANY_OPTIONS_LIMIT }, readsCompanies);
 
   const places = useLeadSection("places", { filter: emptyLeadFilter }, { enabled: true });
   const cityScope = withSet(emptyLeadFilter, LEAD_FILTER_FIELD.city, [...cityKeys]);
@@ -111,8 +117,9 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
     if (places.isPending) out.push("cities");
     if (districtSource.isPending) out.push("districts");
     if (members.pending) out.push("owners");
+    if (readsCompanies && companyPage.isPending) out.push("companies");
     return out;
-  }, [crm.isPending, places.isPending, districtSource.isPending, members.pending]);
+  }, [crm.isPending, places.isPending, districtSource.isPending, members.pending, readsCompanies, companyPage.isPending]);
 
   const failed = useMemo<LeadRuntimeOptions[]>(() => {
     const out: LeadRuntimeOptions[] = [...(crm.data?.failed ?? [])];
@@ -120,30 +127,36 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
     if (places.isError) out.push("cities");
     if (districtSource.isError) out.push("districts");
     if (members.failed) out.push("owners");
+    if (companyPage.isError) out.push("companies");
     return out;
-  }, [crm.data, crm.isError, places.isError, districtSource.isError, members.failed]);
+  }, [crm.data, crm.isError, places.isError, districtSource.isError, members.failed, companyPage.isError]);
 
   const { refetch: refetchCrm } = crm;
   const { refetch: refetchPlaces } = places;
   const { refetch: refetchDistricts } = districtSource;
   const { reload: reloadFields } = fields;
   const { reload: reloadMembers } = members;
+  const { refetch: refetchCompanies } = companyPage;
   const fieldsFailed = fields.failed;
   const retry = useCallback(() => {
     if (failed.some((kind) => CRM_OPTION_SETS.includes(kind as CrmOptionSet))) void refetchCrm();
     if (failed.includes("cities")) void refetchPlaces();
     if (failed.includes("districts")) void refetchDistricts();
     if (failed.includes("owners")) reloadMembers();
+    if (failed.includes("companies")) void refetchCompanies();
     if (fieldsFailed) void reloadFields();
-  }, [failed, fieldsFailed, refetchCrm, refetchPlaces, refetchDistricts, reloadFields, reloadMembers]);
+  }, [failed, fieldsFailed, refetchCrm, refetchPlaces, refetchDistricts, reloadFields, reloadMembers, refetchCompanies]);
 
   const cities = places.data?.cities ?? NO_CITIES;
   const districts = districtSource.data?.districts ?? NO_DISTRICTS;
+  const companyItems = companyPage.data?.items;
+  const companies = useMemo(() => (companyItems ?? []).map((company) => ({ value: company.id, label: company.name })), [companyItems]);
   return useMemo(
     () => ({
       campaigns: crm.data?.campaigns ?? NO_OPTIONS,
       stages: crm.data?.stages ?? NO_OPTIONS,
       labels: crm.data?.labels ?? NO_OPTIONS,
+      companies,
       cities,
       districts,
       members: members.names,
@@ -151,11 +164,12 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
       customFields,
       classification,
       readsAddresses,
+      readsCompanies,
       pending,
       failed,
       fieldsFailed,
       retry,
     }),
-    [crm.data, cities, districts, members.names, definitions, customFields, classification, readsAddresses, pending, failed, fieldsFailed, retry],
+    [crm.data, companies, cities, districts, members.names, definitions, customFields, classification, readsAddresses, readsCompanies, pending, failed, fieldsFailed, retry],
   );
 }

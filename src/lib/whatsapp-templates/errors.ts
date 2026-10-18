@@ -1,5 +1,6 @@
 
 const I18N_PREFIX = "whatsappTemplates.errors";
+const EXIT_I18N_PREFIX = "templateExit.errors";
 
 export const TEMPLATE_ERROR_CODES = [
     "template_unknown_error",
@@ -76,6 +77,13 @@ export const TEMPLATE_ERROR_CODES = [
     "template_send_params_mismatch",
     "template_quote_out_of_range",
 
+    "template_not_editable",
+    "template_edit_category_locked",
+    "template_edit_unsupported",
+    "template_edit_window",
+    "template_in_use",
+    "template_edit_not_owner",
+
     "template_provider_rejected",
     "template_provider_unavailable",
 ] as const;
@@ -92,7 +100,10 @@ const PROVIDER_AUTHORED: ReadonlySet<string> = new Set([
     "template_provider_rejected",
 ]);
 
-type Translator = (key: string, values?: Record<string, string>) => string;
+interface Translator {
+    (key: string, values?: Record<string, string>): string;
+    has: (key: string) => boolean;
+}
 
 export function templateErrorMessage(
     t: Translator,
@@ -107,8 +118,38 @@ export function templateErrorMessage(
     if (isTemplateErrorCode(code)) {
         return t(`${I18N_PREFIX}.${code}`);
     }
+    if (code && t.has(`${EXIT_I18N_PREFIX}.${code}`)) {
+        return t(`${EXIT_I18N_PREFIX}.${code}`);
+    }
     if (trimmed) {
         return trimmed;
     }
     return t(`${I18N_PREFIX}.template_unknown_error`);
+}
+
+export const TEMPLATE_EDIT_WINDOW = "template_edit_window";
+
+export interface TemplateEditRefusal {
+    code?: string;
+    error: string;
+    expected?: Record<string, string>;
+}
+
+function nextEditAt(refusal: TemplateEditRefusal): Date | null {
+    const at = refusal.expected?.nextEditAt;
+    if (!at) return null;
+    const parsed = new Date(at);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export function templateEditErrorMessage(
+    t: Translator,
+    refusal: TemplateEditRefusal,
+    formatWhen: (at: Date) => string,
+): string {
+    const at = refusal.code === TEMPLATE_EDIT_WINDOW ? nextEditAt(refusal) : null;
+    if (at) {
+        return t("whatsappTemplates.contentEdit.windowUntil", { when: formatWhen(at) });
+    }
+    return templateErrorMessage(t, refusal.code, refusal.error);
 }

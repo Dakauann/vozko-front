@@ -20,6 +20,13 @@ describe("StatusChip", () => {
     expect(chip.className).toContain("gap-1");
   });
 
+  it("draws a fault in solid red with its contrasting text", () => {
+    render(<StatusChip tone="fault" label="Falhou" />);
+
+    expect(screen.getByText("Falhou").className).toContain("bg-destructive");
+    expect(screen.getByText("Falhou").className).toContain("text-destructive-foreground");
+  });
+
   it("draws an outlined chip for the outline tone", () => {
     render(<StatusChip tone="outline" label="Aberto" />);
 

@@ -1,3 +1,5 @@
+import type { ButtonActionInput } from './exit';
+
 export type TemplateStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAUSED' | 'DISABLED';
 export type TemplateCategory = 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';
 export type ComponentType = 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CALL_PERMISSION_REQUEST';
@@ -120,10 +122,20 @@ export interface CreateTemplatePayload {
     parameterFormat?: ParameterFormat;
     components: TemplateComponent[];
     headerMediaUrl?: string;
+    buttonActions?: ButtonActionInput[];
+    exitConfirmation?: string;
 }
 
 export interface UpdateHeaderMediaPayload {
     headerMediaUrl: string | null;
+}
+
+export interface EditTemplateContentPayload {
+    category?: TemplateCategory;
+    components: TemplateComponent[];
+    headerMediaUrl?: string;
+    buttonActions?: ButtonActionInput[];
+    exitConfirmation?: string;
 }
 
 

@@ -56,6 +56,7 @@ import ElevatedSelect, {
 } from "@/components/elevated-design/elevated-select";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { Slider } from "@/components/ui/slider";
+import { Notice } from "@/components/ui/notice";
 import { TestNodeSection } from "./test-node-section";
 import { WebhookTriggerConfig } from "./webhook-trigger-config";
 import { VariableCommandInput } from "./variable-command-input";
@@ -98,6 +99,7 @@ import { getWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRulesSummary";
 import { normalizeKeyValueMap } from "@/lib/workflows/key-value";
 import { UpdateLeadFieldKeys } from "./update-lead-config";
+import { TemplateButtonBranchField } from "./template-button-branch";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import type { PipelineObjectType } from "@/lib/crm/pipelines";
 import { listStagesAction } from "@/app/actions/stages";
@@ -555,44 +557,32 @@ export function NodeConfigPanel({
             )}
 
             {isCalendarNode && (
-              <div
-                className={cn(
-                  "rounded-lg border px-3 py-2",
-                  googleCalendarStatus.connected
-                    ? "border-border bg-muted/70 text-healthy-ink"
-                    : "border-warning/30 bg-warning/80 text-warning-foreground",
-                )}
+              <Notice
+                tone={googleCalendarStatus.connected ? "healthy" : "warning"}
+                title="Google Calendar da área de trabalho"
               >
-                <div className="flex items-start gap-2">
-                  <Info size={15} className="mt-0.5 shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium">
-                      Google Calendar da área de trabalho
+                <p>
+                  {googleCalendarStatus.loading
+                    ? "Verificando integração da área de trabalho..."
+                    : googleCalendarStatus.connected
+                      ? `Conectado com ${googleCalendarStatus.email ?? "uma conta Google"}. ${isScheduleMeetingNode ? "Este nó criará eventos nesse calendário." : isRescheduleMeetingNode ? "Este nó reagendará (moverá) eventos nesse calendário." : "Este nó consultará disponibilidade nesse calendário."}`
+                      : "Nenhuma conta Google Calendar conectada nesta área de trabalho. Este nó seguirá pela saída de erro até a integração ser configurada."}
+                </p>
+                {!googleCalendarStatus.loading &&
+                  !googleCalendarStatus.connected && (
+                    <p>
+                      Conecte o Google Calendar na página de Integrações
+                      antes de testar ou publicar este fluxo.
                     </p>
-                    <p className="text-2xs leading-relaxed text-current/80">
-                      {googleCalendarStatus.loading
-                        ? "Verificando integração da área de trabalho..."
-                        : googleCalendarStatus.connected
-                          ? `Conectado com ${googleCalendarStatus.email ?? "uma conta Google"}. ${isScheduleMeetingNode ? "Este nó criará eventos nesse calendário." : isRescheduleMeetingNode ? "Este nó reagendará (moverá) eventos nesse calendário." : "Este nó consultará disponibilidade nesse calendário."}`
-                          : "Nenhuma conta Google Calendar conectada nesta área de trabalho. Este nó seguirá pela saída de erro até a integração ser configurada."}
+                  )}
+                {!googleCalendarStatus.loading &&
+                  googleCalendarStatus.error && (
+                    <p>
+                      Não foi possível confirmar o status agora:{" "}
+                      {googleCalendarStatus.error}
                     </p>
-                    {!googleCalendarStatus.loading &&
-                      !googleCalendarStatus.connected && (
-                        <p className="text-2xs leading-relaxed text-current/70">
-                          Conecte o Google Calendar na página de Integrações
-                          antes de testar ou publicar este fluxo.
-                        </p>
-                      )}
-                    {!googleCalendarStatus.loading &&
-                      googleCalendarStatus.error && (
-                        <p className="text-2xs leading-relaxed text-current/70">
-                          Não foi possível confirmar o status agora:{" "}
-                          {googleCalendarStatus.error}
-                        </p>
-                      )}
-                  </div>
-                </div>
-              </div>
+                  )}
+              </Notice>
             )}
 
             {isWebhookTriggerNode && (
@@ -728,6 +718,15 @@ export function NodeConfigPanel({
               <HandOffRulesSummary workspaceId={workspaceId} />
             )}
 
+            {nodeType === "condition_branch" && (
+              <TemplateButtonBranchField
+                config={config}
+                onApply={({ variable, operator, value }) =>
+                  updateField("variable", variable, { operator, value, _display_operator: undefined })
+                }
+              />
+            )}
+
             {nodeType === "action_update_lead" && (
               <UpdateLeadFieldKeys
                 value={config.custom_fields}
@@ -774,9 +773,9 @@ export function NodeConfigPanel({
             )}
 
             {isTestableNode && !workflowId && (
-              <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-warning-ink">
+              <Notice tone="warning">
                 Salve o workflow primeiro para habilitar o teste de nós.
-              </div>
+              </Notice>
             )}
 
             <AvailableVariablesPanel groups={availableVars} />
@@ -1574,21 +1573,15 @@ function SendTemplateConfigSection({
           )}
       </div>
 
-      <div className="rounded-lg border border-border bg-muted px-3 py-2 text-info-ink">
-        <div className="flex items-start gap-2">
-          <Info size={15} className="mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="text-xs font-medium">Cobrança e simulação</p>
-            <p className="text-2xs leading-relaxed text-current/80">
-              Execuções reais debitam o saldo conforme a categoria do template.
-              Se a API do WhatsApp rejeitar o envio, o valor é estornado.
-            </p>
-            <p className="text-2xs leading-relaxed text-current/70">
-              Na simulação do fluxo, este nó é executado em modo não faturado.
-            </p>
-          </div>
-        </div>
-      </div>
+      <Notice tone="info" title="Cobrança e simulação">
+        <p>
+          Execuções reais debitam o saldo conforme a categoria do template.
+          Se a API do WhatsApp rejeitar o envio, o valor é estornado.
+        </p>
+        <p>
+          Na simulação do fluxo, este nó é executado em modo não faturado.
+        </p>
+      </Notice>
 
       {selectedTemplate && selectedTemplate.usabilityStatus !== "ready" && (
         <p className="text-2xs text-warning-ink">
@@ -2081,13 +2074,10 @@ function AIAgentSection({
                     className={cn(
                       "inline-flex items-center rounded px-1.5 py-0.5 text-2xs font-medium",
                       v.required
-                        ? "bg-muted text-warning-ink"
+                        ? "bg-muted text-foreground"
                         : "bg-muted text-muted-foreground",
                     )}
-                    title={[
-                      v.usedIn?.messagingPrompt && "messaging prompt",
-                      v.usedIn?.initialMessage && "initial message",
-                    ].filter(Boolean).join(", ") || undefined}
+                    title={v.usedIn?.messagingPrompt ? "messaging prompt" : undefined}
                   >
                     {v.description || v.name}
                     {v.required && " *"}
@@ -3560,7 +3550,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addReply}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-2xs font-medium text-primary-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-card py-2 text-2xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <Plus size={13} weight="bold" />
               Resposta rápida
@@ -3570,7 +3560,7 @@ function ButtonsField({
             <button
               type="button"
               onClick={addCopyCode}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-2xs font-medium text-primary-ink hover:bg-muted transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-card py-2 text-2xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <Copy size={13} weight="bold" />
               Copiar código
@@ -3759,7 +3749,7 @@ function ListSectionsField({
         <button
           type="button"
           onClick={addRow}
-          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-2xs font-medium text-primary-ink hover:bg-muted transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-card py-2 text-2xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Plus size={13} weight="bold" />
           Adicionar opção
@@ -3945,7 +3935,7 @@ function ExpressionsField({
       <button
         type="button"
         onClick={addExpression}
-        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-muted py-2 text-2xs font-medium text-primary-ink hover:bg-muted transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-border bg-card py-2 text-2xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
       >
         <Plus size={13} weight="bold" />
         Adicionar expressão
@@ -4400,7 +4390,7 @@ function VariableRow({
       <button
         type="button"
         onClick={handleCopy}
-        className="flex items-center gap-1 w-full font-mono text-2xs bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-primary-ink transition-colors text-left min-w-0"
+        className="flex items-center gap-1 w-full font-mono text-2xs bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-foreground transition-colors text-left min-w-0"
         title={template}
       >
         {copied ? (

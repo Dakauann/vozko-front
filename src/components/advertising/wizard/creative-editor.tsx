@@ -8,6 +8,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { Info, Trash } from "@/components/icons";
 import { RadioGroup } from "@/components/ui/radio-group";
 import {
@@ -462,6 +463,7 @@ export function CreativeEditor({ ad, index, onChange }: { ad: AdForm; index: num
           onCheckedChange={(enhancements) => onChange({ enhancements })}
           label={t("enhancements")}
           description={t("enhancementsHint")}
+          explainer={<ExplainerHint id="ads.creativeEnhancements" />}
         />
       </Section>
     </div>

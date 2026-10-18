@@ -93,6 +93,7 @@ export interface LeadSendParams {
   sendDelayMaxMs?: number;
   dailyCap?: number;
   bindings?: VariableBinding[];
+  exitRiskAcknowledged?: true;
 }
 
 interface SendDraftBase {
@@ -434,6 +435,7 @@ export const LEAD_SEND_ERROR_CODES = [
   "send_incomplete",
   "send_not_from_selection",
   "send_message_invalid",
+  "unofficial_campaign_needs_exit",
   "send_selection_empty",
   "send_selection_over_campaign_cap",
   "send_selection_too_large",

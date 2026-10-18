@@ -8,7 +8,6 @@ import {
   Sparkle,
   Trash,
   UploadSimple,
-  Warning,
 } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -29,9 +28,11 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import Textarea from "@/components/elevated-design/elevated-textarea";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { PublishJobStatus } from "@/components/facebook/publish-job-status";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
 import { CommentRuleFields } from "@/components/social/comment-rule-fields";
+import { Notice } from "@/components/ui/notice";
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { CommentAnalysisSettings } from "@/lib/audience/types";
 import { overrideDraftFrom, overrideDraftToPut, type OverrideDraft } from "@/lib/audience/override";
@@ -268,10 +269,9 @@ export function FacebookPostComposer({
           <div className="space-y-4 p-5">
             <PublishJobStatus pageId={page.id} job={job} pageLink={page.link} onSettled={settle} />
             {followUpWarning ? (
-              <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink">
-                <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-                {followUpWarning}
-              </p>
+              <Notice tone="warning">
+                <p>{followUpWarning}</p>
+              </Notice>
             ) : null}
             <Button
               title={t("done")}
@@ -410,7 +410,10 @@ export function FacebookPostComposer({
                 <div className="rounded-[--radius] border border-border p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 space-y-0.5">
-                      <span className="text-sm font-medium text-foreground">{t("schedule")}</span>
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        {t("schedule")}
+                        <ExplainerHint id="social.postSchedule" />
+                      </span>
                       <p className="text-xs text-muted-foreground">{t("scheduleHint")}</p>
                     </div>
                     <ElevatedSwitch
@@ -441,6 +444,7 @@ export function FacebookPostComposer({
                       <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                         <Sparkle className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
                         {t("ruleTitle")}
+                        <ExplainerHint id="social.postCommentRule" />
                       </span>
                       <p className="text-xs text-muted-foreground">{t("ruleHint")}</p>
                     </div>
@@ -467,6 +471,7 @@ export function FacebookPostComposer({
                       <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                         <ChartLineUp className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
                         {t("analysisTitle")}
+                        <ExplainerHint id="social.postAnalysis" />
                       </span>
                       <p className="text-xs text-muted-foreground">{t("analysisHint")}</p>
                     </div>
@@ -517,10 +522,9 @@ export function FacebookPostComposer({
               )}
 
               {error && (
-                <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-                  <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  {error}
-                </p>
+                <Notice tone="fault">
+                  <p>{error}</p>
+                </Notice>
               )}
             </div>
 

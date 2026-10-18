@@ -14,12 +14,10 @@ import {
   Gear,
   Lightning,
   Megaphone,
-  Microphone,
   MonitorPlay,
   PencilSimple,
   Phone,
   Scales,
-  SpeakerHigh,
   WhatsappLogo,
   X,
 } from "@/components/icons";
@@ -69,8 +67,6 @@ import { toast } from "sonner";
 import { auditChangeOf } from "@/lib/pricing/audit";
 import { useTranslations } from "next-intl";
 const CATEGORY_ICONS: Record<string, Icon> = {
-  tts: SpeakerHigh,
-  stt: Microphone,
   whatsapp: WhatsappLogo,
   telephony: Phone,
   advertising: Megaphone,
@@ -78,8 +74,6 @@ const CATEGORY_ICONS: Record<string, Icon> = {
 };
 
 const CATEGORY_TILE: Record<string, string> = {
-  tts: "bg-muted text-muted-foreground",
-  stt: "bg-healthy text-healthy-foreground",
   whatsapp: "bg-healthy text-healthy-foreground",
   telephony: "bg-muted text-muted-foreground",
   exchange_rate: "bg-warning text-warning-foreground",

@@ -18,6 +18,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { CalendarSheet } from "@/components/elevated-design/dashboard/calendar-sheet";
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
 import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -134,6 +135,8 @@ export function DashboardNavbar({
         >
           <CalendarBlank className="h-4 w-4" weight="regular" />
         </button>
+
+        <NotificationBell />
 
         <CalendarSheet open={showCalendar} onOpenChange={setShowCalendar} />
         <MemberActivitySheet subject={showActivity ? { mode: "self" } : null} onOpenChange={setShowActivity} />

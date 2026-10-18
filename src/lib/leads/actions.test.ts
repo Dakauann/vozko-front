@@ -10,7 +10,9 @@ import {
   LEAD_ACTION_ERROR_CODES,
   LEAD_ACTION_FAILURE_CODES,
   LEAD_ACTION_SKIP_REASONS,
+  RESTORE_OPT_OUT_SKIP_REASONS,
   isLeadSendAction,
+  isRunAction,
   leadActionSkipRows,
   isRecordEdit,
   isTerminalAudience,
@@ -110,6 +112,12 @@ describe("lead action answers", () => {
     expect(parseLeadActionStart({ action: "export", report: { id: "j-1", status: "queued", kind: "leads" } })?.report?.id).toBe("j-1");
     expect(parseLeadActionStart({ action: "classify" })).toBeNull();
     expect(parseLeadActionStart({ action: "export", run: RUN })).toBeNull();
+  });
+
+  it("reads the run an opt-out undo answers", () => {
+    const run = { ...RUN, action: "restore_opt_out", params: { note: "Botão errado", confirmCount: 1100 } };
+    expect(parseLeadActionStart({ action: "restore_opt_out", run })).toEqual({ action: "restore_opt_out", run: parseLeadActionRun(run) });
+    expect(parseLeadActionStart({ action: "restore_opt_out" })).toBeNull();
   });
 
   it("reads the call list a call list action creates", () => {
@@ -224,8 +232,14 @@ describe("lead action messages", () => {
       for (const code of LEAD_ACTION_FAILURE_CODES) {
         expect(bulk.has(`failures.${code}`), `${locale}: leadsPage.bulk.failures.${code}`).toBe(true);
       }
-      for (const reason of LEAD_ACTION_SKIP_REASONS) {
+      for (const reason of [...LEAD_ACTION_SKIP_REASONS, ...RESTORE_OPT_OUT_SKIP_REASONS]) {
         expect(bulk.has(`skipped.${reason}`), `${locale}: leadsPage.bulk.skipped.${reason}`).toBe(true);
+      }
+      for (const code of ["lead_action_note_required", "lead_action_note_too_long"]) {
+        expect((LEAD_ACTION_ERROR_CODES as readonly string[]).includes(code), code).toBe(true);
+      }
+      for (const key of ["actions.restore_opt_out", "dialog.title.restore_opt_out", "dialog.apply.restore_opt_out", "dialog.counts.eligible.restore_opt_out", "blockers.permissionConsent", "runDoneOf.restore_opt_out"]) {
+        expect(bulk.has(key), `${locale}: leadsPage.bulk.${key}`).toBe(true);
       }
     }
   });
@@ -264,6 +278,14 @@ describe("isRecordEdit", () => {
   });
 });
 
+describe("isRunAction", () => {
+  it("names every action that answers a run, the opt-out undo included", () => {
+    expect(["classify", "assign_owner", "block", "restore_opt_out"].every(isRunAction)).toBe(true);
+    expect(["export", "meta_audience", "call_list", "send_template"].some(isRunAction)).toBe(false);
+    expect(isRecordEdit("restore_opt_out")).toBe(false);
+  });
+});
+
 describe("leadActionSkipRows", () => {
   it("lists the reasons that hold leads, known ones first in the order of the action kind", () => {
     expect(leadActionSkipRows("classify", { odd: 4, gone: 3, unchanged: 0 })).toEqual([
@@ -271,5 +293,9 @@ describe("leadActionSkipRows", () => {
       { reason: "odd", count: 4 },
     ]);
     expect(leadActionSkipRows("send_unofficial", { cooldown: 1, blocked: 3, no_identity: 2 }).map((row) => row.reason)).toEqual(["no_identity", "blocked", "cooldown"]);
+    expect(leadActionSkipRows("restore_opt_out", { gone: 1, lead_opt_out_not_restorable: 4 })).toEqual([
+      { reason: "lead_opt_out_not_restorable", count: 4 },
+      { reason: "gone", count: 1 },
+    ]);
   });
 });

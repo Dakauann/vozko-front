@@ -23,6 +23,8 @@ import { PanelSection } from "@/components/dashboard/PanelSection";
 import Button from "@/components/elevated-design/button";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { CustomFieldValue } from "@/components/crm/CustomFieldValue";
+import { LeadCompanyRow } from "@/components/leads/companies/LeadCompanyRow";
+import { LeadPortfolioRow } from "@/components/customer-portfolio/LeadPortfolioRow";
 import { LeadNumberCall } from "@/components/leads/LeadCall";
 import { SharedNumberHolders } from "@/components/leads/SharedNumberHolders";
 import { useOptOutLine } from "@/components/leads/use-opt-out-line";
@@ -86,6 +88,8 @@ function ContactSection({ lead, summary }: { lead: LeadDetail; summary: LeadDeta
         <DetailRow icon={<UserCircle />} label={t("nickname")}>
           {lead.nickname || <EmptyValue />}
         </DetailRow>
+        <LeadCompanyRow companyId={lead.companyId} />
+        <LeadPortfolioRow leadId={lead.id} />
         <DetailRow icon={<UploadSimple />} label={t("source")}>
           {source && created
             ? t("since", { source, date: format.dateTime(created, { dateStyle: "short" }) })

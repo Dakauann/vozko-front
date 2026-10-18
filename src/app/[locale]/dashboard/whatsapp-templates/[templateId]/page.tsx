@@ -23,7 +23,6 @@ import {
 } from "@/components/icons";
 import type {
   TemplateAccess,
-  TemplateCategory,
   TemplateStatus,
   WhatsAppTemplate,
 } from "@/lib/whatsapp-templates/types";
@@ -47,7 +46,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
-import { toPreviewComponents } from "@/lib/whatsapp-templates/preview";
+import { isMediaHeaderFormat, toDraftComponents } from "@/lib/whatsapp-templates/draft";
+import { contentEditable } from "@/lib/whatsapp-templates/content-edit";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,8 +57,13 @@ import {
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
 import Link from "next/link";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
+import { TemplateContentEditSheet } from "@/components/whatsapp/TemplateContentEditSheet";
+import { templateExitKeys } from "@/components/whatsapp/exit/use-template-exit";
+import { TemplateExitPanel } from "@/components/whatsapp/exit/TemplateExitPanel";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import type { Workspace } from "@/lib/workspace/types";
@@ -67,63 +72,39 @@ import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones
 import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { TemplateHealthHistory, TemplateQualityChips, useTemplateHealth } from "@/components/whatsapp/template-health/TemplateQuality";
 
 function statusTone(status: TemplateStatus): {
-  cls: string;
+  tone: StatusChipTone;
   icon: typeof CheckCircle;
 } {
   switch (status) {
     case "APPROVED":
-      return {
-        cls: "bg-muted text-healthy-ink border-border dark:text-healthy-ink",
-        icon: CheckCircle,
-      };
+      return { tone: "healthy", icon: CheckCircle };
     case "PENDING":
-      return {
-        cls: "bg-muted text-warning-ink border-border dark:text-warning-ink",
-        icon: Clock,
-      };
+      return { tone: "warning", icon: Clock };
     case "REJECTED":
-      return {
-        cls: "bg-muted text-destructive-ink border-border dark:text-destructive-ink",
-        icon: XCircle,
-      };
+      return { tone: "fault", icon: XCircle };
     case "PAUSED":
-      return { cls: "bg-muted text-muted-foreground border-border", icon: Pause };
+      return { tone: "muted", icon: Pause };
     default:
-      return {
-        cls: "bg-muted text-muted-foreground border-border",
-        icon: Prohibit,
-      };
+      return { tone: "muted", icon: Prohibit };
   }
 }
 
-function categoryTone(category: TemplateCategory): string {
-  switch (category) {
-    case "MARKETING":
-      return "bg-muted text-muted-foreground border-border";
-    case "UTILITY":
-      return "bg-muted text-muted-foreground border-border dark:text-healthy-ink";
-    case "AUTHENTICATION":
-      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
-    default:
-      return "bg-muted text-muted-foreground border-border";
-  }
-}
-
-function usabilityTone(status: string): string {
-  if (status === "ready")
-    return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
-  if (status === "missing_header_media")
-    return "bg-muted text-warning-ink border-border dark:text-warning-ink";
-  return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
+function usabilityTone(status: string): StatusChipTone {
+  if (status === "ready") return "healthy";
+  if (status === "missing_header_media") return "warning";
+  return "fault";
 }
 
 export default function WhatsAppTemplateDetailPage() {
   const t = useTranslations("whatsappTemplates");
+  const tHealth = useTranslations("templateHealth");
   const commonT = useTranslations("common");
   const { user, isLoading: authLoading } = useAuth();
   const params = useParams();
@@ -133,12 +114,15 @@ export default function WhatsAppTemplateDetailPage() {
   tRef.current = t;
 
   const [template, setTemplate] = useState<WhatsAppTemplate | null>(null);
+  const templateHealth = useTemplateHealth(template?.id);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isContentEditOpen, setIsContentEditOpen] = useState(false);
   const [isSavingMedia, setIsSavingMedia] = useState(false);
-  const { can } = useWorkspace();
+  const { can, currentWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
   const isAdmin = can("whatsapp_templates", "update");
   const isSystemAdmin = user?.role === "admin";
 
@@ -175,9 +159,7 @@ export default function WhatsAppTemplateDetailPage() {
   const [replicating, setReplicating] = useState(false);
 
   const headerComponent = template?.components.find((c) => c.type === "HEADER");
-  const hasMediaHeader =
-    headerComponent?.format &&
-    ["IMAGE", "VIDEO", "DOCUMENT", "GIF"].includes(headerComponent.format);
+  const hasMediaHeader = isMediaHeaderFormat(headerComponent?.format);
 
   const isSystemAdminRef = useRef(isSystemAdmin);
   isSystemAdminRef.current = isSystemAdmin;
@@ -411,6 +393,14 @@ export default function WhatsAppTemplateDetailPage() {
     }
   };
 
+  const handleContentSaved = (saved: WhatsAppTemplate) => {
+    setTemplate(saved);
+    setIsContentEditOpen(false);
+    void queryClient.invalidateQueries({
+      queryKey: templateExitKeys.template(currentWorkspace?.id ?? "", saved.id),
+    });
+  };
+
   const handleGrantAccess = async (targetWorkspaceId: string) => {
     setGrantingWorkspaceId(targetWorkspaceId);
     try {
@@ -527,25 +517,18 @@ export default function WhatsAppTemplateDetailPage() {
                     </span>
                   </p>
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
-                        tone.cls,
-                      )}
-                    >
-                      <StatusIcon className="h-3.5 w-3.5" weight="fill" />
-                      {t(
+                    <StatusChip
+                      tone={tone.tone}
+                      icon={<StatusIcon className="h-3.5 w-3.5" weight="fill" />}
+                      label={t(
                         `status.${template.status?.toLowerCase() ?? "pending"}`,
                       )}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
-                        categoryTone(template.category),
-                      )}
-                    >
-                      {t(`category.${template.category.toLowerCase()}`)}
-                    </span>
+                    />
+                    <StatusChip
+                      tone="outline"
+                      label={t(`category.${template.category.toLowerCase()}`)}
+                    />
+                    <TemplateQualityChips state={templateHealth} />
                   </div>
                 </div>
               </div>
@@ -562,6 +545,17 @@ export default function WhatsAppTemplateDetailPage() {
                       iconSide="left"
                       link={`/dashboard/whatsapp-templates/${template.id}/send`}
                       newTab={false}
+                    />
+                  )}
+                  {contentEditable(template) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      title={t("button.editContent")}
+                      icon={<PencilSimple className="h-4 w-4" weight="bold" />}
+                      iconVisible
+                      iconSide="left"
+                      onClick={() => setIsContentEditOpen(true)}
                     />
                   )}
                   <Button
@@ -619,7 +613,7 @@ export default function WhatsAppTemplateDetailPage() {
             </h2>
             <div className="mx-auto max-w-sm overflow-hidden rounded-[--radius] border border-border shadow-md">
               <WhatsAppPreview
-                components={toPreviewComponents(
+                components={toDraftComponents(
                   template.components,
                   template.headerMediaUrl,
                 )}
@@ -630,6 +624,8 @@ export default function WhatsAppTemplateDetailPage() {
           </ElevatedContainer>
         </div>
 
+        <TemplateExitPanel templateId={template.id} canEdit={isAdmin} />
+
         {}
         <div>
           <ElevatedContainer className="p-6">
@@ -638,14 +634,11 @@ export default function WhatsAppTemplateDetailPage() {
             </h2>
             <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
               <Row label={t("detail.category")}>
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-xs font-medium",
-                    categoryTone(template.category),
-                  )}
-                >
-                  {t(`category.${template.category.toLowerCase()}`)}
-                </span>
+                <StatusChip
+                  tone="outline"
+                  label={t(`category.${template.category.toLowerCase()}`)}
+                  className="px-2"
+                />
               </Row>
               <Row label={t("detail.language")}>
                 <span className="text-sm font-medium text-foreground">
@@ -659,16 +652,18 @@ export default function WhatsAppTemplateDetailPage() {
               </Row>
               {template.usabilityStatus && (
                 <Row label={t("detail.usability")}>
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-[--radius] border px-2 py-0.5 text-xs font-medium",
-                      usabilityTone(template.usabilityStatus),
-                    )}
-                  >
-                    {t(`usability.${template.usabilityStatus}`)}
-                  </span>
+                  <StatusChip
+                    tone={usabilityTone(template.usabilityStatus)}
+                    label={t(`usability.${template.usabilityStatus}`)}
+                    className="px-2"
+                  />
                 </Row>
               )}
+              {templateHealth.health ? (
+                <Row label={tHealth("history.label")} className="sm:col-span-2">
+                  <TemplateHealthHistory health={templateHealth.health} />
+                </Row>
+              ) : null}
               {template.wabaId && (
                 <Row label={t("detail.wabaId")} className="sm:col-span-2">
                   <span
@@ -738,11 +733,9 @@ export default function WhatsAppTemplateDetailPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-[--radius] border border-border bg-muted p-4">
-                  <p className="text-sm text-warning-ink">
-                    {t("detail.headerMedia.notConfigured")}
-                  </p>
-                </div>
+                <Notice tone="warning">
+                  {t("detail.headerMedia.notConfigured")}
+                </Notice>
               )}
             </ElevatedContainer>
           </div>
@@ -852,9 +845,7 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("access.loading")}
                   </div>
                 ) : accessError ? (
-                  <div className="rounded-[--radius] border border-border bg-muted p-4 text-sm text-destructive-ink">
-                    {accessError}
-                  </div>
+                  <Notice tone="fault">{accessError}</Notice>
                 ) : accessItems.length === 0 ? (
                   <div className="flex flex-col items-center gap-2 rounded-[--radius] border border-dashed border-border bg-muted p-8 text-center">
                     <Buildings
@@ -958,6 +949,15 @@ export default function WhatsAppTemplateDetailPage() {
         isSaving={isSavingMedia}
       />
 
+      {isAdmin && contentEditable(template) && (
+        <TemplateContentEditSheet
+          template={template}
+          open={isContentEditOpen}
+          onOpenChange={setIsContentEditOpen}
+          onSaved={handleContentSaved}
+        />
+      )}
+
       {}
       {replicateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -1021,11 +1021,7 @@ export default function WhatsAppTemplateDetailPage() {
                     {t("replicate.loadingPhones")}
                   </div>
                 ) : replicatePhones.length === 0 ? (
-                  <div className="rounded-[--radius] border border-border bg-muted p-4">
-                    <p className="text-sm text-warning-ink">
-                      {t("replicate.noPhones")}
-                    </p>
-                  </div>
+                  <Notice tone="warning">{t("replicate.noPhones")}</Notice>
                 ) : (
                   <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
                     {replicatePhones.map((phone) => {

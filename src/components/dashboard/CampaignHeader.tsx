@@ -92,18 +92,18 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
     },
     RUNNING: {
       bg: "bg-muted",
-      text: "text-healthy-ink",
+      text: "text-foreground",
       dot: "bg-healthy",
     },
     PAUSED: {
       bg: "bg-muted",
-      text: "text-warning-ink",
+      text: "text-foreground",
       dot: "bg-warning",
     },
     COMPLETED: {
       bg: "bg-muted",
-      text: "text-primary-ink",
-      dot: "bg-muted",
+      text: "text-foreground",
+      dot: "bg-primary",
     },
   };
 
@@ -153,7 +153,7 @@ function WsStatusIndicator({
     connected: {
       icon: WifiHigh,
       label: t.wsConnected,
-      className: "text-healthy-ink bg-muted border-border",
+      className: "text-foreground bg-card border-border",
       dotClass: "bg-healthy",
       animate: false,
     },

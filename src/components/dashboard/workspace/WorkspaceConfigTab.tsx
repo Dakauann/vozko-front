@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import type {
   RouletteMode,
   WorkspaceConfig,
@@ -23,10 +24,10 @@ import type {
 import { ROULETTE_DEFAULTS, ROULETTE_LIMITS } from "@/lib/workspace/workspace-config/roulette";
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
+import { useWorkingHoursSummary } from "@/components/dashboard/working-hours/use-working-hours-summary";
 import { OutcomeCaptureCard } from "@/components/dashboard/workspace/OutcomeCaptureCard";
 import { ConfigCardShell } from "@/components/dashboard/workspace/ConfigCardShell";
 import {
-  summarizeWorkingHours,
   validateWorkingHours,
   type WorkingHoursSpec,
 } from "@/lib/working-hours/types";
@@ -176,9 +177,12 @@ function DistributionConfigCard({
 }
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
-          <p className="text-sm font-medium text-foreground">
-            {t("skipAdminAssignment.enableLabel")}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">
+              {t("skipAdminAssignment.enableLabel")}
+            </p>
+            <ExplainerHint id="settings.adminsInRoulette" />
+          </div>
           <p className="text-xs text-muted-foreground">
             {t("skipAdminAssignment.enableHint")}
           </p>
@@ -359,9 +363,12 @@ function RouletteLastSeenSettings({
 
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
-          <p className="text-sm font-medium text-foreground">
-            {t("roulette.rescueLabel")}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">
+              {t("roulette.rescueLabel")}
+            </p>
+            <ExplainerHint id="settings.rouletteRescue" />
+          </div>
           <p className="text-xs text-muted-foreground">
             {t("roulette.rescueHint")}
           </p>
@@ -468,31 +475,11 @@ function WorkingHoursConfigCard({
   const [open, setOpen] = React.useState(false);
 
   const saved = config?.workingHours ?? null;
-  const summary = summarizeWorkingHours(saved);
   const rescueActive =
     (config?.rouletteMode ?? ROULETTE_DEFAULTS.mode) === "last_seen" &&
     (config?.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled);
 
-  let statusLabel: string;
-  switch (summary.kind) {
-    case "alwaysOpen":
-      statusLabel = tw("summaryAlwaysOpen");
-      break;
-    case "everyDay":
-      statusLabel = tw("summaryEveryDay", {
-        start: summary.start,
-        end: summary.end,
-      });
-      break;
-    case "weekdays":
-      statusLabel = tw("summaryWeekdays", {
-        start: summary.start,
-        end: summary.end,
-      });
-      break;
-    default:
-      statusLabel = tw("summaryCustom", { count: summary.openDays });
-  }
+  const statusLabel = useWorkingHoursSummary(saved);
 
   return (
     <ConfigCardShell
@@ -661,9 +648,12 @@ function AutoCloseConfigCard({
       {}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
-          <p className="text-sm font-medium text-foreground">
-            {t("autoClose.enableLabel")}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">
+              {t("autoClose.enableLabel")}
+            </p>
+            <ExplainerHint id="settings.autoCloseIdle" />
+          </div>
           <p className="text-xs text-muted-foreground">
             {t("autoClose.enableHint")}
           </p>
@@ -705,9 +695,12 @@ function AutoCloseConfigCard({
       {}
       <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
         <div className="pr-4 min-w-0">
-          <p className="text-sm font-medium text-foreground">
-            {t("autoClose.maxAgeEnableLabel")}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">
+              {t("autoClose.maxAgeEnableLabel")}
+            </p>
+            <ExplainerHint id="settings.autoCloseMaxAge" />
+          </div>
           <p className="text-xs text-muted-foreground">
             {t("autoClose.maxAgeEnableHint")}
           </p>

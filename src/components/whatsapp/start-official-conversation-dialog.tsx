@@ -11,7 +11,6 @@ import {
     Plus,
     SquaresFour,
     Warning,
-    WarningCircle,
 } from "@/components/icons";
 import {
     ElevatedDialog,
@@ -36,6 +35,7 @@ import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-com
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
+import { Notice } from "@/components/ui/notice";
 import { QuoteRefusalNotice } from "@/components/whatsapp/quote-refusal-notice";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
 import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
@@ -416,23 +416,23 @@ export function StartOfficialConversationDialog({
                                         className="min-h-[220px] lg:min-h-[300px]"
                                     />
 
-                                    <div className="rounded-lg border border-border bg-muted p-3">
-                                        {quote && !quote.affordable && (
-                                            <p className="mb-2 flex items-start gap-1.5 text-xs text-destructive-ink">
-                                                <WarningCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
-                                                {t("cost.insufficient")}
-                                            </p>
-                                        )}
-                                        <QuoteRefusalNotice message={quoteError} onRetry={retryQuote} className="mt-1.5" />
-                                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {quote && !quote.affordable && (
+                                        <Notice tone="fault">
+                                            <p>{t("cost.insufficient")}</p>
+                                        </Notice>
+                                    )}
+
+                                    <div className="rounded-lg border border-border bg-card p-3">
+                                        <QuoteRefusalNotice message={quoteError} onRetry={retryQuote} className="mb-2" />
+                                        <p className="text-xs leading-relaxed text-muted-foreground">
                                             {t("risk")}
                                         </p>
                                     </div>
 
                                     {error && (
-                                        <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-destructive-ink">
-                                            {t.has(`errors.${error.code}`) ? t(`errors.${error.code}`) : error.message}
-                                        </p>
+                                        <Notice tone="fault">
+                                            <p>{t.has(`errors.${error.code}`) ? t(`errors.${error.code}`) : error.message}</p>
+                                        </Notice>
                                     )}
                                   </div>
                                 </div>
@@ -609,9 +609,9 @@ export function StartOfficialConversationDialog({
                                 )}
 
                                 {createError && (
-                                    <p className="rounded-[--radius] bg-muted px-3 py-2 text-sm text-destructive-ink">
-                                        {createError}
-                                    </p>
+                                    <Notice tone="fault">
+                                        <p>{createError}</p>
+                                    </Notice>
                                 )}
                               </div>
 

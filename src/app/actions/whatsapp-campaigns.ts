@@ -16,6 +16,7 @@ import type {
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from '@/lib/api/browser-client';
 
 import type { ReportJob } from '@/lib/reports/types';
+import type { LaunchReport } from '@/lib/whatsapp-campaigns/launch-check';
 import { apiClient } from '@/lib/api/browser-client';
 
 const DEFAULT_WHATSAPP_CAMPAIGN_META: WhatsAppCampaignListMeta = {
@@ -159,7 +160,7 @@ export async function createWhatsAppCampaignAction(payload: WhatsAppCampaignPayl
     console.log(JSON.stringify(response))
 
     if (response.error) {
-        return { campaign: null, error: response.error.message };
+        return { campaign: null, error: response.error.message, errorCode: response.error.code };
     }
 
     return { campaign: unwrapWhatsAppCampaign(response.data ?? null), error: null };
@@ -222,21 +223,34 @@ export async function deleteWhatsAppCampaignAction(campaignId: string) {
     return { error: null };
 }
 
-async function lifecycleAction(campaignId: string, endpoint: string) {
+async function lifecycleAction(campaignId: string, endpoint: string, body?: Record<string, unknown>) {
     const response = await apiClient<WhatsAppCampaignLifecycleResponse>(endpoint, {
         method: 'POST',
+        ...(body ? { body: JSON.stringify(body) } : {}),
     });
 
     if (response.error) {
         const errorCode = response.error.code;
-        return { response: null, error: response.error.message, errorCode };
+        return { response: null, error: response.error.message, errorCode, errorExpected: response.error.expected };
     }
 
-    return { response: response.data ?? null, error: null, errorCode: undefined };
+    return { response: response.data ?? null, error: null, errorCode: undefined, errorExpected: undefined };
 }
 
-export async function startWhatsAppCampaignAction(campaignId: string) {
-    return lifecycleAction(campaignId, `/whatsapp/campaigns/${campaignId}/start`);
+export async function startWhatsAppCampaignAction(campaignId: string, confirmedFingerprint?: string) {
+    return lifecycleAction(
+        campaignId,
+        `/whatsapp/campaigns/${campaignId}/start`,
+        confirmedFingerprint ? { confirmedFingerprint } : undefined,
+    );
+}
+
+export async function getWhatsAppCampaignLaunchCheckAction(campaignId: string) {
+    const response = await apiClient<LaunchReport>(`/whatsapp/campaigns/${campaignId}/launch-check`);
+    if (response.error || !response.data) {
+        return { report: null, errorCode: response.error?.code, error: response.error?.message ?? null };
+    }
+    return { report: response.data, errorCode: undefined, error: null };
 }
 
 export async function pauseWhatsAppCampaignAction(campaignId: string) {

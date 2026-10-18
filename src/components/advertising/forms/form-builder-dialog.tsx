@@ -20,6 +20,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedPillToggle from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ArrowDown, ArrowUp, Plus, Trash, X } from "@/components/icons";
 import {
   MAX_BUTTON_TEXT,
@@ -277,6 +278,7 @@ export function FormBuilderDialog({
                 onCheckedChange={(higherIntent) => patch({ higherIntent })}
                 label={t("higherIntent")}
                 description={t("higherIntentHint")}
+                explainer={<ExplainerHint id="ads.higherIntentForm" />}
               />
               {failure ? <p className="text-sm text-destructive-ink">{failure}</p> : null}
             </div>

@@ -54,6 +54,8 @@ import {
   CheckCircle,
   CurrencyDollar,
   WebhooksLogo,
+  Shield,
+  ShieldCheck,
 } from "@/components/icons";
 import type { Icon } from "@/components/icons";
 import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
@@ -135,6 +137,8 @@ const ICON_MAP: Record<string, Icon> = {
   CheckCircle,
   CurrencyDollar,
   Webhooks: WebhooksLogo,
+  ShieldCheck,
+  SealQuestion: Shield,
 };
 
 

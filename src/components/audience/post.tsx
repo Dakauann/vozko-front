@@ -17,6 +17,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { Link } from "@/i18n/routing";
 import Button from "@/components/elevated-design/button";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { CommentAnalysisOverview } from "@/components/audience/overview";
 import { CommentAnalysisFeed } from "@/components/audience/feed";
@@ -212,6 +213,7 @@ function OverrideEditor({
           checked={editing}
           disabled={saving}
           aria-label={t("title")}
+          explainer={<ExplainerHint id="social.postAnalysis" align="end" />}
           onCheckedChange={(checked: boolean) => {
             if (checked) setEditing(true);
             else void reset();

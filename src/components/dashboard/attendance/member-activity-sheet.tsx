@@ -22,6 +22,7 @@ import {
   ElevatedSheetTitle,
 } from "@/components/elevated-design/elevated-sheet";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import {
   ATTENDANCE_COLORS,
   ChartSkeleton,
@@ -336,16 +337,7 @@ function SessionSegment({ session, day, timezone }: { session: MemberActivitySes
 
 function Chip({ tone, children }: { tone: "healthy" | "warning" | "muted"; children: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex rounded-[--radius] px-2 py-0.5 text-2xs font-semibold",
-        tone === "healthy" && "bg-healthy/15 text-healthy-ink",
-        tone === "warning" && "bg-warning/15 text-warning-ink",
-        tone === "muted" && "bg-muted text-muted-foreground",
-      )}
-    >
-      {children}
-    </span>
+    <StatusChip tone={tone} label={children} className="px-2 text-2xs font-semibold" />
   );
 }
 

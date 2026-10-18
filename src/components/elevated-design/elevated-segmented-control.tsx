@@ -62,7 +62,7 @@ const basePadding: Record<ControlSize, string> = {
 };
 
 const activeVariantClasses: Record<BaseVariant, string> = {
-  primary: "bg-muted text-primary-ink border border-dashed border-primary",
+  primary: "bg-muted text-foreground border border-dashed border-primary",
   secondary:
     "bg-muted text-secondary-foreground border border-dashed border-secondary",
   outline:
@@ -70,7 +70,7 @@ const activeVariantClasses: Record<BaseVariant, string> = {
   ghost:
     "bg-background text-foreground border border-dashed border-foreground/30",
   vsl: "bg-muted text-muted-foreground border border-dashed border-info",
-  action: "bg-muted text-primary-ink border border-dashed border-primary",
+  action: "bg-muted text-foreground border border-dashed border-primary",
 };
 
 const inactiveVariantClasses: Record<BaseVariant, string> = {

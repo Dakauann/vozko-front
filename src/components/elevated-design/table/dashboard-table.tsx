@@ -76,6 +76,7 @@ export interface DashboardTableProps<T> {
   columns: DashboardTableColumn<T>[];
   rowKey: (row: T, index: number) => string;
   className?: string;
+  scrollClassName?: string;
   emptyState?: ReactNode | DashboardTableEmptyState;
   caption?: ReactNode;
   footer?: ReactNode;
@@ -114,6 +115,7 @@ export function DashboardTable<T>({
   columns,
   rowKey,
   className,
+  scrollClassName,
   emptyState,
   caption,
   footer,
@@ -265,7 +267,7 @@ export function DashboardTable<T>({
       {body}
 
       {showsTable && (
-        <div className="overflow-x-auto">
+        <div className={cn("overflow-x-auto", scrollClassName)}>
           <table className="w-full text-left border-collapse">
             {caption ? (
               <caption className="px-4 py-3 text-left text-sm text-muted-foreground">
@@ -501,7 +503,7 @@ export function DashboardTable<T>({
 
       {}
       {hasPagination && (
-        <div className="flex items-center justify-between border-t border-border bg-muted px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-muted px-4 py-2">
           <div className="flex items-center gap-4">
             <p className="text-xs text-muted-foreground">
               {paginationText?.showing ?? t("showing")}{" "}

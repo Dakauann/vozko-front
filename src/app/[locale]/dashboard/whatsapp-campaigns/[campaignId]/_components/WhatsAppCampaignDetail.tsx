@@ -37,7 +37,6 @@ import {
   pauseWhatsAppCampaignAction,
   prepareClearHistoryWhatsAppCampaignAction,
   prepareResetWhatsAppCampaignAction,
-  startWhatsAppCampaignAction,
   stopWhatsAppCampaignAction,
 } from "@/app/actions/whatsapp-campaigns";
 import { listStagesAction } from "@/app/actions/stages";
@@ -90,6 +89,10 @@ import { exportErrorKey } from "@/lib/whatsapp-campaigns/export-errors";
 import { SEND_STATUSES } from "@/lib/whatsapp-campaigns/statuses";
 import { resolveWhatsAppCampaignErrorDisplay } from "@/lib/whatsapp-campaigns/error-display";
 import TourGuide from "@/components/TourGuide";
+import { SmartCampaignPanel } from "@/components/whatsapp/smart/SmartCampaignPanel";
+import { useSmartRefusal } from "@/components/whatsapp/smart/use-smart-refusal";
+import { LaunchCheckDialog } from "@/components/whatsapp/launch-check/LaunchCheckDialog";
+import { useLaunchCheck, type LaunchRefusal } from "@/components/whatsapp/launch-check/use-launch-check";
 import {
   whatsappDetailTourSteps,
   whatsappDetailTourPalette,
@@ -776,6 +779,7 @@ function WhatsAppCampaignDetailContent({
   const isInitialLoadRef = useRef(true);
   const t = useTranslations("whatsappCampaignsPage");
   const refusalText = useSelectionSendRefusalText();
+  const smartRefusal = useSmartRefusal();
   const canManageStages = can("stages", "update");
   const canReadStages = can("stages", "read");
   const { exporting, exportEntries } = useExportEntries();
@@ -1045,24 +1049,40 @@ function WhatsAppCampaignDetailContent({
     successRate: 0,
   };
 
+  const launchStarted = useCallback(() => {
+    toast(t("detail.toast.started"), { description: t("detail.toast.updatedName", { name: campaign.name }) });
+    router.refresh();
+  }, [campaign.name, router, t]);
+
+  const launchRefused = useCallback(
+    (refusal: LaunchRefusal) => {
+      toast.error(t("detail.toast.error"), { description: smartRefusal(refusal.code, refusal.expected) ?? refusalText(refusal.code, refusal.message) });
+    },
+    [refusalText, smartRefusal, t],
+  );
+
+  const launch = useLaunchCheck({ campaignId: campaign.id, onStarted: launchStarted, onRefused: launchRefused });
+
   const handleLifecycle = (action: "start" | "pause" | "stop") => {
+    if (action === "start") {
+      void launch.request();
+      return;
+    }
     startTransition(async () => {
       const actionMap = {
-        start: startWhatsAppCampaignAction,
         pause: pauseWhatsAppCampaignAction,
         stop: stopWhatsAppCampaignAction,
       } as const;
 
       const toastTitleMap = {
-        start: t("detail.toast.started"),
         pause: t("detail.toast.paused"),
         stop: t("detail.toast.stopped"),
       } as const;
 
-      const { error, errorCode } = await actionMap[action](campaign.id);
+      const { error, errorCode, errorExpected } = await actionMap[action](campaign.id);
 
       if (error) {
-        toast.error(t("detail.toast.error"), { description: refusalText(errorCode, error) });
+        toast.error(t("detail.toast.error"), { description: smartRefusal(errorCode, errorExpected) ?? refusalText(errorCode, error) });
         return;
       }
 
@@ -1289,13 +1309,14 @@ function WhatsAppCampaignDetailContent({
     />
     <div className="space-y-4">
       <div data-tour="wd-header">
+        <LaunchCheckDialog check={launch} links={{ templateId: campaign.templateId }} />
         <CampaignHeader
           name={campaign.name}
           status={status}
           campaignType="whatsapp"
           backLink="/dashboard/whatsapp-campaigns"
           editLink={`/dashboard/whatsapp-campaigns/${campaign.id}/edit`}
-          isPending={isPending}
+          isPending={isPending || launch.phase !== "idle"}
           canStart={canStart}
           canPause={canPause}
           canStop={canStop}
@@ -1685,7 +1706,7 @@ function WhatsAppCampaignDetailContent({
         )}
       </div>
 
-      <div></div>
+      <SmartCampaignPanel campaignId={campaign.id} contacts={campaign.metrics?.totalNumbers ?? 0} refreshToken={campaign} />
 
       <div data-tour="wd-entry-filters">
         <EntryFiltersBar

@@ -34,6 +34,7 @@ import {
   GitBranch,
   Handshake,
   UserCircle,
+  UserCheck,
   UsersFour,
   UserPlus,
   Wallet,
@@ -466,6 +467,34 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
+    icon: UsersThree,
+    labelKey: "nav.unofficialWhatsappGroups",
+    href: "/dashboard/unofficial-whatsapp-groups",
+    family: "unofficial-whatsapp",
+    children: [
+      {
+        icon: ChartBar,
+        labelKey: "nav.unofficialWhatsappGroupsOverview",
+        href: "/dashboard/unofficial-whatsapp-groups",
+      },
+      {
+        icon: ClipboardText,
+        labelKey: "nav.unofficialWhatsappGroupsAll",
+        href: "/dashboard/unofficial-whatsapp-groups/all",
+      },
+      {
+        icon: Sparkle,
+        labelKey: "nav.unofficialWhatsappGroupsAnalyses",
+        href: "/dashboard/unofficial-whatsapp-groups/analyses",
+      },
+      {
+        icon: UsersFour,
+        labelKey: "nav.unofficialWhatsappGroupsPeople",
+        href: "/dashboard/unofficial-whatsapp-groups/people",
+      },
+    ],
+  },
+  {
     icon: Megaphone,
     labelKey: "nav.unofficialWhatsappCampaigns",
     href: "/dashboard/unofficial-whatsapp-campaigns",
@@ -605,6 +634,23 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.leads",
     href: "/dashboard/leads",
     family: "management",
+    children: [
+      {
+        icon: UsersFour,
+        labelKey: "nav.leadsList",
+        href: "/dashboard/leads",
+      },
+      {
+        icon: Buildings,
+        labelKey: "nav.leadCompanies",
+        href: "/dashboard/leads/companies",
+      },
+      {
+        icon: UserCheck,
+        labelKey: "nav.customerPortfolio",
+        href: "/dashboard/leads/portfolio",
+      },
+    ],
   },
   {
     icon: Package,
@@ -686,6 +732,12 @@ export const adminNavItems: NavItem[] = [
     icon: LockKey,
     labelKey: "nav.adminSendCaps",
     href: "/dashboard/admin/send-caps",
+    family: "platform",
+  },
+  {
+    icon: Bell,
+    labelKey: "nav.adminNotifications",
+    href: "/dashboard/admin/notifications",
     family: "platform",
   },
   {

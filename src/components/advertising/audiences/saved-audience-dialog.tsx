@@ -19,6 +19,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import {
   AUDIENCE_MAX_AGE,
   AUDIENCE_MIN_AGE,
@@ -147,6 +148,7 @@ export function SavedAudienceDialog({
               onCheckedChange={(advantageAudience) => patchTargeting({ advantageAudience })}
               label={t("advantage")}
               description={t("advantageHint")}
+              explainer={<ExplainerHint id="ads.advantageAudience" />}
             />
           </section>
           {failure ? <p className="text-sm text-destructive-ink">{failure}</p> : null}

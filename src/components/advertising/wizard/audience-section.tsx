@@ -19,6 +19,7 @@ import {
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { FloppyDisk, Lock } from "@/components/icons";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { MAX_AGE, MIN_AGE, ageMinOptions, isRestrictedCategory, minCityRadius, withAdvantageAudience } from "@/lib/advertising/draft";
@@ -306,6 +307,7 @@ export function AudienceSection() {
           onCheckedChange={(on) => update((current) => ({ ...current, targeting: withAdvantageAudience(current.targeting, on) }))}
           label={t("advantage")}
           description={t("advantageHint")}
+          explainer={<ExplainerHint id="ads.advantageAudience" />}
         />
         {targeting.advantageAudience ? <Hint>{t("advantageAgeNote")}</Hint> : null}
         <FieldIssues issues={issues} field="adSet.targeting.exclusions" />

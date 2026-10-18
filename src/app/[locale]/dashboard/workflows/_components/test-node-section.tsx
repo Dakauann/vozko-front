@@ -8,7 +8,6 @@ import {
   CheckCircle,
   Clock,
   Copy,
-  Info,
   Play,
   Spinner,
   XCircle,
@@ -22,6 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { Notice } from "@/components/ui/notice";
 import { cn } from "@/lib/utils";
 import { useTestNode } from "@/hooks/use-test-node";
 
@@ -202,12 +202,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
           ) : (
             <XCircle size={16} weight="fill" className="text-destructive-ink" />
           )}
-          <span
-            className={cn(
-              "text-xs font-semibold",
-              result.success ? "text-healthy-ink" : "text-destructive-ink",
-            )}
-          >
+          <span className="text-xs font-semibold text-foreground">
             {result.success ? "Teste bem-sucedido" : "Teste falhou"}
           </span>
         </div>
@@ -220,9 +215,7 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
       <div className="p-3 space-y-2.5">
         {}
         {result.error && (
-          <div className="rounded-lg bg-muted/80 border border-border px-2.5 py-2 text-xs text-destructive-ink">
-            {result.error}
-          </div>
+          <Notice tone="fault">{result.error}</Notice>
         )}
 
         {}
@@ -235,8 +228,8 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
               className={cn(
                 "rounded px-1.5 py-0.5 text-2xs font-semibold",
                 httpSuccess
-                  ? "bg-healthy/60 text-healthy-foreground"
-                  : "bg-destructive/60 text-destructive-foreground",
+                  ? "bg-healthy text-healthy-foreground"
+                  : "bg-destructive text-destructive-foreground",
               )}
             >
               {httpStatusCode}
@@ -462,9 +455,7 @@ export function TestNodeSection({
       {expanded && (
         <div className="p-3 space-y-3">
           {disabled && disabledReason && (
-            <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-warning-ink">
-              {disabledReason}
-            </div>
+            <Notice tone="warning">{disabledReason}</Notice>
           )}
 
           {}
@@ -479,35 +470,20 @@ export function TestNodeSection({
           {analysis && (
             <>
               {}
-              <div
-                className={cn(
-                  "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
-                  analysis.test_mode === "direct" &&
-                    "bg-muted border border-border text-healthy-ink",
-                  analysis.test_mode === "mock" &&
-                    "bg-muted border border-border text-warning-ink",
-                  analysis.test_mode === "execute_until" &&
-                    analysis.has_ai_deps &&
-                    "bg-muted border border-border text-info-ink",
-                  analysis.test_mode === "execute_until" &&
-                    !analysis.has_ai_deps &&
-                    "bg-muted border border-border text-healthy-ink",
-                )}
+              <Notice
+                tone={
+                  analysis.test_mode === "mock"
+                    ? "warning"
+                    : analysis.test_mode === "execute_until" &&
+                        analysis.has_ai_deps
+                      ? "info"
+                      : "healthy"
+                }
+                title={getModeLabel(analysis.test_mode, analysis.has_ai_deps)}
               >
-                <Info size={14} className="mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium">
-                    {getModeLabel(analysis.test_mode, analysis.has_ai_deps)}
-                  </p>
-                  <p className="text-2xs opacity-80 mt-0.5">
-                    {analysis.message ||
-                      getModeDescription(
-                        analysis.test_mode,
-                        analysis.has_ai_deps,
-                      )}
-                  </p>
-                </div>
-              </div>
+                {analysis.message ||
+                  getModeDescription(analysis.test_mode, analysis.has_ai_deps)}
+              </Notice>
 
               {}
               {analysis.mock_fields.length > 0 && (
@@ -613,13 +589,9 @@ export function TestNodeSection({
 
           {}
           {status === "error" && error && !result && (
-            <div className="rounded-lg border border-border bg-muted p-3">
-              <div className="flex items-center gap-2">
-                <XCircle size={16} weight="fill" className="text-destructive-ink" />
-                <span className="text-sm font-medium text-destructive-ink">Erro</span>
-              </div>
-              <p className="text-xs text-destructive-ink mt-1">{error}</p>
-            </div>
+            <Notice tone="fault" title="Erro">
+              {error}
+            </Notice>
           )}
         </div>
       )}

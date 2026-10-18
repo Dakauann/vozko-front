@@ -19,6 +19,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { ScreenLoader } from "@/components/brand/screen-loader";
 import { FlowArrow } from "@/components/icons";
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 
 import {
   getNodeTypesAction,
@@ -53,21 +54,12 @@ interface WorkflowRunDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const RUN_STATUS_META: Record<string, { label: string; className: string }> = {
-  running: { label: "Em execução", className: "bg-muted text-primary-ink" },
-  waiting: {
-    label: "Aguardando",
-    className: "bg-muted text-warning-ink dark:text-warning-ink",
-  },
-  completed: {
-    label: "Concluído",
-    className: "bg-muted text-healthy-ink dark:text-healthy-ink",
-  },
-  error: {
-    label: "Erro",
-    className: "bg-muted text-destructive-ink dark:text-destructive-ink",
-  },
-  cancelled: { label: "Cancelado", className: "bg-muted text-muted-foreground" },
+const RUN_STATUS_META: Record<string, { label: string; tone: StatusChipTone; dot?: string }> = {
+  running: { label: "Em execução", tone: "outline", dot: "bg-primary" },
+  waiting: { label: "Aguardando", tone: "warning" },
+  completed: { label: "Concluído", tone: "healthy" },
+  error: { label: "Erro", tone: "fault" },
+  cancelled: { label: "Cancelado", tone: "muted" },
 };
 
 const CATEGORY_COLOR: Record<string, string> = {
@@ -258,14 +250,12 @@ export function WorkflowRunDrawer({
               <ElevatedSheetDescription className="mt-0.5 flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">Fluxo em atendimento</span>
                 {statusMeta && (
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-2xs font-medium",
-                      statusMeta.className,
-                    )}
-                  >
-                    {statusMeta.label}
-                  </span>
+                  <StatusChip
+                    tone={statusMeta.tone}
+                    label={statusMeta.label}
+                    icon={statusMeta.dot ? <span className={cn("h-1.5 w-1.5 rounded-full", statusMeta.dot)} /> : undefined}
+                    className="px-2 text-2xs"
+                  />
                 )}
               </ElevatedSheetDescription>
             </div>

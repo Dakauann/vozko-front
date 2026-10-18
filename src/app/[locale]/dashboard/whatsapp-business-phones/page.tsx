@@ -8,7 +8,6 @@ import {
   CheckCircle,
   CircleNotch,
   Eye,
-  Info,
   MagnifyingGlass,
   Phone,
   Plus,
@@ -44,6 +43,7 @@ import {
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
+import { Notice } from "@/components/ui/notice";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
@@ -608,32 +608,16 @@ export default function WhatsAppBusinessPhonesPage({
       {!adminAllMode && <WhatsAppCapacityCard capacity={capacity} />}
 
       {adminAllMode && (
-        <ElevatedContainer className="border-border bg-muted p-4">
-          <div className="flex items-center gap-3">
-            <Info
-              weight="fill"
-              className="h-5 w-5 flex-shrink-0 text-warning-ink"
-            />
-            <p className="text-sm text-warning-ink">
-              {t.has("header.adminNotice")
-                ? t("header.adminNotice")
-                : t("header.description")}
-            </p>
-          </div>
-        </ElevatedContainer>
+        <Notice tone="warning">
+          {t.has("header.adminNotice")
+            ? t("header.adminNotice")
+            : t("header.description")}
+        </Notice>
       )}
 
       {}
       {!canManagePhones && !adminAllMode && (
-        <ElevatedContainer className="p-4 bg-muted border-border">
-          <div className="flex items-center gap-3">
-            <Info
-              weight="fill"
-              className="h-5 w-5 text-primary-ink flex-shrink-0"
-            />
-            <p className="text-sm text-info-ink">{t("userAccess.info")}</p>
-          </div>
-        </ElevatedContainer>
+        <Notice tone="info">{t("userAccess.info")}</Notice>
       )}
 
       {}

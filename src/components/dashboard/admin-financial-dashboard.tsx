@@ -63,6 +63,7 @@ import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import { ElevatedDatePicker } from "@/components/elevated-design/elevated-date-picker";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
@@ -131,10 +132,10 @@ const SUBSCRIPTION_STATUS_LABELS: Record<string, string> = {
   expired: "Expirada",
 };
 
-const SUBSCRIPTION_STATUS_CLASSES: Record<string, string> = {
-  active: "bg-muted text-healthy-ink",
-  cancelled: "bg-muted text-destructive-ink",
-  expired: "bg-muted text-muted-foreground",
+const SUBSCRIPTION_STATUS_DOTS: Record<string, string> = {
+  active: "bg-healthy",
+  cancelled: "bg-destructive",
+  expired: "bg-muted-foreground",
 };
 
 function serviceLabel(key: string) {
@@ -925,7 +926,7 @@ export default function AdminFinancialDashboard() {
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2">
                 <ArrowClockwise
-                  className="h-4 w-4 text-warning-ink"
+                  className="h-4 w-4 text-warning"
                   weight="bold"
                 />
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -936,7 +937,7 @@ export default function AdminFinancialDashboard() {
                 <p className="text-xs text-muted-foreground">
                   Estornos de serviço no período
                 </p>
-                <p className="text-sm font-semibold tabular-nums text-warning-ink">
+                <p className="text-sm font-semibold tabular-nums text-foreground">
                   −{formatBRLDirect(totalPeriodRefundsBRL)}
                 </p>
               </div>
@@ -1377,7 +1378,7 @@ export default function AdminFinancialDashboard() {
                 </p>
               </div>
             </div>
-            <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-primary-ink tabular-nums">
+            <span className="rounded-[--radius] bg-muted px-3 py-1 text-xs font-semibold text-foreground tabular-nums">
               {(planContractions?.totalCount ?? 0).toLocaleString("pt-BR")} no
               total
             </span>
@@ -1502,15 +1503,19 @@ export default function AdminFinancialDashboard() {
                         {billingCycleLabel(row.billingCycle)}
                       </td>
                       <td className="py-3 pr-4">
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-[--radius] px-2 py-0.5 text-xs font-semibold",
-                            SUBSCRIPTION_STATUS_CLASSES[row.status] ??
-                              "bg-muted text-muted-foreground",
-                          )}
-                        >
-                          {SUBSCRIPTION_STATUS_LABELS[row.status] ?? row.status}
-                        </span>
+                        <StatusChip
+                          tone="outline"
+                          label={SUBSCRIPTION_STATUS_LABELS[row.status] ?? row.status}
+                          icon={
+                            <span
+                              className={cn(
+                                "h-1.5 w-1.5 rounded-full",
+                                SUBSCRIPTION_STATUS_DOTS[row.status] ?? "bg-muted-foreground",
+                              )}
+                            />
+                          }
+                          className="px-2"
+                        />
                       </td>
                       <td className="py-3 text-right whitespace-nowrap text-xs text-muted-foreground">
                         {formatShortDate(row.contractedAt)}

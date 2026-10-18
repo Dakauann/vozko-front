@@ -4,6 +4,7 @@ import { useId, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { RetryNotice } from "@/components/elevated-design/retry-notice";
 import { ToneSwatch } from "@/components/elevated-design/tone-swatch";
 import { Heat, House, Hourglass, WarningCircle, type Icon } from "@/components/icons";
@@ -83,6 +84,7 @@ function ExactOnlySwitch({ view }: { view: GeoExactOnlyView }) {
         checked={view.on}
         onCheckedChange={view.onChange}
         aria-describedby={hintId}
+        explainer={<ExplainerHint id="crm.exactOnly" />}
       />
       <p id={hintId} className="text-2xs text-muted-foreground">
         {t("exactOnlyHint")}

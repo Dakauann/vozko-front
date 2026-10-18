@@ -14,16 +14,26 @@ import {
   TextT,
   Trash,
   VideoCamera,
+  type Icon,
 } from "@/components/icons";
 
 import { DraggableComponent } from "./DragDropBuilder";
+import { Notice } from "@/components/ui/notice";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import { CircuitRoutes } from "@/components/elevated-design/circuit-routes";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRef, useState, type ChangeEvent } from "react";
 import { uploadTemplateHeaderMediaAction } from "@/app/actions/whatsapp-templates";
 import type { TemplateCategory } from "@/lib/whatsapp-templates/types";
+import { detectVariables } from "@/lib/whatsapp-templates/draft";
+import { BUTTON_TEXT_LIMIT, FOOTER_TEXT_LIMIT, MAX_BUILDER_BUTTONS } from "@/lib/whatsapp-templates/builder";
+import { BUTTON_ACTION_KINDS, offeredKinds } from "@/lib/whatsapp-templates/exit";
+import { ButtonActionFields } from "./exit/ButtonActionFields";
+import { FIELD_ANCHOR, QuickReplyChip, RouteCard } from "./exit/ButtonRoutePieces";
+import { useButtonActionLabel } from "./exit/use-button-action-label";
+import { ExitConfirmationField } from "./exit/ExitConfirmationField";
 
 function headerAcceptFor(format?: string): string {
   switch (format) {
@@ -39,38 +49,27 @@ function headerAcceptFor(format?: string): string {
 }
 
 interface ComponentEditorProps {
-  component: DraggableComponent | null;
+  component: DraggableComponent;
   onChange: (component: DraggableComponent) => void;
   category?: TemplateCategory;
+  allowedKinds: readonly string[];
+}
+
+function CharCount({ count, limit }: { count: number; limit: number }) {
+  const t = useTranslations("whatsappTemplates.form.editor");
+  return (
+    <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+      {t("charCount", { count, limit })}
+    </p>
+  );
 }
 
 export default function ComponentEditor({
   component,
   onChange,
   category = "MARKETING",
+  allowedKinds,
 }: ComponentEditorProps) {
-  const t = useTranslations("whatsappTemplates.form.editor");
-  const componentTypeT = useTranslations("whatsappTemplates.componentType");
-
-  if (!component) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
-          <ChatCircle
-            className="h-8 w-8 text-muted-foreground"
-            weight="duotone"
-          />
-        </div>
-        <h3 className="text-sm font-semibold text-foreground mb-1">
-          {t("noSelection.title")}
-        </h3>
-        <p className="text-xs text-muted-foreground max-w-xs">
-          {t("noSelection.description")}
-        </p>
-      </div>
-    );
-  }
-
   const updateData = (updates: Partial<DraggableComponent["data"]>) => {
     onChange({
       ...component,
@@ -79,17 +78,8 @@ export default function ComponentEditor({
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="sticky top-0 bg-card border-b border-border p-4 mb-4 z-10">
-        <h3 className="text-sm font-semibold text-foreground">
-          {t("editComponent", { type: componentTypeT(component.type) })}
-        </h3>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {t("configureHint")}
-        </p>
-      </div>
-
-      <div className="p-4 space-y-4">
+    <div>
+      <div className="space-y-4">
         {component.type === "HEADER" && (
           <HeaderEditor component={component} updateData={updateData} />
         )}
@@ -112,6 +102,7 @@ export default function ComponentEditor({
             component={component}
             updateData={updateData}
             category={category}
+            allowedKinds={allowedKinds}
           />
         )}
         {component.type === "CALL_PERMISSION_REQUEST" && <CallPermissionEditor />}
@@ -125,21 +116,19 @@ function CallPermissionEditor() {
 
   return (
     <div data-tour="wt-call-permission-editor" className="space-y-3">
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted p-4">
+      <div className="flex items-start gap-3">
         <div className="tile-info flex h-9 w-9 flex-shrink-0 items-center justify-center">
           <PhoneCall className="h-5 w-5" weight="duotone" />
         </div>
         <div className="min-w-0">
-          <h4 className="text-xs font-semibold text-foreground">
+          <h4 className="text-sm font-semibold text-foreground">
             {t("title")}
           </h4>
           <p className="mt-1 text-xs text-muted-foreground">
             {t("description")}
           </p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("noFields")}</p>
         </div>
-      </div>
-      <div className="rounded-lg bg-muted p-3">
-        <p className="text-xs text-muted-foreground">{t("noFields")}</p>
       </div>
     </div>
   );
@@ -190,18 +179,18 @@ function HeaderEditor({
   };
 
   return (
-    <div data-tour="wt-header-editor">
+    <div data-tour="wt-header-editor" className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-foreground mb-2">
-          {t("type")}
-        </label>
-        <div className="grid grid-cols-2 gap-2" data-tour="wt-header-formats">
+        <p className="legend mb-2">{t("type")}</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" data-tour="wt-header-formats">
           {formats.map((format) => {
             const Icon = format.icon;
             const isSelected = component.data.format === format.value;
             return (
               <button
                 key={format.value}
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() =>
                   updateData({
                     format: format.value,
@@ -215,10 +204,10 @@ function HeaderEditor({
                         : undefined,
                   })
                 }
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all text-left ${
+                className={`flex items-center gap-2 rounded-[--radius] border px-3 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isSelected
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border hover:border-foreground/20 text-foreground"
+                    ? "border-primary-edge bg-primary text-primary-foreground shadow-button-primary"
+                    : "border-control-edge bg-card text-foreground hover:bg-muted"
                 }`}
               >
                 <Icon className="h-4 w-4" weight="duotone" />
@@ -230,7 +219,7 @@ function HeaderEditor({
       </div>
 
       {component.data.format === "TEXT" && (
-        <>
+        <div>
           <ElevatedInput
             label={t("text")}
             placeholder={t("textPlaceholder")}
@@ -238,10 +227,8 @@ function HeaderEditor({
             onChange={(e) => updateData({ text: e.target.value })}
             maxLength={60}
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            {component.data.text?.length || 0}/60 characters
-          </p>
-        </>
+          <CharCount count={component.data.text?.length || 0} limit={60} />
+        </div>
       )}
 
       {component.data.format !== "TEXT" && (
@@ -277,12 +264,12 @@ function HeaderEditor({
               className="hidden"
               onChange={handleHeaderMediaUpload}
             />
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => headerFileInputRef.current?.click()}
                 disabled={headerUploading}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-xs font-medium hover:border-foreground/20 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-[--radius] border border-control-edge bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
               >
                 <ImageIcon className="h-4 w-4" weight="duotone" />
                 {headerUploading ? t("mediaUploading") : t("mediaUploadButton")}
@@ -342,30 +329,6 @@ function BodyEditor({
     updateData({ text: text + newVariable });
   };
 
-  const detectVariables = (
-    text: string,
-  ): { type: "positional" | "named"; variables: string[] } => {
-    const positionalMatches = [...text.matchAll(/\{\{(\d+)\}\}/g)].map(
-      (m) => m[1],
-    );
-    const namedMatches = [
-      ...text.matchAll(/\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g),
-    ].map((m) => m[1]);
-
-    if (positionalMatches.length > 0) {
-      return {
-        type: "positional",
-        variables: [...new Set(positionalMatches)].sort(
-          (a, b) => parseInt(a) - parseInt(b),
-        ),
-      };
-    }
-    if (namedMatches.length > 0) {
-      return { type: "named", variables: [...new Set(namedMatches)] };
-    }
-    return { type: "positional", variables: [] };
-  };
-
   const { type: varType, variables } = detectVariables(
     component.data.text || "",
   );
@@ -394,12 +357,13 @@ function BodyEditor({
     <div data-tour="wt-body-editor" className="space-y-4">
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-xs font-medium text-foreground">
+          <p className="legend">
             {t("body.messageText")}
-          </label>
+          </p>
           <button
+            type="button"
             onClick={insertVariable}
-            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary-ink hover:text-primary-ink hover:bg-muted rounded-lg transition-colors"
+            className="flex items-center gap-1 rounded-[--radius] px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="h-3 w-3" weight="bold" />
             {t("body.addVariable")}
@@ -412,23 +376,16 @@ function BodyEditor({
           rows={6}
           maxLength={1024}
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          {component.data.text?.length || 0}/1024 characters
-        </p>
+        <CharCount count={component.data.text?.length || 0} limit={1024} />
       </div>
 
       {variables.length > 0 && (
-        <div className="bg-muted border border-border rounded-lg p-3"data-tour="wt-body-variables">
-          <h4 className="text-xs font-semibold text-warning-ink mb-2 flex items-center gap-1">
-            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-warning-ink">
-              !
-            </span>
-            {t("body.examplesRequired.title")}
-          </h4>
-          <p className="text-xs text-warning-ink mb-3">
+        <div data-tour="wt-body-variables">
+          <Notice tone="warning" title={t("body.examplesRequired.title")}>
+          <p className="text-muted-foreground">
             {t("body.examplesRequired.description")}
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2 pt-1">
             {varType === "positional"
               ?
                 variables.map((varNum) => (
@@ -470,15 +427,14 @@ function BodyEditor({
                   </div>
                 ))}
           </div>
+          </Notice>
         </div>
       )}
 
-      <div className="bg-muted border border-border rounded-lg p-3">
-        <h4 className="text-xs font-semibold text-primary-ink mb-1">
-          {t("body.variablesTitle")}
-        </h4>
-        <p className="text-xs text-primary-ink">{t("body.variablesHint")}</p>
-      </div>
+      <p className="text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">{t("body.variablesTitle")}: </span>
+        {t("body.variablesHint")}
+      </p>
     </div>
   );
 }
@@ -493,6 +449,7 @@ function FooterEditor({
   category: TemplateCategory;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.footer");
+  const exitT = useTranslations("templateExit.builder");
 
   if (category === "AUTHENTICATION") {
     return <AuthenticationFooterEditor component={component} updateData={updateData} />;
@@ -505,11 +462,13 @@ function FooterEditor({
         placeholder={t("textPlaceholder")}
         value={component.data.text || ""}
         onChange={(e) => updateData({ text: e.target.value })}
-        maxLength={60}
+        maxLength={FOOTER_TEXT_LIMIT}
       />
-      <p className="text-xs text-muted-foreground mt-1">
-        {component.data.text?.length || 0}/60 characters
-      </p>
+      <CharCount count={component.data.text?.length || 0} limit={FOOTER_TEXT_LIMIT} />
+      <p className="mt-2 text-xs text-muted-foreground">{exitT("footerHint")}</p>
+      <div className="mt-4">
+        <ExitConfirmationField value={component.data.exitConfirmation ?? ""} onChange={(exitConfirmation) => updateData({ exitConfirmation })} />
+      </div>
     </div>
   );
 }
@@ -518,16 +477,20 @@ function ButtonsEditor({
   component,
   updateData,
   category,
+  allowedKinds,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
   category: TemplateCategory;
+  allowedKinds: readonly string[];
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.buttons");
+  const exitT = useTranslations("templateExit");
+  const labelOf = useButtonActionLabel();
   const buttons = component.data.buttons || [];
 
   const addButton = (type: string) => {
-    if (buttons.length >= 3) return;
+    if (buttons.length >= MAX_BUILDER_BUTTONS) return;
 
     const newButton: NonNullable<DraggableComponent["data"]["buttons"]>[0] = {
       id: `btn-${crypto.randomUUID()}`,
@@ -582,22 +545,12 @@ function ButtonsEditor({
         </label>
 
         {buttons.length === 0 && (
-          <div className="text-center py-6 px-4 border border-dashed border-border rounded-lg">
+          <div className="rounded-lg border border-dashed border-border-strong px-4 py-5 text-center">
             <p className="text-xs text-muted-foreground mb-3">{t("empty")}</p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {buttonTypes.map((type) => {
-                const Icon = type.icon;
-                return (
-                  <button
-                    key={type.value}
-                    onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-border rounded-lg transition-all"
-                  >
-                    <Icon className="h-3 w-3" />
-                    {type.label}
-                  </button>
-                );
-              })}
+              {buttonTypes.map((type) => (
+                <AddButtonChip key={type.value} icon={type.icon} label={type.label} onClick={() => addButton(type.value)} />
+              ))}
             </div>
           </div>
         )}
@@ -613,13 +566,15 @@ function ButtonsEditor({
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-foreground">
-                  {t("textLabel")} {index + 1} - {button.type.replace("_", " ")}
+                  {t("item", { index: index + 1 })} · {buttonTypes.find((type) => type.value === button.type)?.label ?? button.type}
                 </span>
                 <button
+                  type="button"
+                  aria-label={t("remove", { index: index + 1 })}
                   onClick={() => removeButton(index)}
-                  className="p-1 text-muted-foreground hover:text-destructive-ink hover:bg-muted rounded transition-colors"
+                  className="rounded-[--radius] p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Trash className="h-3 w-3" weight="bold" />
+                  <Trash className="h-3.5 w-3.5" />
                 </button>
               </div>
 
@@ -631,11 +586,31 @@ function ButtonsEditor({
                     onChange={(e) =>
                       updateButton(index, { text: e.target.value })
                     }
-                    maxLength={20}
+                    maxLength={BUTTON_TEXT_LIMIT}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {button.text?.length || 0}/20 characters
-                  </p>
+                  <CharCount count={button.text?.length || 0} limit={BUTTON_TEXT_LIMIT} />
+                  <CircuitRoutes
+                    className="mt-3"
+                    label={exitT("campaign.destinations")}
+                    routes={[
+                      {
+                        key: button.id,
+                        name: exitT("campaign.destination", { text: button.text || t("textPlaceholder"), action: labelOf(button.action ?? null) }),
+                        state: button.action ? "linked" : "open",
+                        targetAnchor: FIELD_ANCHOR,
+                        source: <QuickReplyChip text={button.text || t("textPlaceholder")} />,
+                        target: (
+                          <RouteCard>
+                            <ButtonActionFields
+                              value={button.action ?? null}
+                              kinds={offeredKinds(BUTTON_ACTION_KINDS, allowedKinds)}
+                              onChange={(action) => updateButton(index, { action: action ?? undefined })}
+                            />
+                          </RouteCard>
+                        ),
+                      },
+                    ]}
+                  />
                 </>
               )}
 
@@ -648,11 +623,9 @@ function ButtonsEditor({
                       onChange={(e) =>
                         updateButton(index, { text: e.target.value })
                       }
-                      maxLength={20}
+                      maxLength={BUTTON_TEXT_LIMIT}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {button.text?.length || 0}/20 characters
-                    </p>
+                    <CharCount count={button.text?.length || 0} limit={BUTTON_TEXT_LIMIT} />
                   </div>
                   <ElevatedInput
                     placeholder={t("urlPlaceholder")}
@@ -673,11 +646,9 @@ function ButtonsEditor({
                       onChange={(e) =>
                         updateButton(index, { text: e.target.value })
                       }
-                      maxLength={20}
+                      maxLength={BUTTON_TEXT_LIMIT}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {button.text?.length || 0}/20 characters
-                    </p>
+                    <CharCount count={button.text?.length || 0} limit={BUTTON_TEXT_LIMIT} />
                   </div>
                   <ElevatedInput
                     placeholder={t("phonePlaceholder")}
@@ -723,34 +694,36 @@ function ButtonsEditor({
           ))}
         </div>
 
-        {buttons.length > 0 && buttons.length < 3 && (
+        {buttons.length > 0 && buttons.length < MAX_BUILDER_BUTTONS && (
           <div className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">{t("add")}</p>
             <div className="flex flex-wrap gap-2">
-              {buttonTypes.map((type) => {
-                const Icon = type.icon;
-                return (
-                  <button
-                    key={type.value}
-                    onClick={() => addButton(type.value)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary-ink bg-card hover:bg-muted border border-border hover:border-border rounded-lg transition-all"
-                  >
-                    <Icon className="h-3 w-3" />
-                    {type.label}
-                  </button>
-                );
-              })}
+              {buttonTypes.map((type) => (
+                <AddButtonChip key={type.value} icon={type.icon} label={type.label} onClick={() => addButton(type.value)} />
+              ))}
             </div>
           </div>
         )}
       </div>
 
-      {buttons.length >= 3 && (
-        <div className="bg-muted border border-border rounded-lg p-3">
-          <p className="text-xs text-warning-ink">{t("maxReached")}</p>
-        </div>
+      {buttons.length >= MAX_BUILDER_BUTTONS && (
+        <Notice tone="warning" className="mt-3">{t("maxReached")}</Notice>
       )}
     </>
+  );
+}
+
+function AddButtonChip({ icon: Glyph, label, onClick }: { icon: Icon; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <Plus className="h-3 w-3" weight="bold" aria-hidden />
+      <Glyph className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+      {label}
+    </button>
   );
 }
 

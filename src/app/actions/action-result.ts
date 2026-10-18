@@ -27,3 +27,8 @@ export function settleResult<T>(result: ApiResult<T>, fallback?: T): ActionResul
   }
   return { data: result.data };
 }
+
+export function guardedResult<T>(result: ActionResult<unknown>, guard: (value: unknown) => value is T, what: string): ActionResult<T> {
+  if (isActionError(result)) return result;
+  return guard(result.data) ? { data: result.data } : { error: `Unexpected ${what} answer` };
+}

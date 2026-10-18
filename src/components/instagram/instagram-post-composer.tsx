@@ -24,9 +24,11 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
 import Textarea from "@/components/elevated-design/elevated-textarea";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { uploadMediaAction } from "@/app/actions/medias";
 
 import { CommentRuleFields } from "@/components/social/comment-rule-fields";
+import { Notice } from "@/components/ui/notice";
 import {
   INSTAGRAM_RULE_ACTIONS,
   commentRuleFieldsErrors,
@@ -201,10 +203,9 @@ export function InstagramPostComposer({
 
         {ruleWarning || analysisWarning ? (
           <div className="space-y-4 p-5">
-            <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-warning-ink dark:text-warning-ink">
-              <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" />
-              {ruleWarning ? t("publishedButRuleFailed", { error: ruleWarning }) : t("publishedButAnalysisFailed", { error: analysisWarning ?? "" })}
-            </p>
+            <Notice tone="warning">
+              <p>{ruleWarning ? t("publishedButRuleFailed", { error: ruleWarning }) : t("publishedButAnalysisFailed", { error: analysisWarning ?? "" })}</p>
+            </Notice>
             <Button title={t("done")} variant="primary" className="w-full" onClick={onClose} />
           </div>
         ) : (
@@ -282,6 +283,7 @@ export function InstagramPostComposer({
                     <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                       <Sparkle className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
                       {t("ruleTitle")}
+                      <ExplainerHint id="social.postCommentRule" />
                     </span>
                     <p className="text-xs text-muted-foreground">{t("ruleHint")}</p>
                   </div>
@@ -313,6 +315,7 @@ export function InstagramPostComposer({
                       <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                         <ChartLineUp className="h-3.5 w-3.5 text-primary-ink" weight="fill" />
                         {t("analysisTitle")}
+                        <ExplainerHint id="social.postAnalysis" />
                       </span>
                       <p className="text-xs text-muted-foreground">{t("analysisHint")}</p>
                     </div>
@@ -345,10 +348,9 @@ export function InstagramPostComposer({
               )}
 
               {error && (
-                <p className="flex items-start gap-2 rounded-lg bg-muted p-3 text-xs text-destructive-ink">
-                  <Warning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  {error}
-                </p>
+                <Notice tone="fault">
+                  <p>{error}</p>
+                </Notice>
               )}
             </div>
 

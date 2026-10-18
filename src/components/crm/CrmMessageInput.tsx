@@ -36,6 +36,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Badge from "../elevated-design/badge";
 import Button from "@/components/elevated-design/button";
 import ElevatedSwitch from "../elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import type { MessageShortcut } from "@/lib/message-shortcuts/types";
 import MessageShortcutSheet from "@/components/message-shortcuts/MessageShortcutSheet";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
@@ -943,6 +944,7 @@ export default function CrmMessageInput({
                 <ElevatedSwitch
                   onCheckedChange={(active) => handleSendSignedToggle(active)}
                   checked={sendSigned}
+                  explainer={<ExplainerHint id="crm.signMessage" side="top" align="end" />}
                 />
               </div>
             </div>

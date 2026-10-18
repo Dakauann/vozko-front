@@ -30,6 +30,7 @@ import {
 } from "@/components/icons";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import Button from "@/components/elevated-design/button";
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +53,7 @@ import {
   setWhatsappCallingStatusAction,
 } from "@/app/actions/whatsapp-business-phones";
 import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import {
   listPhoneAccessAction,
   getMyPhoneAccessAction,
@@ -79,35 +81,35 @@ import {
 } from "@/components/whatsapp/number-automation-panel";
 import { numberAutomationView } from "@/lib/whatsapp-business-phones/automation";
 
-function statusTone(status: BusinessPhoneStatus): string {
+function statusTone(status: BusinessPhoneStatus): StatusChipTone {
   switch (status) {
     case "CONNECTED":
-      return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
+      return "healthy";
     case "PENDING":
     case "VERIFYING":
     case "RATE_LIMITED":
-      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
+      return "warning";
     case "DISCONNECTED":
     case "BANNED":
     case "FLAGGED":
     case "RESTRICTED":
     case "UNVERIFIED":
-      return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
+      return "fault";
     default:
-      return "bg-muted text-muted-foreground border-border";
+      return "muted";
   }
 }
 
-function qualityTone(quality: QualityRating): string {
+function qualityTone(quality: QualityRating): StatusChipTone {
   switch (quality) {
     case "GREEN":
-      return "bg-muted text-healthy-ink border-border dark:text-healthy-ink";
+      return "healthy";
     case "YELLOW":
-      return "bg-muted text-warning-ink border-border dark:text-warning-ink";
+      return "warning";
     case "RED":
-      return "bg-muted text-destructive-ink border-border dark:text-destructive-ink";
+      return "fault";
     default:
-      return "bg-muted text-muted-foreground border-border";
+      return "muted";
   }
 }
 
@@ -454,24 +456,15 @@ export default function BusinessPhoneDetailPage() {
                     {phoneNumber}
                   </p>
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
-                        statusTone(phone.status),
-                      )}
-                    >
-                      {statusIcon(phone.status)}
-                      {t(`status.${phone.status}`)}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-[--radius] border px-2.5 py-0.5 text-xs font-medium",
-                        qualityTone(phone.qualityRating),
-                      )}
-                    >
-                      {t("detail.qualityRating")}:{" "}
-                      {t(`qualityRating.${phone.qualityRating || "UNKNOWN"}`)}
-                    </span>
+                    <StatusChip
+                      tone={statusTone(phone.status)}
+                      icon={statusIcon(phone.status)}
+                      label={t(`status.${phone.status}`)}
+                    />
+                    <StatusChip
+                      tone={qualityTone(phone.qualityRating)}
+                      label={`${t("detail.qualityRating")}: ${t(`qualityRating.${phone.qualityRating || "UNKNOWN"}`)}`}
+                    />
                   </div>
                 </div>
               </div>
@@ -797,9 +790,12 @@ export default function BusinessPhoneDetailPage() {
                     <Phone className="h-5 w-5" weight="fill" />
                   </div>
                   <div>
-                    <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
-                      {t("calling.title")}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
+                        {t("calling.title")}
+                      </h3>
+                      <ExplainerHint id="settings.whatsappCalling" />
+                    </div>
                     <p className="mt-0.5 max-w-md text-sm text-muted-foreground">
                       {t("calling.description")}
                     </p>
@@ -867,9 +863,11 @@ export default function BusinessPhoneDetailPage() {
                       <h3 className="font-display text-base font-semibold tracking-[0.01em] text-foreground">
                         {t("access.title")}
                       </h3>
-                      <span className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-2 py-0.5 text-2xs font-semibold text-warning-ink dark:text-warning-ink">
-                        {t("access.deprecated")}
-                      </span>
+                      <StatusChip
+                        tone="warning"
+                        label={t("access.deprecated")}
+                        className="px-2 text-2xs font-semibold"
+                      />
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {t("access.deprecatedDescription")}

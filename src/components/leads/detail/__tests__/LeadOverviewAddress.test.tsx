@@ -7,6 +7,7 @@ import type { LeadAddress, LeadDetail } from "@/lib/leads/types";
 
 const miniMap = vi.hoisted(() => ({ props: [] as Array<Record<string, unknown>> }));
 
+vi.mock("@/components/customer-portfolio/LeadPortfolioRow", () => ({ LeadPortfolioRow: () => null }));
 vi.mock("@/components/maps/MiniMap", () => ({
   MiniMap: (props: Record<string, unknown>) => {
     miniMap.props.push(props);

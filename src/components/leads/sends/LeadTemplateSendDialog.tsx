@@ -9,6 +9,8 @@ import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-com
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PhonePicker } from "@/components/whatsapp/start-official-conversation-dialog";
 import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
+import { TemplateExitGate } from "@/components/whatsapp/exit/TemplateExitGate";
+import { useExitAcknowledgement } from "@/components/whatsapp/exit/use-exit-acknowledgement";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
 import { useTemplateComposer } from "@/hooks/use-template-composer";
@@ -60,6 +62,7 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
   const phone = list.find((candidate) => candidate.id === phoneId) ?? null;
   const composer = useTemplateComposer({ businessPhoneId: phoneId, enabled: phoneId !== "", quote: false });
   const { template, slots, templateId } = composer;
+  const exitGate = useExitAcknowledgement(templateId);
   const [name, setName] = useState<string | null>(null);
   const department = useSendDepartment();
   const [split, setSplit] = useState(false);
@@ -91,13 +94,15 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
     bindings,
     slots: slotCount,
   });
-  const request: LeadActionRequest | null = params && !shapeRefusal && department.ready ? { action: "send_template", params: { send: params }, selection } : null;
+  const request: LeadActionRequest | null =
+    params && !shapeRefusal && department.ready && !exitGate.blocks ? { action: "send_template", params: { send: { ...params, ...exitGate.fields } }, selection } : null;
   const state = useLeadSendDialog({ action: "send_template", request, onClose, onDepartmentRequired: department.reload });
 
   const canContinue =
     template !== null &&
     isTemplateSendable(template) &&
     shapeRefusal === null &&
+    !exitGate.blocks &&
     sendName.trim() !== "" &&
     department.ready;
 
@@ -142,6 +147,7 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
             {phoneId && !composer.templatesLoading && composer.readyTemplates.length === 0 ? (
               <p className="text-xs text-muted-foreground">{t("template.noTemplates")}</p>
             ) : null}
+            <TemplateExitGate gate={exitGate} />
             {shapeRefusal ? (
               <p role="alert" className="text-xs text-warning-ink">
                 {errorText({ code: shapeRefusal })}

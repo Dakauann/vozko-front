@@ -1,8 +1,10 @@
 "use client";
 
-import { AnimatePresence, Reorder, motion } from "framer-motion";
+import { AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import {
+  CaretDown,
   ChatCircle,
+  Check,
   Cursor,
   DotsSixVertical,
   File,
@@ -11,13 +13,17 @@ import {
   MapPin,
   PhoneCall,
   Plus,
+  ShieldCheck,
   TextT,
   Trash,
   VideoCamera,
 } from "@/components/icons";
-import { useRef, useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import type { Icon } from "@/components/icons";
+import { useButtonActionLabel } from "@/components/whatsapp/exit/use-button-action-label";
+import type { ButtonActionChoice } from "@/lib/whatsapp-templates/exit";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 export interface DraggableComponent {
@@ -39,7 +45,11 @@ export interface DraggableComponent {
       phone_number?: string;
       example?: string;
       otp_type?: string;
+      action?: ButtonActionChoice;
+      exitPiece?: boolean;
     }>;
+    exitConfirmation?: string;
+    exitPiece?: boolean;
     add_security_recommendation?: boolean;
     code_expiration_minutes?: number;
     [key: string]: unknown;
@@ -53,6 +63,13 @@ interface ComponentPaletteItem {
   description: string;
   color: string;
   singleton?: boolean;
+  opensChoice?: boolean;
+}
+
+export interface PalettePicker {
+  onPick: () => void;
+  used: boolean;
+  hint?: string;
 }
 
 interface DragDropBuilderProps {
@@ -61,6 +78,8 @@ interface DragDropBuilderProps {
   onComponentSelect?: (component: DraggableComponent | null) => void;
   selectedComponentId?: string | null;
   palette?: ComponentPaletteItem[];
+  pickers?: Record<string, PalettePicker>;
+  renderEditor?: (component: DraggableComponent) => ReactNode;
 }
 
 export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
@@ -106,11 +125,25 @@ export const DEFAULT_PALETTE: ComponentPaletteItem[] = [
   },
 ];
 
+export const LEAD_EXIT_PIECE: ComponentPaletteItem = {
+  type: "LEAD_EXIT",
+  icon: ShieldCheck,
+  label: "Lead exit",
+  description: "A button or word the lead uses to stop receiving",
+  color: "ink-2",
+  singleton: true,
+  opensChoice: true,
+};
+
 export function paletteForCategory(category: string): ComponentPaletteItem[] {
-  if (category !== "AUTHENTICATION") return DEFAULT_PALETTE;
+  if (category !== "AUTHENTICATION") return [...DEFAULT_PALETTE, LEAD_EXIT_PIECE];
   return DEFAULT_PALETTE.filter(
     (item) => item.type === "BODY" || item.type === "FOOTER" || item.type === "BUTTONS",
   );
+}
+
+function newComponentId(type: string): string {
+  return `${type.toLowerCase()}-${Date.now()}`;
 }
 
 export default function DragDropBuilder({
@@ -119,10 +152,11 @@ export default function DragDropBuilder({
   onComponentSelect,
   selectedComponentId,
   palette = DEFAULT_PALETTE,
+  pickers = {},
+  renderEditor,
 }: DragDropBuilderProps) {
   const builderT = useTranslations("whatsappTemplates.builder");
   const componentTypeT = useTranslations("whatsappTemplates.componentType");
-  const headerFormatT = useTranslations("whatsappTemplates.headerFormat");
 
   const getPaletteLabel = (type: string) =>
     builderT(`palette.${type.toLowerCase()}.label`);
@@ -131,17 +165,21 @@ export default function DragDropBuilder({
 
   const [draggedType, setDraggedType] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const handleAddComponent = (type: string) => {
     const paletteItem = palette.find((p) => p.type === type);
+
+    if (paletteItem?.opensChoice) {
+      if (canAddComponent(type)) pickers[type]?.onPick();
+      return;
+    }
 
     if (paletteItem?.singleton && components.some((c) => c.type === type)) {
       return;
     }
 
     const newComponent: DraggableComponent = {
-      id: `${type.toLowerCase()}-${Date.now()}`,
+      id: newComponentId(type),
       type: type as DraggableComponent["type"],
       data: getDefaultData(type),
     };
@@ -213,206 +251,232 @@ export default function DragDropBuilder({
     return icons[type] || TextT;
   };
 
-  const getComponentColor = (type: string) => {
-    const colors: Record<string, string> = {
-      HEADER: "blue",
-      BODY: "emerald",
-      FOOTER: "amber",
-      BUTTONS: "purple",
-      CALL_PERMISSION_REQUEST: "blue",
-    };
-    return colors[type] || "slate";
+  const getComponentInk = (type: string) =>
+    (palette.find((p) => p.type === type) ?? DEFAULT_PALETTE.find((p) => p.type === type))?.color ?? "ink-1";
+
+  const blockedBy = (type: string): string | null => {
+    if (type === "CALL_PERMISSION_REQUEST" && components.some((c) => c.type === "BUTTONS")) return "BUTTONS";
+    if (type === "BUTTONS" && components.some((c) => c.type === "CALL_PERMISSION_REQUEST")) return "CALL_PERMISSION_REQUEST";
+    return null;
+  };
+
+  const unavailableReason = (item: ComponentPaletteItem): string | undefined => {
+    if (pickers[item.type]?.hint) return pickers[item.type].hint;
+    if (item.singleton && components.some((c) => c.type === item.type)) return builderT("inMessage");
+    const blocker = blockedBy(item.type);
+    return blocker ? builderT("excludes", { piece: getPaletteLabel(blocker) }) : undefined;
   };
 
   const canAddComponent = (type: string) => {
     const paletteItem = palette.find((p) => p.type === type);
     if (!paletteItem) return false;
+    if (paletteItem.opensChoice) return Boolean(pickers[type]) && !pickers[type].used;
     if (paletteItem.singleton && components.some((c) => c.type === type)) {
       return false;
     }
-    if (
-      type === "CALL_PERMISSION_REQUEST" &&
-      components.some((c) => c.type === "BUTTONS")
-    ) {
-      return false;
-    }
-    if (
-      type === "BUTTONS" &&
-      components.some((c) => c.type === "CALL_PERMISSION_REQUEST")
-    ) {
-      return false;
-    }
-    return true;
+    return blockedBy(type) === null;
   };
 
   return (
-    <div className="flex gap-6 h-full">
-      {}
-      <div className="w-64 flex-shrink-0" data-tour="wt-builder-palette">
-        <div className="sticky top-0">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            {builderT("titles.components")}
-          </h3>
-          <div className="space-y-2">
-            {palette.map((item) => {
-              const Icon = item.icon;
-              const canAdd = canAddComponent(item.type);
+    <div className="space-y-6">
+      <div
+        data-tour="wt-builder-canvas"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          "rounded-lg transition-shadow duration-150",
+          isDraggingOver && "ring-2 ring-ring ring-offset-4 ring-offset-card",
+        )}
+      >
+        {components.length === 0 ? (
+          <div className="flex items-center gap-4 rounded-lg border border-dashed border-border-strong px-5 py-6">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-control-edge text-muted-foreground">
+              <Plus className="h-5 w-5" weight="bold" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-foreground">
+                {builderT("emptyState.title")}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {builderT("emptyState.description")}
+              </span>
+            </span>
+          </div>
+        ) : (
+          <Reorder.Group axis="y" values={components} onReorder={onChange} className="space-y-2">
+            <AnimatePresence initial={false}>
+              {components.map((component) => (
+                <PieceCard
+                  key={component.id}
+                  component={component}
+                  icon={getComponentIcon(component.type)}
+                  ink={getComponentInk(component.type)}
+                  label={componentTypeT(component.type)}
+                  selected={selectedComponentId === component.id}
+                  onToggle={() =>
+                    onComponentSelect?.(selectedComponentId === component.id ? null : component)
+                  }
+                  onRemove={() => handleRemoveComponent(component.id)}
+                  editor={
+                    selectedComponentId === component.id && renderEditor
+                      ? renderEditor(component)
+                      : null
+                  }
+                />
+              ))}
+            </AnimatePresence>
+          </Reorder.Group>
+        )}
+      </div>
 
-              return (
-                <motion.div
-                  key={item.type}
+      <div data-tour="wt-builder-palette">
+        <h3 className="legend mb-2">{builderT("titles.add")}</h3>
+        <ul className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+          {palette.map((item) => {
+            const PieceIcon = item.icon;
+            const canAdd = canAddComponent(item.type);
+            const reason = canAdd ? undefined : unavailableReason(item);
+
+            return (
+              <li key={item.type} className="flex">
+                <button
+                  type="button"
+                  aria-disabled={!canAdd}
                   draggable={canAdd}
                   onDragStart={() => canAdd && handleDragStart(item.type)}
                   onDragEnd={handleDragEnd}
-                  whileHover={canAdd ? { scale: 1.02 } : {}}
-                  className={`group relative rounded-[--radius] border border-dashed p-4 transition-all cursor-move ${
+                  onClick={() => canAdd && handleAddComponent(item.type)}
+                  className={cn(
+                    "group flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-[border-color,box-shadow,background-color] duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     canAdd
-                      ? "border-border hover:border-foreground/20 bg-card hover:shadow-md"
-                      : "border-border bg-muted opacity-50 cursor-not-allowed"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {
-}
-                    <div
-                      className={`ink-plate flex h-10 w-10 flex-shrink-0 items-center justify-center ${item.color}`}
-                    >
-                      <Icon className="h-5 w-5" weight="duotone" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground text-sm">
-                        {getPaletteLabel(item.type)}
-                        {item.singleton && (
-                          <span className="ml-1 text-xs text-muted-foreground">
-                            {builderT("singleton")}
-                          </span>
-                        )}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                        {getPaletteDescription(item.type)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {canAdd && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-card opacity-0 group-hover:opacity-100 transition-opacity rounded-[--radius] pointer-events-none">
-                      <DotsSixVertical
-                        className="h-6 w-6 text-muted-foreground"
-                        weight="bold"
-                      />
-                    </div>
+                      ? "border-border bg-card hover:border-border-strong hover:shadow-sm active:bg-[hsl(var(--accent-hover))]"
+                      : "cursor-not-allowed border-border bg-card",
                   )}
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {}
-      <div className="flex-1 min-w-0" data-tour="wt-builder-canvas">
-        <h3 className="text-sm font-semibold text-foreground mb-3">
-          {builderT("titles.builder")}
-        </h3>
-
-        <div
-          ref={dropZoneRef}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`min-h-[400px] rounded-[--radius] border border-dashed transition-all ${
-            isDraggingOver
-              ? "border-info bg-muted"
-              : "border-border bg-muted"
-          }`}
-        >
-          {components.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[400px] text-center p-6">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
-                <Plus className="h-8 w-8 text-muted-foreground" weight="bold" />
-              </div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">
-                {builderT("emptyState.title")}
-              </p>
-              <p className="text-xs text-muted-foreground max-w-xs">
-                {builderT("emptyState.description")}
-              </p>
-            </div>
-          ) : (
-            <Reorder.Group
-              axis="y"
-              values={components}
-              onReorder={onChange}
-              className="p-4 space-y-3"
-            >
-              <AnimatePresence mode="popLayout">
-                {components.map((component) => {
-                  const Icon = getComponentIcon(component.type);
-                  const color = getComponentColor(component.type);
-                  const isSelected = selectedComponentId === component.id;
-
-                  return (
-                    <Reorder.Item
-                      key={component.id}
-                      value={component}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -50 }}
-                      whileDrag={{
-                        scale: 1.02,
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-                      }}
-                      className={`group relative rounded-[--radius] border bg-card p-4 transition-all cursor-move ${
-                        isSelected
-                          ? `border-${color}-400 shadow-lg`
-                          : "border-border hover:border-foreground/20 hover:shadow-md"
-                      }`}
-                      onClick={() => onComponentSelect?.(component)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
-                          <DotsSixVertical
-                            className="h-6 w-6 text-muted-foreground group-hover:text-muted-foreground transition-colors"
-                            weight="bold"
-                          />
-                        </div>
-
-                        <div
-                          className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-${color}-100`}
-                        >
-                          <Icon
-                            className={`h-5 w-5 text-${color}-600`}
-                            weight="duotone"
-                          />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-semibold text-foreground text-sm">
-                              {componentTypeT(component.type)}
-                            </h4>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveComponent(component.id);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-destructive-ink hover:bg-muted transition-all"
-                            >
-                              <Trash className="h-4 w-4" weight="bold" />
-                            </button>
-                          </div>
-                          <ComponentPreview component={component} />
-                        </div>
-                      </div>
-                    </Reorder.Item>
-                  );
-                })}
-              </AnimatePresence>
-            </Reorder.Group>
-          )}
-        </div>
+                >
+                  <span
+                    className={cn(
+                      "ink-plate flex h-8 w-8 shrink-0 items-center justify-center",
+                      item.color,
+                      !canAdd && "opacity-50",
+                    )}
+                  >
+                    <PieceIcon className="h-4 w-4" weight="duotone" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={cn("block text-sm font-medium", canAdd ? "text-foreground" : "text-muted-foreground")}>
+                      {getPaletteLabel(item.type)}
+                    </span>
+                    <span className="mt-0.5 flex items-start gap-1 text-xs text-muted-foreground">
+                      {reason && item.singleton && components.some((c) => c.type === item.type) ? (
+                        <Check className="mt-px h-3 w-3 shrink-0 text-foreground" weight="bold" aria-hidden />
+                      ) : null}
+                      <span className="line-clamp-2">{reason ?? getPaletteDescription(item.type)}</span>
+                    </span>
+                  </span>
+                  {canAdd ? (
+                    <Plus
+                      className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
+                      weight="bold"
+                      aria-hidden
+                    />
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
+  );
+}
+
+function PieceCard({
+  component,
+  icon: PieceIcon,
+  ink,
+  label,
+  selected,
+  onToggle,
+  onRemove,
+  editor,
+}: {
+  component: DraggableComponent;
+  icon: Icon;
+  ink: string;
+  label: string;
+  selected: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+  editor: ReactNode;
+}) {
+  const builderT = useTranslations("whatsappTemplates.builder");
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={component}
+      dragListener={false}
+      dragControls={dragControls}
+      layout="position"
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, transition: { duration: 0.12 } }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      whileDrag={{ scale: 1.01 }}
+      className={cn(
+        "group relative list-none rounded-lg border bg-card transition-[border-color,box-shadow] duration-150",
+        selected ? "border-primary-edge shadow-md" : "border-border hover:border-border-strong",
+      )}
+    >
+      <div className="flex items-start gap-1 p-2">
+        <button
+          type="button"
+          aria-label={builderT("dragHandle", { piece: label })}
+          onPointerDown={(event) => dragControls.start(event)}
+          className="flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+        >
+          <DotsSixVertical className="h-4 w-4" weight="bold" />
+        </button>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={selected}
+          className="flex min-w-0 flex-1 items-start gap-3 rounded-[--radius] px-1 py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className={cn("ink-plate flex h-8 w-8 shrink-0 items-center justify-center", ink)}>
+            <PieceIcon className="h-4 w-4" weight="duotone" />
+          </span>
+          <span className="min-w-0 flex-1 pt-1.5 text-sm font-semibold leading-5 text-foreground">{label}</span>
+          <CaretDown
+            aria-hidden
+            className={cn(
+              "mt-2 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-150",
+              selected && "rotate-180",
+            )}
+          />
+        </button>
+        <button
+          type="button"
+          aria-label={`${builderT("component.remove")} ${label}`}
+          onClick={onRemove}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Trash className="h-4 w-4" />
+        </button>
+      </div>
+      {selected ? null : (
+        <div onClick={onToggle} className="-mt-1 cursor-pointer pb-3 pl-[5.25rem] pr-12">
+          <ComponentPreview component={component} />
+        </div>
+      )}
+      {editor ? (
+        <div className="border-t border-border px-4 pb-5 pt-4 sm:px-5" data-tour="wt-component-editor">
+          {editor}
+        </div>
+      ) : null}
+    </Reorder.Item>
   );
 }
 
@@ -474,13 +538,16 @@ function ComponentPreview({ component }: { component: DraggableComponent }) {
   }
 
   if (type === "BUTTONS") {
-    const buttonCount = data.buttons?.length || 0;
-    return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Cursor className="h-4 w-4" />
-        <span>{builderT("preview.buttons.count", { count: buttonCount })}</span>
-      </div>
-    );
+    const buttons = data.buttons ?? [];
+    if (buttons.length === 0) {
+      return (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Cursor className="h-4 w-4" />
+          <span>{builderT("preview.buttons.count", { count: 0 })}</span>
+        </div>
+      );
+    }
+    return <ButtonChips buttons={buttons} />;
   }
 
   if (type === "CALL_PERMISSION_REQUEST") {
@@ -493,6 +560,20 @@ function ComponentPreview({ component }: { component: DraggableComponent }) {
   }
 
   return null;
+}
+
+function ButtonChips({ buttons }: { buttons: NonNullable<DraggableComponent["data"]["buttons"]> }) {
+  const labelOf = useButtonActionLabel();
+  const destinationT = useTranslations("templateExit.campaign");
+  return (
+    <div className="flex flex-wrap gap-1">
+      {buttons.map((button) => (
+        <span key={button.id} className="inline-flex items-center rounded-[--radius] border border-border bg-muted px-1.5 py-0.5 text-2xs font-semibold text-foreground">
+          {button.action ? destinationT("destination", { text: button.text ?? "", action: labelOf(button.action) }) : button.text || button.type}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export function getDefaultData(type: string): DraggableComponent["data"] {

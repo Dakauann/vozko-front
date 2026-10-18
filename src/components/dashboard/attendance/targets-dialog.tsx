@@ -33,6 +33,7 @@ import {
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Meter } from "@/components/charts/vozko";
+import { Notice } from "@/components/ui/notice";
 import { useMetricsFmt } from "@/components/dashboard/attendance/primitives";
 import { cn } from "@/lib/utils";
 
@@ -306,9 +307,9 @@ export function TargetsDialog({
 
         <ElevatedDialogBody>
           {error ? (
-            <div className="mb-3 rounded-[--radius] border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive-ink">
-              {error}
-            </div>
+            <Notice tone="fault" className="mb-3">
+              <p>{error}</p>
+            </Notice>
           ) : null}
 
           {loading ? (

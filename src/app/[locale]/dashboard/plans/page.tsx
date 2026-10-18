@@ -46,6 +46,7 @@ import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader"
 import { PanelSection } from "@/components/dashboard/PanelSection";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import UserPlansCatalog from "@/components/dashboard/plans/UserPlansCatalog";
 import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
@@ -77,7 +78,6 @@ type PlanDraft = {
   description: string;
   basePriceBRL: string;
   maxCallChannels: string;
-  maxTtsConcurrency: string;
   includedWhatsAppBusinessPhones: string;
   maxBranches: string;
   pricingItems: PricingItemDraft[];
@@ -132,7 +132,6 @@ function buildDraft(
     description: plan?.description ?? "",
     basePriceBRL: centsToDisplay(plan?.basePriceBRLCents ?? 0),
     maxCallChannels: String(plan?.maxCallChannels ?? 3),
-    maxTtsConcurrency: String(plan?.maxTtsConcurrency ?? 3),
     includedWhatsAppBusinessPhones: String(
       plan?.includedWhatsAppBusinessPhones ?? 0,
     ),
@@ -149,7 +148,6 @@ function toMutationInput(draft: PlanDraft, rate: number): PlanMutationInput {
     description: draft.description.trim(),
     basePriceBRLCents: displayToCents(draft.basePriceBRL),
     maxCallChannels: 1,
-    maxTtsConcurrency: Number.parseInt(draft.maxTtsConcurrency, 10) || 0,
     includedWhatsAppBusinessPhones:
       Number.parseInt(draft.includedWhatsAppBusinessPhones, 10) || 0,
     maxBranches: 1,
@@ -964,7 +962,7 @@ export function AdminPlansManager() {
                   description={t("sections.capacityDescription")}
                   title={t("sections.capacity")}
                 >
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <ElevatedInput
                       disabled={selectedPlan?.archivedAt != null}
                       label={t("form.basePrice")}
@@ -989,19 +987,6 @@ export function AdminPlansManager() {
                       }
                       type="number"
                       value={draft.includedWhatsAppBusinessPhones}
-                    />
-                    <ElevatedInput
-                      disabled={selectedPlan?.archivedAt != null}
-                      label={t("form.maxTtsConcurrency")}
-                      min="1"
-                      onChange={(event) =>
-                        handleDraftChange(
-                          "maxTtsConcurrency",
-                          event.target.value,
-                        )
-                      }
-                      type="number"
-                      value={draft.maxTtsConcurrency}
                     />
                   </div>
 
@@ -1433,9 +1418,12 @@ function PricingItemsEditor({
                           <span className="flex flex-wrap items-center gap-1.5">
                             {serviceLabel(t, item.service)}
                             {customized ? (
-                              <span className="rounded-lg legend border border-border bg-muted px-1.5 py-0.5 text-primary-ink">
-                                {t("pricingItems.customized")}
-                              </span>
+                              <StatusChip
+                                tone="outline"
+                                className="legend px-1.5"
+                                icon={<span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                                label={t("pricingItems.customized")}
+                              />
                             ) : null}
                           </span>
                           {unpriced ? (

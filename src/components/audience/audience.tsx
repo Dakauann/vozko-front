@@ -40,6 +40,7 @@ import { CommentAnalysisAuthors } from "@/components/audience/authors";
 import { CommentAnalysisFeed } from "@/components/audience/feed";
 import { Chip, EmptyState, Skeleton } from "@/components/audience/shared";
 import { ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle } from "@/components/icons";
+import { Notice } from "@/components/ui/notice";
 
 
 type Section = "overview" | "topics" | "authors" | "feed";
@@ -378,7 +379,11 @@ export function CommentAnalysisAudience({
         <PeriodPicker value={period} onChange={(next) => { setPeriod(next); setCommentStats(null); setConversationStats(null); setCommentTrend([]); setConversationTrend([]); setError(null); }} />
       </div>
 
-      {error ? <div role="alert" className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">{error}</div> : null}
+      {error ? (
+        <Notice tone="fault">
+          <p>{error}</p>
+        </Notice>
+      ) : null}
 
       {
 }

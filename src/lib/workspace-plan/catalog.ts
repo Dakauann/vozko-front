@@ -15,7 +15,6 @@ export type FeaturedKind = "popular" | "exclusive";
 export type PlanHighlight =
   | { kind: "balance"; cents: number }
   | { kind: "whatsappNumbers"; count: number }
-  | { kind: "voices"; count: number }
   | { kind: "category"; category: string };
 
 export function billableItems<T extends { category: string }>(items: T[] | undefined): T[] {
@@ -44,9 +43,6 @@ export function planHighlights(plan: PlanDefinition): PlanHighlight[] {
   const highlights: PlanHighlight[] = [{ kind: "balance", cents: plan.basePriceBRLCents }];
   if ((plan.includedWhatsAppBusinessPhones ?? 0) > 0) {
     highlights.push({ kind: "whatsappNumbers", count: plan.includedWhatsAppBusinessPhones ?? 0 });
-  }
-  if ((plan.maxTtsConcurrency ?? 0) > 0) {
-    highlights.push({ kind: "voices", count: plan.maxTtsConcurrency ?? 0 });
   }
   for (const category of planCategories(plan)) {
     highlights.push({ kind: "category", category });

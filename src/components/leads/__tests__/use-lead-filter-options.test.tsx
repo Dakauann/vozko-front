@@ -9,6 +9,7 @@ const listLabelsAction = vi.fn();
 const fetchLeadSection = vi.fn();
 const listCustomFieldsAction = vi.fn();
 const listAssignableMembersAction = vi.fn();
+const listLeadCompaniesAction = vi.fn();
 const permissions = { current: new Set<string>(["leads:read", "members:read"]) };
 
 vi.mock("@/app/actions/whatsapp-campaigns", () => ({
@@ -22,6 +23,9 @@ vi.mock("@/app/actions/custom-fields", () => ({
 }));
 vi.mock("@/app/actions/workspace", () => ({
   listAssignableMembersAction: (...args: unknown[]) => listAssignableMembersAction(...args),
+}));
+vi.mock("@/app/actions/lead-companies", () => ({
+  listLeadCompaniesAction: (...args: unknown[]) => listLeadCompaniesAction(...args),
 }));
 vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({
@@ -68,6 +72,10 @@ describe("useLeadFilterOptions", () => {
       ],
     });
     listAssignableMembersAction.mockReset().mockResolvedValue({ members: [{ userId: "u-1", username: "Clara M." }] });
+    listLeadCompaniesAction.mockReset().mockResolvedValue({
+      data: { items: [{ id: "co-1", name: "Acme", acceptsLeads: true, membersCount: 4, createdAt: "x", updatedAt: "x" }], page: 1, pageSize: 100, totalPages: 1, totalItems: 1 },
+      error: null,
+    });
     fetchLeadSection.mockReset().mockImplementation(async (_section: string, params: LeadSectionParams) =>
       readSet(params.filter, LEAD_FILTER_FIELD.city).length > 0 ? ONLY_CARAPICUIBA : WHOLE_WORKSPACE,
     );
@@ -125,6 +133,22 @@ describe("useLeadFilterOptions", () => {
     await waitFor(() => expect(outsider.result.current.pending).not.toContain("campaigns"));
     expect(outsider.result.current.members.size).toBe(0);
     expect(listAssignableMembersAction).not.toHaveBeenCalled();
+  });
+
+  it("offers the companies by name only to a viewer who may read them", async () => {
+    permissions.current = new Set(["leads:read", "lead_companies:read"]);
+    const reader = renderHook(() => useLeadFilterOptions(), { wrapper: wrapper() });
+    await waitFor(() => expect(reader.result.current.companies).toEqual([{ value: "co-1", label: "Acme" }]));
+    expect(reader.result.current.readsCompanies).toBe(true);
+    expect(listLeadCompaniesAction.mock.calls[0][0]).toEqual({ page: 1, pageSize: 100 });
+
+    permissions.current = new Set(["leads:read"]);
+    listLeadCompaniesAction.mockClear();
+    const outsider = renderHook(() => useLeadFilterOptions(), { wrapper: wrapper() });
+    await waitFor(() => expect(outsider.result.current.pending).not.toContain("campaigns"));
+    expect(outsider.result.current.readsCompanies).toBe(false);
+    expect(outsider.result.current.companies).toEqual([]);
+    expect(listLeadCompaniesAction).not.toHaveBeenCalled();
   });
 
   it("tells the toolbar whether street level filters are allowed", async () => {

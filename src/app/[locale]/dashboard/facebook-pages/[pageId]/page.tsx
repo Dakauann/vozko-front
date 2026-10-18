@@ -9,7 +9,6 @@ import {
   Plus,
   Robot,
   UsersThree,
-  Warning,
 } from "@/components/icons";
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,6 +30,7 @@ import { MessengerProfileEditor } from "@/components/facebook/messenger-profile-
 import { RoutingHealthBanner } from "@/components/facebook/routing-health-banner";
 import { useFacebookError } from "@/components/facebook/use-facebook-error";
 import { CommentRulesPanel } from "@/components/social/comment-rules-panel";
+import { Notice } from "@/components/ui/notice";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { FACEBOOK_PAGES_PATH } from "@/lib/facebook/connect";
 import { capabilityGate } from "@/lib/facebook/page";
@@ -96,9 +96,8 @@ export default function FacebookPageDetail({ params }: { params: Promise<{ pageI
         />
 
         {state.status === "failed" && (
-          <ElevatedContainer className="flex flex-wrap items-center gap-3 p-4 text-sm text-destructive-ink">
-            <Warning className="h-4 w-4" />
-            <span className="flex-1">{state.message}</span>
+          <Notice tone="fault">
+            <p>{state.message}</p>
             <Button
               size="sm"
               variant="secondary"
@@ -108,7 +107,7 @@ export default function FacebookPageDetail({ params }: { params: Promise<{ pageI
                 setReloadKey((k) => k + 1);
               }}
             />
-          </ElevatedContainer>
+          </Notice>
         )}
 
         {state.status === "loading" && <div className="h-40 animate-pulse rounded-[--radius] bg-muted" />}
@@ -320,12 +319,7 @@ function PostList({
 
   return (
     <div className="space-y-3">
-      {error ? (
-        <p className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs text-destructive-ink">
-          <Warning className="h-3.5 w-3.5" />
-          {error}
-        </p>
-      ) : null}
+      {error ? <Notice tone="fault">{error}</Notice> : null}
       {error && shown.length === 0 ? null : (
         <FacebookPostGrid
           pageId={pageId}
@@ -371,10 +365,7 @@ function StoriesSection({ pageId, version }: { pageId: string; version: number }
       </div>
       <div className="p-5">
         {error ? (
-          <p className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs text-destructive-ink">
-            <Warning className="h-3.5 w-3.5" />
-            {error}
-          </p>
+          <Notice tone="fault">{error}</Notice>
         ) : stories === null ? (
           <div className="h-16 animate-pulse rounded-[--radius] bg-muted" />
         ) : (

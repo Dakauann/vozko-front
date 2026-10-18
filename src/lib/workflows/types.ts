@@ -33,6 +33,7 @@ export type WorkflowNodeType =
   | "action_move_stage"
   | "action_manage_opportunity"
   | "action_update_lead"
+  | "action_consent"
   | "wait_duration"
   | "wait_for_reply"
   | "wait_for_event"
@@ -45,6 +46,7 @@ export type WorkflowNodeType =
   | "condition_check_stage"
   | "condition_check_opportunity"
   | "condition_channel"
+  | "condition_consent"
   | "end"
   | "group"
   | "decoration_background";

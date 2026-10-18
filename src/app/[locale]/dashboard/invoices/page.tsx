@@ -35,6 +35,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
+import { StatusChip } from "@/components/elevated-design/status-chip";
 import { cn } from "@/lib/utils";
 import {
   createInvoiceAction,
@@ -228,16 +229,16 @@ export default function InvoicesPage() {
                 {formatDate(row.createdAt)}
               </span>
               {row.purpose && (
-                <span
-                  className={cn(
-                    "rounded-[--radius] px-1.5 py-0.5 text-2xs font-medium",
-                    row.purpose === "MONTHLY_BILLING"
-                      ? "bg-muted text-primary-ink"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {t(`purpose.${row.purpose}`)}
-                </span>
+                <StatusChip
+                  tone={row.purpose === "MONTHLY_BILLING" ? "outline" : "muted"}
+                  className="px-1.5 text-2xs"
+                  icon={
+                    row.purpose === "MONTHLY_BILLING" ? (
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    ) : undefined
+                  }
+                  label={t(`purpose.${row.purpose}`)}
+                />
               )}
             </div>
             {row.description && (

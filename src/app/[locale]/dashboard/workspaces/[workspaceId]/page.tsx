@@ -10,15 +10,12 @@ import {
   Crown,
   CurrencyDollar,
   Envelope,
-  Info,
   Eye,
   FloppyDisk,
   Megaphone,
-  Microphone,
   PencilSimple,
   Phone,
   Shield,
-  SpeakerHigh,
   Star,
   UserCircle,
   Users,
@@ -73,6 +70,7 @@ import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
 import Link from "next/link";
+import { Notice } from "@/components/ui/notice";
 import type { ResolvedPricingItem } from "@/lib/pricing/types";
 import type { BillingType } from "@/lib/invoices/types";
 import type { User } from "@/lib/users/types";
@@ -92,8 +90,6 @@ function microsToDisplay(micros: number): string {
 }
 
 const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
-  tts: { icon: SpeakerHigh, bg: "tile-5", fg: "" },
-  stt: { icon: Microphone, bg: "tile-4", fg: "" },
   whatsapp: { icon: WhatsappLogo, bg: channelPlate("whatsapp"), fg: "" },
   telephony: { icon: Phone, bg: channelPlate("voice"), fg: "" },
   advertising: { icon: Megaphone, bg: "tile-2", fg: "" },
@@ -432,12 +428,10 @@ export default function AdminWorkspaceDetailPage() {
                   ${microsToDisplay(item.defaultPriceMicros)}
                 </span>
               )}
-              <span
-                className={cn(
-                  "text-sm font-semibold tabular-nums whitespace-nowrap",
-                  item.isOverride ? "text-warning-ink" : "text-foreground",
-                )}
-              >
+              {item.isOverride && (
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning" />
+              )}
+              <span className="text-sm font-semibold tabular-nums whitespace-nowrap text-foreground">
                 ${microsToDisplay(item.priceMicros)}
               </span>
             </div>
@@ -763,9 +757,7 @@ export default function AdminWorkspaceDetailPage() {
               </div>
 
               {subscriptionError ? (
-                <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-xs text-destructive-foreground">
-                  {subscriptionError}
-                </div>
+                <Notice tone="fault">{subscriptionError}</Notice>
               ) : currentSubscription ? (
                 <>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -1213,15 +1205,9 @@ export default function AdminWorkspaceDetailPage() {
           {}
           <TabsContent value="pricing">
             {resolvedPricing.some((p) => p.category === "exchange_rate") && (
-              <div className="flex items-start gap-3 rounded-[--radius] border border-warning/30 bg-warning/60 px-4 py-3 mb-4">
-                <Info
-                  className="h-4 w-4 text-warning-ink mt-0.5 flex-shrink-0"
-                  weight="fill"
-                />
-                <p className="text-xs text-warning-ink">
-                  {t("overview.exchangeRateWarning")}
-                </p>
-              </div>
+              <Notice tone="warning" className="mb-4">
+                {t("overview.exchangeRateWarning")}
+              </Notice>
             )}
             <DashboardTable<ResolvedPricingItem>
               data={resolvedPricing}
@@ -1249,7 +1235,6 @@ export default function AdminWorkspaceDetailPage() {
                   ),
                 },
               ]}
-              rowClassName={(row) => (row.isOverride ? "bg-warning/50" : "")}
               emptyState={{
                 icon: (
                   <CurrencyDollar

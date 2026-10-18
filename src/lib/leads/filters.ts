@@ -38,6 +38,8 @@ export const LEAD_FILTER_FIELD = {
     hasIdentity: 'has_identity',
     blocked: 'blocked',
     optedOut: 'opted_out',
+    optOutSource: 'opt_out_source',
+    optedOutAt: 'opted_out_at',
     whatsappOptIn: 'whatsapp_opt_in',
     zip: 'zip',
     city: 'city',
@@ -53,6 +55,7 @@ export const LEAD_FILTER_FIELD = {
     relativesCount: 'relatives_count',
     referredCount: 'referred_count',
     referredBy: 'referred_by',
+    company: 'company',
     owner: 'owner',
     channel: 'channel',
     campaign: 'campaign',
@@ -100,6 +103,7 @@ export type LeadRuntimeOptions =
     | 'stages'
     | 'labels'
     | 'owners'
+    | 'companies'
     | 'cities'
     | 'districts';
 
@@ -132,6 +136,7 @@ export interface LeadFilterFieldSpec {
     presence?: LeadFilterSides;
     entry?: LeadFilterEntry;
     readsAddresses?: boolean;
+    readsCompanies?: boolean;
 }
 
 export interface LeadCustomFilterSpec {
@@ -166,6 +171,20 @@ export const LEAD_MEMORY_AUTHORS = ['ai', 'human', 'system'] as const;
 export const LEAD_BIRTHDAY_WINDOWS = ['today', 'this_week', 'this_month'] as const;
 
 export const LEAD_SOURCES = ['manual', 'import', 'channel'] as const;
+
+export const LEAD_OPT_OUT_ORIGINS = [
+    'button_reply',
+    'template_word',
+    'campaign_word',
+    'workspace_word',
+    'keyword',
+    'ai_agent',
+    'workflow',
+    'manual',
+    'conversation_request',
+    'elo',
+    'api',
+] as const;
 
 export const LEAD_GEO_STATUSES: readonly LeadGeoStatus[] = [
     'pending',
@@ -225,6 +244,14 @@ export const LEAD_FILTER_FIELDS: LeadFilterFieldSpec[] = [
     { field: LEAD_FILTER_FIELD.hasIdentity, control: 'boolean', group: 'identity', labelKey: 'hasIdentity', sides: sides('hasIdentity') },
     { field: LEAD_FILTER_FIELD.blocked, control: 'boolean', group: 'identity', labelKey: 'blocked', sides: sides('blocked') },
     { field: LEAD_FILTER_FIELD.optedOut, control: 'boolean', group: 'identity', labelKey: 'optedOut', sides: sides('optedOut') },
+    {
+        field: LEAD_FILTER_FIELD.optOutSource,
+        control: 'enum',
+        group: 'identity',
+        labelKey: 'optOutSource',
+        options: translatedOptions(LEAD_OPT_OUT_ORIGINS, `${OPTIONS_PATH}.optOutSource`),
+    },
+    { field: LEAD_FILTER_FIELD.optedOutAt, control: 'date', group: 'identity', labelKey: 'optedOutAt' },
     { field: LEAD_FILTER_FIELD.whatsappOptIn, control: 'boolean', group: 'identity', labelKey: 'whatsappOptIn', sides: sides('whatsappOptIn') },
 
     { field: LEAD_FILTER_FIELD.zip, control: 'idset', group: 'address', labelKey: 'zip', entry: 'zip', readsAddresses: true },
@@ -309,6 +336,15 @@ export const LEAD_FILTER_FIELDS: LeadFilterFieldSpec[] = [
 
     { field: LEAD_FILTER_FIELD.stage, control: 'idset', group: 'crm', labelKey: 'stage', runtimeOptions: 'stages' },
     { field: LEAD_FILTER_FIELD.label, control: 'idset', group: 'crm', labelKey: 'label', runtimeOptions: 'labels' },
+    {
+        field: LEAD_FILTER_FIELD.company,
+        control: 'idset',
+        group: 'crm',
+        labelKey: 'company',
+        runtimeOptions: 'companies',
+        presence: sides('companyPresence'),
+        readsCompanies: true,
+    },
 
     {
         field: LEAD_FILTER_FIELD.memoryCategory,
@@ -363,8 +399,8 @@ export function zipFilterEntries(text: string): ZipFilterEntries {
     return { values, invalid };
 }
 
-export function leadFilterFieldSpecs(viewer: { readsAddresses: boolean }): LeadFilterFieldSpec[] {
-    return LEAD_FILTER_FIELDS.filter((spec) => !spec.readsAddresses || viewer.readsAddresses);
+export function leadFilterFieldSpecs(viewer: { readsAddresses: boolean; readsCompanies: boolean }): LeadFilterFieldSpec[] {
+    return LEAD_FILTER_FIELDS.filter((spec) => (!spec.readsAddresses || viewer.readsAddresses) && (!spec.readsCompanies || viewer.readsCompanies));
 }
 
 export function leadFilterSpec(

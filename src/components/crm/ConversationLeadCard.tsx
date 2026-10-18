@@ -10,6 +10,7 @@ import { SectionState } from "@/components/dashboard/attendance/section-state";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { LeadConsentGrantDialog } from "@/components/leads/LeadConsentGrantDialog";
 import { LeadOptOutDialog } from "@/components/leads/LeadOptOutDialog";
 import { LeadOwnerPicker } from "@/components/leads/LeadOwnerPicker";
 import { OwnerChip } from "@/components/leads/OwnerChip";
@@ -27,6 +28,7 @@ import type { LeadCard } from "@/lib/leads/types";
 
 import { CustomFieldValue } from "./CustomFieldValue";
 import { ContactInfoRow } from "./ContactInfoRow";
+import { LeadOptOutRecord } from "./LeadOptOutRecord";
 
 export interface ConversationLeadCardProps {
   entryId: string;
@@ -46,7 +48,12 @@ function useConversationLeadCard({ entryId, entryType, leadId, leadVersion, acti
     query,
     classification,
     ownerName,
-    permissions: { update: can("leads", "update"), assign: can("leads", "assign"), open: can("leads", "read") },
+    permissions: {
+      update: can("leads", "update"),
+      assign: can("leads", "assign"),
+      open: can("leads", "read"),
+      consent: can("leads", "update") && can("leads", "consent"),
+    },
   };
 }
 
@@ -176,6 +183,7 @@ export function ConversationLeadRows(props: ConversationLeadCardProps) {
   const [editingArea, setEditingArea] = useState(false);
   const [optingOut, setOptingOut] = useState(false);
   const [optedOut, setOptedOut] = useState<string | null>(null);
+  const [regranting, setRegranting] = useState(false);
   const optOutLine = useOptOutLine(query.data?.optedOutAt, query.data?.optOutSource);
 
   if (query.isError) {
@@ -239,13 +247,11 @@ export function ConversationLeadRows(props: ConversationLeadCardProps) {
       {isOptedOut || permissions.update ? (
         <ContactInfoRow label={t("messages")}>
           {isOptedOut ? (
-            <span className="inline-flex flex-col items-end gap-0.5">
-              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <BellSlash className="h-3 w-3" aria-hidden />
-                {t("optedOut")}
-              </span>
-              {optOutLine ? <span className="text-muted-foreground">{optOutLine}</span> : null}
-            </span>
+            <LeadOptOutRecord
+              record={card.optOut}
+              legacyLine={optOutLine}
+              onRegrant={permissions.consent ? () => setRegranting(true) : undefined}
+            />
           ) : (
             <button
               type="button"
@@ -264,6 +270,16 @@ export function ConversationLeadRows(props: ConversationLeadCardProps) {
           onOpenChange={setOptingOut}
           onRecorded={(record) => {
             setOptedOut(card.leadId);
+            props.onLeadPatched(card.leadId, { lead_version: record.version });
+          }}
+        />
+      ) : null}
+      {regranting ? (
+        <LeadConsentGrantDialog
+          leadId={card.leadId}
+          onOpenChange={setRegranting}
+          onRecorded={(record) => {
+            setOptedOut(null);
             props.onLeadPatched(card.leadId, { lead_version: record.version });
           }}
         />

@@ -14,12 +14,17 @@ export interface LeadActionCountsProps {
 export function LeadActionCountRows({ action, selected, eligible, skipped }: LeadActionCountsProps) {
   const t = useTranslations("leadsPage.bulk");
   const eligibleKey = `dialog.counts.eligible.${isRecordEdit(action) ? "edit" : action}`;
+  const skipLabel = (reason: string) => {
+    const own = `skippedOf.${action}.${reason}`;
+    if (t.has(own)) return t(own);
+    return t.has(`skipped.${reason}`) ? t(`skipped.${reason}`) : t("skipped.other");
+  };
   return (
     <>
       <CountRow label={t("dialog.counts.selected")} count={selected} strong />
       {t.has(eligibleKey) ? <CountRow label={t(eligibleKey)} count={eligible} strong /> : null}
       {leadActionSkipRows(action, skipped).map(({ reason, count }) => (
-        <CountRow key={reason} label={t.has(`skipped.${reason}`) ? t(`skipped.${reason}`) : t("skipped.other")} count={count} />
+        <CountRow key={reason} label={skipLabel(reason)} count={count} />
       ))}
     </>
   );

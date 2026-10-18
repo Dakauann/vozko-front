@@ -75,6 +75,7 @@ import { listMembersAction } from "@/app/actions/workspace";
 import { fetchDepartments } from "@/lib/department/client";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { onSurface } from "@/components/console/page-shapes";
+import { Notice } from "@/components/ui/notice";
 import { cn } from "@/lib/utils";
 import {
   softSurfaceShadow,
@@ -1355,11 +1356,7 @@ export default function LiveOpsPanel({
               : null,
           )}
         >
-          {error ? (
-            <div className="rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm text-destructive-ink">
-              {error}
-            </div>
-          ) : null}
+          {error ? <Notice tone="fault">{error}</Notice> : null}
 
           {}
           <div

@@ -6,17 +6,14 @@ import {
   Barcode,
   Brain,
   CalendarBlank,
-  ChatCircle,
   Check,
   CircleNotch,
   CopySimple,
   CurrencyDollar,
-  Microphone,
   Package,
   Phone,
   PixLogo,
   Receipt,
-  SpeakerHigh,
   WhatsappLogo,
 } from "@/components/icons";
 import {
@@ -36,6 +33,7 @@ import {
 } from "@/components/plans/plans-carousel";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import { PlanCard } from "@/components/plans/plan-card";
+import { Notice } from "@/components/ui/notice";
 import { formatCentsAsBrl, formatMicrosToMoney } from "@/lib/format/money";
 import {
   MONTHLY_INVOICE_DUE_DAY,
@@ -790,14 +788,9 @@ export default function UserPlansCatalog() {
           {generatedInvoice ? (
             <div className="space-y-4">
               {paymentConfirmed ? (
-                <div className="rounded-[--radius] border border-border bg-muted/90 px-4 py-3 text-sm text-healthy-ink">
-                  <p className="font-medium">
-                    {t("dialog.paymentConfirmedTitle")}
-                  </p>
-                  <p className="mt-1 text-xs text-healthy-ink">
-                    {t("dialog.paymentConfirmedDescription")}
-                  </p>
-                </div>
+                <Notice tone="healthy" title={t("dialog.paymentConfirmedTitle")}>
+                  <p>{t("dialog.paymentConfirmedDescription")}</p>
+                </Notice>
               ) : null}
 
               <div className="grid gap-4 md:grid-cols-2">
@@ -1211,9 +1204,6 @@ export default function UserPlansCatalog() {
 const CATEGORY_INK: Record<string, { ink: string; glyph: React.ReactNode }> = {
   whatsapp: { ink: "ink-2", glyph: <WhatsappLogo className="h-3.5 w-3.5" /> },
   telephony: { ink: "ink-4", glyph: <Phone className="h-3.5 w-3.5" /> },
-  sms: { ink: "ink-1", glyph: <ChatCircle className="h-3.5 w-3.5" /> },
-  stt: { ink: "ink-4", glyph: <Microphone className="h-3.5 w-3.5" /> },
-  tts: { ink: "ink-5", glyph: <SpeakerHigh className="h-3.5 w-3.5" /> },
   llm: { ink: "ink-3", glyph: <Brain className="h-3.5 w-3.5" /> },
 };
 

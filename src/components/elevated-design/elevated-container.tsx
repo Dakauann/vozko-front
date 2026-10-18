@@ -151,6 +151,8 @@ export default function ElevatedContainer({
     return buildAccentGradient(resolvedSeed);
   }, [accentGlow, accentSeed]);
 
+  const lifted = accentGlow || animatedBackground || contentClassName !== "";
+
   const Wrapper = Component as React.FC<
     React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLDivElement> }
   >;
@@ -205,7 +207,7 @@ export default function ElevatedContainer({
           </svg>
         </div>
       )}
-      <div className={`relative z-10 ${contentClassName}`}>{children}</div>
+      {lifted ? <div className={`relative z-10 ${contentClassName}`}>{children}</div> : children}
     </Wrapper>
   );
 }

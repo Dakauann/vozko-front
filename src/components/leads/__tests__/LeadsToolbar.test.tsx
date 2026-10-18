@@ -175,6 +175,25 @@ describe("LeadsToolbar", () => {
     expect(names).toEqual(["Bairro", "Cidade", "Interesse", "Responsável", "Filtros"]);
   });
 
+  it("names how and when opted-out leads left in the filter chips", async () => {
+    const initial: LeadFilter = {
+      groups: [
+        {
+          conjunction: "and",
+          predicates: [
+            { field: LEAD_FILTER_FIELD.optOutSource, operator: "in", values: ["ai_agent", "workflow"] },
+            { field: LEAD_FILTER_FIELD.optedOutAt, operator: "gte", values: ["2026-10-01"] },
+          ],
+        },
+      ],
+    };
+    renderToolbar({ initial });
+    const options = ptMessages.leadsPage.filters.options.optOutSource;
+    const fields = ptMessages.leadsPage.filters.fields;
+    expect(await screen.findByText(`${fields.optOutSource}: ${options.ai_agent}, ${options.workflow}`)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`^${fields.optedOutAt} .*2026-10-01`))).toBeInTheDocument();
+  });
+
   it("filters by a bairro as its city and bairro pair", async () => {
     renderToolbar();
     fireEvent.click(quickFilter("Bairro"));

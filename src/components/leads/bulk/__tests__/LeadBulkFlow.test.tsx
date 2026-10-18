@@ -577,3 +577,119 @@ describe("lead bulk selection", () => {
     expect(screen.getByRole("button", { name: bulk.actions.send_message })).toBeEnabled();
   });
 });
+
+describe("undoing opt-outs from a selection", () => {
+  const CONSENT = ["leads:read", "leads:update", "leads:consent"];
+  const restore = bulk.dialog.restoreOptOut;
+
+  function restorePreview(eligible: number, skipped: Record<string, number>) {
+    const selected = eligible + Object.values(skipped).reduce((sum, count) => sum + count, 0);
+    return {
+      data: {
+        id: `p-restore-${eligible}`,
+        action: "restore_opt_out",
+        status: "done",
+        result: { matched: selected, expectedCount: selected, fingerprint: "fp-r", selected, eligible, skipped },
+      },
+      error: null,
+    };
+  }
+
+  async function openRestore() {
+    fireEvent.pointerDown(screen.getByRole("button", { name: bulk.more }), { button: 0, ctrlKey: false, pointerType: "mouse" });
+    fireEvent.click(await screen.findByRole("menuitem", { name: new RegExp(`^${bulk.actions.restore_opt_out}`) }));
+    return screen.findByRole("dialog");
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.localStorage.clear();
+    permissions.granted = new Set(CONSENT);
+    listBusinessPhonesAction.mockResolvedValue({ phones: [] });
+    listInstancesAction.mockResolvedValue({ instances: [] });
+    fetchDialTargets.mockResolvedValue({ numbers: [], trunks: [] });
+  });
+
+  it("is refused with its reason to whoever cannot record consent", async () => {
+    permissions.granted = new Set(["leads:read", "leads:update", "leads:bulk_update"]);
+    renderHarness(<Harness rows={["l-1"]} total={1} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    fireEvent.pointerDown(screen.getByRole("button", { name: bulk.more }), { button: 0, ctrlKey: false, pointerType: "mouse" });
+    const item = await screen.findByRole("menuitem", { name: new RegExp(`^${bulk.actions.restore_opt_out}`) });
+    expect(item).toHaveAttribute("data-disabled");
+    expect(within(item).getByText(bulk.blockers.permissionConsent)).toBeInTheDocument();
+  });
+
+  it("shows what the server will undo and what it skips, and asks for a note and the typed count", async () => {
+    previewLeadActionAction.mockResolvedValue(restorePreview(2, { lead_opt_out_not_restorable: 1 }));
+    renderHarness(<Harness rows={["l-1", "l-2", "l-3"]} total={3} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    const dialog = await openRestore();
+
+    await within(dialog).findByText(bulk.dialog.counts.eligible.restore_opt_out);
+    expect(within(dialog).getByText(bulk.skipped.lead_opt_out_not_restorable)).toBeInTheDocument();
+    expect(within(dialog).getByText(restore.explain)).toBeInTheDocument();
+    expect(previewLeadActionAction.mock.calls[0][0]).toEqual({
+      action: "restore_opt_out",
+      params: {},
+      selection: { mode: "ids", ids: ["l-1", "l-2", "l-3"] },
+    });
+
+    const apply = within(dialog).getByRole("button", { name: bulk.dialog.apply.restore_opt_out });
+    expect(apply).toBeDisabled();
+    fireEvent.change(within(dialog).getByLabelText(restore.note), { target: { value: "O botão SAIR estava no modelo errado" } });
+    expect(apply).toBeDisabled();
+    fireEvent.change(within(dialog).getByLabelText("Digite 3 para confirmar"), { target: { value: "2" } });
+    expect(apply).toBeDisabled();
+    fireEvent.change(within(dialog).getByLabelText("Digite 3 para confirmar"), { target: { value: "3" } });
+    expect(apply).toBeEnabled();
+  });
+
+  it("commits the undo with the note and the confirmed count, then reports the result", async () => {
+    const { toast } = await import("sonner");
+    previewLeadActionAction.mockResolvedValue(restorePreview(2, { lead_opt_out_not_restorable: 1 }));
+    const run = { id: "r-restore", action: "restore_opt_out", status: "queued", result: { matched: 3, selected: 3, processed: 0, changed: 0, skipped: {} } };
+    startLeadActionAction.mockResolvedValue({ data: { action: "restore_opt_out", run }, error: null });
+    getLeadActionRunAction.mockResolvedValue({
+      data: { ...run, status: "done", result: { matched: 3, selected: 3, processed: 3, changed: 2, skipped: { lead_opt_out_not_restorable: 1 } } },
+      error: null,
+    });
+    renderHarness(<Harness rows={["l-1", "l-2", "l-3"]} total={3} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    const dialog = await openRestore();
+    await within(dialog).findByText(bulk.dialog.counts.eligible.restore_opt_out);
+    fireEvent.change(within(dialog).getByLabelText(restore.note), { target: { value: " Botão errado " } });
+    fireEvent.change(within(dialog).getByLabelText("Digite 3 para confirmar"), { target: { value: "3" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: bulk.dialog.apply.restore_opt_out }));
+
+    await waitFor(() => expect(startLeadActionAction).toHaveBeenCalled());
+    expect(startLeadActionAction.mock.calls[0][0]).toEqual({
+      action: "restore_opt_out",
+      params: { note: "Botão errado", confirmCount: 3 },
+      selection: { mode: "ids", ids: ["l-1", "l-2", "l-3"] },
+    });
+    await waitFor(
+      () => expect(toast.success).toHaveBeenCalledWith("Saída desfeita: 2 leads voltam a receber mensagens, 1 ficou como estava."),
+      { timeout: 4000 },
+    );
+  });
+
+  it("names the leads that were not opted out in the undo's own words", async () => {
+    previewLeadActionAction.mockResolvedValue(restorePreview(1, { unchanged: 1 }));
+    renderHarness(<Harness rows={["l-1", "l-2"]} total={2} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    const dialog = await openRestore();
+    expect(await within(dialog).findByText(bulk.skippedOf.restore_opt_out.unchanged)).toBeInTheDocument();
+    expect(within(dialog).queryByText(bulk.skipped.unchanged)).not.toBeInTheDocument();
+  });
+
+  it("says when nothing in the selection can be undone", async () => {
+    previewLeadActionAction.mockResolvedValue(restorePreview(0, { lead_opt_out_not_restorable: 2 }));
+    renderHarness(<Harness rows={["l-1", "l-2"]} total={2} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    const dialog = await openRestore();
+    expect(await within(dialog).findByText(restore.nothing)).toBeInTheDocument();
+    expect(within(dialog).queryByLabelText(restore.note)).not.toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: bulk.dialog.apply.restore_opt_out })).toBeDisabled();
+  });
+});

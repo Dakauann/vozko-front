@@ -25,21 +25,39 @@ import {
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import GrainBackground from "@/components/elevated-design/grain-background";
 import {
   TargetListEditor,
   parseTargetList,
+  type ParsedTarget,
   type ParsedTargetList,
 } from "@/components/campaigns/TargetListEditor";
+import { CampaignContactList } from "@/components/campaigns/CampaignContactList";
+import type { DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
+import { OPEN_CONTACT_LIST_VIEW, type ContactListView } from "@/lib/campaigns/contact-list-view";
 import { readDelimitedFile } from "@/lib/csv/parse";
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
 import type {
   UnofficialWhatsAppCampaign,
+  UnofficialWhatsAppCampaignAudience,
   UnofficialWhatsAppMessageSpec,
 } from "@/lib/unofficial-whatsapp-campaigns/types";
+import {
+  groupTargets,
+  numberCanPost,
+  type GroupPrefill,
+} from "@/lib/unofficial-whatsapp-campaigns/group-audience";
+import { getWorkspaceGroupAction } from "@/app/actions/unofficial-whatsapp-groups";
+import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
+import { Notice } from "@/components/ui/notice";
+import { ExternalRiskNotice } from "@/components/unofficial-whatsapp-groups/kit/notices";
+import { CampaignGroupPicker } from "./CampaignGroupPicker";
+import { campaignPipelineId, hasExternalPick, pickedFromGroup, type PickedCampaignGroup } from "./group-picks";
 import type { Workflow } from "@/lib/workflows/types";
 import { instanceIssue, instanceUnusable } from "@/lib/unofficial-whatsapp/types";
 import { seededOutcomeCounts } from "@/lib/unofficial-whatsapp-campaigns/statuses";
+import { UNOFFICIAL_CAMPAIGN_NEEDS_EXIT, messageExitPending } from "@/lib/unofficial-whatsapp-campaigns/exit-line";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 import {
@@ -63,7 +81,6 @@ type FormValues = {
   workflowId: string | null;
   enableAgentResponses: boolean;
   enableWorkflow: boolean;
-  preferAudio: boolean;
   enableAnalysis: boolean;
   enableAutoStaging: boolean;
   enableAutoMemory: boolean;
@@ -83,6 +100,8 @@ const EMPTY_PARSE: ParsedTargetList = {
 
 const isValidNumber = (digits: string) => digits.length >= 10 && digits.length <= 15;
 
+const searchableTarget = (target: ParsedTarget) => [target.number, target.name];
+
 const FieldError = ({ message }: { message?: string }) =>
   message ? (
     <p className="mt-1 text-xs font-semibold text-destructive-ink">{message}</p>
@@ -93,11 +112,13 @@ export default function CreateUnofficialCampaignForm({
   initialCampaign,
   aiModels = [],
   modelPricing = [],
+  groupPrefill = null,
 }: {
   mode?: "create" | "edit";
   initialCampaign?: UnofficialWhatsAppCampaign | null;
   aiModels?: string[];
   modelPricing?: ModelPricingInfo[];
+  groupPrefill?: GroupPrefill | null;
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
   const tDeals = useTranslations("dealAutomation");
@@ -116,13 +137,12 @@ export default function CreateUnofficialCampaignForm({
   } = useForm<FormValues>({
     defaultValues: {
       name: initialCampaign?.name ?? "",
-      instanceId: initialCampaign?.instanceId ?? "",
+      instanceId: initialCampaign?.instanceId ?? groupPrefill?.instanceId ?? "",
       pipelineId: initialCampaign?.pipelineId ?? "",
       agentId: initialCampaign?.agentId ?? null,
       workflowId: initialCampaign?.workflowId ?? null,
       enableAgentResponses: initialCampaign?.enableAgentResponses ?? false,
       enableWorkflow: initialCampaign?.enableWorkflow ?? false,
-      preferAudio: initialCampaign?.preferAudio ?? false,
       enableAnalysis: initialCampaign?.enableAnalysis ?? false,
       enableAutoStaging: initialCampaign?.enableAutoStaging ?? false,
       enableAutoMemory: initialCampaign?.enableAutoMemory ?? false,
@@ -134,7 +154,15 @@ export default function CreateUnofficialCampaignForm({
   const [message, setMessage] = useState<UnofficialWhatsAppMessageSpec>(
     initialCampaign?.message ?? EMPTY_MESSAGE,
   );
+  const [audience, setAudience] = useState<UnofficialWhatsAppCampaignAudience>(
+    mode === "edit" ? (initialCampaign?.audience ?? "leads") : groupPrefill ? "groups" : "leads",
+  );
+  const isGroups = audience === "groups";
+  const [pickedGroups, setPickedGroups] = useState<PickedCampaignGroup[]>([]);
+  const [prefillSkipped, setPrefillSkipped] = useState(0);
+  const prefillResolvedRef = useRef(false);
   const [rawTargets, setRawTargets] = useState("");
+  const [recipientView, setRecipientView] = useState<ContactListView>(OPEN_CONTACT_LIST_VIEW);
   const [responseMode, setResponseMode] = useState<"agent" | "workflow">(
     initialCampaign?.enableWorkflow ? "workflow" : "agent",
   );
@@ -189,6 +217,25 @@ export default function CreateUnofficialCampaignForm({
     });
   }, []);
 
+  useEffect(() => {
+    if (mode !== "create" || !groupPrefill?.instanceId || groupPrefill.groupIds.length === 0) return;
+    if (prefillResolvedRef.current) return;
+    prefillResolvedRef.current = true;
+    const { instanceId: prefillInstance, groupIds } = groupPrefill;
+    void Promise.all(groupIds.map((id) => getWorkspaceGroupAction(id))).then((results) => {
+      const resolved = results.flatMap((result): PickedCampaignGroup[] => {
+        const detail = result.data;
+        if (!detail || !numberCanPost(detail.numbers, prefillInstance)) return [];
+        return [pickedFromGroup(detail.group)];
+      });
+      setPickedGroups((current) => [
+        ...current,
+        ...resolved.filter((group) => !current.some((picked) => picked.id === group.id)),
+      ]);
+      setPrefillSkipped(groupIds.length - resolved.length);
+    });
+  }, [mode, groupPrefill]);
+
   const selectedInstance = useMemo(
     () => instanceSelect.items.find((i) => i.id === instanceId) ?? null,
     [instanceSelect.items, instanceId],
@@ -197,16 +244,27 @@ export default function CreateUnofficialCampaignForm({
 
   const requiredVariables = parameterCount(message);
   const bodiesReady = messageBodiesReady(message);
+  const exitPending = !isGroups && messageExitPending(message, mode === "edit" ? initialCampaign?.message : undefined);
+  const numberLocked = mode === "edit" && isGroups;
 
   const parsed = useMemo(
     () => (rawTargets ? parseTargetList(rawTargets, requiredVariables, isValidNumber) : EMPTY_PARSE),
     [rawTargets, requiredVariables],
   );
 
+  const recipientVariableColumns = useMemo<DashboardTableColumn<ParsedTarget>[]>(() => {
+    const count = parsed.targets.reduce((most, target) => Math.max(most, target.variables?.length ?? 0), 0);
+    return Array.from({ length: count }, (_, index) => ({
+      key: `variable-${index}`,
+      header: t("form.recipientsVariable", { index: index + 1 }),
+      render: (target: ParsedTarget) => target.variables?.[index],
+    }));
+  }, [parsed.targets, t]);
+
   const { user } = useAuth();
   const isSystemAdmin = user?.role === "admin";
   const canSeedOutcome = mode === "create" && isSystemAdmin;
-  const seedOn = canSeedOutcome && seedOutcome;
+  const seedOn = canSeedOutcome && seedOutcome && !isGroups;
   const seedOverflow = seedOn && sentPercent + failedPercent > 100;
   const seedCounts = seededOutcomeCounts(
     parsed.targets.length,
@@ -236,25 +294,37 @@ export default function CreateUnofficialCampaignForm({
       toast.error(t("form.saveFailed"), { description: t("form.variantsMismatch") });
       return;
     }
+    if (exitPending) {
+      toast.error(t("form.saveFailed"), { description: t("form.exitLine.refused") });
+      return;
+    }
     if (seedOverflow) {
       toast.error(t("form.saveFailed"), { description: t("form.seedOutcomeOverflow") });
       return;
     }
-    if (mode === "create" && parsed.targets.length === 0) {
+    if (isGroups && requiredVariables > 0) {
+      toast.error(t("form.saveFailed"), { description: t("form.groups.noVariables") });
+      return;
+    }
+    if (mode === "create" && isGroups && pickedGroups.length === 0) {
+      toast.error(t("form.saveFailed"), { description: t("form.groups.noGroups") });
+      return;
+    }
+    if (mode === "create" && !isGroups && parsed.targets.length === 0) {
       toast.error(t("form.saveFailed"), { description: t("form.noTargets") });
       return;
     }
 
     const payload = {
       name: values.name.trim(),
+      audience: mode === "create" && isGroups ? audience : undefined,
       instanceId: values.instanceId,
       message,
-      pipelineId: values.pipelineId || null,
+      pipelineId: campaignPipelineId(isGroups, values.pipelineId),
       agentId: responseMode === "agent" ? values.agentId : null,
       workflowId: responseMode === "workflow" ? values.workflowId : null,
       enableAgentResponses: responseMode === "agent" && Boolean(values.agentId),
       enableWorkflow: responseMode === "workflow" && Boolean(values.workflowId),
-      preferAudio: responseMode === "agent" && values.preferAudio,
       enableAnalysis: values.enableAnalysis,
       enableAutoStaging: values.enableAutoStaging,
       enableAutoMemory: values.enableAutoMemory,
@@ -263,11 +333,13 @@ export default function CreateUnofficialCampaignForm({
       sendDelayMinMs: minMs,
       sendDelayMaxMs: maxMs,
       dailyCap,
-      targets: parsed.targets.map((target) => ({
-        number: target.number,
-        name: target.name,
-        variables: target.variables,
-      })),
+      targets: isGroups
+        ? groupTargets(mode === "create" ? pickedGroups : [])
+        : parsed.targets.map((target) => ({
+            number: target.number,
+            name: target.name,
+            variables: target.variables,
+          })),
       seedOutcome: seedOn ? { sentPercent, failedPercent } : undefined,
     };
 
@@ -277,7 +349,8 @@ export default function CreateUnofficialCampaignForm({
         : await createUnofficialCampaignAction(payload);
 
     if (result.error) {
-      toast.error(t("form.saveFailed"), { description: refusalText(result.code, result.error) });
+      const description = result.code === UNOFFICIAL_CAMPAIGN_NEEDS_EXIT ? t("form.exitLine.refused") : refusalText(result.code, result.error);
+      toast.error(t("form.saveFailed"), { description });
       return;
     }
     const campaignId = result.campaign?.id;
@@ -319,6 +392,25 @@ export default function CreateUnofficialCampaignForm({
               <FieldError message={errors.name?.message} />
             </div>
 
+            {mode === "create" ? (
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground">{t("form.audience.label")}</p>
+                <ElevatedPillToggle<UnofficialWhatsAppCampaignAudience>
+                  size="md"
+                  value={audience}
+                  onChange={setAudience}
+                  aria-label={t("form.audience.label")}
+                  options={[
+                    { value: "leads", label: t("form.audience.leads") },
+                    { value: "groups", label: t("form.audience.groups") },
+                  ]}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {isGroups ? t("form.audience.groupsDescription") : t("form.audience.leadsDescription")}
+                </p>
+              </div>
+            ) : null}
+
             <div>
               <Controller
                 name="instanceId"
@@ -328,7 +420,10 @@ export default function CreateUnofficialCampaignForm({
                   <ElevatedCommandSelect
                     label={t("form.number")}
                     value={field.value}
-                    onValueChange={field.onChange}
+                    onValueChange={(next) => {
+                      if (next !== field.value) setPickedGroups([]);
+                      field.onChange(next);
+                    }}
                     options={instanceSelect.options}
                     searchPlaceholder={t("form.searchNumber")}
                     emptyMessage={t("form.noNumbers")}
@@ -336,18 +431,24 @@ export default function CreateUnofficialCampaignForm({
                     onScrollEnd={instanceSelect.onScrollEnd}
                     onOpenChange={instanceSelect.onOpenChange}
                     isLoading={instanceSelect.isLoading}
-                    disabled={contentLocked}
+                    disabled={contentLocked || numberLocked}
                   />
                 )}
               />
               <FieldError message={errors.instanceId?.message} />
               <p className="mt-1 text-xs text-muted-foreground">
-                {t("form.numberDescription")}
+                {numberLocked
+                  ? t("form.groups.numberLocked")
+                  : isGroups
+                    ? t("form.groups.numberDescription")
+                    : t("form.numberDescription")}
               </p>
               <InstanceIssueLine issue={issue} className="mt-1.5" />
             </div>
 
-            {pipelines.length > 0 ? (
+            {isGroups ? (
+              <p className="text-xs text-muted-foreground">{t("form.groups.funnelNotApplied")}</p>
+            ) : pipelines.length > 0 ? (
               <div>
                 <Controller
                   name="pipelineId"
@@ -376,10 +477,12 @@ export default function CreateUnofficialCampaignForm({
               <p className="mb-3 text-sm font-medium text-foreground">
                 {t("form.messageTitle")}
               </p>
+              {isGroups && hasExternalPick(pickedGroups) ? <ExternalRiskNotice className="mb-3" /> : null}
               <CampaignMessageComposer
                 value={message}
                 onChange={setMessage}
                 disabled={isSubmitting || contentLocked}
+                showExitLine={!isGroups}
                 mediaSlot={
                   <CampaignMediaPicker
                     kind={message.kind}
@@ -426,7 +529,6 @@ export default function CreateUnofficialCampaignForm({
                   onClick={() => {
                     setResponseMode("workflow");
                     setValue("agentId", null);
-                    setValue("preferAudio", false);
                   }}
                   className={cn(
                     "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
@@ -456,18 +558,6 @@ export default function CreateUnofficialCampaignForm({
                         onScrollEnd={agentSelect.onScrollEnd}
                         onOpenChange={agentSelect.onOpenChange}
                         isLoading={agentSelect.isLoading}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="preferAudio"
-                    control={control}
-                    render={({ field }) => (
-                      <ElevatedSwitch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        label={t("form.preferAudio")}
-                        description={t("form.preferAudioDescription")}
                       />
                     )}
                   />
@@ -508,6 +598,7 @@ export default function CreateUnofficialCampaignForm({
                     onCheckedChange={field.onChange}
                     label={t("form.enableAnalysis")}
                     description={t("form.enableAnalysisDescription")}
+                    explainer={<ExplainerHint id="settings.conversationAnalysis" />}
                   />
                 )}
               />
@@ -520,6 +611,7 @@ export default function CreateUnofficialCampaignForm({
                     onCheckedChange={field.onChange}
                     label={t("form.enableAutoStaging")}
                     description={t("form.enableAutoStagingDescription")}
+                    explainer={<ExplainerHint id="settings.autoStaging" />}
                   />
                 )}
               />
@@ -532,6 +624,7 @@ export default function CreateUnofficialCampaignForm({
                     onCheckedChange={field.onChange}
                     label={t("form.enableAutoMemory")}
                     description={t("form.enableAutoMemoryDescription")}
+                    explainer={<ExplainerHint id="settings.autoMemory" />}
                   />
                 )}
               />
@@ -591,6 +684,7 @@ export default function CreateUnofficialCampaignForm({
                       if (!checked) setValue("scheduledStart", null);
                     }}
                     label={t("form.scheduleToggle")}
+                    explainer={<ExplainerHint id="campaigns.scheduledStart" />}
                   />
                 </div>
                 <p className="mb-3 text-xs text-muted-foreground">
@@ -658,13 +752,41 @@ export default function CreateUnofficialCampaignForm({
         </ElevatedContainer>
       </div>
 
-      {mode === "create" ? (
+      {mode === "create" && isGroups ? (
+        <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
+          <div className="mb-4 space-y-1">
+            <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
+              {t("form.groups.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground">{t("form.groups.description")}</p>
+            <p className="text-xs text-muted-foreground">{t("form.groups.banRisk")}</p>
+          </div>
+
+          <div className="space-y-4">
+            {prefillSkipped > 0 ? (
+              <Notice tone="info">
+                <p>{t("form.groups.prefillSkipped", { count: prefillSkipped })}</p>
+              </Notice>
+            ) : null}
+
+            <CampaignGroupPicker
+              key={instanceId}
+              instanceId={instanceId}
+              value={pickedGroups}
+              onChange={setPickedGroups}
+              disabled={isSubmitting}
+            />
+          </div>
+        </ElevatedContainer>
+      ) : null}
+
+      {mode === "create" && !isGroups ? (
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
               {t("form.recipients")}
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 ref={csvInputRef}
                 type="file"
@@ -710,12 +832,6 @@ export default function CreateUnofficialCampaignForm({
               placeholder: t("form.recipientsPlaceholder"),
               upload: t("form.recipientsUpload"),
               columnsHelp: t("form.recipientsColumns"),
-              summary: (c) =>
-                t("form.recipientsSummary", {
-                  valid: c.valid,
-                  duplicates: c.duplicates,
-                  invalid: c.invalid + c.missingVariables,
-                }),
               skippedTitle: t("form.recipientsSkipped"),
               reasons: {
                 invalid: t("form.reasonInvalid"),
@@ -725,6 +841,25 @@ export default function CreateUnofficialCampaignForm({
               variablesNeeded: (count) => t("form.recipientsNeedVariables", { count }),
             }}
           />
+
+          {rawTargets.trim() ? (
+            <div className="mt-4">
+              <CampaignContactList<ParsedTarget>
+                rows={parsed.targets}
+                rowKey={(target) => target.number}
+                number={(target) => target.number}
+                name={(target) => target.name}
+                valueColumns={recipientVariableColumns}
+                searchable={searchableTarget}
+                view={recipientView}
+                onViewChange={setRecipientView}
+                extraCounts={[
+                  { label: t("form.recipientsDuplicates"), count: parsed.duplicates },
+                  { label: t("form.recipientsInvalid"), count: parsed.invalid + parsed.missingVariables },
+                ]}
+              />
+            </div>
+          ) : null}
 
           {canSeedOutcome ? (
             <div className="mt-4 space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">
@@ -790,7 +925,7 @@ export default function CreateUnofficialCampaignForm({
           variant="primary"
           title={mode === "edit" ? t("form.save") : t("form.create")}
           disabled={
-            isSubmitting || numberUnusable || !bodiesReady || seedOverflow
+            isSubmitting || numberUnusable || !bodiesReady || exitPending || seedOverflow
           }
         />
       </div>

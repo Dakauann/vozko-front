@@ -855,9 +855,9 @@ function EntryMetadataPanel({
                       <div className="flex items-center gap-2">
                         <ChatText
                           weight="fill"
-                          className="h-4 w-4 text-healthy-ink"
+                          className="h-4 w-4 text-healthy"
                         />
-                        <span className="text-2xs font-semibold text-healthy-ink">
+                        <span className="text-2xs font-semibold text-foreground">
                           Template enviado: {templateInfo.template_name}
                         </span>
                       </div>
@@ -867,7 +867,7 @@ function EntryMetadataPanel({
                       >
                         <CaretDown
                           weight="bold"
-                          className="h-3 w-3 text-healthy-ink"
+                          className="h-3 w-3 text-muted-foreground"
                         />
                       </motion.div>
                     </button>
@@ -1758,17 +1758,10 @@ export default function CrmConversationView({
                               key={msg.id ?? `${runIdx}-${msgIdx}`}
                               className="flex justify-center my-2"
                             >
-                              <div
-                                className={cn(
-                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium",
-                                  missed
-                                    ? "bg-muted text-destructive-ink dark:text-destructive-ink"
-                                    : "bg-muted text-muted-foreground",
-                                )}
-                              >
+                              <div className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-2xs font-medium text-muted-foreground">
                                 <PhoneCall
                                   weight="fill"
-                                  className="h-3.5 w-3.5"
+                                  className={cn("h-3.5 w-3.5", missed && "text-destructive")}
                                 />
                                 <span>{msg.text}</span>
                               </div>

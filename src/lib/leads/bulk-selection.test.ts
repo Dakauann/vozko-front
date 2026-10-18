@@ -19,6 +19,7 @@ import {
   typedCountMatches,
   parseTypedCount,
   leadBulkAccess,
+  restoreOptOutCommit,
   type LeadBulkContext,
 } from "./bulk-selection";
 
@@ -163,7 +164,7 @@ describe("leadBulkActionStates", () => {
     hasSelection: true,
     hasEditableFields: true,
     checking: false,
-    permissions: { bulkEdit: true, assign: true, block: true, export: true, metaAudience: true, manageCallLists: true },
+    permissions: { bulkEdit: true, assign: true, block: true, export: true, metaAudience: true, manageCallLists: true, consent: true },
     sends: { send_template: { enabled: true }, send_message: { enabled: true } },
     noDialableLine: false,
   };
@@ -178,7 +179,18 @@ describe("leadBulkActionStates", () => {
       "export",
       "meta_audience",
       "block",
+      "restore_opt_out",
     ]);
+  });
+
+  it("offers undoing opt-outs only to whoever records consent", () => {
+    expect(leadBulkActionStates(allowed).restore_opt_out).toEqual({ enabled: true });
+    expect(leadBulkActionStates({ ...allowed, permissions: { ...allowed.permissions, consent: false } }).restore_opt_out).toEqual({
+      enabled: false,
+      reason: "permissionConsent",
+    });
+    expect(leadBulkActionStates({ ...allowed, hasSelection: false }).restore_opt_out).toEqual({ enabled: false, reason: "empty" });
+    expect(leadBulkActionStates({ ...allowed, checking: true }).restore_opt_out).toEqual({ enabled: false, reason: "checkingAccess" });
   });
 
   it("enables the record actions for a holder of every permission", () => {
@@ -223,7 +235,7 @@ describe("leadBulkActionStates", () => {
   it("says which permission is missing", () => {
     const states = leadBulkActionStates({
       ...allowed,
-      permissions: { bulkEdit: false, assign: false, block: false, export: false, metaAudience: false, manageCallLists: false },
+      permissions: { bulkEdit: false, assign: false, block: false, export: false, metaAudience: false, manageCallLists: false, consent: false },
     });
     expect(states.classify).toEqual({ enabled: false, reason: "permissionBulkEdit" });
     expect(states.assign_owner).toEqual({ enabled: false, reason: "permissionBulkEdit" });
@@ -282,11 +294,12 @@ describe("leadBulkAccess", () => {
         ["leads.read_addresses"],
         ["leads.read_sensitive"],
         ["call_lists.manage"],
+        ["leads.consent"],
       ]),
     );
     expect(access).toEqual({
       checking: false,
-      permissions: { bulkEdit: true, assign: true, block: true, export: false, metaAudience: true, manageCallLists: true },
+      permissions: { bulkEdit: true, assign: true, block: true, export: false, metaAudience: true, manageCallLists: true, consent: true },
       readsAddresses: false,
       readsSensitive: true,
     });
@@ -295,7 +308,7 @@ describe("leadBulkAccess", () => {
   it("grants nothing while the catalog loads, and says it is still checking", () => {
     expect(leadBulkAccess(() => "loading")).toEqual({
       checking: true,
-      permissions: { bulkEdit: false, assign: false, block: false, export: false, metaAudience: false, manageCallLists: false },
+      permissions: { bulkEdit: false, assign: false, block: false, export: false, metaAudience: false, manageCallLists: false, consent: false },
       readsAddresses: false,
       readsSensitive: false,
     });
@@ -364,6 +377,11 @@ describe("leadActionParams", () => {
     });
   });
 
+  it("previews an opt-out undo with nothing to ask yet", () => {
+    expect(EMPTY_LEAD_ACTION_DRAFT.note).toBe("");
+    expect(leadActionParams("restore_opt_out", draft)).toEqual({});
+  });
+
   it("needs an ad account and a name for a Meta audience", () => {
     expect(leadActionParams("meta_audience", { ...draft, adAccountId: "acc-1" })).toBeNull();
     expect(leadActionParams("meta_audience", { ...draft, name: "Base" })).toBeNull();
@@ -374,5 +392,24 @@ describe("leadActionParams", () => {
     expect(
       leadActionParams("meta_audience", { ...draft, adAccountId: "acc-1", name: "Base", description: "Pais" }),
     ).toEqual({ adAccountId: "acc-1", name: "Base", description: "Pais" });
+  });
+});
+
+describe("restoreOptOutCommit", () => {
+  it("commits the undo with the note and the selected count the person typed back", () => {
+    expect(restoreOptOutCommit({ note: " Botão errado no modelo ", typed: "1.204", selected: 1204, eligible: 1100 })).toEqual({
+      note: "Botão errado no modelo",
+      confirmCount: 1204,
+    });
+  });
+
+  it("asks for a note", () => {
+    expect(restoreOptOutCommit({ note: "   ", typed: "12", selected: 12, eligible: 12 })).toBeNull();
+  });
+
+  it("asks for the selected count the preview found, and nothing when there is nothing to undo", () => {
+    expect(restoreOptOutCommit({ note: "Erro", typed: "10", selected: 12, eligible: 10 })).toBeNull();
+    expect(restoreOptOutCommit({ note: "Erro", typed: "", selected: 12, eligible: 10 })).toBeNull();
+    expect(restoreOptOutCommit({ note: "Erro", typed: "3", selected: 3, eligible: 0 })).toBeNull();
   });
 });

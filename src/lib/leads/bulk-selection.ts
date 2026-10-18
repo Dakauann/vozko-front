@@ -75,6 +75,7 @@ export const LEAD_BULK_ACTIONS = [
   "export",
   "meta_audience",
   "block",
+  "restore_opt_out",
 ] as const;
 
 export type LeadBulkAction = (typeof LEAD_BULK_ACTIONS)[number];
@@ -91,6 +92,7 @@ export type LeadBulkBlocker =
   | "permissionExport"
   | "permissionMetaAudience"
   | "permissionCallList"
+  | "permissionConsent"
   | "noDialableLine";
 
 export interface LeadBulkPermissions {
@@ -100,6 +102,7 @@ export interface LeadBulkPermissions {
   export: boolean;
   metaAudience: boolean;
   manageCallLists: boolean;
+  consent: boolean;
 }
 
 export interface LeadBulkContext {
@@ -130,6 +133,7 @@ export function leadBulkActionStates({ filterInvalid, hasSelection, hasEditableF
     export: firstBlocker([...selectable, [!permissions.export, "permissionExport"]]),
     meta_audience: firstBlocker([...selectable, [!permissions.metaAudience, "permissionMetaAudience"]]),
     block: firstBlocker([...selectable, [!permissions.bulkEdit, "permissionBulkEdit"], [!permissions.block, "permissionBlock"]]),
+    restore_opt_out: firstBlocker([...selectable, [!permissions.consent, "permissionConsent"]]),
   };
 }
 
@@ -140,6 +144,7 @@ const LEAD_BULK_CAPABILITIES: Record<keyof LeadBulkPermissions | "readsAddresses
   export: "leads.export",
   metaAudience: "leads.meta_audience",
   manageCallLists: "call_lists.manage",
+  consent: "leads.consent",
   readsAddresses: "leads.read_addresses",
   readsSensitive: "leads.read_sensitive",
 };
@@ -165,6 +170,7 @@ export function leadBulkAccess(decide: (keys: readonly string[]) => CapabilityDe
     export: granted("export"),
     metaAudience: granted("metaAudience"),
     manageCallLists: granted("manageCallLists"),
+    consent: granted("consent"),
   };
   const readsAddresses = granted("readsAddresses");
   const readsSensitive = granted("readsSensitive");
@@ -211,6 +217,7 @@ export interface LeadActionDraft {
   name: string;
   description: string;
   callList: CallListDraft;
+  note: string;
 }
 
 export const EMPTY_LEAD_ACTION_DRAFT: LeadActionDraft = {
@@ -225,6 +232,7 @@ export const EMPTY_LEAD_ACTION_DRAFT: LeadActionDraft = {
   name: "",
   description: "",
   callList: { name: "", assigneeIds: [], phoneSource: "identity", phoneLabel: "" },
+  note: "",
 };
 
 function hasValue(value: unknown): boolean {
@@ -260,8 +268,23 @@ export function leadActionParams(action: LeadActionKind, draft: LeadActionDraft)
       const label = phoneSource === "contact" && phoneLabel ? { phoneLabel } : {};
       return { callList: { name, assigneeIds: [...assigneeIds], phoneSource, ...label } };
     }
+    case "restore_opt_out":
+      return {};
     case "send_template":
     case "send_unofficial":
       return null;
   }
+}
+
+export interface RestoreOptOutConfirmation {
+  note: string;
+  typed: string;
+  selected: number;
+  eligible: number;
+}
+
+export function restoreOptOutCommit({ note, typed, selected, eligible }: RestoreOptOutConfirmation): LeadActionParams | null {
+  const written = note.trim();
+  if (!written || eligible < 1 || !typedCountMatches(typed, selected)) return null;
+  return { note: written, confirmCount: selected };
 }
