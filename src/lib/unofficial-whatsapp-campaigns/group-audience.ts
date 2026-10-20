@@ -1,6 +1,6 @@
 import type { GroupRow, NumberSeat } from "@/lib/unofficial-whatsapp-groups/types";
 
-import type { UnofficialWhatsAppCampaignTarget } from "./types";
+import type { GroupSenderBlock, UnofficialWhatsAppCampaignTarget } from "./types";
 
 export interface PickedGroup {
   id: string;
@@ -9,7 +9,6 @@ export interface PickedGroup {
 }
 
 export interface GroupPrefill {
-  instanceId: string;
   groupIds: string[];
 }
 
@@ -26,16 +25,24 @@ export function readGroupPrefill(query: Record<string, QueryValue>): GroupPrefil
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
-  return { instanceId: first(query.instanceId), groupIds: [...new Set(ids)] };
+  return { groupIds: [...new Set(ids)] };
 }
 
-export function numberCanPost(seats: NumberSeat[], instanceId: string): boolean {
-  return seats.some((seat) => seat.instanceId === instanceId && seat.canPost);
+export interface GroupPosting {
+  senders: NumberSeat[];
+  block?: GroupSenderBlock;
 }
 
-export function splitByPosting(rows: GroupRow[], instanceId: string): { postable: GroupRow[]; readOnly: number } {
-  const postable = rows.filter((row) => numberCanPost(row.numbers, instanceId));
-  return { postable, readOnly: rows.length - postable.length };
+export function groupPosting(row: Pick<GroupRow, "group" | "numbers">): GroupPosting {
+  const senders = row.numbers.filter((seat) => seat.canPost);
+  if (senders.length > 0) return { senders };
+  if (row.numbers.length === 0) return { senders, block: "not_in_group" };
+  const postsOnceBack = row.numbers.some((seat) => !seat.connected && (!row.group.announce || seat.admin));
+  return { senders, block: postsOnceBack ? "offline" : "cannot_post" };
+}
+
+export function blocksForGood(block: GroupSenderBlock | undefined): boolean {
+  return block === "not_in_group" || block === "cannot_post";
 }
 
 export function groupTargets(groups: PickedGroup[]): UnofficialWhatsAppCampaignTarget[] {

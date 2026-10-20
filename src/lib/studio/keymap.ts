@@ -1,16 +1,7 @@
 import type { OrderDirection } from "./layers";
 import type { ShapeCombine, ShapeOpKind } from "./shape-ops";
 import { VECTOR_TOOL_KEYS, type VectorTool } from "./vector-tools";
-
-export interface KeyStroke {
-  key: string;
-  code?: string;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-  altKey: boolean;
-  target?: EventTarget | null;
-}
+import { activatesOnEnter, capturesArrowKeys, hasCommandModifier, isEditableTarget, isInsideOverlay, strokeKey, type KeyStroke } from "@/lib/keyboard/stroke";
 
 export type HistoryAction = { type: "undo" } | { type: "redo" };
 
@@ -55,29 +46,9 @@ const NUDGE_PX = 1;
 const NUDGE_SHIFT_PX = 10;
 const STEP_SHIFT_MS = 1000;
 
-const EDITABLE_INPUTS = new Set(["text", "search", "email", "number", "password", "tel", "url", "date", "time", "datetime-local", "month", "week", ""]);
-
-export function isEditableTarget(target: EventTarget | null | undefined): boolean {
-  if (!target || typeof (target as HTMLElement).tagName !== "string") return false;
-  const element = target as HTMLElement;
-  if (element.isContentEditable) return true;
-  const tag = element.tagName.toLowerCase();
-  if (tag === "textarea" || tag === "select") return true;
-  if (tag === "input") return EDITABLE_INPUTS.has(((element as HTMLInputElement).type ?? "").toLowerCase());
-  return element.closest?.("[contenteditable=''],[contenteditable='true']") != null;
-}
-
-function mod(stroke: KeyStroke): boolean {
-  return stroke.ctrlKey || stroke.metaKey;
-}
-
-function lower(stroke: KeyStroke): string {
-  return stroke.key.length === 1 ? stroke.key.toLowerCase() : stroke.key;
-}
-
 function historyAction(stroke: KeyStroke): HistoryAction | null {
-  if (!mod(stroke) || stroke.altKey) return null;
-  const key = lower(stroke);
+  if (!hasCommandModifier(stroke) || stroke.altKey) return null;
+  const key = strokeKey(stroke);
   if (key === "z") return stroke.shiftKey ? { type: "redo" } : { type: "undo" };
   if (key === "y" && !stroke.shiftKey) return { type: "redo" };
   return null;
@@ -103,8 +74,8 @@ export function imageActionFor(stroke: KeyStroke): ImageAction | null {
   if (isEditableTarget(stroke.target)) return null;
   const history = historyAction(stroke);
   if (history) return history;
-  const key = lower(stroke);
-  if (mod(stroke)) {
+  const key = strokeKey(stroke);
+  if (hasCommandModifier(stroke)) {
     const side = bracket(stroke);
     if (side) {
       const direction: OrderDirection = side === "]" ? (stroke.altKey ? "front" : "forward") : stroke.altKey ? "back" : "backward";
@@ -144,8 +115,8 @@ export function videoActionFor(stroke: KeyStroke): VideoAction | null {
   if (isEditableTarget(stroke.target)) return null;
   const history = historyAction(stroke);
   if (history) return history;
-  const key = lower(stroke);
-  if (mod(stroke)) return key === "d" && !stroke.shiftKey && !stroke.altKey ? { type: "duplicate" } : null;
+  const key = strokeKey(stroke);
+  if (hasCommandModifier(stroke)) return key === "d" && !stroke.shiftKey && !stroke.altKey ? { type: "duplicate" } : null;
   if (stroke.altKey) return null;
   if (isDelete(stroke)) return stroke.shiftKey ? { type: "rippleDelete" } : { type: "delete" };
   if (key === "ArrowLeft" || key === "ArrowRight") {
@@ -177,57 +148,25 @@ export function videoActionFor(stroke: KeyStroke): VideoAction | null {
   return null;
 }
 
-export function bindKeymap<A>(target: Pick<Window, "addEventListener" | "removeEventListener">, resolve: (stroke: KeyStroke) => A | null, handle: (action: A) => void): () => void {
-  const listener = (event: KeyboardEvent) => {
-    if (event.defaultPrevented || event.isComposing) return;
-    const action = resolve(event);
-    if (action === null) return;
-    event.preventDefault();
-    handle(action);
-  };
-  target.addEventListener("keydown", listener as EventListener);
-  return () => target.removeEventListener("keydown", listener as EventListener);
-}
-
 export type ImageZoomAction = { type: "zoom"; direction: 1 | -1 } | { type: "fit" } | { type: "fitSelection" } | { type: "actualSize" };
 
 export function imageZoomActionFor(stroke: KeyStroke): ImageZoomAction | null {
   if (stroke.altKey || isEditableTarget(stroke.target)) return null;
-  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit1") return { type: "fit" };
-  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit2") return { type: "fitSelection" };
-  if (!mod(stroke) && stroke.shiftKey && stroke.code === "Digit0") return { type: "actualSize" };
-  if (!mod(stroke)) return null;
+  if (!hasCommandModifier(stroke) && stroke.shiftKey && stroke.code === "Digit1") return { type: "fit" };
+  if (!hasCommandModifier(stroke) && stroke.shiftKey && stroke.code === "Digit2") return { type: "fitSelection" };
+  if (!hasCommandModifier(stroke) && stroke.shiftKey && stroke.code === "Digit0") return { type: "actualSize" };
+  if (!hasCommandModifier(stroke)) return null;
   if (stroke.key === "+" || stroke.key === "=" || stroke.code === "NumpadAdd") return { type: "zoom", direction: 1 };
   if (stroke.key === "-" || stroke.key === "_" || stroke.code === "NumpadSubtract") return { type: "zoom", direction: -1 };
   if (stroke.key === "0" || stroke.code === "Numpad0") return { type: "fit" };
   return null;
 }
 
-const ARROW_OWNER_ROLES = new Set(["slider", "spinbutton", "menu", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "listbox", "radio", "radiogroup", "tab", "tablist", "combobox"]);
-
-export function capturesArrowKeys(target: EventTarget | null | undefined): boolean {
-  if (!target || typeof (target as HTMLElement).getAttribute !== "function") return false;
-  if ((target as HTMLElement).tagName === "INPUT" && (target as HTMLInputElement).type === "range") return true;
-  const owner = (target as HTMLElement).closest?.("[role]");
-  return owner != null && ARROW_OWNER_ROLES.has(owner.getAttribute("role") ?? "");
-}
-
-function insideOverlay(target: EventTarget | null | undefined): boolean {
-  return typeof (target as HTMLElement | null)?.closest === "function" && (target as HTMLElement).closest("[role=dialog],[role=menu],[role=alertdialog]") != null;
-}
-
-const ENTER_OWNERS =
-  "button, a[href], summary, select, [role=button], [role=link], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=tab], [role=checkbox], [role=switch], [role=combobox]";
-
-export function activatesOnEnter(target: EventTarget | null | undefined): boolean {
-  return typeof (target as HTMLElement | null)?.closest === "function" && (target as HTMLElement).closest(ENTER_OWNERS) != null;
-}
-
 export function canvasActionFor(stroke: KeyStroke): ImageAction | null {
   const action = imageActionFor(stroke);
   if ((action?.type === "selectChildren" || action?.type === "selectParent") && activatesOnEnter(stroke.target)) return null;
   if (action?.type === "nudge" && capturesArrowKeys(stroke.target)) return null;
-  if (action?.type === "deselect" && insideOverlay(stroke.target)) return null;
+  if (action?.type === "deselect" && isInsideOverlay(stroke.target)) return null;
   return action;
 }
 

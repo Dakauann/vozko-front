@@ -21,7 +21,8 @@ export type ResourceType =
     | "call_history"
     | "branches"
     | "call_recordings"
-    | "whatsapp_flows"
+    | "whatsapp_forms"
+    | "whatsapp_form_responses"
     | "members"
     | "assignments"
     | "attendance"
@@ -41,6 +42,8 @@ export type ResourceType =
     | "ads"
     | "audience"
     | "telegram_accounts"
+    | "mercadolivre_accounts"
+    | "tiktok_accounts"
     | "webchat_widgets"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
@@ -48,7 +51,8 @@ export type ResourceType =
     | "mcp"
     | "knowledge_bases"
     | "calendar"
-    | "ai_chat";
+    | "ai_chat"
+    | "team_chat";
 
 export type ResourceAction =
     | "create"

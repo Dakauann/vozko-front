@@ -14,3 +14,12 @@ export function sharedPostingSeats(groups: { numbers: NumberSeat[] }[]): NumberS
 export function usableSeats(seats: NumberSeat[]): NumberSeat[] {
   return seats.filter((seat) => seat.canPost && seat.connected);
 }
+
+export type CampaignLaunchBlock = "noGroups" | "noShared" | "allOffline";
+
+export function campaignLaunchBlock(groups: { numbers: NumberSeat[] }[]): CampaignLaunchBlock | null {
+  if (groups.length === 0) return "noGroups";
+  if (groups.some((group) => group.numbers.some((seat) => seat.canPost))) return null;
+  if (groups.some((group) => group.numbers.some((seat) => !seat.connected))) return "allOffline";
+  return "noShared";
+}

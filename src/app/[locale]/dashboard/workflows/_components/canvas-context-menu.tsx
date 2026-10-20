@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORY_STYLES, ICON_MAP } from "./workflow-node";
+import { CATEGORY_STYLES, nodeIconOf } from "./workflow-node";
 import { MagnifyingGlass, X } from "@/components/icons";
 import type { NodeCategory, NodeDefinition } from "@/lib/workflows/types";
 import { useEffect, useRef, useState } from "react";
@@ -143,7 +143,7 @@ export function CanvasContextMenu({
                 {CATEGORY_LABEL[category]}
               </p>
               {items.map((def) => {
-                const IconComp = ICON_MAP[def.icon];
+                const IconComp = nodeIconOf(def.icon);
                 return (
                   <button
                     key={def.type}

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChatCircleDots, Pencil, Plus, Trash, Warning } from "@/components/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { StatusChip } from "@/components/elevated-design/status-chip";
@@ -14,11 +14,12 @@ import {
   type CommentRule,
   type CommentRuleAction,
   type CommentRuleApi,
+  type CommentRuleTextLimits,
 } from "@/lib/social/comment-rules";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-import { CommentRuleDialog } from "./comment-rule-dialog";
+import { CommentRuleDialog, type CommentRuleContainerPicker } from "./comment-rule-dialog";
 import { RULE_ACTION_ICONS } from "./comment-rule-fields";
 
 export function CommentRulesPanel({
@@ -26,6 +27,8 @@ export function CommentRulesPanel({
   allowedActions,
   translationNamespace,
   containerId,
+  textLimits,
+  renderContainerPicker,
   canManage = true,
   disabledReason,
   className,
@@ -34,6 +37,8 @@ export function CommentRulesPanel({
   allowedActions: readonly CommentRuleAction[];
   translationNamespace: string;
   containerId?: string;
+  textLimits?: CommentRuleTextLimits;
+  renderContainerPicker?: (picker: CommentRuleContainerPicker) => ReactNode;
   canManage?: boolean;
   disabledReason?: string;
   className?: string;
@@ -181,7 +186,7 @@ export function CommentRulesPanel({
                     <span className="truncate text-sm font-medium text-foreground">{rule.name}</span>
                     {rule.containerId ? (
                       <span className="rounded-full bg-muted px-1.5 py-0.5 text-2xs font-medium text-chart-4-ink dark:text-chart-4">
-                        {t("scopePost")}
+                        {t("scopePost", { id: rule.containerId })}
                       </span>
                     ) : (
                       <span className="rounded-[--radius] bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
@@ -245,6 +250,8 @@ export function CommentRulesPanel({
           allowedActions={allowedActions}
           translationNamespace={translationNamespace}
           containerId={containerId}
+          textLimits={textLimits}
+          renderContainerPicker={renderContainerPicker}
           rule={editing}
           onClose={() => {
             setCreating(false);

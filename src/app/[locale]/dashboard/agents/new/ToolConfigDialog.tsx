@@ -41,6 +41,7 @@ interface ToolConfigDialogProps {
   onOpenChange: (open: boolean) => void;
   tool: AgentToolDefinition | null;
   existingConfig?: ToolConfig;
+  excludedValues?: Record<string, ReadonlySet<string>>;
   onSave: (config: ToolConfig) => void;
 }
 
@@ -56,6 +57,7 @@ export default function ToolConfigDialog({
   onOpenChange,
   tool,
   existingConfig,
+  excludedValues,
   onSave,
 }: ToolConfigDialogProps) {
   if (!tool) return null;
@@ -67,6 +69,7 @@ export default function ToolConfigDialog({
       onOpenChange={onOpenChange}
       tool={tool}
       existingConfig={existingConfig}
+      excludedValues={excludedValues}
       onSave={onSave}
     />
   );
@@ -81,6 +84,7 @@ function ToolConfigDialogContent({
   onOpenChange,
   tool,
   existingConfig,
+  excludedValues,
   onSave,
 }: ToolConfigDialogContentProps) {
   const t = useTranslations("agents.form.toolConfig");
@@ -124,14 +128,21 @@ function ToolConfigDialogContent({
   );
   const sourcesKey = optionSources.join(",");
   const [sourceOptions, setSourceOptions] = useState<Record<string, ToolOption[]>>({});
+  const [failedSources, setFailedSources] = useState<ReadonlySet<string>>(() => new Set());
   useEffect(() => {
     if (!open || !sourcesKey) return;
     let live = true;
     for (const source of sourcesKey.split(",")) {
-      void loadToolOptions(source).then((options) => {
-        if (!live || !options) return;
-        setSourceOptions((prev) => ({ ...prev, [source]: options }));
-      });
+      void loadToolOptions(source).then(
+        (options) => {
+          if (!live || !options) return;
+          setSourceOptions((prev) => ({ ...prev, [source]: options }));
+        },
+        () => {
+          if (!live) return;
+          setFailedSources((prev) => new Set(prev).add(source));
+        },
+      );
     }
     return () => {
       live = false;
@@ -283,11 +294,15 @@ function ToolConfigDialogContent({
       );
     }
 
-    const choices = schema.options?.length
-      ? schema.options
-      : schema.optionsSource
-        ? sourceOptions[schema.optionsSource] ?? []
-        : null;
+    const excluded = excludedValues?.[key];
+    const choices = (
+      schema.options?.length
+        ? schema.options
+        : schema.optionsSource
+          ? sourceOptions[schema.optionsSource] ?? []
+          : null
+    )?.filter((option) => !excluded?.has(option.value));
+    const loadFailed = schema.optionsSource ? failedSources.has(schema.optionsSource) : false;
     if (choices) {
       const current = value !== undefined && value !== null ? String(value) : "";
       const emptyLabel = emptyChoiceLabel({ required: isRequired, placeholder: t("defaultOption") });
@@ -319,6 +334,9 @@ function ToolConfigDialogContent({
               </ElevatedSelectItem>
             ))}
           </ElevatedSelect>
+          {loadFailed && (
+            <p className="text-xs font-semibold text-destructive-ink">{t("optionsLoadFailed")}</p>
+          )}
           {error && (
             <p className="text-xs font-semibold text-destructive-ink">{error}</p>
           )}

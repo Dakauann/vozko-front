@@ -2,11 +2,11 @@
 
 import {
   ArrowBendUpLeft,
-  Copy,
   List as ListIcon,
   CaretRight,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import type { HandleDefinition } from "@/lib/workflows/types";
 import {
   ActionRowList,
   ChatSurface,
@@ -21,14 +21,9 @@ import {
 export { centerWithin };
 
 
-type InteractiveKind = "button" | "copy_code" | "list";
-
 interface InteractiveOption {
   id: string;
   title: string;
-  description?: string;
-  kind: InteractiveKind;
-  copyCode?: string;
 }
 
 type InteractiveHeaderType = "" | "text" | "image" | "video";
@@ -48,56 +43,13 @@ function str(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
-function safeParseArray(raw: string): unknown[] {
-  const trimmed = raw.trim();
-  if (!trimmed) return [];
-  try {
-    const parsed = JSON.parse(trimmed);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
 export function parseInteractiveConfig(
   config: Record<string, unknown> | undefined,
+  outputs: HandleDefinition[] = [],
 ): ParsedInteractive {
   const c = config ?? {};
-  const interactiveType =
-    str(c.interactive_type).trim().toLowerCase() === "list" ? "list" : "buttons";
-
-  const options: InteractiveOption[] = [];
-  if (interactiveType === "list") {
-    for (const section of safeParseArray(str(c.sections))) {
-      const s = section as Record<string, unknown>;
-      const rows = Array.isArray(s?.rows) ? (s.rows as unknown[]) : [];
-      for (const row of rows) {
-        const r = row as Record<string, unknown>;
-        const id = str(r?.id).trim();
-        if (!id) continue;
-        options.push({
-          id,
-          title: str(r?.title),
-          description: str(r?.description),
-          kind: "list",
-        });
-      }
-    }
-  } else {
-    for (const button of safeParseArray(str(c.buttons))) {
-      const b = button as Record<string, unknown>;
-      const id = str(b?.ID).trim();
-      if (!id) continue;
-      const kind: InteractiveKind =
-        b?.Type === "copy_code" ? "copy_code" : "button";
-      options.push({
-        id,
-        title: str(b?.Title),
-        kind,
-        copyCode: str(b?.CopyCode),
-      });
-    }
-  }
+  const interactiveType = str(c.interactive_type) === "list" ? "list" : "buttons";
+  const options = outputs.filter((output) => !output.optional).map((output) => ({ id: output.id, title: output.label }));
 
   const rawHeader = str(c.header_type).trim().toLowerCase();
   const headerType: InteractiveHeaderType = (
@@ -141,22 +93,13 @@ export function WhatsAppMessagePreview({
 
   const buttonRows: ActionRowItem[] = options.map((opt) => ({
     id: opt.id,
-    leading:
-      opt.kind === "copy_code" ? (
-        <Copy size={12} weight="bold" className={WA_ACTION_TEXT} />
-      ) : (
-        <ArrowBendUpLeft size={12} weight="bold" className={WA_ACTION_TEXT} />
-      ),
-    primary:
-      opt.kind === "copy_code"
-        ? opt.copyCode?.trim() || "Copiar código"
-        : opt.title.trim() || "Botão",
+    leading: <ArrowBendUpLeft size={12} weight="bold" className={WA_ACTION_TEXT} />,
+    primary: opt.title.trim() || "Botão",
   }));
 
   const listRows: ActionRowItem[] = options.map((opt) => ({
     id: opt.id,
     primary: opt.title.trim() || "Opção",
-    secondary: opt.description?.trim() || undefined,
     trailing: (
       <CaretRight size={11} weight="bold" className={cn("shrink-0", WA_MUTED_TEXT)} />
     ),

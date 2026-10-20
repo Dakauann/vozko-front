@@ -24,6 +24,7 @@ import {
   kanbanCardClass,
 } from "@/components/crm/kanban-card";
 import ElevatedButton from "@/components/elevated-design/button";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 
 import {
   getOpportunityBoardAction,
@@ -38,22 +39,30 @@ import {
 } from "@/lib/crm/board";
 import {
   dealActorName,
+  dealAge,
   formatValueCents,
   formatValueCompact,
-  relativeAge,
+  moveDealBetweenColumns,
+  requiresDealEdit,
   rotSignal,
+  type DealAge,
   type Opportunity,
   type OpportunityColumn,
 } from "@/lib/crm/opportunities";
+import {
+  beginOperation,
+  confirmOperation,
+  emptyLedger,
+  rollbackOperation,
+  type OptimisticLedger,
+} from "@/lib/crm/optimistic";
+import { performReversible } from "@/lib/crm/undoable";
+import { canUndoCardMove } from "@/lib/crm/board-drag";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
-const OPP_STATUS_OPTIONS = [
-  { value: "open", label: "Aberta" },
-  { value: "won", label: "Ganha" },
-  { value: "lost", label: "Perdida" },
-];
+const OPP_STATUSES = ["open", "won", "lost"] as const;
 
 interface OpportunityBoardProps {
   workspaceId?: string;
@@ -71,7 +80,10 @@ export default function OpportunityBoard({
   headerSlot,
 }: OpportunityBoardProps) {
   const t = useTranslations("crmBoard");
+  const tActions = useTranslations("crmActions");
   const [columns, setColumns] = useState<OpportunityColumn[]>([]);
+  const columnsRef = useRef<OpportunityColumn[]>([]);
+  const movesLedgerRef = useRef<OptimisticLedger<string>>(emptyLedger());
   const [movingIds, setMovingIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +98,15 @@ export default function OpportunityBoard({
   const [createStageId, setCreateStageId] = useState<string | undefined>(undefined);
 
   const reqRef = useRef(0);
+
+  useEffect(() => {
+    columnsRef.current = columns;
+  }, [columns]);
+
+  const statusOptions = useMemo(
+    () => OPP_STATUSES.map((value) => ({ value, label: t(`deals.status.${value}`) })),
+    [t],
+  );
 
   const load = useCallback(async () => {
     const reqId = ++reqRef.current;
@@ -192,64 +213,92 @@ export default function OpportunityBoard({
     setDrawerOpen(true);
   }, []);
 
+  const setDealMoving = useCallback((dealId: string, moving: boolean) => {
+    setMovingIds((prev) => {
+      const next = new Set(prev);
+      if (moving) next.add(dealId);
+      else next.delete(dealId);
+      return next;
+    });
+  }, []);
+
+  const commitDealMove = useCallback(
+    async (deal: Opportunity, fromColumnId: string, toColumnId: string): Promise<boolean> => {
+      const operationId = crypto.randomUUID();
+      movesLedgerRef.current = beginOperation(movesLedgerRef.current, {
+        id: operationId,
+        target: deal.id,
+        snapshot: fromColumnId,
+      });
+      setColumns((prev) => moveDealBetweenColumns(prev, deal, fromColumnId, toColumnId));
+      setDealMoving(deal.id, true);
+
+      const { error: err } = await moveOpportunityAction(deal.id, {
+        stageId: toColumnId,
+        version: deal.version,
+      });
+      setDealMoving(deal.id, false);
+
+      if (err) {
+        const { ledger, snapshot } = rollbackOperation(movesLedgerRef.current, operationId);
+        if (snapshot !== null) {
+          movesLedgerRef.current = ledger;
+          setColumns((prev) =>
+            moveDealBetweenColumns(prev, { ...deal, stageId: toColumnId }, toColumnId, snapshot),
+          );
+        }
+        toast.error(err);
+        void load();
+        return false;
+      }
+      movesLedgerRef.current = confirmOperation(movesLedgerRef.current, operationId).ledger;
+      void load();
+      return true;
+    },
+    [load, setDealMoving],
+  );
+
+  const currentDeal = useCallback(
+    (dealId: string) =>
+      columnsRef.current.flatMap((c) => c.entries ?? []).find((o) => o.id === dealId) ?? null,
+    [],
+  );
+
   const handleCardMove = useCallback(
-    async (deal: Opportunity, fromColumnId: string, toColumnId: string) => {
-      const column = columns.find((c) => c.id === toColumnId);
-      if (!column) return;
-      if (column.isLost || (column.isWon && deal.valueCents <= 0)) {
-        if (column.isWon) toast.info(t("deals.wonNeedsValue"));
+    (deal: Opportunity, fromColumnId: string, toColumnId: string) => {
+      const target = columns.find((c) => c.id === toColumnId);
+      if (!target) return;
+      if (requiresDealEdit(target, deal)) {
+        if (target.isWon) toast.info(t("deals.wonNeedsValue"));
         openEdit({ ...deal, stageId: toColumnId });
         return;
       }
-
-      setColumns((prev) =>
-        prev.map((c) => {
-          if (c.id === fromColumnId) {
-            return {
-              ...c,
-              total: Math.max(0, c.total - 1),
-              valueTotal: Math.max(0, c.valueTotal - deal.valueCents),
-              entries: (c.entries ?? []).filter((o) => o.id !== deal.id),
-            };
-          }
-          if (c.id === toColumnId) {
-            return {
-              ...c,
-              total: c.total + 1,
-              valueTotal: c.valueTotal + deal.valueCents,
-              entries: [{ ...deal, stageId: toColumnId }, ...(c.entries ?? [])],
-            };
-          }
-          return c;
-        }),
-      );
-
-      setMovingIds((prev) => {
-        const next = new Set(prev);
-        next.add(deal.id);
-        return next;
-      });
-
-      const { error: err } = await moveOpportunityAction(deal.id, { stageId: toColumnId, version: deal.version });
-
-      setMovingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(deal.id);
-        return next;
-      });
-
-      if (err) {
-        toast.error(err);
-        void load();
+      const source = columns.find((c) => c.id === fromColumnId);
+      const reversible =
+        source !== undefined &&
+        canUndoCardMove(fromColumnId, toColumnId) &&
+        !requiresDealEdit(source, deal);
+      if (!reversible) {
+        void commitDealMove(deal, fromColumnId, toColumnId);
         return;
       }
-      void load();
+      void performReversible(
+        {
+          apply: () => commitDealMove(deal, fromColumnId, toColumnId),
+          inverse: () => {
+            const moved = currentDeal(deal.id);
+            return moved ? commitDealMove(moved, toColumnId, fromColumnId) : false;
+          },
+          labelKey: "cardMoved",
+        },
+        (key) => tActions(key, { column: target.name }),
+      );
     },
-    [columns, openEdit, load, t],
+    [columns, openEdit, commitDealMove, currentDeal, t, tActions],
   );
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col bg-background">
+    <div className="flex h-full min-h-0 w-full flex-col bg-background">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-3">
           {embedded ? (
@@ -298,7 +347,7 @@ export default function OpportunityBoard({
         workspaceId={workspaceId}
         showValue
         dateField="close_date"
-        statusOptions={OPP_STATUS_OPTIONS}
+        statusOptions={statusOptions}
       />
 
       {}
@@ -310,13 +359,10 @@ export default function OpportunityBoard({
             <ElevatedButton variant="outline-subtle" size="sm" title={t("deals.retry")} onClick={() => void load()} />
           </div>
         ) : loading && columns.length === 0 ? (
-          <div className="flex h-full min-w-max gap-3 p-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <ColumnSkeleton key={i} />
-            ))}
-          </div>
+          <ScreenLoader fit="fill" />
         ) : (
           <KanbanBoard<Opportunity>
+            board="opportunities"
             columns={columns.map((c) => ({
               id: c.id,
               name: c.name,
@@ -340,14 +386,14 @@ export default function OpportunityBoard({
             }))}
             itemsFor={(colId) => columns.find((c) => c.id === colId)?.entries ?? []}
             getItemId={(o) => o.id}
-            columnOfItem={(o) => o.stageId}
+            cardLabel={(o) => o.title || t("deals.untitled")}
+            onCardOpen={openEdit}
             renderCard={(deal) => (
               <DealCard
                 deal={deal}
                 ownerName={dealActorName(deal.ownerId, membersById, ownerLabels, deal.ownerName)}
                 customFields={customFields}
                 isMoving={movingIds.has(deal.id)}
-                onClick={() => openEdit(deal)}
               />
             )}
             onCardMove={canEdit ? handleCardMove : undefined}
@@ -380,6 +426,19 @@ export default function OpportunityBoard({
   );
 }
 
+function dealAgeLabel(
+  age: DealAge | null,
+  t: (key: string, values?: Record<string, number>) => string,
+  locale: string,
+): string {
+  if (!age) return "";
+  if (age.kind === "date") {
+    return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short" }).format(age.date);
+  }
+  if (age.kind === "days") return t("deals.age.days", { days: age.days });
+  return t(`deals.age.${age.kind}`);
+}
+
 const STATUS_TILE: Record<string, string | undefined> = {
   open: undefined,
   won: "hsl(var(--healthy))",
@@ -391,27 +450,26 @@ function DealCard({
   ownerName,
   customFields,
   isMoving = false,
-  onClick,
 }: {
   deal: Opportunity;
   ownerName: string | null;
   customFields: CustomFieldDefinition[];
   isMoving?: boolean;
-  onClick: () => void;
 }) {
   const t = useTranslations("crmBoard");
+  const locale = useLocale();
   const status = deal.status;
   const won = status === "won";
   const lost = status === "lost";
 
   const rot = rotSignal(status, deal.updatedAt);
-  const age = relativeAge(deal.createdAt);
+  const age = dealAgeLabel(dealAge(deal.createdAt), t, locale);
 
   const customChips = customFields
     .map((def) => {
       const raw = deal.customFields?.[def.key];
       if (raw === undefined || raw === null || raw === "" || raw === false) return null;
-      const val = raw === true ? "Sim" : String(raw);
+      const val = raw === true ? t("deals.yes") : String(raw);
       return { key: def.key, label: def.label, val };
     })
     .filter(Boolean)
@@ -419,17 +477,16 @@ function DealCard({
 
   return (
     <div
-      onClick={onClick}
       aria-busy={isMoving}
       className={kanbanCardClass({ won, lost }, isMoving ? "opacity-70" : undefined)}
-    >
+    >
       <KanbanCard
         tile={
           <CardTile color={STATUS_TILE[status]}>
             {(deal.title?.trim()?.[0] || "?").toUpperCase()}
           </CardTile>
         }
-        title={deal.title || "Sem título"}
+        title={deal.title || t("deals.untitled")}
         subtitle={deal.source || undefined}
         thirdLine={
           age ? <p className="truncate text-2xs text-muted-foreground">{age}</p> : undefined
@@ -480,9 +537,9 @@ function DealCard({
               <CardPill
                 tone={rot.tone}
                 icon={<HourglassMedium weight="bold" className="h-2.5 w-2.5 flex-shrink-0" />}
-                title="Sem movimentação recente"
+                title={t("deals.idleHint")}
               >
-                {rot.label}
+                {t("deals.idle", { days: rot.days })}
               </CardPill>
             ) : null}
           </>
@@ -501,22 +558,6 @@ function DealCard({
           ) : undefined
         }
       />
-    </div>
-  );
-}
-
-function ColumnSkeleton() {
-  return (
-    <div className="flex h-full w-72 min-w-[288px] flex-shrink-0 flex-col">
-      <div className="mb-2 flex items-center gap-2 px-1">
-        <span className="h-2.5 w-2.5 rounded-full bg-muted" />
-        <span className="h-3 w-20 rounded bg-muted" />
-      </div>
-      <div className="flex-1 space-y-2 rounded-[--radius] bg-muted p-1.5">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-[76px] animate-pulse rounded-lg bg-card" />
-        ))}
-      </div>
     </div>
   );
 }

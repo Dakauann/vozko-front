@@ -1,21 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useStore } from "zustand";
+
+import { useLeaveGuard } from "@/hooks/use-leave-guard";
 
 import { useEditorState } from "./editor-context";
 import { exportStatus, type VideoExporter } from "./export/video-exporter";
 
 export const VideoExportContext = createContext<VideoExporter | null>(null);
-
-function useLeaveGuard(active: boolean) {
-  useEffect(() => {
-    if (!active) return;
-    const hold = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", hold);
-    return () => window.removeEventListener("beforeunload", hold);
-  }, [active]);
-}
 
 export function useVideoExport() {
   const exporter = useContext(VideoExportContext);

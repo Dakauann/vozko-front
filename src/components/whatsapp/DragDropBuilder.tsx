@@ -23,6 +23,7 @@ import { useState, type ReactNode } from "react";
 import type { Icon } from "@/components/icons";
 import { useButtonActionLabel } from "@/components/whatsapp/exit/use-button-action-label";
 import type { ButtonActionChoice } from "@/lib/whatsapp-templates/exit";
+import type { FlowAction } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
@@ -45,6 +46,10 @@ export interface DraggableComponent {
       phone_number?: string;
       example?: string;
       otp_type?: string;
+      flowId?: string;
+      flowAction?: FlowAction;
+      navigateScreen?: string;
+      formName?: string;
       action?: ButtonActionChoice;
       exitPiece?: boolean;
     }>;

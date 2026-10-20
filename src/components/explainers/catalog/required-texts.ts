@@ -10,7 +10,10 @@ function sceneKeys(scene: SceneSpec): string[] {
     case "timeline":
       return [...scene.events.map((event) => event.label), ...[scene.start, scene.end].filter((key): key is string => Boolean(key))];
     case "fanout":
-      return [scene.source.label, ...scene.targets.map((target) => target.label)];
+      return [
+        scene.source.label,
+        ...scene.targets.flatMap((target) => [target.label, ...(target.note ? [target.note] : [])]),
+      ];
     case "waves":
       return ["grow", "slow", "hold"];
   }

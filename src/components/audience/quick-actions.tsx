@@ -41,12 +41,14 @@ export function CommentQuickActions({
   const [answering, setAnswering] = useState(false);
   const [escalating, setEscalating] = useState(false);
   const moderation = isCommentSource(comment.source) ? commentActionsFor(comment.source, comment.accountId) : null;
+  const setHidden = moderation?.setHidden;
+  const privateReply = moderation?.privateReply;
   const channel = { channel: comment.source };
 
   const hide = async () => {
-    if (!moderation) return;
+    if (!setHidden) return;
     setBusy("hide");
-    const result = await moderation.setHidden(comment.subjectId, true);
+    const result = await setHidden(comment.subjectId, true);
     setBusy(null);
     if (result.error) {
       onError?.(result.error);
@@ -68,7 +70,7 @@ export function CommentQuickActions({
 
   return (
     <>
-      <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <div className={cn("flex flex-wrap items-center gap-2", className)}>
         {canSend ? (
           <Button
             size="sm"
@@ -96,7 +98,7 @@ export function CommentQuickActions({
             onClick={() => onOpenAuthor(comment.authorExternalId)}
           />
         ) : null}
-        {moderation ? (
+        {setHidden ? (
           <Button
             size="sm"
             variant="ghost"
@@ -106,7 +108,7 @@ export function CommentQuickActions({
             onClick={() => void hide()}
           />
         ) : null}
-        {moderation ? (
+        {privateReply ? (
           <Button
             size="sm"
             variant="ghost"
@@ -127,12 +129,12 @@ export function CommentQuickActions({
           />
         ) : null}
       </div>
-      {replying && moderation ? (
+      {replying && privateReply ? (
         <PrivateReplyDialog
           excerpt={comment.excerpt}
           translationNamespace="audience.quickActions.privateReplyDialog"
           values={channel}
-          onSend={(text) => moderation.privateReply(comment.subjectId, text)}
+          onSend={(text) => privateReply(comment.subjectId, text)}
           onClose={() => setReplying(false)}
         />
       ) : null}

@@ -1,5 +1,6 @@
 import type { DraggableComponent } from "@/components/whatsapp/DragDropBuilder";
 
+import { MAX_FLOW_BUTTONS } from "./builder";
 import type { ButtonType, HeaderFormat, OtpType, TemplateButton, TemplateCategory, TemplateComponent } from "./types";
 
 export type TemplateDraftPurpose = "create" | "edit";
@@ -127,6 +128,8 @@ function buttonProblem(button: BuilderButton, index: number, t: Translate): stri
   }
   if (button.type === "PHONE_NUMBER" && !button.phone_number?.trim()) return t("form.validation.phoneButtonRequiresNumber", position);
   if (button.type === "COPY_CODE" && !button.example?.trim()) return t("form.validation.copyCodeRequiresExample", position);
+  if (button.type === "FLOW" && !button.text?.trim()) return t("form.validation.flowButtonRequiresText", position);
+  if (button.type === "FLOW" && !button.flowId?.trim()) return t("form.validation.flowButtonRequiresForm", position);
   return undefined;
 }
 
@@ -144,6 +147,7 @@ function buttonsProblem(components: DraggableComponent[], category: TemplateCate
     if (problem) return problem;
   }
   if (buttons.length > 10) return t("form.validation.maxButtons");
+  if (buttons.filter((button) => button.type === "FLOW").length > MAX_FLOW_BUTTONS) return t("form.validation.oneFlowButton");
   if (category === "AUTHENTICATION" && !buttons.some((b) => b.type === "OTP")) return t("form.validation.authNeedsOtpButton");
   return quickRepliesApart(buttons) ? t("form.validation.quickRepliesMustBeGrouped") : undefined;
 }
@@ -200,6 +204,11 @@ function templateButton(button: BuilderButton): TemplateButton {
   if (button.phone_number) out.phone_number = button.phone_number;
   if (button.example) out.example = button.type === "URL" ? [button.example] : button.example;
   if (button.type === "OTP") out.otp_type = (button.otp_type as OtpType) || "COPY_CODE";
+  if (button.type === "FLOW") {
+    out.flowId = button.flowId ?? "";
+    out.flowAction = button.flowAction ?? "navigate";
+    if (button.navigateScreen) out.navigateScreen = button.navigateScreen;
+  }
   return out;
 }
 
@@ -231,6 +240,14 @@ function namedExamples(params: Array<{ param_name: string; example: string }> | 
   return Object.fromEntries(params.map((param) => [param.param_name, param.example]));
 }
 
+function flowFields(button: TemplateButton): Pick<BuilderButton, "flowId" | "flowAction" | "navigateScreen"> {
+  return {
+    ...(button.flowId ? { flowId: String(button.flowId) } : {}),
+    flowAction: button.flowAction ?? "navigate",
+    ...(button.navigateScreen ? { navigateScreen: button.navigateScreen } : {}),
+  };
+}
+
 function draftData(component: TemplateComponent, headerMediaUrl: string | null | undefined): DraggableComponent["data"] {
   const example = component.example;
   const data: DraggableComponent["data"] = {
@@ -259,6 +276,7 @@ function draftData(component: TemplateComponent, headerMediaUrl: string | null |
       phone_number: button.phone_number,
       example: Array.isArray(button.example) ? button.example[0] : button.example,
       otp_type: button.otp_type,
+      ...(button.type === "FLOW" ? flowFields(button) : {}),
     }));
   }
   return data;

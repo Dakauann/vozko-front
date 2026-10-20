@@ -1,13 +1,10 @@
 "use client";
 
 import {
-  ArrowRight,
   CaretDown,
   CaretRight,
-  Check,
   CheckCircle,
   Clock,
-  Copy,
   Play,
   Spinner,
   XCircle,
@@ -16,21 +13,35 @@ import type {
   MockFieldSpec,
   TestMode,
   TestNodeResult,
+  WorkflowRunLog,
 } from "@/lib/workflows/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { Notice } from "@/components/ui/notice";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import { cn } from "@/lib/utils";
 import { useTestNode } from "@/hooks/use-test-node";
+import { nodeTestSteps } from "@/lib/workflows/node-test-steps";
 
+import { DurationText, JsonBlock, useLoadFailureText } from "./run-bits";
+import { StepDetail, StepRow } from "./step-detail";
+
+
+export interface TestNodeSeed {
+  id: string;
+  valueFor: (key: string) => unknown;
+}
 
 interface TestNodeSectionProps {
   workflowId: string;
   nodeId: string;
   disabled?: boolean;
   disabledReason?: string;
+  seed?: TestNodeSeed | null;
+  onShowPath?: (steps: WorkflowRunLog[]) => void;
 }
 
 
@@ -85,117 +96,34 @@ function isMissingMockValue(value: unknown): boolean {
   return value == null || (typeof value === "string" && value.trim() === "");
 }
 
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }, [text]);
-
-  return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-      title="Copiar"
-    >
-      {copied ? <Check size={12} /> : <Copy size={12} />}
-    </button>
-  );
+function mockValueText(value: unknown): string {
+  if (value == null) return "";
+  return typeof value === "string" ? value : JSON.stringify(value);
 }
 
 
-function OutputEntry({
-  label,
-  value,
-  mono,
-  badge,
-  badgeColor,
+function NodeTestResult({
+  result,
+  onShowPath,
 }: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  badge?: string;
-  badgeColor?: string;
+  result: TestNodeResult;
+  onShowPath?: (steps: WorkflowRunLog[]) => void;
 }) {
-  return (
-    <div className="flex items-start justify-between gap-2 py-1.5 border-b border-border last:border-0">
-      <div className="flex items-center gap-1.5 min-w-0">
-        <span className="text-2xs text-muted-foreground shrink-0">
-          {label}
-        </span>
-        {badge && (
-          <span
-            className={cn(
-              "shrink-0 rounded px-1.5 py-0.5 text-2xs font-semibold",
-              badgeColor ?? "bg-muted text-muted-foreground",
-            )}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-      <div className="flex items-center gap-1 min-w-0">
-        <span
-          className={cn(
-            "text-2xs text-foreground truncate max-w-[200px]",
-            mono && "font-mono",
-          )}
-          title={value}
-        >
-          {value}
-        </span>
-        {value.length > 30 && <CopyButton text={value} />}
-      </div>
-    </div>
-  );
-}
-
-
-function TestResultDisplay({ result }: { result: TestNodeResult }) {
-  const [showRawOutput, setShowRawOutput] = useState(false);
-  const [showRawConfig, setShowRawConfig] = useState(false);
-  const [showStateAfter, setShowStateAfter] = useState(false);
-
-  const outputEntries = useMemo(() => {
-    if (!result.execution_output) return [];
-    return Object.entries(result.execution_output).filter(
-      ([key]) => !["json", "body"].includes(key),
-    );
-  }, [result.execution_output]);
-
-  const httpStatusCode = result.execution_output?.status_code as
-    | number
-    | undefined;
-  const httpSuccess = result.execution_output?.success as boolean | undefined;
-  const responseBody = result.execution_output?.body as string | undefined;
-  const nextEdge = result.execution_output?.next_edge as string | undefined;
+  const t = useTranslations("workflowDebug");
+  const { target, upstream } = useMemo(() => nodeTestSteps(result), [result]);
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const stateEntries = result.state_after
-    ? Object.entries(result.state_after).filter(
-        ([key]) => !key.startsWith("_prev_node"),
-      )
-    : [];
+    ? Object.fromEntries(Object.entries(result.state_after).filter(([key]) => !key.startsWith("_prev_node")))
+    : {};
+  const path = useMemo(() => [...upstream, target], [upstream, target]);
+
+  useEffect(() => {
+    if (upstream.length > 0) onShowPath?.(path);
+  }, [path, upstream.length, onShowPath]);
 
   return (
-    <div
-      className={cn(
-        "rounded-[--radius] border overflow-hidden",
-        result.success
-          ? "border-border bg-muted"
-          : "border-border bg-muted",
-      )}
-    >
-      {}
-      <div
-        className={cn(
-          "flex items-center justify-between px-3 py-2",
-          result.success
-            ? "bg-muted border-b border-border"
-            : "bg-muted border-b border-border",
-        )}
-      >
+    <div className="rounded-[--radius] border border-border overflow-hidden" data-testid="node-test-result">
+      <div className="flex items-center justify-between px-3 py-2 bg-muted border-b border-border">
         <div className="flex items-center gap-2">
           {result.success ? (
             <CheckCircle size={16} weight="fill" className="text-healthy-ink" />
@@ -206,152 +134,47 @@ function TestResultDisplay({ result }: { result: TestNodeResult }) {
             {result.success ? "Teste bem-sucedido" : "Teste falhou"}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+        <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
           <Clock size={11} />
-          <span>{result.execution_duration_ms}ms</span>
-        </div>
+          <DurationText ms={target.durationMs} />
+        </span>
       </div>
 
-      <div className="p-3 space-y-2.5">
-        {}
-        {result.error && (
-          <Notice tone="fault">{result.error}</Notice>
-        )}
+      <div className="p-2 space-y-2.5">
+        {target.pinned && <p className="px-1 text-2xs text-muted-foreground">{t("step.pinnedHint")}</p>}
+        <StepDetail step={target} />
 
-        {}
-        {httpStatusCode != null && (
-          <div className="flex items-center gap-2">
-            <span className="text-2xs text-muted-foreground">
-              HTTP
-            </span>
-            <span
-              className={cn(
-                "rounded px-1.5 py-0.5 text-2xs font-semibold",
-                httpSuccess
-                  ? "bg-healthy text-healthy-foreground"
-                  : "bg-destructive text-destructive-foreground",
-              )}
-            >
-              {httpStatusCode}
-            </span>
-            {nextEdge && (
-              <>
-                <ArrowRight size={10} className="text-muted-foreground" />
-                <span className="text-2xs text-muted-foreground">
-                  {nextEdge}
-                </span>
-              </>
-            )}
-          </div>
-        )}
-
-        {}
-        {outputEntries.length > 0 && (
-          <div className="rounded-lg border border-border bg-background p-2">
-            <p className="text-2xs text-muted-foreground mb-1">
-              Saída do nó
-            </p>
-            {outputEntries.map(([key, val]) => (
-              <OutputEntry
-                key={key}
-                label={key}
-                value={
-                  typeof val === "object" ? JSON.stringify(val) : String(val)
-                }
-                mono
-              />
-            ))}
-          </div>
-        )}
-
-        {}
-        {responseBody && (
+        {upstream.length > 0 && (
           <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => setShowRawOutput(!showRawOutput)}
-              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showRawOutput ? (
-                <CaretDown size={10} />
-              ) : (
-                <CaretRight size={10} />
+            <div className="flex items-center justify-between gap-2 px-1">
+              <p className="text-2xs font-semibold text-foreground">{t("nodeTest.upstream")}</p>
+              {onShowPath && (
+                <ElevatedButton variant="ghost" size="sm" title={t("nodeTest.showPath")} onClick={() => onShowPath(path)} />
               )}
-              <span>Corpo da resposta</span>
-              <CopyButton text={responseBody} />
-            </button>
-            {showRawOutput && (
-              <pre className="text-2xs bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
-                {(() => {
-                  try {
-                    return JSON.stringify(JSON.parse(responseBody), null, 2);
-                  } catch {
-                    return responseBody;
-                  }
-                })()}
-              </pre>
-            )}
+            </div>
+            <ol className="space-y-1">
+              {upstream.map((step) => (
+                <StepRow
+                  key={step.id}
+                  step={step}
+                  label={step.nodeId}
+                  expanded={expandedStep === step.id}
+                  onToggle={() => setExpandedStep((current) => (current === step.id ? null : step.id))}
+                >
+                  <StepDetail step={step} />
+                </StepRow>
+              ))}
+            </ol>
           </div>
         )}
 
-        {}
-        {result.interpolated_config && (
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => setShowRawConfig(!showRawConfig)}
-              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showRawConfig ? (
-                <CaretDown size={10} />
-              ) : (
-                <CaretRight size={10} />
-              )}
-              <span>Config interpolado</span>
-            </button>
-            {showRawConfig && (
-              <pre className="text-2xs bg-background rounded-lg border border-border p-2.5 overflow-x-auto max-h-48 overflow-y-auto font-mono text-foreground/80">
-                {JSON.stringify(result.interpolated_config, null, 2)}
-              </pre>
-            )}
-          </div>
-        )}
-
-        {}
-        {stateEntries.length > 0 && (
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => setShowStateAfter(!showStateAfter)}
-              className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showStateAfter ? (
-                <CaretDown size={10} />
-              ) : (
-                <CaretRight size={10} />
-              )}
-              <span>Estado após execução</span>
-              <span className="text-2xs bg-muted rounded-[--radius] px-1.5 py-0.5">
-                {stateEntries.length}
-              </span>
-            </button>
-            {showStateAfter && (
-              <div className="rounded-lg border border-border bg-background p-2">
-                {stateEntries.map(([key, val]) => (
-                  <OutputEntry
-                    key={key}
-                    label={key}
-                    value={
-                      typeof val === "object"
-                        ? JSON.stringify(val)
-                        : String(val)
-                    }
-                    mono
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        {Object.keys(stateEntries).length > 0 && (
+          <details className="px-1">
+            <summary className="cursor-pointer text-2xs text-muted-foreground hover:text-foreground">
+              Estado após execução ({Object.keys(stateEntries).length})
+            </summary>
+            <JsonBlock value={stateEntries} className="mt-1" />
+          </details>
         )}
       </div>
     </div>
@@ -364,13 +187,22 @@ export function TestNodeSection({
   nodeId,
   disabled = false,
   disabledReason,
+  seed = null,
+  onShowPath,
 }: TestNodeSectionProps) {
+  const tDebug = useTranslations("workflowDebug.nodeTest");
+  const tWorkflows = useTranslations("workflowsPage");
+  const failureText = useLoadFailureText();
   const [expanded, setExpanded] = useState(false);
+  const [confirmRealCalls, setConfirmRealCalls] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const {
     status,
     analysis,
     result,
     error,
+    errorStatus,
+    errorCode,
     mockedState,
     triggerVars,
     analyze,
@@ -391,10 +223,29 @@ export function TestNodeSection({
         .join(", ")}.`
     : null;
 
+  const testedNode = `${workflowId}:${nodeId}`;
+  const [shownNode, setShownNode] = useState(testedNode);
+  if (shownNode !== testedNode) {
+    setShownNode(testedNode);
+    setExpanded(false);
+  }
+
   useEffect(() => {
     reset();
-    setExpanded(false);
   }, [workflowId, nodeId, reset]);
+
+  useEffect(() => {
+    if (!seed) return;
+    let current = true;
+    void analyze(workflowId, nodeId, seed.valueFor).then(() => {
+      if (!current) return;
+      setExpanded(true);
+      requestAnimationFrame(() => rootRef.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" }));
+    });
+    return () => {
+      current = false;
+    };
+  }, [seed, analyze, workflowId, nodeId]);
 
   const handleExpand = useCallback(async () => {
     if (!expanded) {
@@ -411,8 +262,8 @@ export function TestNodeSection({
     if (disabled || status === "testing" || hasMissingRequiredMocks) {
       return;
     }
-    await test(workflowId, nodeId, false);
-  }, [disabled, hasMissingRequiredMocks, nodeId, status, test, workflowId]);
+    await test(workflowId, nodeId, false, confirmRealCalls);
+  }, [disabled, hasMissingRequiredMocks, nodeId, status, test, workflowId, confirmRealCalls]);
 
   const handleReset = useCallback(() => {
     reset();
@@ -420,7 +271,7 @@ export function TestNodeSection({
   }, [reset]);
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div ref={rootRef} className="border border-border rounded-lg overflow-hidden">
       {}
       <button
         type="button"
@@ -513,7 +364,7 @@ export function TestNodeSection({
                         </span>
                       </div>
                       <ElevatedInput
-                        value={(mockedState[field.key] as string) ?? ""}
+                        value={mockValueText(mockedState[field.key])}
                         onChange={(e) =>
                           setMockedValue(field.key, e.target.value)
                         }
@@ -543,6 +394,19 @@ export function TestNodeSection({
                   </div>
                 </details>
               )}
+
+              <label className="flex items-start gap-2 text-xs text-foreground">
+                <input
+                  type="checkbox"
+                  checked={confirmRealCalls}
+                  onChange={(event) => setConfirmRealCalls(event.target.checked)}
+                  className="mt-0.5 h-3.5 w-3.5 rounded border-control-edge accent-primary"
+                />
+                <span className="space-y-0.5">
+                  <span className="block font-medium">{tDebug("confirmRealCalls")}</span>
+                  <span className="block text-2xs leading-relaxed text-muted-foreground">{tDebug("confirmRealCallsHint")}</span>
+                </span>
+              </label>
 
               {}
               <div className="flex items-center gap-2">
@@ -585,12 +449,12 @@ export function TestNodeSection({
           )}
 
           {}
-          {result && <TestResultDisplay result={result} />}
+          {result && <NodeTestResult result={result} onShowPath={onShowPath} />}
 
           {}
           {status === "error" && error && !result && (
             <Notice tone="fault" title="Erro">
-              {error}
+              {failureText(errorStatus, codedErrorMessage(tWorkflows, { code: errorCode ?? undefined }, error))}
             </Notice>
           )}
         </div>

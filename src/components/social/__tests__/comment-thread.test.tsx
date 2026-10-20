@@ -103,4 +103,36 @@ describe("CommentThread", () => {
         fireEvent.click(screen.getByRole("button", { name: labels.hide }));
         expect(await screen.findByText("Facebook recusou")).toBeTruthy();
     });
+
+    it("offers no hide or private reply when the source has neither, even if the comment allows them", () => {
+        renderThread([comment()], actions({ privateReply: undefined, setHidden: undefined }));
+        expect(screen.queryByRole("button", { name: labels.privateReply })).toBeNull();
+        expect(screen.queryByRole("button", { name: labels.hide })).toBeNull();
+        expect(screen.getByRole("button", { name: labels.reply })).toBeTruthy();
+    });
+
+    it("names the load more button and loads the next page", () => {
+        const onLoadMore = vi.fn();
+        render(
+            <NextIntlClientProvider locale="pt" messages={ptMessages}>
+                <CommentThread
+                    comments={[comment()]}
+                    actions={actions()}
+                    translationNamespace="facebook.comments"
+                    loading={false}
+                    hasNext
+                    loadingMore={false}
+                    onLoadMore={onLoadMore}
+                    onChanged={() => undefined}
+                />
+            </NextIntlClientProvider>,
+        );
+        fireEvent.click(screen.getByRole("button", { name: labels.loadMore }));
+        expect(onLoadMore).toHaveBeenCalled();
+    });
+
+    it("shows the empty copy from the shared list frame", () => {
+        renderThread([]);
+        expect(screen.getByText(labels.empty)).toBeTruthy();
+    });
 });

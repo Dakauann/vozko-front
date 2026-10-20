@@ -1,5 +1,7 @@
 import {
+  ChatCircleDots,
   ChatText,
+  FlowArrow,
   Gear,
   Headset,
   Megaphone,
@@ -15,6 +17,7 @@ import type { NotificationCategory, NotificationSeverity } from "@/lib/notificat
 
 export const CATEGORY_ICON: Record<NotificationCategory, Icon> = {
   announcements: Megaphone,
+  conversations: ChatCircleDots,
   campaigns: PaperPlaneTilt,
   templates: ChatText,
   channels: Plugs,
@@ -23,6 +26,7 @@ export const CATEGORY_ICON: Record<NotificationCategory, Icon> = {
   team: UsersThree,
   support: Headset,
   system: Gear,
+  automations: FlowArrow,
 };
 
 export const SEVERITY_CHIP: Record<NotificationSeverity, StatusChipTone | null> = {

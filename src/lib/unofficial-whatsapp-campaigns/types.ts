@@ -40,6 +40,36 @@ export interface UnofficialWhatsAppMessageSpec {
 
 export type UnofficialWhatsAppCampaignAudience = "leads" | "groups";
 
+export interface CampaignSendEstimate {
+    seconds: number;
+    pending: number;
+    senders: number;
+    unsendable: number;
+}
+
+export type GroupSenderBlock = "not_in_group" | "cannot_post" | "offline";
+
+export interface GroupSenderPlan {
+    jid: string;
+    name: string;
+    senders: { instanceId: string; label: string }[];
+    block?: GroupSenderBlock;
+}
+
+export interface CampaignEstimateDraft {
+    estimate: CampaignSendEstimate;
+    groups: GroupSenderPlan[];
+}
+
+export interface CampaignEstimateRequest {
+    audience: UnofficialWhatsAppCampaignAudience;
+    instanceId?: string;
+    sendDelayMinMs?: number;
+    sendDelayMaxMs?: number;
+    targets?: number;
+    groupJids?: string[];
+}
+
 export interface UnofficialWhatsAppCampaign {
     source?: string;
     id: string;
@@ -76,6 +106,8 @@ export interface UnofficialWhatsAppCampaign {
     archived: boolean;
 
     metrics?: CampaignMetrics;
+    targetNames?: string[];
+    estimate?: CampaignSendEstimate;
     createdAt: string;
     updatedAt: string;
 }
@@ -96,7 +128,7 @@ export interface UnofficialWhatsAppCampaignSeedOutcome {
 export interface UnofficialWhatsAppCampaignPayload {
     name: string;
     audience?: UnofficialWhatsAppCampaignAudience;
-    instanceId: string;
+    instanceId?: string;
     message: UnofficialWhatsAppMessageSpec;
 
     agentId?: string | null;
@@ -127,6 +159,8 @@ export interface UnofficialWhatsAppCampaignEntry {
     name?: string;
     jid?: string;
     isGroup?: boolean;
+    senderInstanceId?: string;
+    senderLabel?: string;
     conversationId?: string;
     status: UnofficialWhatsAppCampaignEntryStatus;
     variantIndex: number;

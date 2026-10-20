@@ -9,7 +9,6 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import { File as FileIcon, Paperclip, Warning, Waveform, X } from "@/components/icons";
 import {
-    OUTBOUND_MEDIA_ACCEPT,
     formatFileSize,
     mediaTypeForFile,
     normalizeUploadFile,
@@ -25,6 +24,7 @@ import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
+import { useAttachmentAdmission } from "@/hooks/use-attachment-admission";
 import { useTranslations } from "next-intl";
 
 interface ScheduleDraft {
@@ -70,6 +70,7 @@ export default function ScheduleMessageDialog({
     onUseTemplate,
 }: ScheduleMessageDialogProps) {
     const t = useTranslations("scheduledMessages");
+    const admission = useAttachmentAdmission(entryId, entryType);
 
     const [liveWindow, setLiveWindow] = useState<SchedulingWindow | null>(schedulingWindow);
     const [text, setText] = useState(() => (draft.text ?? ""));
@@ -101,6 +102,7 @@ export default function ScheduleMessageDialog({
             if (!picked) return;
 
             const file = normalizeUploadFile(picked);
+            if (!admission.admit(file)) return;
             const type = mediaTypeForFile(file);
             setAttachment({ name: file.name, size: file.size, type, uploading: true });
 
@@ -118,7 +120,7 @@ export default function ScheduleMessageDialog({
                     : current,
             );
         },
-        [entryId, entryType, t],
+        [admission, entryId, entryType, t],
     );
 
     const clientError = when.clientError;
@@ -172,7 +174,7 @@ export default function ScheduleMessageDialog({
                 <ElevatedDialogHeader>
                     <ElevatedDialogTitle>{t("dialog.title")}</ElevatedDialogTitle>
                     <ElevatedDialogDescription>
-                        {recipientName ? `${t("dialog.to", { name: recipientName })} · ` : ""}
+                        {recipientName ? `${t("dialog.to", { name: recipientName })} · ` : ""}
                         {liveWindow?.expiresAt
                             ? t("dialog.description")
                             : t("dialog.descriptionNoWindow")}
@@ -197,6 +199,7 @@ export default function ScheduleMessageDialog({
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
+                                disabled={!admission.takesAttachments}
                                 className="inline-flex items-center gap-1.5 rounded-[--radius] border border-border px-2.5 py-1.5 text-2xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                             >
                                 <Paperclip weight="bold" className="h-3.5 w-3.5" />
@@ -212,7 +215,7 @@ export default function ScheduleMessageDialog({
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept={OUTBOUND_MEDIA_ACCEPT}
+                            accept={admission.accept}
                             className="hidden"
                             onChange={(event) => {
                                 void handleFiles(event.target.files);

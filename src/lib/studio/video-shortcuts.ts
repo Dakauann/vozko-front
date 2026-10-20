@@ -1,7 +1,8 @@
 import type { Alignment, DistributeAxis } from "./arrange";
 import type { EaseSides } from "./keyframe-ease";
 import type { Easing } from "./keyframes";
-import { activatesOnEnter, imageZoomActionFor, isEditableTarget, type ImageZoomAction, type KeyStroke } from "./keymap";
+import { activatesOnEnter, isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
+import { imageZoomActionFor, type ImageZoomAction } from "./keymap";
 
 export type VideoExtraAction =
   | { type: "addMarker" }

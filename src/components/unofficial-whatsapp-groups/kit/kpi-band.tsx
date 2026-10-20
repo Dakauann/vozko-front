@@ -54,13 +54,13 @@ function bandClass(columns: 4 | 5 | 6 | 8, className?: string) {
   );
 }
 
-function CellBody({ cell, numeral }: { cell: KpiCell; numeral: string }) {
+function CellBody({ cell, numeral, compact }: { cell: KpiCell; numeral: string; compact: boolean }) {
   return (
     <>
       <dt className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-muted-foreground">
         {cell.icon ? (
-          <span className={cn("mr-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius]", cell.plate)}>
-            <cell.icon className="h-4 w-4" weight="fill" />
+          <span className={cn("mr-0.5 flex shrink-0 items-center justify-center rounded-[--radius]", compact ? "h-6 w-6" : "h-8 w-8", cell.plate)}>
+            <cell.icon className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} weight="fill" />
           </span>
         ) : null}
         <span className="truncate">{cell.label}</span>
@@ -130,7 +130,7 @@ export function KpiBand({
               "transition-colors hover:bg-[hsl(var(--accent-hover))] focus-within:z-10 focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring",
           )}
         >
-          <CellBody cell={cell} numeral={numeral} />
+          <CellBody cell={cell} numeral={numeral} compact={columns >= 8} />
         </div>
       ))}
     </dl>

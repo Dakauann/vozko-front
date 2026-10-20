@@ -3,8 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import type { ExitVerdict, TemplateButtonActions } from "@/lib/whatsapp-templates/exit";
+
+const ptMessages = brandedMessages(rawPtMessages);
 
 const actions = vi.hoisted(() => ({
   getTemplateButtonActionsAction: vi.fn(),

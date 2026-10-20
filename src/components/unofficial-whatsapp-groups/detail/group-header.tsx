@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 
 import { GroupAvatar } from "../marks";
 import { StartCampaignButton } from "../kit/campaign";
-import { MemberCountLabel, OriginChip } from "../kit/identity";
+import { GroupCreatedOn, MemberCountLabel, OriginChip } from "../kit/identity";
 import { RelativeTime } from "../kit/relative-time";
 import { groupsRoutes } from "../kit/routes";
 import { useGroupName } from "../kit/use-groups-format";
@@ -98,6 +98,7 @@ export function GroupHeader({ detail, permissions, actions }: { detail: GroupDet
                 </Chip>
               </Link>
             ) : null}
+            <GroupCreatedOn at={detail.groupCreatedAt} />
             {group.lastActivityAt ? (
               <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
                 {t("header.lastActivityLabel")}
@@ -157,6 +158,12 @@ export function GroupHeader({ detail, permissions, actions }: { detail: GroupDet
                     <DropdownMenuItem disabled={busy} onSelect={() => void actions.exportMembers()}>
                       <DownloadSimple className="mr-2 h-4 w-4" />
                       {t("actions.exportCsv")}
+                    </DropdownMenuItem>
+                  ) : null}
+                  {permissions.exportMembers && group.seriesId ? (
+                    <DropdownMenuItem disabled={busy} onSelect={() => void actions.exportSeriesMembers()}>
+                      <Stack className="mr-2 h-4 w-4" />
+                      {t("actions.exportSeriesCsv")}
                     </DropdownMenuItem>
                   ) : null}
                   {canConversation && conversationId ? (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useFormatter, useNow, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { joinWorkspaceGroupAction, previewGroupInviteAction } from "@/app/actions/unofficial-whatsapp-groups";
@@ -21,14 +21,13 @@ import { CircleNotch, LinkSimple, SignIn } from "@/components/icons";
 import { Notice } from "@/components/ui/notice";
 import { useRouter } from "@/i18n/routing";
 import { groupErrorKey } from "@/lib/unofficial-whatsapp-groups/group-errors";
-import { defaultJoinNumbers, joinSchedule } from "@/lib/unofficial-whatsapp-groups/join-plan";
 import { JOIN_SPACING_MINUTES, type InvitePreview, type JoinResult } from "@/lib/unofficial-whatsapp-groups/types";
 
+import { CategoryField } from "./kit/category-field";
 import { OriginChip } from "./kit/identity";
 import { groupsRoutes } from "./kit/routes";
 import { GroupAvatar } from "./marks";
-import { NumberPicker, NumberPickerSkeleton } from "./number-picker";
-import { numberLabel, useWorkspaceNumbers } from "./use-workspace-numbers";
+import { JoinNumbersFields, useJoinNumbers } from "./join-numbers";
 
 const PREVIEW_DEBOUNCE_MS = 400;
 
@@ -63,19 +62,15 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
   const t = useTranslations("unofficialGroups.join");
   const tErrors = useTranslations("unofficialGroups.list.errors");
   const tOrigin = useTranslations("unofficialGroups.kit.origin");
-  const format = useFormatter();
   const router = useRouter();
-  const { numbers, loading: numbersLoading, error: numbersError } = useWorkspaceNumbers();
 
   const [link, setLink] = useState("");
   const [checked, setChecked] = useState<CheckedInvite | null>(null);
-  const [picked, setPicked] = useState<string[] | null>(null);
   const [follow, setFollow] = useState(true);
+  const [category, setCategory] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, startSubmitting] = useTransition();
   const previewRun = useRef(0);
-
-  const now = useNow({ updateInterval: 30_000 });
 
   const text = link.trim();
 
@@ -98,33 +93,8 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
   const previewState: PreviewState = !text ? { kind: "idle" } : checked?.link === text ? checked.state : { kind: "loading" };
   const preview = previewState.kind === "ready" ? previewState.preview : null;
   const alreadyIn = useMemo(() => preview?.alreadyIn ?? [], [preview]);
-
-  const selected = useMemo(() => {
-    const chosen = picked ?? defaultJoinNumbers(numbers, alreadyIn);
-    const inside = new Set(alreadyIn);
-    const allowed = new Set(numbers.filter((number) => number.sessionLive && !inside.has(number.id)).map((number) => number.id));
-    return numbers.map((number) => number.id).filter((id) => chosen.includes(id) && allowed.has(id));
-  }, [picked, numbers, alreadyIn]);
-
-  const schedule = useMemo(() => joinSchedule(selected, now, JOIN_SPACING_MINUTES), [selected, now]);
-  const labels = useMemo(() => new Map(numbers.map((number) => [number.id, numberLabel(number)])), [numbers]);
-
-  const options = useMemo(
-    () =>
-      numbers.map((number) => {
-        const inside = alreadyIn.includes(number.id);
-        return {
-          number,
-          disabled: inside || !number.sessionLive,
-          note: inside ? t("alreadyIn") : number.sessionLive ? undefined : t("offline"),
-        };
-      }),
-    [numbers, alreadyIn, t],
-  );
-
-  const toggle = (id: string) => {
-    setPicked(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
-  };
+  const join = useJoinNumbers(alreadyIn);
+  const { selected, labels } = join;
 
   const describe = (message: string, fallback: string) => {
     const key = groupErrorKey(message);
@@ -135,7 +105,13 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
     if (!preview || selected.length === 0) return;
     setSubmitError(null);
     startSubmitting(async () => {
-      const result = await joinWorkspaceGroupAction({ inviteLink: preview.inviteLink, instanceIds: selected, follow });
+      const chosenCategory = category.trim();
+      const result = await joinWorkspaceGroupAction({
+        inviteLink: preview.inviteLink,
+        instanceIds: selected,
+        follow,
+        ...(chosenCategory ? { category: chosenCategory } : {}),
+      });
       if (result.error || !result.data) {
         const message = describe(result.error ?? "", tErrors("joinFailed"));
         setSubmitError(message);
@@ -156,7 +132,9 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
         ...(group && firstJoined
           ? {
               action: { label: t("openGroup"), onClick: () => router.push(groupsRoutes.group(group.id)) },
-              cancel: { label: t("setCategory"), onClick: () => router.push(groupsRoutes.group(group.id, { tab: "settings" })) },
+              ...(chosenCategory
+                ? {}
+                : { cancel: { label: t("setCategory"), onClick: () => router.push(groupsRoutes.group(group.id, { tab: "settings" })) } }),
             }
           : {}),
       });
@@ -164,8 +142,6 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
       onClose();
     });
   };
-
-  const noNumbers = !numbersLoading && numbers.length === 0;
 
   return (
     <>
@@ -235,32 +211,9 @@ function JoinGroupForm({ onClose, onPlanned }: { onClose: () => void; onPlanned?
           </div>
         ) : null}
 
-        <fieldset className="space-y-2">
-          <legend className="mb-1 text-xs font-semibold text-muted-foreground">{t("numbers")}</legend>
-          {numbersError ? <Notice tone="fault">{numbersError}</Notice> : null}
-          {noNumbers && !numbersError ? <Notice tone="warning">{t("noNumbers")}</Notice> : null}
-          {numbersLoading ? <NumberPickerSkeleton /> : <NumberPicker label={t("numbers")} options={options} selected={selected} onToggle={toggle} />}
-        </fieldset>
+        <JoinNumbersFields join={join} />
 
-        {schedule.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground">{t("scheduleTitle")}</p>
-            <p className="text-xs text-muted-foreground">{t("scheduleHint", { minutes: JOIN_SPACING_MINUTES })}</p>
-            <ol className="divide-y divide-border rounded-[--radius] border border-border">
-              {schedule.map((slot, index) => (
-                <li key={slot.instanceId} className="flex items-center justify-between gap-3 px-3 py-2">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="readout w-5 shrink-0 text-xs text-muted-foreground">{index + 1}</span>
-                    <span className="truncate text-sm text-foreground">{labels.get(slot.instanceId)}</span>
-                  </span>
-                  <span className="readout shrink-0 text-xs text-muted-foreground">
-                    {index === 0 ? t("now") : t("at", { time: format.dateTime(slot.at, { timeStyle: "short" }) })}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        ) : null}
+        <CategoryField label={t("category")} suggestionsLabel={t("categorySuggestions")} hint={t("categoryHint")} value={category} onChange={setCategory} />
 
         <ElevatedSwitch checked={follow} onCheckedChange={setFollow} label={t("follow")} description={t("followHint")} />
 

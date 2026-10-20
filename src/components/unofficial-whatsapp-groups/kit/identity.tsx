@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Chip } from "@/components/audience/shared";
+import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { EyeSlash, Lock, User, UsersThree } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 import { displayPhone, initialsOf, personName, type PersonNameSource } from "./format";
 import { groupsRoutes } from "./routes";
-import { useGroupName } from "./use-groups-format";
+import { useGroupName, useGroupsFormat } from "./use-groups-format";
 
 type PersonAvatarSize = "xs" | "sm" | "md";
 
@@ -113,16 +114,19 @@ export function GroupIdentity({
   href,
   size = "sm",
   sub = "none",
+  createdAt,
   trailing,
 }: {
   group: GroupIdentitySource;
   href?: string;
   size?: "sm" | "md";
   sub?: "none" | "category" | "full";
+  createdAt?: string;
   trailing?: ReactNode;
 }) {
   const t = useTranslations("unofficialGroups.kit.identity");
   const groupName = useGroupName();
+  const fmt = useGroupsFormat();
   const title = groupName(group.subject);
   const category = group.category?.trim();
 
@@ -143,6 +147,13 @@ export function GroupIdentity({
       parts.push(
         <span key="locked" role="img" aria-label={t("locked")} title={t("locked")} className="inline-flex">
           <Lock className="h-3 w-3" weight="bold" />
+        </span>,
+      );
+    }
+    if (createdAt) {
+      parts.push(
+        <span key="created" className="readout tabular-nums" title={fmt.dateTime(createdAt)}>
+          {t("createdOn", { date: fmt.date(createdAt) })}
         </span>,
       );
     }
@@ -289,4 +300,21 @@ export function OriginChip({ origin, numbers }: { origin: GroupOrigin; numbers?:
 export function MemberCountLabel({ count, className }: { count: number; className?: string }) {
   const t = useTranslations("unofficialGroups.kit.identity");
   return <span className={cn("readout", className)}>{t("memberCount", { count })}</span>;
+}
+
+export function GroupCreatedOn({ at, className }: { at?: string; className?: string }) {
+  const t = useTranslations("unofficialGroups.kit.identity");
+  const fmt = useGroupsFormat();
+  return (
+    <span className={cn("inline-flex items-center gap-1 text-2xs text-muted-foreground", className)}>
+      {t("createdLabel")}
+      {at ? (
+        <time dateTime={at} title={fmt.dateTime(at)} className="readout tabular-nums text-foreground">
+          {fmt.date(at)}
+        </time>
+      ) : (
+        <EmptyValue />
+      )}
+    </span>
+  );
 }

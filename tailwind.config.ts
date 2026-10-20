@@ -1,4 +1,10 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+import {
+	tailwindAnimations,
+	tailwindDurations,
+	tailwindTimingFunctions,
+} from "./src/lib/motion/tokens";
 
 export default {
 	darkMode: ["class"],
@@ -189,19 +195,11 @@ export default {
 			},
 			animation: {
 				'progress-creep': 'progress-creep 14s cubic-bezier(0.16,1,0.3,1) forwards',
-				'accordion-down': 'accordion-down 0.2s cubic-bezier(0.1,0.9,0.2,1)',
-				'accordion-up': 'accordion-up 0.2s cubic-bezier(0.1,0.9,0.2,1)',
-				'dot-pulse': 'dot-pulse 1.2s cubic-bezier(0.33,0,0.67,1) infinite'
+				...tailwindAnimations
 			},
-			transitionTimingFunction: {
-				DEFAULT: 'cubic-bezier(0.33,0,0.67,1)',
-				panel: 'cubic-bezier(0.1,0.9,0.2,1)',
-				exit: 'cubic-bezier(0.9,0.1,1,0.2)'
-			},
-			transitionDuration: {
-				DEFAULT: '150ms'
-			}
+			transitionTimingFunction: tailwindTimingFunctions,
+			transitionDuration: tailwindDurations
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

@@ -40,6 +40,8 @@ interface ListQueryState<K extends string = string, V extends string = string> {
   setPageSize: (pageSize: number) => void;
   clearFilters: () => void;
   reset: () => void;
+  param: (name: string) => string;
+  setParams: (changes: Record<string, string | number | null | undefined>) => void;
 }
 
 interface UseListQueryStateOptions<K extends string = string, V extends string = string> {
@@ -242,6 +244,13 @@ export function useListQueryState<K extends string = string, V extends string = 
     [apply, fallbackView, viewScopedParams],
   );
 
+  const param = useCallback((name: string) => searchParams.get(name) ?? "", [searchParams]);
+
+  const setParams = useCallback(
+    (changes: Record<string, string | number | null | undefined>) => apply({ ...changes, page: null }),
+    [apply],
+  );
+
   return {
     filter,
     filterInvalid,
@@ -263,5 +272,7 @@ export function useListQueryState<K extends string = string, V extends string = 
     setPageSize,
     clearFilters,
     reset,
+    param,
+    setParams,
   };
 }

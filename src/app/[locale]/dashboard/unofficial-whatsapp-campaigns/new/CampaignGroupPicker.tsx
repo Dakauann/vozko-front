@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { listWorkspaceGroupsAction } from "@/app/actions/unofficial-whatsapp-groups";
 import Button from "@/components/elevated-design/button";
@@ -11,7 +11,7 @@ import { MagnifyingGlass, X } from "@/components/icons";
 import { OriginChip } from "@/components/unofficial-whatsapp-groups/kit/identity";
 import { GroupAvatar } from "@/components/unofficial-whatsapp-groups/marks";
 import { Notice } from "@/components/ui/notice";
-import { splitByPosting } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
+import { blocksForGood, groupPosting } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
 import type { GroupRow } from "@/lib/unofficial-whatsapp-groups/types";
 
 import { pickedFromGroup, type PickedCampaignGroup } from "./group-picks";
@@ -21,24 +21,32 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 type GroupPage = Awaited<ReturnType<typeof listWorkspaceGroupsAction>>;
 
+function RunningMark({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-2xs font-medium text-muted-foreground">
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning" aria-hidden />
+      {label}
+    </span>
+  );
+}
+
 export function CampaignGroupPicker({
-  instanceId,
   value,
   onChange,
   disabled,
 }: {
-  instanceId: string;
   value: PickedCampaignGroup[];
   onChange: (next: PickedCampaignGroup[]) => void;
   disabled?: boolean;
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns.form.groups");
   const tOrigin = useTranslations("unofficialGroups.kit.origin");
+  const locale = useLocale();
+  const orList = useMemo(() => new Intl.ListFormat(locale, { type: "disjunction" }), [locale]);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [rows, setRows] = useState<GroupRow[]>([]);
-  const [readOnly, setReadOnly] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [settledSearch, setSettledSearch] = useState<string | null>(null);
@@ -55,40 +63,33 @@ export function CampaignGroupPicker({
     async (nextPage: number): Promise<GroupPage | null> => {
       const request = ++requestRef.current;
       const result = await listWorkspaceGroupsAction({
-        instanceId,
         search: debouncedSearch || undefined,
         page: nextPage,
         pageSize: PAGE_SIZE,
       });
       return request === requestRef.current ? result : null;
     },
-    [instanceId, debouncedSearch],
+    [debouncedSearch],
   );
 
-  const apply = useCallback(
-    (result: GroupPage, append: boolean) => {
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      setError(null);
-      const split = splitByPosting(result.items, instanceId);
-      setRows((previous) => (append ? [...previous, ...split.postable] : split.postable));
-      setReadOnly((previous) => (append ? previous + split.readOnly : split.readOnly));
-      setPage(result.meta.page);
-      setTotalPages(result.meta.totalPages);
-    },
-    [instanceId],
-  );
+  const apply = useCallback((result: GroupPage, append: boolean) => {
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    setError(null);
+    setRows((previous) => (append ? [...previous, ...result.items] : result.items));
+    setPage(result.meta.page);
+    setTotalPages(result.meta.totalPages);
+  }, []);
 
   useEffect(() => {
-    if (!instanceId) return;
     void fetchPage(1).then((result) => {
       if (!result) return;
       apply(result, false);
       setSettledSearch(debouncedSearch);
     });
-  }, [instanceId, debouncedSearch, fetchPage, apply]);
+  }, [debouncedSearch, fetchPage, apply]);
 
   const loadMore = async () => {
     setLoadingMore(true);
@@ -98,16 +99,11 @@ export function CampaignGroupPicker({
   };
 
   const loading = loadingMore || settledSearch !== debouncedSearch;
-
-  if (!instanceId) {
-    return <p className="text-sm text-muted-foreground">{t("pickNumberFirst")}</p>;
-  }
-
   const pickedIds = new Set(value.map((group) => group.id));
 
   const toggle = (row: GroupRow, checked: boolean) => {
     if (checked) {
-      if (!pickedIds.has(row.group.id)) onChange([...value, pickedFromGroup(row.group)]);
+      if (!pickedIds.has(row.group.id)) onChange([...value, pickedFromGroup(row.group, row.runningCampaigns)]);
       return;
     }
     onChange(value.filter((group) => group.id !== row.group.id));
@@ -166,35 +162,49 @@ export function CampaignGroupPicker({
           </p>
         ) : (
           <ul className="divide-y divide-border">
-            {rows.map((row) => (
-              <li key={row.group.id}>
-                <label className="flex cursor-pointer items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted">
-                  <Checkbox
-                    aria-label={row.group.subject}
-                    checked={pickedIds.has(row.group.id)}
-                    onCheckedChange={(checked) => toggle(row, checked === true)}
-                    disabled={disabled}
-                  />
-                  <GroupAvatar group={row.group} size="sm" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{row.group.subject}</span>
-                  <OriginChip origin={row.group.origin} />
-                  <span className="readout shrink-0 text-xs text-muted-foreground">
-                    {t("members", { count: row.group.memberCount })}
-                  </span>
-                </label>
-              </li>
-            ))}
+            {rows.map((row) => {
+              const posting = groupPosting(row);
+              const unreachable = blocksForGood(posting.block);
+              const who = posting.block
+                ? t(`block.${posting.block}`)
+                : t("postsFrom", { numbers: orList.format(posting.senders.map((seat) => seat.label)) });
+              return (
+                <li key={row.group.id}>
+                  <label
+                    className={
+                      unreachable
+                        ? "flex cursor-not-allowed items-center gap-3 px-4 py-2.5 opacity-70"
+                        : "flex cursor-pointer items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted"
+                    }
+                  >
+                    <Checkbox
+                      aria-label={row.group.subject}
+                      checked={pickedIds.has(row.group.id)}
+                      onCheckedChange={(checked) => toggle(row, checked === true)}
+                      disabled={disabled || (unreachable && !pickedIds.has(row.group.id))}
+                    />
+                    <GroupAvatar group={row.group} size="sm" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-foreground">{row.group.subject}</span>
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span className="truncate text-2xs text-muted-foreground">{who}</span>
+                        {row.runningCampaigns > 0 ? <RunningMark label={t("running", { count: row.runningCampaigns })} /> : null}
+                      </span>
+                    </span>
+                    <OriginChip origin={row.group.origin} />
+                    <span className="readout shrink-0 text-xs text-muted-foreground">
+                      {t("members", { count: row.group.memberCount })}
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {readOnly > 0 ? (
-          <p className="text-xs text-muted-foreground">{t("readOnlyHidden", { count: readOnly })}</p>
-        ) : (
-          <span />
-        )}
-        {page < totalPages ? (
+      {page < totalPages ? (
+        <div className="flex justify-end">
           <Button
             type="button"
             variant="secondary"
@@ -203,8 +213,8 @@ export function CampaignGroupPicker({
             disabled={loading}
             onClick={() => void loadMore()}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

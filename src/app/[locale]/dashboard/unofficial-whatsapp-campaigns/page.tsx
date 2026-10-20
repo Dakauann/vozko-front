@@ -17,6 +17,8 @@ import {
   listUnofficialCampaignsAction,
 } from "@/app/actions/unofficial-whatsapp-campaigns";
 import { useDepartment } from "@/contexts/department-context";
+import { useCampaignRefresh } from "@/hooks/use-campaign-refresh";
+import { anyCampaignRunning } from "@/lib/unofficial-whatsapp-campaigns/send-estimate";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -60,8 +62,8 @@ export default function UnofficialWhatsAppCampaignsPage() {
     fetchSummary();
   }, [fetchSummary, currentDepartment]);
 
-  const fetchCampaigns = useCallback(async () => {
-    setLoading(true);
+  const fetchCampaigns = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const result = await listUnofficialCampaignsAction({
@@ -78,13 +80,18 @@ export default function UnofficialWhatsAppCampaignsPage() {
       setCampaigns(result.campaigns);
       setMeta(result.meta);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [page, search, statusFilter]);
 
+  const refreshRunning = useCallback(() => {
+    void fetchCampaigns(true);
+  }, [fetchCampaigns]);
+  useCampaignRefresh(anyCampaignRunning(campaigns), refreshRunning);
+
   useEffect(() => {
     if (!currentWorkspace?.id) return;
-    const timer = setTimeout(fetchCampaigns, 250);
+    const timer = setTimeout(() => void fetchCampaigns(), 250);
     return () => clearTimeout(timer);
   }, [currentWorkspace?.id, currentDepartment, fetchCampaigns]);
 

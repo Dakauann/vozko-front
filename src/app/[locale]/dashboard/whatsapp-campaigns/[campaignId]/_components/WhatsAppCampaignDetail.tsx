@@ -3,30 +3,16 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowClockwise,
-  CalendarCheck,
-  CaretDown,
-  ChatCircle,
   CheckCircle,
-  Clock,
-  DownloadSimple,
-  Eye,
   GearSix,
-  Info,
   Lightning,
-  ListDashes,
-  PaperPlaneTilt,
-  ShieldWarning,
   Trash,
-  UserCircle,
   Warning,
-  WhatsappLogo,
   X,
 } from "@/components/icons";
-import { channelPlate } from "@/components/channels/channel-tile";
 import type {
   WhatsAppCampaign,
   WhatsAppCampaignEntryWithLead,
-  WhatsAppCampaignPhoneNumber,
   WhatsAppCampaignPhoneStatus,
 } from "@/lib/whatsapp-campaigns/types";
 import {
@@ -64,7 +50,6 @@ import CampaignFilters, {
 import EntryFiltersBar, {
   type EntryFilterValues,
 } from "@/components/dashboard/EntryFiltersBar";
-import EntryStageBadge from "@/components/dashboard/EntryStageBadge";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
 import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
 import { selectionSendControls } from "@/lib/campaigns/selection-send";
@@ -74,12 +59,18 @@ import CrmDialog from "@/components/crm/CrmDialog";
 import CrmStageManager from "@/components/crm/CrmStageManager";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import EntryConversationDialog from "@/components/dashboard/EntryConversationDialog";
 import MonitoringMode from "@/components/dashboard/MonitoringMode";
 import type { MonitoringEntry } from "@/components/dashboard/MonitoringMode";
-import { cn } from "@/lib/utils";
 import { getWhatsAppCampaignStatsAction } from "@/app/actions/analysis";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
+import { useCampaignProgress, useLiveFollowUp } from "@/hooks/use-campaign-live";
+import { EMPTY_CAMPAIGN_METRICS } from "@/lib/campaigns/metrics";
+import { CampaignLiveOverview } from "@/components/campaigns/detail/CampaignLiveOverview";
+import { CampaignTimelinePanel } from "@/components/campaigns/detail/CampaignTimelinePanel";
+import { CampaignContactsTable, type CampaignContactRow } from "@/components/campaigns/detail/CampaignContactsTable";
+import { resolveWhatsAppCampaignErrorDisplay } from "@/lib/whatsapp-campaigns/error-display";
+import { CampaignFailuresPanel, CampaignFullReportLink, CampaignFunnelPanel, useCampaignReport } from "./CampaignDeliveryCharts";
+import { CampaignSettingsPanel } from "./CampaignSettingsPanel";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
@@ -87,7 +78,6 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useExportEntries } from "@/hooks/use-export-entries";
 import { exportErrorKey } from "@/lib/whatsapp-campaigns/export-errors";
 import { SEND_STATUSES } from "@/lib/whatsapp-campaigns/statuses";
-import { resolveWhatsAppCampaignErrorDisplay } from "@/lib/whatsapp-campaigns/error-display";
 import TourGuide from "@/components/TourGuide";
 import { SmartCampaignPanel } from "@/components/whatsapp/smart/SmartCampaignPanel";
 import { useSmartRefusal } from "@/components/whatsapp/smart/use-smart-refusal";
@@ -126,21 +116,7 @@ export default function WhatsAppCampaignDetail({
   );
 }
 
-const campaignStatusStyles: Record<string, string> = {
-  STOPPED: "bg-muted text-muted-foreground",
-  RUNNING: "bg-healthy text-healthy-foreground",
-  PAUSED: "bg-warning text-warning-foreground",
-  COMPLETED: "bg-primary text-primary-foreground",
-};
-
-const phoneStatusStyles: Record<string, string> = {
-  PENDING: "bg-muted text-muted-foreground",
-  SENT: "bg-primary text-primary-foreground",
-  DELIVERED: "bg-healthy text-healthy-foreground",
-  READ: "bg-healthy text-healthy-foreground",
-  FAILED: "bg-destructive text-destructive-foreground",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-warning text-warning-foreground",
-};
+const ENTRIES_PAGE_SIZE = 20;
 
 const statusKeys: Record<string, string> = {
   STOPPED: "stopped",
@@ -148,28 +124,6 @@ const statusKeys: Record<string, string> = {
   PAUSED: "paused",
   COMPLETED: "completed",
 };
-
-const phoneStatusKeys: Record<string, string> = {
-  PENDING: "pending",
-  SENT: "sent",
-  DELIVERED: "delivered",
-  READ: "read",
-  FAILED: "failed",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "notEligiblePossibleSpam",
-};
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
 
 function ResetModal({
   isOpen,
@@ -778,29 +732,14 @@ function WhatsAppCampaignDetailContent({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoadRef = useRef(true);
   const t = useTranslations("whatsappCampaignsPage");
+  const tDetail = useTranslations("campaignDetail");
   const refusalText = useSelectionSendRefusalText();
   const smartRefusal = useSmartRefusal();
   const canManageStages = can("stages", "update");
   const canReadStages = can("stages", "read");
   const { exporting, exportEntries } = useExportEntries();
 
-  const prevMetricsRef = useRef<{
-    pending: number;
-    sent: number;
-    delivered: number;
-    read: number;
-  } | null>(null);
-
-  const animationIdRef = useRef(0);
-
-  const [floatingMessages, setFloatingMessages] = useState<
-    Array<{
-      id: string;
-      fromIndex: number;
-      toIndex: number;
-      color: string;
-    }>
-  >([]);
+  const progress = useCampaignProgress("whatsapp", initialCampaign.id);
 
   useEffect(() => {
     filtersRef.current = combinedFilters;
@@ -837,7 +776,8 @@ function WhatsAppCampaignDetailContent({
     );
   }, [entries, canReadStages]);
 
-  const shouldAutoRefresh = campaign.status === "RUNNING";
+  const liveStatus = progress.data?.status ?? campaign.status ?? "STOPPED";
+  const shouldAutoRefresh = liveStatus === "RUNNING";
 
   const refreshCampaign = useCallback(async () => {
     const { campaign: updatedCampaign, error } =
@@ -870,7 +810,7 @@ function WhatsAppCampaignDetailContent({
         error,
       } = await listWhatsAppCampaignEntriesAction(campaign.id, {
         page,
-        pageSize: 20,
+        pageSize: ENTRIES_PAGE_SIZE,
         order: "desc",
         sort: "updatedAt",
         ...filterParams,
@@ -1009,50 +949,35 @@ function WhatsAppCampaignDetailContent({
     }
   }, [campaign.id, exportEntries, t]);
 
-  useEffect(() => {
-    if (!shouldAutoRefresh) return;
-    const interval = setInterval(() => {
-      refreshCampaign();
-      loadEntries(entriesPage, false);
-      if (canReadAnalysis) loadAnalysisStats(false);
-    }, 15000);
-    return () => clearInterval(interval);
-  }, [
-    shouldAutoRefresh,
-    refreshCampaign,
-    loadEntries,
-    entriesPage,
-    loadAnalysisStats,
-    canReadAnalysis,
-  ]);
+  const followSample = useCallback(() => {
+    loadEntries(entriesPage, false);
+    if (canReadAnalysis) loadAnalysisStats(false);
+  }, [loadEntries, entriesPage, loadAnalysisStats, canReadAnalysis]);
+
+  useLiveFollowUp({
+    sampledAt: progress.data?.sampledAt,
+    liveStatus: progress.data?.status,
+    campaignStatus: campaign.status,
+    onSample: followSample,
+    onStatusChange: refreshCampaign,
+  });
 
   useEffect(() => {
     setCampaign(initialCampaign);
   }, [initialCampaign]);
 
-  const status = campaign.status ?? "STOPPED";
-  const statusKey = statusKeys[status] ?? "stopped";
-  const statusLabel = t(`status.${statusKey}`);
-  const statusClass =
-    campaignStatusStyles[status] ?? "bg-muted text-muted-foreground";
+  const status = liveStatus;
+  const statusLabel = t(`status.${statusKeys[status] ?? "stopped"}`);
+  const followProgress = progress.refetch;
+  const report = useCampaignReport(campaign.id, shouldAutoRefresh);
 
-  const metrics = campaign.metrics ?? {
-    totalNumbers: 0,
-    pending: 0,
-    sent: 0,
-    delivered: 0,
-    read: 0,
-    failed: 0,
-    notEligiblePossibleSpam: 0,
-    dispatches: 0,
-    completionRate: 0,
-    successRate: 0,
-  };
+  const metrics = progress.data?.metrics ?? campaign.metrics ?? EMPTY_CAMPAIGN_METRICS;
 
   const launchStarted = useCallback(() => {
     toast(t("detail.toast.started"), { description: t("detail.toast.updatedName", { name: campaign.name }) });
-    router.refresh();
-  }, [campaign.name, router, t]);
+    void followProgress();
+    void refreshCampaign();
+  }, [campaign.name, followProgress, refreshCampaign, t]);
 
   const launchRefused = useCallback(
     (refusal: LaunchRefusal) => {
@@ -1088,7 +1013,8 @@ function WhatsAppCampaignDetailContent({
 
       toast(toastTitleMap[action], { description: t("detail.toast.updatedName", { name: campaign.name }) });
 
-      router.refresh();
+      await followProgress();
+      await refreshCampaign();
     });
   };
 
@@ -1100,82 +1026,36 @@ function WhatsAppCampaignDetailContent({
   const canReset =
     selectionSend.reset && (status === "STOPPED" || status === "PAUSED" || status === "COMPLETED");
 
-  useEffect(() => {
-    const currentMetrics = {
-      pending: metrics.pending,
-      sent: metrics.sent,
-      delivered: metrics.delivered,
-      read: metrics.read,
-    };
-
-    const prev = prevMetricsRef.current;
-    if (prev) {
-      const stageKeys = ["pending", "sent", "delivered", "read"] as const;
-      const stageColors: Record<(typeof stageKeys)[number], string> = {
-        pending: "hsl(var(--plate-neutral))",
-        sent: "hsl(var(--chart-4))",
-        delivered: "hsl(var(--chart-2))",
-        read: "hsl(var(--chart-1))",
-      };
-      const newFloatingMessages: typeof floatingMessages = [];
-
-      for (let i = 0; i < stageKeys.length - 1; i++) {
-        const currentKey = stageKeys[i];
-        const nextKey = stageKeys[i + 1];
-        const prevCurrent = prev[currentKey];
-        const nowCurrent = currentMetrics[currentKey];
-        const prevNext = prev[nextKey];
-        const nowNext = currentMetrics[nextKey];
-
-        const decrease = prevCurrent - nowCurrent;
-        const increase = nowNext - prevNext;
-
-        if (decrease > 0 && increase > 0) {
-          const transfers = Math.min(decrease, increase, 5);
-          for (let j = 0; j < transfers; j++) {
-            animationIdRef.current += 1;
-            newFloatingMessages.push({
-              id: `flow-${animationIdRef.current}-${i}-${j}`,
-              fromIndex: i + 1,
-              toIndex: i + 2,
-              color: stageColors[currentKey],
-            });
-          }
-        }
-      }
-
-      if (newFloatingMessages.length > 0) {
-        setFloatingMessages((prev) => [...prev, ...newFloatingMessages]);
-
-        setTimeout(() => {
-          setFloatingMessages((prev) =>
-            prev.filter(
-              (p) => !newFloatingMessages.some((np) => np.id === p.id),
-            ),
-          );
-        }, 1200);
-      }
-    }
-
-    prevMetricsRef.current = currentMetrics;
-  }, [metrics.pending, metrics.sent, metrics.delivered, metrics.read]);
-
-  const displayEntries = useMemo(() => {
-    return entries.map(
-      (entry) =>
-        ({
-          id: entry.entry.id,
-          number: entry.number,
-          name: entry.name,
-          variables: entry.entry.variables,
-          metadata: entry.metadata,
-          status: entry.entry.status,
-          errorCode: entry.entry.errorCode,
-          errorMessage: entry.entry.errorMessage,
-          updatedAt: entry.entry.updatedAt,
-        }) as WhatsAppCampaignPhoneNumber,
-    );
-  }, [entries]);
+  const contactRows: CampaignContactRow[] = useMemo(
+    () =>
+      entries.map((entry) => ({
+        id: entry.entry.id,
+        conversationId: entry.entry.id,
+        number: entry.number,
+        name: entry.name ?? undefined,
+        status: entry.entry.status,
+        variables: entry.entry.variables,
+        metadata: entry.metadata,
+        updatedAt: entry.entry.updatedAt,
+      })),
+    [entries],
+  );
+  const entryById = useMemo(() => new Map(entries.map((entry) => [entry.entry.id, entry.entry])), [entries]);
+  const describeFailure = useCallback(
+    (row: CampaignContactRow) => {
+      const entry = entryById.get(row.id);
+      if (!entry || entry.status !== "FAILED") return null;
+      const display = resolveWhatsAppCampaignErrorDisplay({
+        errorCode: entry.errorCode,
+        errorMessage: entry.errorMessage,
+        hasTranslation: t.has,
+        translate: t,
+        unknownMessage: t("detail.metaErrors.0"),
+      });
+      return { description: display.description, code: display.code };
+    },
+    [entryById, t],
+  );
 
   const monitoringEntries: MonitoringEntry[] = useMemo(() => {
     return entries.map((entry) => ({
@@ -1313,6 +1193,7 @@ function WhatsAppCampaignDetailContent({
         <CampaignHeader
           name={campaign.name}
           status={status}
+          statusLabel={statusLabel}
           campaignType="whatsapp"
           backLink="/dashboard/whatsapp-campaigns"
           editLink={`/dashboard/whatsapp-campaigns/${campaign.id}/edit`}
@@ -1335,17 +1216,17 @@ function WhatsAppCampaignDetailContent({
             badge: t("header.badge"),
             crm: t("detail.actions.crm"),
             edit: t("detail.actions.edit"),
-            reset: "RESETAR",
+            reset: t("detail.header.reset"),
             clearHistory: t("detail.clearHistory.buttonLabel"),
             stop: t("detail.actions.stop"),
             pause: t("detail.actions.pause"),
             start: t("detail.actions.start"),
-            restart: "REINICIAR",
-            actions: "AÇÕES",
-            dangerZone: "Zona de Risco",
-            wsConnected: "Conectado",
-            wsConnecting: "Conectando...",
-            wsDisconnected: "Desconectado",
+            restart: t("detail.header.restart"),
+            actions: t("detail.header.actions"),
+            dangerZone: t("detail.header.dangerZone"),
+            wsConnected: t("detail.header.wsConnected"),
+            wsConnecting: t("detail.header.wsConnecting"),
+            wsDisconnected: t("detail.header.wsDisconnected"),
             noPermissionStart: t("detail.noPermissionStart"),
             noPermissionUpdate: t("detail.noPermissionUpdate"),
           }}
@@ -1354,690 +1235,245 @@ function WhatsAppCampaignDetailContent({
 
       {selectionSend.fromLeads ? <SelectionSendNote /> : null}
 
-      <div
-        className={cn("grid gap-4", canReadAnalysis ? "lg:grid-cols-3" : "")}
-      >
-        <div
-          className={cn(
-            "rounded-[--radius] max-h-max border border-border bg-card p-6",
-            canReadAnalysis ? "lg:col-span-2" : "lg:col-span-1",
-          )}
-          style={{ boxShadow: softSurfaceShadow }}
-          data-tour="wd-info"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
-                <WhatsappLogo className="h-6 w-6" weight="fill" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                  {campaign.name}
-                </h2>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span>Template: {templateName || campaign.templateId}</span>
-                  {campaign.businessPhone && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span>
-                        Telefone:{" "}
-                        {campaign.businessPhone.verifiedName ||
-                          campaign.businessPhone.displayPhoneNumber}
-                      </span>
-                    </>
-                  )}
-                  {campaign.enableAgentResponses && agentName && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-healthy-ink">
-                        Agente: {agentName}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-[--radius] px-2.5 py-1 text-2xs font-medium",
-                statusClass,
-              )}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {statusLabel}
-            </span>
-          </div>
+      <CampaignLiveOverview
+        status={status}
+        metrics={metrics}
+        pace={progress.data?.pace}
+        sampledAt={progress.data?.sampledAt}
+        progressUnavailable={progress.isError && !progress.data}
+        activeStatus={entryFilters.status}
+        onFilterStatus={(next) => handleEntryFiltersChange({ ...entryFilters, status: next })}
+      />
 
-          <div className="relative">
-            <AnimatePresence>
-              {floatingMessages.map((msg, msgIdx) => {
-                const cardCount = 6;
-                const cardWidth = 100 / cardCount;
-                const fromX = msg.fromIndex * cardWidth + cardWidth / 2;
-                const toX = msg.toIndex * cardWidth + cardWidth / 2;
-                const delayOffset = msgIdx * 0.1;
-
-                return (
-                  <motion.div
-                    key={msg.id}
-                    className="absolute z-20 pointer-events-none"
-                    initial={{
-                      left: `${fromX}%`,
-                      top: "50%",
-                      x: "-50%",
-                      y: "-50%",
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    animate={{
-                      left: [`${fromX}%`, `${(fromX + toX) / 2}%`, `${toX}%`],
-                      top: ["50%", "-20%", "50%"],
-                      opacity: [1, 1, 0],
-                      scale: [1, 1.2, 0.8],
-                    }}
-                    exit={{ opacity: 0, scale: 0 }}
-                    transition={{
-                      duration: 1,
-                      delay: delayOffset,
-                      ease: "easeInOut",
-                      times: [0, 0.5, 1],
-                    }}
-                  >
-                    <div
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-sm"
-                      aria-hidden
-                    >
-                      <ChatCircle
-                        weight="fill"
-                        className="h-4 w-4"
-                        style={{ color: msg.color }}
-                      />
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" data-tour="wd-metrics">
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-healthy opacity-[0.06] blur-2xl" />
-                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
-                  <WhatsappLogo weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.total")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.totalNumbers.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="tile-neutral flex h-10 w-10 items-center justify-center">
-                  <Clock weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.pending")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.pending.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", channelPlate("whatsapp"))}>
-                  <PaperPlaneTilt
-                    weight="fill" className="h-5 w-5"
-                  />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.sent")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.sent.toLocaleString()}
-                  </p>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {metrics.completionRate.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="tile-healthy flex h-10 w-10 items-center justify-center">
-                  <CheckCircle weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.delivered")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.delivered.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-muted opacity-[0.06] blur-2xl" />
-                <div className="tile-healthy flex h-10 w-10 items-center justify-center">
-                  <Eye weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.read")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.read.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-destructive opacity-[0.06] blur-2xl" />
-                <div className="tile-fault flex h-10 w-10 items-center justify-center">
-                  <Warning weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.failed")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.failed.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="group relative flex items-center gap-3 p-4 rounded-[--radius] border border-border bg-card overflow-hidden">
-                <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-warning opacity-[0.06] blur-2xl" />
-                <div className="tile-warning flex h-10 w-10 items-center justify-center">
-                  <ShieldWarning weight="fill" className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xs text-muted-foreground font-medium">
-                    {t("detail.metrics.notEligiblePossibleSpam")}
-                  </p>
-                  <p className="font-display text-xl font-semibold text-foreground">
-                    {metrics.notEligiblePossibleSpam.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 min-h-[42px]" data-tour="wd-filters">
-            <CampaignFilters
-              values={combinedFilters}
-              onChange={setCombinedFilters}
-              onApply={(mode, filters) => {
-                const newCombinedFilters: CombinedFilterValues = {
-                  mode,
-                  analysis:
-                    mode === "analysis"
-                      ? (filters as AnalysisFilterValues)
-                      : {},
-                  conversation:
-                    mode === "conversation"
-                      ? (filters as ConversationFilterValues)
-                      : {},
-                };
-                setCombinedFilters(newCombinedFilters);
-                loadEntries(1, true, newCombinedFilters, entryFilters);
-              }}
-              onClear={() => {
-                const clearedFilters: CombinedFilterValues = {
-                  mode: combinedFilters.mode,
-                  analysis: {},
-                  conversation: {},
-                };
-                setCombinedFilters(clearedFilters);
-                loadEntries(1, true, clearedFilters, entryFilters);
-              }}
-              analysisTranslations={{
-                title: t("detail.filters.title"),
-                clear: t("detail.filters.clear"),
-                apply: t("detail.filters.apply"),
-                hasAnalysis: t("detail.filters.hasAnalysis"),
-                hasAnalysisYes: t("detail.filters.hasAnalysisYes"),
-                hasAnalysisNo: t("detail.filters.hasAnalysisNo"),
-                attendanceQuality: t("detail.filters.attendanceQuality"),
-                minQuality: t("detail.filters.minQuality"),
-                maxQuality: t("detail.filters.maxQuality"),
-                interest: {
-                  label: t("detail.filters.interest.label"),
-                  interested: t("detail.filters.interest.interested"),
-                  not_interested: t("detail.filters.interest.not_interested"),
-                  undecided: t("detail.filters.interest.undecided"),
-                },
-                disposition: {
-                  label: t("detail.filters.disposition.label"),
-                  sale: t("detail.filters.disposition.sale"),
-                  callback: t("detail.filters.disposition.callback"),
-                  declined: t("detail.filters.disposition.declined"),
-                  pending: t("detail.filters.disposition.pending"),
-                },
-                sentiment: {
-                  label: t("detail.filters.sentiment.label"),
-                  positive: t("detail.filters.sentiment.positive"),
-                  neutral: t("detail.filters.sentiment.neutral"),
-                  negative: t("detail.filters.sentiment.negative"),
-                },
-                qualification: {
-                  label: t("detail.filters.qualification.label"),
-                  hot_lead: t("detail.filters.qualification.hot_lead"),
-                  warm_lead: t("detail.filters.qualification.warm_lead"),
-                  cold_lead: t("detail.filters.qualification.cold_lead"),
-                },
-              }}
-              conversationTranslations={{
-                title: t("detail.conversationFilters.title"),
-                clear: t("detail.filters.clear"),
-                apply: t("detail.filters.apply"),
-                hasWhatsAppMessages: t(
-                  "detail.conversationFilters.hasWhatsAppMessages",
-                ),
-                hasWhatsAppMessagesYes: t(
-                  "detail.conversationFilters.hasWhatsAppMessagesYes",
-                ),
-                hasWhatsAppMessagesNo: t(
-                  "detail.conversationFilters.hasWhatsAppMessagesNo",
-                ),
-                hasToolCalls: t("detail.conversationFilters.hasToolCalls"),
-                hasToolCallsYes: t(
-                  "detail.conversationFilters.hasToolCallsYes",
-                ),
-                hasToolCallsNo: t("detail.conversationFilters.hasToolCallsNo"),
-                toolName: t("detail.conversationFilters.toolName"),
-                toolNamePlaceholder: t(
-                  "detail.conversationFilters.toolNamePlaceholder",
-                ),
-                messageType: {
-                  label: t("detail.conversationFilters.messageType.label"),
-                  user_message: t(
-                    "detail.conversationFilters.messageType.user_message",
-                  ),
-                  ai_response: t(
-                    "detail.conversationFilters.messageType.ai_response",
-                  ),
-                  tool_call: t(
-                    "detail.conversationFilters.messageType.tool_call",
-                  ),
-                  tool_result: t(
-                    "detail.conversationFilters.messageType.tool_result",
-                  ),
-                  audio: t("detail.conversationFilters.messageType.audio"),
-                  system: t("detail.conversationFilters.messageType.system"),
-                },
-                channel: {
-                  label: t("detail.conversationFilters.channel.label"),
-                  whatsapp: t("detail.conversationFilters.channel.whatsapp"),
-                },
-                minMessageCount: t(
-                  "detail.conversationFilters.minMessageCount",
-                ),
-                maxMessageCount: t(
-                  "detail.conversationFilters.maxMessageCount",
-                ),
-              }}
-              modeTranslations={{
-                title: t("detail.filterMode.title"),
-                subtitle: t("detail.filterMode.subtitle"),
-                analysisMode: t("detail.filterMode.analysisMode"),
-                analysisDescription: t("detail.filterMode.analysisDescription"),
-                conversationMode: t("detail.filterMode.conversationMode"),
-                conversationDescription: t(
-                  "detail.filterMode.conversationDescription",
-                ),
-                clearAll: t("detail.filterMode.clearAll"),
-              }}
-              showWhatsAppFilter={false}
-              showChannelFilter={false}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <CampaignFunnelPanel report={report} className="lg:col-span-4" />
+        <CampaignTimelinePanel
+          channel="whatsapp"
+          campaignId={campaign.id}
+          className="lg:col-span-8"
+          actions={<CampaignFullReportLink campaignId={campaign.id} />}
+        />
+        <CampaignFailuresPanel report={report} className="lg:col-span-4" />
+        <CampaignSettingsPanel
+          campaign={campaign}
+          templateName={templateName}
+          agentName={agentName}
+          canEdit={can("whatsapp_campaigns", "update")}
+          className={canReadAnalysis ? "lg:col-span-4" : "lg:col-span-8"}
+        />
+        {canReadAnalysis ? (
+          <div className="min-w-0 lg:col-span-4" data-tour="wd-analysis">
+            <AnalysisStatsPanel
+              stats={analysisStats}
+              loading={analysisLoading}
+              error={analysisError}
+              translationNamespace="whatsappCampaignsPage"
+              compact
             />
           </div>
-        </div>
-
-        {canReadAnalysis && (
-          <AnalysisStatsPanel data-tour="wd-analysis"
-            stats={analysisStats}
-            loading={analysisLoading}
-            error={analysisError}
-            translationNamespace="whatsappCampaignsPage"
-            compact
-          />
-        )}
+        ) : null}
       </div>
 
-      <SmartCampaignPanel campaignId={campaign.id} contacts={campaign.metrics?.totalNumbers ?? 0} refreshToken={campaign} />
+      <SmartCampaignPanel campaignId={campaign.id} contacts={metrics.totalNumbers} refreshToken={campaign} />
 
-      <div data-tour="wd-entry-filters">
-        <EntryFiltersBar
-          campaignType="whatsapp"
-          values={entryFilters}
-          onChange={handleEntryFiltersChange}
-          stages={stages}
-          stagesLoading={stagesLoading}
-          canFilterByStage={canReadStages}
-          statusOptions={SEND_STATUSES.map(({ value, labelKey }) => ({
-            value,
-            label: t(labelKey),
-          }))}
-          translations={{
-            searchPlaceholder: t("detail.entryFilters.searchPlaceholder"),
-            statusLabel: t("detail.entryFilters.statusLabel"),
-            statusAll: t("detail.entryFilters.statusAll"),
-            tagLabel: t("detail.entryFilters.tagLabel"),
-            tagAll: t("detail.entryFilters.tagAll"),
-            tagNone: t("detail.entryFilters.tagNone"),
-            clearFilters: t("detail.entryFilters.clearFilters"),
-            activeFilters: t("detail.entryFilters.activeFilters"),
-            errorCodePlaceholder: t("detail.entryFilters.errorCodePlaceholder"),
-          }}
-          renderActions={
-            canManageStages ? (
-              <CrmStageManager
-                stages={stages}
-                onStagesChange={setStages}
-                campaignId={campaign.id}
-                campaignType="whatsapp"
-                trigger={
-                  <button className="inline-flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 ease-out hover:bg-muted">
-                    <GearSix weight="bold" className="h-4 w-4" />
-                    Tags
-                  </button>
-                }
-              />
-            ) : undefined
-          }
-        />
-      </div>
-
-      <div data-tour="wd-contacts">
-        <div
-          className="rounded-[--radius] border border-border bg-card p-8"
-          style={{ boxShadow: softSurfaceShadow }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground">
-                <UserCircle weight="bold" className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                  {t("detail.contactsTitle")}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {t("detail.contactsDescription")}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-[--radius] bg-healthy px-3 py-1.5 text-xs font-semibold text-healthy-foreground">
-                <CheckCircle weight="fill" className="h-4 w-4" />
-                {entriesTotalItems} {t("detail.records")}
-              </span>
-              <Button
-                variant="outline-subtle"
-                title={
-                  exporting
-                    ? t("detail.export.exporting")
-                    : t("detail.export.button")
-                }
-                icon={<DownloadSimple weight="bold" className="h-4 w-4" />}
-                iconVisible
-                iconSide="left"
-                onClick={handleExportCSV}
-                disabled={exporting}
-              />
-            </div>
-          </div>
-
-          {entriesLoading ? (
-            <div className="min-h-[400px] flex items-center justify-center rounded-[--radius] border border-border bg-muted px-6 py-8 text-sm text-muted-foreground">
-              <div className="flex flex-col items-center gap-3">
-                <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-healthy" />
-                <span>{t("detail.loading")}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="min-h-[400px]">
-              <div className="grid gap-4 lg:grid-cols-2">
-                {displayEntries.map((contact) => {
-                  const statusCode = contact.status ?? "PENDING";
-                  const badgeClass =
-                    phoneStatusStyles[statusCode] ??
-                    "bg-muted text-muted-foreground";
-                  const statusKey = phoneStatusKeys[statusCode] ?? "pending";
-                  const statusLabel = t(`status.${statusKey}`);
-                  const errorDisplay =
-                    statusCode === "FAILED"
-                      ? resolveWhatsAppCampaignErrorDisplay({
-                          errorCode: contact.errorCode,
-                          errorMessage: contact.errorMessage,
-                          hasTranslation: t.has,
-                          translate: t,
-                          unknownMessage: t("detail.metaErrors.0"),
-                        })
-                      : null;
-
-                  return (
-                    <div
-                      key={contact.id || contact.number}
-                      className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-foreground/20"
-                    >
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-3">
-                          {contact.id && (
-                            <EntryConversationDialog
-                              entryId={contact.id}
-                              entryType="whatsapp"
-                              phoneNumber={contact.number}
-                              contactName={contact.name}
-                              trigger={
-                                <button
-                                  type="button"
-                                  className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground transition-all hover:bg-healthy hover:scale-105"
-                                  title="Ver conversa"
-                                >
-                                  <ChatCircle
-                                    weight="fill"
-                                    className="h-5 w-5"
-                                  />
-                                </button>
-                              }
-                            />
-                          )}
-                          <div>
-                            <p className="text-lg font-semibold text-foreground tracking-wide">
-                              {contact.number}
-                            </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              {contact.name ? (
-                                <span className="text-sm font-medium text-muted-foreground">
-                                  {contact.name}
-                                </span>
-                              ) : (
-                                <span className="text-sm text-muted-foreground italic">
-                                  {t("detail.noName")}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
-                            badgeClass,
-                          )}
+      <CampaignContactsTable
+        entryType="whatsapp"
+        rows={contactRows}
+        pageSize={ENTRIES_PAGE_SIZE}
+        describeFailure={describeFailure}
+        loading={entriesLoading}
+        totalItems={entriesTotalItems}
+        page={entriesPage}
+        totalPages={entriesTotalPages}
+        onPageChange={(page) => loadEntries(page, true, combinedFilters, entryFiltersRef.current)}
+        stages={stages}
+        entryStages={entryStages}
+        canManageStages={canManageStages}
+        canReadStages={canReadStages}
+        onAssignStage={handleAssignStage}
+        onRemoveStage={handleRemoveStage}
+        exporting={exporting}
+        onExport={handleExportCSV}
+        toolbar={
+          <div data-tour="wd-entry-filters">
+            <EntryFiltersBar
+              bare
+              campaignType="whatsapp"
+              values={entryFilters}
+              onChange={handleEntryFiltersChange}
+              stages={stages}
+              stagesLoading={stagesLoading}
+              canFilterByStage={canReadStages}
+              statusOptions={SEND_STATUSES.map(({ value, labelKey }) => ({
+                value,
+                label: t(labelKey),
+              }))}
+              translations={{
+                searchPlaceholder: t("detail.entryFilters.searchPlaceholder"),
+                statusLabel: t("detail.entryFilters.statusLabel"),
+                statusAll: t("detail.entryFilters.statusAll"),
+                tagLabel: t("detail.entryFilters.tagLabel"),
+                tagAll: t("detail.entryFilters.tagAll"),
+                tagNone: t("detail.entryFilters.tagNone"),
+                clearFilters: t("detail.entryFilters.clearFilters"),
+                activeFilters: t("detail.entryFilters.activeFilters"),
+                errorCodePlaceholder: t("detail.entryFilters.errorCodePlaceholder"),
+              }}
+              renderActions={
+                <>
+                  {canManageStages ? (
+                    <CrmStageManager
+                      stages={stages}
+                      onStagesChange={setStages}
+                      campaignId={campaign.id}
+                      campaignType="whatsapp"
+                      trigger={
+                        <button
+                          type="button"
+                          className="inline-flex h-8 items-center gap-2 rounded-[--radius] border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                         >
-                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                          {statusLabel}
-                        </span>
-                      </div>
-
-                      {errorDisplay?.show ? (
-                        <div className="mb-3 rounded-lg border border-border bg-muted px-3 py-2 dark:border-border dark:bg-muted">
-                          {errorDisplay.code !== null ? (
-                            <p className="text-2xs font-semibold text-destructive-ink">
-                              {t("detail.errorCode")}: {errorDisplay.code}
-                            </p>
-                          ) : null}
-                          <p className="mt-0.5 text-2xs text-destructive-ink line-clamp-2">
-                            {errorDisplay.description}
-                          </p>
-                        </div>
-                      ) : null}
-
-                      {contact.id && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <EntryStageBadge
-                            entryId={contact.id}
-                            entryType="whatsapp"
-                            currentStage={entryStages[contact.id]}
-                            stages={stages}
-                            canManage={canManageStages}
-                            canRead={canReadStages}
-                            translations={{
-                              addStage: t("detail.EntryStageBadge.addTag"),
-                              removeStage: t(
-                                "detail.EntryStageBadge.removeTag",
-                              ),
-                              noStages: t("detail.EntryStageBadge.noTags"),
-                              changeStage: t(
-                                "detail.EntryStageBadge.changeTag",
-                              ),
-                            }}
-                            onAssign={handleAssignStage}
-                            onRemove={handleRemoveStage}
-                          />
-                        </div>
-                      )}
-
-                      {contact.variables && contact.variables.length > 0 && (
-                        <details className="mb-3 group/vars">
-                          <summary className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                            <ListDashes weight="bold" className="h-3.5 w-3.5" />
-                            {t("detail.variables")}
-                            <CaretDown
-                              weight="bold"
-                              className="h-3 w-3 transition-transform duration-200 group-open/vars:rotate-180"
-                            />
-                          </summary>
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {contact.variables.map((variable, vi) => (
-                              <span
-                                key={vi}
-                                className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-2xs text-foreground"
-                              >
-                                <span className="font-semibold text-healthy-ink">
-                                  {`{{${vi + 1}}}`}
-                                </span>
-                                <span>{variable}</span>
-                              </span>
-                            ))}
-                          </div>
-                        </details>
-                      )}
-
-                      {contact.metadata &&
-                        Object.entries(contact.metadata).filter(
-                          ([, v]) =>
-                            v !== null &&
-                            v !== undefined &&
-                            String(v).trim() !== "",
-                        ).length > 0 && (
-                          <details className="mb-3 group/meta">
-                            <summary className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                              <Info weight="fill" className="h-3.5 w-3.5" />
-                              {t("detail.metadata")}
-                              <CaretDown
-                                weight="bold"
-                                className="h-3 w-3 transition-transform duration-200 group-open/meta:rotate-180"
-                              />
-                            </summary>
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                              {Object.entries(contact.metadata)
-                                .filter(
-                                  ([, v]) =>
-                                    v !== null &&
-                                    v !== undefined &&
-                                    String(v).trim() !== "",
-                                )
-                                .map(([key, value]) => (
-                                  <span
-                                    key={key}
-                                    className="inline-flex items-center gap-1 rounded-md bg-muted border border-border px-2 py-1 text-2xs text-muted-foreground"
-                                  >
-                                    <span className="font-semibold text-muted-foreground">
-                                      {key}:
-                                    </span>
-                                    <span>{String(value)}</span>
-                                  </span>
-                                ))}
-                            </div>
-                          </details>
-                        )}
-
-                      <div className="flex items-center gap-2 pt-3 border-t border-border">
-                        <CalendarCheck
-                          weight="fill"
-                          className="h-3.5 w-3.5 text-muted-foreground"
-                        />
-                        <span suppressHydrationWarning>
-                          {formatDate(campaign.updatedAt)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-                {!displayEntries.length && (
-                  <div className="col-span-2 rounded-[--radius] border border-border bg-muted px-6 py-8 text-center text-sm text-muted-foreground">
-                    {t("detail.noContacts")}
+                          <GearSix weight="bold" className="h-4 w-4 text-muted-foreground" />
+                          {tDetail("contacts.manageTags")}
+                        </button>
+                      }
+                    />
+                  ) : null}
+                  <div data-tour="wd-filters">
+                  <CampaignFilters
+                    values={combinedFilters}
+                    onChange={setCombinedFilters}
+                    onApply={(mode, filters) => {
+                      const newCombinedFilters: CombinedFilterValues = {
+                        mode,
+                        analysis:
+                          mode === "analysis"
+                            ? (filters as AnalysisFilterValues)
+                            : {},
+                        conversation:
+                          mode === "conversation"
+                            ? (filters as ConversationFilterValues)
+                            : {},
+                      };
+                      setCombinedFilters(newCombinedFilters);
+                      loadEntries(1, true, newCombinedFilters, entryFilters);
+                    }}
+                    onClear={() => {
+                      const clearedFilters: CombinedFilterValues = {
+                        mode: combinedFilters.mode,
+                        analysis: {},
+                        conversation: {},
+                      };
+                      setCombinedFilters(clearedFilters);
+                      loadEntries(1, true, clearedFilters, entryFilters);
+                    }}
+                    analysisTranslations={{
+                      title: t("detail.filters.title"),
+                      clear: t("detail.filters.clear"),
+                      apply: t("detail.filters.apply"),
+                      hasAnalysis: t("detail.filters.hasAnalysis"),
+                      hasAnalysisYes: t("detail.filters.hasAnalysisYes"),
+                      hasAnalysisNo: t("detail.filters.hasAnalysisNo"),
+                      attendanceQuality: t("detail.filters.attendanceQuality"),
+                      minQuality: t("detail.filters.minQuality"),
+                      maxQuality: t("detail.filters.maxQuality"),
+                      interest: {
+                        label: t("detail.filters.interest.label"),
+                        interested: t("detail.filters.interest.interested"),
+                        not_interested: t("detail.filters.interest.not_interested"),
+                        undecided: t("detail.filters.interest.undecided"),
+                      },
+                      disposition: {
+                        label: t("detail.filters.disposition.label"),
+                        sale: t("detail.filters.disposition.sale"),
+                        callback: t("detail.filters.disposition.callback"),
+                        declined: t("detail.filters.disposition.declined"),
+                        pending: t("detail.filters.disposition.pending"),
+                      },
+                      sentiment: {
+                        label: t("detail.filters.sentiment.label"),
+                        positive: t("detail.filters.sentiment.positive"),
+                        neutral: t("detail.filters.sentiment.neutral"),
+                        negative: t("detail.filters.sentiment.negative"),
+                      },
+                      qualification: {
+                        label: t("detail.filters.qualification.label"),
+                        hot_lead: t("detail.filters.qualification.hot_lead"),
+                        warm_lead: t("detail.filters.qualification.warm_lead"),
+                        cold_lead: t("detail.filters.qualification.cold_lead"),
+                      },
+                    }}
+                    conversationTranslations={{
+                      title: t("detail.conversationFilters.title"),
+                      clear: t("detail.filters.clear"),
+                      apply: t("detail.filters.apply"),
+                      hasWhatsAppMessages: t(
+                        "detail.conversationFilters.hasWhatsAppMessages",
+                      ),
+                      hasWhatsAppMessagesYes: t(
+                        "detail.conversationFilters.hasWhatsAppMessagesYes",
+                      ),
+                      hasWhatsAppMessagesNo: t(
+                        "detail.conversationFilters.hasWhatsAppMessagesNo",
+                      ),
+                      hasToolCalls: t("detail.conversationFilters.hasToolCalls"),
+                      hasToolCallsYes: t(
+                        "detail.conversationFilters.hasToolCallsYes",
+                      ),
+                      hasToolCallsNo: t("detail.conversationFilters.hasToolCallsNo"),
+                      toolName: t("detail.conversationFilters.toolName"),
+                      toolNamePlaceholder: t(
+                        "detail.conversationFilters.toolNamePlaceholder",
+                      ),
+                      messageType: {
+                        label: t("detail.conversationFilters.messageType.label"),
+                        user_message: t(
+                          "detail.conversationFilters.messageType.user_message",
+                        ),
+                        ai_response: t(
+                          "detail.conversationFilters.messageType.ai_response",
+                        ),
+                        tool_call: t(
+                          "detail.conversationFilters.messageType.tool_call",
+                        ),
+                        tool_result: t(
+                          "detail.conversationFilters.messageType.tool_result",
+                        ),
+                        audio: t("detail.conversationFilters.messageType.audio"),
+                        system: t("detail.conversationFilters.messageType.system"),
+                      },
+                      channel: {
+                        label: t("detail.conversationFilters.channel.label"),
+                        whatsapp: t("detail.conversationFilters.channel.whatsapp"),
+                      },
+                      minMessageCount: t(
+                        "detail.conversationFilters.minMessageCount",
+                      ),
+                      maxMessageCount: t(
+                        "detail.conversationFilters.maxMessageCount",
+                      ),
+                    }}
+                    modeTranslations={{
+                      title: t("detail.filterMode.title"),
+                      subtitle: t("detail.filterMode.subtitle"),
+                      analysisMode: t("detail.filterMode.analysisMode"),
+                      analysisDescription: t("detail.filterMode.analysisDescription"),
+                      conversationMode: t("detail.filterMode.conversationMode"),
+                      conversationDescription: t(
+                        "detail.filterMode.conversationDescription",
+                      ),
+                      clearAll: t("detail.filterMode.clearAll"),
+                    }}
+                    showWhatsAppFilter={false}
+                    showChannelFilter={false}
+                    presentation="popover"
+                  />
                   </div>
-                )}
-              </div>
-
-              {entriesTotalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-6">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={entriesPage <= 1 || entriesLoading}
-                    onClick={() =>
-                      loadEntries(
-                        entriesPage - 1,
-                        true,
-                        combinedFilters,
-                        entryFiltersRef.current,
-                      )
-                    }
-                  >
-                    Anterior
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {entriesPage} / {entriesTotalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={
-                      entriesPage >= entriesTotalPages || entriesLoading
-                    }
-                    onClick={() =>
-                      loadEntries(
-                        entriesPage + 1,
-                        true,
-                        combinedFilters,
-                        entryFiltersRef.current,
-                      )
-                    }
-                  >
-                    Próximo
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+                </>
+              }
+            />
+          </div>
+        }
+      />
 
       <ResetModal
         isOpen={showResetModal}
@@ -2119,7 +1555,7 @@ function WhatsAppCampaignDetailContent({
             analysisStats={analysisStats}
             analysisLoading={analysisLoading}
             campaignName={campaign.name}
-            isRunning={campaign.status === "RUNNING"}
+            isRunning={shouldAutoRefresh}
             onClose={() => setIsMonitoring(false)}
           />
         )}

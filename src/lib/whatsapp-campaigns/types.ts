@@ -1,3 +1,5 @@
+import type { CampaignMetrics } from "@/lib/campaigns/metrics";
+
 import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
 
 export type WhatsAppCampaignType = "standard" | "organic";
@@ -25,23 +27,7 @@ export interface WhatsAppCampaignPhoneNumber {
     updatedAt?: string;
 }
 
-export interface WhatsAppCampaignMetrics {
-    totalNumbers: number;
-    pending: number;
-    sent: number;
-    delivered: number;
-    read: number;
-    failed: number;
-    notEligiblePossibleSpam: number;
-    dispatches: number;
-    completionRate: number;
-    successRate: number;
-    byCategory?: {
-        marketing: number;
-        utility: number;
-        authentication: number;
-    };
-}
+export type WhatsAppCampaignMetrics = CampaignMetrics;
 
 export interface WhatsAppCampaign {
     source?: string;
@@ -116,6 +102,8 @@ export interface WhatsAppCampaignPayload {
     exitRiskAcknowledged?: true;
     smartPolicy?: SmartPolicy;
 }
+
+export type WhatsAppCampaignSettingsPayload = Omit<WhatsAppCampaignPayload, 'phoneNumbers'>;
 
 export interface WhatsAppCampaignLifecycleResponse {
     success: boolean;

@@ -48,6 +48,34 @@ describe("ActionCardView", () => {
     );
   });
 
+  it("deep-links the Mercado Livre card to the account connect flow", () => {
+    permissions.allowed = true;
+    renderCard({
+      kind: "connect_mercadolivre",
+      balanceMicros: 0,
+      subscriptionActive: true,
+      status: { capability: "mercadolivre", count: 0, canAdd: true },
+    });
+    expect(screen.getByText(actions.kinds.connect_mercadolivre.title)).toBeTruthy();
+    expect(screen.getByRole("link", { name: actions.kinds.connect_mercadolivre.cta }).getAttribute("href")).toBe(
+      "/dashboard/mercadolivre-accounts/connect",
+    );
+  });
+
+  it("deep-links the TikTok card to the account connect flow", () => {
+    permissions.allowed = true;
+    renderCard({
+      kind: "connect_tiktok",
+      balanceMicros: 0,
+      subscriptionActive: true,
+      status: { capability: "tiktok", count: 0, canAdd: true },
+    });
+    expect(screen.getByText(actions.kinds.connect_tiktok.title)).toBeTruthy();
+    expect(screen.getByRole("link", { name: actions.kinds.connect_tiktok.cta }).getAttribute("href")).toBe(
+      "/dashboard/tiktok-accounts/connect",
+    );
+  });
+
   it("deep-links the Facebook card to the Page connect flow", () => {
     permissions.allowed = true;
     renderCard({

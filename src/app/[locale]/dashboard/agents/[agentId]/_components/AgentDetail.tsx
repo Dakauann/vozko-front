@@ -809,9 +809,9 @@ export default function AgentDetail({
           >
             {toolCount > 0 ? (
               <div className="grid gap-3 lg:grid-cols-2">
-                {agent.internalTools.map((tool) => (
+                {agent.internalTools.map((tool, index) => (
                   <ToolCard
-                    key={tool.name}
+                    key={`${tool.name}-${index}`}
                     definition={toolDefinitionByName.get(tool.name)}
                     tool={tool}
                   />

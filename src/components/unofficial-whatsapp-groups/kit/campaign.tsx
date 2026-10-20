@@ -11,15 +11,12 @@ import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useRouter } from "@/i18n/routing";
 import type { GroupOrigin, NumberSeat } from "@/lib/unofficial-whatsapp-groups/types";
-import { cn } from "@/lib/utils";
 
-import { sharedPostingSeats, usableSeats } from "./campaign-model";
-import { displayPhone } from "./format";
+import { campaignLaunchBlock } from "./campaign-model";
 import { ExternalRiskNotice } from "./notices";
 import { groupsRoutes } from "./routes";
 
 export function PostingNumberPicker({
-  seats,
   onPick,
   trigger,
   external,
@@ -31,44 +28,29 @@ export function PostingNumberPicker({
 }) {
   const t = useTranslations("unofficialGroups.kit.campaign");
   const [open, setOpen] = useState(false);
-  const posting = seats.filter((seat) => seat.canPost);
-  const usable = usableSeats(posting);
 
-  if (!external && posting.length === 1 && usable.length === 1) {
-    return <Slot onClick={() => onPick(usable[0].instanceId)}>{trigger}</Slot>;
+  if (!external) {
+    return <Slot onClick={() => onPick("")}>{trigger}</Slot>;
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="end" className="w-72 space-y-2 p-2" onClick={(event) => event.stopPropagation()}>
-        {external ? <ExternalRiskNotice className="px-3 py-2.5" /> : null}
-        <p className="px-2 pt-1 text-2xs font-semibold text-muted-foreground">{t("pick")}</p>
-        <ul className="max-h-64 space-y-0.5 overflow-y-auto">
-          {posting.map((seat) => {
-            const phone = displayPhone(seat.phone);
-            return (
-              <li key={seat.instanceId}>
-                <button
-                  type="button"
-                  disabled={!seat.connected}
-                  onClick={() => {
-                    setOpen(false);
-                    onPick(seat.instanceId);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-[--radius] px-2 py-1.5 text-left text-xs transition-colors hover:bg-[hsl(var(--accent-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
-                >
-                  <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-full", seat.connected ? "bg-healthy" : "bg-muted-foreground")} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold text-foreground">{seat.label}</span>
-                    {phone ? <span className="readout block truncate font-mono text-2xs text-muted-foreground">{phone}</span> : null}
-                  </span>
-                  {!seat.connected ? <span className="shrink-0 text-2xs text-muted-foreground">{t("offline")}</span> : null}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <ExternalRiskNotice className="px-3 py-2.5" />
+        <p className="px-2 text-2xs text-muted-foreground">{t("perGroup")}</p>
+        <div className="flex justify-end px-1 pb-1">
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            title={t("continue")}
+            onClick={() => {
+              setOpen(false);
+              onPick("");
+            }}
+          />
+        </div>
       </PopoverContent>
     </Popover>
   );
@@ -92,11 +74,9 @@ export function StartCampaignButton({
   if (!can("unofficial_whatsapp_campaigns", "create")) return null;
 
   const text = label ?? t("newCampaign");
-  const shared = sharedPostingSeats(groups);
-  const usable = usableSeats(shared);
+  const block = campaignLaunchBlock(groups);
   const external = groups.some((group) => group.origin === "external");
   const groupIds = groups.map((group) => group.id);
-  const reason = groups.length === 0 ? t("noGroups") : shared.length === 0 ? t("noShared") : usable.length === 0 ? t("allOffline") : null;
 
   const render = (disabled: boolean) =>
     variant === "menu" ? (
@@ -108,16 +88,16 @@ export function StartCampaignButton({
       <Button variant={variant} title={text} icon={<Megaphone />} iconVisible disabled={disabled} />
     );
 
-  if (reason) {
-    return <TooltipWrapper content={reason}>{render(true)}</TooltipWrapper>;
+  if (block) {
+    return <TooltipWrapper content={t(block)}>{render(true)}</TooltipWrapper>;
   }
 
   return (
     <PostingNumberPicker
-      seats={shared}
+      seats={groups.flatMap((group) => group.numbers)}
       external={external}
       trigger={render(false)}
-      onPick={(instanceId) => router.push(groupsRoutes.newCampaign(instanceId, groupIds))}
+      onPick={() => router.push(groupsRoutes.newCampaign("", groupIds))}
     />
   );
 }

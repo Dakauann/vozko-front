@@ -4,7 +4,8 @@ export type TemplateStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAUSED' | 'D
 export type TemplateCategory = 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';
 export type ComponentType = 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CALL_PERMISSION_REQUEST';
 export type HeaderFormat = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LOCATION' | 'GIF';
-export type ButtonType = 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE' | 'OTP';
+export type ButtonType = 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER' | 'COPY_CODE' | 'OTP' | 'FLOW';
+export type FlowAction = 'navigate';
 
 export type OtpType = 'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP';
 export type ParameterFormat = 'positional' | 'named';
@@ -17,6 +18,9 @@ export interface TemplateButton {
     phone_number?: string;
     example?: string | string[];
     otp_type?: OtpType;
+    flowId?: string;
+    flowAction?: FlowAction;
+    navigateScreen?: string;
 }
 
 export interface TemplateComponentExample {

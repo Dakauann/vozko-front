@@ -4,14 +4,11 @@ import type {
   AIHandler,
   CampaignType,
   ContainerKind,
-  ConversationMessage,
   EntryType,
   InboxEntry,
-  MediaType,
   Stage,
   WhatsAppCampaignTypeFilter,
 } from "@/lib/conversations/types";
-import { getConversationStatusDisplay } from "@/lib/conversations/close-provenance";
 import { assigneeKind } from "@/lib/conversations/assignee";
 import {
   handBackTarget,
@@ -19,18 +16,22 @@ import {
   type HandBackTarget,
 } from "@/lib/conversations/hand-back";
 import { HandBackConfirmDialog } from "@/components/crm/HandBackConfirmDialog";
-import type {
-  FunnelColumnState,
-  SendButtonWsInput,
-} from "@/hooks/use-conversation-ws";
-import { ArrowSquareOut, Bell, BellSlash, CaretDown, CaretLeft, ChatCircleDots, Check, Info, PhoneCall, Robot, WhatsappLogo } from "@/components/icons";
+import type { FunnelColumnState } from "@/hooks/use-conversation-ws";
+import { ArrowSquareOut, Bell, BellSlash, ChatCircleDots, Info, Robot, WhatsappLogo } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 
-import type { ComposerDraft } from "./CrmMessageInput";
+import type { ComposerControl, ComposerDraft } from "./CrmMessageInput";
+import type { InboxControl } from "./CrmInbox";
+import { CrmClassicPanels } from "./CrmClassicPanels";
+import { CrmCommandCenter } from "./CrmCommandCenter";
+import { usePersonalCommands } from "@/hooks/use-personal-commands";
+import type { ConversationCommand, ViewCommand } from "./CrmCommandPalette";
 import CrmConversationView from "./CrmConversationView";
 import ScheduleMessageDialog from "./ScheduleMessageDialog";
 import ScheduleTemplateDialog from "./ScheduleTemplateDialog";
+import SendTemplateNowDialog from "./SendTemplateNowDialog";
+import SendFormDialog from "./SendFormDialog";
 import ScheduledMessagesPanel from "./ScheduledMessagesPanel";
 import type { ScheduledMessage, SchedulingWindow } from "@/lib/scheduled-messages/types";
 import type { TemplateComposerInitial } from "@/hooks/use-template-composer";
@@ -43,6 +44,9 @@ import { WorkflowRunDrawer } from "./WorkflowRunDrawer";
 import CrmFunnelView from "./CrmFunnelView";
 import CrmListView from "./CrmListView";
 import CrmMessageInput from "./CrmMessageInput";
+import { ConversationDropZone } from "./ConversationDropZone";
+import { useSendAndFinish } from "@/hooks/use-send-and-finish";
+import { focusesComposerOnOpen, type ConversationOpenSource } from "@/lib/conversations/open-source";
 import CrmStageFilter from "./CrmStageFilter";
 import CrmStageManager from "./CrmStageManager";
 import CrmLabelManager from "./CrmLabelManager";
@@ -53,11 +57,12 @@ import CrmPipelineSelector, {
 } from "./CrmPipelineSelector";
 import CreateOpportunityButton from "./CreateOpportunityButton";
 import { conversationFunnel } from "@/lib/crm/conversation-funnel";
-import CrmViewSwitcher, { type CrmViewMode } from "./CrmViewSwitcher";
+import CrmViewSwitcher from "./CrmViewSwitcher";
+import type { CrmViewMode } from "@/lib/crm/view-mode";
 import ConsoleBank from "./ConsoleBank";
 import CrmSegmentedToggle from "./CrmSegmentedToggle";
 import {
-  boardEntryToInboxEntry,
+  boardEntriesToInboxEntries,
   decodeFilterParam,
   emptyCrmFilter,
   encodeFilterParam,
@@ -68,10 +73,13 @@ import {
   type CrmGroupBy,
 } from "@/lib/crm/board";
 import {
+  crmBulkAction,
   getCrmBoardAction,
   getCrmEntriesAction,
   listPipelinesAction,
 } from "@/app/actions/crm-board";
+import { bulkRequest } from "@/lib/crm/bulk-selection";
+import { performReversible } from "@/lib/crm/undoable";
 import CrmFilterBar from "./CrmFilterBar";
 import CrmSavedViews from "./CrmSavedViews";
 import {
@@ -90,43 +98,44 @@ import {
   assignLabelToEntryAction,
   removeLabelFromEntryAction,
 } from "@/app/actions/labels";
-import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { listLeadsQueryAction } from "@/app/actions/leads";
-import {
-  getCallPermissionStatusAction,
-  requestCallPermissionAction,
-  type CallPermissionStatus,
-} from "@/app/actions/conversations";
-import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import AssignMemberPicker from "@/components/crm/AssignMemberPicker";
 import { WebchatBlockButton } from "@/components/webchat/webchat-block-button";
+import { MercadoLivreStartConversation } from "@/components/mercadolivre/mercadolivre-start-conversation";
 import { delegateConversationAction, setConversationAutomationAction } from "@/app/actions/conversations";
 import type { DelegationTarget } from "@/lib/conversations/delegation";
 import { toast } from "sonner";
-import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { cn } from "@/lib/utils";
-import { useCrmNotifications } from "@/hooks/use-crm-notifications";
+import { setMessageSoundsMuted, useMessageSoundsMuted } from "@/lib/sounds/message-sound-preference";
 import { useCrm } from "@/contexts/crm-context";
 import { StartOfficialConversationDialog } from "@/components/whatsapp/start-official-conversation-dialog";
 import { StartConversationDialog } from "@/components/unofficial-whatsapp/start-conversation-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
-import {
-  requestCall,
-  useCallActive,
-} from "@/lib/call-session/call-session-control";
-import {
-  channelCapabilities,
-  normalizeEntryType,
-} from "@/lib/conversations/types";
+import { channelCapabilities } from "@/lib/conversations/types";
 import CrmConnectedUsers from "./CrmConnectedUsers";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
-import { EmptyValue } from "@/components/elevated-design/empty-value";
 import ElevatedButton from "../elevated-design/button";
 import { useTranslations } from "next-intl";
 import CrmConversationInfosPanel from "./CrmConversationInfosPanel";
+import ConversationHeader from "./ConversationHeader";
+import { ConversationViewers } from "./ConversationViewers";
+import ConversationStatusControl from "./ConversationStatusControl";
+import ConversationCallControl from "./ConversationCallControl";
 import { AttendanceOwnerBadge } from "./ConversationAttendanceSection";
 import type { PendingOutcomeRequest } from "@/lib/conversations/types";
 import { readConversationDeepLink } from "@/lib/conversations/deep-link";
+import { typistsIn } from "@/lib/conversations/typing";
+import { windowKey } from "@/lib/conversations/window-deck";
+import { useEntryReply } from "@/hooks/use-entry-reply";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
+import { useConversationUrl } from "@/hooks/use-conversation-url";
+import { useInfoPanelPreferences } from "@/hooks/use-info-panel-preferences";
+import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/use-media-query";
+import { useUnreadTabBadge } from "@/hooks/use-unread-tab-badge";
+import { useReconnectNotice } from "@/hooks/use-reconnect-notice";
+import { reopensWithTemplate } from "@/lib/conversations/window-reopen";
+import { ReconnectingNotice } from "./ReconnectingNotice";
+import { CRM_VIEW_MODES, readViewMode, withViewMode } from "@/lib/crm/view-mode";
 import { OutcomePickerDialog } from "./OutcomePickerDialog";
 import {
   outcomeIsRequired,
@@ -205,6 +214,12 @@ interface CrmLayoutProps {
   toolbarBeforeUsers?: React.ReactNode;
 }
 
+const VIEW_LABEL_KEYS: Record<CrmViewMode, string> = {
+  classic: "view.chat",
+  funnel: "view.kanban",
+  table: "view.table",
+};
+
 function coerceGroupBy(value: string): CrmGroupBy {
   return value === "stage" ||
     value === "label" ||
@@ -215,6 +230,8 @@ function coerceGroupBy(value: string): CrmGroupBy {
 }
 
 const BOARD_PAGE_SIZE = 20;
+const UNSTAGED_COLUMN_ID = "__unstaged__";
+const UNASSIGNED_COLUMN_ID = "__unassigned__";
 
 function columnPredicate(
   groupBy: CrmGroupBy,
@@ -222,7 +239,7 @@ function columnPredicate(
 ): CrmFilterPredicate | null {
   if (groupBy === "none" || columnId === "__all__") return null;
   if (groupBy === "owner") {
-    if (columnId === "__unassigned__") {
+    if (columnId === UNASSIGNED_COLUMN_ID) {
       return { field: "owner", operator: "is_empty", values: [] };
     }
     return { field: "owner", operator: "in", values: [columnId] };
@@ -255,11 +272,29 @@ export default function CrmLayout({
   toolbarBeforeUsers,
 }: CrmLayoutProps) {
   const tContactPanel = useTranslations("crmContactPanel");
-  const tCommon = useTranslations("common");
   const tWindow = useTranslations("liveChat.conversationWindow");
   const tBoard = useTranslations("crmBoard");
+  const tActions = useTranslations("crmActions");
+  const tComposer = useTranslations("crmComposer");
   const [mobileShowConversation, setMobileShowConversation] = useState(false);
-  const [infoPanelOpen, setInfoPanelOpen] = useState(false);
+  const {
+    open: infoPanelOpen,
+    setOpen: setInfoPanelOpen,
+    toggleOpen: toggleInfoPanel,
+  } = useInfoPanelPreferences();
+  const [infoSheetOpen, setInfoSheetOpen] = useState(false);
+  const desktop = useMediaQuery(DESKTOP_QUERY);
+  const infoVisible = desktop ? infoPanelOpen : infoSheetOpen;
+  const toggleInfo = useCallback(() => {
+    if (desktop) toggleInfoPanel();
+    else setInfoSheetOpen((open) => !open);
+  }, [desktop, toggleInfoPanel]);
+  const closeInfo = useCallback(() => {
+    if (desktop) setInfoPanelOpen(false);
+    else setInfoSheetOpen(false);
+  }, [desktop, setInfoPanelOpen]);
+  const inboxControlRef = useRef<InboxControl>(null);
+  const composerControlRef = useRef<ComposerControl>(null);
   const [workflowDrawerHandler, setWorkflowDrawerHandler] =
     useState<AIHandler | null>(null);
   const [viewMode, setViewMode] = useState<CrmViewMode>("classic");
@@ -295,13 +330,8 @@ export default function CrmLayout({
     };
   }, [currentWorkspace?.id]);
 
-  const {
-    isMuted,
-    toggleMute: toggleNotificationMute,
-    showNotification,
-    requestNotificationPermission,
-    notificationPermission,
-  } = useCrmNotifications();
+  const isMuted = useMessageSoundsMuted();
+  const toggleNotificationMute = useCallback(() => setMessageSoundsMuted(!isMuted), [isMuted]);
 
   const {
     status,
@@ -313,10 +343,14 @@ export default function CrmLayout({
     sendMessage,
     sendMediaMessage,
     sendButtonMessage,
-    sendTyping,
-    typingUsers,
+    typingByEntry,
     loadHistory,
     loadAround,
+    loadNewer,
+    returnToPresent,
+    prefetchConversation,
+    retrySend,
+    resendMessage,
     loadingHistory,
     loadingConversation,
     requestInboxPage,
@@ -327,6 +361,7 @@ export default function CrmLayout({
     loadingInbox,
     searchInbox,
     clearSearch,
+    totalUnread,
     searchResults,
     searching,
     searchTotalItems,
@@ -369,9 +404,31 @@ export default function CrmLayout({
     windowSendButton,
     windowSendTyping,
     windowLoadHistory,
+    windowSearchMessages,
+    windowClearMessageSearch,
+    windowLoadAround,
+    windowLoadNewer,
+    windowReturnToPresent,
+    outbox,
+    reopenWindow,
+    personalInbox,
   } = useCrm();
+  const windowThreadSearch = useMemo(
+    () => ({ search: windowSearchMessages, clear: windowClearMessageSearch, loadAround: windowLoadAround }),
+    [windowSearchMessages, windowClearMessageSearch, windowLoadAround],
+  );
+  const windowThreadTransport = useMemo(
+    () => ({ outbox, loadNewer: windowLoadNewer, returnToPresent: windowReturnToPresent, retrySend, resend: resendMessage }),
+    [outbox, windowLoadNewer, windowReturnToPresent, retrySend, resendMessage],
+  );
+  const resendInPane = useCallback(
+    (messageId: string) => {
+      if (activeConversation) resendMessage(activeConversation.entry_id, activeConversation.entry_type, messageId);
+    },
+    [activeConversation, resendMessage],
+  );
+  const reconnecting = useReconnectNotice(status);
 
-  const isCallBusy = useCallActive();
 
   const hasCampaign = !!campaignId && !!campaignType;
   const isGlobalBoard = !hasCampaign && viewMode === "funnel";
@@ -656,6 +713,8 @@ export default function CrmLayout({
     if (f) setFilter(decodeFilterParam(f));
     const v = params.get("v");
     if (v) setActiveViewId(v);
+    const mode = readViewMode(window.location.search);
+    if (mode) setViewMode(mode);
     const p = params.get("p");
     const pt = params.get("pt");
     if (p && (pt === "conversation" || pt === "opportunity")) {
@@ -687,10 +746,9 @@ export default function CrmLayout({
       params.set("p", selectedPipeline.id);
       params.set("pt", selectedPipeline.objectType);
     }
-    const qs = params.toString();
-    const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+    const url = `${window.location.pathname}${withViewMode(params.toString(), viewMode)}${window.location.hash}`;
     window.history.replaceState(null, "", url);
-  }, [groupBy, activeViewId, filter, hasCampaign, selectedPipeline]);
+  }, [groupBy, activeViewId, filter, hasCampaign, selectedPipeline, viewMode]);
 
   const handleGlobalBoardReorder = useCallback(() => {
     void refetchBoard();
@@ -726,7 +784,7 @@ export default function CrmLayout({
       const colEntries = col.entries ?? [];
       const total = col.total ?? 0;
       map.set(col.id, {
-        entries: colEntries.map(boardEntryToInboxEntry),
+        entries: boardEntriesToInboxEntries(colEntries),
         page: 1,
         pageSize: BOARD_PAGE_SIZE,
         totalItems: total,
@@ -760,7 +818,7 @@ export default function CrmLayout({
       setGlobalBoardFunnelColumns((prev) => {
         if (!prev?.has(columnId)) return prev;
         const cur = prev.get(columnId)!;
-        const incoming = (result?.entries ?? []).map(boardEntryToInboxEntry);
+        const incoming = boardEntriesToInboxEntries(result?.entries ?? []);
         const seen = new Set(cur.entries.map((e) => e.entry_id));
         const merged = [
           ...cur.entries,
@@ -808,67 +866,6 @@ export default function CrmLayout({
     switchView,
   ]);
 
-  useEffect(() => {
-    if (!enabled) return;
-    const timer = setTimeout(() => {
-      if (notificationPermission === "default") {
-        requestNotificationPermission();
-      }
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [enabled, notificationPermission, requestNotificationPermission]);
-
-  const prevInboxRef = useRef<typeof inbox>([]);
-  const lastNotificationTimeRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!enabled || inbox.length === 0) {
-      prevInboxRef.current = inbox;
-      return;
-    }
-
-    const prevInbox = prevInboxRef.current;
-    const now = Date.now();
-
-    if (now - lastNotificationTimeRef.current < 1000) {
-      prevInboxRef.current = inbox;
-      return;
-    }
-
-    for (const entry of inbox) {
-      const prevEntry = prevInbox.find((e) => e.entry_id === entry.entry_id);
-      const prevUnread = prevEntry?.unread_count ?? 0;
-
-      if (prevEntry && entry.unread_count > prevUnread) {
-        if (activeConversation?.entry_id === entry.entry_id) {
-          continue;
-        }
-
-        lastNotificationTimeRef.current = now;
-
-        showNotification({
-          title: entry.lead_name || entry.lead_number || "Nova mensagem",
-          body:
-            entry.last_message_preview ||
-            "VocÃƒÆ’Ã‚Âª recebeu uma nova mensagem",
-          tag: `crm-message-${entry.entry_id}`,
-          onClick: () => {
-            subscribe(entry.entry_id, entry.entry_type);
-          },
-        });
-
-        break;
-      }
-    }
-
-    prevInboxRef.current = inbox;
-  }, [
-    inbox,
-    enabled,
-    activeConversation?.entry_id,
-    showNotification,
-    subscribe,
-  ]);
 
   const filteredInbox = useMemo(() => {
     let list = inbox;
@@ -881,8 +878,10 @@ export default function CrmLayout({
     });
   }, [inbox, filterStageIds, channelFilter]);
 
+  const [composerFocusOnOpen, setComposerFocusOnOpen] = useState(true);
   const handleSelect = useCallback(
-    (entryId: string, entryType: EntryType) => {
+    (entryId: string, entryType: EntryType, source?: ConversationOpenSource) => {
+      setComposerFocusOnOpen(focusesComposerOnOpen(source));
       subscribe(entryId, entryType);
       setMobileShowConversation(true);
     },
@@ -949,23 +948,51 @@ export default function CrmLayout({
     setMobileShowConversation(false);
   }, [unsubscribe]);
 
-  const [replyToMessage, setReplyToMessage] =
-    useState<ConversationMessage | null>(null);
+  useConversationUrl({
+    enabled: enabled && !hasCampaign,
+    entryId: activeConversation?.entry_id ?? null,
+    entryType: activeConversation?.entry_type ?? null,
+    onNavigate: (link) => (link ? handleSelect(link.entryId, link.entryType) : handleBack()),
+  });
 
-  useEffect(() => {
-    setReplyToMessage(null);
-  }, [activeConversation?.entry_id]);
+  useUnreadTabBadge(totalUnread, enabled);
 
-  const handleSend = useCallback(
-    (text: string, signed: boolean) => {
-      sendMessage(text, signed, replyToMessage?.id);
-      setReplyToMessage(null);
+  const focusComposer = useCallback(() => composerControlRef.current?.focus(), []);
+  const attachDroppedFiles = useCallback((files: File[]) => composerControlRef.current?.attachFiles(files), []);
+  const composerAcceptsInput = Boolean(activeConversation?.window_open) && can("conversations", "send");
+  const focusComposerAfterDialog = useCallback(() => {
+    setTimeout(focusComposer, 0);
+  }, [focusComposer]);
+
+  const handlePaneKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== "Escape" || e.defaultPrevented || isEditableTarget(e.target)) return;
+      if (!e.currentTarget.contains(e.target as Node)) return;
+      handleBack();
     },
-    [sendMessage, replyToMessage],
+    [handleBack],
   );
 
+  const activeEntryKey = activeConversation
+    ? windowKey(activeConversation.entry_id, activeConversation.entry_type)
+    : null;
+  const [infoSheetEntryKey, setInfoSheetEntryKey] = useState(activeEntryKey);
+  if (infoSheetEntryKey !== activeEntryKey) {
+    setInfoSheetEntryKey(activeEntryKey);
+    setInfoSheetOpen(false);
+  }
+  const {
+    replyTo: replyToMessage,
+    reply: setReplyToMessage,
+    clearReply,
+  } = useEntryReply(activeEntryKey);
 
   const [scheduleDraft, setScheduleDraft] = useState<ComposerDraft | null>(null);
+  const scheduleConfirmRef = useRef<(() => void) | null>(null);
+  const requestSchedule = useCallback((draft: ComposerDraft, onScheduled: () => void) => {
+    scheduleConfirmRef.current = onScheduled;
+    setScheduleDraft(draft);
+  }, []);
   const [templateSchedule, setTemplateSchedule] = useState<{
     initial?: TemplateComposerInitial;
   } | null>(null);
@@ -1003,9 +1030,11 @@ export default function CrmLayout({
   const handleScheduled = useCallback(
     (message: ScheduledMessage) => {
       setScheduledMessages((current) => [...current, message]);
-      setReplyToMessage(null);
+      clearReply();
+      scheduleConfirmRef.current?.();
+      scheduleConfirmRef.current = null;
     },
-    [],
+    [clearReply],
   );
 
   const canScheduleTemplates =
@@ -1013,12 +1042,23 @@ export default function CrmLayout({
     can("conversations", "send") &&
     can("whatsapp_templates", "send");
 
+  const [templateNowOpen, setTemplateNowOpen] = useState(false);
+  const canSendTemplateNow =
+    Boolean(activeConversation && reopensWithTemplate(activeConversation.entry_type)) && can("conversations", "reopen");
+  const openTemplateNow = useCallback(() => setTemplateNowOpen(true), []);
+
+  const [formSendOpen, setFormSendOpen] = useState(false);
+  const canSendForm = activeConversation?.entry_type === "whatsapp" && can("whatsapp_forms", "send");
+  const openFormSend = useCallback(() => setFormSendOpen(true), []);
+
   const openTemplateSchedule = useCallback(() => {
+    scheduleConfirmRef.current = null;
     setScheduleDraft(null);
     setTemplateSchedule({});
   }, []);
 
   const handleReuseScheduled = useCallback((message: ScheduledMessage) => {
+    scheduleConfirmRef.current = null;
     if (message.template) {
       setTemplateSchedule({
         initial: {
@@ -1038,32 +1078,24 @@ export default function CrmLayout({
     });
   }, []);
 
-  const handleSendMedia = useCallback(
-    (text: string, mediaId: string, mediaType: MediaType, signed: boolean) => {
-      sendMediaMessage(text, mediaId, mediaType, signed, replyToMessage?.id);
-      setReplyToMessage(null);
-    },
-    [sendMediaMessage, replyToMessage],
-  );
 
-  const handleSendButton = useCallback(
-    (input: SendButtonWsInput) => {
-      sendButtonMessage(input, replyToMessage?.id);
-      setReplyToMessage(null);
-    },
-    [sendButtonMessage, replyToMessage],
-  );
-
+  const typingEntryId = activeConversation?.entry_id;
+  const typingEntryType = activeConversation?.entry_type;
   const handleTyping = useCallback(
     (isTyping: boolean) => {
-      sendTyping(isTyping);
+      if (!typingEntryId || !typingEntryType) return;
+      windowSendTyping(typingEntryId, typingEntryType, isTyping);
     },
-    [sendTyping],
+    [typingEntryId, typingEntryType, windowSendTyping],
   );
 
-  const isRemoteTyping = useMemo(() => {
-    return typingUsers.size > 0;
-  }, [typingUsers]);
+  const isRemoteTyping = activeConversation
+    ? typistsIn(
+        typingByEntry,
+        activeConversation.entry_id,
+        activeConversation.entry_type,
+      ).size > 0
+    : false;
 
   const currentEntryStages = useMemo(() => {
     if (!activeConversation) return [];
@@ -1120,18 +1152,39 @@ export default function CrmLayout({
     }
   }, [activeConversation]);
 
-  const handleEntryStageChange = useCallback(
-    async (entryId: string, entryType: EntryType, newStageId: string) => {
-      const { error } = await assignStageToEntryAction(
-        newStageId,
-        entryId,
-        entryType,
-      );
+  const moveEntryToStage = useCallback(
+    async (entryId: string, entryType: EntryType, stageId: string) => {
+      const { error } = await assignStageToEntryAction(stageId, entryId, entryType);
       if (error) {
         toast.error(error);
+        return false;
       }
+      void refetchBoard();
+      return true;
     },
-    [],
+    [refetchBoard],
+  );
+
+  const handleEntryStageChange = useCallback(
+    (
+      entryId: string,
+      entryType: EntryType,
+      newStageId: string,
+      oldStageId: string | null = null,
+    ): Promise<boolean> => {
+      const apply = () => moveEntryToStage(entryId, entryType, newStageId);
+      const restorable = oldStageId && oldStageId !== UNSTAGED_COLUMN_ID && oldStageId !== newStageId;
+      if (!restorable) return apply();
+      return performReversible(
+        {
+          apply,
+          inverse: () => moveEntryToStage(entryId, entryType, oldStageId),
+          labelKey: "stageMoved",
+        },
+        tActions,
+      );
+    },
+    [moveEntryToStage, tActions],
   );
 
   const handleMoveToFunnel = useCallback(
@@ -1147,10 +1200,10 @@ export default function CrmLayout({
         true,
       );
       if (error) return error;
-      toast.success("Conversa movida para o outro funil");
+      toast.success(tActions("movedToFunnel"));
       return null;
     },
-    [],
+    [tActions],
   );
 
   const handleStagesChange = useCallback(() => {
@@ -1178,14 +1231,21 @@ export default function CrmLayout({
       entryType: EntryType,
       newLabelId: string,
       oldLabelId: string | null,
-    ) => {
-      if (newLabelId) {
-        await assignLabelToEntryAction(newLabelId, entryId, entryType);
-      }
-      if (oldLabelId && oldLabelId !== newLabelId) {
-        await removeLabelFromEntryAction(oldLabelId, entryId, entryType);
-      }
+    ): Promise<boolean> => {
+      const assigned = newLabelId
+        ? await assignLabelToEntryAction(newLabelId, entryId, entryType)
+        : null;
+      const removed =
+        !assigned?.error && oldLabelId && oldLabelId !== newLabelId
+          ? await removeLabelFromEntryAction(oldLabelId, entryId, entryType)
+          : null;
       void refetchBoard();
+      const error = assigned?.error ?? removed?.error;
+      if (error) {
+        toast.error(error);
+        return false;
+      }
+      return true;
     },
     [refetchBoard],
   );
@@ -1195,14 +1255,20 @@ export default function CrmLayout({
       entryId: string,
       entryType: EntryType,
       newOwnerId: string,
-      _oldOwnerId: string | null,
-    ) => {
-      if (newOwnerId && newOwnerId !== "__unassigned__") {
-        assignTo(entryId, entryType, newOwnerId);
-      }
+    ): Promise<boolean> => {
+      if (!newOwnerId || newOwnerId === UNASSIGNED_COLUMN_ID) return false;
+      const { result, error } = await crmBulkAction(
+        bulkRequest("assign", newOwnerId, { kind: "ids", targets: [{ entryId, entryType }] }),
+      );
       void refetchBoard();
+      const refusal = result?.failed[0]?.error ?? (result ? null : (error?.message ?? ""));
+      if (refusal !== null) {
+        toast.error(refusal || tActions("ownerMoveFailed"));
+        return false;
+      }
+      return true;
     },
-    [assignTo, refetchBoard],
+    [refetchBoard, tActions],
   );
 
   const handleAssignStage = useCallback(
@@ -1217,20 +1283,6 @@ export default function CrmLayout({
   }, [reloadLabels]);
 
   const [togglingAi, setTogglingAi] = useState(false);
-  const [callDropdownOpen, setCallDropdownOpen] = useState(false);
-  const { data: whatsappPhones = [], isLoading: loadingCallPhones } = useQuery<WhatsAppBusinessPhone[]>({
-    queryKey: ["crm-call-phones", currentWorkspace?.id],
-    enabled: enabled && callDropdownOpen && !!currentWorkspace?.id && can("call_session", "use"),
-    staleTime: 60_000,
-    queryFn: async () => {
-      const result = await listBusinessPhonesAction({ status: "CONNECTED", pageSize: 500 });
-      if (result.error) throw new Error(result.error);
-      return result.phones;
-    },
-  });
-  const callDropdownRef = useRef<HTMLDivElement>(null);
-  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
-  const statusMenuRef = useRef<HTMLDivElement>(null);
 
   const canViewOthers = can("conversations", "view_others");
   const [handBackRequest, setHandBackRequest] = useState<{
@@ -1317,123 +1369,7 @@ export default function CrmLayout({
     }
   }, [activeConversation, togglingAi, handBackTargetFor, requestHandBack, switchAutomation]);
 
-  useEffect(() => {
-    if (!callDropdownOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        callDropdownRef.current &&
-        !callDropdownRef.current.contains(e.target as Node)
-      ) {
-        setCallDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [callDropdownOpen]);
 
-  useEffect(() => {
-    if (!statusMenuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        statusMenuRef.current &&
-        !statusMenuRef.current.contains(e.target as Node)
-      ) {
-        setStatusMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [statusMenuOpen]);
-
-  const handleWhatsAppCall = useCallback(
-    (whatsAppPhoneId: string, whatsAppPhoneLabel?: string) => {
-      setCallDropdownOpen(false);
-      const phoneNumber = activeConversation?.lead_number ?? "";
-      if (!phoneNumber) {
-        toast.error(
-          t.conversation.callFailed ?? "Número do lead indisponível.",
-        );
-        return;
-      }
-      if (!whatsAppPhoneId) {
-        toast.error("Número comercial do WhatsApp indisponível.");
-        return;
-      }
-      requestCall({ phoneNumber, whatsAppPhoneId, label: whatsAppPhoneLabel });
-    },
-    [activeConversation?.lead_number, t.conversation.callFailed],
-  );
-
-  const [requestingPermission, setRequestingPermission] = useState(false);
-  const handleRequestCallPermission = useCallback(async () => {
-    setCallDropdownOpen(false);
-    if (!activeConversation || requestingPermission) return;
-    setRequestingPermission(true);
-    try {
-      const result = await requestCallPermissionAction(
-        normalizeEntryType(activeConversation.entry_type),
-        activeConversation.entry_id,
-      );
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(
-          "Pedido de permissão enviado. Aguardando o cliente aceitar.",
-        );
-      }
-    } finally {
-      setRequestingPermission(false);
-    }
-  }, [activeConversation, requestingPermission]);
-
-  const [callPermission, setCallPermission] =
-    useState<CallPermissionStatus | null>(null);
-  const [callPermissionLoading, setCallPermissionLoading] = useState(false);
-
-  const callPermissionSignal = useMemo(() => {
-    const messages = activeConversation?.messages ?? [];
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const type = messages[i].message_type;
-      if (
-        type === "call_permission_granted" ||
-        type === "call_permission_rejected"
-      ) {
-        return messages[i].id;
-      }
-    }
-    return "";
-  }, [activeConversation?.messages]);
-
-  useEffect(() => {
-    if (!activeConversation) {
-      setCallPermission(null);
-      return;
-    }
-    const entryType = normalizeEntryType(activeConversation.entry_type);
-    if (entryType !== "whatsapp") {
-      setCallPermission({ status: "none", can_call: false });
-      return;
-    }
-    const entryId = activeConversation.entry_id;
-    let cancelled = false;
-    setCallPermissionLoading(true);
-    getCallPermissionStatusAction(entryType, entryId)
-      .then((result) => {
-        if (cancelled) return;
-        setCallPermission(result.status ?? { status: "none", can_call: false });
-      })
-      .finally(() => {
-        if (!cancelled) setCallPermissionLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    activeConversation?.entry_id,
-    activeConversation?.entry_type,
-    callPermissionSignal,
-  ]);
 
   const currentInboxEntry = useMemo(() => {
     if (!activeConversation) return null;
@@ -1463,30 +1399,6 @@ export default function CrmLayout({
     activeConversation?.close_source ?? currentInboxEntry?.close_source ?? null;
   const currentCloseReason =
     activeConversation?.close_reason ?? currentInboxEntry?.close_reason ?? null;
-
-  const currentConversationStatusMeta = useMemo(() => {
-    return getConversationStatusDisplay(
-      currentConversationStatus,
-      currentCloseSource,
-      currentCloseReason,
-    );
-  }, [currentConversationStatus, currentCloseSource, currentCloseReason]);
-
-  const conversationStatusActions = useMemo(() => {
-    switch (currentConversationStatus) {
-      case "finished":
-        return [] as Array<{ value: "ongoing" | "finished"; label: string }>;
-      case "ongoing":
-        return [
-          { value: "finished" as const, label: "Marcar como finalizada" },
-        ];
-      default:
-        return [
-          { value: "ongoing" as const, label: "Marcar em andamento" },
-          { value: "finished" as const, label: "Marcar como finalizada" },
-        ];
-    }
-  }, [currentConversationStatus]);
 
   const onlineUserIdSet = useMemo(
     () => new Set(connectedUsers.map((u) => u.user_id)),
@@ -1535,10 +1447,19 @@ export default function CrmLayout({
         activeConversation.entry_type,
         nextStatus,
       );
-      setStatusMenuOpen(false);
     },
     [activeConversation, requestConversationStatus],
   );
+
+  const finishAfterSend = useSendAndFinish({
+    outbox,
+    onFinish: (entryId, entryType) => requestConversationStatus(entryId, entryType, "finished"),
+    onAbandon: () => toast.error(tComposer("sendAndFinish.notFinished")),
+  });
+  const handleSendAndFinish = useCallback(() => {
+    if (activeConversation) finishAfterSend(activeConversation.entry_id, activeConversation.entry_type);
+  }, [activeConversation, finishAfterSend]);
+  const composerFinishes = can("conversations", "send") && currentConversationStatus !== "finished";
 
   const aiIsActive = activeConversation?.automation_enabled !== false;
 
@@ -1596,8 +1517,11 @@ export default function CrmLayout({
           liveRead: entry?.live_read ?? null,
           currentLabels: entry?.labels ?? [],
           handBack: entry ? handBackTarget(entry) : null,
+          businessPhoneId: entry?.business_phone_id ?? "",
         };
       },
+      onSendAndFinish: can("conversations", "send") ? finishAfterSend : undefined,
+      onReopenWindow: can("conversations", "reopen") ? reopenWindow : undefined,
       onAssign: assignTo,
       onHandBack: requestHandBack,
       onSetStatus: requestConversationStatus,
@@ -1626,448 +1550,261 @@ export default function CrmLayout({
       handleMoveToFunnel,
       handleAssignLabel,
       handleRemoveLabel,
+      finishAfterSend,
+      reopenWindow,
     ],
   );
 
-  const conversationHeader = activeConversation ? (
-    <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-border bg-card px-3 py-2.5 sm:px-4">
-      <button
-        type="button"
-        onClick={handleBack}
-        aria-label="Back"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-muted lg:hidden"
-      >
-        <CaretLeft weight="bold" className="h-4 w-4 text-muted-foreground" />
-      </button>
+  const personalCommands = usePersonalCommands(currentInboxEntry ?? activeConversation, personalInbox);
 
-      <ChannelAvatar
+  const conversationCommands = useMemo<ConversationCommand[]>(() => {
+    if (!activeConversation) return [];
+    const canSend = can("conversations", "send");
+    return [
+      ...(canSend && activeConversation.window_open ? [{ id: "conversation.reply" as const, run: focusComposer }] : []),
+      ...(canSend && currentInboxEntry && currentConversationStatus !== "finished"
+        ? [{ id: "conversation.finish" as const, run: () => handleConversationStatusChange("finished") }]
+        : []),
+      ...(viewMode !== "funnel" ? [{ id: "conversation.info" as const, run: toggleInfo }] : []),
+      { id: "conversation.popOut" as const, run: handlePopOutActive },
+      ...personalCommands,
+    ];
+  }, [
+    personalCommands,
+    activeConversation,
+    can,
+    currentInboxEntry,
+    currentConversationStatus,
+    focusComposer,
+    handleConversationStatusChange,
+    handlePopOutActive,
+    toggleInfo,
+    viewMode,
+  ]);
+
+  const viewCommands = useMemo<ViewCommand[]>(
+    () =>
+      showOpportunityBoard
+        ? []
+        : CRM_VIEW_MODES.filter((mode) => mode !== "table" || !hasCampaign).map((mode) => ({
+            mode,
+            label: tBoard(VIEW_LABEL_KEYS[mode]),
+          })),
+    [hasCampaign, showOpportunityBoard, tBoard],
+  );
+
+  const openFromPalette = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      if (viewMode === "table") setViewMode("classic");
+      handleSelect(entryId, entryType);
+    },
+    [handleSelect, viewMode],
+  );
+
+  const renderInfoPanel = (presentation: "docked" | "sheet") =>
+    activeConversation ? (
+      <CrmConversationInfosPanel
+        open={presentation === "docked" ? true : infoSheetOpen}
+        onClose={closeInfo}
+        presentation={presentation}
+        conversation={activeConversation}
+        inboxEntry={currentInboxEntry}
+        conversationStatus={currentConversationStatus}
+        canBlock={can("leads", "block")}
+        canManageMemories={can("leads", "update")}
+        canRenameLead={can("leads", "update")}
+        canReadLead={can("leads", "read")}
+        workspaceId={currentWorkspace?.id}
+        onLeadPatched={applyLeadPatch}
+        onOpenConversation={handleSelect}
+      />
+    ) : null;
+
+  const renderConversationHeader = (inPane: boolean) =>
+    activeConversation ? (
+      <ConversationHeader
         name={activeConversation.lead_name || activeConversation.lead_number}
+        number={activeConversation.lead_number}
         pictureUrl={currentInboxEntry?.lead_picture}
         entryType={activeConversation.entry_type}
         isGroup={activeConversation.is_group ?? currentInboxEntry?.is_group}
-        size="md"
-      />
-
-      <div className="min-w-0 flex-1 basis-[10rem]">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-sm font-semibold text-foreground">
-            {activeConversation.lead_name || activeConversation.lead_number}
-          </p>
-          {currentInboxEntry?.assigned_user_id ||
-          currentInboxEntry?.assigned_username ? (
-            <AttendanceOwnerBadge
-              kind={assigneeKind(currentInboxEntry.assigned_user_id) ?? "human"}
-              className="shrink-0"
-            />
-          ) : aiIsActive && hasAiHandler ? (
-            <AttendanceOwnerBadge kind="ai_active" className="shrink-0" />
-          ) : (
-            <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
-          )}
-          {channelCapabilities.supportsAiHandling(
-            activeConversation.entry_type as EntryType,
-          ) && (
-            <AiHandlerChip
-              handler={currentInboxEntry?.ai_handler}
-              automationEnabled={activeConversation.automation_enabled}
-              conversationStatus={activeConversation.conversation_status}
-              assignedUserId={currentInboxEntry?.assigned_user_id}
-              size="md"
-              onOpenWorkflow={setWorkflowDrawerHandler}
-              className="shrink-0"
-            />
-          )}
-        </div>
-        <p className="truncate text-xs text-muted-foreground">
-          {activeConversation.lead_number}
-        </p>
-      </div>
-
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        {can("conversations", "update") && (
-          <CreateOpportunityButton
-            entryId={activeConversation.entry_id}
-            entryType={activeConversation.entry_type}
-            leadName={
-              activeConversation.lead_name || activeConversation.lead_number
-            }
-            workspaceId={currentWorkspace?.id}
-          />
-        )}
-
-        <TooltipWrapper content={tWindow("openInWindow")}>
-          <button
-            type="button"
-            onClick={handlePopOutActive}
-            aria-label={tWindow("openInWindow")}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <ArrowSquareOut className="h-4 w-4" />
-          </button>
-        </TooltipWrapper>
-
-        {viewMode !== "funnel" && (
-          <TooltipWrapper content={tContactPanel("toggleTooltip")}>
-            <button
-              type="button"
-              onClick={() => setInfoPanelOpen((prev) => !prev)}
-              aria-pressed={infoPanelOpen}
-              className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                infoPanelOpen
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <Info
-                weight={infoPanelOpen ? "fill" : "regular"}
-                className="h-4 w-4"
+        onBack={handleBack}
+        onClose={inPane ? handleBack : undefined}
+        badges={
+          <>
+            <ConversationViewers entryId={activeConversation.entry_id} entryType={activeConversation.entry_type} />
+            {currentInboxEntry?.assigned_user_id ||
+            currentInboxEntry?.assigned_username ? (
+              <AttendanceOwnerBadge
+                kind={assigneeKind(currentInboxEntry.assigned_user_id) ?? "human"}
+                className="shrink-0"
               />
-            </button>
-          </TooltipWrapper>
-        )}
-
-        <TooltipWrapper
-          content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
-        >
-          <ElevatedButton
-            variant={aiIsActive ? "primary" : "outline-subtle"}
-            size="sm"
-            onClick={handleToggleAi}
-            disabled={togglingAi || !canToggleAi}
-            title={
-              aiIsActive
-                ? (t.conversation.aiEnabled ?? "Automação")
-                : (t.conversation.aiDisabled ?? "Automação Off")
-            }
-            icon={
-              <Robot
-                weight={aiIsActive ? "fill" : "regular"}
-                className={cn("h-3.5 w-3.5", togglingAi && "animate-pulse")}
+            ) : aiIsActive && hasAiHandler ? (
+              <AttendanceOwnerBadge kind="ai_active" className="shrink-0" />
+            ) : (
+              <AttendanceOwnerBadge kind="unassigned" className="shrink-0" />
+            )}
+            {channelCapabilities.supportsAiHandling(
+              activeConversation.entry_type as EntryType,
+            ) && (
+              <AiHandlerChip
+                handler={currentInboxEntry?.ai_handler}
+                automationEnabled={activeConversation.automation_enabled}
+                conversationStatus={activeConversation.conversation_status}
+                assignedUserId={currentInboxEntry?.assigned_user_id}
+                size="md"
+                onOpenWorkflow={setWorkflowDrawerHandler}
+                className="shrink-0"
               />
-            }
-            iconVisible
-          />
-        </TooltipWrapper>
+            )}
+          </>
+        }
+        status={
+          currentInboxEntry ? (
+            <ConversationStatusControl
+              status={currentConversationStatus}
+              closeSource={currentCloseSource}
+              closeReason={currentCloseReason}
+              canChange={can("conversations", "send")}
+              onChange={handleConversationStatusChange}
+            />
+          ) : null
+        }
+        actions={
+          <>
+            {can("conversations", "update") && (
+              <CreateOpportunityButton
+                entryId={activeConversation.entry_id}
+                entryType={activeConversation.entry_type}
+                leadName={
+                  activeConversation.lead_name || activeConversation.lead_number
+                }
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
 
-        {currentInboxEntry && (
-          <div className="relative" ref={statusMenuRef}>
-            <TooltipWrapper
-              content={
-                can("conversations", "send")
-                  ? "Gerenciar status da conversa"
-                  : "Status atual da conversa"
-              }
-            >
+            <TooltipWrapper content={tWindow("openInWindow")}>
               <button
                 type="button"
-                onClick={() => {
-                  if (!can("conversations", "send")) return;
-                  setStatusMenuOpen((open) => !open);
-                }}
-                className={cn(
-                  "flex items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 text-2xs font-semibold text-foreground transition-colors",
-                  can("conversations", "send") && "hover:bg-muted",
-                  !can("conversations", "send") && "cursor-default opacity-90",
-                )}
+                onClick={handlePopOutActive}
+                aria-label={tWindow("openInWindow")}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <span
-                  className={cn(
-                    "h-2 w-2 shrink-0 rounded-full",
-                    currentConversationStatusMeta.dotClassName,
-                  )}
-                />
-                <span className="max-w-[11rem] truncate">
-                  {currentConversationStatusMeta.label}
-                </span>
-                {can("conversations", "send") && (
-                  <CaretDown weight="bold" className="h-3.5 w-3.5 shrink-0" />
-                )}
+                <ArrowSquareOut className="h-4 w-4" />
               </button>
             </TooltipWrapper>
 
-            {statusMenuOpen && can("conversations", "send") && (
-              <div className="absolute right-0 top-full mt-1 z-50 w-64 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="border-b border-border px-3 py-2">
-                  <div className="text-2xs font-semibold text-muted-foreground">
-                    Status atual
-                  </div>
-                  <div
-                    className={cn(
-                      "mt-1 text-xs font-semibold",
-                      currentConversationStatusMeta.menuAccentClassName,
-                    )}
-                  >
-                    {currentConversationStatusMeta.baseLabel}
-                  </div>
-                  {currentConversationStatusMeta.provenance ? (
-                    <div className="mt-1.5 space-y-0.5 rounded-lg bg-muted px-2.5 py-2">
-                      <div className="text-2xs text-muted-foreground">
-                        Encerrada por{" "}
-                        <span className="font-medium text-foreground">
-                          {currentConversationStatusMeta.provenance.by || <EmptyValue />}
-                        </span>
-                      </div>
-                      <div className="text-2xs text-muted-foreground">
-                        Motivo:{" "}
-                        <span className="font-medium text-foreground">
-                          {currentConversationStatusMeta.provenance.reasonLabel || <EmptyValue />}
-                        </span>
-                      </div>
-                      {currentConversationStatusMeta.provenance.isSilence ? (
-                        <div className="text-2xs font-medium text-warning-ink">
-                          Encerrada automaticamente por silêncio
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-
-                {conversationStatusActions.length > 0 ? (
-                  <div className="py-1">
-                    {conversationStatusActions.map((action) => (
-                      <button
-                        key={action.value}
-                        type="button"
-                        onClick={() =>
-                          handleConversationStatusChange(action.value)
-                        }
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                      >
-                        <Check
-                          weight="bold"
-                          className="h-3.5 w-3.5 text-muted-foreground"
-                        />
-                        <span>{action.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-3 py-2 text-xs text-muted-foreground">
-                    Reabre automaticamente quando o cliente enviar uma nova
-                    mensagem.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {(can("conversations", "assign") || can("conversations", "delegate")) && currentWorkspace?.id && (
-          <AssignMemberPicker
-            workspaceId={currentWorkspace.id}
-            assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
-            onlineUserIds={onlineUserIdSet}
-            onAssign={handleAssignTo}
-            canAssignMembers={can("conversations", "assign")}
-            onDelegate={can("conversations", "delegate") ? delegateTo : undefined}
-            handBack={currentInboxEntry ? handBackTarget(currentInboxEntry) : null}
-            onHandBack={() =>
-              requestHandBack(
-                activeConversation.entry_id,
-                activeConversation.entry_type as EntryType,
-              )
-            }
-          />
-        )}
-
-        {activeConversation.entry_type === "webchat" &&
-          can("conversations", "update") && (
-            <WebchatBlockButton
-              entryId={activeConversation.entry_id}
-              blocked={activeConversation.window_closed_reason === "contact_blocked"}
-            />
-          )}
-
-        <div className="relative" ref={callDropdownRef}>
-          {can("call_session", "use") &&
-            channelCapabilities.supportsCalling(
-              activeConversation.entry_type as EntryType,
-            ) && (
-              <TooltipWrapper content={t.conversation.startCall ?? "Ligar"}>
+            {viewMode !== "funnel" && (
+              <TooltipWrapper content={tContactPanel("toggleTooltip")}>
                 <button
-                  onClick={() => setCallDropdownOpen((v) => !v)}
-                  disabled={isCallBusy}
+                  type="button"
+                  onClick={toggleInfo}
+                  aria-pressed={infoVisible}
+                  aria-label={tContactPanel("toggleTooltip")}
                   className={cn(
-                    "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
-                    isCallBusy
-                      ? "bg-healthy text-healthy-foreground cursor-not-allowed"
-                      : "bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground",
+                    "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+                    infoVisible
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
-                  <PhoneCall
-                    weight={isCallBusy ? "fill" : "regular"}
+                  <Info
+                    weight={infoVisible ? "fill" : "regular"}
                     className="h-4 w-4"
                   />
                 </button>
               </TooltipWrapper>
             )}
 
-          {callDropdownOpen && can("call_session", "use") && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-[--radius] border border-border bg-card shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-              {(() => {
-                if (loadingCallPhones) {
-                  return <div role="status" className="px-3 py-2 text-xs text-muted-foreground">{tCommon("loading")}</div>;
+            <TooltipWrapper
+              content={t.conversation.aiToggleTooltip ?? "Toggle AI responses"}
+            >
+              <ElevatedButton
+                variant={aiIsActive ? "primary" : "outline-subtle"}
+                size="sm"
+                onClick={handleToggleAi}
+                disabled={togglingAi || !canToggleAi}
+                title={
+                  aiIsActive
+                    ? (t.conversation.aiEnabled ?? "Automação")
+                    : (t.conversation.aiDisabled ?? "Automação Off")
                 }
-                const openEntry = inbox.find(
-                  (e) => e.entry_id === activeConversation?.entry_id,
-                );
-                const leadNumber = activeConversation?.lead_number;
-                const openEntryIsWa =
-                  !!openEntry &&
-                  normalizeEntryType(openEntry.entry_type) === "whatsapp";
-                const sameLeadWaEntry = leadNumber
-                  ? inbox.find(
-                      (e) =>
-                        e.lead_number === leadNumber &&
-                        normalizeEntryType(e.entry_type) === "whatsapp" &&
-                        !!e.business_phone_id,
-                    )
-                  : undefined;
-                const resolvedPhoneId =
-                  (openEntryIsWa ? openEntry?.business_phone_id : "") ||
-                  sameLeadWaEntry?.business_phone_id ||
-                  (whatsappPhones.length === 1 ? whatsappPhones[0].id : "");
-                const resolvedPhone = whatsappPhones.find(
-                  (p) => p.id === resolvedPhoneId,
-                );
-
-                if (resolvedPhoneId) {
-                  if (callPermissionLoading || !callPermission?.can_call) {
-                    return (
-                      <button
-                        disabled
-                        title={
-                          callPermissionLoading
-                            ? undefined
-                            : "O cliente precisa autorizar ligações pelo WhatsApp antes de você ligar."
-                        }
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
-                      >
-                        <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
-                        <span className="truncate">
-                          {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                        </span>
-                        <span className="ml-auto text-2xs font-semibold text-muted-foreground">
-                          {callPermissionLoading
-                            ? "Verificando…"
-                            : "Permissão necessária"}
-                        </span>
-                      </button>
-                    );
-                  }
-                  return (
-                    <button
-                      onClick={() =>
-                        handleWhatsAppCall(
-                          resolvedPhoneId,
-                          resolvedPhone?.verifiedName ||
-                            resolvedPhone?.displayPhoneNumber,
-                        )
-                      }
-                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                    >
-                      <WhatsappLogo
-                        weight="bold"
-                        className="h-3.5 w-3.5 text-healthy-ink"
-                      />
-                      <span className="truncate">
-                        {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                      </span>
-                      {resolvedPhone && (
-                        <span className="ml-auto text-2xs text-muted-foreground truncate">
-                          {resolvedPhone.displayPhoneNumber}
-                        </span>
-                      )}
-                    </button>
-                  );
+                icon={
+                  <Robot
+                    weight={aiIsActive ? "fill" : "regular"}
+                    className={cn("h-3.5 w-3.5", togglingAi && "animate-pulse")}
+                  />
                 }
+                iconVisible
+              />
+            </TooltipWrapper>
 
-                if (whatsappPhones.length === 0) {
-                  return (
-                    <button
-                      disabled
-                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-muted-foreground cursor-not-allowed"
-                    >
-                      <WhatsappLogo weight="bold" className="h-3.5 w-3.5" />
-                      <span>
-                        {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                      </span>
-                      <span className="ml-auto text-2xs font-semibold text-muted-foreground">
-                        Indisponível
-                      </span>
-                    </button>
-                  );
+            {(can("conversations", "assign") || can("conversations", "delegate")) && currentWorkspace?.id && (
+              <AssignMemberPicker
+                workspaceId={currentWorkspace.id}
+                assignedUserId={currentInboxEntry?.assigned_user_id ?? null}
+                onlineUserIds={onlineUserIdSet}
+                onAssign={handleAssignTo}
+                canAssignMembers={can("conversations", "assign")}
+                onDelegate={can("conversations", "delegate") ? delegateTo : undefined}
+                handBack={currentInboxEntry ? handBackTarget(currentInboxEntry) : null}
+                onHandBack={() =>
+                  requestHandBack(
+                    activeConversation.entry_id,
+                    activeConversation.entry_type as EntryType,
+                  )
                 }
+              />
+            )}
 
-                return (
-                  <>
-                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
-                      {t.conversation.callViaWhatsapp ?? "WhatsApp"}
-                    </div>
-                    {whatsappPhones.map((phone) => (
-                      <button
-                        key={phone.id}
-                        onClick={() =>
-                          handleWhatsAppCall(
-                            phone.id,
-                            phone.verifiedName || phone.displayPhoneNumber,
-                          )
-                        }
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                      >
-                        <WhatsappLogo
-                          weight="bold"
-                          className="h-3.5 w-3.5 text-healthy-ink"
-                        />
-                        <span className="truncate">
-                          {phone.verifiedName || phone.displayPhoneNumber}
-                        </span>
-                        {phone.verifiedName && (
-                          <span className="ml-auto text-2xs text-muted-foreground truncate">
-                            {phone.displayPhoneNumber}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </>
-                );
-              })()}
-
-              {can("conversations", "call") && (
-                <>
-                  <div className="my-1 border-t border-border" />
-                  <button
-                    onClick={handleRequestCallPermission}
-                    disabled={requestingPermission}
-                    className={cn(
-                      "flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors",
-                      requestingPermission
-                        ? "text-muted-foreground cursor-not-allowed"
-                        : "text-foreground hover:bg-muted",
-                    )}
-                  >
-                    <WhatsappLogo
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-warning-ink"
-                    />
-                    <span>
-                      {requestingPermission
-                        ? "Enviando…"
-                        : "Solicitar permissão de ligação"}
-                    </span>
-                  </button>
-                </>
+            {activeConversation.entry_type === "webchat" &&
+              can("conversations", "update") && (
+                <WebchatBlockButton
+                  entryId={activeConversation.entry_id}
+                  blocked={activeConversation.window_closed_reason === "contact_blocked"}
+                />
               )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  ) : null;
+
+            <MercadoLivreStartConversation
+              entryId={activeConversation.entry_id}
+              entryType={activeConversation.entry_type as EntryType}
+              canSend={can("conversations", "send")}
+            />
+
+            <ConversationCallControl
+              entryId={activeConversation.entry_id}
+              entryType={activeConversation.entry_type}
+              leadNumber={activeConversation.lead_number}
+              messages={activeConversation.messages}
+              inbox={inbox}
+              translations={t.conversation}
+            />
+          </>
+        }
+      />
+    ) : null;
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
+      <ReconnectingNotice visible={reconnecting} />
+      <CrmCommandCenter
+        enabled={enabled}
+        recent={filteredInbox}
+        searchResults={searchResults}
+        searching={searching}
+        onSearch={searchInbox}
+        onEndSearch={() => (inboxControlRef.current ? inboxControlRef.current.resumeSearch() : clearSearch())}
+        onOpenConversation={openFromPalette}
+        commands={conversationCommands}
+        views={viewCommands}
+        currentView={viewMode}
+        onSwitchView={setViewMode}
+        onFocusSearch={
+          viewMode === "classic" && !showOpportunityBoard
+            ? () => inboxControlRef.current?.focusSearch()
+            : undefined
+        }
+      />
       <OutcomePickerDialog
         request={outcomePrompt ?? pendingOutcomeRequest}
         onConfirm={(entryId, entryType, status, outcomeCode) => {
@@ -2306,14 +2043,18 @@ export default function CrmLayout({
                   selectedEntryId={activeConversation?.entry_id ?? null}
                   onSelect={handleSelect}
                   onStagesReorder={
-                    isGlobalBoard
-                      ? handleGlobalBoardReorder
-                      : handleStagesChange
+                    !can("stages", "update")
+                      ? undefined
+                      : isGlobalBoard
+                        ? groupBy === "stage"
+                          ? handleGlobalBoardReorder
+                          : undefined
+                        : handleStagesChange
                   }
                   onEntryStageChange={
                     isGlobalBoard
                       ? groupBy === "stage" && can("stages", "assign")
-                        ? handleEntryStageChange
+                        ? moveEntryToStage
                         : groupBy === "label" && can("labels", "assign")
                           ? handleEntryLabelChange
                           : groupBy === "owner" &&
@@ -2321,7 +2062,7 @@ export default function CrmLayout({
                             ? handleEntryOwnerChange
                             : undefined
                       : can("stages", "assign")
-                        ? handleEntryStageChange
+                        ? moveEntryToStage
                         : undefined
                   }
                   funnelColumns={
@@ -2352,9 +2093,13 @@ export default function CrmLayout({
               </div>
 
               {activeConversation && (
-                <div className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col">
+                <div
+                  onKeyDown={handlePaneKeyDown}
+                  className="relative isolate w-[420px] flex-shrink-0 border-l border-border flex flex-col"
+                >
                   <CrmWallpaper />
-                  {conversationHeader}
+                  {renderConversationHeader(true)}
+                  <ConversationDropZone enabled={composerAcceptsInput} onFiles={attachDroppedFiles} className="flex min-h-0 flex-1 flex-col">
                   <div className="flex-1 min-h-0">
                     <CrmConversationView
                       conversation={activeConversation}
@@ -2374,6 +2119,11 @@ export default function CrmLayout({
                         setPendingScrollToMessageId(null)
                       }
                       onLoadAround={loadAround}
+                      onLoadNewer={loadNewer}
+                      onReturnToPresent={returnToPresent}
+                      outbox={outbox}
+                      onRetrySend={retrySend}
+                      onResendMessage={resendInPane}
                       onReply={setReplyToMessage}
                       tags={tags}
                       currentEntryTags={currentEntryStages}
@@ -2411,23 +2161,29 @@ export default function CrmLayout({
                   <CrmMessageInput
                     entryType={activeConversation.entry_type}
                     entryId={activeConversation.entry_id}
-                    onSend={handleSend}
-                    onSendMedia={handleSendMedia}
-                    onSendButton={handleSendButton}
+                    onSend={sendMessage}
+                    onSendMedia={sendMediaMessage}
+                    onSendButton={sendButtonMessage}
+                    onSendAndFinish={composerFinishes ? handleSendAndFinish : undefined}
                     onTyping={handleTyping}
                     onSchedule={
-                      can("conversations", "send") ? setScheduleDraft : undefined
+                      can("conversations", "send") ? requestSchedule : undefined
                     }
                     onScheduleTemplate={
                       canScheduleTemplates ? openTemplateSchedule : undefined
                     }
+                    onSendTemplateNow={canSendTemplateNow ? openTemplateNow : undefined}
+                    onSendForm={canSendForm ? openFormSend : undefined}
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
                     windowClosedReason={activeConversation.window_closed_reason}
+                    windowClosedDetail={activeConversation.window_closed_detail}
                     windowTier={activeConversation.window_tier}
                     translations={t.input}
                     replyToMessage={replyToMessage}
-                    onClearReply={() => setReplyToMessage(null)}
+                    onClearReply={clearReply}
+                    controlRef={composerControlRef}
+                    focusOnOpen={composerFocusOnOpen}
                     disabled={!can("conversations", "send")}
                     disabledReason={
                       !can("conversations", "send")
@@ -2436,6 +2192,7 @@ export default function CrmLayout({
                         : undefined
                     }
                   />
+                  </ConversationDropZone>
                 </div>
               )}
             </div>
@@ -2454,23 +2211,22 @@ export default function CrmLayout({
               />
             </div>
           ) : (
-            <>
-              <div
-                data-tour="live-chat-inbox"
-                className={cn(
-                  "w-full border-r border-border lg:w-[356px] lg:flex-shrink-0",
-                  mobileShowConversation
-                    ? "hidden lg:flex lg:flex-col"
-                    : "flex flex-col",
-                )}
-              >
+            <CrmClassicPanels
+              desktop={desktop}
+              showConversation={mobileShowConversation}
+              info={desktop && infoPanelOpen ? renderInfoPanel("docked") : null}
+              inbox={
                 <CrmInbox
+                  controlRef={inboxControlRef}
+                  personalInbox={personalInbox}
+                  onReplyToOpen={composerAcceptsInput ? focusComposer : undefined}
                   entries={filteredInbox}
                   selectedEntryId={activeConversation?.entry_id ?? null}
                   onSelect={handleSelect}
                   onOpenInWindow={handleOpenInWindow}
                   openInWindowLabel={tWindow("openInWindow")}
                   connectionStatus={status}
+                  onPrefetchConversation={prefetchConversation}
                   onLoadMore={handleLoadMoreInbox}
                   hasMore={inboxHasMore}
                   inboxTotalItems={inboxTotalItems}
@@ -2512,25 +2268,13 @@ export default function CrmLayout({
                     t.conversation.noPermissionStageAssign
                   }
                 />
-              </div>
-
-              <div
-                data-tour="live-chat-conversation"
-                className={cn(
-                  "relative isolate flex-1 flex flex-col min-w-0",
-                  !mobileShowConversation && !activeConversation
-                    ? "hidden lg:flex"
-                    : "flex",
-                  mobileShowConversation
-                    ? "flex"
-                    : !activeConversation
-                      ? ""
-                      : "hidden lg:flex",
-                )}
-              >
+              }
+              conversation={
+                <>
                 <CrmWallpaper />
-                {conversationHeader}
+                {renderConversationHeader(false)}
 
+                <ConversationDropZone enabled={composerAcceptsInput} onFiles={attachDroppedFiles} className="flex min-h-0 flex-1 flex-col">
                 <div className="flex-1 min-h-0">
                   <CrmConversationView
                     conversation={activeConversation}
@@ -2550,6 +2294,11 @@ export default function CrmLayout({
                       setPendingScrollToMessageId(null)
                     }
                     onLoadAround={loadAround}
+                    onLoadNewer={loadNewer}
+                    onReturnToPresent={returnToPresent}
+                    outbox={outbox}
+                    onRetrySend={retrySend}
+                    onResendMessage={resendInPane}
                     onReply={setReplyToMessage}
                     tags={tags}
                     currentEntryTags={currentEntryStages}
@@ -2590,23 +2339,29 @@ export default function CrmLayout({
                   <CrmMessageInput
                     entryType={activeConversation.entry_type}
                     entryId={activeConversation.entry_id}
-                    onSend={handleSend}
-                    onSendMedia={handleSendMedia}
-                    onSendButton={handleSendButton}
+                    onSend={sendMessage}
+                    onSendMedia={sendMediaMessage}
+                    onSendButton={sendButtonMessage}
+                    onSendAndFinish={composerFinishes ? handleSendAndFinish : undefined}
                     onTyping={handleTyping}
                     onSchedule={
-                      can("conversations", "send") ? setScheduleDraft : undefined
+                      can("conversations", "send") ? requestSchedule : undefined
                     }
                     onScheduleTemplate={
                       canScheduleTemplates ? openTemplateSchedule : undefined
                     }
+                    onSendTemplateNow={canSendTemplateNow ? openTemplateNow : undefined}
+                    onSendForm={canSendForm ? openFormSend : undefined}
                     windowOpen={activeConversation.window_open}
                     windowExpiresAt={activeConversation.window_expires_at}
                     windowClosedReason={activeConversation.window_closed_reason}
+                    windowClosedDetail={activeConversation.window_closed_detail}
                     windowTier={activeConversation.window_tier}
                     translations={t.input}
                     replyToMessage={replyToMessage}
-                    onClearReply={() => setReplyToMessage(null)}
+                    onClearReply={clearReply}
+                    controlRef={composerControlRef}
+                    focusOnOpen={composerFocusOnOpen}
                     disabled={!can("conversations", "send")}
                     disabledReason={
                       !can("conversations", "send")
@@ -2617,22 +2372,12 @@ export default function CrmLayout({
                   />
                   </>
                 )}
-              </div>
-            </>
-          )}
-          {activeConversation && (
-            <CrmConversationInfosPanel
-              open={infoPanelOpen}
-              onClose={() => setInfoPanelOpen(false)}
-              conversation={activeConversation}
-              inboxEntry={currentInboxEntry}
-              conversationStatus={currentConversationStatus}
-              canBlock={can("leads", "block")}
-              canManageMemories={can("leads", "update")}
-              canRenameLead={can("leads", "update")}
-              onLeadPatched={applyLeadPatch}
+                </ConversationDropZone>
+                </>
+              }
             />
           )}
+          {!desktop && renderInfoPanel("sheet")}
           <WorkflowRunDrawer
             handler={workflowDrawerHandler}
             open={!!workflowDrawerHandler}
@@ -2663,7 +2408,10 @@ export default function CrmLayout({
         <ScheduleMessageDialog
           open
           onOpenChange={(open) => {
-            if (!open) setScheduleDraft(null);
+            if (open) return;
+            scheduleConfirmRef.current = null;
+            setScheduleDraft(null);
+            focusComposerAfterDialog();
           }}
           entryType={scheduleEntryType}
           entryId={scheduleEntryId}
@@ -2682,7 +2430,9 @@ export default function CrmLayout({
         <ScheduleTemplateDialog
           open
           onOpenChange={(open) => {
-            if (!open) setTemplateSchedule(null);
+            if (open) return;
+            setTemplateSchedule(null);
+            focusComposerAfterDialog();
           }}
           entryType={scheduleEntryType}
           entryId={scheduleEntryId}
@@ -2693,6 +2443,41 @@ export default function CrmLayout({
           window={schedulingWindow}
           initial={templateSchedule.initial}
           onScheduled={handleScheduled}
+        />
+      )}
+
+      {templateNowOpen && activeConversation && (
+        <SendTemplateNowDialog
+          open
+          onOpenChange={(open) => {
+            if (open) return;
+            setTemplateNowOpen(false);
+            focusComposerAfterDialog();
+          }}
+          businessPhoneId={
+            inbox.find((e) => e.entry_id === activeConversation.entry_id)?.business_phone_id ?? ""
+          }
+          recipientName={activeConversation.lead_name}
+          onSend={(templateId, parameters) =>
+            reopenWindow(activeConversation.entry_id, activeConversation.entry_type, templateId, parameters)
+          }
+        />
+      )}
+
+      {formSendOpen && canSendForm && activeConversation && (
+        <SendFormDialog
+          open
+          onOpenChange={(open) => {
+            if (open) return;
+            setFormSendOpen(false);
+            focusComposerAfterDialog();
+          }}
+          entryId={activeConversation.entry_id}
+          businessPhoneId={
+            inbox.find((e) => e.entry_id === activeConversation.entry_id)?.business_phone_id ?? ""
+          }
+          recipientName={activeConversation.lead_name}
+          onUseTemplate={canSendTemplateNow ? openTemplateNow : canScheduleTemplates ? openTemplateSchedule : undefined}
         />
       )}
 
@@ -2725,11 +2510,13 @@ export default function CrmLayout({
         onVisibilityChange={setConversationWindowVisible}
         onDockHeightChange={setDockHeightPx}
         onLoadHistory={windowLoadHistory}
+        threadSearch={windowThreadSearch}
+        transport={windowThreadTransport}
         onSend={windowSendMessage}
         onSendMedia={windowSendMedia}
         onSendButton={windowSendButton}
         onTyping={windowSendTyping}
       />
-    </>
+    </MotionConfig>
   );
 }

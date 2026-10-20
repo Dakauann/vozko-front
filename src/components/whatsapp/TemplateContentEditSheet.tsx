@@ -25,6 +25,7 @@ import { TemplateDraftPreview } from "@/components/whatsapp/builder/TemplateDraf
 import { TemplateGuidelines } from "@/components/whatsapp/builder/TemplateGuidelines";
 import { BUILDER_PROBLEMS_ANCHOR, TemplateMessageSection } from "@/components/whatsapp/builder/TemplateMessageSection";
 import { useTemplateDraft } from "@/components/whatsapp/builder/use-template-draft";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { ExitReadFailure } from "@/components/whatsapp/exit/ExitReadFailure";
 import { MarketingExitDialog } from "@/components/whatsapp/exit/MarketingExitDialog";
 import { useTemplateButtonActions } from "@/components/whatsapp/exit/use-template-exit";
@@ -97,6 +98,8 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
   const [exitRefused, setExitRefused] = useState(false);
   const categoryLocked = categoryLockedOnEdit(template.status);
   const { components, category } = draft;
+  const { can } = useWorkspace();
+  const formButtons = can("whatsapp_forms", "send") ? { query: template.wabaId ? { metaWabaId: template.wabaId } : null } : undefined;
 
   const submit = async (submitted: DraggableComponent[]) => {
     setSaving(true);
@@ -204,7 +207,7 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
               </div>
 
               <div className="border-t border-border p-5 sm:p-6">
-                <TemplateMessageSection draft={draft} />
+                <TemplateMessageSection draft={draft} forms={formButtons} />
               </div>
 
               <div className="border-t border-border p-5 sm:p-6">

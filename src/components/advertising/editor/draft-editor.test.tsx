@@ -2,12 +2,15 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import { buildDraft, emptyAdForm, emptyWizardForm, type WizardForm } from "@/lib/advertising/draft";
 import type { AdsOptions, MetaAdDraft } from "@/lib/advertising/draft-types";
 import type { AdAccount, AdPage, AdPublishJob, AdSavedDraft } from "@/lib/advertising/types";
 
 import { DraftEditor } from "./draft-editor";
+
+const ptMessages = brandedMessages(rawPtMessages);
 
 const account: AdAccount = {
   id: "acc-1",

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { GroupCampaign, GroupMember, NumberSeat, ParticipantTotal, WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 
 import {
+  departures,
+  oursRemovedMark,
   DEFAULT_MEMBER_FILTERS,
   DESCRIPTION_MAX_CHARS,
   GROUP_CAMPAIGNS_LIMIT,
@@ -388,5 +390,22 @@ describe("outstandingSetupWarnings", () => {
   it("drops the steps the group already shows as done", () => {
     expect(outstandingSetupWarnings(warnings, { description: " Regras ", announce: true }, [seat("a", { admin: true })])).toEqual([]);
     expect(outstandingSetupWarnings(warnings, { announce: true }, [])).toEqual([warnings[0], warnings[2]]);
+  });
+});
+
+describe("departure counts", () => {
+  const counts = { active: 40, left30d: 7, removed30d: 3, oursRemoved: 1, withLead: 5, hidden: 2 };
+
+  it("splits the departures of the period into plain leaves and removals", () => {
+    expect(departures(counts)).toEqual({ left: 4, removed: 3 });
+  });
+
+  it("never reports a negative plain leave count", () => {
+    expect(departures({ ...counts, left30d: 1, removed30d: 3 })).toEqual({ left: 0, removed: 3 });
+  });
+
+  it("flags the group when one of our numbers was removed", () => {
+    expect(oursRemovedMark(counts)).toBe("fault");
+    expect(oursRemovedMark({ ...counts, oursRemoved: 0 })).toBeUndefined();
   });
 });

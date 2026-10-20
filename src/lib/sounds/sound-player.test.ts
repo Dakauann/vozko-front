@@ -45,6 +45,14 @@ describe("sound player", () => {
         }
     });
 
+    it("plays the chime as two rising notes, one after the other", () => {
+        const { context, oscillators } = fakeContext();
+        new SoundPlayer(() => context, vi.fn()).chime();
+        expect(oscillators.map((o) => o.frequency.setValueAtTime.mock.calls[0][0])).toEqual([880, 1318.5]);
+        expect(oscillators[0].start).toHaveBeenCalledWith(10);
+        expect(oscillators[1].start.mock.calls[0][0]).toBeGreaterThan(oscillators[0].stop.mock.calls[0][0]);
+    });
+
     it("ignores characters that are not keypad keys", () => {
         const { context, oscillators } = fakeContext();
         new SoundPlayer(() => context, vi.fn()).keyTone("+");

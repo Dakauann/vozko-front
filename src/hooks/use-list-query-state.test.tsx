@@ -202,3 +202,21 @@ describe("useListQueryState search and place", () => {
     expect(renderState("sort=createdAt%3Aasc").result.current.sortsChosen).toBe(true);
   });
 });
+
+describe("useListQueryState params", () => {
+  beforeEach(() => {
+    replace.mockReset();
+  });
+
+  it("reads a named param and an empty string for one that is missing", () => {
+    const { result } = renderState("origin=inbox");
+    expect(result.current.param("origin")).toBe("inbox");
+    expect(result.current.param("phoneId")).toBe("");
+  });
+
+  it("writes and clears named params and goes back to the first page", () => {
+    const { result } = renderState("origin=inbox&page=2&view=map");
+    result.current.setParams({ origin: null, phoneId: "ph-1" });
+    expect(replace).toHaveBeenCalledWith("/dashboard/leads?view=map&phoneId=ph-1", { scroll: false });
+  });
+});

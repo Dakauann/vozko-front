@@ -29,6 +29,7 @@ export type ConversationEventType =
   | "queue_abandoned"
   | "queue_overflow"
   | "call_linked"
+  | "agent_reply_withheld"
   | string;
 
 export type ConversationActorKind = "human" | "ai" | "workflow" | "system" | string;

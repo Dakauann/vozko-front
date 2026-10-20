@@ -26,7 +26,7 @@ const GROUP_ORIGINS: readonly GroupOrigin[] = ["managed", "external"];
 
 const ALL_GROUPS_ACTIONS = ["discover", "join", "create"] as const;
 
-const MEMBER_STATUS_FILTERS: readonly MemberStatusFilter[] = ["active", "left", "all"];
+const MEMBER_STATUS_FILTERS: readonly MemberStatusFilter[] = ["active", "left", "removed", "all"];
 
 export interface AllGroupsQuery {
   action?: (typeof ALL_GROUPS_ACTIONS)[number];
@@ -105,7 +105,7 @@ export const groupsRoutes = {
       ["category", query.category],
       ["instanceId", nonEmpty(query.instanceId)],
       ["hasAnalysis", flag(query.hasAnalysis)],
-      ["adminsOnly", query.adminsOnly ? "1" : undefined],
+      ["adminsOnly", flag(query.adminsOnly)],
       ["sort", query.sort],
     ]);
   },
@@ -143,7 +143,7 @@ export const groupsRoutes = {
     const ids = [...new Set(groupIds.map((id) => id.trim()).filter(Boolean))];
     return withQuery(`${CAMPAIGNS_BASE}/new`, [
       ["audience", "groups"],
-      ["instanceId", instanceId],
+      ["instanceId", nonEmpty(instanceId)],
       ["groups", ids.join(",")],
     ]);
   },
@@ -174,7 +174,8 @@ export function parseAllGroupsQuery(params: URLSearchParams): AllGroupsQuery {
   if (instanceId) query.instanceId = instanceId;
   const hasAnalysis = readFlag(params.get("hasAnalysis"));
   if (hasAnalysis !== undefined) query.hasAnalysis = hasAnalysis;
-  if (readFlag(params.get("adminsOnly"))) query.adminsOnly = true;
+  const adminsOnly = readFlag(params.get("adminsOnly"));
+  if (adminsOnly !== undefined) query.adminsOnly = adminsOnly;
   const sort = oneOf(GROUP_SORTS, params.get("sort"));
   if (sort) query.sort = sort;
   return query;

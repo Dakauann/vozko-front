@@ -1,5 +1,5 @@
 import type { Clip } from "./document";
-import { isEditableTarget, type KeyStroke } from "./keymap";
+import { isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
 import { animatedProperties, keyframeCount, keyframesIssue, mergeKeyframes, replaceLanes, shiftKeyframes, timedFramesOf, type Easing, type Keyframe, type Keyframes } from "./keyframes";
 import type { Refusal } from "./selection-edit";
 import type { ClipPatch } from "./timeline";

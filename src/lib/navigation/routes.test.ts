@@ -53,6 +53,20 @@ describe("route rules", () => {
     expect(pathForScreen("call_list_detail", { listId: "7b1c2f9e-0a51" })).toBe("/dashboard/call-lists/7b1c2f9e-0a51");
   });
 
+  it("opens the forms list, the gallery, a form and its builder through their own screens", () => {
+    expect(ruleForPath("/dashboard/whatsapp-forms")).toEqual({ kind: "screen", screen: "whatsapp_forms" });
+    expect(ruleForPath("/dashboard/whatsapp-forms/new")).toEqual({ kind: "screen", screen: "whatsapp_form_new" });
+    expect(ruleForPath("/dashboard/whatsapp-forms/7b1c2f9e-0a51?view=sends")).toEqual({ kind: "screen", screen: "whatsapp_form_detail" });
+    expect(ruleForPath("/dashboard/whatsapp-forms/7b1c2f9e-0a51/edit")).toEqual({ kind: "screen", screen: "whatsapp_form_builder" });
+    expect(pathForScreen("whatsapp_form_builder", { formId: "7b1c2f9e-0a51" })).toBe("/dashboard/whatsapp-forms/7b1c2f9e-0a51/edit");
+  });
+
+  it("opens the workflow secrets through their own screen, never as a workflow id", () => {
+    expect(ruleForPath("/dashboard/workflows/secrets")).toEqual({ kind: "screen", screen: "workflow_secrets" });
+    expect(ruleForPath("/dashboard/workflows/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "workflow_detail" });
+    expect(pathForScreen("workflow_secrets")).toBe("/dashboard/workflows/secrets");
+  });
+
   it("gates the ad editor like creating an ad, not like reading the manager", () => {
     expect(ruleForPath("/dashboard/advertising/editor?draft=d1")).toEqual({ kind: "screen", screen: "ads_editor" });
     expect(ruleForPath("/dashboard/advertising/new")).toEqual({ kind: "screen", screen: "ads_create" });
@@ -70,6 +84,24 @@ describe("route rules", () => {
     expect(ruleForPath("/dashboard/admin/geocoding")).toEqual({ kind: "platform_admin" });
     expect(ruleForPath("/dashboard/plans")).toEqual({ kind: "screen", screen: "plans" });
     expect(ruleForPath("/dashboard/affiliate/earnings")).toEqual({ kind: "workspace_manager" });
+  });
+});
+
+describe("Mercado Livre screens", () => {
+  it("opens the account list, the connect flow and an account through their own screens", () => {
+    expect(ruleForPath("/dashboard/mercadolivre-accounts")).toEqual({ kind: "screen", screen: "mercadolivre_accounts" });
+    expect(ruleForPath("/dashboard/mercadolivre-accounts/connect")).toEqual({ kind: "screen", screen: "mercadolivre_connect" });
+    expect(ruleForPath("/dashboard/mercadolivre-accounts/7b1c2f9e-0a51?tab=questions")).toEqual({ kind: "screen", screen: "mercadolivre_account" });
+    expect(pathForScreen("mercadolivre_account", { accountId: "7b1c2f9e-0a51" })).toBe("/dashboard/mercadolivre-accounts/7b1c2f9e-0a51");
+  });
+});
+
+describe("TikTok screens", () => {
+  it("opens the account list, the connect flow and an account through their own screens", () => {
+    expect(ruleForPath("/dashboard/tiktok-accounts")).toEqual({ kind: "screen", screen: "tiktok_accounts" });
+    expect(ruleForPath("/dashboard/tiktok-accounts/connect")).toEqual({ kind: "screen", screen: "tiktok_connect" });
+    expect(ruleForPath("/dashboard/tiktok-accounts/7b1c2f9e-0a51?tab=videos")).toEqual({ kind: "screen", screen: "tiktok_account" });
+    expect(pathForScreen("tiktok_account", { accountId: "7b1c2f9e-0a51" })).toBe("/dashboard/tiktok-accounts/7b1c2f9e-0a51");
   });
 });
 
@@ -100,6 +132,8 @@ describe("upcoming screens", () => {
     expect(isUpcomingPath("/dashboard/facebook-pages/123456")).toBe(false);
     expect(isUpcomingScreen("instagram_accounts")).toBe(false);
     expect(isUpcomingPath("/dashboard/instagram-accounts")).toBe(false);
+    expect(isUpcomingScreen("mercadolivre_accounts")).toBe(false);
+    expect(isUpcomingPath("/dashboard/mercadolivre-accounts/123456")).toBe(false);
     expect(isUpcomingPath("/dashboard/not-registered")).toBe(false);
   });
 });

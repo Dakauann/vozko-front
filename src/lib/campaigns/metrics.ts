@@ -19,3 +19,17 @@ export interface CampaignMetrics {
 }
 
 export type CampaignStatus = "STOPPED" | "RUNNING" | "PAUSED" | "COMPLETED";
+
+export const EMPTY_CAMPAIGN_METRICS: CampaignMetrics = {
+    totalNumbers: 0,
+    pending: 0,
+    sent: 0,
+    delivered: 0,
+    read: 0,
+    failed: 0,
+    notEligiblePossibleSpam: 0,
+    processed: 0,
+    dispatches: 0,
+    completionRate: 0,
+    successRate: 0,
+};

@@ -17,12 +17,15 @@ export function useUndoRedo(
     const pastRef = useRef<Snapshot[]>([]);
     const futureRef = useRef<Snapshot[]>([]);
     const currentRef = useRef<Snapshot>({ nodes: [], edges: [] });
+    const snapshottedRef = useRef<Snapshot | null>(null);
 
     const syncCurrent = useCallback((nodes: Node[], edges: Edge[]) => {
         currentRef.current = { nodes, edges };
     }, []);
 
     const takeSnapshot = useCallback(() => {
+        if (snapshottedRef.current === currentRef.current) return;
+        snapshottedRef.current = currentRef.current;
         const snap: Snapshot = {
             nodes: currentRef.current.nodes.map((n) => ({ ...n, data: { ...n.data } })),
             edges: currentRef.current.edges.map((e) => ({ ...e })),

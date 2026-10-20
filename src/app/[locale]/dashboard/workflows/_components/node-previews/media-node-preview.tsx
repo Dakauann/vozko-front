@@ -1,151 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  FileText,
-  Image,
-  SpeakerHigh,
-  VideoCamera,
-} from "@/components/icons";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { getMediaAction } from "@/app/actions/medias";
+import { createMediaRecordCache } from "@/lib/medias/media-record-cache";
+import type { MediaSources } from "@/lib/medias/media-preview";
+import type { Media } from "@/lib/medias/types";
 
-export function useResolvedMedia(
-  mediaId: string | undefined,
-  initialUrl: string | undefined,
-  mediaType: string,
-) {
-  const [url, setUrl] = useState(initialUrl || "");
-  const [type, setType] = useState(mediaType);
-  const [loading, setLoading] = useState(!initialUrl && !!mediaId);
+const workflowMediaRecords = createMediaRecordCache(getMediaAction);
+
+function useMediaRecord(mediaId: string): { record: Media | null | undefined; failed: boolean } {
+  const snapshot = () => (mediaId ? workflowMediaRecords.peek(mediaId) : null);
+  const record = useSyncExternalStore(workflowMediaRecords.subscribe, snapshot, snapshot);
+  const [failedId, setFailedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (url || !mediaId) return;
-    let cancelled = false;
-    getMediaAction(mediaId).then((media) => {
-      if (cancelled) return;
-      if (media) {
-        setUrl(media.previewUrl || media.url || "");
-        if (!type && media.type) setType(media.type.toLowerCase());
-      }
-      setLoading(false);
+    if (!mediaId || record !== undefined) return;
+    let live = true;
+    workflowMediaRecords.read(mediaId).catch(() => {
+      if (live) setFailedId(mediaId);
     });
     return () => {
-      cancelled = true;
+      live = false;
     };
-  }, [url, mediaId, type]);
+  }, [mediaId, record]);
 
-  return { url, type, loading };
+  return { record, failed: failedId === mediaId };
 }
 
-export function MediaNodePreview({
-  name,
-  previewUrl: initialUrl,
-  mediaId,
-  mediaType,
-}: {
-  name?: string;
-  previewUrl?: string;
-  mediaId?: string;
-  mediaType: string;
-}) {
-  const { url, type, loading } = useResolvedMedia(mediaId, initialUrl, mediaType);
+export interface NodeMediaRef {
+  mediaId: string;
+  url: string;
+  previewUrl: string;
+  type: string;
+}
 
-  const isImage = type.includes("image") || type === "sticker";
-  const isVideo = type.includes("video");
-  const isAudio = type.includes("audio");
-  const isPdf = type.includes("pdf") || type.includes("document");
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2 animate-pulse">
-        <div className="h-4 w-4 rounded bg-muted" />
-        <div className="h-3 w-20 rounded bg-muted" />
-      </div>
-    );
+export function useResolvedMedia({ mediaId, url, previewUrl, type }: NodeMediaRef): {
+  sources: MediaSources;
+  type: string;
+  loading: boolean;
+} {
+  const known = Boolean(url || previewUrl);
+  const { record, failed } = useMediaRecord(known ? "" : mediaId);
+  if (known || !mediaId) {
+    return { sources: { url: url || previewUrl, previewUrl }, type, loading: false };
   }
-
-  return (
-    <div className="space-y-1.5">
-      {isImage && url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={url}
-          alt={name || "Media"}
-          className="h-auto max-h-24 w-full rounded-md object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
-      )}
-      {isImage && !url && (
-        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-2xs text-foreground/70">
-            {name || "Imagem"}
-          </span>
-        </div>
-      )}
-      {isVideo && url && (
-        <div className="relative overflow-hidden rounded-md bg-muted">
-          <video
-            src={url}
-            className="max-h-20 w-full rounded-md object-cover"
-            muted
-            preload="metadata"
-            onError={(e) => {
-              (e.target as HTMLVideoElement).style.display = "none";
-            }}
-          />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-2xs text-muted-foreground">
-            Vídeo
-          </span>
-        </div>
-      )}
-      {isVideo && !url && (
-        <div className="relative flex h-16 items-center justify-center overflow-hidden rounded-md bg-muted">
-          <VideoCamera size={24} weight="duotone" className="text-info-ink" />
-          <span className="absolute bottom-1 right-1.5 rounded bg-background px-1 text-2xs text-muted-foreground">
-            Vídeo
-          </span>
-        </div>
-      )}
-      {isAudio && url && (
-        <div className="rounded-md bg-muted px-2 py-1.5">
-          <audio
-            src={url}
-            controls
-            className="h-7 w-full [&::-webkit-media-controls-panel]:bg-transparent"
-            preload="metadata"
-          />
-        </div>
-      )}
-      {isAudio && !url && (
-        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
-          <SpeakerHigh size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-2xs text-foreground/70">
-            {name || "Áudio"}
-          </span>
-        </div>
-      )}
-      {isPdf && url && (
-        <div className="overflow-hidden rounded-md border border-border">
-          <span className="flex items-center gap-2 bg-muted px-2 py-1.5">
-            <FileText size={16} weight="duotone" className="text-info-ink" />
-            <span className="truncate text-2xs text-foreground/70">
-              {name || "Documento"}
-            </span>
-          </span>
-        </div>
-      )}
-      {!isImage && !isVideo && !isAudio && !isPdf && (
-        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
-          <FileText size={16} weight="duotone" className="shrink-0 text-info-ink" />
-          <span className="truncate text-2xs text-foreground/70">
-            {name || "Documento"}
-          </span>
-        </div>
-      )}
-    </div>
-  );
+  return {
+    sources: { url: record?.url ?? "", previewUrl: record?.previewUrl ?? "" },
+    type: type || (record?.type ?? "").toLowerCase(),
+    loading: record === undefined && !failed,
+  };
 }

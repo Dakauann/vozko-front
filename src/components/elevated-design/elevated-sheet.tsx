@@ -4,6 +4,7 @@ import * as React from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 
 import { X } from "@/components/icons";
+import { usePortalContainer } from "@/contexts/host-document-context";
 import { cn } from "@/lib/utils";
 
 function ElevatedSheet({
@@ -15,7 +16,8 @@ function ElevatedSheet({
 function ElevatedSheetPortal({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
-  return <SheetPrimitive.Portal data-slot="elevated-sheet-portal" {...props} />;
+  const container = usePortalContainer();
+  return <SheetPrimitive.Portal data-slot="elevated-sheet-portal" container={container} {...props} />;
 }
 
 function ElevatedSheetOverlay({

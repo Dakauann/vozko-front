@@ -3,36 +3,39 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowBendUpLeft,
-  CircleNotch,
+  ClipboardText,
   Clock,
-  File as FileIcon,
   Lightning,
   Microphone,
   PaperPlaneRight,
+  PaperPlaneTilt,
   Paperclip,
-  Stop,
-  Trash,
   Warning,
-  Waveform,
   X,
 } from "@/components/icons";
 import {
-  OUTBOUND_MEDIA_ACCEPT,
-  mediaTypeForFile,
-  normalizeUploadFile,
-} from "@/lib/conversations/media";
-import {
   channelCapabilities,
-  type ConversationMessage,
   type EntryType,
   type MediaType,
   type WindowClosedReason,
   type WindowTier,
 } from "@/lib/conversations/types";
 import { textLimitState } from "@/lib/conversations/text-limit";
+import { windowClosedCopyKey } from "@/lib/conversations/window-closed";
+import { mediaLabelKey } from "@/lib/conversations/thread-labels";
+import {
+  attachmentsReady,
+  fromDraftAttachments,
+  hasCaptionTarget,
+  planOutgoing,
+  toDraftAttachments,
+} from "@/lib/conversations/composer-attachments";
+import type { ReplyTarget } from "@/lib/conversations/drafts";
+import { insertAtSelection } from "@/lib/conversations/composer-format";
+import { windowKey } from "@/lib/conversations/window-deck";
+import { resolveShortcutVariables, unresolvedVariables } from "@/lib/message-shortcuts/variables";
 import { FacebookThreadBanner } from "./FacebookThreadBanner";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Button from "@/components/elevated-design/button";
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import ElevatedSwitch from "../elevated-design/elevated-switch";
 import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import type { MessageShortcut } from "@/lib/message-shortcuts/types";
@@ -40,11 +43,29 @@ import MessageShortcutSheet from "@/components/message-shortcuts/MessageShortcut
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
 import { ShieldWarning } from "@/components/icons";
 import ShortcutPicker from "./ShortcutPicker";
-import toWav from "audiobuffer-to-wav";
-import { uploadConversationMediaAction } from "@/app/actions/conversations";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
-
+import { useComposerFormatting } from "@/hooks/use-composer-formatting";
+import { useAttachmentAdmission } from "@/hooks/use-attachment-admission";
+import { useComposerAttachments } from "@/hooks/use-composer-attachments";
+import { readDraft, useDraftAutosave, useDraftScope } from "@/hooks/use-conversation-drafts";
+import { useShortcutVariableValues } from "@/hooks/use-shortcut-variable-values";
+import { useShortcuts } from "@/hooks/use-shortcuts";
+import { useVoiceRecorder, type VoiceRecorderErrorCode } from "@/hooks/use-voice-recorder";
+import { VoiceRecordingBar } from "@/components/media/voice-recording-bar";
+import { DESKTOP_QUERY, FINE_POINTER_QUERY } from "@/hooks/use-media-query";
+import { ComposerFormatPreview, ComposerPreviewToggle } from "./ComposerFormatPreview";
+import { ComposerAttachmentStrip } from "./ComposerAttachmentStrip";
+import { ComposerEmojiPicker } from "./ComposerEmojiPicker";
+import { ComposerUnresolvedVariables } from "./ComposerUnresolvedVariables";
+import { TextLimitFeedback } from "./TextLimitFeedback";
+import { ComposerModeSwitch, type ComposerMode } from "./ComposerModeSwitch";
+import { ComposerNoteField } from "./ComposerNoteField";
+import { useEntryConversation } from "@/hooks/use-entry-conversation";
+import { useMessageActions } from "@/hooks/use-message-actions";
+import { editingMessageOf, startEditing, stopEditing } from "@/hooks/use-message-editing";
+import { COMPOSER_BOX, COMPOSER_ICON_BUTTON, COMPOSER_ROW, COMPOSER_SEND_BUTTON, COMPOSER_TEXTAREA } from "./composer-chrome";
 
 export interface ComposerDraft {
   text: string;
@@ -55,19 +76,10 @@ export interface ComposerDraft {
   signed: boolean;
 }
 
-interface PendingMedia {
-  file: File;
-  previewUrl: string;
-  type: MediaType;
-  uploading: boolean;
-  mediaId?: string;
-  error?: string;
-}
-
 interface CrmMessageInputProps {
   entryType: EntryType;
   entryId: string;
-  onSend: (text: string, signed: boolean) => void;
+  onSend: (text: string, signed: boolean, replyToMessageId?: string) => void;
   onSendMedia: (
     text: string,
     mediaId: string,
@@ -75,18 +87,24 @@ interface CrmMessageInputProps {
     signed: boolean,
     replyToMessageId?: string,
   ) => void;
-  onSendButton?: (input: SendButtonWsInput) => void;
+  onSendButton?: (input: SendButtonWsInput, replyToMessageId?: string) => void;
+  onSendAndFinish?: () => void;
   onTyping: (isTyping: boolean) => void;
   windowOpen: boolean;
   windowExpiresAt: string | null;
   windowClosedReason?: WindowClosedReason | null;
+  windowClosedDetail?: string | null;
   windowTier?: WindowTier | null;
-  onSchedule?: (draft: ComposerDraft) => void;
+  onSchedule?: (draft: ComposerDraft, onScheduled: () => void) => void;
   onScheduleTemplate?: () => void;
+  onSendTemplateNow?: () => void;
+  onSendForm?: () => void;
   disabled?: boolean;
   disabledReason?: string;
-  replyToMessage?: ConversationMessage | null;
+  replyToMessage?: ReplyTarget | null;
   onClearReply?: () => void;
+  controlRef?: Ref<ComposerControl>;
+  focusOnOpen?: boolean;
   translations: {
     placeholder: string;
     windowClosed: string;
@@ -100,143 +118,177 @@ interface CrmMessageInputProps {
   };
 }
 
-
-function getClipboardFile(clipboardData: DataTransfer): File | null {
-  if (clipboardData.files.length > 0) {
-    return clipboardData.files[0];
-  }
-
-  for (const item of Array.from(clipboardData.items)) {
-    if (item.kind !== "file") continue;
-
-    const file = item.getAsFile();
-    if (file) return file;
-  }
-
-  return null;
+export interface ComposerControl {
+  focus: () => void;
+  attachFiles: (files: File[]) => void;
 }
 
-function formatRemainingWindow(expiresAt: string | null): string | null {
+const ICON_BUTTON_CLASS = COMPOSER_ICON_BUTTON;
+
+const SIGNED_PREFERENCE_KEY = "sendSigned";
+
+function getClipboardFiles(clipboardData: DataTransfer): File[] {
+  if (clipboardData.files.length > 0) return Array.from(clipboardData.files);
+  return Array.from(clipboardData.items)
+    .filter((item) => item.kind === "file")
+    .map((item) => item.getAsFile())
+    .filter((file): file is File => file !== null);
+}
+
+type RemainingWindow = {
+  hours: number;
+  minutes: number;
+};
+
+function remainingWindow(expiresAt: string | null): RemainingWindow | null {
   if (!expiresAt) return null;
   const remaining = new Date(expiresAt).getTime() - Date.now();
   if (remaining <= 0) return null;
-  const h = Math.floor(remaining / 3_600_000);
-  const m = Math.floor((remaining % 3_600_000) / 60_000);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  return { hours: Math.floor(remaining / 3_600_000), minutes: Math.floor((remaining % 3_600_000) / 60_000) };
 }
 
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
+function readSignedPreference(): boolean {
+  try {
+    return window.localStorage.getItem(SIGNED_PREFERENCE_KEY) === "true";
+  } catch {
+    return false;
+  }
 }
 
-async function convertBlobToWav(blob: Blob): Promise<File> {
-  const arrayBuffer = await blob.arrayBuffer();
-  const audioCtx = new AudioContext();
-  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  const wavBuffer = toWav(audioBuffer);
-  const wavBlob = new Blob([wavBuffer], { type: "audio/wav" });
-  await audioCtx.close();
-  return new File([wavBlob], "audio-message.wav", { type: "audio/wav" });
+function writeSignedPreference(signed: boolean) {
+  try {
+    window.localStorage.setItem(SIGNED_PREFERENCE_KEY, String(signed));
+  } catch {
+    return;
+  }
 }
 
+function opensWithKeyboardFocus(): boolean {
+  return window.matchMedia(DESKTOP_QUERY).matches && window.matchMedia(FINE_POINTER_QUERY).matches;
+}
 
-export default function CrmMessageInput({
+function isShortcutCommand(value: string): boolean {
+  const trimmed = value.trimStart();
+  return trimmed.startsWith("/") && !trimmed.includes(" ");
+}
+
+export default function CrmMessageInput(props: CrmMessageInputProps) {
+  return <EntryComposer key={`${props.entryType}:${props.entryId}`} {...props} />;
+}
+
+function EntryComposer({
   entryType,
   entryId,
   onSend,
   onSendMedia,
   onSendButton,
+  onSendAndFinish,
   onTyping,
   windowOpen,
   windowExpiresAt,
   windowClosedReason,
+  windowClosedDetail = null,
   windowTier,
   onSchedule,
   onScheduleTemplate,
+  onSendTemplateNow,
+  onSendForm,
   disabled = false,
   disabledReason,
   replyToMessage,
   onClearReply,
+  controlRef,
+  focusOnOpen = false,
   translations: t,
 }: CrmMessageInputProps) {
   const { can } = useWorkspace();
   const crmT = useTranslations("crm");
+  const composerT = useTranslations("crmComposer");
   const scheduleT = useTranslations("scheduledMessages");
-  const windowT = useTranslations("conversationWindow.closed");
   const conversationWindowT = useTranslations("conversationWindow");
   const shortcutPageT = useTranslations("messageShortcutsPage");
-  const [text, setText] = useState("");
-  const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingDuration, setRecordingDuration] = useState(0);
-  const [audioLevels, setAudioLevels] = useState<number[]>([]);
+  const threadT = useTranslations("crmConversation.thread");
+  const recorderT = useTranslations("voiceRecorder");
+  const entryKey = windowKey(entryId, entryType);
+  const [mode, setMode] = useState<ComposerMode>("message");
+  const entryConversation = useEntryConversation(entryId, entryType);
+  const messageActions = useMessageActions(entryConversation);
+  const admission = useAttachmentAdmission(entryId, entryType);
+  const draftScope = useDraftScope();
+  const [restored] = useState(() => readDraft(draftScope, entryKey));
+  const [text, setText] = useState(restored?.text ?? "");
   const [shortcutPickerVisible, setShortcutPickerVisible] = useState(false);
   const [shortcutQuery, setShortcutQuery] = useState("");
   const [shortcutSheetOpen, setShortcutSheetOpen] = useState(false);
   const [shortcutRefreshToken, setShortcutRefreshToken] = useState(0);
   const [shortcutDraftValue, setShortcutDraftValue] = useState("");
   const [autoSendCreatedShortcut, setAutoSendCreatedShortcut] = useState(false);
-  const [sendSigned, setSendSigned] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [sendSigned, setSendSigned] = useState(readSignedPreference);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [textareaElement, setTextareaElement] = useState<HTMLTextAreaElement | null>(null);
+  const attachTextarea = useCallback((node: HTMLTextAreaElement | null) => {
+    textareaRef.current = node;
+    setTextareaElement(node);
+  }, []);
+  const [previewing, setPreviewing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animFrameRef = useRef<number | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const onTypingRef = useRef(onTyping);
+  const variableValues = useShortcutVariableValues(entryId, entryType);
+
+  const { attachments, attachFiles, attachFromUrl, remove: removeAttachment, clearAll: clearAttachments } =
+    useComposerAttachments({
+      entryType,
+      entryId,
+      initial: restored ? fromDraftAttachments(restored.attachments) : [],
+      admit: admission.admit,
+    });
+
+  const discardDraft = useDraftAutosave(entryKey, {
+    text,
+    attachments: toDraftAttachments(attachments),
+    ...(replyToMessage ? { reply: pickReply(replyToMessage) } : {}),
+  });
+
+  const attachRecording = useCallback((file: File) => void attachFiles([file]), [attachFiles]);
+  const reportRecorderFailure = useCallback(
+    (code: VoiceRecorderErrorCode) => toast.error(recorderT(`errors.${code}`)),
+    [recorderT],
+  );
+  const recorder = useVoiceRecorder(attachRecording, { onError: reportRecorderFailure });
+
+  useEffect(() => {
+    onTypingRef.current = onTyping;
+  }, [onTyping]);
 
   const handleTyping = useCallback(() => {
     onTyping(true);
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    typingTimeoutRef.current = setTimeout(() => {
-      onTyping(false);
-    }, 2000);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => onTyping(false), 2000);
   }, [onTyping]);
 
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      if (pendingMedia?.previewUrl)
-        URL.revokeObjectURL(pendingMedia.previewUrl);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [windowRemaining, setWindowRemaining] = useState<string | null>(
-    formatRemainingWindow(windowExpiresAt),
+  useEffect(
+    () => () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        onTypingRef.current(false);
+      }
+    },
+    [],
   );
+
+  const [windowRemaining, setWindowRemaining] = useState<RemainingWindow | null>(remainingWindow(windowExpiresAt));
 
   useEffect(() => {
     if (!windowExpiresAt || !windowOpen) return;
-    const interval = setInterval(() => {
-      setWindowRemaining(formatRemainingWindow(windowExpiresAt));
-    }, 30_000);
-    setWindowRemaining(formatRemainingWindow(windowExpiresAt));
+    const interval = setInterval(() => setWindowRemaining(remainingWindow(windowExpiresAt)), 30_000);
+    setWindowRemaining(remainingWindow(windowExpiresAt));
     return () => clearInterval(interval);
   }, [windowExpiresAt, windowOpen]);
 
-  useEffect(() => {
-    const localSendSigned = localStorage.getItem("sendSigned") == "true";
-    if (localSendSigned) {
-      setSendSigned(localSendSigned);
-    }
-  }, [sendSigned]);
-
-
   const handleSendSignedToggle = useCallback((active: boolean) => {
-    setSendSigned(() => {
-      localStorage.setItem("sendSigned", active.toString());
-      return active;
-    });
+    writeSignedPreference(active);
+    setSendSigned(active);
   }, []);
 
   useEffect(() => {
@@ -244,63 +296,97 @@ export default function CrmMessageInput({
     if (!ta) return;
     ta.style.height = "0px";
     ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
-  }, [text, pendingMedia]);
+  }, [text, attachments.length]);
 
-  const clearDraft = useCallback(() => {
-    if (pendingMedia?.previewUrl) URL.revokeObjectURL(pendingMedia.previewUrl);
-    setPendingMedia(null);
+  const focusTextarea = useCallback(() => {
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }, []);
+
+  const clearComposer = useCallback(() => {
+    clearAttachments();
     setText("");
     onTyping(false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    requestAnimationFrame(() => {
-      textareaRef.current?.focus();
-    });
-  }, [onTyping, pendingMedia]);
+    focusTextarea();
+  }, [clearAttachments, focusTextarea, onTyping]);
+
+  const captionAllowed = hasCaptionTarget(attachments);
+  const firstReadyAttachment = attachments.find((attachment) => attachment.status === "ready" && attachment.mediaId);
 
   const handleSchedule = useCallback(() => {
     if (!onSchedule) return;
-
-    const trimmed = text.trim();
-    const mediaId = pendingMedia?.mediaId;
-
-    onSchedule({
-      text: pendingMedia?.type === "audio" ? "" : trimmed,
-      mediaId,
-      mediaType: mediaId ? pendingMedia?.type : undefined,
-      mediaName: mediaId ? pendingMedia?.file.name : undefined,
-      replyToMessageId: replyToMessage?.id,
-      signed: sendSigned,
-    });
-    clearDraft();
-    onClearReply?.();
-  }, [clearDraft, onClearReply, onSchedule, pendingMedia, replyToMessage, sendSigned, text]);
+    onSchedule(
+      {
+        text: text.trim(),
+        mediaId: firstReadyAttachment?.mediaId,
+        mediaType: firstReadyAttachment?.type,
+        mediaName: firstReadyAttachment?.name,
+        replyToMessageId: replyToMessage?.id,
+        signed: sendSigned,
+      },
+      clearComposer,
+    );
+  }, [clearComposer, firstReadyAttachment, onSchedule, replyToMessage, sendSigned, text]);
 
   const limitState = textLimitState(text, channelCapabilities.textLimit(entryType));
-  const overLimit = limitState?.over ?? false;
+  const overLimit = limitState?.refused ?? false;
+  const unresolved = unresolvedVariables(text);
+  const hasContent = text.trim().length > 0 || attachments.length > 0;
+
+  const canSend =
+    !disabled && windowOpen && !overLimit && unresolved.length === 0 && attachmentsReady(attachments) && hasContent;
+  const schedulable =
+    !disabled &&
+    unresolved.length === 0 &&
+    attachmentsReady(attachments) &&
+    attachments.length <= 1 &&
+    (captionAllowed || !text.trim());
+
+  const sendComposed = useCallback((): boolean => {
+    if (!canSend) return false;
+    const parts = planOutgoing(text, attachments, replyToMessage?.id);
+    if (parts.length === 0) return false;
+    for (const part of parts) {
+      if (part.kind === "text") onSend(part.text, sendSigned, part.replyToMessageId);
+      else onSendMedia(part.caption, part.mediaId, part.mediaType, sendSigned, part.replyToMessageId);
+    }
+    onClearReply?.();
+    discardDraft();
+    clearComposer();
+    return true;
+  }, [attachments, canSend, clearComposer, discardDraft, onClearReply, onSend, onSendMedia, replyToMessage, sendSigned, text]);
 
   const handleSend = useCallback(() => {
-    const trimmed = text.trim();
-    if (!trimmed && !pendingMedia) return;
+    sendComposed();
+  }, [sendComposed]);
 
-    if (pendingMedia?.mediaId) {
-      const caption = pendingMedia.type === "audio" ? "" : trimmed;
-      onSendMedia(caption, pendingMedia.mediaId, pendingMedia.type, sendSigned);
-    } else if (trimmed) {
-      onSend(trimmed, sendSigned);
-    }
-
-    clearDraft();
-  }, [text, pendingMedia, onSend, onSendMedia, sendSigned, clearDraft]);
+  const handleSendAndFinish = useCallback(() => {
+    if (sendComposed()) onSendAndFinish?.();
+  }, [onSendAndFinish, sendComposed]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (shortcutPickerVisible) {
-      if (["Enter", "Tab", "ArrowUp", "ArrowDown", "Escape"].includes(e.key)) {
-        return;
-      }
+    if (shortcutPickerVisible && ["Enter", "Tab", "ArrowUp", "ArrowDown", "Escape"].includes(e.key)) return;
+    if (e.key === "Escape" && editingMessageOf(entryKey)) {
+      e.preventDefault();
+      e.stopPropagation();
+      stopEditing(entryKey);
+      return;
+    }
+    if (e.key === "ArrowUp" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && !text && attachments.length === 0) {
+      const editable = entryConversation ? messageActions.lastEditable(entryConversation.messages) : null;
+      if (!editable) return;
+      e.preventDefault();
+      startEditing(entryKey, editable.id);
+      return;
+    }
+    if (e.key === "Escape" && replyToMessage && onClearReply) {
+      e.preventDefault();
+      e.stopPropagation();
+      onClearReply();
+      return;
     }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (overLimit) return;
       handleSend();
     }
   };
@@ -309,11 +395,9 @@ export default function CrmMessageInput({
     (value: string) => {
       setText(value);
       handleTyping();
-
-      const trimmed = value.trimStart();
-      if (trimmed.startsWith("/") && !trimmed.includes(" ")) {
+      if (isShortcutCommand(value)) {
         setShortcutPickerVisible(true);
-        setShortcutQuery(trimmed.slice(1));
+        setShortcutQuery(value.trimStart().slice(1));
       } else {
         setShortcutPickerVisible(false);
         setShortcutQuery("");
@@ -322,45 +406,62 @@ export default function CrmMessageInput({
     [handleTyping],
   );
 
+  const placeCaretAtEnd = useCallback(() => {
+    requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    });
+  }, []);
+
+  const sendButtonShortcut = useCallback(
+    (shortcut: MessageShortcut) => {
+      const resolve = (value?: string) => (value ? resolveShortcutVariables(value, variableValues) : null);
+      const body = resolve(shortcut.content.text);
+      const header = resolve(shortcut.content.headerText);
+      const footer = resolve(shortcut.content.footerText);
+      const missing = [...new Set([body, header, footer].flatMap((part) => part?.unresolved ?? []))];
+      if (missing.length > 0) {
+        toast.error(composerT("variables.blockedToast", { variables: missing.map((name) => `{{${name}}}`).join(", ") }));
+        return;
+      }
+      if (!onSendButton || !body?.text || !shortcut.content.buttons?.length) return;
+      onSendButton(
+        {
+          headerType: shortcut.content.headerType,
+          headerText: header?.text,
+          bodyText: body.text,
+          footerText: footer?.text,
+          buttons: shortcut.content.buttons,
+        },
+        replyToMessage?.id,
+      );
+      onClearReply?.();
+    },
+    [composerT, onSendButton, onClearReply, replyToMessage, variableValues],
+  );
+
   const handleShortcutSelect = useCallback(
     (shortcut: MessageShortcut) => {
       setShortcutPickerVisible(false);
       setShortcutQuery("");
-      setText("");
 
-      switch (shortcut.messageType) {
-        case "text":
-          if (shortcut.content.text) {
-            onSend(shortcut.content.text, sendSigned);
-          }
-          break;
-        case "button":
-          if (
-            onSendButton &&
-            shortcut.content.text &&
-            shortcut.content.buttons?.length
-          ) {
-            onSendButton({
-              headerType: shortcut.content.headerType,
-              headerText: shortcut.content.headerText,
-              bodyText: shortcut.content.text,
-              footerText: shortcut.content.footerText,
-              buttons: shortcut.content.buttons,
-            });
-          }
-          break;
-        case "media":
-          if (shortcut.content.text) {
-            onSend(shortcut.content.text, sendSigned);
-          }
-          break;
+      if (shortcut.messageType === "button") {
+        setText("");
+        sendButtonShortcut(shortcut);
+        focusTextarea();
+        return;
       }
 
-      requestAnimationFrame(() => {
-        textareaRef.current?.focus();
-      });
+      setText(resolveShortcutVariables(shortcut.content.text ?? "", variableValues).text);
+      handleTyping();
+      if (shortcut.messageType === "media" && shortcut.content.mediaUrl) {
+        void attachFromUrl(shortcut.content.mediaUrl, shortcut.content.mediaType);
+      }
+      placeCaretAtEnd();
     },
-    [onSend, onSendButton],
+    [attachFromUrl, focusTextarea, handleTyping, placeCaretAtEnd, sendButtonShortcut, variableValues],
   );
 
   const canCreateShortcut = can("message_shortcuts", "create");
@@ -368,11 +469,7 @@ export default function CrmMessageInput({
   const openShortcutCreator = useCallback(
     (rawShortcut?: string, autoSend = false) => {
       if (!canCreateShortcut) return;
-
-      const normalized = (rawShortcut || "")
-        .replace(/^\/+/, "")
-        .replace(/[^a-zA-Z0-9_-]/g, "");
-
+      const normalized = (rawShortcut || "").replace(/^\/+/, "").replace(/[^a-zA-Z0-9_-]/g, "");
       setShortcutDraftValue(normalized);
       setAutoSendCreatedShortcut(autoSend);
       setShortcutSheetOpen(true);
@@ -381,617 +478,389 @@ export default function CrmMessageInput({
     [canCreateShortcut],
   );
 
-  const uploadMediaFile = useCallback(
-    async (rawFile: File) => {
-      const file = normalizeUploadFile(rawFile);
-      const type = mediaTypeForFile(file);
-      const previewUrl = URL.createObjectURL(file);
+  const acceptsFiles = !disabled && windowOpen;
 
-      setPendingMedia((prev) => {
-        if (prev?.previewUrl) {
-          URL.revokeObjectURL(prev.previewUrl);
-        }
-
-        return { file, previewUrl, type, uploading: true };
-      });
-
-      const result = await uploadConversationMediaAction(
-        entryType,
-        entryId,
-        file,
-        type,
-      );
-
-      if (result.error || !result.mediaId) {
-        setPendingMedia((prev) =>
-          prev?.previewUrl === previewUrl
-            ? {
-                ...prev,
-                uploading: false,
-                error: result.error || "Upload failed",
-              }
-            : prev,
-        );
-        return;
-      }
-
-      setPendingMedia((prev) =>
-        prev?.previewUrl === previewUrl
-          ? { ...prev, uploading: false, mediaId: result.mediaId! }
-          : prev,
-      );
+  const addFiles = useCallback(
+    (files: File[]) => {
+      if (!acceptsFiles || files.length === 0) return;
+      void attachFiles(files);
     },
-    [entryType, entryId],
+    [acceptsFiles, attachFiles],
   );
 
   const handleFileSelect = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      await uploadMediaFile(file);
-
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      addFiles(Array.from(e.target.files ?? []));
       if (fileInputRef.current) fileInputRef.current.value = "";
     },
-    [uploadMediaFile],
+    [addFiles],
   );
 
   const handlePaste = useCallback(
-    async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-      if (disabled || !windowOpen || pendingMedia?.type === "audio") return;
-
-      const file = getClipboardFile(e.clipboardData);
-      if (!file) return;
-
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      if (!acceptsFiles) return;
+      const files = getClipboardFiles(e.clipboardData);
+      if (files.length === 0) return;
       e.preventDefault();
-      await uploadMediaFile(file);
+      addFiles(files);
     },
-    [disabled, pendingMedia?.type, uploadMediaFile, windowOpen],
+    [acceptsFiles, addFiles],
   );
 
-  const handleClearMedia = useCallback(() => {
-    if (pendingMedia?.previewUrl) URL.revokeObjectURL(pendingMedia.previewUrl);
-    setPendingMedia(null);
-  }, [pendingMedia]);
-
-
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      const audioCtx = new AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 64;
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const sampleLevels = () => {
-        if (!analyserRef.current) return;
-        analyserRef.current.getByteFrequencyData(dataArray);
-        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-        const normalized = Math.min(avg / 128, 1);
-        setAudioLevels((prev) => {
-          const next = [...prev, normalized];
-          return next.length > 50 ? next.slice(-50) : next;
-        });
-        animFrameRef.current = requestAnimationFrame(sampleLevels);
-      };
-      sampleLevels();
-
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm; codecs=opus")
-        ? "audio/webm; codecs=opus"
-        : MediaRecorder.isTypeSupported("audio/ogg; codecs=opus")
-          ? "audio/ogg; codecs=opus"
-          : "audio/mp4";
-
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-        animFrameRef.current = null;
-        analyserRef.current = null;
-        await audioCtx.close();
-
-        const rawBlob = new Blob(audioChunksRef.current, { type: mimeType });
-
-        let wavFile: File;
-        try {
-          wavFile = await convertBlobToWav(rawBlob);
-        } catch (err) {
-          console.error("[CrmInput] WAV conversion failed, using raw:", err);
-          const ext = mimeType.includes("ogg")
-            ? "ogg"
-            : mimeType.includes("mp4")
-              ? "m4a"
-              : "webm";
-          wavFile = new File([rawBlob], `audio-message.${ext}`, {
-            type: mimeType,
-          });
-        }
-
-        await uploadMediaFile(wavFile);
-
-        stream.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingDuration(0);
-      setAudioLevels([]);
-
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingDuration((prev) => prev + 1);
-      }, 1000);
-    } catch {
-      console.error("[CrmInput] Failed to start recording");
-    }
-  }, [uploadMediaFile]);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current?.state === "recording") {
-      mediaRecorderRef.current.stop();
-    }
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-    setIsRecording(false);
-  }, []);
-
-  const cancelRecording = useCallback(() => {
-    if (mediaRecorderRef.current?.state === "recording") {
-      mediaRecorderRef.current.onstop = null;
-      mediaRecorderRef.current.stop();
-    }
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    analyserRef.current = null;
-    audioChunksRef.current = [];
-    setIsRecording(false);
-    setRecordingDuration(0);
-    setAudioLevels([]);
-  }, []);
-
+  const insertEmoji = useCallback(
+    (emoji: string) => {
+      const textarea = textareaRef.current;
+      const selection = textarea
+        ? { text, start: textarea.selectionStart, end: textarea.selectionEnd }
+        : { text, start: text.length, end: text.length };
+      const next = insertAtSelection(selection, emoji);
+      setText(next.text);
+      handleTyping();
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+        textareaRef.current?.setSelectionRange(next.start, next.end);
+      });
+    },
+    [handleTyping, text],
+  );
 
   const closedCopy = (() => {
-    if (windowClosedReason && windowT.has(windowClosedReason)) {
-      return windowT(windowClosedReason);
+    if (windowClosedReason) {
+      const key = windowClosedCopyKey(entryType, windowClosedReason, windowClosedDetail) as "closed.expired";
+      if (conversationWindowT.has(key)) return conversationWindowT(key);
     }
     return windowExpiresAt ? t.windowClosedDescription : t.windowClosedNoClock;
   })();
 
   const humanOnly = windowOpen && windowTier === "human_agent";
   const humanOnlyUntil = windowExpiresAt ? new Date(windowExpiresAt).toLocaleString() : null;
+  const textEditable = !disabled && windowOpen;
 
-  const canSend =
-    !disabled &&
-    windowOpen &&
-    !overLimit &&
-    (text.trim().length > 0 ||
-      (pendingMedia?.mediaId && !pendingMedia.uploading));
+  useComposerFormatting({
+    textarea: textareaElement,
+    enabled: textEditable && !previewing,
+    onText: handleTextChange,
+  });
+
+  useShortcuts(
+    "composer",
+    { "composer.sendAndFinish": () => (onSendAndFinish ? handleSendAndFinish() : false) },
+    { element: textareaElement, enabled: Boolean(onSendAndFinish) },
+  );
+
+  useImperativeHandle(
+    controlRef,
+    () => ({ focus: () => textareaRef.current?.focus(), attachFiles: addFiles }),
+    [addFiles],
+  );
+
+  useEffect(() => {
+    if (focusOnOpen && opensWithKeyboardFocus()) textareaRef.current?.focus({ preventScroll: true });
+  }, [focusOnOpen]);
+
+  const togglePreview = useCallback(() => {
+    setPreviewing((current) => !current);
+    focusTextarea();
+  }, [focusTextarea]);
 
   return (
-    <div className="relative flex-shrink-0">
+    <div className="vz-composer relative flex-shrink-0">
       <div className="relative">
-      {disabled && disabledReason && (
-        <div className="flex justify-center px-4 pt-2">
-          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 shadow-md">
-            <ShieldWarning
-              weight="fill"
-              className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
-            />
-            <p className="truncate text-2xs font-medium text-foreground">
-              {disabledReason}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {!windowOpen && (
-        <div className="flex justify-center px-4 pt-2">
-          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
-            <Warning
-              weight="fill"
-              className="h-4 w-4 flex-shrink-0 text-warning-ink"
-            />
-            <div className="min-w-0">
-              <p className="text-2xs font-semibold text-foreground">
-                {t.windowClosed}
-              </p>
-              <p className="truncate text-2xs text-muted-foreground">
-                {closedCopy}
-              </p>
+        {disabled && disabledReason && (
+          <div className="flex justify-center px-4 pt-2">
+            <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-1.5 shadow-md">
+              <ShieldWarning weight="fill" className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+              <p className="truncate text-2xs font-medium text-foreground">{disabledReason}</p>
             </div>
           </div>
-        </div>
-      )}
-
-      {entryType === "facebook" && (
-        <FacebookThreadBanner entryId={entryId} canSend={!disabled} />
-      )}
-
-      {humanOnly && (
-        <div className="flex justify-center px-4 pt-2">
-          <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
-            <Clock weight="fill" className="h-4 w-4 flex-shrink-0 text-warning-ink" />
-            <p className="text-2xs font-medium text-foreground">
-              {humanOnlyUntil
-                ? conversationWindowT("tier.humanAgent", { date: humanOnlyUntil })
-                : conversationWindowT("tier.humanAgentNoDate")}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {windowOpen && !humanOnly && windowRemaining && (
-        <div className="flex justify-center px-4 pt-2">
-          <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse" />
-            <span className="text-2xs font-medium text-foreground">
-              {t.windowExpires}: {windowRemaining}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <AnimatePresence>
-        {pendingMedia && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-b border-border"
-          >
-            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
-              <div className="relative flex-shrink-0">
-                {pendingMedia.type === "image" ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={pendingMedia.previewUrl}
-                    alt="Preview"
-                    className="h-10 w-10 sm:h-14 sm:w-14 rounded-lg object-cover"
-                  />
-                ) : pendingMedia.type === "audio" ? (
-                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-muted">
-                    <Waveform
-                      weight="fill"
-                      className="h-5 w-5 sm:h-6 sm:w-6 text-primary-ink"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-muted">
-                    <FileIcon
-                      weight="fill"
-                      className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground"
-                    />
-                  </div>
-                )}
-
-                {pendingMedia.uploading && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40">
-                    <CircleNotch
-                      weight="bold"
-                      className="h-4 w-4 sm:h-5 sm:w-5 text-white animate-spin"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-2xs sm:text-xs font-medium text-foreground">
-                  {pendingMedia.file.name}
-                </p>
-                <p className="text-2xs text-muted-foreground">
-                  {pendingMedia.uploading
-                    ? t.uploading
-                    : pendingMedia.error
-                      ? pendingMedia.error
-                      : `${(pendingMedia.file.size / 1024).toFixed(1)} KB`}
-                </p>
-              </div>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="flex-shrink-0"
-                aria-label="Clear media"
-                onClick={handleClearMedia}
-                icon={<X weight="bold" className="h-3.5 w-3.5" />}
-                iconVisible
-              />
-            </div>
-          </motion.div>
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
-        {isRecording && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3"
-          >
-            <button
-              type="button"
-              onClick={cancelRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
-              aria-label="Cancel recording"
-            >
-              <Trash weight="bold" className="h-4 w-4" />
-            </button>
+        {!windowOpen && (
+          <div className="flex justify-center px-4 pt-2">
+            <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
+              <Warning weight="fill" className="h-4 w-4 flex-shrink-0 text-warning-ink" />
+              <div className="min-w-0">
+                <p className="text-2xs font-semibold text-foreground">{t.windowClosed}</p>
+                <p className="truncate text-2xs text-muted-foreground">{closedCopy}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
-            <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3 rounded-full bg-muted px-3 sm:px-4 py-2">
-              <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 flex-shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-muted opacity-75" />
-                <span className="relative inline-flex h-full w-full rounded-full bg-destructive" />
+        {entryType === "facebook" && <FacebookThreadBanner entryId={entryId} canSend={!disabled} />}
+
+        {humanOnly && (
+          <div className="flex justify-center px-4 pt-2">
+            <div className="flex max-w-[92%] items-center gap-2 rounded-[--radius] border border-border bg-card px-3 py-2 shadow-md">
+              <Clock weight="fill" className="h-4 w-4 flex-shrink-0 text-warning-ink" />
+              <p className="text-2xs font-medium text-foreground">
+                {humanOnlyUntil
+                  ? conversationWindowT("tier.humanAgent", { date: humanOnlyUntil })
+                  : conversationWindowT("tier.humanAgentNoDate")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {windowOpen && !humanOnly && windowRemaining && (
+          <div className="flex justify-center px-4 pt-2">
+            <div className="flex items-center gap-1.5 rounded-[--radius] border border-border bg-card px-3 py-1 shadow-sm">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-healthy" />
+              <span className="text-2xs font-medium text-foreground">
+                {t.windowExpires}:{" "}
+                {windowRemaining.hours > 0
+                  ? composerT("windowRemaining.hours", windowRemaining)
+                  : composerT("windowRemaining.minutes", windowRemaining)}
               </span>
+            </div>
+          </div>
+        )}
 
-              <div className="flex flex-1 min-w-0 items-center justify-center gap-[2px] h-6 sm:h-7 overflow-hidden">
-                {Array.from({ length: 30 }).map((_, i) => {
-                  const level = audioLevels[i] ?? 0;
-                  const barHeight = Math.max(3, level * 20);
-                  return (
+        {!recorder.isRecording && <ComposerModeSwitch mode={mode} onChange={setMode} />}
+
+        {mode === "note" ? (
+          <ComposerNoteField entryId={entryId} entryType={entryType} onEscape={() => setMode("message")} />
+        ) : (
+          <>
+            <ComposerAttachmentStrip attachments={attachments} onRemove={removeAttachment} />
+
+            <AnimatePresence>
+              {recorder.isRecording && (
+                <VoiceRecordingBar
+                  duration={recorder.duration}
+                  levels={recorder.levels}
+                  onCancel={recorder.cancel}
+                  onStop={recorder.stop}
+                  labels={{ cancel: composerT("recording.cancel"), stop: composerT("recording.stop") }}
+                />
+              )}
+            </AnimatePresence>
+
+            {!recorder.isRecording && (
+              <>
+                <AnimatePresence>
+                  {replyToMessage && (
                     <motion.div
-                      key={i}
-                      className="w-[2px] sm:w-[3px] rounded-full bg-muted"
-                      initial={{ height: 3 }}
-                      animate={{ height: barHeight }}
-                      transition={{ duration: 0.1, ease: "easeOut" }}
-                    />
-                  );
-                })}
-              </div>
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="overflow-hidden border-b border-border"
+                    >
+                      <div className="flex items-center gap-2 bg-muted px-4 py-2">
+                        <ArrowBendUpLeft weight="bold" className="h-4 w-4 flex-shrink-0 text-primary-ink" />
+                        <div className="min-w-0 flex-1 rounded-md border-l-[3px] border-info bg-card px-2.5 py-1.5">
+                          <p className="truncate text-2xs font-semibold text-primary-ink">
+                            {replyToMessage.sender_name || replyToMessage.from}
+                          </p>
+                          <p className="truncate text-2xs text-muted-foreground">
+                            {replyToMessage.media_type
+                              ? `📎 ${threadT(`media.${mediaLabelKey(replyToMessage.media_type)}`)}`
+                              : replyToMessage.text || "..."}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={onClearReply}
+                          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-colors hover:bg-border"
+                          aria-label={crmT("cancelReply")}
+                        >
+                          <X weight="bold" className="h-3.5 w-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={admission.accept}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-              <span className="flex-shrink-0 font-mono text-2xs sm:text-xs font-semibold text-primary-ink tabular-nums">
-                {formatDuration(recordingDuration)}
-              </span>
-            </div>
+                <div className={COMPOSER_ROW}>
+                  <div className={COMPOSER_BOX}>
+                    <div className="vz-composer-tools-start flex flex-wrap items-end gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={!acceptsFiles || !admission.takesAttachments}
+                        aria-label={t.attachFile}
+                        className={ICON_BUTTON_CLASS}
+                      >
+                        <Paperclip weight="bold" className="h-5 w-5" />
+                      </button>
 
-            <button
-              type="button"
-              onClick={stopRecording}
-              className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground shadow-md transition-transform hover:scale-105 active:scale-95"
-              aria-label="Stop and send"
-            >
-              <Stop weight="fill" className="h-4 w-4" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                      <ComposerEmojiPicker disabled={!textEditable} onPick={insertEmoji} onClosed={focusTextarea} />
 
-      {!isRecording && (
-        <>
-          <AnimatePresence>
-            {replyToMessage && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.15 }}
-                className="border-b border-border overflow-hidden"
-              >
-                <div className="flex items-center gap-2 px-4 py-2 bg-muted">
-                  <ArrowBendUpLeft
-                    weight="bold"
-                    className="h-4 w-4 text-primary-ink flex-shrink-0"
-                  />
-                  <div className="min-w-0 flex-1 rounded-md bg-card border-l-[3px] border-info px-2.5 py-1.5">
-                    <p className="text-2xs font-semibold text-primary-ink truncate">
-                      {replyToMessage.sender_name || replyToMessage.from}
-                    </p>
-                    <p className="text-2xs text-muted-foreground truncate">
-                      {replyToMessage.media_type
-                        ? `📎 ${replyToMessage.media_type === "image" ? "Imagem" : replyToMessage.media_type === "video" ? "Vídeo" : replyToMessage.media_type === "audio" ? "Áudio" : "Documento"}`
-                        : replyToMessage.text || "..."}
-                    </p>
+                      {onSchedule && windowOpen ? (
+                        <button
+                          type="button"
+                          onClick={handleSchedule}
+                          disabled={!schedulable}
+                          aria-label={scheduleT("composer.scheduleAria")}
+                          title={scheduleT("composer.scheduleAria")}
+                          className={ICON_BUTTON_CLASS}
+                        >
+                          <Clock weight="bold" className="h-5 w-5" />
+                        </button>
+                      ) : null}
+
+                      {!windowOpen && onScheduleTemplate ? (
+                        <button
+                          type="button"
+                          onClick={onScheduleTemplate}
+                          disabled={disabled}
+                          aria-label={scheduleT("composer.scheduleTemplateAria")}
+                          title={scheduleT("composer.scheduleTemplateAria")}
+                          className={ICON_BUTTON_CLASS}
+                        >
+                          <Clock weight="bold" className="h-5 w-5" />
+                        </button>
+                      ) : null}
+
+                      {!windowOpen && onSendTemplateNow ? (
+                        <button
+                          type="button"
+                          onClick={onSendTemplateNow}
+                          disabled={disabled}
+                          aria-label={composerT("sendTemplateNow")}
+                          title={composerT("sendTemplateNow")}
+                          className={ICON_BUTTON_CLASS}
+                        >
+                          <PaperPlaneTilt weight="bold" className="h-5 w-5" />
+                        </button>
+                      ) : null}
+
+                      {onSendForm ? (
+                        <button
+                          type="button"
+                          onClick={onSendForm}
+                          disabled={disabled}
+                          aria-label={composerT("form.open")}
+                          title={composerT("form.open")}
+                          className={ICON_BUTTON_CLASS}
+                        >
+                          <ClipboardText weight="bold" className="h-5 w-5" />
+                        </button>
+                      ) : null}
+
+                      {canCreateShortcut ? (
+                        <button
+                          type="button"
+                          onClick={() => openShortcutCreator(shortcutQuery || "", false)}
+                          aria-label={shortcutPageT("inlineCreateButton")}
+                          title={shortcutPageT("inlineCreateButton")}
+                          className={ICON_BUTTON_CLASS}
+                        >
+                          <Lightning weight="fill" className="h-5 w-5" />
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <div className="vz-composer-field relative">
+                      <ShortcutPicker
+                        query={shortcutQuery}
+                        onSelect={handleShortcutSelect}
+                        onClose={() => setShortcutPickerVisible(false)}
+                        visible={shortcutPickerVisible}
+                        canCreate={canCreateShortcut}
+                        onCreateShortcut={(value) => openShortcutCreator(value, true)}
+                        refreshToken={shortcutRefreshToken}
+                      />
+                      {previewing ? <ComposerFormatPreview text={text} /> : null}
+                      <textarea
+                        ref={attachTextarea}
+                        rows={1}
+                        value={text}
+                        onChange={(e) => handleTextChange(e.target.value)}
+                        onPaste={handlePaste}
+                        onKeyDown={handleKeyDown}
+                        placeholder={
+                          !captionAllowed ? composerT("audioNoCaption") : windowOpen ? t.placeholder : t.windowClosed
+                        }
+                        disabled={!textEditable}
+                        spellCheck
+                        autoCorrect="on"
+                        autoCapitalize="sentences"
+                        autoComplete="on"
+                        className={`${previewing ? "hidden" : "block"} ${COMPOSER_TEXTAREA}`}
+                      />
+                      <ComposerUnresolvedVariables names={unresolved} />
+                      <TextLimitFeedback state={limitState} />
+                    </div>
+
+                    <div className="vz-composer-tools-end flex items-center gap-0.5">
+                      <ComposerPreviewToggle
+                        previewing={previewing}
+                        disabled={!previewing && !text.trim()}
+                        onToggle={togglePreview}
+                      />
+
+                      <div className="flex flex-shrink-0 items-center gap-1 pl-1 pr-0.5">
+                        <span className="vz-composer-sign-label whitespace-nowrap text-2xs font-medium text-muted-foreground">
+                          {composerT("signLabel")}
+                        </span>
+                        <ElevatedSwitch
+                          onCheckedChange={handleSendSignedToggle}
+                          checked={sendSigned}
+                          aria-label={composerT("signLabel")}
+                          explainer={<ExplainerHint id="crm.signMessage" side="top" align="end" />}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={onClearReply}
-                    className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full hover:bg-border transition-colors"
-                    aria-label={crmT("cancelReply")}
-                  >
-                    <X
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-muted-foreground"
-                    />
-                  </button>
+
+                  {hasContent || !admission.voiceNotes ? (
+                    <button
+                      type="button"
+                      onClick={handleSend}
+                      disabled={!canSend}
+                      aria-label={t.sendButton}
+                      className={COMPOSER_SEND_BUTTON}
+                    >
+                      <PaperPlaneRight weight="fill" className="h-5 w-5" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={recorder.start}
+                      disabled={!acceptsFiles}
+                      aria-label={t.recording}
+                      className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 hover:bg-[hsl(var(--primary-hover))] active:scale-95 disabled:opacity-40"
+                    >
+                      <Microphone weight="fill" className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
-              </motion.div>
+              </>
             )}
-          </AnimatePresence>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={OUTBOUND_MEDIA_ACCEPT}
-            onChange={handleFileSelect}
-            className="hidden"
-          />
+          </>
+        )}
 
-          <div className="flex items-end gap-2 px-2 py-2 sm:px-3">
-            <div className="relative flex min-w-0 flex-1 items-end gap-0.5 rounded-[--radius] border border-border bg-card px-1.5 py-1 shadow-sm">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={disabled || !windowOpen}
-                aria-label={t.attachFile}
-                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                <Paperclip weight="bold" className="h-5 w-5" />
-              </button>
-
-              {onSchedule && windowOpen ? (
-                <button
-                  type="button"
-                  onClick={handleSchedule}
-                  disabled={disabled}
-                  aria-label={scheduleT("composer.scheduleAria")}
-                  title={scheduleT("composer.scheduleAria")}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
-                >
-                  <Clock weight="bold" className="h-5 w-5" />
-                </button>
-              ) : onScheduleTemplate && !windowOpen ? (
-                <button
-                  type="button"
-                  onClick={onScheduleTemplate}
-                  disabled={disabled}
-                  aria-label={scheduleT("composer.scheduleTemplateAria")}
-                  title={scheduleT("composer.scheduleTemplateAria")}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
-                >
-                  <Clock weight="bold" className="h-5 w-5" />
-                </button>
-              ) : null}
-
-              {canCreateShortcut ? (
-                <button
-                  type="button"
-                  onClick={() => openShortcutCreator(shortcutQuery || "", false)}
-                  aria-label={shortcutPageT("inlineCreateButton")}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <Lightning weight="fill" className="h-5 w-5" />
-                </button>
-              ) : null}
-
-              <div className="relative min-w-0 flex-1 self-center">
-                <ShortcutPicker
-                  query={shortcutQuery}
-                  onSelect={handleShortcutSelect}
-                  onClose={() => setShortcutPickerVisible(false)}
-                  visible={shortcutPickerVisible}
-                  canCreate={canCreateShortcut}
-                  onCreateShortcut={(value) => openShortcutCreator(value, true)}
-                  refreshToken={shortcutRefreshToken}
-                />
-                <textarea
-                  ref={textareaRef}
-                  rows={1}
-                  value={pendingMedia?.type === "audio" ? "" : text}
-                  onChange={(e) => {
-                    if (pendingMedia?.type === "audio") return;
-                    handleTextChange(e.target.value);
-                  }}
-                  onPaste={handlePaste}
-                  onKeyDown={handleKeyDown}
-                  placeholder={
-                    pendingMedia?.type === "audio"
-                      ? "Áudio não suporta legenda"
-                      : windowOpen
-                        ? t.placeholder
-                        : t.windowClosed
-                  }
-                  disabled={
-                    disabled || !windowOpen || pendingMedia?.type === "audio"
-                  }
-                  spellCheck
-                  autoCorrect="on"
-                  autoCapitalize="sentences"
-                  autoComplete="on"
-                  className="block max-h-[120px] w-full resize-none border-0 bg-transparent px-2 py-2 text-sm font-medium leading-snug text-foreground outline-none placeholder:text-muted-foreground focus:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
-                />
-                {limitState && limitState.count > 0 && (
-                  <p
-                    aria-live="polite"
-                    className={`px-2 pb-1 text-right text-2xs tabular-nums ${
-                      limitState.over
-                        ? "font-semibold text-destructive-ink"
-                        : limitState.near
-                          ? "text-warning-ink"
-                          : "text-muted-foreground"
-                    }`}
-                  >
-                    {limitState.over
-                      ? conversationWindowT("textLimit", { count: limitState.count, limit: limitState.limit })
-                      : `${limitState.count}/${limitState.limit}`}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-shrink-0 items-center gap-1 self-center pl-1 pr-0.5">
-                <span className="hidden text-2xs font-medium text-muted-foreground sm:inline">
-                  Assinar
-                </span>
-                <ElevatedSwitch
-                  onCheckedChange={(active) => handleSendSignedToggle(active)}
-                  checked={sendSigned}
-                  explainer={<ExplainerHint id="crm.signMessage" side="top" align="end" />}
-                />
-              </div>
-            </div>
-
-            {text.trim().length > 0 || pendingMedia ? (
-              <button
-                type="button"
-                onClick={handleSend}
-                disabled={!canSend}
-                aria-label={t.sendButton}
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 hover:bg-[hsl(var(--primary-hover))] active:scale-95 disabled:opacity-50"
-              >
-                <PaperPlaneRight weight="fill" className="h-5 w-5" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={startRecording}
-                disabled={disabled || !windowOpen}
-                aria-label={t.recording}
-                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 hover:bg-[hsl(var(--primary-hover))] active:scale-95 disabled:opacity-40"
-              >
-                <Microphone weight="fill" className="h-5 w-5" />
-              </button>
-            )}
-          </div>
-        </>
-      )}
-
-      <MessageShortcutSheet
-        open={shortcutSheetOpen}
-        onOpenChange={setShortcutSheetOpen}
-        defaultShortcut={shortcutDraftValue}
-        onSaved={async (shortcut) => {
-          setShortcutRefreshToken((current) => current + 1);
-
-          if (autoSendCreatedShortcut) {
-            handleShortcutSelect(shortcut);
-            return;
-          }
-
-          setText(`/${shortcut.shortcut}`);
-          setShortcutQuery(shortcut.shortcut);
-          setShortcutPickerVisible(true);
-          requestAnimationFrame(() => {
-            textareaRef.current?.focus();
-          });
-        }}
-      />
+        <MessageShortcutSheet
+          open={shortcutSheetOpen}
+          onOpenChange={setShortcutSheetOpen}
+          defaultShortcut={shortcutDraftValue}
+          onSaved={async (shortcut) => {
+            setShortcutRefreshToken((current) => current + 1);
+            if (autoSendCreatedShortcut) {
+              handleShortcutSelect(shortcut);
+              return;
+            }
+            setText(`/${shortcut.shortcut}`);
+            setShortcutQuery(shortcut.shortcut);
+            setShortcutPickerVisible(true);
+            focusTextarea();
+          }}
+        />
       </div>
     </div>
   );
+}
+
+function pickReply({ id, sender_name, from, text, media_type }: ReplyTarget): ReplyTarget {
+  return media_type ? { id, sender_name, from, text, media_type } : { id, sender_name, from, text };
 }

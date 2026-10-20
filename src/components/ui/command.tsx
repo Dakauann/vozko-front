@@ -4,6 +4,7 @@ import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { MagnifyingGlass } from "@/components/icons";
 
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const Command = React.forwardRef<
@@ -20,6 +21,26 @@ const Command = React.forwardRef<
   />
 ));
 Command.displayName = CommandPrimitive.displayName;
+
+interface CommandDialogProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive> {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  onCloseAutoFocus?: (event: Event) => void;
+}
+
+const CommandDialog = ({ open, onOpenChange, title, description, onCloseAutoFocus, children, className, ...props }: CommandDialogProps) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent onCloseAutoFocus={onCloseAutoFocus} className="top-[20%] max-w-xl translate-y-0 gap-0 overflow-hidden border-0 bg-transparent p-0 shadow-none data-[state=closed]:slide-out-to-top-[18%] data-[state=open]:slide-in-from-top-[18%] [&>button:last-child]:hidden">
+      <DialogTitle className="sr-only">{title}</DialogTitle>
+      <DialogDescription className="sr-only">{description}</DialogDescription>
+      <Command className={cn("max-h-[min(32rem,70vh)]", className)} {...props}>
+        {children}
+      </Command>
+    </DialogContent>
+  </Dialog>
+);
 
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
@@ -144,12 +165,11 @@ CommandShortcut.displayName = "CommandShortcut";
 
 export {
   Command,
-  
+  CommandDialog,
   CommandInput,
   CommandList,
   CommandEmpty,
   CommandGroup,
   CommandItem,
-  
-  
+  CommandShortcut,
 };

@@ -1,4 +1,5 @@
-import { bindKeymap, canvasActionFor, imageZoomActionFor, isEditableTarget, vectorModeAction, type KeyStroke } from "@/lib/studio/keymap";
+import { bindKeymap, isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
+import { canvasActionFor, imageZoomActionFor, vectorModeAction } from "@/lib/studio/keymap";
 import { pixelKeyActionFor } from "@/lib/studio/pixel-tools";
 import type { ShapeOpIssue } from "@/lib/studio/shape-ops";
 import { styleActionFor } from "@/lib/studio/style";

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
-  exportGroupMembersAction,
+  exportMembersAction,
   followGroupAction,
   getWorkspaceGroupInviteLinkAction,
   nextGroupInSeriesAction,
@@ -18,7 +18,7 @@ import type { WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 import { groupsRoutes } from "../kit/routes";
 import { rememberSetupWarnings } from "./setup-warnings-store";
 
-type GroupActionKind = "follow" | "unfollow" | "refresh" | "invite" | "export" | "series";
+type GroupActionKind = "follow" | "unfollow" | "refresh" | "invite" | "export" | "exportSeries" | "series";
 
 export function useGroupActions(group: WorkspaceGroup, onChanged: () => void) {
   const t = useTranslations("unofficialGroups.detail.actions");
@@ -81,10 +81,18 @@ export function useGroupActions(group: WorkspaceGroup, onChanged: () => void) {
 
   const exportMembers = useCallback(async () => {
     setBusy("export");
-    const result = await exportGroupMembersAction(group.id);
+    const result = await exportMembersAction({ groupIds: [group.id] });
     setBusy(null);
     if (result.error) toast.error(t("exportFailed"), { description: result.error });
   }, [group.id, t]);
+
+  const exportSeriesMembers = useCallback(async () => {
+    if (!group.seriesId) return;
+    setBusy("exportSeries");
+    const result = await exportMembersAction({ seriesId: group.seriesId });
+    setBusy(null);
+    if (result.error) toast.error(t("exportFailed"), { description: result.error });
+  }, [group.seriesId, t]);
 
   const nextInSeries = useCallback(async () => {
     setBusy("series");
@@ -112,7 +120,7 @@ export function useGroupActions(group: WorkspaceGroup, onChanged: () => void) {
     return true;
   }, [group.id, router, t, tSetup]);
 
-  return { busy, follow, unfollow, refresh, copyInvite, exportMembers, nextInSeries };
+  return { busy, follow, unfollow, refresh, copyInvite, exportMembers, exportSeriesMembers, nextInSeries };
 }
 
 export type GroupActions = ReturnType<typeof useGroupActions>;

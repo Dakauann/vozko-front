@@ -12,6 +12,7 @@ export const OUTREACH_REFUSAL_CODES = [
   "quote_unavailable",
   "template_not_sendable",
   "template_phone_mismatch",
+  "form_not_sendable",
   "invalid_phone",
   "lead_opted_out",
   "lead_blocked",

@@ -16,6 +16,8 @@ export function HandOffRulesSummary({ workspaceId }: { workspaceId?: string | nu
   const rules = handOffRules(config);
   const lines = [
     rules.mode === "last_seen" ? t("lastSeen", { hours: String(rules.windowHours) }) : t("online"),
+    t(`strategies.${rules.strategy}`),
+    ...(rules.maxOpenPerMember > 0 ? [t("capacity", { count: rules.maxOpenPerMember })] : []),
     t("department"),
     rules.skipAdmins ? t("adminsSkipped") : t("adminsIncluded"),
     rules.rescue

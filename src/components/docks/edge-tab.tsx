@@ -4,11 +4,13 @@ import { forwardRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { useEdgeRailReserve } from "./use-edge-rail-reserve";
+
 type EdgeTabSlot = "upper" | "lower";
 type EdgeTabStatus = "idle" | "live" | "alert";
 
 const SLOT: Record<EdgeTabSlot, string> = {
-  upper: "top-[calc(50%-7rem-3px)]",
+  upper: "bottom-[calc(50%+3px)]",
   lower: "top-[calc(50%+3px)]",
 };
 
@@ -33,6 +35,7 @@ export const EdgeTab = forwardRef<HTMLButtonElement, EdgeTabProps>(function Edge
   { label, tabLabel, icon, onClick, slot, status = "idle", decoration, className, dataBusy },
   ref,
 ) {
+  useEdgeRailReserve();
   return (
     <button
       ref={ref}
@@ -42,7 +45,7 @@ export const EdgeTab = forwardRef<HTMLButtonElement, EdgeTabProps>(function Edge
       data-busy={dataBusy}
       data-status={status}
       className={cn(
-        "group fixed right-[var(--assistant-sheet-w,0px)] z-[60] flex h-28 w-9 flex-col items-center justify-center gap-2 rounded-l-xl bg-card text-foreground shadow-lg transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:-translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group fixed right-[calc(var(--assistant-sheet-w,0px)_+_env(safe-area-inset-right,0px))] z-[60] flex h-28 w-9 flex-col items-center justify-center gap-2 rounded-l-xl bg-card text-foreground shadow-lg transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:-translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
         SLOT[slot],
         className,
       )}

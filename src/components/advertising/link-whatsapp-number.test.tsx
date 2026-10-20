@@ -2,8 +2,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import pt from "@/i18n/messages/pt.json";
+import rawPt from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import type { AdPage } from "@/lib/advertising/types";
+
+const pt = brandedMessages(rawPt);
 
 const requestLink = vi.fn();
 const confirmLink = vi.fn();

@@ -243,7 +243,7 @@ describe("CreateWhatsAppCampaignForm editing a send prepared from leads", () => 
     renderForm(campaign("lead_selection"));
 
     expect(await screen.findByText(selection.campaign.templateLocked)).toBeInTheDocument();
-    expect(screen.getByText(selection.campaign.contactsLocked)).toBeInTheDocument();
+    expect(screen.getByText(form.contacts.managedBySelection)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: new RegExp(form.basicInfo.businessPhone) })).toBeDisabled();
     expect(screen.getByRole("button", { name: new RegExp(form.basicInfo.template) })).toBeDisabled();
     expect(screen.queryByRole("button", { name: form.contacts.uploadCsv })).not.toBeInTheDocument();
@@ -264,20 +264,48 @@ describe("CreateWhatsAppCampaignForm editing a send prepared from leads", () => 
     await waitFor(() => expect(updateWhatsAppCampaignAction).toHaveBeenCalledTimes(1));
     const [id, payload] = updateWhatsAppCampaignAction.mock.calls[0];
     expect(id).toBe("camp-1");
-    expect(payload).toMatchObject({ name: "Disparo da seleção", templateId: "tpl-1", businessPhoneId: "phone-1", phoneNumbers: [] });
+    expect(payload).toMatchObject({ name: "Disparo da seleção", templateId: "tpl-1", businessPhoneId: "phone-1" });
+    expect(payload).not.toHaveProperty("phoneNumbers");
     expect(payload.scheduledStart).toBeUndefined();
     await waitFor(() =>
       expect(toastMock.error).toHaveBeenCalledWith(form.toast.error, { description: selection.errors.send_selection_locked }),
     );
   });
 
-  it("keeps a campaign built by hand fully editable", async () => {
+  it("keeps the settings of a campaign built by hand editable and sends its contacts to the campaign page", async () => {
     renderForm(campaign(undefined));
 
-    expect(await screen.findByRole("button", { name: form.contacts.uploadCsv })).toBeInTheDocument();
+    expect(await screen.findByText(form.contacts.managedOnDetail)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: new RegExp(form.basicInfo.businessPhone) })).not.toBeDisabled();
     expect(screen.queryByText(selection.campaign.templateLocked)).not.toBeInTheDocument();
-    expect(screen.queryByText(selection.campaign.contactsLocked)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: form.contacts.uploadCsv })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: form.contacts.openDetail })).toHaveAttribute("href", "/dashboard/whatsapp-campaigns/camp-1");
+  });
+
+  it("saves only the settings, never the contacts it no longer loads", async () => {
+    updateWhatsAppCampaignAction.mockResolvedValue({ campaign: { id: "camp-1" }, error: null });
+    renderForm(campaign(undefined));
+
+    fireEvent.click(await screen.findByRole("button", { name: form.actions.update }));
+
+    await waitFor(() => expect(updateWhatsAppCampaignAction).toHaveBeenCalledTimes(1));
+    const [, payload] = updateWhatsAppCampaignAction.mock.calls[0];
+    expect(payload).not.toHaveProperty("phoneNumbers");
+    expect(payload.scheduledStart).toBe("2026-12-01T12:00:00Z");
+    expect(toastMock.error).not.toHaveBeenCalled();
+  });
+
+  it("translates a coded refusal from the backend", async () => {
+    updateWhatsAppCampaignAction.mockResolvedValue({ campaign: null, error: "missing", errorCode: "campaign_workflow_vars_missing" });
+    renderForm(campaign(undefined));
+
+    fireEvent.click(await screen.findByRole("button", { name: form.actions.update }));
+
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith(form.toast.error, {
+        description: ptMessages.whatsappCampaignsPage.errors.campaign_workflow_vars_missing,
+      }),
+    );
   });
 
   it("shows the server text when the refusal is not one it knows", async () => {
@@ -317,13 +345,6 @@ describe("CreateWhatsAppCampaignForm copy", () => {
 describe("CreateWhatsAppCampaignForm contact list", () => {
   const list = ptMessages.campaignContactList;
 
-  function campaignWith(phoneNumbers: { number: string; name?: string; variables?: string[] }[]): WhatsAppCampaign {
-    return {
-      ...campaign(undefined),
-      phoneNumbers: phoneNumbers.map((entry, index) => ({ id: `e${index}`, variables: [], metadata: {}, ...entry })),
-    } as WhatsAppCampaign;
-  }
-
   function numberInputs() {
     return screen.getAllByPlaceholderText("558499999999");
   }
@@ -333,10 +354,23 @@ describe("CreateWhatsAppCampaignForm contact list", () => {
     return rows;
   }
 
-  it("shows one row per contact and counts them once in the summary bar", async () => {
-    renderForm(campaignWith([{ number: "5511999990000", name: "Ana" }, { number: "5511999990001", name: "Bruno" }]));
+  async function newCampaignWith(contacts: { number: string; name?: string }[]) {
+    renderForm(null);
+    await waitFor(() => expect(numberInputs()).toHaveLength(1));
+    for (let i = 1; i < contacts.length; i++) {
+      fireEvent.click(screen.getByRole("button", { name: form.contacts.addContact }));
+    }
+    await waitFor(() => expect(numberInputs()).toHaveLength(contacts.length));
+    const names = screen.getAllByPlaceholderText(form.contacts.namePlaceholder);
+    contacts.forEach((contact, index) => {
+      fireEvent.change(numberInputs()[index], { target: { value: contact.number } });
+      if (contact.name) fireEvent.change(names[index], { target: { value: contact.name } });
+    });
+  }
 
-    await waitFor(() => expect(numberInputs()).toHaveLength(2));
+  it("shows one row per contact and counts them once in the summary bar", async () => {
+    await newCampaignWith([{ number: "5511999990000", name: "Ana" }, { number: "5511999990001", name: "Bruno" }]);
+
     expect(bodyRows()).toHaveLength(2);
     expect(screen.getByText(list.total).nextElementSibling).toHaveTextContent("2");
     expect(screen.getByRole("columnheader", { name: list.number })).toBeInTheDocument();
@@ -344,8 +378,7 @@ describe("CreateWhatsAppCampaignForm contact list", () => {
   });
 
   it("adds a contact and removes it again", async () => {
-    renderForm(campaignWith([{ number: "5511999990000", name: "Ana" }]));
-    await waitFor(() => expect(numberInputs()).toHaveLength(1));
+    await newCampaignWith([{ number: "5511999990000", name: "Ana" }]);
     expect(screen.queryByRole("button", { name: form.contacts.removeContact })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: form.contacts.addContact }));
@@ -357,8 +390,7 @@ describe("CreateWhatsAppCampaignForm contact list", () => {
   });
 
   it("keeps the metadata field adder folded until asked, then adds the field as a column", async () => {
-    renderForm(campaignWith([{ number: "5511999990000", name: "Ana" }]));
-    await waitFor(() => expect(numberInputs()).toHaveLength(1));
+    await newCampaignWith([{ number: "5511999990000", name: "Ana" }]);
     expect(screen.queryByLabelText(form.contacts.newMetadataField)).not.toBeInTheDocument();
 
     const toggle = screen.getByRole("button", { name: form.contacts.metadataFields });
@@ -377,14 +409,11 @@ describe("CreateWhatsAppCampaignForm contact list", () => {
   });
 
   it("finds contacts by number or name", async () => {
-    renderForm(
-      campaignWith([
-        { number: "5511999990000", name: "Ana" },
-        { number: "5511999990001", name: "Bruno" },
-        { number: "5584988880002", name: "Carla" },
-      ]),
-    );
-    await waitFor(() => expect(numberInputs()).toHaveLength(3));
+    await newCampaignWith([
+      { number: "5511999990000", name: "Ana" },
+      { number: "5511999990001", name: "Bruno" },
+      { number: "5584988880002", name: "Carla" },
+    ]);
 
     fireEvent.change(screen.getByRole("searchbox", { name: list.search }), { target: { value: "bruno" } });
     await waitFor(() => expect(numberInputs()).toHaveLength(1));
@@ -396,17 +425,17 @@ describe("CreateWhatsAppCampaignForm contact list", () => {
   });
 
   it("marks the contacts missing a template variable and narrows the list to them", async () => {
-    catalog.byId = {
-      "tpl-1": { id: "tpl-1", name: "promo_outubro", language: "pt_BR", category: "MARKETING", status: "APPROVED", components: [{ type: "BODY", text: "Olá {{1}}" }] },
-    };
-    renderForm(
-      campaignWith([
-        { number: "5511999990000", name: "Ana", variables: ["Ana"] },
-        { number: "5511999990001", name: "Bruno", variables: [] },
-      ]),
-    );
+    catalog.phones = [{ id: "phone-1", displayPhoneNumber: "+55 11 4000-0000", verifiedName: "Clínica" }];
+    catalog.templates = [{ ...TEMPLATES[0], components: [{ type: "BODY", text: "Olá {{1}}" }] }];
+    await newCampaignWith([{ number: "5511999990000", name: "Ana" }, { number: "5511999990001", name: "Bruno" }]);
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(form.basicInfo.businessPhone) }));
+    fireEvent.click(await screen.findByRole("option", { name: /Clínica/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: new RegExp(form.basicInfo.template) })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(form.basicInfo.template) }));
+    fireEvent.click(await screen.findByRole("option", { name: /promo_outubro/ }));
 
     expect(await screen.findByRole("columnheader", { name: "{{1}}" })).toBeInTheDocument();
+    fireEvent.change(screen.getAllByLabelText("{{1}}")[0], { target: { value: "Ana" } });
     await waitFor(() => expect(screen.getByText(list.missing).nextElementSibling).toHaveTextContent("1"));
     expect(screen.getAllByRole("img", { name: list.missingValue })).toHaveLength(1);
     expect(screen.getByText(form.validation.missingVariablesTitle)).toBeInTheDocument();

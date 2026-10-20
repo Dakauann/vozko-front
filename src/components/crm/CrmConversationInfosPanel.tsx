@@ -2,12 +2,8 @@
 
 import {
   ArrowClockwise,
-  ArrowsOutSimple,
-  ArrowsInSimple,
   Brain,
-  Check,
   ClockCounterClockwise,
-  Copy,
   Phone,
   Prohibit,
   ShieldCheck,
@@ -23,17 +19,33 @@ import { toast } from "sonner";
 
 import type {
   ActiveConversation,
+  EntryType,
   InboxEntry,
 } from "@/lib/conversations/types";
+import {
+  ElevatedSheet,
+  ElevatedSheetContent,
+  ElevatedSheetDescription,
+  ElevatedSheetTitle,
+} from "@/components/elevated-design/elevated-sheet";
+import OpportunityDrawer from "@/components/crm/OpportunityDrawer";
+import { CopyValueButton } from "@/components/crm/CopyValueButton";
+import { LeadOtherConversations } from "@/components/crm/LeadOtherConversations";
+import { useInfoPanelPreferences } from "@/hooks/use-info-panel-preferences";
+import { useOpportunityDrawer } from "@/hooks/use-opportunity-creation";
+import type { InfoPanelTab } from "@/lib/crm/info-panel-preferences";
+import { looksLikeEmail } from "@/lib/text/email-shape";
 import { leadPresence, type LeadPatch } from "@/lib/conversations/lead-patch";
 import { codedErrorMessage } from "@/lib/api/coded-error";
 import { blockLeadAction } from "@/app/actions/leads";
 import { EditableLeadName } from "@/components/leads/EditableLeadName";
 import { listOpportunitiesForEntryAction } from "@/app/actions/opportunities";
-import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
+import { ChannelLogo } from "@/components/icons/channel-logos";
+import { useChannelName } from "@/hooks/use-channel-name";
 import { Notice } from "@/components/ui/notice";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import ConversationAttendanceSection from "@/components/crm/ConversationAttendanceSection";
+import { ConversationWorkflowRuns } from "@/components/crm/ConversationWorkflowRuns";
 import { ContactInfoRow as InfoRow } from "@/components/crm/ContactInfoRow";
 import { ConversationLeadRows, ConversationLeadSummary } from "@/components/crm/ConversationLeadCard";
 import { ConversationPortfolio } from "@/components/customer-portfolio/ConversationPortfolio";
@@ -54,8 +66,6 @@ const DEAL_STATUS_DOT: Record<string, string> = {
   lost: "bg-muted",
 };
 
-type PanelTab = "contact" | "group" | "attendance" | "insights" | "memories";
-
 interface CrmConversationInfosPanelProps {
   open: boolean;
   onClose: () => void;
@@ -66,6 +76,10 @@ interface CrmConversationInfosPanelProps {
   canManageMemories: boolean;
   canRenameLead: boolean;
   onLeadPatched: (leadId: string, patch: LeadPatch) => void;
+  presentation?: "docked" | "sheet";
+  canReadLead?: boolean;
+  workspaceId?: string;
+  onOpenConversation?: (entryId: string, entryType: EntryType) => void;
 }
 
 function initialsOf(name: string | null | undefined, fallback: string): string {
@@ -85,9 +99,17 @@ export default function CrmConversationInfosPanel({
   canManageMemories,
   canRenameLead,
   onLeadPatched,
+  presentation = "docked",
+  canReadLead = false,
+  workspaceId,
+  onOpenConversation,
 }: CrmConversationInfosPanelProps) {
   const t = useTranslations("crmContactPanel");
   const tLeads = useTranslations("leads");
+  const tDrawer = useTranslations("opportunityDrawer");
+  const { tab, setTab } = useInfoPanelPreferences();
+  const dealDrawer = useOpportunityDrawer();
+  const [opportunitiesVersion, setOpportunitiesVersion] = useState(0);
   const dealOwnerLabels = useMemo(
     () => ({
       ai: t("dealOwnerAI"),
@@ -100,10 +122,7 @@ export default function CrmConversationInfosPanel({
 
   const [blocking, setBlocking] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [tab, setTab] = useState<PanelTab>("contact");
-  const [expanded, setExpanded] = useState(false);
 
   const isWhatsApp = conversation?.entry_type === "whatsapp";
   const leadNumber = conversation?.lead_number ?? "";
@@ -125,14 +144,18 @@ export default function CrmConversationInfosPanel({
         }
       : null;
 
-  const channelName = channelLabel(conversation?.entry_type);
+  const identityKey = `${conversation?.entry_type ?? ""}:${conversation?.entry_id ?? ""}`;
+  const channelNameOf = useChannelName();
+  const channelName = channelNameOf(conversation?.entry_type);
 
-  useEffect(() => {
+  const blockEntryKey = `${inboxEntry?.entry_type ?? ""}:${inboxEntry?.entry_id ?? ""}`;
+  const [confirmingBlockFor, setConfirmingBlockFor] = useState(blockEntryKey);
+  if (confirmingBlockFor !== blockEntryKey) {
+    setConfirmingBlockFor(blockEntryKey);
     setConfirmingBlock(false);
-    setTab("contact");
-  }, [inboxEntry?.entry_id, inboxEntry?.entry_type]);
+  }
 
-  const activeTab: PanelTab =
+  const activeTab: InfoPanelTab =
     (!isGroup && tab === "group") || (isGroup && tab === "memories")
       ? "contact"
       : tab;
@@ -151,7 +174,16 @@ export default function CrmConversationInfosPanel({
     return () => {
       cancelled = true;
     };
-  }, [open, conversation?.entry_id, conversation?.entry_type]);
+  }, [open, conversation?.entry_id, conversation?.entry_type, opportunitiesVersion]);
+
+  const openOpportunity = useCallback(
+    (opportunity: Opportunity) => {
+      void dealDrawer.edit(opportunity).then((opened) => {
+        if (!opened) toast.error(tDrawer("openFailed"));
+      });
+    },
+    [dealDrawer, tDrawer],
+  );
 
   const isBlocked = Boolean(inboxEntry?.blocked ?? conversation?.blocked);
 
@@ -166,16 +198,6 @@ export default function CrmConversationInfosPanel({
       .map(([key, value]) => [key, String(value)] as const)
       .slice(0, 8);
   }, [conversation?.lead_metadata]);
-
-  const handleCopy = useCallback(async () => {
-    if (!leadNumber) return;
-    try {
-      await navigator.clipboard.writeText(formatPhoneForDisplay(leadNumber));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-    }
-  }, [leadNumber]);
 
   const handleToggleBlock = useCallback(async () => {
     if (!leadId || blocking) return;
@@ -251,52 +273,24 @@ export default function CrmConversationInfosPanel({
     [t, isGroup],
   );
 
-  return (
-    <aside
-      aria-hidden={!open}
-      className={cn(
-        "absolute inset-y-0 right-0 z-30 flex h-full flex-col bg-card",
-        "border-l border-border shadow-xl transition-[transform,width] duration-200 ease-out",
-        "w-full max-w-md sm:max-w-lg",
-        "lg:static lg:z-auto lg:max-w-none lg:shadow-none",
-        open
-          ? cn(
-              "translate-x-0",
-              expanded
-                ? "lg:w-[26rem] xl:w-[30rem]"
-                : "lg:w-[24rem] xl:w-[26rem]",
-            )
-          : "translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:border-l-0",
-      )}
-    >
-      {}
+  const panelBody = (
+    <>
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2.5">
-        <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground">
-          {t("title")}
-        </h2>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="hidden h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:inline-flex"
-            aria-label={expanded ? t("collapsePanel") : t("expandPanel")}
-            title={expanded ? t("collapsePanel") : t("expandPanel")}
-          >
-            {expanded ? (
-              <ArrowsInSimple className="h-4 w-4" weight="bold" />
-            ) : (
-              <ArrowsOutSimple className="h-4 w-4" weight="bold" />
-            )}
-          </button>
+        {presentation === "sheet" ? (
+          <ElevatedSheetTitle className="min-w-0 truncate text-sm font-semibold tracking-tight">{t("title")}</ElevatedSheetTitle>
+        ) : (
+          <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground">{t("title")}</h2>
+        )}
+        {presentation === "docked" ? (
           <button
             type="button"
             onClick={onClose}
             aria-label={t("close")}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <X weight="bold" className="h-4 w-4" />
           </button>
-        </div>
+        ) : null}
       </div>
 
       {!conversation ? (
@@ -359,26 +353,13 @@ export default function CrmConversationInfosPanel({
                     {t("groupSubtitle")}
                   </p>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="group mt-0.5 inline-flex max-w-full items-center gap-1.5 truncate text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <span className="truncate">{formatPhoneForDisplay(leadNumber)}</span>
-                    {copied ? (
-                      <Check
-                        weight="bold"
-                        className="h-3 w-3 shrink-0 text-healthy-ink"
-                      />
-                    ) : (
-                      <Copy
-                        weight="bold"
-                        className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                      />
-                    )}
-                  </button>
+                  <div className="mt-0.5">
+                    <CopyValueButton value={formatPhoneForDisplay(leadNumber)} label={t("copyPhone")} copiedMessage={t("phoneCopied")}>
+                      {formatPhoneForDisplay(leadNumber)}
+                    </CopyValueButton>
+                  </div>
                 )}
-                {leadCard ? <ConversationLeadSummary key={`${leadCard.entryType}:${leadCard.entryId}`} {...leadCard} /> : null}
+                {leadCard ? <ConversationLeadSummary key={`lead-summary:${identityKey}`} {...leadCard} /> : null}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-semibold text-foreground">
                     {channelName ? (
@@ -403,7 +384,7 @@ export default function CrmConversationInfosPanel({
                 </div>
                 {conversation && !isGroup ? (
                   <ConversationPortfolio
-                    key={`${conversation.entry_type}:${conversation.entry_id}`}
+                    key={`portfolio:${identityKey}`}
                     entryType={conversation.entry_type}
                     entryId={conversation.entry_id}
                     active={open}
@@ -426,7 +407,7 @@ export default function CrmConversationInfosPanel({
           <div className="min-h-0 flex-1 overflow-y-auto">
             {activeTab === "contact" && (
               <dl className="flex flex-col gap-px bg-border/60">
-                {leadCard ? <ConversationLeadRows key={`${leadCard.entryType}:${leadCard.entryId}`} {...leadCard} /> : null}
+                {leadCard ? <ConversationLeadRows key={`lead-rows:${identityKey}`} {...leadCard} /> : null}
                 {isWhatsApp && (
                   <InfoRow label={t("windowStatus")}>
                     {windowOpen ? (
@@ -524,11 +505,28 @@ export default function CrmConversationInfosPanel({
 
                 {metadataEntries.map(([key, value]) => (
                   <InfoRow key={key} label={key}>
-                    <span className="break-words text-foreground">{value}</span>
+                    {looksLikeEmail(value) ? (
+                      <CopyValueButton value={value.trim()} label={t("copyEmail")} copiedMessage={t("emailCopied")}>
+                        <span className="text-foreground">{value}</span>
+                      </CopyValueButton>
+                    ) : (
+                      <span className="break-words text-foreground">{value}</span>
+                    )}
                   </InfoRow>
                 ))}
               </dl>
             )}
+            {activeTab === "contact" && leadId && !isGroup && canReadLead ? (
+              <div className="border-t border-border">
+                <LeadOtherConversations
+                  key={leadId}
+                  leadId={leadId}
+                  current={{ entryId: conversation.entry_id, entryType: conversation.entry_type }}
+                  active={open}
+                  onOpenConversation={onOpenConversation}
+                />
+              </div>
+            ) : null}
 
             {activeTab === "group" && conversation && (
               <ConversationGroupSection
@@ -575,6 +573,14 @@ export default function CrmConversationInfosPanel({
                   campaignId={inboxEntry?.campaign_id}
                   campaignType={conversation.entry_type}
                 />
+                <div className="mt-4 border-t border-border pt-4">
+                  <ConversationWorkflowRuns
+                    key={identityKey}
+                    entryType={conversation.entry_type}
+                    entryId={conversation.entry_id}
+                    active={open && activeTab === "attendance"}
+                  />
+                </div>
               </div>
             )}
 
@@ -608,9 +614,13 @@ export default function CrmConversationInfosPanel({
                   ) : (
                     <div className="flex flex-col gap-1.5">
                       {opportunities.map((o) => (
-                        <div
+                        <button
+                          type="button"
                           key={o.id}
-                          className="rounded-lg border border-border bg-card px-2.5 py-2"
+                          onClick={() => openOpportunity(o)}
+                          disabled={dealDrawer.loading}
+                          aria-label={t("openOpportunity", { title: o.title || t("untitledDeal") })}
+                          className="rounded-lg border border-border bg-card px-2.5 py-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
                         >
                           <div className="flex items-center gap-2">
                             <span
@@ -637,7 +647,7 @@ export default function CrmConversationInfosPanel({
                               })}
                             </p>
                           ) : null}
-                        </div>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -719,6 +729,39 @@ export default function CrmConversationInfosPanel({
           )}
         </div>
       )}
+      {dealDrawer.setup ? (
+        <OpportunityDrawer
+          open={dealDrawer.open}
+          onOpenChange={dealDrawer.setOpen}
+          opportunity={dealDrawer.opportunity}
+          pipelineId={dealDrawer.setup.pipelineId}
+          columns={dealDrawer.setup.columns}
+          customFields={dealDrawer.setup.customFields}
+          workspaceId={workspaceId}
+          onSaved={() => setOpportunitiesVersion((version) => version + 1)}
+        />
+      ) : null}
+    </>
+  );
+
+  if (presentation === "sheet") {
+    return (
+      <ElevatedSheet open={open} onOpenChange={(next) => (next ? undefined : onClose())}>
+        <ElevatedSheetContent side="right" className="w-full max-w-md gap-0 p-0 sm:max-w-lg [&>button:last-child]:right-3 [&>button:last-child]:top-2">
+          <ElevatedSheetDescription className="sr-only">{t("toggleTooltip")}</ElevatedSheetDescription>
+          {panelBody}
+        </ElevatedSheetContent>
+      </ElevatedSheet>
+    );
+  }
+
+  return (
+    <aside
+      aria-hidden={!open}
+      inert={!open}
+      className={cn("h-full w-full flex-col border-l border-border bg-card", open ? "flex" : "hidden")}
+    >
+      {panelBody}
     </aside>
   );
 }

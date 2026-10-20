@@ -1,4 +1,4 @@
-import type { AlertRule, AlertRuleDraft, AlertVocabulary, AnalyzedComment, AuthorContainersPage, AuthorSort, EscalationRecipient, EscalationResult, BackfillEstimate, CommentAnalysisSettings, CommentAnalysisSettingsPatch, CommentAnalysisSpend, CommentAnalysisStats, CommentAuthor, CommentBackfill, CommentContainerOverridePut, CommentContainerSettings, CommentListFilters, AudienceSource, CommentSource, CommentStance, ModerationState, PaginatedMeta, ReplySuggestion, RollupScope, TrendPoint } from '@/lib/audience/types';
+import type { AlertRule, AlertRuleDraft, AlertVocabulary, AnalyzedComment, AuthorContainersPage, AuthorSort, EscalationRecipient, EscalationResult, BackfillEstimate, CommentAnalysisSettings, CommentAnalysisSettingsPatch, CommentAnalysisSpend, CommentAnalysisStats, CommentAuthor, CommentBackfill, CommentContainerOverridePut, CommentContainerSettings, CommentListFilters, AudienceSource, AnalysableCommentSource, CommentStance, ModerationState, PaginatedMeta, ReplySuggestion, RollupScope, TrendPoint } from '@/lib/audience/types';
 import { EMPTY_COUNTERS, EMPTY_META } from '@/lib/audience/types';
 
 import { apiClient } from '@/lib/api/browser-client';
@@ -193,7 +193,7 @@ export async function setCommentAuthorModerationAction(authorId: string, state: 
     return { author: response.data };
 }
 
-export async function getCommentAnalysisSettingsAction(source: CommentSource, accountId: string) {
+export async function getCommentAnalysisSettingsAction(source: AnalysableCommentSource, accountId: string) {
     const response = await apiClient<CommentAnalysisSettings>(
         `/audience/settings/${source}/${accountId}`,
         { method: 'GET' },
@@ -203,7 +203,7 @@ export async function getCommentAnalysisSettingsAction(source: CommentSource, ac
 }
 
 export async function updateCommentAnalysisSettingsAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     patch: CommentAnalysisSettingsPatch,
 ) {
@@ -235,7 +235,7 @@ export async function getCommentAnalysisSpendAction(accountId: string, days?: nu
 }
 
 export async function estimateCommentBackfillAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     containerId?: string,
 ) {
@@ -251,7 +251,7 @@ export async function estimateCommentBackfillAction(
 }
 
 export async function startCommentBackfillAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     confirmedEstimate: number,
     containerId?: string,
@@ -290,7 +290,7 @@ export async function listCommentAnalysisAccountsAction() {
 }
 
 export async function getCommentContainerSettingsAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     containerId: string,
 ) {
@@ -303,7 +303,7 @@ export async function getCommentContainerSettingsAction(
 }
 
 export async function putCommentContainerSettingsAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     containerId: string,
     override: CommentContainerOverridePut,
@@ -317,7 +317,7 @@ export async function putCommentContainerSettingsAction(
 }
 
 export async function deleteCommentContainerSettingsAction(
-    source: CommentSource,
+    source: AnalysableCommentSource,
     accountId: string,
     containerId: string,
 ) {

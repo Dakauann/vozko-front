@@ -10,6 +10,7 @@ import type {
     GroupCampaign,
     GroupDetail,
     GroupMember,
+    GroupMessagesPage,
     GroupPerson,
     GroupRef,
     GroupRow,
@@ -37,6 +38,7 @@ import type {
 
 import { apiClient } from '@/lib/api/browser-client';
 import { downloadApiFile } from '@/lib/api/download-file';
+import { memberExportQuery, type MemberExportTarget } from '@/lib/unofficial-whatsapp-groups/member-export';
 
 const BASE = '/unofficial-whatsapp/groups';
 
@@ -154,6 +156,10 @@ export async function leaveWorkspaceGroupAction(groupId: string, instanceIds: st
     return send<{ left: boolean }>(`${BASE}/${groupId}/leave`, 'POST', { instanceIds });
 }
 
+export async function getGroupMessagesAction(groupId: string, before?: string) {
+    return getOne<GroupMessagesPage>(`${BASE}/${groupId}/messages${query({ before })}`);
+}
+
 export async function getWorkspaceGroupInviteLinkAction(groupId: string) {
     const result = await getOne<{ inviteLink: string }>(`${BASE}/${groupId}/invite-link`);
     return { inviteLink: result.data?.inviteLink ?? '', error: result.error };
@@ -168,9 +174,15 @@ export async function listGroupMembersAction(groupId: string, params: ListMember
     return getPage<GroupMember>(`${BASE}/${groupId}/members${query({ ...params })}`);
 }
 
-export async function exportGroupMembersAction(groupId: string) {
-    const { error } = await downloadApiFile(`${BASE}/${groupId}/members/export`, 'membros.csv', { accept: 'text/csv' });
+export async function exportMembersAction(target: MemberExportTarget) {
+    const search = memberExportQuery(target);
+    if (!search) return { error: undefined };
+    const { error } = await downloadApiFile(`${BASE}/members/export${search}`, 'membros.csv', { accept: 'text/csv' });
     return { error: error?.message };
+}
+
+export async function addGroupPeopleToLeadsAction(personKeys: string[]) {
+    return send<LeadLinkResult>(`${BASE}/people/leads`, 'POST', { personKeys });
 }
 
 export async function addGroupMembersToLeadsAction(groupId: string, personKeys: string[]) {
@@ -187,6 +199,10 @@ export async function previewGroupInviteAction(inviteLink: string) {
 
 export async function joinWorkspaceGroupAction(payload: JoinGroupPayload) {
     return send<JoinResult>(`${BASE}/joins`, 'POST', payload);
+}
+
+export async function addGroupNumbersAction(groupId: string, instanceIds: string[]) {
+    return send<JoinResult>(`${BASE}/${encodeURIComponent(groupId)}/numbers`, 'POST', { instanceIds });
 }
 
 export async function listGroupJoinsAction() {

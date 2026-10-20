@@ -11,15 +11,12 @@ import {
 import ScheduleWhenField, { useScheduleWhen } from "./ScheduleWhenField";
 import type { ScheduledMessage, SchedulingWindow } from "@/lib/scheduled-messages/types";
 import { type TemplateComposerInitial, useTemplateComposer } from "@/hooks/use-template-composer";
-import { Warning, WarningCircle } from "@/components/icons";
+import { Warning } from "@/components/icons";
 import { useCallback, useMemo, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
-import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import type { EntryType } from "@/lib/conversations/types";
-import { QuoteRefusalNotice } from "@/components/whatsapp/quote-refusal-notice";
-import { TemplateConversationPreview } from "@/components/whatsapp/template-conversation-preview";
-import { TemplateVariableFields } from "@/components/whatsapp/template-variable-fields";
+import { TemplatePickerFields } from "./TemplatePickerFields";
 import { scheduleMessageAction } from "@/app/actions/scheduled-messages";
 import { templateSchedulingWindow } from "@/lib/scheduled-messages/window";
 import { useTranslations } from "next-intl";
@@ -59,7 +56,7 @@ export default function ScheduleTemplateDialog({
     const when = useScheduleWhen(templateWindow);
 
     const canSubmit = Boolean(
-        composer.templateId && !composer.missingValues && when.valid && !submitting,
+        composer.ready && when.valid && !submitting,
     );
 
     const handleSubmit = useCallback(async () => {
@@ -98,8 +95,6 @@ export default function ScheduleTemplateDialog({
         onOpenChange(false);
     }, [composer, entryId, entryType, idempotencyKey, onOpenChange, onScheduled, submitting, t, when.chosen]);
 
-    const noTemplates =
-        !composer.templatesLoading && composer.templates.length > 0 && composer.readyTemplates.length === 0;
     const errorCopy = serverError ?? when.clientError;
 
     return (
@@ -114,66 +109,21 @@ export default function ScheduleTemplateDialog({
                 </ElevatedDialogHeader>
 
                 <div className="-mx-7 min-h-0 flex-1 overflow-y-auto px-7 pb-1 pt-2">
-                    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-                        <div className="space-y-5">
-                            {!businessPhoneId ? (
-                                <p className="text-2xs text-muted-foreground">{t("templateDialog.noNumber")}</p>
-                            ) : (
-                                <ElevatedCommandSelect
-                                    label={t("templateDialog.templateLabel")}
-                                    value={composer.templateId}
-                                    onValueChange={composer.selectTemplate}
-                                    options={composer.templateOptions}
-                                    disabled={composer.templatesLoading}
-                                    isLoading={composer.templatesLoading}
-                                    searchPlaceholder={t("templateDialog.templateSearch")}
-                                    emptyMessage={t("templateDialog.templateEmpty")}
-                                    contentClassName="z-[200]"
-                                    fullWidth
-                                />
-                            )}
-
-                            {noTemplates && (
-                                <p className="text-2xs text-muted-foreground">{t("templateDialog.noTemplates")}</p>
-                            )}
-
-                            <TemplateVariableFields
-                                slots={composer.slots}
-                                bodyValues={composer.bodyValues}
-                                headerValues={composer.headerValues}
-                                onBodyChange={composer.setBodyValue}
-                                onHeaderChange={composer.setHeaderValue}
-                            />
-
-                            <ScheduleWhenField when={when} />
-
-                            {composer.quote && !composer.quote.affordable && (
-                                <p className="flex items-start gap-1.5 text-xs text-destructive-ink">
-                                    <WarningCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" weight="fill" aria-hidden />
-                                    {t("templateDialog.insufficientNow")}
-                                </p>
-                            )}
-
-                            <QuoteRefusalNotice message={composer.quoteError} onRetry={composer.retryQuote} />
-
-                            {errorCopy && (
+                    <TemplatePickerFields
+                        composer={composer}
+                        businessPhoneId={businessPhoneId}
+                        previewDateLabel={when.chosen ? when.chosen.toLocaleDateString() : ""}
+                        notice={
+                            errorCopy && (
                                 <div className="flex items-start gap-2 rounded-[--radius] border border-border bg-card px-3 py-2">
                                     <Warning weight="fill" className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-ink" />
                                     <p className="text-2xs text-foreground">{errorCopy}</p>
                                 </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <span className="legend">{t("templateDialog.previewLabel")}</span>
-                            <TemplateConversationPreview
-                                metadata={composer.previewMetadata}
-                                dateLabel={when.chosen ? when.chosen.toLocaleDateString() : ""}
-                                emptyLabel={t("templateDialog.previewEmpty")}
-                                className="min-h-[240px]"
-                            />
-                        </div>
-                    </div>
+                            )
+                        }
+                    >
+                        <ScheduleWhenField when={when} />
+                    </TemplatePickerFields>
                 </div>
 
                 <ElevatedDialogFooter className="-mx-7 shrink-0 border-t border-border px-7 pt-4">

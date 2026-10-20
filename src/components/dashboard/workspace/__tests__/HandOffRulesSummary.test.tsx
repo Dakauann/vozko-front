@@ -55,6 +55,24 @@ describe("HandOffRulesSummary", () => {
     expect(screen.getByText(t.noRescue)).toBeTruthy();
   });
 
+  it("states how the next person is picked and the open conversation limit", () => {
+    mockConfig = { rouletteMode: "online", rouletteStrategy: "priority", rouletteMaxOpenPerMember: 5 } as WorkspaceConfig;
+
+    renderSummary();
+
+    expect(screen.getByText(t.strategies.priority)).toBeTruthy();
+    expect(screen.getByText("Quem já tem 5 conversas abertas não recebe novas.")).toBeTruthy();
+  });
+
+  it("says round robin and no limit line when nothing else is configured", () => {
+    mockConfig = { rouletteMode: "online" } as WorkspaceConfig;
+
+    renderSummary();
+
+    expect(screen.getByText(t.strategies.round_robin)).toBeTruthy();
+    expect(screen.queryByText(/não recebe novas/)).toBeNull();
+  });
+
   it("shows nothing it cannot back with the workspace's settings", () => {
     mockConfig = null;
 

@@ -3,15 +3,15 @@
 import { ChatCircleDots, Eye, EyeSlash, Heart, PaperPlaneRight, Pencil, Trash } from "@/components/icons";
 import { useState } from "react";
 
-import Button from "@/components/elevated-design/button";
 import {
   privateReplyError,
   privateReplyOpen,
   type CommentThreadActions,
   type SocialComment,
 } from "@/lib/social/comments";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+
+import { CommentAuthorLine, CommentIconAction, CommentListFrame, CommentText } from "./comment-row-parts";
 
 interface Props {
   comments: SocialComment[];
@@ -38,34 +38,16 @@ export function CommentThread({
   onLoadMore,
   onChanged,
 }: Props) {
-  const t = useTranslations(translationNamespace);
-
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-3 p-4">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
-        ))}
-      </div>
-    );
-  }
-
-  if (comments.length === 0) {
-    const hidden = (totalCount ?? 0) > 0;
-    return (
-      <div className="flex flex-col items-center gap-2 p-6 text-center">
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
-        {hidden && (
-          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
-            {t("countMismatch", { count: totalCount ?? 0 })}
-          </p>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col">
+    <CommentListFrame
+      translationNamespace={translationNamespace}
+      loading={loading}
+      count={comments.length}
+      totalCount={totalCount}
+      hasNext={hasNext}
+      loadingMore={loadingMore}
+      onLoadMore={onLoadMore}
+    >
       {comments.map((comment) => (
         <CommentRow
           key={comment.id}
@@ -76,19 +58,7 @@ export function CommentThread({
           onChanged={onChanged}
         />
       ))}
-
-      {hasNext ? (
-        <div className="p-4">
-          <Button variant="secondary" className="w-full" onClick={onLoadMore} disabled={loadingMore}>
-            {loadingMore ? t("loading") : t("loadMore")}
-          </Button>
-        </div>
-      ) : (
-        <p className="p-3 text-center text-2xs text-muted-foreground">
-          {t("allLoaded", { count: comments.length })}
-        </p>
-      )}
-    </div>
+    </CommentListFrame>
   );
 }
 
@@ -118,8 +88,9 @@ function CommentRow({
   const [privateReplySent, setPrivateReplySent] = useState(false);
 
   const [mountedAt] = useState(() => Date.now());
-  const canPrivateReply = !privateReplySent && privateReplyOpen(comment, mountedAt);
-  const showModeration = comment.canHide || comment.canRemove || comment.canLike;
+  const canPrivateReply = !privateReplySent && Boolean(actions.privateReply) && privateReplyOpen(comment, mountedAt);
+  const canHide = comment.canHide && Boolean(actions.setHidden);
+  const showModeration = canHide || comment.canRemove || comment.canLike;
 
   const openMode = (next: Mode) => {
     setMode(mode === next ? "none" : next);
@@ -151,7 +122,7 @@ function CommentRow({
         finish();
         onChanged();
       }
-    } else if (mode === "private") {
+    } else if (mode === "private" && actions.privateReply) {
       const result = await actions.privateReply(comment.id, value);
       if (result.error) {
         const known = privateReplyError(result.code);
@@ -178,11 +149,7 @@ function CommentRow({
     <div className="border-b border-border px-4 py-3" style={{ paddingLeft: `${16 + depth * 24}px` }}>
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm">
-            <span className="font-semibold text-foreground">
-              {authorPrefix}
-              {comment.author || t("unknownUser")}
-            </span>
+          <CommentAuthorLine author={comment.author} fallback={t("unknownUser")} prefix={authorPrefix}>
             {comment.isOurs && (
               <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground">{t("you")}</span>
             )}
@@ -192,8 +159,8 @@ function CommentRow({
                 {t("hidden")}
               </span>
             )}
-          </p>
-          <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-foreground">{comment.text}</p>
+          </CommentAuthorLine>
+          <CommentText text={comment.text} />
           <div className="mt-1 flex flex-wrap items-center gap-3 text-2xs text-muted-foreground">
             {comment.createdAt && <span>{new Date(comment.createdAt).toLocaleString()}</span>}
             <span>{t("likes", { count: comment.likeCount })}</span>
@@ -231,46 +198,31 @@ function CommentRow({
         {showModeration && (
           <div className="flex shrink-0 items-center gap-1">
             {comment.canLike && actions.setLiked && (
-              <button
-                type="button"
+              <CommentIconAction
+                label={comment.likedByPage ? t("unlike") : t("like")}
                 onClick={() => void run(() => actions.setLiked!(comment.id, !comment.likedByPage))}
                 disabled={busy}
-                aria-pressed={comment.likedByPage}
-                aria-label={comment.likedByPage ? t("unlike") : t("like")}
-                title={comment.likedByPage ? t("unlike") : t("like")}
-                className={cn(
-                  "rounded p-1 transition-colors hover:bg-muted disabled:opacity-40",
-                  comment.likedByPage ? "text-destructive-ink" : "text-muted-foreground hover:text-foreground",
-                )}
+                pressed={comment.likedByPage}
+                className={comment.likedByPage ? "text-destructive-ink" : "text-muted-foreground hover:text-foreground"}
               >
                 <Heart size={14} weight={comment.likedByPage ? "fill" : "regular"} />
-              </button>
+              </CommentIconAction>
             )}
 
-            {comment.canHide && (
-              <button
-                type="button"
-                onClick={() => void run(() => actions.setHidden(comment.id, !comment.hidden))}
+            {canHide && actions.setHidden && (
+              <CommentIconAction
+                label={comment.hidden ? t("unhide") : t("hide")}
+                onClick={() => void run(() => actions.setHidden!(comment.id, !comment.hidden))}
                 disabled={busy}
-                aria-label={comment.hidden ? t("unhide") : t("hide")}
-                title={comment.hidden ? t("unhide") : t("hide")}
-                className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               >
                 {comment.hidden ? <Eye size={14} /> : <EyeSlash size={14} />}
-              </button>
+              </CommentIconAction>
             )}
 
             {comment.canRemove && (
-              <button
-                type="button"
-                onClick={() => void run(() => actions.remove(comment.id))}
-                disabled={busy}
-                aria-label={t("delete")}
-                title={t("delete")}
-                className="rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive-ink disabled:opacity-40"
-              >
+              <CommentIconAction label={t("delete")} onClick={() => void run(() => actions.remove(comment.id))} disabled={busy} danger>
                 <Trash size={14} />
-              </button>
+              </CommentIconAction>
             )}
           </div>
         )}

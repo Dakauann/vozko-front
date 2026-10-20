@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { listGroupPeopleAction } from "@/app/actions/unofficial-whatsapp-groups";
+import { addGroupPeopleToLeadsAction, listGroupPeopleAction } from "@/app/actions/unofficial-whatsapp-groups";
 import { Meter } from "@/components/charts/vozko";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Button from "@/components/elevated-design/button";
@@ -21,6 +21,7 @@ import {
   EyeSlash,
   IdentificationCard,
   MagnifyingGlass,
+  UserPlus,
   UsersThree,
 } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,6 +44,7 @@ import {
   pageCounts,
   parsePeopleQuery,
   peopleHref,
+  canBecomeLead,
   personSource,
 } from "./people-model";
 
@@ -74,6 +76,10 @@ function GroupPeople() {
   const searchParams = useSearchParams();
   const { can } = useWorkspace();
   const canOpenLeads = can("leads", "read");
+  const canAddLeads = canOpenLeads && can("leads", "create");
+  const tLeads = useTranslations("unofficialGroups.detail.members");
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const [linking, setLinking] = useState(false);
   const { search, minGroups } = useMemo(() => parsePeopleQuery(new URLSearchParams(searchParams.toString())), [searchParams]);
 
   const [people, setPeople] = useState<GroupPerson[]>([]);
@@ -119,12 +125,38 @@ function GroupPeople() {
       const query = href.includes("?") ? href.slice(href.indexOf("?")) : "";
       setPage(1);
       setExpanded(new Set());
+      setSelected(new Set());
       router.replace(`${pathname}${query}`, { scroll: false });
     },
     [search, minGroups, pathname, router],
   );
 
   const reload = useCallback(() => setRefreshKey((value) => value + 1), []);
+
+  const addToLeads = useCallback(
+    async (personKeys: string[]) => {
+      if (personKeys.length === 0) return;
+      setLinking(true);
+      const result = await addGroupPeopleToLeadsAction(personKeys);
+      setLinking(false);
+      if (result.error || !result.data) {
+        toast.error(tLeads("leads.failed"), { description: result.error });
+        return;
+      }
+      toast(tLeads("leads.done"), {
+        description: tLeads("leads.result", {
+          linked: result.data.linked,
+          alreadyLinked: result.data.alreadyLinked,
+          withoutPhone: result.data.withoutPhone,
+        }),
+      });
+      setSelected(new Set());
+      reload();
+    },
+    [tLeads, reload],
+  );
+
+  const leadTargets = useMemo(() => people.filter((person) => selected.has(person.personKey) && canBecomeLead(person)), [people, selected]);
 
   const toggleRow = useCallback((personKey: string) => {
     setExpanded((current) => {
@@ -181,7 +213,23 @@ function GroupPeople() {
         key: "lead",
         header: t("table.lead"),
         render: (person) => {
-          if (!person.leadId) return <EmptyValue className="text-xs" />;
+          if (!person.leadId) {
+            if (!canAddLeads || !canBecomeLead(person)) return <EmptyValue className="text-xs" />;
+            return (
+              <Button
+                variant="ghost"
+                size="sm"
+                title={tLeads("leads.add")}
+                icon={<UserPlus className="h-3.5 w-3.5" weight="bold" />}
+                iconVisible
+                disabled={linking}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  void addToLeads([person.personKey]);
+                }}
+              />
+            );
+          }
           const leadLabel = person.leadName?.trim() || t("table.leadUnnamed");
           if (!canOpenLeads) return <span className="text-xs text-muted-foreground">{leadLabel}</span>;
           return (
@@ -201,7 +249,7 @@ function GroupPeople() {
         render: (person) => <RelativeTime at={person.lastJoinAt} className="readout whitespace-nowrap text-xs tabular-nums text-muted-foreground" />,
       },
     ],
-    [t, fmt, counts.maxGroups, canOpenLeads],
+    [t, tLeads, fmt, counts.maxGroups, canOpenLeads, canAddLeads, linking, addToLeads],
   );
 
   const emptyState = useMemo<DashboardTableEmptyState>(() => {
@@ -282,6 +330,29 @@ function GroupPeople() {
               options={minGroupOptions(minGroups).map((value) => ({ value, label: t("minGroups.option", { count: value }) }))}
             />
           </div>
+        }
+        selection={
+          canAddLeads
+            ? {
+                selectedKeys: selected,
+                onSelectionChange: setSelected,
+                label: (count) => t("selection.label", { count }),
+                actions: () => (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      title={t("selection.addToLeads", { count: leadTargets.length })}
+                      icon={<UserPlus className="h-4 w-4" />}
+                      iconVisible
+                      disabled={linking || leadTargets.length === 0}
+                      onClick={() => void addToLeads(leadTargets.map((person) => person.personKey))}
+                    />
+                    <Button variant="ghost" size="sm" title={t("selection.clear")} onClick={() => setSelected(new Set())} />
+                  </div>
+                ),
+              }
+            : undefined
         }
         onRowClick={(person) => toggleRow(person.personKey)}
         isRowExpanded={(person) => expanded.has(person.personKey)}

@@ -1,14 +1,17 @@
 "use client";
 
-import { ChatCircle, InstagramLogo, MessengerLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
+import { ChatCircle, Handshake, InstagramLogo, MessengerLogo, Phone, TelegramLogo, WhatsappLogo } from "@/components/icons";
 
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 type ChannelTileSpec = {
   plate: string;
+  ink?: string;
   Glyph: Icon;
 };
+
+const LIGHT_INK = "text-white";
 
 const CHANNEL_TILES: Record<string, ChannelTileSpec> = {
   whatsapp: { plate: "bg-[#25D366]", Glyph: WhatsappLogo },
@@ -23,6 +26,7 @@ const CHANNEL_TILES: Record<string, ChannelTileSpec> = {
   },
   telegram: { plate: "bg-[#229ED9]", Glyph: TelegramLogo },
   webchat: { plate: "bg-[#0D9488]", Glyph: ChatCircle },
+  mercadolivre: { plate: "bg-[#FFE600]", ink: "text-[#2D3277]", Glyph: Handshake },
   voice: { plate: "bg-[#8B5CF6]", Glyph: Phone },
 };
 
@@ -34,7 +38,7 @@ const SIZES = {
 
 export function channelPlate(channel: string | null | undefined): string {
   const spec = CHANNEL_TILES[channel ?? ""];
-  return spec ? `${spec.plate} text-white` : "tile-neutral";
+  return spec ? `${spec.plate} ${spec.ink ?? LIGHT_INK}` : "tile-neutral";
 }
 
 export function ChannelTile({
@@ -63,7 +67,7 @@ export function ChannelTile({
     );
   }
 
-  const { plate, Glyph } = spec;
+  const { plate, ink = LIGHT_INK, Glyph } = spec;
   return (
     <div
       className={cn(
@@ -73,7 +77,7 @@ export function ChannelTile({
         className,
       )}
     >
-      <Glyph className={cn(s.glyph, "text-white")} weight="fill" />
+      <Glyph className={cn(s.glyph, ink)} weight="fill" />
     </div>
   );
 }

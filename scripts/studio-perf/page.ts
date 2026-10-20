@@ -1,4 +1,5 @@
 import { drawCallsSoFar, lastCanvasCreatedAt, startProbes, stopProbes } from "./probes";
+import { createFrameRecorder } from "./frame-recorder";
 import { createElement as h } from "react";
 import { createRoot } from "react-dom/client";
 import { IntlProvider } from "use-intl";
@@ -46,15 +47,7 @@ const naturalSize = async () => ({ width: 1000, height: 1000 });
 const commands = createImageCommands(store, ui, { requestJob: async () => ({ error: "harness", code: "harness" }) as never, naturalSize });
 const agent = createImageAgent({ store, ui, commands, naturalSize, presence: createAgentPresence(), label: (action) => action, reduceMotion: () => true });
 
-const frames: number[] = [];
-let recording = false;
-let last = 0;
-function tick(now: number) {
-  if (recording && last > 0) frames.push(now - last);
-  last = now;
-  requestAnimationFrame(tick);
-}
-requestAnimationFrame(tick);
+const recorder = createFrameRecorder();
 
 const QUIET_MS = 800;
 
@@ -186,18 +179,15 @@ const harness = {
     return ui.getState().viewport;
   },
   record() {
-    frames.length = 0;
     startProbes();
-    recording = true;
+    recorder.start();
     return store.getState().revision;
   },
   async stop(quick = false) {
     await (quick ? nextFrames() : settle());
-    recording = false;
+    const stats = recorder.stop();
     const probes = await stopProbes();
-    const sorted = [...frames].sort((a, b) => a - b);
-    const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0;
-    return { ...probes, frames: sorted.length, p50: at(0.5), p95: at(0.95), max: sorted[sorted.length - 1] ?? 0, slow: sorted.filter((d) => d > 34).length, revision: store.getState().revision };
+    return { ...probes, ...stats, revision: store.getState().revision };
   },
   positions(count: number) {
     return store.getState().document.artboards[0].layers.slice(0, count).map((l) => [l.transform.x, l.transform.y]);

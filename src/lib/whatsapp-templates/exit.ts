@@ -4,6 +4,7 @@ export const BUTTON_ACTION_KINDS = [
   "opt_out",
   "consent_grant",
   "hand_off",
+  "delegate",
   "start_workflow",
   "call_list",
   "classify",
@@ -35,6 +36,7 @@ export interface ButtonActionParams {
   purpose?: string;
   departmentId?: string;
   userId?: string;
+  agentId?: string;
   workflowId?: string;
   callListId?: string;
   fieldKey?: string;

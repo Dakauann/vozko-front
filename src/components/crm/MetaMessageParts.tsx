@@ -120,18 +120,6 @@ export function SharedLinkCard({
   );
 }
 
-export function ReactionChip({ emoji }: { emoji: string }) {
-  const t = useTranslations("crmConversation.meta");
-  return (
-    <span
-      aria-label={t("reaction", { emoji })}
-      className="inline-flex items-center rounded-full border border-border bg-card px-1.5 py-0.5 text-xs leading-none shadow-sm"
-    >
-      {emoji}
-    </span>
-  );
-}
-
 export function ReferralChip({ referral }: { referral: MetaReferral }) {
   const t = useTranslations("crmConversation.meta");
   const label = referral.adTitle

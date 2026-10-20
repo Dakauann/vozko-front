@@ -7,13 +7,13 @@ import {
   type InspectorGroupId,
 } from "@/lib/studio/inspector-layout";
 
-import { browserStorage, type StudioStorage } from "../browser-storage";
+import { browserStorage, type BrowserStorage } from "@/lib/browser-storage";
 
 ;
 
 export type InspectorScope = "video" | "image";
 
-type InspectorStorage = StudioStorage;
+type InspectorStorage = BrowserStorage;
 
 interface Entry {
   group: InspectorGroupId;

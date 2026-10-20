@@ -11,12 +11,26 @@ import {
 import {
   Handle,
   Position,
-  useUpdateNodeInternals,
 } from "@xyflow/react";
 import { motion } from "framer-motion";
-import { Image as ImageIcon, VideoCamera, Warning } from "@/components/icons";
+import { Image as ImageIcon, PushPin, VideoCamera, Warning } from "@/components/icons";
 import type { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { NODE_ACTIVE, NODE_BREAKPOINT, NODE_PAUSED, NODE_REAL_CALL, hasDebugFlag } from "@/lib/workflows/debug-marks";
+import {
+  COMPACT_HEADER_PX,
+  SUMMARY_LINE_PX,
+  compactContentHeight,
+  handleCenters,
+  summaryLineCount,
+  useNodeDetail,
+  type CompactTier,
+} from "./canvas-detail";
+import type { NodeSummary } from "./node-previews/node-summary";
+import { MISSING_OUTPUT_TITLE, MissingOutputRows, useMissingOutputs } from "./missing-outputs";
+import { useBatchedNodeInternals } from "./node-internals-batch";
+import { useNodeDebugFlags } from "./node-debug-marks";
+import { useRunNodeMark } from "./run-overlay";
 
 
 const WA_CHAT_BG = "bg-[#efeae2] dark:bg-[#0b141a]";
@@ -130,26 +144,74 @@ export function MessageBubble({
   );
 }
 
+export const NODE_MEDIA_BOX = { width: 210, height: 128 } as const;
+export const NODE_MEDIA_GLANCE_BOX = { width: 210, height: 96 } as const;
+const HEADER_MEDIA_BOX = { width: 216, height: 95 } as const;
+
+function hideBrokenMedia(e: { currentTarget: HTMLElement }) {
+  e.currentTarget.style.display = "none";
+}
+
+export function PreviewImage({
+  src,
+  alt,
+  box,
+  priority,
+  className,
+}: {
+  src: string;
+  alt: string;
+  box: { width: number; height: number };
+  priority: "low" | "auto";
+  className: string;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      width={box.width}
+      height={box.height}
+      decoding="async"
+      loading="lazy"
+      fetchPriority={priority}
+      draggable={false}
+      className={className}
+      onError={hideBrokenMedia}
+    />
+  );
+}
+
+export function MessageMediaGlance({ url }: { url: string }) {
+  return (
+    <ChatSurface>
+      <div className="overflow-hidden rounded-md">
+        <MediaHeader url={url} kind="image" priority="low" />
+      </div>
+    </ChatSurface>
+  );
+}
+
 function MediaHeader({
   url,
   kind,
+  priority = "auto",
 }: {
   url: string;
   kind: "image" | "video";
+  priority?: "low" | "auto";
 }) {
   const trimmed = url.trim();
   const Icon = kind === "image" ? ImageIcon : VideoCamera;
   return (
     <div className="relative flex aspect-[16/7] items-center justify-center overflow-hidden rounded-t-md bg-black/5 dark:bg-white/5">
       {kind === "image" && trimmed ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <PreviewImage
           src={trimmed}
           alt="header"
+          box={HEADER_MEDIA_BOX}
+          priority={priority}
           className="h-full w-full object-cover"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = "none";
-          }}
         />
       ) : (
         // eslint-disable-next-line jsx-a11y/alt-text
@@ -238,6 +300,8 @@ export interface ShellBranch {
   id: string;
   dot?: string;
   required?: boolean;
+  label?: string;
+  missing?: boolean;
 }
 
 const HANDLE_PAD_CLASS =
@@ -313,6 +377,132 @@ function RequiredHandleMarker() {
   );
 }
 
+const COMPACT_TITLE_CLASS: Record<CompactTier, string> = {
+  simplified: "text-[15px]",
+  minimal: "text-[24px] leading-tight",
+};
+
+const SUMMARY_UNDER_GLANCE_PX = 52;
+
+const COMPACT_ICON: Record<CompactTier, { box: number; glyph: number }> = {
+  simplified: { box: 22, glyph: 13 },
+  minimal: { box: 30, glyph: 18 },
+};
+
+function CompactSummary({
+  tier,
+  summary,
+  height,
+}: {
+  tier: CompactTier;
+  summary: NodeSummary;
+  height: number;
+}) {
+  if (tier === "minimal") {
+    const line = (summary.heading || summary.text || "").split("\n")[0];
+    return (
+      <p className="truncate px-2.5 py-1 text-[18px] leading-snug text-muted-foreground">
+        {line}
+      </p>
+    );
+  }
+  const lines = summary.text ? summaryLineCount(height, Boolean(summary.heading)) : 0;
+  return (
+    <div className="px-2.5 py-2">
+      {summary.heading && (
+        <p className="truncate text-[14px] font-semibold leading-5 text-foreground">
+          {summary.heading}
+        </p>
+      )}
+      {lines > 0 && (
+        <p
+          className="whitespace-pre-line break-words text-[13px] text-foreground/75"
+          style={{
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: lines,
+            overflow: "hidden",
+            lineHeight: `${SUMMARY_LINE_PX}px`,
+          }}
+        >
+          {summary.text}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CompactNodeCard({
+  tier,
+  className,
+  icon: IconComp,
+  iconColor,
+  iconInk,
+  label,
+  warning,
+  pinned,
+  glance,
+  summary,
+  branches,
+  branchTops,
+  height,
+}: {
+  tier: CompactTier;
+  className: string;
+  icon: Icon;
+  iconColor: string;
+  iconInk: string;
+  label: string;
+  warning: boolean;
+  pinned: boolean;
+  glance: ReactNode;
+  summary: NodeSummary | null;
+  branches: ShellBranch[];
+  branchTops: Record<string, number>;
+  height: number;
+}) {
+  const labelled = tier === "simplified" ? branches.filter((b) => b.label && branchTops[b.id] != null) : [];
+  const contentHeight = compactContentHeight(tier, height, labelled.map((b) => branchTops[b.id]));
+  const icon = COMPACT_ICON[tier];
+  return (
+    <div className={className} data-detail-tier={tier}>
+      <div
+        className="flex items-center gap-2 border-b border-border bg-card px-2.5"
+        style={{ height: COMPACT_HEADER_PX[tier] }}
+      >
+        <div
+          className="flex shrink-0 items-center justify-center rounded-[--radius]"
+          style={{ backgroundColor: iconColor, width: icon.box, height: icon.box }}
+        >
+          <IconComp size={icon.glyph} weight="fill" style={{ color: iconInk }} />
+        </div>
+        <span className={cn("min-w-0 flex-auto truncate font-semibold text-foreground", COMPACT_TITLE_CLASS[tier])}>
+          {label}
+        </span>
+        {warning && <Warning size={icon.glyph} weight="fill" className="shrink-0 text-warning-ink" />}
+        {pinned && <PushPin size={icon.glyph} weight="fill" aria-label="Saída fixada" className="shrink-0 text-primary-ink" />}
+      </div>
+      <div className="overflow-hidden" style={{ height: contentHeight }}>
+        {tier === "minimal" && summary && <CompactSummary tier={tier} summary={summary} height={contentHeight} />}
+        {glance}
+        {tier === "simplified" && summary && (
+          <CompactSummary tier={tier} summary={summary} height={glance ? SUMMARY_UNDER_GLANCE_PX : contentHeight} />
+        )}
+      </div>
+      {labelled.map((b) => (
+        <span
+          key={b.id}
+          data-branch-label
+          className="pointer-events-none absolute right-4 max-w-[80%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] text-muted-foreground"
+          style={{ top: branchTops[b.id] }}
+        >
+          {b.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 interface InteractiveNodeShellProps {
   id: string;
   label: string;
@@ -326,11 +516,14 @@ interface InteractiveNodeShellProps {
   appearSeq?: number | null;
   hasMissingRequired?: boolean;
   isSimulating?: boolean;
+  pinned?: boolean;
   searchMatch?: boolean;
   searchDim?: boolean;
   hideInputHandle?: boolean;
   hideOutputHandle?: boolean;
   defaultOutputRequired?: boolean;
+  glance?: ReactNode;
+  summary?: NodeSummary | null;
   children: (api: {
     registerRow: (el: HTMLElement | null, id: string) => void;
   }) => ReactNode;
@@ -343,25 +536,44 @@ export function InteractiveNodeShell({
   iconColor,
   iconInk = "#ffffff",
   width,
-  branches,
+  branches: declaredBranches,
   selected,
   flashAt = null,
   appearSeq = null,
   hasMissingRequired,
   isSimulating,
+  pinned = false,
   searchMatch,
   searchDim,
   hideInputHandle,
   hideOutputHandle,
   defaultOutputRequired = true,
+  glance,
+  summary = null,
   children,
 }: InteractiveNodeShellProps) {
-  const updateNodeInternals = useUpdateNodeInternals();
+  const branches = useMissingOutputs(id, declaredBranches);
+  const updateNodeInternals = useBatchedNodeInternals();
+  const runMark = useRunNodeMark(id);
+  const debugFlags = useNodeDebugFlags(id);
+  const paused = hasDebugFlag(debugFlags, NODE_PAUSED);
+  const simulating = Boolean(isSimulating) || hasDebugFlag(debugFlags, NODE_ACTIVE);
   const branchSig = branches.map((b) => b.id).join("|");
 
   const rootRef = useRef<HTMLDivElement>(null);
   const rowEls = useRef<Map<string, HTMLElement>>(new Map());
   const [tops, setTops] = useState<Record<string, number>>({});
+
+  const { tier, measuredHeight, measuredHandles } = useNodeDetail(id);
+  const compactTops =
+    tier !== "full" && measuredHeight
+      ? handleCenters(
+          branches.map((b) => b.id),
+          measuredHandles,
+        )
+      : null;
+  const compact = compactTops !== null;
+  const handleTops = compactTops ?? tops;
 
   const registerRow = useCallback((el: HTMLElement | null, rid: string) => {
     if (el) rowEls.current.set(rid, el);
@@ -370,7 +582,7 @@ export function InteractiveNodeShell({
 
   useLayoutEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || compact) return;
     const measure = () => {
       const next: Record<string, number> = {};
       for (const b of branches) {
@@ -393,11 +605,11 @@ export function InteractiveNodeShell({
     ro.observe(root);
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchSig, selected]);
+  }, [branchSig, selected, compact]);
 
   useEffect(() => {
-    updateNodeInternals(id);
-  }, [id, tops, updateNodeInternals]);
+    if (!compact) updateNodeInternals(id);
+  }, [id, tops, compact, updateNodeInternals]);
 
   const [flashing, setFlashing] = useState(false);
   useEffect(() => {
@@ -407,16 +619,60 @@ export function InteractiveNodeShell({
     return () => clearTimeout(tid);
   }, [flashAt]);
 
-  const hasBranches = branches.length > 0;
+  const hasBranches = declaredBranches.length > 0;
+
+  const cardClass = (depth: string) =>
+    cn(
+      "relative overflow-hidden rounded-lg border border-border bg-card transition-[border-color,box-shadow,opacity]",
+      depth,
+      !selected && "hover:border-control-edge",
+      selected &&
+        "border-primary ring-2 ring-primary/30 shadow-lg",
+      simulating &&
+        !paused &&
+        "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg animate-pulse",
+      searchMatch &&
+        "ring-[3px] ring-warning ring-offset-2 ring-offset-background shadow-lg shadow-warning/30",
+      runMark === "executed" && "ring-2 ring-primary ring-offset-1 ring-offset-background",
+      runMark === "failed" && "ring-[3px] ring-destructive ring-offset-2 ring-offset-background shadow-lg",
+      paused && "ring-[3px] ring-warning ring-offset-2 ring-offset-background shadow-lg",
+    );
+
+  const header = (
+    <div className="flex items-center gap-1.5 border-b border-border bg-card px-2 py-1.5">
+      <div
+        className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[--radius] shadow-sm"
+        style={{ backgroundColor: iconColor }}
+      >
+        <IconComp size={11} weight="fill" style={{ color: iconInk }} />
+      </div>
+      <span className="min-w-0 flex-auto truncate text-2xs font-semibold text-foreground">
+        {label}
+      </span>
+      {Boolean(hasMissingRequired) && (
+        <Warning size={12} weight="fill" className="shrink-0 text-warning-ink" />
+      )}
+      {pinned && (
+        <span title="Saída fixada" aria-label="Saída fixada" className="inline-flex shrink-0">
+          <PushPin size={11} weight="fill" className="text-primary-ink" />
+        </span>
+      )}
+      <span className="pointer-events-none min-w-0 max-w-[4.5rem] shrink-[4] truncate font-mono text-2xs font-medium text-muted-foreground">
+        {id}
+      </span>
+    </div>
+  );
 
   return (
     <div
       ref={rootRef}
       className={cn(
         "relative transition-opacity duration-200",
-        searchDim && "opacity-30",
+        (searchDim || (runMark === "untouched" && !paused)) && "opacity-30",
       )}
-      style={{ width }}
+      data-run-mark={runMark ?? undefined}
+      data-debug-flags={debugFlags || undefined}
+      style={compact ? { width, height: measuredHeight } : { width }}
     >
       {!hideInputHandle && (
         <Handle
@@ -426,85 +682,95 @@ export function InteractiveNodeShell({
         />
       )}
 
-      <motion.div
-        initial={appearSeq != null ? { opacity: 0 } : false}
-        animate={{ opacity: 1 }}
-        transition={{
-          delay: (appearSeq ?? 0) * 0.07,
-          duration: 0.3,
-          ease: "easeOut",
-        }}
-        className={cn(
-          "relative overflow-hidden rounded-lg border border-border bg-card shadow-md transition-all",
-          !selected && "hover:border-control-edge",
-          selected &&
-            "border-primary ring-2 ring-primary/30 shadow-lg",
-          Boolean(isSimulating) &&
-            "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg animate-pulse",
-          searchMatch &&
-            "ring-[3px] ring-warning ring-offset-2 ring-offset-background shadow-lg shadow-warning/30",
-        )}
-      >
-        {flashing && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-10 rounded-lg bg-muted ring-2 ring-inset ring-primary"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 2.2, times: [0, 0.08, 0.65, 1], ease: "easeOut" }}
-          />
-        )}
+      {hasDebugFlag(debugFlags, NODE_BREAKPOINT) && (
+        <span
+          role="img"
+          aria-label="Ponto de parada"
+          title="Ponto de parada"
+          className="pointer-events-none absolute -left-1.5 -top-1.5 z-10 h-3 w-3 rounded-full bg-destructive ring-2 ring-background"
+        />
+      )}
+      {hasDebugFlag(debugFlags, NODE_REAL_CALL) && (
+        <span className="pointer-events-none absolute -top-6 right-0 z-10 inline-flex items-center gap-1 rounded-[--radius] border border-border bg-card px-1.5 py-0.5 text-2xs font-medium text-foreground shadow-sm">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-warning" />
+          chamada real
+        </span>
+      )}
 
-        <div className="flex items-center gap-1.5 border-b border-border bg-card px-2 py-1.5">
-          <div
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[--radius] shadow-sm"
-            style={{ backgroundColor: iconColor }}
+      {compact && tier !== "full" && measuredHeight ? (
+        <CompactNodeCard
+          tier={tier}
+          className={cardClass("h-full shadow-sm")}
+          icon={IconComp}
+          iconColor={iconColor}
+          iconInk={iconInk}
+          label={label}
+          warning={Boolean(hasMissingRequired)}
+          pinned={pinned}
+          glance={glance}
+          summary={summary}
+          branches={branches}
+          branchTops={handleTops}
+          height={measuredHeight}
+        />
+      ) : (
+        <motion.div
+          initial={appearSeq != null ? { opacity: 0 } : false}
+          animate={{ opacity: 1 }}
+          transition={{
+            delay: (appearSeq ?? 0) * 0.07,
+            duration: 0.3,
+            ease: "easeOut",
+          }}
+          className={cardClass("shadow-md")}
+        >
+          {flashing && (
+            <motion.div
+              className="pointer-events-none absolute inset-0 z-10 rounded-lg bg-muted ring-2 ring-inset ring-primary"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 2.2, times: [0, 0.08, 0.65, 1], ease: "easeOut" }}
+            />
+          )}
+
+          {header}
+
+          {children({ registerRow })}
+
+          <MissingOutputRows branches={branches} registerRow={registerRow} />
+        </motion.div>
+      )}
+
+      {!hasBranches && !hideOutputHandle && (
+        <Handle
+          type="source"
+          position={Position.Right}
+          className={cn(HANDLE_PAD_CLASS, "!-right-[5px] !border-control-edge")}
+        >
+          {defaultOutputRequired && <RequiredHandleMarker />}
+        </Handle>
+      )}
+      {branches.map((b) => {
+        const top = handleTops[b.id];
+        if (top == null) return null;
+        return (
+          <Handle
+            key={b.id}
+            type="source"
+            position={Position.Right}
+            id={b.id}
+            title={b.missing ? MISSING_OUTPUT_TITLE : undefined}
+            style={{ top }}
+            className={cn(
+              HANDLE_PAD_CLASS,
+              "!-right-[5px]",
+              b.dot ?? branchDotClass(b.id),
+            )}
           >
-            <IconComp size={11} weight="fill" style={{ color: iconInk }} />
-          </div>
-          <span className="min-w-0 flex-auto truncate text-2xs font-semibold text-foreground">
-            {label}
-          </span>
-          {Boolean(hasMissingRequired) && (
-            <Warning size={12} weight="fill" className="shrink-0 text-warning-ink" />
-          )}
-          <span className="pointer-events-none min-w-0 max-w-[4.5rem] shrink-[4] truncate font-mono text-2xs font-medium text-muted-foreground">
-            {id}
-          </span>
-        </div>
-
-        {children({ registerRow })}
-      </motion.div>
-
-      {hasBranches
-        ? branches.map((b) => {
-            const top = tops[b.id];
-            if (top == null) return null;
-            return (
-              <Handle
-                key={b.id}
-                type="source"
-                position={Position.Right}
-                id={b.id}
-                style={{ top }}
-                className={cn(
-                  HANDLE_PAD_CLASS,
-                  "!-right-[5px]",
-                  b.dot ?? branchDotClass(b.id),
-                )}
-              >
-                {b.required && <RequiredHandleMarker />}
-              </Handle>
-            );
-          })
-        : !hideOutputHandle && (
-            <Handle
-              type="source"
-              position={Position.Right}
-              className={cn(HANDLE_PAD_CLASS, "!-right-[5px] !border-control-edge")}
-            >
-              {defaultOutputRequired && <RequiredHandleMarker />}
-            </Handle>
-          )}
+            {b.required && <RequiredHandleMarker />}
+          </Handle>
+        );
+      })}
     </div>
   );
 }

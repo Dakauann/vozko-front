@@ -1,47 +1,105 @@
 "use client";
 
-import { useRef, useState, useEffect, type KeyboardEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   X,
   PaperPlaneRight,
   Play,
   Stop,
   Robot,
-  User,
   CircleNotch,
-  CheckCircle,
-  XCircle,
-  Warning,
   ArrowsClockwise,
   CaretDown,
+  PushPin,
+  Target,
+  Globe,
 } from "@/components/icons";
-import { DIAL_KEYS } from "@/lib/dialer/dial-string";
 import { cn } from "@/lib/utils";
 import ElevatedButton from "@/components/elevated-design/button";
-import {
-  type SimEvent,
-  type SimStatus,
-  type UseWorkflowSimulationReturn,
-} from "@/hooks/use-workflow-simulation";
+import { Notice } from "@/components/ui/notice";
+import type { SimStatus, SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
+import { isPinnableStep } from "@/lib/workflows/node-pin";
+import { isPinnableBehavior } from "@/lib/workflows/node-test-behavior";
+import type { InteractiveChoice } from "@/lib/conversations/interactive-message";
+import type { ConversationMessage } from "@/lib/conversations/types";
+import { isRealCallRefusal } from "@/lib/workflows/real-calls";
+import { SIM_EVENT_WINDOW, simEventWindowStart } from "@/lib/workflows/sim-session";
+import { simTimeline } from "@/lib/workflows/sim-timeline";
+
+import { JsonBlock } from "./run-bits";
+import { useTestBehaviorOf } from "./node-previews/node-definitions";
+import { EventItem, Keypad, PauseToolbar, RealCallsDialog, ReproducingBanner, SimStepGroup, StatusBadge } from "./test-panel-parts";
+import { SimComposer } from "./sim-composer";
+import { SimFormReply } from "./sim-form-reply";
+import { SimMessageRow, SimThreadProvider } from "./sim-thread";
+import { SandboxEffectLines, StepDetail, StepRow, useSandboxEffects } from "./step-detail";
 
 interface WorkflowTestPanelProps {
   simulation: UseWorkflowSimulationReturn;
   voice?: boolean;
   onClose: () => void;
+  unsaved?: boolean;
+  nodeLabel?: (nodeId: string) => string | undefined;
+  nodeExists?: (nodeId: string) => boolean;
+  onFocusNode?: (nodeId: string) => void;
+  onPinStep?: (step: SimStep) => void;
+  versionDiffers?: (version: number | undefined) => boolean;
+  onViewVersion?: (version: number) => void;
 }
+
+const ACTIVE_STATUSES: ReadonlySet<SimStatus> = new Set([
+  "running",
+  "paused",
+  "waiting_reply",
+  "waiting_form",
+  "waiting_key",
+  "connecting",
+  "waiting_trigger",
+  "confirming",
+]);
+
+function StepEffects({ step }: { step: SimStep }) {
+  const effects = useSandboxEffects(step);
+  if (!effects.notice && effects.wouldDo.length === 0) return null;
+  return (
+    <li className="flex justify-center px-6 text-center">
+      <SandboxEffectLines effects={effects} />
+    </li>
+  );
+}
+
+const noLabel = () => undefined;
+const everyNode = () => true;
 
 export function WorkflowTestPanel({
   simulation,
   voice = false,
   onClose,
+  unsaved = false,
+  nodeLabel = noLabel,
+  nodeExists = everyNode,
+  onFocusNode,
+  onPinStep,
+  versionDiffers,
+  onViewVersion,
 }: WorkflowTestPanelProps) {
-  const { status, events, currentNodeId, start, sendReply, sendKey, cancel } =
-    simulation;
+  const t = useTranslations("workflowDebug");
+  const tRuns = useTranslations("workflowRuns");
+  const behaviorOf = useTestBehaviorOf();
+  const { status, events, currentNodeId, stateVars, pause, reproducing, refusal, cancelReason, waitingForm, start, sendReply, sendKey, cancel } = simulation;
 
-  const [replyText, setReplyText] = useState("");
-  const [showState, setShowState] = useState(false);
+  const [windowSize, setWindowSize] = useState(SIM_EVENT_WINDOW);
+  const [showState, setShowState] = useState(Boolean(simulation.pause));
+  const [shownPause, setShownPause] = useState(pause);
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+  const [openGroups, setOpenGroups] = useState<ReadonlySet<string>>(() => new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  if (pause !== shownPause) {
+    setShownPause(pause);
+    if (pause) setShowState(true);
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,36 +107,29 @@ export function WorkflowTestPanel({
     }
   }, [events]);
 
-  useEffect(() => {
-    if (status === "waiting_reply" || status === "waiting_trigger") {
-      inputRef.current?.focus();
-    }
-  }, [status]);
+  if (events.length === 0 && windowSize !== SIM_EVENT_WINDOW) setWindowSize(SIM_EVENT_WINDOW);
+  const windowStart = simEventWindowStart(events.length, windowSize);
+  const messages = useMemo(
+    () => events.flatMap((event): ConversationMessage[] => (event.type === "message" && event.message ? [event.message] : [])),
+    [events],
+  );
+  const messageNodes = useMemo(
+    () => new Map(events.flatMap((event): Array<[string, string]> => (event.type === "message" && event.message && event.nodeId ? [[event.message.id, event.nodeId]] : []))),
+    [events],
+  );
+  const timeline = useMemo(() => simTimeline(events.slice(windowStart), windowStart, pause), [events, windowStart, pause]);
+  const toggleGroup = (key: string) =>
+    setOpenGroups((current) => {
+      const next = new Set(current);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
+  const chooseOption = useCallback((choice: InteractiveChoice) => sendReply({ kind: "selection", choice }), [sendReply]);
 
-  const handleSendReply = () => {
-    const text = replyText.trim();
-    if (!text) return;
-    sendReply(text);
-    setReplyText("");
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendReply();
-    }
-  };
-
-  const isActive =
-    status === "running" ||
-    status === "waiting_reply" ||
-    status === "waiting_key" ||
-    status === "connecting" ||
-    status === "waiting_trigger";
-
-  const latestState = [...events]
-    .reverse()
-    .find((e): e is Extract<SimEvent, { type: "state" }> => e.type === "state");
+  const isActive = ACTIVE_STATUSES.has(status);
+  const stateCount = Object.keys(stateVars).length;
+  const pausedLabel = pause ? (nodeLabel(pause.nodeId) ?? pause.nodeId) : "";
+  const hasHistory = events.length > 0;
 
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
@@ -86,7 +137,7 @@ export function WorkflowTestPanel({
       const target = e.target as HTMLElement | null;
       if (
         target?.closest(
-          '[data-radix-popper-content-wrapper], [role="listbox"], [role="menu"], [aria-expanded="true"]',
+          '[data-radix-popper-content-wrapper], [role="listbox"], [role="menu"], [role="dialog"], [aria-expanded="true"]',
         )
       ) {
         return;
@@ -97,21 +148,55 @@ export function WorkflowTestPanel({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  const renderStep = (step: SimStep, compact = false) => {
+    const exists = nodeExists(step.nodeId);
+    const pinnable = Boolean(onPinStep) && exists && !step.pinned && isPinnableBehavior(behaviorOf(step.nodeType)) && isPinnableStep(step);
+    const refused = isRealCallRefusal(step);
+    return (
+      <Fragment key={`${step.stepIndex}:${step.id}`}>
+        <StepRow
+          step={step}
+          label={nodeLabel(step.nodeId)}
+          expanded={expandedStep === step.id}
+          compact={compact}
+          onToggle={() => {
+            setExpandedStep((current) => (current === step.id ? null : step.id));
+            if (exists) onFocusNode?.(step.nodeId);
+          }}
+        >
+          <StepDetail
+            step={step}
+            actions={
+              <>
+                {exists && onFocusNode && (
+                  <ElevatedButton variant="ghost" size="sm" iconVisible icon={<Target size={12} />} title={tRuns("detail.showInFlow")} onClick={() => onFocusNode(step.nodeId)} />
+                )}
+                {pinnable && (
+                  <ElevatedButton variant="outline-subtle" size="sm" iconVisible icon={<PushPin size={12} />} title={t("step.pin")} onClick={() => onPinStep?.(step)} />
+                )}
+                {refused && (
+                  <ElevatedButton
+                    variant="primary"
+                    size="sm"
+                    iconVisible
+                    icon={<Globe size={12} />}
+                    title={t("step.confirmAndRetry")}
+                    onClick={() => simulation.retryWithRealCalls(step.nodeId)}
+                  />
+                )}
+              </>
+            }
+          >
+            {refused && <p className="text-2xs text-muted-foreground">{t("step.realCallRefused")}</p>}
+          </StepDetail>
+        </StepRow>
+        <StepEffects step={step} />
+      </Fragment>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center">
-      {}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Simulação"
-        className="relative w-[min(720px,92vw)] h-[min(84vh,820px)] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
-      >
-      {}
+    <aside aria-label="Simulação" className="relative flex min-h-0 w-[400px] flex-1 flex-col bg-card">
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
           <Robot size={16} weight="duotone" className="text-primary-ink" />
@@ -123,41 +208,103 @@ export function WorkflowTestPanel({
           size="icon"
           icon={<X size={14} />}
           iconVisible
+          aria-label="Fechar simulação"
           onClick={onClose}
           className="h-6 w-6"
         />
       </div>
 
-      {}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-3 py-2 space-y-2"
-      >
-        {status === "waiting_trigger" && events.length === 0 && (
+      <div className="space-y-2 px-3 empty:hidden [&:not(:empty)]:py-2">
+        {unsaved && <Notice tone="info">{t("session.unsaved")}</Notice>}
+        {reproducing && (
+          <ReproducingBanner reproducing={reproducing} nodeLabel={nodeLabel} versionDiffers={versionDiffers} onViewVersion={onViewVersion} />
+        )}
+        {refusal && (
+          <Notice tone="fault">
+            <span className="block">{t("session.refused", { error: refusal.error })}</span>
+            {refusal.command === "reproduce_run" && status === "ready" && (
+              <button
+                type="button"
+                onClick={() => start()}
+                className="mt-1 text-xs font-medium text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("session.startWithoutReproducing")}
+              </button>
+            )}
+          </Notice>
+        )}
+        {status === "cancelled" && cancelReason === "paused_timeout" && <Notice tone="warning">{t("session.pausedTimeout")}</Notice>}
+        {status === "cancelled" && cancelReason === "start_timeout" && (
+          <Notice tone="warning">
+            <span className="block">{t("session.startTimeout")}</span>
+            <button
+              type="button"
+              onClick={() => start()}
+              className="mt-1 text-xs font-medium text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("session.restart")}
+            </button>
+          </Notice>
+        )}
+      </div>
+
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
+        {status === "waiting_trigger" && !hasHistory && (
           <div className="flex flex-col items-center justify-center h-full text-center gap-3 text-muted-foreground">
-            <PaperPlaneRight
-              size={28}
-              weight="duotone"
-              className="opacity-50"
-            />
-            <p className="text-xs">
-              Envie uma mensagem para iniciar o workflow.
-            </p>
+            <PaperPlaneRight size={28} weight="duotone" className="opacity-50" />
+            <p className="text-xs">Envie uma mensagem para iniciar o workflow.</p>
           </div>
         )}
 
-        {events.length === 0 && status === "idle" && (
+        {!hasHistory && (status === "idle" || status === "ready") && (
           <div className="flex flex-col items-center justify-center h-full text-center gap-2 text-muted-foreground">
             <Play size={32} weight="duotone" className="opacity-50" />
-            <p className="text-xs">
-              Clique em Iniciar para simular o workflow.
-            </p>
+            <p className="text-xs">Clique em Iniciar para simular o workflow.</p>
           </div>
         )}
 
-        {events.map((evt, i) => (
-          <EventItem key={i} event={evt} />
-        ))}
+        {windowStart > 0 && (
+          <button
+            type="button"
+            onClick={() => setWindowSize((current) => current + SIM_EVENT_WINDOW)}
+            className="block w-full rounded-[--radius] py-1 text-center text-2xs font-medium text-primary-ink hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t("chat.showEarlier", { count: Math.min(windowStart, SIM_EVENT_WINDOW) })}
+          </button>
+        )}
+
+        <SimThreadProvider
+          messages={messages}
+          onChooseOption={status === "waiting_reply" ? chooseOption : undefined}
+          nodeIds={messageNodes}
+          nodeLabel={nodeLabel}
+        >
+          <ol className="space-y-2">
+            {timeline.map((item) => {
+              if (item.kind === "step") return renderStep(item.step, item.compact);
+              if (item.kind === "steps") {
+                const open = openGroups.has(item.key);
+                return (
+                  <Fragment key={item.key}>
+                    <SimStepGroup count={item.steps.length} durationMs={item.durationMs} expanded={open} onToggle={() => toggleGroup(item.key)} />
+                    {open
+                      ? item.steps.map((step) => renderStep(step))
+                      : item.steps.map((step) => <StepEffects key={`effects:${step.stepIndex}:${step.id}`} step={step} />)}
+                  </Fragment>
+                );
+              }
+              const evt = item.event;
+              if (evt.type === "message" && evt.message) {
+                return (
+                  <li key={item.key}>
+                    <SimMessageRow message={evt.message} />
+                  </li>
+                );
+              }
+              return <EventItem key={item.key} event={evt} nodeLabel={nodeLabel} />;
+            })}
+          </ol>
+        </SimThreadProvider>
 
         {status === "connecting" && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
@@ -166,85 +313,58 @@ export function WorkflowTestPanel({
           </div>
         )}
 
-        {currentNodeId && isActive && status !== "connecting" && (
+        {currentNodeId && status === "running" && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
             <CircleNotch size={14} className="animate-spin" />
-            Executando nó: {currentNodeId}
+            Executando nó: {nodeLabel(currentNodeId) ?? currentNodeId}
           </div>
         )}
       </div>
 
-      {}
-      {latestState && (
+      {pause && status === "paused" && (
+        <PauseToolbar pause={pause} pausedLabel={pausedLabel} onStep={simulation.step} onResume={simulation.resume} onStop={cancel} />
+      )}
+
+      {(stateCount > 0 || pause) && (
         <div className="border-t border-border">
           <button
+            type="button"
+            aria-expanded={showState}
             onClick={() => setShowState(!showState)}
             className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
           >
-            <CaretDown
-              size={12}
-              className={cn("transition-transform", showState && "rotate-180")}
-            />
-            Variáveis ({Object.keys(latestState.vars).length})
+            <CaretDown size={12} className={cn("transition-transform", showState && "rotate-180")} />
+            {pause ? t("toolbar.stateTitle") : "Variáveis"} ({stateCount})
           </button>
           {showState && (
-            <div className="px-3 pb-2 max-h-32 overflow-y-auto">
-              <pre className="text-2xs text-muted-foreground font-mono whitespace-pre-wrap break-all">
-                {JSON.stringify(latestState.vars, null, 2)}
-              </pre>
+            <div className="px-3 pb-2">
+              <JsonBlock value={stateVars} className="max-h-48" />
             </div>
           )}
         </div>
       )}
 
-      {}
-      {voice && isActive && status !== "connecting" && (
+      {voice && isActive && status !== "connecting" && status !== "confirming" && (
         <Keypad waiting={status === "waiting_key"} onKey={sendKey} />
       )}
 
       {!voice && (status === "waiting_reply" || status === "waiting_trigger") && (
-        <div className="border-t border-border px-3 py-2 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                status === "waiting_trigger"
-                  ? "Envie a mensagem inicial..."
-                  : "Escreva uma resposta..."
-              }
-              className="flex-1 text-sm bg-muted border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-            <button
-              onClick={handleSendReply}
-              disabled={!replyText.trim()}
-              className="p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 transition-colors"
-            >
-              <PaperPlaneRight size={14} weight="fill" />
-            </button>
-          </div>
-        </div>
+        <SimComposer trigger={status === "waiting_trigger"} onReply={sendReply} />
       )}
 
-      {}
+      {!voice && status === "waiting_form" && waitingForm && (
+        <SimFormReply key={`${waitingForm.nodeId}:${waitingForm.formId}`} formId={waitingForm.formId} onReply={sendReply} />
+      )}
+
       <div className="flex items-center gap-2 px-3 py-2.5 border-t border-border flex-shrink-0">
-        {!isActive ? (
+        {status === "ready" || !isActive ? (
           <ElevatedButton
             variant="primary"
             size="sm"
-            title={events.length > 0 ? "Reiniciar" : "Iniciar"}
-            icon={
-              events.length > 0 ? (
-                <ArrowsClockwise size={14} />
-              ) : (
-                <Play size={14} weight="fill" />
-              )
-            }
+            title={hasHistory ? "Reiniciar" : "Iniciar"}
+            icon={hasHistory ? <ArrowsClockwise size={14} /> : <Play size={14} weight="fill" />}
             iconVisible
-            onClick={start}
+            onClick={() => start()}
             className="flex-1"
           />
         ) : (
@@ -259,207 +379,15 @@ export function WorkflowTestPanel({
           />
         )}
       </div>
-      </div>
-    </div>
-  );
-}
 
-
-function StatusBadge({ status }: { status: SimStatus }) {
-  const config: Record<SimStatus, { label: string; className: string }> = {
-    idle: { label: "", className: "" },
-    connecting: {
-      label: "Conectando",
-      className: "bg-warning text-warning-foreground",
-    },
-    waiting_trigger: {
-      label: "Aguardando mensagem",
-      className: "bg-muted text-muted-foreground",
-    },
-    running: {
-      label: "Executando",
-      className: "bg-muted text-muted-foreground",
-    },
-    waiting_reply: {
-      label: "Aguardando",
-      className: "bg-warning text-warning-foreground",
-    },
-    waiting_key: {
-      label: "Aguardando tecla",
-      className: "bg-warning text-warning-foreground",
-    },
-    completed: {
-      label: "Concluído",
-      className: "bg-healthy text-healthy-foreground",
-    },
-    error: {
-      label: "Erro",
-      className: "bg-destructive text-destructive-foreground",
-    },
-    cancelled: {
-      label: "Cancelado",
-      className: "bg-gray-500 text-white",
-    },
-  };
-
-  const c = config[status];
-  if (!c.label) return null;
-
-  return (
-    <span
-      className={cn(
-        "text-2xs font-medium px-1.5 py-0.5 rounded-full",
-        c.className,
+      {status === "confirming" && (
+        <RealCallsDialog
+          nodes={simulation.pendingRealCalls.map((id) => nodeLabel(id) ?? id)}
+          onConfirm={simulation.confirmRealCalls}
+          onSkip={simulation.skipRealCalls}
+          onCancel={simulation.dismissRealCalls}
+        />
       )}
-    >
-      {c.label}
-    </span>
-  );
-}
-
-
-function EventItem({ event }: { event: SimEvent }) {
-  switch (event.type) {
-    case "message":
-      return <MessageBubble event={event} />;
-    case "node_event":
-      return <NodeEventItem event={event} />;
-    case "waiting_reply":
-      return (
-        <div className="flex items-center gap-1.5 text-xs text-warning-ink py-1">
-          <Warning size={12} weight="fill" />
-          Aguardando resposta... ({event.timeoutSeconds}s)
-        </div>
-      );
-    case "waiting_key":
-      return (
-        <div className="flex items-center gap-1.5 text-xs text-warning-ink py-1">
-          <Warning size={12} weight="fill" />
-          Aguardando uma tecla... ({event.timeoutSeconds}s)
-        </div>
-      );
-    case "call_transferred":
-      return (
-        <div className="py-1 text-xs text-healthy-ink">
-          <p className="flex items-center gap-1.5 font-semibold">
-            <CheckCircle size={12} weight="fill" />
-            Transferida para a fila {event.queueName}. Um atendente livre atende e o fluxo termina.
-          </p>
-          {event.notes ? <p className="mt-0.5 pl-[18px] text-muted-foreground">Nota: {event.notes}</p> : null}
-        </div>
-      );
-    case "state":
-      return null;
-    case "error":
-      return (
-        <div className="flex items-center gap-1.5 text-xs text-destructive-ink py-1">
-          <XCircle size={12} weight="fill" />
-          {event.message}
-        </div>
-      );
-  }
-}
-
-function MessageBubble({
-  event,
-}: {
-  event: Extract<SimEvent, { type: "message" }>;
-}) {
-  const isOutbound = event.direction === "outbound";
-
-  return (
-    <div
-      className={cn("flex gap-2", isOutbound ? "justify-start" : "justify-end")}
-    >
-      {isOutbound && (
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-          <Robot size={12} className="text-primary-ink" />
-        </div>
-      )}
-      <div
-        className={cn(
-          "max-w-[85%] rounded-[--radius] px-3 py-1.5 text-xs leading-relaxed",
-          isOutbound
-            ? "bg-muted text-foreground rounded-tl-sm"
-            : "bg-primary text-primary-foreground rounded-tr-sm",
-        )}
-      >
-        {event.audioUrl ? (
-          <>
-            <audio controls autoPlay preload="auto" src={event.audioUrl} className="max-w-full h-8" />
-            <span className="mt-1 block text-2xs opacity-70">{event.text}</span>
-          </>
-        ) : event.audioBase64 ? (
-          <audio
-            controls
-            preload="metadata"
-            src={`data:${event.audioMime || "audio/ogg"};base64,${event.audioBase64}`}
-            className="max-w-full h-8"
-          />
-        ) : event.msgType === "key" ? (
-          <span className="readout text-sm font-semibold">{event.text}</span>
-        ) : (
-          event.text
-        )}
-        {event.msgType !== "text" && event.msgType !== "key" && !event.audioBase64 && !event.audioUrl && (
-          <span className="block text-2xs opacity-60 mt-0.5">
-            [{event.msgType}]
-          </span>
-        )}
-      </div>
-      {!isOutbound && (
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-          <User size={12} className="text-muted-foreground" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function NodeEventItem({
-  event,
-}: {
-  event: Extract<SimEvent, { type: "node_event" }>;
-}) {
-  const hasError = !!event.error;
-
-  return (
-    <div className="flex items-center gap-1.5 text-2xs text-muted-foreground py-0.5">
-      {hasError ? (
-        <XCircle size={11} className="text-destructive-ink flex-shrink-0" />
-      ) : (
-        <CheckCircle size={11} className="text-healthy-ink flex-shrink-0" />
-      )}
-      <span className="truncate">
-        {event.nodeType}
-        {event.nodeId && <span className="opacity-50"> ({event.nodeId})</span>}
-      </span>
-      {hasError && (
-        <span className="text-destructive-ink truncate">, {event.error}</span>
-      )}
-    </div>
-  );
-}
-
-function Keypad({ waiting, onKey }: { waiting: boolean; onKey: (key: string) => void }) {
-  return (
-    <div className="border-t border-border px-3 py-2 flex-shrink-0">
-      <p className={cn("mb-1.5 text-2xs", waiting ? "text-warning-ink" : "text-muted-foreground")}>
-        {waiting ? "Aperte uma tecla, como quem ligou" : "Teclas cortam o áudio, como numa ligação"}
-      </p>
-      <div className="grid grid-cols-6 gap-1" role="group" aria-label="Teclado do telefone">
-        {DIAL_KEYS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            aria-label={key}
-            onClick={() => onKey(key)}
-            className="readout h-8 rounded-[--radius] border border-control-edge bg-card text-sm font-semibold text-foreground transition-colors duration-DEFAULT hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {key}
-          </button>
-        ))}
-      </div>
-    </div>
+    </aside>
   );
 }

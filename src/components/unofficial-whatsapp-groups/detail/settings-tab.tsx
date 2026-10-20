@@ -91,7 +91,7 @@ export function SettingsTab({
         <div className="min-w-0 space-y-3 xl:col-span-4">
           {permissions.update ? <CategorySection group={group} onChanged={onChanged} /> : null}
           {group.seriesId ? <SeriesSection detail={detail} permissions={permissions} actions={actions} /> : null}
-          <NumbersSection detail={detail} canLeave={permissions.leave} onChanged={onChanged} />
+          <NumbersSection detail={detail} canLeave={permissions.leave} canAdd={permissions.create} onChanged={onChanged} />
           {permissions.leave && detail.numbers.length > 0 ? <DangerZoneSection detail={detail} /> : null}
         </div>
       </div>

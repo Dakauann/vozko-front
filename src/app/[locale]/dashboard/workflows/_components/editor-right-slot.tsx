@@ -1,0 +1,131 @@
+"use client";
+
+import { memo } from "react";
+import { useTranslations } from "next-intl";
+
+import type { SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
+import { rightSlotView, type RightPanel } from "@/lib/workflows/editor-docking";
+import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
+import { cn } from "@/lib/utils";
+
+import { WorkflowCopilotFab, WorkflowCopilotPanel } from "./workflow-copilot-panel";
+import { WorkflowTestPanel } from "./workflow-test-panel";
+
+export interface EditorRightSlotProps {
+  testOpen: boolean;
+  copilotOpen: boolean;
+  copilotMounted: boolean;
+  copilotBusy: boolean;
+  preferred: RightPanel;
+  onPrefer: (panel: RightPanel) => void;
+  onOpenCopilot: () => void;
+  onCloseCopilot: () => void;
+  simulation: UseWorkflowSimulationReturn;
+  voice: boolean;
+  onCloseTest: () => void;
+  unsaved: boolean;
+  nodeLabel: (nodeId: string) => string | undefined;
+  nodeExists: (nodeId: string) => boolean;
+  onFocusNode: (nodeId: string) => void;
+  onPinStep: (step: SimStep) => void;
+  versionDiffers: (version: number | undefined) => boolean;
+  onViewVersion: (version: number) => void;
+  workflowId: string;
+  workflowType: WorkflowType;
+  onCopilotGraph: (graph: WorkflowGraph) => void;
+  onCopilotMeta: (meta: { name?: string; description?: string; workflowType?: WorkflowType }) => void;
+  getCopilotGraph: () => WorkflowGraph | null | undefined;
+  onCopilotBusyChange: (busy: boolean) => void;
+}
+
+function EditorRightSlotView({
+  testOpen,
+  copilotOpen,
+  copilotMounted,
+  copilotBusy,
+  preferred,
+  onPrefer,
+  onOpenCopilot,
+  onCloseCopilot,
+  simulation,
+  voice,
+  onCloseTest,
+  unsaved,
+  nodeLabel,
+  nodeExists,
+  onFocusNode,
+  onPinStep,
+  versionDiffers,
+  onViewVersion,
+  workflowId,
+  workflowType,
+  onCopilotGraph,
+  onCopilotMeta,
+  getCopilotGraph,
+  onCopilotBusyChange,
+}: EditorRightSlotProps) {
+  const tDebug = useTranslations("workflowDebug");
+  const rightSlot = rightSlotView({ testOpen, copilotOpen, preferred });
+
+  return (
+    <>
+      {rightSlot.launcher && <WorkflowCopilotFab onClick={onOpenCopilot} busy={copilotMounted && copilotBusy} />}
+      {(copilotMounted || rightSlot.active) && (
+        <div
+          data-testid="right-slot"
+          className={cn("flex w-[400px] shrink-0 flex-col border-l border-border bg-card", !rightSlot.active && "hidden")}
+        >
+          {rightSlot.tabs && (
+            <div role="tablist" aria-label={tDebug("slot.label")} className="flex shrink-0 gap-1 border-b border-border px-2 pt-1.5">
+              {(["test", "copilot"] as const).map((panel) => (
+                <button
+                  key={panel}
+                  type="button"
+                  role="tab"
+                  aria-selected={rightSlot.active === panel}
+                  onClick={() => (panel === "copilot" && !copilotOpen ? onOpenCopilot() : onPrefer(panel))}
+                  className={cn(
+                    "-mb-px rounded-t-[--radius] border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    rightSlot.active === panel ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {tDebug(`slot.${panel}`)}
+                </button>
+              ))}
+            </div>
+          )}
+          {testOpen && (
+            <div className={cn("flex min-h-0 flex-1", rightSlot.active !== "test" && "hidden")}>
+              <WorkflowTestPanel
+                simulation={simulation}
+                voice={voice}
+                onClose={onCloseTest}
+                unsaved={unsaved}
+                nodeLabel={nodeLabel}
+                nodeExists={nodeExists}
+                onFocusNode={onFocusNode}
+                onPinStep={onPinStep}
+                versionDiffers={versionDiffers}
+                onViewVersion={onViewVersion}
+              />
+            </div>
+          )}
+          {copilotMounted && (
+            <WorkflowCopilotPanel
+              visible={rightSlot.active === "copilot"}
+              workflowId={workflowId}
+              workflowType={workflowType}
+              onGraph={onCopilotGraph}
+              onMeta={onCopilotMeta}
+              getGraph={getCopilotGraph}
+              onBusyChange={onCopilotBusyChange}
+              onClose={onCloseCopilot}
+            />
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+export const EditorRightSlot = memo(EditorRightSlotView);

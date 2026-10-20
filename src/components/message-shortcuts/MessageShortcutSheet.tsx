@@ -23,6 +23,7 @@ import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { IconBox } from "@/components/elevated-design/listing-card";
+import { ShortcutVariableList } from "./ShortcutVariableList";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -285,6 +286,8 @@ export default function MessageShortcutSheet({
               autoResize
               maxHeight={220}
             />
+
+            <ShortcutVariableList onInsert={(placeholder) => setBodyText((current) => current + placeholder)} />
 
             {messageType === "button" ? (
               <div className="space-y-4 rounded-[--radius] border border-border bg-background p-4">

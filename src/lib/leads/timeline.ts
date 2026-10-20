@@ -1,4 +1,4 @@
-import { isEntryId, isEntryType, type ConversationDeepLink } from "@/lib/conversations/deep-link";
+import { isEntryId, isEntryType, sameConversation, type ConversationDeepLink } from "@/lib/conversations/deep-link";
 import type { Opportunity } from "@/lib/crm/opportunities";
 
 const LEAD_TIMELINE_KINDS = [
@@ -26,6 +26,7 @@ export interface LeadTimelineRef {
 
 export interface LeadTimelineSummary {
   channel?: string;
+  line?: string;
   status?: string;
   title?: string;
   campaignId?: string;
@@ -173,6 +174,31 @@ export function timelineEntryLink(item: LeadTimelineItem): ConversationDeepLink 
   const entryType = item.ref.entryType ?? "";
   if (!isEntryType(entryType) || !isEntryId(item.ref.id)) return null;
   return { entryId: item.ref.id, entryType };
+}
+
+export interface LeadConversationLink extends ConversationDeepLink {
+  at: string;
+  campaign?: string;
+  line?: string;
+}
+
+type LinkDetail = "campaign" | "line";
+
+function keepFirst(link: LeadConversationLink, detail: LinkDetail, value: string | undefined): LeadConversationLink {
+  const text = textOf(value).trim();
+  return link[detail] || !text ? link : { ...link, [detail]: text };
+}
+
+export function leadConversationLinks(items: readonly LeadTimelineItem[], current: ConversationDeepLink | null): LeadConversationLink[] {
+  const byKey = new Map<string, LeadConversationLink>();
+  for (const item of items) {
+    const link = timelineEntryLink(item);
+    if (!link || sameConversation(link, current)) continue;
+    const key = `${link.entryType}:${link.entryId}`;
+    const known = byKey.get(key) ?? { ...link, at: item.at };
+    byKey.set(key, keepFirst(keepFirst(known, "campaign", item.summary.title), "line", item.summary.line));
+  }
+  return [...byKey.values()];
 }
 
 export function isLocationEvent(item: LeadTimelineItem): boolean {

@@ -134,6 +134,7 @@ export function useTemplateComposer({
     const missingValues =
         slots.body.some((_, i) => !bodyValues[i]?.trim()) ||
         slots.header.some((_, i) => !headerValues[i]?.trim());
+    const ready = isTemplateSendable(template) && !missingValues;
 
     const selectTemplate = useCallback(
         (next: string) => setSelection({ phoneId: businessPhoneId, templateId: next }),
@@ -219,6 +220,7 @@ export function useTemplateComposer({
         setBodyValue: (index: number, value: string) => setValue("body", index, value),
         setHeaderValue: (index: number, value: string) => setValue("header", index, value),
         missingValues,
+        ready,
         previewMetadata,
         quote: currentQuote,
         quoteError,

@@ -1,5 +1,5 @@
 import { committedPoints, smoothSegment, type Stride } from "./brush";
-import { isEditableTarget, type KeyStroke } from "./keymap";
+import { isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
 import { surfaceScale, toSurface, type PixelFrame } from "./pixel-space";
 import { PIXEL_RANGES, type PixelMode, type StrokeOp } from "./pixel-surface";
 import type { Point } from "./viewport";

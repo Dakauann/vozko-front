@@ -16,6 +16,7 @@ import {
   ArrowBendUpLeft,
   TreeStructure,
   Tag,
+  Key,
 } from "@/components/icons";
 import {
   Command,
@@ -34,6 +35,8 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { cn } from "@/lib/utils";
 
 
+type VariableCategory = "last" | "custom" | "system" | "node" | "secret";
+
 interface VarGroup {
   label: string;
   description?: string;
@@ -45,7 +48,7 @@ interface FlatVariable {
   key: string;
   description: string;
   groupLabel: string;
-  category: "last" | "custom" | "system" | "node";
+  category: VariableCategory;
   priority: number;
 }
 
@@ -75,7 +78,10 @@ function extractVariableKey(template: string): string {
 function getVariableCategory(
   template: string,
   groupLabel: string,
-): "last" | "custom" | "system" | "node" {
+): VariableCategory {
+  if (template.startsWith("{{secret.")) {
+    return "secret";
+  }
   if (template.includes("last.") || groupLabel.includes("(nó anterior)")) {
     return "last";
   }
@@ -96,7 +102,7 @@ function getVariableCategory(
 }
 
 function getVariablePriority(
-  category: "last" | "custom" | "system" | "node",
+  category: VariableCategory,
 ): number {
   switch (category) {
     case "last":
@@ -107,12 +113,14 @@ function getVariablePriority(
       return 3;
     case "node":
       return 4;
+    case "secret":
+      return 6;
     default:
       return 5;
   }
 }
 
-function getCategoryIcon(category: "last" | "custom" | "system" | "node") {
+function getCategoryIcon(category: VariableCategory) {
   switch (category) {
     case "last":
       return ArrowBendUpLeft;
@@ -122,11 +130,13 @@ function getCategoryIcon(category: "last" | "custom" | "system" | "node") {
       return Gear;
     case "node":
       return TreeStructure;
+    case "secret":
+      return Key;
   }
 }
 
 function getCategoryLabel(
-  category: "last" | "custom" | "system" | "node",
+  category: VariableCategory,
 ): string {
   switch (category) {
     case "last":
@@ -137,6 +147,8 @@ function getCategoryLabel(
       return "Sistema";
     case "node":
       return "Outros Nós";
+    case "secret":
+      return "Segredos";
   }
 }
 
@@ -165,9 +177,9 @@ function flattenAndSortVariables(groups: VarGroup[]): FlatVariable[] {
 
 function groupByCategory(
   sorted: FlatVariable[],
-): Map<"last" | "custom" | "system" | "node", FlatVariable[]> {
+): Map<VariableCategory, FlatVariable[]> {
   const groups = new Map<
-    "last" | "custom" | "system" | "node",
+    VariableCategory,
     FlatVariable[]
   >();
 
@@ -315,11 +327,12 @@ export function VariableCommandInput({
 
   const hasVariables = availableVars.length > 0 && sortedVariables.length > 0;
 
-  const categoryOrder: Array<"last" | "custom" | "system" | "node"> = [
+  const categoryOrder: Array<VariableCategory> = [
     "last",
     "custom",
     "system",
     "node",
+    "secret",
   ];
 
   return (

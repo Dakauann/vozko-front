@@ -66,6 +66,8 @@ function conversationState(entryId: string): WindowConversationState {
     loadingConversation: false,
     loadingHistory: false,
     pendingLoadMore: false,
+    pendingJump: false,
+    search: null,
     typingUserIds: [],
     visible: true,
   } as unknown as WindowConversationState;

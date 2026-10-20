@@ -110,4 +110,28 @@ describe("useTemplateComposer", () => {
     await pickTemplate(false);
     expect(quoteTemplateSendAction).not.toHaveBeenCalled();
   });
+
+  it("is not ready while the chosen template has not loaded, because its variables are still unknown", () => {
+    listWhatsAppTemplatesAction.mockReturnValue(new Promise(() => {}));
+    const hook = renderHook(
+      () => useTemplateComposer({ businessPhoneId: "bp-1", enabled: true, quote: false, initial: { templateId: "tpl-1", bodyParams: [""] } }),
+      { wrapper },
+    );
+    expect(hook.result.current.missingValues).toBe(false);
+    expect(hook.result.current.ready).toBe(false);
+  });
+
+  it("is ready only once every variable of the loaded template is filled", async () => {
+    const hook = await pickTemplate(false);
+    expect(hook.result.current.ready).toBe(false);
+    act(() => hook.result.current.setBodyValue(0, "Ana"));
+    expect(hook.result.current.ready).toBe(true);
+  });
+
+  it("is never ready for a template Meta does not let anyone send", async () => {
+    listWhatsAppTemplatesAction.mockResolvedValue({ templates: [{ ...TEMPLATE, status: "PAUSED" }] });
+    const hook = await pickTemplate(false);
+    act(() => hook.result.current.setBodyValue(0, "Ana"));
+    expect(hook.result.current.ready).toBe(false);
+  });
 });

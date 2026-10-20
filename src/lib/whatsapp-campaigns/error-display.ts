@@ -4,6 +4,7 @@ export const WHATSAPP_CAMPAIGN_INTERNAL_ERROR_CODES = {
     missingEntryVariables: 900006,
     monthlySendCapReached: 900009,
     sendWindowClosed: 900010,
+    formNotSendable: 900011,
 } as const;
 
 const LEGACY_INTERNAL_ERROR_CODES_BY_MESSAGE: Record<string, number> = {

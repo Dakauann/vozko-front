@@ -16,6 +16,12 @@ import type { MessageShortcut } from "@/lib/message-shortcuts/types";
 import { listMessageShortcutsAction } from "@/app/actions/message-shortcuts";
 import { useTranslations } from "next-intl";
 
+const TYPE_LABEL_KEYS: Record<MessageShortcut["messageType"], "typeText" | "typeButton" | "typeMedia"> = {
+  text: "typeText",
+  button: "typeButton",
+  media: "typeMedia",
+};
+
 interface ShortcutPickerProps {
   query: string;
   onSelect: (shortcut: MessageShortcut) => void;
@@ -41,6 +47,7 @@ export default function ShortcutPicker({
   const listRef = useRef<HTMLDivElement>(null);
   const hostWindow = useHostWindow();
   const t = useTranslations("shortcutPicker");
+  const typeT = useTranslations("messageShortcutsPage.modal");
 
   useEffect(() => {
     if (!visible) return;
@@ -194,6 +201,9 @@ export default function ShortcutPicker({
               <span className="text-2xs font-semibold text-muted-foreground">
                 {t("header")}
               </span>
+              <span className="ml-auto truncate text-2xs text-muted-foreground">
+                {t("insertHint")}
+              </span>
             </div>
             {filtered.map((shortcut, i) => (
               <button
@@ -225,7 +235,7 @@ export default function ShortcutPicker({
                   </p>
                 </div>
                 <span className="flex-shrink-0 rounded bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
-                  {shortcut.messageType}
+                  {typeT(TYPE_LABEL_KEYS[shortcut.messageType])}
                 </span>
               </button>
             ))}

@@ -53,7 +53,13 @@ describe("groupsRoutes", () => {
   });
 
   it("drops unknown values when parsing the all groups query", () => {
-    expect(parseAllGroupsQuery(new URLSearchParams("origin=mine&sort=best&action=nuke&adminsOnly=0"))).toEqual({});
+    expect(parseAllGroupsQuery(new URLSearchParams("origin=mine&sort=best&action=nuke&adminsOnly=maybe"))).toEqual({});
+  });
+
+  it("keeps the open groups choice of the send permission filter", () => {
+    const href = groupsRoutes.all({ adminsOnly: false });
+    expect(href).toBe(`${GROUPS_BASE}/all?adminsOnly=0`);
+    expect(parseAllGroupsQuery(paramsOf(href))).toEqual({ adminsOnly: false });
   });
 
   it("builds group links with tab and member options", () => {
@@ -83,10 +89,11 @@ describe("groupsRoutes", () => {
   });
 
   it("builds a campaign link the composer prefill reads", () => {
-    const href = groupsRoutes.newCampaign("inst-1", ["g1", "g2", "g1", " "]);
+    const href = groupsRoutes.newCampaign("", ["g1", "g2", "g1", " "]);
     expect(href.startsWith("/dashboard/unofficial-whatsapp-campaigns/new?")).toBe(true);
     const params = paramsOf(href);
-    expect(readGroupPrefill(Object.fromEntries(params.entries()))).toEqual({ instanceId: "inst-1", groupIds: ["g1", "g2"] });
+    expect(params.has("instanceId")).toBe(false);
+    expect(readGroupPrefill(Object.fromEntries(params.entries()))).toEqual({ groupIds: ["g1", "g2"] });
   });
 });
 

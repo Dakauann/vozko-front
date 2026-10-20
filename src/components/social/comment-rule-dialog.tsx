@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import Button from "@/components/elevated-design/button";
 import {
@@ -16,20 +16,30 @@ import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { Notice } from "@/components/ui/notice";
 import {
   commentRuleFieldsErrors,
+  defaultRuleActions,
   type CommentRule,
   type CommentRuleAction,
   type CommentRuleApi,
   type CommentRuleMatch,
+  type CommentRuleTextLimits,
 } from "@/lib/social/comment-rules";
 
 import { CommentRuleFields } from "./comment-rule-fields";
 import { useTranslations } from "next-intl";
+
+export interface CommentRuleContainerPicker {
+  value: string;
+  onChange: (containerId: string) => void;
+  disabled: boolean;
+}
 
 export function CommentRuleDialog({
   api,
   allowedActions,
   translationNamespace,
   containerId,
+  textLimits = {},
+  renderContainerPicker,
   rule,
   onClose,
   onSaved,
@@ -38,6 +48,8 @@ export function CommentRuleDialog({
   allowedActions: readonly CommentRuleAction[];
   translationNamespace: string;
   containerId?: string;
+  textLimits?: CommentRuleTextLimits;
+  renderContainerPicker?: (picker: CommentRuleContainerPicker) => ReactNode;
   rule: CommentRule | null;
   onClose: () => void;
   onSaved: (rule: CommentRule) => void;
@@ -47,16 +59,18 @@ export function CommentRuleDialog({
   const [name, setName] = useState(rule?.name ?? "");
   const [match, setMatch] = useState<CommentRuleMatch>(rule?.match ?? "contains");
   const [keywords, setKeywords] = useState((rule?.keywords ?? []).join(", "));
-  const [actions, setActions] = useState<CommentRuleAction[]>(rule?.actions ?? ["private_reply"]);
+  const [actions, setActions] = useState<CommentRuleAction[]>(rule?.actions ?? defaultRuleActions(allowedActions));
   const [publicText, setPublicText] = useState(rule?.publicReplyText ?? "");
   const [privateText, setPrivateText] = useState(rule?.privateReplyText ?? "");
   const [enabled, setEnabled] = useState(rule?.enabled ?? true);
   const [scopeToPost, setScopeToPost] = useState(rule ? !!rule.containerId : !!containerId);
+  const [pickedContainer, setPickedContainer] = useState(rule?.containerId ?? "");
+  const picksContainer = !containerId && renderContainerPicker !== undefined;
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fieldErrors = commentRuleFieldsErrors({ match, keywords, actions, publicText, privateText });
+  const fieldErrors = commentRuleFieldsErrors({ match, keywords, actions, publicText, privateText }, textLimits);
   const invalid = !name.trim() || !fieldErrors.valid;
 
   const handleSave = async () => {
@@ -67,7 +81,7 @@ export function CommentRuleDialog({
     const draft = {
       name: name.trim(),
       enabled,
-      containerId: scopeToPost ? (rule?.containerId ?? containerId ?? "") : "",
+      containerId: picksContainer ? pickedContainer : scopeToPost ? (rule?.containerId ?? containerId ?? "") : "",
       match,
       keywords: fieldErrors.keywordList,
       actions,
@@ -115,10 +129,17 @@ export function CommentRuleDialog({
             }}
             allowedActions={allowedActions}
             translationNamespace={translationNamespace}
+            textLimits={textLimits}
             disabled={saving}
           />
 
-          {(containerId || rule?.containerId) && (
+          {picksContainer && renderContainerPicker ? (
+            <div className="space-y-1.5 border-t border-border pt-4">
+              {renderContainerPicker({ value: pickedContainer, onChange: setPickedContainer, disabled: saving })}
+            </div>
+          ) : null}
+
+          {!picksContainer && (containerId || rule?.containerId) && (
             <div className="flex items-start justify-between gap-4 border-t border-border pt-4">
               <div className="min-w-0 space-y-0.5">
                 <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">

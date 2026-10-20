@@ -7,17 +7,33 @@ import type {
 
 import { resolveAutomationEnabled } from "./automation";
 import { isFromContact } from "./direction";
+import { readMessageCapabilities } from "./message-actions";
+import { readMediaLimits } from "./attachment-rules";
 import { mergeSubscribedLead, patchLead, type LeadPatch } from "./lead-patch";
+import {
+  applyHistoryPage,
+  applyLiveMessage,
+  applyMessageUpdate,
+} from "./thread-merge";
 import { windowKey } from "./window-deck";
+import { applyWindowReopened } from "./window-reopen";
+import { mergeWindowClosed } from "./window-closed";
 
 
 export interface WindowConversationState {
   conversation: ActiveConversation;
   loadingConversation: boolean;
   loadingHistory: boolean;
-  pendingLoadMore: boolean;
+  search: WindowMessageSearch | null;
   typingUserIds: string[];
   visible: boolean;
+}
+
+export interface WindowMessageSearch {
+  query: string;
+  results: ConversationMessage[] | null;
+  totalItems: number;
+  searching: boolean;
 }
 
 export type WindowConversations = ReadonlyMap<string, WindowConversationState>;
@@ -86,7 +102,7 @@ export function openWindowConversation(
     conversation,
     loadingConversation: true,
     loadingHistory: false,
-    pendingLoadMore: false,
+    search: null,
     typingUserIds: [],
     visible: true,
   });
@@ -123,17 +139,44 @@ export function closeWindowConversation(
   return next;
 }
 
-export function markWindowLoadingMore(
+export function markWindowLoadingHistory(
   state: WindowConversations,
   key: string,
+): WindowConversations {
+  const w = state.get(key);
+  if (!w || w.loadingHistory) return state;
+  return replace(state, key, { ...w, loadingHistory: true });
+}
+
+export function settleWindowHistory(
+  state: WindowConversations,
+  key: string,
+): WindowConversations {
+  const w = state.get(key);
+  if (!w || !w.loadingHistory) return state;
+  return replace(state, key, { ...w, loadingHistory: false });
+}
+
+export function startWindowSearch(
+  state: WindowConversations,
+  key: string,
+  query: string,
 ): WindowConversations {
   const w = state.get(key);
   if (!w) return state;
   return replace(state, key, {
     ...w,
-    loadingHistory: true,
-    pendingLoadMore: true,
+    search: { query, results: null, totalItems: 0, searching: true },
   });
+}
+
+export function clearWindowSearch(
+  state: WindowConversations,
+  key: string,
+): WindowConversations {
+  const w = state.get(key);
+  if (!w || w.search === null) return state;
+  return replace(state, key, { ...w, search: null });
 }
 
 export function clearWindowLoading(
@@ -146,7 +189,7 @@ export function clearWindowLoading(
       ...w,
       loadingConversation: false,
       loadingHistory: false,
-      pendingLoadMore: false,
+      search: w.search ? { ...w.search, searching: false } : null,
     });
   }
   return next;
@@ -214,8 +257,10 @@ export function applyWindowEvent(
           unread_count: p.unread_count ?? c.unread_count,
           window_open: p.window_open ?? c.window_open,
           window_expires_at: p.window_expires_at ?? c.window_expires_at,
-          window_closed_reason: p.window_closed_reason ?? c.window_closed_reason ?? null,
+          ...mergeWindowClosed(p, c),
           window_tier: p.window_tier ?? null,
+          message_capabilities: readMessageCapabilities(p.message_capabilities) ?? c.message_capabilities,
+          media_limits: readMediaLimits(p.media_limits),
           automation_enabled: resolveAutomationEnabled(
             p.automation_enabled,
             c.automation_enabled,
@@ -226,31 +271,41 @@ export function applyWindowEvent(
 
     case "conversation:history": {
       const p = event.payload;
-      const batch = p.messages ?? [];
+      return update(state, p.entry_id, p.entry_type, (w) =>
+        patchConversation(
+          { ...w, loadingConversation: false, loadingHistory: false },
+          (c) => applyHistoryPage(c, { ...p, messages: p.messages ?? [] }),
+        ),
+      );
+    }
+
+    case "conversation:message_updated": {
+      const p = event.payload;
+      return update(state, p.entry_id, p.entry_type, (w) =>
+        patchConversation(w, (c) => applyMessageUpdate(c, p.message)),
+      );
+    }
+
+    case "conversation:window_reopened": {
+      const p = event.payload;
+      return update(state, p.entry_id, p.entry_type, (w) =>
+        patchConversation(w, (c) => applyWindowReopened(c, p)),
+      );
+    }
+
+    case "conversation:search_messages_results": {
+      const p = event.payload;
       return update(state, p.entry_id, p.entry_type, (w) => {
-        const prepend = w.pendingLoadMore;
-        const settled: WindowConversationState = {
+        if (!w.search || w.search.query !== p.query) return w;
+        return {
           ...w,
-          loadingConversation: false,
-          loadingHistory: false,
-          pendingLoadMore: false,
+          search: {
+            query: w.search.query,
+            results: p.messages ?? [],
+            totalItems: p.total_items,
+            searching: false,
+          },
         };
-        return patchConversation(settled, (c) => {
-          const messages = prepend
-            ? [...batch, ...c.messages]
-            : c.messages.length === 0
-              ? batch
-              : mergeById(c.messages, batch);
-          return {
-            ...c,
-            messages,
-            has_more:
-              batch.length === 0 && c.messages.length > 0
-                ? c.has_more
-                : p.has_more,
-            ...(p.total !== undefined ? { total: p.total } : {}),
-          };
-        });
       });
     }
 
@@ -263,13 +318,14 @@ export function applyWindowEvent(
 
       return update(state, p.entry_id, p.entry_type, (w) =>
         patchConversation(w, (c) => {
-          if (c.messages.some((m) => m.id === p.message.id)) return c;
-          return {
-            ...c,
-            messages: [...c.messages, p.message],
-            unread_count:
-              incoming && !w.visible ? c.unread_count + 1 : c.unread_count,
-          };
+          const known =
+            c.messages.some((m) => m.id === p.message.id) ||
+            Boolean(c.held_live?.some((m) => m.id === p.message.id));
+          if (known) return c;
+          const placed = applyLiveMessage(c, p.message);
+          return incoming && !w.visible
+            ? { ...placed, unread_count: c.unread_count + 1 }
+            : placed;
         }),
       );
     }
@@ -355,17 +411,4 @@ export function applyWindowEvent(
     default:
       return state;
   }
-}
-
-function mergeById(
-  existing: ConversationMessage[],
-  batch: ConversationMessage[],
-): ConversationMessage[] {
-  const seen = new Set(existing.map((m) => m.id));
-  const additions = batch.filter((m) => !seen.has(m.id));
-  if (additions.length === 0) return existing;
-  return [...existing, ...additions].sort(
-    (a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-  );
 }

@@ -47,6 +47,7 @@ const KINDS: ReportKind[] = [
   "balance_transactions",
   "opportunities",
   "leads",
+  "whatsapp_dispatch",
 ];
 
 const STATUSES: ReportStatus[] = ["queued", "running", "done", "failed", "expired"];

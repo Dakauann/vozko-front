@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { PanelSection } from "@/components/dashboard/PanelSection";
 import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 import { Notice } from "@/components/ui/notice";
-import ComponentEditor from "@/components/whatsapp/ComponentEditor";
+import ComponentEditor, { type FormButtonSource } from "@/components/whatsapp/ComponentEditor";
 import DragDropBuilder, { paletteForCategory } from "@/components/whatsapp/DragDropBuilder";
 import { DraftExitStrip } from "@/components/whatsapp/exit/DraftExitStrip";
 import { LeadExitDialog } from "@/components/whatsapp/exit/LeadExitDialog";
@@ -16,7 +16,7 @@ import type { TemplateDraft } from "./use-template-draft";
 
 export const BUILDER_PROBLEMS_ANCHOR = "template-error-anchor-builder";
 
-export function TemplateMessageSection({ draft }: { draft: TemplateDraft }) {
+export function TemplateMessageSection({ draft, forms }: { draft: TemplateDraft; forms?: FormButtonSource }) {
   const t = useTranslations("whatsappTemplates");
   const tExit = useTranslations("templateExit");
   const { components, category, purpose } = draft;
@@ -59,6 +59,7 @@ export function TemplateMessageSection({ draft }: { draft: TemplateDraft }) {
               onChange={draft.updateComponent}
               category={category}
               allowedKinds={draft.exitVerdict.allowedKinds}
+              forms={forms}
             />
           )}
         />

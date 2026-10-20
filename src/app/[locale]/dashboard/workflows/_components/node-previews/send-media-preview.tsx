@@ -2,6 +2,9 @@
 
 import {
   ChatSurface,
+  NODE_MEDIA_BOX,
+  NODE_MEDIA_GLANCE_BOX,
+  PreviewImage,
   WA_BUBBLE_MUTED,
   WA_BUBBLE_TEXT,
 } from "../message-node-primitives";
@@ -16,10 +19,22 @@ import {
 
 import type { ComponentType } from "react";
 import type { IconProps } from "@/components/icons";
+import {
+  mediaKindOf,
+  mediaTypeFromUrl,
+  mediaVisual,
+  type MediaDetail,
+  type MediaKind,
+  type MediaVisual,
+} from "@/lib/medias/media-preview";
 import { cn } from "@/lib/utils";
 import { useResolvedMedia } from "./media-node-preview";
 
 const WA_MEDIA_BUBBLE = "bg-[#d9fdd3] dark:bg-[#005c4b]";
+const MEDIA_BOX: Record<MediaDetail, { size: { width: number; height: number }; className: string }> = {
+  full: { size: NODE_MEDIA_BOX, className: "block h-32 w-full object-cover" },
+  glance: { size: NODE_MEDIA_GLANCE_BOX, className: "block h-24 w-full object-cover" },
+};
 
 function fileNameFromUrl(url: string): string {
   return url.split("?")[0].split("/").pop() || "";
@@ -31,30 +46,29 @@ function hideOnError(e: { currentTarget: HTMLElement }) {
 
 export function SendMediaPreview({
   config,
+  detail = "full",
 }: {
   config: Record<string, unknown>;
+  detail?: MediaDetail;
 }) {
   const name = (config._display_media_id as string) || "";
   const rawUrl = (config.media_url as string) || "";
-  const previewUrl = (config._media_preview_url as string) || rawUrl;
+  const configPreview = (config._media_preview_url as string) || "";
   const mediaId = (config.media_id as string) || "";
   const rawType = (
-    ((config._media_type as string) ?? "") ||
-    (rawUrl.match(/\.(png|jpg|jpeg|gif|webp|bmp|svg)(\?|$)/i)
-      ? "image"
-      : rawUrl.match(/\.(mp4|webm|mov)(\?|$)/i)
-        ? "video"
-        : rawUrl.match(/\.(mp3|wav|ogg|m4a|opus)(\?|$)/i)
-          ? "audio"
-          : rawUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv)(\?|$)/i)
-            ? "document"
-            : "")
+    ((config._media_type as string) ?? "") || mediaTypeFromUrl(rawUrl)
   ).toLowerCase();
   const caption = (config.caption as string) || "";
 
-  const { url, type, loading } = useResolvedMedia(mediaId, previewUrl, rawType);
+  const { sources, type, loading } = useResolvedMedia({
+    mediaId,
+    url: rawUrl,
+    previewUrl: configPreview,
+    type: rawType,
+  });
 
   if (!name && !rawUrl && !mediaId) {
+    if (detail === "glance") return null;
     return (
       <ChatSurface>
         <div
@@ -71,6 +85,8 @@ export function SendMediaPreview({
     );
   }
 
+  const kind = mediaKindOf(type);
+
   return (
     <ChatSurface>
       <div
@@ -80,12 +96,13 @@ export function SendMediaPreview({
         )}
       >
         <WhatsAppMedia
-          url={url}
-          type={type}
+          box={MEDIA_BOX[detail]}
+          kind={kind}
+          visual={mediaVisual(detail, kind, sources)}
           name={name || fileNameFromUrl(rawUrl)}
           loading={loading}
         />
-        {caption.trim() && (
+        {detail === "full" && caption.trim() && (
           <p
             className={cn(
               "line-clamp-2 whitespace-pre px-1.5 pb-0.5 pt-1 text-2xs leading-snug",
@@ -101,68 +118,66 @@ export function SendMediaPreview({
 }
 
 function WhatsAppMedia({
-  url,
-  type,
+  box,
+  kind,
+  visual,
   name,
   loading,
 }: {
-  url: string;
-  type: string;
+  box: { size: { width: number; height: number }; className: string };
+  kind: MediaKind;
+  visual: MediaVisual;
   name: string;
   loading: boolean;
 }) {
   if (loading) {
     return (
-      <div className="h-24 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10" />
+      <div className={cn(box.className, "animate-pulse rounded-md bg-black/10 dark:bg-white/10")} />
     );
   }
 
-  const isImage = type.includes("image") || type === "sticker";
-  const isVideo = type.includes("video");
-  const isAudio = type.includes("audio");
-
-  if (isImage) {
-    return (
-      <div className="overflow-hidden rounded-md">
-        {url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={url}
-            alt={name || "imagem"}
-            className="block max-h-32 w-full object-cover"
-            onError={hideOnError}
-          />
-        ) : (
-          <MediaPlaceholder icon={ImageIcon} label="Imagem" />
-        )}
-      </div>
-    );
-  }
-
-  if (isVideo) {
+  if (kind === "image" || kind === "video") {
     return (
       <div className="relative overflow-hidden rounded-md">
-        {url ? (
+        {visual.element === "img" ? (
+          <PreviewImage
+            src={visual.src}
+            alt={name || (kind === "image" ? "imagem" : "vídeo")}
+            box={box.size}
+            priority={visual.priority}
+            className={box.className}
+          />
+        ) : visual.element === "video" ? (
           <video
-            src={url}
-            className="block max-h-32 w-full object-cover"
+            src={visual.src}
+            poster={visual.poster || undefined}
+            width={box.size.width}
+            height={box.size.height}
+            className={box.className}
             muted
+            playsInline
             preload="metadata"
             onError={hideOnError}
           />
         ) : (
-          <MediaPlaceholder icon={VideoCamera} label="Vídeo" />
+          <MediaPlaceholder
+            className={box.className}
+            icon={kind === "image" ? ImageIcon : VideoCamera}
+            label={kind === "image" ? "Imagem" : "Vídeo"}
+          />
         )}
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45">
-            <Play size={15} weight="fill" className="ml-0.5 text-white" />
+        {kind === "video" && (
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45">
+              <Play size={15} weight="fill" className="ml-0.5 text-white" />
+            </span>
           </span>
-        </span>
+        )}
       </div>
     );
   }
 
-  if (isAudio) {
+  if (kind === "audio") {
     return (
       <div className="flex items-center gap-2 px-1.5 py-1.5">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/70 dark:bg-white/15">
@@ -205,14 +220,16 @@ function WhatsAppMedia({
 }
 
 function MediaPlaceholder({
+  className,
   icon: Icon,
   label,
 }: {
+  className: string;
   icon: ComponentType<IconProps>;
   label: string;
 }) {
   return (
-    <div className="flex h-24 w-full items-center justify-center gap-1.5 bg-black/10 dark:bg-white/10">
+    <div className={cn(className, "flex items-center justify-center gap-1.5 bg-black/10 dark:bg-white/10")}>
       <Icon
         size={18}
         weight="duotone"

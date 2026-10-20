@@ -65,7 +65,7 @@ describe("sidebar access", () => {
   it("lists Meta after every channel, since ads are not a channel", () => {
     const order = [...new Set(campanhasNavItems.map((item) => item.family))];
     const meta = order.indexOf("meta");
-    for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "webchat", "telephony", "unofficial-whatsapp"]) {
+    for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "mercadolivre", "tiktok", "webchat", "telephony", "unofficial-whatsapp"]) {
       expect(order.indexOf(channel), `${channel} should come before Meta`).toBeLessThan(meta);
     }
     expect(order[meta + 1]).toBe("management");
@@ -80,6 +80,28 @@ describe("sidebar access", () => {
     expect(ruleForPath("/dashboard/advertising/rules")).toEqual({ kind: "screen", screen: "ads_rules" });
     expect(ruleForPath("/dashboard/advertising/conversions")).toEqual({ kind: "screen", screen: "ads_conversions" });
     expect(ruleForPath("/dashboard/advertising/pages")).toEqual({ kind: "screen", screen: "ads_pages" });
+  });
+
+  it("groups Mercado Livre under its own family, each page gated by its own screen", () => {
+    const mercadolivre = campanhasNavItems.filter((item) => item.family === "mercadolivre");
+    expect(mercadolivre.map((item) => [item.labelKey, item.href])).toEqual([["nav.mercadolivre", "/dashboard/mercadolivre-accounts"]]);
+    expect(hrefs(mercadolivre)).toEqual(["/dashboard/mercadolivre-accounts", "/dashboard/mercadolivre-accounts", "/dashboard/mercadolivre-accounts/connect"]);
+    expect(navItemVisible(mercadolivre[0], () => false)).toBe(false);
+    expect(navItemVisible(mercadolivre[0], (href) => href === "/dashboard/mercadolivre-accounts")).toBe(true);
+    expect(ruleForPath("/dashboard/mercadolivre-accounts")).toEqual({ kind: "screen", screen: "mercadolivre_accounts" });
+    expect(ruleForPath("/dashboard/mercadolivre-accounts/connect")).toEqual({ kind: "screen", screen: "mercadolivre_connect" });
+    expect(ruleForPath("/dashboard/mercadolivre-accounts/123456")).toEqual({ kind: "screen", screen: "mercadolivre_account" });
+  });
+
+  it("groups TikTok under its own family, each page gated by its own screen", () => {
+    const tiktok = campanhasNavItems.filter((item) => item.family === "tiktok");
+    expect(tiktok.map((item) => [item.labelKey, item.href])).toEqual([["nav.tiktok", "/dashboard/tiktok-accounts"]]);
+    expect(hrefs(tiktok)).toEqual(["/dashboard/tiktok-accounts", "/dashboard/tiktok-accounts", "/dashboard/tiktok-accounts/connect"]);
+    expect(navItemVisible(tiktok[0], () => false)).toBe(false);
+    expect(navItemVisible(tiktok[0], (href) => href === "/dashboard/tiktok-accounts")).toBe(true);
+    expect(ruleForPath("/dashboard/tiktok-accounts")).toEqual({ kind: "screen", screen: "tiktok_accounts" });
+    expect(ruleForPath("/dashboard/tiktok-accounts/connect")).toEqual({ kind: "screen", screen: "tiktok_connect" });
+    expect(ruleForPath("/dashboard/tiktok-accounts/123456")).toEqual({ kind: "screen", screen: "tiktok_account" });
   });
 
   it("gates each website chat page by its own screen", () => {

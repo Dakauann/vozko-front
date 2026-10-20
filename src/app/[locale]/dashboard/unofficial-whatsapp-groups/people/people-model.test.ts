@@ -4,6 +4,7 @@ import type { GroupPerson } from "@/lib/unofficial-whatsapp-groups/types";
 
 import {
   DEFAULT_MIN_GROUPS,
+  canBecomeLead,
   MIN_GROUP_OPTIONS,
   isHiddenNumber,
   memberSearchOf,
@@ -126,5 +127,13 @@ describe("pageCounts", () => {
 
   it("is all zero on an empty page", () => {
     expect(pageCounts([])).toEqual({ withLead: 0, hidden: 0, maxGroups: 0 });
+  });
+});
+
+describe("canBecomeLead", () => {
+  it("offers the leads only to people with a visible number and no lead yet", () => {
+    expect(canBecomeLead(person())).toBe(true);
+    expect(canBecomeLead(person({ leadId: "l-1" }))).toBe(false);
+    expect(canBecomeLead(person({ phone: undefined, jid: "123456789012345@lid" }))).toBe(false);
   });
 });

@@ -7,13 +7,13 @@ const config = (over: Partial<WorkspaceConfig>): WorkspaceConfig => ({ ...(over 
 
 describe("handOffRules", () => {
   it("reads an unconfigured workspace with the backend defaults", () => {
-    expect(handOffRules(null)).toEqual({ mode: "online", windowHours: 48, skipAdmins: false, rescue: null });
+    expect(handOffRules(null)).toEqual({ mode: "online", strategy: "round_robin", maxOpenPerMember: 0, windowHours: 48, skipAdmins: false, rescue: null });
   });
 
   it("describes the online roulette, where rescue never runs", () => {
     expect(
       handOffRules(config({ rouletteMode: "online", skipAdminAssignment: true, rouletteRescueEnabled: true })),
-    ).toEqual({ mode: "online", windowHours: 48, skipAdmins: true, rescue: null });
+    ).toEqual({ mode: "online", strategy: "round_robin", maxOpenPerMember: 0, windowHours: 48, skipAdmins: true, rescue: null });
   });
 
   it("describes the last-seen roulette with its window and rescue", () => {
@@ -27,7 +27,20 @@ describe("handOffRules", () => {
           workingHours: { timezone: "America/Sao_Paulo", days: {} },
         }),
       ),
-    ).toEqual({ mode: "last_seen", windowHours: 24, skipAdmins: false, rescue: { afterMinutes: 10, workingHoursOnly: true } });
+    ).toEqual({
+      mode: "last_seen",
+      strategy: "round_robin",
+      maxOpenPerMember: 0,
+      windowHours: 24,
+      skipAdmins: false,
+      rescue: { afterMinutes: 10, workingHoursOnly: true },
+    });
+  });
+
+  it("carries the pick strategy and the open conversation limit", () => {
+    const rules = handOffRules(config({ rouletteStrategy: "priority", rouletteMaxOpenPerMember: 6 }));
+    expect(rules.strategy).toBe("priority");
+    expect(rules.maxOpenPerMember).toBe(6);
   });
 
   it("has no rescue when it is switched off", () => {

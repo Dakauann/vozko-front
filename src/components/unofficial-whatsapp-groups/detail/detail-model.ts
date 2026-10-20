@@ -3,6 +3,7 @@ import type {
   GroupMember,
   ListMembersParams,
   MemberAction,
+  MemberCounts,
   NumberSeat,
   ParticipantTotal,
   SeriesSibling,
@@ -317,4 +318,12 @@ export function outstandingSetupWarnings(
     if (warning.step === "promote_numbers") return seats.length === 0 || !seats.every((seat) => seat.admin);
     return true;
   });
+}
+
+export function departures(counts: MemberCounts): { left: number; removed: number } {
+  return { left: Math.max(0, counts.left30d - counts.removed30d), removed: counts.removed30d };
+}
+
+export function oursRemovedMark(counts: MemberCounts): KpiMark | undefined {
+  return counts.oursRemoved > 0 ? "fault" : undefined;
 }

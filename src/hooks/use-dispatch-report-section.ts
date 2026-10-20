@@ -13,7 +13,7 @@ import {
 export function useDispatchReportSection<S extends DispatchReportSection>(
   section: S,
   params: DispatchReportParams,
-  options: { enabled: boolean },
+  options: { enabled: boolean; refetchInterval?: number },
 ) {
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
@@ -22,5 +22,6 @@ export function useDispatchReportSection<S extends DispatchReportSection>(
     queryKey: dispatchReportSectionKey(workspaceId, section, params),
     queryFn: (signal) => fetchDispatchReportSection(section, params, signal),
     enabled: options.enabled && workspaceId !== "",
+    refetchInterval: options.refetchInterval,
   });
 }

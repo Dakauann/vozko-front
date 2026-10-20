@@ -5,6 +5,7 @@ import {
   autoLoadsNextPage,
   dealsOf,
   isLocationEvent,
+  leadConversationLinks,
   readDealsPage,
   readTimelinePage,
   timelineEntryLink,
@@ -167,5 +168,68 @@ describe("autoLoadsNextPage", () => {
     expect(autoLoadsNextPage([30, ...empties])).toBe(true);
     expect(autoLoadsNextPage([30, ...empties, 0])).toBe(false);
     expect(autoLoadsNextPage([...empties, 0, 3])).toBe(true);
+  });
+});
+
+describe("leadConversationLinks", () => {
+  const current = { entryId: "e-1", entryType: "whatsapp" } as const;
+
+  it("lists each other conversation of the contact once, newest first, without the open one", () => {
+    const items = [
+      item({ id: "1", at: "2026-10-10T10:00:00Z" }),
+      item({ id: "2", kind: "campaign_read", at: "2026-10-09T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" } }),
+      item({ id: "3", at: "2026-10-08T10:00:00Z", ref: { type: "entry", id: "i-4", entryType: "instagram" } }),
+      item({ id: "4", kind: "campaign_sent", at: "2026-10-07T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" } }),
+    ];
+    expect(leadConversationLinks(items, current)).toEqual([
+      { entryId: "u-9", entryType: "unofficial_whatsapp", at: "2026-10-09T10:00:00Z" },
+      { entryId: "i-4", entryType: "instagram", at: "2026-10-08T10:00:00Z" },
+    ]);
+  });
+
+  it("skips events that do not point at a conversation the inbox can open", () => {
+    const items = [item({ id: "c", kind: "call", ref: { type: "call", id: "sip-1" } }), item({ id: "v", ref: { type: "entry", id: "e-7", entryType: "voice" } })];
+    expect(leadConversationLinks(items, current)).toEqual([]);
+  });
+
+  it("keeps the same id on another channel, which is another conversation", () => {
+    const items = [item({ id: "x", ref: { type: "entry", id: "e-1", entryType: "telegram" } })];
+    expect(leadConversationLinks(items, current)).toEqual([{ entryId: "e-1", entryType: "telegram", at: "2026-10-08T14:32:00Z" }]);
+  });
+
+  it("names the campaign a conversation came from, even when only an older event carries it, so two WhatsApp lines read apart", () => {
+    const items = [
+      item({ id: "1", at: "2026-10-10T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" }, summary: { channel: "unofficial_whatsapp" } }),
+      item({ id: "2", kind: "campaign_sent", at: "2026-10-09T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" }, summary: { channel: "unofficial_whatsapp", title: "  Volta às aulas " } }),
+      item({ id: "3", kind: "campaign_read", at: "2026-10-08T10:00:00Z", ref: { type: "entry", id: "w-2", entryType: "whatsapp" }, summary: { channel: "whatsapp", title: "" } }),
+    ];
+    expect(leadConversationLinks(items, { entryId: "e-1", entryType: "instagram" })).toEqual([
+      { entryId: "u-9", entryType: "unofficial_whatsapp", at: "2026-10-10T10:00:00Z", campaign: "Volta às aulas" },
+      { entryId: "w-2", entryType: "whatsapp", at: "2026-10-08T10:00:00Z" },
+    ]);
+  });
+
+  it("names the line each conversation runs on, so two conversations on the same channel read apart", () => {
+    const items = [
+      item({ id: "1", at: "2026-10-10T10:00:00Z", ref: { type: "entry", id: "w-2", entryType: "whatsapp" }, summary: { channel: "whatsapp", line: " +55 11 4000-1000 " } }),
+      item({ id: "2", at: "2026-10-09T10:00:00Z", ref: { type: "entry", id: "w-3", entryType: "whatsapp" }, summary: { channel: "whatsapp", line: "+55 11 4000-2000" } }),
+      item({ id: "3", kind: "campaign_read", at: "2026-10-08T10:00:00Z", ref: { type: "entry", id: "w-3", entryType: "whatsapp" }, summary: { channel: "whatsapp", title: "Volta às aulas" } }),
+      item({ id: "4", at: "2026-10-07T10:00:00Z", ref: { type: "entry", id: "t-1", entryType: "telegram" }, summary: { channel: "telegram", line: "  " } }),
+    ];
+    expect(leadConversationLinks(items, current)).toEqual([
+      { entryId: "w-2", entryType: "whatsapp", at: "2026-10-10T10:00:00Z", line: "+55 11 4000-1000" },
+      { entryId: "w-3", entryType: "whatsapp", at: "2026-10-09T10:00:00Z", line: "+55 11 4000-2000", campaign: "Volta às aulas" },
+      { entryId: "t-1", entryType: "telegram", at: "2026-10-07T10:00:00Z" },
+    ]);
+  });
+
+  it("takes the line from the conversation even when a campaign event about it comes first", () => {
+    const items = [
+      item({ id: "1", kind: "campaign_read", at: "2026-10-10T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" }, summary: { channel: "unofficial_whatsapp", title: "Volta às aulas" } }),
+      item({ id: "2", at: "2026-10-09T10:00:00Z", ref: { type: "entry", id: "u-9", entryType: "unofficial_whatsapp" }, summary: { channel: "unofficial_whatsapp", line: "Comercial" } }),
+    ];
+    expect(leadConversationLinks(items, current)).toEqual([
+      { entryId: "u-9", entryType: "unofficial_whatsapp", at: "2026-10-10T10:00:00Z", campaign: "Volta às aulas", line: "Comercial" },
+    ]);
   });
 });

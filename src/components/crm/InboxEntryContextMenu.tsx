@@ -9,9 +9,12 @@ import { usePortfolioCommands } from "@/components/customer-portfolio/use-portfo
 import {
   ArrowSquareOut,
   ChatCircleDots,
+  CheckSquare,
   Copy,
   DotsThree,
+  EnvelopeSimple,
   IdentificationBadge,
+  PushPin,
   Tag as TagIcon,
   UserCheck,
   UserMinus,
@@ -44,6 +47,7 @@ const SUB_CONTENT = "max-h-72 w-56 overflow-y-auto";
 export interface InboxEntryMenuActions {
   onOpen: () => void;
   onOpenInWindow?: () => void;
+  onSelectRow?: () => void;
   onOpenLead?: () => void;
   members?: AssignableMember[];
   onlineUserIds?: ReadonlySet<string>;
@@ -51,6 +55,14 @@ export interface InboxEntryMenuActions {
   onMoveStage?: (stageId: string) => void;
   labels?: Label[];
   onToggleLabel?: (labelId: string, assigned: boolean) => void;
+  personal?: PersonalMenuActions;
+}
+
+export interface PersonalMenuActions {
+  pinned: boolean;
+  canMarkUnread: boolean;
+  onTogglePin: () => void;
+  onMarkUnread: () => void;
 }
 
 function Swatch({ color }: { color: string }) {
@@ -139,6 +151,24 @@ function LabelItems({ entry, labels, onToggleLabel }: { entry: InboxEntry; label
   );
 }
 
+function PersonalItems({ personal }: { personal: PersonalMenuActions }) {
+  const t = useTranslations("crmInbox.menu");
+  return (
+    <>
+      <ContextMenuItem onSelect={personal.onTogglePin} className={ITEM}>
+        <PushPin className="h-4 w-4" aria-hidden />
+        {personal.pinned ? t("unpin") : t("pin")}
+      </ContextMenuItem>
+      {personal.canMarkUnread ? (
+        <ContextMenuItem onSelect={personal.onMarkUnread} className={ITEM}>
+          <EnvelopeSimple className="h-4 w-4" aria-hidden />
+          {t("markUnread")}
+        </ContextMenuItem>
+      ) : null}
+    </>
+  );
+}
+
 function PortfolioItem({ entry }: { entry: InboxEntry }) {
   const t = useTranslations("customerPortfolio");
   const { uses, userId } = usePortfolioAccess();
@@ -218,6 +248,18 @@ export function InboxEntryContextMenu({ entry, actions, children }: { entry: Inb
             <ArrowSquareOut className="h-4 w-4" aria-hidden />
             {t("openInWindow")}
           </ContextMenuItem>
+        ) : null}
+        {actions.onSelectRow ? (
+          <ContextMenuItem onSelect={actions.onSelectRow} className={ITEM}>
+            <CheckSquare className="h-4 w-4" aria-hidden />
+            {t("select")}
+          </ContextMenuItem>
+        ) : null}
+        {actions.personal ? (
+          <>
+            <ContextMenuSeparator />
+            <PersonalItems personal={actions.personal} />
+          </>
         ) : null}
         {organizes ? <ContextMenuSeparator /> : null}
         {onAssignTo && members ? <AssignItems entry={entry} members={members} onlineUserIds={actions.onlineUserIds} onAssignTo={onAssignTo} /> : null}

@@ -4,10 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import type { MetaInvoiceCheckReport, MetaServiceMessageCostReport } from "@/lib/analytics/types";
 
 import MetaServiceCostDashboard from "./meta-service-cost-dashboard";
+
+const ptMessages = brandedMessages(rawPtMessages);
 
 const reportAction = vi.fn();
 const invoiceAction = vi.fn();

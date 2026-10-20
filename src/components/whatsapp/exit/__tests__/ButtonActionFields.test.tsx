@@ -9,6 +9,16 @@ import type { ButtonActionChoice, ButtonActionKind } from "@/lib/whatsapp-templa
 vi.mock("../use-action-param-options", () => ({
   TEAM_PREFIX: "team:",
   MEMBER_PREFIX: "user:",
+  AGENT_PREFIX: "agent:",
+  FLOW_PREFIX: "flow:",
+  useDelegateOptions: () => ({
+    options: [
+      { value: "agent:agent-1", label: "Elo de vendas" },
+      { value: "flow:wf-2", label: "Triagem" },
+    ],
+    loading: false,
+    failed: false,
+  }),
   useHandOffOptions: () => ({
     options: [
       { value: "team:dep-1", label: "Cobrança" },
@@ -95,6 +105,22 @@ describe("ButtonActionFields", () => {
     fireEvent.click(screen.getByRole("button", { name: t.params.handOff }));
     fireEvent.click(await screen.findByText("Cobrança"));
     expect(seen.values.at(-1)).toEqual({ kind: "hand_off", params: { departmentId: "dep-1" }, confirmation: "" });
+  });
+
+  it("hands the conversation to the agent the user picks", async () => {
+    renderFields({ kinds: ["delegate"] });
+    await pick(t.action.label, t.kinds.delegate);
+    fireEvent.click(screen.getByRole("button", { name: t.params.delegate }));
+    fireEvent.click(await screen.findByText("Elo de vendas"));
+    expect(seen.values.at(-1)).toEqual({ kind: "delegate", params: { agentId: "agent-1" }, confirmation: "" });
+  });
+
+  it("hands the conversation to the flow the user picks", async () => {
+    renderFields({ kinds: ["delegate"] });
+    await pick(t.action.label, t.kinds.delegate);
+    fireEvent.click(screen.getByRole("button", { name: t.params.delegate }));
+    fireEvent.click(await screen.findByText("Triagem"));
+    expect(seen.values.at(-1)).toEqual({ kind: "delegate", params: { workflowId: "wf-2" }, confirmation: "" });
   });
 
   it("drops the previous kind's params when the kind changes", async () => {

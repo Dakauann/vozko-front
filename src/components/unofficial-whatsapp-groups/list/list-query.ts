@@ -16,12 +16,12 @@ export function listParams(query: AllGroupsQuery, page: number, pageSize: number
   if (query.category !== undefined) params.category = query.category;
   if (query.instanceId) params.instanceId = query.instanceId;
   if (query.hasAnalysis !== undefined) params.hasAnalysis = query.hasAnalysis;
-  if (query.adminsOnly) params.adminsOnly = true;
+  if (query.adminsOnly !== undefined) params.adminsOnly = query.adminsOnly;
   return params;
 }
 
 export function isNarrowed(query: AllGroupsQuery): boolean {
-  return NARROWING_FILTERS.some((key) => (key === "adminsOnly" ? query.adminsOnly === true : query[key] !== undefined));
+  return NARROWING_FILTERS.some((key) => query[key] !== undefined);
 }
 
 export function isSearchedOrNarrowed(query: AllGroupsQuery): boolean {
@@ -37,4 +37,18 @@ export function withoutFilter(query: AllGroupsQuery, key: ListFilterKey): AllGro
 
 export function clearedQuery(query: AllGroupsQuery): AllGroupsQuery {
   return query.sort ? { sort: query.sort } : {};
+}
+
+export const SEND_PERMISSIONS = ["all", "open", "admins"] as const;
+
+export type SendPermission = (typeof SEND_PERMISSIONS)[number];
+
+export function sendPermissionOf(adminsOnly: boolean | undefined): SendPermission {
+  if (adminsOnly === undefined) return "all";
+  return adminsOnly ? "admins" : "open";
+}
+
+export function adminsOnlyOf(choice: SendPermission): boolean | undefined {
+  if (choice === "all") return undefined;
+  return choice === "admins";
 }

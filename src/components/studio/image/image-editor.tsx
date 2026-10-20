@@ -19,7 +19,7 @@ import { decodeClipboard, encodeClipboard } from "@/lib/studio/clipboard";
 import { isSvgText } from "@/lib/studio/svg-import";
 import { imageFilesFrom } from "@/lib/studio/clipboard-files";
 import { newTextLayer, STUDIO_LIMITS } from "@/lib/studio/document";
-import { isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
 import { createStudioStore } from "@/lib/studio/store";
 import { settleImage } from "@/lib/studio/image-settle";
 import { relayoutDocument } from "@/lib/studio/auto-layout";

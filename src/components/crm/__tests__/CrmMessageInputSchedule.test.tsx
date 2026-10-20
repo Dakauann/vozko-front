@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import CrmMessageInput from "../CrmMessageInput";
 import { NextIntlClientProvider } from "next-intl";
@@ -86,6 +86,7 @@ describe("CrmMessageInput scheduling affordance", () => {
         fireEvent.click(clock);
         expect(onSchedule).toHaveBeenCalledWith(
             expect.objectContaining({ text: "", signed: false }),
+            expect.any(Function),
         );
     });
 
@@ -94,7 +95,7 @@ describe("CrmMessageInput scheduling affordance", () => {
         expect(screen.getByLabelText(scheduleAria)).toBeDisabled();
     });
 
-    it("hands the composed draft over and clears the composer", () => {
+    it("hands the composed draft over and clears the composer only once the schedule is confirmed", () => {
         const onSchedule = vi.fn();
         const onSend = vi.fn();
         renderComposer({ onSchedule, onSend });
@@ -106,9 +107,25 @@ describe("CrmMessageInput scheduling affordance", () => {
 
         expect(onSchedule).toHaveBeenCalledWith(
             expect.objectContaining({ text: "Bom dia!", signed: false }),
+            expect.any(Function),
         );
+        expect(textarea).toHaveValue("Bom dia!");
+
+        act(() => onSchedule.mock.calls[0][1]());
+
         expect(textarea).toHaveValue("");
         expect(onSend).not.toHaveBeenCalled();
+    });
+
+    it("keeps the text when the schedule dialog is cancelled", () => {
+        const onSchedule = vi.fn();
+        renderComposer({ onSchedule });
+
+        const textarea = screen.getByPlaceholderText(composerTranslations.placeholder);
+        fireEvent.change(textarea, { target: { value: "Rascunho importante" } });
+        fireEvent.click(screen.getByLabelText(scheduleAria));
+
+        expect(textarea).toHaveValue("Rascunho importante");
     });
 
     it("passes the reply target through so a scheduled reply still quotes", () => {
@@ -129,6 +146,7 @@ describe("CrmMessageInput scheduling affordance", () => {
 
         expect(onSchedule).toHaveBeenCalledWith(
             expect.objectContaining({ replyToMessageId: "msg-9" }),
+            expect.any(Function),
         );
     });
 

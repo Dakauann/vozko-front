@@ -1,31 +1,22 @@
 "use client";
 
-import {
-  CalendarCheck,
-  CaretDown,
-  ChatCircle,
-  CheckCircle,
-  DownloadSimple,
-  ListDashes,
-  UserCircle,
-  Warning,
-} from "@/components/icons";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { CheckCircle } from "@/components/icons";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 import Button from "@/components/elevated-design/button";
-import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { StatusChip } from "@/components/elevated-design/status-chip";
+import { Notice } from "@/components/ui/notice";
+import { CampaignLiveOverview } from "@/components/campaigns/detail/CampaignLiveOverview";
+import { CampaignTimelinePanel } from "@/components/campaigns/detail/CampaignTimelinePanel";
+import { CampaignContactsTable, type CampaignContactRow } from "@/components/campaigns/detail/CampaignContactsTable";
+import { useCampaignProgress, useLiveFollowUp } from "@/hooks/use-campaign-live";
+import { EMPTY_CAMPAIGN_METRICS } from "@/lib/campaigns/metrics";
+import { UnofficialCampaignSettingsPanel } from "./UnofficialCampaignSettingsPanel";
 import { CampaignConfirmModal } from "@/components/campaigns/CampaignConfirmModal";
 import CrmDialog from "@/components/crm/CrmDialog";
 import CampaignHeader from "@/components/dashboard/CampaignHeader";
 import { SelectionSendNote, useSelectionSendRefusalText } from "@/components/campaigns/SelectionSendNote";
 import { selectionSendControls } from "@/lib/campaigns/selection-send";
-import { CampaignMetricsTiles } from "@/components/campaigns/CampaignMetricsTiles";
-import { WhatsappLogo } from "@/components/icons";
-import { channelPlate } from "@/components/channels/channel-tile";
-import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
-import { cn } from "@/lib/utils";
-import EntryConversationDialog from "@/components/dashboard/EntryConversationDialog";
 import EntryFiltersBar, {
   type EntryFilterValues,
 } from "@/components/dashboard/EntryFiltersBar";
@@ -52,41 +43,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 
-const entryStatusStyles: Record<string, string> = {
-  PENDING: "bg-muted text-muted-foreground",
-  SENT: "bg-primary text-primary-foreground",
-  DELIVERED: "bg-healthy text-healthy-foreground",
-  READ: "bg-healthy text-healthy-foreground",
-  FAILED: "bg-destructive text-destructive-foreground",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "bg-warning text-warning-foreground",
-  SKIPPED_NOT_ON_WHATSAPP: "bg-warning text-warning-foreground",
-};
-
-const entryStatusKeys: Record<string, string> = {
-  PENDING: "pending",
-  SENT: "sent",
-  DELIVERED: "delivered",
-  READ: "read",
-  FAILED: "failed",
-  NOT_ELIGIBLE_POSSIBLE_SPAM: "notEligiblePossibleSpam",
-  SKIPPED_NOT_ON_WHATSAPP: "skippedNotOnWhatsApp",
-};
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
 const ENTRIES_PAGE_SIZE = 25;
-const REFRESH_MS = 5000;
 
 export default function UnofficialCampaignDetail({
   campaign: initial,
@@ -94,6 +51,7 @@ export default function UnofficialCampaignDetail({
   campaign: UnofficialWhatsAppCampaign;
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const tDetail = useTranslations("campaignDetail");
   const refusalText = useSelectionSendRefusalText();
   const tCrm = useTranslations("crm");
   const tSidebar = useTranslations("sidebar");
@@ -120,8 +78,8 @@ export default function UnofficialCampaignDetail({
     if (result.campaign) setCampaign(result.campaign);
   }, [campaign.id]);
 
-  const fetchEntries = useCallback(async () => {
-    setEntriesLoading(true);
+  const fetchEntries = useCallback(async (showLoading = true) => {
+    if (showLoading) setEntriesLoading(true);
     try {
       const result = await listUnofficialCampaignEntriesAction(campaign.id, {
         page: entriesPage,
@@ -136,7 +94,7 @@ export default function UnofficialCampaignDetail({
         totalItems: result.meta.totalItems,
       });
     } finally {
-      setEntriesLoading(false);
+      if (showLoading) setEntriesLoading(false);
     }
   }, [campaign.id, entriesPage, entryFilters.status, entryFilters.search]);
 
@@ -144,14 +102,19 @@ export default function UnofficialCampaignDetail({
     fetchEntries();
   }, [fetchEntries]);
 
-  useEffect(() => {
-    if (campaign.status !== "RUNNING") return;
-    const timer = setInterval(() => {
-      refresh();
-      fetchEntries();
-    }, REFRESH_MS);
-    return () => clearInterval(timer);
-  }, [campaign.status, refresh, fetchEntries]);
+  const progress = useCampaignProgress("unofficial_whatsapp", campaign.id);
+  const followSample = useCallback(() => {
+    void fetchEntries(false);
+  }, [fetchEntries]);
+  useLiveFollowUp({
+    sampledAt: progress.data?.sampledAt,
+    liveStatus: progress.data?.status,
+    campaignStatus: campaign.status,
+    onSample: followSample,
+    onStatusChange: refresh,
+  });
+  const liveStatus = progress.data?.status ?? campaign.status;
+  const metrics = progress.data?.metrics ?? campaign.metrics ?? EMPTY_CAMPAIGN_METRICS;
 
   const act = (
     action: () => Promise<{ error?: string; code?: string }>,
@@ -164,6 +127,7 @@ export default function UnofficialCampaignDetail({
         return;
       }
       toast(t(successKey));
+      await progress.refetch();
       await refresh();
       await fetchEntries();
     });
@@ -207,12 +171,45 @@ export default function UnofficialCampaignDetail({
   const canRunStart = can("unofficial_whatsapp_campaigns", "start");
   const canRunStop = can("unofficial_whatsapp_campaigns", "stop");
   const sendsToGroups = campaign.audience === "groups";
+  const senderPerGroup = sendsToGroups && !campaign.instanceId;
+  const rows: CampaignContactRow[] = useMemo(
+    () =>
+      entries.map((entry) => ({
+        id: entry.id,
+        conversationId: entry.conversationId ?? null,
+        number: entry.number,
+        name: entry.name,
+        group: entry.isGroup ? { jid: entry.jid } : undefined,
+        status: entry.status,
+        variables: entry.variables,
+        metadata: entry.metadata,
+        updatedAt: entry.sentAt ?? entry.updatedAt,
+        marks: entry.isGroup ? <StatusChip tone="outline" label={t("entries.groupMark")} /> : undefined,
+        note: [
+          entry.senderInstanceId ? t("entries.sentBy", { number: entry.senderLabel || entry.senderInstanceId }) : null,
+          campaign.message.bodies.length > 1 ? `${t("entries.variant")} ${entry.variantIndex + 1}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") || undefined,
+      })),
+    [entries, campaign.message.bodies.length, t],
+  );
+  const entryById = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
+  const describeFailure = useCallback(
+    (row: CampaignContactRow) => {
+      const entry = entryById.get(row.id);
+      if (!entry || entry.status !== "FAILED" || !entry.errorMessage) return null;
+      return { description: entry.errorMessage, code: entry.errorCode ?? null };
+    },
+    [entryById],
+  );
 
   return (
     <main className="w-full space-y-4">
       <CampaignHeader
         name={campaign.name}
-        status={campaign.status}
+        status={liveStatus}
+        statusLabel={tDetail(`status.${liveStatus}`)}
         campaignType="unofficial_whatsapp"
         backLink="/dashboard/unofficial-whatsapp-campaigns"
         editLink={`/dashboard/unofficial-whatsapp-campaigns/${campaign.id}/edit`}
@@ -319,351 +316,76 @@ export default function UnofficialCampaignDetail({
 
       {selectionSend.fromLeads ? <SelectionSendNote /> : null}
 
-      {}
-      {campaign.statusReason ? (
-        <div className="flex items-start gap-2 rounded-[--radius] border border-warning bg-warning px-3 py-2 text-warning-foreground">
-          <Warning className="mt-0.5 h-4 w-4 shrink-0" weight="fill" />
-          <p className="text-sm">{campaign.statusReason}</p>
-        </div>
-      ) : null}
+      {campaign.statusReason ? <Notice tone="warning" title={campaign.statusReason} /> : null}
 
-      {!campaign.instanceSessionLive ? (
-        <div className="flex items-start gap-2 rounded-[--radius] border border-destructive bg-destructive px-3 py-2 text-destructive-foreground">
-          <Warning className="mt-0.5 h-4 w-4 shrink-0" weight="fill" />
-          <p className="text-sm">{t("detail.numberOffline")}</p>
-        </div>
-      ) : null}
-
-      <div className="grid gap-4">
-        <div
-          className="max-h-max rounded-[--radius] border border-border bg-card p-6"
-          style={{ boxShadow: softSurfaceShadow }}
-        >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-lg",
-                  channelPlate("unofficial_whatsapp"),
-                )}
-              >
-                <WhatsappLogo className="h-6 w-6" weight="fill" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                  {campaign.name}
-                </h2>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span>
-                    {t("detail.number")}: {campaign.instanceLabel || <EmptyValue />}
-                  </span>
-                  <span className="text-muted-foreground">•</span>
-                  <span>
-                    {t("detail.messageKind")}: {t(`messageKind.${campaign.message.kind}`)}
-                  </span>
-                  {sendsToGroups ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span>{t("detail.groupsAudience")}</span>
-                    </>
-                  ) : null}
-                  {campaign.message.bodies.length > 1 ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span>
-                        {t("detail.variants", { count: campaign.message.bodies.length })}
-                      </span>
-                    </>
-                  ) : null}
-                  {campaign.enableAgentResponses ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-healthy-ink">{t("detail.agentOn")}</span>
-                    </>
-                  ) : null}
-                  {campaign.enableWorkflow ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-healthy-ink">{t("detail.workflowOn")}</span>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-              <span>
-                {t("detail.pacing", {
-                  min: (campaign.sendDelayMinMs / 1000).toFixed(1),
-                  max: (campaign.sendDelayMaxMs / 1000).toFixed(1),
-                })}
-              </span>
-              {campaign.dailyCap > 0 ? (
-                <span>{t("detail.dailyCap", { cap: campaign.dailyCap })}</span>
-              ) : null}
-            </div>
-          </div>
+      {!campaign.instanceSessionLive && !senderPerGroup ? <Notice tone="fault" title={t("detail.numberOffline")} /> : null}
 
-          <CampaignMetricsTiles
-            metrics={campaign.metrics}
-            channel="unofficial_whatsapp"
-            glyph={<WhatsappLogo weight="fill" className="h-5 w-5" />}
-            labels={{
-              total: t("table.total"),
-              pending: t("status.pending"),
-              sent: t("status.sent"),
-              delivered: t("status.delivered"),
-              read: t("status.read"),
-              failed: t("status.failed"),
-              avoidingSpam: t("table.avoidingSpam"),
-              notOnWhatsapp: t("table.notOnWhatsapp"),
-            }}
-          />
-        </div>
-      </div>
-
-
-      <EntryFiltersBar
-        campaignType="unofficial_whatsapp"
-        values={entryFilters}
-        onChange={(next) => {
-          setEntryFilters(next);
+      <CampaignLiveOverview
+        status={liveStatus}
+        metrics={metrics}
+        pace={progress.data?.pace}
+        sampledAt={progress.data?.sampledAt}
+        progressUnavailable={progress.isError && !progress.data}
+        activeStatus={entryFilters.status}
+        onFilterStatus={(next) => {
+          setEntryFilters({ ...entryFilters, status: next });
           setEntriesPage(1);
-        }}
-        stages={[]}
-        canFilterByStage={false}
-        statusOptions={UNOFFICIAL_SEND_STATUSES.map((status) => ({
-          value: status.value,
-          label: t(status.labelKey),
-        }))}
-        translations={{
-          searchPlaceholder: t("entries.searchPlaceholder"),
-          statusLabel: t("entries.status"),
-          statusAll: t("filter.all"),
-          tagLabel: t("entries.stage"),
-          tagAll: t("filter.all"),
-          tagNone: t("entries.noStage"),
-          clearFilters: t("entries.clearFilters"),
-          activeFilters: t("entries.activeFilters"),
-          errorCodePlaceholder: t("entries.errorCode"),
         }}
       />
 
-      <div
-        className="rounded-[--radius] border border-border bg-card p-8"
-        style={{ boxShadow: softSurfaceShadow }}
-      >
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground">
-              <UserCircle weight="bold" className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-                {t("entries.title")}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {t("entries.description")}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2 rounded-[--radius] bg-healthy px-3 py-1.5 text-xs font-semibold text-healthy-foreground">
-              <CheckCircle weight="fill" className="h-4 w-4" />
-              {entriesMeta.totalItems} {t("entries.records")}
-            </span>
-            <Button
-              variant="outline-subtle"
-              title={exporting ? t("entries.exporting") : t("entries.export")}
-              icon={<DownloadSimple weight="bold" className="h-4 w-4" />}
-              iconVisible
-              iconSide="left"
-              onClick={handleExport}
-              disabled={exporting}
-            />
-          </div>
-        </div>
-
-        {entriesLoading ? (
-          <div className="flex min-h-[400px] items-center justify-center rounded-[--radius] border border-border bg-muted px-6 py-8 text-sm text-muted-foreground">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-6 w-6 animate-spin rounded-full border border-foreground/20 border-t-healthy" />
-              <span>{t("entries.loading")}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="min-h-[400px]">
-            <div className="grid gap-4 lg:grid-cols-2">
-              {entries.map((entry) => {
-                const statusCode = entry.status ?? "PENDING";
-                const badgeClass =
-                  entryStatusStyles[statusCode] ?? "bg-muted text-muted-foreground";
-                const statusLabel = t(
-                  `status.${entryStatusKeys[statusCode] ?? "pending"}`,
-                );
-
-                return (
-                  <div
-                    key={entry.id}
-                    className="group relative rounded-[--radius] border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20 hover:shadow-md"
-                  >
-                    <div className="mb-4 flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        {entry.conversationId ? (
-                          <EntryConversationDialog
-                            entryId={entry.conversationId}
-                            entryType="unofficial_whatsapp"
-                            phoneNumber={entry.isGroup ? (entry.jid ?? "") : entry.number}
-                            contactName={entry.name}
-                            trigger={
-                              <button
-                                type="button"
-                                className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-healthy text-healthy-foreground transition-all hover:scale-105"
-                                title={t("entries.open")}
-                              >
-                                <ChatCircle weight="fill" className="h-5 w-5" />
-                              </button>
-                            }
-                          />
-                        ) : (
-                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-[--radius] bg-muted text-muted-foreground">
-                            <ChatCircle weight="fill" className="h-5 w-5" />
-                          </span>
-                        )}
-                        {entry.isGroup ? (
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="truncate text-lg font-semibold tracking-wide text-foreground">
-                                {entry.name || <EmptyValue />}
-                              </p>
-                              <StatusChip tone="outline" label={t("entries.groupMark")} />
-                            </div>
-                            {entry.jid ? (
-                              <p className="readout mt-0.5 truncate text-xs text-muted-foreground">{entry.jid}</p>
-                            ) : null}
-                          </div>
-                        ) : (
-                        <div>
-                          <p className="text-lg font-semibold tracking-wide text-foreground">
-                            {entry.number}
-                          </p>
-                          <div className="mt-0.5 flex items-center gap-2">
-                            {entry.name ? (
-                              <span className="text-sm font-medium text-muted-foreground">
-                                {entry.name}
-                              </span>
-                            ) : (
-                              <span className="text-sm italic text-muted-foreground">
-                                {t("entries.noName")}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        )}
-                      </div>
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-2xs font-semibold",
-                          badgeClass,
-                        )}
-                      >
-                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                        {statusLabel}
-                      </span>
-                    </div>
-
-                    {statusCode === "FAILED" && entry.errorMessage ? (
-                      <div className="mb-3 rounded-lg border border-border bg-muted px-3 py-2">
-                        {entry.errorCode ? (
-                          <p className="text-2xs font-semibold text-destructive-ink">
-                            {t("entries.errorCode")}: {entry.errorCode}
-                          </p>
-                        ) : null}
-                        <p className="mt-0.5 line-clamp-2 text-2xs text-destructive-ink">
-                          {entry.errorMessage}
-                        </p>
-                      </div>
-                    ) : null}
-
-                    {campaign.message.bodies.length > 1 ? (
-                      <div className="mb-3">
-                        <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-2xs text-foreground">
-                          <span className="font-semibold text-healthy-ink">
-                            {t("entries.variant")}
-                          </span>
-                          <span>{entry.variantIndex + 1}</span>
-                        </span>
-                      </div>
-                    ) : null}
-
-                    {entry.variables && entry.variables.length > 0 ? (
-                      <details className="group/vars mb-3">
-                        <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
-                          <ListDashes weight="bold" className="h-3.5 w-3.5" />
-                          {t("entries.variables")}
-                          <CaretDown
-                            weight="bold"
-                            className="h-3 w-3 transition-transform duration-200 group-open/vars:rotate-180"
-                          />
-                        </summary>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {entry.variables.map((variable, vi) => (
-                            <span
-                              key={vi}
-                              className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-2xs text-foreground"
-                            >
-                              <span className="font-semibold text-healthy-ink">
-                                {`{{${vi + 1}}}`}
-                              </span>
-                              <span>{variable}</span>
-                            </span>
-                          ))}
-                        </div>
-                      </details>
-                    ) : null}
-
-                    <div className="flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-                      <CalendarCheck weight="fill" className="h-3.5 w-3.5" />
-                      <span suppressHydrationWarning>
-                        {formatDate(entry.sentAt ?? entry.updatedAt)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {!entries.length ? (
-                <div className="col-span-2 rounded-[--radius] border border-border bg-muted px-6 py-8 text-center text-sm text-muted-foreground">
-                  {t("entries.emptyDescription")}
-                </div>
-              ) : null}
-            </div>
-
-            {entriesMeta.totalPages > 1 ? (
-              <div className="mt-6 flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  title={t("entries.previous")}
-                  disabled={entriesPage <= 1 || entriesLoading}
-                  onClick={() => setEntriesPage((p) => p - 1)}
-                />
-                <span className="text-sm text-muted-foreground">
-                  {entriesPage} / {entriesMeta.totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  title={t("entries.next")}
-                  disabled={entriesPage >= entriesMeta.totalPages || entriesLoading}
-                  onClick={() => setEntriesPage((p) => p + 1)}
-                />
-              </div>
-            ) : null}
-          </div>
-        )}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <CampaignTimelinePanel channel="unofficial_whatsapp" campaignId={campaign.id} className="lg:col-span-8" />
+        <UnofficialCampaignSettingsPanel campaign={campaign} canEdit={canUpdate} className="lg:col-span-4" />
       </div>
-
+
+      <CampaignContactsTable
+        entryType="unofficial_whatsapp"
+        rows={rows}
+        loading={entriesLoading}
+        totalItems={entriesMeta.totalItems}
+        page={entriesPage}
+        totalPages={entriesMeta.totalPages}
+        pageSize={ENTRIES_PAGE_SIZE}
+        onPageChange={setEntriesPage}
+        describeFailure={describeFailure}
+        stages={[]}
+        entryStages={{}}
+        canManageStages={false}
+        canReadStages={false}
+        onAssignStage={async () => undefined}
+        onRemoveStage={async () => undefined}
+        exporting={exporting}
+        onExport={handleExport}
+        toolbar={
+          <EntryFiltersBar
+            bare
+            campaignType="unofficial_whatsapp"
+            values={entryFilters}
+            onChange={(next) => {
+              setEntryFilters(next);
+              setEntriesPage(1);
+            }}
+            stages={[]}
+            canFilterByStage={false}
+            statusOptions={UNOFFICIAL_SEND_STATUSES.map((status) => ({
+              value: status.value,
+              label: t(status.labelKey),
+            }))}
+            translations={{
+              searchPlaceholder: t("entries.searchPlaceholder"),
+              statusLabel: t("entries.status"),
+              statusAll: t("filter.all"),
+              tagLabel: t("entries.stage"),
+              tagAll: t("filter.all"),
+              tagNone: t("entries.noStage"),
+              clearFilters: t("entries.clearFilters"),
+              activeFilters: t("entries.activeFilters"),
+              errorCodePlaceholder: t("entries.errorCode"),
+            }}
+          />
+        }
+      />
+
       <CrmDialog
         isOpen={showCrmDialog}
         onClose={() => setShowCrmDialog(false)}

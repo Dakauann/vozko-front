@@ -1,3 +1,5 @@
+import type { CreateReportRequest, WhatsAppDispatchReportParams } from "@/lib/reports/types";
+
 export const DISPATCH_REPORT_SECTIONS = ["summary", "daily", "failures", "tags", "campaigns"] as const;
 
 export type DispatchReportSection = (typeof DISPATCH_REPORT_SECTIONS)[number];
@@ -154,18 +156,11 @@ export function funnelStages(funnel: DispatchFunnel, interested?: number | null)
 
 export const DISPATCH_REPORT_MAX_DAYS = 92;
 
-const DAY_MS = 86_400_000;
+export const DISPATCH_EXPORT_MAX_DAYS = 731;
 
-function dayNumber(day: string): number {
-  return Date.parse(`${day}T00:00:00Z`) / DAY_MS;
-}
-
-function dayString(dayNum: number): string {
-  return new Date(dayNum * DAY_MS).toISOString().slice(0, 10);
-}
-
-export function clampToReportWindow(from: string, to: string): { from: string; to: string; clamped: boolean } {
-  const earliest = dayNumber(to) - (DISPATCH_REPORT_MAX_DAYS - 1);
-  const clamped = dayNumber(from) < earliest;
-  return { from: clamped ? dayString(earliest) : from, to, clamped };
+export function dispatchReportRequest(params: DispatchReportParams, locale: string): CreateReportRequest {
+  const scope: WhatsAppDispatchReportParams = params.campaignId
+    ? { dateFrom: params.dateFrom, dateTo: params.dateTo, campaignId: params.campaignId }
+    : { dateFrom: params.dateFrom, dateTo: params.dateTo, ...(params.departmentId ? { departmentId: params.departmentId } : {}) };
+  return { kind: "whatsapp_dispatch", format: "csv", locale, params: scope };
 }

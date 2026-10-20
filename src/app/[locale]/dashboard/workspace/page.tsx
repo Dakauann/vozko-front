@@ -1368,7 +1368,9 @@ function PermissionsTab({
     "call_queues",
     "call_history",
     "call_recordings",
-    "whatsapp_flows",
+    "whatsapp_forms",
+    "whatsapp_form_responses",
+    "team_chat",
   ];
 
   if (!canViewPermissions && !canEditPermissions && !canManageAssignments) {
@@ -2324,7 +2326,7 @@ function DepartmentsTab({
                     controlSize="sm"
                     className="w-full"
                   />
-                </div>
+                </div>
                 {departments.length === 0 && (
                   <div
                     role="status"
@@ -2387,7 +2389,7 @@ function DepartmentsTab({
           )}
         </AnimatePresence>
       )}
-
+
       {departments.length > 0 && unassignedMembers && unassignedMembers.length > 0 && (
         <UnassignedMembersNotice
           members={unassignedMembers}
@@ -2566,7 +2568,7 @@ function DepartmentsTab({
                       weight="bold"
                     />
                   </div>
-
+
                   {confirmDelete === dept.id && departments.length === 1 && (
                     <div
                       role="status"
@@ -2580,7 +2582,7 @@ function DepartmentsTab({
                       </p>
                     </div>
                   )}
-
+
                   {deptMembers[dept.id]?.length === 0 && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {ts("adminEmptyDepartment")} · {ts("adminEmptyDepartmentTooltip")}
@@ -2597,7 +2599,7 @@ function DepartmentsTab({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="border-t border-border px-4 py-3 space-y-3">
+                        <div className="border-t border-border px-4 py-3 space-y-3">
                           {canManage && (
                             <DepartmentWorkingHours
                               department={dept}

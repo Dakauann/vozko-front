@@ -354,6 +354,14 @@ export const Square: Icon = /*#__PURE__*/ glyph(
   </>,
 );
 
+export const CheckSquare: Icon = /*#__PURE__*/ glyph(
+  "CheckSquare",
+  <>
+    <rect x="3.75" y="3.75" width="16.5" height="16.5" rx="3.5" />
+    <path stroke={ACCENT} d="m8.25 12.25 2.6 2.6 5-5.35" />
+  </>,
+);
+
 export const NullObject: Icon = /*#__PURE__*/ glyph(
   "NullObject",
   <>
@@ -888,6 +896,15 @@ export const Bookmark: Icon = /*#__PURE__*/ glyph(
   "Bookmark",
   <>
     <path stroke={ACCENT} d="M6.25 3.75h11.5a1 1 0 0 1 1 1v15.5L12 16.25l-6.75 4V4.75a1 1 0 0 1 1-1Z" />
+  </>,
+);
+
+export const PushPin: Icon = /*#__PURE__*/ glyph(
+  "PushPin",
+  <>
+    <path d="M8.25 3.75h7.5" />
+    <path d="M9.75 3.75v5.1l-2.6 3.47a.75.75 0 0 0 .6 1.2h8.5a.75.75 0 0 0 .6-1.2l-2.6-3.47v-5.1" />
+    <path stroke={ACCENT} d="M12 13.52v6.73" />
   </>,
 );
 

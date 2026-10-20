@@ -15,11 +15,16 @@ vi.mock("@/contexts/department-context", () => ({
 }));
 vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
 vi.mock("@/lib/sounds/sound-player", () => ({ soundPlayer: { play: playFn } }));
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }));
 vi.mock("next-intl", async () => (await import("@/test/next-intl-pt")).nextIntlInPortuguese());
 
 import { useConversationWs } from "@/hooks/use-conversation-ws";
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
+import { typistsIn } from "@/lib/conversations/typing";
+import { toast } from "sonner";
+import ptMessages from "@/i18n/messages/pt.json";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 class FakeWebSocket {
   static CONNECTING = 0;
@@ -165,6 +170,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "latest",
+          has_after: false,
           messages: [],
           has_more: true,
           page_size: 0,
@@ -175,6 +182,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "before",
+          has_after: false,
           messages: [msg("a1", "e1"), msg("a2", "e1")],
           has_more: true,
           page_size: 2,
@@ -207,8 +216,8 @@ describe("conversations open in windows", () => {
       page_size: 2,
     };
     await act(async () => {
-      socket.simulateMessage({ type: "conversation:history", payload: batch });
-      socket.simulateMessage({ type: "conversation:history", payload: batch });
+      socket.simulateMessage({ type: "conversation:history", payload: { ...batch, direction: "latest", has_after: false } });
+      socket.simulateMessage({ type: "conversation:history", payload: { ...batch, direction: "before", has_after: false } });
     });
 
     expect(
@@ -234,6 +243,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "before",
+          has_after: false,
           messages: [msg("a1", "e1")],
           has_more: true,
           page_size: 1,
@@ -244,6 +255,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "latest",
+          has_after: false,
           messages: [],
           has_more: false,
           page_size: 0,
@@ -277,6 +290,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "before",
+          has_after: false,
           messages: [msg("a1", "e1")],
           has_more: false,
           page_size: 1,
@@ -287,6 +302,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e2",
           entry_type: "whatsapp",
+          direction: "before",
+          has_after: false,
           messages: [msg("b1", "e2"), msg("b2", "e2")],
           has_more: false,
           page_size: 2,
@@ -342,6 +359,7 @@ describe("conversations open in windows", () => {
       {
         entry_id: "e2",
         entry_type: "whatsapp",
+        request_id: expect.stringMatching(UUID),
         signed: false,
         text: "bom dia",
       },
@@ -368,6 +386,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "before",
+          has_after: false,
           messages: [msg("a1", "e1")],
           has_more: true,
           page_size: 1,
@@ -902,6 +922,8 @@ describe("conversations open in windows", () => {
         payload: {
           entry_id: "e1",
           entry_type: "whatsapp",
+          direction: "latest",
+          has_after: false,
           messages: [msg("a1", "e1")],
           has_more: false,
           page_size: 1,
@@ -942,4 +964,247 @@ describe("conversations open in windows", () => {
     ).toBe(false);
   });
 
+});
+
+describe("sending, typing and assignment feedback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    FakeWebSocket.instances = [];
+    hasUserDataCookie.mockReturnValue(true);
+    vi.stubGlobal("WebSocket", FakeWebSocket);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("gives every send its own request id so the server can drop a replay", async () => {
+    const { view, socket } = await mountOpenSocket();
+
+    act(() => {
+      view.result.current.windowSendMessage("e1", "whatsapp", "um", false);
+      view.result.current.windowSendMedia("e1", "whatsapp", "", "media-1", "image", false);
+      view.result.current.windowSendButton("e1", "whatsapp", { bodyText: "escolha", buttons: [{ id: "b1", title: "Sim" }] });
+    });
+
+    const ids = [...socket.framesOfType("send"), ...socket.framesOfType("send_button")].map((f) => f.request_id);
+    expect(ids).toHaveLength(3);
+    for (const id of ids) expect(id).toMatch(UUID);
+    expect(new Set(ids).size).toBe(3);
+  });
+
+  it.each([
+    ["send_failed", ptMessages.crmConversation.sendError.sendFailed],
+    ["unauthorized", ptMessages.crmConversation.sendError.unauthorized],
+    ["not_configured", ptMessages.crmConversation.sendError.notConfigured],
+    ["internal_error", ptMessages.crmConversation.sendError.internalError],
+    [undefined, ptMessages.crmConversation.sendError.generic],
+  ])("tells the operator a send failed with the %s copy, never the raw server text", async (code, copy) => {
+    const { socket } = await mountOpenSocket();
+
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:message_error",
+        payload: { request_id: "r1", entry_id: "e1", entry_type: "whatsapp", error: "pq: boom", code },
+      });
+    });
+
+    expect(toast.error).toHaveBeenCalledWith(copy);
+  });
+
+  it("keeps typing in a pop-out conversation out of every other conversation, and forgets it on leave", async () => {
+    const { view, socket } = await mountOpenSocket();
+    act(() => {
+      view.result.current.openConversationWindow({ entryId: "e2", entryType: "whatsapp" });
+    });
+
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:typing",
+        payload: { entry_id: "e2", entry_type: "whatsapp", user_id: "ana", is_typing: true },
+      });
+    });
+
+    expect(typistsIn(view.result.current.typingByEntry, "e1", "whatsapp").size).toBe(0);
+    expect([...typistsIn(view.result.current.typingByEntry, "e2", "whatsapp")]).toEqual(["ana"]);
+
+    act(() => {
+      view.result.current.closeConversationWindow("e2", "whatsapp");
+    });
+
+    expect(typistsIn(view.result.current.typingByEntry, "e2", "whatsapp").size).toBe(0);
+  });
+
+  it("offers undo once the server confirms a reassignment, and undo assigns the previous person back", async () => {
+    const { view, socket } = await mountOpenSocket();
+    const entry = {
+      entry_id: "e1",
+      entry_type: "whatsapp",
+      lead_name: "Ana",
+      lead_number: "5511",
+      unread_count: 0,
+      last_message_at: "2026-10-18T10:00:00Z",
+      assigned_user_id: "user-bruno",
+      conversation_status: "ongoing",
+    };
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [entry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+
+    act(() => {
+      view.result.current.assignTo("e1", "whatsapp", "user-carla");
+    });
+    expect(toast).not.toHaveBeenCalled();
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...entry, assigned_user_id: "user-carla" } } });
+    });
+
+    expect(toast).toHaveBeenCalledTimes(1);
+    const [message, options] = vi.mocked(toast).mock.calls[0] as unknown as [string, { action: { label: string; onClick: () => void } }];
+    expect(message).toBe(ptMessages.crmActions.assigned);
+    expect(options.action.label).toBe(ptMessages.crmActions.undo);
+
+    act(() => options.action.onClick());
+
+    expect(socket.framesOfType("assign_to").at(-1)).toEqual({ entry_id: "e1", entry_type: "whatsapp", user_id: "user-bruno" });
+  });
+
+  it("offers no undo when the conversation had nobody to give it back to", async () => {
+    const { view, socket } = await mountOpenSocket();
+    const entry = {
+      entry_id: "e1",
+      entry_type: "whatsapp",
+      lead_name: "Ana",
+      lead_number: "5511",
+      unread_count: 0,
+      last_message_at: "2026-10-18T10:00:00Z",
+    };
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [entry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+
+    act(() => {
+      view.result.current.assignTo("e1", "whatsapp", "user-carla");
+    });
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...entry, assigned_user_id: "user-carla" } } });
+    });
+
+    expect(toast).not.toHaveBeenCalled();
+  });
+});
+
+describe("thread search in a window and localized refusals", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    FakeWebSocket.instances = [];
+    hasUserDataCookie.mockReturnValue(true);
+    vi.stubGlobal("WebSocket", FakeWebSocket);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const results = (entryId: string, query: string) => ({
+    type: "conversation:search_messages_results",
+    payload: {
+      entry_id: entryId,
+      entry_type: "whatsapp",
+      query,
+      messages: [msg("hit", entryId)],
+      page: 1,
+      page_size: 50,
+      total_items: 1,
+      total_pages: 1,
+    },
+  });
+
+  it("searches inside a window's conversation and keeps the hits in that window, not the centre pane", async () => {
+    const { view, socket } = await mountOpenSocket();
+    act(() => {
+      view.result.current.openConversationWindow({ entryId: "e1", entryType: "whatsapp" });
+    });
+
+    act(() => {
+      view.result.current.windowSearchMessages("e1", "whatsapp", "  boleto ");
+    });
+    expect(socket.framesOfType("search_messages")).toEqual([
+      { entry_id: "e1", entry_type: "whatsapp", query: "boleto", page: 1, page_size: 50 },
+    ]);
+
+    await act(async () => {
+      socket.simulateMessage(results("e1", "boleto"));
+    });
+
+    const search = view.result.current.windowConversations.get(windowKey("e1", "whatsapp"))!.search;
+    expect(search?.results?.map((m) => m.id)).toEqual(["hit"]);
+    expect(view.result.current.messageSearchResults).toBeNull();
+  });
+
+  it("forgets a window's search when it is cleared", async () => {
+    const { view } = await mountOpenSocket();
+    act(() => {
+      view.result.current.openConversationWindow({ entryId: "e1", entryType: "whatsapp" });
+      view.result.current.windowSearchMessages("e1", "whatsapp", "boleto");
+    });
+    act(() => {
+      view.result.current.windowClearMessageSearch("e1", "whatsapp");
+    });
+    expect(view.result.current.windowConversations.get(windowKey("e1", "whatsapp"))!.search).toBeNull();
+  });
+
+  it("jumps a window's thread to the page around a found message", async () => {
+    const { view, socket } = await mountOpenSocket();
+    act(() => {
+      view.result.current.openConversationWindow({ entryId: "e1", entryType: "whatsapp" });
+    });
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:history",
+        payload: { entry_id: "e1", entry_type: "whatsapp", direction: "before", messages: [msg("new", "e1")], has_more: true, has_after: false, page_size: 1 },
+      });
+    });
+
+    act(() => {
+      view.result.current.windowLoadAround("e1", "whatsapp", { timestamp: "2026-08-01T10:00:00Z" });
+    });
+    expect(socket.framesOfType("load_around")).toEqual([
+      { entry_id: "e1", entry_type: "whatsapp", timestamp: "2026-08-01T10:00:00Z" },
+    ]);
+
+    await act(async () => {
+      socket.simulateMessage({
+        type: "conversation:history",
+        payload: { entry_id: "e1", entry_type: "whatsapp", direction: "around", messages: [msg("old", "e1")], has_more: true, has_after: true, page_size: 1 },
+      });
+    });
+    const thread = view.result.current.windowConversations.get(windowKey("e1", "whatsapp"))!.conversation;
+    expect(thread.messages.map((m) => m.id)).toEqual(["old"]);
+  });
+
+  it("ignores search results the centre pane never asked for", async () => {
+    const { view, socket } = await mountOpenSocket();
+    await act(async () => {
+      socket.simulateMessage(results("e9", "boleto"));
+    });
+    expect(view.result.current.messageSearchResults).toBeNull();
+  });
+
+  it("tells the operator about a refused action for lack of balance in their language", async () => {
+    const { socket } = await mountOpenSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:error", payload: { code: "insufficient_balance", message: "no balance" } });
+    });
+    expect(toast.error).toHaveBeenCalledWith(ptMessages.crmActions.insufficientBalance);
+  });
+
+  it("says the chat connection is not ready in the operator's language", async () => {
+    const view = renderHook(() => useConversationWs({ token: "session-token", enabled: true }));
+    act(() => {
+      view.result.current.setConversationStatus("e1", "whatsapp", "finished");
+    });
+    expect(toast.error).toHaveBeenCalledWith(ptMessages.crmActions.connectionNotReady);
+  });
 });

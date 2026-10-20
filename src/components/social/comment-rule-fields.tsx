@@ -6,7 +6,9 @@ import type { Icon } from "@/components/icons";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSegmentedControl } from "@/components/elevated-design/elevated-segmented-control";
 import Textarea from "@/components/elevated-design/elevated-textarea";
-import type { CommentRuleAction, CommentRuleFieldsValue, CommentRuleMatch } from "@/lib/social/comment-rules";
+import { TextLimitFeedback } from "@/components/crm/TextLimitFeedback";
+import { textLimitState } from "@/lib/conversations/text-limit";
+import type { CommentRuleAction, CommentRuleFieldsValue, CommentRuleMatch, CommentRuleTextLimits } from "@/lib/social/comment-rules";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
@@ -23,6 +25,7 @@ export function CommentRuleFields({
   onChange,
   allowedActions,
   translationNamespace,
+  textLimits = {},
   disabled,
   className,
 }: {
@@ -30,6 +33,7 @@ export function CommentRuleFields({
   onChange: (next: CommentRuleFieldsValue) => void;
   allowedActions: readonly CommentRuleAction[];
   translationNamespace: string;
+  textLimits?: CommentRuleTextLimits;
   disabled?: boolean;
   className?: string;
 }) {
@@ -102,14 +106,17 @@ export function CommentRuleFields({
                 </button>
 
                 {selected && id === "public_reply" && (
-                  <Textarea
-                    value={value.publicText}
-                    onChange={(e) => set("publicText", e.target.value)}
-                    disabled={disabled}
-                    rows={2}
-                    placeholder={t("fieldPublicTextPlaceholder")}
-                    className="mt-2 resize-y"
-                  />
+                  <>
+                    <Textarea
+                      value={value.publicText}
+                      onChange={(e) => set("publicText", e.target.value)}
+                      disabled={disabled}
+                      rows={2}
+                      placeholder={t("fieldPublicTextPlaceholder")}
+                      className="mt-2 resize-y"
+                    />
+                    {textLimits.publicText ? <TextLimitFeedback state={textLimitState(value.publicText, textLimits.publicText)} /> : null}
+                  </>
                 )}
                 {selected && id === "private_reply" && (
                   <Textarea

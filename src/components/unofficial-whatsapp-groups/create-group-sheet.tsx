@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { createWorkspaceGroupAction, listGroupCategoriesAction } from "@/app/actions/unofficial-whatsapp-groups";
+import { createWorkspaceGroupAction } from "@/app/actions/unofficial-whatsapp-groups";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import {
@@ -20,14 +20,14 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { CircleNotch, Plus } from "@/components/icons";
 import { Notice } from "@/components/ui/notice";
 import { groupErrorKey } from "@/lib/unofficial-whatsapp-groups/group-errors";
-import { MAX_CATEGORY_CHARS, type ManagedGroupResult, type WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
+import { type ManagedGroupResult, type WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 
+import { CategoryField } from "./kit/category-field";
 import { GroupIdentity } from "./kit/identity";
 import { SetupWarningsNotice } from "./kit/notices";
 import {
   GROUP_DESCRIPTION_MAX_CHARS,
   GROUP_NAME_MAX_CHARS,
-  categorySuggestions,
   createGroupIssues,
   createGroupPayload,
   hasIssues,
@@ -150,24 +150,12 @@ function CreateGroupForm({
     adminsOnly: false,
     follow: true,
   });
-  const [categories, setCategories] = useState<string[]>([]);
   const [showInvalid, setShowInvalid] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, startSubmitting] = useTransition();
 
-  useEffect(() => {
-    let cancelled = false;
-    void listGroupCategoriesAction().then((loaded) => {
-      if (!cancelled) setCategories(loaded.categories);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const update = <K extends keyof CreateGroupFields>(key: K, value: CreateGroupFields[K]) => setFields((current) => ({ ...current, [key]: value }));
 
-  const suggestions = useMemo(() => categorySuggestions(categories, fields.category), [categories, fields.category]);
   const issues = useMemo(() => createGroupIssues(fields), [fields]);
 
   const options = useMemo(
@@ -242,29 +230,12 @@ function CreateGroupForm({
           <p className="readout text-right text-2xs text-muted-foreground">{t("chars", { used: fields.description.length, max: GROUP_DESCRIPTION_MAX_CHARS })}</p>
         </div>
 
-        <div className="space-y-2">
-          <ElevatedInput
-            label={t("category")}
-            placeholder=" "
-            value={fields.category}
-            maxLength={MAX_CATEGORY_CHARS}
-            onChange={(event) => update("category", event.target.value)}
-          />
-          {suggestions.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-1.5" aria-label={t("categorySuggestions")} role="group">
-              {suggestions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => update("category", item)}
-                  className="rounded-[--radius] border border-border bg-card px-2 py-0.5 text-2xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        <CategoryField
+          label={t("category")}
+          suggestionsLabel={t("categorySuggestions")}
+          value={fields.category}
+          onChange={(category) => update("category", category)}
+        />
 
         <fieldset className="space-y-2">
           <legend className="mb-1 text-xs font-semibold text-muted-foreground">{t("numbers")}</legend>

@@ -1,10 +1,15 @@
+import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listPipelines } from "@/lib/crm/pipelines";
 import { fetchDepartments } from "@/lib/department/client";
+import { AGENT_CALL_TRIGGER } from "@/lib/workflows/agent-call";
+import { workflowOptionLabel } from "@/lib/workflows/publication";
 
 export interface ToolOption {
   value: string;
   label: string;
 }
+
+const AGENT_WORKFLOWS_PAGE_SIZE = 100;
 
 const loaders: Record<string, () => Promise<ToolOption[]>> = {
   departments: async () => {
@@ -14,6 +19,16 @@ const loaders: Record<string, () => Promise<ToolOption[]>> = {
   opportunity_pipelines: async () => {
     const res = await listPipelines("opportunity");
     return (res.data ?? []).map((p) => ({ value: p.id, label: p.name }));
+  },
+  agent_workflows: async () => {
+    const res = await listWorkflowsAction({
+      status: "active",
+      type: "messages",
+      triggerType: AGENT_CALL_TRIGGER,
+      pageSize: AGENT_WORKFLOWS_PAGE_SIZE,
+    });
+    if (res.error) throw new Error(res.error);
+    return res.workflows.map((w) => ({ value: w.id, label: workflowOptionLabel(w) }));
   },
 };
 

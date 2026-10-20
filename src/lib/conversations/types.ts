@@ -1,7 +1,12 @@
 import type { Analysis } from '@/lib/analysis/types';
 import type { AdOrigin } from './ad-origin';
+import type { MessageCapabilities } from './message-actions';
+import type { SenderKind } from './sender';
+import type { ViewersPayload } from './viewers';
 import type { LiveRead } from '@/lib/live-decisions/types';
 import type { LeadsBulkUpdateEvent, LeadUpdateEvent } from '@/lib/leads/types';
+import type { TeamChatSocketEvent } from '@/lib/team-chat/types';
+import { TIKTOK_TEXT_LIMIT } from '@/lib/tiktok/channel';
 
 export interface Stage {
     id: string;
@@ -66,13 +71,15 @@ export type EntryType =
     | 'facebook'
     | 'telegram'
     | 'unofficial_whatsapp'
-    | 'webchat';
+    | 'webchat'
+    | 'mercadolivre'
+    | 'tiktok';
 
 export type CampaignType = 'whatsapp' | 'unofficial_whatsapp';
 
 export type ContainerKind = 'campaign' | undefined;
 
-export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp' | 'webchat';
+export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp' | 'webchat' | 'mercadolivre' | 'tiktok';
 
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
@@ -81,45 +88,109 @@ export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'facebook',
     'telegram',
     'webchat',
+    'mercadolivre',
+    'tiktok',
 ] as const;
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
 
-const TEXT_LIMITS: Partial<Record<EntryType, number>> = {
-    facebook: 2000,
+export type TextLimitUnit = 'characters' | 'bytes';
+
+export type TextCharset = 'mercadolivre';
+
+export interface TextLimit {
+    max: number;
+    unit: TextLimitUnit;
+    charset?: TextCharset;
+}
+
+export interface AttachmentRule {
+    mimeTypes: readonly string[];
+    extensions: readonly string[];
+    kinds: readonly string[];
+    maxBytes: number;
+    voiceNotes: boolean;
+}
+
+export type ChannelMediaKind = Exclude<MediaType, 'sticker'>;
+
+export interface ChannelMediaLimit {
+    kind: ChannelMediaKind;
+    max_bytes: number;
+    mime_types: readonly string[];
+}
+
+interface ChannelCapabilityRow {
+    calling: boolean;
+    messageEditing: boolean;
+    timedOutboundWindow: boolean;
+    aiHandling: boolean;
+    textLimit: TextLimit | null;
+}
+
+const CHANNEL_CAPABILITIES: Record<EntryType, ChannelCapabilityRow> = {
+    whatsapp: { calling: true, messageEditing: false, timedOutboundWindow: true, aiHandling: true, textLimit: null },
+    unofficial_whatsapp: { calling: true, messageEditing: true, timedOutboundWindow: false, aiHandling: true, textLimit: null },
+    instagram: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: true,
+        aiHandling: true,
+        textLimit: { max: 1000, unit: 'bytes' },
+    },
+    facebook: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: true,
+        aiHandling: true,
+        textLimit: { max: 2000, unit: 'characters' },
+    },
+    telegram: { calling: false, messageEditing: true, timedOutboundWindow: false, aiHandling: true, textLimit: null },
+    webchat: { calling: false, messageEditing: false, timedOutboundWindow: false, aiHandling: true, textLimit: null },
+    mercadolivre: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: false,
+        aiHandling: true,
+        textLimit: { max: 350, unit: 'characters', charset: 'mercadolivre' },
+    },
+    tiktok: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: true,
+        aiHandling: true,
+        textLimit: TIKTOK_TEXT_LIMIT,
+    },
 };
 
 export function normalizeEntryType(entryType: EntryType): EntryType {
     return entryType;
 }
 
+function capabilityRow(entryType: EntryType): ChannelCapabilityRow | null {
+    const t = normalizeEntryType(entryType);
+    return Object.hasOwn(CHANNEL_CAPABILITIES, t) ? CHANNEL_CAPABILITIES[t] : null;
+}
+
 export const channelCapabilities = {
     supportsCalling(entryType: EntryType): boolean {
-        const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'unofficial_whatsapp';
+        return capabilityRow(entryType)?.calling ?? false;
     },
 
     supportsMessageEditing(entryType: EntryType): boolean {
-        const t = normalizeEntryType(entryType);
-        return t === 'telegram' || t === 'unofficial_whatsapp';
+        return capabilityRow(entryType)?.messageEditing ?? false;
     },
 
     hasTimedOutboundWindow(entryType: EntryType): boolean {
-        const t = normalizeEntryType(entryType);
-        return t === 'whatsapp' || t === 'instagram' || t === 'facebook';
+        return capabilityRow(entryType)?.timedOutboundWindow ?? false;
     },
 
     supportsAiHandling(entryType: EntryType): boolean {
-        const t = normalizeEntryType(entryType);
-        return (
-            t === 'whatsapp' ||
-            t === 'instagram' || t === 'facebook' || t === 'telegram' || t === 'unofficial_whatsapp' ||
-            t === 'webchat'
-        );
+        return capabilityRow(entryType)?.aiHandling ?? false;
     },
 
-    textLimit(entryType: EntryType): number | null {
-        return TEXT_LIMITS[normalizeEntryType(entryType)] ?? null;
+    textLimit(entryType: EntryType): TextLimit | null {
+        return capabilityRow(entryType)?.textLimit ?? null;
     },
 } as const;
 
@@ -200,10 +271,13 @@ export interface InboxEntry {
     last_message_type: MessageType;
     last_message_sender: string;
     last_message_sender_avatar: string;
+    last_message_sender_kind?: SenderKind;
     last_message_author?: string;
     last_message_from_us?: boolean;
     window_open: boolean;
     window_expires_at: string | null;
+    window_closed_reason?: WindowClosedReason | null;
+    window_closed_detail?: string | null;
     business_phone_id: string;
     stage?: InboxEntryStage | null;
     available_stages?: InboxEntryStage[];
@@ -224,7 +298,26 @@ export interface InboxEntry {
     close_outcome?: string;
     closed_at?: string | null;
     ai_handler?: AIHandler | null;
+    waiting_since?: string;
 }
+
+export interface PersonalMark {
+    pinned_at?: string;
+    unread_marked_at?: string;
+}
+
+export interface PersonalMarkEntry extends PersonalMark {
+    entry_id: string;
+    entry_type: EntryType;
+}
+
+export interface WsPersonalMarkPayload {
+    entry_id: string;
+    entry_type: EntryType;
+    mark: PersonalMark | null;
+}
+
+export type InboxSort = 'recent' | 'waiting';
 
 interface TemplateMetadataButton {
     type: string;
@@ -286,9 +379,33 @@ export interface ConversationMessage {
     reply_to_message_id?: string;
     metadata?: TemplateMessageMetadata;
     location?: MessageLocation;
+    client_request_id?: string;
+    provider_message_id?: string;
+    sender_user_id?: string;
+    resent_as?: string;
+    reactions?: MessageReaction[];
+    edited_at?: string;
+    retracted_at?: string;
+    transcript?: string;
+    local_send?: LocalSend;
     created_at: string;
     updated_at: string;
 }
+
+export interface MessageReaction {
+    emoji: string;
+    direction: 'inbound' | 'outbound';
+    actor_id?: string;
+    at: string;
+}
+
+export interface LocalSend {
+    requestId: string;
+    state: 'pending' | 'failed';
+    failure?: string;
+}
+
+export type HistoryDirection = 'latest' | 'before' | 'around' | 'after';
 
 export interface MessageLocation {
     latitude: number;
@@ -310,10 +427,14 @@ export interface WsSearchInboxPayload {
     date_to?: string;
     window_open?: boolean;
     has_unread?: boolean;
+    is_group?: boolean;
     conversation_status?: 'new' | 'ongoing' | 'finished';
     responsible_user_id?: string;
     responsible_unassigned?: boolean;
     responsible_kind?: "ai" | "workflow";
+    sort?: InboxSort;
+    label_id?: string;
+    personal?: 'pinned';
     page?: number;
     page_size?: number;
 }
@@ -336,6 +457,7 @@ export interface WsInboxPayload {
     total_pages: number;
     stage_counts?: Record<string, number>;
     conversation_status_counts?: Record<string, number>;
+    personal_marks?: PersonalMarkEntry[];
 }
 
 export interface WsEntryUpdatePayload {
@@ -357,9 +479,24 @@ export interface WsSubscribedPayload {
     window_open?: boolean;
     window_expires_at?: string | null;
     window_closed_reason?: WindowClosedReason | null;
+    window_closed_detail?: string | null;
     window_tier?: WindowTier;
     automation_enabled?: boolean | null;
     ad_origin?: unknown;
+    message_capabilities?: unknown;
+    media_limits?: unknown;
+}
+
+export interface WsNotePayload {
+    entry_id: string;
+    entry_type: EntryType;
+    note: unknown;
+}
+
+export interface WsNoteDeletedPayload {
+    entry_id: string;
+    entry_type: EntryType;
+    note_id: string;
 }
 
 export interface WsAdOriginPayload {
@@ -371,10 +508,28 @@ export interface WsAdOriginPayload {
 export interface WsHistoryPayload {
     entry_id: string;
     entry_type: EntryType;
+    direction: HistoryDirection;
     messages: ConversationMessage[];
     has_more: boolean;
+    has_after: boolean;
     total?: number;
     page_size: number;
+}
+
+export interface WsWindowReopenedPayload {
+    entry_id: string;
+    entry_type: EntryType;
+    request_id?: string;
+    template_id: string;
+    template_name: string;
+    message_id: string;
+    window_expires_at?: string | null;
+}
+
+export interface WsMessageUpdatedPayload {
+    entry_id: string;
+    entry_type: EntryType;
+    message: ConversationMessage;
 }
 
 export interface WsMessagePayload {
@@ -384,15 +539,18 @@ export interface WsMessagePayload {
 }
 
 export interface WsMessageSentPayload {
+    request_id?: string;
     entry_id: string;
     entry_type: EntryType;
     message: ConversationMessage;
 }
 
 export interface WsMessageErrorPayload {
+    request_id?: string;
     entry_id: string;
     entry_type: EntryType;
     error: string;
+    code?: string;
 }
 
 export interface WsReadPayload {
@@ -464,6 +622,7 @@ export interface WsSearchResultsPayload {
     query?: string;
     filters: Record<string, unknown>;
     entries: InboxEntry[];
+    personal_marks?: PersonalMarkEntry[];
     page: number;
     page_size: number;
     total_items: number;
@@ -577,6 +736,8 @@ export type WsServerEvent =
     | { type: 'conversation:message'; payload: WsMessagePayload }
     | { type: 'conversation:message_sent'; payload: WsMessageSentPayload }
     | { type: 'conversation:message_error'; payload: WsMessageErrorPayload }
+    | { type: 'conversation:message_updated'; payload: WsMessageUpdatedPayload }
+    | { type: 'conversation:window_reopened'; payload: WsWindowReopenedPayload }
     | { type: 'conversation:read'; payload: WsReadPayload }
     | { type: 'conversation:message_status'; payload: WsMessageStatusPayload }
     | { type: 'conversation:typing'; payload: WsTypingServerPayload }
@@ -599,6 +760,11 @@ export type WsServerEvent =
     | { type: 'conversation:lead_update'; payload: LeadUpdateEvent }
     | { type: 'conversation:leads_bulk_update'; payload: LeadsBulkUpdateEvent }
     | { type: 'notification:created'; payload: unknown }
+    | { type: 'conversation:viewers'; payload: ViewersPayload }
+    | { type: 'conversation:note'; payload: WsNotePayload }
+    | { type: 'conversation:note_deleted'; payload: WsNoteDeletedPayload }
+    | { type: 'conversation:personal_mark'; payload: WsPersonalMarkPayload }
+    | { type: TeamChatSocketEvent['type']; payload: unknown }
     | { type: 'conversation:error'; payload: WsErrorPayload };
 
 export interface WsAnalysisUpdatePayload {
@@ -630,7 +796,9 @@ export type WindowClosedReason =
     | "session_down"
     | "account_restricted"
     | "reply_revoked"
-    | "channel_unavailable";
+    | "channel_unavailable"
+    | "provider_blocked"
+    | "budget_exhausted";
 
 export interface ActiveConversation {
     entry_id: string;
@@ -646,11 +814,14 @@ export interface ActiveConversation {
     entry_variables?: string[];
     messages: ConversationMessage[];
     has_more: boolean;
+    has_after?: boolean;
+    held_live?: ConversationMessage[];
     unread_count: number;
     total?: number;
     window_open: boolean;
     window_expires_at: string | null;
     window_closed_reason?: WindowClosedReason | null;
+    window_closed_detail?: string | null;
     window_tier?: WindowTier | null;
     automation_enabled?: boolean | null;
     conversation_status?: string;
@@ -661,4 +832,6 @@ export interface ActiveConversation {
     ai_handler?: AIHandler | null;
     is_group?: boolean;
     ad_origin?: AdOrigin | null;
+    message_capabilities?: MessageCapabilities;
+    media_limits?: readonly ChannelMediaLimit[];
 }

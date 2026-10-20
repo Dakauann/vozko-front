@@ -2,58 +2,62 @@ import { describe, expect, it } from "vitest";
 
 import type { GroupRow, NumberSeat } from "@/lib/unofficial-whatsapp-groups/types";
 
-import { groupTargets, numberCanPost, readGroupPrefill, splitByPosting } from "./group-audience";
+import { blocksForGood, groupPosting, groupTargets, readGroupPrefill } from "./group-audience";
 
-function seat(instanceId: string, canPost: boolean): NumberSeat {
-  return { instanceId, label: instanceId, connected: true, admin: false, canPost };
+function seat(instanceId: string, patch: Partial<NumberSeat> = {}): NumberSeat {
+  return { instanceId, label: instanceId, connected: true, admin: false, canPost: true, ...patch };
 }
 
-function row(id: string, seats: NumberSeat[]): GroupRow {
-  return {
-    group: { id, jid: `${id}@g.us`, subject: `Grupo ${id}` },
-    numbers: seats,
-  } as GroupRow;
+function row(seats: NumberSeat[], announce = false): Pick<GroupRow, "group" | "numbers"> {
+  return { group: { id: "g", jid: "g@g.us", subject: "Grupo", announce } as GroupRow["group"], numbers: seats };
 }
 
 describe("readGroupPrefill", () => {
-  it("reads the number and the group ids a groups link carries", () => {
-    expect(readGroupPrefill({ audience: "groups", instanceId: "i-1", groups: "g-1, g-2,,g-1" })).toEqual({
-      instanceId: "i-1",
-      groupIds: ["g-1", "g-2"],
-    });
+  it("reads the group ids a groups link carries and no number", () => {
+    expect(readGroupPrefill({ audience: "groups", instanceId: "i-1", groups: "g-1, g-2,,g-1" })).toEqual({ groupIds: ["g-1", "g-2"] });
   });
 
   it("ignores a link that does not ask for groups", () => {
-    expect(readGroupPrefill({ instanceId: "i-1", groups: "g-1" })).toBeNull();
-    expect(readGroupPrefill({ audience: "leads", instanceId: "i-1" })).toBeNull();
+    expect(readGroupPrefill({ groups: "g-1" })).toBeNull();
+    expect(readGroupPrefill({ audience: "leads" })).toBeNull();
   });
 
-  it("keeps the groups audience without a number or groups", () => {
-    expect(readGroupPrefill({ audience: "groups" })).toEqual({ instanceId: "", groupIds: [] });
+  it("keeps the groups audience without groups", () => {
+    expect(readGroupPrefill({ audience: "groups" })).toEqual({ groupIds: [] });
   });
 
   it("takes the first value of a repeated parameter", () => {
-    expect(readGroupPrefill({ audience: ["groups", "leads"], instanceId: ["i-2"], groups: ["g-3", "g-4"] })).toEqual({
-      instanceId: "i-2",
-      groupIds: ["g-3"],
-    });
+    expect(readGroupPrefill({ audience: ["groups", "leads"], groups: ["g-3", "g-4"] })).toEqual({ groupIds: ["g-3"] });
   });
 });
 
-describe("numberCanPost", () => {
-  it("is true only when the chosen number sits in the group and may post", () => {
-    expect(numberCanPost([seat("i-1", true)], "i-1")).toBe(true);
-    expect(numberCanPost([seat("i-1", false)], "i-1")).toBe(false);
-    expect(numberCanPost([seat("i-2", true)], "i-1")).toBe(false);
+describe("groupPosting", () => {
+  it("lists every number that may post now", () => {
+    const posting = groupPosting(row([seat("a"), seat("b"), seat("c", { canPost: false, connected: false })]));
+    expect(posting.senders.map((s) => s.instanceId)).toEqual(["a", "b"]);
+    expect(posting.block).toBeUndefined();
+  });
+
+  it("says no number of yours is in the group", () => {
+    expect(groupPosting(row([])).block).toBe("not_in_group");
+  });
+
+  it("says only admins post when no number there is an admin", () => {
+    expect(groupPosting(row([seat("a", { canPost: false })], true)).block).toBe("cannot_post");
+  });
+
+  it("waits for an offline number that could post", () => {
+    expect(groupPosting(row([seat("a", { canPost: false }), seat("b", { canPost: false, connected: false, admin: true })], true)).block).toBe("offline");
+    expect(groupPosting(row([seat("a", { canPost: false, connected: false })])).block).toBe("offline");
   });
 });
 
-describe("splitByPosting", () => {
-  it("keeps the groups the number can post in and counts the read-only ones", () => {
-    const rows = [row("a", [seat("i-1", true)]), row("b", [seat("i-1", false)]), row("c", [seat("i-1", true), seat("i-2", false)])];
-    const split = splitByPosting(rows, "i-1");
-    expect(split.postable.map((r) => r.group.id)).toEqual(["a", "c"]);
-    expect(split.readOnly).toBe(1);
+describe("blocksForGood", () => {
+  it("keeps offline groups and drops the ones no number can ever post in", () => {
+    expect(blocksForGood("not_in_group")).toBe(true);
+    expect(blocksForGood("cannot_post")).toBe(true);
+    expect(blocksForGood("offline")).toBe(false);
+    expect(blocksForGood(undefined)).toBe(false);
   });
 });
 

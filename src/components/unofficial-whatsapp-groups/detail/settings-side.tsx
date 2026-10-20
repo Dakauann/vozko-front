@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { leaveWorkspaceGroupAction, listGroupCategoriesAction, updateWorkspaceGroupAction } from "@/app/actions/unofficial-whatsapp-groups";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { SignOut, Warning } from "@/components/icons";
+import { SignOut, UserPlus, Warning } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Link, useRouter } from "@/i18n/routing";
 import { MAX_CATEGORY_CHARS, type GroupDetail, type NumberSeat, type WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { GroupsPanel } from "../kit/panel";
 import { groupsRoutes } from "../kit/routes";
 import { useGroupName } from "../kit/use-groups-format";
+import { AddNumbersSheet } from "./add-numbers-sheet";
 import { canCreateNextInSeries, leaveConfirmed } from "./detail-model";
 import { NextInSeriesButton } from "./next-in-series";
 import { SeatList } from "./seat-list";
@@ -155,10 +156,22 @@ export function SeriesSection({ detail, permissions, actions }: { detail: GroupD
   );
 }
 
-export function NumbersSection({ detail, canLeave, onChanged }: { detail: GroupDetail; canLeave: boolean; onChanged: () => void }) {
+export function NumbersSection({
+  detail,
+  canLeave,
+  canAdd,
+  onChanged,
+}: {
+  detail: GroupDetail;
+  canLeave: boolean;
+  canAdd: boolean;
+  onChanged: () => void;
+}) {
   const t = useTranslations("unofficialGroups.detail.settings.numbers");
   const tTab = useTranslations("unofficialGroups.detail.settingsTab.numbers");
+  const tAdd = useTranslations("unofficialGroups.detail.settings.addNumbers");
   const router = useRouter();
+  const [adding, setAdding] = useState(false);
   const { group, numbers } = detail;
   const last = numbers.length <= 1;
 
@@ -175,7 +188,23 @@ export function NumbersSection({ detail, canLeave, onChanged }: { detail: GroupD
   };
 
   return (
-    <GroupsPanel title={t("title")} subtitle={t("description")}>
+    <GroupsPanel
+      title={t("title")}
+      subtitle={t("description")}
+      actions={
+        canAdd ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            title={tAdd("open")}
+            icon={<UserPlus className="h-4 w-4" weight="bold" />}
+            iconVisible
+            onClick={() => setAdding(true)}
+          />
+        ) : null
+      }
+    >
+      {canAdd ? <AddNumbersSheet open={adding} onOpenChange={setAdding} detail={detail} onAdded={onChanged} /> : null}
       {numbers.length === 0 ? (
         <p className="text-xs text-muted-foreground">{t("empty")}</p>
       ) : (

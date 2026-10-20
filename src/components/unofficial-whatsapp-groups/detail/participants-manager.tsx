@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import {
   addGroupMembersToLeadsAction,
-  exportGroupMembersAction,
+  exportMembersAction,
   listGroupMembersAction,
   manageGroupMembersAction,
 } from "@/app/actions/unofficial-whatsapp-groups";
@@ -14,14 +14,14 @@ import { Chip } from "@/components/audience/shared";
 import Button from "@/components/elevated-design/button";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
-import { StatusChip } from "@/components/elevated-design/status-chip";
+import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 import { DashboardTable, type DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
 import { ArrowClockwise, Crown, DotsThree, DownloadSimple, UserMinus, UserPlus, Users, UsersThree } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import TooltipWrapper from "@/components/ui/tooltip-wrapper";
 import { Link } from "@/i18n/routing";
-import type { GroupMember, MemberAction, MemberCounts, NumberSeat, PageMeta, WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
+import type { GroupMember, MemberAction, MemberCounts, MemberStatus, NumberSeat, PageMeta, WorkspaceGroup } from "@/lib/unofficial-whatsapp-groups/types";
 
 import { useTableEmpty } from "../kit/empty";
 import { ActiveFilterChips, SearchField, WindowToggle, type ActiveFilter } from "../kit/filters";
@@ -34,6 +34,7 @@ import { AddParticipantsDialog } from "./add-participants-dialog";
 import {
   DEFAULT_MEMBER_FILTERS,
   bulkTargets,
+  departures,
   hasAdminSeat,
   isAdminRefusal,
   isFiltered,
@@ -195,7 +196,7 @@ export function ParticipantsManager({
 
   const exportMembers = useCallback(async () => {
     setBusy(true);
-    const result = await exportGroupMembersAction(group.id);
+    const result = await exportMembersAction({ groupIds: [group.id] });
     setBusy(false);
     if (result.error) toast.error(tMembers("exportFailed"), { description: result.error });
   }, [group.id, tMembers]);
@@ -288,7 +289,7 @@ export function ParticipantsManager({
       key: "status",
       header: t("columns.status"),
       render: (member) =>
-        member.status === "active" ? <StatusChip tone="healthy" label={t("status.active")} /> : <StatusChip tone="muted" label={t("status.left")} />,
+        <MemberStatusChip status={member.status} />,
     };
     if (mode === "manage") return [identity, role, status];
     return [
@@ -358,7 +359,8 @@ export function ParticipantsManager({
 
   const statusOptions: { value: MemberStatusFilter; label: string }[] = [
     { value: "active", label: t("filters.active", { count: counts.active }) },
-    { value: "left", label: t("filters.left", { count: counts.left30d }) },
+    { value: "left", label: t("filters.left", { count: departures(counts).left }) },
+    { value: "removed", label: t("filters.removed", { count: counts.removed30d }) },
     { value: "all", label: t("filters.all") },
   ];
   const leadOptions: { value: MemberLeadFilter; label: string }[] = [
@@ -411,13 +413,14 @@ export function ParticipantsManager({
         columns={columns}
         rowKey={(member) => member.personKey}
         loading={loading && rows.length === 0}
-        rowClassName={(member) => (member.status === "left" ? "text-muted-foreground [&_.text-foreground]:text-muted-foreground" : "")}
+        rowClassName={(member) => (member.status !== "active" ? "text-muted-foreground [&_.text-foreground]:text-muted-foreground" : "")}
         stats={
           mode === "browse"
             ? [
                 { label: t("stats.result"), value: loading ? "…" : fmt.num(meta.totalItems) },
                 { label: t("stats.active"), value: fmt.num(counts.active) },
                 { label: t("stats.left"), value: fmt.num(counts.left30d) },
+                { label: t("stats.removed"), value: fmt.num(counts.removed30d) },
                 { label: t("stats.withLead"), value: fmt.num(counts.withLead) },
                 { label: t("stats.hidden"), value: fmt.num(counts.hidden) },
               ]
@@ -563,4 +566,15 @@ export function ParticipantsManager({
       ) : null}
     </div>
   );
+}
+
+const MEMBER_STATUS_TONE: Record<MemberStatus, StatusChipTone> = {
+  active: "healthy",
+  left: "muted",
+  removed: "outline",
+};
+
+function MemberStatusChip({ status }: { status: MemberStatus }) {
+  const t = useTranslations("unofficialGroups.detail.participants.status");
+  return <StatusChip tone={MEMBER_STATUS_TONE[status]} label={t(status)} />;
 }

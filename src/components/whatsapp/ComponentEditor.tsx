@@ -2,6 +2,7 @@
 
 import {
   ChatCircle,
+  ClipboardText,
   Copy,
   File,
   Gif,
@@ -28,7 +29,15 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { uploadTemplateHeaderMediaAction } from "@/app/actions/whatsapp-templates";
 import type { TemplateCategory } from "@/lib/whatsapp-templates/types";
 import { detectVariables } from "@/lib/whatsapp-templates/draft";
-import { BUTTON_TEXT_LIMIT, FOOTER_TEXT_LIMIT, MAX_BUILDER_BUTTONS } from "@/lib/whatsapp-templates/builder";
+import type { SendableQuery } from "@/app/actions/whatsapp-forms";
+import {
+  BUTTON_TEXT_LIMIT,
+  FLOW_BUTTON_TEXT_LIMIT,
+  FOOTER_TEXT_LIMIT,
+  MAX_BUILDER_BUTTONS,
+  hasFlowButton,
+} from "@/lib/whatsapp-templates/builder";
+import { FlowFormPicker } from "./FlowFormPicker";
 import { BUTTON_ACTION_KINDS, offeredKinds } from "@/lib/whatsapp-templates/exit";
 import { ButtonActionFields } from "./exit/ButtonActionFields";
 import { FIELD_ANCHOR, QuickReplyChip, RouteCard } from "./exit/ButtonRoutePieces";
@@ -48,11 +57,16 @@ function headerAcceptFor(format?: string): string {
   }
 }
 
+export interface FormButtonSource {
+  query: SendableQuery | null;
+}
+
 interface ComponentEditorProps {
   component: DraggableComponent;
   onChange: (component: DraggableComponent) => void;
   category?: TemplateCategory;
   allowedKinds: readonly string[];
+  forms?: FormButtonSource;
 }
 
 function CharCount({ count, limit }: { count: number; limit: number }) {
@@ -69,6 +83,7 @@ export default function ComponentEditor({
   onChange,
   category = "MARKETING",
   allowedKinds,
+  forms,
 }: ComponentEditorProps) {
   const updateData = (updates: Partial<DraggableComponent["data"]>) => {
     onChange({
@@ -103,6 +118,7 @@ export default function ComponentEditor({
             updateData={updateData}
             category={category}
             allowedKinds={allowedKinds}
+            forms={forms}
           />
         )}
         {component.type === "CALL_PERMISSION_REQUEST" && <CallPermissionEditor />}
@@ -478,11 +494,13 @@ function ButtonsEditor({
   updateData,
   category,
   allowedKinds,
+  forms,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
   category: TemplateCategory;
   allowedKinds: readonly string[];
+  forms?: FormButtonSource;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.buttons");
   const exitT = useTranslations("templateExit");
@@ -509,6 +527,10 @@ function ButtonsEditor({
       newButton.example = "";
     } else if (type === "OTP") {
       newButton.otp_type = "COPY_CODE";
+    } else if (type === "FLOW") {
+      if (hasFlowButton(buttons)) return;
+      newButton.text = "";
+      newButton.flowAction = "navigate";
     }
 
     updateData({ buttons: [...buttons, newButton] });
@@ -527,7 +549,8 @@ function ButtonsEditor({
     updateData({ buttons: newButtons });
   };
 
-  const buttonTypes =
+  const flowTaken = hasFlowButton(buttons);
+  const buttonTypes: ButtonTypeOption[] =
     category === "AUTHENTICATION"
       ? [{ value: "OTP", label: t("types.otp"), icon: Copy }]
       : [
@@ -535,6 +558,9 @@ function ButtonsEditor({
           { value: "URL", label: t("types.url"), icon: Link },
           { value: "PHONE_NUMBER", label: t("types.phone"), icon: Phone },
           { value: "COPY_CODE", label: t("types.copyCode"), icon: Copy },
+          ...(forms
+            ? [{ value: "FLOW", label: t("types.flow"), icon: ClipboardText, disabled: flowTaken, hint: flowTaken ? t("flow.onlyOne") : undefined }]
+            : []),
         ];
 
   return (
@@ -549,7 +575,7 @@ function ButtonsEditor({
             <p className="text-xs text-muted-foreground mb-3">{t("empty")}</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {buttonTypes.map((type) => (
-                <AddButtonChip key={type.value} icon={type.icon} label={type.label} onClick={() => addButton(type.value)} />
+                <AddButtonChip key={type.value} option={type} onClick={() => addButton(type.value)} />
               ))}
             </div>
           </div>
@@ -670,6 +696,10 @@ function ButtonsEditor({
                 />
               )}
 
+              {button.type === "FLOW" && (
+                <FlowButtonEditor button={button} forms={forms} onChange={(updates) => updateButton(index, updates)} />
+              )}
+
               {button.type === "OTP" && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
@@ -699,7 +729,7 @@ function ButtonsEditor({
             <p className="text-xs text-muted-foreground mb-2">{t("add")}</p>
             <div className="flex flex-wrap gap-2">
               {buttonTypes.map((type) => (
-                <AddButtonChip key={type.value} icon={type.icon} label={type.label} onClick={() => addButton(type.value)} />
+                <AddButtonChip key={type.value} option={type} onClick={() => addButton(type.value)} />
               ))}
             </div>
           </div>
@@ -713,17 +743,54 @@ function ButtonsEditor({
   );
 }
 
-function AddButtonChip({ icon: Glyph, label, onClick }: { icon: Icon; label: string; onClick: () => void }) {
+interface ButtonTypeOption {
+  value: string;
+  label: string;
+  icon: Icon;
+  disabled?: boolean;
+  hint?: string;
+}
+
+function AddButtonChip({ option, onClick }: { option: ButtonTypeOption; onClick: () => void }) {
+  const Glyph = option.icon;
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      disabled={option.disabled}
+      title={option.hint}
+      className="flex items-center gap-1.5 rounded-[--radius] border border-control-edge bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-card"
     >
       <Plus className="h-3 w-3" weight="bold" aria-hidden />
       <Glyph className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-      {label}
+      {option.label}
     </button>
+  );
+}
+
+function FlowButtonEditor({
+  button,
+  forms,
+  onChange,
+}: {
+  button: NonNullable<DraggableComponent["data"]["buttons"]>[number];
+  forms?: FormButtonSource;
+  onChange: (updates: Partial<NonNullable<DraggableComponent["data"]["buttons"]>[number]>) => void;
+}) {
+  const t = useTranslations("whatsappTemplates.form.editor.buttons");
+  return (
+    <div className="space-y-2">
+      <div>
+        <ElevatedInput
+          placeholder={t("textPlaceholder")}
+          value={button.text || ""}
+          onChange={(e) => onChange({ text: e.target.value })}
+          maxLength={FLOW_BUTTON_TEXT_LIMIT}
+        />
+        <CharCount count={button.text?.length || 0} limit={FLOW_BUTTON_TEXT_LIMIT} />
+      </div>
+      <FlowFormPicker query={forms?.query ?? null} flowId={button.flowId} onPick={onChange} />
+    </div>
   );
 }
 

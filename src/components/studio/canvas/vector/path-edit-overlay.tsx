@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEven
 import { useTranslations } from "next-intl";
 
 import type { CanvasSize, Layer } from "@/lib/studio/document";
-import { isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
 import type { LayerPatch } from "@/lib/studio/layers";
 import { deleteNode, insertNode, mapSubpaths, moveHandle, moveNode, nearestOnPath, toggleSmooth, type HandleSide, type NodeRef, type Subpath } from "@/lib/studio/path-nodes";
 import { canvasToUnit, layerSubpaths, refitPathLayer, unitToCanvas } from "@/lib/studio/vector-layer";

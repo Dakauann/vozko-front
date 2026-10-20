@@ -2,9 +2,9 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { hasUserDataCookie, playFn, getLeadByIdAction } = vi.hoisted(() => ({
+const { hasUserDataCookie, attended, getLeadByIdAction } = vi.hoisted(() => ({
   hasUserDataCookie: vi.fn(() => true),
-  playFn: vi.fn(),
+  attended: vi.fn(),
   getLeadByIdAction: vi.fn(),
 }));
 
@@ -23,7 +23,6 @@ vi.mock("@/contexts/department-context", () => ({
   useDepartment: () => ({ currentDepartment: mockDepartment }),
 }));
 vi.mock("@/lib/auth/client-cookies", () => ({ hasUserDataCookie }));
-vi.mock("@/lib/sounds/sound-player", () => ({ soundPlayer: { play: playFn } }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("next-intl", async () => (await import("@/test/next-intl-pt")).nextIntlInPortuguese());
 
@@ -31,6 +30,7 @@ import { toast } from "sonner";
 import ptMessages from "@/i18n/messages/pt.json";
 import { useConversationWs } from "@/hooks/use-conversation-ws";
 import { subscribeNotificationCreated } from "@/lib/notifications/bus";
+import { setAttentionSink } from "@/lib/attention/signal";
 
 class FakeWebSocket {
   static CONNECTING = 0;
@@ -285,29 +285,125 @@ describe("useConversationWs entry defaults", () => {
     });
 
     expect(hook.result.current.inbox[0].live_read).toEqual(read);
-    expect(playFn).not.toHaveBeenCalled();
+    expect(attended).not.toHaveBeenCalled();
   });
 
-  it("chimes once for a new message and stays quiet while muted", async () => {
+  it("keeps who sent the last message from an entry update, and drops a kind it does not know", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, last_message_sender_kind: "external" }, silent: true } });
+    });
+    expect(hook.result.current.inbox[0].last_message_sender_kind).toBe("external");
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, last_message_sender_kind: "robot" }, silent: true } });
+    });
+    expect(hook.result.current.inbox[0].last_message_sender_kind).toBeUndefined();
+  });
+
+  it("asks for attention once per new customer message and never for our own replies", async () => {
     const { socket } = await openSocket();
     await act(async () => {
       socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
     });
-    playFn.mockClear();
+    const leave = setAttentionSink(attended);
+    attended.mockClear();
+
+    const fromContact = { ...sparseEntry, last_message_at: "2026-01-01T00:05:00Z", last_message_sender_kind: "contact", unread_count: 1 };
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: fromContact } });
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: fromContact } });
+    });
+    expect(attended).toHaveBeenCalledTimes(1);
+    expect(attended.mock.calls[0][0]).toMatchObject({ id: "customer:whatsapp:e-1:2026-01-01T00:05:00Z", source: "customer_message", group: "e-1" });
 
     await act(async () => {
-      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry } } });
+      socket.simulateMessage({
+        type: "conversation:entry_update",
+        payload: { entry: { ...sparseEntry, last_message_at: "2026-01-01T00:06:00Z", last_message_sender_kind: "human" } },
+      });
     });
-    expect(playFn).toHaveBeenCalledWith("message");
+    leave();
+    expect(attended).toHaveBeenCalledTimes(1);
+  });
 
-    playFn.mockClear();
-    window.localStorage.setItem("crm_sound_muted", "true");
+  it("ignores an entry update that names no channel it knows, instead of filing it as WhatsApp", async () => {
+    const { hook, socket } = await openSocket();
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1_100));
-      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry } } });
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
     });
-    window.localStorage.removeItem("crm_sound_muted");
-    expect(playFn).not.toHaveBeenCalled();
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, entry_id: "e-2", entry_type: undefined } } });
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, entry_id: "e-3", entry_type: "fax" } } });
+    });
+
+    expect(hook.result.current.inbox.map((e) => e.entry_id)).toEqual(["e-1"]);
+  });
+
+  it("files an entry update for a known channel", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:inbox", payload: { entries: [sparseEntry], page: 1, total_pages: 1, total_items: 1 } });
+    });
+
+    await act(async () => {
+      socket.simulateMessage({ type: "conversation:entry_update", payload: { entry: { ...sparseEntry, entry_id: "e-2", entry_type: "telegram" } } });
+    });
+
+    expect(hook.result.current.inbox.map((e) => `${e.entry_type}:${e.entry_id}`).sort()).toEqual(["telegram:e-2", "whatsapp:e-1"]);
+  });
+
+  it("carries the closed reason and the channel's own detail on the open conversation", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      hook.result.current.subscribe("e-1", "whatsapp");
+      socket.simulateMessage({
+        type: "conversation:subscribed",
+        payload: {
+          entry_id: "e-1",
+          entry_type: "whatsapp",
+          messages: [],
+          has_more: false,
+          unread_count: 0,
+          window_open: false,
+          window_expires_at: null,
+          window_closed_reason: "provider_blocked",
+          window_closed_detail: "blocked_by_buyer",
+        },
+      });
+    });
+
+    expect(hook.result.current.activeConversation).toMatchObject({
+      window_closed_reason: "provider_blocked",
+      window_closed_detail: "blocked_by_buyer",
+    });
+  });
+
+  it("names no closed reason when the server sends one this build does not know", async () => {
+    const { hook, socket } = await openSocket();
+    await act(async () => {
+      hook.result.current.subscribe("e-1", "whatsapp");
+      socket.simulateMessage({
+        type: "conversation:subscribed",
+        payload: {
+          entry_id: "e-1",
+          entry_type: "whatsapp",
+          messages: [],
+          has_more: false,
+          unread_count: 0,
+          window_open: false,
+          window_expires_at: null,
+          window_closed_reason: "reason_from_a_newer_backend",
+        },
+      });
+    });
+
+    expect(hook.result.current.activeConversation).toMatchObject({ window_closed_reason: null, window_closed_detail: null });
   });
 });
 
@@ -514,6 +610,8 @@ describe("useConversationWs lead updates", () => {
         payload: {
           entry_id: "e-1",
           entry_type: "whatsapp",
+          direction: "latest",
+          has_after: false,
           messages: [{ id: "m-1", entry_id: "e-1", entry_type: "whatsapp", content: "oi", created_at: "2026-01-01T00:00:00Z" }],
           has_more: false,
         },

@@ -154,6 +154,8 @@ export const LEAD_CHANNELS = [
     'instagram',
     'facebook',
     'webchat',
+    'mercadolivre',
+    'tiktok',
 ] as const;
 
 const LEAD_CAMPAIGN_STATUSES = [

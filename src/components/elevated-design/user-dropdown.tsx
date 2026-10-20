@@ -8,7 +8,6 @@ import { type Icon as PhosphorIcon, CaretDown, SquaresFour, SignOut, ShieldCheck
 import Image from "next/image";
 import Link from "next/link";
 import type { User } from "@/lib/auth/types";
-import { getBrand } from "@/config/brand";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -301,7 +300,7 @@ export function UserDropdown({
                         tone === "dark" ? "text-white" : "text-foreground",
                       )}
                     >
-                      {user.name || `Conta ${getBrand().name}`}
+                      {user.name || t("defaultName")}
                     </p>
                     <p
                       className={cn(

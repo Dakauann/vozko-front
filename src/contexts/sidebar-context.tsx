@@ -93,7 +93,7 @@ export function DashboardMainContent({
     <motion.main
       animate={{ marginLeft: spine }}
       transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
-      style={{ paddingRight: "var(--assistant-sheet-w, 0px)" }}
+      style={{ paddingRight: "var(--dock-right-reserve)" }}
       className={cn("min-h-screen transition-[padding] duration-200 ease-[cubic-bezier(0.2,0,0,1)]", className)}
     >
       {children}

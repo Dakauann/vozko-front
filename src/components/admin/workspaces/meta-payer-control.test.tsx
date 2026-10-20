@@ -2,10 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import type { WorkspaceConfig } from "@/lib/workspace/workspace-config/types";
 
 import { MetaPayerControl } from "./meta-payer-control";
+
+const ptMessages = brandedMessages(rawPtMessages);
 
 const updateAction = vi.fn();
 const toast = vi.hoisted(() => Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }));

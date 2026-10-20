@@ -15,7 +15,7 @@ interface PageState {
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] p-6">
+    <div className="-m-3 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] p-3 sm:-m-6 sm:p-6">
       <ScreenLoader fit="fill" />
     </div>
   );
@@ -46,7 +46,7 @@ export default function NewWorkflowPage() {
 
   if (state.error) {
     return (
-      <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] items-center justify-center p-6">
+      <div className="-m-3 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] items-center justify-center p-3 sm:-m-6 sm:p-6">
         <div className="rounded-[--radius] border border-destructive bg-destructive px-4 py-3 text-sm text-destructive-foreground">
           {state.error}
         </div>
@@ -55,7 +55,7 @@ export default function NewWorkflowPage() {
   }
 
   return (
-    <div className="-m-6">
+    <div className="-m-3 sm:-m-6">
       <WorkflowEditor mode="create" definitions={state.definitions ?? []} />
     </div>
   );

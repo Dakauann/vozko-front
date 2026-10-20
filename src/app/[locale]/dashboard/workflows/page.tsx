@@ -8,55 +8,48 @@ import {
   GitBranch,
   Plus,
   MagnifyingGlass,
-  Play,
-  Pause,
-  Trash,
-  DotsThree,
-  DownloadSimple,
   UploadSimple,
+  Key,
 } from "@/components/icons";
 
 import { openScoped } from "@/lib/browser/scoped-download-url";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { DepartmentRowSwitcher } from "@/components/dashboard/DepartmentRowSwitcher";
 import {
   DashboardTable,
   type DashboardTableColumn,
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
-import { EmptyValue } from "@/components/elevated-design/empty-value";
 import {
   ElevatedSelect,
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { toast } from "sonner";
 
-import type { Workflow, WorkflowStatus } from "@/lib/workflows/types";
+import type { EntryPointKind, Workflow } from "@/lib/workflows/types";
+import { codedErrorMessage } from "@/lib/api/coded-error";
+import { publishFailureCopy, type PublishFailure } from "@/lib/workflows/publication";
+import { ENTRY_POINT_KINDS, type EntryPointFix } from "@/lib/workflows/entry-points";
+import { workflowNodeHref } from "@/lib/workflows/run-format";
+import { useSettledPermission } from "@/hooks/use-settled-permission";
 import {
   listWorkflowsAction,
   deleteWorkflowAction,
   activateWorkflowAction,
   pauseWorkflowAction,
+  publishWorkflowAction,
   importWorkflowAction,
   assignWorkflowDepartmentAction,
 } from "@/app/actions/workflows";
 import { useDepartment } from "@/contexts/department-context";
+import { useStableCallback } from "@/hooks/use-stable-callback";
+import { WorkflowPublicationChips } from "./_components/publication-chips";
+import { WorkflowRowActions } from "./_components/workflow-row-actions";
+import { EntryPointChips } from "./_components/entry-point-chips";
 
-const STATUS_COLORS: Record<WorkflowStatus, string> = {
-  draft: "bg-[hsl(var(--plate-neutral))] text-white",
-  active: "bg-healthy text-healthy-foreground",
-  paused: "bg-warning text-warning-foreground",
-  archived: "bg-destructive text-destructive-foreground",
-};
+const ALL_ENTRY_KINDS = "all";
 
 const PAGE_SIZE = 15;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -76,10 +69,12 @@ export default function WorkflowsPage() {
     page: 1,
     search: "",
     status: "all",
+    entryKind: ALL_ENTRY_KINDS as EntryPointKind | typeof ALL_ENTRY_KINDS,
   });
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [reloadKey, setReloadKey] = useState(0);
+  const canUpdate = useSettledPermission("workflows", "update");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,7 +94,7 @@ export default function WorkflowsPage() {
   }, [currentWorkspace?.id, currentDepartment?.id]);
 
   const fetchWorkflows = useCallback(
-    async (pageNum: number, search: string, status: string) => {
+    async (pageNum: number, search: string, status: string, entryKind: EntryPointKind | typeof ALL_ENTRY_KINDS) => {
       if (!currentWorkspace?.id) return;
       setLoading(true);
       setError(null);
@@ -108,13 +103,15 @@ export default function WorkflowsPage() {
         pageSize: PAGE_SIZE,
         status: status !== "all" ? status : undefined,
         search: search || undefined,
+        entryKind: entryKind !== ALL_ENTRY_KINDS ? entryKind : undefined,
       });
       if (result.error) {
-        setError(result.error);
+        const message = codedErrorMessage(t, result, result.error);
+        setError(message);
         setWorkflows([]);
         setTotalPages(1);
         setTotalItems(0);
-        toast.error(result.error);
+        toast.error(message);
       } else {
         setWorkflows(result.workflows ?? []);
         setTotalPages(result.meta.totalPages);
@@ -122,35 +119,52 @@ export default function WorkflowsPage() {
       }
       setLoading(false);
     },
-    [currentWorkspace?.id],
+    [currentWorkspace?.id, t],
   );
 
   useEffect(() => {
-    fetchWorkflows(filters.page, filters.search, filters.status);
+    fetchWorkflows(filters.page, filters.search, filters.status, filters.entryKind);
   }, [
     currentWorkspace?.id,
     currentDepartment?.id,
     filters.page,
     filters.search,
     filters.status,
+    filters.entryKind,
     reloadKey,
     fetchWorkflows,
   ]);
 
-  const handleActivate = async (id: string) => {
-    const result = await activateWorkflowAction(id);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(t("activated"));
-      setReloadKey((prev) => prev + 1);
+  const toastRefusal = (failure: PublishFailure | undefined, fallback: string) => {
+    const copy = publishFailureCopy(failure ?? { message: "" }, t, fallback);
+    toast.error(copy.title, copy.description ? { description: copy.description } : undefined);
+  };
+
+  const handlePublish = async (id: string) => {
+    const result = await publishWorkflowAction(id);
+    if (result.failure || !result.workflow) {
+      toastRefusal(result.failure, t("publication.publishFailed"));
+      return;
     }
+    const version = result.workflow.publishedVersion;
+    toast.success(version ? t("publication.published", { version }) : t("publication.publishedNoVersion"));
+    setReloadKey((prev) => prev + 1);
+  };
+
+  const handleResume = async (id: string) => {
+    const result = await activateWorkflowAction(id);
+    if (result.failure || !result.workflow) {
+      toastRefusal(result.failure, t("publication.resumeFailed"));
+      return;
+    }
+    toast.success(t("publication.resumed"));
+    setReloadKey((prev) => prev + 1);
   };
 
   const handlePause = async (id: string) => {
     const result = await pauseWorkflowAction(id);
     if (result.error) {
-      toast.error(result.error);
+      toast.error(codedErrorMessage(t, result, result.error));
     } else {
       toast.success(t("paused"));
       setReloadKey((prev) => prev + 1);
@@ -160,7 +174,7 @@ export default function WorkflowsPage() {
   const handleDelete = async (id: string) => {
     const result = await deleteWorkflowAction(id);
     if (result.error) {
-      toast.error(result.error);
+      toast.error(codedErrorMessage(t, result, result.error));
     } else {
       toast.success(t("deleted"));
       if (workflows.length === 1 && filters.page > 1) {
@@ -182,6 +196,23 @@ export default function WorkflowsPage() {
     }
     return result;
   };
+
+  const fixEntryPoint = useStableCallback((workflowId: string, fix: EntryPointFix) => {
+    switch (fix.kind) {
+      case "publish":
+        void handlePublish(workflowId);
+        return;
+      case "resume":
+        void handleResume(workflowId);
+        return;
+      case "open_node":
+        router.push(workflowNodeHref(workflowId, fix.nodeId));
+        return;
+      case "link":
+        router.push(fix.href);
+        return;
+    }
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -205,7 +236,7 @@ export default function WorkflowsPage() {
         JSON.parse(text);
         const result = await importWorkflowAction(text);
         if (result.error) {
-          toast.error(result.error);
+          toast.error(codedErrorMessage(t, result, result.error));
         } else {
           toast.success(t("import.success"));
           setReloadKey((prev) => prev + 1);
@@ -236,46 +267,18 @@ export default function WorkflowsPage() {
       {
         key: "status",
         header: t("table.status"),
-        render: (row) => (
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[row.status]}`}
-          >
-            {t(`status.${row.status}`)}
-          </span>
-        ),
+        render: (row) => <WorkflowPublicationChips workflow={row} compact />,
       },
       {
-        key: "trigger",
-        header: t("table.trigger"),
-        render: (row) => {
-          const triggerTypes = Array.from(
-            new Set(
-              (row.graph?.nodes ?? [])
-                .map((n) => n.type)
-                .filter((ty) => ty.startsWith("trigger_")),
-            ),
-          );
-          const effective = triggerTypes.length
-            ? triggerTypes
-            : row.triggerType
-              ? [row.triggerType]
-              : [];
-          if (effective.length === 0) {
-            return <EmptyValue className="text-sm" />;
-          }
-          return (
-            <span className="flex flex-wrap gap-1">
-              {effective.map((ty) => (
-                <span
-                  key={ty}
-                  className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
-                >
-                  {t.has(`trigger.${ty}`) ? t(`trigger.${ty}`) : ty}
-                </span>
-              ))}
-            </span>
-          );
-        },
+        key: "entryPoints",
+        header: t("table.entryPoints"),
+        render: (row) => (
+          <EntryPointChips
+            entries={row.entryPoints}
+            canUpdate={canUpdate}
+            onFix={(fix) => fixEntryPoint(row.id, fix)}
+          />
+        ),
       },
       {
         key: "nodes",
@@ -283,15 +286,6 @@ export default function WorkflowsPage() {
         render: (row) => (
           <span className="text-sm tabular-nums">
             {row.graph?.nodes?.length ?? 0}
-          </span>
-        ),
-      },
-      {
-        key: "version",
-        header: t("table.version"),
-        render: (row) => (
-          <span className="text-sm tabular-nums text-muted-foreground">
-            v{row.version}
           </span>
         ),
       },
@@ -305,7 +299,7 @@ export default function WorkflowsPage() {
         ),
       },
     ],
-    [t],
+    [t, canUpdate, fixEntryPoint],
   );
 
   return (
@@ -322,6 +316,14 @@ export default function WorkflowsPage() {
               accept=".json"
               className="hidden"
               onChange={handleImportWorkflow}
+            />
+            <ElevatedButton
+              onClick={() => router.push("/dashboard/workflows/secrets")}
+              variant="outline-subtle"
+              className="gap-2"
+              icon={<Key size={16} weight="bold" />}
+              title={t("header.secrets")}
+              iconVisible
             />
             <ElevatedButton
               onClick={() => fileInputRef.current?.click()}
@@ -362,6 +364,24 @@ export default function WorkflowsPage() {
           />
         }
         headerRight={
+          <div className="flex items-center gap-2">
+          <ElevatedSelect
+            value={filters.entryKind}
+            onValueChange={(val) =>
+              setFilters((prev) => ({ ...prev, entryKind: val as EntryPointKind | typeof ALL_ENTRY_KINDS, page: 1 }))
+            }
+            aria-label={t("entryPoints.title")}
+            className="w-48"
+          >
+            <ElevatedSelectItem value={ALL_ENTRY_KINDS}>
+              {t("entryPoints.filterAll")}
+            </ElevatedSelectItem>
+            {ENTRY_POINT_KINDS.map((kind) => (
+              <ElevatedSelectItem key={kind} value={kind}>
+                {t(`entryPoints.kinds.${kind}`)}
+              </ElevatedSelectItem>
+            ))}
+          </ElevatedSelect>
           <ElevatedSelect
             value={filters.status}
             onValueChange={(val) => {
@@ -382,54 +402,23 @@ export default function WorkflowsPage() {
               {t("status.paused")}
             </ElevatedSelectItem>
           </ElevatedSelect>
+          </div>
         }
         renderRowActions={(row) => (
-          <>
-            <DepartmentRowSwitcher
-              departmentId={row.departmentId}
-              onAssign={(departmentId) =>
-                handleAssignDepartment(row.id, departmentId).then((result) => ({
-                  item: result.workflow,
-                  error: result.error,
-                }))
-              }
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  onClick={(event) => event.stopPropagation()}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <DotsThree size={18} weight="bold" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {row.status === "draft" || row.status === "paused" ? (
-                  <DropdownMenuItem onClick={() => handleActivate(row.id)}>
-                    <Play size={14} className="mr-2" />
-                    {t("actions.activate")}
-                  </DropdownMenuItem>
-                ) : row.status === "active" ? (
-                  <DropdownMenuItem onClick={() => handlePause(row.id)}>
-                    <Pause size={14} className="mr-2" />
-                    {t("actions.pause")}
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem onClick={() => handleExportWorkflow(row.id)}>
-                  <DownloadSimple size={14} className="mr-2" />
-                  {t("actions.export")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleDelete(row.id)}
-                  className="text-destructive-ink"
-                >
-                  <Trash size={14} className="mr-2" />
-                  {t("actions.delete")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
+          <WorkflowRowActions
+            row={row}
+            onPublish={handlePublish}
+            onResume={handleResume}
+            onPause={handlePause}
+            onExport={handleExportWorkflow}
+            onDelete={handleDelete}
+            onAssignDepartment={(id, departmentId) =>
+              handleAssignDepartment(id, departmentId).then((result) => ({
+                item: result.workflow,
+                error: result.error ? codedErrorMessage(t, result, result.error) : result.error,
+              }))
+            }
+          />
         )}
         pagination={{
           currentPage: filters.page,

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  AnimatePresence,
-  LayoutGroup,
-  Reorder,
-  motion,
-  useDragControls,
-} from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import {
   ArrowsLeftRight,
   Check,
@@ -20,6 +14,7 @@ import type {
   Stage,
 } from "@/lib/conversations/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { reorderStagesAction } from "@/app/actions/stages";
@@ -27,41 +22,46 @@ import AnalysisHoverCard from "@/components/crm/AnalysisHoverCard";
 import { effectiveAnalysis } from "@/lib/analysis/live";
 import { AssigneeGlyph } from "@/components/crm/AssigneeGlyph";
 import KanbanColumnShell from "@/components/crm/KanbanColumnShell";
+import BoardColumn from "@/components/crm/kanban/BoardColumn";
+import BoardDragArea from "@/components/crm/kanban/BoardDragArea";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import {
   CardPill,
   CardLabelChip,
   KanbanCard,
   kanbanCardClass,
+  kanbanCardFocusClass,
   kanbanCardVariants,
   kanbanCardTransition,
   kanbanCardHover,
   kanbanCardGhostClass,
-  kanbanDragOverlayInitial,
-  kanbanDragOverlayAnimate,
-  kanbanDragOverlayTransition,
 } from "@/components/crm/kanban-card";
 import { AnchoredMenu } from "@/components/ui/anchored-menu";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { toast } from "sonner";
+import {
+  beginOperation,
+  confirmOperation,
+  emptyLedger,
+  rollbackOperation,
+  type OptimisticLedger,
+} from "@/lib/crm/optimistic";
+import { performReversible } from "@/lib/crm/undoable";
+import { canUndoCardMove, type BoardDragSubject } from "@/lib/crm/board-drag";
+import { useCompactAgeText } from "@/hooks/use-compact-age";
+import { useBoardCard, useBoardDrag, type ColumnDragHandle } from "@/hooks/use-board-drag";
+import { useCollapsedColumns } from "@/hooks/use-collapsed-columns";
+import { useColumnPulse } from "@/hooks/use-column-pulse";
+import type { FunnelColumnState } from "@/hooks/use-conversation-ws";
+import type { FunnelStages } from "@/app/actions/stages";
+import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 
 
-function relativeTime(isoDate: string): string {
-  const now = Date.now();
-  const then = new Date(isoDate).getTime();
-  const diffMs = now - then;
-  const diffMin = Math.floor(diffMs / 60_000);
-  const diffH = Math.floor(diffMin / 60);
-  const diffD = Math.floor(diffH / 24);
+const UNSTAGED_COLUMN_ID = "__unstaged__";
+const COLUMN_PAGE_SIZE = 20;
 
-  if (diffMin < 1) return "agora";
-  if (diffMin < 60) return `${diffMin}m`;
-  if (diffH < 24) return `${diffH}h`;
-  if (diffD < 7) return `${diffD}d`;
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-  }).format(new Date(isoDate));
+function entryKeyOf(entry: InboxEntry): string {
+  return `${entry.entry_type}-${entry.entry_id}`;
 }
 
 function truncate(text: string, max: number) {
@@ -69,23 +69,18 @@ function truncate(text: string, max: number) {
   return text.slice(0, max) + "…";
 }
 
-
-import type { FunnelColumnState } from "@/hooks/use-conversation-ws";
-import type { FunnelStages } from "@/app/actions/stages";
-import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
-
 interface CrmFunnelViewProps {
   entries: InboxEntry[];
   stages: Stage[];
   selectedEntryId: string | null;
   onSelect: (entryId: string, entryType: EntryType) => void;
-  onStagesReorder: (stages: Stage[]) => void;
+  onStagesReorder?: (stages: Stage[]) => void;
   onEntryStageChange?: (
     entryId: string,
     entryType: EntryType,
     newStageId: string,
     oldStageId: string | null,
-  ) => void;
+  ) => Promise<boolean> | void;
   funnelColumns?: Map<string, FunnelColumnState>;
   funnelSummary?: Map<string, number>;
   loadingFunnelColumn?: string | null;
@@ -110,10 +105,10 @@ interface CrmFunnelViewProps {
   ) => Promise<string | null>;
 }
 
-let _skipCardClick = false;
-
 
 function FunnelCardBody({ entry }: { entry: InboxEntry }) {
+  const t = useTranslations("crmKanban");
+  const age = useCompactAgeText()(entry.last_message_at);
   const hasUnread = entry.unread_count > 0;
 
   const labels = entry.labels ?? [];
@@ -133,9 +128,7 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
       title={entry.lead_name || entry.lead_number}
       subtitle={entry.campaign_name || undefined}
       thirdLine={
-        <p className="truncate text-2xs text-muted-foreground">
-          {relativeTime(entry.last_message_at)}
-        </p>
+        <p className="truncate text-2xs text-muted-foreground">{age}</p>
       }
       rightSlot={
         hasUnread ? (
@@ -153,11 +146,11 @@ function FunnelCardBody({ entry }: { entry: InboxEntry }) {
         <>
           {entry.window_open ? (
             <CardPill tone="success" icon={<Circle weight="fill" className="h-1.5 w-1.5" />}>
-              Ativa
+              {t("windowOpen")}
             </CardPill>
           ) : (
             <CardPill tone="warning" icon={<Circle weight="fill" className="h-1.5 w-1.5" />}>
-              Fechada
+              {t("windowClosed")}
             </CardPill>
           )}
           {entry.assigned_username ? (
@@ -209,8 +202,6 @@ function FunnelCard({
   columnId,
   isSelected,
   onSelect,
-  isDragGhost,
-  onPointerDownForDrag,
   canDrag = true,
   availableLabels,
   onAssignLabel,
@@ -223,8 +214,6 @@ function FunnelCard({
   columnId: string;
   isSelected: boolean;
   onSelect: () => void;
-  isDragGhost: boolean;
-  onPointerDownForDrag: (e: React.PointerEvent<HTMLDivElement>) => void;
   canDrag?: boolean;
   availableLabels?: Label[];
   onAssignLabel?: (
@@ -241,11 +230,18 @@ function FunnelCard({
   labelMenuOpen?: boolean;
   onLabelMenuToggle?: () => void;
 }) {
+  const t = useTranslations("crmKanban");
   const [isHovered, setIsHovered] = useState(false);
   const menuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const { can } = useWorkspace();
   const canReadAnalysis = can("audience", "read");
   const analysis = effectiveAnalysis(entry);
+  const { cardProps, isDragging } = useBoardCard({
+    id: entryKeyOf(entry),
+    columnId,
+    draggable: canDrag,
+    onOpen: onSelect,
+  });
 
   const hasLabelActions = Boolean(
     availableLabels && availableLabels.length > 0 && onLabelMenuToggle,
@@ -253,43 +249,46 @@ function FunnelCard({
 
   const hasCardMenu = hasLabelActions || Boolean(onRequestMoveToFunnel);
 
-  if (isDragGhost) {
+  const layoutId = `kanban-card-${columnId}-${entry.entry_type}-${entry.entry_id}`;
+
+  if (isDragging) {
     return (
-      <div className={cn(kanbanCardGhostClass, "p-3")}>
+      <motion.div
+        {...cardProps}
+        layout="position"
+        layoutId={layoutId}
+        className={cn(kanbanCardGhostClass, "p-3")}
+      >
         <div className="invisible">
           <FunnelCardBody entry={entry} />
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <motion.div
+      {...cardProps}
+      aria-label={entry.lead_name || entry.lead_number}
       layout="position"
-      layoutId={`kanban-card-${columnId}-${entry.entry_type}-${entry.entry_id}`}
+      layoutId={layoutId}
       onMouseEnter={() => {
         if (canReadAnalysis && analysis) setIsHovered(true);
       }}
       onMouseLeave={() => setIsHovered(false)}
       variants={kanbanCardVariants}
-      initial="initial"
+      initial={false}
       animate="animate"
       exit="exit"
       transition={kanbanCardTransition}
-      onPointerDown={(e) => {
-        e.stopPropagation();
-        onPointerDownForDrag(e);
-      }}
-      onClick={() => {
-        if (_skipCardClick) return;
-        onSelect();
-      }}
+      onClick={onSelect}
       className={kanbanCardClass(
         { selected: isSelected },
         cn(
           "will-change-transform select-none",
           "group/kanban-card",
-          canDrag ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
+          kanbanCardFocusClass,
+          canDrag ? "cursor-grab touch-manipulation active:cursor-grabbing" : "cursor-pointer",
         ),
       )}
       whileHover={kanbanCardHover}
@@ -307,10 +306,9 @@ function FunnelCard({
         <button
           type="button"
           ref={menuAnchorRef}
-          aria-label="Ações da conversa"
+          aria-label={t("cardActions")}
           aria-haspopup="menu"
           aria-expanded={Boolean(labelMenuOpen)}
-          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             onLabelMenuToggle?.();
@@ -318,7 +316,7 @@ function FunnelCard({
           className={cn(
             "absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-[--radius]",
             "text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
-            "opacity-100 md:opacity-0 md:group-hover/kanban-card:opacity-100 md:focus-visible:opacity-100",
+            "opacity-100 md:opacity-0 md:group-hover/kanban-card:opacity-100 md:group-focus-visible/kanban-card:opacity-100 md:focus-visible:opacity-100",
             labelMenuOpen && "md:opacity-100",
           )}
         >
@@ -330,12 +328,12 @@ function FunnelCard({
         open={Boolean(labelMenuOpen && hasCardMenu)}
         anchorRef={menuAnchorRef}
         onClose={() => onLabelMenuToggle?.()}
-        label="Ações da conversa"
+        label={t("cardActions")}
       >
         {hasLabelActions && availableLabels ? (
           <>
             <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground">
-              Etiquetas
+              {t("labels")}
             </div>
             <div className="max-h-44 overflow-y-auto">
               {availableLabels.map((label) => {
@@ -403,7 +401,7 @@ function FunnelCard({
                 weight="bold"
                 className="h-3 w-3 flex-shrink-0 text-muted-foreground"
               />
-              <span className="truncate">Mover para outro funil…</span>
+              <span className="truncate">{t("moveToFunnel")}</span>
             </button>
           </>
         ) : null}
@@ -427,10 +425,10 @@ function FunnelColumn({
   onSelect,
   isDragOver,
   isPulsing,
-  isDraggingCardKey,
-  onCardPointerDown,
   canDrag = true,
-  onStartColumnDrag,
+  dragHandle,
+  collapsed,
+  onToggleCollapsed,
   totalItems,
   isLoading,
   onLoadMore,
@@ -449,14 +447,10 @@ function FunnelColumn({
   onSelect: (entryId: string, entryType: EntryType) => void;
   isDragOver: boolean;
   isPulsing: boolean;
-  isDraggingCardKey: string | null;
-  onCardPointerDown: (
-    e: React.PointerEvent<HTMLDivElement>,
-    entry: InboxEntry,
-    sourceStageId: string,
-  ) => void;
   canDrag?: boolean;
-  onStartColumnDrag?: (e: React.PointerEvent<HTMLDivElement>) => void;
+  dragHandle?: ColumnDragHandle;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
   totalItems?: number;
   isLoading?: boolean;
   onLoadMore?: () => void;
@@ -477,7 +471,8 @@ function FunnelColumn({
   onRequestMoveToFunnel?: (entry: InboxEntry) => void;
   onLabelMenuToggle?: (entryKey: string) => void;
 }) {
-  const pSize = pageSize ?? 20;
+  const t = useTranslations("crmKanban");
+  const pSize = pageSize ?? COLUMN_PAGE_SIZE;
   const allPagesLoaded =
     currentPage !== undefined &&
     totalItems !== undefined &&
@@ -515,10 +510,11 @@ function FunnelColumn({
       name={stage.name}
       color={stage.color}
       count={totalItems ?? entries.length}
-      countKey={totalItems ?? entries.length}
       isDragOver={isDragOver}
       pulsing={isPulsing}
-      onStartColumnDrag={onStartColumnDrag}
+      dragHandle={dragHandle}
+      collapsed={collapsed}
+      onToggleCollapsed={onToggleCollapsed}
     >
       <AnimatePresence initial={false} mode="popLayout">
         {entries.length === 0 && !isLoading ? (
@@ -530,12 +526,12 @@ function FunnelColumn({
             className="flex items-center justify-center py-8"
           >
             <p className="text-2xs text-muted-foreground italic">
-              Nenhuma conversa
+              {t("noConversations")}
             </p>
           </motion.div>
         ) : (
           entries.map((entry) => {
-            const entryKey = `${entry.entry_type}-${entry.entry_id}`;
+            const entryKey = entryKeyOf(entry);
             return (
               <FunnelCard
                 key={entryKey}
@@ -543,10 +539,6 @@ function FunnelColumn({
                 columnId={stage.id}
                 isSelected={entry.entry_id === selectedEntryId}
                 onSelect={() => onSelect(entry.entry_id, entry.entry_type)}
-                isDragGhost={isDraggingCardKey === entryKey}
-                onPointerDownForDrag={(e) =>
-                  onCardPointerDown(e, entry, stage.id)
-                }
                 canDrag={canDrag}
                 availableLabels={availableLabels}
                 onAssignLabel={onAssignLabel}
@@ -570,40 +562,11 @@ function FunnelColumn({
       {hasMore && !isLoading && (
         <div ref={sentinelRef} className="h-8 flex items-center justify-center">
           <span className="text-2xs text-muted-foreground">
-            {entries.length} de {totalItems}
+            {t("shownOf", { shown: entries.length, total: totalItems ?? entries.length })}
           </span>
         </div>
       )}
     </KanbanColumnShell>
-  );
-}
-
-
-function ReorderableColumn({
-  stage,
-  children,
-}: {
-  stage: Stage;
-  children: (startDrag: (e: React.PointerEvent) => void) => React.ReactNode;
-}) {
-  const controls = useDragControls();
-
-  return (
-    <Reorder.Item
-      key={stage.id}
-      value={stage.id}
-      dragListener={false}
-      dragControls={controls}
-      className="flex-shrink-0 h-full"
-      transition={{ type: "spring", damping: 25, stiffness: 300 }}
-      whileDrag={{
-        scale: 1.02,
-        boxShadow: "0 10px 40px -10px rgba(0,0,0,0.15)",
-        cursor: "grabbing",
-      }}
-    >
-      {children((e) => controls.start(e))}
-    </Reorder.Item>
   );
 }
 
@@ -626,17 +589,22 @@ export default function CrmFunnelView({
   funnelStages = [],
   onMoveToFunnel,
 }: CrmFunnelViewProps) {
+  const t = useTranslations("crmKanban");
+  const tActions = useTranslations("crmActions");
   const defaultColumnOrder = useMemo(
     () => [...stages].sort((a, b) => a.position - b.position).map((t) => t.id),
     [stages],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [isReordering, setIsReordering] = useState(false);
-  const [pulsingColumns, setPulsingColumns] = useState<Set<string>>(new Set());
+  const { pulsing: pulsingColumns, pulse: triggerColumnPulse } = useColumnPulse();
+  const { isCollapsed, toggle: toggleCollapsed } = useCollapsedColumns("conversation-funnel");
   const [labelMenuEntryId, setLabelMenuEntryId] = useState<string | null>(null);
   const [optimisticMoves, setOptimisticMoves] = useState<Map<string, string>>(
     new Map(),
   );
+  const movesLedgerRef = useRef<OptimisticLedger<string | undefined>>(emptyLedger());
+  const reorderSequenceRef = useRef(0);
 
   const [movingEntry, setMovingEntry] = useState<InboxEntry | null>(null);
 
@@ -644,37 +612,7 @@ export default function CrmFunnelView({
     Boolean(onMoveToFunnel) &&
     funnelStages.filter((f) => f.stages.length > 0).length > 1;
 
-  const [isDraggingCard, setIsDraggingCard] = useState<string | null>(null);
-  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
-  const [dragOverlayData, setDragOverlayData] = useState<{
-    entry: InboxEntry;
-    width: number;
-    initialX: number;
-    initialY: number;
-  } | null>(null);
-  const dragOverlayRef = useRef<HTMLDivElement>(null);
-  const dragDataRef = useRef<{
-    entry: InboxEntry;
-    sourceStageId: string;
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-    initialX: number;
-    initialY: number;
-  } | null>(null);
-  const pendingDragRef = useRef<{
-    entry: InboxEntry;
-    sourceStageId: string;
-    startX: number;
-    startY: number;
-    rect: DOMRect;
-  } | null>(null);
-  const currentDragOverRef = useRef<string | null>(null);
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const prevColumnEntriesRef = useRef<Map<string, Set<string>>>(new Map());
-  const pulseTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const effectiveColumnOrder =
     columnOrder.length > 0 && columnOrder.length === defaultColumnOrder.length
@@ -695,11 +633,11 @@ export default function CrmFunnelView({
     if (hasRequestedRef.current) return;
     hasRequestedRef.current = true;
 
-    const allStageIds = ["__unstaged__", ...stages.map((t) => t.id)];
+    const allStageIds = [UNSTAGED_COLUMN_ID, ...stages.map((t) => t.id)];
     onRequestSummary(allStageIds);
 
     for (const stageId of allStageIds) {
-      onRequestColumn(stageId, 1, 20);
+      onRequestColumn(stageId, 1, COLUMN_PAGE_SIZE);
     }
 
     prevStageIdsRef.current = new Set(stages.map((t) => t.id));
@@ -735,17 +673,16 @@ export default function CrmFunnelView({
     if (newStageIds.length > 0) {
       onRequestSummary(newStageIds);
       for (const stageId of newStageIds) {
-        onRequestColumn(stageId, 1, 20);
+        onRequestColumn(stageId, 1, COLUMN_PAGE_SIZE);
       }
     }
 
     prevStageIdsRef.current = currentStageIds;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stages, onRequestColumn, onRequestSummary]);
 
   const columnEntries = useMemo(() => {
     const map = new Map<string, InboxEntry[]>();
-    map.set("__unstaged__", []);
+    map.set(UNSTAGED_COLUMN_ID, []);
 
     for (const stage of stages) {
       map.set(stage.id, []);
@@ -755,8 +692,7 @@ export default function CrmFunnelView({
       const allKanbanEntries = new Map<string, InboxEntry>();
       for (const [, colState] of funnelColumns) {
         for (const entry of colState.entries ?? []) {
-          const entryKey = `${entry.entry_type}-${entry.entry_id}`;
-          allKanbanEntries.set(entryKey, entry);
+          allKanbanEntries.set(entryKeyOf(entry), entry);
         }
       }
 
@@ -766,26 +702,17 @@ export default function CrmFunnelView({
         const entriesWithOverrides: InboxEntry[] = [];
 
         for (const entry of wsEntries) {
-          const entryKey = `${entry.entry_type}-${entry.entry_id}`;
-          const override = optimisticMoves.get(entryKey);
+          const override = optimisticMoves.get(entryKeyOf(entry));
           if (override && override !== stageId) continue;
           entriesWithOverrides.push(entry);
         }
 
         for (const [entryKey, targetStageId] of optimisticMoves) {
           if (targetStageId !== stageId) continue;
-          if (
-            entriesWithOverrides.some(
-              (e) => `${e.entry_type}-${e.entry_id}` === entryKey,
-            )
-          )
-            continue;
-          let entry = entries.find(
-            (e) => `${e.entry_type}-${e.entry_id}` === entryKey,
-          );
-          if (!entry) {
-            entry = allKanbanEntries.get(entryKey);
-          }
+          if (entriesWithOverrides.some((e) => entryKeyOf(e) === entryKey)) continue;
+          const entry =
+            entries.find((e) => entryKeyOf(e) === entryKey) ??
+            allKanbanEntries.get(entryKey);
           if (entry) {
             entriesWithOverrides.push(entry);
           }
@@ -797,9 +724,7 @@ export default function CrmFunnelView({
     }
 
     for (const entry of entries) {
-      const entryKey = `${entry.entry_type}-${entry.entry_id}`;
-
-      const override = optimisticMoves.get(entryKey);
+      const override = optimisticMoves.get(entryKeyOf(entry));
       if (override && map.has(override)) {
         map.get(override)!.push(entry);
         continue;
@@ -807,19 +732,27 @@ export default function CrmFunnelView({
 
       const entryStage = entry.stage;
       if (!entryStage) {
-        map.get("__unstaged__")!.push(entry);
+        map.get(UNSTAGED_COLUMN_ID)!.push(entry);
         continue;
       }
 
       if (map.has(entryStage.stage_id)) {
         map.get(entryStage.stage_id)!.push(entry);
       } else {
-        map.get("__unstaged__")!.push(entry);
+        map.get(UNSTAGED_COLUMN_ID)!.push(entry);
       }
     }
 
     return map;
   }, [entries, stages, optimisticMoves, funnelColumns]);
+
+  const entryByKey = useMemo(() => {
+    const map = new Map<string, InboxEntry>();
+    for (const list of columnEntries.values()) {
+      for (const entry of list) map.set(entryKeyOf(entry), entry);
+    }
+    return map;
+  }, [columnEntries]);
 
   useEffect(() => {
     if (optimisticMoves.size === 0) return;
@@ -828,25 +761,27 @@ export default function CrmFunnelView({
     if (funnelColumns) {
       for (const [, colState] of funnelColumns) {
         for (const entry of colState.entries ?? []) {
-          const entryKey = `${entry.entry_type}-${entry.entry_id}`;
-          allFunnelEntries.set(entryKey, entry);
+          allFunnelEntries.set(entryKeyOf(entry), entry);
         }
       }
     }
 
     const keysToRemove: string[] = [];
     for (const [entryKey, targetStageId] of optimisticMoves) {
-      let entry = entries.find(
-        (e) => `${e.entry_type}-${e.entry_id}` === entryKey,
-      );
-      if (!entry) {
-        entry = allFunnelEntries.get(entryKey);
+      const landedInTarget = funnelColumns
+        ?.get(targetStageId)
+        ?.entries?.some((e) => entryKeyOf(e) === entryKey);
+      if (landedInTarget) {
+        keysToRemove.push(entryKey);
+        continue;
       }
+      const entry =
+        entries.find((e) => entryKeyOf(e) === entryKey) ??
+        allFunnelEntries.get(entryKey);
       if (!entry) {
         continue;
       }
-      const realStage = entry.stage;
-      if (realStage?.stage_id === targetStageId) {
+      if (entry.stage?.stage_id === targetStageId) {
         keysToRemove.push(entryKey);
       }
     }
@@ -865,35 +800,29 @@ export default function CrmFunnelView({
   }, [entries, optimisticMoves, funnelColumns]);
 
 
-  const triggerColumnPulse = useCallback((columnId: string) => {
-    const existingTimer = pulseTimersRef.current.get(columnId);
-    if (existingTimer) clearTimeout(existingTimer);
-
-    setPulsingColumns((prev) => {
-      const next = new Set(prev);
-      next.add(columnId);
-      return next;
-    });
-
-    const timer = setTimeout(() => {
-      setPulsingColumns((prev) => {
-        const next = new Set(prev);
-        next.delete(columnId);
+  const settleMove = useCallback(
+    (operationId: string, entryKey: string, accepted: boolean) => {
+      if (accepted) {
+        movesLedgerRef.current = confirmOperation(movesLedgerRef.current, operationId).ledger;
+        return;
+      }
+      const { ledger, snapshot } = rollbackOperation(movesLedgerRef.current, operationId);
+      if (ledger === movesLedgerRef.current) return;
+      movesLedgerRef.current = ledger;
+      setOptimisticMoves((prev) => {
+        const next = new Map(prev);
+        if (snapshot === null || snapshot === undefined) next.delete(entryKey);
+        else next.set(entryKey, snapshot);
         return next;
       });
-      pulseTimersRef.current.delete(columnId);
-    }, 750);
-
-    pulseTimersRef.current.set(columnId, timer);
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     const newColumnEntries = new Map<string, Set<string>>();
     for (const [colId, colEntries] of columnEntries) {
-      newColumnEntries.set(
-        colId,
-        new Set(colEntries.map((e) => `${e.entry_type}-${e.entry_id}`)),
-      );
+      newColumnEntries.set(colId, new Set(colEntries.map(entryKeyOf)));
     }
 
     const prev = prevColumnEntriesRef.current;
@@ -924,164 +853,51 @@ export default function CrmFunnelView({
     prevColumnEntriesRef.current = newColumnEntries;
   }, [columnEntries, triggerColumnPulse]);
 
-  useEffect(() => {
-    const timers = pulseTimersRef.current;
-    return () => {
-      for (const timer of timers.values()) {
-        clearTimeout(timer);
-      }
-    };
-  }, []);
+  const commitMove = useCallback(
+    async (entry: InboxEntry, fromColumnId: string, toColumnId: string): Promise<boolean> => {
+      if (!onEntryStageChange) return false;
+      const entryKey = entryKeyOf(entry);
+      const operationId = crypto.randomUUID();
 
+      setOptimisticMoves((prev) => {
+        movesLedgerRef.current = beginOperation(movesLedgerRef.current, {
+          id: operationId,
+          target: entryKey,
+          snapshot: prev.get(entryKey),
+        });
+        const next = new Map(prev);
+        next.set(entryKey, toColumnId);
+        return next;
+      });
 
-  const handleCardPointerDown = useCallback(
-    (
-      e: React.PointerEvent<HTMLDivElement>,
-      entry: InboxEntry,
-      sourceStageId: string,
-    ) => {
-      if (e.button !== 0) return;
-      if (!onEntryStageChange) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      pendingDragRef.current = {
-        entry,
-        sourceStageId,
-        startX: e.clientX,
-        startY: e.clientY,
-        rect,
-      };
+      triggerColumnPulse(toColumnId);
+
+      const accepted =
+        (await onEntryStageChange(entry.entry_id, entry.entry_type, toColumnId, fromColumnId)) !==
+        false;
+      settleMove(operationId, entryKey, accepted);
+      return accepted;
     },
-    [onEntryStageChange],
+    [onEntryStageChange, triggerColumnPulse, settleMove],
   );
-
-  useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      const pending = pendingDragRef.current;
-
-      if (pending && !dragDataRef.current) {
-        const dx = e.clientX - pending.startX;
-        const dy = e.clientY - pending.startY;
-        if (Math.abs(dx) + Math.abs(dy) > 5) {
-          dragDataRef.current = {
-            entry: pending.entry,
-            sourceStageId: pending.sourceStageId,
-            offsetX: pending.startX - pending.rect.left,
-            offsetY: pending.startY - pending.rect.top,
-            width: pending.rect.width,
-            height: pending.rect.height,
-            initialX: pending.rect.left,
-            initialY: pending.rect.top,
-          };
-          setIsDraggingCard(
-            `${pending.entry.entry_type}-${pending.entry.entry_id}`,
-          );
-          setDragOverlayData({
-            entry: pending.entry,
-            width: pending.rect.width,
-            initialX: pending.rect.left,
-            initialY: pending.rect.top,
-          });
-          pendingDragRef.current = null;
-        }
-        return;
-      }
-
-      if (dragDataRef.current && dragOverlayRef.current) {
-        const dd = dragDataRef.current;
-        const x = e.clientX - dd.offsetX;
-        const y = e.clientY - dd.offsetY;
-        dragOverlayRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-
-        const elements = document.elementsFromPoint(e.clientX, e.clientY);
-        let colId: string | null = null;
-        for (const el of elements) {
-          const attr = (el as HTMLElement).dataset?.columnId;
-          if (attr) {
-            colId = attr;
-            break;
-          }
-        }
-        if (colId !== currentDragOverRef.current) {
-          currentDragOverRef.current = colId;
-          setDragOverColumnId(colId);
-        }
-      }
-    };
-
-    const handlePointerUp = () => {
-      const dd = dragDataRef.current;
-      const targetColId = currentDragOverRef.current;
-
-      if (
-        dd &&
-        targetColId &&
-        targetColId !== dd.sourceStageId &&
-        onEntryStageChange
-      ) {
-        const entryKey = `${dd.entry.entry_type}-${dd.entry.entry_id}`;
-
-        setOptimisticMoves((prev) => {
-          const next = new Map(prev);
-          next.set(entryKey, targetColId);
-          return next;
-        });
-
-        triggerColumnPulse(targetColId);
-
-        onEntryStageChange(
-          dd.entry.entry_id,
-          dd.entry.entry_type,
-          targetColId,
-          dd.sourceStageId,
-        );
-      }
-
-      if (dragDataRef.current) {
-        _skipCardClick = true;
-        requestAnimationFrame(() => {
-          _skipCardClick = false;
-        });
-      }
-
-      pendingDragRef.current = null;
-      dragDataRef.current = null;
-      currentDragOverRef.current = null;
-      setIsDraggingCard(null);
-      setDragOverColumnId(null);
-      setDragOverlayData(null);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-    };
-  }, [onEntryStageChange, triggerColumnPulse]);
-
-  useEffect(() => {
-    if (isDraggingCard) {
-      document.body.style.cursor = "grabbing";
-      document.body.style.userSelect = "none";
-    } else {
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    }
-    return () => {
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-  }, [isDraggingCard]);
 
   const handleColumnReorder = useCallback(
     async (newOrder: string[]) => {
+      if (!onStagesReorder) return;
+      const sequence = ++reorderSequenceRef.current;
       setColumnOrder(newOrder);
       setIsReordering(true);
       const result = await reorderStagesAction(newOrder);
-      if (!result.error && result.stages.length > 0) {
+      if (sequence !== reorderSequenceRef.current) return;
+      setIsReordering(false);
+      if (result.error) {
+        setColumnOrder([]);
+        toast.error(result.error);
+        return;
+      }
+      if (result.stages.length > 0) {
         onStagesReorder(result.stages);
       }
-      setIsReordering(false);
     },
     [onStagesReorder],
   );
@@ -1093,7 +909,84 @@ export default function CrmFunnelView({
       .filter(Boolean) as Stage[];
   }, [stages, effectiveColumnOrder]);
 
-  const unstagedEntries = columnEntries.get("__unstaged__") ?? [];
+  const columnName = useCallback(
+    (columnId: string) =>
+      columnId === UNSTAGED_COLUMN_ID
+        ? t("unstaged")
+        : (stages.find((s) => s.id === columnId)?.name ?? ""),
+    [stages, t],
+  );
+
+  const cardLabel = useCallback(
+    (cardId: string) => {
+      const entry = entryByKey.get(cardId);
+      return entry ? entry.lead_name || entry.lead_number : "";
+    },
+    [entryByKey],
+  );
+
+  const handleCardDrop = useCallback(
+    ({ itemId, from, to }: { itemId: string; from: string; to: string }) => {
+      const entry = entryByKey.get(itemId);
+      if (!entry) return;
+      if (!canUndoCardMove(from, to)) {
+        void commitMove(entry, from, to);
+        return;
+      }
+      void performReversible(
+        {
+          apply: () => commitMove(entry, from, to),
+          inverse: () => commitMove(entry, to, from),
+          labelKey: "cardMoved",
+        },
+        (key) => tActions(key, { column: columnName(to) }),
+      );
+    },
+    [entryByKey, commitMove, tActions, columnName],
+  );
+
+  const drag = useBoardDrag({
+    columnOrder: effectiveColumnOrder,
+    columnName,
+    cardLabel,
+    onCardDrop: onEntryStageChange ? handleCardDrop : undefined,
+    onColumnReorder: onStagesReorder ? handleColumnReorder : undefined,
+  });
+
+  const renderOverlay = (subject: BoardDragSubject) => {
+    if (subject.kind === "card") {
+      const entry = entryByKey.get(subject.id);
+      return entry ? (
+        <div className="rounded-[--radius] border border-border bg-card p-3">
+          <FunnelCardBody entry={entry} />
+        </div>
+      ) : null;
+    }
+    const stage = stages.find((s) => s.id === subject.columnId);
+    return stage ? (
+      <KanbanColumnShell
+        columnId={stage.id}
+        name={stage.name}
+        color={stage.color}
+        count={
+          funnelColumns?.get(stage.id)?.totalItems ??
+          funnelSummary?.get(stage.id) ??
+          (columnEntries.get(stage.id)?.length ?? 0)
+        }
+      >
+        {null}
+      </KanbanColumnShell>
+    ) : null;
+  };
+
+  const toggleLabelMenu = (entryKey: string) =>
+    setLabelMenuEntryId(labelMenuEntryId === entryKey ? null : entryKey);
+
+  const unstagedEntries = columnEntries.get(UNSTAGED_COLUMN_ID) ?? [];
+  const unstagedTotal =
+    funnelColumns?.get(UNSTAGED_COLUMN_ID)?.totalItems ??
+    funnelSummary?.get(UNSTAGED_COLUMN_ID);
+  const unstagedLoading = loadingFunnelColumn === UNSTAGED_COLUMN_ID;
 
   return (
     <div className="flex h-full flex-col">
@@ -1105,198 +998,161 @@ export default function CrmFunnelView({
             exit={{ opacity: 0, height: 0 }}
             className="flex items-center justify-center py-1 overflow-hidden"
           >
-            <span className="text-2xs text-muted-foreground animate-pulse">
-              Salvando ordem...
+            <span role="status" className="text-2xs text-muted-foreground animate-pulse">
+              {t("savingOrder")}
             </span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-x-auto overflow-y-hidden"
-      >
-        <LayoutGroup>
-          <Reorder.Group
-            axis="x"
-            values={effectiveColumnOrder}
-            onReorder={handleColumnReorder}
-            className="flex gap-3 p-4 h-full min-w-max"
-          >
-            {orderedStages.map((stage) => {
-              const columnState = funnelColumns?.get(stage.id);
-              const totalItems =
-                columnState?.totalItems ?? funnelSummary?.get(stage.id);
-              const isLoading =
-                loadingFunnelColumn === stage.id ||
-                (columnState?.loading ?? false);
-
-              return (
-                <ReorderableColumn key={stage.id} stage={stage}>
-                  {(startDrag) => (
-                    <FunnelColumn
-                      stage={stage}
-                      entries={columnEntries.get(stage.id) ?? []}
-                      selectedEntryId={selectedEntryId}
-                      onSelect={onSelect}
-                      isDragOver={dragOverColumnId === stage.id}
-                      isPulsing={pulsingColumns.has(stage.id)}
-                      isDraggingCardKey={isDraggingCard}
-                      onCardPointerDown={handleCardPointerDown}
-                      canDrag={!!onEntryStageChange}
-                      onStartColumnDrag={startDrag}
-                      totalItems={totalItems}
-                      isLoading={isLoading}
-                      currentPage={columnState?.page ?? 1}
-                      pageSize={20}
-                      onLoadMore={
-                        onRequestColumn
-                          ? () => {
-                              const page = columnState?.page ?? 1;
-                              onRequestColumn(stage.id, page + 1, 20);
-                            }
-                          : undefined
-                      }
-                      availableLabels={availableLabels}
-                      onAssignLabel={onAssignLabel}
-                      onRemoveLabel={onRemoveLabel}
-                      onRequestMoveToFunnel={
-                        canMoveAcrossFunnels ? setMovingEntry : undefined
-                      }
-                      labelMenuEntryId={labelMenuEntryId}
-                      onLabelMenuToggle={(key) =>
-                        setLabelMenuEntryId(
-                          labelMenuEntryId === key ? null : key,
-                        )
-                      }
-                    />
-                  )}
-                </ReorderableColumn>
-              );
-            })}
-
-            <AnimatePresence>
-              {(unstagedEntries.length > 0 ||
-                (funnelSummary?.get("__unstaged__") ?? 0) > 0) && (
-                <motion.div
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="flex-shrink-0 h-full flex flex-col"
-                >
-                  <div className="h-[18px] flex-shrink-0" />
-                  <div className="min-h-0 flex-1">
-                    <KanbanColumnShell
-                      columnId="__unstaged__"
-                      name="Sem tag"
-                      dashed
-                      count={
-                        funnelSummary?.get("__unstaged__") ??
-                        unstagedEntries.length
-                      }
-                      countKey={
-                        funnelSummary?.get("__unstaged__") ??
-                        unstagedEntries.length
-                      }
-                      pulsing={pulsingColumns.has("__unstaged__")}
-                    >
-                      <AnimatePresence initial={false} mode="popLayout">
-                        {unstagedEntries.map((entry) => {
-                          const entryKey = `${entry.entry_type}-${entry.entry_id}`;
-                          return (
-                            <FunnelCard
-                              key={entryKey}
-                              entry={entry}
-                              columnId="__unstaged__"
-                              isSelected={entry.entry_id === selectedEntryId}
-                              onSelect={() =>
-                                onSelect(entry.entry_id, entry.entry_type)
-                              }
-                              isDragGhost={isDraggingCard === entryKey}
-                              onPointerDownForDrag={(e) =>
-                                handleCardPointerDown(e, entry, "__unstaged__")
-                              }
-                              canDrag={!!onEntryStageChange}
-                              availableLabels={availableLabels}
-                              onAssignLabel={onAssignLabel}
-                              onRemoveLabel={onRemoveLabel}
-                              onRequestMoveToFunnel={
-                                canMoveAcrossFunnels ? setMovingEntry : undefined
-                              }
-                              labelMenuOpen={labelMenuEntryId === entryKey}
-                              onLabelMenuToggle={() =>
-                                setLabelMenuEntryId(
-                                  labelMenuEntryId === entryKey
-                                    ? null
-                                    : entryKey,
-                                )
-                              }
-                            />
-                          );
-                        })}
-                      </AnimatePresence>
-
-                      {loadingFunnelColumn === "__unstaged__" && (
-                        <div className="flex items-center justify-center py-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
-                        </div>
-                      )}
-
-                      {(() => {
-                        const unstagedTotal =
-                          funnelColumns?.get("__unstaged__")?.totalItems ??
-                          funnelSummary?.get("__unstaged__");
-                        const hasMore =
-                          unstagedTotal !== undefined &&
-                          unstagedEntries.length < unstagedTotal;
-                        const isLoading =
-                          loadingFunnelColumn === "__unstaged__";
-                        if (hasMore && !isLoading && onRequestColumn) {
-                          return (
-                            <button
-                              onClick={() => {
-                                const page =
-                                  funnelColumns?.get("__unstaged__")?.page ?? 1;
-                                onRequestColumn("__unstaged__", page + 1, 20);
-                              }}
-                              className="w-full py-2 text-2xs font-medium text-muted-foreground hover:text-healthy-ink hover:bg-muted rounded-lg transition-colors"
-                            >
-                              Carregar mais ({unstagedEntries.length} de{" "}
-                              {unstagedTotal})
-                            </button>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </KanbanColumnShell>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Reorder.Group>
-        </LayoutGroup>
-      </div>
-
-      {isDraggingCard && dragOverlayData && (
-        <div
-          ref={dragOverlayRef}
-          className="fixed top-0 left-0 pointer-events-none z-[9999]"
-          style={{
-            width: dragOverlayData.width,
-            transform: `translate3d(${dragOverlayData.initialX}px, ${dragOverlayData.initialY}px, 0)`,
-          }}
+      <div className="flex-1 overflow-x-auto overflow-y-hidden">
+        <BoardDragArea
+          drag={drag}
+          reorderableColumnIds={onStagesReorder ? effectiveColumnOrder : []}
+          renderOverlay={renderOverlay}
         >
-          <motion.div
-            initial={kanbanDragOverlayInitial}
-            animate={kanbanDragOverlayAnimate}
-            transition={kanbanDragOverlayTransition}
-            className="rounded-[--radius] border border-border bg-card p-3 cursor-grabbing"
-          >
-            <FunnelCardBody entry={dragOverlayData.entry} />
-          </motion.div>
-        </div>
-      )}
+          <LayoutGroup>
+            <div className="flex gap-3 p-4 h-full min-w-max">
+              {orderedStages.map((stage) => {
+                const columnState = funnelColumns?.get(stage.id);
+                const totalItems =
+                  columnState?.totalItems ?? funnelSummary?.get(stage.id);
+                const isLoading =
+                  loadingFunnelColumn === stage.id ||
+                  (columnState?.loading ?? false);
+
+                return (
+                  <BoardColumn
+                    key={stage.id}
+                    columnId={stage.id}
+                    reorderable={Boolean(onStagesReorder)}
+                  >
+                    {({ isCardOver, dragHandle }) => (
+                      <FunnelColumn
+                        stage={stage}
+                        entries={columnEntries.get(stage.id) ?? []}
+                        selectedEntryId={selectedEntryId}
+                        onSelect={onSelect}
+                        isDragOver={isCardOver}
+                        isPulsing={pulsingColumns.has(stage.id)}
+                        canDrag={!!onEntryStageChange}
+                        dragHandle={dragHandle}
+                        collapsed={isCollapsed(stage.id)}
+                        onToggleCollapsed={() => toggleCollapsed(stage.id)}
+                        totalItems={totalItems}
+                        isLoading={isLoading}
+                        currentPage={columnState?.page ?? 1}
+                        pageSize={COLUMN_PAGE_SIZE}
+                        onLoadMore={
+                          onRequestColumn
+                            ? () => {
+                                const page = columnState?.page ?? 1;
+                                onRequestColumn(stage.id, page + 1, COLUMN_PAGE_SIZE);
+                              }
+                            : undefined
+                        }
+                        availableLabels={availableLabels}
+                        onAssignLabel={onAssignLabel}
+                        onRemoveLabel={onRemoveLabel}
+                        onRequestMoveToFunnel={
+                          canMoveAcrossFunnels ? setMovingEntry : undefined
+                        }
+                        labelMenuEntryId={labelMenuEntryId}
+                        onLabelMenuToggle={toggleLabelMenu}
+                      />
+                    )}
+                  </BoardColumn>
+                );
+              })}
+
+              <AnimatePresence>
+                {(unstagedEntries.length > 0 ||
+                  (funnelSummary?.get(UNSTAGED_COLUMN_ID) ?? 0) > 0) && (
+                  <motion.div
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="flex-shrink-0 h-full flex flex-col"
+                  >
+                    <div className="h-[18px] flex-shrink-0" />
+                    <div className="min-h-0 flex-1">
+                      <BoardColumn columnId={UNSTAGED_COLUMN_ID}>
+                        {({ isCardOver }) => (
+                          <KanbanColumnShell
+                            columnId={UNSTAGED_COLUMN_ID}
+                            name={t("unstaged")}
+                            dashed
+                            count={
+                              funnelSummary?.get(UNSTAGED_COLUMN_ID) ??
+                              unstagedEntries.length
+                            }
+                            isDragOver={isCardOver}
+                            pulsing={pulsingColumns.has(UNSTAGED_COLUMN_ID)}
+                            collapsed={isCollapsed(UNSTAGED_COLUMN_ID)}
+                            onToggleCollapsed={() => toggleCollapsed(UNSTAGED_COLUMN_ID)}
+                          >
+                            <AnimatePresence initial={false} mode="popLayout">
+                              {unstagedEntries.map((entry) => {
+                                const entryKey = entryKeyOf(entry);
+                                return (
+                                  <FunnelCard
+                                    key={entryKey}
+                                    entry={entry}
+                                    columnId={UNSTAGED_COLUMN_ID}
+                                    isSelected={entry.entry_id === selectedEntryId}
+                                    onSelect={() =>
+                                      onSelect(entry.entry_id, entry.entry_type)
+                                    }
+                                    canDrag={!!onEntryStageChange}
+                                    availableLabels={availableLabels}
+                                    onAssignLabel={onAssignLabel}
+                                    onRemoveLabel={onRemoveLabel}
+                                    onRequestMoveToFunnel={
+                                      canMoveAcrossFunnels ? setMovingEntry : undefined
+                                    }
+                                    labelMenuOpen={labelMenuEntryId === entryKey}
+                                    onLabelMenuToggle={() => toggleLabelMenu(entryKey)}
+                                  />
+                                );
+                              })}
+                            </AnimatePresence>
+
+                            {unstagedLoading && (
+                              <div className="flex items-center justify-center py-2">
+                                <div className="h-4 w-4 animate-spin rounded-full border border-foreground/20 border-t-primary" />
+                              </div>
+                            )}
+
+                            {unstagedTotal !== undefined &&
+                            unstagedEntries.length < unstagedTotal &&
+                            !unstagedLoading &&
+                            onRequestColumn ? (
+                              <button
+                                onClick={() => {
+                                  const page =
+                                    funnelColumns?.get(UNSTAGED_COLUMN_ID)?.page ?? 1;
+                                  onRequestColumn(UNSTAGED_COLUMN_ID, page + 1, COLUMN_PAGE_SIZE);
+                                }}
+                                className="w-full py-2 text-2xs font-medium text-muted-foreground hover:text-healthy-ink hover:bg-muted rounded-lg transition-colors"
+                              >
+                                {t("loadMore", {
+                                  shown: unstagedEntries.length,
+                                  total: unstagedTotal,
+                                })}
+                              </button>
+                            ) : null}
+                          </KanbanColumnShell>
+                        )}
+                      </BoardColumn>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </LayoutGroup>
+        </BoardDragArea>
+      </div>
 
       {canMoveAcrossFunnels && onMoveToFunnel && movingEntry ? (
         <MoveToFunnelDialog

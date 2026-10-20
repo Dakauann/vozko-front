@@ -3,7 +3,6 @@
 import {
   getNodeTypesAction,
   getWorkflowAction,
-  resolveHandlesAction,
 } from "@/app/actions/workflows";
 import { use, useEffect, useState } from "react";
 
@@ -14,6 +13,7 @@ import type {
 } from "@/lib/workflows/types";
 
 import { ScreenLoader } from "@/components/brand/screen-loader";
+import { alertIdFromSearch, nodeIdFromSearch, runIdFromSearch } from "@/lib/workflows/run-format";
 import { WorkflowEditor } from "../_components/workflow-editor";
 import { notFound } from "next/navigation";
 
@@ -30,11 +30,14 @@ interface PageState {
   workflow?: Workflow;
   definitions?: NodeDefinition[];
   initialHandles?: Record<string, HandleDefinition[]>;
+  initialRunId?: string | null;
+  initialAlertId?: string | null;
+  initialNodeId?: string | null;
 }
 
 function PageLoader() {
   return (
-    <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] p-6">
+    <div className="-m-3 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] p-3 sm:-m-6 sm:p-6">
       <ScreenLoader fit="fill" />
     </div>
   );
@@ -71,23 +74,14 @@ export default function EditWorkflowPage({ params }: EditWorkflowPageProps) {
         return;
       }
 
-      const wfNodes = workflowResult.workflow.graph?.nodes ?? [];
-      const { handles: initialHandles } = wfNodes.length
-        ? await resolveHandlesAction(
-            wfNodes.map((n) => ({
-              id: n.id,
-              type: n.type,
-              config: n.config ?? {},
-            })),
-          )
-        : { handles: {} };
-      if (cancelled) return;
-
       setState({
         loading: false,
         workflow: workflowResult.workflow,
         definitions: definitionsResult.definitions,
-        initialHandles,
+        initialHandles: workflowResult.workflow.handles ?? {},
+        initialRunId: runIdFromSearch(window.location.search),
+        initialAlertId: alertIdFromSearch(window.location.search),
+        initialNodeId: nodeIdFromSearch(window.location.search),
       });
     })();
 
@@ -101,18 +95,21 @@ export default function EditWorkflowPage({ params }: EditWorkflowPageProps) {
 
   if (state.error) {
     return (
-      <div className="-m-6 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] items-center justify-center p-6">
+      <div className="-m-3 flex min-h-[calc(100vh_-_var(--dashboard-header-h))] items-center justify-center p-3 sm:-m-6 sm:p-6">
         <p className="text-muted-foreground">{state.error}</p>
       </div>
     );
   }
 
   return (
-    <div className="-m-6">
+    <div className="-m-3 sm:-m-6">
       <WorkflowEditor
         workflow={state.workflow!}
         definitions={state.definitions ?? []}
         initialHandles={state.initialHandles ?? {}}
+        initialRunId={state.initialRunId ?? null}
+        initialAlertId={state.initialAlertId ?? null}
+        initialNodeId={state.initialNodeId ?? null}
         mode="edit"
       />
     </div>

@@ -1,27 +1,15 @@
 "use client";
 
 import { ChatSurface, MessageBubble } from "../message-node-primitives";
+import { templateDisplayName, templateParamLines } from "./node-summary";
 
 export function SendTemplatePreview({
   config,
 }: {
   config: Record<string, unknown>;
 }) {
-  const displayName =
-    (config._display_template_id as string) ||
-    (config.template_name as string) ||
-    (config.template_id as string) ||
-    "";
-
-  const rawParams = config.params;
-  const params =
-    rawParams && typeof rawParams === "object"
-      ? (rawParams as Record<string, unknown>)
-      : {};
-  const paramLines = Object.entries(params)
-    .map(([k, v]) => [k, String(v ?? "").trim()] as const)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `${k}: ${v}`);
+  const displayName = templateDisplayName(config);
+  const paramLines = templateParamLines(config);
 
   return (
     <ChatSurface>

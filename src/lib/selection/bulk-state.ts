@@ -17,7 +17,7 @@ export interface BulkSelectionState {
   counting: WideSelectionMode | null;
 }
 
-type PageHeaderState = "all" | "some" | "none";
+export type PageHeaderState = "all" | "some" | "none";
 
 const NOTHING: ReadonlySet<string> = new Set();
 

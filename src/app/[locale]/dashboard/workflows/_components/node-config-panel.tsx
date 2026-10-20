@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  memo,
   useCallback,
   useContext,
   useEffect,
@@ -39,12 +40,17 @@ import ElevatedSelect, {
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
 import { Slider } from "@/components/ui/slider";
 import { Notice } from "@/components/ui/notice";
-import { TestNodeSection } from "./test-node-section";
+import { TestNodeSection, type TestNodeSeed } from "./test-node-section";
+import { NodeDebugSection, type NodeDebugControls } from "./node-debug-section";
+import { declaredTestBehavior, isTestableBehavior } from "@/lib/workflows/node-test-behavior";
 import { WebhookTriggerConfig } from "./webhook-trigger-config";
 import { VariableCommandInput } from "./variable-command-input";
 import { CodeField } from "./code-field";
+import { AgentCallInputsField, AgentReplyFieldsField, type AgentPickerProps } from "./agent-call-config";
+import { SecretCodeMenu, SecretsManageLink, useSecretVarGroups } from "./secret-picker";
+import { AGENT_CALL_TRIGGER, agentCallTemplateVars } from "@/lib/workflows/agent-call";
 import {
-  ICON_MAP,
+  nodeIconOf,
   CATEGORY_STYLES,
   getCategory,
   type WorkflowNodeData,
@@ -82,6 +88,14 @@ import { HandOffRulesSummary } from "@/components/dashboard/workspace/HandOffRul
 import { normalizeKeyValueMap } from "@/lib/workflows/key-value";
 import { UpdateLeadFieldKeys } from "./update-lead-config";
 import { TemplateButtonBranchField } from "./template-button-branch";
+import { SendFormConfigSection, usePublishedForms } from "./send-form-config";
+import {
+  FORM_SUBMITTED_TRIGGER,
+  FORM_TRIGGER_CONFIG_KEYS,
+  SEND_FORM_CONFIG_KEYS,
+  SEND_FORM_NODE,
+  formTriggerIds,
+} from "@/lib/workflows/form-node";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import type { PipelineObjectType } from "@/lib/crm/pipelines";
 import { listStagesAction } from "@/app/actions/stages";
@@ -101,6 +115,13 @@ import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import type { Media } from "@/lib/medias/types";
 import type { WorkspaceMember } from "@/lib/workspace/types";
 import { fieldRequired, fieldVisible } from "@/lib/workflows/field-rules";
+import {
+  encodeInteractiveListRows,
+  readCanonicalButtons,
+  readCanonicalListRows,
+  type InteractiveListRow,
+} from "@/lib/workflows/interactive-options";
+import { IllegibleOptions } from "./illegible-options";
 
 const PAGINATED_OPTION_SOURCES = new Set([
   "agents",
@@ -216,9 +237,14 @@ interface NodeConfigPanelProps {
   onClose: () => void;
   onConfigChange: (nodeId: string, config: Record<string, unknown>) => void;
   onRenameNode?: (oldId: string, newId: string) => string | null;
+  testSeed?: TestNodeSeed | null;
+  focusDeliveries?: boolean;
+  debug?: NodeDebugControls;
 }
 
-export function NodeConfigPanel({
+export const NodeConfigPanel = memo(NodeConfigPanelView);
+
+function NodeConfigPanelView({
   node,
   workflowId,
   workspaceId,
@@ -229,6 +255,9 @@ export function NodeConfigPanel({
   onClose,
   onConfigChange,
   onRenameNode,
+  testSeed = null,
+  focusDeliveries = false,
+  debug,
 }: NodeConfigPanelProps) {
   const t = useTranslations("workflowsPage");
   const nc = useTranslations("workflows.nodeConfig");
@@ -239,7 +268,7 @@ export function NodeConfigPanel({
 
   const def = definitions.find((d) => d.type === nodeType);
   const iconName = def?.icon ?? data.icon ?? "GitBranch";
-  const IconComp = ICON_MAP[iconName];
+  const IconComp = nodeIconOf(iconName);
   const schema = def?.configSchema ?? [];
   const config = data.config ?? {};
   const ruleConfig = { ...def?.defaultConfig, ...config };
@@ -251,14 +280,17 @@ export function NodeConfigPanel({
     isScheduleMeetingNode ||
     isRescheduleMeetingNode ||
     nodeType === "action_check_calendar_availability";
-  const isTestableNode =
-    !nodeType.startsWith("trigger_") &&
-    nodeType !== "end" &&
-    nodeType !== "group" &&
-    nodeType !== "decoration_background";
+  const isTestableNode = isTestableBehavior(declaredTestBehavior(def));
   const isWebhookTriggerNode = nodeType === "trigger_webhook";
   const isHTTPRequestNode = nodeType === "action_http_request";
   const isSendTemplateNode = nodeType === "action_send_template";
+  const isSendFormNode = nodeType === SEND_FORM_NODE;
+  const isFormTriggerNode = nodeType === FORM_SUBMITTED_TRIGGER;
+  const ownedKeys: readonly string[] = isSendFormNode
+    ? SEND_FORM_CONFIG_KEYS
+    : isFormTriggerNode
+      ? FORM_TRIGGER_CONFIG_KEYS
+      : [];
   const isInteractivePromptNode = isInteractivePromptType(nodeType);
 
   const interactiveReach = useMemo(
@@ -324,9 +356,9 @@ export function NodeConfigPanel({
     useState<WhatsAppTemplate | null>(null);
   const [templateLoading, setTemplateLoading] = useState(false);
 
-  const templateIdField = schema.find(
-    (f) => f.optionsSource === "whatsapp_templates",
-  );
+  const templateIdField = isSendFormNode
+    ? undefined
+    : schema.find((f) => f.optionsSource === "whatsapp_templates");
   const currentTemplateId = templateIdField
     ? ((config[templateIdField.key] as string) ?? "")
     : "";
@@ -568,7 +600,7 @@ export function NodeConfigPanel({
             )}
 
             {isWebhookTriggerNode && (
-              <WebhookTriggerConfig workflowId={workflowId} />
+              <WebhookTriggerConfig workflowId={workflowId} focusDeliveries={focusDeliveries} />
             )}
 
             {isSendTemplateNode && (
@@ -577,6 +609,29 @@ export function NodeConfigPanel({
                 updateField={updateField}
                 nc={nc}
                 selectedTemplate={selectedTemplate}
+              />
+            )}
+
+            {isSendFormNode && (
+              <SendFormConfigSection
+                config={config}
+                onChange={(patch) => onConfigChange(node.id, { ...config, ...patch })}
+                availableVars={availableVars}
+                fallbackTemplate={
+                  <FallbackTemplateField
+                    config={config}
+                    onChange={(value, meta) => updateField("fallback_template_id", value, meta)}
+                    availableVars={availableVars}
+                    workspaceId={workspaceId}
+                  />
+                }
+              />
+            )}
+
+            {isFormTriggerNode && (
+              <FormTriggerConfig
+                config={config}
+                onChange={(patch) => onConfigChange(node.id, { ...config, ...patch })}
               />
             )}
 
@@ -592,13 +647,18 @@ export function NodeConfigPanel({
             )}
 
             {schema.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic">
-                {t("config.noConfig")}
-              </p>
+              ownedKeys.length > 0 ? null : (
+                <p className="text-xs text-muted-foreground italic">
+                  {t("config.noConfig")}
+                </p>
+              )
             ) : (
               schema
                 .filter((f) => {
                   if (!fieldVisible(f, ruleConfig)) {
+                    return false;
+                  }
+                  if (ownedKeys.includes(f.key)) {
                     return false;
                   }
                   if (nodeType === "action_ai_agent") {
@@ -740,11 +800,17 @@ export function NodeConfigPanel({
               </p>
             )}
 
+            {debug && workflowId && (
+              <NodeDebugSection nodeId={node.id} nodeType={nodeType} pin={data.pinned} edges={allEdges} debug={debug} />
+            )}
+
             {isTestableNode && workflowId && (
               <TestNodeSection
-                key={`${workflowId}:${node.id}`}
+                key={`${workflowId}:${node.id}:${testSeed?.id ?? ""}`}
                 workflowId={workflowId}
                 nodeId={node.id}
+                seed={testSeed}
+                onShowPath={debug?.onShowTestPath}
                 disabled={isWorkflowDirty}
                 disabledReason={
                   isWorkflowDirty
@@ -826,7 +892,7 @@ function ConnectionNodeRow({
   const data = node.data as unknown as WorkflowNodeData;
   const def = definitions.find((d) => d.type === data.nodeType);
   const styles = CATEGORY_STYLES[getCategory(data.nodeType)];
-  const IconComp = ICON_MAP[def?.icon ?? data.icon ?? "GitBranch"];
+  const IconComp = nodeIconOf(def?.icon ?? data.icon ?? "GitBranch");
   const label =
     ((data.config?.display_name as string) || "").trim() ||
     def?.label ||
@@ -1130,6 +1196,7 @@ function HTTPRequestConfigSection({
       >,
     [schema],
   );
+  const vars = useSecretVarGroups(availableVars);
   const method = ((config.method as string) ?? "GET").toUpperCase();
   const authType = ((config.auth_type as string) ?? "").trim();
   const showBody = method !== "GET" && method !== "HEAD";
@@ -1149,6 +1216,9 @@ function HTTPRequestConfigSection({
             captura de resposta.
           </p>
         </div>
+        <div className="ml-auto shrink-0">
+          <SecretsManageLink />
+        </div>
       </div>
 
       <div
@@ -1161,13 +1231,13 @@ function HTTPRequestConfigSection({
           field={fieldByKey.method}
           value={config.method}
           onChange={(val, meta) => updateField("method", val, meta)}
-          availableVars={availableVars}
+          availableVars={vars}
         />
         <SchemaField
           field={fieldByKey.url}
           value={config.url}
           onChange={(val, meta) => updateField("url", val, meta)}
-          availableVars={availableVars}
+          availableVars={vars}
         />
       </div>
 
@@ -1182,14 +1252,14 @@ function HTTPRequestConfigSection({
           label={fieldByKey.headers?.label ?? "Headers"}
           value={config.headers}
           onChange={(val, meta) => updateField("headers", val, meta)}
-          availableVars={availableVars}
+          availableVars={vars}
         />
         <KeyValueField
           field={fieldByKey.query_params}
           label={fieldByKey.query_params?.label ?? "Parâmetros de Query"}
           value={config.query_params}
           onChange={(val, meta) => updateField("query_params", val, meta)}
-          availableVars={availableVars}
+          availableVars={vars}
         />
       </div>
 
@@ -1223,13 +1293,13 @@ function HTTPRequestConfigSection({
             field={fieldByKey.auth_type}
             value={config.auth_type}
             onChange={(val, meta) => updateField("auth_type", val, meta)}
-            availableVars={availableVars}
+            availableVars={vars}
           />
           <SchemaField
             field={fieldByKey.timeout_seconds}
             value={config.timeout_seconds}
             onChange={(val, meta) => updateField("timeout_seconds", val, meta)}
-            availableVars={availableVars}
+            availableVars={vars}
           />
         </div>
 
@@ -1245,7 +1315,7 @@ function HTTPRequestConfigSection({
                 field={fieldByKey.auth_user}
                 value={config.auth_user}
                 onChange={(val, meta) => updateField("auth_user", val, meta)}
-                availableVars={availableVars}
+                availableVars={vars}
               />
             )}
             {authType === "api_key" && fieldByKey.auth_key_name && (
@@ -1255,7 +1325,7 @@ function HTTPRequestConfigSection({
                 onChange={(val, meta) =>
                   updateField("auth_key_name", val, meta)
                 }
-                availableVars={availableVars}
+                availableVars={vars}
               />
             )}
             {fieldByKey.auth_token && (
@@ -1263,7 +1333,7 @@ function HTTPRequestConfigSection({
                 field={fieldByKey.auth_token}
                 value={config.auth_token}
                 onChange={(val, meta) => updateField("auth_token", val, meta)}
-                availableVars={availableVars}
+                availableVars={vars}
               />
             )}
           </div>
@@ -1275,7 +1345,7 @@ function HTTPRequestConfigSection({
           field={fieldByKey.body}
           value={config.body}
           onChange={(val, meta) => updateField("body", val, meta)}
-          availableVars={availableVars}
+          availableVars={vars}
         />
       ) : (
         <div className="rounded-[--radius] border border-border bg-mist px-3 py-2 text-2xs text-muted-foreground">
@@ -1288,7 +1358,7 @@ function HTTPRequestConfigSection({
         field={fieldByKey.capture_variable}
         value={config.capture_variable}
         onChange={(val, meta) => updateField("capture_variable", val, meta)}
-        availableVars={availableVars}
+        availableVars={vars}
       />
     </div>
   );
@@ -1577,6 +1647,70 @@ function SendTemplateConfigSection({
   );
 }
 
+function FallbackTemplateField({
+  config,
+  onChange,
+  availableVars,
+  workspaceId,
+}: {
+  config: Record<string, unknown>;
+  onChange: (value: unknown, meta?: Record<string, unknown>) => void;
+  availableVars: VarGroup[];
+  workspaceId?: string | null;
+}) {
+  const t = useTranslations("workflowsPage.sendForm");
+  return (
+    <SchemaField
+      field={{
+        key: "fallback_template_id",
+        label: t("fallbackTemplate"),
+        type: "select",
+        optionsSource: "whatsapp_templates",
+      }}
+      value={config.fallback_template_id}
+      displayValue={(config._display_fallback_template_id as string | undefined) ?? undefined}
+      onChange={onChange}
+      availableVars={availableVars}
+      workspaceId={workspaceId}
+    />
+  );
+}
+
+function FormTriggerConfig({
+  config,
+  onChange,
+}: {
+  config: Record<string, unknown>;
+  onChange: (patch: Record<string, unknown>) => void;
+}) {
+  const t = useTranslations("workflowsPage.formTrigger");
+  const { forms, loading, failed } = usePublishedForms();
+  const selected = formTriggerIds(config);
+  const options = forms.map((item) => ({ value: item.form.id, label: item.form.name }));
+  const known = new Set(options.map((option) => option.value));
+  const saved = selected.filter((id) => !known.has(id)).map((id) => ({ value: id, label: id }));
+  const all = [...options, ...saved];
+
+  const change = (next: string[]) =>
+    onChange({
+      form_ids: next,
+      _display_form_ids: all.filter((option) => next.includes(option.value)).map((option) => option.label).join(", "),
+    });
+
+  return (
+    <div className="space-y-3 rounded-[--radius] border border-border bg-mist p-3" data-testid="form-trigger-config">
+      {loading ? (
+        <p className="text-2xs text-muted-foreground">{t("loading")}</p>
+      ) : all.length === 0 ? (
+        <p className="text-2xs text-muted-foreground">{failed ? t("loadFailed") : t("empty")}</p>
+      ) : (
+        <ToggleChipsField label={t("forms")} options={all} value={selected} onChange={change} />
+      )}
+      <p className="text-2xs text-muted-foreground">{selected.length === 0 ? t("anyFormHint") : t("someFormsHint")}</p>
+    </div>
+  );
+}
+
 const GROUP_BORDER_OPTIONS = [
   { value: "dashed", label: "Tracejado" },
   { value: "dotted", label: "Pontilhado" },
@@ -1792,7 +1926,30 @@ function SchemaField({
     case "expressions":
       return <ExpressionsField value={value} onChange={onChange} />;
     case "code":
-      return <CodeField field={field} value={value} onChange={onChange} />;
+      return (
+        <CodeField
+          field={field}
+          value={value}
+          onChange={onChange}
+          Toolbar={SecretCodeMenu}
+        />
+      );
+    case "agent_call_inputs":
+      return (
+        <AgentCallInputsField
+          value={value}
+          onChange={(inputs) => onChange(inputs)}
+          renderAgentPicker={(picker) => <AgentPickSelect {...picker} />}
+        />
+      );
+    case "agent_reply_fields":
+      return (
+        <AgentReplyFieldsField
+          value={value}
+          onChange={(fields) => onChange(fields)}
+          availableVars={availableVars}
+        />
+      );
     case "select":
       return (
         <div className="space-y-1">
@@ -2136,6 +2293,27 @@ function AIAgentSection({
         </>
       )}
     </div>
+  );
+}
+
+function AgentPickSelect({ value, onChange }: AgentPickerProps) {
+  const nc = useTranslations("workflows.nodeConfig");
+  const t = useTranslations("workflowsPage.agentCall.import");
+  const { options, isLoading, onSearch, onScrollEnd, onOpenChange, error } =
+    usePaginatedConfigOptions("agents");
+  return (
+    <ElevatedCommandSelect
+      label={t("agent")}
+      value={value}
+      onValueChange={(next) => onChange(next)}
+      options={options}
+      searchPlaceholder={nc("searchAgent")}
+      emptyMessage={error ?? getSourceEmptyMessage("agents")}
+      onSearch={onSearch}
+      onScrollEnd={onScrollEnd}
+      onOpenChange={onOpenChange}
+      isLoading={isLoading}
+    />
   );
 }
 
@@ -3441,7 +3619,7 @@ function useInteractiveReach() {
   return useContext(InteractiveReachContext);
 }
 
-function ButtonsField({
+export function ButtonsField({
   value,
   onChange,
 }: {
@@ -3449,21 +3627,11 @@ function ButtonsField({
   onChange: (val: unknown) => void;
 }) {
   const nc = useTranslations("workflows.nodeConfig");
-  const buttons: ButtonItem[] = useMemo(() => {
-    try {
-      const raw = typeof value === "string" ? value : "[]";
-      const parsed = JSON.parse(raw || "[]");
-      if (!Array.isArray(parsed)) return [];
-      return parsed.map((b: Record<string, unknown>) => ({
-        Type: b.Type === "copy_code" ? "copy_code" : "reply",
-        ID: (b.ID as string) ?? "",
-        Title: (b.Title as string) ?? "",
-        CopyCode: (b.CopyCode as string) ?? "",
-      }));
-    } catch {
-      return [];
-    }
-  }, [value]);
+  const stored = useMemo(() => readCanonicalButtons(value), [value]);
+  const buttons: ButtonItem[] = useMemo(
+    () => (stored ?? []).map((b) => ({ ...b, Type: b.Type === "copy_code" ? "copy_code" : "reply" })),
+    [stored],
+  );
 
   const emit = useCallback(
     (updated: ButtonItem[]) => onChange(JSON.stringify(updated)),
@@ -3507,6 +3675,8 @@ function ButtonsField({
 
   const canAddReply = !isFull && !hasCopyCode;
   const canAddCopyCode = buttons.length === 0;
+
+  if (stored === null) return <IllegibleOptions onReset={() => onChange("[]")} />;
 
   return (
     <div className="space-y-2.5">
@@ -3645,13 +3815,9 @@ function ButtonsField({
   );
 }
 
-interface ListRowItem {
-  id: string;
-  title: string;
-  description: string;
-}
+type ListRowItem = InteractiveListRow;
 
-function ListSectionsField({
+export function ListSectionsField({
   value,
   onChange,
 }: {
@@ -3659,31 +3825,12 @@ function ListSectionsField({
   onChange: (val: unknown) => void;
 }) {
   const nc = useTranslations("workflows.nodeConfig");
-  const rows: ListRowItem[] = useMemo(() => {
-    try {
-      const raw = typeof value === "string" ? value : "[]";
-      const parsed = JSON.parse(raw || "[]");
-      if (!Array.isArray(parsed)) return [];
-      const out: ListRowItem[] = [];
-      for (const section of parsed) {
-        const secRows = Array.isArray(section?.rows) ? section.rows : [];
-        for (const r of secRows) {
-          out.push({
-            id: (r?.id as string) ?? "",
-            title: (r?.title as string) ?? "",
-            description: (r?.description as string) ?? "",
-          });
-        }
-      }
-      return out;
-    } catch {
-      return [];
-    }
-  }, [value]);
+  const stored = useMemo(() => readCanonicalListRows(value), [value]);
+  const rows: ListRowItem[] = useMemo(() => stored ?? [], [stored]);
 
   const emit = useCallback(
     (updated: ListRowItem[]) =>
-      onChange(JSON.stringify([{ title: "", rows: updated }])),
+      onChange(encodeInteractiveListRows(updated)),
     [onChange],
   );
 
@@ -3707,6 +3854,8 @@ function ListSectionsField({
     },
     [rows, emit],
   );
+
+  if (stored === null) return <IllegibleOptions onReset={() => onChange("[]")} />;
 
   return (
     <div className="space-y-2.5">
@@ -4108,7 +4257,9 @@ function buildAvailableVariables(
     const varName = hasCustomVar ? captureVar.trim() : null;
 
     const outputKeys = srcDef.outputKeys;
-    if (outputKeys && outputKeys.length > 0) {
+    if (srcData.nodeType === AGENT_CALL_TRIGGER) {
+      vars.push(...agentCallTemplateVars(srcData.config));
+    } else if (outputKeys && outputKeys.length > 0) {
       for (const ok of outputKeys) {
         if (ok.key === "*") continue;
 
@@ -4182,7 +4333,7 @@ function buildAvailableVariables(
       {
         template: "{{channel}}",
         description:
-          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, webchat, voice",
+          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, webchat, mercadolivre, tiktok, voice",
       },
       { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
       { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },

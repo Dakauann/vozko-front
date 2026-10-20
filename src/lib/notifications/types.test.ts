@@ -20,10 +20,11 @@ const item = {
 };
 
 describe("notification wire guards", () => {
-  it("lists the nine categories of the contract in order", () => {
+  it("lists the eleven categories of the contract in the order the server declares them", () => {
     expect(NOTIFICATION_CATEGORIES).toEqual([
       "announcements",
       "campaigns",
+      "conversations",
       "templates",
       "channels",
       "billing",
@@ -31,6 +32,7 @@ describe("notification wire guards", () => {
       "team",
       "support",
       "system",
+      "automations",
     ]);
   });
 

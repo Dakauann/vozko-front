@@ -2,6 +2,8 @@ import type {
     MetaPayer,
     OutcomeCaptureSpec,
     RouletteMode,
+    RouletteRecipient,
+    RouletteStrategy,
     WorkspaceConfig
 } from '@/lib/workspace/workspace-config/types';
 import type { WorkingHoursSpec } from '@/lib/working-hours/types';
@@ -34,6 +36,9 @@ export async function updateWorkspaceConfigAction(
         rouletteLastSeenWindowHours?: number;
         rouletteRescueEnabled?: boolean;
         rouletteRescueAfterMinutes?: number;
+        rouletteStrategy?: RouletteStrategy;
+        rouletteMaxOpenPerMember?: number;
+        rouletteRecipients?: RouletteRecipient[];
         workingHours?: WorkingHoursSpec | null;
         outcomeCapture?: OutcomeCaptureSpec | null;
     }

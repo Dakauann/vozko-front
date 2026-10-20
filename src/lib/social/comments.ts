@@ -1,5 +1,7 @@
 import type { FacebookComment } from '@/lib/facebook/types';
 import type { InstagramComment } from '@/lib/instagram/types';
+import { questionIsOpen } from '@/lib/mercadolivre/questions';
+import type { MercadoLivreQuestion } from '@/lib/mercadolivre/types';
 
 export const PRIVATE_REPLY_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -29,8 +31,8 @@ export interface CommentActionResult {
 
 export interface CommentThreadActions {
     reply: (commentId: string, text: string) => Promise<CommentActionResult>;
-    privateReply: (commentId: string, text: string) => Promise<CommentActionResult>;
-    setHidden: (commentId: string, hidden: boolean) => Promise<CommentActionResult>;
+    privateReply?: (commentId: string, text: string) => Promise<CommentActionResult>;
+    setHidden?: (commentId: string, hidden: boolean) => Promise<CommentActionResult>;
     remove: (commentId: string) => Promise<CommentActionResult>;
     setLiked?: (commentId: string, liked: boolean) => Promise<CommentActionResult>;
     edit?: (commentId: string, text: string) => Promise<CommentActionResult>;
@@ -79,6 +81,31 @@ export function fromFacebookComment(comment: FacebookComment, permissions: Faceb
         canLike: permissions.canModerate && comment.canLike,
         canEdit: permissions.canComment && comment.isOurs && comment.canEdit,
         privateReplyDeadline: comment.privateReply.deadline,
+        replies: [],
+    };
+}
+
+interface MercadoLivreQuestionPermissions {
+    canAnswer: boolean;
+    canModerate: boolean;
+}
+
+export function fromMercadoLivreQuestion(question: MercadoLivreQuestion, permissions: MercadoLivreQuestionPermissions): SocialComment {
+    return {
+        id: question.questionId,
+        author: question.asker?.nickname || null,
+        text: question.text,
+        createdAt: question.askedAt,
+        likeCount: 0,
+        hidden: false,
+        isOurs: false,
+        likedByPage: false,
+        canHide: false,
+        canRemove: permissions.canModerate,
+        canReply: permissions.canAnswer && questionIsOpen(question),
+        canReplyPrivately: false,
+        canLike: false,
+        canEdit: false,
         replies: [],
     };
 }

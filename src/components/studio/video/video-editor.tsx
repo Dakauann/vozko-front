@@ -11,7 +11,8 @@ import { StoreGestures } from "@/components/studio/canvas/live-gesture";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import type { StudioEditorMountProps } from "@/components/studio/studio-editor-shell";
 import { studioVideoTourPalette, studioVideoTourSeed, studioVideoTourSteps } from "@/data/tour-studio-video";
-import { bindKeymap, videoActionFor, type VideoAction } from "@/lib/studio/keymap";
+import { bindKeymap } from "@/lib/keyboard/stroke";
+import { videoActionFor, type VideoAction } from "@/lib/studio/keymap";
 import { videoAssetIds } from "@/lib/studio/media-clips";
 import { previewZoomActionFor, videoExtraActionFor, type PreviewZoomAction, type VideoExtraAction } from "@/lib/studio/video-shortcuts";
 

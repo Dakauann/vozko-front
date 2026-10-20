@@ -5,6 +5,7 @@ export type LaunchCode =
   | "access_revoked"
   | "health_unreadable"
   | "template_not_ready"
+  | "form_not_sendable"
   | "phone_unavailable"
   | "monthly_cap_full"
   | "template_red"

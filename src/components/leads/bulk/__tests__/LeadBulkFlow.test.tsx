@@ -4,7 +4,10 @@ import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
+
+const ptMessages = brandedMessages(rawPtMessages);
 
 const previewLeadActionAction = vi.fn();
 const getLeadActionPreviewAction = vi.fn();

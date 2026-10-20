@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWorkspace } from "@/contexts/workspace-context";
 import { takeBackStreamed, type Streamed } from "@/lib/aichat/retract";
+import {
+  advanceBuilderSession,
+  builderSocketPath,
+  initialBuilderSession,
+} from "@/lib/workflows/builder-session";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
 import {
   createReconnectController,
@@ -95,6 +100,10 @@ export function useWorkflowAIBuilder({
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
 
+  const [session, setSession] = useState(() => initialBuilderSession({ workflowId, workspaceId }));
+  const nextSession = advanceBuilderSession(session, { workflowId, workspaceId });
+  if (nextSession !== session) setSession(nextSession);
+
   const [status, setStatus] = useState<BuilderStatus>("connecting");
   const [chat, setChat] = useState<BuilderChatEntry[]>([]);
   const [issues, setIssues] = useState<BuilderLintIssue[]>([]);
@@ -119,6 +128,8 @@ export function useWorkflowAIBuilder({
   const workflowTypeRef = useRef(workflowType);
   const modelRef = useRef(model);
   const reasoningRef = useRef(reasoning);
+  const workflowIdRef = useRef(workflowId);
+  const workspaceIdRef = useRef(workspaceId);
   useEffect(() => {
     onGraphRef.current = onGraph;
     onMetaRef.current = onMeta;
@@ -126,7 +137,9 @@ export function useWorkflowAIBuilder({
     workflowTypeRef.current = workflowType;
     modelRef.current = model;
     reasoningRef.current = reasoning;
-  }, [onGraph, onMeta, getGraph, workflowType, model, reasoning]);
+    workflowIdRef.current = workflowId;
+    workspaceIdRef.current = workspaceId;
+  }, [onGraph, onMeta, getGraph, workflowType, model, reasoning, workflowId, workspaceId]);
 
   const cleanup = useCallback(() => {
     intentionalRef.current = true;
@@ -148,11 +161,9 @@ export function useWorkflowAIBuilder({
     intentionalRef.current = false;
 
     const params = new URLSearchParams();
-    if (workspaceId) params.set("workspace_id", workspaceId);
+    if (workspaceIdRef.current) params.set("workspace_id", workspaceIdRef.current);
 
-    const path = workflowId
-      ? `/ws/workflows/${encodeURIComponent(workflowId)}/ai-builder`
-      : `/ws/workflows/ai-builder`;
+    const path = builderSocketPath(workflowIdRef.current);
     const ws = new WebSocket(`${WS_BASE_URL}${path}?${params.toString()}`);
     wsRef.current = ws;
 
@@ -361,7 +372,7 @@ export function useWorkflowAIBuilder({
       if (ws !== wsRef.current) return;
       setConnection("reconnecting");
     };
-  }, [workflowId, workspaceId]);
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -375,7 +386,6 @@ export function useWorkflowAIBuilder({
     });
     reconnectRef.current = controller;
     controller.start();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void connect();
     return () => {
       mountedRef.current = false;
@@ -383,7 +393,7 @@ export function useWorkflowAIBuilder({
       cleanup();
       reconnectRef.current = null;
     };
-  }, [connect, cleanup]);
+  }, [connect, cleanup, session.epoch]);
 
   useEffect(() => {
     if (model && wsRef.current?.readyState === WebSocket.OPEN) {

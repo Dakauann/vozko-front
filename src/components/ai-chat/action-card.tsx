@@ -7,11 +7,13 @@ import { ArrowSquareOut, CheckCircle, CircleNotch, Crown, Wallet } from "@/compo
 import {
   FacebookLogoColor,
   InstagramLogoColor,
+  MercadoLivreLogoColor,
   TelegramLogoColor,
   WebchatLogoColor,
   WhatsAppLogoColor,
   WhatsAppUnofficialLogo,
 } from "@/components/icons/channel-logos";
+import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 import { AdReadinessCard } from "@/components/advertising/ad-readiness-card";
 import { ConnectAdAccountCard } from "@/components/advertising/connect-ad-account-card";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -30,6 +32,8 @@ import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
 import type { ActionCard, NavigationCard, OfferCard, OfferKind } from "@/lib/aichat/types";
 import { isScreenKey, pathForScreen } from "@/lib/navigation/routes";
+import { TIKTOK_RESOURCE } from "@/lib/tiktok/channel";
+import { TIKTOK_CONNECT_PATH } from "@/lib/tiktok/connect";
 import { cn } from "@/lib/utils";
 import type { ResourceType } from "@/lib/workspace/types";
 
@@ -67,6 +71,16 @@ const KINDS: Record<OfferKind, KindConfig> = {
     logo: <TelegramLogoColor className="h-6 w-6" />,
     resource: "telegram_accounts",
     href: "/dashboard/telegram-accounts/connect",
+  },
+  connect_mercadolivre: {
+    logo: <MercadoLivreLogoColor className="h-6 w-6" />,
+    resource: "mercadolivre_accounts",
+    href: "/dashboard/mercadolivre-accounts/connect",
+  },
+  connect_tiktok: {
+    logo: <TiktokLogoColor className="h-6 w-6" />,
+    resource: TIKTOK_RESOURCE,
+    href: TIKTOK_CONNECT_PATH,
   },
   create_webchat: {
     logo: <WebchatLogoColor className="h-6 w-6" />,

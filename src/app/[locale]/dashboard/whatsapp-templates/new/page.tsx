@@ -38,6 +38,7 @@ import { TemplateDraftPreview } from "@/components/whatsapp/builder/TemplateDraf
 import { TemplateGuidelines } from "@/components/whatsapp/builder/TemplateGuidelines";
 import { BUILDER_PROBLEMS_ANCHOR, TemplateMessageSection } from "@/components/whatsapp/builder/TemplateMessageSection";
 import { useTemplateDraft } from "@/components/whatsapp/builder/use-template-draft";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { MarketingExitDialog } from "@/components/whatsapp/exit/MarketingExitDialog";
 import { MARKETING_TEMPLATE_NEEDS_EXIT } from "@/lib/whatsapp-templates/exit";
 import { computeParameterFormat, headerMediaOf, toTemplateComponents } from "@/lib/whatsapp-templates/draft";
@@ -85,6 +86,8 @@ export default function NewWhatsAppTemplatePage() {
     initialCategory: "MARKETING",
   });
   const { components, category } = draft;
+  const { can } = useWorkspace();
+  const formButtons = can("whatsapp_forms", "send") ? { query: businessPhoneId ? { phoneId: businessPhoneId } : null } : undefined;
 
   const [failure, setFailure] = useState<{
     title: string;
@@ -443,7 +446,7 @@ export default function NewWhatsAppTemplatePage() {
           </div>
 
           <div className="border-t border-border p-5 sm:p-6">
-            <TemplateMessageSection draft={draft} />
+            <TemplateMessageSection draft={draft} forms={formButtons} />
           </div>
 
           <div className="border-t border-border p-5 sm:p-6">

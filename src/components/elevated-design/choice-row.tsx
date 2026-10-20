@@ -10,12 +10,14 @@ export function ChoiceRow({
   title,
   hint,
   icon,
+  aside,
   disabled,
 }: {
   value: string;
   title: string;
   hint?: ReactNode;
   icon?: ReactNode;
+  aside?: ReactNode;
   disabled?: boolean;
 }) {
   const id = useId();
@@ -27,11 +29,27 @@ export function ChoiceRow({
         disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-muted",
       )}
     >
-      <RadioGroupItem id={id} value={value} disabled={disabled} className="mt-0.5" />
+      <RadioGroupItem
+        id={id}
+        value={value}
+        disabled={disabled}
+        aria-labelledby={`${id}-title`}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+        className="mt-0.5"
+      />
       {icon ? <span className="mt-0.5 text-muted-foreground">{icon}</span> : null}
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-medium text-foreground">{title}</span>
-        {hint ? <span className="block text-xs text-muted-foreground">{hint}</span> : null}
+        <span className="flex items-center gap-1">
+          <span id={`${id}-title`} className="text-sm font-medium text-foreground">
+            {title}
+          </span>
+          {aside}
+        </span>
+        {hint ? (
+          <span id={`${id}-hint`} className="block text-xs text-muted-foreground">
+            {hint}
+          </span>
+        ) : null}
       </span>
     </label>
   );

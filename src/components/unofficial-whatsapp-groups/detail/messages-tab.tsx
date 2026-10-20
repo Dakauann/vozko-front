@@ -12,19 +12,42 @@ import { QuietEmpty } from "../kit/empty";
 import { GroupsPanel } from "../kit/panel";
 import { RelativeTime } from "../kit/relative-time";
 import { useGroupsFormat } from "../kit/use-groups-format";
+import { FeedRefreshButton, GroupMessageFeed } from "./group-message-feed";
+import { useGroupFeed } from "./use-group-feed";
 import type { GroupPermissions } from "./use-group-permissions";
 
 export function MessagesTab({ detail, permissions }: { detail: GroupDetail; permissions: GroupPermissions }) {
   const t = useTranslations("unofficialGroups.detail.messagesTab");
+  const { conversationId } = detail;
+
+  if (!conversationId) {
+    return (
+      <GroupsPanel title={t("title")} subtitle={t("subtitle")}>
+        <QuietEmpty icon={<ChatsCircle />} message={t("noConversation")} />
+      </GroupsPanel>
+    );
+  }
+  return <ConversationMessages detail={detail} conversationId={conversationId} permissions={permissions} />;
+}
+
+function ConversationMessages({
+  detail,
+  conversationId,
+  permissions,
+}: {
+  detail: GroupDetail;
+  conversationId: string;
+  permissions: GroupPermissions;
+}) {
+  const t = useTranslations("unofficialGroups.detail.messagesTab");
   const fmt = useGroupsFormat();
-  const { conversationId, activity } = detail;
+  const feed = useGroupFeed(detail.group.id);
+  const { activity } = detail;
 
   return (
-    <GroupsPanel title={t("title")} subtitle={t("subtitle")}>
-      {!conversationId ? (
-        <QuietEmpty icon={<ChatsCircle />} message={t("noConversation")} />
-      ) : (
-        <div className="space-y-3">
+    <GroupsPanel title={t("title")} subtitle={t("subtitle")} actions={<FeedRefreshButton feed={feed} />}>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <Readout label={t("messages30d")} value={fmt.num(activity.messages)} />
             <span className="inline-flex items-baseline gap-1.5 text-2xs text-muted-foreground">
@@ -32,21 +55,23 @@ export function MessagesTab({ detail, permissions }: { detail: GroupDetail; perm
               <RelativeTime at={activity.lastActivity} className="readout text-xs font-semibold tabular-nums text-foreground" />
             </span>
           </div>
-          <p className="max-w-2xl text-xs leading-relaxed text-foreground">{t("explanation")}</p>
           {permissions.openConversation ? (
-            <Button
-              variant="primary"
-              title={t("open")}
-              link={conversationHref(conversationId, "unofficial_whatsapp")}
-              newTab={false}
-              icon={<ArrowSquareOut className="h-4 w-4" weight="bold" />}
-              iconVisible
-            />
-          ) : (
-            <p className="text-xs text-muted-foreground">{t("noAccess")}</p>
-          )}
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-xs text-muted-foreground">{t("explanation")}</p>
+              <Button
+                variant="primary"
+                size="sm"
+                title={t("open")}
+                link={conversationHref(conversationId, "unofficial_whatsapp")}
+                newTab={false}
+                icon={<ArrowSquareOut className="h-4 w-4" weight="bold" />}
+                iconVisible
+              />
+            </div>
+          ) : null}
         </div>
-      )}
+        <GroupMessageFeed conversationId={conversationId} feed={feed} />
+      </div>
     </GroupsPanel>
   );
 }

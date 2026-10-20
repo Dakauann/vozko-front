@@ -174,6 +174,16 @@ describe("apiClient", () => {
     expect(result.error?.current).toEqual(current);
   });
 
+  it("keeps the details object a refusal carries", async () => {
+    const details = { problems: [{ screen: "s_a", block: "b_a", code: "too_long", limit: 20 }] };
+    fetchMock.mockResolvedValueOnce(jsonResponse(422, { code: "whatsapp_form_invalid", message: "invalid", details }));
+
+    const result = await apiClient("/whatsapp/forms/f-1/publish");
+
+    expect(result.error?.code).toBe("whatsapp_form_invalid");
+    expect(result.error?.details).toEqual(details);
+  });
+
   it("reads the code from the error field when the server sends a coded error with a message", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse(422, { error: "origin_insecure", message: "webchat: origin must use https" }),

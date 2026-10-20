@@ -19,9 +19,25 @@ import { ElevatedSwitch as Switch } from "@/components/elevated-design/elevated-
 import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import type {
   RouletteMode,
+  RouletteStrategy,
   WorkspaceConfig,
 } from "@/lib/workspace/workspace-config/types";
-import { ROULETTE_DEFAULTS, ROULETTE_LIMITS } from "@/lib/workspace/workspace-config/roulette";
+import {
+  ROULETTE_DEFAULTS,
+  choosesFromRecipients,
+  maxOpenOf,
+  recipientsOf,
+  rouletteStrategyOf,
+} from "@/lib/workspace/workspace-config/roulette";
+import {
+  RouletteCapacityRow,
+  RouletteLastSeenSettings,
+  RouletteModePicker,
+  RouletteRecipientsEditor,
+  RouletteStrategyPicker,
+  SettingRow,
+  SettingsSection,
+} from "@/components/dashboard/workspace/RouletteStrategySettings";
 import { updateWorkspaceConfigAction } from "@/app/actions/workspace-config";
 import { WorkingHoursEditor } from "@/components/dashboard/working-hours/WorkingHoursEditor";
 import { useWorkingHoursSummary } from "@/components/dashboard/working-hours/use-working-hours-summary";
@@ -95,9 +111,12 @@ function DistributionConfigCard({
   const t = useTranslations("workspaceSettings");
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [pendingStrategy, setPendingStrategy] = React.useState<RouletteStrategy | null>(null);
 
   const adminsReceive = !(config?.skipAdminAssignment ?? false);
   const mode = config?.rouletteMode ?? ROULETTE_DEFAULTS.mode;
+  const savedStrategy = rouletteStrategyOf(config);
+  const strategy = pendingStrategy ?? savedStrategy;
 
   const handleToggle = async (checked: boolean) => {
     if (!config) return;
@@ -133,6 +152,29 @@ function DistributionConfigCard({
     setSaving(false);
   };
 
+  const handleStrategyChange = async (next: RouletteStrategy) => {
+    if (!config || next === strategy) return;
+    if (choosesFromRecipients(next) && recipientsOf(config).length === 0) {
+      setPendingStrategy(next);
+      return;
+    }
+    setPendingStrategy(null);
+    if (next === savedStrategy) return;
+    setSaving(true);
+    onConfigChange({ ...config, rouletteStrategy: next });
+    const result = await updateWorkspaceConfigAction(workspaceId, {
+      rouletteStrategy: next,
+    });
+    if (result.error || !result.config) {
+      onConfigChange({ ...config, rouletteStrategy: savedStrategy });
+      toast.error(t("roulette.saveError"));
+    } else {
+      onConfigChange(result.config);
+      toast.success(t("roulette.saveSuccess"));
+    }
+    setSaving(false);
+  };
+
   return (
     <ConfigCardShell
       open={open}
@@ -140,117 +182,70 @@ function DistributionConfigCard({
       icon={<UsersThree weight="fill" className="h-4.5 w-4.5" />}
       title={t("distribution.label")}
       description={t("distribution.description")}
-      statusLabel={
-        mode === "last_seen"
-          ? t("roulette.statusLastSeen")
-          : t("roulette.statusOnline")
-      }
-      statusTone={mode === "last_seen" ? "active" : "inactive"}
+      statusLabel={t("roulette.status", {
+        mode: mode === "last_seen" ? t("roulette.statusLastSeen") : t("roulette.statusOnline"),
+        strategy: t(`roulette.strategies.${savedStrategy}.short`),
+      })}
+      statusTone={mode === "last_seen" || savedStrategy !== "round_robin" ? "active" : "inactive"}
     >
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-foreground">
-          {t("roulette.modeLabel")}
-        </p>
-        <div
-          role="radiogroup"
-          aria-label={t("roulette.modeLabel")}
-          className="grid gap-2 sm:grid-cols-2"
-        >
-          <RouletteModeOption
-            selected={mode === "online"}
-            disabled={saving || !config}
-            title={t("roulette.onlineLabel")}
-            description={t("roulette.onlineHint")}
-            onSelect={() => handleModeChange("online")}
+      <SettingsSection title={t("roulette.modeLabel")} hint={t("roulette.modeHint")}>
+        <RouletteModePicker mode={mode} disabled={saving || !config} onPick={handleModeChange} />
+        {mode === "last_seen" ? (
+          <RouletteLastSeenSettings
+            key={rouletteSettingsKey(config)}
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
           />
-          <RouletteModeOption
-            selected={mode === "last_seen"}
-            disabled={saving || !config}
-            title={t("roulette.lastSeenLabel")}
-            description={t("roulette.lastSeenHint")}
-            onSelect={() => handleModeChange("last_seen")}
+        ) : null}
+      </SettingsSection>
+
+      <SettingsSection title={t("roulette.strategyLabel")} hint={t("roulette.strategyHint")}>
+        <RouletteStrategyPicker strategy={strategy} disabled={saving || !config} onPick={handleStrategyChange} />
+        {strategy === "priority" || strategy === "weighted" ? (
+          <RouletteRecipientsEditor
+            key={`${strategy}|${recipientsKey(config)}`}
+            workspaceId={workspaceId}
+            config={config}
+            strategy={strategy}
+            pending={pendingStrategy !== null}
+            onConfigChange={onConfigChange}
+            onSaved={() => setPendingStrategy(null)}
+          />
+        ) : null}
+      </SettingsSection>
+
+      <SettingsSection title={t("roulette.generalLabel")} hint={t("roulette.generalHint")}>
+        <div className="divide-y divide-border">
+          <RouletteCapacityRow
+            key={`capacity|${maxOpenOf(config)}`}
+            workspaceId={workspaceId}
+            config={config}
+            onConfigChange={onConfigChange}
+          />
+          <SettingRow
+            label={t("skipAdminAssignment.enableLabel")}
+            hint={t("skipAdminAssignment.enableHint")}
+            explainer="settings.adminsInRoulette"
+            control={
+              <Switch
+                checked={adminsReceive}
+                onCheckedChange={handleToggle}
+                disabled={saving || !config}
+                aria-label={t("skipAdminAssignment.enableLabel")}
+              />
+            }
           />
         </div>
-      </div>
-
-      <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
-        <div className="pr-4 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-medium text-foreground">
-              {t("skipAdminAssignment.enableLabel")}
-            </p>
-            <ExplainerHint id="settings.adminsInRoulette" />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {t("skipAdminAssignment.enableHint")}
-          </p>
-        </div>
-        <Switch
-          checked={adminsReceive}
-          onCheckedChange={handleToggle}
-          disabled={saving || !config}
-          aria-label={t("skipAdminAssignment.enableLabel")}
-        />
-      </div>
-
-      {mode === "last_seen" ? (
-        <RouletteLastSeenSettings
-          key={rouletteSettingsKey(config)}
-          workspaceId={workspaceId}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-      ) : null}
+      </SettingsSection>
     </ConfigCardShell>
   );
 }
 
-function RouletteModeOption({
-  selected,
-  disabled,
-  title,
-  description,
-  onSelect,
-}: {
-  selected: boolean;
-  disabled: boolean;
-  title: string;
-  description: string;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      disabled={disabled}
-      onClick={onSelect}
-      className={cn(
-        "rounded-[--radius] border px-4 py-3 text-left transition-colors",
-        "disabled:cursor-not-allowed disabled:opacity-60",
-        selected
-          ? "border-primary bg-primary text-primary-foreground shadow-button-primary"
-          : "border-border bg-card hover:border-primary/50",
-      )}
-    >
-      <p
-        className={cn(
-          "text-sm font-medium",
-          selected ? "text-primary-foreground" : "text-foreground",
-        )}
-      >
-        {title}
-      </p>
-      <p
-        className={cn(
-          "mt-0.5 text-xs",
-          selected ? "text-primary-foreground/85" : "text-muted-foreground",
-        )}
-      >
-        {description}
-      </p>
-    </button>
-  );
+function recipientsKey(config: WorkspaceConfig | null) {
+  return recipientsOf(config)
+    .map((r) => `${r.userId}:${r.tier}:${r.weight}`)
+    .join(",");
 }
 
 function rouletteSettingsKey(config: WorkspaceConfig | null) {
@@ -260,172 +255,6 @@ function rouletteSettingsKey(config: WorkspaceConfig | null) {
     config.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled,
     config.rouletteRescueAfterMinutes ?? ROULETTE_DEFAULTS.rescueMinutes,
   ].join("|");
-}
-
-function RouletteLastSeenSettings({
-  workspaceId,
-  config,
-  onConfigChange,
-}: WorkspaceConfigTabProps) {
-  const t = useTranslations("workspaceSettings");
-  const [saving, setSaving] = React.useState(false);
-  const [windowHours, setWindowHours] = React.useState(
-    config?.rouletteLastSeenWindowHours ?? ROULETTE_DEFAULTS.windowHours,
-  );
-  const [rescueOn, setRescueOn] = React.useState(
-    config?.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled,
-  );
-  const [rescueMinutes, setRescueMinutes] = React.useState(
-    config?.rouletteRescueAfterMinutes ?? ROULETTE_DEFAULTS.rescueMinutes,
-  );
-
-  const dirty =
-    !!config &&
-    ((config.rouletteLastSeenWindowHours ?? ROULETTE_DEFAULTS.windowHours) !==
-      windowHours ||
-      (config.rouletteRescueEnabled ?? ROULETTE_DEFAULTS.rescueEnabled) !==
-        rescueOn ||
-      (config.rouletteRescueAfterMinutes ?? ROULETTE_DEFAULTS.rescueMinutes) !==
-        rescueMinutes);
-
-  const clamp = (raw: string, min: number, max: number, fallback: number) => {
-    const n = Math.round(Number(raw));
-    if (!Number.isFinite(n)) return fallback;
-    return Math.min(max, Math.max(min, n));
-  };
-
-  const handleSave = async () => {
-    const w = clamp(
-      String(windowHours),
-      ROULETTE_LIMITS.window.min,
-      ROULETTE_LIMITS.window.max,
-      ROULETTE_DEFAULTS.windowHours,
-    );
-    const m = clamp(
-      String(rescueMinutes),
-      ROULETTE_LIMITS.rescue.min,
-      ROULETTE_LIMITS.rescue.max,
-      ROULETTE_DEFAULTS.rescueMinutes,
-    );
-    setWindowHours(w);
-    setRescueMinutes(m);
-    setSaving(true);
-    const result = await updateWorkspaceConfigAction(workspaceId, {
-      rouletteLastSeenWindowHours: w,
-      rouletteRescueEnabled: rescueOn,
-      rouletteRescueAfterMinutes: m,
-    });
-    if (result.error || !result.config) {
-      toast.error(result.error ?? t("roulette.saveError"));
-    } else {
-      onConfigChange(result.config);
-      toast.success(t("roulette.saveSuccess"));
-    }
-    setSaving(false);
-  };
-
-  return (
-    <div className="space-y-4 rounded-[--radius] border border-border p-4">
-      <label className="block">
-        <span className="mb-1.5 block text-sm font-medium text-foreground">
-          {t("roulette.windowLabel")}
-        </span>
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="number"
-            min={ROULETTE_LIMITS.window.min}
-            max={ROULETTE_LIMITS.window.max}
-            value={windowHours}
-            onChange={(e) =>
-              setWindowHours(
-                clamp(
-                  e.target.value,
-                  ROULETTE_LIMITS.window.min,
-                  ROULETTE_LIMITS.window.max,
-                  ROULETTE_DEFAULTS.windowHours,
-                ),
-              )
-            }
-            className="w-28 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-          />
-          <span className="text-xs text-muted-foreground">
-            {t("roulette.hoursUnit")}
-          </span>
-        </div>
-        <span className="mt-1 block text-2xs text-muted-foreground">
-          {t("roulette.windowHint")}
-        </span>
-      </label>
-
-      <div className="flex items-center justify-between gap-4 rounded-[--radius] border border-border px-4 py-3">
-        <div className="pr-4 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-medium text-foreground">
-              {t("roulette.rescueLabel")}
-            </p>
-            <ExplainerHint id="settings.rouletteRescue" />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {t("roulette.rescueHint")}
-          </p>
-        </div>
-        <Switch
-          checked={rescueOn}
-          onCheckedChange={setRescueOn}
-          aria-label={t("roulette.rescueLabel")}
-        />
-      </div>
-
-      <div className={cn("space-y-2", !rescueOn && "opacity-50")}>
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("roulette.rescueMinutesLabel")}
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              type="number"
-              min={ROULETTE_LIMITS.rescue.min}
-              max={ROULETTE_LIMITS.rescue.max}
-              value={rescueMinutes}
-              disabled={!rescueOn}
-              onChange={(e) =>
-                setRescueMinutes(
-                  clamp(
-                    e.target.value,
-                    ROULETTE_LIMITS.rescue.min,
-                    ROULETTE_LIMITS.rescue.max,
-                    ROULETTE_DEFAULTS.rescueMinutes,
-                  ),
-                )
-              }
-              className="w-28 rounded-[--radius] border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary disabled:cursor-not-allowed"
-            />
-            <span className="text-xs text-muted-foreground">
-              {t("roulette.minutesUnit")}
-            </span>
-          </div>
-          <span className="mt-1 block text-2xs text-muted-foreground">
-            {t("roulette.rescueMinutesHint")}
-          </span>
-        </label>
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          size="sm"
-          onClick={handleSave}
-          disabled={!dirty || saving || !config}
-        >
-          {saving ? (
-            <CircleNotch weight="bold" className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <FloppyDisk weight="fill" className="mr-1.5 h-4 w-4" />
-          )}
-          {t("roulette.save")}
-        </Button>
-      </div>
-    </div>
-  );
 }
 
 

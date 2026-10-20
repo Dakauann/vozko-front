@@ -4,7 +4,7 @@ import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const HELD_BY_OTHER = "customer_portfolio_held_by_other";
 
-export type PortfolioContactChannel = "unofficial_whatsapp" | "telegram" | "instagram" | "facebook" | "webchat";
+export type PortfolioContactChannel = "unofficial_whatsapp" | "telegram" | "instagram" | "facebook" | "webchat" | "mercadolivre" | "tiktok";
 
 export type PortfolioSubject =
   | { kind: "lead"; leadId: string }
@@ -64,7 +64,16 @@ interface HeldByOther {
   holderName: string;
 }
 
-const CONTACT_CHANNELS: readonly string[] = ["unofficial_whatsapp", "telegram", "instagram", "facebook", "webchat"];
+const CONTACT_CHANNEL_SET: Record<PortfolioContactChannel, true> = {
+  unofficial_whatsapp: true,
+  telegram: true,
+  instagram: true,
+  facebook: true,
+  webchat: true,
+  mercadolivre: true,
+  tiktok: true,
+};
+const CONTACT_CHANNELS: readonly string[] = Object.keys(CONTACT_CHANNEL_SET);
 
 function isContactChannel(value: unknown): value is PortfolioContactChannel {
   return typeof value === "string" && CONTACT_CHANNELS.includes(value);

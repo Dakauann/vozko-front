@@ -3,41 +3,17 @@
 import type {
   ActiveConversation,
   ConversationMessage,
-  EntryTemplateInfo,
   EntryType,
   InboxEntryLabel,
   Label,
   Stage,
-  TemplateMessageMetadata,
 } from "@/lib/conversations/types";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CircuitBoard } from "@/components/brand/circuit";
 import { LightPool } from "@/components/brand/light-pool";
+import { ArrowDown, Image as ImageIcon } from "@/components/icons";
 import {
-  ArrowBendUpLeft,
-  ArrowDown,
-  ArrowUp,
-  ArrowsLeftRight,
-  Bookmark,
-  CaretDown,
-  ChatText,
-  Check,
-  CheckCircle,
-  Checks,
-  Hash,
-  Image as ImageIcon,
-  Info,
-  MagnifyingGlass,
-  Phone,
-  PhoneCall,
-  Tag as TagIcon,
-  User,
-  Warning as WarningIcon,
-  WhatsappLogo,
-  Wrench,
-  X,
-} from "@/components/icons";
-import {
+  Fragment,
   useCallback,
   useEffect,
   useMemo,
@@ -45,865 +21,92 @@ import {
   useState,
 } from "react";
 import { useThreadAnchor } from "@/hooks/use-thread-anchor";
+import { useLiveAnnouncement } from "@/hooks/use-live-announcement";
+import { useShortcuts } from "@/hooks/use-shortcuts";
+import { useMessageActions } from "@/hooks/use-message-actions";
+import { startEditing, stopEditing, useEditingMessage } from "@/hooks/use-message-editing";
+import { useConversationNotes } from "@/hooks/use-conversation-notes";
+import { useConversationToolCalls } from "@/hooks/use-conversation-tool-calls";
+import { useConversationPresence } from "@/hooks/use-conversation-presence";
+import { visibleNotes } from "@/lib/conversations/notes";
+import { latestAutomationMessageId, visibleToolCalls } from "@/lib/conversations/agent-tool-calls";
+import { windowKey } from "@/lib/conversations/window-deck";
 
 import type { AgentToolDefinition } from "@/lib/agents/types";
-import {
-  isOutgoingMessage,
-  senderBadge,
-} from "@/lib/conversations/direction";
-
-import { ChannelAvatar } from "@/components/channels/channel-avatar";
-import {
-  isLikeSticker,
-  metaPrefix,
-  readLinkShare,
-  readPostShare,
-  readPostback,
-  readReaction,
-  readReferral,
-  readSentVia,
-  readStickerId,
-  readStory,
-} from "@/lib/conversations/meta-metadata";
-import {
-  LikeSticker,
-  PostbackChip,
-  ReactionChip,
-  ReferralChip,
-  SentViaBadge,
-  SharedLinkCard,
-  StickerPlaceholder,
-  StoryCard,
-  UnsupportedNotice,
-} from "@/components/crm/MetaMessageParts";
 import ConversationAnalysisPanel from "@/components/crm/ConversationAnalysisPanel";
-import { EmptyValue } from "@/components/elevated-design/empty-value";
 import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 import type { FunnelStages } from "@/app/actions/stages";
-import { MessageMedia } from "./message-media";
 import { AdOriginBanner } from "./ad-origin-banner";
-import FormattedMessageText from "@/components/ui/formatted-message-text";
-import TemplateBubble from "@/components/crm/TemplateBubble";
-import { LocationMessageCard } from "@/components/crm/LocationMessageCard";
-import TooltipWrapper from "@/components/ui/tooltip-wrapper";
-import {
-  deliveryErrorFrom,
-  deliveryErrorKey,
-} from "@/lib/conversations/delivery-errors";
+import { MercadoLivreSaleSummary } from "@/components/mercadolivre/mercadolivre-sale-summary";
 import { cn } from "@/lib/utils";
 import { getAgentToolsAction } from "@/app/actions/agents";
 import { useTranslations } from "next-intl";
 import type { LiveRead } from "@/lib/live-decisions/types";
+import { ScreenLoader } from "@/components/brand/screen-loader";
+import { idleArrivals, trackArrivals } from "@/lib/conversations/live-arrivals";
+import { stateTransition } from "@/lib/motion/tokens";
+import { buildThreadRows, daySections } from "@/lib/conversations/thread-rows";
+import { noUnreadBoundary, trackUnreadBoundary } from "@/lib/conversations/unread-boundary";
+import { holdThread, noThreadHold } from "@/lib/conversations/thread-hold";
+import { countUnseen } from "@/lib/conversations/scroll-anchor";
+import { galleryItems } from "@/lib/conversations/media-gallery";
+import type { Announcement } from "@/lib/conversations/live-announcement";
+import type { HistoryAnchor } from "@/lib/conversations/history-anchor";
+import { emptyOutbox, pendingBubbles, resendingMessageIds, type Outbox } from "@/lib/conversations/outbox";
+import { foldResent, withPendingBubbles } from "@/lib/conversations/thread-merge";
+import { toolDisplayName, type ToolDefinitionByName } from "@/lib/conversations/tool-events";
+import { useAgentNamesById } from "@/app/[locale]/dashboard/workflows/_components/run-bits";
+import { ThreadRowProvider, useThreadToolCopy, type ThreadRowContextValue } from "./thread/thread-context";
+import { ThreadRowView } from "./thread/ThreadRowView";
+import { AgentToolCallNamesProvider, AgentToolCallsLoadError, type AgentToolCallNames } from "./thread/AgentToolCallRow";
+import { EntryMetadataPanel } from "./thread/EntryMetadataPanel";
+import { LabelControl, SearchTrigger, StageControl } from "./thread/ThreadControls";
+import { ThreadSearchBar } from "./thread/ThreadSearchBar";
+import { MediaGalleryProvider } from "./thread/MediaGallery";
+import { TypingIndicator } from "./thread/message-parts";
 
+const NO_MESSAGES: ConversationMessage[] = [];
+const NO_IDS: ReadonlySet<string> = new Set();
+const JUMP_FLASH_MS = 2000;
+const DEEP_LINK_FLASH_MS = 2500;
+const NEWER_PAGE_DISTANCE_PX = 60;
 
-function formatMessageTime(isoDate: string): string {
-  const date = new Date(isoDate);
-  if (Number.isNaN(date.getTime())) return "--:--";
-  return new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+type FlashTone = "warning" | "info";
+
+const FLASH_CLASSES: Record<FlashTone, string[]> = {
+  warning: ["ring-2", "ring-warning", "ring-offset-1"],
+  info: ["ring-2", "ring-info", "ring-offset-1"],
+};
+
+interface JumpTarget {
+  id: string;
+  tone: FlashTone;
+  aroundRequested: boolean;
 }
 
-function formatDateGroup(isoDate: string): string {
-  const date = new Date(isoDate);
-  if (Number.isNaN(date.getTime())) return isoDate || "-";
+type PagingDirection = "older" | "newer" | null;
 
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (date.toDateString() === today.toDateString()) return "Hoje";
-  if (date.toDateString() === yesterday.toDateString()) return "Ontem";
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+interface DeepLink {
+  timestamp: string;
+  revealed: boolean;
+  aroundRequested: boolean;
 }
 
-function groupMessagesByDate(messages: ConversationMessage[]) {
-  const groups: { date: string; messages: ConversationMessage[] }[] = [];
-  let currentDate = "";
-
-  for (const msg of messages) {
-    const parsed = new Date(msg.created_at);
-    const dateStr = Number.isNaN(parsed.getTime())
-      ? (msg.created_at ?? "unknown")
-      : parsed.toDateString();
-    if (dateStr !== currentDate) {
-      currentDate = dateStr;
-      groups.push({ date: msg.created_at, messages: [msg] });
-    } else {
-      groups[groups.length - 1].messages.push(msg);
-    }
-  }
-
-  return groups;
+function flashElement(element: Element, tone: FlashTone, durationMs: number, done?: () => void) {
+  element.classList.add(...FLASH_CLASSES[tone]);
+  setTimeout(() => {
+    element.classList.remove(...FLASH_CLASSES[tone]);
+    done?.();
+  }, durationMs);
 }
 
-function groupMessagesByChannel(messages: ConversationMessage[]) {
-  const runs: { channel: string; messages: ConversationMessage[] }[] = [];
-  for (const msg of messages) {
-    const msgType =
-      msg.message_type ??
-      (msg as unknown as { messageType?: string }).messageType;
-    if (msgType === "system") {
-      runs.push({ channel: "__system__", messages: [msg] });
-      continue;
-    }
-    const ch =
-      msg.channel ?? (msg as unknown as { channel?: string }).channel ?? "";
-    if (
-      runs.length === 0 ||
-      runs[runs.length - 1].channel !== ch ||
-      runs[runs.length - 1].channel === "__system__"
-    ) {
-      runs.push({ channel: ch, messages: [msg] });
-    } else {
-      runs[runs.length - 1].messages.push(msg);
-    }
-  }
-  return runs;
+function findMessageElement(container: HTMLElement, id: string): Element | null {
+  return container.querySelector(`[data-msg-id="${CSS.escape(id)}"]`);
 }
 
-type ToolEventKind = "call" | "result";
-
-interface ToolEventInfo {
-  kind: ToolEventKind;
-  toolName?: string;
-  title: string;
-  subtitle: string;
-  detail: string;
-  raw: string;
+function threadKeyOf(conversation: ActiveConversation | null): string | null {
+  return conversation ? `${conversation.entry_type}:${conversation.entry_id}` : null;
 }
-
-type ToolDefinitionByName = Map<string, AgentToolDefinition>;
-
-function getMessageType(msg: ConversationMessage): string | undefined {
-  return (
-    msg.message_type ?? (msg as unknown as { messageType?: string }).messageType
-  );
-}
-
-function getToolEventKind(
-  messageType: string | undefined,
-  text?: string,
-): ToolEventKind | null {
-  const trimmedText = text?.trim() ?? "";
-  if (messageType === "tool_call" || trimmedText.startsWith("[Tool Call]")) {
-    return "call";
-  }
-  if (
-    messageType === "tool_result" ||
-    trimmedText.startsWith("[Tool Result]")
-  ) {
-    return "result";
-  }
-  return null;
-}
-
-function isToolMessage(msg: ConversationMessage | null | undefined): boolean {
-  if (!msg) return false;
-  return getToolEventKind(getMessageType(msg), msg.text) !== null;
-}
-
-function stripToolPrefix(text: string): string {
-  return text.replace(/^\[Tool (?:Call|Result)\]\s*/i, "").trim();
-}
-
-function humanizeIdentifier(value?: string): string {
-  const normalized = value?.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
-  if (!normalized) return "Ferramenta";
-  return normalized.replace(/^./, (char) => char.toUpperCase());
-}
-
-function getToolDisplayName(
-  toolName: string | undefined,
-  toolDefinitions: ToolDefinitionByName,
-): string {
-  if (!toolName) return "Ferramenta";
-  const definition = toolDefinitions.get(toolName);
-  return definition?.displayName?.trim() || humanizeIdentifier(toolName);
-}
-
-function truncateText(text: string, maxLength: number): string {
-  const normalized = text.replace(/\s+/g, " ").trim();
-  if (normalized.length <= maxLength) return normalized;
-  return `${normalized.slice(0, maxLength - 1).trimEnd()}...`;
-}
-
-function cleanToolValue(value: string): string {
-  return value
-    .replace(/\\"/g, '"')
-    .replace(/^map\[/, "")
-    .replace(/\]$/, "")
-    .replace(/^["'`]+|["'`]+$/g, "")
-    .trim();
-}
-
-function formatToolValue(value: string): string {
-  const cleaned = cleanToolValue(value);
-  if (!cleaned) return "";
-  if (/^https?:\/\//i.test(cleaned)) return truncateText(cleaned, 64);
-  if (/^[a-f0-9-]{16,}$/i.test(cleaned)) return truncateText(cleaned, 18);
-  return truncateText(cleaned, 72);
-}
-
-function parseToolMessageBody(kind: ToolEventKind, text: string) {
-  const body = stripToolPrefix(text);
-
-  if (kind === "call") {
-    const match = body.match(/^([a-zA-Z0-9_.-]+)(?::|\s|$)\s*([\s\S]*)$/);
-    return {
-      toolName: match?.[1],
-      payload: match?.[2]?.trim() ?? "",
-      body,
-    };
-  }
-
-  const resultWithToolName = body.match(/^([a-zA-Z0-9_.-]+)\s*:\s*([\s\S]*)$/);
-  return {
-    toolName: resultWithToolName?.[1],
-    payload: resultWithToolName?.[2]?.trim() ?? body,
-    body,
-  };
-}
-
-function parseToolArguments(payload: string): Record<string, string> {
-  const trimmedPayload = payload.trim();
-  if (!trimmedPayload) return {};
-
-  if (trimmedPayload.startsWith("{") && trimmedPayload.endsWith("}")) {
-    try {
-      const parsed = JSON.parse(trimmedPayload) as unknown;
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        return Object.entries(parsed as Record<string, unknown>).reduce<
-          Record<string, string>
-        >((acc, [key, value]) => {
-          if (value === null || value === undefined) return acc;
-          acc[key] =
-            typeof value === "string" ? value : JSON.stringify(value, null, 0);
-          return acc;
-        }, {});
-      }
-    } catch {
-    }
-  }
-
-  const mapBody = cleanToolValue(trimmedPayload).replace(/^map\[/, "");
-  const entries = [
-    ...mapBody.matchAll(
-      /(?:^|\s)([a-zA-Z0-9_.-]+):([\s\S]*?)(?=\s+[a-zA-Z0-9_.-]+:|$)/g,
-    ),
-  ];
-
-  return entries.reduce<Record<string, string>>((acc, match) => {
-    const key = match[1]?.trim();
-    const value = cleanToolValue(match[2] ?? "");
-    if (!key || !value) return acc;
-    acc[key] = value;
-    return acc;
-  }, {});
-}
-
-function isTechnicalArgumentKey(key: string): boolean {
-  return (
-    key.startsWith("__") ||
-    key === "id" ||
-    key.endsWith("_id") ||
-    key.endsWith("Id") ||
-    key.includes("token") ||
-    key.includes("secret")
-  );
-}
-
-function getParameterDisplayName(
-  definition: AgentToolDefinition | undefined,
-  key: string,
-): string {
-  return (
-    definition?.parameters?.[key]?.displayName?.trim() ||
-    humanizeIdentifier(key)
-  );
-}
-
-function summarizeToolCall(
-  definition: AgentToolDefinition | undefined,
-  payload: string,
-) {
-  const parsedArguments = parseToolArguments(payload);
-  const argumentEntries = Object.entries(parsedArguments);
-
-  if (argumentEntries.length) {
-    const orderedKeys = [
-      ...Object.keys(definition?.parameters ?? {}).filter(
-        (key) => parsedArguments[key],
-      ),
-      ...Object.keys(parsedArguments).filter(
-        (key) => !(key in (definition?.parameters ?? {})),
-      ),
-    ];
-
-    const visibleKeys = orderedKeys.filter(
-      (key) => !isTechnicalArgumentKey(key),
-    );
-    const keysToRender = (visibleKeys.length ? visibleKeys : orderedKeys).slice(
-      0,
-      2,
-    );
-    if (keysToRender.length) {
-      return keysToRender
-        .map(
-          (key) =>
-            `${getParameterDisplayName(definition, key)}: ${formatToolValue(
-              parsedArguments[key],
-            )}`,
-        )
-        .join(" · ");
-    }
-  }
-
-  const cleanedPayload = truncateText(cleanToolValue(payload), 120);
-  return cleanedPayload || "Executando ação automatizada";
-}
-
-function summarizeToolResult(payload: string): string {
-  const cleaned = cleanToolValue(payload);
-  if (!cleaned) return "Execução concluída";
-
-  const imageSentMatch = cleaned.match(/image sent successfully to\s+(\d+)/i);
-  if (imageSentMatch?.[1]) {
-    return `Imagem enviada para ${imageSentMatch[1]}`;
-  }
-
-  try {
-    const parsed = JSON.parse(cleaned) as unknown;
-    if (parsed && typeof parsed === "object") {
-      const resultObject = parsed as Record<string, unknown>;
-      const readableField = [
-        resultObject.message,
-        resultObject.status,
-        resultObject.result,
-        resultObject.error,
-      ].find((value): value is string => typeof value === "string");
-      if (readableField)
-        return truncateText(cleanToolValue(readableField), 120);
-    }
-  } catch {
-  }
-
-  return truncateText(cleaned, 120);
-}
-
-function getToolEventInfo(
-  msg: ConversationMessage,
-  toolDefinitions: ToolDefinitionByName,
-  relatedToolName?: string,
-): ToolEventInfo | null {
-  const kind = getToolEventKind(getMessageType(msg), msg.text);
-  if (!kind) return null;
-
-  const raw = msg.text ?? "";
-  const parsed = parseToolMessageBody(kind, raw);
-  const toolName = parsed.toolName ?? relatedToolName;
-  const definition = toolName ? toolDefinitions.get(toolName) : undefined;
-  const displayName = getToolDisplayName(toolName, toolDefinitions);
-  const detail =
-    kind === "call"
-      ? summarizeToolCall(definition, parsed.payload)
-      : summarizeToolResult(parsed.payload);
-
-  return {
-    kind,
-    toolName,
-    title: kind === "call" ? displayName : "Resultado",
-    subtitle: kind === "call" ? "Ação do agente" : "Retorno da ação",
-    detail,
-    raw,
-  };
-}
-
-
-const MESSAGE_COLLAPSE_LIMIT = 500;
-
-function CollapsibleMessageText({ text }: { text: string }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const shouldCollapse = text.length > MESSAGE_COLLAPSE_LIMIT;
-
-  if (!shouldCollapse) {
-    return (
-      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-        <FormattedMessageText>{text}</FormattedMessageText>
-      </p>
-    );
-  }
-
-  const displayedText = isExpanded
-    ? text
-    : text.slice(0, MESSAGE_COLLAPSE_LIMIT).trimEnd() + "...";
-
-  return (
-    <div className="text-sm leading-relaxed">
-      <p className="whitespace-pre-wrap break-words">
-        <FormattedMessageText>{displayedText}</FormattedMessageText>
-      </p>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(!isExpanded);
-        }}
-        className="mt-1 text-xs font-medium text-primary-ink hover:text-primary-ink hover:underline transition-colors"
-      >
-        {isExpanded ? "Ler menos" : "Ler mais"}
-      </button>
-    </div>
-  );
-}
-
-
-
-function FailedReceipt({ metadata }: { metadata?: unknown }) {
-  const t = useTranslations("crmConversation");
-  const failure = deliveryErrorFrom(metadata);
-  const key = deliveryErrorKey(failure?.code);
-
-  const reason = key
-    ? t(`deliveryError.${key}`)
-    : failure?.message || t("deliveryError.unknown");
-
-  const tooltip = failure?.code
-    ? `${t("deliveryError.title")}: ${reason} (${t("deliveryError.code", { code: failure.code })})`
-    : `${t("deliveryError.title")}: ${reason}`;
-
-  return (
-    <TooltipWrapper content={tooltip}>
-      <span
-        tabIndex={0}
-        role="img"
-        aria-label={reason}
-        className="inline-flex cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
-      >
-        <WarningIcon
-          weight="fill"
-          className="h-3.5 w-3.5 flex-shrink-0 text-destructive-ink"
-        />
-      </span>
-    </TooltipWrapper>
-  );
-}
-
-function ReadReceipt({
-  read,
-  deliveryStatus,
-  metadata,
-}: {
-  read: boolean;
-  deliveryStatus?: string;
-  metadata?: unknown;
-}) {
-  if (deliveryStatus) {
-    switch (deliveryStatus) {
-      case "failed":
-        return <FailedReceipt metadata={metadata} />;
-      case "read":
-        return (
-          <Checks
-            weight="bold"
-            className="h-3.5 w-3.5 flex-shrink-0 text-info-ink"
-          />
-        );
-      case "delivered":
-        return (
-          <Checks
-            weight="bold"
-            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
-          />
-        );
-      case "sent":
-        return (
-          <Check
-            weight="bold"
-            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
-          />
-        );
-      default:
-        return (
-          <Check
-            weight="bold"
-            className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground"
-          />
-        );
-    }
-  }
-
-  return (
-    <Checks
-      weight="bold"
-      className={cn(
-        "h-3.5 w-3.5 flex-shrink-0",
-        read ? "text-info-ink" : "text-muted-foreground",
-      )}
-    />
-  );
-}
-
-
-const SKELETON_BUBBLES: { side: "in" | "out"; width: string; height: string }[] =
-  [
-    { side: "in", width: "44%", height: "2.25rem" },
-    { side: "in", width: "62%", height: "3.5rem" },
-    { side: "out", width: "52%", height: "2.25rem" },
-    { side: "out", width: "36%", height: "2.25rem" },
-    { side: "in", width: "68%", height: "4.75rem" },
-    { side: "out", width: "46%", height: "2.75rem" },
-    { side: "in", width: "50%", height: "2.25rem" },
-    { side: "out", width: "40%", height: "2.25rem" },
-  ];
-
-function ConversationThreadSkeleton() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="space-y-2 pt-3"
-      aria-hidden="true"
-    >
-      <div className="flex justify-center py-3">
-        <div className="h-5 w-24 rounded-lg bg-black/[0.06] dark:bg-white/[0.07] animate-pulse motion-reduce:animate-none" />
-      </div>
-
-      {SKELETON_BUBBLES.map((bubble, i) => {
-        const isOut = bubble.side === "out";
-        return (
-          <div
-            key={i}
-            className={cn("flex px-1", isOut ? "justify-end" : "justify-start")}
-          >
-            <div
-              className={cn(
-                "rounded-[--radius] animate-pulse motion-reduce:animate-none",
-                isOut
-                  ? "rounded-tr-md bg-black/[0.05] dark:bg-white/[0.10]"
-                  : "rounded-tl-md bg-white/70 dark:bg-white/[0.06]",
-              )}
-              style={{
-                width: bubble.width,
-                height: bubble.height,
-                animationDelay: `${i * 90}ms`,
-              }}
-            />
-          </div>
-        );
-      })}
-    </motion.div>
-  );
-}
-
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1.5 px-4 py-3">
-      <div className="flex gap-0.5">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="h-2 w-2 rounded-full bg-muted"
-            animate={{ y: [0, -4, 0] }}
-            transition={{
-              duration: 0.6,
-              repeat: Infinity,
-              delay: i * 0.15,
-            }}
-          />
-        ))}
-      </div>
-      <span className="text-xs text-muted-foreground ml-1">digitando...</span>
-    </div>
-  );
-}
-
-function ToolEventRow({
-  info,
-  createdAt,
-  hasResultBelow,
-  isMatched,
-  isCurrentMatch,
-}: {
-  info: ToolEventInfo;
-  createdAt: string;
-  hasResultBelow: boolean;
-  isMatched: boolean;
-  isCurrentMatch: boolean;
-}) {
-  const isResult = info.kind === "result";
-  const [expanded, setExpanded] = useState(false);
-  const iconGradient = isResult
-    ? "ink-3"
-    : "ink-3";
-  const ringTone = isResult ? "ring-warning/20" : "ring-warning/20";
-
-  const hasDetail = Boolean(info.detail);
-
-  return (
-    <div className="flex w-full flex-col items-center px-4 py-0.5">
-      <motion.button
-        type="button"
-        onClick={() => hasDetail && setExpanded((v) => !v)}
-        initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
-        title={info.raw}
-        aria-expanded={expanded}
-        className={cn(
-          "group inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card py-0.5 pl-0.5 pr-2",
-          "ring-1 ring-inset transition-colors",
-          ringTone,
-          hasDetail ? "cursor-pointer hover:bg-muted" : "cursor-default",
-          isMatched && "ring-2 ring-warning ring-offset-1",
-          isCurrentMatch && "ring-2 ring-healthy ring-offset-2",
-        )}
-      >
-        <span
-          className={cn(
-            "flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br",
-            iconGradient,
-          )}
-        >
-          {isResult ? (
-            <CheckCircle weight="fill" className="h-2.5 w-2.5" />
-          ) : (
-            <Wrench weight="bold" className="h-2.5 w-2.5" />
-          )}
-        </span>
-        <span className="min-w-0 max-w-[220px] truncate text-2xs font-medium leading-none text-foreground">
-          {info.title}
-        </span>
-        <span className="shrink-0 text-2xs tabular-nums leading-none text-muted-foreground">
-          {formatMessageTime(createdAt)}
-        </span>
-        {hasDetail && (
-          <CaretDown
-            weight="bold"
-            className={cn(
-              "h-2.5 w-2.5 shrink-0 text-muted-foreground transition-transform",
-              expanded && "rotate-180",
-            )}
-          />
-        )}
-      </motion.button>
-      <AnimatePresence initial={false}>
-        {expanded && hasDetail && (
-          <motion.div
-            key="detail"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="mt-1 w-full max-w-[80%] overflow-hidden"
-          >
-            <div className="rounded-md border border-border bg-muted px-2.5 py-1.5">
-              <p className="whitespace-pre-wrap break-words text-2xs leading-snug text-muted-foreground">
-                {info.detail}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {hasResultBelow && (
-        <div
-          className="flex h-2 flex-col items-center justify-center"
-          aria-hidden="true"
-        >
-          <span className="h-full w-px bg-border" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-function EntryMetadataPanel({
-  conversation,
-}: {
-  conversation: ActiveConversation;
-}) {
-  const [open, setOpen] = useState(false);
-  const [showTemplate, setShowTemplate] = useState(false);
-
-  const variables = conversation.entry_variables ?? [];
-  const hasVariables = variables.length > 0;
-  const templateInfo = conversation.lead_metadata?.template_info as
-    | EntryTemplateInfo
-    | undefined;
-
-  if (!hasVariables && !templateInfo) return null;
-
-  const templateMetadata: TemplateMessageMetadata | null = templateInfo
-    ? {
-        template_name: templateInfo.template_name,
-        language: templateInfo.language,
-        category: templateInfo.category,
-        components: templateInfo.components,
-        header_media_url: templateInfo.header_media_url,
-      }
-    : null;
-
-  return (
-    <div className="flex justify-center pb-2 pt-1">
-      <div className="w-full max-w-md">
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          className="flex w-full items-center justify-between rounded-[--radius] bg-card px-4 py-2.5 shadow-sm transition-colors hover:bg-card"
-        >
-          <div className="flex items-center gap-2">
-            <Info weight="fill" className="h-4 w-4 text-primary-ink" />
-            <span className="text-xs font-semibold text-foreground">
-              Detalhes do contato
-            </span>
-          </div>
-          <motion.div
-            animate={{ rotate: open ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <CaretDown
-              weight="bold"
-              className="h-3.5 w-3.5 text-muted-foreground"
-            />
-          </motion.div>
-        </button>
-
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <div className="mt-1 rounded-[--radius] bg-card px-4 py-3 shadow-sm space-y-2.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
-                    <User
-                      weight="fill"
-                      className="h-3.5 w-3.5 text-muted-foreground"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-2xs font-medium  text-muted-foreground">
-                      Nome
-                    </p>
-                    <p className="text-xs font-semibold text-foreground truncate">
-                      {conversation.lead_name || <EmptyValue />}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
-                    <Phone
-                      weight="fill"
-                      className="h-3.5 w-3.5 text-muted-foreground"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-2xs font-medium  text-muted-foreground">
-                      Telefone
-                    </p>
-                    <p className="text-xs font-semibold text-foreground truncate">
-                      {conversation.lead_number || <EmptyValue />}
-                    </p>
-                  </div>
-                </div>
-
-                {hasVariables && (
-                  <>
-                    <div className="border-t border-border pt-2">
-                      <p className="text-2xs font-medium  text-muted-foreground mb-1.5">
-                        Variáveis
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {variables.map((v, i) => (
-                          <span
-                            key={`${i}-${v}`}
-                            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-2xs font-medium text-primary-foreground"
-                          >
-                            <Hash
-                              weight="bold"
-                              className="h-3 w-3 text-info-ink"
-                            />
-                            {v}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {templateInfo && (
-                  <div className="border-t border-border pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowTemplate(!showTemplate)}
-                      className="flex w-full items-center justify-between rounded-lg bg-muted px-3 py-2 transition-colors hover:bg-muted"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ChatText
-                          weight="fill"
-                          className="h-4 w-4 text-healthy"
-                        />
-                        <span className="text-2xs font-semibold text-foreground">
-                          Template enviado: {templateInfo.template_name}
-                        </span>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: showTemplate ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <CaretDown
-                          weight="bold"
-                          className="h-3 w-3 text-muted-foreground"
-                        />
-                      </motion.div>
-                    </button>
-
-                    <AnimatePresence>
-                      {showTemplate && templateMetadata && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="mt-2 flex justify-center">
-                            <TemplateBubble metadata={templateMetadata} />
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-
-                <div className="border-t border-border pt-2">
-                  <p className="text-2xs text-muted-foreground font-mono truncate">
-                    ID: {conversation.entry_id}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
 
 interface CrmConversationViewProps {
   conversation: ActiveConversation | null;
@@ -927,7 +130,12 @@ interface CrmConversationViewProps {
   messageSearchQuery?: string | null;
   scrollToMessageTimestamp?: string | null;
   onScrolledToMessage?: () => void;
-  onLoadAround?: (timestamp: string) => void;
+  onLoadAround?: (anchor: HistoryAnchor) => void;
+  onLoadNewer?: () => void;
+  onReturnToPresent?: () => void;
+  outbox?: Outbox;
+  onRetrySend?: (requestId: string) => void;
+  onResendMessage?: (messageId: string) => void;
   onReply?: (message: ConversationMessage) => void;
   tags?: Stage[];
   currentEntryTags?: { stage_id: string; name: string; color: string }[];
@@ -979,6 +187,11 @@ export default function CrmConversationView({
   scrollToMessageTimestamp,
   onScrolledToMessage,
   onLoadAround,
+  onLoadNewer,
+  onReturnToPresent,
+  outbox = emptyOutbox,
+  onRetrySend,
+  onResendMessage,
   onReply,
   tags = [],
   currentEntryTags = [],
@@ -994,46 +207,154 @@ export default function CrmConversationView({
   onRemoveLabel,
 }: CrmConversationViewProps) {
   const tCrm = useTranslations("crm");
-  const isGroupConversation = Boolean(conversation?.is_group);
+  const tThread = useTranslations("crmConversation.thread");
+  const reduceMotion = useReducedMotion();
+  const liveKey = threadKeyOf(conversation);
+
+  const [hold, setHold] = useState(noThreadHold<ActiveConversation>);
+  const currentHold = holdThread(hold, liveKey, conversation, loadingConversation);
+  if (currentHold !== hold) setHold(currentHold);
+  const shown = currentHold.shown;
+  const shownKey = currentHold.key;
+  const waiting = currentHold.waiting;
+  const shownMessages = shown?.messages ?? NO_MESSAGES;
+  const bubbleChannel = shownMessages[shownMessages.length - 1]?.channel ?? "whatsapp";
+  const bubbles = useMemo(
+    () => (shown ? pendingBubbles(outbox, shown.entry_id, shown.entry_type, bubbleChannel) : NO_MESSAGES),
+    [outbox, shown, bubbleChannel],
+  );
+  const threadMessages = useMemo(() => withPendingBubbles(foldResent(shownMessages), bubbles), [shownMessages, bubbles]);
+  const arrivalCandidates = useMemo(() => threadMessages.filter((message) => !message.client_request_id), [threadMessages]);
+  const resendingIds = useMemo(
+    () => (shown ? resendingMessageIds(outbox, shown.entry_id, shown.entry_type) : NO_IDS),
+    [outbox, shown],
+  );
+
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const [unseen, setUnseen] = useState(0);
+  const [arrivals, setArrivals] = useState(idleArrivals);
+  if (arrivals.source !== arrivalCandidates || arrivals.threadKey !== shownKey) {
+    const next = trackArrivals(arrivals, shownKey, arrivalCandidates);
+    setArrivals(next);
+    const sameThread = arrivals.threadKey === shownKey;
+    setUnseen(sameThread ? countUnseen(unseen, next.live.size, showScrollDown) : 0);
+    if (!sameThread) setShowScrollDown(false);
+  }
+  const arrivalStart = useCallback(
+    (messageId: string) => (!reduceMotion && arrivals.live.has(messageId) ? { opacity: 0 } : false),
+    [reduceMotion, arrivals.live],
+  );
+
+  const [unreadBoundary, setUnreadBoundary] = useState(noUnreadBoundary);
+  const currentBoundary = trackUnreadBoundary(unreadBoundary, shownKey, threadMessages, loadingConversation);
+  if (currentBoundary !== unreadBoundary) setUnreadBoundary(currentBoundary);
+  const unreadFrom = currentBoundary.messageId;
+
+  const [threadRoot, setThreadRoot] = useState<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [showScrollDown, setShowScrollDown] = useState(false);
-  const [stageSelectorOpen, setTagSelectorOpen] = useState(false);
-  const [moveToFunnelOpen, setMoveToFunnelOpen] = useState(false);
-  const [labelSelectorOpen, setLabelSelectorOpen] = useState(false);
-  const [agentToolDefinitions, setAgentToolDefinitions] = useState<
-    AgentToolDefinition[]
-  >([]);
-  const isAtBottomRef = useRef(true);
   const threadContentRef = useRef<HTMLDivElement>(null);
+  const isAtBottomRef = useRef(true);
   const loadMoreCalledRef = useRef(false);
-  const justOpenedRef = useRef(true);
-
+  const loadNewerCalledRef = useRef(false);
+  const presentRequestedRef = useRef(false);
+  const [pagingDirection, setPagingDirection] = useState<PagingDirection>(null);
+  const openedKeyRef = useRef<string | null>(null);
   const scrollLockRef = useRef(false);
-  const scrolledToTimestampRef = useRef<string | null>(null);
-  const loadAroundAttemptRef = useRef<string | null>(null);
+  const jumpRef = useRef<JumpTarget | null>(null);
+  const deepLinkRef = useRef<DeepLink | null>(null);
+  const callbacksRef = useRef({ onLoadAround, onClearMessageSearch });
+
+  const [moveToFunnelOpen, setMoveToFunnelOpen] = useState(false);
+  const [agentToolDefinitions, setAgentToolDefinitions] = useState<AgentToolDefinition[]>([]);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [currentMatchIdx, setCurrentMatchIdx] = useState(0);
+  const [searchKey, setSearchKey] = useState(liveKey);
+  if (searchKey !== liveKey) {
+    setSearchKey(liveKey);
+    setSearchOpen(false);
+    setSearchInput("");
+    setCurrentMatchIdx(0);
+  }
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const matchedIds = new Set(messageSearchResults?.map((m) => m.id) ?? []);
-  const hasSearchResults =
-    messageSearchResults && messageSearchResults.length > 0;
-  const toolDefinitionByName = useMemo<ToolDefinitionByName>(() => {
-    return new Map(
-      agentToolDefinitions.map((tool): [string, AgentToolDefinition] => [
-        tool.name,
-        tool,
-      ]),
-    );
-  }, [agentToolDefinitions]);
+  const matchedIds = useMemo<ReadonlySet<string>>(
+    () => (searchOpen && messageSearchResults ? new Set(messageSearchResults.map((m) => m.id)) : NO_IDS),
+    [searchOpen, messageSearchResults],
+  );
+  const currentMatchId = searchOpen ? (messageSearchResults?.[currentMatchIdx]?.id ?? null) : null;
+  const hasSearchResults = Boolean(messageSearchResults && messageSearchResults.length > 0);
+
+  const toolCopy = useThreadToolCopy();
+  const toolDefinitions = useMemo<ToolDefinitionByName>(
+    () => new Map(agentToolDefinitions.map((tool): [string, AgentToolDefinition] => [tool.name, tool])),
+    [agentToolDefinitions],
+  );
+
+  const messageActions = useMessageActions(shown);
+  const editKey = shown ? windowKey(shown.entry_id, shown.entry_type) : null;
+  const editingId = useEditingMessage(editKey);
+  const presence = useConversationPresence(shown?.entry_id ?? null, shown?.entry_type ?? null);
+  const oldestLoadedAt = shown?.has_more ? (shownMessages[0]?.created_at ?? null) : null;
+  const newestLoadedAt = shown?.has_after ? (shownMessages[shownMessages.length - 1]?.created_at ?? null) : null;
+  const { notes, deleteNote } = useConversationNotes(shown?.entry_id ?? null, shown?.entry_type ?? null, oldestLoadedAt);
+  const shownNotes = useMemo(
+    () => visibleNotes(notes, { from: oldestLoadedAt, until: newestLoadedAt }),
+    [notes, oldestLoadedAt, newestLoadedAt],
+  );
+
+  const automationReplyId = useMemo(() => latestAutomationMessageId(shownMessages), [shownMessages]);
+  const {
+    calls: toolCalls,
+    failure: toolCallsFailure,
+    retry: retryToolCalls,
+  } = useConversationToolCalls(shown?.entry_id ?? null, shown?.entry_type ?? null, oldestLoadedAt, automationReplyId);
+  const shownToolCalls = useMemo(
+    () => visibleToolCalls(toolCalls, { from: oldestLoadedAt, until: newestLoadedAt }),
+    [toolCalls, oldestLoadedAt, newestLoadedAt],
+  );
+  const toolCallAgentIds = useMemo(() => toolCalls.map((call) => call.agentId), [toolCalls]);
+  const toolCallAgentName = useAgentNamesById(toolCallAgentIds);
+  const toolCallNames = useMemo<AgentToolCallNames>(
+    () => ({
+      agentName: toolCallAgentName,
+      toolName: (toolName) => toolDisplayName(toolName, toolDefinitions, toolCopy.fallbackName),
+    }),
+    [toolCallAgentName, toolDefinitions, toolCopy],
+  );
+
+  const rows = useMemo(
+    () => buildThreadRows(threadMessages, { unreadFrom, leadNumber: shown?.lead_number, notes: shownNotes, toolCalls: shownToolCalls }),
+    [threadMessages, unreadFrom, shown?.lead_number, shownNotes, shownToolCalls],
+  );
+  const sections = useMemo(() => daySections(rows), [rows]);
+  const gallery = useMemo(() => galleryItems(threadMessages), [threadMessages]);
+  const messagesById = useMemo(() => new Map(threadMessages.map((m): [string, ConversationMessage] => [m.id, m])), [threadMessages]);
+
+  const arrivedMessages = useMemo(
+    () => (arrivals.live.size === 0 ? NO_MESSAGES : threadMessages.filter((m) => arrivals.live.has(m.id))),
+    [threadMessages, arrivals.live],
+  );
+  const describeAnnouncement = useCallback(
+    (announcement: Announcement) => {
+      if (announcement.count > 1) {
+        return announcement.sender
+          ? tThread("announce.many", { count: String(announcement.count), sender: announcement.sender })
+          : tThread("announce.manyMixed", { count: String(announcement.count) });
+      }
+      const sender = announcement.sender ?? "";
+      if (announcement.preview) return tThread("announce.single", { sender, preview: announcement.preview });
+      return tThread("announce.media", { sender, media: tThread(`media.${announcement.mediaKey ?? "document"}`) });
+    },
+    [tThread],
+  );
+  const announcement = useLiveAnnouncement(shownKey, arrivedMessages, describeAnnouncement);
 
   useEffect(() => {
     let active = true;
-
     getAgentToolsAction()
       .then(({ tools }) => {
         if (active) setAgentToolDefinitions(tools ?? []);
@@ -1041,15 +362,192 @@ export default function CrmConversationView({
       .catch(() => {
         if (active) setAgentToolDefinitions([]);
       });
-
     return () => {
       active = false;
     };
   }, []);
 
+  useEffect(() => {
+    callbacksRef.current = { onLoadAround, onClearMessageSearch };
+  }, [onLoadAround, onClearMessageSearch]);
+
+  useEffect(() => {
+    callbacksRef.current.onClearMessageSearch?.();
+  }, [liveKey]);
+
+  const scrollToBottom = useCallback((smooth = true) => {
+    bottomRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "instant" });
+  }, []);
+
+  const trackThreadAnchor = useThreadAnchor({
+    containerRef,
+    contentRef: threadContentRef,
+    pinnedRef: isAtBottomRef,
+    lockedRef: scrollLockRef,
+    threadKey: shownKey ?? undefined,
+  });
+
+  const scrollToThreadStart = useCallback(() => {
+    const divider = containerRef.current?.querySelector("[data-unread-divider]");
+    if (!divider) {
+      scrollToBottom(false);
+      return;
+    }
+    divider.scrollIntoView({ behavior: "instant", block: "start" });
+    trackThreadAnchor();
+  }, [scrollToBottom, trackThreadAnchor]);
+
+  const releaseJump = useCallback(() => {
+    jumpRef.current = null;
+    scrollLockRef.current = false;
+  }, []);
+
+  const attemptJump = useCallback(() => {
+    const target = jumpRef.current;
+    const container = containerRef.current;
+    if (!target || !container) return;
+
+    const loadAround = callbacksRef.current.onLoadAround;
+    const element = findMessageElement(container, target.id);
+    if (element) {
+      jumpRef.current = null;
+      scrollLockRef.current = true;
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      flashElement(element, target.tone, JUMP_FLASH_MS, () => {
+        scrollLockRef.current = false;
+      });
+      return;
+    }
+
+    if (!loadAround || target.aroundRequested) {
+      releaseJump();
+      return;
+    }
+    target.aroundRequested = true;
+    scrollLockRef.current = true;
+    setPagingDirection(null);
+    loadAround({ messageId: target.id });
+  }, [releaseJump]);
+
+  const [jumpRequest, setJumpRequest] = useState<JumpTarget | null>(null);
+  const jumpToMessage = useCallback((id: string, tone: FlashTone) => setJumpRequest({ id, tone, aroundRequested: false }), []);
+  const searchMatch = searchOpen ? messageSearchResults?.[currentMatchIdx] : undefined;
+  const [jumpedMatch, setJumpedMatch] = useState(searchMatch);
+  if (searchMatch !== jumpedMatch) {
+    setJumpedMatch(searchMatch);
+    if (searchMatch) setJumpRequest({ id: searchMatch.id, tone: "warning", aroundRequested: false });
+  }
+
+  useEffect(() => {
+    if (!jumpRequest) return;
+    jumpRef.current = jumpRequest;
+    requestAnimationFrame(attemptJump);
+  }, [jumpRequest, attemptJump]);
+
+  useEffect(() => {
+    if (jumpRef.current && !loadingHistory) requestAnimationFrame(attemptJump);
+  }, [threadMessages, loadingHistory, attemptJump]);
+
+  useEffect(() => {
+    if (!scrollToMessageTimestamp) return;
+    if (deepLinkRef.current?.timestamp !== scrollToMessageTimestamp) {
+      deepLinkRef.current = { timestamp: scrollToMessageTimestamp, revealed: false, aroundRequested: false };
+      scrollLockRef.current = true;
+    }
+    const link = deepLinkRef.current;
+    if (link.revealed || threadMessages.length === 0 || !containerRef.current) return;
+
+    const target = threadMessages.find((m) => m.created_at === scrollToMessageTimestamp);
+    if (target) {
+      link.revealed = true;
+      requestAnimationFrame(() => {
+        const element = containerRef.current ? findMessageElement(containerRef.current, target.id) : null;
+        if (element) {
+          element.scrollIntoView({ behavior: "instant", block: "center" });
+          flashElement(element, "warning", DEEP_LINK_FLASH_MS);
+        }
+        setTimeout(() => {
+          scrollLockRef.current = false;
+          onScrolledToMessage?.();
+        }, 600);
+      });
+      return;
+    }
+
+    if (onLoadAround) {
+      if (link.aroundRequested) return;
+      link.aroundRequested = true;
+      onLoadAround({ timestamp: scrollToMessageTimestamp });
+      return;
+    }
+    if (shown?.has_more && onLoadMore && !loadingHistory) onLoadMore();
+  }, [scrollToMessageTimestamp, threadMessages, onLoadAround, onLoadMore, onScrolledToMessage, shown?.has_more, loadingHistory]);
+
+  useEffect(() => {
+    if (loadingHistory) return;
+    loadMoreCalledRef.current = false;
+    loadNewerCalledRef.current = false;
+  }, [loadingHistory]);
+
+  useEffect(() => {
+    if (!presentRequestedRef.current || shown?.has_after) return;
+    presentRequestedRef.current = false;
+    isAtBottomRef.current = true;
+    scrollToBottom(false);
+  }, [shown?.has_after, threadMessages, scrollToBottom]);
+
+  useEffect(() => {
+    if (shownKey === null) {
+      openedKeyRef.current = null;
+      return;
+    }
+    if (openedKeyRef.current === shownKey) return;
+    isAtBottomRef.current = true;
+    if (threadMessages.length === 0) return;
+    openedKeyRef.current = shownKey;
+    if (scrollLockRef.current) return;
+    scrollToThreadStart();
+  }, [shownKey, threadMessages.length, scrollToThreadStart]);
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    trackThreadAnchor();
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const away = scrollHeight - scrollTop - clientHeight > 200;
+    setShowScrollDown(away);
+    if (!away) setUnseen(0);
+
+    if (scrollTop < 60 && shown?.has_more && onLoadMore && !loadingHistory && !loadMoreCalledRef.current) {
+      loadMoreCalledRef.current = true;
+      setPagingDirection("older");
+      onLoadMore();
+    }
+
+    const nearBottom = scrollHeight - scrollTop - clientHeight < NEWER_PAGE_DISTANCE_PX;
+    if (nearBottom && shown?.has_after && onLoadNewer && !loadingHistory && !loadNewerCalledRef.current) {
+      loadNewerCalledRef.current = true;
+      setPagingDirection("newer");
+      onLoadNewer();
+    }
+  }, [shown?.has_more, shown?.has_after, onLoadMore, onLoadNewer, loadingHistory, trackThreadAnchor]);
+
+  const jumpToLatest = useCallback(() => {
+    if (shown?.has_after && onReturnToPresent) {
+      presentRequestedRef.current = true;
+      setPagingDirection(null);
+      onReturnToPresent();
+      return;
+    }
+    scrollToBottom(true);
+  }, [shown?.has_after, onReturnToPresent, scrollToBottom]);
+
   const handleOpenSearch = useCallback(() => {
     setSearchOpen(true);
-    setTimeout(() => searchInputRef.current?.focus(), 80);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    }, 80);
   }, []);
 
   const handleCloseSearch = useCallback(() => {
@@ -1077,1214 +575,267 @@ export default function CrmConversationView({
 
   const handleNextMatch = useCallback(() => {
     if (!messageSearchResults?.length) return;
-    setCurrentMatchIdx((prev) =>
-      prev < messageSearchResults.length - 1 ? prev + 1 : 0,
-    );
+    setCurrentMatchIdx((prev) => (prev < messageSearchResults.length - 1 ? prev + 1 : 0));
   }, [messageSearchResults]);
 
   const handlePrevMatch = useCallback(() => {
     if (!messageSearchResults?.length) return;
-    setCurrentMatchIdx((prev) =>
-      prev > 0 ? prev - 1 : messageSearchResults.length - 1,
-    );
+    setCurrentMatchIdx((prev) => (prev > 0 ? prev - 1 : messageSearchResults.length - 1));
   }, [messageSearchResults]);
 
-  useEffect(() => {
-    if (!messageSearchResults?.length || !containerRef.current) return;
-    const targetMsg = messageSearchResults[currentMatchIdx];
-    if (!targetMsg) return;
+  useShortcuts(
+    "thread",
+    {
+      "thread.search": () => {
+        if (!onSearchMessages) return false;
+        handleOpenSearch();
+      },
+    },
+    { element: threadRoot },
+  );
 
-    requestAnimationFrame(() => {
-      const el = containerRef.current?.querySelector(
-        `[data-msg-id="${targetMsg.id}"]`,
-      );
-      if (el) {
-        loadAroundAttemptRef.current = null;
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.classList.add("ring-2", "ring-warning", "ring-offset-1");
-        setTimeout(() => {
-          el.classList.remove("ring-2", "ring-warning", "ring-offset-1");
-          scrollLockRef.current = false;
-        }, 2000);
-      } else if (
-        targetMsg.created_at &&
-        onLoadAround &&
-        loadAroundAttemptRef.current !== targetMsg.id
-      ) {
-        loadAroundAttemptRef.current = targetMsg.id;
-        scrollLockRef.current = true;
-        onLoadAround(targetMsg.created_at);
-      }
-    });
-  }, [
-    currentMatchIdx,
-    messageSearchResults,
-    onLoadAround,
-    conversation?.messages.length,
-  ]);
+  const rowContext = useMemo<ThreadRowContextValue | null>(
+    () =>
+      shown
+        ? {
+            conversation: shown,
+            messagesById,
+            matchedIds,
+            currentMatchId,
+            arrivalStart,
+            canSeekOriginal: Boolean(onLoadAround && (shown.has_more || shown.has_after)),
+            onJumpToMessage: (id) => jumpToMessage(id, "info"),
+            onReply,
+            onRetrySend,
+            onResendMessage,
+            resendingIds,
+            toolDefinitions,
+            toolCopy,
+            messageActions,
+            editingId,
+            onStartEdit: (messageId) => editKey && startEditing(editKey, messageId),
+            onStopEdit: () => editKey && stopEditing(editKey),
+            onDeleteNote: (noteId) => void deleteNote(noteId),
+          }
+        : null,
+    [shown, messagesById, matchedIds, currentMatchId, arrivalStart, onLoadAround, jumpToMessage, onReply, onRetrySend, onResendMessage, resendingIds, toolDefinitions, toolCopy, messageActions, editingId, editKey, deleteNote],
+  );
 
-  useEffect(() => {
-    setSearchOpen(false);
-    setSearchInput("");
-    setCurrentMatchIdx(0);
-  }, [conversation?.entry_id]);
-
-  useEffect(() => {
-    if (scrollToMessageTimestamp) {
-      scrollLockRef.current = true;
-      scrolledToTimestampRef.current = null;
-    }
-  }, [scrollToMessageTimestamp]);
-
-  useEffect(() => {
-    if (
-      !scrollToMessageTimestamp ||
-      !conversation?.messages.length ||
-      !containerRef.current
-    )
-      return;
-
-    if (scrolledToTimestampRef.current === scrollToMessageTimestamp) return;
-
-    const targetMsg = conversation.messages.find(
-      (m) => m.created_at === scrollToMessageTimestamp,
-    );
-
-    if (targetMsg) {
-      scrolledToTimestampRef.current = scrollToMessageTimestamp;
-      requestAnimationFrame(() => {
-        const el = containerRef.current?.querySelector(
-          `[data-msg-id="${targetMsg.id}"]`,
-        );
-        if (el) {
-          el.scrollIntoView({ behavior: "instant", block: "center" });
-          el.classList.add("ring-2", "ring-warning", "ring-offset-1");
-          setTimeout(() => {
-            el.classList.remove("ring-2", "ring-warning", "ring-offset-1");
-          }, 2500);
-        }
-        setTimeout(() => {
-          scrollLockRef.current = false;
-          onScrolledToMessage?.();
-        }, 600);
-      });
-    } else if (scrollToMessageTimestamp && onLoadAround) {
-      onLoadAround(scrollToMessageTimestamp);
-    } else if (conversation.has_more && onLoadMore) {
-      onLoadMore();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    scrollToMessageTimestamp,
-    conversation?.messages.length,
-    onScrolledToMessage,
-  ]);
-
-  const scrollToBottom = useCallback((smooth = true) => {
-    bottomRef.current?.scrollIntoView({
-      behavior: smooth ? "smooth" : "instant",
-    });
-  }, []);
-
-  const trackThreadAnchor = useThreadAnchor({
-    containerRef,
-    contentRef: threadContentRef,
-    pinnedRef: isAtBottomRef,
-    lockedRef: scrollLockRef,
-    threadKey: conversation?.entry_id,
-  });
-
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current) return;
-    trackThreadAnchor();
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 200);
-
-    if (
-      scrollTop < 60 &&
-      conversation?.has_more &&
-      onLoadMore &&
-      !loadingHistory &&
-      !loadMoreCalledRef.current
-    ) {
-      loadMoreCalledRef.current = true;
-      onLoadMore();
-    }
-  }, [conversation?.has_more, onLoadMore, loadingHistory, trackThreadAnchor]);
-
-  useEffect(() => {
-    if (!loadingHistory) {
-      loadMoreCalledRef.current = false;
-    }
-  }, [loadingHistory]);
-
-  useEffect(() => {
-    justOpenedRef.current = true;
-    isAtBottomRef.current = true;
-    if (conversation?.messages.length && !scrollLockRef.current) {
-      scrollToBottom(false);
-      justOpenedRef.current = false;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversation?.entry_id]);
-
-  useEffect(() => {
-    if (scrollLockRef.current) {
-      justOpenedRef.current = false;
-      return;
-    }
-    if (justOpenedRef.current && conversation?.messages.length) {
-      requestAnimationFrame(() => {
-        if (scrollLockRef.current) {
-          justOpenedRef.current = false;
-          return;
-        }
-        scrollToBottom(false);
-        justOpenedRef.current = false;
-      });
-    }
-  }, [conversation?.messages.length, scrollToBottom]);
-
-  if (!conversation) {
+  if (!conversation || !shown || !rowContext) {
     return (
       <div className="relative flex h-full flex-col items-center justify-center gap-4 overflow-hidden bg-background px-8 text-center">
         <LightPool />
         <CircuitBoard tone="quiet" className="pointer-events-none absolute bottom-6 right-4 h-64 w-64 xl:h-80 xl:w-80" />
         <div className="relative flex h-20 w-20 items-center justify-center rounded-[--radius] bg-muted">
-          <ImageIcon
-            weight="duotone"
-            className="h-10 w-10 text-muted-foreground"
-          />
+          <ImageIcon weight="duotone" className="h-10 w-10 text-muted-foreground" />
         </div>
         <div className="relative">
-          <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">
-            {t.noConversationSelected}
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t.noConversationDescription}
-          </p>
+          <h3 className="font-display text-lg font-semibold tracking-[0.01em] text-foreground">{t.noConversationSelected}</h3>
+          <p className="text-sm text-muted-foreground mt-1">{t.noConversationDescription}</p>
         </div>
       </div>
     );
   }
 
-  const dateGroups = groupMessagesByDate(conversation.messages);
-
-  const currentTagId = currentEntryTags?.[0]?.stage_id ?? null;
-
-  const stageChoices: { id: string; name: string; color: string }[] =
+  const currentStageId = currentEntryTags?.[0]?.stage_id ?? null;
+  const stageChoices =
     entryAvailableTags.length > 0
-      ? entryAvailableTags.map((t) => ({
-          id: t.stage_id,
-          name: t.name,
-          color: t.color,
-        }))
-      : tags.map((t) => ({ id: t.id, name: t.name, color: t.color }));
-
+      ? entryAvailableTags.map((stage) => ({ id: stage.stage_id, name: stage.name, color: stage.color }))
+      : tags.map((stage) => ({ id: stage.id, name: stage.name, color: stage.color }));
+  const canMoveStage = Boolean(onEntryStageChange || onAssignStage);
   const canMoveAcrossFunnels =
-    Boolean(onMoveToFunnel) &&
-    Boolean(onEntryStageChange || onAssignStage) &&
-    funnelStages.filter((f) => f.stages.length > 0).length > 1;
+    Boolean(onMoveToFunnel) && canMoveStage && funnelStages.filter((f) => f.stages.length > 0).length > 1;
 
   const moveEntryToStage = (stageId: string) => {
     if (onEntryStageChange) {
-      onEntryStageChange(
-        conversation.entry_id,
-        conversation.entry_type,
-        stageId,
-        currentTagId,
-      );
+      onEntryStageChange(conversation.entry_id, conversation.entry_type, stageId, currentStageId);
       return;
     }
-    onAssignStage?.(
-      stageId,
-      conversation.entry_id,
-      conversation.entry_type as EntryType,
-    );
+    onAssignStage?.(stageId, conversation.entry_id, conversation.entry_type as EntryType);
   };
 
+  const toggleLabel = (labelId: string, isAssigned: boolean) => {
+    if (isAssigned && onRemoveLabel) onRemoveLabel(labelId, conversation.entry_id, conversation.entry_type as EntryType);
+    else if (!isAssigned && onAssignLabel) onAssignLabel(labelId, conversation.entry_id, conversation.entry_type as EntryType);
+  };
+
+  const showLoader = waiting || (loadingConversation && threadMessages.length === 0);
+
   return (
-    <div className="relative flex h-full flex-col">
+    <div ref={setThreadRoot} className="relative flex h-full flex-col">
+      <AnimatePresence>
+        {searchOpen && (
+          <ThreadSearchBar
+            inputRef={searchInputRef}
+            value={searchInput}
+            searching={searchingMessages}
+            totalItems={messageSearchTotalItems}
+            currentIndex={currentMatchIdx}
+            hasResults={hasSearchResults}
+            onChange={handleSearchInput}
+            onPrevious={handlePrevMatch}
+            onNext={handleNextMatch}
+            onClose={handleCloseSearch}
+          />
+        )}
+      </AnimatePresence>
 
-      <ConversationAnalysisPanel
-        entryId={conversation.entry_id}
-        entryType={conversation.entry_type as "whatsapp"}
-        liveRead={liveRead}
-      />
+      {shown.ad_origin ? (
+        <AdOriginBanner origin={shown.ad_origin} entryType={shown.entry_type} entryId={shown.entry_id} />
+      ) : null}
 
-      {stageChoices.length > 0 && (
-        <div className="absolute left-3 top-3 z-30">
-          <div className="relative">
-            {onEntryStageChange || onAssignStage ? (
-              <motion.button
-                onClick={() => setTagSelectorOpen(!stageSelectorOpen)}
-                className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
-                  stageSelectorOpen
-                    ? "bg-healthy text-healthy-foreground"
-                    : "bg-card text-muted-foreground hover:bg-muted",
-                )}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title={tags.length > 0 ? "Mover para outra tag" : "Etapas"}
-              >
-                <TagIcon
-                  weight={stageSelectorOpen ? "fill" : "bold"}
-                  className="h-5 w-5"
-                />
-              </motion.button>
-            ) : (
-              <TooltipWrapper
-                content={
-                  t.noPermissionStageAssign ??
-                  "You don't have permission to assign tags"
-                }
-                enabled
-                side="right"
-              >
-                <motion.button
-                  disabled
-                  className="flex h-10 w-10 items-center justify-center rounded-full shadow-lg bg-card text-muted-foreground cursor-not-allowed"
-                >
-                  <TagIcon weight="bold" className="h-5 w-5" />
-                </motion.button>
-              </TooltipWrapper>
+      {shown.entry_type === "mercadolivre" ? <MercadoLivreSaleSummary key={shown.entry_id} entryId={shown.entry_id} /> : null}
+
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex items-start justify-between gap-3">
+          <div className="pointer-events-auto flex items-start gap-3">
+            {stageChoices.length > 0 && (
+              <StageControl
+                choices={stageChoices}
+                currentStageId={currentStageId}
+                hasStages={tags.length > 0}
+                canMove={canMoveStage}
+                canMoveAcrossFunnels={canMoveAcrossFunnels}
+                noPermissionHint={t.noPermissionStageAssign ?? tThread("stage.noPermission")}
+                onMove={moveEntryToStage}
+                onMoveAcrossFunnels={() => setMoveToFunnelOpen(true)}
+              />
             )}
-
-            <AnimatePresence>
-              {stageSelectorOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setTagSelectorOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
-                  >
-                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground ">
-                      Mover para
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {stageChoices.map((stageChoice) => {
-                        const isCurrentStage = stageChoice.id === currentTagId;
-                        return (
-                          <button
-                            key={stageChoice.id}
-                            onClick={() => {
-                              if (!isCurrentStage) {
-                                moveEntryToStage(stageChoice.id);
-                              }
-                              setTagSelectorOpen(false);
-                            }}
-                            disabled={isCurrentStage}
-                            className={cn(
-                              "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors",
-                              isCurrentStage
-                                ? "text-muted-foreground cursor-not-allowed bg-muted"
-                                : "text-foreground hover:bg-muted",
-                            )}
-                          >
-                            <span
-                              className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
-                              style={{ backgroundColor: stageChoice.color }}
-                            />
-                            <span className="text-xs font-medium truncate flex-1">
-                              {stageChoice.name}
-                            </span>
-                            {isCurrentStage && (
-                              <span className="text-2xs text-muted-foreground flex-shrink-0">
-                                atual
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {canMoveAcrossFunnels ? (
-                      <>
-                        <div className="my-1 border-t border-border" />
-                        <button
-                          onClick={() => {
-                            setTagSelectorOpen(false);
-                            setMoveToFunnelOpen(true);
-                          }}
-                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                        >
-                          <ArrowsLeftRight
-                            weight="bold"
-                            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-                          />
-                          <span className="truncate">
-                            Mover para outro funil…
-                          </span>
-                        </button>
-                      </>
-                    ) : null}
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+            {availableLabels.length > 0 && (
+              <LabelControl
+                labels={availableLabels}
+                assigned={currentEntryLabels}
+                canAssign={Boolean(onAssignLabel)}
+                onToggle={toggleLabel}
+              />
+            )}
           </div>
+          {onSearchMessages && !searchOpen && (
+            <div className="pointer-events-auto">
+              <SearchTrigger label={tCrm("searchMessages")} onOpen={handleOpenSearch} />
+            </div>
+          )}
         </div>
-      )}
+
+        <ConversationAnalysisPanel
+          entryId={conversation.entry_id}
+          entryType={conversation.entry_type as "whatsapp"}
+          liveRead={liveRead}
+        />
+
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          role="region"
+          aria-label={tThread("messagesRegion")}
+          aria-busy={waiting}
+          inert={waiting}
+          tabIndex={0}
+          className="relative flex-1 overflow-y-auto px-4 py-4 focus-visible:outline-none"
+        >
+          <ThreadRowProvider value={rowContext}>
+            <AgentToolCallNamesProvider value={toolCallNames}>
+              <MediaGalleryProvider items={gallery}>
+                <div ref={threadContentRef} className="mx-auto max-w-3xl space-y-1">
+                  <EntryMetadataPanel conversation={shown} />
+
+                  {loadingHistory && pagingDirection !== "newer" && (
+                    <div className="flex items-center justify-center py-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
+                        <ScreenLoader fit="inline" label={t.loadingMore} />
+                      </div>
+                    </div>
+                  )}
+
+                  {sections.map((section) => (
+                    <section key={section.day.key}>
+                      <ThreadRowView row={section.day} />
+                      {section.rows.map((row) => (
+                        <Fragment key={row.key}>
+                          {"runGap" in row && row.runGap ? <div aria-hidden="true" className="h-1" /> : null}
+                          <ThreadRowView row={row} />
+                        </Fragment>
+                      ))}
+                    </section>
+                  ))}
+
+                  {toolCallsFailure && <AgentToolCallsLoadError failure={toolCallsFailure} onRetry={retryToolCalls} />}
+
+                  <AnimatePresence>
+                    {isTyping && !waiting && (
+                      <motion.div
+                        initial={reduceMotion ? false : { opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={stateTransition}
+                        className="flex justify-start"
+                      >
+                        <div className="rounded-lg bg-card shadow-sm">
+                          <TypingIndicator names={presence.typingNames} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {loadingHistory && pagingDirection === "newer" && (
+                    <div className="flex items-center justify-center py-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
+                        <ScreenLoader fit="inline" label={tThread("loadingNewer")} />
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={bottomRef} />
+                </div>
+              </MediaGalleryProvider>
+            </AgentToolCallNamesProvider>
+          </ThreadRowProvider>
+        </div>
+
+        {showLoader && <ScreenLoader fit="fill" className={cn("absolute inset-0 z-20", waiting && "bg-background")} />}
+
+        <AnimatePresence>
+          {(showScrollDown || Boolean(shown.has_after)) && !waiting && (
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={stateTransition}
+              onClick={jumpToLatest}
+              aria-label={unseen > 0 ? tThread("newMessagesBelow", { count: unseen }) : tThread("scrollToLatest")}
+              className="absolute bottom-4 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-lg border border-border hover:bg-muted transition-colors"
+            >
+              <ArrowDown weight="bold" className="h-4 w-4 text-muted-foreground" />
+              {unseen > 0 ? (
+                <span
+                  aria-hidden="true"
+                  data-unseen-count={unseen}
+                  className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-healthy px-1 text-2xs font-semibold tabular-nums text-healthy-foreground"
+                >
+                  {unseen > 99 ? "99+" : unseen}
+                </span>
+              ) : null}
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        <div aria-live="polite" aria-atomic="true" className="sr-only" data-thread-announcer="">
+          {announcement}
+        </div>
+      </div>
 
       {canMoveAcrossFunnels && onMoveToFunnel ? (
         <MoveToFunnelDialog
           open={moveToFunnelOpen}
           onOpenChange={setMoveToFunnelOpen}
           funnels={funnelStages}
-          currentStageId={currentTagId}
+          currentStageId={currentStageId}
           currentStageName={currentEntryTags?.[0]?.name ?? null}
           contactName={conversation.lead_name || conversation.lead_number}
-          onConfirm={(stageId) =>
-            onMoveToFunnel(
-              conversation.entry_id,
-              conversation.entry_type as EntryType,
-              stageId,
-            )
-          }
+          onConfirm={(stageId) => onMoveToFunnel(conversation.entry_id, conversation.entry_type as EntryType, stageId)}
         />
       ) : null}
-
-      {availableLabels.length > 0 && (
-        <div className="absolute left-16 top-3 z-30">
-          <div className="relative">
-            {onAssignLabel ? (
-              <motion.button
-                onClick={() => setLabelSelectorOpen(!labelSelectorOpen)}
-                className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-colors",
-                  labelSelectorOpen
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-card text-muted-foreground hover:bg-muted",
-                )}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Etiquetas"
-              >
-                <Bookmark
-                  weight={labelSelectorOpen ? "fill" : "bold"}
-                  className="h-5 w-5"
-                />
-              </motion.button>
-            ) : (
-              <TooltipWrapper
-                content="Sem permissão para gerenciar etiquetas"
-                enabled
-                side="right"
-              >
-                <motion.button
-                  disabled
-                  className="flex h-10 w-10 items-center justify-center rounded-full shadow-lg bg-card text-muted-foreground cursor-not-allowed"
-                >
-                  <Bookmark weight="bold" className="h-5 w-5" />
-                </motion.button>
-              </TooltipWrapper>
-            )}
-
-            <AnimatePresence>
-              {labelSelectorOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setLabelSelectorOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full z-40 mt-2 w-48 rounded-[--radius] border border-border bg-card shadow-xl py-1.5 overflow-hidden"
-                  >
-                    <div className="px-3 py-1.5 text-2xs font-semibold text-muted-foreground ">
-                      Etiquetas
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {availableLabels.map((label) => {
-                        const isAssigned = currentEntryLabels.some(
-                          (el) => el.label_id === label.id,
-                        );
-                        return (
-                          <button
-                            key={label.id}
-                            onClick={() => {
-                              if (isAssigned && onRemoveLabel) {
-                                onRemoveLabel(
-                                  label.id,
-                                  conversation.entry_id,
-                                  conversation.entry_type as EntryType,
-                                );
-                              } else if (!isAssigned && onAssignLabel) {
-                                onAssignLabel(
-                                  label.id,
-                                  conversation.entry_id,
-                                  conversation.entry_type as EntryType,
-                                );
-                              }
-                            }}
-                            className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors text-foreground hover:bg-muted"
-                          >
-                            <span
-                              className="h-3 w-3 rounded-full ring-1 ring-black/10 flex-shrink-0"
-                              style={{
-                                backgroundColor: label.color || "hsl(var(--plate-5))",
-                              }}
-                            />
-                            <span className="text-xs font-medium truncate flex-1">
-                              {label.name}
-                            </span>
-                            {isAssigned && (
-                              <span className="text-2xs text-chart-4 flex-shrink-0">
-                                ✓
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      )}
-
-      <AnimatePresence>
-        {searchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative z-[30] overflow-hidden border-b border-border bg-card shadow-sm"
-          >
-            <div className="flex items-center gap-2 px-3 ">
-              <MagnifyingGlass
-                weight="bold"
-                className="h-4 w-4 text-muted-foreground flex-shrink-0"
-              />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchInput}
-                onChange={(e) => handleSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") handleCloseSearch();
-                  if (e.key === "Enter") {
-                    if (e.shiftKey) {
-                      handlePrevMatch();
-                    } else {
-                      handleNextMatch();
-                    }
-                  }
-                }}
-                placeholder={tCrm("searchMessagesPlaceholder")}
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              />
-
-              {searchingMessages && (
-                <motion.div
-                  className="h-4 w-4 rounded-full border border-healthy border-t-transparent flex-shrink-0"
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-              )}
-
-              {searchInput.trim().length >= 2 && !searchingMessages && (
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-2xs font-medium text-muted-foreground tabular-nums">
-                    {messageSearchTotalItems > 0
-                      ? `${currentMatchIdx + 1}/${messageSearchTotalItems}`
-                      : "0 resultados"}
-                  </span>
-                  <button
-                    onClick={handlePrevMatch}
-                    disabled={!hasSearchResults}
-                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-muted disabled:opacity-30 transition-colors"
-                  >
-                    <ArrowUp
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-muted-foreground"
-                    />
-                  </button>
-                  <button
-                    onClick={handleNextMatch}
-                    disabled={!hasSearchResults}
-                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-muted disabled:opacity-30 transition-colors"
-                  >
-                    <ArrowDown
-                      weight="bold"
-                      className="h-3.5 w-3.5 text-muted-foreground"
-                    />
-                  </button>
-                </div>
-              )}
-
-              <button
-                onClick={handleCloseSearch}
-                className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-muted transition-colors flex-shrink-0"
-              >
-                <X
-                  weight="bold"
-                  className="h-3.5 w-3.5 text-muted-foreground"
-                />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {onSearchMessages && !searchOpen && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          onClick={handleOpenSearch}
-          title={tCrm("searchMessages")}
-          className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-lg border border-border hover:bg-muted transition-colors"
-        >
-          <MagnifyingGlass
-            weight="bold"
-            className="h-4 w-4 text-muted-foreground"
-          />
-        </motion.button>
-      )}
-
-      {conversation.ad_origin ? (
-        <AdOriginBanner origin={conversation.ad_origin} entryType={conversation.entry_type} entryId={conversation.entry_id} />
-      ) : null}
-
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="relative flex-1 overflow-y-auto px-4 py-4"
-      >
-        <div ref={threadContentRef} className="mx-auto max-w-3xl space-y-1">
-          <EntryMetadataPanel conversation={conversation} />
-
-          <AnimatePresence>
-            {loadingConversation && conversation.messages.length === 0 && (
-              <ConversationThreadSkeleton />
-            )}
-          </AnimatePresence>
-
-          {loadingHistory && (
-            <div className="flex items-center justify-center py-3">
-              <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 shadow-sm">
-                <motion.div
-                  className="h-4 w-4 rounded-full border border-healthy border-t-transparent"
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-                <span className="text-2xs font-medium text-muted-foreground">
-                  {t.loadingMore}
-                </span>
-              </div>
-            </div>
-          )}
-          {dateGroups.map((group, groupIndex) => (
-            <div key={`${group.date}-${groupIndex}`}>
-              <div className="flex items-center justify-center py-3">
-                <span className="rounded-lg bg-card px-3 py-1 text-2xs font-medium text-muted-foreground shadow-sm">
-                  {formatDateGroup(group.date)}
-                </span>
-              </div>
-
-              {(() => {
-                const channelRuns = groupMessagesByChannel(group.messages);
-
-                return channelRuns.map((run, runIdx) => {
-                  if (run.channel === "__system__") {
-                    return run.messages.map((msg) => (
-                      <div key={msg.id} className="flex justify-center py-1">
-                        <span className="rounded-lg bg-warning px-3 py-1.5 text-2xs text-warning-foreground shadow-sm max-w-[80%] text-center">
-                          {msg.text}
-                        </span>
-                      </div>
-                    ));
-                  }
-
-                  const isWhatsAppRun = run.channel === "whatsapp";
-                  const channelColor = isWhatsAppRun
-                    ? "border-healthy"
-                    : "border-foreground/20";
-
-                  return (
-                    <div
-                      key={`run-${runIdx}-${run.messages[0]?.id ?? runIdx}`}
-                      className={cn(runIdx > 0 && "mt-1")}
-                    >
-                      {run.messages.map((msg, msgIdx) => {
-                        const messageType =
-                          msg.message_type ??
-                          (msg as unknown as { messageType?: string })
-                            .messageType;
-                        const createdAt =
-                          msg.created_at ??
-                          (msg as unknown as { createdAt?: string })
-                            .createdAt ??
-                          "";
-                        const senderName =
-                          msg.sender_name ??
-                          (msg as unknown as { senderName?: string })
-                            .senderName;
-                        const senderAvatar =
-                          msg.sender_avatar ??
-                          (msg as unknown as { senderAvatar?: string })
-                            .senderAvatar;
-
-                        if (
-                          messageType === "call_received" ||
-                          messageType === "call_answered" ||
-                          messageType === "call_missed" ||
-                          messageType === "call_ended"
-                        ) {
-                          const missed = messageType === "call_missed";
-                          return (
-                            <div
-                              key={msg.id ?? `${runIdx}-${msgIdx}`}
-                              className="flex justify-center my-2"
-                            >
-                              <div className="flex items-center gap-1.5 rounded-[--radius] bg-muted px-3 py-1.5 text-2xs font-medium text-muted-foreground">
-                                <PhoneCall
-                                  weight="fill"
-                                  className={cn("h-3.5 w-3.5", missed && "text-destructive")}
-                                />
-                                <span>{msg.text}</span>
-                              </div>
-                            </div>
-                          );
-                        }
-
-                        const metaData = (msg.metadata ?? null) as Record<
-                          string,
-                          unknown
-                        > | null;
-                        const metaChannel = metaPrefix(
-                          msg.channel ?? msg.entry_type,
-                        );
-
-                        if (
-                          messageType === "story_reply" ||
-                          messageType === "story_mention"
-                        ) {
-                          const storyPrefix = metaChannel ?? "instagram";
-                          return (
-                            <div
-                              key={msg.id ?? `${runIdx}-${msgIdx}`}
-                              className="flex justify-start my-1"
-                            >
-                              <StoryCard
-                                prefix={storyPrefix}
-                                mention={messageType === "story_mention"}
-                                mediaUrl={readStory(metaData, storyPrefix)}
-                                text={msg.text}
-                              />
-                            </div>
-                          );
-                        }
-
-                        if (messageType === "unsupported") {
-                          return (
-                            <div
-                              key={msg.id ?? `${runIdx}-${msgIdx}`}
-                              className="flex justify-center my-2"
-                            >
-                              <UnsupportedNotice text={msg.text} />
-                            </div>
-                          );
-                        }
-
-                        if (
-                          messageType === "sticker" &&
-                          metaChannel &&
-                          isLikeSticker(readStickerId(metaData, metaChannel))
-                        ) {
-                          return (
-                            <div
-                              key={msg.id ?? `${runIdx}-${msgIdx}`}
-                              data-msg-id={msg.id}
-                              className="flex justify-start my-1 px-1"
-                            >
-                              <LikeSticker />
-                            </div>
-                          );
-                        }
-
-                        if (
-                          messageType === "call_permission_request" ||
-                          messageType === "call_permission_granted" ||
-                          messageType === "call_permission_rejected"
-                        ) {
-                          const granted =
-                            messageType === "call_permission_granted";
-                          const rejected =
-                            messageType === "call_permission_rejected";
-                          return (
-                            <div
-                              key={msg.id ?? `${runIdx}-${msgIdx}`}
-                              className="flex justify-center my-2"
-                            >
-                              <div
-                                className={cn(
-                                  "flex items-center gap-1.5 rounded-[--radius] px-3 py-1.5 text-2xs font-medium",
-                                  granted
-                                    ? "bg-healthy text-healthy-foreground"
-                                    : rejected
-                                      ? "bg-destructive text-destructive-foreground"
-                                      : "bg-warning text-warning-foreground",
-                                )}
-                              >
-                                <PhoneCall
-                                  weight="fill"
-                                  className="h-3.5 w-3.5"
-                                />
-                                <span>{msg.text}</span>
-                              </div>
-                            </div>
-                          );
-                        }
-
-                        const isOutgoing = isOutgoingMessage(
-                          msg,
-                          conversation.lead_number,
-                        );
-                        const badge = senderBadge(msg, conversation.lead_number);
-                        const isToolEventMessage = isToolMessage(msg);
-                        const isTemplateMessage = messageType === "template";
-                        const referral = metaChannel
-                          ? readReferral(metaData, metaChannel)
-                          : null;
-                        const reaction = metaChannel
-                          ? readReaction(metaData, metaChannel)
-                          : null;
-                        const sharedLink =
-                          metaChannel && messageType === "link_share"
-                            ? readLinkShare(metaData, metaChannel)
-                            : null;
-                        const sharedPost =
-                          metaChannel && messageType === "post_share"
-                            ? readPostShare(metaData, metaChannel)
-                            : null;
-                        const postback =
-                          metaChannel === "facebook"
-                            ? readPostback(metaData)
-                            : null;
-                        const sentVia =
-                          metaChannel === "facebook" && isOutgoing
-                            ? readSentVia(metaData)
-                            : null;
-
-                        const prevMsg =
-                          msgIdx > 0 ? run.messages[msgIdx - 1] : null;
-                        const nextMsg =
-                          msgIdx < run.messages.length - 1
-                            ? run.messages[msgIdx + 1]
-                            : null;
-
-                        const previousToolInfo =
-                          prevMsg && isToolMessage(prevMsg)
-                            ? getToolEventInfo(prevMsg, toolDefinitionByName)
-                            : null;
-                        const toolInfo = isToolEventMessage
-                          ? getToolEventInfo(
-                              msg,
-                              toolDefinitionByName,
-                              previousToolInfo?.toolName,
-                            )
-                          : null;
-
-                        if (toolInfo) {
-                          const nextToolInfo =
-                            nextMsg && isToolMessage(nextMsg)
-                              ? getToolEventInfo(
-                                  nextMsg,
-                                  toolDefinitionByName,
-                                  toolInfo.toolName,
-                                )
-                              : null;
-                          const hasResultBelow =
-                            toolInfo.kind === "call" &&
-                            nextToolInfo?.kind === "result";
-
-                          return (
-                            <motion.div
-                              key={msg.id}
-                              data-msg-id={msg.id}
-                              initial={{ opacity: 0, y: 8, scale: 0.97 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              transition={{
-                                duration: 0.2,
-                                ease: "easeOut",
-                              }}
-                              className="group/msg flex w-full justify-center"
-                            >
-                              <ToolEventRow
-                                info={toolInfo}
-                                createdAt={createdAt}
-                                hasResultBelow={hasResultBelow}
-                                isMatched={matchedIds.has(msg.id)}
-                                isCurrentMatch={
-                                  messageSearchResults?.[currentMatchIdx]
-                                    ?.id === msg.id
-                                }
-                              />
-                            </motion.div>
-                          );
-                        }
-
-                        const prevOutgoing = prevMsg
-                          ? isToolMessage(prevMsg)
-                            ? null
-                            : isOutgoingMessage(prevMsg, conversation.lead_number)
-                          : null;
-                        const nextOutgoing = nextMsg
-                          ? isToolMessage(nextMsg)
-                            ? null
-                            : isOutgoingMessage(nextMsg, conversation.lead_number)
-                          : null;
-
-                        const sameSidePrev =
-                          prevMsg !== null && prevOutgoing === isOutgoing;
-                        const sameSideNext =
-                          nextMsg !== null && nextOutgoing === isOutgoing;
-
-                        const showSenderName =
-                          !isOutgoing &&
-                          (msgIdx === 0 ||
-                            (prevMsg && prevMsg.from !== msg.from));
-
-                        const showAuthorAvatar =
-                          isGroupConversation && showSenderName;
-
-                        const showChannelLabel = msgIdx === 0;
-
-                        return (
-                          <motion.div
-                            key={msg.id}
-                            data-msg-id={msg.id}
-                            initial={{ opacity: 0, y: 8, scale: 0.97 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{
-                              duration: 0.2,
-                              ease: "easeOut",
-                            }}
-                            className={cn(
-                              "group/msg flex items-center gap-1",
-                              isOutgoing ? "justify-end" : "justify-start",
-                              sameSidePrev ? "pt-[1px]" : "pt-1",
-                            )}
-                          >
-                            {isOutgoing && onReply && (
-                              <button
-                                type="button"
-                                onClick={() => onReply(msg)}
-                                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 group-hover/msg:opacity-100 transition-opacity hover:bg-border/80 hover:text-muted-foreground"
-                                aria-label="Responder"
-                              >
-                                <ArrowBendUpLeft
-                                  weight="bold"
-                                  className="h-3.5 w-3.5"
-                                />
-                              </button>
-                            )}
-                            {isGroupConversation && !isOutgoing && (
-                              <div className="size-8 shrink-0 self-start">
-                                {showAuthorAvatar && (
-                                  <ChannelAvatar
-                                    name={senderName || msg.from}
-                                    pictureUrl={senderAvatar}
-                                    size="sm"
-                                  />
-                                )}
-                              </div>
-                            )}
-                            <div
-                              className={cn(
-                                "relative max-w-[75%] rounded-[--radius] px-3 py-2 shadow-sm transition-all duration-300",
-                                matchedIds.has(msg.id) &&
-                                  "ring-2 ring-warning ring-offset-1 bg-muted",
-                                messageSearchResults?.[currentMatchIdx]?.id ===
-                                  msg.id &&
-                                  "ring-2 ring-healthy ring-offset-2",
-                                isOutgoing
-                                  ? "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-[#e9edef] rounded-tr-sm"
-                                  : "bg-card text-foreground rounded-tl-sm",
-                                isOutgoing
-                                  ? cn("border-r-[3px]", channelColor)
-                                  : cn("border-l-[3px]", channelColor),
-                                isOutgoing && sameSidePrev && "rounded-tr-sm",
-                                isOutgoing && sameSideNext && "rounded-br-sm",
-                                !isOutgoing && sameSidePrev && "rounded-tl-sm",
-                                !isOutgoing && sameSideNext && "rounded-bl-sm",
-                              )}
-                            >
-                              {showChannelLabel && (
-                                <div
-                                  className={cn(
-                                    "flex items-center gap-1 mb-1",
-                                    isOutgoing
-                                      ? "justify-end"
-                                      : "justify-start",
-                                  )}
-                                >
-                                  {isWhatsAppRun && (
-                                    <>
-                                      <WhatsappLogo
-                                        weight="fill"
-                                        className="h-2.5 w-2.5 text-healthy-ink/60"
-                                      />
-                                      <span className="text-2xs font-semibold text-healthy-ink/50">
-                                        WhatsApp
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-
-                              {showSenderName && (
-                                <p
-                                  className="text-2xs font-semibold mb-0.5 text-healthy-ink"
-                                >
-                                  {senderName || msg.from}
-                                </p>
-                              )}
-
-                              {msg.reply_to_message_id &&
-                                (() => {
-                                  const repliedMsg = conversation.messages.find(
-                                    (m) => m.id === msg.reply_to_message_id,
-                                  );
-                                  return repliedMsg ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const el =
-                                          containerRef.current?.querySelector(
-                                            `[data-msg-id="${repliedMsg.id}"]`,
-                                          );
-                                        if (el) {
-                                          el.scrollIntoView({
-                                            behavior: "smooth",
-                                            block: "center",
-                                          });
-                                          el.classList.add(
-                                            "ring-2",
-                                            "ring-info",
-                                            "ring-offset-1",
-                                          );
-                                          setTimeout(() => {
-                                            el.classList.remove(
-                                              "ring-2",
-                                              "ring-info",
-                                              "ring-offset-1",
-                                            );
-                                          }, 2000);
-                                        }
-                                      }}
-                                      className="mb-1 w-full rounded-lg bg-black/5 px-2.5 py-1.5 text-left border-l-[3px] border-info hover:bg-black/[0.08] transition-colors"
-                                    >
-                                      <p className="text-2xs font-semibold text-primary-ink truncate">
-                                        {repliedMsg.sender_name ||
-                                          repliedMsg.from}
-                                      </p>
-                                      <p className="text-2xs text-muted-foreground truncate">
-                                        {repliedMsg.media_type
-                                          ? `📎 ${repliedMsg.media_type === "image" ? "Imagem" : repliedMsg.media_type === "video" ? "Vídeo" : repliedMsg.media_type === "audio" ? "Áudio" : "Documento"}`
-                                          : repliedMsg.text || "..."}
-                                      </p>
-                                    </button>
-                                  ) : (
-                                    <div className="mb-1 rounded-lg bg-black/5 px-2.5 py-1.5 border-l-[3px] border-foreground/20">
-                                      <p className="text-2xs text-muted-foreground italic">
-                                        Mensagem original não disponível
-                                      </p>
-                                    </div>
-                                  );
-                                })()}
-
-                              {referral && <ReferralChip referral={referral} />}
-
-                              {postback && (
-                                <PostbackChip title={postback.title} />
-                              )}
-
-                              {sharedLink && (
-                                <SharedLinkCard
-                                  kind="link"
-                                  url={sharedLink.url}
-                                  title={sharedLink.title}
-                                />
-                              )}
-
-                              {sharedPost && (
-                                <SharedLinkCard
-                                  kind="post"
-                                  url={sharedPost.url}
-                                  title={sharedPost.title}
-                                />
-                              )}
-
-                              {messageType === "sticker" &&
-                                !msg.media_url &&
-                                !msg.media_id && <StickerPlaceholder />}
-
-                              {(msg.media_url || msg.media_id) &&
-                                msg.media_type && (
-                                  <MessageMedia
-                                    type={msg.media_type}
-                                    url={msg.media_url}
-                                    mediaId={msg.media_id}
-                                    entryType={msg.entry_type}
-                                    entryId={msg.entry_id}
-                                    text={msg.text}
-                                    layout={msg.media_layout}
-                                  />
-                                )}
-
-                              {isTemplateMessage && msg.metadata && (
-                                <TemplateBubble
-                                  metadata={
-                                    msg.metadata as TemplateMessageMetadata
-                                  }
-                                />
-                              )}
-
-                              {msg.location && (
-                                <LocationMessageCard
-                                  messageId={msg.id}
-                                  location={msg.location}
-                                  leadId={conversation.lead_id}
-                                  leadName={conversation.lead_name}
-                                  leadNumber={conversation.lead_number}
-                                />
-                              )}
-
-                              {msg.text &&
-                                !msg.location &&
-                                !isToolEventMessage &&
-                                !isTemplateMessage && (
-                                  <CollapsibleMessageText text={msg.text} />
-                                )}
-
-                              {reaction && (
-                                <div
-                                  className={cn(
-                                    "-mb-1 mt-1 flex",
-                                    isOutgoing ? "justify-start" : "justify-end",
-                                  )}
-                                >
-                                  <ReactionChip emoji={reaction} />
-                                </div>
-                              )}
-
-                              <div
-                                className={cn(
-                                  "flex items-center gap-1 mt-0.5",
-                                  isOutgoing ? "justify-end" : "justify-start",
-                                )}
-                              >
-                                {badge && (
-                                  <span
-                                    className={cn(
-                                      "rounded-md px-1.5 py-0.5 text-2xs font-semibold",
-                                      badge === "human"
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted text-muted-foreground",
-                                    )}
-                                  >
-                                    {tCrm(`messageSender.${badge}`)}
-                                  </span>
-                                )}
-                                {sentVia && <SentViaBadge via={sentVia} />}
-                                {isTemplateMessage && (
-                                  <span className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
-                                    {tCrm("messageSender.template")}
-                                  </span>
-                                )}
-                                <span className="text-2xs text-muted-foreground">
-                                  {formatMessageTime(createdAt)}
-                                </span>
-                                {isOutgoing && (
-                                  <ReadReceipt
-                                    read={msg.read}
-                                    deliveryStatus={msg.delivery_status}
-                                    metadata={msg.metadata}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                            {!isOutgoing && onReply && (
-                              <button
-                                type="button"
-                                onClick={() => onReply(msg)}
-                                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 group-hover/msg:opacity-100 transition-opacity hover:bg-border/80 hover:text-muted-foreground"
-                                aria-label="Responder"
-                              >
-                                <ArrowBendUpLeft
-                                  weight="bold"
-                                  className="h-3.5 w-3.5"
-                                />
-                              </button>
-                            )}
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          ))}
-
-          <AnimatePresence>
-            {isTyping && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="flex justify-start"
-              >
-                <div className="rounded-[--radius] rounded-tl-sm bg-card shadow-sm">
-                  <TypingIndicator />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div ref={bottomRef} />
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {showScrollDown && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => scrollToBottom(true)}
-            className="absolute bottom-4 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-lg border border-border hover:bg-muted transition-colors"
-          >
-            <ArrowDown
-              weight="bold"
-              className="h-4 w-4 text-muted-foreground"
-            />
-          </motion.button>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

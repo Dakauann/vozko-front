@@ -26,6 +26,7 @@ import { AssistantLauncher } from "@/components/ai-chat/assistant-launcher";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
+import { builderStepLabel } from "@/lib/workflows/builder-progress";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
 import { useModelChoice } from "@/hooks/use-model-choice";
 import { useWorkflowAIBuilder } from "@/hooks/use-workflow-ai-builder";
@@ -41,7 +42,7 @@ interface WorkflowCopilotPanelProps {
   onMeta?: (meta: { name?: string; description?: string; workflowType?: WorkflowType }) => void;
   getGraph?: () => WorkflowGraph | null | undefined;
   onClose: () => void;
-  onOpen: () => void;
+  onBusyChange?: (busy: boolean) => void;
   visible?: boolean;
 }
 
@@ -63,7 +64,7 @@ export function WorkflowCopilotPanel({
   onMeta,
   getGraph,
   onClose,
-  onOpen,
+  onBusyChange,
   visible = true,
 }: WorkflowCopilotPanelProps) {
   const {
@@ -116,6 +117,10 @@ export function WorkflowCopilotPanel({
   const isBusy = status === "building" || status === "connecting";
 
   useEffect(() => {
+    onBusyChange?.(isBusy);
+  }, [isBusy, onBusyChange]);
+
+  useEffect(() => {
     if (!isBusy) return;
     const start = Date.now();
     const id = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
@@ -148,10 +153,10 @@ export function WorkflowCopilotPanel({
 
   return (
     <>
-      {!visible && <WorkflowCopilotFab onClick={onOpen} busy={isBusy} />}
-    <div
+    <aside
+      aria-label="Copiloto de Fluxos"
       className={cn(
-        "fixed bottom-6 right-6 z-[60] flex w-[min(420px,92vw)] h-[min(68vh,620px)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl",
+        "relative flex min-h-0 w-[400px] flex-1 flex-col overflow-hidden bg-card",
         !visible && "hidden",
       )}
     >
@@ -280,7 +285,7 @@ export function WorkflowCopilotPanel({
           {status === "connecting" && "Conectando…"}
           {status === "ready" && "Pronto, descreva o fluxo que deseja."}
           {status === "building" &&
-            `Construindo… iteração ${iteration}/${maxIterations}`}
+            `Construindo… ${builderStepLabel(iteration, maxIterations)}`}
           {status === "done" && (valid ? "Workflow válido." : "Não finalizado.")}
           {status === "error" && "Erro de conexão."}
           {status === "idle" && "…"}
@@ -427,7 +432,7 @@ export function WorkflowCopilotPanel({
       </div>
         </>
       )}
-    </div>
+    </aside>
     </>
   );
 }

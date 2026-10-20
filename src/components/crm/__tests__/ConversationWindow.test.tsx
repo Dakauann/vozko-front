@@ -2,14 +2,92 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
 vi.mock("@/components/crm/CrmConversationView", () => ({
-  default: ({ conversation }: { conversation: { entry_id: string } }) => (
-    <div data-testid="thread">thread:{conversation.entry_id}</div>
+  default: ({
+    conversation,
+    onSearchMessages,
+    onLoadAround,
+    onLoadNewer,
+    onResendMessage,
+    outbox,
+    messageSearchResults,
+    messageSearchQuery,
+  }: {
+    conversation: { entry_id: string };
+    onSearchMessages?: (query: string) => void;
+    onLoadAround?: (anchor: { messageId: string } | { timestamp: string }) => void;
+    onLoadNewer?: () => void;
+    onResendMessage?: (messageId: string) => void;
+    outbox?: unknown[];
+    messageSearchResults?: unknown[] | null;
+    messageSearchQuery?: string | null;
+  }) => (
+    <div
+      data-testid="thread"
+      data-search-query={messageSearchQuery ?? ""}
+      data-search-hits={messageSearchResults?.length ?? 0}
+      data-outbox={outbox?.length ?? 0}
+    >
+      thread:{conversation.entry_id}
+      {onSearchMessages ? (
+        <button type="button" onClick={() => onSearchMessages("boleto")}>
+          search thread
+        </button>
+      ) : null}
+      {onLoadAround ? (
+        <button type="button" onClick={() => onLoadAround({ messageId: "quoted" })}>
+          jump in thread
+        </button>
+      ) : null}
+      {onLoadNewer ? (
+        <button type="button" onClick={onLoadNewer}>
+          newer in thread
+        </button>
+      ) : null}
+      {onResendMessage ? (
+        <button type="button" onClick={() => onResendMessage("failed-1")}>
+          resend in thread
+        </button>
+      ) : null}
+    </div>
   ),
 }));
 vi.mock("@/components/crm/CrmMessageInput", () => ({
-  default: () => <div data-testid="composer" />,
+  default: ({
+    onSendAndFinish,
+    onSendTemplateNow,
+  }: {
+    onSendAndFinish?: () => void;
+    onSendTemplateNow?: () => void;
+  }) => (
+    <div data-testid="composer">
+      {onSendAndFinish ? (
+        <button type="button" onClick={onSendAndFinish}>
+          send and finish
+        </button>
+      ) : null}
+      {onSendTemplateNow ? (
+        <button type="button" onClick={onSendTemplateNow}>
+          template now
+        </button>
+      ) : null}
+    </div>
+  ),
+}));
+vi.mock("@/components/crm/SendTemplateNowDialog", () => ({
+  default: ({ onSend }: { onSend: (templateId: string, parameters: string[]) => void }) => (
+    <button type="button" onClick={() => onSend("t1", ["Ana"])}>
+      send template t1
+    </button>
+  ),
 }));
 vi.mock("@/components/crm/CrmWallpaper", () => ({ default: () => null }));
+vi.mock("@/components/crm/ConversationDropZone", () => ({
+  ConversationDropZone: ({ enabled, children }: { enabled: boolean; children: React.ReactNode }) => (
+    <div data-testid="drop-zone" data-enabled={String(enabled)}>
+      {children}
+    </div>
+  ),
+}));
 vi.mock("@/components/crm/AssignMemberPicker", () => ({
   default: ({ onAssign }: { onAssign: (userId: string) => void }) => (
     <button type="button" onClick={() => onAssign("u-7")}>
@@ -96,7 +174,7 @@ const state = (
   },
   loadingConversation: false,
   loadingHistory: false,
-  pendingLoadMore: false,
+  search: null,
   typingUserIds: [],
   visible: true,
 });
@@ -149,6 +227,78 @@ describe("ConversationWindow", () => {
     renderWindow();
     const win = screen.getByRole("dialog");
     expect(win).toHaveStyle({ left: "40px", top: "60px", width: "384px" });
+  });
+
+  it("gives the thread the same search the main pane has", () => {
+    const onSearchMessages = vi.fn();
+    const onLoadAround = vi.fn();
+    renderWindow({
+      onSearchMessages,
+      onLoadAround,
+      state: {
+        ...state(),
+        search: { query: "boleto", results: [{ id: "hit" }] as never, totalItems: 1, searching: false },
+      },
+    });
+
+    const thread = screen.getByTestId("thread");
+    expect(thread).toHaveAttribute("data-search-query", "boleto");
+    expect(thread).toHaveAttribute("data-search-hits", "1");
+    fireEvent.click(screen.getByRole("button", { name: "search thread" }));
+    expect(onSearchMessages).toHaveBeenCalledWith("boleto");
+    fireEvent.click(screen.getByRole("button", { name: "jump in thread" }));
+    expect(onLoadAround).toHaveBeenCalledWith({ messageId: "quoted" });
+  });
+
+  it("offers send and finish and a template send in the window, like the main pane", () => {
+    const onSendAndFinish = vi.fn();
+    const onReopenWindow = vi.fn();
+    renderWindow({
+      state: state({ window_open: false }),
+      actions: {
+        canAssign: false,
+        canSetStatus: false,
+        canToggleAutomation: false,
+        canAssignStage: false,
+        canAssignLabel: false,
+        resolve: () => ({ businessPhoneId: "bp1" }),
+        onAssign: vi.fn(),
+        onSetStatus: vi.fn(),
+        onToggleAutomation: vi.fn(),
+        onSendAndFinish,
+        onReopenWindow,
+      },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "send and finish" }));
+    expect(onSendAndFinish).toHaveBeenCalledWith("e1", "whatsapp");
+
+    fireEvent.click(screen.getByRole("button", { name: "template now" }));
+    fireEvent.click(screen.getByRole("button", { name: "send template t1" }));
+    expect(onReopenWindow).toHaveBeenCalledWith("e1", "whatsapp", "t1", ["Ana"]);
+  });
+
+  it("takes dropped files only while the reply window is open and the operator may send", () => {
+    renderWindow({ state: state({ window_open: true }) });
+    expect(screen.getByTestId("drop-zone")).toHaveAttribute("data-enabled", "true");
+  });
+
+  it("offers neither when the operator may not finish or reopen", () => {
+    renderWindow();
+    expect(screen.queryByRole("button", { name: "send and finish" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "template now" })).toBeNull();
+  });
+
+  it("gives the thread the window's pending sends, newer pages and resend", () => {
+    const onLoadNewer = vi.fn();
+    const onResendMessage = vi.fn();
+    renderWindow({ onLoadNewer, onResendMessage, outbox: [{ requestId: "r1" }] as never });
+
+    expect(screen.getByTestId("thread")).toHaveAttribute("data-outbox", "1");
+    fireEvent.click(screen.getByRole("button", { name: "newer in thread" }));
+    fireEvent.click(screen.getByRole("button", { name: "resend in thread" }));
+    expect(onLoadNewer).toHaveBeenCalledTimes(1);
+    expect(onResendMessage).toHaveBeenCalledWith("failed-1");
   });
 
   it("shows the conversation and its composer", () => {

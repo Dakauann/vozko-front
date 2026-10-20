@@ -12,6 +12,10 @@ export const SOUND_FILES: Record<SoundName, string> = {
 const KEY_TONE_SECONDS = 0.12;
 const KEY_TONE_LEVEL = 0.08;
 const EDGE_SECONDS = 0.005;
+const CHIME_NOTES = [880, 1318.5] as const;
+const CHIME_NOTE_SECONDS = 0.11;
+const CHIME_GAP_SECONDS = 0.03;
+const CHIME_LEVEL = 0.06;
 
 type ContextFactory = () => AudioContext | null;
 type Fetcher = (url: string) => Promise<ArrayBuffer>;
@@ -72,12 +76,24 @@ export class SoundPlayer {
         const frequencies = dtmfFrequencies(key);
         const context = this.audio();
         if (!frequencies || !context) return;
-        const start = context.currentTime;
-        const end = start + KEY_TONE_SECONDS;
+        this.tone(context, frequencies, context.currentTime, KEY_TONE_SECONDS, KEY_TONE_LEVEL);
+    }
+
+    chime(): void {
+        const context = this.audio();
+        if (!context) return;
+        CHIME_NOTES.forEach((frequency, index) => {
+            const start = context.currentTime + index * (CHIME_NOTE_SECONDS + CHIME_GAP_SECONDS);
+            this.tone(context, [frequency], start, CHIME_NOTE_SECONDS, CHIME_LEVEL);
+        });
+    }
+
+    private tone(context: AudioContext, frequencies: readonly number[], start: number, seconds: number, level: number): void {
+        const end = start + seconds;
         const envelope = context.createGain();
         envelope.gain.setValueAtTime(0, start);
-        envelope.gain.linearRampToValueAtTime(KEY_TONE_LEVEL, start + EDGE_SECONDS);
-        envelope.gain.setValueAtTime(KEY_TONE_LEVEL, end - EDGE_SECONDS);
+        envelope.gain.linearRampToValueAtTime(level, start + EDGE_SECONDS);
+        envelope.gain.setValueAtTime(level, end - EDGE_SECONDS);
         envelope.gain.linearRampToValueAtTime(0, end);
         envelope.connect(context.destination);
         for (const frequency of frequencies) {

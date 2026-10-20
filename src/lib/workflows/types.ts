@@ -1,9 +1,14 @@
+import type { NodePin } from "./node-pin";
+import type { NodeTestBehavior } from "./node-test-behavior";
+import type { RunStepsWindow } from "./run-steps";
 
 export type WorkflowNodeType =
   | "trigger_first_message"
   | "trigger_message_received"
   | "trigger_webhook"
   | "trigger_call_received"
+  | "trigger_form_submitted"
+  | "trigger_agent_call"
   | "action_play_audio"
   | "wait_dtmf"
   | "action_transfer_to_queue"
@@ -13,6 +18,7 @@ export type WorkflowNodeType =
   | "action_send_media"
   | "action_send_interactive"
   | "action_send_whatsapp_button"
+  | "action_send_form"
   | "action_ai_agent"
   | "action_ai_extract"
   | "action_set_variable"
@@ -34,6 +40,7 @@ export type WorkflowNodeType =
   | "action_manage_opportunity"
   | "action_update_lead"
   | "action_consent"
+  | "action_reply_to_agent"
   | "wait_duration"
   | "wait_for_reply"
   | "wait_for_event"
@@ -55,7 +62,9 @@ export type WorkflowTriggerType =
   | "trigger_first_message"
   | "trigger_message_received"
   | "trigger_webhook"
-  | "trigger_call_received";
+  | "trigger_call_received"
+  | "trigger_form_submitted"
+  | "trigger_agent_call";
 
 export type WorkflowType = "messages" | "voice";
 
@@ -72,6 +81,7 @@ export interface WorkflowNode {
   type: WorkflowNodeType;
   position: WorkflowNodePosition;
   config: Record<string, unknown>;
+  pinned?: NodePin;
 }
 
 export interface WorkflowEdge {
@@ -101,6 +111,116 @@ export interface Workflow {
   createdAt: string;
   updatedAt: string;
   requiredCampaignVars?: string[];
+  publishedVersion?: number | null;
+  publishedAt?: string | null;
+  hasUnpublishedChanges?: boolean;
+  entryPoints?: EntryPoint[];
+  handles?: Record<string, HandleDefinition[]>;
+}
+
+export type EntryPointKind =
+  | "message_received"
+  | "first_message"
+  | "webhook"
+  | "form_submitted"
+  | "agent_call"
+  | "campaign_sent"
+  | "stage_added"
+  | "no_reply"
+  | "call_received"
+  | "manual"
+  | "lead_exit";
+
+export type EntryReadiness = "ready" | "blocked";
+
+export type EntryBlockReason =
+  | "not_published"
+  | "paused"
+  | "webhook_inactive"
+  | "no_webhook"
+  | "no_form"
+  | "form_inactive"
+  | "no_agent_bound"
+  | "no_channel"
+  | "channel_paused"
+  | "no_trigger";
+
+export type EntryChannelKind =
+  | "whatsapp_campaign"
+  | "unofficial_whatsapp_campaign"
+  | "unofficial_whatsapp_instance"
+  | "facebook_page"
+  | "instagram_account"
+  | "telegram_account"
+  | "tiktok_account"
+  | "mercadolivre_account"
+  | "webchat_widget";
+
+export interface EntryWebhook {
+  active: boolean;
+  authMode: "none" | "header_token" | "hmac";
+  method: string;
+}
+
+export interface EntryForm {
+  id: string;
+  name: string;
+  active: boolean;
+  missing?: boolean;
+}
+
+export interface EntryAgent {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
+export interface EntryChannel {
+  kind: EntryChannelKind;
+  id: string;
+  name: string;
+  workflowEnabled: boolean;
+  bound: boolean;
+}
+
+export interface EntryLeadExit {
+  source: "template" | "campaign";
+  id?: string;
+  name: string;
+  language?: string;
+  button: string;
+}
+
+export interface EntryPointDetails {
+  webhook?: EntryWebhook;
+  forms?: EntryForm[];
+  anyForm?: boolean;
+  agents?: EntryAgent[];
+  channels?: EntryChannel[];
+  leadExits?: EntryLeadExit[];
+}
+
+export interface EntryPoint {
+  kind: EntryPointKind;
+  nodeId?: string;
+  readiness: EntryReadiness;
+  reason?: EntryBlockReason;
+  details?: EntryPointDetails;
+  lastReceivedAt?: string;
+  lastOutcome?: WebhookDeliveryOutcome;
+  lastReason?: string;
+}
+
+export interface WorkflowVersion {
+  id: string;
+  workflowId: string;
+  version: number;
+  type: WorkflowType;
+  publishedAt: string;
+  publishedBy?: string;
+  createdAt: string;
+  graph?: WorkflowGraph;
+  handles?: Record<string, HandleDefinition[]>;
 }
 
 
@@ -118,15 +238,63 @@ export interface WorkflowRun {
   entryId: string;
   entryType: string;
   status: RunStatus;
-  currentNodeId: string;
+  triggerNodeId?: string;
+  currentNodeId?: string;
   state: Record<string, unknown>;
-  wakeAt?: string;
+  wakeAt?: number;
   waitReason?: string;
   retryCount: number;
   error?: string;
-  createdAt: string;
+  startedAt: string;
   updatedAt: string;
   completedAt?: string;
+  triggerType?: string;
+  startedBy?: string;
+  workflowVersion?: number;
+  agentResult?: Record<string, unknown>;
+  triggerData?: Record<string, unknown>;
+}
+
+export type RunStepStatus =
+  | "executed"
+  | "failed"
+  | "skipped"
+  | "cancelled"
+  | "waiting"
+  | "gate";
+
+export type RunErrorKind =
+  | "config"
+  | "timeout"
+  | "http_status"
+  | "transport"
+  | "script"
+  | "panic"
+  | "guard"
+  | "gate"
+  | "validation"
+  | "cancelled"
+  | "internal";
+
+export interface RunHttpExchange {
+  method: string;
+  url: string;
+  requestHeaders?: Record<string, string>;
+  requestBody?: string;
+  status?: number;
+  responseHeaders?: Record<string, string>;
+  responseBody?: string;
+  latencyMs: number;
+  tlsFallback?: boolean;
+  redirects?: number;
+  egressRefusal?: string;
+  error?: string;
+  truncated?: boolean;
+}
+
+export interface RunScriptLog {
+  level: string;
+  message: string;
 }
 
 export interface WorkflowRunLog {
@@ -134,18 +302,110 @@ export interface WorkflowRunLog {
   runId: string;
   nodeId: string;
   nodeType: string;
-  status: string;
-  input: Record<string, unknown>;
-  output: Record<string, unknown>;
+  status: RunStepStatus | string;
+  input?: Record<string, unknown>;
+  output?: Record<string, unknown>;
   error?: string;
   executedAt: string;
+  attempt: number;
+  startedAt?: string;
+  finishedAt?: string;
+  durationMs: number;
+  branch?: string;
+  errorKind?: RunErrorKind | string;
+  errorChain?: string[];
+  stack?: string;
+  scriptLogs?: RunScriptLog[];
+  http?: RunHttpExchange[];
+  pinned?: boolean;
+  simulated?: boolean;
+  notice?: string;
 }
 
 export interface RunDetail {
   run: WorkflowRun;
   logs: WorkflowRunLog[];
+  steps?: RunStepsWindow;
 }
 
+export type WebhookDeliveryOutcome =
+  | "accepted"
+  | "duplicate"
+  | "already_running"
+  | "rejected";
+
+export interface WebhookDelivery {
+  id: string;
+  webhookId: string;
+  workflowId: string;
+  workspaceId: string;
+  receivedAt: string;
+  outcome: WebhookDeliveryOutcome;
+  reason?: string;
+  httpStatus: number;
+  entryResolution?: string;
+  entryId?: string;
+  entryType?: string;
+  runId?: string;
+  latencyMs: number;
+  payloadKeys?: string[];
+}
+
+
+export type RuntimeAlertKind =
+  | "workflow_called_inactive"
+  | "node_failing"
+  | "webhook_rejecting"
+  | "run_stuck"
+  | "agent_tool_failing"
+  | "inbound_lookup_failed";
+
+export type RuntimeAlertFixAction =
+  | "publish"
+  | "open_run"
+  | "open_node"
+  | "view_deliveries"
+  | "open_agent"
+  | "open_conversation";
+
+export interface RuntimeAlert {
+  id: string;
+  kind: RuntimeAlertKind;
+  severity: "high" | "medium";
+  fixAction: RuntimeAlertFixAction;
+  status: "open" | "resolved";
+  workflowId?: string;
+  nodeId?: string;
+  agentId?: string;
+  subject?: string;
+  runId?: string;
+  entryId?: string;
+  entryType?: string;
+  sample?: string;
+  resolvedAt?: string;
+  count: number;
+  firstSeen: string;
+  lastSeen: string;
+}
+
+export interface ConversationWorkflowRun {
+  id: string;
+  workflowId: string;
+  workflowName: string;
+  workflowVersion?: number;
+  entryId: string;
+  entryType: string;
+  status: RunStatus;
+  triggerType?: string;
+  startedBy?: string;
+  startedAt: string;
+  completedAt?: string;
+  durationMs?: number;
+  waitReason?: string;
+  currentNodeId?: string;
+  currentNodeType?: string;
+  currentNodeName?: string;
+}
 
 export interface CreateWorkflowPayload {
   name: string;
@@ -163,6 +423,7 @@ export interface UpdateWorkflowPayload {
   triggerType?: WorkflowTriggerType;
   triggerConfig?: Record<string, unknown>;
   graph: WorkflowGraph;
+  revision: number;
 }
 
 export interface StartRunPayload {
@@ -178,17 +439,15 @@ export interface WorkflowListMeta {
   totalItems: number;
 }
 
-export interface WorkflowListResponse {
-  data?: Workflow[];
-  items?: Workflow[];
+export type WorkflowListResponse = PagedResponse<Workflow>;
+
+export interface PagedResponse<T> {
+  data?: T[];
+  items?: T[];
   meta?: Partial<WorkflowListMeta>;
 }
 
-export interface RunListResponse {
-  data?: WorkflowRun[];
-  items?: WorkflowRun[];
-  meta?: Partial<WorkflowListMeta>;
-}
+export type RunListResponse = PagedResponse<WorkflowRun>;
 
 
 export type NodeCategory =
@@ -243,10 +502,11 @@ export interface OutputKeyDefinition {
 
 export interface LintIssue {
   code: string;
-  severity: "blocking" | "advisory";
+  severity: "blocking" | "advisory" | "info";
   nodeId?: string;
   field?: string;
   edgeRef?: string;
+  path?: string;
   message: string;
   hint?: string;
 }
@@ -265,6 +525,7 @@ export interface NodeDefinition {
   configSchema: ConfigField[] | null;
   resizable?: boolean;
   channelLimits?: Record<string, ChannelInteractiveLimits>;
+  testBehavior?: NodeTestBehavior;
 }
 
 export interface ChannelInteractiveLimits {
@@ -312,6 +573,7 @@ export interface TestNodePayload {
   mockedState?: Record<string, unknown>;
   triggerVars?: Record<string, unknown>;
   skipExecution?: boolean;
+  confirmRealCalls?: boolean;
 }
 
 type BuilderMessageRole = "user" | "assistant" | "tool" | "system";
@@ -347,6 +609,9 @@ export interface TestNodeResult {
   execution_output?: Record<string, unknown>;
   execution_duration_ms: number;
   state_after?: Record<string, unknown>;
+  pinned?: boolean;
+  step?: WorkflowRunLog;
+  upstream_steps?: WorkflowRunLog[];
 }
 
 

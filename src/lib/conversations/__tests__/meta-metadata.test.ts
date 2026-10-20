@@ -6,7 +6,6 @@ import {
     readLinkShare,
     readPostShare,
     readPostback,
-    readReaction,
     readReferral,
     readSentVia,
     readStickerId,
@@ -19,19 +18,6 @@ describe("metaPrefix", () => {
         expect(metaPrefix("facebook")).toBe("facebook");
         expect(metaPrefix("whatsapp")).toBeNull();
         expect(metaPrefix(undefined)).toBeNull();
-    });
-});
-
-describe("readReaction", () => {
-    it("prefers the emoji and falls back to the reaction name", () => {
-        expect(readReaction({ facebook_reaction_emoji: "😍", facebook_reaction: "love" }, "facebook")).toBe("😍");
-        expect(readReaction({ instagram_reaction: "❤" }, "instagram")).toBe("❤");
-    });
-
-    it("is empty after an unreact", () => {
-        expect(readReaction({ facebook_reaction_action: "unreact", facebook_reaction: "", facebook_reaction_emoji: "" }, "facebook")).toBeNull();
-        expect(readReaction({}, "facebook")).toBeNull();
-        expect(readReaction(null, "facebook")).toBeNull();
     });
 });
 

@@ -13,6 +13,7 @@ import Button from "@/components/elevated-design/button";
 import { IconBox } from "@/components/elevated-design/listing-card";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type FilterMode = "analysis" | "conversation";
 
@@ -106,6 +107,7 @@ interface CampaignFiltersProps {
   className?: string;
   showWhatsAppFilter?: boolean;
   showChannelFilter?: boolean;
+  presentation?: "card" | "popover";
 }
 
 export default function CampaignFilters({
@@ -119,6 +121,7 @@ export default function CampaignFilters({
   className,
   showWhatsAppFilter = true,
   showChannelFilter = true,
+  presentation = "card",
 }: CampaignFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -296,6 +299,144 @@ export default function CampaignFilters({
     onClear();
   }, [values.mode, onChange, onClear]);
 
+  const panel = (
+    <div className="px-4 pb-4 space-y-4">
+      {}
+      <div className="flex items-center rounded-[--radius] border border-border bg-card p-1">
+        <button
+          type="button"
+          onClick={() => handleModeChange("analysis")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
+            values.mode === "analysis"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted",
+          )}
+        >
+          <ChartBar
+            className="h-4 w-4"
+            weight={values.mode === "analysis" ? "fill" : "regular"}
+          />
+          <span className="text-sm font-medium">
+            {modeTranslations.analysisMode}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => handleModeChange("conversation")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
+            values.mode === "conversation"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted",
+          )}
+        >
+          <ChatCircle
+            className="h-4 w-4"
+            weight={values.mode === "conversation" ? "fill" : "regular"}
+          />
+          <span className="text-sm font-medium">
+            {modeTranslations.conversationMode}
+          </span>
+        </button>
+      </div>
+
+      {}
+      <AnimatePresence mode="wait">
+        {values.mode === "analysis" ? (
+          <motion.div
+            key="analysis"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AnalysisFilters
+              values={values.analysis}
+              onChange={handleAnalysisChange}
+              onApply={handleApply}
+              onClear={handleClearAll}
+              translations={analysisTranslations}
+              isCollapsible={false}
+              defaultExpanded
+              hideActions
+              className="border-0 p-0 shadow-none bg-transparent"
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="conversation"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ConversationFilters
+              values={values.conversation}
+              onChange={handleConversationChange}
+              onApply={handleApply}
+              onClear={handleClearAll}
+              translations={conversationTranslations}
+              isCollapsible={false}
+              defaultExpanded
+              showWhatsAppFilter={showWhatsAppFilter}
+              showChannelFilter={showChannelFilter}
+              hideActions
+              className="border-0 p-0 shadow-none bg-transparent"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {}
+      {hasActiveFilters && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-center pt-2"
+        >
+          <Button
+            variant="ghost"
+            title={modeTranslations.clearAll}
+            onClick={handleClearAll}
+            icon={<X className="h-4 w-4" weight="bold" />}
+            iconVisible
+            iconSide="left"
+            className="text-muted-foreground hover:text-destructive-ink"
+          />
+        </motion.div>
+      )}
+    </div>
+  );
+
+  if (presentation === "popover") {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "inline-flex h-8 items-center gap-2 rounded-[--radius] border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              className,
+            )}
+          >
+            <Funnel className="h-4 w-4 text-muted-foreground" weight="bold" />
+            {modeTranslations.title}
+            {hasActiveFilters ? (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-[--radius] bg-primary px-1.5 text-2xs font-semibold text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            ) : null}
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-[min(560px,calc(100vw-32px))] p-0 pt-4">
+          {panel}
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -394,113 +535,7 @@ export default function CampaignFilters({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-4">
-              {}
-              <div className="flex items-center rounded-[--radius] border border-border bg-card p-1">
-                <button
-                  type="button"
-                  onClick={() => handleModeChange("analysis")}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
-                    values.mode === "analysis"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  )}
-                >
-                  <ChartBar
-                    className="h-4 w-4"
-                    weight={values.mode === "analysis" ? "fill" : "regular"}
-                  />
-                  <span className="text-sm font-medium">
-                    {modeTranslations.analysisMode}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleModeChange("conversation")}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors",
-                    values.mode === "conversation"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  )}
-                >
-                  <ChatCircle
-                    className="h-4 w-4"
-                    weight={values.mode === "conversation" ? "fill" : "regular"}
-                  />
-                  <span className="text-sm font-medium">
-                    {modeTranslations.conversationMode}
-                  </span>
-                </button>
-              </div>
-
-              {}
-              <AnimatePresence mode="wait">
-                {values.mode === "analysis" ? (
-                  <motion.div
-                    key="analysis"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <AnalysisFilters
-                      values={values.analysis}
-                      onChange={handleAnalysisChange}
-                      onApply={handleApply}
-                      onClear={handleClearAll}
-                      translations={analysisTranslations}
-                      isCollapsible={false}
-                      defaultExpanded
-                      hideActions
-                      className="border-0 p-0 shadow-none bg-transparent"
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="conversation"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ConversationFilters
-                      values={values.conversation}
-                      onChange={handleConversationChange}
-                      onApply={handleApply}
-                      onClear={handleClearAll}
-                      translations={conversationTranslations}
-                      isCollapsible={false}
-                      defaultExpanded
-                      showWhatsAppFilter={showWhatsAppFilter}
-                      showChannelFilter={showChannelFilter}
-                      hideActions
-                      className="border-0 p-0 shadow-none bg-transparent"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {}
-              {hasActiveFilters && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-center pt-2"
-                >
-                  <Button
-                    variant="ghost"
-                    title={modeTranslations.clearAll}
-                    onClick={handleClearAll}
-                    icon={<X className="h-4 w-4" weight="bold" />}
-                    iconVisible
-                    iconSide="left"
-                    className="text-muted-foreground hover:text-destructive-ink"
-                  />
-                </motion.div>
-              )}
-            </div>
+            {panel}
           </motion.div>
         )}
       </AnimatePresence>

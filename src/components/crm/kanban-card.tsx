@@ -3,48 +3,49 @@
 import type { ReactNode } from "react";
 import type { TargetAndTransition, Transition, Variants } from "framer-motion";
 import { cn, readableInkFor } from "@/lib/utils";
+import {
+  panelSettleTransition,
+  stateTransition,
+} from "@/lib/motion/tokens";
 
 
 export const kanbanCardVariants: Variants = {
-  initial: { opacity: 0, y: 8, scale: 0.97 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 export const kanbanCardTransition: Transition = {
-  layout: { type: "spring", damping: 30, stiffness: 300, mass: 0.8 },
-  opacity: { duration: 0.2, ease: "easeOut" },
-  y: { duration: 0.2, ease: "easeOut" },
-  scale: { duration: 0.2, ease: "easeOut" },
+  layout: panelSettleTransition,
+  opacity: stateTransition,
 };
 
 export const kanbanCardHover = {
   y: -2,
-  transition: { duration: 0.15, ease: "easeOut" as const },
+  transition: stateTransition,
 };
 
 
 export const kanbanDragOverlayInitial: TargetAndTransition = {
   scale: 1,
-  rotate: 0,
   boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
 };
 
 export const kanbanDragOverlayAnimate: TargetAndTransition = {
   scale: 1.04,
-  rotate: [0, 2, -1.5, 1, -0.5, 0.5],
   boxShadow:
     "0 20px 40px -8px rgba(0,0,0,0.18), 0 8px 16px -4px rgba(0,0,0,0.1)",
 };
 
-export const kanbanDragOverlayTransition: Transition = {
-  scale: { type: "spring", damping: 20, stiffness: 300 },
-  rotate: { duration: 0.6, ease: "easeOut" },
-  boxShadow: { duration: 0.2, ease: "easeOut" },
-};
+export const kanbanDragOverlayTransition: Transition = stateTransition;
 
 export const kanbanCardGhostClass =
   "rounded-[--radius] border border-dashed border-foreground/20 bg-muted";
+
+export const kanbanColumnGhostClass =
+  "rounded-lg border border-dashed border-foreground/20 bg-muted";
+
+export const kanbanCardFocusClass =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 
 
@@ -233,12 +234,9 @@ export function CardLabelChip({ name, color }: { name: string; color: string }) 
     <span
       className="inline-flex items-center gap-1 truncate rounded-[--radius] px-2 py-0.5 text-2xs font-semibold shadow-sm"
       style={{ backgroundColor: color, color: readableInkFor(color) }}
-    >
+    >
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current opacity-40" />
       <span className="truncate">{name}</span>
     </span>
   );
 }
-
-
-;

@@ -2,13 +2,7 @@
 
 import { EnvelopeSimple } from "@/components/icons";
 
-function stripHtml(s: string): string {
-  return s
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+import { stripHtml } from "./node-summary";
 
 export function SendEmailPreview({
   config,

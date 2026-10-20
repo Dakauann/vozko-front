@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { channelLabel, ChannelLogo } from "@/components/icons/channel-logos";
+import { ChannelLogo } from "@/components/icons/channel-logos";
+import { useChannelName } from "@/hooks/use-channel-name";
 
 import type { AdPreviewContent, AdPreviewMedia } from "@/components/advertising/ad-preview-card";
 import { AdPreviewPanel } from "@/components/advertising/ad-preview-panel";
@@ -51,13 +52,14 @@ interface MessagePreviewData {
 
 function MessageProposalPreview({ data }: { data: MessagePreviewData }) {
   const t = useTranslations("aiChatPage.previews");
+  const channelName = useChannelName();
   const locale = useLocale();
   const when = data.scheduledAt ? new Date(data.scheduledAt) : null;
   return (
     <div className="rounded-lg border border-border bg-muted p-3">
       <p className="mb-2 flex items-center gap-1.5 text-2xs font-medium text-muted-foreground">
         <ChannelLogo channel={data.channel} className="h-3.5 w-3.5" />
-        {channelLabel(data.channel) ?? data.channel}
+        {channelName(data.channel) ?? data.channel}
         {when && !Number.isNaN(when.getTime()) ? (
           <span>
             {" · "}

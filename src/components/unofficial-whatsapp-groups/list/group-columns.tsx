@@ -24,7 +24,7 @@ function GroupCell({ row }: { row: GroupRow }) {
   const t = useTranslations("unofficialGroups.list.table");
   return (
     <div className="min-w-[14rem] max-w-[20rem]">
-      <GroupIdentity group={row.group} href={groupsRoutes.group(row.group.id)} sub="full" />
+      <GroupIdentity group={row.group} href={groupsRoutes.group(row.group.id)} sub="full" createdAt={row.groupCreatedAt} />
       {row.runningCampaigns > 0 ? (
         <Link
           href={groupsRoutes.group(row.group.id, { tab: "campaigns" })}

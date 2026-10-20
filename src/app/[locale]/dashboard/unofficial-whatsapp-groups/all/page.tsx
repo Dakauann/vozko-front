@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import {
   discoverGroupsAction,
-  exportGroupMembersAction,
+  exportMembersAction,
   followGroupAction,
   listGroupCategoriesAction,
   listWorkspaceGroupsAction,
@@ -271,17 +271,11 @@ function GroupsList() {
     const targets = selectedList;
     if (targets.length === 0) return;
     setBulkBusy("export");
-    const id = toast.loading(t("selection.exportProgress", { done: 0, total: targets.length }));
-    let failed = 0;
-    for (const [index, row] of targets.entries()) {
-      const result = await exportGroupMembersAction(row.group.id);
-      if (result.error) failed += 1;
-      toast.loading(t("selection.exportProgress", { done: index + 1, total: targets.length }), { id });
-    }
+    const id = toast.loading(t("selection.exportProgress", { total: targets.length }));
+    const result = await exportMembersAction({ groupIds: targets.map((row) => row.group.id) });
     setBulkBusy(null);
-    const done = targets.length - failed;
-    if (failed > 0) toast.warning(t("selection.exportDone", { count: done }), { id, description: t("selection.exportFailed", { count: failed }) });
-    else toast.success(t("selection.exportDone", { count: done }), { id });
+    if (result.error) toast.error(t("selection.exportFailed"), { id, description: result.error });
+    else toast.success(t("selection.exportDone", { count: targets.length }), { id });
   }, [t, selectedList]);
 
   const busyIcon = (kind: typeof bulkBusy, icon: ReactNode) => (bulkBusy === kind ? <CircleNotch className="h-4 w-4 animate-spin" weight="bold" /> : icon);

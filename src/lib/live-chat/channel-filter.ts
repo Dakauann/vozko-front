@@ -8,7 +8,9 @@ export type ChannelFilter =
     | "facebook"
     | "telegram"
     | "unofficial_whatsapp"
-    | "webchat";
+    | "webchat"
+    | "mercadolivre"
+    | "tiktok";
 
 type ChannelFilterKind = "all" | "campaign" | "entry";
 
@@ -56,6 +58,18 @@ export const CHANNEL_FILTERS: readonly ChannelFilterSpec[] = [
         kind: "entry",
         labelKey: "filterWebchat",
         permission: { resource: "webchat_widgets", action: "read" },
+    },
+    {
+        value: "mercadolivre",
+        kind: "entry",
+        labelKey: "filterMercadoLivre",
+        permission: { resource: "mercadolivre_accounts", action: "read" },
+    },
+    {
+        value: "tiktok",
+        kind: "entry",
+        labelKey: "filterTiktok",
+        permission: { resource: "tiktok_accounts", action: "read" },
     },
 ] as const;
 

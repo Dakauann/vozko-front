@@ -96,13 +96,14 @@ export function VolumeChart({ points, height, legend = true }: { points: DailyPo
   const t = useTranslations("unofficialGroups.kit.chart");
   const fmt = useGroupsFormat();
   const data = useMemo(() => volumeSeries(points), [points]);
+  const gradientId = `groups-volume-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <div className="flex min-w-0 flex-col gap-1" style={{ height }}>
       {legend ? (
         <ChartLegend
           className="h-4"
           items={[
-            { key: "messages", label: t("messages"), color: GROUPS_CHART_COLOR.messages },
+            { key: "messages", label: t("messages"), color: GROUPS_CHART_COLOR.messages, shape: "line" },
             { key: "activeGroups", label: t("activeGroups"), color: GROUPS_CHART_COLOR.activeGroups, shape: "line" },
           ]}
         />
@@ -110,12 +111,15 @@ export function VolumeChart({ points, height, legend = true }: { points: DailyPo
       <div className="min-h-0 flex-1" style={{ height: legend ? height - LEGEND_ROW : height }}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ ...CHART_MARGIN, right: 0 }}>
+            <defs>
+              <VozAreaGradient id={gradientId} color={GROUPS_CHART_COLOR.messages} />
+            </defs>
             <CartesianGrid {...vozGrid} />
             <XAxis dataKey="day" tickFormatter={fmt.day} minTickGap={18} {...vozXAxis} />
             <YAxis yAxisId="messages" allowDecimals={false} tickFormatter={(value: number) => fmt.compact(value)} {...vozYAxis} />
             <YAxis yAxisId="groups" orientation="right" allowDecimals={false} {...vozYAxis} width={28} />
             <Tooltip
-              cursor={BAR_CURSOR}
+              cursor={LINE_CURSOR}
               content={({ active, payload }) => {
                 const datum = payload?.[0]?.payload as VolumeDatum | undefined;
                 if (!active || !datum) return null;
@@ -130,7 +134,15 @@ export function VolumeChart({ points, height, legend = true }: { points: DailyPo
                 );
               }}
             />
-            <Bar yAxisId="messages" dataKey="messages" fill={GROUPS_CHART_COLOR.messages} radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
+            <Area
+              yAxisId="messages"
+              dataKey="messages"
+              type="monotone"
+              stroke={GROUPS_CHART_COLOR.messages}
+              fill={`url(#voz-fill-${gradientId})`}
+              isAnimationActive={false}
+              {...vozLineMark}
+            />
             <Line yAxisId="groups" dataKey="activeGroups" type="monotone" stroke={GROUPS_CHART_COLOR.activeGroups} isAnimationActive={false} {...vozLineMark} />
           </ComposedChart>
         </ResponsiveContainer>
@@ -383,36 +395,49 @@ export function StackedBarsH({
   );
 }
 
+export interface RingLegendRow extends VozSegment {
+  href?: string;
+}
+
 export function CompositionRing({
   slices,
+  legend,
   centerValue,
   centerLabel,
   size = 132,
+  thickness = 12,
+  layout = "side",
+  legendColumns = 1,
   formatValue,
   className,
 }: {
   slices: VozSegment[];
+  legend?: RingLegendRow[];
   centerValue: string;
   centerLabel: string;
   size?: number;
+  thickness?: number;
+  layout?: "side" | "stacked";
+  legendColumns?: 1 | 2;
   formatValue: (v: number, pct: number) => string;
   className?: string;
 }) {
   const total = slices.reduce((sum, slice) => sum + Math.max(0, slice.value), 0);
   const drawn = slices.filter((slice) => slice.value > 0);
+  const rows: RingLegendRow[] = legend ?? slices;
   const outer = size / 2 - 2;
   return (
-    <div className={cn("flex min-w-0 flex-wrap items-center gap-4", className)}>
+    <div className={cn("flex min-w-0 gap-4", layout === "stacked" ? "flex-col items-center" : "flex-wrap items-center", className)}>
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <PieChart width={size} height={size}>
           {drawn.length > 0 ? (
-            <Pie data={drawn} dataKey="value" nameKey="label" cx="50%" cy="50%" startAngle={90} endAngle={-270} isAnimationActive={false} {...vozRing(outer, outer - 12)}>
+            <Pie data={drawn} dataKey="value" nameKey="label" cx="50%" cy="50%" startAngle={90} endAngle={-270} isAnimationActive={false} {...vozRing(outer, outer - thickness)} paddingAngle={drawn.length > 1 ? 2.5 : 0}>
               {drawn.map((slice) => (
                 <Cell key={slice.key} fill={slice.color} />
               ))}
             </Pie>
           ) : (
-            <Pie data={[{ value: 1 }]} dataKey="value" cx="50%" cy="50%" isAnimationActive={false} {...vozRing(outer, outer - 12)} paddingAngle={0}>
+            <Pie data={[{ value: 1 }]} dataKey="value" cx="50%" cy="50%" isAnimationActive={false} {...vozRing(outer, outer - thickness)} paddingAngle={0}>
               <Cell fill="hsl(var(--muted))" />
             </Pie>
           )}
@@ -422,14 +447,30 @@ export function CompositionRing({
           <span className="mt-1 max-w-[70%] truncate text-2xs text-muted-foreground">{centerLabel}</span>
         </div>
       </div>
-      <ul className="min-w-[9rem] flex-1 space-y-1.5">
-        {slices.map((slice) => (
-          <li key={slice.key} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-xs">
-            <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ backgroundColor: slice.color }} />
-            <span className="truncate text-muted-foreground" title={slice.label}>
-              {slice.label}
-            </span>
-            <span className="readout font-semibold tabular-nums text-foreground">{formatValue(slice.value, total > 0 ? (slice.value / total) * 100 : 0)}</span>
+      <ul
+        className={cn(
+          "min-w-[9rem] gap-y-1.5",
+          layout === "stacked" ? "w-full" : "flex-1",
+          legendColumns === 2 ? "grid grid-cols-1 gap-x-5 sm:grid-cols-2" : "grid grid-cols-1",
+        )}
+      >
+        {rows.map((row) => (
+          <li key={row.key} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-xs">
+            <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ backgroundColor: row.color }} />
+            {row.href ? (
+              <Link
+                href={row.href}
+                title={row.label}
+                className="truncate rounded-sm text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {row.label}
+              </Link>
+            ) : (
+              <span className="truncate text-muted-foreground" title={row.label}>
+                {row.label}
+              </span>
+            )}
+            <span className="readout font-semibold tabular-nums text-foreground">{formatValue(row.value, total > 0 ? (row.value / total) * 100 : 0)}</span>
           </li>
         ))}
       </ul>
@@ -445,6 +486,7 @@ interface RankedRow {
   href?: string;
   hint?: string;
   dot?: string;
+  color?: string;
   badge?: ReactNode;
 }
 
@@ -506,7 +548,7 @@ export function RankedList({
             <div className="mt-1 flex items-center gap-2">
               <Meter
                 value={max > 0 ? (row.value / max) * 100 : 0}
-                color={emphasised(row, index) ? VOZ_SERIES[0] : GROUPS_CHART_COLOR.neutral}
+                color={row.color ?? (emphasised(row, index) ? VOZ_SERIES[0] : GROUPS_CHART_COLOR.neutral)}
                 size={size}
                 label={row.label}
               />

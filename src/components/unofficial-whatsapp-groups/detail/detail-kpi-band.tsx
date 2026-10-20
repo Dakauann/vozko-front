@@ -12,7 +12,7 @@ import { KpiBand, type KpiCell } from "../kit/kpi-band";
 import { RelativeTime } from "../kit/relative-time";
 import { groupsRoutes } from "../kit/routes";
 import { useGroupsFormat } from "../kit/use-groups-format";
-import { campaignTotalLabel, knownCampaignTally, seatTally, seatsMark, seriesMemberTotal } from "./detail-model";
+import { campaignTotalLabel, knownCampaignTally, oursRemovedMark, seatTally, seatsMark, seriesMemberTotal } from "./detail-model";
 import type { GroupCampaignsState } from "./use-group-campaigns";
 
 export function DetailKpiBand({ detail, campaigns }: { detail: GroupDetail; campaigns: GroupCampaignsState }) {
@@ -26,6 +26,7 @@ export function DetailKpiBand({ detail, campaigns }: { detail: GroupDetail; camp
   const campaignTally = knownCampaignTally(campaigns);
   const campaignValue = campaigns.error ? empty : campaignTally ? campaignTotalLabel(campaignTally, fmt.num) : "…";
   const inSeries = series.length > 0;
+  const oursRemovedAlert = oursRemovedMark(members);
 
   const cells: KpiCell[] = [
     {
@@ -39,7 +40,7 @@ export function DetailKpiBand({ detail, campaigns }: { detail: GroupDetail; camp
       key: "left",
       label: t("left"),
       value: fmt.num(members.left30d),
-      sub: t("shareOfActive", { share: fmt.share(members.left30d, members.active) }),
+      sub: t("leftSub", { removed: members.removed30d, share: fmt.share(members.left30d, members.active) }),
       href: groupsRoutes.group(group.id, { members: { status: "left" } }),
     },
     {
@@ -87,9 +88,11 @@ export function DetailKpiBand({ detail, campaigns }: { detail: GroupDetail; camp
       key: "numbers",
       label: t("numbers"),
       value: fmt.num(numbers.length),
-      sub: t("numbersSub", { connected: seats.connected, admin: seats.admin, posting: seats.posting }),
-      mark: seatsMark(numbers),
-      href: groupsRoutes.group(group.id, { tab: "settings" }),
+      sub: oursRemovedAlert
+        ? t("oursRemoved", { count: members.oursRemoved })
+        : t("numbersSub", { connected: seats.connected, admin: seats.admin, posting: seats.posting }),
+      mark: oursRemovedAlert ?? seatsMark(numbers),
+      href: oursRemovedAlert ? groupsRoutes.group(group.id, { members: { status: "removed" } }) : groupsRoutes.group(group.id, { tab: "settings" }),
     },
     {
       key: "campaigns",

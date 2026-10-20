@@ -19,6 +19,12 @@ import type {
   PendingOutcomeRequest,
 } from "@/lib/conversations/types";
 import type { LeadPatch } from "@/lib/conversations/lead-patch";
+import type { TypingState } from "@/lib/conversations/typing";
+import type { PersonalInboxControls } from "@/hooks/use-personal-marks";
+import type { ViewersState } from "@/lib/conversations/viewers";
+import type { MessageActionRequest } from "@/lib/conversations/message-commands";
+import type { HistoryAnchor } from "@/lib/conversations/history-anchor";
+import type { Outbox } from "@/lib/conversations/outbox";
 import {
   createContext,
   useCallback,
@@ -34,6 +40,7 @@ import {
   type FunnelColumnState,
   type LeadsBulkUpdateListener,
   type LeadUpdateListener,
+  type ServerEventListener,
   type SendButtonWsInput,
   useConversationWs,
 } from "@/hooks/use-conversation-ws";
@@ -71,12 +78,19 @@ interface CrmContextValue {
   ) => void;
   markRead: (messageIds: string[]) => void;
   sendTyping: (isTyping: boolean) => void;
-  typingUsers: Map<string, boolean>;
+  typingByEntry: TypingState;
   totalUnread: number;
   loadHistory: () => void;
   loadingHistory: boolean;
   loadingConversation: boolean;
-  loadAround: (timestamp: string) => void;
+  loadAround: (anchor: HistoryAnchor) => void;
+  loadNewer: () => void;
+  returnToPresent: () => void;
+  prefetchConversation: (entryId: string, entryType: EntryType) => void;
+  outbox: Outbox;
+  retrySend: (requestId: string) => void;
+  resendMessage: (entryId: string, entryType: EntryType, messageId: string) => void;
+  reopenWindow: (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => void;
   requestInboxPage: (page: number) => void;
   inboxHasMore: boolean;
   inboxTotalItems: number;
@@ -145,6 +159,9 @@ interface CrmContextValue {
   applyLeadPatch: (leadId: string, patch: LeadPatch) => void;
   subscribeLeadUpdates: (listener: LeadUpdateListener) => () => void;
   subscribeLeadsBulkUpdates: (listener: LeadsBulkUpdateListener) => () => void;
+  subscribeServerEvents: (listener: ServerEventListener) => () => void;
+  viewersByEntry: ViewersState;
+  runMessageAction: (request: MessageActionRequest) => boolean;
 
   windowConversations: WindowConversations;
   windowFocusRequest: { key: string; nonce: number } | null;
@@ -183,6 +200,12 @@ interface CrmContextValue {
     isTyping: boolean,
   ) => void;
   windowLoadHistory: (entryId: string, entryType: EntryType) => void;
+  windowSearchMessages: (entryId: string, entryType: EntryType, query: string) => void;
+  windowClearMessageSearch: (entryId: string, entryType: EntryType) => void;
+  windowLoadAround: (entryId: string, entryType: EntryType, anchor: HistoryAnchor) => void;
+  windowLoadNewer: (entryId: string, entryType: EntryType) => void;
+  windowReturnToPresent: (entryId: string, entryType: EntryType) => void;
+  personalInbox: PersonalInboxControls;
 }
 
 const CrmContext = createContext<CrmContextValue | null>(null);

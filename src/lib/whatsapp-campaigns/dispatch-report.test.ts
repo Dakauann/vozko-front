@@ -1,10 +1,14 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  clampToReportWindow,
   dispatchReportPath,
   dispatchReportQuery,
+  dispatchReportRequest,
   dispatchReportSectionKey,
+  DISPATCH_EXPORT_MAX_DAYS,
+  DISPATCH_REPORT_MAX_DAYS,
   funnelStages,
   type DispatchFunnel,
 } from "./dispatch-report";
@@ -75,12 +79,32 @@ describe("dispatch report requests", () => {
   });
 });
 
-describe("clampToReportWindow", () => {
-  it("keeps a period the server can chart", () => {
-    expect(clampToReportWindow("2026-09-01", "2026-09-30")).toEqual({ from: "2026-09-01", to: "2026-09-30", clamped: false });
+describe("dispatchReportRequest", () => {
+  it("asks for the whole chosen period of the all-campaigns view in the chosen department", () => {
+    expect(dispatchReportRequest({ departmentId: "d1", dateFrom: "2025-01-01", dateTo: "2026-09-30" }, "pt")).toEqual({
+      kind: "whatsapp_dispatch",
+      format: "csv",
+      locale: "pt",
+      params: { dateFrom: "2025-01-01", dateTo: "2026-09-30", departmentId: "d1" },
+    });
   });
 
-  it("keeps only the most recent days of a longer period", () => {
-    expect(clampToReportWindow("2026-01-01", "2026-09-30")).toEqual({ from: "2026-07-01", to: "2026-09-30", clamped: true });
+  it("asks for one campaign without a department, as the block does", () => {
+    expect(dispatchReportRequest({ campaignId: "c1", departmentId: "d1", dateFrom: "2025-01-01", dateTo: "2026-09-30" }, "en").params).toEqual({
+      dateFrom: "2025-01-01",
+      dateTo: "2026-09-30",
+      campaignId: "c1",
+    });
+  });
+
+  it("reaches further than the block can chart", () => {
+    expect(DISPATCH_EXPORT_MAX_DAYS).toBeGreaterThan(DISPATCH_REPORT_MAX_DAYS);
+  });
+
+  it("mirrors the server limits, which no response carries yet", () => {
+    const source = readFileSync(resolve(__dirname, "../../../../vozko-back/domain/whatsapp_campaign_entry/dispatch_report.go"), "utf8");
+    const serverLimit = (name: string) => Number(new RegExp(`\\b${name}\\s*=\\s*(\\d+)`).exec(source)?.[1]);
+    expect(DISPATCH_REPORT_MAX_DAYS).toBe(serverLimit("MaxReportDays"));
+    expect(DISPATCH_EXPORT_MAX_DAYS).toBe(serverLimit("MaxExportDays"));
   });
 });

@@ -70,6 +70,7 @@ export function GroupsPanel({
 export function GroupsChapter({
   id,
   icon,
+  plate,
   title,
   subtitle,
   meta,
@@ -78,6 +79,7 @@ export function GroupsChapter({
 }: {
   id: string;
   icon?: ReactNode;
+  plate?: string;
   title: string;
   subtitle?: string;
   meta?: ReactNode;
@@ -85,7 +87,7 @@ export function GroupsChapter({
   className?: string;
 }) {
   return (
-    <Chapter id={id} icon={icon} iconBg="text-muted-foreground" title={title} subtitle={subtitle} meta={meta} className={className}>
+    <Chapter id={id} icon={icon} iconBg={plate ?? "text-muted-foreground"} title={title} subtitle={subtitle} meta={meta} className={className}>
       {children}
     </Chapter>
   );

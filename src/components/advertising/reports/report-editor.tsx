@@ -19,7 +19,11 @@ import { useAdAccounts } from "@/hooks/use-ad-accounts";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/routing";
 import { reportHref } from "@/lib/advertising/connect";
-import { civilToday } from "@/lib/advertising/date-range";
+import { PeriodLimitDialog } from "@/components/period-limit/period-limit-dialog";
+import { PeriodLimitNotice } from "@/components/period-limit/period-limit-notice";
+import { usePeriodOffer } from "@/hooks/use-period-limit";
+import { civilToday, MAXIMUM_MONTHS, rangeWithinMaximum } from "@/lib/advertising/date-range";
+import { periodDays, windowShare } from "@/lib/period-limit/period-limit";
 import {
   BLANK_REPORT_DEFINITION,
   customDays,
@@ -159,6 +163,13 @@ function ReportWorkspace({
   const canSave = savedId ? permissions.canUpdate : permissions.canCreate;
   const today = civilToday(account.timezone, now);
   const range = reportRange(definition, today);
+  const custom = customDays(definition);
+  const heldRange = definition.datePreset === "custom" && today ? rangeWithinMaximum(custom, today) : null;
+  const periodOffer = usePeriodOffer("ads.report", custom.since, custom.until, heldRange !== null);
+  const showHeldRange = () => {
+    periodOffer.settle();
+    if (heldRange) updateDefinition(withRange(definition, "custom", heldRange));
+  };
   const chartMetrics = trendMetrics(definition.metrics, initial.options.trendMetrics);
   const request = reportRunRequest(definition, range, initial.options.trendMetrics);
   const run = useReportRun(account.id, request, refreshToken);
@@ -227,6 +238,7 @@ function ReportWorkspace({
   const exportable = !!request && !!result && hasReportData(result) && !exporting;
 
   const body = () => {
+    if (!range && heldRange) return <PeriodLimitNotice limit={MAXIMUM_MONTHS} unit="months" onUseWindow={showHeldRange} />;
     if (!range) return <Notice>{t("noRange")}</Notice>;
     if (definition.metrics.length === 0) return <Notice>{t("noMetrics")}</Notice>;
     if (definition.view === "trend" && chartMetrics.length === 0) return <Notice>{t("trendNoMetrics")}</Notice>;
@@ -357,6 +369,15 @@ function ReportWorkspace({
           </div>
         ) : null}
       </div>
+
+      <PeriodLimitDialog
+        open={periodOffer.dialogOpen}
+        limit={MAXIMUM_MONTHS}
+        unit="months"
+        share={heldRange ? windowShare(periodDays(heldRange.since, heldRange.until), periodDays(custom.since, custom.until)) : 1}
+        onUseWindow={showHeldRange}
+        onClose={periodOffer.settle}
+      />
 
       <UnsavedChangesDialog
         open={leaving}

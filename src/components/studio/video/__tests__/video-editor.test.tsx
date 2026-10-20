@@ -3,6 +3,8 @@ import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+
+const ptMessages = brandedMessages(rawPtMessages);
 vi.mock("@/app/actions/medias", () => ({
   getMediaAction: vi.fn(async () => null),
   listLibraryAction: vi.fn(async () => ({ data: [] })),
@@ -30,7 +32,8 @@ vi.mock("react-konva", () => {
 vi.mock("@/components/TourGuide", () => ({ default: () => null }));
 
 import { TooltipProvider } from "@/components/ui/tooltip";
-import ptMessages from "@/i18n/messages/pt.json";
+import rawPtMessages from "@/i18n/messages/pt.json";
+import { brandedMessages } from "@/test/branded-messages";
 import { emptyVideoDocument, newMediaClip, type VideoDocument } from "@/lib/studio/document";
 import type { StudioProject } from "@/lib/studio/project";
 

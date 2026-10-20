@@ -29,15 +29,22 @@ import { DonutBreakdown, type DonutSlice } from "@/components/charts/donut-break
 import { ShareRows } from "@/components/charts/share-rows";
 import { channelPlate } from "@/components/channels/channel-tile";
 import { getWhatsAppCampaignStatsAction } from "@/app/actions/analysis";
+import { PeriodLimitDialog } from "@/components/period-limit/period-limit-dialog";
+import { PeriodLimitNotice } from "@/components/period-limit/period-limit-notice";
+import { useDepartment } from "@/contexts/department-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useDispatchReportSection } from "@/hooks/use-dispatch-report-section";
 import { useInView } from "@/hooks/use-in-view";
+import { useLimitReport } from "@/hooks/use-limit-report";
+import { usePeriodLimit } from "@/hooks/use-period-limit";
 import { useSectionQuery } from "@/hooks/use-section-query";
 import { SectionError as SectionQueryError } from "@/lib/analytics/section-query";
 import type { AnalysisStats } from "@/lib/analysis/types";
+import { windowShare } from "@/lib/period-limit/period-limit";
 import {
-  clampToReportWindow,
+  dispatchReportRequest,
   dispatchReportSectionKey,
+  DISPATCH_EXPORT_MAX_DAYS,
   DISPATCH_REPORT_MAX_DAYS,
   funnelStages,
   ratio,
@@ -168,7 +175,7 @@ function KpiStrip({ cells }: { cells: KpiCell[] }) {
   );
 }
 
-function FunnelChart({ stages, fmt }: { stages: FunnelStage[]; fmt: MetricsFmt }) {
+export function FunnelChart({ stages, fmt }: { stages: FunnelStage[]; fmt: MetricsFmt }) {
   const t = useTranslations("metricsOps.attendance.dispatch");
   const widths = stages.map((s) => Math.max(FUNNEL_MIN_WIDTH, Math.min(100, s.pctOfBase ?? 0)));
   const height = stages.length * FUNNEL_ROW;
@@ -440,11 +447,21 @@ export function DispatchReportChapter({
   const te = useTranslations("metricsOps.attendance.executive");
   const locale = useLocale();
   const fmt = useMetricsFmt();
-  const { currentWorkspace } = useWorkspace();
+  const { currentWorkspace, can } = useWorkspace();
+  const { currentDepartment } = useDepartment();
   const [lowerRef, lowerInView] = useInView<HTMLDivElement>();
-  const period = clampToReportWindow(dateFrom, dateTo);
-  const params: DispatchReportParams = { campaignId, departmentId, dateFrom: period.from, dateTo: period.to };
+  const limit = usePeriodLimit("attendance.dispatch", dateFrom, dateTo, DISPATCH_REPORT_MAX_DAYS);
+  const params: DispatchReportParams = { campaignId, departmentId, dateFrom: limit.window.from, dateTo: limit.window.to };
   const single = Boolean(campaignId);
+  const limitReport = useLimitReport(limit.key, () =>
+    dispatchReportRequest({ campaignId, departmentId: departmentId ?? currentDepartment?.id, dateFrom, dateTo }, locale),
+  );
+  const canReport = can("reports", "create") && limit.days <= DISPATCH_EXPORT_MAX_DAYS;
+  const showWindow = () => {
+    limit.settle();
+    onUseWindow(limit.window.from, limit.window.to);
+  };
+  const periodReport = canReport ? limitReport : undefined;
 
   const summary = useDispatchReportSection("summary", params, { enabled: true });
   const daily = useDispatchReportSection("daily", params, { enabled: true });
@@ -463,15 +480,21 @@ export function DispatchReportChapter({
     ? new Date(funnel.trackedSince).toLocaleDateString(localeTagFor(locale))
     : null;
   const snapshotScope = single ? t("scopeCampaign") : t("scopePeriod");
-  const reportDay = (day: string) => new Date(`${day}T00:00:00`).toLocaleDateString(localeTagFor(locale));
-  const windowNotice = period.clamped ? (
-    <SectionNotice
-      tone="warning"
-      title={t("window.title", { days: DISPATCH_REPORT_MAX_DAYS })}
-      message={t("window.message", { from: reportDay(period.from), to: reportDay(period.to), requested: reportDay(dateFrom) })}
-      action={{ label: t("window.use", { days: DISPATCH_REPORT_MAX_DAYS }), onClick: () => onUseWindow(period.from, period.to) }}
-    />
-  ) : null;
+  const windowNotice = (
+    <>
+      <PeriodLimitDialog
+        open={limit.dialogOpen}
+        limit={DISPATCH_REPORT_MAX_DAYS}
+        share={windowShare(DISPATCH_REPORT_MAX_DAYS, limit.days)}
+        report={periodReport}
+        onUseWindow={showWindow}
+        onClose={limit.settle}
+      />
+      {limit.exceeded && !limit.dialogOpen ? (
+        <PeriodLimitNotice limit={DISPATCH_REPORT_MAX_DAYS} report={periodReport} onUseWindow={showWindow} />
+      ) : null}
+    </>
+  );
 
   const cells: KpiCell[] = stages.map((stage) => ({
     key: stage.key,

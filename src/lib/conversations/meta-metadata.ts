@@ -11,10 +11,6 @@ function text(meta: MetaMetadata, key: string): string | undefined {
     return typeof value === 'string' && value !== '' ? value : undefined;
 }
 
-export function readReaction(meta: MetaMetadata, prefix: MetaPrefix): string | null {
-    return text(meta, `${prefix}_reaction_emoji`) ?? text(meta, `${prefix}_reaction`) ?? null;
-}
-
 export interface MetaReferral {
     source?: string;
     type?: string;

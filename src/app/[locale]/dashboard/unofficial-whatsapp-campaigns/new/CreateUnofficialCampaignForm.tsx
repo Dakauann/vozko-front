@@ -44,8 +44,9 @@ import type {
   UnofficialWhatsAppMessageSpec,
 } from "@/lib/unofficial-whatsapp-campaigns/types";
 import {
+  blocksForGood,
+  groupPosting,
   groupTargets,
-  numberCanPost,
   type GroupPrefill,
 } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
 import { getWorkspaceGroupAction } from "@/app/actions/unofficial-whatsapp-groups";
@@ -53,7 +54,9 @@ import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-t
 import { Notice } from "@/components/ui/notice";
 import { ExternalRiskNotice } from "@/components/unofficial-whatsapp-groups/kit/notices";
 import { CampaignGroupPicker } from "./CampaignGroupPicker";
+import { CampaignSendReview, pickedPlan, unsendableGroups } from "./CampaignSendReview";
 import { campaignPipelineId, hasExternalPick, pickedFromGroup, type PickedCampaignGroup } from "./group-picks";
+import { useCampaignEstimate } from "./use-campaign-estimate";
 import type { Workflow } from "@/lib/workflows/types";
 import { instanceIssue, instanceUnusable } from "@/lib/unofficial-whatsapp/types";
 import { seededOutcomeCounts } from "@/lib/unofficial-whatsapp-campaigns/statuses";
@@ -137,7 +140,7 @@ export default function CreateUnofficialCampaignForm({
   } = useForm<FormValues>({
     defaultValues: {
       name: initialCampaign?.name ?? "",
-      instanceId: initialCampaign?.instanceId ?? groupPrefill?.instanceId ?? "",
+      instanceId: initialCampaign?.instanceId ?? "",
       pipelineId: initialCampaign?.pipelineId ?? "",
       agentId: initialCampaign?.agentId ?? null,
       workflowId: initialCampaign?.workflowId ?? null,
@@ -158,6 +161,8 @@ export default function CreateUnofficialCampaignForm({
     mode === "edit" ? (initialCampaign?.audience ?? "leads") : groupPrefill ? "groups" : "leads",
   );
   const isGroups = audience === "groups";
+  const groupsAudienceRef = useRef(isGroups);
+  groupsAudienceRef.current = isGroups;
   const [pickedGroups, setPickedGroups] = useState<PickedCampaignGroup[]>([]);
   const [prefillSkipped, setPrefillSkipped] = useState(0);
   const prefillResolvedRef = useRef(false);
@@ -218,15 +223,15 @@ export default function CreateUnofficialCampaignForm({
   }, []);
 
   useEffect(() => {
-    if (mode !== "create" || !groupPrefill?.instanceId || groupPrefill.groupIds.length === 0) return;
+    if (mode !== "create" || !groupPrefill || groupPrefill.groupIds.length === 0) return;
     if (prefillResolvedRef.current) return;
     prefillResolvedRef.current = true;
-    const { instanceId: prefillInstance, groupIds } = groupPrefill;
+    const { groupIds } = groupPrefill;
     void Promise.all(groupIds.map((id) => getWorkspaceGroupAction(id))).then((results) => {
       const resolved = results.flatMap((result): PickedCampaignGroup[] => {
         const detail = result.data;
-        if (!detail || !numberCanPost(detail.numbers, prefillInstance)) return [];
-        return [pickedFromGroup(detail.group)];
+        if (!detail || blocksForGood(groupPosting(detail).block)) return [];
+        return [pickedFromGroup(detail.group, detail.runningCampaigns)];
       });
       setPickedGroups((current) => [
         ...current,
@@ -245,7 +250,6 @@ export default function CreateUnofficialCampaignForm({
   const requiredVariables = parameterCount(message);
   const bodiesReady = messageBodiesReady(message);
   const exitPending = !isGroups && messageExitPending(message, mode === "edit" ? initialCampaign?.message : undefined);
-  const numberLocked = mode === "edit" && isGroups;
 
   const parsed = useMemo(
     () => (rawTargets ? parseTargetList(rawTargets, requiredVariables, isValidNumber) : EMPTY_PARSE),
@@ -272,8 +276,20 @@ export default function CreateUnofficialCampaignForm({
     failedPercent,
   );
 
-  const issue = selectedInstance ? instanceIssue(selectedInstance) : null;
+  const issue = selectedInstance && !isGroups ? instanceIssue(selectedInstance) : null;
   const numberUnusable = instanceUnusable(issue);
+
+  const estimateRequest = useMemo(() => {
+    if (mode !== "create") return null;
+    if (isGroups) {
+      if (pickedGroups.length === 0) return null;
+      return { audience: "groups" as const, groupJids: pickedGroups.map((group) => group.jid), sendDelayMinMs: minMs, sendDelayMaxMs: maxMs };
+    }
+    if (!instanceId || parsed.targets.length === 0) return null;
+    return { audience: "leads" as const, instanceId, targets: parsed.targets.length, sendDelayMinMs: minMs, sendDelayMaxMs: maxMs };
+  }, [mode, isGroups, pickedGroups, instanceId, parsed.targets.length, minMs, maxMs]);
+  const estimate = useCampaignEstimate(estimateRequest);
+  const unsendable = isGroups ? unsendableGroups(pickedPlan(estimate.draft?.groups, pickedGroups)) : 0;
 
   const handleDownloadCsvExample = () => {
     const header = ["numero", "nome", ...Array.from({ length: requiredVariables }, (_, i) => `variavel${i + 1}`)];
@@ -310,6 +326,10 @@ export default function CreateUnofficialCampaignForm({
       toast.error(t("form.saveFailed"), { description: t("form.groups.noGroups") });
       return;
     }
+    if (mode === "create" && unsendable > 0) {
+      toast.error(t("form.saveFailed"), { description: t("form.review.unsendable", { count: unsendable }) });
+      return;
+    }
     if (mode === "create" && !isGroups && parsed.targets.length === 0) {
       toast.error(t("form.saveFailed"), { description: t("form.noTargets") });
       return;
@@ -318,7 +338,7 @@ export default function CreateUnofficialCampaignForm({
     const payload = {
       name: values.name.trim(),
       audience: mode === "create" && isGroups ? audience : undefined,
-      instanceId: values.instanceId,
+      instanceId: isGroups ? undefined : values.instanceId,
       message,
       pipelineId: campaignPipelineId(isGroups, values.pipelineId),
       agentId: responseMode === "agent" ? values.agentId : null,
@@ -411,40 +431,35 @@ export default function CreateUnofficialCampaignForm({
               </div>
             ) : null}
 
-            <div>
-              <Controller
-                name="instanceId"
-                control={control}
-                rules={{ required: t("form.numberRequired") }}
-                render={({ field }) => (
-                  <ElevatedCommandSelect
-                    label={t("form.number")}
-                    value={field.value}
-                    onValueChange={(next) => {
-                      if (next !== field.value) setPickedGroups([]);
-                      field.onChange(next);
-                    }}
-                    options={instanceSelect.options}
-                    searchPlaceholder={t("form.searchNumber")}
-                    emptyMessage={t("form.noNumbers")}
-                    onSearch={instanceSelect.onSearch}
-                    onScrollEnd={instanceSelect.onScrollEnd}
-                    onOpenChange={instanceSelect.onOpenChange}
-                    isLoading={instanceSelect.isLoading}
-                    disabled={contentLocked || numberLocked}
-                  />
-                )}
-              />
-              <FieldError message={errors.instanceId?.message} />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {numberLocked
-                  ? t("form.groups.numberLocked")
-                  : isGroups
-                    ? t("form.groups.numberDescription")
-                    : t("form.numberDescription")}
-              </p>
-              <InstanceIssueLine issue={issue} className="mt-1.5" />
-            </div>
+            {isGroups ? (
+              <p className="text-xs text-muted-foreground">{t("form.groups.numberLocked")}</p>
+            ) : (
+              <div>
+                <Controller
+                  name="instanceId"
+                  control={control}
+                  rules={{ validate: (value) => groupsAudienceRef.current || Boolean(value) || t("form.numberRequired") }}
+                  render={({ field }) => (
+                    <ElevatedCommandSelect
+                      label={t("form.number")}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={instanceSelect.options}
+                      searchPlaceholder={t("form.searchNumber")}
+                      emptyMessage={t("form.noNumbers")}
+                      onSearch={instanceSelect.onSearch}
+                      onScrollEnd={instanceSelect.onScrollEnd}
+                      onOpenChange={instanceSelect.onOpenChange}
+                      isLoading={instanceSelect.isLoading}
+                      disabled={contentLocked}
+                    />
+                  )}
+                />
+                <FieldError message={errors.instanceId?.message} />
+                <p className="mt-1 text-xs text-muted-foreground">{t("form.numberDescription")}</p>
+                <InstanceIssueLine issue={issue} className="mt-1.5" />
+              </div>
+            )}
 
             {isGroups ? (
               <p className="text-xs text-muted-foreground">{t("form.groups.funnelNotApplied")}</p>
@@ -664,7 +679,7 @@ export default function CreateUnofficialCampaignForm({
                 minMs={minMs}
                 maxMs={maxMs}
                 dailyCap={dailyCap}
-                instance={selectedInstance}
+                instance={isGroups ? null : selectedInstance}
                 disabled={isSubmitting}
                 onChange={(patch) => {
                   if (patch.minMs !== undefined) setMinMs(patch.minMs);
@@ -769,13 +784,7 @@ export default function CreateUnofficialCampaignForm({
               </Notice>
             ) : null}
 
-            <CampaignGroupPicker
-              key={instanceId}
-              instanceId={instanceId}
-              value={pickedGroups}
-              onChange={setPickedGroups}
-              disabled={isSubmitting}
-            />
+            <CampaignGroupPicker value={pickedGroups} onChange={setPickedGroups} disabled={isSubmitting} />
           </div>
         </ElevatedContainer>
       ) : null}
@@ -912,6 +921,8 @@ export default function CreateUnofficialCampaignForm({
           ) : null}
         </ElevatedContainer>
       ) : null}
+
+      {estimateRequest ? <CampaignSendReview isGroups={isGroups} estimate={estimate} picked={pickedGroups} /> : null}
 
       <div className="flex justify-end gap-2">
         <Button

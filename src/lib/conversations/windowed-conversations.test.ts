@@ -3,11 +3,15 @@ import { describe, expect, it } from "vitest";
 import type { ConversationMessage, WsServerEvent } from "@/lib/conversations/types";
 import {
   applyWindowEvent,
+  clearWindowSearch,
   closeWindowConversation,
   emptyWindowConversations,
   incomingUnreadIds,
+  markWindowLoadingHistory,
+  settleWindowHistory,
   openWindowConversation,
   patchWindowLead,
+  startWindowSearch,
   windowConversation,
 } from "@/lib/conversations/windowed-conversations";
 import { windowKey } from "@/lib/conversations/window-deck";
@@ -176,6 +180,57 @@ describe("subscribed", () => {
 
     expect(windowConversation(state, A)!.conversation).toMatchObject({ lead_id: "lead-1", lead_version: 3 });
   });
+
+  it("keeps what the channel lets the operator do with messages, and ignores a malformed set", () => {
+    const capabilities = { react: true, edit: true, delete: true, edit_window_seconds: 900, delete_window_seconds: 172800 };
+    const event = subscribed("e1", "Ana");
+    if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+    let state = applyWindowEvent(opened(), { ...event, payload: { ...event.payload, message_capabilities: capabilities } });
+    expect(windowConversation(state, A)!.conversation.message_capabilities).toEqual(capabilities);
+
+    state = applyWindowEvent(state, { ...event, payload: { ...event.payload, message_capabilities: { react: "yes" } } });
+    expect(windowConversation(state, A)!.conversation.message_capabilities).toEqual(capabilities);
+  });
+
+  it("takes the channel attachment limits from each subscribe answer, and forgets them when one leaves them out", () => {
+    const limits = [{ kind: "image", max_bytes: 5242880, mime_types: ["image/jpeg", "image/png"] }];
+    const event = subscribed("e1", "Ana");
+    if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+    let state = applyWindowEvent(opened(), { ...event, payload: { ...event.payload, media_limits: limits } });
+    expect(windowConversation(state, A)!.conversation.media_limits).toEqual(limits);
+
+    state = applyWindowEvent(state, { ...event, payload: { ...event.payload, media_limits: [] } });
+    expect(windowConversation(state, A)!.conversation.media_limits).toEqual([]);
+
+    state = applyWindowEvent(state, event);
+    expect(windowConversation(state, A)!.conversation.media_limits).toBeUndefined();
+  });
+
+  it("carries the closed reason with the channel's own detail, and replaces both together", () => {
+    const event = subscribed("e1", "Ana");
+    if (event.type !== "conversation:subscribed") throw new Error("unexpected event");
+    const closed = { ...event.payload, window_open: false };
+    let state = applyWindowEvent(opened(), {
+      ...event,
+      payload: { ...closed, window_closed_reason: "provider_blocked", window_closed_detail: "blocked_by_buyer" },
+    });
+    expect(windowConversation(state, A)!.conversation).toMatchObject({
+      window_closed_reason: "provider_blocked",
+      window_closed_detail: "blocked_by_buyer",
+    });
+
+    state = applyWindowEvent(state, { ...event, payload: closed });
+    expect(windowConversation(state, A)!.conversation).toMatchObject({
+      window_closed_reason: "provider_blocked",
+      window_closed_detail: "blocked_by_buyer",
+    });
+
+    state = applyWindowEvent(state, { ...event, payload: { ...closed, window_closed_reason: "budget_exhausted" } });
+    expect(windowConversation(state, A)!.conversation).toMatchObject({
+      window_closed_reason: "budget_exhausted",
+      window_closed_detail: null,
+    });
+  });
 });
 
 describe("patchWindowLead", () => {
@@ -299,8 +354,10 @@ describe("history", () => {
       payload: {
         entry_id: "e1",
         entry_type: "whatsapp",
+        direction: "latest",
         messages: [msg("m1"), msg("m2")],
         has_more: true,
+        has_after: false,
         page_size: 2,
         total: 12,
       },
@@ -312,29 +369,15 @@ describe("history", () => {
     expect(w.loadingConversation).toBe(false);
   });
 
-  it("prepends an older page when the window asked for more", () => {
+  it("prepends an older page because the page says it is one, not because a flag was set", () => {
     let state = opened();
-    state = applyWindowEvent(state, {
-      type: "conversation:history",
-      payload: {
-        entry_id: "e1",
-        entry_type: "whatsapp",
-        messages: [msg("m3")],
-        has_more: true,
-        page_size: 1,
-      },
-    });
-    state = markLoadingMore(state);
-    state = applyWindowEvent(state, {
-      type: "conversation:history",
-      payload: {
-        entry_id: "e1",
-        entry_type: "whatsapp",
-        messages: [msg("m1"), msg("m2")],
-        has_more: false,
-        page_size: 2,
-      },
-    });
+    state = applyWindowEvent(state, history("latest", [msg("m3", { created_at: "2026-09-01T10:03:00Z" })], { has_more: true }));
+    state = markWindowLoadingHistory(state, A);
+    expect(windowConversation(state, A)!.loadingHistory).toBe(true);
+    state = applyWindowEvent(
+      state,
+      history("before", [msg("m1", { created_at: "2026-09-01T10:01:00Z" }), msg("m2", { created_at: "2026-09-01T10:02:00Z" })]),
+    );
 
     const w = windowConversation(state, A)!;
     expect(w.conversation.messages.map((m) => m.id)).toEqual([
@@ -449,11 +492,143 @@ describe("incomingUnreadIds", () => {
   });
 });
 
-function markLoadingMore(
-  state: ReturnType<typeof emptyWindowConversations>,
-): ReturnType<typeof emptyWindowConversations> {
-  const next = new Map(state);
-  const w = next.get(A)!;
-  next.set(A, { ...w, loadingHistory: true, pendingLoadMore: true });
-  return next;
+function history(
+  direction: "latest" | "before" | "around" | "after",
+  messages: ConversationMessage[],
+  over: { has_more?: boolean; has_after?: boolean; total?: number } = {},
+): WsServerEvent {
+  return {
+    type: "conversation:history",
+    payload: {
+      entry_id: "e1",
+      entry_type: "whatsapp",
+      direction,
+      messages,
+      has_more: over.has_more ?? false,
+      has_after: over.has_after ?? false,
+      page_size: messages.length,
+      ...(over.total !== undefined ? { total: over.total } : {}),
+    },
+  };
 }
+
+describe("jumps, catch up and updates in a window", () => {
+  const at = (minute: number) => new Date(Date.UTC(2026, 8, 1, 10, minute)).toISOString();
+
+  it("keeps a live message out of a jumped thread until the window pages back to the present", () => {
+    let state = applyWindowEvent(opened(), history("around", [msg("j", { created_at: at(1) })], { has_more: true, has_after: true }));
+    state = applyWindowEvent(state, {
+      type: "conversation:message",
+      payload: { entry_id: "e1", entry_type: "whatsapp", message: msg("live", { created_at: at(30) }) },
+    });
+    expect(windowConversation(state, A)!.conversation.messages.map((m) => m.id)).toEqual(["j"]);
+
+    state = applyWindowEvent(state, history("after", [msg("k", { created_at: at(2) })]));
+    const w = windowConversation(state, A)!;
+    expect(w.conversation.messages.map((m) => m.id)).toEqual(["j", "k", "live"]);
+    expect(w.conversation.has_after).toBe(false);
+  });
+
+  it("catches a window up with a newer page after a reconnect", () => {
+    let state = applyWindowEvent(opened(), history("latest", [msg("a", { created_at: at(1) })]));
+    state = applyWindowEvent(state, history("after", [msg("b", { created_at: at(2) })]));
+    expect(windowConversation(state, A)!.conversation.messages.map((m) => m.id)).toEqual(["a", "b"]);
+  });
+
+  it("replaces an updated message in the window that shows it", () => {
+    let state = applyWindowEvent(opened(), history("latest", [msg("a", { text: "oi" })]));
+    state = applyWindowEvent(state, {
+      type: "conversation:message_updated",
+      payload: { entry_id: "e1", entry_type: "whatsapp", message: msg("a", { text: "olá", edited_at: at(5) }) },
+    });
+    expect(windowConversation(state, A)!.conversation.messages[0]).toMatchObject({ text: "olá", edited_at: at(5) });
+  });
+});
+
+describe("thread search in a window", () => {
+  const results = (entryId: string, query: string): WsServerEvent => ({
+    type: "conversation:search_messages_results",
+    payload: {
+      entry_id: entryId,
+      entry_type: "whatsapp",
+      query,
+      messages: [msg("hit", { entry_id: entryId })],
+      page: 1,
+      page_size: 50,
+      total_items: 1,
+      total_pages: 1,
+    },
+  });
+
+  it("starts searching only the window that asked", () => {
+    const state = startWindowSearch(opened(), A, "boleto");
+    expect(windowConversation(state, A)!.search).toEqual({ query: "boleto", results: null, totalItems: 0, searching: true });
+    expect(windowConversation(state, B)!.search).toBeNull();
+  });
+
+  it("hands the results to the window whose search they answer", () => {
+    const state = applyWindowEvent(startWindowSearch(opened(), A, "boleto"), results("e1", "boleto"));
+    const search = windowConversation(state, A)!.search!;
+    expect(search.results?.map((m) => m.id)).toEqual(["hit"]);
+    expect(search.totalItems).toBe(1);
+    expect(search.searching).toBe(false);
+  });
+
+  it("drops results for a query the window no longer shows", () => {
+    const before = startWindowSearch(opened(), A, "pix");
+    expect(applyWindowEvent(before, results("e1", "boleto"))).toBe(before);
+  });
+
+  it("drops results for a window that is not searching", () => {
+    const before = opened();
+    expect(applyWindowEvent(before, results("e1", "boleto"))).toBe(before);
+  });
+
+  it("forgets the search when the window clears it", () => {
+    const state = clearWindowSearch(startWindowSearch(opened(), A, "boleto"), A);
+    expect(windowConversation(state, A)!.search).toBeNull();
+  });
+
+  it("replaces the thread with the page around a jump target", () => {
+    let state = applyWindowEvent(opened(), history("latest", [msg("m8"), msg("m9")], { has_more: true }));
+    state = markWindowLoadingHistory(state, A);
+    expect(windowConversation(state, A)!.loadingHistory).toBe(true);
+    state = applyWindowEvent(state, history("around", [msg("m2"), msg("m3")], { has_more: true, has_after: true }));
+    const w = windowConversation(state, A)!;
+    expect(w.conversation.messages.map((m) => m.id)).toEqual(["m2", "m3"]);
+    expect(w.conversation.has_after).toBe(true);
+    expect(w.loadingHistory).toBe(false);
+  });
+});
+
+describe("settleWindowHistory", () => {
+  it("stops a window's history spinner when the server refuses the page it asked for", () => {
+    const loading = markWindowLoadingHistory(opened(), A);
+    const settled = settleWindowHistory(loading, A);
+    expect(windowConversation(settled, A)!.loadingHistory).toBe(false);
+    expect(windowConversation(settled, B)).toEqual(windowConversation(loading, B));
+  });
+
+  it("returns the same state when the window was not waiting", () => {
+    const state = opened();
+    expect(settleWindowHistory(state, A)).toBe(state);
+  });
+});
+
+describe("a template reopening the window", () => {
+  it("opens the reply window of the window that holds the conversation", () => {
+    const state = applyWindowEvent(opened(), {
+      type: "conversation:window_reopened",
+      payload: {
+        entry_id: "e1",
+        entry_type: "whatsapp",
+        template_id: "t1",
+        template_name: "retomada",
+        message_id: "m1",
+        window_expires_at: "2026-10-19T10:00:00Z",
+      },
+    });
+    expect(windowConversation(state, A)!.conversation).toMatchObject({ window_open: true, window_expires_at: "2026-10-19T10:00:00Z" });
+    expect(windowConversation(state, B)!.conversation.window_open).toBe(false);
+  });
+});

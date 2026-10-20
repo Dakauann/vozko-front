@@ -47,7 +47,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAttendanceSection } from "@/hooks/use-attendance-section";
 import { useInView } from "@/hooks/use-in-view";
 import { attendanceSectionsKey } from "@/lib/attendance/sections";
-import { presetRange, type PeriodPreset } from "@/lib/attendance/period";
+import { CALENDAR_WINDOW_DAYS, presetRange, refusedForSpan, type PeriodPreset } from "@/lib/attendance/period";
+import { checkPeriodLimit, windowShare } from "@/lib/period-limit/period-limit";
+import { usePeriodOffer } from "@/hooks/use-period-limit";
+import { PeriodLimitDialog } from "@/components/period-limit/period-limit-dialog";
 import { SectionState } from "@/components/dashboard/attendance/section-state";
 import { useReportJob } from "@/hooks/use-report-job";
 import { toast } from "sonner";
@@ -212,6 +215,8 @@ const CHANNEL_BAR: Record<string, string> = {
   facebook: "#0866ff",
   telegram: "#229ed9",
   webchat: "#0d9488",
+  mercadolivre: "#ffe600",
+  tiktok: "#fe2c55",
   voice: "#8b5cf6",
 };
 
@@ -229,6 +234,10 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
       return tc("telegram");
     case "webchat":
       return tc("webchat");
+    case "mercadolivre":
+      return tc("mercadolivre");
+    case "tiktok":
+      return tc("tiktok");
     default:
       return channel;
   }
@@ -2033,11 +2042,18 @@ export default function AttendanceOpsPage() {
     selectCampaign("all");
   }, [selectCampaign]);
 
-  const narrowToDispatchWindow = useCallback((from: string, to: string) => {
+  const narrowToWindow = useCallback((from: string, to: string) => {
     setPreset("custom");
     setDateFrom(from);
     setDateTo(to);
   }, []);
+
+  const calendarSpan = checkPeriodLimit(dateFrom, dateTo, CALENDAR_WINDOW_DAYS);
+  const calendarOffer = usePeriodOffer("attendance.calendar", dateFrom, dateTo, refusedForSpan(summary?.period?.reason));
+  const showCalendarWindow = () => {
+    calendarOffer.settle();
+    narrowToWindow(calendarSpan.window.from, calendarSpan.window.to);
+  };
 
   const applyPreset = useCallback((p: DatePreset) => {
     setPreset(p);
@@ -2256,6 +2272,18 @@ export default function AttendanceOpsPage() {
                           {tc("webchat")}
                         </span>
                       </ElevatedSelectItem>
+                      <ElevatedSelectItem value="mercadolivre">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="mercadolivre" size="sm" className="h-5 w-5" />
+                          {tc("mercadolivre")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="tiktok">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="tiktok" size="sm" className="h-5 w-5" />
+                          {tc("tiktok")}
+                        </span>
+                      </ElevatedSelectItem>
                     </ElevatedSelect>
 
                     {canReadCampaigns && campaigns.length > 0 ? (
@@ -2384,7 +2412,7 @@ export default function AttendanceOpsPage() {
               conversions={conversions}
               canReadAnalysis={canReadAnalysis}
               onSelectCampaign={selectCampaign}
-              onUseWindow={narrowToDispatchWindow}
+              onUseWindow={narrowToWindow}
             />
           ) : null}
 
@@ -2395,6 +2423,13 @@ export default function AttendanceOpsPage() {
             title={ts("tactical")}
             subtitle={ts("tacticalSub")}
           >
+            <PeriodLimitDialog
+              open={calendarOffer.dialogOpen}
+              limit={CALENDAR_WINDOW_DAYS}
+              share={windowShare(CALENDAR_WINDOW_DAYS, calendarSpan.days)}
+              onUseWindow={showCalendarWindow}
+              onClose={calendarOffer.settle}
+            />
             <SectionState query={summaryQuery}>
               <PeriodProgressStrip
                 period={summary?.period}

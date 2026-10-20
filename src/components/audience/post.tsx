@@ -10,7 +10,7 @@ import {
   getCommentContainerSettingsAction,
   putCommentContainerSettingsAction,
 } from "@/app/actions/audience";
-import type { CommentAnalysisStats, CommentContainerSettings, CommentSource, TrendPoint } from "@/lib/audience/types";
+import type { AnalysableCommentSource, CommentAnalysisStats, CommentContainerSettings, TrendPoint } from "@/lib/audience/types";
 import type { OverrideDraft } from "@/lib/audience/override";
 import { overrideDraftFrom, overrideDraftToPut } from "@/lib/audience/override";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -41,7 +41,7 @@ export function CommentPostAnalysisPanel({
   accountId,
   containerId,
 }: {
-  source: CommentSource;
+  source: AnalysableCommentSource;
   accountId: string;
   containerId: string;
 }) {
@@ -151,7 +151,7 @@ function OverrideEditor({
   settings,
   onSaved,
 }: {
-  source: CommentSource;
+  source: AnalysableCommentSource;
   accountId: string;
   containerId: string;
   settings: CommentContainerSettings;

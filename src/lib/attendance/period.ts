@@ -15,3 +15,11 @@ export function presetRange(preset: PeriodPreset, now: Date = new Date()): Perio
     dateTo: format(now, "yyyy-MM-dd"),
   };
 }
+
+export const CALENDAR_WINDOW_DAYS = 3650;
+
+const SPAN_REFUSAL = "range_too_wide";
+
+export function refusedForSpan(reason: string | undefined): boolean {
+  return reason === SPAN_REFUSAL;
+}

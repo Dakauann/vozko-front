@@ -19,6 +19,8 @@ describe("groupErrorKey", () => {
     ["WhatsApp is currently restricting this number", "restricted"],
     ["the connected number is not an admin of this group", "notGroupAdmin"],
     ["join not found", "joinNotFound"],
+    ["none of your numbers is admin in this group and no earlier join left an invite link; join it with a link", "noInviteLink"],
+    ["that number is already in this group", "numberAlreadyInGroup"],
   ])("maps %s", (message, key) => {
     expect(groupErrorKey(message)).toBe(key);
   });

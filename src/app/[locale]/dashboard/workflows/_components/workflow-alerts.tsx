@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Warning,
   WarningCircle,
   CheckCircle,
   CircleNotch,
-  ArrowRight,
+  CaretDown,
 } from "@/components/icons";
 
 import {
@@ -15,64 +16,120 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { LintIssue } from "@/lib/workflows/types";
+import {
+  openRuntimeAlertCount,
+  sortedRuntimeAlerts,
+  type RuntimeAlertFix,
+} from "@/lib/workflows/runtime-alerts";
+import { localizedLintIssues } from "@/lib/workflows/lint-copy";
+import { lintCounts, sortedLintIssues } from "@/lib/workflows/lint-severity";
+import type { LintIssue, RuntimeAlert } from "@/lib/workflows/types";
+
+import type { MoveToSecretRequest } from "./move-to-secret-dialog";
+import { CleanState, LintIssueRow, RuntimeAlertRow, count } from "./workflow-alert-rows";
 
 interface WorkflowAlertsProps {
   valid: boolean;
   issues: LintIssue[];
   linting: boolean;
+  runtimeAlerts: RuntimeAlert[];
+  runtimeAlertsFailed?: boolean;
+  defaultOpen?: boolean;
+  highlightAlertId?: string | null;
   nodeLabel?: (nodeId: string) => string | undefined;
+  fieldLabel?: (nodeId: string, field: string) => string | undefined;
+  outputLabel?: (nodeId: string, output: string) => string | undefined;
   onFocusNode?: (nodeId: string) => void;
+  nodeConfig?: (nodeId: string) => Record<string, unknown> | undefined;
+  onMoveToSecret?: (request: MoveToSecretRequest) => void;
+  onRuntimeFix?: (fix: RuntimeAlertFix) => void;
+  onOpen?: () => void;
+  openRequest?: number;
 }
 
-function isBlocking(issue: LintIssue): boolean {
-  return issue.severity === "blocking";
-}
-
-function count(n: number, one: string, many: string): string | null {
-  if (n <= 0) return null;
-  return `${n} ${n === 1 ? one : many}`;
-}
+const UNVERIFIED_LABEL = "Alertas de execução indisponíveis";
 
 export function WorkflowAlerts({
   valid,
   issues,
   linting,
+  runtimeAlerts,
+  runtimeAlertsFailed = false,
+  defaultOpen = false,
+  highlightAlertId = null,
   nodeLabel,
+  fieldLabel,
+  outputLabel,
   onFocusNode,
+  nodeConfig,
+  onMoveToSecret,
+  onRuntimeFix,
+  onOpen,
+  openRequest = 0,
 }: WorkflowAlertsProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
+  const [seenRequest, setSeenRequest] = useState(openRequest);
+  if (openRequest !== seenRequest) {
+    setSeenRequest(openRequest);
+    setOpen(true);
+  }
+  const [suggestionShown, setSuggestionShown] = useState<string | null>(null);
+  const [resolvedShown, setResolvedShown] = useState(false);
 
-  const { blocking, advisory, sorted } = useMemo(() => {
-    const b = issues.filter(isBlocking).length;
-    const sortedIssues = [...issues].sort(
-      (a, z) => Number(isBlocking(z)) - Number(isBlocking(a)),
-    );
-    return { blocking: b, advisory: issues.length - b, sorted: sortedIssues };
-  }, [issues]);
+  const t = useTranslations("workflowsPage");
+  const { blocking, advisory, info, sorted } = useMemo(
+    () => ({ ...lintCounts(issues), sorted: localizedLintIssues(t, sortedLintIssues(issues), { nodeLabel, fieldLabel, outputLabel }) }),
+    [t, issues, nodeLabel, fieldLabel, outputLabel],
+  );
 
-  const total = issues.length;
-  const tone: "clean" | "advisory" | "blocking" =
-    blocking > 0 ? "blocking" : advisory > 0 ? "advisory" : "clean";
+  const runtime = useMemo(() => sortedRuntimeAlerts(runtimeAlerts), [runtimeAlerts]);
+  const openRuntime = openRuntimeAlertCount(runtimeAlerts);
+  const highRuntime = runtime.open.some((alert) => alert.severity === "high");
+
+  const total = blocking + advisory + openRuntime;
+  const listed = issues.length + openRuntime;
+  const tone: "clean" | "unverified" | "advisory" | "blocking" =
+    blocking > 0 || highRuntime
+      ? "blocking"
+      : total > 0
+        ? "advisory"
+        : runtimeAlertsFailed
+          ? "unverified"
+          : "clean";
 
   const summary =
-    [count(blocking, "bloqueio", "bloqueios"), count(advisory, "aviso", "avisos")]
+    [
+      count(openRuntime, "em execução", "em execução"),
+      count(blocking, "bloqueio", "bloqueios"),
+      count(advisory, "aviso", "avisos"),
+      count(info, "informação", "informações"),
+    ]
       .filter(Boolean)
-      .join(", ") || "Tudo certo";
+      .join(", ") || (runtimeAlertsFailed ? UNVERIFIED_LABEL : "Tudo certo");
 
   const triggerLabel =
-    tone === "clean" ? "Sem alertas de validação" : `Alertas: ${summary}`;
+    listed > 0 ? `Alertas: ${summary}` : runtimeAlertsFailed ? UNVERIFIED_LABEL : "Sem alertas de validação";
 
   const TriggerIcon = linting
     ? CircleNotch
     : tone === "blocking"
       ? Warning
-      : tone === "advisory"
+      : tone === "advisory" || tone === "unverified"
         ? WarningCircle
         : CheckCircle;
 
+  const changeOpen = (next: boolean) => {
+    setOpen(next);
+    if (next) onOpen?.();
+  };
+
+  const runFix = (fix: RuntimeAlertFix) => {
+    setOpen(false);
+    onRuntimeFix?.(fix);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={changeOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -84,13 +141,13 @@ export function WorkflowAlerts({
               "border-border text-destructive-ink hover:bg-muted dark:border-border dark:text-destructive-ink dark:hover:bg-muted",
             tone === "advisory" &&
               "border-border text-warning-ink hover:bg-muted dark:border-border dark:text-warning-ink dark:hover:bg-muted",
-            tone === "clean" &&
+            (tone === "clean" || tone === "unverified") &&
               "border-border text-muted-foreground hover:border-foreground/20 hover:bg-muted",
           )}
         >
           <TriggerIcon
             size={15}
-            weight={tone === "clean" ? "regular" : "fill"}
+            weight={tone === "clean" || tone === "unverified" ? "regular" : "fill"}
             className={cn(
               linting && "animate-spin",
               tone === "clean" && !linting && "text-healthy-ink",
@@ -112,7 +169,7 @@ export function WorkflowAlerts({
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-[360px] overflow-hidden p-0">
+      <PopoverContent align="end" className="w-[380px] overflow-hidden p-0">
         <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-3">
           <div className="text-sm font-semibold text-foreground">Alertas</div>
           <div
@@ -120,102 +177,83 @@ export function WorkflowAlerts({
               "text-xs font-medium",
               tone === "blocking" && "text-destructive-ink",
               tone === "advisory" && "text-warning-ink",
-              tone === "clean" && "text-muted-foreground",
+              (tone === "clean" || tone === "unverified") && "text-muted-foreground",
             )}
           >
             {linting ? "Verificando..." : summary}
           </div>
         </div>
 
-        <div className="border-t border-border">
-          {total === 0 ? (
-            <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
-              <div className="grid h-10 w-10 place-items-center rounded-[--radius] bg-healthy">
-                <CheckCircle size={22} weight="fill" className="text-healthy-foreground" />
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                Nenhum alerta
-              </div>
-              <div className="max-w-[240px] text-xs leading-relaxed text-muted-foreground">
-                {valid
-                  ? "O workflow está válido e pronto para ativar."
-                  : "O workflow está sem alertas no momento."}
-              </div>
+        <div className="max-h-[420px] overflow-y-auto border-t border-border">
+          {runtimeAlertsFailed && (
+            <p className="border-b border-border/60 px-4 py-2 text-2xs text-muted-foreground">
+              Não foi possível carregar os alertas de execução.
+            </p>
+          )}
+
+          {runtime.open.length > 0 && (
+            <div data-testid="runtime-alerts" className="divide-y divide-border/60 border-b border-border/60">
+              {runtime.open.map((alert) => (
+                <RuntimeAlertRow
+                  key={alert.id}
+                  alert={alert}
+                  highlighted={alert.id === highlightAlertId}
+                  nodeLabel={nodeLabel}
+                  onFocusNode={
+                    onFocusNode
+                      ? (nodeId) => {
+                          setOpen(false);
+                          onFocusNode(nodeId);
+                        }
+                      : undefined
+                  }
+                  onFix={runFix}
+                />
+              ))}
             </div>
+          )}
+
+          {listed === 0 ? (
+            runtimeAlertsFailed ? null : <CleanState valid={valid} />
           ) : (
-            <div className="max-h-[320px] divide-y divide-border/60 overflow-y-auto">
+            <div className="divide-y divide-border/60">
               {sorted.map((issue, index) => {
-                const blockingIssue = isBlocking(issue);
-                const SeverityIcon = blockingIssue ? Warning : WarningCircle;
-                const chip = issue.nodeId
-                  ? (nodeLabel?.(issue.nodeId) ?? issue.nodeId)
-                  : issue.edgeRef
-                    ? "Conexão"
-                    : null;
-                const clickable = Boolean(issue.nodeId && onFocusNode);
-
-                const body = (
-                  <>
-                    <div
-                      className={cn(
-                        "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg",
-                        blockingIssue
-                          ? "bg-destructive text-destructive-foreground"
-                          : "bg-warning text-warning-foreground",
-                      )}
-                    >
-                      <SeverityIcon size={14} weight="fill" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium leading-snug text-foreground">
-                        {issue.message}
-                      </div>
-                      {issue.hint && (
-                        <div className="mt-1 text-xs leading-snug text-muted-foreground">
-                          {issue.hint}
-                        </div>
-                      )}
-                      {chip && (
-                        <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 font-mono text-2xs text-muted-foreground">
-                            {chip}
-                          </span>
-                          {clickable && (
-                            <span className="inline-flex items-center gap-0.5 text-2xs font-medium text-primary-ink opacity-0 transition-opacity group-hover:opacity-100">
-                              Ver no fluxo
-                              <ArrowRight size={11} weight="bold" />
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                );
-
-                if (clickable) {
-                  return (
-                    <button
-                      key={`${issue.code}-${issue.nodeId ?? issue.edgeRef ?? index}`}
-                      type="button"
-                      onClick={() => {
-                        onFocusNode?.(issue.nodeId!);
-                        setOpen(false);
-                      }}
-                      className="group flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted"
-                    >
-                      {body}
-                    </button>
-                  );
-                }
+                const rowKey = `${issue.code}-${issue.nodeId ?? issue.edgeRef ?? index}`;
                 return (
-                  <div
-                    key={`${issue.code}-${issue.nodeId ?? issue.edgeRef ?? index}`}
-                    className="group flex w-full items-start gap-3 px-4 py-3"
-                  >
-                    {body}
-                  </div>
+                  <LintIssueRow
+                    key={rowKey}
+                    issue={issue}
+                    nodeLabel={nodeLabel}
+                    nodeConfig={nodeConfig}
+                    onFocusNode={onFocusNode}
+                    onMoveToSecret={onMoveToSecret}
+                    suggestionShown={suggestionShown === rowKey}
+                    onToggleSuggestion={() => setSuggestionShown((shown) => (shown === rowKey ? null : rowKey))}
+                    onClose={() => setOpen(false)}
+                  />
                 );
               })}
+            </div>
+          )}
+
+          {runtime.resolved.length > 0 && (
+            <div className="border-t border-border/60">
+              <button
+                type="button"
+                aria-expanded={resolvedShown}
+                onClick={() => setResolvedShown((shown) => !shown)}
+                className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-2xs font-medium text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+              >
+                <span>Resolvidos (24 h) · {runtime.resolved.length}</span>
+                <CaretDown size={11} weight="bold" className={cn("transition-transform", resolvedShown && "rotate-180")} />
+              </button>
+              {resolvedShown && (
+                <div className="divide-y divide-border/60">
+                  {runtime.resolved.map((alert) => (
+                    <RuntimeAlertRow key={alert.id} alert={alert} highlighted={false} nodeLabel={nodeLabel} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

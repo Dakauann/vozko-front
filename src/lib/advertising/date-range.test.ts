@@ -15,6 +15,7 @@ import {
   isDay,
   previousRange,
   rangeForPreset,
+  rangeWithinMaximum,
   relativeSince,
   resolveRange,
   validRange,
@@ -144,6 +145,21 @@ describe("resolveRange", () => {
   it("knows nothing without the account's today", () => {
     expect(resolveRange("last7", { since: "", until: "" }, null)).toBeNull();
     expect(resolveRange("custom", { since: "2026-09-01", until: "2026-09-10" }, null)).toBeNull();
+  });
+});
+
+describe("rangeWithinMaximum", () => {
+  const today = "2026-10-03";
+
+  it("keeps the part of a custom range that Meta still holds", () => {
+    expect(rangeWithinMaximum({ since: "2020-01-01", until: "2026-09-10" }, today)).toEqual({ since: earliestDay(today), until: "2026-09-10" });
+  });
+
+  it("has nothing to offer when the range is inside the window, wholly older than it, or wrong for another reason", () => {
+    expect(rangeWithinMaximum({ since: "2026-09-01", until: "2026-09-10" }, today)).toBeNull();
+    expect(rangeWithinMaximum({ since: "2020-01-01", until: "2020-02-01" }, today)).toBeNull();
+    expect(rangeWithinMaximum({ since: "2020-01-01", until: "2026-10-04" }, today)).toBeNull();
+    expect(rangeWithinMaximum({ since: "2026-09-10", until: "2026-09-01" }, today)).toBeNull();
   });
 });
 

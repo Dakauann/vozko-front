@@ -1,6 +1,6 @@
 export type GroupOrigin = "managed" | "external";
 export type GroupSort = "recent" | "oldest" | "name" | "name_desc" | "members";
-export type MemberStatus = "active" | "left";
+export type MemberStatus = "active" | "left" | "removed";
 export type MemberRole = "member" | "admin" | "superadmin";
 export type JoinStatus = "pending" | "running" | "done" | "failed" | "cancelled";
 export type AnalysisStatus = "active" | "paused" | "archived";
@@ -94,11 +94,14 @@ export interface GroupRow {
   summary?: GroupSummary;
   hasAnalysis: boolean;
   runningCampaigns: number;
+  groupCreatedAt?: string;
 }
 
 export interface MemberCounts {
   active: number;
   left30d: number;
+  removed30d: number;
+  oursRemoved: number;
   withLead: number;
   hidden: number;
 }
@@ -560,6 +563,7 @@ export interface JoinGroupPayload {
   inviteLink: string;
   instanceIds: string[];
   follow: boolean;
+  category?: string;
 }
 
 export interface AnalysisPayload {
@@ -581,3 +585,41 @@ export const MAX_TRACKED_FIELDS = 20;
 export const MAX_PROMPT_CHARS = 8000;
 export const MAX_CATEGORY_CHARS = 60;
 export const TRACKED_FIELD_KEY = /^[a-z][a-z0-9_]*$/;
+
+export interface GroupFeedMedia {
+  url: string;
+  mimeType?: string;
+  filename?: string;
+  layout?: { width?: number; height?: number; thumbhash?: string };
+}
+
+export interface GroupFeedMessage {
+  id: string;
+  entryId: string;
+  channel: string;
+  messageType: string;
+  direction: "INBOUND" | "OUTBOUND";
+  from: string;
+  senderName: string;
+  senderAvatar?: string;
+  ourTeam: boolean;
+  text: string;
+  transcript?: string;
+  mediaId?: string;
+  mediaType?: "image" | "video" | "audio" | "document" | "sticker";
+  media?: GroupFeedMedia;
+  replyToMessageId?: string;
+  deliveryStatus?: "sent" | "delivered" | "read" | "failed";
+  read: boolean;
+  metadata?: Record<string, unknown>;
+  editedAt?: string;
+  retractedAt?: string;
+  createdAt: string;
+}
+
+export interface GroupMessagesPage {
+  conversationId?: string;
+  messages: GroupFeedMessage[];
+  hasMore: boolean;
+  nextBefore?: string;
+}

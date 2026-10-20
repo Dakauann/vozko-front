@@ -7,7 +7,9 @@ import type {
 import { apiClient } from '@/lib/api/browser-client';
 import { delegationTargets, type DelegationTarget } from '@/lib/conversations/delegation';
 import { listAgentsAction } from '@/app/actions/agents';
-import { listWorkflowsAction } from '@/app/actions/workflows';
+import { listWorkflowsAction, normalizePage } from '@/app/actions/workflows';
+import { readToolCall, type AgentToolCall, type ToolCallsPage } from '@/lib/conversations/agent-tool-calls';
+import type { PagedResponse } from '@/lib/workflows/types';
 
 
 export async function requestCallPermissionAction(
@@ -218,4 +220,27 @@ export async function delegateConversationAction(entryType: string, entryId: str
         return { error: response.error.message, code: response.error.code ?? null, assignedUserId: null };
     }
     return { error: null, code: null, assignedUserId: response.data?.assigned_user_id ?? "" };
+}
+
+export async function listConversationToolCallsAction(
+    entryType: string,
+    entryId: string,
+    params: { page: number; pageSize: number },
+): Promise<{ page: ToolCallsPage | null; error?: string; code?: string; status?: number }> {
+    const query = new URLSearchParams({ page: String(params.page), pageSize: String(params.pageSize) });
+    const response = await apiClient<PagedResponse<unknown>>(
+        `/conversations/${encodeURIComponent(entryType)}/${encodeURIComponent(entryId)}/ai-tool-calls?${query.toString()}`,
+        { method: 'GET' },
+    );
+    if (response.error) {
+        return { page: null, error: response.error.message, code: response.error.code, status: response.error.status };
+    }
+    const { items, meta } = normalizePage(response.data ?? null);
+    return {
+        page: {
+            calls: items.map(readToolCall).filter((call): call is AgentToolCall => call !== null),
+            page: meta.page,
+            totalPages: meta.totalPages,
+        },
+    };
 }

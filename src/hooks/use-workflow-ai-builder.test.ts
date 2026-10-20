@@ -1,11 +1,13 @@
 
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useWorkflowAIBuilder } from "./use-workflow-ai-builder";
 
+const workspace = vi.hoisted(() => ({ id: "ws1" }));
+
 vi.mock("@/contexts/workspace-context", () => ({
-  useWorkspace: () => ({ currentWorkspace: { id: "ws1" } }),
+  useWorkspace: () => ({ currentWorkspace: { id: workspace.id } }),
 }));
 
 class FakeWS {
@@ -25,8 +27,14 @@ class FakeWS {
   send(d: string) {
     this.sent.push(d);
   }
+  closed = false;
   close() {
+    this.closed = true;
     this.readyState = 3;
+  }
+  drop() {
+    this.readyState = 3;
+    this.onclose?.();
   }
   emit(obj: unknown) {
     this.onmessage?.({ data: JSON.stringify(obj) });
@@ -35,8 +43,13 @@ class FakeWS {
 
 beforeEach(() => {
   FakeWS.instances = [];
+  workspace.id = "ws1";
   // @ts-expect-error override global for test
   global.WebSocket = FakeWS;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 async function mountConnected(onGraph?: (g: unknown) => void) {
@@ -276,5 +289,118 @@ describe("useWorkflowAIBuilder", () => {
     const { hook, ws } = await mountConnected();
     act(() => hook.result.current.cancel());
     expect(ws.sent.map((s) => JSON.parse(s).type)).toContain("cancel");
+  });
+});
+
+describe("useWorkflowAIBuilder session identity", () => {
+  type Props = { workflowId: string; model?: string; reasoning?: string };
+
+  function mountEditor(initialProps: Props, onGraph?: (g: unknown) => void) {
+    const hook = renderHook(
+      (props: Props) =>
+        useWorkflowAIBuilder({ workflowType: "messages", onGraph: onGraph as never, ...props }),
+      { initialProps },
+    );
+    expect(FakeWS.instances).toHaveLength(1);
+    return { hook, ws: FakeWS.instances[0] };
+  }
+
+  function seventeenNodes() {
+    return { nodes: Array.from({ length: 17 }, (_, i) => ({ id: `n${i}` })), edges: [] };
+  }
+
+  it("keeps the socket and the running build when autosave gives the new workflow its id", () => {
+    const onGraph = vi.fn();
+    const { hook, ws } = mountEditor({ workflowId: "" }, onGraph);
+    act(() => ws.emit({ type: "builder_ready", payload: {} }));
+    act(() => hook.result.current.sendPrompt("crie um fluxo de atendimento"));
+    act(() => ws.emit({ type: "graph_snapshot", payload: { graph: seventeenNodes(), valid: false } }));
+
+    hook.rerender({ workflowId: "wf1" });
+
+    expect(FakeWS.instances).toHaveLength(1);
+    expect(ws.closed).toBe(false);
+    const later = { nodes: [...seventeenNodes().nodes, { id: "n17" }], edges: [] };
+    act(() => ws.emit({ type: "graph_snapshot", payload: { graph: later, valid: true } }));
+    expect(onGraph).toHaveBeenLastCalledWith(later);
+    act(() => ws.emit({ type: "done", payload: { valid: true, summary: "pronto" } }));
+    expect(hook.result.current.status).toBe("done");
+  });
+
+  it("does not reconnect when an idle new workflow receives its id", () => {
+    const { hook, ws } = mountEditor({ workflowId: "" });
+    act(() => ws.emit({ type: "builder_ready", payload: {} }));
+    hook.rerender({ workflowId: "wf1" });
+    expect(FakeWS.instances).toHaveLength(1);
+    expect(ws.closed).toBe(false);
+  });
+
+  it("reconnects to the other workflow's route when the editor moves to a different saved workflow", () => {
+    const { hook, ws } = mountEditor({ workflowId: "wfA" });
+    hook.rerender({ workflowId: "wfB" });
+    expect(ws.closed).toBe(true);
+    expect(FakeWS.instances).toHaveLength(2);
+    expect(FakeWS.instances[1].url).toContain("/ws/workflows/wfB/ai-builder");
+  });
+
+  it("reconnects to the create route when a new workflow is opened from a saved one", () => {
+    const { hook, ws } = mountEditor({ workflowId: "wf1" });
+    hook.rerender({ workflowId: "" });
+    expect(ws.closed).toBe(true);
+    expect(FakeWS.instances).toHaveLength(2);
+    expect(FakeWS.instances[1].url).toContain("/ws/workflows/ai-builder?");
+  });
+
+  it("reconnects in the new workspace when the workspace changes", () => {
+    const { hook, ws } = mountEditor({ workflowId: "wf1" });
+    workspace.id = "ws2";
+    hook.rerender({ workflowId: "wf1" });
+    expect(ws.closed).toBe(true);
+    expect(FakeWS.instances).toHaveLength(2);
+    expect(FakeWS.instances[1].url).toContain("workspace_id=ws2");
+  });
+
+  it("reconnects to the saved workflow's route after a drop that follows creation", () => {
+    vi.useFakeTimers();
+    const { hook, ws } = mountEditor({ workflowId: "" });
+    hook.rerender({ workflowId: "wf1" });
+    expect(FakeWS.instances).toHaveLength(1);
+    act(() => ws.drop());
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(FakeWS.instances).toHaveLength(2);
+    expect(FakeWS.instances[1].url).toContain("/ws/workflows/wf1/ai-builder");
+  });
+
+  it("closes the socket on unmount during a build and never schedules a reconnect", () => {
+    vi.useFakeTimers();
+    const { hook, ws } = mountEditor({ workflowId: "" });
+    act(() => ws.emit({ type: "builder_ready", payload: {} }));
+    act(() => hook.result.current.sendPrompt("monte"));
+    hook.unmount();
+    expect(ws.closed).toBe(true);
+    ws.drop();
+    vi.advanceTimersByTime(60000);
+    expect(FakeWS.instances).toHaveLength(1);
+  });
+
+  it("keeps one socket through a fast double change from no id to the created id", () => {
+    const { hook, ws } = mountEditor({ workflowId: "" });
+    act(() => {
+      hook.rerender({ workflowId: "wf1" });
+      hook.rerender({ workflowId: "wf1" });
+    });
+    expect(FakeWS.instances).toHaveLength(1);
+    expect(ws.closed).toBe(false);
+  });
+
+  it("sends model and reasoning changes on the same socket after creation", () => {
+    const { hook, ws } = mountEditor({ workflowId: "", model: "lab/a", reasoning: "" });
+    hook.rerender({ workflowId: "wf1", model: "lab/a", reasoning: "" });
+    hook.rerender({ workflowId: "wf1", model: "lab/b", reasoning: "high" });
+    expect(FakeWS.instances).toHaveLength(1);
+    const setModels = ws.sent.map((s) => JSON.parse(s)).filter((m) => m.type === "set_model");
+    expect(setModels.at(-1).data).toEqual({ model: "lab/b", reasoning: "high" });
   });
 });

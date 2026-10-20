@@ -123,6 +123,8 @@ export type OfferKind =
   | "connect_instagram"
   | "connect_facebook"
   | "connect_telegram"
+  | "connect_mercadolivre"
+  | "connect_tiktok"
   | "create_webchat"
   | "top_up_balance"
   | "manage_subscription";

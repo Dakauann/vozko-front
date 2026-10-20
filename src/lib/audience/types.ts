@@ -1,10 +1,18 @@
 
-export type CommentSource = 'instagram' | 'facebook';
+export type CommentSource = 'instagram' | 'facebook' | 'mercadolivre' | 'tiktok';
 
-export const COMMENT_SOURCES: CommentSource[] = ['instagram', 'facebook'];
+export const COMMENT_SOURCES: CommentSource[] = ['instagram', 'facebook', 'mercadolivre', 'tiktok'];
 
 export function isCommentSource(source: string): source is CommentSource {
     return (COMMENT_SOURCES as string[]).includes(source);
+}
+
+export type AnalysableCommentSource = Extract<CommentSource, AudienceSource>;
+
+export const ANALYSABLE_COMMENT_SOURCES: AnalysableCommentSource[] = ['instagram', 'facebook', 'tiktok'];
+
+export function isAnalysableCommentSource(source: string): source is AnalysableCommentSource {
+    return (ANALYSABLE_COMMENT_SOURCES as string[]).includes(source);
 }
 
 export type SubjectKind = "comment" | "conversation";
@@ -15,7 +23,8 @@ export type AudienceSource =
     | "whatsapp"
     | "telegram"
     | "unofficial_whatsapp"
-    | "webchat";
+    | "webchat"
+    | "tiktok";
 
 export type ConversationInterest = "interested" | "not_interested" | "undecided";
 export type ConversationDisposition = "sale" | "filling_info" | "callback" | "declined" | "pending";
@@ -233,7 +242,7 @@ export interface AuthorRoleInference {
 
 export interface CommentAuthor {
     id: string;
-    source: CommentSource;
+    source: AnalysableCommentSource;
     accountId: string;
     authorExternalId: string;
     authorHandle?: string;
@@ -251,7 +260,7 @@ export interface CommentAuthor {
 }
 
 export interface AuthorContainer {
-    source: CommentSource;
+    source: AnalysableCommentSource;
     accountId: string;
     containerId: string;
 
@@ -328,7 +337,7 @@ export interface CommentTopic {
 }
 
 export interface CommentAnalysisSettings {
-    source: CommentSource;
+    source: AnalysableCommentSource;
     accountId: string;
     enabled: boolean;
     model?: string;
@@ -367,7 +376,7 @@ export interface BackfillEstimate {
 
 export interface CommentBackfill {
     id: string;
-    source: CommentSource;
+    source: AnalysableCommentSource;
     accountId: string;
     containerId?: string;
     status: BackfillStatus;
@@ -388,6 +397,7 @@ export const AUDIENCE_SOURCES: AudienceSource[] = [
     "telegram",
     "unofficial_whatsapp",
     "webchat",
+    "tiktok",
 ];
 
 export interface CommentListFilters {
@@ -483,7 +493,7 @@ export const EMPTY_COUNTERS: CommentCounters = {
 };
 
 export interface CommentContainerOverride {
-    source: CommentSource;
+    source: AnalysableCommentSource;
     accountId: string;
     containerId: string;
     enabled?: boolean | null;

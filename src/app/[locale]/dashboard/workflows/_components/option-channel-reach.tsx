@@ -19,6 +19,8 @@ const CHANNEL_NAMES: Record<string, string> = {
   facebook: "Messenger",
   telegram: "Telegram",
   webchat: "WebChat",
+  mercadolivre: "Mercado Livre",
+  tiktok: "TikTok",
 };
 
 function channelName(channel: string): string {

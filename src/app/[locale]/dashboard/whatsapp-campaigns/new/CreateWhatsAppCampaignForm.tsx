@@ -86,6 +86,7 @@ import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GrainBackground from "@/components/elevated-design/grain-background";
@@ -392,6 +393,7 @@ export default function CreateWhatsAppCampaignForm({
     Record<string, Workflow>
   >({});
   const t = useTranslations("whatsappCampaignsPage.form");
+  const tCampaigns = useTranslations("whatsappCampaignsPage");
   const tContactList = useTranslations("campaignContactList");
   const emptyValue = useEmptyValue();
   const tDeals = useTranslations("dealAutomation");
@@ -415,14 +417,15 @@ export default function CreateWhatsAppCampaignForm({
     };
   }, []);
 
+  const editingSettings = mode === "edit";
   const contentLocked =
-    mode === "edit" &&
+    editingSettings &&
     !!initialCampaign &&
     !selectionSendControls(initialCampaign.source, initialCampaign.status).editContent;
   const refusalText = useSelectionSendRefusalText();
   const campaignSchema = useMemo(
-    () => createWhatsAppCampaignSchema(t, contentLocked),
-    [t, contentLocked],
+    () => createWhatsAppCampaignSchema(t, editingSettings),
+    [t, editingSettings],
   );
 
   const {
@@ -1095,24 +1098,6 @@ export default function CreateWhatsAppCampaignForm({
 
   useEffect(() => {
     if (initialCampaign && mode === "edit") {
-      const loadedContacts = contentLocked ? [] : (initialCampaign.phoneNumbers ?? []);
-      const phoneNumbersData =
-        loadedContacts.map((pn) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { variables: _metaVars, ...cleanMetadata } = (pn.metadata ||
-            {}) as Record<string, unknown>;
-
-          return {
-            number: pn.number,
-            name: pn.name || "",
-            variables: pn.variables || [],
-            metadata: cleanMetadata as Record<
-              string,
-              string | number | boolean | null
-            >,
-          };
-        });
-
       reset({
         name: initialCampaign.name,
         templateId: initialCampaign.templateId,
@@ -1126,21 +1111,14 @@ export default function CreateWhatsAppCampaignForm({
         enableAutoMemory: initialCampaign.enableAutoMemory ?? false,
         aiModel: initialCampaign.aiModel ?? "",
         scheduledStart: initialCampaign.scheduledStart || null,
-        phoneNumbers:
-          phoneNumbersData.length > 0 || contentLocked
-            ? phoneNumbersData
-            : [{ number: "", name: "", variables: [], metadata: {} }],
+        phoneNumbers: [],
       });
 
       if (initialCampaign.scheduledStart && !contentLocked) {
         setScheduleEnabled(true);
       }
-
-      if (phoneNumbersData.length > 0) {
-        replace(phoneNumbersData);
-      }
     }
-  }, [initialCampaign, mode, reset, replace, contentLocked]);
+  }, [initialCampaign, mode, reset, contentLocked]);
 
   const parseCsvContentAsync = useCallback(
     async (
@@ -1462,7 +1440,7 @@ export default function CreateWhatsAppCampaignForm({
     }
 
     const submitReport = missingVariablesReport(
-      data.phoneNumbers ?? [],
+      editingSettings ? [] : (data.phoneNumbers ?? []),
       requiredVariables,
       metadataFields.filter((f) => !f.required).map((f) => f.key),
     );
@@ -1486,7 +1464,7 @@ export default function CreateWhatsAppCampaignForm({
           responseMode === "workflow" && Boolean(data.workflowId);
         const campaignToolsEnabled = !agentResponsesEnabled;
 
-        const payload = {
+        const settings = {
           name: data.name,
           templateId: data.templateId,
           businessPhoneId: data.businessPhoneId,
@@ -1516,7 +1494,8 @@ export default function CreateWhatsAppCampaignForm({
           ...(selectedPipelineId ? { pipelineId: selectedPipelineId } : {}),
           ...campaignExit.fields,
           ...smartPolicy.fields,
-          phoneNumbers: (data.phoneNumbers ?? []).map((pn) => {
+        };
+        const contacts = (data.phoneNumbers ?? []).map((pn) => {
                 let varsArray: string[] | undefined;
                 if (pn.variables) {
                   if (Array.isArray(pn.variables)) {
@@ -1550,20 +1529,20 @@ export default function CreateWhatsAppCampaignForm({
                     varsArray && varsArray.length > 0 ? varsArray : undefined,
                   metadata: pn.metadata || undefined,
                 };
-              }),
-        };
+              });
 
         const result: {
           campaign: WhatsAppCampaign | null;
           error: string | null;
           errorCode?: string;
         } =
-          mode === "edit" && initialCampaign
-            ? await updateWhatsAppCampaignAction(initialCampaign.id, payload)
-            : await createWhatsAppCampaignAction(payload);
+          editingSettings && initialCampaign
+            ? await updateWhatsAppCampaignAction(initialCampaign.id, settings)
+            : await createWhatsAppCampaignAction({ ...settings, phoneNumbers: contacts });
 
         if (result.error) {
-          toast.error(t("toast.error"), { description: campaignExit.refusal(result.errorCode) ?? refusalText(result.errorCode, result.error) });
+          const fallback = campaignExit.refusal(result.errorCode) ?? refusalText(result.errorCode, result.error);
+          toast.error(t("toast.error"), { description: codedErrorMessage(tCampaigns, { code: result.errorCode }, fallback) });
         } else {
           toast(t("toast.success"), { description: mode === "edit"
                 ? t("toast.campaignUpdated")
@@ -2244,12 +2223,21 @@ export default function CreateWhatsAppCampaignForm({
         />
       )}
 
-      {contentLocked ? (
+      {editingSettings && initialCampaign ? (
         <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
-          <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">
-            {t("contacts.title")}
-          </h2>
-          <SelectionSendNote reason="contactsLocked" />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="font-display text-xl font-semibold tracking-[0.01em] text-foreground">
+                {t("contacts.title")}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {contentLocked ? t("contacts.managedBySelection") : t("contacts.managedOnDetail")}
+              </p>
+            </div>
+            <Link href={`/dashboard/whatsapp-campaigns/${initialCampaign.id}`}>
+              <Button type="button" variant="outline-subtle" title={t("contacts.openDetail")} />
+            </Link>
+          </div>
         </ElevatedContainer>
       ) : (
       <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { listCallListsAction } from "@/app/actions/call-lists";
+import { listDelegationTargetsAction } from "@/app/actions/conversations";
 import { listPipelinesAction } from "@/app/actions/crm-board";
 import { listStagesAction } from "@/app/actions/stages";
 import { listWorkflowsAction } from "@/app/actions/workflows";
@@ -35,6 +36,8 @@ const OPTIONS_STALE_MS = 60_000;
 
 export const TEAM_PREFIX = "team:";
 export const MEMBER_PREFIX = "user:";
+export const AGENT_PREFIX = "agent:";
+export const FLOW_PREFIX = "flow:";
 
 function useOptionsQuery(name: string, enabled: boolean, load: () => Promise<ParamOption[]>, extra: string = ""): ParamOptions {
   const { currentWorkspace } = useWorkspace();
@@ -61,6 +64,13 @@ export function useHandOffOptions(enabled: boolean): ParamOptions {
     [departments, members.members],
   );
   return { options, loading: members.pending, failed: members.failed };
+}
+
+export function useDelegateOptions(enabled: boolean): ParamOptions {
+  return useOptionsQuery("delegates", enabled, async () => {
+    const targets = await listDelegationTargetsAction("");
+    return targets.map((target) => ({ value: `${target.kind === "agent" ? AGENT_PREFIX : FLOW_PREFIX}${target.id}`, label: target.name }));
+  });
 }
 
 export function useWorkflowOptions(enabled: boolean): ParamOptions {

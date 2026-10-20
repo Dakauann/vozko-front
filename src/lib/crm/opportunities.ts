@@ -224,11 +224,11 @@ export function formatValueCompact(cents: number, currency = 'BRL'): string {
 }
 
 
-function idleDays(iso?: string | null): number {
-    if (!iso) return 0;
+function idleDays(iso: string | null | undefined, now: number): number | null {
+    if (!iso) return null;
     const then = new Date(iso).getTime();
-    if (Number.isNaN(then)) return 0;
-    return Math.max(0, Math.floor((Date.now() - then) / 86_400_000));
+    if (Number.isNaN(then)) return null;
+    return Math.max(0, Math.floor((now - then) / 86_400_000));
 }
 
 type DealSignalTone = "success" | "warning" | "danger" | "info" | "neutral";
@@ -237,28 +237,67 @@ export function rotSignal(
     status: OpportunityStatus,
     updatedAt: string,
     opts?: { warnDays?: number; staleDays?: number },
-): { tone: DealSignalTone; label: string } | null {
+    now: number = Date.now(),
+): { tone: DealSignalTone; days: number } | null {
     if (status !== "open") return null;
     const warn = opts?.warnDays ?? 7;
     const stale = opts?.staleDays ?? 14;
-    const idle = idleDays(updatedAt);
+    const idle = idleDays(updatedAt, now) ?? 0;
     if (idle < warn) return null;
-    return { tone: idle >= stale ? "danger" : "warning", label: `Parada ${idle}d` };
+    return { tone: idle >= stale ? "danger" : "warning", days: idle };
 }
 
-export function relativeAge(iso?: string | null): string {
-    if (!iso) return "";
-    const d = idleDays(iso);
-    if (d <= 0) return "hoje";
-    if (d === 1) return "ontem";
-    if (d < 30) return `há ${d}d`;
-    return shortDate(iso);
+export type DealAge =
+    | { kind: "today" }
+    | { kind: "yesterday" }
+    | { kind: "days"; days: number }
+    | { kind: "date"; date: Date };
+
+const DAYS_BEFORE_A_DATE = 30;
+
+export function dealAge(iso: string | null | undefined, now: number = Date.now()): DealAge | null {
+    const days = idleDays(iso, now);
+    if (days === null || !iso) return null;
+    if (days === 0) return { kind: "today" };
+    if (days === 1) return { kind: "yesterday" };
+    if (days < DAYS_BEFORE_A_DATE) return { kind: "days", days };
+    return { kind: "date", date: new Date(iso) };
 }
 
-function shortDate(iso: string): string {
-    const t = new Date(iso).getTime();
-    if (Number.isNaN(t)) return "";
-    return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(t));
+export function requiresDealEdit(
+    column: Pick<OpportunityColumn, "isWon" | "isLost">,
+    deal: Pick<Opportunity, "valueCents">,
+): boolean {
+    return Boolean(column.isLost || (column.isWon && deal.valueCents <= 0));
+}
+
+export function moveDealBetweenColumns(
+    columns: OpportunityColumn[],
+    deal: Opportunity,
+    fromColumnId: string,
+    toColumnId: string,
+): OpportunityColumn[] {
+    return columns.map((c) => {
+        if (c.id === fromColumnId) {
+            return {
+                ...c,
+                total: Math.max(0, c.total - 1),
+                valueTotal: Math.max(0, c.valueTotal - deal.valueCents),
+                entries: (c.entries ?? []).filter((o) => o.id !== deal.id),
+            };
+        }
+        if (c.id === toColumnId) {
+            const rest = (c.entries ?? []).filter((o) => o.id !== deal.id);
+            const added = rest.length === (c.entries ?? []).length;
+            return {
+                ...c,
+                total: added ? c.total + 1 : c.total,
+                valueTotal: added ? c.valueTotal + deal.valueCents : c.valueTotal,
+                entries: [{ ...deal, stageId: toColumnId }, ...rest],
+            };
+        }
+        return c;
+    });
 }
 
 export function parseBRLToCents(input: string): number {

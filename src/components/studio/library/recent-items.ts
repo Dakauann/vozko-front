@@ -5,7 +5,7 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useSignedInUserId } from "@/contexts/auth-context";
 import { parseRecent, withRecent } from "@/lib/studio/library/catalog";
 
-import { browserStorage, type StudioStorage } from "../browser-storage";
+import { browserStorage, type BrowserStorage } from "@/lib/browser-storage";
 
 const KEY_PREFIX = "studio-library:recent";
 const NONE: readonly string[] = [];
@@ -19,7 +19,7 @@ interface RecentStore {
   subscribe: (listener: () => void) => () => void;
 }
 
-function createRecentStore(storage: StudioStorage): RecentStore {
+function createRecentStore(storage: BrowserStorage): RecentStore {
   const lists = new Map<string, readonly string[]>();
   const listeners = new Set<() => void>();
   const ids = (key: string) => {

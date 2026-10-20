@@ -12,7 +12,7 @@ export function getApiBaseUrl(): string {
 
 export interface ApiResult<T> {
   data?: T;
-  error?: { message: string; status?: number; code?: string; expected?: Record<string, string>; current?: unknown };
+  error?: { message: string; status?: number; code?: string; expected?: Record<string, string>; current?: unknown; details?: Record<string, unknown> };
 }
 
 const AUTH_TIMEOUT_MS = 10_000;
@@ -233,7 +233,9 @@ export async function apiClient<T>(
         code?: string;
         expected?: Record<string, string>;
         current?: unknown;
+        details?: unknown;
       };
+      const details = typeof body.details === "object" && body.details !== null && !Array.isArray(body.details) ? (body.details as Record<string, unknown>) : undefined;
       return {
         error: {
           message: body.message || body.error || `API error: ${response.statusText}`,
@@ -241,6 +243,7 @@ export async function apiClient<T>(
           code: body.code ?? (typeof body.error === "string" && body.message ? body.error : undefined),
           expected: body.expected,
           ...(body.current !== undefined ? { current: body.current } : {}),
+          ...(details ? { details } : {}),
         },
       };
     }

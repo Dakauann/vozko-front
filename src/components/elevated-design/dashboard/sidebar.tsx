@@ -11,6 +11,7 @@ import type { ComponentType } from "react";
 import {
   FacebookLogoColor,
   InstagramLogoColor,
+  MercadoLivreLogoColor,
   MetaLogoColor,
   StudioLogoColor,
   TelegramLogoColor,
@@ -18,6 +19,7 @@ import {
   WhatsAppLogoColor,
   WebchatLogoColor,
 } from "@/components/icons/channel-logos";
+import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 
 import { EloMark } from "@/components/ai-chat/elo-mark";
 
@@ -291,6 +293,24 @@ export const campanhasNavItems: NavItem[] = [
     ],
   },
   {
+    icon: Files,
+    labelKey: "nav.whatsappForms",
+    href: "/dashboard/whatsapp-forms",
+    family: "whatsapp",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.whatsappFormsList",
+        href: "/dashboard/whatsapp-forms",
+      },
+      {
+        icon: PlusCircle,
+        labelKey: "nav.createWhatsappForm",
+        href: "/dashboard/whatsapp-forms/new",
+      },
+    ],
+  },
+  {
     icon: Lightning,
     labelKey: "nav.messageShortcuts",
     href: "/dashboard/message-shortcuts",
@@ -347,6 +367,42 @@ export const campanhasNavItems: NavItem[] = [
         icon: LinkSimple,
         labelKey: "nav.connectTelegram",
         href: "/dashboard/telegram-accounts/connect",
+      },
+    ],
+  },
+  {
+    icon: UserCircle,
+    labelKey: "nav.mercadolivre",
+    href: "/dashboard/mercadolivre-accounts",
+    family: "mercadolivre",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.mercadolivreAccounts",
+        href: "/dashboard/mercadolivre-accounts",
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectMercadoLivre",
+        href: "/dashboard/mercadolivre-accounts/connect",
+      },
+    ],
+  },
+  {
+    icon: UserCircle,
+    labelKey: "nav.tiktok",
+    href: "/dashboard/tiktok-accounts",
+    family: "tiktok",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.tiktokAccounts",
+        href: "/dashboard/tiktok-accounts",
+      },
+      {
+        icon: LinkSimple,
+        labelKey: "nav.connectTiktok",
+        href: "/dashboard/tiktok-accounts/connect",
       },
     ],
   },
@@ -1270,6 +1326,8 @@ const familyIcon: Record<string, NavIcon> = {
   instagram: InstagramLogoColor,
   facebook: FacebookLogoColor,
   telegram: TelegramLogoColor,
+  mercadolivre: MercadoLivreLogoColor,
+  tiktok: TiktokLogoColor,
   webchat: WebchatLogoColor,
   telephony: VoiceLogoColor,
   meta: MetaLogoColor,

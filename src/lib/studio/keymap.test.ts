@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { bindKeymap, canvasActionFor, capturesArrowKeys, imageActionFor, imageZoomActionFor, isEditableTarget, vectorModeAction, videoActionFor, type KeyStroke } from "./keymap";
+import { bindKeymap, capturesArrowKeys, isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
+import { canvasActionFor, imageActionFor, imageZoomActionFor, vectorModeAction, videoActionFor } from "./keymap";
 
 function stroke(key: string, extra: Partial<KeyStroke> = {}): KeyStroke {
   return { key, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false, ...extra };

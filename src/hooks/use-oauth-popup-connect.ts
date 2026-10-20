@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { closePopup, openCenteredPopup, watchPopupClosed } from "@/lib/browser/popup";
+import { withWorkspaceScope } from "@/lib/browser/scoped-download-url";
 
 export interface OAuthPopupConfig<R> {
     startPath: string;
@@ -30,15 +31,18 @@ export function useOAuthPopupConnect<R>(config: OAuthPopupConfig<R>, onResult?: 
     const connect = useCallback(
         (returnPath?: string) => {
             const apiBaseUrl = getApiBaseUrl();
-            const params = new URLSearchParams({ redirect: "1", popup: "1" });
-            if (returnPath) params.set("returnPath", returnPath);
-            const startUrl = `${apiBaseUrl}${config.startPath}?${params.toString()}`;
+            const startUrlFor = (popupFlow: boolean) => {
+                const params = new URLSearchParams({ redirect: "1" });
+                if (popupFlow) params.set("popup", "1");
+                if (returnPath) params.set("returnPath", returnPath);
+                return withWorkspaceScope(`${apiBaseUrl}${config.startPath}?${params.toString()}`);
+            };
 
-            const popup = openCenteredPopup(startUrl, config.popupName);
+            const popup = openCenteredPopup(startUrlFor(true), config.popupName);
 
             setIsConnecting(true);
             if (!popup) {
-                window.location.href = startUrl;
+                window.location.href = startUrlFor(false);
                 return;
             }
 

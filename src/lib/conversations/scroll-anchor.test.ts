@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { firstVisibleIndex, isPinnedToBottom } from "./scroll-anchor";
+import { countUnseen, firstVisibleIndex, isPinnedToBottom } from "./scroll-anchor";
 
 describe("isPinnedToBottom", () => {
   it("treats the last few pixels as the bottom", () => {
@@ -30,5 +30,15 @@ describe("firstVisibleIndex", () => {
       return i * 50;
     }, 250_000);
     expect(reads).toBeLessThanOrEqual(15);
+  });
+});
+
+describe("countUnseen", () => {
+  it("adds what arrived while the reader is scrolled away from the bottom", () => {
+    expect(countUnseen(2, 3, true)).toBe(5);
+  });
+
+  it("starts again from zero once the reader is back at the bottom", () => {
+    expect(countUnseen(5, 1, false)).toBe(0);
   });
 });

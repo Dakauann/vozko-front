@@ -15,9 +15,9 @@ const BACKEND_RESOURCES = [
   "labels", "balance", "conversations", "media", "leads", "call_recordings", "members", "assignments",
   "attendance", "attendance_targets", "reports", "knowledge_bases", "roles", "issues", "workflows",
   "calendar", "departments", "message_shortcuts", "call_session", "mcp", "plans", "ai_chat",
-  "short_links", "instagram_accounts", "facebook_pages", "audience", "telegram_accounts",
+  "short_links", "instagram_accounts", "facebook_pages", "audience", "telegram_accounts", "mercadolivre_accounts", "tiktok_accounts",
   "webchat_widgets", "unofficial_whatsapp_instances", "unofficial_whatsapp_campaigns", "unofficial_whatsapp_groups", "sip_trunks",
-  "call_queues", "call_history", "ads", "lead_companies",
+  "call_queues", "call_history", "ads", "lead_companies", "team_chat",
 ];
 
 const PRESET_KEYS = ["operator", "supervisor", "manager", "sales", "analyst", "marketing", "automation", "finance"];

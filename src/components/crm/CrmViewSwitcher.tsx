@@ -3,8 +3,7 @@
 import { Kanban, List, Table } from "@/components/icons";
 import { useTranslations } from "next-intl";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
-
-export type CrmViewMode = "classic" | "funnel" | "table";
+import type { CrmViewMode } from "@/lib/crm/view-mode";
 
 interface CrmViewSwitcherProps {
   mode: CrmViewMode;

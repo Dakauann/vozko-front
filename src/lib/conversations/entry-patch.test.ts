@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { patchColumns, patchEntries } from "./entry-patch";
+import { clearUnreadCounts, patchColumns, patchEntries } from "./entry-patch";
 import type { InboxEntry } from "./types";
 
 function entry(id: string, type = "whatsapp"): InboxEntry {
@@ -30,5 +30,19 @@ describe("patchColumns", () => {
   it("returns the same map when no column holds the entry, so nothing re-renders", () => {
     const columns = new Map([["s1", { entries: [entry("a")] }]]);
     expect(patchColumns(columns, "zzz", "whatsapp", rename)).toBe(columns);
+  });
+});
+
+describe("clearUnreadCounts", () => {
+  it("zeroes the unread count of the named entries only, since a bulk read sends no read events", () => {
+    const list = [{ ...entry("a"), unread_count: 3 }, { ...entry("b"), unread_count: 2 }];
+    const out = clearUnreadCounts(list, [{ entry_id: "a", entry_type: "whatsapp" }]);
+    expect(out.map((e) => e.unread_count)).toEqual([0, 2]);
+    expect(out[1]).toBe(list[1]);
+  });
+
+  it("returns the same list when nothing changes", () => {
+    const list = [{ ...entry("a"), unread_count: 0 }];
+    expect(clearUnreadCounts(list, [{ entry_id: "a", entry_type: "whatsapp" }])).toBe(list);
   });
 });

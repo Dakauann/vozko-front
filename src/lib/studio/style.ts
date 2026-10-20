@@ -1,5 +1,5 @@
 import type { Layer, LayerType } from "./document";
-import { isEditableTarget, type KeyStroke } from "./keymap";
+import { isEditableTarget, type KeyStroke } from "@/lib/keyboard/stroke";
 import { tracesOutline } from "./layer-paint";
 import { withoutEffectKeys } from "./effect-keys";
 import type { LayerPatch } from "./layers";

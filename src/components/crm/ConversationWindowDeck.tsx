@@ -33,6 +33,22 @@ import ConversationWindow, {
   type ConversationWindowTranslations,
 } from "./ConversationWindow";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
+import type { HistoryAnchor } from "@/lib/conversations/history-anchor";
+import type { Outbox } from "@/lib/conversations/outbox";
+
+export interface WindowThreadSearch {
+  search: (entryId: string, entryType: EntryType, query: string) => void;
+  clear: (entryId: string, entryType: EntryType) => void;
+  loadAround: (entryId: string, entryType: EntryType, anchor: HistoryAnchor) => void;
+}
+
+export interface WindowThreadTransport {
+  outbox: Outbox;
+  loadNewer: (entryId: string, entryType: EntryType) => void;
+  returnToPresent: (entryId: string, entryType: EntryType) => void;
+  retrySend: (requestId: string) => void;
+  resend: (entryId: string, entryType: EntryType, messageId: string) => void;
+}
 
 interface ConversationWindowDeckProps {
   conversations: WindowConversations;
@@ -43,6 +59,8 @@ interface ConversationWindowDeckProps {
   noPermissionSend?: string;
   onClose: (entryId: string, entryType: EntryType) => void;
   onLoadHistory: (entryId: string, entryType: EntryType) => void;
+  threadSearch?: WindowThreadSearch;
+  transport?: WindowThreadTransport;
   onSend: (
     entryId: string,
     entryType: EntryType,
@@ -79,6 +97,12 @@ function currentViewport(): Viewport {
   return { width: window.innerWidth, height: window.innerHeight };
 }
 
+function areaOf(element: HTMLElement | null): Viewport {
+  if (!element) return currentViewport();
+  const { width, height } = element.getBoundingClientRect();
+  return width > 0 && height > 0 ? { width, height } : currentViewport();
+}
+
 const MIN_LAYOUT_HEIGHT = 360;
 
 function layoutAreaFor(deck: WindowDeck, viewport: Viewport): Viewport {
@@ -97,6 +121,8 @@ export default function ConversationWindowDeck({
   noPermissionSend,
   onClose,
   onLoadHistory,
+  threadSearch,
+  transport,
   onSend,
   onSendMedia,
   onSendButton,
@@ -115,6 +141,7 @@ export default function ConversationWindowDeck({
     close: closePictureInPicture,
   } = pictureInPicture;
   const knownKeysRef = useRef<Set<string>>(new Set());
+  const areaRef = useRef<HTMLDivElement>(null);
 
   const popOut = useCallback(
     (key: string, size: PictureInPictureSize) =>
@@ -127,7 +154,7 @@ export default function ConversationWindowDeck({
   useEffect(() => {
     setDeck((prev) => {
       let next = prev;
-      const area = layoutAreaFor(prev, currentViewport());
+      const area = layoutAreaFor(prev, areaOf(areaRef.current));
 
       for (const [key, state] of conversations) {
         if (next.windows.some((w) => w.key === key)) continue;
@@ -183,10 +210,15 @@ export default function ConversationWindowDeck({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const onResize = () => setViewport(currentViewport());
+    const onResize = () => setViewport(areaOf(areaRef.current));
     onResize();
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onResize);
+    if (areaRef.current) observer?.observe(areaRef.current);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      observer?.disconnect();
+    };
   }, []);
 
   const parked = dockedBoxes(deck, viewport);
@@ -212,8 +244,6 @@ export default function ConversationWindowDeck({
   useEffect(() => {
     if (poppedKey === null) closePictureInPicture();
   }, [poppedKey, closePictureInPicture]);
-
-  if (deck.windows.length === 0) return null;
 
   const hostWindow = pictureInPicture.pictureWindow;
   const hostedKey = popped && hostWindow ? popped.key : null;
@@ -268,6 +298,14 @@ export default function ConversationWindowDeck({
           )
         }
         onLoadHistory={() => onLoadHistory(entryId, entryType)}
+        onSearchMessages={threadSearch ? (query) => threadSearch.search(entryId, entryType, query) : undefined}
+        onClearMessageSearch={threadSearch ? () => threadSearch.clear(entryId, entryType) : undefined}
+        onLoadAround={threadSearch ? (anchor) => threadSearch.loadAround(entryId, entryType, anchor) : undefined}
+        onLoadNewer={transport ? () => transport.loadNewer(entryId, entryType) : undefined}
+        onReturnToPresent={transport ? () => transport.returnToPresent(entryId, entryType) : undefined}
+        outbox={transport?.outbox}
+        onRetrySend={transport?.retrySend}
+        onResendMessage={transport ? (messageId) => transport.resend(entryId, entryType, messageId) : undefined}
         onSend={(text, signed, replyToMessageId) =>
           onSend(entryId, entryType, text, signed, replyToMessageId)
         }
@@ -292,7 +330,7 @@ export default function ConversationWindowDeck({
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-0 z-40">
+      <div ref={areaRef} className="pointer-events-none fixed inset-y-0 left-0 right-[var(--dock-float-reserve)] z-40">
         {deck.windows
           .filter((geometry) => geometry.key !== hostedKey)
           .map(renderWindow)}

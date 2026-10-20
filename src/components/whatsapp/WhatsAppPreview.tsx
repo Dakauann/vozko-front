@@ -2,6 +2,7 @@
 
 import {
   ChatCircle,
+  ClipboardText,
   Copy,
   File as FileIcon,
   Gif,
@@ -243,6 +244,7 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
     PHONE_NUMBER: t("buttons.phone"),
     COPY_CODE: t("buttons.copyCode"),
     OTP: t("buttons.otp"),
+    FLOW: t("buttons.flow"),
   };
 
   return (
@@ -257,6 +259,8 @@ function ButtonsPreview({ component }: { component: DraggableComponent }) {
               <Link className="h-4 w-4" weight="bold" />
             ) : button.type === "COPY_CODE" || button.type === "OTP" ? (
               <Copy className="h-4 w-4" weight="bold" />
+            ) : button.type === "FLOW" ? (
+              <ClipboardText className="h-4 w-4" weight="bold" />
             ) : undefined
           }
           label={button.type === "COPY_CODE" ? fallback.COPY_CODE : button.text || fallback[button.type] || button.type}

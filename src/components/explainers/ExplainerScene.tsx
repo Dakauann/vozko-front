@@ -28,7 +28,14 @@ export function ExplainerScene({ spec, text, label }: { spec: SceneSpec; text: (
         />
       );
     case "fanout":
-      return <FanOutScene label={label} source={node(spec.source)} targets={spec.targets.map(node)} picked={spec.picked} />;
+      return (
+        <FanOutScene
+          label={label}
+          source={node(spec.source)}
+          targets={spec.targets.map((target) => ({ ...node(target), note: target.note ? text(target.note) : undefined }))}
+          picked={spec.picked}
+        />
+      );
     case "waves":
       return <WavesScene label={label} labels={{ grow: text("grow"), slow: text("slow"), hold: text("hold") }} />;
   }

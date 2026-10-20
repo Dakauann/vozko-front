@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { KeyStroke } from "./keymap";
+import type { KeyStroke } from "@/lib/keyboard/stroke";
 import { newPaintLayer } from "./pixel-surface";
 import { pixelFrame } from "./pixel-space";
 import { brushStroke, DEFAULT_BRUSH, nextBrushSize, pixelKeyActionFor, StrokeBuilder, PIXEL_TOOL_KEYS } from "./pixel-tools";

@@ -19,6 +19,7 @@ import { CalendarSheet } from "@/components/elevated-design/dashboard/calendar-s
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
 import { MemberActivitySheet } from "@/components/dashboard/attendance/member-activity-sheet";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { TeamChatButton } from "@/components/team-chat/team-chat-button";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -135,6 +136,8 @@ export function DashboardNavbar({
         >
           <CalendarBlank className="h-4 w-4" weight="regular" />
         </button>
+
+        <TeamChatButton />
 
         <NotificationBell />
 

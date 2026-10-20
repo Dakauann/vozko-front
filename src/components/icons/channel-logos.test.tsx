@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { ChannelLogo, channelLabel, hasChannelMark } from "./channel-logos";
+import { render } from "@testing-library/react";
+
+import { ChannelLogo, MercadoLivreLogoColor, hasChannelMark } from "./channel-logos";
+import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 import { FILTERABLE_MESSAGE_CHANNELS } from "@/lib/conversations/types";
 
 describe("channel marks", () => {
   it("renders a mark for exactly the channels it claims to", () => {
-    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat"]) {
+    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat", "mercadolivre", "tiktok"]) {
       expect(hasChannelMark(channel), `${channel} should claim a mark`).toBe(true);
       expect(ChannelLogo({ channel }), `${channel} should render one`).not.toBeNull();
     }
@@ -24,13 +27,22 @@ describe("channel marks", () => {
     }
   });
 
-  it("labels the Facebook channel as Messenger", () => {
-    expect(channelLabel("facebook")).toBe("Messenger");
-  });
-
   it("distinguishes the two WhatsApp transports", () => {
     const official = ChannelLogo({ channel: "whatsapp" }) as { type: unknown };
     const unofficial = ChannelLogo({ channel: "unofficial_whatsapp" }) as { type: unknown };
     expect(official.type).not.toBe(unofficial.type);
+  });
+
+  it("draws Mercado Livre as a solid yellow mark with navy ink", () => {
+    const { container } = render(<MercadoLivreLogoColor />);
+    const fills = Array.from(container.querySelectorAll("[fill]")).map((node) => node.getAttribute("fill"));
+    const strokes = Array.from(container.querySelectorAll("[stroke]")).map((node) => node.getAttribute("stroke"));
+    expect(fills).toContain("#FFE600");
+    expect(strokes).toContain("#2D3277");
+    expect((ChannelLogo({ channel: "mercadolivre" }) as { type: unknown }).type).toBe(MercadoLivreLogoColor);
+  });
+
+  it("draws TikTok with its own mark", () => {
+    expect((ChannelLogo({ channel: "tiktok" }) as { type: unknown }).type).toBe(TiktokLogoColor);
   });
 });

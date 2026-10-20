@@ -1,4 +1,5 @@
-import type { InboxEntry, WhatsAppCampaignTypeFilter } from '@/lib/conversations/types';
+import { isEntryType } from '@/lib/conversations/deep-link';
+import type { EntryType, InboxEntry, WhatsAppCampaignTypeFilter } from '@/lib/conversations/types';
 
 type CrmFilterConjunction = 'and' | 'or';
 
@@ -191,7 +192,9 @@ export type CrmBulkActionType =
     | 'move_funnel'
     | 'assign'
     | 'add_label'
-    | 'remove_label';
+    | 'remove_label'
+    | 'close'
+    | 'mark_read';
 
 export interface CrmBulkTarget {
     entryId: string;
@@ -203,6 +206,7 @@ export type CrmSelectionMode = 'ids' | 'all_matching' | 'everyone';
 export interface CrmBulkInput {
     action: CrmBulkActionType;
     value: string;
+    outcomeCode?: string;
     mode: CrmSelectionMode;
     targets?: CrmBulkTarget[];
     filter?: CrmFilter;
@@ -313,10 +317,14 @@ export function decodeFilterParam(param: string | null | undefined): CrmFilter {
     return parsed.status === 'invalid' ? emptyCrmFilter : parsed.filter;
 }
 
-export function boardEntryToInboxEntry(e: CrmBoardEntry): InboxEntry {
+export function boardEntriesToInboxEntries(entries: readonly CrmBoardEntry[]): InboxEntry[] {
+    return entries.flatMap((e) => (typeof e.EntryType === 'string' && isEntryType(e.EntryType) ? [boardEntryToInboxEntry(e, e.EntryType)] : []));
+}
+
+function boardEntryToInboxEntry(e: CrmBoardEntry, entryType: EntryType): InboxEntry {
     return {
         entry_id: e.EntryID,
-        entry_type: (e.EntryType as InboxEntry['entry_type']) ?? 'whatsapp',
+        entry_type: entryType,
         lead_id: e.LeadID,
         lead_name: e.LeadName ?? '',
         lead_number: e.LeadNumber ?? '',

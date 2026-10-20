@@ -128,6 +128,39 @@ export function categoryRanking(categories: CategoryCount[]): CategoryRank[] {
     .map((category) => ({ category: category.category.trim(), count: category.count, share: total > 0 ? (category.count / total) * 100 : null }));
 }
 
+export const CATEGORY_REST_KEY = "__rest__";
+
+export interface CategoryLegendRow extends CategoryRank {
+  color: string;
+}
+
+export interface CategorySlice {
+  key: string;
+  category: string;
+  count: number;
+  color: string;
+}
+
+export function categoryComposition(categories: CategoryCount[], palette: readonly string[], rest: string) {
+  const ranking = categoryRanking(categories);
+  const colored = new Map(
+    ranking
+      .filter((row) => row.category !== "")
+      .slice(0, palette.length)
+      .map((row, index) => [row.category, palette[index]] as const),
+  );
+  const legend: CategoryLegendRow[] = ranking.map((row) => ({ ...row, color: colored.get(row.category) ?? rest }));
+  const ring: CategorySlice[] = legend
+    .filter((row) => colored.has(row.category))
+    .map((row) => ({ key: row.category, category: row.category, count: row.count, color: row.color }));
+  const restCount = sumOf(
+    legend.filter((row) => !colored.has(row.category)),
+    (row) => row.count,
+  );
+  if (restCount > 0) ring.push({ key: CATEGORY_REST_KEY, category: "", count: restCount, color: rest });
+  return { legend, ring, total: sumOf(legend, (row) => row.count) };
+}
+
 export const CATEGORY_FILTER_ALL = "__all__";
 export const CATEGORY_FILTER_NONE = "__none__";
 

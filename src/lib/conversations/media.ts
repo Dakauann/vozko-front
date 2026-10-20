@@ -1,8 +1,5 @@
 import type { MediaType } from "./types";
 
-export const OUTBOUND_MEDIA_ACCEPT =
-    "image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.pptx,.txt";
-
 export function mediaTypeForFile(file: File): MediaType {
     if (file.type.startsWith("image/")) return "image";
     if (file.type.startsWith("video/")) return "video";

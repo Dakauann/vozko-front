@@ -1,5 +1,5 @@
 
-import type { UnofficialWhatsAppCampaign, UnofficialWhatsAppCampaignEntry, UnofficialWhatsAppCampaignListMeta, UnofficialWhatsAppCampaignPayload, ValidateTargetsResult } from '@/lib/unofficial-whatsapp-campaigns/types';
+import type { CampaignEstimateDraft, CampaignEstimateRequest, UnofficialWhatsAppCampaign, UnofficialWhatsAppCampaignAudience, UnofficialWhatsAppCampaignEntry, UnofficialWhatsAppCampaignListMeta, UnofficialWhatsAppCampaignPayload, ValidateTargetsResult } from '@/lib/unofficial-whatsapp-campaigns/types';
 import type { CampaignMetrics } from '@/lib/campaigns/metrics';
 
 import { apiClient } from '@/lib/api/browser-client';
@@ -37,12 +37,14 @@ export async function listUnofficialCampaignsAction(params?: {
     status?: string;
     instanceId?: string;
     archived?: boolean;
+    audience?: UnofficialWhatsAppCampaignAudience;
 }) {
     const query = new URLSearchParams({
         page: String(params?.page ?? 1),
         pageSize: String(params?.pageSize ?? 15),
     });
     if (params?.search) query.set('search', params.search);
+    if (params?.audience) query.set('audience', params.audience);
     if (params?.status && params.status !== 'all') query.set('status', params.status);
     if (params?.instanceId) query.set('instanceId', params.instanceId);
     if (params?.archived !== undefined) query.set('archived', String(params.archived));
@@ -116,6 +118,15 @@ export async function listUnofficialCampaignEntriesAction(
         entries: response.data?.data ?? [],
         meta: response.data?.meta ?? DEFAULT_META,
     };
+}
+
+export async function estimateUnofficialCampaignAction(request: CampaignEstimateRequest) {
+    const response = await apiClient<Envelope<CampaignEstimateDraft>>(`${BASE}/estimate`, {
+        method: 'POST',
+        body: JSON.stringify(request),
+    });
+    if (response.error) return { error: response.error.message, code: response.error.code };
+    return { draft: unwrap(response.data) };
 }
 
 export async function createUnofficialCampaignAction(payload: UnofficialWhatsAppCampaignPayload) {

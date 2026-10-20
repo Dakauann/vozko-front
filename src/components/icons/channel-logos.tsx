@@ -1,6 +1,7 @@
 "use client";
 
 import type { IconProps } from "@/components/icons";
+import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 import { useId } from "react";
 
 import { cn } from "@/lib/utils";
@@ -220,6 +221,37 @@ export function StudioLogoColor({ className }: IconProps) {
   );
 }
 
+const MERCADOLIVRE_YELLOW = "#FFE600";
+const MERCADOLIVRE_NAVY = "#2D3277";
+
+export function MercadoLivreLogoColor({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-4 w-4", className)}
+    >
+      <ellipse cx="12" cy="12" rx="11.4" ry="8.9" fill={MERCADOLIVRE_YELLOW} stroke={MERCADOLIVRE_NAVY} strokeWidth="1.1" />
+      <g
+        transform="translate(12 12.4) scale(0.6) translate(-12 -12)"
+        fill="none"
+        stroke={MERCADOLIVRE_NAVY}
+        strokeWidth="2.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3.5 3.75 2.5 13.9l6.15 6.15a1.1 1.1 0 0 0 1.55-1.55" />
+        <path d="M3.5 4.6h7.25" />
+        <path d="M20.5 3.75l1 10.15h-1.9" />
+        <path d="m11.15 17.1 1.9 1.9a1.1 1.1 0 0 0 1.55-1.55" />
+        <path d="m14.05 14.2 2.4 2.4a1.1 1.1 0 0 0 1.55-1.55l-3.75-3.75a2.85 2.85 0 0 0-4.03 0l-.8.8a1.1 1.1 0 0 1-1.55-1.55l2.7-2.7a5.6 5.6 0 0 1 6.83-.84l.45.27a2 2 0 0 0 1.4.25" />
+      </g>
+    </svg>
+  );
+}
+
 const CHANNELS_WITH_MARKS = new Set([
   "whatsapp",
   "unofficial_whatsapp",
@@ -227,23 +259,12 @@ const CHANNELS_WITH_MARKS = new Set([
   "facebook",
   "telegram",
   "webchat",
+  "mercadolivre",
+  "tiktok",
 ]);
 
 export function hasChannelMark(channel: string | null | undefined): boolean {
   return CHANNELS_WITH_MARKS.has(channel ?? "");
-}
-
-const CHANNEL_LABELS: Record<string, string> = {
-  whatsapp: "WhatsApp",
-  unofficial_whatsapp: "WhatsApp",
-  instagram: "Instagram",
-  facebook: "Messenger",
-  telegram: "Telegram",
-  webchat: "WebChat",
-};
-
-export function channelLabel(channel: string | null | undefined): string | null {
-  return CHANNEL_LABELS[channel ?? ""] ?? null;
 }
 
 export function ChannelLogo({
@@ -266,6 +287,10 @@ export function ChannelLogo({
       return <WebchatLogoColor className={className} />;
     case "unofficial_whatsapp":
       return <WhatsAppUnofficialLogo className={className} />;
+    case "mercadolivre":
+      return <MercadoLivreLogoColor className={className} />;
+    case "tiktok":
+      return <TiktokLogoColor className={className} />;
     default:
       return null;
   }

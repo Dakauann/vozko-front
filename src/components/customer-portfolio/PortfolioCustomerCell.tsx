@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 
 import { ChannelAvatarImage } from "@/components/channels/channel-avatar-image";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
-import { ChannelLogo, channelLabel } from "@/components/icons/channel-logos";
+import { ChannelLogo } from "@/components/icons/channel-logos";
+import { useChannelName } from "@/hooks/use-channel-name";
 import { UsersFour } from "@/components/icons";
 import { customerLines, type PortfolioRow } from "@/lib/customer-portfolio/portfolio";
 
@@ -32,6 +33,7 @@ export function PortfolioCustomerCell({ row }: { row: PortfolioRow }) {
 
 export function PortfolioReachCell({ row }: { row: PortfolioRow }) {
   const t = useTranslations("customerPortfolio.reach");
+  const channelName = useChannelName();
   if (row.subject.kind === "lead") {
     return (
       <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-foreground">
@@ -43,7 +45,7 @@ export function PortfolioReachCell({ row }: { row: PortfolioRow }) {
   return (
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-foreground">
       <ChannelLogo channel={row.subject.contactType} className="h-3.5 w-3.5" />
-      {t("contact", { channel: channelLabel(row.subject.contactType) ?? row.subject.contactType })}
+      {t("contact", { channel: channelName(row.subject.contactType) ?? row.subject.contactType })}
     </span>
   );
 }

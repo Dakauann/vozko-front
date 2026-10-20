@@ -53,6 +53,7 @@ interface CampaignHeaderTranslations {
 interface CampaignHeaderProps {
   name: string;
   status: string;
+  statusLabel?: string;
   campaignType: CampaignType;
   backLink: string;
   editLink: string;
@@ -107,7 +108,7 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
     },
   };
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label?: string }) {
   const style = statusStyles[status] ?? statusStyles.IDLE;
   return (
     <span
@@ -124,7 +125,7 @@ function StatusBadge({ status }: { status: string }) {
           status === "RUNNING" && "animate-pulse",
         )}
       />
-      {status}
+      {label ?? status}
     </span>
   );
 }
@@ -353,6 +354,7 @@ function ActionsDropdown({
 export default function CampaignHeader({
   name,
   status,
+  statusLabel,
   campaignType,
   backLink,
   editLink,
@@ -421,7 +423,7 @@ export default function CampaignHeader({
                 {transportBadge.label}
               </span>
             ) : null}
-            <StatusBadge status={status} />
+            <StatusBadge status={status} label={statusLabel} />
             <WsStatusIndicator
               status={wsStatus}
               translations={{

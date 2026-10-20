@@ -6,119 +6,91 @@ import {
   useRef,
   useState,
   useMemo,
-  type DragEvent,
 } from "react";
 import {
-  ReactFlow,
-  Background,
-  Controls,
-  ControlButton,
-  MiniMap,
-  addEdge,
   useNodesState,
   useEdgesState,
-  type Connection,
-  type Edge,
   type Node,
-  type NodeTypes,
   type ReactFlowInstance,
-  BackgroundVariant,
-  MarkerType,
-  Panel,
-  Position,
-  ViewportPortal,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import { LightPool } from "@/components/brand/light-pool";
-
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  FloppyDisk,
-  Play,
-  Pause,
-  Trash,
-  ArrowCounterClockwise,
-  ArrowClockwise,
-  TestTube,
-  Upload,
-  TreeStructure,
-  DotsThreeVertical,
-  MagnifyingGlass,
-} from "@/components/icons";
 import { toast } from "sonner";
-import { useTheme } from "next-themes";
-import { BrandLogo } from "@/components/brand-logo";
-import { openScoped } from "@/lib/browser/scoped-download-url";
-import { getApiBaseUrl } from "@/lib/api/browser-client";
-import ElevatedButton from "@/components/elevated-design/button";
-import ElevatedInput from "@/components/elevated-design/elevated-input";
-import {
-  ElevatedSelect,
-  ElevatedSelectItem,
-} from "@/components/elevated-design/elevated-select";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import type {
   Workflow,
   WorkflowGraph,
-  WorkflowNode as WFNode,
-  WorkflowEdge as WFEdge,
-  WorkflowTriggerType,
   WorkflowType,
   WorkflowNodeType,
-  CreateWorkflowPayload,
-  UpdateWorkflowPayload,
   NodeDefinition,
   HandleDefinition,
+  RunDetail,
+  WorkflowRunLog,
 } from "@/lib/workflows/types";
-import {
-  createWorkflowAction,
-  updateWorkflowAction,
-  activateWorkflowAction,
-  pauseWorkflowAction,
-  deleteWorkflowAction,
-  getWorkflowAction,
-  resolveHandlesAction,
-} from "@/app/actions/workflows";
-
-import {
-  WorkflowNode,
-  GroupNode,
-  type WorkflowNodeData,
-} from "./workflow-node";
-import { getDomainEdgeLabel } from "./workflow-graph";
-import { NodePalette } from "./node-palette";
-import { NodeDefinitionsProvider } from "./node-previews/node-definitions";
-import { NodeConfigPanel } from "./node-config-panel";
-import { SmartBezierEdge, SmartConnectionLine } from "./smart-edge";
-import { useUndoRedo } from "./use-undo-redo";
-import { CanvasContextMenu } from "./canvas-context-menu";
-import { WorkflowTestPanel } from "./workflow-test-panel";
-import { WorkflowCopilotPanel, WorkflowCopilotFab } from "./workflow-copilot-panel";
-import { layoutCopilotSubgraph, layoutWholeFlow } from "./copilot-layout";
-import { WorkflowAlerts } from "./workflow-alerts";
-import { useWorkflowLint } from "./use-workflow-lint";
-import { WorkflowSearch } from "./workflow-search";
-import { matchNodeIds } from "./workflow-node-search";
+import { isDebuggableBehavior, testBehaviorOf } from "@/lib/workflows/node-test-behavior";
+import type { RightPanel } from "@/lib/workflows/editor-docking";
+import type { RuntimeAlertFix } from "@/lib/workflows/runtime-alerts";
+import { entryPointsByNode, type EntryPointFix } from "@/lib/workflows/entry-points";
+import { initialDraftName } from "@/lib/workflows/draft-save";
+import { mergeLintIssues, runDiffersFromCanvas } from "@/lib/workflows/publication";
+import { getWorkflowVersionAction } from "@/app/actions/workflows";
+import { useSettledPermission } from "@/hooks/use-settled-permission";
+import { useStableCallback } from "@/hooks/use-stable-callback";
 import { useWorkflowSimulation } from "@/hooks/use-workflow-simulation";
 import {
   WORKFLOW_TYPES,
   definitionAllowedForType,
   workflowTypeOfTrigger,
-  workflowTypeOfTriggerDefinition,
 } from "@/lib/workflows/workflow-types";
 import { nextShortNodeId } from "@/lib/workflows/node-ids";
-import { localizedLintIssues } from "@/lib/workflows/lint-copy";
-import { codedErrorMessage } from "@/lib/api/coded-error";
+import { createDoubleTap, isMouseClick } from "@/lib/workflows/double-tap";
+import { configFieldLabel } from "@/lib/workflows/lint-copy";
+
+import type { WorkflowNodeData } from "./workflow-node";
+import { createWorkflowSnapshot, flowToDomain } from "./workflow-graph";
+import {
+  graphBounds,
+  holdDuringGesture,
+  sameEdgeStructure,
+  sameNodeGeometry,
+  sameNodeLayout,
+  sameNodeStructure,
+} from "./graph-stability";
+import { useStableValue } from "./use-stable-value";
+import { buildObstacleIndex } from "./edge-routing";
+import { createHoverStore } from "./edge-activity";
+import { createRunOverlayStore } from "./run-overlay";
+import { createNodeDebugStore } from "./node-debug-marks";
+import type { VersionFocus } from "./version-run-canvas";
+import { OpenRunContext } from "./run-bits";
+import type { TestNodeSeed } from "./test-node-section";
+import { NodeDefinitionsProvider } from "./node-previews/node-definitions";
+import { NodeConfigPanel } from "./node-config-panel";
+import { useUndoRedo } from "./use-undo-redo";
+import { useWorkflowLint } from "./use-workflow-lint";
+import {
+  domainToFlow,
+  isNodeTypeAllowedForType,
+  type OutputLabels,
+} from "./editor-flow";
+import { EditorCanvas, type NodeMenuState, type VersionView } from "./editor-canvas";
+import { EditorHeader } from "./editor-header";
+import { EditorSidePanel } from "./editor-side-panel";
+import { EditorRightSlot } from "./editor-right-slot";
+import { useCanvasGestures } from "./use-canvas-gestures";
+import { useCanvasRunOverlay } from "./use-canvas-run-overlay";
+import { useCopilotGraph } from "./use-copilot-graph";
+import { useEditorDebug } from "./use-editor-debug";
+import { useEditorShortcuts } from "./use-editor-shortcuts";
+import { useNodeHandles } from "./use-node-handles";
+import { useNodeEditing } from "./use-node-editing";
+import { useNodeSearch } from "./use-node-search";
+import { useRuntimeAlerts } from "./use-runtime-alerts";
+import { useWorkflowPersistence } from "./use-workflow-persistence";
+import { DraftConflictDialog } from "./draft-conflict-dialog";
+import { EntryPointsContext } from "./trigger-entry-mark";
 
 interface WorkflowEditorProps {
   workflow?: Workflow | null;
@@ -126,275 +98,31 @@ interface WorkflowEditorProps {
   mode: "create" | "edit";
   initialHandles?: Record<string, HandleDefinition[]>;
   onWorkflowUpdate?: (workflow: Workflow) => void;
+  initialRunId?: string | null;
+  initialAlertId?: string | null;
+  initialNodeId?: string | null;
 }
 
-function isNodeTypeAllowedForType(
-  wfType: WorkflowType,
-  nodeType: WorkflowNodeType,
-  defMap: Map<string, NodeDefinition>,
-) {
-  if (nodeType === "group" || nodeType === "decoration_background") {
-    return true;
-  }
+const WEBHOOK_TRIGGER_NODE_TYPE = "trigger_webhook";
 
-  return definitionAllowedForType(wfType, defMap.get(nodeType));
-}
-
-interface OutputLabels {
-  defaultPath: string;
-  textResponse: string;
-  noMatch: string;
-  error: string;
-}
-
-function resolveOutputLabel(
-  nodeType: WorkflowNodeType,
-  outputId: string,
-  labels: OutputLabels,
-  fallbackLabel?: string,
-): string {
-  const normalizedId = outputId.trim().toLowerCase();
-
-  switch (normalizedId) {
-    case "default":
-      if (nodeType === "action_ai_agent") return labels.textResponse;
-      if (nodeType === "condition_text_match") return labels.noMatch;
-      return labels.defaultPath;
-    case "erro":
-    case "error":
-      return labels.error;
-    default:
-      return fallbackLabel?.trim() || outputId;
-  }
-}
-
-function normalizeOutputs(
-  nodeType: WorkflowNodeType,
-  outputs: HandleDefinition[] | undefined,
-  labels: OutputLabels,
-): HandleDefinition[] | undefined {
-  if (!outputs?.length) return outputs;
-
-  return outputs.map((output) => ({
-    ...output,
-    label: resolveOutputLabel(nodeType, output.id, labels, output.label),
-  }));
-}
-
-
-function checkMissingRequired(
-  def: NodeDefinition | undefined,
-  config: Record<string, unknown>,
-  nodeType?: WorkflowNodeType,
-): boolean {
-  if (!def?.configSchema) return false;
-  const missingGeneric = def.configSchema.some(
-    (f) =>
-      f.required === true &&
-      (config[f.key] === undefined ||
-        config[f.key] === null ||
-        config[f.key] === ""),
-  );
-  if (missingGeneric) return true;
-
-  if (nodeType === "action_ai_agent") {
-    const source = config.source as string;
-    if (source === "prompt") {
-      return !config.model || !config.instructions;
-    }
-    return !config.agent_id;
-  }
-
-  return false;
-}
-
-function domainToFlow(
-  graph: WorkflowGraph | undefined,
-  defMap: Map<string, NodeDefinition>,
-  outputLabels: OutputLabels,
-  handlesByNode: Record<string, HandleDefinition[]> = {},
-): { nodes: Node[]; edges: Edge[] } {
-  if (!graph) return { nodes: [], edges: [] };
-  const handleIdsByNode = new Map<string, string[]>();
-  const nodes: Node[] = (graph.nodes ?? []).map((n: WFNode) => {
-    if (n.type === "group" || n.type === "decoration_background") {
-      const cfg = n.config ?? {};
-      const w = (cfg._width as number) || 400;
-      const h = (cfg._height as number) || 250;
-      return {
-        id: n.id,
-        type: "groupNode",
-        position: n.position,
-        width: w,
-        height: h,
-        style: { width: w, height: h },
-        zIndex: -1,
-        data: {
-          nodeType: "group" as WorkflowNodeType,
-          config: cfg,
-          label: (cfg.display_name as string) || "Grupo",
-        } satisfies WorkflowNodeData,
-      };
-    }
-
-    const def = defMap.get(n.type);
-    const outputs = normalizeOutputs(
-      n.type,
-      handlesByNode[n.id] ?? def?.outputs,
-      outputLabels,
-    );
-    handleIdsByNode.set(n.id, (outputs ?? []).map((o) => o.id));
-    return {
-      id: n.id,
-      type: "workflowNode",
-      position: n.position,
-      targetPosition: Position.Left,
-      sourcePosition: Position.Right,
-      data: {
-        nodeType: n.type,
-        config: n.config ?? {},
-        label: (n.config?.display_name as string) || def?.label,
-        icon: def?.icon,
-        outputs,
-        hasMissingRequired: checkMissingRequired(def, n.config ?? {}, n.type),
-      } satisfies WorkflowNodeData,
-    };
-  });
-  const edges: Edge[] = (graph.edges ?? []).map((e: WFEdge, i: number) => {
-    const sourceIds = handleIdsByNode.get(e.source) ?? [];
-    let sourceHandle: string | undefined = e.label || undefined;
-    if (!sourceHandle && sourceIds.length > 0) {
-      sourceHandle = sourceIds.includes("default")
-        ? "default"
-        : sourceIds.length === 1
-          ? sourceIds[0]
-          : undefined;
-    }
-    return {
-      id: `e-${e.source}-${e.target}-${i}`,
-      source: e.source,
-      target: e.target,
-      sourceHandle,
-      label: e.label ?? undefined,
-      type: "smartBezier",
-      animated: false,
-      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
-      style: { strokeWidth: 1.5 },
-    };
-  });
-  return { nodes, edges };
-}
-
-function flowToDomain(nodes: Node[], edges: Edge[]): WorkflowGraph {
-  return {
-    nodes: nodes.map((n) => {
-      const data = n.data as unknown as WorkflowNodeData;
-      const config = sanitizeWorkflowConfig(data.config ?? {});
-      if (data.nodeType === "group") {
-        const w =
-          (n as Record<string, unknown>).width ??
-          (n.measured as { width?: number } | undefined)?.width ??
-          (n.style as Record<string, unknown> | undefined)?.width;
-        const h =
-          (n as Record<string, unknown>).height ??
-          (n.measured as { height?: number } | undefined)?.height ??
-          (n.style as Record<string, unknown> | undefined)?.height;
-        if (w) config._width = Number(w);
-        if (h) config._height = Number(h);
-      }
-      return {
-        id: n.id,
-        type: (data.nodeType === "group"
-          ? "decoration_background"
-          : data.nodeType) as WorkflowNodeType,
-        position: { x: n.position.x, y: n.position.y },
-        config,
-      };
-    }),
-    edges: edges.map((e) => ({
-      source: e.source,
-      target: e.target,
-      label: getDomainEdgeLabel(e),
-    })),
-  };
-}
-
-function sanitizeWorkflowValue(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(sanitizeWorkflowValue);
-  }
-
-  if (value && typeof value === "object") {
-    const sortedEntries = Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => !key.startsWith("_display_"))
-      .map(
-        ([key, entryValue]) =>
-          [key, sanitizeWorkflowValue(entryValue)] as const,
-      )
-      .sort(([left], [right]) => left.localeCompare(right));
-
-    return Object.fromEntries(sortedEntries);
-  }
-
-  return value;
-}
-
-function sanitizeWorkflowConfig(
-  config: Record<string, unknown>,
-): Record<string, unknown> {
-  const sanitized = sanitizeWorkflowValue(config);
-  return sanitized && typeof sanitized === "object"
-    ? (sanitized as Record<string, unknown>)
-    : {};
-}
-
-function normalizeGraphForDirtyCheck(graph: WorkflowGraph): WorkflowGraph {
-  return {
-    nodes: [...(graph.nodes ?? [])]
-      .map((node) => ({
-        ...node,
-        config: sanitizeWorkflowConfig(node.config ?? {}),
-      }))
-      .sort((left, right) => left.id.localeCompare(right.id)),
-    edges: [...(graph.edges ?? [])].sort((left, right) => {
-      const leftKey = `${left.source}:${left.label ?? ""}:${left.target}`;
-      const rightKey = `${right.source}:${right.label ?? ""}:${right.target}`;
-      return leftKey.localeCompare(rightKey);
-    }),
-  };
-}
-
-function createWorkflowSnapshot(input: {
-  name: string;
-  description: string;
-  workflowType: WorkflowType;
-  graph: WorkflowGraph;
-}) {
-  return JSON.stringify({
-    name: input.name,
-    description: input.description,
-    workflowType: input.workflowType,
-    graph: normalizeGraphForDirtyCheck(input.graph),
-  });
-}
-
-
-function copilotNodeSig(data: unknown): string {
-  const d = (data ?? {}) as { config?: unknown; label?: unknown };
-  return JSON.stringify({ c: d.config ?? null, l: d.label ?? null });
-}
+const settledLayout = holdDuringGesture(sameNodeLayout);
+const settledGeometry = holdDuringGesture(sameNodeGeometry);
 
 export function WorkflowEditor({
   workflow,
   definitions,
   initialHandles,
   onWorkflowUpdate,
+  initialRunId = null,
+  initialAlertId = null,
+  initialNodeId = null,
 }: WorkflowEditorProps) {
   const t = useTranslations("workflowsPage");
+  const tDebug = useTranslations("workflowDebug");
   const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
-  const [name, setName] = useState(workflow?.name ?? "");
+  const [name, setName] = useState(() => initialDraftName(workflow, t("defaultName")));
   const [description, setDescription] = useState(workflow?.description ?? "");
   const [workflowType, setWorkflowType] = useState<WorkflowType>(() => {
     if (workflow?.type) return workflow.type;
@@ -405,17 +133,30 @@ export function WorkflowEditor({
   const [workflowState, setWorkflowState] = useState<Workflow | null>(
     workflow ?? null,
   );
-  const [saving, setSaving] = useState(false);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchTypeFilter, setSearchTypeFilter] = useState<string | null>(null);
-  const [searchActiveIndex, setSearchActiveIndex] = useState(-1);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [versionsOpen, setVersionsOpen] = useState(false);
+  const [versionsReload, setVersionsReload] = useState(0);
+  const canWriteSecrets = useSettledPermission("workflows", "update");
+  const canCreate = useSettledPermission("workflows", "create");
+  const canSave = workflowState?.id ? canWriteSecrets : canCreate;
+  const [configNodeId, setConfigNodeId] = useState<string | null>(() =>
+    initialNodeId && workflow?.graph?.nodes?.some((node) => node.id === initialNodeId) ? initialNodeId : null,
+  );
   const [showTestPanel, setShowTestPanel] = useState(false);
+  const [runsOpen, setRunsOpen] = useState(Boolean(initialRunId));
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(initialRunId);
+  const [runDetail, setRunDetail] = useState<RunDetail | null>(null);
+  const [testSeed, setTestSeed] = useState<{ nodeId: string; seed: TestNodeSeed } | null>(null);
+  const [deliveriesFocusNode, setDeliveriesFocusNode] = useState<string | null>(null);
+  const [runOverlayStore] = useState(createRunOverlayStore);
+  const [debugStore] = useState(createNodeDebugStore);
   const [showCopilot, setShowCopilot] = useState(false);
   const [copilotMounted, setCopilotMounted] = useState(false);
+  const [copilotBusy, setCopilotBusy] = useState(false);
+  const [rightPreferred, setRightPreferred] = useState<RightPanel>("test");
+  const [nodeTestPath, setNodeTestPath] = useState<WorkflowRunLog[] | null>(null);
+  const [versionView, setVersionView] = useState<VersionView | null>(null);
+  const [versionFocus, setVersionFocus] = useState<VersionFocus | null>(null);
+  const [nodeMenu, setNodeMenu] = useState<NodeMenuState | null>(null);
   const simulation = useWorkflowSimulation({
     workflowId: workflowState?.id ?? "",
   });
@@ -425,24 +166,10 @@ export function WorkflowEditor({
     [],
   );
 
-  const { resolvedTheme } = useTheme();
-  const activeSimulation = simulation;
-
-  const clipboardRef = useRef<{
-    nodeType: WorkflowNodeType;
-    label?: string;
-    icon?: string;
-  } | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
   const defMap = useMemo(
     () => new Map(definitions.map((d) => [d.type, d])),
-    [definitions],
-  );
-
-  const dynamicTypes = useMemo(
-    () =>
-      new Set(definitions.filter((d) => d.dynamicHandles).map((d) => d.type)),
     [definitions],
   );
 
@@ -452,6 +179,11 @@ export function WorkflowEditor({
       textResponse: t("nodeOutputs.textResponse"),
       noMatch: t("nodeOutputs.noMatch"),
       error: t("nodeOutputs.error"),
+      form: {
+        completed: t("nodeOutputs.formCompleted"),
+        no_reply: t("nodeOutputs.formNoReply"),
+        send_failed: t("nodeOutputs.formSendFailed"),
+      },
     }),
     [t],
   );
@@ -487,35 +219,30 @@ export function WorkflowEditor({
     return map;
   }, [definitions]);
 
-  const initial = useMemo(
-    () => domainToFlow(workflowState?.graph, defMap, outputLabels, initialHandles),
-    [workflowState?.graph, defMap, outputLabels, initialHandles],
-  );
+  const [initial] = useState(() => domainToFlow(workflow?.graph, defMap, outputLabels, initialHandles));
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
 
-  const graphBounds = useMemo(() => {
-    const pad = 520;
-    if (nodes.length === 0) return { x: -900, y: -650, width: 1800, height: 1300 };
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    for (const node of nodes) {
-      const measured = node.measured as { width?: number; height?: number } | undefined;
-      const width = measured?.width ?? (node as { width?: number }).width ?? 320;
-      const height = measured?.height ?? (node as { height?: number }).height ?? 140;
-      minX = Math.min(minX, node.position.x);
-      minY = Math.min(minY, node.position.y);
-      maxX = Math.max(maxX, node.position.x + width);
-      maxY = Math.max(maxY, node.position.y + height);
-    }
-    return { x: minX - pad, y: minY - pad, width: maxX - minX + pad * 2, height: maxY - minY + pad * 2 };
-  }, [nodes]);
+  const structureNodes = useStableValue(nodes, sameNodeStructure);
+  const layoutNodes = useStableValue(nodes, settledLayout);
+  const geometryNodes = useStableValue(nodes, settledGeometry);
+  const canvasBounds = useMemo(() => graphBounds(geometryNodes), [geometryNodes]);
+  const obstacleIndex = useMemo(() => buildObstacleIndex(geometryNodes), [geometryNodes]);
+  const [hoverStore] = useState(createHoverStore);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
 
-  const [resolvedHandles, setResolvedHandles] = useState<
-    Record<string, HandleDefinition[]>
-  >(initialHandles ?? {});
+  const edgeStructure = useStableValue(edges, sameEdgeStructure);
+  const shownRun = runsOpen && runDetail && runDetail.run.id === selectedRunId ? runDetail : null;
+  const canvasEdges = useCanvasRunOverlay({
+    shownRun,
+    testOpen: showTestPanel,
+    simulationSteps: simulation.steps,
+    simulationTriggerType: simulation.triggerType,
+    nodeTestPath,
+    structureNodes,
+    edgeStructure,
+    edges,
+    store: runOverlayStore,
+  });
 
   const { takeSnapshot, undo, redo, syncCurrent } = useUndoRedo(
     setNodes,
@@ -533,297 +260,198 @@ export function WorkflowEditor({
     latestEdgesRef.current = edges;
   }, [nodes, edges]);
 
-  const copilotBaselineRef = useRef<Set<string> | null>(null);
-  const applySeqRef = useRef(0);
-  const appearedIdsRef = useRef<Set<string>>(new Set());
-  const appearedEdgeIdsRef = useRef<Set<string>>(new Set());
-  const nodeSigRef = useRef<Map<string, string>>(new Map());
-  const flashCounterRef = useRef(0);
-  useEffect(() => {
-    if (showCopilot) {
-      const cur = latestNodesRef.current;
-      copilotBaselineRef.current = new Set(cur.map((n) => n.id));
-      appearedIdsRef.current = new Set(cur.map((n) => n.id));
-      appearedEdgeIdsRef.current = new Set(
-        latestEdgesRef.current.map((e) => e.id),
-      );
-      nodeSigRef.current = new Map(
-        cur.map((n) => [n.id, copilotNodeSig(n.data)]),
-      );
-    } else {
-      copilotBaselineRef.current = null;
-    }
-  }, [showCopilot]);
+  const resolvedHandles = useNodeHandles({
+    definitions,
+    defMap,
+    structureNodes,
+    latestNodesRef,
+    setNodes,
+    outputLabels,
+    initialHandles,
+  });
 
-  const applyCopilotGraph = useCallback(
-    (graph: WorkflowGraph) => {
-      takeSnapshot();
-      const flow = domainToFlow(graph, defMap, outputLabels, resolvedHandles);
-      const baseline = copilotBaselineRef.current ?? new Set<string>();
-      const currentPos = new Map(
-        latestNodesRef.current.map((n) => [n.id, n.position]),
-      );
-      const preserved = flow.nodes.map((n) =>
-        baseline.has(n.id) && currentPos.has(n.id)
-          ? { ...n, position: currentPos.get(n.id)! }
-          : n,
-      );
-      const touchedIds = new Set(
-        preserved.filter((n) => !baseline.has(n.id)).map((n) => n.id),
-      );
+  const { applyCopilotGraph, tidyUpGraph, getCopilotGraph } = useCopilotGraph({
+    showCopilot,
+    takeSnapshot,
+    defMap,
+    outputLabels,
+    resolvedHandles,
+    setNodes,
+    setEdges,
+    latestNodesRef,
+    latestEdgesRef,
+  });
 
-      const tag = (list: typeof preserved) => {
-        const fresh = list
-          .filter((n) => !appearedIdsRef.current.has(n.id))
-          .slice()
-          .sort((a, b) => a.position.x - b.position.x);
-        const order = new Map(fresh.map((n, i) => [n.id, i] as const));
-        return list.map((n) => {
-          const sig = copilotNodeSig(n.data);
-          let appearSeqV: number | undefined;
-          let flashAtV: number | undefined;
-          if (order.has(n.id)) {
-            appearSeqV = order.get(n.id);
-            appearedIdsRef.current.add(n.id);
-          } else if (nodeSigRef.current.get(n.id) !== sig) {
-            flashAtV = ++flashCounterRef.current;
-          }
-          nodeSigRef.current.set(n.id, sig);
-          return {
-            ...n,
-            data: { ...n.data, _appearSeq: appearSeqV, _flashAt: flashAtV },
-          };
-        });
-      };
-
-      const tagEdges = (eds: typeof flow.edges) => {
-        const fresh = eds.filter((e) => !appearedEdgeIdsRef.current.has(e.id));
-        const order = new Map(fresh.map((e, i) => [e.id, i] as const));
-        return eds.map((e) => {
-          if (!order.has(e.id)) return e;
-          appearedEdgeIdsRef.current.add(e.id);
-          return {
-            ...e,
-            data: { ...(e.data ?? {}), _appearSeq: order.get(e.id) },
-          };
-        });
-      };
-      const taggedEdges = tagEdges(flow.edges);
-
-      const seq = ++applySeqRef.current;
-      if (touchedIds.size === 0) {
-        setNodes(tag(preserved));
-        setEdges(taggedEdges);
-        return;
-      }
-      const relayoutTouchedWhenMeasured = (touched: Set<string>, s: number) => {
-        if (touched.size === 0) return;
-        let frames = 0;
-        const tick = () => {
-          if (s !== applySeqRef.current) return;
-          const cur = latestNodesRef.current;
-          const allMeasured = [...touched].every((id) => {
-            const n = cur.find((x) => x.id === id);
-            return !n || n.measured?.height != null;
-          });
-          if (!allMeasured && frames < 30) {
-            frames++;
-            requestAnimationFrame(tick);
-            return;
-          }
-          void layoutCopilotSubgraph({
-            nodes: cur,
-            edges: latestEdgesRef.current,
-            touchedIds: touched,
-          }).then((pos) => {
-            if (s !== applySeqRef.current || pos.size === 0) return;
-            setNodes((nds) =>
-              nds.map((n) =>
-                pos.has(n.id) ? { ...n, position: pos.get(n.id)! } : n,
-              ),
-            );
-          });
-        };
-        requestAnimationFrame(tick);
-      };
-
-      void layoutCopilotSubgraph({
-        nodes: preserved,
-        edges: flow.edges,
-        touchedIds,
-      })
-        .then((pos) => {
-          if (seq !== applySeqRef.current) return;
-          setNodes(
-            tag(
-              preserved.map((n) =>
-                pos.has(n.id) ? { ...n, position: pos.get(n.id)! } : n,
-              ),
-            ),
-          );
-          setEdges(taggedEdges);
-          relayoutTouchedWhenMeasured(touchedIds, seq);
-        })
-        .catch(() => {
-          if (seq !== applySeqRef.current) return;
-          setNodes(preserved);
-          setEdges(taggedEdges);
-        });
-    },
-    [takeSnapshot, defMap, outputLabels, resolvedHandles, setNodes, setEdges],
-  );
-
-  const tidyUpGraph = useCallback(() => {
-    const seq = ++applySeqRef.current;
-    void layoutWholeFlow({
-      nodes: latestNodesRef.current,
-      edges: latestEdgesRef.current,
-    }).then((pos) => {
-      if (seq !== applySeqRef.current || pos.size === 0) return;
-      takeSnapshot();
-      setNodes(
-        latestNodesRef.current.map((n) =>
-          pos.has(n.id) ? { ...n, position: pos.get(n.id)! } : n,
-        ),
-      );
-    });
-  }, [setNodes, takeSnapshot]);
-
-  const getCopilotGraph = useCallback(
-    () => flowToDomain(latestNodesRef.current, latestEdgesRef.current),
-    [],
-  );
-
-  const domainGraph = useMemo(() => flowToDomain(nodes, edges), [nodes, edges]);
+  const domainGraph = useMemo(() => flowToDomain(layoutNodes, edges), [layoutNodes, edges]);
   const lint = useWorkflowLint({ workflowType, graph: domainGraph });
-  const lintIssues = useMemo(() => localizedLintIssues(t, lint.issues), [t, lint.issues]);
 
   const nodeLabelById = useMemo(() => {
     const map = new Map<string, string>();
-    for (const n of nodes) {
+    for (const n of structureNodes) {
       const data = n.data as unknown as WorkflowNodeData;
       map.set(n.id, (data?.label as string) || n.id);
     }
     return map;
-  }, [nodes]);
+  }, [structureNodes]);
 
-  const focusNode = useCallback((nodeId: string) => {
+  const nodeConfigById = useMemo(() => {
+    const map = new Map<string, Record<string, unknown>>();
+    for (const n of structureNodes) {
+      const data = n.data as unknown as WorkflowNodeData;
+      if (data?.config) map.set(n.id, data.config);
+    }
+    return map;
+  }, [structureNodes]);
+
+  const centreOnNode = useCallback((nodeId: string) => {
     const node = latestNodesRef.current.find((n) => n.id === nodeId);
-    if (!node) return;
-    setSelectedNodeId(nodeId);
+    if (!node) return false;
     const inst = reactFlowInstance.current;
-    if (!inst) return;
+    if (!inst) return true;
     const measured = node.measured as
       | { width?: number; height?: number }
       | undefined;
-    const width = measured?.width ?? 220;
-    const height = measured?.height ?? 120;
     inst.setCenter(
-      node.position.x + width / 2,
-      node.position.y + height / 2,
+      node.position.x + (measured?.width ?? 220) / 2,
+      node.position.y + (measured?.height ?? 120) / 2,
       { zoom: Math.max(inst.getZoom(), 0.9), duration: 450 },
     );
+    return true;
   }, []);
 
-  const searchTypes = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const n of nodes) {
-      const d = n.data as unknown as WorkflowNodeData;
-      if (d.nodeType === "group" || seen.has(d.nodeType)) continue;
-      seen.set(d.nodeType, defMap.get(d.nodeType)?.label ?? d.nodeType);
-    }
-    return [...seen.entries()]
-      .map(([value, label]) => ({ value, label }))
-      .sort((a, z) => a.label.localeCompare(z.label));
-  }, [nodes, defMap]);
-
-  const searchMatches = useMemo(() => {
-    if (!searchOpen) return [] as string[];
-    return matchNodeIds(
-      searchQuery,
-      nodes
-        .filter(
-          (n) => (n.data as unknown as WorkflowNodeData).nodeType !== "group",
-        )
-        .map((n) => {
-          const d = n.data as unknown as WorkflowNodeData;
-          return {
-            id: n.id,
-            label: d.label,
-            nodeType: d.nodeType,
-            config: d.config,
-          };
-        }),
-      { type: searchTypeFilter },
-    );
-  }, [searchOpen, searchQuery, searchTypeFilter, nodes]);
-  const searchMatchKey = searchMatches.join(",");
-
-  useEffect(() => {
-    const active =
-      searchOpen &&
-      (searchQuery.trim().length > 0 || searchTypeFilter != null);
-    const matchSet = new Set(searchMatches);
-    const hasMatches = matchSet.size > 0;
-    setNodes((nds) => {
-      let changed = false;
-      const next = nds.map((n) => {
-        const d = n.data as unknown as WorkflowNodeData;
-        const isGroup = d.nodeType === "group";
-        const wantMatch = active && matchSet.has(n.id);
-        const wantDim = active && hasMatches && !matchSet.has(n.id) && !isGroup;
-        if (
-          Boolean(d.searchMatch) === wantMatch &&
-          Boolean(d.searchDim) === wantDim
-        ) {
-          return n;
-        }
-        changed = true;
-        return { ...n, data: { ...d, searchMatch: wantMatch, searchDim: wantDim } };
-      });
-      return changed ? next : nds;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchOpen, searchQuery, searchTypeFilter, searchMatchKey, setNodes]);
-
-  useEffect(() => {
-    if (!searchOpen) return;
-    if (searchMatches.length === 1) {
-      setSearchActiveIndex(0);
-      focusNode(searchMatches[0]);
-    } else {
-      setSearchActiveIndex(-1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMatchKey, searchOpen]);
-
-  const goToMatch = useCallback(
-    (delta: number) => {
-      const count = searchMatches.length;
-      if (count === 0) return;
-      const nextIndex =
-        searchActiveIndex < 0
-          ? delta > 0
-            ? 0
-            : count - 1
-          : (searchActiveIndex + delta + count) % count;
-      setSearchActiveIndex(nextIndex);
-      focusNode(searchMatches[nextIndex]);
-    },
-    [searchMatches, searchActiveIndex, focusNode],
+  const selectOnly = useCallback(
+    (nodeId: string | null) =>
+      setNodes((nds) => {
+        let changed = false;
+        const next = nds.map((n) => {
+          if (Boolean(n.selected) === (n.id === nodeId)) return n;
+          changed = true;
+          return { ...n, selected: n.id === nodeId };
+        });
+        return changed ? next : nds;
+      }),
+    [setNodes],
   );
 
-  const openSearch = useCallback(() => {
-    setSearchOpen(true);
-    requestAnimationFrame(() => searchInputRef.current?.select());
+  const runStepNodeRef = useRef<string | null>(null);
+
+  const revealNode = useCallback(
+    (nodeId: string) => {
+      if (!centreOnNode(nodeId)) return false;
+      selectOnly(nodeId);
+      return true;
+    },
+    [centreOnNode, selectOnly],
+  );
+
+  const showRunStep = useCallback(
+    (nodeId: string) => {
+      if (versionView) {
+        setVersionFocus((prev) => ({ nodeId, seq: (prev?.seq ?? 0) + 1 }));
+        return;
+      }
+      if (revealNode(nodeId)) runStepNodeRef.current = nodeId;
+    },
+    [revealNode, versionView],
+  );
+
+  const releaseRunStep = useCallback(() => {
+    const nodeId = runStepNodeRef.current;
+    runStepNodeRef.current = null;
+    if (nodeId && latestNodesRef.current.find((n) => n.id === nodeId)?.selected) selectOnly(null);
+  }, [selectOnly]);
+
+  const openNodeConfig = useCallback(
+    (nodeId: string) => {
+      if (centreOnNode(nodeId)) setConfigNodeId(nodeId);
+    },
+    [centreOnNode],
+  );
+
+  const openRun = useCallback((runId: string) => {
+    setVersionsOpen(false);
+    setRunsOpen(true);
+    setSelectedRunId(runId);
   }, []);
 
-  const closeSearch = useCallback(() => {
-    setSearchOpen(false);
-    setSearchQuery("");
-    setSearchTypeFilter(null);
-    setSearchActiveIndex(-1);
+  const openRunsPanel = useCallback(() => {
+    setVersionsOpen(false);
+    setRunsOpen(true);
   }, []);
+
+  const closeRuns = useCallback(() => {
+    setRunsOpen(false);
+    setSelectedRunId(null);
+    setRunDetail(null);
+    setVersionView(null);
+    releaseRunStep();
+  }, [releaseRunStep]);
+
+  const openVersionsPanel = useCallback(() => {
+    closeRuns();
+    setVersionsOpen(true);
+  }, [closeRuns]);
+
+  const selectRun = useCallback(
+    (runId: string | null) => {
+      setSelectedRunId(runId);
+      releaseRunStep();
+    },
+    [releaseRunStep],
+  );
+
+  const testStepWithData = useCallback(
+    (nodeId: string, seed: TestNodeSeed) => {
+      setTestSeed({ nodeId, seed });
+      openNodeConfig(nodeId);
+    },
+    [openNodeConfig],
+  );
+
+  const runNodeLabel = useCallback((nodeId: string) => nodeLabelById.get(nodeId), [nodeLabelById]);
+  const runNodeExists = useCallback((nodeId: string) => nodeLabelById.has(nodeId), [nodeLabelById]);
+  const runTriggerLabel = useCallback((triggerType: string) => triggerLabelByType.get(triggerType), [triggerLabelByType]);
+  const nodeConfig = useCallback((nodeId: string) => nodeConfigById.get(nodeId), [nodeConfigById]);
+  const nodeFieldLabel = useCallback(
+    (nodeId: string, field: string) => {
+      const node = structureNodes.find((n) => n.id === nodeId);
+      const nodeType = (node?.data as unknown as WorkflowNodeData | undefined)?.nodeType;
+      return configFieldLabel(nodeType ? defMap.get(nodeType) : undefined, field);
+    },
+    [structureNodes, defMap],
+  );
+  const nodeOutputLabel = useCallback(
+    (nodeId: string, output: string) => {
+      const node = structureNodes.find((n) => n.id === nodeId);
+      return (node?.data as unknown as WorkflowNodeData | undefined)?.outputs?.find((handle) => handle.id === output)?.label || undefined;
+    },
+    [structureNodes],
+  );
+  const lintSubjects = useMemo(
+    () => ({ nodeLabel: runNodeLabel, fieldLabel: nodeFieldLabel, outputLabel: nodeOutputLabel }),
+    [runNodeLabel, nodeFieldLabel, nodeOutputLabel],
+  );
+
+  if (testSeed && testSeed.nodeId !== configNodeId) {
+    setTestSeed(null);
+  }
+  if (versionView && versionView.runId !== selectedRunId) {
+    setVersionView(null);
+  }
+  if (deliveriesFocusNode && deliveriesFocusNode !== configNodeId) {
+    setDeliveriesFocusNode(null);
+  }
+
+  const savedWorkflowId = workflowState?.id ?? null;
+  const runtimeAlerts = useRuntimeAlerts(savedWorkflowId);
+
+  const webhookTriggerNodeId = useMemo(
+    () =>
+      structureNodes.find((n) => (n.data as unknown as WorkflowNodeData)?.nodeType === WEBHOOK_TRIGGER_NODE_TYPE)?.id ?? null,
+    [structureNodes],
+  );
+
+  const { search, searchInputRef } = useNodeSearch({ structureNodes, defMap, setNodes, focusNode: revealNode });
 
   const applyCopilotMeta = useCallback(
     (meta: {
@@ -838,1063 +466,451 @@ export function WorkflowEditor({
     [],
   );
 
-  const renameNode = useCallback(
-    (oldId: string, rawNewId: string): string | null => {
-      const newId = rawNewId.trim();
-      if (!newId) return "O ID não pode ficar vazio.";
-      if (newId === oldId) return null;
-      if (!/^[A-Za-z0-9_-]+$/.test(newId))
-        return "Use apenas letras, números, hífen ou _.";
-      if (latestNodesRef.current.some((n) => n.id === newId))
-        return "Já existe um nó com esse ID.";
+  const editing = useNodeEditing({
+    defMap,
+    outputLabels,
+    canAddNodeType,
+    takeSnapshot,
+    setNodes,
+    setEdges,
+    onNodesChange,
+    onEdgesChange,
+    freshNodeId,
+    reactFlowInstance,
+    latestNodesRef,
+    setConfigNodeId,
+  });
+  const { setCtxMenu } = editing;
 
-      const renameRefs = (val: unknown): unknown => {
-        if (typeof val === "string") {
-          return val
-            .split(`{{${oldId}.`)
-            .join(`{{${newId}.`)
-            .split(`{{${oldId}}}`)
-            .join(`{{${newId}}}`);
-        }
-        if (Array.isArray(val)) return val.map(renameRefs);
-        if (val && typeof val === "object") {
-          const out: Record<string, unknown> = {};
-          for (const [k, v] of Object.entries(val as Record<string, unknown>))
-            out[k] = renameRefs(v);
-          return out;
-        }
-        return val;
-      };
-
-      takeSnapshot();
-      setNodes((nds) =>
-        nds.map((n) => {
-          const data = n.data as unknown as WorkflowNodeData;
-          const nextData = {
-            ...data,
-            config: renameRefs(data.config ?? {}) as Record<string, unknown>,
-          };
-          return n.id === oldId
-            ? { ...n, id: newId, data: nextData }
-            : { ...n, data: nextData };
-        }),
-      );
-      setEdges((eds) =>
-        eds.map((e) =>
-          e.source === oldId || e.target === oldId
-            ? {
-                ...e,
-                source: e.source === oldId ? newId : e.source,
-                target: e.target === oldId ? newId : e.target,
-              }
-            : e,
-        ),
-      );
-      if (selectedNodeId === oldId) setSelectedNodeId(newId);
-      return null;
-    },
-    [takeSnapshot, setNodes, setEdges, selectedNodeId],
-  );
-
-  const [ctxMenu, setCtxMenu] = useState<{
-    x: number;
-    y: number;
-    flowPos: { x: number; y: number };
-  } | null>(null);
-
-  const handleSig = useMemo(
+  const configNode = useMemo(
     () =>
-      nodes
-        .map((n) => {
-          const d = n.data as unknown as WorkflowNodeData;
-          if (!dynamicTypes.has(d.nodeType)) return "";
-          const c = d.config ?? {};
-          return `${n.id}:${d.nodeType}:${JSON.stringify(
-            c.custom_tools ?? null,
-          )}:${JSON.stringify(c.cases ?? null)}:${JSON.stringify(
-            c.buttons ?? null,
-          )}:${JSON.stringify(c.sections ?? null)}:${JSON.stringify(
-            c.interactive_type ?? null,
-          )}`;
-        })
-        .filter(Boolean)
-        .join("|"),
-    [nodes, dynamicTypes],
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    const tid = setTimeout(() => {
-      const payload = latestNodesRef.current
-        .filter((n) =>
-          dynamicTypes.has((n.data as unknown as WorkflowNodeData).nodeType),
-        )
-        .map((n) => {
-          const d = n.data as unknown as WorkflowNodeData;
-          return { id: n.id, type: d.nodeType, config: d.config ?? {} };
-        });
-      if (payload.length === 0) {
-        setResolvedHandles((prev) => (Object.keys(prev).length ? {} : prev));
-        return;
-      }
-      void resolveHandlesAction(payload).then(({ handles }) => {
-        if (!cancelled) setResolvedHandles(handles);
-      });
-    }, 250);
-    return () => {
-      cancelled = true;
-      clearTimeout(tid);
-    };
-  }, [handleSig, dynamicTypes]);
-
-  useEffect(() => {
-    if (defMap.size === 0) return;
-    setNodes((nds) =>
-      nds.map((n) => {
-        const d = n.data as unknown as WorkflowNodeData;
-        if (d.nodeType === "group") return n;
-        const def = defMap.get(d.nodeType);
-        if (!def) return n;
-        return {
-          ...n,
-          data: {
-            ...d,
-            label: ((d.config ?? {}).display_name as string) || def.label,
-            icon: def.icon,
-            outputs: normalizeOutputs(
-              d.nodeType,
-              resolvedHandles[n.id] ?? def.outputs,
-              outputLabels,
-            ),
-            hasMissingRequired: checkMissingRequired(
-              def,
-              d.config ?? {},
-              d.nodeType,
-            ),
-          },
-        };
-      }),
-    );
-  }, [defMap, setNodes, outputLabels, resolvedHandles]);
-
-  const prevSimNodeRef = useRef<string | null>(null);
-  useEffect(() => {
-    const curr = activeSimulation.currentNodeId;
-    const prev = prevSimNodeRef.current;
-    if (curr === prev) return;
-    prevSimNodeRef.current = curr;
-    setNodes((nds) =>
-      nds.map((n) => {
-        const d = n.data as unknown as WorkflowNodeData;
-        const shouldSimulate = n.id === curr;
-        if (!!d.isSimulating === shouldSimulate) return n;
-        return { ...n, data: { ...d, isSimulating: shouldSimulate } };
-      }),
-    );
-  }, [activeSimulation.currentNodeId, setNodes]);
-
-  const nodeTypes: NodeTypes = useMemo(
-    () => ({ workflowNode: WorkflowNode, groupNode: GroupNode }),
-    [],
-  );
-
-  const edgeTypes = useMemo(() => ({ smartBezier: SmartBezierEdge }), []);
-
-  const selectedNode = useMemo(
-    () =>
-      selectedNodeId
-        ? (nodes.find((n) => n.id === selectedNodeId) ?? null)
+      configNodeId
+        ? (structureNodes.find((n) => n.id === configNodeId) ?? null)
         : null,
-    [nodes, selectedNodeId],
+    [structureNodes, configNodeId],
+  );
+  if (configNodeId && !configNode) {
+    setConfigNodeId(null);
+  }
+
+  const currentSnapshot = useMemo(
+    () =>
+      createWorkflowSnapshot({
+        name,
+        description,
+        workflowType,
+        graph: domainGraph,
+      }),
+    [name, description, workflowType, domainGraph],
   );
 
-  const isWorkflowDirty = useMemo(() => {
-    if (!workflowState) {
-      return true;
-    }
-
-    const savedWorkflowType: WorkflowType =
-      workflowState.type ??
-      (workflowState.triggerType
-        ? workflowTypeOfTrigger(workflowState.triggerType)
-        : "messages");
-
-    const savedSnapshot = createWorkflowSnapshot({
-      name: workflowState.name ?? "",
-      description: workflowState.description ?? "",
-      workflowType: savedWorkflowType,
-      graph: workflowState.graph,
-    });
-
-    const currentSnapshot = createWorkflowSnapshot({
-      name,
-      description,
-      workflowType,
-      graph: flowToDomain(nodes, edges),
-    });
-
-    return savedSnapshot !== currentSnapshot;
-  }, [workflowState, name, description, workflowType, nodes, edges]);
-
-  const onConnect = useCallback(
-    (params: Connection) => {
-      takeSnapshot();
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            label: params.sourceHandle || undefined,
-            type: "smartBezier",
-            animated: false,
-            markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
-            style: { strokeWidth: 1.5 },
-          },
-          eds,
-        ),
-      );
+  const persistence = useWorkflowPersistence({
+    name,
+    description,
+    workflowType,
+    graph: domainGraph,
+    draftKey: currentSnapshot,
+    canSave,
+    workflowState,
+    setWorkflowState,
+    onWorkflowUpdate,
+    defMap,
+    triggerLabelByType,
+    takeSnapshot,
+    outputLabels,
+    resolvedHandles,
+    setNodes,
+    setEdges,
+    setName,
+    setDescription,
+    setWorkflowType,
+    setConfigNodeId,
+    onPublished: () => {
+      setVersionsReload((n) => n + 1);
+      runtimeAlerts.reload();
     },
-    [setEdges, takeSnapshot],
+    lintSubjects,
+  });
+
+  const lintIssues = useMemo(
+    () => mergeLintIssues(lint.issues, persistence.publishIssues),
+    [lint.issues, persistence.publishIssues],
   );
 
-  const onDragOver = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+  const isWorkflowDirty = persistence.unsaved;
+
+  const entryPointsByNodeId = useMemo(() => entryPointsByNode(workflowState?.entryPoints), [workflowState?.entryPoints]);
+
+  const [nodeDoubleTap] = useState(createDoubleTap);
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      if (isMouseClick(event.nativeEvent)) return;
+      if (nodeDoubleTap(node.id, event.timeStamp)) setConfigNodeId(node.id);
+    },
+    [nodeDoubleTap],
+  );
+
+  const onNodeDoubleClick = useCallback((_: React.MouseEvent, node: Node) => setConfigNodeId(node.id), []);
+
+  const savedId = workflowState?.id ?? null;
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      const nodeType = (node.data as unknown as WorkflowNodeData)?.nodeType;
+      event.preventDefault();
+      setCtxMenu(null);
+      setNodeMenu({
+        x: event.clientX,
+        y: event.clientY,
+        nodeId: node.id,
+        debuggable: Boolean(savedId && nodeType && isDebuggableBehavior(testBehaviorOf(defMap, nodeType))),
+      });
+    },
+    [savedId, defMap, setCtxMenu],
+  );
+
+  const gestures = useCanvasGestures({ wrapperRef: reactFlowWrapper, hoverStore });
+
+  const onFlowInit = useCallback((instance: ReactFlowInstance) => {
+    reactFlowInstance.current = instance;
   }, []);
 
-  const onDrop = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault();
-      const nodeType = e.dataTransfer.getData("application/reactflow-type");
-      if (!nodeType) return;
-      if (!canAddNodeType(nodeType as WorkflowNodeType)) {
-        toast.error("Esse nó não está disponível para o gatilho atual.");
-        return;
-      }
-      takeSnapshot();
-
-      const configStr = e.dataTransfer.getData("application/reactflow-config");
-      const defaultConfig = configStr ? JSON.parse(configStr) : {};
-      const label =
-        e.dataTransfer.getData("application/reactflow-label") || undefined;
-      const icon =
-        e.dataTransfer.getData("application/reactflow-icon") || undefined;
-      const def = defMap.get(nodeType as WorkflowNodeType);
-
-      const position = reactFlowInstance.current
-        ? reactFlowInstance.current.screenToFlowPosition({
-            x: e.clientX,
-            y: e.clientY,
-          })
-        : { x: e.clientX, y: e.clientY };
-
-      if (nodeType === "group") {
-        const newNode: Node = {
-          id: freshNodeId(),
-          type: "groupNode",
-          position,
-          width: 400,
-          height: 250,
-          style: { width: 400, height: 250 },
-          zIndex: -1,
-          data: {
-            nodeType: "group" as WorkflowNodeType,
-            config: defaultConfig,
-            label: label ?? "Grupo",
-          } satisfies WorkflowNodeData,
-        };
-        setNodes((nds) => [...nds, newNode]);
-        return;
-      }
-
-      const newNode: Node = {
-        id: freshNodeId(),
-        type: "workflowNode",
-        position,
-        targetPosition: Position.Left,
-        sourcePosition: Position.Right,
-        data: {
-          nodeType: nodeType as WorkflowNodeType,
-          config: defaultConfig,
-          label,
-          icon,
-          outputs: normalizeOutputs(
-            nodeType as WorkflowNodeType,
-            def?.outputs,
-            outputLabels,
-          ),
-          hasMissingRequired: checkMissingRequired(
-            def,
-            defaultConfig,
-            nodeType as WorkflowNodeType,
-          ),
-        } satisfies WorkflowNodeData,
-      };
-
-      setNodes((nds) => [...nds, newNode]);
-    },
-    [setNodes, defMap, takeSnapshot, canAddNodeType, outputLabels, freshNodeId],
-  );
-
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id);
-  }, []);
+  const closeConfigPanel = useCallback(() => {
+    const element = Array.from(reactFlowWrapper.current?.querySelectorAll<HTMLElement>(".react-flow__node") ?? []).find(
+      (candidate) => candidate.dataset.id === configNodeId,
+    );
+    element?.focus({ preventScroll: true });
+    setConfigNodeId(null);
+  }, [configNodeId]);
 
   const onPaneClick = useCallback(() => {
-    setSelectedNodeId(null);
     setCtxMenu(null);
-  }, []);
+    setNodeMenu(null);
+  }, [setCtxMenu]);
 
-  const onPaneContextMenu = useCallback((e: MouseEvent | React.MouseEvent) => {
-    e.preventDefault();
-    const clientX = "clientX" in e ? e.clientX : 0;
-    const clientY = "clientY" in e ? e.clientY : 0;
-    const flowPos = reactFlowInstance.current
-      ? reactFlowInstance.current.screenToFlowPosition({
-          x: clientX,
-          y: clientY,
-        })
-      : { x: clientX, y: clientY };
-    setCtxMenu({ x: clientX, y: clientY, flowPos });
-  }, []);
+  const showNodeTestPath = useCallback((steps: WorkflowRunLog[]) => setNodeTestPath(steps), []);
 
-  const onCtxMenuSelect = useCallback(
-    (def: NodeDefinition) => {
-      if (!ctxMenu) return;
-      if (!canAddNodeType(def.type as WorkflowNodeType)) {
-        toast.error("Esse nó não está disponível para o gatilho atual.");
-        setCtxMenu(null);
+  const debug = useEditorDebug({
+    simulation,
+    testOpen: showTestPanel,
+    setTestOpen: setShowTestPanel,
+    setRightPreferred,
+    setConfigNodeId,
+    structureNodes,
+    latestEdgesRef,
+    centreOnNode,
+    takeSnapshot,
+    setNodes,
+    debugStore,
+    isWorkflowDirty,
+    showNodeTestPath,
+  });
+
+  const viewRunVersion = useCallback(
+    async (runId: string, version: number) => {
+      if (!savedId) return;
+      const res = await getWorkflowVersionAction(savedId, version);
+      if (!res.version?.graph) {
+        toast.error(tDebug("versionView.loadError", { version: `v${version}` }));
         return;
       }
-      takeSnapshot();
-      const newNode: Node = {
-        id: freshNodeId(),
-        type: def.type === "group" ? "groupNode" : "workflowNode",
-        position: ctxMenu.flowPos,
-        targetPosition: Position.Left,
-        sourcePosition: Position.Right,
-        ...(def.type === "group"
-          ? {
-              width: 400,
-              height: 250,
-              style: { width: 400, height: 250 },
-              zIndex: -1,
-            }
-          : {}),
-        data: {
-          nodeType: def.type as WorkflowNodeType,
-          config: { ...(def.defaultConfig ?? {}) },
-          label: def.label,
-          icon: def.icon,
-          outputs: normalizeOutputs(
-            def.type as WorkflowNodeType,
-            def.outputs,
-            outputLabels,
-          ),
-          hasMissingRequired: checkMissingRequired(
-            def,
-            def.defaultConfig ?? {},
-            def.type as WorkflowNodeType,
-          ),
-        } satisfies WorkflowNodeData,
-      };
-      setNodes((nds) => [...nds, newNode]);
-      setCtxMenu(null);
+      setVersionFocus(null);
+      setVersionView({ runId, version, graph: res.version.graph, handles: res.version.handles ?? {} });
     },
-    [ctxMenu, takeSnapshot, setNodes, canAddNodeType, outputLabels, freshNodeId],
+    [savedId, tDebug],
   );
 
-  const wrappedOnNodesChange = useCallback(
-    (changes: Parameters<typeof onNodesChange>[0]) => {
-      const hasRemove = changes.some((c) => c.type === "remove");
-      if (hasRemove) takeSnapshot();
-      onNodesChange(changes);
-    },
-    [onNodesChange, takeSnapshot],
+  const closeNodeMenu = useCallback(() => setNodeMenu(null), []);
+
+  const versionHandles = versionView?.handles;
+  const versionToFlow = useCallback(
+    (graph: WorkflowGraph) => domainToFlow(graph, defMap, outputLabels, versionHandles),
+    [defMap, outputLabels, versionHandles],
   );
 
-  const wrappedOnEdgesChange = useCallback(
-    (changes: Parameters<typeof onEdgesChange>[0]) => {
-      const hasRemove = changes.some((c) => c.type === "remove");
-      if (hasRemove) takeSnapshot();
-      onEdgesChange(changes);
-    },
-    [onEdgesChange, takeSnapshot],
-  );
-
-  const onConfigChange = useCallback(
-    (nodeId: string, config: Record<string, unknown>) => {
-      setNodes((nds) =>
-        nds.map((n) => {
-          if (n.id !== nodeId) return n;
-          const d = n.data as unknown as WorkflowNodeData;
-
-          if (d.nodeType === "group") {
-            return {
-              ...n,
-              data: {
-                ...n.data,
-                config,
-                label: (config.display_name as string) || "Grupo",
-              },
-            };
-          }
-
-          const def = defMap.get(d.nodeType);
-          const updatedData: Record<string, unknown> = {
-            ...n.data,
-            config,
-            label: (config.display_name as string) || def?.label || d.label,
-            outputs: d.outputs,
-            hasMissingRequired: checkMissingRequired(def, config, d.nodeType),
-          };
-          return { ...n, data: updatedData };
-        }),
-      );
-    },
-    [setNodes, defMap],
-  );
-
-  const deleteSelected = useCallback(() => {
-    if (!selectedNodeId) return;
-    takeSnapshot();
-    setNodes((nds) => nds.filter((n) => n.id !== selectedNodeId));
-    setEdges((eds) =>
-      eds.filter(
-        (e) => e.source !== selectedNodeId && e.target !== selectedNodeId,
-      ),
-    );
-    setSelectedNodeId(null);
-  }, [selectedNodeId, setNodes, setEdges, takeSnapshot]);
+  const openCopilot = useCallback(() => {
+    setCopilotMounted(true);
+    setShowCopilot(true);
+    setRightPreferred("copilot");
+  }, []);
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
     mousePosRef.current = { x: e.clientX, y: e.clientY };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && (e.key === "f" || e.key === "F")) {
-        e.preventDefault();
-        openSearch();
-        return;
-      }
-      if (e.key === "Escape" && searchOpen) {
-        e.preventDefault();
-        closeSearch();
-        return;
-      }
-
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-        return;
-      }
-
-      if (
-        (e.ctrlKey || e.metaKey) &&
-        (e.key === "y" || (e.key === "z" && e.shiftKey))
-      ) {
-        e.preventDefault();
-        redo();
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key === "c") {
-        if (!selectedNodeId) return;
-        const node = nodes.find((n) => n.id === selectedNodeId);
-        if (!node) return;
-        const d = node.data as unknown as WorkflowNodeData;
-        if (d.nodeType.startsWith("trigger_") || d.nodeType === "end") return;
-        clipboardRef.current = {
-          nodeType: d.nodeType,
-          label: d.label,
-          icon: d.icon,
-        };
-        toast.success("Nó copiado");
-        e.preventDefault();
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key === "v") {
-        if (!clipboardRef.current) return;
-        if (!canAddNodeType(clipboardRef.current.nodeType)) {
-          toast.error("Esse nó não está disponível para o gatilho atual.");
-          e.preventDefault();
-          return;
-        }
-        takeSnapshot();
-        const { nodeType, label, icon } = clipboardRef.current;
-        const def = defMap.get(nodeType);
-        const defaultConfig = def?.defaultConfig ?? {};
-
-        const position = reactFlowInstance.current
-          ? reactFlowInstance.current.screenToFlowPosition(mousePosRef.current)
-          : mousePosRef.current;
-
-        const newNode: Node = {
-          id: freshNodeId(),
-          type: "workflowNode",
-          position,
-          targetPosition: Position.Left,
-          sourcePosition: Position.Right,
-          data: {
-            nodeType,
-            config: { ...defaultConfig },
-            label,
-            icon,
-            outputs: normalizeOutputs(nodeType, def?.outputs, outputLabels),
-            hasMissingRequired: checkMissingRequired(
-              def,
-              defaultConfig,
-              nodeType,
-            ),
-          } satisfies WorkflowNodeData,
-        };
-
-        setNodes((nds) => [...nds, newNode]);
-        toast.success("Nó colado");
-        e.preventDefault();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    selectedNodeId,
-    nodes,
+  useEditorShortcuts({
+    configOpen: configNode !== null,
+    openConfig: setConfigNodeId,
     defMap,
     setNodes,
+    setEdges,
     undo,
     redo,
     takeSnapshot,
     canAddNodeType,
     outputLabels,
-    searchOpen,
-    openSearch,
-    closeSearch,
-    freshNodeId,
-  ]);
+    searchOpen: search.searchOpen,
+    openSearch: search.openSearch,
+    closeSearch: search.closeSearch,
+    latestNodesRef,
+    latestEdgesRef,
+    reactFlowInstance,
+    mousePosRef,
+    saveNow: persistence.saveNow,
+  });
 
-  const validateGraphForType = (graph: WorkflowGraph): string | null => {
-    const triggerNodes = graph.nodes.filter(
-      (n) => workflowTypeOfTriggerDefinition(defMap.get(n.type)) !== null,
-    );
-    const seen = new Set<string>();
-    for (const node of triggerNodes) {
-      const nodeWfType = workflowTypeOfTriggerDefinition(defMap.get(node.type));
-      if (nodeWfType !== workflowType) {
-        const triggerLabel = triggerLabelByType.get(node.type) ?? node.type;
-        const typeLabel = t(`workflowTypeOption.${workflowType}`);
-        return t("validation.incompatibleTrigger", {
-          trigger: triggerLabel,
-          type: typeLabel,
-        });
-      }
-      if (seen.has(node.type)) {
-        const triggerLabel = triggerLabelByType.get(node.type) ?? node.type;
-        return t("validation.duplicateTrigger", { trigger: triggerLabel });
-      }
-      seen.add(node.type);
+  const runVersionDiffers = useCallback(
+    (runVersion: number | undefined) =>
+      runDiffersFromCanvas(runVersion, workflowState ?? {}, isWorkflowDirty),
+    [workflowState, isWorkflowDirty],
+  );
+
+  const fixRuntimeAlert = useStableCallback((fix: RuntimeAlertFix) => {
+    switch (fix.kind) {
+      case "publish":
+        void persistence.handlePublish();
+        return;
+      case "open_run":
+        openRun(fix.runId);
+        return;
+      case "open_node":
+        openNodeConfig(fix.nodeId);
+        return;
+      case "view_deliveries":
+        if (!webhookTriggerNodeId) return;
+        setDeliveriesFocusNode(webhookTriggerNodeId);
+        openNodeConfig(webhookTriggerNodeId);
+        return;
     }
-    if (triggerNodes.length === 0) {
-      return t("validation.missingTrigger");
+  });
+
+  const fixEntryPoint = useStableCallback((fix: EntryPointFix) => {
+    switch (fix.kind) {
+      case "publish":
+        void persistence.handlePublish();
+        return;
+      case "resume":
+        void persistence.handleResume();
+        return;
+      case "open_node":
+        openNodeConfig(fix.nodeId);
+        return;
+      case "link":
+        router.push(fix.href);
+        return;
     }
-    return null;
-  };
+  });
 
-  const derivePrimaryTriggerType = (
-    graph: WorkflowGraph,
-  ): WorkflowTriggerType | undefined => {
-    const priority: WorkflowTriggerType[] = [
-      "trigger_first_message",
-      "trigger_message_received",
-    ];
-    const present = new Set(graph.nodes.map((n) => n.type as string));
-    for (const tt of priority) {
-      if (present.has(tt)) return tt;
-    }
-    for (const n of graph.nodes) {
-      if (defMap.get(n.type)?.category === "trigger") {
-        return n.type as WorkflowTriggerType;
-      }
-    }
-    return undefined;
-  };
+  const changeWorkflowType = useStableCallback((nextType: WorkflowType) => {
+    if (nextType === workflowType) return;
+    if (showTestPanel) debug.closeTestPanel();
+    setWorkflowType(nextType);
+  });
 
-  const handleSave = async () => {
-    if (!name.trim()) {
-      toast.error(t("validation.nameRequired"));
-      return;
-    }
+  const toggleTestPanel = useStableCallback(() => (showTestPanel ? debug.closeTestPanel() : debug.openTestPanel()));
 
-    const graph = flowToDomain(nodes, edges);
-    const validationError = validateGraphForType(graph);
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
+  const toggleRunsPanel = useStableCallback(() => (runsOpen ? closeRuns() : openRunsPanel()));
 
-    setSaving(true);
-    const derivedTrigger = derivePrimaryTriggerType(graph);
+  const viewSimulationVersion = useStableCallback((version: number) => {
+    const runId = simulation.reproducing?.runId;
+    if (!runId) return;
+    openRun(runId);
+    void viewRunVersion(runId, version);
+  });
 
-    if (!workflowState?.id) {
-      const payload: CreateWorkflowPayload = {
-        name: name.trim(),
-        description: description.trim(),
-        type: workflowType,
-        triggerType: derivedTrigger,
-        graph,
-      };
-      const result = await createWorkflowAction(payload);
-      if (result.error) {
-        toast.error(codedErrorMessage(t, { code: result.code }, result.error));
-      } else if (result.workflow) {
-        toast.success(t("saved"));
-        setWorkflowState(result.workflow);
-        onWorkflowUpdate?.(result.workflow);
-        if (typeof window !== "undefined") {
-          window.history.replaceState(
-            null,
-            "",
-            window.location.pathname.replace(
-              /\/new\/?$/,
-              `/${result.workflow.id}`,
-            ),
-          );
-        }
-      }
-    } else if (workflowState) {
-      const payload: UpdateWorkflowPayload = {
-        name: name.trim(),
-        description: description.trim(),
-        type: workflowType,
-        triggerType: derivedTrigger,
-        graph,
-      };
+  const pinBlockedReason = isWorkflowDirty ? tDebug("step.pinNeedsSave") : null;
+  const runDebug = useMemo(
+    () => ({
+      pinStep: canWriteSecrets ? persistence.pinRunStep : undefined,
+      pinBlockedReason,
+      reproduce: canWriteSecrets && workflowType !== "voice" ? debug.reproduceRun : undefined,
+      viewVersion: selectedRunId ? (version: number) => void viewRunVersion(selectedRunId, version) : undefined,
+    }),
+    [canWriteSecrets, persistence.pinRunStep, pinBlockedReason, workflowType, debug.reproduceRun, selectedRunId, viewRunVersion],
+  );
 
-      if (workflowState.status === "active") {
-        const pauseResult = await pauseWorkflowAction(workflowState.id);
-        if (pauseResult.error) {
-          toast.error(pauseResult.error);
-          setSaving(false);
-          return;
-        }
-      }
-
-      const result = await updateWorkflowAction(workflowState.id, payload);
-      if (result.error) {
-        toast.error(codedErrorMessage(t, { code: result.code }, result.error));
-      } else {
-        toast.success(t("saved"));
-        const latest = await getWorkflowAction(workflowState.id);
-        if (latest.workflow) {
-          setWorkflowState(latest.workflow);
-          onWorkflowUpdate?.(latest.workflow);
-        }
-      }
-    }
-    setSaving(false);
-  };
-
-  const handleActivate = async () => {
-    if (!workflowState) return;
-    const result = await activateWorkflowAction(workflowState.id);
-    if (result.error) {
-      toast.error(codedErrorMessage(t, { code: result.code }, result.error));
-    } else {
-      toast.success(t("activated"));
-      if (result.workflow) {
-        setWorkflowState(result.workflow);
-        onWorkflowUpdate?.(result.workflow);
-      }
-    }
-  };
-
-  const handlePause = async () => {
-    if (!workflowState) return;
-    const result = await pauseWorkflowAction(workflowState.id);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(t("paused"));
-      if (result.workflow) {
-        setWorkflowState(result.workflow);
-        onWorkflowUpdate?.(result.workflow);
-      }
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!workflowState) return;
-    const result = await deleteWorkflowAction(workflowState.id);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(t("deleted"));
-      router.push("/dashboard/workflows");
-    }
-  };
+  const closeVersions = useCallback(() => setVersionsOpen(false), []);
+  const closeCopilot = useCallback(() => setShowCopilot(false), []);
+  const clearNodeTestPath = useCallback(() => setNodeTestPath(null), []);
+  const closeVersionView = useCallback(() => setVersionView(null), []);
 
   return (
+    <NodeDefinitionsProvider definitions={definitions}>
+    <OpenRunContext.Provider value={openRun}>
     <div className="flex flex-col h-[calc(100vh_-_var(--dashboard-header-h))] overflow-hidden">
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-card flex-shrink-0">
-        <ElevatedButton
-          variant="ghost"
-          size="icon"
-          icon={<ArrowLeft size={16} />}
-          iconVisible
-          onClick={() => router.push("/dashboard/workflows")}
-        />
-
-        <ElevatedInput
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setName(e.target.value)
-          }
-          label={t("namePlaceholder")}
-          controlSize="sm"
-          className="w-56"
-        />
-
-        <ElevatedInput
-          value={description}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setDescription(e.target.value)
-          }
-          label={t("descriptionPlaceholder")}
-          controlSize="sm"
-          className="w-56"
-        />
-
-        <ElevatedSelect
-          value={workflowType}
-          onValueChange={(val) => {
-            const nextType = val as WorkflowType;
-            if (nextType === workflowType) return;
-            if (showTestPanel) {
-              simulation.cancel();
-              setShowTestPanel(false);
-            }
-            setWorkflowType(nextType);
-          }}
-          label={t("workflowType")}
-          className="w-48"
-        >
-          {workflowTypeOptions.map((opt) => (
-            <ElevatedSelectItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </ElevatedSelectItem>
-          ))}
-        </ElevatedSelect>
-
-        <div className="flex-1" />
-
-        {workflowState?.id && (
-          <ElevatedButton
-            variant={showTestPanel ? "primary" : "outline-subtle"}
-            size="sm"
-            title="Testar"
-            icon={<TestTube size={14} weight="fill" />}
-            iconVisible
-            onClick={() => {
-              if (showTestPanel) {
-                activeSimulation.cancel();
-                setShowTestPanel(false);
-                return;
-              }
-              setShowTestPanel(true);
-            }}
-          />
-        )}
-
-        <WorkflowAlerts
-          valid={lint.valid}
-          issues={lintIssues}
-          linting={lint.linting}
-          nodeLabel={(id) => nodeLabelById.get(id)}
-          onFocusNode={focusNode}
-        />
-
-        {workflowState && workflowState.status !== "active" ? (
-          <ElevatedButton
-            variant="outline-subtle"
-            size="sm"
-            title={t("activate")}
-            icon={<Play size={14} weight="fill" />}
-            iconVisible
-            onClick={handleActivate}
-          />
-        ) : workflowState?.status === "active" ? (
-          <ElevatedButton
-            variant="outline-subtle"
-            size="sm"
-            title={t("pause")}
-            icon={<Pause size={14} weight="fill" />}
-            iconVisible
-            onClick={handlePause}
-          />
-        ) : null}
-
-        <ElevatedButton
-          variant="primary"
-          size="sm"
-          title={saving ? t("saving") : t("save")}
-          icon={<FloppyDisk size={14} weight="fill" />}
-          iconVisible
-          onClick={handleSave}
-          disabled={saving}
-        />
-
-        {workflowState && (
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <ElevatedButton
-                  variant="outline-subtle"
-                  size="sm"
-                  title="Mais ações"
-                  icon={<DotsThreeVertical size={16} weight="bold" />}
-                  iconVisible
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {workflowState.id && (
-                  <DropdownMenuItem
-                    className="rounded-lg border-l-0"
-                    onSelect={() =>
-                      openScoped(
-                        `${getApiBaseUrl()}/workflows/${encodeURIComponent(workflowState.id)}/export`,
-                      )
-                    }
-                  >
-                    <Upload weight="bold" />
-                    {t("export")}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  className="rounded-lg border-l-0 text-destructive-ink hover:bg-muted hover:text-destructive-ink focus:bg-muted focus:text-destructive-ink"
-                  onSelect={() => setConfirmDeleteOpen(true)}
-                >
-                  <Trash />
-                  Excluir workflow
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <ConfirmDialog
-              open={confirmDeleteOpen}
-              onOpenChange={setConfirmDeleteOpen}
-              title="Excluir workflow"
-              description="Tem certeza que deseja excluir este workflow? Esta ação não pode ser desfeita."
-              confirmLabel="Excluir"
-              tone="danger"
-              onConfirm={handleDelete}
-            />
-          </>
-        )}
-      </div>
+      <EditorHeader
+        name={name}
+        onNameChange={setName}
+        description={description}
+        onDescriptionChange={setDescription}
+        workflowType={workflowType}
+        workflowTypeOptions={workflowTypeOptions}
+        onWorkflowTypeChange={changeWorkflowType}
+        workflowState={workflowState}
+        testOpen={showTestPanel}
+        onToggleTest={toggleTestPanel}
+        runsOpen={runsOpen}
+        onToggleRuns={toggleRunsPanel}
+        lintValid={lint.valid && persistence.publishIssues.length === 0}
+        lintIssues={lintIssues}
+        linting={lint.linting}
+        runtimeAlerts={runtimeAlerts.alerts}
+        runtimeAlertsFailed={runtimeAlerts.failed}
+        initialAlertId={initialAlertId}
+        nodeLabel={runNodeLabel}
+        fieldLabel={nodeFieldLabel}
+        outputLabel={nodeOutputLabel}
+        nodeConfig={nodeConfig}
+        onFocusNode={openNodeConfig}
+        onRuntimeFix={fixRuntimeAlert}
+        onAlertsOpen={savedWorkflowId ? runtimeAlerts.reload : undefined}
+        alertsRequest={persistence.alertsRequest}
+        onConfigChange={editing.onConfigChange}
+        saveStatus={persistence.saveStatus}
+        unsaved={persistence.unsaved}
+        onRetrySave={persistence.retrySave}
+        onResolveConflict={persistence.showConflict}
+        onEntryFix={fixEntryPoint}
+        publishing={persistence.publishing}
+        onPublish={persistence.handlePublish}
+        onPause={persistence.handlePause}
+        onResume={persistence.handleResume}
+        onOpenVersions={openVersionsPanel}
+        onDelete={persistence.handleDelete}
+      />
 
       <div className="flex flex-1 overflow-hidden">
-        <NodePalette definitions={availableDefinitions} />
+        <EditorSidePanel
+          workflowId={workflowState?.id ?? null}
+          publication={workflowState}
+          runsOpen={runsOpen}
+          selectedRunId={selectedRunId}
+          onSelectRun={selectRun}
+          onRunDetail={setRunDetail}
+          triggerLabel={runTriggerLabel}
+          nodeLabel={runNodeLabel}
+          nodeExists={runNodeExists}
+          onFocusNode={showRunStep}
+          onTestStep={testStepWithData}
+          runDiffersFromCanvas={runVersionDiffers}
+          runDebug={runDebug}
+          onCloseRuns={closeRuns}
+          versionsOpen={versionsOpen}
+          versionsReload={versionsReload}
+          hasLocalEdits={isWorkflowDirty}
+          onRestoreVersion={persistence.handleRestoreVersion}
+          onCloseVersions={closeVersions}
+          definitions={availableDefinitions}
+        />
 
-        <div
-          ref={reactFlowWrapper}
-          className="relative flex-1 bg-background"
-          onDragOver={onDragOver}
-          onDrop={onDrop}
+        <EntryPointsContext.Provider value={entryPointsByNodeId}>
+        <EditorCanvas
+          wrapperRef={reactFlowWrapper}
+          onDragOver={editing.onDragOver}
+          onDrop={editing.onDrop}
           onMouseMove={onMouseMove}
-        >
-          <NodeDefinitionsProvider definitions={definitions}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={wrappedOnNodesChange}
-            onEdgesChange={wrappedOnEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={onNodeClick}
-            onPaneClick={onPaneClick}
-            onPaneContextMenu={onPaneContextMenu}
-            onInit={(instance) => {
-              reactFlowInstance.current = instance;
-            }}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            connectionLineComponent={SmartConnectionLine}
-            fitView
-            fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
-            minZoom={0.2}
-            maxZoom={1.75}
-            elevateNodesOnSelect={false}
-            deleteKeyCode={["Backspace", "Delete"]}
-            defaultEdgeOptions={{
-              type: "smartBezier",
-              animated: false,
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 16,
-                height: 16,
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "hsl(var(--border-strong))",
-              },
-            }}
-          >
-            <Background
-              variant={BackgroundVariant.Dots}
-              gap={20}
-              size={1}
-              color="hsl(var(--border-strong))"
-            />
-            <ViewportPortal>
-              <div
-                style={{
-                  position: "absolute",
-                  left: graphBounds.x,
-                  top: graphBounds.y,
-                  width: graphBounds.width,
-                  height: graphBounds.height,
-                  zIndex: -1,
-                  pointerEvents: "none",
-                }}
-              >
-                <LightPool tone="quiet" />
-              </div>
-            </ViewportPortal>
-            <Controls className="!bg-background !border-border !shadow-md [&>button]:!bg-background [&>button]:!border-border [&>button]:!fill-foreground">
-              <ControlButton onClick={tidyUpGraph} title={t("tidyUp")}>
-                <TreeStructure />
-              </ControlButton>
-              <ControlButton onClick={openSearch} title="Buscar nós (Ctrl+F)">
-                <MagnifyingGlass />
-              </ControlButton>
-            </Controls>
-            <MiniMap
-              className="!bg-background !border-border border rounded !mb-20"
-              nodeColor="hsl(var(--primary))"
-              maskColor="hsl(var(--muted) / 0.7)"
-            />
+          obstacleIndex={obstacleIndex}
+          hoverStore={hoverStore}
+          runOverlayStore={runOverlayStore}
+          debugStore={debugStore}
+          versionView={versionView}
+          versionToFlow={versionToFlow}
+          shownRun={shownRun}
+          versionFocus={versionFocus}
+          onVersionBack={closeVersionView}
+          nodes={nodes}
+          edges={canvasEdges}
+          onNodesChange={editing.wrappedOnNodesChange}
+          onEdgesChange={editing.wrappedOnEdgesChange}
+          onConnect={editing.onConnect}
+          onReconnect={editing.onReconnect}
+          onNodeClick={onNodeClick}
+          onNodeDoubleClick={onNodeDoubleClick}
+          onNodeContextMenu={onNodeContextMenu}
+          onNodeMouseEnter={gestures.onNodeMouseEnter}
+          onNodeMouseLeave={gestures.onNodeMouseLeave}
+          onPaneClick={onPaneClick}
+          onPaneContextMenu={editing.onPaneContextMenu}
+          onInit={onFlowInit}
+          onMoveStart={gestures.onMoveStart}
+          onMoveEnd={gestures.onMoveEnd}
+          onNodeDragStart={gestures.onNodeDragStart}
+          onNodeDragStop={gestures.onNodeDragStop}
+          canvasBounds={canvasBounds}
+          onTidyUp={tidyUpGraph}
+          onUndo={undo}
+          onRedo={redo}
+          onDeleteSelected={editing.deleteSelected}
+          search={search}
+          searchInputRef={searchInputRef}
+          showNodeTestPath={Boolean(nodeTestPath) && !shownRun && !(showTestPanel && simulation.steps.length > 0)}
+          onClearNodeTestPath={clearNodeTestPath}
+          nodeMenu={nodeMenu}
+          nodeMenuBreakpoint={nodeMenu ? debug.liveBreakpointSet.has(nodeMenu.nodeId) : false}
+          onConfigureNode={setConfigNodeId}
+          onRunUntil={debug.runUntilNode}
+          onToggleBreakpoint={debug.toggleNodeBreakpoint}
+          onCloseNodeMenu={closeNodeMenu}
+          paneMenu={editing.ctxMenu}
+          paneMenuDefinitions={availableDefinitions}
+          onPaneMenuSelect={editing.onCtxMenuSelect}
+          onClosePaneMenu={editing.closePaneMenu}
+        />
+        </EntryPointsContext.Provider>
 
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[5] opacity-35 pointer-events-none select-none">
-              <BrandLogo
-                useWhite={resolvedTheme === "dark"}
-                size="sm"
-                textClassName="text-muted-foreground"
-              />
-            </div>
+        <EditorRightSlot
+          testOpen={showTestPanel && Boolean(workflowState)}
+          copilotOpen={showCopilot}
+          copilotMounted={copilotMounted}
+          copilotBusy={copilotBusy}
+          preferred={rightPreferred}
+          onPrefer={setRightPreferred}
+          onOpenCopilot={openCopilot}
+          onCloseCopilot={closeCopilot}
+          simulation={simulation}
+          voice={workflowType === "voice"}
+          onCloseTest={debug.closeTestPanel}
+          unsaved={isWorkflowDirty}
+          nodeLabel={runNodeLabel}
+          nodeExists={runNodeExists}
+          onFocusNode={showRunStep}
+          onPinStep={debug.pinSimStep}
+          versionDiffers={runVersionDiffers}
+          onViewVersion={viewSimulationVersion}
+          workflowId={workflowState?.id ?? ""}
+          workflowType={workflowType}
+          onCopilotGraph={applyCopilotGraph}
+          onCopilotMeta={applyCopilotMeta}
+          getCopilotGraph={getCopilotGraph}
+          onCopilotBusyChange={setCopilotBusy}
+        />
 
-            {selectedNodeId && (
-              <Panel position="top-right">
-                <ElevatedButton
-                  variant="outline-subtle"
-                  size="sm"
-                  title={t("deleteNode")}
-                  icon={<Trash size={14} />}
-                  iconVisible
-                  onClick={deleteSelected}
-                  className="text-destructive-ink border-border hover:bg-muted"
-                />
-              </Panel>
-            )}
-
-            {searchOpen && (
-              <Panel position="top-center">
-                <WorkflowSearch
-                  ref={searchInputRef}
-                  query={searchQuery}
-                  onQueryChange={setSearchQuery}
-                  matchCount={searchMatches.length}
-                  activeIndex={searchActiveIndex}
-                  onNext={() => goToMatch(1)}
-                  onPrev={() => goToMatch(-1)}
-                  onClose={closeSearch}
-                  types={searchTypes}
-                  typeFilter={searchTypeFilter}
-                  onTypeFilterChange={setSearchTypeFilter}
-                />
-              </Panel>
-            )}
-
-            <Panel position="top-left">
-              <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5 shadow-sm">
-                <button
-                  onClick={undo}
-                  title="Desfazer (Ctrl+Z)"
-                  className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-30"
-                >
-                  <ArrowCounterClockwise size={15} weight="bold" />
-                </button>
-                <button
-                  onClick={redo}
-                  title="Refazer (Ctrl+Y)"
-                  className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-30"
-                >
-                  <ArrowClockwise size={15} weight="bold" />
-                </button>
-              </div>
-            </Panel>
-          </ReactFlow>
-          </NodeDefinitionsProvider>
-
-          {ctxMenu && (
-            <CanvasContextMenu
-              x={ctxMenu.x}
-              y={ctxMenu.y}
-              definitions={availableDefinitions}
-              onSelect={onCtxMenuSelect}
-              onClose={() => setCtxMenu(null)}
-            />
-          )}
-        </div>
-
-        {!copilotMounted && (
-          <WorkflowCopilotFab
-            onClick={() => {
-              setCopilotMounted(true);
-              setShowCopilot(true);
-            }}
-          />
-        )}
-        {copilotMounted && (
-          <WorkflowCopilotPanel
-            visible={showCopilot}
-            workflowId={workflowState?.id ?? ""}
-            workflowType={workflowType}
-            onGraph={applyCopilotGraph}
-            onMeta={applyCopilotMeta}
-            getGraph={getCopilotGraph}
-            onClose={() => setShowCopilot(false)}
-            onOpen={() => setShowCopilot(true)}
-          />
-        )}
-
-        {selectedNode && (
+        {configNode && (
           <NodeConfigPanel
-            node={selectedNode}
+            node={configNode}
             workflowId={workflowState?.id ?? null}
             workspaceId={workflowState?.workspaceId ?? null}
             isWorkflowDirty={isWorkflowDirty}
             definitions={definitions}
-            allNodes={nodes}
+            allNodes={structureNodes}
             allEdges={edges}
-            onClose={() => setSelectedNodeId(null)}
-            onConfigChange={onConfigChange}
-            onRenameNode={renameNode}
-          />
-        )}
-
-        {showTestPanel && workflowState && (
-          <WorkflowTestPanel
-            simulation={simulation}
-            voice={workflowType === "voice"}
-            onClose={() => {
-              simulation.cancel();
-              setShowTestPanel(false);
-            }}
+            onClose={closeConfigPanel}
+            onConfigChange={editing.onConfigChange}
+            onRenameNode={editing.renameNode}
+            testSeed={testSeed?.nodeId === configNode.id ? testSeed.seed : null}
+            focusDeliveries={deliveriesFocusNode === configNode.id}
+            debug={debug.nodeDebugControls}
           />
         )}
       </div>
+      <DraftConflictDialog
+        open={persistence.conflictOpen}
+        canOverwrite={persistence.canOverwrite}
+        onReload={persistence.reloadDraft}
+        onOverwrite={persistence.overwriteDraft}
+        onDismiss={persistence.dismissConflict}
+      />
     </div>
+    </OpenRunContext.Provider>
+    </NodeDefinitionsProvider>
   );
 }

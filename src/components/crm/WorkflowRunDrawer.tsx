@@ -17,9 +17,11 @@ import {
   type ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useTranslations } from "next-intl";
 import { ScreenLoader } from "@/components/brand/screen-loader";
-import { FlowArrow } from "@/components/icons";
-import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
+import { ArrowRight, FlowArrow } from "@/components/icons";
+import { isRunStatus, workflowRunHref } from "@/lib/workflows/run-format";
+import { RunStatusChip } from "@/app/[locale]/dashboard/workflows/_components/run-bits";
 
 import {
   getNodeTypesAction,
@@ -46,21 +48,12 @@ import {
   ElevatedSheetHeader,
   ElevatedSheetTitle,
 } from "@/components/elevated-design/elevated-sheet";
-import { cn } from "@/lib/utils";
 
 interface WorkflowRunDrawerProps {
   handler: AIHandler | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const RUN_STATUS_META: Record<string, { label: string; tone: StatusChipTone; dot?: string }> = {
-  running: { label: "Em execução", tone: "outline", dot: "bg-primary" },
-  waiting: { label: "Aguardando", tone: "warning" },
-  completed: { label: "Concluído", tone: "healthy" },
-  error: { label: "Erro", tone: "fault" },
-  cancelled: { label: "Cancelado", tone: "muted" },
-};
 
 const CATEGORY_COLOR: Record<string, string> = {
   trigger_: "hsl(var(--chart-1))",
@@ -83,6 +76,7 @@ export function WorkflowRunDrawer({
   open,
   onOpenChange,
 }: WorkflowRunDrawerProps) {
+  const tRuns = useTranslations("workflowRuns");
   const workflowId = handler?.workflow_id;
   const currentNodeId = handler?.current_node_id ?? null;
 
@@ -227,8 +221,7 @@ export function WorkflowRunDrawer({
     return () => window.clearTimeout(id);
   }, [state.loading, state.error, nodes.length]);
 
-  const statusMeta =
-    (handler?.run_status && RUN_STATUS_META[handler.run_status]) || null;
+  const runStatus = handler && isRunStatus(handler.run_status) ? handler.run_status : null;
   const workflowName = state.workflow?.name || handler?.workflow_name || "Fluxo";
   const ready = !state.loading && !state.error && nodes.length > 0;
 
@@ -249,13 +242,15 @@ export function WorkflowRunDrawer({
               </ElevatedSheetTitle>
               <ElevatedSheetDescription className="mt-0.5 flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">Fluxo em atendimento</span>
-                {statusMeta && (
-                  <StatusChip
-                    tone={statusMeta.tone}
-                    label={statusMeta.label}
-                    icon={statusMeta.dot ? <span className={cn("h-1.5 w-1.5 rounded-full", statusMeta.dot)} /> : undefined}
-                    className="px-2 text-2xs"
-                  />
+                {runStatus && <RunStatusChip status={runStatus} />}
+                {workflowId && handler?.workflow_run_id && (
+                  <a
+                    href={workflowRunHref(workflowId, handler.workflow_run_id)}
+                    className="inline-flex items-center gap-1 rounded-[--radius] font-medium text-primary-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {tRuns("openRun")}
+                    <ArrowRight size={11} weight="bold" />
+                  </a>
                 )}
               </ElevatedSheetDescription>
             </div>

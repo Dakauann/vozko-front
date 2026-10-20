@@ -93,6 +93,7 @@ export interface AgentToolDefinition {
     requiresConfig: boolean;
     requiredConfig?: string[];
     configSchema?: Record<string, ToolConfigSchemaField>;
+    bindingKey?: string;
 }
 
 export interface ToolConfig {

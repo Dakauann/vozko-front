@@ -14,10 +14,12 @@ import type {
 
 import {
   attentionLines,
+  categoryComposition,
   categoryRanking,
   categoryFilterParam,
   CATEGORY_FILTER_ALL,
   CATEGORY_FILTER_NONE,
+  CATEGORY_REST_KEY,
   filterInsights,
   greetingName,
   growingGroups,
@@ -195,6 +197,49 @@ describe("categoryRanking", () => {
 
   it("returns nothing when no group has a category count", () => {
     expect(categoryRanking([{ category: "A", count: 0 }])).toEqual([]);
+  });
+});
+
+describe("categoryComposition", () => {
+  const palette = ["c1", "c2", "c3"] as const;
+
+  it("colours the largest categories and folds the rest, the uncategorized included, into one ring slice", () => {
+    const categories: CategoryCount[] = [
+      { category: "CAMPANHA", count: 323 },
+      { category: "", count: 14 },
+      { category: "Zonal", count: 37 },
+      { category: "Interior", count: 36 },
+      { category: "Social", count: 26 },
+      { category: "Demandas", count: 19 },
+    ];
+    const composition = categoryComposition(categories, palette, "rest");
+    expect(composition.legend.map((row) => [row.category, row.count, row.color])).toEqual([
+      ["CAMPANHA", 323, "c1"],
+      ["Zonal", 37, "c2"],
+      ["Interior", 36, "c3"],
+      ["Social", 26, "rest"],
+      ["Demandas", 19, "rest"],
+      ["", 14, "rest"],
+    ]);
+    expect(composition.ring).toEqual([
+      { key: "CAMPANHA", category: "CAMPANHA", count: 323, color: "c1" },
+      { key: "Zonal", category: "Zonal", count: 37, color: "c2" },
+      { key: "Interior", category: "Interior", count: 36, color: "c3" },
+      { key: CATEGORY_REST_KEY, category: "", count: 59, color: "rest" },
+    ]);
+    expect(composition.total).toBe(455);
+  });
+
+  it("draws every category on the ring when they fit the palette", () => {
+    const composition = categoryComposition([{ category: "A", count: 2 }, { category: "B", count: 1 }, { category: "C", count: 0 }], palette, "rest");
+    expect(composition.ring.map((slice) => slice.key)).toEqual(["A", "B"]);
+    expect(composition.legend).toHaveLength(2);
+  });
+
+  it("gives the uncategorized the rest colour even when there is room", () => {
+    const composition = categoryComposition([{ category: "", count: 4 }, { category: "A", count: 1 }], palette, "rest");
+    expect(composition.legend.map((row) => row.color)).toEqual(["c1", "rest"]);
+    expect(composition.ring.map((slice) => slice.key)).toEqual(["A", CATEGORY_REST_KEY]);
   });
 });
 

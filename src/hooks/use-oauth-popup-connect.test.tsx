@@ -5,6 +5,7 @@ import { useOAuthPopupConnect, type OAuthPopupConfig } from "./use-oauth-popup-c
 
 vi.mock("@/lib/api/browser-client", () => ({
   getApiBaseUrl: () => "https://api.test",
+  scopeHeaders: () => ({}),
 }));
 
 interface Outcome {
@@ -97,12 +98,12 @@ describe("useOAuthPopupConnect", () => {
     expect(result.current.isConnecting).toBe(false);
   });
 
-  it("falls back to a full redirect when the popup is blocked", () => {
+  it("falls back to a full redirect, without the popup flag, when the popup is blocked", () => {
     openSpy.mockImplementation(() => null);
     const { result } = renderHook(() => useOAuthPopupConnect(CONFIG));
-    act(() => result.current.connect());
+    act(() => result.current.connect("/dashboard/demo"));
 
-    expect(window.location.href).toBe("https://api.test/oauth/demo/start?redirect=1&popup=1");
+    expect(window.location.href).toBe("https://api.test/oauth/demo/start?redirect=1&returnPath=%2Fdashboard%2Fdemo");
     expect(result.current.isConnecting).toBe(true);
   });
 

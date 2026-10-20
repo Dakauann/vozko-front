@@ -23,3 +23,7 @@ export function firstVisibleIndex(count: number, bottomAt: (index: number) => nu
   }
   return low < count ? low : -1;
 }
+
+export function countUnseen(previous: number, arrived: number, scrolledAway: boolean): number {
+  return scrolledAway ? previous + arrived : 0;
+}

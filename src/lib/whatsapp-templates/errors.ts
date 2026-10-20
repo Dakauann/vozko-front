@@ -42,6 +42,8 @@ export const TEMPLATE_ERROR_CODES = [
     "template_url_button_variable_not_end",
     "template_url_button_too_many_variables",
     "template_copy_code_needs_example",
+    "template_flow_not_published",
+    "template_form_not_sendable",
 
     "template_call_permission_with_buttons",
     "template_multiple_call_permission",

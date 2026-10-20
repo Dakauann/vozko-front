@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import type {
-  ConversationMessage,
   EntryType,
   InboxEntryLabel,
   Label,
@@ -19,7 +18,9 @@ import {
   MINIMIZED_WINDOW_WIDTH,
   MIN_WINDOW_HEIGHT,
   MIN_WINDOW_WIDTH,
+  windowKey,
 } from "@/lib/conversations/window-deck";
+import { useEntryReply } from "@/hooks/use-entry-reply";
 
 import {
   ArrowsInSimple,
@@ -36,9 +37,17 @@ import ConversationWindowActions, {
   type ConversationWindowActionsTranslations,
 } from "./ConversationWindowActions";
 import CrmConversationView from "./CrmConversationView";
-import CrmMessageInput from "./CrmMessageInput";
+import { ConversationViewers } from "./ConversationViewers";
+import CrmMessageInput, { type ComposerControl } from "./CrmMessageInput";
+import { ConversationDropZone } from "./ConversationDropZone";
+import SendTemplateNowDialog from "./SendTemplateNowDialog";
+import SendFormDialog from "./SendFormDialog";
+import { useWorkspace } from "@/contexts/workspace-context";
+import { reopensWithTemplate } from "@/lib/conversations/window-reopen";
 import CrmWallpaper from "./CrmWallpaper";
 import type { SendButtonWsInput } from "@/hooks/use-conversation-ws";
+import type { HistoryAnchor } from "@/lib/conversations/history-anchor";
+import type { Outbox } from "@/lib/conversations/outbox";
 import { cn } from "@/lib/utils";
 import type { LiveRead } from "@/lib/live-decisions/types";
 
@@ -64,6 +73,7 @@ export interface ConversationWindowEntryContext {
   currentLabels?: InboxEntryLabel[];
   handBack?: HandBackTarget | null;
   liveRead?: LiveRead | null;
+  businessPhoneId?: string;
 }
 
 export interface ConversationWindowActionsBundle {
@@ -89,6 +99,8 @@ export interface ConversationWindowActionsBundle {
     status: NextConversationStatus,
   ) => void;
   onToggleAutomation: (entryId: string, entryType: EntryType) => void;
+  onSendAndFinish?: (entryId: string, entryType: EntryType) => void;
+  onReopenWindow?: (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => void;
   onHandBack?: (entryId: string, entryType: EntryType) => void;
   onEntryStageChange?: (
     entryId: string,
@@ -135,6 +147,14 @@ interface ConversationWindowProps {
   onMove: (position: { x: number; y: number }) => void;
   onResize: (size: { width: number; height: number }) => void;
   onLoadHistory: () => void;
+  onSearchMessages?: (query: string) => void;
+  onClearMessageSearch?: () => void;
+  onLoadAround?: (anchor: HistoryAnchor) => void;
+  onLoadNewer?: () => void;
+  onReturnToPresent?: () => void;
+  outbox?: Outbox;
+  onRetrySend?: (requestId: string) => void;
+  onResendMessage?: (messageId: string) => void;
   onSend: (text: string, signed: boolean, replyToMessageId?: string) => void;
   onSendMedia: (
     text: string,
@@ -178,12 +198,19 @@ export default function ConversationWindow({
   onMove,
   onResize,
   onLoadHistory,
+  onSearchMessages,
+  onClearMessageSearch,
+  onLoadAround,
+  onLoadNewer,
+  onReturnToPresent,
+  outbox,
+  onRetrySend,
+  onResendMessage,
   onSend,
   onSendMedia,
   onSendButton,
   onTyping,
 }: ConversationWindowProps) {
-  const [replyTo, setReplyTo] = useState<ConversationMessage | null>(null);
   const dragRef = useRef<DragOrigin | null>(null);
   const resizeRef = useRef<ResizeOrigin | null>(null);
 
@@ -194,10 +221,9 @@ export default function ConversationWindow({
   );
   const title = conversation.lead_name || conversation.lead_number || "…";
   const pinned = geometry.maximized || poppedOut;
-
-  useEffect(() => {
-    setReplyTo(null);
-  }, [conversation.entry_id, conversation.entry_type]);
+  const { replyTo, reply, clearReply } = useEntryReply(
+    windowKey(conversation.entry_id, conversation.entry_type),
+  );
 
   const handleDragPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
@@ -273,29 +299,19 @@ export default function ConversationWindow({
     (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
   }, []);
 
-  const handleSend = useCallback(
-    (text: string, signed: boolean) => {
-      onSend(text, signed, replyTo?.id);
-      setReplyTo(null);
-    },
-    [onSend, replyTo],
+  const composerControlRef = useRef<ComposerControl>(null);
+  const attachDroppedFiles = useCallback((files: File[]) => composerControlRef.current?.attachFiles(files), []);
+  const composerAcceptsInput = conversation.window_open && canSend;
+  const finishes = canSend && conversation.conversation_status !== "finished" && Boolean(actions.onSendAndFinish);
+  const sendAndFinish = useCallback(
+    () => actions.onSendAndFinish?.(conversation.entry_id, conversation.entry_type),
+    [actions, conversation.entry_id, conversation.entry_type],
   );
-
-  const handleSendMedia = useCallback(
-    (text: string, mediaId: string, mediaType: MediaType, signed: boolean) => {
-      onSendMedia(text, mediaId, mediaType, signed, replyTo?.id);
-      setReplyTo(null);
-    },
-    [onSendMedia, replyTo],
-  );
-
-  const handleSendButton = useCallback(
-    (input: SendButtonWsInput) => {
-      onSendButton(input, replyTo?.id);
-      setReplyTo(null);
-    },
-    [onSendButton, replyTo],
-  );
+  const [templateNowOpen, setTemplateNowOpen] = useState(false);
+  const sendsTemplateNow = Boolean(actions.onReopenWindow) && reopensWithTemplate(conversation.entry_type);
+  const { can } = useWorkspace();
+  const [formSendOpen, setFormSendOpen] = useState(false);
+  const sendsForm = conversation.entry_type === "whatsapp" && can("whatsapp_forms", "send");
 
   return (
     <section
@@ -357,6 +373,10 @@ export default function ConversationWindow({
             </p>
           ) : null}
         </div>
+
+        {!geometry.minimized ? (
+          <ConversationViewers entryId={conversation.entry_id} entryType={conversation.entry_type as EntryType} />
+        ) : null}
 
         <div className="flex shrink-0 items-center gap-0.5">
           {}
@@ -460,6 +480,7 @@ export default function ConversationWindow({
       {}
       {!geometry.minimized && (
         <>
+          <ConversationDropZone enabled={composerAcceptsInput} onFiles={attachDroppedFiles} className="flex min-h-0 flex-1 flex-col">
           <div className="relative isolate flex min-h-0 flex-1 flex-col">
             <CrmWallpaper />
             <div className="min-h-0 flex-1">
@@ -470,7 +491,19 @@ export default function ConversationWindow({
                 loadingHistory={state.loadingHistory}
                 loadingConversation={state.loadingConversation}
                 translations={t.conversation}
-                onReply={setReplyTo}
+                onSearchMessages={onSearchMessages}
+                onClearMessageSearch={onClearMessageSearch}
+                messageSearchResults={state.search?.results ?? null}
+                searchingMessages={state.search?.searching ?? false}
+                messageSearchTotalItems={state.search?.totalItems ?? 0}
+                messageSearchQuery={state.search?.query ?? null}
+                onLoadAround={onLoadAround}
+                onLoadNewer={onLoadNewer}
+                onReturnToPresent={onReturnToPresent}
+                outbox={outbox}
+                onRetrySend={onRetrySend}
+                onResendMessage={onResendMessage}
+                onReply={reply}
                 tags={actions.stages}
                 currentEntryTags={entryContext.currentStages}
                 entryAvailableTags={entryContext.availableStages}
@@ -502,20 +535,53 @@ export default function ConversationWindow({
           <CrmMessageInput
             entryType={conversation.entry_type as EntryType}
             entryId={conversation.entry_id}
-            onSend={handleSend}
-            onSendMedia={handleSendMedia}
-            onSendButton={handleSendButton}
+            onSend={onSend}
+            onSendMedia={onSendMedia}
+            onSendButton={onSendButton}
+            onSendAndFinish={finishes ? sendAndFinish : undefined}
+            onSendTemplateNow={sendsTemplateNow ? () => setTemplateNowOpen(true) : undefined}
+            onSendForm={sendsForm ? () => setFormSendOpen(true) : undefined}
             onTyping={onTyping}
             windowOpen={conversation.window_open}
             windowExpiresAt={conversation.window_expires_at}
             windowClosedReason={conversation.window_closed_reason}
+            windowClosedDetail={conversation.window_closed_detail}
             windowTier={conversation.window_tier}
             translations={t.input}
             replyToMessage={replyTo}
-            onClearReply={() => setReplyTo(null)}
+            onClearReply={clearReply}
+            controlRef={composerControlRef}
             disabled={!canSend}
             disabledReason={canSend ? undefined : noPermissionSend}
           />
+          </ConversationDropZone>
+
+          {templateNowOpen && actions.onReopenWindow && (
+            <SendTemplateNowDialog
+              open
+              onOpenChange={(open) => {
+                if (!open) setTemplateNowOpen(false);
+              }}
+              businessPhoneId={entryContext.businessPhoneId ?? ""}
+              recipientName={conversation.lead_name}
+              onSend={(templateId, parameters) =>
+                actions.onReopenWindow?.(conversation.entry_id, conversation.entry_type, templateId, parameters)
+              }
+            />
+          )}
+
+          {formSendOpen && sendsForm && (
+            <SendFormDialog
+              open
+              onOpenChange={(open) => {
+                if (!open) setFormSendOpen(false);
+              }}
+              entryId={conversation.entry_id}
+              businessPhoneId={entryContext.businessPhoneId ?? ""}
+              recipientName={conversation.lead_name}
+              onUseTemplate={sendsTemplateNow ? () => setTemplateNowOpen(true) : undefined}
+            />
+          )}
 
           {!pinned && (
             <div

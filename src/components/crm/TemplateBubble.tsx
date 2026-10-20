@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, CopySimple, File as FileIcon, Image as ImageIcon, Link as LinkIcon, Phone, Video } from "@/components/icons";
+import { ArrowSquareOut, ClipboardText, CopySimple, File as FileIcon, Image as ImageIcon, Link as LinkIcon, Phone, Video } from "@/components/icons";
 
 import type { TemplateMessageMetadata } from "@/lib/conversations/types";
 
@@ -94,6 +94,7 @@ export default function TemplateBubble({
               {(btn.type === "COPY_CODE" || btn.type === "OTP") && (
                 <CopySimple className="h-3.5 w-3.5" />
               )}
+              {btn.type === "FLOW" && <ClipboardText className="h-3.5 w-3.5" />}
               {btn.type === "QUICK_REPLY" && (
                 <LinkIcon className="h-3.5 w-3.5" />
               )}

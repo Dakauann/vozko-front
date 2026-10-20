@@ -1,242 +1,350 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useWorkspace } from "@/contexts/workspace-context";
+import { startDecision, unconfirmedRealCalls, withConfirmedRealCalls } from "@/lib/workflows/real-calls";
+import { customerReplyCommand, type SimCustomerReply } from "@/lib/workflows/sim-replies";
+import {
+    applySimIntent,
+    applySimMessage,
+    connectingSimSession,
+    initialSimSession,
+    simCommand,
+    simulationUrl,
+    type SimIntent,
+    type SimServerMessage,
+    type SimSession,
+} from "@/lib/workflows/sim-session";
+
+export type { SimEvent, SimStatus, SimStep } from "@/lib/workflows/sim-session";
 
 const WS_BASE_URL =
     process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 
-
-export type SimStatus = "idle" | "connecting" | "waiting_trigger" | "running" | "waiting_reply" | "waiting_key" | "completed" | "error" | "cancelled";
-
-const LIVE_STATUSES: SimStatus[] = ["running", "waiting_reply", "waiting_trigger", "waiting_key"];
-
-export interface SimNodeEvent {
-    type: "node_event";
-    nodeId: string;
-    nodeType: string;
-    output?: Record<string, unknown>;
-    error?: string;
+export interface SimStartOptions {
+    reproduceRunId?: string;
+    runUntil?: string;
 }
 
-export interface SimMessage {
-    type: "message";
-    direction: "outbound" | "inbound";
-    text: string;
-    msgType: string;
-    nodeId?: string;
-    messageId: string;
-    audioBase64?: string;
-    audioMime?: string;
-    audioUrl?: string;
-}
+type Schedule = (flush: () => void) => void;
 
-export interface SimWaitingKey {
-    type: "waiting_key";
-    timeoutSeconds: number;
-}
-
-export interface SimCallTransferred {
-    type: "call_transferred";
-    queueId: string;
-    queueName: string;
-    notes?: string;
-}
-
-export interface SimWaitingReply {
-    type: "waiting_reply";
-    nodeId: string;
-    timeoutSeconds: number;
-}
-
-export interface SimStateUpdate {
-    type: "state";
-    vars: Record<string, unknown>;
-}
-
-export interface SimError {
-    type: "error";
-    message: string;
-}
-
-export type SimEvent = SimNodeEvent | SimMessage | SimWaitingReply | SimWaitingKey | SimCallTransferred | SimStateUpdate | SimError;
-
+const frameSchedule: Schedule = (flush) => {
+    if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(() => flush());
+        return;
+    }
+    queueMicrotask(flush);
+};
 
 interface UseWorkflowSimulationOptions {
     workflowId: string;
+    schedule?: Schedule;
 }
 
-export interface UseWorkflowSimulationReturn {
-    status: SimStatus;
-    events: SimEvent[];
-    currentNodeId: string | null;
-    stateVars: Record<string, unknown>;
-    start: () => void;
-    sendReply: (text: string) => void;
+export interface UseWorkflowSimulationReturn extends SimSession {
+    pendingRealCalls: string[];
+    connect: () => void;
+    start: (options?: SimStartOptions) => void;
+    sendReply: (reply: SimCustomerReply) => void;
     sendKey: (key: string) => void;
     cancel: () => void;
+    step: () => void;
+    resume: () => void;
+    runUntil: (nodeId: string) => void;
+    setBreakpoints: (nodeIds: string[]) => void;
+    confirmRealCalls: () => void;
+    skipRealCalls: () => void;
+    dismissRealCalls: () => void;
+    retryWithRealCalls: (nodeId: string) => void;
+    reset: () => void;
 }
+
+type Update = (session: SimSession) => SimSession;
 
 export function useWorkflowSimulation({
     workflowId,
+    schedule = frameSchedule,
 }: UseWorkflowSimulationOptions): UseWorkflowSimulationReturn {
     const { currentWorkspace } = useWorkspace();
     const workspaceId = currentWorkspace?.id ?? "";
 
-    const [status, setStatus] = useState<SimStatus>("idle");
-    const [events, setEvents] = useState<SimEvent[]>([]);
-    const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
-    const [stateVars, setStateVars] = useState<Record<string, unknown>>({});
+    const [session, setSession] = useState<SimSession>(initialSimSession);
+    const [pendingRealCalls, setPendingRealCalls] = useState<string[]>([]);
 
     const wsRef = useRef<WebSocket | null>(null);
+    const queueRef = useRef<Update[]>([]);
+    const flushScheduledRef = useRef(false);
+    const breakpointsRef = useRef<string[]>([]);
+    const confirmedRef = useRef<ReadonlySet<string>>(new Set());
+    const pendingStartRef = useRef<SimStartOptions | null>(null);
+    const lastStartRef = useRef<SimStartOptions>({});
+    const readyRealCallsRef = useRef<string[]>([]);
+    const readyRef = useRef(false);
 
-    const cleanup = useCallback(() => {
-        if (wsRef.current) {
-            wsRef.current.close();
-            wsRef.current = null;
-        }
+    const flush = useCallback(() => {
+        flushScheduledRef.current = false;
+        const updates = queueRef.current;
+        if (updates.length === 0) return;
+        queueRef.current = [];
+        setSession((current) => updates.reduce((next, update) => update(next), current));
     }, []);
 
-    useEffect(() => {
-        return cleanup;
-    }, [cleanup]);
+    const enqueue = useCallback(
+        (update: Update) => {
+            queueRef.current.push(update);
+            if (flushScheduledRef.current) return;
+            flushScheduledRef.current = true;
+            schedule(flush);
+        },
+        [schedule, flush],
+    );
 
-    const start = useCallback(async () => {
-        cleanup();
-        setEvents([]);
-        setCurrentNodeId(null);
-        setStateVars({});
-        setStatus("connecting");
+    const applyNow = useCallback(
+        (intent: SimIntent) => {
+            queueRef.current.push((current) => applySimIntent(current, intent));
+            flush();
+        },
+        [flush],
+    );
 
-        const params = new URLSearchParams();
-        if (workspaceId) params.set("workspace_id", workspaceId);
+    const send = useCallback((type: string, data?: Record<string, unknown>) => {
+        const ws = wsRef.current;
+        if (ws?.readyState !== WebSocket.OPEN) return false;
+        ws.send(simCommand(type, data));
+        return true;
+    }, []);
 
-        const wsUrl = `${WS_BASE_URL}/ws/workflows/${encodeURIComponent(workflowId)}/simulate?${params.toString()}`;
-        const ws = new WebSocket(wsUrl);
-        wsRef.current = ws;
+    const closeSocket = useCallback(() => {
+        const ws = wsRef.current;
+        wsRef.current = null;
+        readyRef.current = false;
+        if (ws) ws.close();
+    }, []);
 
-        ws.onopen = () => {
-            setStatus("connecting");
-        };
+    useEffect(() => closeSocket, [closeSocket]);
 
-        ws.onmessage = (evt) => {
-            try {
-                const msg = JSON.parse(evt.data) as { type: string; payload?: unknown };
+    const launch = useCallback(
+        (options: SimStartOptions, confirm: boolean) => {
+            pendingStartRef.current = null;
+            setPendingRealCalls([]);
+            if (confirm) send("confirm_real_calls");
+            if (options.runUntil) send("run_until", { nodeId: options.runUntil });
+            if (options.reproduceRunId) send("reproduce_run", { runId: options.reproduceRunId });
+            else send("start");
+            applyNow({ kind: "start_sent", reproduceRunId: options.reproduceRunId });
+        },
+        [send, applyNow],
+    );
 
-                switch (msg.type) {
-                    case "waiting_trigger": {
-                        setStatus("waiting_trigger");
-                        break;
-                    }
-                    case "sim_started": {
-                        setStatus("running");
-                        break;
-                    }
-                    case "node_executed": {
-                        const p = msg.payload as { nodeId: string; nodeType: string; output?: Record<string, unknown>; error?: string };
-                        setCurrentNodeId(p.nodeId);
-                        setEvents((prev) => [...prev, { type: "node_event", ...p }]);
-                        break;
-                    }
-                    case "message_sent": {
-                        const p = msg.payload as { direction: "outbound" | "inbound"; text: string; msgType: string; nodeId?: string; messageId: string; audioBase64?: string; audioMime?: string; audioUrl?: string };
-                        setEvents((prev) => [...prev, { type: "message", ...p }]);
-                        break;
-                    }
-                    case "waiting_reply": {
-                        const p = msg.payload as { nodeId: string; timeoutSeconds: number };
-                        setStatus("waiting_reply");
-                        setCurrentNodeId(p.nodeId);
-                        setEvents((prev) => [...prev, { type: "waiting_reply", ...p }]);
-                        break;
-                    }
-                    case "waiting_key": {
-                        const p = msg.payload as { timeoutSeconds: number };
-                        setStatus("waiting_key");
-                        setEvents((prev) => [...prev, { type: "waiting_key", timeoutSeconds: p.timeoutSeconds }]);
-                        break;
-                    }
-                    case "call_transferred": {
-                        const p = msg.payload as { queueId: string; queueName: string; notes?: string };
-                        setEvents((prev) => [...prev, { type: "call_transferred", ...p }]);
-                        break;
-                    }
-                    case "state_update": {
-                        const p = msg.payload as { vars: Record<string, unknown> };
-                        setStateVars(p.vars);
-                        setEvents((prev) => [...prev, { type: "state", vars: p.vars }]);
-                        break;
-                    }
-                    case "run_completed": {
-                        setStatus("completed");
-                        break;
-                    }
-                    case "run_cancelled": {
-                        setStatus("cancelled");
-                        break;
-                    }
-                    case "run_error": {
-                        const p = msg.payload as { error?: string } | string;
-                        const errMsg = typeof p === "string" ? p : (p as { error?: string })?.error ?? "Unknown error";
-                        setStatus("error");
-                        setEvents((prev) => [...prev, { type: "error", message: errMsg }]);
-                        break;
-                    }
-                    case "error": {
-                        const p = msg.payload as string;
-                        setStatus("error");
-                        setEvents((prev) => [...prev, { type: "error", message: p ?? "Unknown error" }]);
-                        break;
-                    }
-                }
-            } catch {
+    const proceed = useCallback(
+        (options: SimStartOptions) => {
+            lastStartRef.current = options;
+            const realCallNodes = readyRealCallsRef.current;
+            const decision = startDecision({
+                realCallNodes,
+                confirmed: confirmedRef.current,
+                reproducing: Boolean(options.reproduceRunId),
+            });
+            if (decision === "ask") {
+                pendingStartRef.current = options;
+                setPendingRealCalls(unconfirmedRealCalls(realCallNodes, confirmedRef.current));
+                applyNow({ kind: "confirming" });
+                return;
             }
-        };
+            launch(options, decision === "confirm");
+        },
+        [applyNow, launch],
+    );
 
-        ws.onclose = () => {
-            setStatus((prev) => (LIVE_STATUSES.includes(prev) ? "error" : prev));
-        };
+    const open = useCallback(
+        (options: SimStartOptions | null) => {
+            closeSocket();
+            queueRef.current = [];
+            pendingStartRef.current = options;
+            setPendingRealCalls([]);
+            setSession(connectingSimSession());
 
-        ws.onerror = () => {
-            setStatus("error");
-        };
-    }, [cleanup, workflowId, workspaceId]);
+            const ws = new WebSocket(simulationUrl(WS_BASE_URL, workflowId, workspaceId));
+            wsRef.current = ws;
 
-    const sendReply = useCallback((text: string) => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: "reply", data: { text } }));
-            setStatus((prev) => prev === "waiting_trigger" ? "running" : "running");
-            setEvents((prev) => [
-                ...prev,
-                {
-                    type: "message",
-                    direction: "inbound" as const,
-                    text,
-                    msgType: "text",
-                    messageId: `local-${Date.now()}`,
-                },
-            ]);
-        }
-    }, []);
+            ws.onmessage = (evt) => {
+                if (wsRef.current !== ws) return;
+                let message: SimServerMessage;
+                try {
+                    message = JSON.parse(evt.data) as SimServerMessage;
+                } catch {
+                    return;
+                }
+                enqueue((current) => applySimMessage(current, message));
+                if (message.type !== "sim_ready") return;
+                const payload = (message.payload ?? {}) as { realCallNodes?: unknown };
+                readyRealCallsRef.current = Array.isArray(payload.realCallNodes)
+                    ? payload.realCallNodes.filter((id): id is string => typeof id === "string")
+                    : [];
+                readyRef.current = true;
+                send("set_breakpoints", { nodeIds: breakpointsRef.current });
+                const pending = pendingStartRef.current;
+                if (!pending) return;
+                flush();
+                proceed(pending);
+            };
 
-    const sendKey = useCallback((key: string) => {
-        if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-        wsRef.current.send(JSON.stringify({ type: "key", data: { key } }));
-        setStatus((prev) => (prev === "waiting_key" ? "running" : prev));
-        setEvents((prev) => [
-            ...prev,
-            { type: "message", direction: "inbound" as const, text: key, msgType: "key", messageId: `key-${Date.now()}` },
-        ]);
-    }, []);
+            ws.onclose = () => {
+                if (wsRef.current !== ws) return;
+                wsRef.current = null;
+                readyRef.current = false;
+                enqueue((current) => applySimIntent(current, { kind: "closed" }));
+            };
+
+            ws.onerror = () => {
+                if (wsRef.current !== ws) return;
+                enqueue((current) => applySimIntent(current, { kind: "failed" }));
+            };
+        },
+        [closeSocket, enqueue, flush, proceed, send, workflowId, workspaceId],
+    );
+
+    const connect = useCallback(() => open(null), [open]);
+
+    const start = useCallback(
+        (options: SimStartOptions = {}) => {
+            if (readyRef.current && session.status === "ready") {
+                proceed(options);
+                return;
+            }
+            open(options);
+        },
+        [open, proceed, session.status],
+    );
+
+    const sendReply = useCallback(
+        (reply: SimCustomerReply) => {
+            const command = customerReplyCommand(reply);
+            if (!send(command.type, command.data)) return;
+            applyNow({ kind: "replied" });
+        },
+        [send, applyNow],
+    );
+
+    const sendKey = useCallback(
+        (key: string) => {
+            if (!send("key", { key })) return;
+            applyNow({ kind: "key", key, messageId: `key-${Date.now()}` });
+        },
+        [send, applyNow],
+    );
 
     const cancel = useCallback(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: "cancel" }));
-        }
-        cleanup();
-        setStatus("cancelled");
-    }, [cleanup]);
+        send("cancel");
+        closeSocket();
+        pendingStartRef.current = null;
+        setPendingRealCalls([]);
+        applyNow({ kind: "cancelled" });
+    }, [send, closeSocket, applyNow]);
 
-    return { status, events, currentNodeId, stateVars, start, sendReply, sendKey, cancel };
+    const step = useCallback(() => {
+        if (send("step")) applyNow({ kind: "resumed" });
+    }, [send, applyNow]);
+
+    const resume = useCallback(() => {
+        if (send("continue")) applyNow({ kind: "resumed" });
+    }, [send, applyNow]);
+
+    const runUntil = useCallback(
+        (nodeId: string) => {
+            const started = readyRef.current && session.status !== "ready" && session.status !== "confirming";
+            if (started && send("run_until", { nodeId })) {
+                applyNow({ kind: "resumed" });
+                return;
+            }
+            start({ runUntil: nodeId });
+        },
+        [send, applyNow, start, session.status],
+    );
+
+    const setBreakpoints = useCallback(
+        (nodeIds: string[]) => {
+            breakpointsRef.current = nodeIds;
+            if (readyRef.current) send("set_breakpoints", { nodeIds });
+        },
+        [send],
+    );
+
+    const confirmRealCalls = useCallback(() => {
+        const pending = pendingStartRef.current;
+        if (!pending) return;
+        confirmedRef.current = withConfirmedRealCalls(confirmedRef.current, readyRealCallsRef.current);
+        launch(pending, true);
+    }, [launch]);
+
+    const skipRealCalls = useCallback(() => {
+        const pending = pendingStartRef.current;
+        if (!pending) return;
+        launch(pending, false);
+    }, [launch]);
+
+    const dismissRealCalls = useCallback(() => {
+        pendingStartRef.current = null;
+        setPendingRealCalls([]);
+        applyNow({ kind: "dismissed" });
+    }, [applyNow]);
+
+    const retryWithRealCalls = useCallback(
+        (nodeId: string) => {
+            confirmedRef.current = withConfirmedRealCalls(confirmedRef.current, [...readyRealCallsRef.current, nodeId]);
+            open(lastStartRef.current);
+        },
+        [open],
+    );
+
+    const reset = useCallback(() => {
+        send("cancel");
+        closeSocket();
+        queueRef.current = [];
+        pendingStartRef.current = null;
+        confirmedRef.current = new Set();
+        readyRealCallsRef.current = [];
+        setPendingRealCalls([]);
+        setSession(initialSimSession());
+    }, [send, closeSocket]);
+
+    return useMemo(
+        () => ({
+            ...session,
+            pendingRealCalls,
+            connect,
+            start,
+            sendReply,
+            sendKey,
+            cancel,
+            step,
+            resume,
+            runUntil,
+            setBreakpoints,
+            confirmRealCalls,
+            skipRealCalls,
+            dismissRealCalls,
+            retryWithRealCalls,
+            reset,
+        }),
+        [
+            session,
+            pendingRealCalls,
+            connect,
+            start,
+            sendReply,
+            sendKey,
+            cancel,
+            step,
+            resume,
+            runUntil,
+            setBreakpoints,
+            confirmRealCalls,
+            skipRealCalls,
+            dismissRealCalls,
+            retryWithRealCalls,
+            reset,
+        ],
+    );
 }

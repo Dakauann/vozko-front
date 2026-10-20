@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
-import { isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
 import type { Subpath } from "@/lib/studio/path-nodes";
 import { constrainAngle, EMPTY_PEN, penDrag, penFinish, penPress, penUndo, type PenDraft } from "@/lib/studio/pen";
 import { worldToScreen, type Point, type Viewport } from "@/lib/studio/viewport";

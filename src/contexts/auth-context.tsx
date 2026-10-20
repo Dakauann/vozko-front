@@ -16,6 +16,7 @@ import {
 
 import type { User, UserPlan } from "@/lib/auth/types";
 import { logout as logoutRequest } from "@/lib/auth/auth-api";
+import { conversationDrafts } from "@/lib/conversations/browser-drafts";
 import {
   apiClient,
   notifySessionExpired,
@@ -46,6 +47,10 @@ function mapUserMe(payload: UserMeResponse): User {
     emailVerified: payload.emailVerified,
     plan: payload.plan,
   };
+}
+
+function forgetDraftsOf(user: User | null) {
+  if (user?.id) conversationDrafts.clearUser(user.id);
 }
 
 function usersAreEqual(previous: User | null, next: User | null): boolean {
@@ -117,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch {
           }
           clearClientAuthCookies();
+          forgetDraftsOf(userRef.current);
           applyUser(null);
         } else {
           const cachedUser = getUserDataFromCookie();
@@ -141,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoggingOutRef.current = true;
 
     notifySessionExpired();
+    forgetDraftsOf(userRef.current);
 
     try {
       setUser(null);
@@ -228,4 +235,8 @@ export function useAuth() {
 
 export function useSignedInUserId(): string | null {
   return useContext(AuthContext)?.user?.id ?? null;
+}
+
+export function useSignedInUserName(): string | null {
+  return useContext(AuthContext)?.user?.name ?? null;
 }

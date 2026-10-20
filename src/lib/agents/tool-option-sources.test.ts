@@ -8,6 +8,13 @@ vi.mock("@/lib/crm/pipelines", () => ({
     data: objectType === "opportunity" ? [{ id: "pl-1", name: "Funil de vendas" }] : [],
   })),
 }));
+const listWorkflowsAction = vi.fn(async (params: Record<string, unknown>) => {
+  void params;
+  return { workflows: [{ id: "wf-1", name: "Matrícula", publishedVersion: 3 }] };
+});
+vi.mock("@/app/actions/workflows", () => ({
+  listWorkflowsAction: (params: Record<string, unknown>) => listWorkflowsAction(params),
+}));
 
 import { loadToolOptions, toggleChoice } from "@/lib/agents/tool-option-sources";
 
@@ -18,6 +25,18 @@ describe("loadToolOptions", () => {
 
   it("loads only the deal funnels for opportunity pipelines", async () => {
     expect(await loadToolOptions("opportunity_pipelines")).toEqual([{ value: "pl-1", label: "Funil de vendas" }]);
+  });
+
+  it("offers only active messaging workflows with the agent-call trigger for Executar fluxo", async () => {
+    expect(await loadToolOptions("agent_workflows")).toEqual([{ value: "wf-1", label: "Matrícula · v3" }]);
+    expect(listWorkflowsAction).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "active", type: "messages", triggerType: "trigger_agent_call" }),
+    );
+  });
+
+  it("fails the load when the workflows cannot be read, instead of offering an empty list", async () => {
+    listWorkflowsAction.mockResolvedValueOnce({ workflows: [], error: "boom" } as never);
+    await expect(loadToolOptions("agent_workflows")).rejects.toThrow("boom");
   });
 
   it("has no options for a source it does not know", async () => {

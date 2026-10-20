@@ -1,6 +1,7 @@
 export const NOTIFICATION_CATEGORIES = [
   "announcements",
   "campaigns",
+  "conversations",
   "templates",
   "channels",
   "billing",
@@ -8,6 +9,7 @@ export const NOTIFICATION_CATEGORIES = [
   "team",
   "support",
   "system",
+  "automations",
 ] as const;
 
 export type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];

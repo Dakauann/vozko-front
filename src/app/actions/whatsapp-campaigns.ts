@@ -10,6 +10,7 @@ import type {
     WhatsAppCampaignListResponse,
     WhatsAppCampaignMetrics,
     WhatsAppCampaignPayload,
+    WhatsAppCampaignSettingsPayload,
     WhatsAppCampaignResetConfirmResponse,
     WhatsAppCampaignResetPrepareResponse,
 } from '@/lib/whatsapp-campaigns/types';
@@ -168,7 +169,7 @@ export async function createWhatsAppCampaignAction(payload: WhatsAppCampaignPayl
 
 export async function updateWhatsAppCampaignAction(
     campaignId: string,
-    payload: WhatsAppCampaignPayload
+    payload: WhatsAppCampaignSettingsPayload
 ) {
     const response = await apiClient<{ success: boolean; data: WhatsAppCampaign }>(
         `/whatsapp/campaigns/${campaignId}`,
@@ -177,8 +178,6 @@ export async function updateWhatsAppCampaignAction(
             body: JSON.stringify(payload),
         }
     );
-
-    console.log(response)
 
     if (response.error) {
         return { campaign: null, error: response.error.message, errorCode: response.error.code };

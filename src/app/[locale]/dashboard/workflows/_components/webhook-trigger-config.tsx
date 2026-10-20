@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   WebhooksLogo,
   Copy,
@@ -26,6 +27,7 @@ import {
 } from "@/components/elevated-design/elevated-tabs";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
 import { Notice } from "@/components/ui/notice";
+import { codedErrorMessage, type CodedFailure } from "@/lib/api/coded-error";
 import { cn } from "@/lib/utils";
 import {
   getWorkflowWebhookAction,
@@ -35,6 +37,7 @@ import {
   deleteWorkflowWebhookAction,
   type WorkflowWebhookConfig,
 } from "@/app/actions/workflows";
+import { WebhookDeliveries } from "./webhook-deliveries";
 
 type AuthMode = "none" | "header_token" | "hmac";
 type CopyTarget = "url" | "secret" | "curl" | "body";
@@ -129,9 +132,12 @@ function buildCurl(opts: {
 
 export function WebhookTriggerConfig({
   workflowId,
+  focusDeliveries = false,
 }: {
   workflowId?: string | null;
+  focusDeliveries?: boolean;
 }) {
+  const t = useTranslations("workflowsPage");
   const [webhook, setWebhook] = useState<WorkflowWebhookConfig | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [loading, setLoading] = useState(true);
@@ -154,14 +160,14 @@ export function WebhookTriggerConfig({
       setLoading(true);
       const res = await getWorkflowWebhookAction(workflowId);
       if (cancelled) return;
-      if (res.error) setError(res.error);
+      if (res.error) setError(codedErrorMessage(t, res, res.error));
       apply(res.webhook ?? null);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [workflowId, apply]);
+  }, [workflowId, apply, t]);
 
   const copy = useCallback((value: string, which: CopyTarget) => {
     void navigator.clipboard.writeText(value).then(() => {
@@ -172,16 +178,16 @@ export function WebhookTriggerConfig({
 
   const runAction = useCallback(
     async (
-      fn: () => Promise<{ webhook?: WorkflowWebhookConfig | null; error?: string }>,
+      fn: () => Promise<{ webhook?: WorkflowWebhookConfig | null } & Partial<CodedFailure>>,
     ) => {
       setBusy(true);
       setError(null);
       const res = await fn();
-      if (res.error) setError(res.error);
+      if (res.error) setError(codedErrorMessage(t, res, res.error));
       else apply(res.webhook ?? null);
       setBusy(false);
     },
-    [apply],
+    [apply, t],
   );
 
   if (!workflowId) {
@@ -431,6 +437,8 @@ export function WebhookTriggerConfig({
       </div>
 
       {error && <ErrorLine message={error} />}
+
+      <WebhookDeliveries workflowId={workflowId} focused={focusDeliveries} />
     </ConfigShell>
   );
 }

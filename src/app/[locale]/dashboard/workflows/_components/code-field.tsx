@@ -3,7 +3,7 @@
 import type * as Monaco from "monaco-editor";
 
 import type { BeforeMount, OnMount } from "@monaco-editor/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, type ComponentType } from "react";
 
 import type { ConfigField } from "@/lib/workflows/types";
 import dynamic from "next/dynamic";
@@ -107,17 +107,20 @@ export function CodeField({
   value,
   onChange,
   height = 360,
+  Toolbar,
 }: {
   field: ConfigField;
   value: unknown;
   onChange: (val: unknown) => void;
   height?: number;
+  Toolbar?: ComponentType<{ onInsert: (text: string) => void }>;
 }) {
   const { resolvedTheme } = useTheme();
   const monacoTheme = resolvedTheme === "dark" ? "vs-dark" : "vs";
 
   const code = typeof value === "string" ? value : "";
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const seededRef = useRef(false);
 
   useEffect(() => {
@@ -153,6 +156,7 @@ export function CodeField({
   };
 
   const handleMount: OnMount = (editor) => {
+    editorRef.current = editor;
     editor.addCommand(
       // eslint-disable-next-line no-bitwise
       (monacoRef.current?.KeyMod.CtrlCmd ?? 2048) |
@@ -166,6 +170,20 @@ export function CodeField({
     return () => {
     };
   }, []);
+
+  const insertAtCursor = useCallback(
+    (text: string) => {
+      const editor = editorRef.current;
+      const selection = editor?.getSelection();
+      if (!editor || !selection) {
+        onChange(code + text);
+        return;
+      }
+      editor.executeEdits("insert-snippet", [{ range: selection, text, forceMoveMarkers: true }]);
+      editor.focus();
+    },
+    [code, onChange],
+  );
 
   const options = useMemo<Monaco.editor.IStandaloneEditorConstructionOptions>(
     () => ({
@@ -204,9 +222,12 @@ export function CodeField({
           {field.label}
           {field.required ? <span className="text-destructive-ink"> *</span> : null}
         </label>
-        <span className="text-2xs font-medium text-muted-foreground">
-          JavaScript · sandbox
-        </span>
+        <div className="flex items-center gap-2">
+          {Toolbar ? <Toolbar onInsert={insertAtCursor} /> : null}
+          <span className="text-2xs font-medium text-muted-foreground">
+            JavaScript · sandbox
+          </span>
+        </div>
       </div>
       <div
         className="nodrag nopan nowheel overflow-hidden rounded-md border border-border bg-background"

@@ -2,13 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
-import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
 import ElevatedSelect, { ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import type { GroupOrigin, GroupSort } from "@/lib/unofficial-whatsapp-groups/types";
 
 import { ActiveFilterChips, type ActiveFilter } from "../kit/filters";
 import type { AllGroupsQuery } from "../kit/routes";
-import { clearedQuery, withoutFilter, type ListFilterKey } from "./list-query";
+import { SEND_PERMISSIONS, adminsOnlyOf, clearedQuery, sendPermissionOf, withoutFilter, type ListFilterKey } from "./list-query";
 
 const ANY = "__any__";
 const NO_CATEGORY = "__none__";
@@ -82,7 +81,9 @@ export function GroupsToolbar({
   if (query.hasAnalysis !== undefined) {
     chips.push({ key: "hasAnalysis", label: t(`filters.analysisOptions.${analysisOption(query.hasAnalysis)}`), onClear: clear("hasAnalysis") });
   }
-  if (query.adminsOnly) chips.push({ key: "adminsOnly", label: t("filters.adminsOnly"), onClear: clear("adminsOnly") });
+  if (query.adminsOnly !== undefined) {
+    chips.push({ key: "adminsOnly", label: t(`filters.sendOptions.${sendPermissionOf(query.adminsOnly)}`), onClear: clear("adminsOnly") });
+  }
 
   const categoryValue = query.category === undefined ? ANY : query.category === "" ? NO_CATEGORY : query.category;
   const knownCategories = query.category && !categories.includes(query.category) ? [...categories, query.category] : categories;
@@ -158,10 +159,17 @@ export function GroupsToolbar({
             </ElevatedSelectItem>
           ))}
         </ElevatedSelect>
-        <label className="col-span-2 flex h-10 cursor-pointer items-center gap-2 rounded-[--radius] px-1 text-xs text-foreground md:col-span-1">
-          <Checkbox checked={query.adminsOnly === true} onCheckedChange={(checked) => set({ adminsOnly: checked === true ? true : undefined })} />
-          <span className="leading-tight">{t("filters.adminsOnly")}</span>
-        </label>
+        <ElevatedSelect
+          label={t("filters.sendPermission")}
+          value={sendPermissionOf(query.adminsOnly)}
+          onValueChange={(value) => set({ adminsOnly: adminsOnlyOf(value as (typeof SEND_PERMISSIONS)[number]) })}
+        >
+          {SEND_PERMISSIONS.map((option) => (
+            <ElevatedSelectItem key={option} value={option}>
+              {t(`filters.sendOptions.${option}`)}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
       </div>
       <ActiveFilterChips filters={chips} onClearAll={() => onChange(clearedQuery(query))} resultLabel={resultLabel} />
     </div>

@@ -38,6 +38,7 @@ import {
   useRef,
   useState,
   useTransition,
+  type ReactNode,
 } from "react";
 
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -61,6 +62,15 @@ import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import ToolConfigDialog from "./ToolConfigDialog";
 import { hasToolSettings } from "@/lib/agents/tool-settings";
+import {
+  RUN_WORKFLOW_TOOL,
+  addToolBinding,
+  boundValues,
+  removeToolBindingAt,
+  replaceToolBindingAt,
+  toolBindingKey,
+} from "@/lib/agents/tool-bindings";
+import RunWorkflowBindingDetails from "./RunWorkflowBindingDetails";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import type { WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 import { cn } from "@/lib/utils";
@@ -250,6 +260,7 @@ interface SelectedToolItemProps {
   onVisibilityChange: (visibility: ToolVisibility[]) => void;
   onConfigureClick: () => void;
   t: (key: string) => string;
+  details?: ReactNode;
 }
 
 const SelectedToolItem = ({
@@ -261,6 +272,7 @@ const SelectedToolItem = ({
   onVisibilityChange,
   onConfigureClick,
   t,
+  details,
 }: SelectedToolItemProps) => {
   const [showParameters, setShowParameters] = useState(false);
 
@@ -388,7 +400,9 @@ const SelectedToolItem = ({
             </div>
           )}
 
-          {parameterEntries.length > 0 && (
+          {details}
+
+          {!details && parameterEntries.length > 0 && (
             <div>
               <button
                 type="button"
@@ -504,6 +518,7 @@ export default function CreateNewAgentForm({
   const [toolConfigDialogOpen, setToolConfigDialogOpen] = useState(false);
   const [configuringTool, setConfiguringTool] =
     useState<AgentToolDefinition | null>(null);
+  const [configuringIndex, setConfiguringIndex] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -1034,17 +1049,18 @@ export default function CreateNewAgentForm({
     () =>
       filteredTools.filter(
         (tool) =>
+          toolBindingKey(tool) !== undefined ||
           !(selectedInternalTools ?? []).some((b) => b.name === tool.name),
       ),
     [filteredTools, selectedInternalTools],
   );
-  const selectedToolList = useMemo(
-    () =>
-      tools.filter((tool) =>
-        (selectedInternalTools ?? []).some((b) => b.name === tool.name),
-      ),
-    [tools, selectedInternalTools],
-  );
+  const selectedToolList = useMemo(() => {
+    const byName = new Map(tools.map((tool) => [tool.name, tool]));
+    return (selectedInternalTools ?? []).flatMap((binding, index) => {
+      const tool = byName.get(binding.name);
+      return tool ? [{ tool, binding, index }] : [];
+    });
+  }, [tools, selectedInternalTools]);
 
   const messagingModels = useMemo(() => options?.messaging ?? [], [options]);
 
@@ -1092,7 +1108,8 @@ export default function CreateNewAgentForm({
     const existingToolIndex = currentTools.findIndex(
       (t) => t.name === tool.name,
     );
-    const alreadySelected = existingToolIndex >= 0;
+    const alreadySelected =
+      existingToolIndex >= 0 && toolBindingKey(tool) === undefined;
     const toolDefaultVisibility = tool.visibility ?? ["messaging"];
 
     if (alreadySelected) {
@@ -1107,6 +1124,7 @@ export default function CreateNewAgentForm({
 
       if (needsConfiguration) {
         setConfiguringTool(tool);
+        setConfiguringIndex(null);
         setToolConfigDialogOpen(true);
       } else {
         const nextTools = [
@@ -1121,53 +1139,83 @@ export default function CreateNewAgentForm({
     }
   };
 
-  const handleOpenToolConfig = (tool: AgentToolDefinition) => {
+  const handleOpenToolConfig = (tool: AgentToolDefinition, index: number) => {
     setConfiguringTool(tool);
+    setConfiguringIndex(index);
     setToolConfigDialogOpen(true);
+  };
+
+  const handleRemoveBinding = (index: number) => {
+    setValue("internalTools", removeToolBindingAt(getValues("internalTools") ?? [], index), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const handleSaveToolConfig = (config: ToolConfig) => {
     if (!configuringTool) return;
 
     const currentTools = getValues("internalTools") ?? [];
-    const existingToolIndex = currentTools.findIndex(
-      (t) => t.name === configuringTool.name,
-    );
+    const bindingKey = toolBindingKey(configuringTool);
+    const existingToolIndex =
+      configuringIndex ??
+      (bindingKey === undefined
+        ? currentTools.findIndex((t) => t.name === configuringTool.name)
+        : -1);
     const toolDefaultVisibility = configuringTool.visibility ?? ["messaging"];
 
-    if (existingToolIndex >= 0) {
-      const nextTools = currentTools.map((t, idx) =>
-        idx === existingToolIndex ? { ...t, config } : t,
-      );
-      setValue("internalTools", nextTools, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
+    const change =
+      existingToolIndex >= 0
+        ? replaceToolBindingAt(
+            currentTools,
+            existingToolIndex,
+            { ...currentTools[existingToolIndex], config },
+            bindingKey,
+          )
+        : addToolBinding(
+            currentTools,
+            { name: configuringTool.name, visibility: toolDefaultVisibility, config },
+            bindingKey,
+          );
+    if (change.duplicate) {
+      toast.error(t("tools.runWorkflow.alreadyBound"));
     } else {
-      const nextTools = [
-        ...currentTools,
-        {
-          name: configuringTool.name,
-          visibility: toolDefaultVisibility,
-          config,
-        },
-      ];
-      setValue("internalTools", nextTools, {
+      setValue("internalTools", change.bindings, {
         shouldDirty: true,
         shouldValidate: true,
       });
     }
 
     setConfiguringTool(null);
+    setConfiguringIndex(null);
   };
 
+  const configuringKey = configuringTool ? toolBindingKey(configuringTool) : undefined;
+  const configuringBinding =
+    configuringIndex !== null
+      ? selectedInternalTools?.[configuringIndex]
+      : configuringTool && configuringKey === undefined
+        ? selectedInternalTools?.find((b) => b.name === configuringTool.name)
+        : undefined;
+  const configuringExcluded =
+    configuringTool && configuringKey
+      ? {
+          [configuringKey]: boundValues(
+            selectedInternalTools ?? [],
+            configuringTool.name,
+            configuringKey,
+            configuringIndex,
+          ),
+        }
+      : undefined;
+
   const handleVisibilityChange = (
-    toolName: string,
+    index: number,
     newVisibility: ToolVisibility[],
   ) => {
     const currentTools = getValues("internalTools") ?? [];
-    const nextTools = currentTools.map((t) =>
-      t.name === toolName ? { ...t, visibility: newVisibility } : t,
+    const nextTools = currentTools.map((t, at) =>
+      at === index ? { ...t, visibility: newVisibility } : t,
     );
 
     setValue("internalTools", nextTools, {
@@ -1900,26 +1948,26 @@ onStep={(_index, step) => {
                       </div>
                     ) : (
                       <ul className="divide-y divide-border">
-                        {selectedToolList.map((tool) => {
-                          const binding = selectedInternalTools?.find(
-                            (b) => b.name === tool.name,
-                          );
-                          return (
-                            <SelectedToolItem
-                              key={tool.name}
-                              tool={tool}
-                              currentVisibility={binding?.visibility}
-                              currentConfig={binding?.config}
-                              disabled={loadingTools}
-                              onRemove={() => handleToggleTool(tool)}
-                              onVisibilityChange={(visibility) =>
-                                handleVisibilityChange(tool.name, visibility)
-                              }
-                              onConfigureClick={() => handleOpenToolConfig(tool)}
-                              t={t}
-                            />
-                          );
-                        })}
+                        {selectedToolList.map(({ tool, binding, index }) => (
+                          <SelectedToolItem
+                            key={`${tool.name}-${index}`}
+                            tool={tool}
+                            currentVisibility={binding.visibility}
+                            currentConfig={binding.config}
+                            disabled={loadingTools}
+                            onRemove={() => handleRemoveBinding(index)}
+                            onVisibilityChange={(visibility) =>
+                              handleVisibilityChange(index, visibility)
+                            }
+                            onConfigureClick={() => handleOpenToolConfig(tool, index)}
+                            t={t}
+                            details={
+                              tool.name === RUN_WORKFLOW_TOOL ? (
+                                <RunWorkflowBindingDetails config={binding.config} />
+                              ) : undefined
+                            }
+                          />
+                        ))}
                       </ul>
                     )}
                   </div>
@@ -2276,8 +2324,10 @@ onStep={(_index, step) => {
           onOpenChange={setToolConfigDialogOpen}
           tool={configuringTool}
           existingConfig={
-            selectedInternalTools?.find((t) => t.name === configuringTool.name)
-              ?.config
+            (configuringIndex !== null
+              ? selectedInternalTools?.[configuringIndex]
+              : selectedInternalTools?.find((t) => t.name === configuringTool.name)
+            )?.config
           }
           onSave={handleSaveToolConfig}
         />
@@ -2287,12 +2337,9 @@ onStep={(_index, step) => {
           onOpenChange={setToolConfigDialogOpen}
           tool={configuringTool}
           existingConfig={
-            configuringTool
-              ? selectedInternalTools?.find(
-                  (t) => t.name === configuringTool.name,
-                )?.config
-              : undefined
+            configuringTool ? configuringBinding?.config : undefined
           }
+          excludedValues={configuringExcluded}
           onSave={handleSaveToolConfig}
         />
       )}

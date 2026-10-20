@@ -36,6 +36,11 @@ body {
   background-color: hsl(var(--background));
 }
 
+:root {
+  --dock-right-reserve: var(--assistant-sheet-w, 0px);
+  --dock-float-reserve: calc(var(--assistant-sheet-w, 0px) + var(--dock-rail-w, 0px));
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -819,6 +824,70 @@ input:-webkit-autofill:active {
     to { left: calc(100% - 0.5rem); opacity: 0; }
   }
 
+  .vz-conversation-header {
+    container-type: inline-size;
+  }
+
+  .vz-conversation-header-actions {
+    display: none;
+  }
+
+  @container (min-width: 48rem) {
+    .vz-conversation-header-actions {
+      display: flex;
+    }
+
+    .vz-conversation-header-more {
+      display: none;
+    }
+  }
+
+  .vz-composer {
+    container: composer / inline-size;
+  }
+
+  .vz-composer-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "field field"
+      "start end";
+    align-items: end;
+  }
+
+  .vz-composer-field {
+    grid-area: field;
+    min-width: 0;
+    align-self: center;
+  }
+
+  .vz-composer-tools-start {
+    grid-area: start;
+    min-width: 0;
+  }
+
+  .vz-composer-tools-end {
+    grid-area: end;
+    justify-self: end;
+  }
+
+  .vz-composer-sign-label {
+    display: none;
+  }
+
+  @container composer (min-width: 24rem) {
+    .vz-composer-sign-label {
+      display: inline;
+    }
+  }
+
+  @container composer (min-width: 34rem) {
+    .vz-composer-box {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "start field end";
+    }
+  }
+
   .vz-circuit {
     container-type: inline-size;
   }
@@ -911,6 +980,28 @@ input:-webkit-autofill:active {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+.wf-edge-flow {
+  animation: smartEdgeFlow 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wf-edge-flow {
+    animation: none;
+  }
+}
+
+[data-canvas-panning] .react-flow__viewport {
+  will-change: transform;
+}
+
+[data-canvas-busy] .wf-edge-flow {
+  animation-play-state: paused;
+}
+
+.react-flow__edges svg:has(.wf-edge-flow) {
+  will-change: transform;
 }
 
 /* Copilot-added connections fade in (staggered) to match the node reveal. */
@@ -1128,6 +1219,7 @@ input:-webkit-autofill:active {
     --chart-3: 43 92% 45%;
     --chart-4: 199 89% 42%;
     --chart-5: 321 50% 46%;
+    --mark-skipped: 41 96% 36%;
 
     /* PLATES — the fills behind a white glyph (tiles, node chips, KPI marks).
        Decoupled from the series on purpose: a chart mark is tuned to be told
@@ -1361,6 +1453,7 @@ input:-webkit-autofill:active {
     --chart-3: 44 92% 37%;
     --chart-4: 200 95% 43%;
     --chart-5: 320 66% 49%;
+    --mark-skipped: 39 100% 38%;
 
     /* On a dark ground a tinted shadow does nothing — there is no lightness
        left to remove — so these go to plain black at higher alpha and let the

@@ -21,6 +21,7 @@ import {
   UserPlus,
 } from "@/components/icons";
 import { useEmptyValue } from "@/components/elevated-design/empty-value";
+import { ScreenLoader } from "@/components/brand/screen-loader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -53,6 +54,7 @@ import {
   buildConversationAttendanceSummary,
   type AttendanceOwnerKind,
 } from "@/lib/conversations/attendance-summary";
+import { closeProvenanceText } from "@/lib/conversations/close-provenance";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "@/contexts/workspace-context";
 
@@ -64,6 +66,8 @@ const LOCALE_TAG: Record<string, string> = {
   es: "es-ES",
   de: "de-DE",
 };
+
+const AGENT_REPLY_WITHHELD = "agent_reply_withheld";
 
 const KNOWN_EVENT_TYPES = new Set([
   "assigned",
@@ -95,6 +99,7 @@ const KNOWN_EVENT_TYPES = new Set([
   "queue_abandoned",
   "queue_overflow",
   "call_linked",
+  AGENT_REPLY_WITHHELD,
   LEAD_EXIT_ACTION,
   LEAD_SEND_REFUSED,
 ]);
@@ -121,6 +126,7 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
     case "ai_disabled":
     case "ai_session_started":
     case "ai_session_ended":
+    case AGENT_REPLY_WITHHELD:
       return { Icon: Robot, tile: "tile-warning" };
     case "stage_changed":
     case "status_changed":
@@ -331,6 +337,7 @@ export default function ConversationAttendanceSection({
   className,
 }: ConversationAttendanceSectionProps) {
   const tSummary = useTranslations("crmContactPanel.attendance");
+  const tStatus = useTranslations("conversationStatus");
   const t = useTranslations("crmContactPanel.activity");
   const locale = useLocale();
   const empty = useEmptyValue();
@@ -540,9 +547,10 @@ export default function ConversationAttendanceSection({
     });
   }
   if (summary.closeProvenance) {
+    const provenance = closeProvenanceText(summary.closeProvenance, tStatus);
     summaryRows.push({
       label: tSummary("closedBy"),
-      value: `${summary.closeProvenance.by || empty} · ${summary.closeProvenance.reasonLabel || empty}`,
+      value: `${provenance.by || empty} · ${provenance.reason || empty}`,
     });
     const outcome = closeOutcomeLabel(closeOutcome, outcomeCapture, (key) =>
       tSummary(`reservedOutcome.${key}`),
@@ -663,14 +671,7 @@ export default function ConversationAttendanceSection({
         </div>
 
         {loading ? (
-          <div className="space-y-2" aria-busy>
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-[--radius] bg-muted"
-              />
-            ))}
-          </div>
+          <ScreenLoader fit="fill" />
         ) : error ? (
           <div className="rounded-[--radius] border border-border bg-muted px-3 py-3 text-center">
             <p className="text-xs text-destructive-ink">{error}</p>
@@ -727,6 +728,8 @@ export default function ConversationAttendanceSection({
                     const exitEvent = exitView !== null;
                     const sub = exitEvent
                       ? null
+                      : ev.event_type === AGENT_REPLY_WITHHELD
+                      ? t("details.agentReplyWithheld")
                       : aiEnd
                       ? t(`aiSessionEnd.${aiEnd.key}` as "aiSessionEnd.paused", aiEnd.values)
                       : detailLine(details, (key, values) =>

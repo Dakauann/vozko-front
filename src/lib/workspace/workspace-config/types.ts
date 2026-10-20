@@ -2,6 +2,21 @@ import type { WorkingHoursSpec } from "@/lib/working-hours/types";
 
 export type RouletteMode = "online" | "last_seen";
 
+export type RouletteStrategy =
+    | "round_robin"
+    | "priority"
+    | "weighted"
+    | "least_busy"
+    | "longest_idle"
+    | "random"
+    | "claim";
+
+export type RouletteRecipient = {
+    userId: string;
+    tier: number;
+    weight: number;
+};
+
 export type MetaPayer = "vozko" | "client";
 
 export type OutcomeSpec = {
@@ -35,6 +50,9 @@ export type WorkspaceConfig = {
     rouletteLastSeenWindowHours: number;
     rouletteRescueEnabled: boolean;
     rouletteRescueAfterMinutes: number;
+    rouletteStrategy?: RouletteStrategy;
+    rouletteMaxOpenPerMember?: number;
+    rouletteRecipients?: RouletteRecipient[];
     workingHours?: WorkingHoursSpec | null;
     outcomeCapture?: OutcomeCaptureSpec | null;
     updatedBy: string;

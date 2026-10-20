@@ -2,6 +2,7 @@ import { adsExplainers } from "./ads";
 import { agentExplainers } from "./agents";
 import { campaignExplainers } from "./campaigns";
 import { crmExplainers } from "./crm";
+import { formExplainers } from "./forms";
 import { settingsExplainers } from "./settings";
 import { socialExplainers } from "./social";
 import type { ExplainerSpec } from "./types";
@@ -13,6 +14,7 @@ const AREAS = {
   ads: adsExplainers,
   crm: crmExplainers,
   agents: agentExplainers,
+  forms: formExplainers,
 } as const;
 
 type Areas = typeof AREAS;

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { UploadSimple, X } from "@/components/icons";
+import { VoiceNoteRecorder } from "@/components/media/voice-note-recorder";
 import { uploadMediaAction } from "@/app/actions/medias";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,29 @@ export function CampaignMediaPicker({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const upload = async (file: File) => {
+    setUploading(true);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("media", file);
+      form.append("mediaType", kind);
+      form.append("description", file.name);
+      const result = await uploadMediaAction(form);
+      if (result.error || !result.mediaId) {
+        setError(result.error ?? labels.failed);
+        return;
+      }
+      onChange({
+        mediaId: result.mediaId,
+        fileName: file.name,
+        previewUrl: result.mediaPreviewUrl ?? result.mediaUrl ?? undefined,
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (mediaId) {
     return (
       <div className="flex items-center justify-between gap-2 rounded-[--radius] border border-border px-3 py-2">
@@ -46,7 +70,7 @@ export function CampaignMediaPicker({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <label
         className={cn(
           "inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-[--radius] border border-dashed border-border px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-muted",
@@ -63,30 +87,15 @@ export function CampaignMediaPicker({
           onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            setUploading(true);
-            setError(null);
             try {
-              const form = new FormData();
-              form.append("media", file);
-              form.append("mediaType", kind);
-              form.append("description", file.name);
-              const result = await uploadMediaAction(form);
-              if (result.error || !result.mediaId) {
-                setError(result.error ?? labels.failed);
-                return;
-              }
-              onChange({
-                mediaId: result.mediaId,
-                fileName: file.name,
-                previewUrl: result.mediaPreviewUrl ?? result.mediaUrl ?? undefined,
-              });
+              await upload(file);
             } finally {
-              setUploading(false);
               e.target.value = "";
             }
           }}
         />
       </label>
+      {kind === "audio" ? <VoiceNoteRecorder onUse={(file) => void upload(file)} disabled={disabled || uploading} /> : null}
       {error ? <p className="text-xs font-semibold text-destructive-ink">{error}</p> : null}
     </div>
   );
@@ -94,7 +103,7 @@ export function CampaignMediaPicker({
 
 export const MEDIA_ACCEPT: Record<string, string> = {
   image: "image/jpeg,image/png,image/webp",
-  video: "video/mp4,video/3gpp",
+  video: "video/mp4,video/3gpp,.mp4,.3gp",
   audio: "audio/*",
   document: "*/*",
   sticker: "image/webp",

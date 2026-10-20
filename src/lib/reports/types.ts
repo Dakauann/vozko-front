@@ -3,7 +3,9 @@ export type ReportKind =
     | "conversation_entries"
     | "balance_transactions"
     | "opportunities"
-    | "leads";
+    | "leads"
+    | "whatsapp_dispatch"
+    | "whatsapp_form_responses";
 
 export type ReportFormat = "csv" | "xlsx" | "pdf";
 
@@ -19,7 +21,8 @@ export type ReportFailureCode =
     | "source_unavailable"
     | "cancelled"
     | "workspace_required"
-    | "empty_result";
+    | "empty_result"
+    | "forbidden";
 
 export interface ReportJob {
     id: string;
@@ -84,4 +87,11 @@ export interface BalanceReportParams extends Record<string, unknown> {
     type?: string;
     startDate?: string;
     endDate?: string;
+}
+
+export interface WhatsAppDispatchReportParams extends Record<string, unknown> {
+    dateFrom: string;
+    dateTo: string;
+    campaignId?: string;
+    departmentId?: string;
 }

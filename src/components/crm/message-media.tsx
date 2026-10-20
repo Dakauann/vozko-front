@@ -1,110 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
-import { DownloadSimple, File as FileIcon, Image as ImageIcon, Play, SpeakerHigh, Spinner, X } from "@/components/icons";
-import { getConversationMediaAction } from "@/app/actions/conversations";
-import { useHostWindow } from "@/contexts/host-document-context";
+import { ArrowsOut, DownloadSimple, File as FileIcon, Image as ImageIcon, Play, SpeakerHigh, Spinner } from "@/components/icons";
 import { AudioPlayer, MEDIA_CARD_CLASS } from "@/components/media/audio-player";
+import { useConversationMediaUrl } from "@/hooks/use-conversation-media-url";
 import { mediaFrame, type FramedMedia, type MediaFrame } from "@/lib/conversations/media-frame";
+import type { GalleryItem } from "@/lib/conversations/media-gallery";
 import { placeholderDataUrl } from "@/lib/conversations/media-placeholder";
 import type { EntryType, MediaLayout, MediaType } from "@/lib/conversations/types";
 import { cn } from "@/lib/utils";
 import DocumentPreview from "./DocumentPreview";
+import { MediaGalleryDialog, useMediaGallery } from "./thread/MediaGallery";
 
-function useMediaUrl(url?: string, mediaId?: string, entryType?: EntryType, entryId?: string) {
-  const [fetchedUrl, setFetchedUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!url && !!mediaId);
-  const [error, setError] = useState(false);
-  const fetchedRef = useRef(false);
+const HOVER_BUTTON =
+  "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60";
 
-  useEffect(() => {
-    if (url || !mediaId || !entryType || !entryId || fetchedRef.current) return;
-    fetchedRef.current = true;
-
-    getConversationMediaAction(entryType, entryId, mediaId)
-      .then((media) => {
-        if (media?.url) setFetchedUrl(media.url);
-        else setError(true);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [mediaId, url, entryType, entryId]);
-
-  return { mediaUrl: url || fetchedUrl, loading, error };
-}
-
-function DownloadButton({ url, className }: { url: string; className?: string }) {
+function DownloadButton({ url }: { url: string }) {
+  const t = useTranslations("crmConversation.thread.mediaState");
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
       download
-      className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60",
-        className,
-      )}
+      className={HOVER_BUTTON}
       onClick={(e) => e.stopPropagation()}
-      aria-label="Download"
+      aria-label={t("download")}
     >
       <DownloadSimple weight="bold" className="h-3.5 w-3.5" />
     </a>
-  );
-}
-
-function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
-  const hostWindow = useHostWindow();
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    const view = hostWindow ?? window;
-    view.addEventListener("keydown", onKey);
-    return () => view.removeEventListener("keydown", onKey);
-  }, [onClose, hostWindow]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={onClose}
-    >
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
-        <a
-          href={src}
-          target="_blank"
-          rel="noopener noreferrer"
-          download
-          onClick={(e) => e.stopPropagation()}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-          aria-label="Download"
-        >
-          <DownloadSimple weight="bold" className="h-5 w-5" />
-        </a>
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-          aria-label="Fechar"
-        >
-          <X weight="bold" className="h-5 w-5" />
-        </button>
-      </div>
-      <motion.img
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
-        src={src}
-        alt={alt}
-        className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      />
-    </motion.div>
   );
 }
 
@@ -145,24 +71,36 @@ function FrameBox({
 }
 
 function FrameStatus({ type, loading }: { type: MediaType; loading: boolean }) {
+  const t = useTranslations("crmConversation.thread.mediaState");
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-xs text-muted-foreground">
       {loading ? <Spinner className="h-5 w-5 animate-spin" /> : UNAVAILABLE_ICON[type]}
-      {loading ? null : <span>Mídia não disponível</span>}
+      {loading ? null : <span>{t("unavailable")}</span>}
     </div>
   );
 }
 
 function CardStatus({ type, loading }: { type: MediaType; loading: boolean }) {
+  const t = useTranslations("crmConversation.thread.mediaState");
   return (
     <div className={MEDIA_CARD_CLASS}>
       {loading ? <Spinner className="h-4 w-4 animate-spin text-muted-foreground" /> : UNAVAILABLE_ICON[type]}
-      <span className="text-xs text-muted-foreground">{loading ? "Carregando mídia..." : "Mídia não disponível"}</span>
+      <span className="text-xs text-muted-foreground">{loading ? t("loading") : t("unavailable")}</span>
     </div>
   );
 }
 
-function FramedImage({ src, alt, fit, onOpen }: { src: string; alt: string; fit: MediaFrame["fit"]; onOpen?: () => void }) {
+function FramedImage({
+  src,
+  alt,
+  fit,
+  onOpen,
+}: {
+  src: string;
+  alt: string;
+  fit: MediaFrame["fit"];
+  onOpen?: (event: MouseEvent<HTMLElement>) => void;
+}) {
   const [shown, setShown] = useState(false);
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -173,7 +111,7 @@ function FramedImage({ src, alt, fit, onOpen }: { src: string; alt: string; fit:
 
   if (failed) return <FrameStatus type="image" loading={false} />;
 
-  return (
+  const image = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       ref={ref}
@@ -183,15 +121,45 @@ function FramedImage({ src, alt, fit, onOpen }: { src: string; alt: string; fit:
       loading="lazy"
       onLoad={() => setShown(true)}
       onError={() => setFailed(true)}
-      onClick={onOpen}
       className={cn(
         "absolute inset-0 h-full w-full transition-opacity duration-200",
         fit === "cover" ? "object-cover" : "object-contain",
         shown ? "opacity-100" : "opacity-0",
-        onOpen && "cursor-pointer",
       )}
     />
   );
+
+  if (!onOpen) return image;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={alt}
+      className="absolute inset-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    >
+      {image}
+    </button>
+  );
+}
+
+function useOpenMedia(item: GalleryItem | null) {
+  const gallery = useMediaGallery();
+  const [single, setSingle] = useState<HTMLElement | null | false>(false);
+
+  const open = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    if (!item) return;
+    if (gallery) gallery.open(item.messageId, event.currentTarget);
+    else setSingle(event.currentTarget);
+  };
+
+  const lightbox =
+    item && single !== false ? (
+      <MediaGalleryDialog items={[item]} index={0} onIndexChange={() => undefined} onClose={() => setSingle(false)} returnFocusTo={single} />
+    ) : null;
+
+  return { open, lightbox };
 }
 
 export function MessageMedia({
@@ -200,6 +168,7 @@ export function MessageMedia({
   mediaId,
   entryType,
   entryId,
+  messageId,
   text,
   layout,
 }: {
@@ -208,13 +177,19 @@ export function MessageMedia({
   mediaId?: string;
   entryType?: EntryType;
   entryId?: string;
+  messageId?: string;
   text?: string;
   layout?: MediaLayout | null;
 }) {
-  const { mediaUrl, loading, error } = useMediaUrl(url, mediaId, entryType, entryId);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const t = useTranslations("crmConversation.thread");
+  const { mediaUrl, loading, error } = useConversationMediaUrl(url, mediaId, entryType, entryId);
   const [documentPreviewOpened, setDocumentPreviewOpened] = useState(false);
   const placeholder = useMemo(() => placeholderDataUrl(layout?.thumbhash), [layout?.thumbhash]);
+  const galleryItem: GalleryItem | null =
+    mediaUrl && (type === "image" || type === "video")
+      ? { messageId: messageId ?? mediaUrl, type, url: mediaUrl, mediaId, entryType, entryId, caption: text ?? "" }
+      : null;
+  const { open, lightbox } = useOpenMedia(galleryItem);
 
   if (!type || (!mediaUrl && !mediaId)) return null;
 
@@ -232,28 +207,32 @@ export function MessageMedia({
     }
     if (type === "video") {
       return (
-        <FrameBox frame={frame} placeholder={placeholder} className="bg-black">
-          <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-            <DownloadButton url={mediaUrl} />
-          </div>
-          <video src={mediaUrl} controls preload="metadata" className="absolute inset-0 h-full w-full object-contain" />
-        </FrameBox>
+        <>
+          <FrameBox frame={frame} placeholder={placeholder} className="bg-black">
+            <div className="absolute right-2 top-2 z-10 flex gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+              <button type="button" onClick={open} aria-label={t("gallery.title")} className={HOVER_BUTTON}>
+                <ArrowsOut weight="bold" className="h-3.5 w-3.5" />
+              </button>
+              <DownloadButton url={mediaUrl} />
+            </div>
+            <video src={mediaUrl} controls preload="metadata" className="absolute inset-0 h-full w-full object-contain" />
+          </FrameBox>
+          {lightbox}
+        </>
       );
     }
-    const alt = sticker ? "Sticker" : text || "Imagem";
+    const alt = sticker ? t("mediaState.sticker") : text || t("media.image");
     return (
       <>
         <FrameBox frame={frame} placeholder={placeholder} transparent={sticker}>
           {sticker ? null : (
-            <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
               <DownloadButton url={mediaUrl} />
             </div>
           )}
-          <FramedImage src={mediaUrl} alt={alt} fit={sticker ? "contain" : frame.fit} onOpen={sticker ? undefined : () => setLightboxOpen(true)} />
+          <FramedImage src={mediaUrl} alt={alt} fit={sticker ? "contain" : frame.fit} onOpen={sticker ? undefined : open} />
         </FrameBox>
-        <AnimatePresence>
-          {lightboxOpen ? <ImageLightbox src={mediaUrl} alt={alt} onClose={() => setLightboxOpen(false)} /> : null}
-        </AnimatePresence>
+        {lightbox}
       </>
     );
   }
@@ -266,7 +245,7 @@ export function MessageMedia({
     return <AudioPlayer url={mediaUrl} />;
   }
 
-  const fileName = text?.trim() || "Documento";
+  const fileName = text?.trim() || t("media.document");
   const ext = (mediaUrl.split("?")[0].split(".").pop() || "").toUpperCase().slice(0, 4);
   return (
     <div
@@ -278,7 +257,10 @@ export function MessageMedia({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-semibold text-foreground">{fileName}</p>
-        <p className="text-2xs text-muted-foreground">{ext ? `${ext} · ` : ""}Toque para abrir</p>
+        <p className="text-2xs text-muted-foreground">
+          {ext ? `${ext} · ` : ""}
+          {t("mediaState.tapToOpen")}
+        </p>
       </div>
       <DownloadSimple weight="bold" className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       <DocumentPreview previewDocumentUrl={mediaUrl} open={documentPreviewOpened} setOpen={setDocumentPreviewOpened} />

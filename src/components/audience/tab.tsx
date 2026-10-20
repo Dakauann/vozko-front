@@ -8,7 +8,7 @@ import {
   getCommentAnalysisStatsAction,
   getCommentAnalysisTrendsAction,
 } from "@/app/actions/audience";
-import type { CommentAnalysisSettings, CommentAnalysisStats, CommentSource, TrendPoint } from "@/lib/audience/types";
+import type { AnalysableCommentSource, CommentAnalysisSettings, CommentAnalysisStats, TrendPoint } from "@/lib/audience/types";
 import { useWorkspace } from "@/contexts/workspace-context";
 import Button from "@/components/elevated-design/button";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
@@ -27,7 +27,7 @@ import { Bell, ChartLineUp, ChatCircle, Gear, Hash, ShieldWarning, Sparkle, Warn
 
 type Section = "overview" | "topics" | "authors" | "feed" | "alerts" | "settings";
 
-export function CommentAnalysisTab({ source, accountId }: { source: CommentSource; accountId: string }) {
+export function CommentAnalysisTab({ source, accountId }: { source: AnalysableCommentSource; accountId: string }) {
   const t = useTranslations("audience");
   const { can } = useWorkspace();
   const canConfigure = can("audience", "update");

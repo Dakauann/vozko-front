@@ -21,15 +21,27 @@ import {
     replyInstagramCommentAction,
     updateCommentRuleAction,
 } from '@/app/actions/instagram';
+import {
+    answerMercadoLivreQuestionAction,
+    createMercadoLivreCommentRuleAction,
+    deleteMercadoLivreCommentRuleAction,
+    deleteMercadoLivreQuestionAction,
+    listMercadoLivreCommentRulesAction,
+    updateMercadoLivreCommentRuleAction,
+} from '@/app/actions/mercadolivre';
 import type { CommentSource } from '@/lib/audience/types';
+import { refuseUnhandled } from '@/lib/exhaustive';
 import {
     fromFacebookRule,
     fromInstagramRule,
+    fromMercadoLivreRule,
     toFacebookRulePayload,
     toInstagramRulePayload,
+    toMercadoLivreRulePayload,
     type CommentRuleApi,
 } from '@/lib/social/comment-rules';
 import type { CommentActionResult, CommentThreadActions } from '@/lib/social/comments';
+import { tiktokCommentActions } from '@/lib/tiktok/sources';
 
 export function instagramCommentActions(accountId: string): CommentThreadActions {
     return {
@@ -59,12 +71,39 @@ export function facebookCommentActions(pageId: string): CommentThreadActions {
     };
 }
 
-export function commentActionsFor(source: CommentSource, accountId: string): CommentThreadActions {
-    return source === 'facebook' ? facebookCommentActions(accountId) : instagramCommentActions(accountId);
+export function mercadoLivreCommentActions(accountId: string): CommentThreadActions {
+    return {
+        reply: (questionId, text) => settled(answerMercadoLivreQuestionAction(accountId, questionId, text)),
+        remove: (questionId) => settled(deleteMercadoLivreQuestionAction(accountId, questionId)),
+    };
+}
+
+export function commentActionsFor(source: CommentSource, accountId: string): CommentThreadActions | null {
+    switch (source) {
+        case 'facebook':
+            return facebookCommentActions(accountId);
+        case 'instagram':
+            return instagramCommentActions(accountId);
+        case 'mercadolivre':
+            return mercadoLivreCommentActions(accountId);
+        case 'tiktok':
+            return tiktokCommentActions(accountId);
+        default:
+            return refuseUnhandled(source, null);
+    }
 }
 
 export function commentAccountAvatar(source: CommentSource, accountId: string): { url?: string; authenticated: boolean } {
-    return source === 'instagram' ? { url: instagramAvatarUrl(accountId), authenticated: true } : { authenticated: false };
+    switch (source) {
+        case 'instagram':
+            return { url: instagramAvatarUrl(accountId), authenticated: true };
+        case 'facebook':
+        case 'mercadolivre':
+        case 'tiktok':
+            return { authenticated: false };
+        default:
+            return refuseUnhandled(source, { authenticated: false });
+    }
 }
 
 export function instagramRuleApi(accountId: string): CommentRuleApi {
@@ -82,6 +121,29 @@ export function instagramRuleApi(accountId: string): CommentRuleApi {
             return { rule: result.rule ? fromInstagramRule(result.rule) : undefined, error: result.error };
         },
         remove: (ruleId) => deleteCommentRuleAction(accountId, ruleId),
+    };
+}
+
+export function mercadoLivreRuleApi(accountId: string): CommentRuleApi {
+    return {
+        list: async () => {
+            const result = await listMercadoLivreCommentRulesAction(accountId);
+            return { rules: result.rules.map(fromMercadoLivreRule), error: result.error };
+        },
+        create: async (draft) => {
+            const result = await createMercadoLivreCommentRuleAction(accountId, toMercadoLivreRulePayload(draft));
+            if ('error' in result) return { error: result.error };
+            return { rule: fromMercadoLivreRule(result.rule) };
+        },
+        update: async (ruleId, draft) => {
+            const result = await updateMercadoLivreCommentRuleAction(accountId, ruleId, toMercadoLivreRulePayload(draft));
+            if ('error' in result) return { error: result.error };
+            return { rule: fromMercadoLivreRule(result.rule) };
+        },
+        remove: async (ruleId) => {
+            const result = await deleteMercadoLivreCommentRuleAction(accountId, ruleId);
+            return 'error' in result ? { error: result.error } : {};
+        },
     };
 }
 

@@ -11,7 +11,9 @@ type GroupErrorKey =
   | "categoryTooLong"
   | "restricted"
   | "notGroupAdmin"
-  | "joinNotFound";
+  | "joinNotFound"
+  | "noInviteLink"
+  | "numberAlreadyInGroup";
 
 const MATCHERS: [RegExp, GroupErrorKey][] = [
   [/not a whatsapp group invite link/i, "inviteInvalid"],
@@ -27,6 +29,8 @@ const MATCHERS: [RegExp, GroupErrorKey][] = [
   [/currently restricting/i, "restricted"],
   [/not an admin of this group/i, "notGroupAdmin"],
   [/^join not found$/i, "joinNotFound"],
+  [/no earlier join left an invite link/i, "noInviteLink"],
+  [/number is already in this group/i, "numberAlreadyInGroup"],
 ];
 
 export function groupErrorKey(message: string | undefined): GroupErrorKey | null {

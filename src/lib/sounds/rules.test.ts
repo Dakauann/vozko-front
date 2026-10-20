@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { callSoundCue, dtmfFrequencies, shouldChimeForMessage } from "./rules";
+import { callSoundCue, dtmfFrequencies } from "./rules";
 
 describe("dtmf frequencies", () => {
     it("pairs each key's row and column tone per ITU-T Q.23", () => {
@@ -15,26 +15,6 @@ describe("dtmf frequencies", () => {
     it("has no tone for characters that are not keys", () => {
         expect(dtmfFrequencies("+")).toBeNull();
         expect(dtmfFrequencies("a")).toBeNull();
-    });
-});
-
-describe("message chime", () => {
-    const base = { silent: false, muted: false, entryId: "e1", openEntryId: null, focused: true, lastChimeAt: 0, now: 10_000 };
-
-    it("chimes for a new message", () => {
-        expect(shouldChimeForMessage(base)).toBe(true);
-    });
-
-    it("stays quiet when muted, for silent updates and inside the burst window", () => {
-        expect(shouldChimeForMessage({ ...base, muted: true })).toBe(false);
-        expect(shouldChimeForMessage({ ...base, silent: true })).toBe(false);
-        expect(shouldChimeForMessage({ ...base, lastChimeAt: 9_500 })).toBe(false);
-    });
-
-    it("stays quiet for the conversation already open in a focused tab", () => {
-        expect(shouldChimeForMessage({ ...base, openEntryId: "e1" })).toBe(false);
-        expect(shouldChimeForMessage({ ...base, openEntryId: "e1", focused: false })).toBe(true);
-        expect(shouldChimeForMessage({ ...base, openEntryId: "e2" })).toBe(true);
     });
 });
 

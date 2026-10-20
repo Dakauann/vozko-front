@@ -9,7 +9,9 @@ export type ConversationEntryType =
     | 'facebook'
     | 'telegram'
     | 'unofficial_whatsapp'
-    | 'webchat';
+    | 'webchat'
+    | 'mercadolivre'
+    | 'tiktok';
 
 type VoiceEntryStatus =
     | 'PENDING'

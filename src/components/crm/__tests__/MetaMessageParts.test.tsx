@@ -6,7 +6,6 @@ import ptMessages from "@/i18n/messages/pt.json";
 import {
     LikeSticker,
     PostbackChip,
-    ReactionChip,
     ReferralChip,
     SentViaBadge,
     SharedLinkCard,
@@ -41,11 +40,6 @@ describe("Meta message renderers", () => {
         renderPt(<SharedLinkCard kind="post" title="Promo" />);
         expect(screen.getByText("Promo")).toBeInTheDocument();
         expect(screen.queryByRole("link")).toBeNull();
-    });
-
-    it("shows the reaction emoji on the bubble", () => {
-        renderPt(<ReactionChip emoji="😍" />);
-        expect(screen.getByLabelText("Reação 😍").textContent).toBe("😍");
     });
 
     it("names the ad a conversation came from", () => {

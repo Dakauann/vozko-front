@@ -1,6 +1,7 @@
 import {
   ArrowsClockwise,
   Bell,
+  BellSlash,
   Brain,
   ChartPie,
   ChatCircleDots,
@@ -13,8 +14,8 @@ import {
   Crown,
   CursorClick,
   Desktop,
-  EnvelopeSimple,
   DownloadSimple,
+  EnvelopeSimple,
   FlagCheckered,
   Globe,
   Handshake,
@@ -23,6 +24,7 @@ import {
   Kanban,
   Lightbulb,
   ListBullets,
+  ListNumbers,
   LockKey,
   MapPin,
   Paperclip,
@@ -32,12 +34,18 @@ import {
   Power,
   Queue,
   Robot,
+  Scales,
   ShieldCheck,
+  Shuffle,
+  Sliders,
   Sparkle,
+  SpeakerHigh,
+  Stack,
   User,
   UserCheck,
   UsersThree,
   WhatsappLogo,
+  WifiHigh,
 } from "@/components/icons";
 
 import type { ExplainerArea } from "./types";
@@ -86,6 +94,150 @@ export const settingsExplainers = {
         { at: 0.5, icon: Hourglass, label: "unopened", tone: "warning" },
         { at: 0.9, icon: ArrowsClockwise, label: "next", tone: "accent" },
       ],
+    },
+    steps: 3,
+    footnote: true,
+  },
+  rouletteOnline: {
+    icon: WifiHigh,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: UserCheck, label: "ana", note: "online" },
+        { icon: UserCheck, label: "bruno", note: "online" },
+        { icon: User, label: "carla", note: "offline", tone: "muted" },
+      ],
+      picked: 0,
+    },
+    steps: 3,
+  },
+  rouletteLastSeen: {
+    icon: ClockCounterClockwise,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: UserCheck, label: "ana", note: "now" },
+        { icon: User, label: "bruno", note: "hoursAgo" },
+        { icon: User, label: "carla", note: "daysAgo", tone: "muted" },
+      ],
+      picked: 0,
+    },
+    steps: 3,
+    footnote: true,
+  },
+  rouletteRoundRobin: {
+    icon: ArrowsClockwise,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "last", tone: "muted" },
+        { icon: User, label: "bruno", note: "next" },
+        { icon: User, label: "carla", note: "after" },
+      ],
+      picked: 1,
+    },
+    steps: 3,
+  },
+  roulettePriority: {
+    icon: ListNumbers,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "tierOne" },
+        { icon: User, label: "bruno", note: "tierOne" },
+        { icon: User, label: "carla", note: "tierTwo", tone: "muted" },
+      ],
+      picked: 0,
+    },
+    steps: 4,
+    footnote: true,
+  },
+  rouletteWeighted: {
+    icon: Scales,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "weightThree" },
+        { icon: User, label: "bruno", note: "weightTwo" },
+        { icon: User, label: "carla", note: "weightOne" },
+      ],
+      picked: 0,
+    },
+    steps: 3,
+    footnote: true,
+  },
+  rouletteLeastBusy: {
+    icon: Stack,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "openFour" },
+        { icon: User, label: "bruno", note: "openOne" },
+        { icon: User, label: "carla", note: "openThree" },
+      ],
+      picked: 1,
+    },
+    steps: 3,
+    footnote: true,
+  },
+  rouletteLongestIdle: {
+    icon: Hourglass,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "minutesAgo" },
+        { icon: User, label: "bruno", note: "hoursAgo" },
+        { icon: User, label: "carla", note: "halfHourAgo" },
+      ],
+      picked: 1,
+    },
+    steps: 3,
+  },
+  rouletteRandom: {
+    icon: Shuffle,
+    scene: {
+      kind: "fanout",
+      source: { icon: Shuffle, label: "draw" },
+      targets: [
+        { icon: User, label: "ana" },
+        { icon: User, label: "bruno" },
+        { icon: User, label: "carla", note: "drawn" },
+      ],
+      picked: 2,
+    },
+    steps: 2,
+  },
+  rouletteClaim: {
+    icon: CursorClick,
+    scene: {
+      kind: "flow",
+      nodes: [
+        { icon: ChatCircleDots, label: "conversation" },
+        { icon: UsersThree, label: "team", tone: "muted" },
+        { icon: CursorClick, label: "firstOpens", tone: "accent" },
+      ],
+    },
+    steps: 3,
+    footnote: true,
+  },
+  rouletteCapacity: {
+    icon: Sliders,
+    scene: {
+      kind: "fanout",
+      source: { icon: ChatCircleDots, label: "conversation" },
+      targets: [
+        { icon: User, label: "ana", note: "full", tone: "muted" },
+        { icon: User, label: "bruno", note: "room" },
+        { icon: User, label: "carla", note: "full", tone: "muted" },
+      ],
+      picked: 1,
     },
     steps: 3,
     footnote: true,
@@ -336,6 +488,34 @@ export const settingsExplainers = {
       kind: "compare",
       off: { label: "off", rows: [{ icon: LockKey, label: "newLimit" }, { icon: ListBullets, label: "countKept" }] },
       on: { label: "on", rows: [{ label: "noLimit" }, { label: "countCleared" }] },
+    },
+    steps: 3,
+  },
+  alertSound: {
+    icon: SpeakerHigh,
+    scene: {
+      kind: "compare",
+      off: { label: "off", rows: [{ icon: Bell, label: "silent" }] },
+      on: { label: "on", rows: [{ icon: Bell, label: "alert" }, { icon: SpeakerHigh, label: "sound" }] },
+    },
+    steps: 3,
+  },
+  desktopAlerts: {
+    icon: Desktop,
+    scene: {
+      kind: "compare",
+      off: { label: "off", rows: [{ icon: Bell, label: "insideOnly" }] },
+      on: { label: "on", rows: [{ icon: Bell, label: "inside" }, { icon: Desktop, label: "desktop" }] },
+    },
+    steps: 3,
+    footnote: true,
+  },
+  teamChatMute: {
+    icon: BellSlash,
+    scene: {
+      kind: "compare",
+      off: { label: "off", rows: [{ icon: ChatsCircle, label: "everyMessage" }] },
+      on: { label: "on", rows: [{ icon: ChatsCircle, label: "mentionsOnly" }] },
     },
     steps: 3,
   },

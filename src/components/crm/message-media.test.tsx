@@ -1,4 +1,6 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render as rtlRender } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 const pending = vi.hoisted(() => ({ resolve: (_value: { url: string } | null) => {} }));
@@ -10,7 +12,16 @@ vi.mock("@/app/actions/conversations", () => ({
     }),
 }));
 
+import ptMessages from "@/i18n/messages/pt.json";
 import { MessageMedia } from "./message-media";
+
+function render(ui: ReactElement) {
+  return rtlRender(
+    <NextIntlClientProvider locale="pt" messages={ptMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
 
 const layout = { width: 1600, height: 1200, thumbhash: "1QcSHQRnh493V4dIh4eXh1h4kJUI" };
 

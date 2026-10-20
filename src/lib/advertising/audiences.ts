@@ -1,6 +1,7 @@
 import type { CrmFilter } from "@/lib/crm/board";
 import type { AdDraftTargeting, AdPlacements } from "@/lib/advertising/draft-types";
 import { assignColumn as assignSheetColumn } from "@/lib/csv/column-mapping";
+import { looksLikeEmail } from "@/lib/text/email-shape";
 
 export type AudienceKind = "CUSTOMER_LIST" | "LOOKALIKE" | "WEBSITE" | "ENGAGEMENT" | "OTHER";
 
@@ -222,8 +223,6 @@ export function guessKeyFromHeader(header: string): ColumnMapping {
   return "";
 }
 
-const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function looksLikePhone(value: string): boolean {
   if (!/^[+()\d\s.-]+$/.test(value)) return false;
   const digits = value.replace(/\D/g, "");
@@ -234,7 +233,7 @@ export function guessKeyFromValues(values: string[]): ColumnMapping {
   const filled = values.map((value) => value.trim()).filter(Boolean);
   if (filled.length === 0) return "";
   const share = (test: (value: string) => boolean) => filled.filter(test).length / filled.length;
-  if (share((value) => EMAIL_SHAPE.test(value)) >= 0.5) return "EMAIL";
+  if (share(looksLikeEmail) >= 0.5) return "EMAIL";
   if (share(looksLikePhone) >= 0.5) return "PHONE";
   return "";
 }
@@ -242,7 +241,7 @@ export function guessKeyFromValues(values: string[]): ColumnMapping {
 export function looksLikeHeader(rows: string[][]): boolean {
   const first = rows[0];
   if (!first || first.length === 0) return false;
-  if (first.some((value) => EMAIL_SHAPE.test(value) || looksLikePhone(value))) return false;
+  if (first.some((value) => looksLikeEmail(value) || looksLikePhone(value))) return false;
   if (first.some((value) => guessKeyFromHeader(value) !== "")) return true;
   const rest = rows.slice(1);
   return first.some((value, column) => value !== "" && guessKeyFromValues(rest.map((row) => row[column] ?? "")) !== "");

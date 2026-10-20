@@ -9,7 +9,7 @@ export async function getChecked<T>(path: string, guard: Guard<T>, what: string,
 
 export async function sendChecked<T>(
   path: string,
-  method: "POST" | "PUT",
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
   body: unknown,
   guard: Guard<T>,
   what: string,

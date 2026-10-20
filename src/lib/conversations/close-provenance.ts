@@ -1,4 +1,3 @@
-
 export type CloseSourceCode = "human" | "ai" | "system" | string;
 export type CloseReasonCode =
   | "manual"
@@ -8,14 +7,20 @@ export type CloseReasonCode =
   | "workflow"
   | string;
 
+type KnownProvenanceKind = "max_age" | "workflow" | "silence" | "ai" | "human";
+
+export type CloseProvenanceKind = KnownProvenanceKind | "other";
+
 export type CloseProvenance = {
-  short: string;
-  by: string;
-  reasonLabel: string;
+  kind: CloseProvenanceKind;
   isSilence: boolean;
   source: CloseSourceCode;
   reason: CloseReasonCode;
 };
+
+export type ConversationStatusKey = "new" | "ongoing" | "finished";
+
+export type StatusTranslator = (key: string, values?: Record<string, string>) => string;
 
 export function resolveCloseProvenance(
   closeSource?: string | null,
@@ -31,71 +36,42 @@ export function resolveCloseProvenance(
   if (!source && !reason) return null;
 
   if (reason === "max_age") {
-    return {
-      short: "inatividade",
-      by: "Sistema",
-      reasonLabel: "Inatividade (idade máxima)",
-      isSilence: false,
-      source: source || "system",
-      reason: "max_age",
-    };
+    return { kind: "max_age", isSilence: false, source: source || "system", reason: "max_age" };
   }
   if (reason === "workflow") {
-    return {
-      short: "fluxo",
-      by: "Workflow",
-      reasonLabel: "Finalizada pelo fluxo",
-      isSilence: false,
-      source: source || "system",
-      reason: "workflow",
-    };
+    return { kind: "workflow", isSilence: false, source: source || "system", reason: "workflow" };
   }
   if (source === "system" || reason === "customer_idle") {
-    return {
-      short: "silêncio",
-      by: "Sistema",
-      reasonLabel: "Silêncio do cliente",
-      isSilence: true,
-      source: source || "system",
-      reason: reason || "customer_idle",
-    };
+    return { kind: "silence", isSilence: true, source: source || "system", reason: reason || "customer_idle" };
   }
   if (source === "ai" || reason === "ai_resolved") {
-    return {
-      short: "IA",
-      by: "IA",
-      reasonLabel: "Resolvida pela IA",
-      isSilence: false,
-      source: source || "ai",
-      reason: reason || "ai_resolved",
-    };
+    return { kind: "ai", isSilence: false, source: source || "ai", reason: reason || "ai_resolved" };
   }
   if (source === "human" || reason === "manual") {
-    return {
-      short: "atendente",
-      by: "Atendente",
-      reasonLabel: "Manual",
-      isSilence: false,
-      source: source || "human",
-      reason: reason || "manual",
-    };
+    return { kind: "human", isSilence: false, source: source || "human", reason: reason || "manual" };
   }
-  if (source || reason) {
-    return {
-      short: source || reason,
-      by: source,
-      reasonLabel: reason,
-      isSilence: false,
-      source: source || "",
-      reason: reason || "",
-    };
+  return { kind: "other", isSilence: false, source, reason };
+}
+
+export interface CloseProvenanceText {
+  short: string;
+  by: string;
+  reason: string;
+}
+
+export function closeProvenanceText(provenance: CloseProvenance, t: StatusTranslator): CloseProvenanceText {
+  if (provenance.kind === "other") {
+    return { short: provenance.source || provenance.reason, by: provenance.source, reason: provenance.reason };
   }
-  return null;
+  return {
+    short: t(`provenance.${provenance.kind}.short`),
+    by: t(`provenance.${provenance.kind}.by`),
+    reason: t(`provenance.${provenance.kind}.reason`),
+  };
 }
 
 type ConversationStatusDisplay = {
-  baseLabel: string;
-  label: string;
+  statusKey: ConversationStatusKey;
   dotClassName: string;
   menuAccentClassName: string;
   provenance: CloseProvenance | null;
@@ -114,8 +90,7 @@ export function getConversationStatusDisplay(
   switch (status) {
     case "ongoing":
       return {
-        baseLabel: "Em andamento",
-        label: "Em andamento",
+        statusKey: "ongoing",
         dotClassName: "bg-amber-500",
         menuAccentClassName: "text-amber-700 dark:text-amber-400",
         provenance: null,
@@ -126,10 +101,7 @@ export function getConversationStatusDisplay(
       const isWorkflow = provenance?.reason === "workflow";
       const isAi = provenance?.source === "ai";
       return {
-        baseLabel: "Finalizada",
-        label: provenance
-          ? `Finalizada · ${provenance.short}`
-          : "Finalizada",
+        statusKey: "finished",
         dotClassName: isSilence || isMaxAge
           ? "bg-amber-500"
           : isWorkflow
@@ -149,11 +121,22 @@ export function getConversationStatusDisplay(
     }
     default:
       return {
-        baseLabel: "Nova",
-        label: "Nova",
+        statusKey: "new",
         dotClassName: "bg-primary",
         menuAccentClassName: "text-primary-ink",
         provenance: null,
       };
   }
+}
+
+export interface ConversationStatusText {
+  baseLabel: string;
+  label: string;
+}
+
+export function conversationStatusText(display: ConversationStatusDisplay, t: StatusTranslator): ConversationStatusText {
+  const baseLabel = t(display.statusKey);
+  if (!display.provenance) return { baseLabel, label: baseLabel };
+  const { short } = closeProvenanceText(display.provenance, t);
+  return { baseLabel, label: short ? t("finishedWith", { short }) : baseLabel };
 }

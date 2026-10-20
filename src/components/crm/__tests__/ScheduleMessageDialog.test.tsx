@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import ScheduleMessageDialog from "../ScheduleMessageDialog";
 import type { SchedulingWindow } from "@/lib/scheduled-messages/types";
 import ptMessages from "@/i18n/messages/pt.json";
+import { crmShowing, subscribedConversation } from "@/test/composer-media-limits";
 
 const scheduleAction = vi.fn();
 
@@ -16,6 +17,10 @@ const uploadAction = vi.fn();
 vi.mock("@/app/actions/conversations", () => ({
     uploadConversationMediaAction: (...args: unknown[]) => uploadAction(...args),
 }));
+
+const shown = vi.hoisted(() => ({ crm: null as unknown, toastError: vi.fn() }));
+vi.mock("@/contexts/crm-context", () => ({ useOptionalCrm: () => shown.crm }));
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { error: shown.toastError }) }));
 
 const NOW = new Date("2026-08-12T12:00:00.000Z");
 const HOUR = 60 * 60 * 1000;
@@ -59,6 +64,8 @@ describe("ScheduleMessageDialog", () => {
         vi.setSystemTime(NOW);
         scheduleAction.mockReset();
         uploadAction.mockReset();
+        shown.toastError.mockReset();
+        shown.crm = crmShowing(subscribedConversation("entry-1", "whatsapp"));
         uploadAction.mockResolvedValue({ mediaId: "med-9", mediaUrl: "", filename: "nota.pdf" });
         scheduleAction.mockResolvedValue({
             scheduledMessage: { id: "sched-1" },
@@ -323,6 +330,24 @@ describe("ScheduleMessageDialog", () => {
 
             release({ mediaId: "med-9" });
             await vi.waitFor(() => expect(confirmButton()).not.toBeDisabled());
+        });
+
+        it("refuses a file the channel does not take, without uploading it", () => {
+            shown.crm = crmShowing(subscribedConversation("entry-ml", "mercadolivre"));
+            renderDialog({ entryType: "mercadolivre", entryId: "entry-ml", draft: { text: "", signed: false } });
+            attach(new File(["x"], "video.mp4", { type: "video/mp4" }));
+
+            expect(uploadAction).not.toHaveBeenCalled();
+            expect(shown.toastError).toHaveBeenCalledWith("video.mp4 não foi anexado: este canal aceita apenas JPG, PNG, PDF, TXT.");
+        });
+
+        it("refuses every file while the channel limits are unknown", () => {
+            shown.crm = crmShowing(subscribedConversation("entry-1", "whatsapp", "unknown"));
+            renderDialog({ draft: { text: "", signed: false } });
+            expect(screen.getByRole("button", { name: ptMessages.scheduledMessages.dialog.attach })).toBeDisabled();
+            attach(new File(["x"], "nota.pdf", { type: "application/pdf" }));
+
+            expect(uploadAction).not.toHaveBeenCalled();
         });
 
         it("surfaces an upload failure instead of scheduling a broken message", async () => {

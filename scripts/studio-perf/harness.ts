@@ -36,6 +36,7 @@ export interface HarnessOptions {
   modules?: Record<string, string>;
   worker?: boolean;
   fixtures?: (dir: string) => void;
+  define?: Record<string, string>;
 }
 
 async function bundle(dir: string, options: HarnessOptions): Promise<void> {
@@ -51,7 +52,7 @@ async function bundle(dir: string, options: HarnessOptions): Promise<void> {
     naming: { entry: "page.[ext]" },
     format: "esm",
     target: "browser",
-    define: { "process.env.NODE_ENV": '"production"' },
+    define: { "process.env.NODE_ENV": '"production"', ...options.define },
     external: ["pixi.js", "pixi.js/advanced-blend-modes"],
     plugins: [
       {

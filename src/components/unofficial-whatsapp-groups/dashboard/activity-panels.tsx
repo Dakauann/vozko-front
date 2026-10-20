@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { SENTIMENT_COLOR, Skeleton } from "@/components/audience/shared";
+import { VOZ_SERIES } from "@/components/charts/vozko";
 import { ChartBar, Smiley, Timer } from "@/components/icons";
 import { hasVolume } from "@/components/unofficial-whatsapp-groups/kit/chart-model";
 import { ChartPanel } from "@/components/unofficial-whatsapp-groups/kit/chart-panel";
@@ -170,10 +171,11 @@ export function TopGroupsPanel({
       ) : (
         <RankedList
           numbered
-          emphasis="first"
           empty={{ icon: <ChartBar />, message: t("empty") }}
-          rows={groups.map((group) => ({
+          rows={groups.map((group, index) => ({
             key: group.groupId,
+            color: VOZ_SERIES[index % VOZ_SERIES.length],
+            dot: VOZ_SERIES[index % VOZ_SERIES.length],
             label: groupName(group.subject),
             value: group.count,
             display: tm("messages", { count: group.count, value: fmt.num(group.count) }),

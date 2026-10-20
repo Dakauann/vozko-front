@@ -17,35 +17,11 @@ function render(ui: React.ReactElement) {
   );
 }
 
-vi.mock("framer-motion", () => {
-  const React = require("react");
-  return {
-    motion: new Proxy(
-      {},
-      {
-        get: (_target: unknown, prop: string) =>
-          React.forwardRef(
-            (props: Record<string, unknown>, ref: React.Ref<unknown>) => {
-              const {
-                initial: _initial,
-                animate: _animate,
-                exit: _exit,
-                transition: _transition,
-                whileHover: _whileHover,
-                whileTap: _whileTap,
-                ...rest
-              } = props;
-              return React.createElement(prop, { ...rest, ref });
-            },
-          ),
-      },
-    ),
-    AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
-  };
-});
+vi.mock("framer-motion", async () => ({ ...(await import("@/test/framer-motion-stub")), useReducedMotion: () => false }));
 
 vi.mock("@/app/actions/conversations", () => ({
   getConversationMediaAction: vi.fn().mockResolvedValue({ url: "" }),
+  listConversationToolCallsAction: vi.fn().mockResolvedValue({ page: { calls: [], page: 1, totalPages: 1 } }),
 }));
 
 vi.mock("@/app/actions/agents", () => ({
@@ -78,6 +54,14 @@ vi.mock("@/components/crm/ConversationAnalysisPanel", () => ({
   default: () => null,
 }));
 
+vi.mock("@/hooks/use-in-view", () => ({
+  useInView: () => [() => undefined, true],
+}));
+
+vi.mock("@/components/maps/MiniMap", () => ({
+  MiniMap: (props: { ariaLabel?: string }) => <div role="img" aria-label={props.ariaLabel} />,
+}));
+
 vi.mock("@/components/crm/TemplateBubble", () => ({
   default: ({ metadata }: { metadata: unknown }) => (
     <div data-testid="template-bubble">{JSON.stringify(metadata)}</div>
@@ -86,6 +70,10 @@ vi.mock("@/components/crm/TemplateBubble", () => ({
 
 vi.mock("@/components/ui/tooltip-wrapper", () => ({
   default: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+vi.mock("@/components/mercadolivre/mercadolivre-sale-summary", () => ({
+  MercadoLivreSaleSummary: ({ entryId }: { entryId: string }) => <div data-testid="sale-summary">{entryId}</div>,
 }));
 
 
@@ -158,6 +146,17 @@ describe("CrmConversationView rendering", () => {
     expect(screen.getByRole("img", { name: t.mapLabel })).toBeInTheDocument();
     expect(screen.getByText(t.caption.replace("{place}", "Casa, R. das Acácias"))).toBeInTheDocument();
     expect(screen.queryByText(/-23.511300/)).toBeNull();
+  });
+
+  it("heads a Mercado Livre conversation with its sale summary", () => {
+    const conv = makeConversation({ entry_id: "ml-1", entry_type: "mercadolivre", messages: [] });
+    render(<CrmConversationView conversation={conv} isTyping={false} translations={defaultTranslations as never} />);
+    expect(screen.getByTestId("sale-summary")).toHaveTextContent("ml-1");
+  });
+
+  it("shows no sale summary on other channels", () => {
+    render(<CrmConversationView conversation={makeConversation({ messages: [] })} isTyping={false} translations={defaultTranslations as never} />);
+    expect(screen.queryByTestId("sale-summary")).toBeNull();
   });
 
   it("shows empty state when no conversation", () => {
@@ -276,14 +275,14 @@ describe("CrmConversationView rendering", () => {
         translations={defaultTranslations as never}
       />,
     );
-    expect(await screen.findByText("Ação do agente")).toBeInTheDocument();
+    const call = await screen.findByText("Gerenciar Etapa atual do Lead");
     expect(
-      await screen.findByText("Gerenciar Etapa atual do Lead"),
+      screen.getByText(ptMessages.crmConversation.thread.tool.resultTitle),
     ).toBeInTheDocument();
+
+    fireEvent.click(call);
+
     expect(screen.getByText("Etapa Destino: prospectando")).toBeInTheDocument();
-    expect(
-      screen.getByText("Resultado: Gerenciar Etapa atual do Lead"),
-    ).toBeInTheDocument();
   });
 
   it("renders multiple messages grouped by date", () => {
@@ -450,7 +449,7 @@ describe("CrmConversationView rendering", () => {
         translations={defaultTranslations as never}
       />,
     );
-    expect(screen.getByText("Original message")).toBeInTheDocument();
+    expect(screen.getAllByText("Original message")).toHaveLength(2);
     expect(screen.getByText("Reply text")).toBeInTheDocument();
   });
 
@@ -540,7 +539,7 @@ describe("CrmConversationView stage selector", () => {
       onEntryStageChange,
     });
 
-    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    fireEvent.click(screen.getByTitle(/Mover para outra etapa|Etapas/i));
 
     expect(screen.getByText("triagem")).toBeInTheDocument();
     expect(screen.getByText("resolvido")).toBeInTheDocument();
@@ -555,7 +554,7 @@ describe("CrmConversationView stage selector", () => {
       onEntryStageChange: vi.fn(),
     });
 
-    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    fireEvent.click(screen.getByTitle(/Mover para outra etapa|Etapas/i));
     expect(screen.getByText("recebido")).toBeInTheDocument();
   });
 
@@ -569,7 +568,7 @@ describe("CrmConversationView stage selector", () => {
       onAssignStage,
     });
 
-    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    fireEvent.click(screen.getByTitle(/Mover para outra etapa|Etapas/i));
     fireEvent.click(screen.getByText("resolvido"));
 
     expect(onEntryStageChange).toHaveBeenCalledWith(
@@ -589,7 +588,7 @@ describe("CrmConversationView stage selector", () => {
       onEntryStageChange,
     });
 
-    fireEvent.click(screen.getByTitle(/Mover para outra tag|Etapas/i));
+    fireEvent.click(screen.getByTitle(/Mover para outra etapa|Etapas/i));
     expect(screen.getByText("atual")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("triagem"));
@@ -598,6 +597,51 @@ describe("CrmConversationView stage selector", () => {
 
   it("hides the selector entirely when there is no funnel to offer", () => {
     renderWithStages({ tags: [], entryAvailableTags: [], onEntryStageChange: vi.fn() });
-    expect(screen.queryByTitle(/Mover para outra tag|Etapas/i)).toBeNull();
+    expect(screen.queryByTitle(/Mover para outra etapa|Etapas/i)).toBeNull();
+  });
+});
+
+describe("CrmConversationView jumps to a message", () => {
+  const scrolled: string[] = [];
+
+  function trackScrolls() {
+    scrolled.length = 0;
+    Element.prototype.scrollIntoView = function scrollIntoView(this: Element) {
+      const id = this.getAttribute("data-msg-id");
+      if (id) scrolled.push(id);
+    };
+  }
+
+  const thread = () =>
+    makeConversation({
+      messages: [
+        makeMsg({ id: "msg-1", text: "Original message" }),
+        makeMsg({ id: "msg-2", text: "Reply text", reply_to_message_id: "msg-1", message_type: "operator" }),
+      ],
+    });
+
+  it("scrolls to the original when its quote is clicked", async () => {
+    trackScrolls();
+    render(<CrmConversationView conversation={thread()} isTyping={false} translations={defaultTranslations as never} />);
+    const quote = screen.getAllByText("Original message").map((node) => node.closest("button")).find(Boolean);
+    fireEvent.click(quote!);
+    await vi.waitFor(() => expect(scrolled).toContain("msg-1"));
+  });
+
+  it("scrolls to the current search match once the search opens", async () => {
+    trackScrolls();
+    const conversation = thread();
+    render(
+      <CrmConversationView
+        conversation={conversation}
+        isTyping={false}
+        translations={defaultTranslations as never}
+        onSearchMessages={vi.fn()}
+        messageSearchResults={[conversation.messages[1]]}
+      />,
+    );
+    expect(scrolled).not.toContain("msg-2");
+    fireEvent.click(screen.getByLabelText("Buscar mensagens"));
+    await vi.waitFor(() => expect(scrolled).toContain("msg-2"));
   });
 });

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 
-import { isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
 import { wheelViewport, type Point, type Viewport } from "@/lib/studio/viewport";
 
 interface ViewportGestureOptions {

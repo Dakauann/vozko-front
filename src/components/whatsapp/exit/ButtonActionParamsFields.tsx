@@ -8,9 +8,12 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import type { ButtonActionKind, ButtonActionParams } from "@/lib/whatsapp-templates/exit";
 
 import {
+  AGENT_PREFIX,
+  FLOW_PREFIX,
   MEMBER_PREFIX,
   TEAM_PREFIX,
   useCallListOptions,
+  useDelegateOptions,
   useDealPipelineOptions,
   useDealStageOptions,
   useHandOffOptions,
@@ -90,6 +93,32 @@ function HandOffField({ params, onChange }: { params: ButtonActionParams; onChan
   return <ParamPicker label={t("handOff")} choices={described} value={handOffValue(params)} onPick={(value) => onChange(handOffParams(value))} />;
 }
 
+function delegateValue(params: ButtonActionParams): string {
+  if (params.agentId) return `${AGENT_PREFIX}${params.agentId}`;
+  if (params.workflowId) return `${FLOW_PREFIX}${params.workflowId}`;
+  return "";
+}
+
+function delegateParams(value: string): ButtonActionParams {
+  if (value.startsWith(AGENT_PREFIX)) return { agentId: value.slice(AGENT_PREFIX.length) };
+  return { workflowId: value.slice(FLOW_PREFIX.length) };
+}
+
+function DelegateField({ params, onChange }: { params: ButtonActionParams; onChange: ParamsChange }) {
+  const t = useTranslations("templateExit.params");
+  const choices = useDelegateOptions(true);
+  const described = {
+    ...choices,
+    options: choices.options.map((option) => ({ ...option, description: option.value.startsWith(AGENT_PREFIX) ? t("agent") : t("workflow") })),
+  };
+  return (
+    <div className="space-y-1">
+      <ParamPicker label={t("delegate")} choices={described} value={delegateValue(params)} onPick={(value) => onChange(delegateParams(value))} />
+      <p className="text-xs text-muted-foreground">{t("delegateHint")}</p>
+    </div>
+  );
+}
+
 function WorkflowField({ params, onChange }: { params: ButtonActionParams; onChange: ParamsChange }) {
   const t = useTranslations("templateExit.params");
   return <ParamPicker label={t("workflow")} choices={useWorkflowOptions(true)} value={params.workflowId ?? ""} onPick={(workflowId) => onChange({ workflowId })} />;
@@ -145,6 +174,8 @@ export function ButtonActionParamsFields({ kind, params, onChange }: { kind: But
       return <PurposeField params={params} onChange={onChange} />;
     case "hand_off":
       return <HandOffField params={params} onChange={onChange} />;
+    case "delegate":
+      return <DelegateField params={params} onChange={onChange} />;
     case "start_workflow":
       return <WorkflowField params={params} onChange={onChange} />;
     case "call_list":

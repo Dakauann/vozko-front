@@ -41,6 +41,28 @@ describe("channel filter table", () => {
         expect(entryTypeFor("webchat")).toBe("webchat");
     });
 
+    it("offers Mercado Livre behind the Mercado Livre accounts read permission", () => {
+        expect(channelFilterSpec("mercadolivre")).toEqual({
+            value: "mercadolivre",
+            kind: "entry",
+            labelKey: "filterMercadoLivre",
+            permission: { resource: "mercadolivre_accounts", action: "read" },
+        });
+        expect(entryTypeFor("mercadolivre")).toBe("mercadolivre");
+        expect(campaignTypeFor("mercadolivre")).toBeUndefined();
+    });
+
+    it("offers TikTok behind the TikTok accounts read permission", () => {
+        expect(channelFilterSpec("tiktok")).toEqual({
+            value: "tiktok",
+            kind: "entry",
+            labelKey: "filterTiktok",
+            permission: { resource: "tiktok_accounts", action: "read" },
+        });
+        expect(entryTypeFor("tiktok")).toBe("tiktok");
+        expect(campaignTypeFor("tiktok")).toBeUndefined();
+    });
+
     it("keeps the two WhatsApp transports as distinct filters", () => {
         const values = CHANNEL_FILTERS.map((spec) => spec.value);
         expect(values).toContain("whatsapp");
@@ -100,6 +122,7 @@ describe("narrowing", () => {
             "telegram",
             "unofficial_whatsapp",
             "webchat",
+            "mercadolivre",
         ];
         for (const filter of all) {
             const both =

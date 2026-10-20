@@ -19,6 +19,8 @@ import { CallSoundsHost } from "@/components/calls/call-sounds-host";
 import { CallSessionProvider } from "@/contexts/call-session-context";
 import { DialerDock } from "@/components/dialer/dialer-dock";
 import { AssistantDock } from "@/components/ai-chat/assistant-dock";
+import { AttentionHost } from "@/components/attention/attention-host";
+import { TeamChatDock } from "@/components/team-chat/team-chat-dock";
 import { StudioProjectCommandsHost } from "@/components/ai-chat/studio-project-commands";
 import { RouteGate } from "@/components/access/route-gate";
 import type { ReactNode } from "react";
@@ -69,7 +71,7 @@ export default function DashboardLayout({
               </Suspense>
 
               <DashboardMainContent className="pt-[var(--dashboard-header-h)]">
-                <DashboardCrmWrapper>
+                <DashboardCrmWrapper>
                   <CallSessionProvider>
                     <div className="p-3 sm:p-6">
                       <RouteGate>{children}</RouteGate>
@@ -78,6 +80,8 @@ export default function DashboardLayout({
                     <IncomingCallHost />
                     <CallSoundsHost />
                     <AssistantDock />
+                    <TeamChatDock />
+                    <AttentionHost />
                     <StudioProjectCommandsHost />
                     <DialerDock />
                   </CallSessionProvider>

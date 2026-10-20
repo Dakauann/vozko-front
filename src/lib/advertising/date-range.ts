@@ -1,5 +1,7 @@
 import type { AdRange, AdReportPreset } from "@/lib/advertising/types";
 
+export { relativeSince } from "@/lib/format/relative-since";
+
 export type RangePreset = AdReportPreset;
 
 export const RANGE_PRESETS: RangePreset[] = [
@@ -143,6 +145,13 @@ export function resolveRange(preset: RangePreset, custom: AdRange, today: string
   return validRange(custom) && inside ? custom : null;
 }
 
+export function rangeWithinMaximum(custom: AdRange, today: string): AdRange | null {
+  const earliest = earliestDay(today);
+  if (!validRange(custom) || custom.until > today) return null;
+  if (custom.since >= earliest || custom.until < earliest) return null;
+  return { since: earliest, until: custom.until };
+}
+
 export function previousRange(range: AdRange): AdRange | null {
   if (!validRange(range)) return null;
   const days = Math.round((fromDay(range.until).getTime() - fromDay(range.since).getTime()) / DAY_MS) + 1;
@@ -185,28 +194,6 @@ export function zonedDayStart(day: string, timezone: string): string | null {
   } catch {
     return null;
   }
-}
-
-const RELATIVE_STEPS: [Intl.RelativeTimeFormatUnit, number][] = [
-  ["second", 60],
-  ["minute", 60],
-  ["hour", 24],
-  ["day", 30],
-  ["month", 12],
-  ["year", Number.POSITIVE_INFINITY],
-];
-
-export function relativeSince(iso: string | undefined, now: Date, locale: string): string | null {
-  if (!iso) return null;
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return null;
-  let amount = Math.max(0, Math.round((now.getTime() - then) / 1000));
-  const format = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-  for (const [unit, size] of RELATIVE_STEPS) {
-    if (amount < size) return format.format(-amount, unit);
-    amount = Math.floor(amount / size);
-  }
-  return null;
 }
 
 export function dayToLocalDate(day: string): Date | null {

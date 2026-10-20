@@ -1,3 +1,4 @@
+import { inboxEntryKey } from "./inbox-hold";
 import type { InboxEntry } from "./types";
 
 type EntryPatch = (entry: InboxEntry) => InboxEntry;
@@ -24,4 +25,18 @@ export function patchColumns<C extends { entries?: InboxEntry[] }>(
     next.set(stageId, { ...column, entries: patchEntries(column.entries, entryId, entryType, patch) });
   }
   return changed ? next : columns;
+}
+
+export function clearUnreadCounts(
+  entries: InboxEntry[],
+  read: readonly Pick<InboxEntry, "entry_id" | "entry_type">[],
+): InboxEntry[] {
+  const keys = new Set(read.map(inboxEntryKey));
+  let changed = false;
+  const next = entries.map((entry) => {
+    if (entry.unread_count === 0 || !keys.has(inboxEntryKey(entry))) return entry;
+    changed = true;
+    return { ...entry, unread_count: 0 };
+  });
+  return changed ? next : entries;
 }

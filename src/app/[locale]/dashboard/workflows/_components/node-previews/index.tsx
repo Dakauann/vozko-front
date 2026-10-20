@@ -8,7 +8,6 @@ import { SendEmailPreview } from "./send-email-preview";
 import { SendTemplatePreview } from "./send-template-preview";
 import { SendMediaPreview } from "./send-media-preview";
 
-export { MediaNodePreview } from "./media-node-preview";
 export { renderConditionContentPreview } from "./conditions";
 export { renderActionContentPreview } from "./actions";
 
@@ -28,4 +27,12 @@ export function renderMessageContentPreview(
     default:
       return undefined;
   }
+}
+
+export function renderMessageGlance(
+  nodeType: WorkflowNodeType,
+  config: Record<string, unknown>,
+): ReactNode | undefined {
+  if (nodeType !== "action_send_media") return undefined;
+  return <SendMediaPreview config={config} detail="glance" />;
 }

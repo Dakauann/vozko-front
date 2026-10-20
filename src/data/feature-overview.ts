@@ -1,5 +1,5 @@
 import type { Icon } from "@/components/icons";
-import { Brain, Phone, Monitor, Clock, Gear, WhatsappLogo, PaperPlaneTilt, ChatCircle, Megaphone, Users, FileText, Lightning, Plugs, PhoneCall, CalendarBlank, Shield, Buildings, GitBranch, ArrowsClockwise } from "@/components/icons";
+import { Brain, Phone, Monitor, Clock, Gear, WhatsappLogo, PaperPlaneTilt, ChatCircle, Megaphone, Users, FileText, Lightning, Plugs, CalendarBlank, Shield, Buildings, GitBranch, ArrowsClockwise } from "@/components/icons";
 import type { ColorGroup } from "@/components/elevated-design/grain-background";
 
 interface FeatureOverviewConfig {
@@ -43,39 +43,6 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     seed: 77,
   },
 
-  campaigns: {
-    features: [
-      { icon: PhoneCall, textKey: "campaigns.features.0" },
-      { icon: Brain, textKey: "campaigns.features.1" },
-      { icon: Lightning, textKey: "campaigns.features.2" },
-      { icon: Monitor, textKey: "campaigns.features.3" },
-      { icon: Buildings, textKey: "campaigns.features.4" },
-    ],
-    palette: [
-      { colors: ["#10b981", "#059669"], weight: 40 },
-      { colors: ["#14b8a6", "#0d9488"], weight: 30 },
-      { colors: ["#047857", "#065f46"], weight: 20 },
-      { colors: ["#6ee7b7", "#a7f3d0"], weight: 10 },
-    ],
-    seed: 55,
-  },
-
-  campaignsReceptive: {
-    features: [
-      { icon: PhoneCall, textKey: "campaignsReceptive.features.0" },
-      { icon: Brain, textKey: "campaignsReceptive.features.1" },
-      { icon: GitBranch, textKey: "campaignsReceptive.features.2" },
-      { icon: Buildings, textKey: "campaignsReceptive.features.3" },
-    ],
-    palette: [
-      { colors: ["#3b82f6", "#2563eb"], weight: 40 },
-      { colors: ["#1d4ed8", "#1e40af"], weight: 30 },
-      { colors: ["#60a5fa", "#93c5fd"], weight: 20 },
-      { colors: ["#bfdbfe", "#dbeafe"], weight: 10 },
-    ],
-    seed: 56,
-  },
-
   workflows: {
     features: [
       { icon: GitBranch, textKey: "workflows.features.0" },
@@ -97,9 +64,8 @@ export const featureConfigs: Record<string, FeatureOverviewConfig> = {
     features: [
       { icon: ChatCircle, textKey: "liveChat.features.0" },
       { icon: ArrowsClockwise, textKey: "liveChat.features.1" },
-      { icon: PhoneCall, textKey: "liveChat.features.2" },
-      { icon: Brain, textKey: "liveChat.features.3" },
-      { icon: Monitor, textKey: "liveChat.features.4" },
+      { icon: Brain, textKey: "liveChat.features.2" },
+      { icon: Monitor, textKey: "liveChat.features.3" },
     ],
     palette: [
       { colors: ["#3b82f6", "#2563eb"], weight: 35 },

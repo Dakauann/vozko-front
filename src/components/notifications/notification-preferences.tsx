@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { AttentionControls } from "@/components/attention/attention-controls";
 import { ScreenLoader } from "@/components/brand/screen-loader";
 import { SectionError } from "@/components/dashboard/attendance/primitives";
 import { ElevatedPillToggle } from "@/components/elevated-design/elevated-pill-toggle";
@@ -113,6 +114,10 @@ export function NotificationPreferencesView({ onBack }: { onBack: () => void }) 
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <section aria-label={t("preferences.deviceLegend")} className="space-y-2 border-b border-border px-4 py-3">
+          <p className="legend">{t("preferences.deviceLegend")}</p>
+          <AttentionControls />
+        </section>
         <div className="space-y-3 px-4 pb-2 pt-3">
           <p className="text-xs leading-relaxed text-muted-foreground">{t("preferences.description")}</p>
           <Notice tone="info">

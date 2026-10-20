@@ -8,6 +8,7 @@ import { getGroupsDashboardAction } from "@/app/actions/unofficial-whatsapp-grou
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Button from "@/components/elevated-design/button";
 import { ArrowClockwise, ChartBar, Lightbulb, MagnifyingGlass, Plus, SignIn, UsersFour, UsersThree } from "@/components/icons";
+import { GLYPH_PLATE } from "@/components/icons/glyph-plates";
 import { Notice } from "@/components/ui/notice";
 import {
   ResponsePanel,
@@ -173,6 +174,7 @@ function DashboardBody({ dashboard, refreshKey }: { dashboard: GroupsDashboard |
       <GroupsChapter
         id="groups-activity"
         icon={<ChartBar className="h-4 w-4" weight="fill" />}
+        plate={GLYPH_PLATE.ChartBar}
         title={t("activity")}
         subtitle={t("activitySub")}
         meta={timezone ? <WindowLabel days={SHORT_WINDOW_DAYS} timezone={timezone} /> : null}
@@ -201,6 +203,7 @@ function DashboardBody({ dashboard, refreshKey }: { dashboard: GroupsDashboard |
       <GroupsChapter
         id="groups-members"
         icon={<UsersThree className="h-4 w-4" weight="fill" />}
+        plate={GLYPH_PLATE.UsersThree}
         title={t("members")}
         subtitle={t("membersSub")}
         meta={timezone ? <WindowLabel days={LONG_WINDOW_DAYS} timezone={timezone} /> : null}
@@ -213,7 +216,11 @@ function DashboardBody({ dashboard, refreshKey }: { dashboard: GroupsDashboard |
       </GroupsChapter>
 
       <div id={INSIGHTS_ANCHOR} className="scroll-mt-16">
-        <GroupsChapter id="groups-insights" icon={<Lightbulb className="h-4 w-4" weight="fill" />} title={t("intelligence")} subtitle={t("intelligenceSub")}>
+        <GroupsChapter
+          id="groups-insights"
+          icon={<Lightbulb className="h-4 w-4" weight="fill" />}
+          plate={GLYPH_PLATE.Lightbulb}
+          title={t("intelligence")} subtitle={t("intelligenceSub")}>
           <div className={cn(ROW, "items-start")}>
             <InsightsPanel
               insights={d?.insights ?? []}
@@ -231,6 +238,7 @@ function DashboardBody({ dashboard, refreshKey }: { dashboard: GroupsDashboard |
       <GroupsChapter
         id="groups-people"
         icon={<UsersFour className="h-4 w-4" weight="fill" />}
+        plate="tile-4"
         title={t("peopleCategories")}
         subtitle={t("peopleCategoriesSub")}
       >

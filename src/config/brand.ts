@@ -1,3 +1,4 @@
+import { parseBrandGender, type BrandGender } from "@/lib/branding/brand-phrases";
 
 interface Brand {
   key: string;
@@ -12,6 +13,7 @@ interface Brand {
   phone: string;
   aiName: string;
   aiAliasPrefix: string;
+  gender: BrandGender;
   logo: {
     mark: string;
     markWhite: string;
@@ -35,6 +37,7 @@ const RAW = {
   logoMark: process.env.NEXT_PUBLIC_BRAND_LOGO_URL,
   logoMarkWhite: process.env.NEXT_PUBLIC_BRAND_LOGO_WHITE_URL,
   favicon: process.env.NEXT_PUBLIC_BRAND_FAVICON_URL,
+  gender: process.env.NEXT_PUBLIC_BRAND_GENDER,
 } as const;
 
 let cached: Brand | null = null;
@@ -56,6 +59,7 @@ export function getBrand(): Brand {
     NEXT_PUBLIC_BRAND_LOGO_URL: RAW.logoMark,
     NEXT_PUBLIC_BRAND_LOGO_WHITE_URL: RAW.logoMarkWhite,
     NEXT_PUBLIC_BRAND_FAVICON_URL: RAW.favicon,
+    NEXT_PUBLIC_BRAND_GENDER: RAW.gender,
   };
 
   const missing = Object.entries(required)
@@ -67,6 +71,11 @@ export function getBrand(): Brand {
       `Brand config missing required env var(s): ${missing.join(", ")}. ` +
         "The codebase ships no default brand; set all NEXT_PUBLIC_BRAND_* at build time.",
     );
+  }
+
+  const gender = parseBrandGender(RAW.gender);
+  if (!gender) {
+    throw new Error(`NEXT_PUBLIC_BRAND_GENDER must be feminine or masculine, got "${RAW.gender}".`);
   }
 
   cached = {
@@ -82,6 +91,7 @@ export function getBrand(): Brand {
     phone: RAW.phone!,
     aiName: RAW.aiName!,
     aiAliasPrefix: RAW.aiAliasPrefix!,
+    gender,
     logo: {
       mark: RAW.logoMark!,
       markWhite: RAW.logoMarkWhite!,

@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORY_STYLES, ICON_MAP } from "./workflow-node";
+import { CATEGORY_STYLES, nodeIconOf } from "./workflow-node";
 import {
   CaretLeft,
   CaretRight,
@@ -157,7 +157,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
           className="flex flex-1 flex-col items-center gap-1.5 overflow-y-auto py-2"
         >
           {railCategories.map(({ category, icon }) => {
-            const IconComp = icon ? ICON_MAP[icon] : null;
+            const IconComp = nodeIconOf(icon);
             const styles = CATEGORY_STYLES[category];
             return (
               <button
@@ -214,7 +214,7 @@ export function NodePalette({ definitions }: NodePaletteProps) {
                   </p>
                   <div className="space-y-2">
                     {items.map((def) => {
-                      const IconComp = ICON_MAP[def.icon];
+                      const IconComp = nodeIconOf(def.icon);
                       return (
                         <div
                           key={def.type}

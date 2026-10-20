@@ -4,6 +4,7 @@ import {
     PRIVATE_REPLY_WINDOW_MS,
     fromFacebookComment,
     fromInstagramComment,
+    fromMercadoLivreQuestion,
     privateReplyError,
     privateReplyOpen,
     threadFacebookComments,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/social/comments";
 import type { FacebookComment } from "@/lib/facebook/types";
 import type { InstagramComment } from "@/lib/instagram/types";
+import type { MercadoLivreQuestion } from "@/lib/mercadolivre/types";
 
 const NOW = new Date("2026-10-01T12:00:00Z").getTime();
 
@@ -178,5 +180,55 @@ describe("threadFacebookComments", () => {
     it("keeps a reply whose parent is on another page visible at the top", () => {
         const threaded = threadFacebookComments([fbComment({ id: "c-9", parentId: "elsewhere" })], permissions);
         expect(threaded.map((c) => c.id)).toEqual(["c-9"]);
+    });
+});
+
+describe("fromMercadoLivreQuestion", () => {
+    const question: MercadoLivreQuestion = {
+        id: "row-1",
+        accountId: "acc-1",
+        itemId: "MLB1",
+        questionId: "987",
+        text: "Tem em azul?",
+        status: "UNANSWERED",
+        askedAt: "2026-10-19T10:00:00Z",
+        suspectedSpam: false,
+        asker: { contactId: "c-1", mlUserId: "555", nickname: "COMPRADOR_1" },
+    };
+
+    it("answers and deletes by the Mercado Livre question id, with nothing Instagram or Facebook only", () => {
+        expect(fromMercadoLivreQuestion(question, { canAnswer: true, canModerate: true })).toEqual({
+            id: "987",
+            author: "COMPRADOR_1",
+            text: "Tem em azul?",
+            createdAt: "2026-10-19T10:00:00Z",
+            likeCount: 0,
+            hidden: false,
+            isOurs: false,
+            likedByPage: false,
+            canHide: false,
+            canRemove: true,
+            canReply: true,
+            canReplyPrivately: false,
+            canLike: false,
+            canEdit: false,
+            replies: [],
+        });
+    });
+
+    it("takes no second answer once the question left the unanswered state", () => {
+        for (const status of ["ANSWERED", "CLOSED_UNANSWERED", "UNDER_REVIEW", "BANNED", "SOMETHING_NEW"]) {
+            expect(fromMercadoLivreQuestion({ ...question, status }, { canAnswer: true, canModerate: true }).canReply).toBe(false);
+        }
+    });
+
+    it("grants nothing the account or the person may not do", () => {
+        const mapped = fromMercadoLivreQuestion(question, { canAnswer: false, canModerate: false });
+        expect(mapped.canReply).toBe(false);
+        expect(mapped.canRemove).toBe(false);
+    });
+
+    it("keeps an asker without a nickname anonymous", () => {
+        expect(fromMercadoLivreQuestion({ ...question, asker: undefined }, { canAnswer: true, canModerate: true }).author).toBeNull();
     });
 });

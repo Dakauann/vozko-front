@@ -2,7 +2,7 @@
 
 import { pasteRoute } from "@/lib/studio/clip-clipboard";
 import { imageFilesFrom } from "@/lib/studio/clipboard-files";
-import { isEditableTarget } from "@/lib/studio/keymap";
+import { isEditableTarget } from "@/lib/keyboard/stroke";
 
 import type { EditorCommands } from "./editor-commands";
 

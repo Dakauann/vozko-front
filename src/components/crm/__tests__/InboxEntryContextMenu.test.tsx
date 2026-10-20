@@ -100,6 +100,20 @@ describe("InboxEntryContextMenu", () => {
     expect(actions.onOpen).toHaveBeenCalled();
   });
 
+  it("starts selecting with this row from Selecionar, only where the list can select", async () => {
+    const onSelectRow = vi.fn();
+    renderMenu({ onSelectRow });
+    await openMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: copy.select }));
+    expect(onSelectRow).toHaveBeenCalled();
+  });
+
+  it("leaves Selecionar out where the list cannot select", async () => {
+    renderMenu();
+    await openMenu();
+    expect(screen.queryByRole("menuitem", { name: copy.select })).not.toBeInTheDocument();
+  });
+
   it("opens from the visible button too, so the menu is discoverable without right click", async () => {
     renderMenu();
     fireEvent.click(screen.getByRole("button", { name: copy.more }));
@@ -180,6 +194,46 @@ describe("InboxEntryContextMenu", () => {
 
     expect(screen.queryByRole("menuitem", { name: copy.copyContact })).not.toBeInTheDocument();
     expect(portfolio.conversationHoldingAction).not.toHaveBeenCalled();
+  });
+
+  describe("personal marks", () => {
+    const personalCopy = pt.crmInbox.menu;
+
+    function personal(overrides: Partial<NonNullable<InboxEntryMenuActions["personal"]>> = {}): NonNullable<InboxEntryMenuActions["personal"]> {
+      return {
+        pinned: false,
+        canMarkUnread: true,
+        onTogglePin: vi.fn(),
+        onMarkUnread: vi.fn(),
+        ...overrides,
+      };
+    }
+
+    it("pins and marks unread", async () => {
+      const marks = personal();
+      renderMenu({ personal: marks });
+      await openMenu();
+
+      fireEvent.click(screen.getByRole("menuitem", { name: personalCopy.pin }));
+      expect(marks.onTogglePin).toHaveBeenCalled();
+      await openMenu();
+      fireEvent.click(screen.getByRole("menuitem", { name: personalCopy.markUnread }));
+      expect(marks.onMarkUnread).toHaveBeenCalled();
+    });
+
+    it("unpins a pinned conversation", async () => {
+      const marks = personal({ pinned: true });
+      renderMenu({ personal: marks });
+      await openMenu();
+      fireEvent.click(screen.getByRole("menuitem", { name: personalCopy.unpin }));
+      expect(marks.onTogglePin).toHaveBeenCalled();
+    });
+
+    it("does not offer marking unread a row already marked unread", async () => {
+      renderMenu({ personal: personal({ canMarkUnread: false }) });
+      await openMenu();
+      expect(screen.queryByRole("menuitem", { name: personalCopy.markUnread })).not.toBeInTheDocument();
+    });
   });
 
   it("copies the contact in the readable format", async () => {

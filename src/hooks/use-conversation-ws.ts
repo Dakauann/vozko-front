@@ -8,20 +8,69 @@ import type {
   ConnectionStatus,
   ConversationMessage,
   EntryType,
+  HistoryDirection,
   InboxEntry,
   MediaType,
-  MessageChannel,
   ViewMode,
   WhatsAppCampaignTypeFilter,
   WsAnalysisUpdatePayload,
+  WsHistoryPayload,
   WsSearchInboxPayload,
   WsServerEvent,
   PendingOutcomeRequest,
 } from "@/lib/conversations/types";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { messageMedia } from "@/lib/conversations/message-media";
-import { messageLocation } from "@/lib/conversations/message-location";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { normalizeWireMessage } from "@/lib/conversations/message-wire";
+import { isEntryType } from "@/lib/conversations/deep-link";
+import { mergeWindowClosed, readWindowClosed } from "@/lib/conversations/window-closed";
+import {
+  applyHistoryPage,
+  applyLiveMessage,
+  applyMessageUpdate,
+  newestMessageAt,
+  type HistoryPage,
+  type ThreadMessages,
+} from "@/lib/conversations/thread-merge";
+import {
+  emptyOutbox,
+  enqueueSend,
+  failSend,
+  outboxCommand,
+  replayableSends,
+  resendingMessageIds,
+  retrySend as retryOutboxSend,
+  settleDelivered,
+  settleSend,
+  type Outbox,
+  type OutboxItem,
+  type OutboxPayload,
+  type SendButtonWsInput,
+} from "@/lib/conversations/outbox";
+import {
+  loadAfterPayload,
+  loadAroundPayload,
+  presentPayload,
+  type HistoryAnchor,
+} from "@/lib/conversations/history-anchor";
+import {
+  forgetHistoryRequests,
+  hasHistoryRequest,
+  noHistoryRequests,
+  requestHistory,
+  routeHistoryPage,
+  type HistoryHolder,
+  type HistoryRequests,
+} from "@/lib/conversations/history-routing";
+import {
+  emptyThreadCache,
+  holdsThread,
+  recallThread,
+  rememberThread,
+  type CachedThread,
+  type ThreadCache,
+} from "@/lib/conversations/thread-cache";
 import { adOriginOf } from "@/lib/conversations/ad-origin";
+import { applyWindowReopened } from "@/lib/conversations/window-reopen";
 
 import { hasUserDataCookie } from "@/lib/auth/client-cookies";
 import { resolveAutomationEnabled } from "@/lib/conversations/automation";
@@ -29,19 +78,42 @@ import {
   applyWindowEvent,
   closeWindowConversation,
   clearWindowLoading,
+  clearWindowSearch,
   emptyWindowConversations,
   incomingUnreadIds,
-  markWindowLoadingMore,
+  markWindowLoadingHistory,
   openWindowConversation,
   patchWindowLead,
   setWindowVisibility,
+  settleWindowHistory,
+  startWindowSearch,
   unreadIdsIn,
   type OpenWindowConversationInput,
   type WindowConversations,
 } from "@/lib/conversations/windowed-conversations";
 import { MAX_OPEN_WINDOWS, windowKey } from "@/lib/conversations/window-deck";
+import {
+  emptyTyping,
+  reduceTyping,
+  type TypingState,
+} from "@/lib/conversations/typing";
+import { applyViewers, emptyViewers, forgetViewers, type ViewersState } from "@/lib/conversations/viewers";
+import { readMessageCapabilities } from "@/lib/conversations/message-actions";
+import { readMediaLimits } from "@/lib/conversations/attachment-rules";
+import { readSenderKind } from "@/lib/conversations/sender";
+import {
+  messageActionErrorKey,
+  messageCommand,
+  noPendingMessageActions,
+  pendingOf,
+  settleMessageActions,
+  takeRefusedMessageAction,
+  trackMessageAction,
+  type MessageActionRequest,
+  type PendingMessageActions,
+} from "@/lib/conversations/message-commands";
 import { patchColumns, patchEntries } from "@/lib/conversations/entry-patch";
-import { placeUpdatedEntry } from "@/lib/conversations/inbox-placement";
+import { placeByRecency, placementFor } from "@/lib/conversations/inbox-placement";
 import {
   leadPatchFromRecord,
   leadPresence,
@@ -73,12 +145,34 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { isTemplateSendRefusal, outreachRefusalKey } from "@/lib/whatsapp-outreach/refusals";
 import { useDepartment } from "@/contexts/department-context";
-import { messageSoundsMuted } from "@/lib/sounds/message-sound-preference";
-import { shouldChimeForMessage } from "@/lib/sounds/rules";
-import { soundPlayer } from "@/lib/sounds/sound-player";
+import { customerMessageArrived, customerMessageSignal } from "@/lib/attention/customer";
+import { setViewing, signalAttention } from "@/lib/attention/signal";
+import { emitTeamChat, emitTeamChatConnection, registerTeamChatTypingSender } from "@/lib/team-chat/bus";
+import { readTeamChatEvent } from "@/lib/team-chat/types";
+import { sendErrorKey } from "@/lib/conversations/send-errors";
+import {
+  applyToActive,
+  applyToList,
+  beginOperation,
+  confirmOperation,
+  emptyLedger,
+  pendingOn,
+  restoreActive,
+  restoreList,
+  rollbackOperation,
+  snapshotViews,
+  type OptimisticLedger,
+  type ViewMembership,
+  type ViewsSnapshot,
+} from "@/lib/crm/optimistic";
+import { toastUndo } from "@/lib/crm/undoable";
+import { assigneeKind } from "@/lib/conversations/assignee";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { emitNotificationCreated } from "@/lib/notifications/bus";
 import { isNotificationCreatedEvent } from "@/lib/notifications/types";
+import { usePersonalMarks, type PersonalInboxControls } from "@/hooks/use-personal-marks";
+import { clearUnreadCounts } from "@/lib/conversations/entry-patch";
+import type { MarkedEntry } from "@/lib/conversations/personal-marks";
 
 export interface FunnelColumnState {
   entries: InboxEntry[];
@@ -94,6 +188,10 @@ const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:4000";
 const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 
+function newRequestId(): string {
+  return crypto.randomUUID();
+}
+
 function withEntryStringDefaults(entry: InboxEntry): InboxEntry {
   return {
     ...entry,
@@ -103,6 +201,7 @@ function withEntryStringDefaults(entry: InboxEntry): InboxEntry {
     last_message_type: entry.last_message_type ?? "user_message",
     last_message_sender: entry.last_message_sender ?? "",
     last_message_sender_avatar: entry.last_message_sender_avatar ?? "",
+    last_message_sender_kind: readSenderKind(entry.last_message_sender_kind),
     business_phone_id: entry.business_phone_id ?? "",
   };
 }
@@ -114,17 +213,104 @@ interface UseConversationWsOptions {
   enabled?: boolean;
 }
 
-export interface SendButtonWsInput {
-  headerType?: string;
-  headerText?: string;
-  bodyText: string;
-  footerText?: string;
-  buttons: { id: string; title: string }[];
+export type { SendButtonWsInput };
+
+const HISTORY_COMMAND: Record<Exclude<HistoryDirection, "latest">, string> = {
+  before: "load_history",
+  around: "load_around",
+  after: "load_after",
+};
+
+const NO_HOLDERS: ReadonlySet<HistoryHolder> = new Set();
+
+interface InboxView {
+  campaignId: string;
+  campaignType?: CampaignType;
+  whatsAppCampaignType?: WhatsAppCampaignTypeFilter;
+  containerKind?: ContainerKind;
+  conversationStatus: string;
+}
+
+function switchViewPayload(view: InboxView): Record<string, string> {
+  return {
+    campaign_id: view.campaignId,
+    campaign_type: view.campaignType ?? "",
+    whatsapp_campaign_type: view.whatsAppCampaignType ?? "",
+    container_kind: view.containerKind ?? "",
+    conversation_status: view.conversationStatus,
+  };
+}
+
+function isDefaultView(view: InboxView): boolean {
+  return Object.values(switchViewPayload(view)).every((value) => value === "");
+}
+
+function sameView(a: InboxView, b: InboxView): boolean {
+  const left = switchViewPayload(a);
+  const right = switchViewPayload(b);
+  return Object.keys(left).every((key) => left[key] === right[key]);
+}
+
+function historyPageOf(payload: WsHistoryPayload): HistoryPage {
+  return {
+    direction: payload.direction,
+    messages: payload.messages ?? [],
+    has_more: Boolean(payload.has_more),
+    has_after: Boolean(payload.has_after),
+    ...(payload.direction === "latest" || payload.direction === "around" ? { total: payload.total } : {}),
+  };
+}
+
+function normalizeEventMessages(event: WsServerEvent): WsServerEvent {
+  switch (event.type) {
+    case "conversation:history":
+    case "conversation:search_messages_results":
+      return { ...event, payload: { ...event.payload, messages: (event.payload.messages ?? []).map(normalizeWireMessage) } } as WsServerEvent;
+    case "conversation:message":
+    case "conversation:message_sent":
+    case "conversation:message_updated":
+      return { ...event, payload: { ...event.payload, message: normalizeWireMessage(event.payload.message) } } as WsServerEvent;
+    default:
+      return event;
+  }
+}
+
+function seededConversation(
+  entryId: string,
+  entryType: EntryType,
+  entry: InboxEntry | undefined,
+  thread: CachedThread,
+): ActiveConversation {
+  return {
+    entry_id: entryId,
+    entry_type: entryType,
+    campaign_id: entry?.campaign_id,
+    lead_id: entry?.lead_id,
+    lead_version: entry?.lead_version,
+    blocked: entry?.blocked,
+    lead_name: entry?.lead_name ?? "",
+    lead_picture: entry?.lead_picture,
+    lead_number: entry?.lead_number ?? "",
+    entry_variables: entry?.entry_variables ?? [],
+    messages: thread.messages,
+    has_more: thread.has_more,
+    has_after: false,
+    ...(thread.total !== undefined ? { total: thread.total } : {}),
+    unread_count: entry?.unread_count ?? 0,
+    window_open: entry?.window_open ?? false,
+    window_expires_at: entry?.window_expires_at ?? null,
+    ...readWindowClosed(entry ?? {}),
+    automation_enabled: entry?.automation_enabled,
+    conversation_status: entry?.conversation_status,
+    is_group: entry?.is_group,
+  };
 }
 
 export type LeadUpdateListener = (event: LeadUpdateEvent) => void;
 
 export type LeadsBulkUpdateListener = (event: LeadsBulkUpdateEvent) => void;
+
+export type ServerEventListener = (event: WsServerEvent) => void;
 
 interface UseConversationWsReturn {
   status: ConnectionStatus;
@@ -152,12 +338,19 @@ interface UseConversationWsReturn {
   ) => void;
   markRead: (messageIds: string[]) => void;
   sendTyping: (isTyping: boolean) => void;
-  typingUsers: Map<string, boolean>;
+  typingByEntry: TypingState;
   totalUnread: number;
   loadHistory: () => void;
   loadingHistory: boolean;
   loadingConversation: boolean;
-  loadAround: (timestamp: string) => void;
+  loadAround: (anchor: HistoryAnchor) => void;
+  loadNewer: () => void;
+  returnToPresent: () => void;
+  prefetchConversation: (entryId: string, entryType: EntryType) => void;
+  outbox: Outbox;
+  retrySend: (requestId: string) => void;
+  resendMessage: (entryId: string, entryType: EntryType, messageId: string) => void;
+  reopenWindow: (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => void;
   requestInboxPage: (page: number) => void;
   inboxHasMore: boolean;
   inboxTotalItems: number;
@@ -214,6 +407,9 @@ interface UseConversationWsReturn {
   applyLeadPatch: (leadId: string, patch: LeadPatch) => void;
   subscribeLeadUpdates: (listener: LeadUpdateListener) => () => void;
   subscribeLeadsBulkUpdates: (listener: LeadsBulkUpdateListener) => () => void;
+  subscribeServerEvents: (listener: ServerEventListener) => () => void;
+  viewersByEntry: ViewersState;
+  runMessageAction: (request: MessageActionRequest) => boolean;
 
   windowConversations: WindowConversations;
   windowFocusRequest: { key: string; nonce: number } | null;
@@ -252,12 +448,12 @@ interface UseConversationWsReturn {
     isTyping: boolean,
   ) => void;
   windowLoadHistory: (entryId: string, entryType: EntryType) => void;
-}
-
-interface PendingStatusChangeSnapshot {
-  previousStatus?: string;
-  previousInboxEntry: InboxEntry | null;
-  previousSearchEntry: InboxEntry | null;
+  windowSearchMessages: (entryId: string, entryType: EntryType, query: string) => void;
+  windowClearMessageSearch: (entryId: string, entryType: EntryType) => void;
+  windowLoadAround: (entryId: string, entryType: EntryType, anchor: HistoryAnchor) => void;
+  windowLoadNewer: (entryId: string, entryType: EntryType) => void;
+  windowReturnToPresent: (entryId: string, entryType: EntryType) => void;
+  personalInbox: PersonalInboxControls;
 }
 
 export function useConversationWs({
@@ -269,6 +465,9 @@ export function useConversationWs({
   const { currentWorkspace, can } = useWorkspace();
   const { currentDepartment } = useDepartment();
   const tOutreach = useTranslations("whatsappOutreach");
+  const tSendError = useTranslations("crmConversation.sendError");
+  const tActions = useTranslations("crmActions");
+  const tMessageAction = useTranslations("crmMessage.actionError");
   const canReadLeads = can("leads", "read");
   const workspaceId = currentWorkspace?.id ?? "";
   const departmentId = currentDepartment?.id ?? "";
@@ -276,16 +475,15 @@ export function useConversationWs({
   const [viewMode, setViewMode] = useState<ViewMode>(
     campaignId ? "campaign" : "global",
   );
-  const lastChimeAtRef = useRef(0);
-
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [inbox, setInbox] = useState<InboxEntry[]>([]);
   const [connectedUsers, setConnectedUsers] = useState<ConnectedUser[]>([]);
   const [activeConversation, setActiveConversation] =
     useState<ActiveConversation | null>(null);
-  const [typingUsers, setTypingUsers] = useState<Map<string, boolean>>(
-    new Map(),
-  );
+  const [typingByEntry, setTypingByEntry] = useState<TypingState>(emptyTyping);
+  const [viewersByEntry, setViewersByEntry] = useState<ViewersState>(emptyViewers);
+  const pendingMessageActionsRef = useRef<PendingMessageActions>(noPendingMessageActions);
+  const serverEventListenersRef = useRef(new Set<ServerEventListener>());
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [loadingConversation, setLoadingConversation] = useState(false);
   const loadingConversationTimerRef = useRef<ReturnType<
@@ -298,7 +496,11 @@ export function useConversationWs({
     }
     setLoadingConversation(false);
   }, []);
-  const loadAroundRef = useRef(false);
+  const [outbox, setOutbox] = useState<Outbox>(emptyOutbox);
+  const outboxRef = useRef<Outbox>(emptyOutbox);
+  const historyRequestsRef = useRef<HistoryRequests>(noHistoryRequests);
+  const threadCacheRef = useRef<ThreadCache>(emptyThreadCache);
+  const scopeKeyRef = useRef(scopeKey);
   const [loadingInbox, setLoadingInbox] = useState(false);
   const [inboxPage, setInboxPage] = useState(1);
   const [inboxTotalPages, setInboxTotalPages] = useState(1);
@@ -331,6 +533,7 @@ export function useConversationWs({
   const [messageSearchQuery, setMessageSearchQuery] = useState<string | null>(
     null,
   );
+  const paneSearchRef = useRef<{ entry_id: string; entry_type: EntryType; query: string } | null>(null);
 
   const [funnelColumns, setFunnelColumns] = useState<
     Map<string, FunnelColumnState>
@@ -369,13 +572,13 @@ export function useConversationWs({
   const activeConversationRef = useRef<ActiveConversation | null>(null);
   const funnelColumnsRef = useRef<Map<string, FunnelColumnState>>(funnelColumns);
   const canReadLeadsRef = useRef(canReadLeads);
-  const pendingStatusChangesRef = useRef<
-    Map<string, PendingStatusChangeSnapshot>
-  >(new Map());
+  const statusLedgerRef = useRef<OptimisticLedger<ViewsSnapshot>>(emptyLedger());
+  const assignmentLedgerRef = useRef<
+    OptimisticLedger<{ previous: string; requested: string }>
+  >(emptyLedger());
 
   const intentionalDisconnectRef = useRef(false);
   const isConnectingRef = useRef(false);
-  const loadingMoreRef = useRef(false);
   const connectionParamsRef = useRef({
     token,
     campaignId,
@@ -398,13 +601,7 @@ export function useConversationWs({
     });
   }
   const prevScopeKeyRef = useRef(scopeKey);
-  const currentViewRef = useRef<{
-    campaignId: string;
-    campaignType?: CampaignType;
-    whatsAppCampaignType?: WhatsAppCampaignTypeFilter;
-    containerKind?: ContainerKind;
-    conversationStatus: string;
-  }>({
+  const currentViewRef = useRef<InboxView>({
     campaignId,
     campaignType,
     whatsAppCampaignType: undefined,
@@ -432,6 +629,7 @@ export function useConversationWs({
 
   useEffect(() => {
     activeConversationRef.current = activeConversation;
+    setViewing("customer_message", activeConversation?.entry_id ?? null);
   }, [activeConversation]);
 
   useEffect(() => {
@@ -442,74 +640,50 @@ export function useConversationWs({
     canReadLeadsRef.current = canReadLeads;
   }, [canReadLeads]);
 
+  const statusMembership = useCallback((): ViewMembership => {
+    const inboxStatus = currentViewRef.current.conversationStatus;
+    const searchStatus = currentSearchFiltersRef.current?.conversation_status;
+    return {
+      inbox: (entry) => !inboxStatus || entry.conversation_status === inboxStatus,
+      search: (entry) => !searchStatus || entry.conversation_status === searchStatus,
+    };
+  }, []);
+
+  const settleStatusChange = useCallback((entryId: string, entryType: string) => {
+    const pending = pendingOn(statusLedgerRef.current, windowKey(entryId, entryType));
+    if (!pending) return;
+    statusLedgerRef.current = confirmOperation(statusLedgerRef.current, pending.id).ledger;
+  }, []);
+
   const rollbackPendingStatusChange = useCallback(
     (entryId: string, entryType: string, previousStatus?: string) => {
-      const key = `${entryType}-${entryId}`;
-      const snapshot = pendingStatusChangesRef.current.get(key);
+      const pending = pendingOn(statusLedgerRef.current, windowKey(entryId, entryType));
+      if (!pending) return;
+      const { ledger, snapshot } = rollbackOperation(statusLedgerRef.current, pending.id);
+      statusLedgerRef.current = ledger;
       if (!snapshot) return;
 
-      const restoredStatus = previousStatus ?? snapshot.previousStatus ?? "new";
-      const activeStatusFilter = currentViewRef.current.conversationStatus;
-      const shouldShowInInbox =
-        !activeStatusFilter || restoredStatus === activeStatusFilter;
+      const target = { entryId, entryType };
+      const membership = statusMembership();
+      const correction = previousStatus ? { conversation_status: previousStatus } : undefined;
 
       setInbox((prev) => {
-        const filtered = prev.filter(
-          (entry) =>
-            !(entry.entry_id === entryId && entry.entry_type === entryType),
-        );
-
-        if (!snapshot.previousInboxEntry || !shouldShowInInbox) {
-          inboxRef.current = filtered;
-          return filtered;
-        }
-
-        const restoredEntry = {
-          ...snapshot.previousInboxEntry,
-          conversation_status: restoredStatus,
-        };
-        const updated = [restoredEntry, ...filtered];
-        inboxRef.current = updated;
-        return updated;
+        const restored = restoreList(prev, target, snapshot.inbox, membership.inbox, correction);
+        inboxRef.current = restored;
+        return restored;
       });
-
-      setSearchResults((prev) => {
-        if (!prev) return prev;
-
-        const filtered = prev.filter(
-          (entry) =>
-            !(entry.entry_id === entryId && entry.entry_type === entryType),
-        );
-        const activeSearchStatus =
-          currentSearchFiltersRef.current?.conversation_status;
-        const shouldShowInSearch =
-          !activeSearchStatus || restoredStatus === activeSearchStatus;
-
-        if (!snapshot.previousSearchEntry || !shouldShowInSearch) {
-          return filtered;
-        }
-
-        return [
-          {
-            ...snapshot.previousSearchEntry,
-            conversation_status: restoredStatus,
-          },
-          ...filtered,
-        ];
-      });
-
-      setActiveConversation((prev) =>
-        prev && prev.entry_id === entryId && prev.entry_type === entryType
-          ? { ...prev, conversation_status: restoredStatus }
-          : prev,
+      setSearchResults((prev) =>
+        prev && restoreList(prev, target, snapshot.search, membership.search, correction),
       );
-
-      pendingStatusChangesRef.current.delete(key);
+      setActiveConversation((prev) =>
+        restoreActive(prev, target, snapshot.active, correction),
+      );
     },
-    [],
+    [statusMembership],
   );
 
   useEffect(() => {
+    scopeKeyRef.current = scopeKey;
     if (prevScopeKeyRef.current && prevScopeKeyRef.current !== scopeKey) {
       setFunnelColumns(new Map());
       setKanbanSummary(new Map());
@@ -541,6 +715,58 @@ export function useConversationWs({
     return true;
   }, []);
 
+  useEffect(
+    () => registerTeamChatTypingSender((threadId) => send("team_chat_typing", { thread_id: threadId })),
+    [send],
+  );
+
+  useEffect(() => {
+    emitTeamChatConnection(status === "connected");
+  }, [status]);
+
+  const commitOutbox = useCallback((next: Outbox) => {
+    if (next === outboxRef.current) return;
+    outboxRef.current = next;
+    setOutbox(next);
+  }, []);
+
+  const dispatchOutboxItem = useCallback(
+    (item: OutboxItem) => {
+      const command = outboxCommand(item);
+      send(command.type, command.payload);
+    },
+    [send],
+  );
+
+  const settleOutboxWith = useCallback(
+    (messages: readonly ConversationMessage[]) => {
+      commitOutbox(settleDelivered(outboxRef.current, messages));
+    },
+    [commitOutbox],
+  );
+
+  const requestPage = useCallback(
+    (
+      holder: HistoryHolder,
+      entryId: string,
+      entryType: EntryType,
+      direction: Exclude<HistoryDirection, "latest">,
+      payload: Record<string, unknown>,
+    ): boolean => {
+      if (!send(HISTORY_COMMAND[direction], payload)) return false;
+      historyRequestsRef.current = requestHistory(
+        historyRequestsRef.current,
+        windowKey(entryId, entryType),
+        direction,
+        holder,
+      );
+      return true;
+    },
+    [send],
+  );
+
+  const personalMarks = usePersonalMarks({ send });
+
   const subscribesInFlightRef = useRef<Map<string, PendingSubscribe>>(new Map());
 
   const settleSubscribes = useCallback((key: string, pending: PendingSubscribe | undefined) => {
@@ -571,6 +797,39 @@ export function useConversationWs({
     >
   >(new Map());
 
+  const sendAssign = useCallback(
+    (entryId: string, entryType: string, userId: string) => {
+      send("assign_to", {
+        entry_id: entryId,
+        entry_type: entryType,
+        user_id: userId,
+      });
+    },
+    [send],
+  );
+
+  const offerAssignmentUndo = useCallback(
+    (entryId: string, entryType: string, assignedUserId: string | undefined) => {
+      const pending = pendingOn(assignmentLedgerRef.current, windowKey(entryId, entryType));
+      if (!pending || pending.snapshot.requested !== assignedUserId) return;
+      assignmentLedgerRef.current = confirmOperation(assignmentLedgerRef.current, pending.id).ledger;
+      toastUndo(
+        {
+          inverse: () => sendAssign(entryId, entryType, pending.snapshot.previous),
+          labelKey: "assigned",
+        },
+        tActions,
+      );
+    },
+    [sendAssign, tActions],
+  );
+
+  const forgetTyping = useCallback((entryId: string, entryType: EntryType) => {
+    setTypingByEntry((prev) =>
+      reduceTyping(prev, { type: "entry_left", entryId, entryType }),
+    );
+  }, []);
+
   const retainSubscription = useCallback(
     (entryId: string, entryType: EntryType, holder: SubscriptionHolder) => {
       const key = windowKey(entryId, entryType);
@@ -595,8 +854,9 @@ export function useConversationWs({
 
       subscriptionHoldersRef.current.delete(key);
       send("unsubscribe", { entry_id: entryId, entry_type: entryType });
+      forgetTyping(entryId, entryType);
     },
-    [send],
+    [send, forgetTyping],
   );
 
   const patchListedLead = useCallback(
@@ -690,6 +950,13 @@ export function useConversationWs({
   );
 
   const leadRefresherRef = useRef<((event: LeadUpdateEvent) => void) | null>(null);
+  const subscribeServerEvents = useCallback((listener: ServerEventListener) => {
+    serverEventListenersRef.current.add(listener);
+    return () => {
+      serverEventListenersRef.current.delete(listener);
+    };
+  }, []);
+
   const leadUpdateListenersRef = useRef(new Set<LeadUpdateListener>());
 
   const subscribeLeadUpdates = useCallback((listener: LeadUpdateListener) => {
@@ -729,64 +996,13 @@ export function useConversationWs({
   );
 
 
-  const normalizeMessage = useCallback(
-    (message: ConversationMessage | Record<string, unknown>) => {
-      const msg = message as Record<string, unknown>;
-      return {
-        id: (msg.id as string) ?? "",
-        entry_id: (msg.entry_id as string) ?? (msg.entryId as string) ?? "",
-        entry_type:
-          (msg.entry_type as EntryType) ?? (msg.entryType as EntryType),
-        channel: (msg.channel as MessageChannel) ?? "whatsapp",
-        message_type:
-          (msg.message_type as string) ??
-          (msg.messageType as string) ??
-          "user_message",
-        direction: (msg.direction as ConversationMessage["direction"]) ??
-          (msg.Direction as ConversationMessage["direction"]),
-        sent_by: (msg.sent_by ?? msg.sentBy ?? null) as ConversationMessage["sent_by"],
-        from: (msg.from as string) ?? "",
-        to: (msg.to as string) ?? "",
-        text: (msg.text as string) ?? "",
-        media_id: (msg.media_id as string) ?? (msg.mediaId as string),
-        media_type:
-          (msg.media_type as MediaType) ?? (msg.mediaType as MediaType),
-        ...messageMedia(msg),
-        sender_name:
-          (msg.sender_name as string) ?? (msg.senderName as string) ?? "",
-        sender_avatar:
-          (msg.sender_avatar as string) ?? (msg.senderAvatar as string),
-        read: (msg.read as boolean) ?? false,
-        read_at: (msg.read_at as string) ?? (msg.readAt as string) ?? null,
-        read_by: (msg.read_by as string) ?? (msg.readBy as string) ?? null,
-        delivery_status:
-          (msg.delivery_status as string) ??
-          (msg.deliveryStatus as string) ??
-          undefined,
-        reply_to_message_id:
-          (msg.reply_to_message_id as string) ??
-          (msg.replyToMessageId as string) ??
-          undefined,
-        metadata:
-          (msg.metadata as ConversationMessage["metadata"]) ?? undefined,
-        ...messageLocation(msg),
-        created_at:
-          (msg.created_at as string) ?? (msg.createdAt as string) ?? "",
-        updated_at:
-          (msg.updated_at as string) ?? (msg.updatedAt as string) ?? "",
-      } as ConversationMessage;
-    },
-    [],
-  );
-
   const normalizeEntry = useCallback(
-    (raw: Record<string, unknown>): InboxEntry => {
+    (raw: Record<string, unknown>): InboxEntry | null => {
+      const entryType = raw.entry_type ?? raw.entryType;
+      if (typeof entryType !== "string" || !isEntryType(entryType)) return null;
       return {
         entry_id: (raw.entry_id as string) ?? (raw.entryId as string) ?? "",
-        entry_type:
-          (raw.entry_type as EntryType) ??
-          (raw.entryType as EntryType) ??
-          "whatsapp",
+        entry_type: entryType,
         lead_id:
           (raw.lead_id as string) ?? (raw.leadId as string) ?? undefined,
         lead_version:
@@ -826,6 +1042,7 @@ export function useConversationWs({
           (raw.last_message_sender_avatar as string) ??
           (raw.lastMessageSenderAvatar as string) ??
           "",
+        last_message_sender_kind: readSenderKind(raw.last_message_sender_kind ?? raw.lastMessageSenderKind),
         last_message_author:
           (raw.last_message_author as string) ??
           (raw.lastMessageAuthor as string) ??
@@ -840,6 +1057,7 @@ export function useConversationWs({
           (raw.window_expires_at as string | null) ??
           (raw.windowExpiresAt as string | null) ??
           null,
+        ...readWindowClosed(raw),
         business_phone_id:
           (raw.business_phone_id as string) ??
           (raw.businessPhoneId as string) ??
@@ -888,41 +1106,33 @@ export function useConversationWs({
           (raw.available_stages as InboxEntry["available_stages"]) ??
           (raw.availableStages as InboxEntry["available_stages"]) ??
           undefined,
+        waiting_since: (raw.waiting_since as string) ?? undefined,
       };
     },
     [],
   );
 
+  const rememberThreadOf = useCallback((thread: ActiveConversation | null | undefined) => {
+    if (!thread) return;
+    threadCacheRef.current = rememberThread(
+      threadCacheRef.current,
+      scopeKeyRef.current,
+      windowKey(thread.entry_id, thread.entry_type),
+      thread,
+    );
+  }, []);
+
   const routeEventToWindows = useCallback(
-    (event: WsServerEvent) => {
+    (event: WsServerEvent, historyHolders: ReadonlySet<HistoryHolder>) => {
       if (windowConversationsRef.current.size === 0) return;
+      if (event.type === "conversation:history" && !historyHolders.has("window")) return;
 
-      let framed = event;
       let unreadIds: string[] = [];
-
-      switch (event.type) {
-        case "conversation:history": {
-          const messages = (event.payload.messages ?? []).map(normalizeMessage);
-          framed = {
-            ...event,
-            payload: { ...event.payload, messages },
-          };
-          unreadIds = incomingUnreadIds(messages);
-          break;
-        }
-        case "conversation:message":
-        case "conversation:message_sent": {
-          const message = normalizeMessage(event.payload.message);
-          framed = { ...event, payload: { ...event.payload, message } };
-          if (event.type === "conversation:message") {
-            unreadIds = incomingUnreadIds([message]);
-          }
-          break;
-        }
-      }
+      if (event.type === "conversation:history") unreadIds = incomingUnreadIds(event.payload.messages);
+      if (event.type === "conversation:message") unreadIds = incomingUnreadIds([event.payload.message]);
 
       const before = windowConversationsRef.current;
-      const next = applyWindowEvent(before, framed);
+      const next = applyWindowEvent(before, event);
       if (next !== before) {
         windowConversationsRef.current = next;
         setWindowConversations(next);
@@ -930,6 +1140,7 @@ export function useConversationWs({
         if (next.size < before.size) {
           for (const [key, state] of before) {
             if (next.has(key)) continue;
+            rememberThreadOf(state.conversation);
             releaseSubscription(
               state.conversation.entry_id,
               state.conversation.entry_type,
@@ -951,13 +1162,76 @@ export function useConversationWs({
         message_ids: unreadIds,
       });
     },
-    [normalizeMessage, releaseSubscription, send],
+    [rememberThreadOf, releaseSubscription, send],
+  );
+
+  const routeHistory = useCallback((event: WsServerEvent): ReadonlySet<HistoryHolder> => {
+    if (event.type !== "conversation:history") return NO_HOLDERS;
+    const routed = routeHistoryPage(
+      historyRequestsRef.current,
+      windowKey(event.payload.entry_id, event.payload.entry_type),
+      event.payload.direction,
+    );
+    historyRequestsRef.current = routed.requests;
+    return routed.holders;
+  }, []);
+
+  const isPaneEntry = useCallback(
+    (entryId: string, entryType: string) =>
+      activeSubscriptionRef.current?.entry_id === entryId &&
+      activeSubscriptionRef.current?.entry_type === entryType,
+    [],
+  );
+
+  const updatePaneThread = useCallback(
+    (entryId: string, entryType: string, update: (thread: ActiveConversation) => ActiveConversation) => {
+      setActiveConversation((prev) =>
+        prev && prev.entry_id === entryId && prev.entry_type === entryType ? update(prev) : prev,
+      );
+    },
+    [],
+  );
+
+  const keepPrefetched = useCallback(
+    (entryId: string, entryType: EntryType, page: HistoryPage) => {
+      const key = windowKey(entryId, entryType);
+      if (isPaneEntry(entryId, entryType) || windowConversationsRef.current.has(key)) return;
+      const empty: ThreadMessages = { messages: [], has_more: false };
+      threadCacheRef.current = rememberThread(threadCacheRef.current, scopeKeyRef.current, key, applyHistoryPage(empty, page));
+    },
+    [isPaneEntry],
+  );
+
+  const failQueuedSend = useCallback(
+    (requestId: string | undefined, code: string | undefined): boolean => {
+      if (!requestId) return false;
+      const { outbox: next, failed } = failSend(outboxRef.current, requestId, code ?? "");
+      commitOutbox(next);
+      return failed !== null;
+    },
+    [commitOutbox],
+  );
+
+  const forgetRefusedJump = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      historyRequestsRef.current = forgetHistoryRequests(historyRequestsRef.current, key, "around");
+      if (isPaneEntry(entryId, entryType)) setLoadingHistory(false);
+      const settled = settleWindowHistory(windowConversationsRef.current, key);
+      if (settled === windowConversationsRef.current) return;
+      windowConversationsRef.current = settled;
+      setWindowConversations(settled);
+    },
+    [isPaneEntry],
   );
 
   const handleServerEvent = useCallback(
     (incoming: WsServerEvent) => {
-      const event = vouchSubscribed(incoming);
-      routeEventToWindows(event);
+      const event = normalizeEventMessages(vouchSubscribed(incoming));
+      for (const listener of serverEventListenersRef.current) listener(event);
+      const historyHolders = routeHistory(event);
+      routeEventToWindows(event, historyHolders);
+      if (personalMarks.observe(event)) return;
 
       switch (event.type) {
         case "conversation:connected_users":
@@ -1006,20 +1280,13 @@ export function useConversationWs({
           const updated = normalizeEntry(
             event.payload.entry as unknown as Record<string, unknown>,
           );
-          const now = Date.now();
-          if (
-            shouldChimeForMessage({
-              silent: Boolean(event.payload.silent),
-              muted: messageSoundsMuted(),
-              entryId: updated.entry_id,
-              openEntryId: activeConversationRef.current?.entry_id ?? null,
-              focused: document.hasFocus(),
-              lastChimeAt: lastChimeAtRef.current,
-              now,
-            })
-          ) {
-            lastChimeAtRef.current = now;
-            soundPlayer.play("message");
+          if (!updated) break;
+          offerAssignmentUndo(updated.entry_id, updated.entry_type, updated.assigned_user_id);
+          if (!event.payload.silent) {
+            const before = inboxRef.current.find(
+              (e) => e.entry_id === updated.entry_id && e.entry_type === updated.entry_type,
+            );
+            if (customerMessageArrived(before, updated)) signalAttention(customerMessageSignal(updated));
           }
           const withLead = (old?: InboxEntry): InboxEntry =>
             updated.lead_id || !old?.lead_id
@@ -1055,7 +1322,7 @@ export function useConversationWs({
               return filtered;
             }
 
-            const newInbox = placeUpdatedEntry(prev, withLead(oldEntry));
+            const newInbox = placeByRecency(prev, withLead(oldEntry));
             inboxRef.current = newInbox;
 
             if (!existed) {
@@ -1089,7 +1356,9 @@ export function useConversationWs({
               );
             }
 
-            return existed ? placeUpdatedEntry(prev, withLead(oldSearchEntry)) : prev;
+            if (!existed) return prev;
+            const place = placementFor(currentSearchFiltersRef.current?.sort);
+            return place(prev, withLead(oldSearchEntry));
           });
 
           if (
@@ -1212,7 +1481,7 @@ export function useConversationWs({
               ? { ...prev, ...closePatch }
               : prev,
           );
-          pendingStatusChangesRef.current.delete(`${entry_type}-${entry_id}`);
+          settleStatusChange(entry_id, entry_type);
           break;
         }
 
@@ -1298,12 +1567,13 @@ export function useConversationWs({
             unread_count,
             window_open,
             window_expires_at,
-            window_closed_reason,
             window_tier,
             automation_enabled,
             ad_origin,
           } = event.payload;
           const adOrigin = adOriginOf(ad_origin);
+          const messageCapabilities = readMessageCapabilities(event.payload.message_capabilities);
+          const mediaLimits = readMediaLimits(event.payload.media_limits);
           const leadPatch = subscribedLeadPatch(event.payload);
 
           if (lead_id && leadPatch) {
@@ -1346,8 +1616,7 @@ export function useConversationWs({
                   window_expires_at ??
                   inboxEntry?.window_expires_at ??
                   prev.window_expires_at,
-                window_closed_reason:
-                  window_closed_reason ?? prev.window_closed_reason ?? null,
+                ...mergeWindowClosed(event.payload, prev),
                 window_tier: window_tier ?? null,
                 automation_enabled: resolveAutomationEnabled(
                   automation_enabled,
@@ -1357,6 +1626,8 @@ export function useConversationWs({
                 conversation_status:
                   inboxEntry?.conversation_status ?? prev.conversation_status,
                 ad_origin: adOrigin ?? prev.ad_origin ?? null,
+                message_capabilities: messageCapabilities ?? prev.message_capabilities,
+                media_limits: mediaLimits,
               }, event.payload);
             }
 
@@ -1377,7 +1648,7 @@ export function useConversationWs({
               window_open: window_open ?? inboxEntry?.window_open ?? false,
               window_expires_at:
                 window_expires_at ?? inboxEntry?.window_expires_at ?? null,
-              window_closed_reason: window_closed_reason ?? null,
+              ...mergeWindowClosed(event.payload, inboxEntry ?? {}),
               window_tier: window_tier ?? null,
               automation_enabled: resolveAutomationEnabled(
                 automation_enabled,
@@ -1385,6 +1656,8 @@ export function useConversationWs({
               ),
               conversation_status: inboxEntry?.conversation_status,
               ad_origin: adOrigin,
+              message_capabilities: messageCapabilities,
+              media_limits: mediaLimits,
             };
           });
 
@@ -1403,133 +1676,60 @@ export function useConversationWs({
         }
 
         case "conversation:history": {
-          const {
-            entry_id,
-            entry_type,
-            messages: rawHistory,
-            has_more,
-            total,
-          } = event.payload;
-          const historyMessages = (rawHistory ?? []).map(normalizeMessage);
-          const isJump = loadAroundRef.current;
-          loadAroundRef.current = false;
-          const isLoadMore = loadingMoreRef.current;
-          loadingMoreRef.current = false;
+          const { entry_id, entry_type } = event.payload;
+          const page = historyPageOf(event.payload);
+          settleOutboxWith(page.messages);
+          if (historyHolders.has("prefetch")) keepPrefetched(entry_id, entry_type, page);
+          if (!historyHolders.has("pane") || !isPaneEntry(entry_id, entry_type)) break;
+
           setLoadingHistory(false);
           stopLoadingConversation();
+          updatePaneThread(entry_id, entry_type, (thread) => applyHistoryPage(thread, page));
 
-          setActiveConversation((prev) => {
-            if (!prev) return null;
-            if (prev.entry_id !== entry_id || prev.entry_type !== entry_type)
-              return prev;
-
-            const isInitialLoad = prev.messages.length === 0;
-
-            if (isInitialLoad || isJump) {
-              return {
-                ...prev,
-                messages: historyMessages,
-                has_more,
-                ...(total !== undefined ? { total } : {}),
-              };
-            }
-
-            if (isLoadMore) {
-              return {
-                ...prev,
-                messages: [...historyMessages, ...prev.messages],
-                has_more,
-                ...(total !== undefined ? { total } : {}),
-              };
-            }
-
-            const existingIds = new Set(prev.messages.map((m) => m.id));
-            const newMsgs = historyMessages.filter(
-              (m) => !existingIds.has(m.id),
-            );
-            if (newMsgs.length === 0) {
-              return prev;
-            }
-            const merged = [...prev.messages, ...newMsgs].sort(
-              (a, b) =>
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime(),
-            );
-            return {
-              ...prev,
-              messages: merged,
-              has_more: prev.has_more,
-              ...(total !== undefined ? { total } : {}),
-            };
-          });
-
-          if (
-            activeSubscriptionRef.current?.entry_id === entry_id &&
-            activeSubscriptionRef.current?.entry_type === entry_type
-          ) {
-            const unreadIds = incomingUnreadIds(historyMessages);
-            if (unreadIds.length > 0) {
-              send("mark_read", {
-                entry_id,
-                entry_type,
-                message_ids: unreadIds,
-              });
-            }
+          const unreadIds = incomingUnreadIds(page.messages);
+          if (unreadIds.length > 0) {
+            send("mark_read", { entry_id, entry_type, message_ids: unreadIds });
           }
           break;
         }
 
         case "conversation:message": {
           const { entry_id, entry_type, message } = event.payload;
-          const normalized = normalizeMessage(message);
+          settleOutboxWith([message]);
+          if (!isPaneEntry(entry_id, entry_type)) break;
 
-          if (
-            activeSubscriptionRef.current?.entry_id === entry_id &&
-            activeSubscriptionRef.current?.entry_type === entry_type
-          ) {
-            setActiveConversation((prev) => {
-              if (!prev) return null;
-              if (prev.messages.some((m) => m.id === normalized.id))
-                return prev;
-              return {
-                ...prev,
-                messages: [...prev.messages, normalized],
-              };
-            });
-
-            if (incomingUnreadIds([normalized]).length > 0) {
-              send("mark_read", {
-                entry_id,
-                entry_type,
-                message_ids: [normalized.id],
-              });
-            }
+          updatePaneThread(entry_id, entry_type, (thread) => applyLiveMessage(thread, message));
+          if (incomingUnreadIds([message]).length > 0) {
+            send("mark_read", { entry_id, entry_type, message_ids: [message.id] });
           }
           break;
         }
 
         case "conversation:message_sent": {
+          const { entry_id, entry_type, message, request_id } = event.payload;
+          commitOutbox(settleDelivered(request_id ? settleSend(outboxRef.current, request_id) : outboxRef.current, [message]));
+          if (!isPaneEntry(entry_id, entry_type)) break;
+          updatePaneThread(entry_id, entry_type, (thread) => applyLiveMessage(thread, message));
+          break;
+        }
+
+        case "conversation:message_updated": {
           const { entry_id, entry_type, message } = event.payload;
-          const normalized = normalizeMessage(message);
-          if (
-            activeSubscriptionRef.current?.entry_id === entry_id &&
-            activeSubscriptionRef.current?.entry_type === entry_type
-          ) {
-            setActiveConversation((prev) => {
-              if (!prev) return null;
-              const exists = prev.messages.some((m) => m.id === normalized.id);
-              if (exists) return prev;
-              return {
-                ...prev,
-                messages: [...prev.messages, normalized],
-              };
-            });
-          }
+          pendingMessageActionsRef.current = settleMessageActions(pendingMessageActionsRef.current, entry_id, entry_type, message.id);
+          if (!isPaneEntry(entry_id, entry_type)) break;
+          updatePaneThread(entry_id, entry_type, (thread) => applyMessageUpdate(thread, message));
+          break;
+        }
+
+        case "conversation:window_reopened": {
+          const reopened = event.payload;
+          updatePaneThread(reopened.entry_id, reopened.entry_type, (thread) => applyWindowReopened(thread, reopened));
           break;
         }
 
         case "conversation:message_error": {
-          console.error("[ConversationWS] Message error:", event.payload.error);
+          failQueuedSend(event.payload.request_id, event.payload.code);
+          toast.error(tSendError(sendErrorKey(event.payload.code)));
           break;
         }
 
@@ -1570,16 +1770,16 @@ export function useConversationWs({
         }
 
         case "conversation:typing": {
-          const { user_id, is_typing } = event.payload;
-          setTypingUsers((prev) => {
-            const next = new Map(prev);
-            if (is_typing) {
-              next.set(user_id, true);
-            } else {
-              next.delete(user_id);
-            }
-            return next;
-          });
+          const { entry_id, entry_type, user_id, is_typing } = event.payload;
+          setTypingByEntry((prev) =>
+            reduceTyping(prev, {
+              type: "typing",
+              entryId: entry_id,
+              entryType: entry_type,
+              userId: user_id,
+              isTyping: is_typing,
+            }),
+          );
           break;
         }
 
@@ -1609,7 +1809,15 @@ export function useConversationWs({
           break;
         }
 
+        case "conversation:viewers": {
+          const viewers = event.payload;
+          setViewersByEntry((prev) => applyViewers(prev, viewers));
+          break;
+        }
+
         case "conversation:unsubscribed": {
+          forgetTyping(event.payload.entry_id, event.payload.entry_type);
+          setViewersByEntry((prev) => forgetViewers(prev, event.payload.entry_id, event.payload.entry_type));
           if (
             activeSubscriptionRef.current?.entry_id ===
               event.payload.entry_id &&
@@ -1753,14 +1961,20 @@ export function useConversationWs({
 
         case "conversation:search_messages_results": {
           const {
+            entry_id,
+            entry_type,
             messages: rawMessages,
             page,
             total_pages,
             total_items,
             query,
           } = event.payload;
-          const normalized = (rawMessages ?? []).map(normalizeMessage);
-          setMessageSearchResults(normalized);
+          const asked = paneSearchRef.current;
+          if (!asked || asked.entry_id !== entry_id || asked.entry_type !== entry_type || asked.query !== query) {
+            break;
+          }
+          const results = rawMessages ?? [];
+          setMessageSearchResults(results);
           setMessageSearchPageNum(page);
           setMessageSearchTotalPages(total_pages);
           setMessageSearchTotalItems(total_items);
@@ -1830,6 +2044,7 @@ export function useConversationWs({
             whatsAppCampaignType: whatsapp_campaign_type as
               | WhatsAppCampaignTypeFilter
               | undefined,
+            containerKind: currentViewRef.current.containerKind,
             conversationStatus: conversation_status ?? "",
           };
           if (campaign_type) {
@@ -1859,6 +2074,18 @@ export function useConversationWs({
           break;
         }
 
+        case "team_chat:message":
+        case "team_chat:message_updated":
+        case "team_chat:read":
+        case "team_chat:thread":
+        case "team_chat:thread_removed":
+        case "team_chat:typing":
+        case "team_chat:scheduled": {
+          const teamEvent = readTeamChatEvent(event.type, event.payload);
+          if (teamEvent) emitTeamChat(teamEvent);
+          break;
+        }
+
         case "conversation:analysis_update": {
           const { entry_id, entry_type, analysis, pending } = event.payload;
           setLatestAnalysisUpdate(event.payload);
@@ -1875,6 +2102,20 @@ export function useConversationWs({
 
         case "conversation:error": {
           console.error("[ConversationWS] Server error:", event.payload);
+          const refusedAction = takeRefusedMessageAction(pendingMessageActionsRef.current, event.payload.request_id);
+          pendingMessageActionsRef.current = refusedAction.pending;
+          if (refusedAction.refused) {
+            toast.error(tMessageAction(messageActionErrorKey(event.payload.code, refusedAction.refused.kind)));
+            break;
+          }
+          if (failQueuedSend(event.payload.request_id, event.payload.code)) {
+            toast.error(tSendError(sendErrorKey(event.payload.code)));
+            break;
+          }
+          if (event.payload.code === "not_found" && event.payload.entry_id && event.payload.entry_type) {
+            forgetRefusedJump(event.payload.entry_id, event.payload.entry_type);
+            break;
+          }
           if (
             event.payload.entry_id &&
             event.payload.entry_type &&
@@ -1898,10 +2139,7 @@ export function useConversationWs({
               });
               break;
             }
-            toast.error(
-              event.payload.message ||
-                "Não foi possível atualizar o status da conversa.",
-            );
+            toast.error(event.payload.message || tActions("statusUpdateFailed"));
             break;
           }
           if (isTemplateSendRefusal(event.payload)) {
@@ -1910,9 +2148,7 @@ export function useConversationWs({
           }
           switch (event.payload.code) {
             case "insufficient_balance":
-              toast.error(
-                "Ação não permitida: saldo insuficiente. Por favor, recarregue seu saldo para continuar.",
-              );
+              toast.error(tActions("insufficientBalance"));
               break;
           }
           break;
@@ -1920,9 +2156,28 @@ export function useConversationWs({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [send, routeEventToWindows, handleLeadUpdate, handleLeadsBulkUpdate, applyConversationLead, vouchSubscribed, tOutreach],
+    [send, routeEventToWindows, routeHistory, handleLeadUpdate, handleLeadsBulkUpdate, applyConversationLead, vouchSubscribed, tOutreach, tSendError, tMessageAction, offerAssignmentUndo, settleOutboxWith, keepPrefetched, isPaneEntry, updatePaneThread, commitOutbox, failQueuedSend, forgetRefusedJump, personalMarks.observe],
   );
 
+
+  const catchUpHeldThreads = useCallback(() => {
+    const active = activeConversationRef.current;
+    const held: [HistoryHolder, ActiveConversation][] = [
+      ...(active && isPaneEntry(active.entry_id, active.entry_type) ? [["pane", active] as [HistoryHolder, ActiveConversation]] : []),
+      ...[...windowConversationsRef.current.values()].map((w): [HistoryHolder, ActiveConversation] => ["window", w.conversation]),
+    ];
+    for (const [holder, thread] of held) {
+      const after = newestMessageAt(thread);
+      if (!after) continue;
+      requestPage(holder, thread.entry_id, thread.entry_type, "after", loadAfterPayload(thread.entry_id, thread.entry_type, after));
+    }
+  }, [isPaneEntry, requestPage]);
+
+  const refreshInboxView = useCallback(() => {
+    const view = currentViewRef.current;
+    if (isDefaultView(view)) return;
+    send("switch_view", switchViewPayload(view));
+  }, [send]);
 
   const connect = useCallback(async () => {
     const { token, campaignId, campaignType, enabled, workspaceId, departmentId } =
@@ -2018,10 +2273,13 @@ export function useConversationWs({
 
       dropSubscribesInFlight();
       if (wasReconnect) {
+        refreshInboxView();
         for (const { entryId, entryType } of subscriptionHoldersRef.current.values()) {
           sendSubscribe(entryId, entryType);
         }
+        catchUpHeldThreads();
       }
+      for (const item of replayableSends(outboxRef.current)) dispatchOutboxItem(item);
     };
 
     ws.onmessage = (evt) => {
@@ -2052,8 +2310,7 @@ export function useConversationWs({
 
       wsRef.current = null;
 
-      loadingMoreRef.current = false;
-      loadAroundRef.current = false;
+      historyRequestsRef.current = noHistoryRequests;
       setLoadingHistory(false);
       if (loadingConversationTimerRef.current) {
         clearTimeout(loadingConversationTimerRef.current);
@@ -2069,7 +2326,7 @@ export function useConversationWs({
 
       controllerRef.current?.scheduleReconnect();
     };
-  }, [handleServerEvent, dropSubscribesInFlight, sendSubscribe]);
+  }, [handleServerEvent, dropSubscribesInFlight, sendSubscribe, catchUpHeldThreads, refreshInboxView, dispatchOutboxItem]);
 
   useEffect(() => {
     connectRef.current = connect;
@@ -2117,6 +2374,10 @@ export function useConversationWs({
         disconnectRef.current?.();
         setActiveConversation(null);
         activeSubscriptionRef.current = null;
+        threadCacheRef.current = emptyThreadCache;
+        historyRequestsRef.current = noHistoryRequests;
+        outboxRef.current = emptyOutbox;
+        setOutbox(emptyOutbox);
       };
     } else {
       disconnectRef.current?.();
@@ -2125,6 +2386,33 @@ export function useConversationWs({
     }
   }, [enabled, hasToken, workspaceId, departmentId]);
 
+
+  const seedThreadFor = useCallback((entryId: string, entryType: EntryType): CachedThread | null => {
+    const key = windowKey(entryId, entryType);
+    const window = windowConversationsRef.current.get(key)?.conversation;
+    if (window && window.messages.length > 0 && !window.has_after) {
+      return { messages: window.messages, has_more: window.has_more, total: window.total };
+    }
+    const recalled = recallThread(threadCacheRef.current, scopeKeyRef.current, key);
+    threadCacheRef.current = recalled.cache;
+    return recalled.thread;
+  }, []);
+
+  const listedEntry = useCallback((entryId: string, entryType: EntryType): InboxEntry | undefined => {
+    const matches = (entry: InboxEntry) => entry.entry_id === entryId && entry.entry_type === entryType;
+    return inboxRef.current.find(matches) ?? searchResultsRef.current?.find(matches);
+  }, []);
+
+  const startLoadingConversation = useCallback(() => {
+    if (loadingConversationTimerRef.current) {
+      clearTimeout(loadingConversationTimerRef.current);
+    }
+    setLoadingConversation(true);
+    loadingConversationTimerRef.current = setTimeout(() => {
+      loadingConversationTimerRef.current = null;
+      setLoadingConversation(false);
+    }, 12000);
+  }, []);
 
   const subscribe = useCallback(
     (entryId: string, entryType: EntryType) => {
@@ -2139,6 +2427,7 @@ export function useConversationWs({
       const isSwitch =
         previous &&
         (previous.entry_id !== entryId || previous.entry_type !== entryType);
+      if (isSwitch) rememberThreadOf(activeConversationRef.current);
 
       activeSubscriptionRef.current = {
         entry_id: entryId,
@@ -2148,6 +2437,7 @@ export function useConversationWs({
       retainSubscription(entryId, entryType, "pane");
       if (isSwitch) {
         releaseSubscription(previous.entry_id, previous.entry_type, "pane");
+        setLoadingHistory(false);
       }
 
       const active = activeConversationRef.current;
@@ -2155,23 +2445,23 @@ export function useConversationWs({
         active?.entry_id === entryId &&
         active?.entry_type === entryType &&
         active.messages.length > 0;
-      if (!alreadyLoaded) {
-        if (loadingConversationTimerRef.current) {
-          clearTimeout(loadingConversationTimerRef.current);
-        }
-        setLoadingConversation(true);
-        loadingConversationTimerRef.current = setTimeout(() => {
-          loadingConversationTimerRef.current = null;
-          setLoadingConversation(false);
-        }, 12000);
-      }
+      if (alreadyLoaded) return;
 
+      startLoadingConversation();
+      const seed = seedThreadFor(entryId, entryType);
+      if (!seed) return;
+      const seeded = seededConversation(entryId, entryType, listedEntry(entryId, entryType), seed);
+      activeConversationRef.current = seeded;
+      setActiveConversation(seeded);
+      const after = newestMessageAt(seeded);
+      if (after) requestPage("pane", entryId, entryType, "after", loadAfterPayload(entryId, entryType, after));
     },
-    [retainSubscription, releaseSubscription],
+    [retainSubscription, releaseSubscription, rememberThreadOf, startLoadingConversation, seedThreadFor, listedEntry, requestPage],
   );
 
   const unsubscribe = useCallback(() => {
     if (activeSubscriptionRef.current) {
+      rememberThreadOf(activeConversationRef.current);
       releaseSubscription(
         activeSubscriptionRef.current.entry_id,
         activeSubscriptionRef.current.entry_type,
@@ -2181,67 +2471,7 @@ export function useConversationWs({
       activeSubscriptionRef.current = null;
     }
     stopLoadingConversation();
-  }, [releaseSubscription, stopLoadingConversation]);
-
-  const sendMessage = useCallback(
-    (text: string, signed: boolean, replyToMessageId?: string) => {
-      if (!activeSubscriptionRef.current) return;
-      console.log("signed? :", signed);
-      send("send", {
-        entry_id: activeSubscriptionRef.current.entry_id,
-        entry_type: activeSubscriptionRef.current.entry_type,
-        signed: signed,
-        text,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
-    },
-    [send],
-  );
-
-  const sendMediaMessage = useCallback(
-    (
-      text: string,
-      mediaId: string,
-      mediaType: MediaType,
-      signed: boolean,
-      replyToMessageId?: string,
-    ) => {
-      if (!activeSubscriptionRef.current) return;
-      console.log("[WS] Sending media message:", {
-        mediaId,
-        mediaType,
-        text: text.substring(0, 50),
-        replyToMessageId,
-      });
-      send("send", {
-        entry_id: activeSubscriptionRef.current.entry_id,
-        entry_type: activeSubscriptionRef.current.entry_type,
-        text,
-        media_id: mediaId,
-        signed: signed,
-        media_type: mediaType,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
-    },
-    [send],
-  );
-
-  const sendButtonMessage = useCallback(
-    (input: SendButtonWsInput, replyToMessageId?: string) => {
-      if (!activeSubscriptionRef.current) return;
-      send("send_button", {
-        entry_id: activeSubscriptionRef.current.entry_id,
-        entry_type: activeSubscriptionRef.current.entry_type,
-        header_type: input.headerType || "",
-        header_text: input.headerText || "",
-        body_text: input.bodyText,
-        footer_text: input.footerText || "",
-        buttons: input.buttons,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
-    },
-    [send],
-  );
+  }, [releaseSubscription, stopLoadingConversation, rememberThreadOf]);
 
   const markRead = useCallback(
     (messageIds: string[]) => {
@@ -2267,36 +2497,6 @@ export function useConversationWs({
     [send],
   );
 
-  const loadHistory = useCallback(() => {
-    if (!activeSubscriptionRef.current || loadingHistory) return;
-    setActiveConversation((prev) => {
-      if (!prev || prev.messages.length === 0 || !prev.has_more) return prev;
-      const oldestMessage = prev.messages[0];
-      loadingMoreRef.current = true;
-      setLoadingHistory(true);
-      send("load_history", {
-        entry_id: activeSubscriptionRef.current!.entry_id,
-        entry_type: activeSubscriptionRef.current!.entry_type,
-        before: oldestMessage.created_at,
-      });
-      return prev;
-    });
-  }, [send, loadingHistory]);
-
-  const loadAround = useCallback(
-    (timestamp: string) => {
-      if (!activeSubscriptionRef.current) return;
-      loadAroundRef.current = true;
-      setLoadingHistory(true);
-      send("load_around", {
-        entry_id: activeSubscriptionRef.current.entry_id,
-        entry_type: activeSubscriptionRef.current.entry_type,
-        timestamp,
-      });
-    },
-    [send],
-  );
-
 
   const applyWindows = useCallback(
     (next: WindowConversations) => {
@@ -2305,6 +2505,203 @@ export function useConversationWs({
       setWindowConversations(next);
     },
     [],
+  );
+
+  const loadHistory = useCallback(() => {
+    const active = activeConversationRef.current;
+    if (loadingHistory || !active || !isPaneEntry(active.entry_id, active.entry_type)) return;
+    if (active.messages.length === 0 || !active.has_more) return;
+    const asked = requestPage("pane", active.entry_id, active.entry_type, "before", {
+      entry_id: active.entry_id,
+      entry_type: active.entry_type,
+      before: active.messages[0].created_at,
+    });
+    if (asked) setLoadingHistory(true);
+  }, [loadingHistory, isPaneEntry, requestPage]);
+
+  const loadAround = useCallback(
+    (anchor: HistoryAnchor) => {
+      const pane = activeSubscriptionRef.current;
+      if (!pane) return;
+      const asked = requestPage("pane", pane.entry_id, pane.entry_type, "around", loadAroundPayload(pane.entry_id, pane.entry_type, anchor));
+      if (asked) setLoadingHistory(true);
+    },
+    [requestPage],
+  );
+
+  const loadNewer = useCallback(() => {
+    const active = activeConversationRef.current;
+    if (loadingHistory || !active?.has_after || !isPaneEntry(active.entry_id, active.entry_type)) return;
+    const after = newestMessageAt(active);
+    if (!after) return;
+    const asked = requestPage("pane", active.entry_id, active.entry_type, "after", loadAfterPayload(active.entry_id, active.entry_type, after));
+    if (asked) setLoadingHistory(true);
+  }, [loadingHistory, isPaneEntry, requestPage]);
+
+  const returnToPresent = useCallback(() => {
+    const pane = activeSubscriptionRef.current;
+    if (!pane) return;
+    const asked = requestPage("pane", pane.entry_id, pane.entry_type, "around", presentPayload(pane.entry_id, pane.entry_type, new Date()));
+    if (asked) setLoadingHistory(true);
+  }, [requestPage]);
+
+  const windowLoadHistory = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      const state = windowConversationsRef.current.get(key);
+      if (!state || state.loadingHistory) return;
+
+      const { messages, has_more } = state.conversation;
+      if (messages.length === 0 || !has_more) return;
+
+      const asked = requestPage("window", entryId, entryType, "before", {
+        entry_id: entryId,
+        entry_type: entryType,
+        before: messages[0].created_at,
+      });
+      if (asked) applyWindows(markWindowLoadingHistory(windowConversationsRef.current, key));
+    },
+    [applyWindows, requestPage],
+  );
+
+  const windowLoadAround = useCallback(
+    (entryId: string, entryType: EntryType, anchor: HistoryAnchor) => {
+      const key = windowKey(entryId, entryType);
+      if (!windowConversationsRef.current.has(key)) return;
+      const asked = requestPage("window", entryId, entryType, "around", loadAroundPayload(entryId, entryType, anchor));
+      if (asked) applyWindows(markWindowLoadingHistory(windowConversationsRef.current, key));
+    },
+    [applyWindows, requestPage],
+  );
+
+  const windowLoadNewer = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      const state = windowConversationsRef.current.get(key);
+      if (!state || state.loadingHistory || !state.conversation.has_after) return;
+      const after = newestMessageAt(state.conversation);
+      if (!after) return;
+      const asked = requestPage("window", entryId, entryType, "after", loadAfterPayload(entryId, entryType, after));
+      if (asked) applyWindows(markWindowLoadingHistory(windowConversationsRef.current, key));
+    },
+    [applyWindows, requestPage],
+  );
+
+  const windowReturnToPresent = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      if (!windowConversationsRef.current.has(key)) return;
+      const asked = requestPage("window", entryId, entryType, "around", presentPayload(entryId, entryType, new Date()));
+      if (asked) applyWindows(markWindowLoadingHistory(windowConversationsRef.current, key));
+    },
+    [applyWindows, requestPage],
+  );
+
+  const bringToPresent = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      if (isPaneEntry(entryId, entryType) && activeConversationRef.current?.has_after) returnToPresent();
+      if (windowConversationsRef.current.get(windowKey(entryId, entryType))?.conversation.has_after) {
+        windowReturnToPresent(entryId, entryType);
+      }
+    },
+    [isPaneEntry, returnToPresent, windowReturnToPresent],
+  );
+
+  const queueSend = useCallback(
+    (entryId: string, entryType: EntryType, payload: OutboxPayload) => {
+      const queued = { requestId: newRequestId(), entryId, entryType, payload, queuedAt: new Date().toISOString() };
+      commitOutbox(enqueueSend(outboxRef.current, queued));
+      dispatchOutboxItem({ ...queued, state: "pending" });
+      if (payload.kind !== "resend") bringToPresent(entryId, entryType);
+    },
+    [commitOutbox, dispatchOutboxItem, bringToPresent],
+  );
+
+  const sendFromPane = useCallback(
+    (payload: OutboxPayload) => {
+      const pane = activeSubscriptionRef.current;
+      if (!pane) return;
+      queueSend(pane.entry_id, pane.entry_type, payload);
+    },
+    [queueSend],
+  );
+
+  const sendMessage = useCallback(
+    (text: string, signed: boolean, replyToMessageId?: string) => {
+      sendFromPane({ kind: "text", text, signed, replyToMessageId });
+    },
+    [sendFromPane],
+  );
+
+  const sendMediaMessage = useCallback(
+    (text: string, mediaId: string, mediaType: MediaType, signed: boolean, replyToMessageId?: string) => {
+      sendFromPane({ kind: "media", text, mediaId, mediaType, signed, replyToMessageId });
+    },
+    [sendFromPane],
+  );
+
+  const sendButtonMessage = useCallback(
+    (input: SendButtonWsInput, replyToMessageId?: string) => {
+      sendFromPane({ kind: "buttons", input, replyToMessageId });
+    },
+    [sendFromPane],
+  );
+
+  const retrySend = useCallback(
+    (requestId: string) => {
+      const { outbox: next, item } = retryOutboxSend(outboxRef.current, requestId);
+      commitOutbox(next);
+      if (item) dispatchOutboxItem(item);
+    },
+    [commitOutbox, dispatchOutboxItem],
+  );
+
+  const resendMessage = useCallback(
+    (entryId: string, entryType: EntryType, messageId: string) => {
+      if (resendingMessageIds(outboxRef.current, entryId, entryType).has(messageId)) return;
+      queueSend(entryId, entryType, { kind: "resend", messageId });
+    },
+    [queueSend],
+  );
+
+  const runMessageAction = useCallback(
+    (request: MessageActionRequest): boolean => {
+      const requestId = newRequestId();
+      const command = messageCommand(request, requestId);
+      if (!send(command.type, command.payload)) return false;
+      pendingMessageActionsRef.current = trackMessageAction(pendingMessageActionsRef.current, requestId, pendingOf(request));
+      return true;
+    },
+    [send],
+  );
+
+  const reopenWindow = useCallback(
+    (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => {
+      send("reopen_window", {
+        entry_id: entryId,
+        entry_type: entryType,
+        template_id: templateId,
+        parameters,
+        request_id: newRequestId(),
+      });
+    },
+    [send],
+  );
+
+  const prefetchConversation = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      const key = windowKey(entryId, entryType);
+      if (!entryId || !entryType || isPaneEntry(entryId, entryType)) return;
+      if (windowConversationsRef.current.has(key)) return;
+      if (holdsThread(threadCacheRef.current, scopeKeyRef.current, key)) return;
+      if (hasHistoryRequest(historyRequestsRef.current, key, "before", "prefetch")) return;
+      requestPage("prefetch", entryId, entryType, "before", {
+        entry_id: entryId,
+        entry_type: entryType,
+        before: new Date().toISOString(),
+      });
+    },
+    [isPaneEntry, requestPage],
   );
 
   const openConversationWindow = useCallback(
@@ -2324,6 +2721,7 @@ export function useConversationWs({
             entryId: oldest.conversation.entry_id,
             entryType: oldest.conversation.entry_type,
           };
+          rememberThreadOf(oldest.conversation);
           next = closeWindowConversation(next, oldestKey);
         }
       }
@@ -2333,8 +2731,7 @@ export function useConversationWs({
       if (retired) releaseSubscription(retired.entryId, retired.entryType, "window");
       if (!alreadyOpen) {
         retainSubscription(input.entryId, input.entryType, "window");
-
-        send("load_history", {
+        requestPage("window", input.entryId, input.entryType, "before", {
           entry_id: input.entryId,
           entry_type: input.entryType,
           before: new Date().toISOString(),
@@ -2344,17 +2741,19 @@ export function useConversationWs({
       windowFocusNonceRef.current += 1;
       setWindowFocusRequest({ key, nonce: windowFocusNonceRef.current });
     },
-    [applyWindows, releaseSubscription, retainSubscription, send],
+    [applyWindows, releaseSubscription, retainSubscription, requestPage, rememberThreadOf],
   );
 
   const closeConversationWindow = useCallback(
     (entryId: string, entryType: EntryType) => {
       const key = windowKey(entryId, entryType);
-      if (!windowConversationsRef.current.has(key)) return;
+      const closing = windowConversationsRef.current.get(key);
+      if (!closing) return;
+      rememberThreadOf(closing.conversation);
       applyWindows(closeWindowConversation(windowConversationsRef.current, key));
       releaseSubscription(entryId, entryType, "window");
     },
-    [applyWindows, releaseSubscription],
+    [applyWindows, releaseSubscription, rememberThreadOf],
   );
 
   const setConversationWindowVisible = useCallback(
@@ -2382,22 +2781,10 @@ export function useConversationWs({
   );
 
   const windowSendMessage = useCallback(
-    (
-      entryId: string,
-      entryType: EntryType,
-      text: string,
-      signed: boolean,
-      replyToMessageId?: string,
-    ) => {
-      send("send", {
-        entry_id: entryId,
-        entry_type: entryType,
-        signed,
-        text,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
+    (entryId: string, entryType: EntryType, text: string, signed: boolean, replyToMessageId?: string) => {
+      queueSend(entryId, entryType, { kind: "text", text, signed, replyToMessageId });
     },
-    [send],
+    [queueSend],
   );
 
   const windowSendMedia = useCallback(
@@ -2410,38 +2797,16 @@ export function useConversationWs({
       signed: boolean,
       replyToMessageId?: string,
     ) => {
-      send("send", {
-        entry_id: entryId,
-        entry_type: entryType,
-        text,
-        media_id: mediaId,
-        media_type: mediaType,
-        signed,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
+      queueSend(entryId, entryType, { kind: "media", text, mediaId, mediaType, signed, replyToMessageId });
     },
-    [send],
+    [queueSend],
   );
 
   const windowSendButton = useCallback(
-    (
-      entryId: string,
-      entryType: EntryType,
-      input: SendButtonWsInput,
-      replyToMessageId?: string,
-    ) => {
-      send("send_button", {
-        entry_id: entryId,
-        entry_type: entryType,
-        header_type: input.headerType || "",
-        header_text: input.headerText || "",
-        body_text: input.bodyText,
-        footer_text: input.footerText || "",
-        buttons: input.buttons,
-        ...(replyToMessageId ? { reply_to_message_id: replyToMessageId } : {}),
-      });
+    (entryId: string, entryType: EntryType, input: SendButtonWsInput, replyToMessageId?: string) => {
+      queueSend(entryId, entryType, { kind: "buttons", input, replyToMessageId });
     },
-    [send],
+    [queueSend],
   );
 
   const windowSendTyping = useCallback(
@@ -2455,23 +2820,28 @@ export function useConversationWs({
     [send],
   );
 
-  const windowLoadHistory = useCallback(
-    (entryId: string, entryType: EntryType) => {
+  const windowSearchMessages = useCallback(
+    (entryId: string, entryType: EntryType, query: string) => {
       const key = windowKey(entryId, entryType);
-      const state = windowConversationsRef.current.get(key);
-      if (!state || state.loadingHistory) return;
-
-      const { messages, has_more } = state.conversation;
-      if (messages.length === 0 || !has_more) return;
-
-      applyWindows(markWindowLoadingMore(windowConversationsRef.current, key));
-      send("load_history", {
+      const trimmed = query.trim();
+      if (!trimmed || !windowConversationsRef.current.has(key)) return;
+      applyWindows(startWindowSearch(windowConversationsRef.current, key, trimmed));
+      send("search_messages", {
         entry_id: entryId,
         entry_type: entryType,
-        before: messages[0].created_at,
+        query: trimmed,
+        page: 1,
+        page_size: 50,
       });
     },
     [applyWindows, send],
+  );
+
+  const windowClearMessageSearch = useCallback(
+    (entryId: string, entryType: EntryType) => {
+      applyWindows(clearWindowSearch(windowConversationsRef.current, windowKey(entryId, entryType)));
+    },
+    [applyWindows],
   );
 
   const requestInboxPage = useCallback(
@@ -2528,6 +2898,7 @@ export function useConversationWs({
       }
       setSearchingMessages(true);
       setMessageSearchQuery(query.trim());
+      paneSearchRef.current = { ...activeSubscriptionRef.current, query: query.trim() };
       send("search_messages", {
         entry_id: activeSubscriptionRef.current.entry_id,
         entry_type: activeSubscriptionRef.current.entry_type,
@@ -2540,6 +2911,7 @@ export function useConversationWs({
   );
 
   const clearMessageSearch = useCallback(() => {
+    paneSearchRef.current = null;
     setMessageSearchResults(null);
     setSearchingMessages(false);
     setMessageSearchTotalItems(0);
@@ -2584,13 +2956,20 @@ export function useConversationWs({
 
   const assignTo = useCallback(
     (entryId: string, entryType: string, userId: string) => {
-      send("assign_to", {
-        entry_id: entryId,
-        entry_type: entryType,
-        user_id: userId,
-      });
+      const previous =
+        inboxRef.current.find(
+          (e) => e.entry_id === entryId && e.entry_type === entryType,
+        )?.assigned_user_id ?? "";
+      if (assigneeKind(previous) === "human" && previous !== userId) {
+        assignmentLedgerRef.current = beginOperation(assignmentLedgerRef.current, {
+          id: newRequestId(),
+          target: windowKey(entryId, entryType),
+          snapshot: { previous, requested: userId },
+        });
+      }
+      sendAssign(entryId, entryType, userId);
     },
-    [send],
+    [sendAssign],
   );
 
   const forgetEntry = useCallback(
@@ -2606,32 +2985,11 @@ export function useConversationWs({
   const setConversationStatus = useCallback(
     (entryId: string, entryType: string, status: string, outcomeCode?: string) => {
       if (wsRef.current?.readyState !== WebSocket.OPEN) {
-        toast.error("A conexão do chat não está pronta. Tente novamente.");
+        toast.error(tActions("connectionNotReady"));
         return;
       }
 
-      const entryKey = `${entryType}-${entryId}`;
-      const previousInboxEntry =
-        inboxRef.current.find(
-          (entry) =>
-            entry.entry_id === entryId && entry.entry_type === entryType,
-        ) ?? null;
-      const previousSearchEntry =
-        searchResultsRef.current?.find(
-          (entry) =>
-            entry.entry_id === entryId && entry.entry_type === entryType,
-        ) ?? null;
-      const previousStatus =
-        previousInboxEntry?.conversation_status ??
-        previousSearchEntry?.conversation_status ??
-        activeConversationRef.current?.conversation_status;
-
-      pendingStatusChangesRef.current.set(entryKey, {
-        previousStatus,
-        previousInboxEntry,
-        previousSearchEntry,
-      });
-
+      const target = { entryId, entryType };
       const statusPatch =
         status === "finished"
           ? {
@@ -2642,51 +3000,30 @@ export function useConversationWs({
             }
           : { conversation_status: status };
 
+      statusLedgerRef.current = beginOperation(statusLedgerRef.current, {
+        id: newRequestId(),
+        target: windowKey(entryId, entryType),
+        snapshot: snapshotViews(
+          {
+            inbox: inboxRef.current,
+            search: searchResultsRef.current,
+            active: activeConversationRef.current,
+          },
+          target,
+          statusPatch,
+        ),
+      });
+
+      const membership = statusMembership();
       setInbox((prev) => {
-        const idx = prev.findIndex(
-          (e) => e.entry_id === entryId && e.entry_type === entryType,
-        );
-        if (idx < 0) return prev;
-
-        const activeStatusFilter = currentViewRef.current.conversationStatus;
-        if (activeStatusFilter && status !== activeStatusFilter) {
-          const filtered = prev.filter(
-            (e) => !(e.entry_id === entryId && e.entry_type === entryType),
-          );
-          inboxRef.current = filtered;
-          return filtered;
-        }
-
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], ...statusPatch };
+        const updated = applyToList(prev, target, statusPatch, membership.inbox);
         inboxRef.current = updated;
         return updated;
       });
-      setSearchResults((prev) => {
-        if (!prev) return prev;
-
-        const idx = prev.findIndex(
-          (e) => e.entry_id === entryId && e.entry_type === entryType,
-        );
-        if (idx < 0) return prev;
-
-        const activeSearchStatus =
-          currentSearchFiltersRef.current?.conversation_status;
-        if (activeSearchStatus && status !== activeSearchStatus) {
-          return prev.filter(
-            (e) => !(e.entry_id === entryId && e.entry_type === entryType),
-          );
-        }
-
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], ...statusPatch };
-        return updated;
-      });
-      setActiveConversation((prev) =>
-        prev && prev.entry_id === entryId && prev.entry_type === entryType
-          ? { ...prev, ...statusPatch }
-          : prev,
+      setSearchResults((prev) =>
+        prev && applyToList(prev, target, statusPatch, membership.search),
       );
+      setActiveConversation((prev) => applyToActive(prev, target, statusPatch));
       send("set_conversation_status", {
         entry_id: entryId,
         entry_type: entryType,
@@ -2694,7 +3031,7 @@ export function useConversationWs({
         ...(outcomeCode ? { outcome_code: outcomeCode } : {}),
       });
     },
-    [send],
+    [send, statusMembership, tActions],
   );
 
   const clearPendingOutcomeRequest = useCallback(() => {
@@ -2710,35 +3047,21 @@ export function useConversationWs({
       newContainerKind?: ContainerKind,
     ) => {
       const previousView = currentViewRef.current;
-      const resolvedConversationStatus =
-        newConversationStatus ?? previousView.conversationStatus;
-      const resolvedCampaignId = newCampaignId ?? "";
-      const resolvedCampaignType = newCampaignType ?? "";
-      const resolvedWhatsAppCampaignType = newWhatsAppCampaignType ?? "";
-      const resolvedContainerKind = newContainerKind ?? "";
-      const onlyStatusChanged =
-        previousView.campaignId === resolvedCampaignId &&
-        (previousView.campaignType ?? "") === resolvedCampaignType &&
-        (previousView.whatsAppCampaignType ?? "") ===
-          resolvedWhatsAppCampaignType &&
-        (previousView.containerKind ?? "") === resolvedContainerKind &&
-        previousView.conversationStatus !== resolvedConversationStatus;
-
-      currentViewRef.current = {
-        campaignId: resolvedCampaignId,
+      const nextView: InboxView = {
+        campaignId: newCampaignId ?? "",
         campaignType: newCampaignType,
         whatsAppCampaignType: newWhatsAppCampaignType,
         containerKind: newContainerKind,
-        conversationStatus: resolvedConversationStatus,
+        conversationStatus: newConversationStatus ?? previousView.conversationStatus,
       };
-
-      send("switch_view", {
-        campaign_id: resolvedCampaignId,
-        campaign_type: resolvedCampaignType,
-        whatsapp_campaign_type: resolvedWhatsAppCampaignType,
-        container_kind: resolvedContainerKind,
-        conversation_status: resolvedConversationStatus,
+      if (sameView(previousView, nextView)) return;
+      const onlyStatusChanged = sameView(previousView, {
+        ...nextView,
+        conversationStatus: previousView.conversationStatus,
       });
+
+      currentViewRef.current = nextView;
+      send("switch_view", switchViewPayload(nextView));
 
       if (!onlyStatusChanged) {
         setActiveConversation(null);
@@ -2763,6 +3086,19 @@ export function useConversationWs({
 
   const totalUnread = inbox.reduce((sum, e) => sum + e.unread_count, 0);
 
+  const clearUnread = useCallback((entries: readonly MarkedEntry[]) => {
+    setInbox((prev) => {
+      const next = clearUnreadCounts(prev, entries);
+      inboxRef.current = next;
+      return next;
+    });
+    setSearchResults((prev) => prev && clearUnreadCounts(prev, entries));
+  }, []);
+  const personalInbox = useMemo<PersonalInboxControls>(
+    () => ({ ...personalMarks.commands, clearUnread }),
+    [personalMarks.commands, clearUnread],
+  );
+
   return {
     status,
     inbox,
@@ -2777,10 +3113,17 @@ export function useConversationWs({
     sendButtonMessage,
     markRead,
     sendTyping,
-    typingUsers,
+    typingByEntry,
     totalUnread,
     loadHistory,
     loadAround,
+    loadNewer,
+    returnToPresent,
+    prefetchConversation,
+    outbox,
+    retrySend,
+    resendMessage,
+    reopenWindow,
     loadingHistory,
     loadingConversation,
     requestInboxPage,
@@ -2822,6 +3165,9 @@ export function useConversationWs({
     applyLeadPatch,
     subscribeLeadUpdates,
     subscribeLeadsBulkUpdates,
+    subscribeServerEvents,
+    viewersByEntry,
+    runMessageAction,
     windowConversations,
     windowFocusRequest,
     openConversationWindow,
@@ -2832,5 +3178,11 @@ export function useConversationWs({
     windowSendButton,
     windowSendTyping,
     windowLoadHistory,
+    windowSearchMessages,
+    windowClearMessageSearch,
+    windowLoadAround,
+    windowLoadNewer,
+    windowReturnToPresent,
+    personalInbox,
   };
 }

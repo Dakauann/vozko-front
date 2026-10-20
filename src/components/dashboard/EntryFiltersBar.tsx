@@ -55,6 +55,7 @@ interface EntryFiltersBarProps {
   canFilterByStage?: boolean;
   renderActions?: ReactNode;
   className?: string;
+  bare?: boolean;
 }
 
 
@@ -69,6 +70,7 @@ export default function EntryFiltersBar({
   canFilterByStage = true,
   renderActions,
   className,
+  bare = false,
 }: EntryFiltersBarProps) {
   const [localSearch, setLocalSearch] = useState(values.search);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,6 +135,99 @@ export default function EntryFiltersBar({
     onChange({ search: "", status: "", stageId: "", errorCode: "" });
   }, [onChange]);
 
+  const controls = (
+    <>
+      <div className="flex-1 min-w-[200px]">
+        <ElevatedInput
+          placeholder={t.searchPlaceholder}
+          icon={<MagnifyingGlass weight="bold" className="h-4 w-4" />}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
+          controlSize="sm"
+          className="w-full"
+        />
+      </div>
+
+      <div className="min-w-[160px]">
+        <ElevatedSelect
+          value={values.status || "__all__"}
+          onValueChange={handleStatusChange}
+          placeholder={t.statusAll}
+        >
+          <ElevatedSelectItem value="__all__">
+            {t.statusAll}
+          </ElevatedSelectItem>
+          {statusOptions.map((opt) => (
+            <ElevatedSelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </ElevatedSelectItem>
+          ))}
+        </ElevatedSelect>
+      </div>
+
+      {canFilterByStage && (
+        <div className="min-w-[160px]">
+          <ElevatedSelect
+            value={values.stageId || "__all__"}
+            onValueChange={handleStageChange}
+            placeholder={t.tagAll}
+            icon={<Tag weight="bold" className="h-3.5 w-3.5" />}
+          >
+            <ElevatedSelectItem value="__all__">
+              {t.tagAll}
+            </ElevatedSelectItem>
+            {stages.map((stage) => (
+              <ElevatedSelectItem key={stage.id} value={stage.id}>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: stage.color }}
+                  />
+                  <span>{stage.name}</span>
+                </div>
+              </ElevatedSelectItem>
+            ))}
+          </ElevatedSelect>
+        </div>
+      )}
+
+      {renderActions}
+
+      {hasErrorCodes(campaignType) && (
+        <div className="min-w-[130px]">
+          <ElevatedInput
+            placeholder={t.errorCodePlaceholder ?? "Error code"}
+            value={values.errorCode ?? ""}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "");
+              onChange({ ...values, errorCode: val });
+            }}
+            controlSize="sm"
+            className="w-full"
+          />
+        </div>
+      )}
+    </>
+  );
+
+  if (bare) {
+    return (
+      <div className={cn("flex flex-wrap items-center gap-2", className)}>
+        {controls}
+        {hasActiveFilters ? (
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="inline-flex h-8 items-center gap-1.5 rounded-[--radius] px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X weight="bold" className="h-3 w-3" />
+            {t.clearFilters}
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -181,76 +276,7 @@ export default function EntryFiltersBar({
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <ElevatedInput
-            placeholder={t.searchPlaceholder}
-            icon={<MagnifyingGlass weight="bold" className="h-4 w-4" />}
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            controlSize="sm"
-            className="w-full"
-          />
-        </div>
-
-        <div className="min-w-[160px]">
-          <ElevatedSelect
-            value={values.status || "__all__"}
-            onValueChange={handleStatusChange}
-            placeholder={t.statusAll}
-          >
-            <ElevatedSelectItem value="__all__">
-              {t.statusAll}
-            </ElevatedSelectItem>
-            {statusOptions.map((opt) => (
-              <ElevatedSelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </ElevatedSelectItem>
-            ))}
-          </ElevatedSelect>
-        </div>
-
-        {canFilterByStage && (
-          <div className="min-w-[160px]">
-            <ElevatedSelect
-              value={values.stageId || "__all__"}
-              onValueChange={handleStageChange}
-              placeholder={t.tagAll}
-              icon={<Tag weight="bold" className="h-3.5 w-3.5" />}
-            >
-              <ElevatedSelectItem value="__all__">
-                {t.tagAll}
-              </ElevatedSelectItem>
-              {stages.map((stage) => (
-                <ElevatedSelectItem key={stage.id} value={stage.id}>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: stage.color }}
-                    />
-                    <span>{stage.name}</span>
-                  </div>
-                </ElevatedSelectItem>
-              ))}
-            </ElevatedSelect>
-          </div>
-        )}
-
-        {renderActions}
-
-        {hasErrorCodes(campaignType) && (
-          <div className="min-w-[130px]">
-            <ElevatedInput
-              placeholder={t.errorCodePlaceholder ?? "Error code"}
-              value={values.errorCode ?? ""}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, "");
-                onChange({ ...values, errorCode: val });
-              }}
-              controlSize="sm"
-              className="w-full"
-            />
-          </div>
-        )}
+        {controls}
       </div>
     </div>
   );

@@ -70,3 +70,7 @@ export function pageCounts(people: GroupPerson[]): { withLead: number; hidden: n
     { withLead: 0, hidden: 0, maxGroups: 0 },
   );
 }
+
+export function canBecomeLead(person: GroupPerson): boolean {
+  return !person.leadId && !isHiddenNumber(person);
+}

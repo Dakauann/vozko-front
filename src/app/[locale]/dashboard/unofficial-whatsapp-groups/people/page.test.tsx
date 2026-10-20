@@ -6,7 +6,7 @@ import type { GroupPerson } from "@/lib/unofficial-whatsapp-groups/types";
 const toastMock = vi.hoisted(() => Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }));
 vi.mock("sonner", () => ({ toast: toastMock }));
 
-const groupActions = vi.hoisted(() => ({ listGroupPeopleAction: vi.fn() }));
+const groupActions = vi.hoisted(() => ({ listGroupPeopleAction: vi.fn(), addGroupPeopleToLeadsAction: vi.fn() }));
 vi.mock("@/app/actions/unofficial-whatsapp-groups", () => groupActions);
 
 const navigation = vi.hoisted(() => ({ replace: vi.fn(), params: new URLSearchParams() }));
@@ -83,6 +83,8 @@ function page(items: GroupPerson[], totalPages = 1) {
 describe("GroupPeoplePage", () => {
   beforeEach(() => {
     groupActions.listGroupPeopleAction.mockReset();
+    groupActions.addGroupPeopleToLeadsAction.mockReset();
+    toastMock.mockClear();
     navigation.replace.mockClear();
     navigation.params = new URLSearchParams();
     toastMock.error.mockClear();
@@ -205,6 +207,32 @@ describe("GroupPeoplePage", () => {
     expect(await screen.findByText("unofficialGroups.people.error.title")).toBeInTheDocument();
     fireEvent.click(screen.getByText("unofficialGroups.kit.table.retry"));
     expect(await screen.findByText("Ana Souza")).toBeInTheDocument();
+  });
+
+  it("adds a person without a lead to the leads and reloads the list", async () => {
+    grants.value = new Set(["unofficial_whatsapp_groups:read", "leads:read", "leads:create"]);
+    groupActions.listGroupPeopleAction.mockResolvedValue(page([person()]));
+    groupActions.addGroupPeopleToLeadsAction.mockResolvedValue({ data: { linked: 1, alreadyLinked: 0, withoutPhone: 0 } });
+    render(<GroupPeoplePage />);
+    fireEvent.click(await screen.findByRole("button", { name: "unofficialGroups.detail.members.leads.add" }));
+    await waitFor(() => expect(groupActions.addGroupPeopleToLeadsAction).toHaveBeenCalledWith(["k-1"]));
+    await waitFor(() => expect(groupActions.listGroupPeopleAction).toHaveBeenCalledTimes(2));
+    expect(toastMock).toHaveBeenCalledWith("unofficialGroups.detail.members.leads.done", expect.anything());
+  });
+
+  it("does not offer the leads for a hidden number or without the lead grant", async () => {
+    groupActions.listGroupPeopleAction.mockResolvedValue(
+      page([person(), person({ personKey: "k-2", name: "123456789012345@lid", phone: undefined, jid: "123456789012345@lid" })]),
+    );
+    const view = render(<GroupPeoplePage />);
+    await screen.findByText("Ana Souza");
+    expect(screen.queryByRole("button", { name: "unofficialGroups.detail.members.leads.add" })).toBeNull();
+    view.unmount();
+
+    grants.value = new Set(["unofficial_whatsapp_groups:read", "leads:read", "leads:create"]);
+    render(<GroupPeoplePage />);
+    await screen.findByText("Ana Souza");
+    expect(screen.getAllByRole("button", { name: "unofficialGroups.detail.members.leads.add" })).toHaveLength(1);
   });
 
   it("keeps the rows and only toasts when a refresh fails", async () => {

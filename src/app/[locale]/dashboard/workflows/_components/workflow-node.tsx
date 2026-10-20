@@ -56,6 +56,8 @@ import {
   WebhooksLogo,
   Shield,
   ShieldCheck,
+  ArrowBendUpLeft,
+  ClipboardText,
 } from "@/components/icons";
 import type { Icon } from "@/components/icons";
 import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
@@ -65,6 +67,7 @@ import type {
   HandleDefinition,
 } from "@/lib/workflows/types";
 import { isInteractivePromptType } from "@/lib/workflows/types";
+import type { NodePin } from "@/lib/workflows/node-pin";
 import { cn } from "@/lib/utils";
 import {
   parseInteractiveConfig,
@@ -75,12 +78,17 @@ import {
   BranchRows,
   EmptyPreview,
   InteractiveNodeShell,
+  MessageMediaGlance,
   type ShellBranch,
 } from "./message-node-primitives";
-import { renderActionContentPreview, renderConditionContentPreview, renderMessageContentPreview } from "./node-previews";
+import { MESSAGE_NODE_TYPES } from "./canvas-detail";
+import { renderActionContentPreview, renderConditionContentPreview, renderMessageContentPreview, renderMessageGlance } from "./node-previews";
+import { agentNameOf, nodeSummary } from "./node-previews/node-summary";
+import { TriggerEntryMark } from "./trigger-entry-mark";
 
 
 const ICON_MAP: Record<string, Icon> = {
+  ClipboardText,
   ChatCircleDots,
   ChatCircle,
   Megaphone,
@@ -134,7 +142,12 @@ const ICON_MAP: Record<string, Icon> = {
   Webhooks: WebhooksLogo,
   ShieldCheck,
   SealQuestion: Shield,
+  ArrowBendUpLeft,
 };
+
+function nodeIconOf(name: string | undefined, fallback: Icon = PaperPlaneTilt): Icon {
+  return (name ? ICON_MAP[name] : undefined) ?? fallback;
+}
 
 
 const CATEGORY_STYLES: Record<NodeCategory, { color: string; ink: string }> = {
@@ -186,6 +199,7 @@ function getCategory(type: WorkflowNodeType): NodeCategory {
     "action_send_interactive",
     "action_send_whatsapp_button",
     "action_send_media",
+    "action_send_form",
   ];
   if ((messagingTypes as string[]).includes(type)) return "messaging";
   return "action";
@@ -201,14 +215,9 @@ export interface WorkflowNodeData {
   hasMissingRequired?: boolean;
   searchMatch?: boolean;
   searchDim?: boolean;
+  pinned?: NodePin;
   [key: string]: unknown;
 }
-
-const INTERACTIVE_CATCH_ALLS: { id: string; label: string }[] = [
-  { id: "no_match", label: "Sem correspondência" },
-  { id: "no_reply", label: "Não respondeu" },
-  { id: "send_failed", label: "Falha no envio" },
-];
 
 const INTERACTIVE_NODE_WIDTH = 232;
 
@@ -216,27 +225,33 @@ const GENERIC_NODE_WIDTH = 200;
 
 function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as WorkflowNodeData;
+  const outputs = useMemo(() => (nodeData.outputs ?? []).filter((o) => o.id), [nodeData.outputs]);
   const parsed = useMemo(
-    () => parseInteractiveConfig(nodeData.config),
-    [nodeData.config],
+    () => parseInteractiveConfig(nodeData.config, outputs),
+    [nodeData.config, outputs],
   );
-
   const branches: ShellBranch[] = useMemo(
-    () => [
-      ...parsed.options.map((o) => ({ id: o.id, required: true })),
-      ...INTERACTIVE_CATCH_ALLS.map((c) => ({ id: c.id })),
-    ],
-    [parsed.options],
+    () => outputs.map((o) => ({ id: o.id, required: !o.optional, label: o.label })),
+    [outputs],
   );
+  const catchAlls = useMemo(() => outputs.filter((o) => o.optional), [outputs]);
 
   const flashAt =
     typeof nodeData._flashAt === "number" ? nodeData._flashAt : null;
+  const headerImage =
+    parsed.headerType === "image" ? parsed.headerMediaUrl.trim() : "";
+  const summary = useMemo(
+    () => nodeSummary(nodeData.nodeType, nodeData.config),
+    [nodeData.nodeType, nodeData.config],
+  );
 
   return (
     <InteractiveNodeShell
       id={id}
       label={nodeData.label ?? "Enviar Botões ou Lista"}
-      icon={ICON_MAP[nodeData.icon ?? "PaperPlaneTilt"] ?? PaperPlaneTilt}
+      glance={headerImage ? <MessageMediaGlance url={headerImage} /> : undefined}
+      summary={summary}
+      icon={nodeIconOf(nodeData.icon)}
       iconColor={CATEGORY_STYLES.messaging.color}
       width={INTERACTIVE_NODE_WIDTH}
       branches={branches}
@@ -244,6 +259,7 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
       flashAt={flashAt}
       hasMissingRequired={Boolean(nodeData.hasMissingRequired)}
       isSimulating={Boolean(nodeData.isSimulating)}
+      pinned={Boolean(nodeData.pinned)}
       searchMatch={Boolean(nodeData.searchMatch)}
       searchDim={Boolean(nodeData.searchDim)}
     >
@@ -254,7 +270,7 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
 
           {}
           <BranchRows hasContentAbove>
-            {INTERACTIVE_CATCH_ALLS.map((ca) => (
+            {catchAlls.map((ca) => (
               <BranchRow
                 key={ca.id}
                 id={ca.id}
@@ -269,13 +285,6 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
   );
 }
 
-const MESSAGE_NODE_TYPES = new Set<WorkflowNodeType>([
-  "action_send_text",
-  "action_send_email",
-  "action_send_template",
-  "action_send_media",
-]);
-
 function MessageNode({ id, data, selected }: NodeProps) {
   const nodeData = data as unknown as WorkflowNodeData;
   const flashAt =
@@ -284,11 +293,16 @@ function MessageNode({ id, data, selected }: NodeProps) {
     nodeData.nodeType,
     nodeData.config,
   );
+  const glance = renderMessageGlance(nodeData.nodeType, nodeData.config);
+  const summary = useMemo(
+    () => nodeSummary(nodeData.nodeType, nodeData.config),
+    [nodeData.nodeType, nodeData.config],
+  );
   return (
     <InteractiveNodeShell
       id={id}
       label={nodeData.label ?? nodeData.nodeType}
-      icon={ICON_MAP[nodeData.icon ?? "PaperPlaneTilt"] ?? PaperPlaneTilt}
+      icon={nodeIconOf(nodeData.icon)}
       iconColor={CATEGORY_STYLES.messaging.color}
       width={INTERACTIVE_NODE_WIDTH}
       branches={[]}
@@ -296,8 +310,11 @@ function MessageNode({ id, data, selected }: NodeProps) {
       flashAt={flashAt}
       hasMissingRequired={Boolean(nodeData.hasMissingRequired)}
       isSimulating={Boolean(nodeData.isSimulating)}
+      pinned={Boolean(nodeData.pinned)}
       searchMatch={Boolean(nodeData.searchMatch)}
       searchDim={Boolean(nodeData.searchDim)}
+      glance={glance}
+      summary={summary}
     >
       {() => content}
     </InteractiveNodeShell>
@@ -320,7 +337,7 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
   const nodeType = nodeData.nodeType;
   const category = getCategory(nodeType);
   const styles = CATEGORY_STYLES[category];
-  const IconComp = ICON_MAP[nodeData.icon ?? "GitBranch"] ?? GitBranch;
+  const IconComp = nodeIconOf(nodeData.icon, GitBranch);
   const label = nodeData.label ?? nodeType;
   const isTrigger = category === "trigger";
   const isEnd = category === "end";
@@ -328,7 +345,7 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
   const visibleOutputs = (nodeData.outputs ?? []).filter((o) => o.id);
   const hasMultipleOutputs = visibleOutputs.length >= 1;
   const branches: ShellBranch[] = hasMultipleOutputs
-    ? visibleOutputs.map((o) => ({ id: o.id, required: !o.optional }))
+    ? visibleOutputs.map((o) => ({ id: o.id, required: !o.optional, label: o.label }))
     : [];
 
   const appearSeq =
@@ -337,6 +354,10 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
     typeof nodeData._flashAt === "number" ? nodeData._flashAt : null;
 
   const content = renderNodeContent(nodeType, nodeData.config);
+  const summary = useMemo(
+    () => nodeSummary(nodeType, nodeData.config),
+    [nodeType, nodeData.config],
+  );
 
   return (
     <InteractiveNodeShell
@@ -352,14 +373,18 @@ function GenericWorkflowNode({ id, data, selected }: NodeProps) {
       flashAt={flashAt}
       hasMissingRequired={Boolean(nodeData.hasMissingRequired)}
       isSimulating={Boolean(nodeData.isSimulating)}
+      pinned={Boolean(nodeData.pinned)}
       searchMatch={Boolean(nodeData.searchMatch)}
       searchDim={Boolean(nodeData.searchDim)}
       hideInputHandle={isTrigger}
       hideOutputHandle={isEnd}
+      summary={summary}
     >
       {({ registerRow }) => (
         <>
           {content != null && <div className="px-2.5 py-2">{content}</div>}
+
+          {isTrigger && <TriggerEntryMark nodeId={id} />}
 
           {hasMultipleOutputs && (
             <BranchRows hasContentAbove={content != null}>
@@ -440,10 +465,7 @@ function renderNodeContent(
 
 
     case "action_ai_agent": {
-      const agentName =
-        (config._display_agent_id as string) ||
-        (config.agent_name as string) ||
-        (config.agent_id as string);
+      const agentName = agentNameOf(config);
       const source = config.source as string;
       const toolMode = (config.tool_mode as string) || "route";
       const tools = (config.custom_tools as Array<{ name: string }>) ?? [];
@@ -785,7 +807,7 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "rounded-xl transition-all w-full h-full min-w-[200px] min-h-[100px]",
+        "rounded-xl transition-[background-color,border-color,box-shadow] w-full h-full min-w-[200px] min-h-[100px]",
         bgCls,
         borderColorCls,
         borderCls,
@@ -813,4 +835,4 @@ function GroupNodeComponent({ data, selected }: NodeProps) {
 
 export const GroupNode = memo(GroupNodeComponent);
 
-export { getCategory, CATEGORY_STYLES, ICON_MAP };
+export { getCategory, CATEGORY_STYLES, ICON_MAP, nodeIconOf };

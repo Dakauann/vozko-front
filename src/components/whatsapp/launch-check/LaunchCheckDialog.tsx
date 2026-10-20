@@ -33,6 +33,7 @@ type FixKind = "template" | "phone" | "balance";
 
 const FIX_OF: Partial<Record<LaunchCode, FixKind>> = {
   template_not_ready: "template",
+  form_not_sendable: "template",
   template_red: "template",
   template_yellow: "template",
   template_flagged: "template",
