@@ -4,6 +4,7 @@ export type InvoiceStatus =
   | 'OVERDUE'
   | 'CANCELLED'
   | 'REFUNDED'
+  | 'REVERSED'
   | 'EXPIRED';
 
 export type BillingType = 'PIX' | 'BOLETO';
@@ -19,6 +20,15 @@ export interface InvoiceLineItem {
   quantity?: number;
   prorated?: boolean;
   creditable: boolean;
+}
+
+export type InvoicePaymentState = 'OPEN' | 'RENEWABLE' | 'CLOSED';
+
+export interface InvoicePayment {
+  state: InvoicePaymentState;
+  canRenew: boolean;
+  expiresAt?: string | null;
+  payableUntil?: string | null;
 }
 
 export interface Invoice {
@@ -37,9 +47,10 @@ export interface Invoice {
   lineItems?: InvoiceLineItem[];
   pixQrCode: string | null;
   pixCopy: string | null;
+  payment?: InvoicePayment;
   bankSlipUrl: string | null;
   invoiceUrl: string | null;
-  paidAt: string | null;
+  paidAt?: number | null;
   description: string;
   createdAt: string;
   updatedAt: string;

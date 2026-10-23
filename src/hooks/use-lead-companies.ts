@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { useQueries, useQueryClient, type QueryKey, type UseQueryResult } from "@tanstack/react-query";
 
 import { getLeadCompanyAction, listLeadCompaniesAction, type LeadCompaniesQuery } from "@/app/actions/lead-companies";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -45,6 +45,23 @@ export function useLeadCompany(companyId: string) {
     queryKey: leadCompanyKeys.company(workspaceId, companyId),
     queryFn: async (signal) => required(await getLeadCompanyAction(companyId, signal), "lead company"),
     enabled: readable && companyId !== "",
+  });
+}
+
+function companyNamesOf(results: UseQueryResult<LeadCompany>[]): ReadonlyMap<string, string> {
+  return new Map(results.flatMap((result) => (result.data ? [[result.data.id, result.data.name] as const] : [])));
+}
+
+export function useLeadCompanyNames(companyIds: readonly string[], enabled = true): ReadonlyMap<string, string> {
+  const { workspaceId, readable } = useCompanyReader();
+  return useQueries({
+    combine: companyNamesOf,
+    queries: companyIds.map((companyId) => ({
+      queryKey: leadCompanyKeys.company(workspaceId, companyId),
+      queryFn: async ({ signal }: { signal: AbortSignal }) => required(await getLeadCompanyAction(companyId, signal), "lead company"),
+      enabled: enabled && readable && companyId !== "",
+      refetchOnWindowFocus: false,
+    })),
   });
 }
 

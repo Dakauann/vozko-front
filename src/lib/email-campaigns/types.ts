@@ -273,7 +273,6 @@ export interface TestSendResponse {
 export interface Quote {
   units: number;
   unit_micros: number;
-  unit_cost_micros: number;
   total_micros: number;
   unit_brl: number;
   total_brl: number;

@@ -142,8 +142,8 @@ describe("EmailCampaignsList", () => {
 
 const START_REVIEW = {
   audience: { matched: 2, with_email: 2, sendable: 2, skipped: {} },
-  send: { units: 2, unit_micros: 1000, unit_cost_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
-  first_batch: { units: 2, unit_micros: 1000, unit_cost_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
+  send: { units: 2, unit_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
+  first_batch: { units: 2, unit_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
   batch_size: 1000,
   balance_micros: 10_000_000,
   missing_micros: 0,

@@ -55,6 +55,7 @@ const actions = vi.hoisted(() => ({
 vi.mock("@/app/actions/campaign-audience", () => actions);
 
 import { AudienceCreateHint, CampaignAudienceStep } from "../CampaignAudienceStep";
+import { SlotMark } from "../slot-focus";
 import { useCampaignAudience } from "../use-campaign-audience";
 import type { AudienceDraft } from "@/lib/campaign-audience/draft";
 
@@ -136,6 +137,10 @@ function renderStep(channel: AudienceChannel, fields: ChannelFields = {}, initia
   );
 }
 
+function sheetQuery() {
+  return actions.listAudienceLeadsAction.mock.calls.find((call) => call[3]?.limit === 50);
+}
+
 function lastCountSpec() {
   const calls = actions.countAudienceAction.mock.calls;
   return calls[calls.length - 1]?.[1];
@@ -146,6 +151,7 @@ beforeEach(() => {
   actions.listAudienceFieldsAction.mockResolvedValue({ data: FIELDS, error: null });
   actions.countAudienceAction.mockResolvedValue({ data: leadsCount(), error: null });
   actions.searchAudienceRowsAction.mockResolvedValue({ data: { items: [], page: 1, pageSize: 50, totalPages: 0, totalItems: 0 }, error: null });
+  actions.listAudienceLeadsAction.mockResolvedValue({ data: { items: [], page: 1, pageSize: 5, totalPages: 0, totalItems: 0 }, error: null });
   actions.previewAudienceListAction.mockResolvedValue({ data: PREVIEW, error: null });
 });
 
@@ -480,7 +486,7 @@ describe("CampaignAudienceStep leads behind the numbers", () => {
     expect(within(dialog).getByText("5511900000003")).toBeInTheDocument();
     expect(within(dialog).getAllByText(step.leads.status.out).length).toBe(2);
     expect(within(dialog).getByText("Bia")).toBeInTheDocument();
-    const [, spec, fields, query] = actions.listAudienceLeadsAction.mock.calls[0];
+    const [, spec, fields, query] = sheetQuery() ?? [];
     expect(spec.source).toBe("leads");
     expect(fields).toEqual({ templateId: "tpl-1" });
     expect(query).toEqual({ status: "out", reason: "no_identity", search: "", page: 1, limit: 50 });
@@ -492,7 +498,7 @@ describe("CampaignAudienceStep leads behind the numbers", () => {
     renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
     fireEvent.click(await screen.findByRole("button", { name: new RegExp(step.count.matched.leads) }, SETTLE));
     await screen.findByRole("dialog");
-    expect(actions.listAudienceLeadsAction.mock.calls[0][3]).toEqual({ search: "", page: 1, limit: 50 });
+    await waitFor(() => expect(sheetQuery()?.[3]).toEqual({ search: "", page: 1, limit: 50 }));
   });
 
   it("edits a lead with the real lead sheet and counts again", async () => {
@@ -567,5 +573,114 @@ describe("CampaignAudienceStep new lead", () => {
 
     await waitFor(() => expect(actions.countAudienceAction).toHaveBeenCalledTimes(2), SETTLE);
     expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone" } });
+  });
+});
+
+describe("CampaignAudienceStep matched leads preview", () => {
+  const MATCHED = {
+    items: [
+      { leadId: "lead-1", line: 0, name: "Ana Souza", contact: "5561999990001", status: "ready", reason: "", missing: [], metadataMissing: [], variables: ["Ana"] },
+      { leadId: "lead-2", line: 0, name: "Bruno Reis", contact: "", status: "out", reason: "no_identity", missing: [], metadataMissing: [], variables: [""] },
+    ],
+    page: 1,
+    pageSize: 5,
+    totalPages: 161,
+    totalItems: 802,
+  };
+  const COUNTED = leadsCount({ blockers: [], sendable: 700, variables: [] });
+
+  function previewCalls() {
+    return actions.listAudienceLeadsAction.mock.calls.filter((call) => call[3]?.limit === 5);
+  }
+
+  it("lists the first matched leads under the filters with the count's spec", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: COUNTED, error: null });
+    actions.listAudienceLeadsAction.mockResolvedValue({ data: MATCHED, error: null });
+    renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
+    const preview = (await screen.findByText(step.preview.title, undefined, SETTLE)).closest("section") as HTMLElement;
+    expect(await within(preview).findByText("Ana Souza")).toBeInTheDocument();
+    expect(within(preview).getByText("5561999990001")).toBeInTheDocument();
+    expect(within(preview).getByText(step.leads.status.ready)).toBeInTheDocument();
+    expect(within(preview).getByText(step.leads.status.out)).toBeInTheDocument();
+    expect(within(preview).getByText(ptMessages.leadSends.review.skipped.no_identity)).toBeInTheDocument();
+    expect(within(preview).getByText("Os primeiros 2 de 802 leads com estes filtros.")).toBeInTheDocument();
+    const [, spec, fields, query] = previewCalls()[0];
+    expect(spec).toEqual(lastCountSpec());
+    expect(fields).toEqual({ templateId: "tpl-1" });
+    expect(query).toEqual({ search: "", page: 1, limit: 5 });
+  });
+
+  it("opens every matched lead from the preview", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: COUNTED, error: null });
+    actions.listAudienceLeadsAction.mockResolvedValue({ data: MATCHED, error: null });
+    renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
+    fireEvent.click(await screen.findByRole("button", { name: step.preview.viewAll }, SETTLE));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    await waitFor(() => expect(sheetQuery()?.[3]).toEqual({ search: "", page: 1, limit: 50 }));
+  });
+
+  it("says when no lead matches the filters", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: leadsCount({ matched: 0, withContact: 0, sendable: 0, out: {}, outTotal: 0, blockers: [], variables: [] }), error: null });
+    renderStep("email", {}, { source: "leads", pick: "everyone" });
+    expect(await screen.findByText(step.preview.empty, undefined, SETTLE)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: step.preview.viewAll })).toBeNull();
+  });
+
+  it("aborts the preview the audience no longer needs once it changes", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: COUNTED, error: null });
+    actions.listAudienceLeadsAction.mockImplementationOnce(() => new Promise(() => undefined)).mockResolvedValue({ data: MATCHED, error: null });
+    renderStep("email", {}, { pick: "ids", ids: ["lead-a"] });
+    await waitFor(() => expect(previewCalls().length).toBe(1), SETTLE);
+    const first = previewCalls()[0][4] as AbortSignal;
+    expect(first.aborted).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.leadsPage.header.newLead }));
+    fireEvent.click(screen.getByRole("button", { name: "salvar lead de teste" }));
+
+    await waitFor(() => expect(previewCalls().length).toBe(2), SETTLE);
+    expect(previewCalls()[1][1]).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-a", "lead-new"] } });
+    await waitFor(() => expect(first.aborted).toBe(true));
+  });
+
+  it("shows that the count figures open the leads behind them", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: COUNTED, error: null });
+    renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
+    const opener = await screen.findByRole("button", { name: new RegExp(step.count.matched.leads) }, SETTLE);
+    expect(opener).toHaveAttribute("title", step.count.openList);
+  });
+});
+
+describe("CampaignAudienceStep template slot focus", () => {
+  function Focused() {
+    const audience = useCampaignAudience({ channel: "whatsapp", fields: { templateId: "tpl-1" }, initial: { source: "leads", pick: "everyone" } });
+    return (
+      <CampaignAudienceStep
+        audience={audience}
+        preview={
+          <p>
+            <SlotMark slotKey="1" tag="{{1}}">Primeiro nome</SlotMark> <SlotMark slotKey="2" tag="{{2}}">Série</SlotMark>
+          </p>
+        }
+      />
+    );
+  }
+
+  it("lights the slot of the variable row being edited in the template preview", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <NextIntlClientProvider locale="pt" messages={ptMessages}>
+          <Focused />
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+    const second = await screen.findByRole("combobox", { name: ptMessages.leadSends.bindings.source.replace("{slot}", "{{2}}") }, SETTLE);
+    const mark = (key: string) => document.querySelector(`mark[data-slot-key="${key}"]`);
+    expect(mark("2")).not.toHaveAttribute("data-active");
+    fireEvent.focus(second);
+    expect(mark("2")).toHaveAttribute("data-active", "true");
+    expect(mark("1")).not.toHaveAttribute("data-active");
+    fireEvent.blur(second);
+    expect(mark("2")).not.toHaveAttribute("data-active");
   });
 });

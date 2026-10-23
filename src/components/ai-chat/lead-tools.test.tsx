@@ -127,7 +127,7 @@ describe("Elo lead tools", () => {
           partial: false,
           skipped: { blocked: 300 },
           counted: { window_open: 52 },
-          quote: { count: 1200, parts: 1, splitRequired: false, maxPerCampaign: 150000, unitPriceMicros: 62500, costMicros: 75000000, balanceMicros: 90000000, currency: "USD", affordable: true, fits: 1200 },
+          quote: { count: 1200, parts: 1, splitRequired: false, maxPerCampaign: 150000, unitPriceMicros: 62500, unitPriceBrl: 0.3125, costBrl: 0, balanceBrl: 0, costMicros: 75000000, balanceMicros: 90000000, currency: "USD", affordable: true, fits: 1200 },
         },
       },
     });

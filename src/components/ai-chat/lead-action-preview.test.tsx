@@ -48,6 +48,9 @@ const quote = {
   costMicros: 75000000,
   balanceMicros: 50000000,
   currency: "USD",
+  unitPriceBrl: 0.3375,
+  costBrl: 405,
+  balanceBrl: 270,
   affordable: false,
   fits: 800,
   refusal: "unaffordable",
@@ -153,7 +156,9 @@ describe("lead action preview", () => {
     renderPreview({ stage: "prepare", action: "send_template", mode: "all_matching", matched: 1200, selected: 1200, eligible: 1200, partial: false, skipped: {}, quote });
     expect(valueOf(t.leadSends.review.selected)).toBe("1.200");
     expect(screen.getByText(t.leadSends.review.cost)).toBeTruthy();
-    expect(screen.getByText(/US\$\s*75,00/)).toBeTruthy();
+    expect(screen.getByText(/R\$\s*405,00/)).toBeTruthy();
+    expect(screen.getByText(/R\$\s*0,3375/)).toBeTruthy();
+    expect(screen.queryByText(/US\$/)).toBeNull();
     expect(screen.getByText(/O saldo cobre 800 dos 1\.200/)).toBeTruthy();
     expect(screen.queryByRole("checkbox")).toBeNull();
   });

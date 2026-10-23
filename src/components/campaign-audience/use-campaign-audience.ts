@@ -22,6 +22,7 @@ import {
   campaignAudienceCountRoot,
   campaignAudienceLeadsRoot,
   campaignAudienceListRoot,
+  campaignAudienceMapRoot,
   listPreviewKey,
   useAudienceCountQuery,
   useAudienceWorkspaceId,
@@ -53,6 +54,8 @@ export interface CampaignAudience {
   draft: AudienceDraft;
   update: (next: SetStateAction<AudienceDraft>) => void;
   spec: AudienceSpec | null;
+  countedSpec: AudienceSpec | null;
+  countedFields: ChannelFields;
   context: ListContext;
   count: AudienceCount | null;
   countedAt: number;
@@ -118,6 +121,7 @@ export function useCampaignAudience({ channel, fields, initial, scope, counted }
     if (reloadCounted) reloadCounted();
     else void client.invalidateQueries({ queryKey: campaignAudienceCountRoot(workspaceId, channel) });
     void client.invalidateQueries({ queryKey: campaignAudienceLeadsRoot(workspaceId, channel) });
+    void client.invalidateQueries({ queryKey: campaignAudienceMapRoot(workspaceId, channel) });
   }, [client, workspaceId, channel, reloadCounted]);
 
   const refreshList = useCallback(() => {
@@ -140,6 +144,8 @@ export function useCampaignAudience({ channel, fields, initial, scope, counted }
     draft,
     update,
     spec,
+    countedSpec: fieldsReady ? settledSpec.settled : null,
+    countedFields: settledFields.settled,
     context: settledContext.settled,
     count,
     countedAt: counted ? counted.updatedAt : countQuery.dataUpdatedAt,

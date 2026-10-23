@@ -22,7 +22,6 @@ import {
   parseSendQuote,
   parseSendReview,
   countedRows,
-  quoteCurrency,
   reasonRows,
   reviewSkipRows,
   sendBudgetView,
@@ -66,6 +65,9 @@ const QUOTE = {
   affordable: true,
   capRemaining: 38878,
   fits: 1122,
+  unitPriceBrl: 0.3375,
+  costBrl: 378.675,
+  balanceBrl: 1242,
 };
 
 const REVIEW = {
@@ -229,6 +231,13 @@ describe("send answers", () => {
     expect(parseSendQuote({ ...QUOTE, unitPriceMicros: "1" })).toBeNull();
   });
 
+  it("refuses a quote without its cost in reais from the server", () => {
+    expect(parseSendQuote({ ...QUOTE, costBrl: undefined })).toBeNull();
+    expect(parseSendQuote({ ...QUOTE, unitPriceBrl: "0,33" })).toBeNull();
+    expect(parseSendQuote({ ...QUOTE, balanceBrl: Number.NaN })).toBeNull();
+    expect(parseSendQuote({ ...QUOTE, balanceBrl: -12.5 })).toEqual({ ...QUOTE, balanceBrl: -12.5 });
+  });
+
   it("reads a review and refuses an unknown channel or a bad count", () => {
     expect(parseSendReview(REVIEW)?.eligible).toBe(1122);
     expect(parseSendReview({ ...REVIEW, channel: "sms" })).toBeNull();
@@ -319,13 +328,6 @@ describe("send answers", () => {
       { reason: "no_consent_recorded", count: 4 },
     ]);
     expect(countedRows({ window_open: 0 })).toEqual([]);
-  });
-
-  it("prices a quote in its own currency and falls back to the balance currency", () => {
-    expect(quoteCurrency(QUOTE)).toBe("USD");
-    expect(quoteCurrency({ ...QUOTE, currency: "BRL" })).toBe("BRL");
-    expect(quoteCurrency({ ...QUOTE, currency: undefined })).toBe("USD");
-    expect(quoteCurrency({ ...QUOTE, currency: "" })).toBe("USD");
   });
 
   it("tells a send that fits from one that fits only the first N and one that cannot go", () => {

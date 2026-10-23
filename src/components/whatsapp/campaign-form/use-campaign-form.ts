@@ -23,7 +23,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
 import type { AudienceDraft } from "@/lib/campaign-audience/draft";
-import { LITERAL_AUDIENCE_SOURCE, type RowQuery } from "@/lib/campaign-audience/types";
+import type { SlotPreview } from "@/lib/campaign-audience/slots";
+import { LITERAL_AUDIENCE_SOURCE, type RowQuery, type VariableCount } from "@/lib/campaign-audience/types";
 import { CONTACT_LIST_PAGE_SIZE } from "@/lib/campaigns/contact-list-view";
 import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
@@ -43,6 +44,8 @@ export type ResponseMode = "agent" | "workflow";
 export type CampaignFormMode = "create" | "edit";
 
 const MEDIA_HEADERS = ["IMAGE", "VIDEO", "DOCUMENT", "GIF"];
+
+const NO_TEMPLATE_SLOTS: readonly VariableCount[] = [];
 
 export const extractTemplateVariables = (template: WhatsAppTemplate | undefined): string[] => {
   if (!template) return [];
@@ -490,25 +493,17 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
   const previewEntry = previewEntryIndex != null ? previewRows?.[previewEntryIndex] : undefined;
   const previewVariables = useMemo(() => previewEntry?.variables ?? [], [previewEntry]);
 
-  const renderTemplateText = useCallback(
-    (text?: string) => {
-      if (!text) return "";
-      let rendered = text;
-
-      templateVariables.forEach((placeholder, index) => {
-        const name = placeholder.replace(/^\{\{\s*|\s*\}\}$/g, "");
-        const variable = audience.count?.variables.find((item) => item.name === name);
-        const choice = audience.draft.variables[variable?.key ?? name];
-        const source = choice?.source ?? variable?.source;
-        const fixedValue = source === LITERAL_AUDIENCE_SOURCE ? choice?.value ?? variable?.value ?? "" : undefined;
-        const value = fixedValue !== undefined ? fixedValue.trim() || placeholder : previewVariables[index]?.trim() || placeholder;
-        rendered = rendered.split(placeholder).join(value);
-        rendered = rendered.replaceAll(`{{${index + 1}}}`, value);
-      });
-
-      return rendered;
+  const templateSlots = audience.count?.variables ?? NO_TEMPLATE_SLOTS;
+  const slotPreview = useCallback(
+    (variable: VariableCount, position: number): SlotPreview => {
+      const choice = audience.draft.variables[variable.key];
+      const source = choice?.source ?? variable.source;
+      const policy = choice?.missing ?? variable.policy;
+      const fallback = policy === "text" ? (choice?.text ?? variable.text ?? variable.fallback ?? "").trim() : (variable.fallback ?? "").trim();
+      if (source === LITERAL_AUDIENCE_SOURCE) return { value: (choice?.value ?? variable.value ?? "").trim() };
+      return { value: previewVariables[position]?.trim() ?? "", source, fallback };
     },
-    [templateVariables, previewVariables, audience.count?.variables, audience.draft.variables],
+    [previewVariables, audience.draft.variables],
   );
 
   const selectedTemplateHasMediaHeader = useMemo(() => {
@@ -650,7 +645,8 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
     templateVariables,
     pickPreviewEntry,
     previewEntry,
-    renderTemplateText,
+    templateSlots,
+    slotPreview,
     selectedTemplateMissingMedia,
     settingsOf,
   };

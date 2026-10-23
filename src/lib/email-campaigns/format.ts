@@ -1,4 +1,4 @@
-import { MAX_MONEY_FRACTION_DIGITS, visibleFractionDigits } from "@/lib/format/money";
+import { formatBrl, MAX_MONEY_FRACTION_DIGITS } from "@/lib/format/money";
 import { microsToBrl } from "@/lib/pricing/currency";
 
 import type { TimelineBucket } from "./types";
@@ -16,10 +16,7 @@ function brlFormat(locale: string, minimum: number, maximum: number): Intl.Numbe
   return new Intl.NumberFormat(locale, { style: "currency", currency: "BRL", minimumFractionDigits: minimum, maximumFractionDigits: maximum });
 }
 
-export function formatBrl(reais: number | null | undefined, locale: string, fractionDigits = 2, distinctFrom?: number): string | null {
-  if (reais === null || reais === undefined || !Number.isFinite(reais)) return null;
-  return brlFormat(locale, fractionDigits, visibleFractionDigits(reais, Math.max(fractionDigits, 2), distinctFrom)).format(reais);
-}
+export { formatBrl };
 
 export function formatBrlMicros(micros: number, exchangeRate: number | null, locale: string, fractionDigits = 2): string | null {
   return formatBrl(microsToBrl(Math.max(0, micros), exchangeRate), locale, fractionDigits);

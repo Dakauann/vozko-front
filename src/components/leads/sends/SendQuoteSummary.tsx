@@ -4,10 +4,10 @@ import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
-import { formatMicros } from "@/lib/advertising/money";
 import { PreviewStateBox } from "@/components/leads/bulk/PreviewStateBox";
 import type { LeadActionPreview } from "@/lib/leads/actions";
-import { quoteCurrency, type LeadSendChannel } from "@/lib/leads/sends";
+import { formatBrl } from "@/lib/format/money";
+import type { LeadSendChannel } from "@/lib/leads/sends";
 
 import { SendPaceLine } from "./SendPaceLine";
 
@@ -42,7 +42,7 @@ export function SendQuoteSummary({
       <p className="readout font-semibold text-foreground">{t("selected", { count: quote.count })}</p>
       {channel === "official" ? (
         <p className="readout text-muted-foreground">
-          {t("estimate", { amount: formatMicros(quote.costMicros, quoteCurrency(quote), locale) })}
+          {t("estimate", { amount: formatBrl(quote.costBrl, locale) ?? "" })}
         </p>
       ) : null}
       {channel === "unofficial" ? (

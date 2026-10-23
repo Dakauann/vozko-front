@@ -6,27 +6,13 @@ import { useTranslations } from "next-intl";
 import { PanelSection } from "@/components/dashboard/PanelSection";
 import { OutgoingBubble } from "@/components/leads/sends/OutgoingBubble";
 import type { VariableChoice } from "@/lib/campaign-audience/draft";
+import { slotSegments } from "@/lib/campaign-audience/slots";
 import { LITERAL_AUDIENCE_SOURCE, type AudienceChannel, type BindableField, type VariableCount } from "@/lib/campaign-audience/types";
 
 import { slotTag, useAudienceSourceLabel, useMissingFieldText, useSlotName } from "./use-audience-copy";
 
-const SLOT = /\{\{\s*([^{}\s]+)\s*\}\}/g;
-
 function Highlight({ children }: { children: ReactNode }) {
   return <span className="rounded-[4px] bg-muted px-1 font-semibold">{children}</span>;
-}
-
-function filled(message: string, valueOf: (key: string) => ReactNode): ReactNode[] {
-  const parts: ReactNode[] = [];
-  let last = 0;
-  for (const match of message.matchAll(SLOT)) {
-    const at = match.index ?? 0;
-    parts.push(message.slice(last, at));
-    parts.push(<Fragment key={`${match[1]}-${at}`}>{valueOf(match[1])}</Fragment>);
-    last = at + match[0].length;
-  }
-  parts.push(message.slice(last));
-  return parts;
 }
 
 export function AudienceArrives({
@@ -50,9 +36,7 @@ export function AudienceArrives({
   if (!message.trim() || examples.length === 0) return null;
 
   const sourceOf = (variable: VariableCount) => choices[variable.key]?.source ?? variable.source;
-  const valueFor = (example: VariableCount, name: string): ReactNode => {
-    const variable = variables.find((candidate) => !candidate.header && candidate.name === name);
-    if (!variable) return slotTag({ name });
+  const valueFor = (example: VariableCount, variable: VariableCount): ReactNode => {
     const key = variable.key;
     if (variable.key === example.key) return <Highlight>{choices[key]?.text ?? variable.text ?? ""}</Highlight>;
     const source = sourceOf(variable);
@@ -67,7 +51,9 @@ export function AudienceArrives({
           <div key={example.key} className="grid gap-1.5">
             <span className="legend">{t("withText", { field: missingText(example.key, sourceOf(example)), slot: slotName(example) })}</span>
             <OutgoingBubble text={message} emptyLabel="">
-              {filled(message, (key) => valueFor(example, key))}
+              {slotSegments(message, false, variables).map((segment, index) => (
+                <Fragment key={index}>{"variable" in segment ? valueFor(example, segment.variable) : "name" in segment ? slotTag({ name: segment.name }) : segment.text}</Fragment>
+              ))}
             </OutgoingBubble>
           </div>
         ))}

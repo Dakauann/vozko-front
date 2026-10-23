@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -45,11 +45,13 @@ export function AudienceListSection({
   fields,
   readOnly = false,
   onOpen,
+  templatePreview,
 }: {
   audience: CampaignAudience;
   fields: readonly BindableField[];
   readOnly?: boolean;
   onOpen?: (focus: AudienceLeadFocus) => void;
+  templatePreview?: ReactNode;
 }) {
   const t = useTranslations("campaignAudience.step.list");
   const errorText = useAudienceErrorText();
@@ -190,7 +192,14 @@ export function AudienceListSection({
       {preview ? (
         <>
           <ListFileLine preview={preview} />
-          {contact === "phone" ? <ListColumnsNotice preview={preview} fields={fields} variables={variables} /> : null}
+          {contact === "phone" && templatePreview && variables.length > 0 ? (
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+              <ListColumnsNotice preview={preview} fields={fields} variables={variables} />
+              {templatePreview}
+            </div>
+          ) : contact === "phone" ? (
+            <ListColumnsNotice preview={preview} fields={fields} variables={variables} />
+          ) : null}
           <SkippedLinesNotice preview={preview} />
           <ListMetadataNotice gaps={preview.metadataMissing} />
           <ListMatchingNotice preview={preview} channel={channel} />

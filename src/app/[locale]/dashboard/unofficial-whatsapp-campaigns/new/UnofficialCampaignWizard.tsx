@@ -16,6 +16,7 @@ import {
   type DraftActionError,
 } from "@/app/actions/campaign-drafts";
 import { ScreenLoader } from "@/components/brand/screen-loader";
+import { useMapTrip, useReturnedAreas } from "@/components/campaign-audience/use-audience-map-trip";
 import { SaveIndicator } from "@/components/campaign-wizard/SaveIndicator";
 import { SendStep, type SendMode, type SendRefusal } from "@/components/campaign-wizard/SendStep";
 import { campaignDraftsRoot, useCampaignDraftsWorkspace } from "@/components/campaign-wizard/use-campaign-drafts";
@@ -32,10 +33,12 @@ import { DEFAULT_SEND_DELAY_MS } from "@/components/unofficial-whatsapp/campaign
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { codedErrorMessage } from "@/lib/api/coded-error";
+import { withReturnedAreas } from "@/lib/campaign-audience/map-trip";
 import { launchRefusalOf, type DraftLaunchResult, type DraftSaveRequest } from "@/lib/campaign-drafts/types";
 import { stepNeighbours, stepOf } from "@/lib/campaign-wizard/steps";
 import type { GroupPrefill } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
 import type { UnofficialWhatsAppCampaign } from "@/lib/unofficial-whatsapp-campaigns/types";
+import { UNOFFICIAL_CAMPAIGNS_PATH, wizardHref } from "@/lib/unofficial-whatsapp-campaigns/wizard";
 import { LAUNCH_REFUSAL_CODES } from "@/lib/whatsapp-campaigns/launch-check";
 import { browserTimezone } from "@/lib/working-hours/types";
 
@@ -55,7 +58,7 @@ import { blockingOf, WizardReview } from "./WizardReview";
 
 const CHANNEL = "unofficial_whatsapp" as const;
 const AUTOSAVE_DELAY_MS = 1000;
-const LIST_PATH = "/dashboard/unofficial-whatsapp-campaigns";
+const LIST_PATH = UNOFFICIAL_CAMPAIGNS_PATH;
 
 type DraftBody = DraftSaveRequest<WizardRequest, WizardState>;
 
@@ -65,10 +68,6 @@ async function storeDraft(id: string | null, body: DraftBody): Promise<DraftSave
 }
 
 const draftIdOf = (draft: UnofficialCampaignDraft) => draft.id;
-
-function wizardHref(id: string, step: WizardStep): string {
-  return `${LIST_PATH}/new?draft=${encodeURIComponent(id)}&step=${step}`;
-}
 
 interface WizardProps {
   aiModels: string[];
@@ -89,7 +88,12 @@ function WizardBody({ aiModels, modelPricing, groupPrefill, initialDraft, initia
   const canCreate = can("unofficial_whatsapp_campaigns", "create");
   const canStart = can("unofficial_whatsapp_campaigns", "start");
 
-  const [restored] = useState(() => (initialDraft ? seedFromDraft(initialDraft, DEFAULT_SEND_DELAY_MS) : { seed: emptySeed(groupPrefill, DEFAULT_SEND_DELAY_MS), step: "config" as WizardStep }));
+  const returned = useReturnedAreas(initialDraft ? wizardHref(initialDraft.id, initialStep ?? "audience") : null);
+  const [restored] = useState(() => {
+    const opened = initialDraft ? seedFromDraft(initialDraft, DEFAULT_SEND_DELAY_MS) : { seed: emptySeed(groupPrefill, DEFAULT_SEND_DELAY_MS), step: "config" as WizardStep };
+    const audienceDraft = opened.seed.audienceDraft ? withReturnedAreas(opened.seed.audienceDraft, returned) : undefined;
+    return { ...opened, seed: { ...opened.seed, audienceDraft } };
+  });
   const [baseline] = useState(() => (initialDraft ? JSON.stringify({ name: initialDraft.name, payload: initialDraft.payload }) : ""));
   const [draftId, setDraftId] = useState<string | null>(initialDraft?.id ?? null);
   const [step, setStep] = useState<WizardStep>(initialStep ?? restored.step);
@@ -132,6 +136,7 @@ function WizardBody({ aiModels, modelPricing, groupPrefill, initialDraft, initia
     idOf: draftIdOf,
     onSaved,
   });
+  const editOnMap = useMapTrip(draftId ? { channel: "unofficial", draftId } : null, autosave.save);
 
   const errorMessage = useCallback((error: DraftActionError) => codedErrorMessage(tWizard, error, error.error || tWizard("errors.generic")), [tWizard]);
 
@@ -271,7 +276,7 @@ function WizardBody({ aiModels, modelPricing, groupPrefill, initialDraft, initia
           </div>
         ) : null}
 
-        {step === "audience" ? isGroups ? <GroupsAudience form={campaignForm} disabled={disabled} /> : <LeadsAudience form={campaignForm} disabled={disabled} /> : null}
+        {step === "audience" ? isGroups ? <GroupsAudience form={campaignForm} disabled={disabled} /> : <LeadsAudience form={campaignForm} disabled={disabled} onEditMap={editOnMap} /> : null}
 
         {step === "review" ? (
           reviewData ? (

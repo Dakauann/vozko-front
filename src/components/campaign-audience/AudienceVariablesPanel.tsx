@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import type { AudienceLeadFocus } from "./AudienceLeadsSheet";
+import { useSlotFocusHandlers } from "./slot-focus";
 import { isEmailChannel, slotTag, useAudienceSourceLabel, useMissingFieldText, useSlotName } from "./use-audience-copy";
 
 interface VariableRowProps {
@@ -178,8 +179,9 @@ function MissingChoice({ channel, variable, choice, fields, onChoice, readOnly }
 function VariableRow(props: VariableRowProps) {
   const { channel, variable, fields } = props;
   const tSlot = useTranslations("campaignAudience.step.slot");
+  const focus = useSlotFocusHandlers(variable.key);
   return (
-    <div className="grid grid-cols-[minmax(4rem,auto)_minmax(0,1fr)] items-start gap-x-3 gap-y-2 border-b border-border py-3 first:pt-0 last:border-b-0 last:pb-0">
+    <div className="grid grid-cols-[minmax(4rem,auto)_minmax(0,1fr)] items-start gap-x-3 gap-y-2 border-b border-border py-3 first:pt-0 last:border-b-0 last:pb-0" {...focus}>
       <span className="mt-2.5 grid w-fit justify-items-start gap-1">
         <span className="readout rounded-[--radius] bg-muted px-1.5 font-mono text-xs font-semibold text-foreground">{slotTag(variable)}</span>
         {variable.header ? <span className="rounded-[--radius] border border-border bg-card px-1.5 text-2xs font-semibold text-muted-foreground">{tSlot("header")}</span> : null}

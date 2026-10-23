@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatCentsAsBrl, formatMicrosToMoney, visibleFractionDigits } from "./money";
+import { formatBrl, formatCentsAsBrl, formatMicrosToMoney, visibleFractionDigits } from "./money";
 
 describe("visibleFractionDigits", () => {
     it("keeps the usual digits when the amount reads as itself", () => {
@@ -31,5 +31,13 @@ describe("formatCentsAsBrl", () => {
     it("formats cents as reais in the reader's locale", () => {
         expect(formatCentsAsBrl(50_300, "pt").replace(/\s/g, " ")).toBe("R$ 503,00");
         expect(formatCentsAsBrl(503, "en")).toBe("R$5.03");
+    });
+});
+
+describe("formatBrl", () => {
+    it("shows a sub-centavo amount precisely and a normal amount with two digits", () => {
+        expect(formatBrl(0.0035, "pt-BR")?.replace(/\s/g, " ")).toBe("R$ 0,0035");
+        expect(formatBrl(4.32, "pt-BR")?.replace(/\s/g, " ")).toBe("R$ 4,32");
+        expect(formatBrl(null, "pt-BR")).toBeNull();
     });
 });

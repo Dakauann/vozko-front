@@ -142,10 +142,18 @@ describe("ActionCardView", () => {
     expect(screen.getByText("1 de 1 do seu plano")).toBeTruthy();
   });
 
-  it("shows the current balance on the top-up card", () => {
+  it("leaves the balance out when the server could not state it in reais", () => {
     permissions.allowed = true;
     renderCard({ kind: "top_up_balance", balanceMicros: 2_500_000, subscriptionActive: true });
-    expect(screen.getByText(/Saldo atual:/)).toBeTruthy();
+    expect(screen.queryByText(/Saldo atual:/)).toBeNull();
+    expect(screen.getByRole("link", { name: actions.kinds.top_up_balance.cta })).toBeTruthy();
+  });
+
+  it("shows the current balance on the top-up card", () => {
+    permissions.allowed = true;
+    renderCard({ kind: "top_up_balance", balanceMicros: 2_500_000, balanceBrl: 12.5, subscriptionActive: true });
+    expect(screen.getByText(/^Saldo atual: R\$\s12,50$/)).toBeTruthy();
+    expect(screen.queryByText(/US\$/)).toBeNull();
     expect(screen.getByRole("link", { name: actions.kinds.top_up_balance.cta }).getAttribute("href")).toBe("/dashboard/balance");
   });
 });

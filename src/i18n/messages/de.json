@@ -6478,12 +6478,12 @@
         "number": "Nummer",
         "template": "Vorlage",
         "recipients": "Kontakte",
-        "recipientsValue": "{count} bereit zum Versand",
+        "recipientsValue": "{count, plural, one {# bereit zum Versand} other {# bereit zum Versand}}",
         "cost": "Geschätzte Kosten"
       },
       "confirm": {
         "nowTitle": "Kampagne jetzt senden?",
-        "nowBody": "Die Kampagne geht an {count} Kontakte, geschätzte Kosten {total}.",
+        "nowBody": "Die Kampagne geht an {count, plural, one {# Kontakt} other {# Kontakte}}, geschätzte Kosten {total}.",
         "scheduleTitle": "Kampagne planen?",
         "scheduleBody": "Die Kampagne startet am {date}. Zu diesem Zeitpunkt prüft der Server alles erneut."
       }
@@ -9215,6 +9215,36 @@
     }
   },
   "invoicesPage": {
+    "payment": {
+      "title": "Mit PIX bezahlen",
+      "pay": "Bezahlen",
+      "payInvoice": "Rechnung bezahlen",
+      "waiting": "Zahlung ausstehend",
+      "scan": "Scanne den QR-Code in deiner Banking-App oder kopiere den PIX-Code.",
+      "qrAlt": "PIX-QR-Code dieser Rechnung",
+      "qrUnavailable": "QR-Code nicht verfügbar. Verwende den PIX-Code unten.",
+      "copy": "PIX-Code kopieren",
+      "copied": "Code kopiert",
+      "expiresAt": "PIX gültig bis",
+      "payableUntil": "Zahlung möglich bis",
+      "expiredTitle": "Der PIX dieser Rechnung ist abgelaufen",
+      "expiredBody": "Erzeuge einen neuen Code, um bis {date} zu bezahlen. Der Betrag bleibt gleich und der bisherige Code wird ungültig.",
+      "expiredBodyNoDate": "Erzeuge einen neuen Code, um zu bezahlen. Der Betrag bleibt gleich und der bisherige Code wird ungültig.",
+      "renew": "Neuen PIX erzeugen",
+      "renewing": "Neuer PIX wird erzeugt...",
+      "paidTitle": "Zahlung bestätigt",
+      "paidBody": "Wir haben die Zahlung für diese Rechnung erhalten.",
+      "paidAt": "Wir haben die Zahlung für diese Rechnung am {date} erhalten."
+    },
+    "errors": {
+      "default": "Es konnte kein neuer PIX erzeugt werden. Versuche es erneut.",
+      "invoice_not_found": "Rechnung nicht gefunden.",
+      "invoice_not_payable": "Diese Rechnung kann nicht mehr bezahlt werden.",
+      "invoice_already_paid": "Die Zahlung für diese Rechnung ist bereits eingegangen.",
+      "invoice_pix_renew_in_progress": "Ein neuer PIX wird bereits erzeugt. Warte einige Sekunden.",
+      "invoice_pix_unavailable": "Gerade kann kein neuer PIX erzeugt werden. Versuche es gleich noch einmal.",
+      "customer_document_required": "Hinterlege deine CPF oder CNPJ im Profil, um den PIX zu erzeugen."
+    },
     "header": {
       "badge": "Rechnungen",
       "title": "Meine Rechnungen",
@@ -9262,6 +9292,7 @@
       "TOP_UP": "Aufladung"
     },
     "status": {
+      "reversed": "Rückgebucht",
       "pending": "Ausstehend",
       "paid": "Bezahlt",
       "overdue": "Überfällig",
@@ -9518,6 +9549,7 @@
       "validation": "Validierung",
       "cancelled": "Abgebrochen",
       "internal": "Intern",
+      "handled": "Vom Ablauf behandelter Fehler",
       "realCallNotConfirmed": "Echter Aufruf nicht bestätigt",
       "windowClosed": "Servicefenster geschlossen",
       "unknown": "Andere ({kind})"
@@ -10288,6 +10320,10 @@
       "WORKFLOW_INVALID": {
         "title": "Die Angaben zum Ablauf sind unvollständig",
         "fix": "Gib dem Ablauf einen Namen und speichere erneut."
+      },
+      "WORKFLOW_VALIDATION_UNAVAILABLE": {
+        "title": "Die Ressourcen des Ablaufs konnten nicht geprüft werden",
+        "fix": "Versuche es gleich noch einmal. Der Ablauf kann erst nach einer vollständigen Prüfung veröffentlicht werden."
       },
       "WORKFLOW_VOICE_TRUNK_INVALID": {
         "title": "Die Telefonleitung des Ablaufs ist nicht verfügbar",
@@ -29020,6 +29056,7 @@
       "method": "Methode",
       "status": "Status",
       "statusLabels": {
+        "REVERSED": "Rückgebucht",
         "CANCELLED": "Storniert",
         "EXPIRED": "Abgelaufen",
         "OVERDUE": "Überfällig",
@@ -37982,14 +38019,14 @@
         "subject": "Betreff",
         "noSubject": "Kein Betreff",
         "recipients": "Empfänger",
-        "recipientsValue": "{count} versandbereit",
+        "recipientsValue": "{count, plural, one {# versandbereit} other {# versandbereit}}",
         "cost": "Kosten",
         "costValue": "{total} ({units} × {unit})"
       },
       "confirm": {
         "nowTitle": "Kampagne jetzt senden?",
         "scheduleTitle": "Kampagne planen?",
-        "nowBody": "Der gesamte Versand ist auf {total} geschätzt ({count} E-Mails zu je {unit}). Jetzt buchen wir nur den ersten Block ab: {first}.",
+        "nowBody": "Der gesamte Versand ist auf {total} geschätzt ({count, plural, one {# E-Mail} other {# E-Mails}} zu je {unit}). Jetzt buchen wir nur den ersten Block ab: {first}.",
         "scheduleBody": "Jetzt wird nichts abgebucht. Am {date} buchen wir den ersten Block ab ({first}); der gesamte Versand ist heute auf {total} geschätzt.",
         "batches": "Die Kampagne wird in Blöcken von {size} E-Mails abgerechnet, jeder Block bevor er rausgeht. Reicht das Guthaben nicht, pausiert sie und läuft nach dem Aufladen von selbst weiter."
       },
@@ -38705,6 +38742,13 @@
     }
   },
   "campaignAudience": {
+    "mapTrip": {
+      "title": "Gebiete einer Kampagne bearbeiten",
+      "body": "Wähle oder zeichne die Gebiete auf der Karte. Beim Zurückkehren ersetzen sie die Gebiete der Kampagnenzielgruppe.",
+      "selected": "{count, plural, =0 {Kein Gebiet ausgewählt} one {# Gebiet ausgewählt} other {# Gebiete ausgewählt}}",
+      "apply": "Diese Gebiete in der Kampagne verwenden",
+      "cancel": "Ohne Änderungen zurück"
+    },
     "errors": {
       "audience_busy": "Zu viele Zählungen gleichzeitig. Versuche es in ein paar Sekunden erneut.",
       "audience_channel_invalid": "Dieser Kanal hat keinen Zielgruppenschritt.",
@@ -38782,6 +38826,18 @@
       "template_suggestion_slot_invalid": "Die Vorlage hat diese Variable nicht."
     },
     "step": {
+      "map": {
+        "title": "Auf der Karte",
+        "description": "{located, plural, =0 {Keine Leads mit Position in den Gebieten} one {# Lead mit Position in den Gebieten} other {# Leads mit Position in den Gebieten}}",
+        "sampled": "{located, number} Leads mit Position. {shown, number} von {positions, number} Punkten werden angezeigt.",
+        "edit": "Auf der Karte bearbeiten",
+        "label": "Karte der Zielgruppe in den gewählten Gebieten",
+        "loading": "Karte wird geladen",
+        "failed": "Die Karte konnte nicht angezeigt werden.",
+        "retry": "Erneut versuchen",
+        "empty": "Kein Lead dieser Zielgruppe hat eine Position in den Gebieten.",
+        "saveFirst": "Der Entwurf konnte nicht gespeichert werden. Versuche es erneut, bevor du die Karte öffnest."
+      },
       "sourceLabel": "Wer erhält es",
       "sources": {
         "leads": "Deine Leads",
@@ -38891,7 +38947,8 @@
         "countedByServer": "Vom Server nach den Versandregeln gezählt",
         "failedShort": "Zählung nicht verfügbar",
         "failed": "Die Zielgruppe konnte nicht gezählt werden",
-        "retry": "Erneut zählen"
+        "retry": "Erneut zählen",
+        "openList": "Ansehen, wer es ist"
       },
       "list": {
         "sample": "Vorlage herunterladen",
@@ -38985,7 +39042,8 @@
       },
       "slot": {
         "headerSlot": "{tag} in der Kopfzeile",
-        "header": "Kopfzeile"
+        "header": "Kopfzeile",
+        "orText": "oder „{text}“"
       },
       "leads": {
         "title": {
@@ -39018,6 +39076,15 @@
         "failed": "Die Leads konnten nicht aufgelistet werden.",
         "unit": "Leads",
         "line": "Zeile {line}"
+      },
+      "preview": {
+        "title": "Wer im Publikum ist",
+        "description": "{count, plural, one {# Lead} other {# Leads}} mit diesen Filtern.",
+        "descriptionMore": "Die ersten {shown, number} von {count, number} Leads mit diesen Filtern.",
+        "viewAll": "Alle ansehen",
+        "empty": "Kein Lead mit diesen Filtern.",
+        "failed": "Die Leads konnten nicht angezeigt werden.",
+        "retry": "Erneut versuchen"
       }
     }
   },

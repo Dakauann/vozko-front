@@ -21,6 +21,7 @@ import { CampaignPacingPanel } from "@/components/unofficial-whatsapp/campaign-p
 import { InstanceIssueLine } from "@/components/unofficial-whatsapp/instance-select";
 import { ExternalRiskNotice } from "@/components/unofficial-whatsapp-groups/kit/notices";
 import type { ModelPricingInfo } from "@/lib/agents/types";
+import type { LeadsPickDraft } from "@/lib/campaign-audience/draft";
 import type { UnofficialWhatsAppCampaignAudience } from "@/lib/unofficial-whatsapp-campaigns/types";
 import { cn } from "@/lib/utils";
 
@@ -447,14 +448,14 @@ export function GroupsAudience({ form, disabled }: { form: UnofficialCampaignFor
   );
 }
 
-export function LeadsAudience({ form, disabled }: { form: UnofficialCampaignForm; disabled: boolean }) {
+export function LeadsAudience({ form, disabled, onEditMap }: { form: UnofficialCampaignForm; disabled: boolean; onEditMap?: (pick: LeadsPickDraft) => void }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
   const { leadsAudience, message, canSeedOutcome, seedOutcome, setSeedOutcome, seedCounts, seedOverflow } = form;
   return (
     <ElevatedContainer className="rounded-lg border border-border bg-card p-6">
       <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">{t("form.audienceTitle")}</h2>
 
-      <CampaignAudienceStep audience={leadsAudience} message={message.bodies[0] ?? ""} readOnly={disabled} />
+      <CampaignAudienceStep audience={leadsAudience} message={message.bodies[0] ?? ""} readOnly={disabled} onEditMap={onEditMap} />
 
       {canSeedOutcome ? (
         <div className="mt-4 space-y-3 rounded-[--radius] border border-border bg-card/40 p-3">

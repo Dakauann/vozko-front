@@ -22,6 +22,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { PlanCatalogRail } from "@/components/dashboard/plans/PlanCatalogRail";
 import { InvoiceDetailDialog } from "@/components/dashboard/invoices/InvoiceDetailDialog";
+import { awaitsPayment } from "@/components/dashboard/invoices/use-invoice-payment";
 import Button from "@/components/elevated-design/button";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import {
@@ -99,6 +100,11 @@ const STATUS_CONFIG: Record<
     icon: Clock,
     label: "refunded",
     className: "text-muted-foreground bg-muted border-info",
+  },
+  REVERSED: {
+    icon: Clock,
+    label: "reversed",
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
   },
   EXPIRED: {
     icon: Clock,
@@ -198,6 +204,32 @@ export default function InvoicesPage() {
 
     return () => {
       cancelled = true;
+    };
+  }, [page]);
+
+  const handleInvoiceChange = useCallback((updated: Invoice) => {
+    setInvoices((rows) => rows.map((row) => (row.id === updated.id ? updated : row)));
+    setDetailInvoice((current) => (current?.id === updated.id ? updated : current));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const reload = async () => {
+      const result = await listInvoicesAction({ page, pageSize: PAGE_SIZE });
+      if (cancelled || !result.data) return;
+      setInvoices(result.data.invoices ?? []);
+      setTotal(result.data.total ?? 0);
+    };
+    const onFocus = () => void reload();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void reload();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [page]);
 
@@ -326,9 +358,24 @@ export default function InvoicesPage() {
       {
         key: "actions",
         header: "",
-        className: "w-[80px]",
+        className: "w-[1%] whitespace-nowrap",
         render: (row) => (
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex items-center justify-end gap-1">
+            {awaitsPayment(row) ? (
+              <Button
+                variant="action"
+                size="sm"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setDetailInvoice(row);
+                }}
+                icon={<PixLogo className="h-3.5 w-3.5" weight="bold" />}
+                iconVisible
+                iconSide="left"
+                title={t("payment.pay")}
+                aria-label={t("payment.payInvoice")}
+              />
+            ) : null}
             <button
               type="button"
               onClick={(event) => {
@@ -356,8 +403,7 @@ export default function InvoicesPage() {
                 </button>
               )}
             {row.billingType === "PIX" &&
-              row.pixCopy &&
-              row.status === "PENDING" && (
+              row.pixCopy && (
                 <button
                   type="button"
                   onClick={(event) => {
@@ -919,6 +965,7 @@ export default function InvoicesPage() {
         invoice={detailInvoice}
         open={!!detailInvoice}
         onClose={() => setDetailInvoice(null)}
+        onInvoiceChange={handleInvoiceChange}
       />
     </main>
   );

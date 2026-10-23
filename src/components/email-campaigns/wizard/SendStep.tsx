@@ -45,18 +45,18 @@ export function SendStep({
   const t = useTranslations("emailCampaigns.send");
   const tShared = useTranslations("campaignWizard.send");
   const tCheck = useTranslations("emailCampaigns.review.check");
-  const { number, dateTime } = useEmailFormat();
+  const { dateTime } = useEmailFormat();
   const zone = campaign.time_zone;
   const scheduled = campaign.status === "scheduled";
   const recipients = review ? review.audience.sendable : 0;
-  const { total, unit, first, count, batch } = useLaunchCost(review);
+  const { total, unit, first, count, units, batch } = useLaunchCost(review);
   const subjects = campaign.ab_test ? `${campaign.subject} / ${campaign.ab_test.variant_b_subject}` : campaign.subject;
 
   const summary = [
     { label: t("summary.campaign"), value: campaign.name },
     { label: t("summary.sender"), value: sender ? (sender.display_name ? `${sender.display_name} <${sender.address}>` : sender.address) : t("summary.defaultSender") },
     { label: t("summary.subject"), value: subjects || t("summary.noSubject") },
-    { label: t("summary.recipients"), value: review ? t("summary.recipientsValue", { count: number(recipients) }) : "…" },
+    { label: t("summary.recipients"), value: review ? t("summary.recipientsValue", { count: recipients }) : "…" },
     { label: t("summary.cost"), value: review ? t("summary.costValue", { total, units: count, unit }) : "…" },
   ];
 
@@ -80,7 +80,7 @@ export function SendStep({
         ) : null
       }
       confirm={{
-        now: { title: t("confirm.nowTitle"), body: t("confirm.nowBody", { total, count, unit, first }) },
+        now: { title: t("confirm.nowTitle"), body: t("confirm.nowBody", { total, count: units, unit, first }) },
         schedule: (scheduledIso) => ({ title: t("confirm.scheduleTitle"), body: t("confirm.scheduleBody", { total, first, date: scheduledIso ? dateTime(scheduledIso, zone) : "" }) }),
         note: <p className="rounded-[--radius] bg-muted px-3 py-2 text-center text-xs leading-relaxed text-muted-foreground">{t("confirm.batches", { size: batch })}</p>,
       }}

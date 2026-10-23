@@ -6478,12 +6478,12 @@
         "number": "Número",
         "template": "Plantilla",
         "recipients": "Contactos",
-        "recipientsValue": "{count} listos para enviar",
+        "recipientsValue": "{count, plural, one {# listo para enviar} other {# listos para enviar}}",
         "cost": "Costo estimado"
       },
       "confirm": {
         "nowTitle": "¿Enviar la campaña ahora?",
-        "nowBody": "La campaña va a {count} contactos, con un costo estimado de {total}.",
+        "nowBody": "La campaña va a {count, plural, one {# contacto} other {# contactos}}, con un costo estimado de {total}.",
         "scheduleTitle": "¿Programar la campaña?",
         "scheduleBody": "La campaña empieza el {date}. A esa hora el servidor vuelve a comprobar todo."
       }
@@ -9215,6 +9215,36 @@
     }
   },
   "invoicesPage": {
+    "payment": {
+      "title": "Pagar con PIX",
+      "pay": "Pagar",
+      "payInvoice": "Pagar factura",
+      "waiting": "Esperando el pago",
+      "scan": "Escanea el código QR en la app de tu banco o copia el código PIX.",
+      "qrAlt": "Código QR PIX de esta factura",
+      "qrUnavailable": "Código QR no disponible. Usa el código PIX de abajo.",
+      "copy": "Copiar código PIX",
+      "copied": "Código copiado",
+      "expiresAt": "PIX válido hasta",
+      "payableUntil": "Pago aceptado hasta",
+      "expiredTitle": "El PIX de esta factura venció",
+      "expiredBody": "Genera un nuevo código para pagar hasta el {date}. El monto sigue siendo el mismo y el código anterior deja de valer.",
+      "expiredBodyNoDate": "Genera un nuevo código para pagar. El monto sigue siendo el mismo y el código anterior deja de valer.",
+      "renew": "Generar nuevo PIX",
+      "renewing": "Generando nuevo PIX...",
+      "paidTitle": "Pago confirmado",
+      "paidBody": "Recibimos el pago de esta factura.",
+      "paidAt": "Recibimos el pago de esta factura el {date}."
+    },
+    "errors": {
+      "default": "No se pudo generar un nuevo PIX. Inténtalo de nuevo.",
+      "invoice_not_found": "Factura no encontrada.",
+      "invoice_not_payable": "Esta factura ya no se puede pagar.",
+      "invoice_already_paid": "El pago de esta factura ya fue recibido.",
+      "invoice_pix_renew_in_progress": "Ya se está generando un nuevo PIX. Espera unos segundos.",
+      "invoice_pix_unavailable": "No se pudo generar un nuevo PIX ahora. Inténtalo de nuevo en unos instantes.",
+      "customer_document_required": "Registra tu CPF o CNPJ en tu perfil para generar el PIX."
+    },
     "header": {
       "badge": "Facturas",
       "title": "Mis Facturas",
@@ -9262,6 +9292,7 @@
       "TOP_UP": "Recarga"
     },
     "status": {
+      "reversed": "Revertido",
       "pending": "Pendiente",
       "paid": "Pagado",
       "overdue": "Vencido",
@@ -9518,6 +9549,7 @@
       "validation": "Validación",
       "cancelled": "Cancelado",
       "internal": "Interno",
+      "handled": "Fallo gestionado por el flujo",
       "realCallNotConfirmed": "Llamada real no confirmada",
       "windowClosed": "Ventana de atención cerrada",
       "unknown": "Otro ({kind})"
@@ -10288,6 +10320,10 @@
       "WORKFLOW_INVALID": {
         "title": "Los datos del flujo están incompletos",
         "fix": "Ponle un nombre al flujo y guarda de nuevo."
+      },
+      "WORKFLOW_VALIDATION_UNAVAILABLE": {
+        "title": "No fue posible verificar los recursos del flujo",
+        "fix": "Intenta validar de nuevo en unos instantes. El flujo solo se puede publicar después de una validación completa."
       },
       "WORKFLOW_VOICE_TRUNK_INVALID": {
         "title": "La línea telefónica del flujo no está disponible",
@@ -29040,6 +29076,7 @@
       "method": "Método",
       "status": "Estado",
       "statusLabels": {
+        "REVERSED": "Revertida",
         "CANCELLED": "Cancelada",
         "EXPIRED": "Expirada",
         "OVERDUE": "Vencida",
@@ -37982,14 +38019,14 @@
         "subject": "Asunto",
         "noSubject": "Sin asunto",
         "recipients": "Destinatarios",
-        "recipientsValue": "{count} listos para enviar",
+        "recipientsValue": "{count, plural, one {# listo para enviar} other {# listos para enviar}}",
         "cost": "Costo",
         "costValue": "{total} ({units} × {unit})"
       },
       "confirm": {
         "nowTitle": "¿Enviar la campaña ahora?",
         "scheduleTitle": "¿Programar la campaña?",
-        "nowBody": "El envío completo se estima en {total} ({count} correos a {unit} cada uno). Ahora cobramos solo el primer lote: {first}.",
+        "nowBody": "El envío completo se estima en {total} ({count, plural, one {# correo} other {# correos}} a {unit} cada uno). Ahora cobramos solo el primer lote: {first}.",
         "scheduleBody": "No se cobra nada ahora. El {date} cobramos el primer lote ({first}); el envío completo se estima hoy en {total}.",
         "batches": "La campaña se cobra en lotes de {size} correos, cada lote antes de salir. Si el saldo se acaba, se pausa y continúa sola después de la recarga."
       },
@@ -38705,6 +38742,13 @@
     }
   },
   "campaignAudience": {
+    "mapTrip": {
+      "title": "Editando las áreas de una campaña",
+      "body": "Elige o dibuja las áreas en el mapa. Al volver, reemplazan las áreas del público de la campaña.",
+      "selected": "{count, plural, =0 {Ningún área seleccionada} one {# área seleccionada} other {# áreas seleccionadas}}",
+      "apply": "Usar estas áreas en la campaña",
+      "cancel": "Volver sin cambios"
+    },
     "errors": {
       "audience_busy": "Demasiados conteos a la vez. Inténtalo de nuevo en unos segundos.",
       "audience_channel_invalid": "Este canal no tiene paso de público.",
@@ -38782,6 +38826,18 @@
       "template_suggestion_slot_invalid": "La plantilla no tiene esa variable."
     },
     "step": {
+      "map": {
+        "title": "En el mapa",
+        "description": "{located, plural, =0 {Ningún lead con posición en las áreas} one {# lead con posición en las áreas} other {# leads con posición en las áreas}}",
+        "sampled": "{located, number} leads con posición. Mostrando {shown, number} de {positions, number} puntos.",
+        "edit": "Editar en el mapa",
+        "label": "Mapa del público en las áreas elegidas",
+        "loading": "Cargando el mapa",
+        "failed": "No se pudo mostrar el mapa.",
+        "retry": "Intentar de nuevo",
+        "empty": "Ningún lead de este público tiene posición dentro de las áreas.",
+        "saveFirst": "No se pudo guardar el borrador. Inténtalo de nuevo antes de abrir el mapa."
+      },
       "sourceLabel": "Quién recibe",
       "sources": {
         "leads": "Tus leads",
@@ -38891,7 +38947,8 @@
         "countedByServer": "Contado por el servidor con las reglas de envío",
         "failedShort": "Conteo no disponible",
         "failed": "No se pudo contar el público",
-        "retry": "Contar de nuevo"
+        "retry": "Contar de nuevo",
+        "openList": "Ver quiénes son"
       },
       "list": {
         "sample": "Descargar modelo",
@@ -38985,7 +39042,8 @@
       },
       "slot": {
         "headerSlot": "{tag} en el encabezado",
-        "header": "Encabezado"
+        "header": "Encabezado",
+        "orText": "o “{text}”"
       },
       "leads": {
         "title": {
@@ -39018,6 +39076,15 @@
         "failed": "No se pudo listar los leads.",
         "unit": "leads",
         "line": "Línea {line}"
+      },
+      "preview": {
+        "title": "Quién está en el público",
+        "description": "{count, plural, one {# lead} other {# leads}} con estos filtros.",
+        "descriptionMore": "Los primeros {shown, number} de {count, number} leads con estos filtros.",
+        "viewAll": "Ver todos",
+        "empty": "Ningún lead con estos filtros.",
+        "failed": "No fue posible mostrar los leads.",
+        "retry": "Intentar de nuevo"
       }
     }
   },

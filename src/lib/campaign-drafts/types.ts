@@ -54,6 +54,9 @@ export interface SendQuote {
   balanceMicros: number;
   currency: string;
   affordable: boolean;
+  unitPriceBrl: number;
+  costBrl: number;
+  balanceBrl: number;
 }
 
 export interface OfficialDraftReview {

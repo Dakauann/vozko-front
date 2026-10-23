@@ -6,7 +6,7 @@ import { InstrumentStrip } from "@/components/console/page-shapes";
 import { PanelSection } from "@/components/dashboard/PanelSection";
 import Button from "@/components/elevated-design/button";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
-import { Warning } from "@/components/icons";
+import { CaretRight, Warning } from "@/components/icons";
 import { SkipRowList } from "@/components/leads/sends/SendReviewPanel";
 import { useMissingSlotText } from "@/components/leads/sends/send-copy";
 import { Notice } from "@/components/ui/notice";
@@ -17,7 +17,9 @@ import { OUT_REASON_ICONS, outRowsOf, useOutRowLabel, useSlotLabel } from "./use
 import type { AudienceLeadFocus } from "./AudienceLeadsSheet";
 import type { CampaignAudience } from "./use-campaign-audience";
 
-const OPENER = "text-left underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const OPENER = "text-left underline decoration-dotted decoration-1 underline-offset-4 transition-colors hover:text-foreground hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+const FIGURE_OPENER = `inline-flex items-center gap-1 rounded-sm ${OPENER}`;
 
 const SIDE_STRIP = "sm:grid-cols-3 xl:grid-cols-1";
 
@@ -90,8 +92,9 @@ export function AudienceCountFigures({
   const show = (value: number | null | undefined) => (value === null || value === undefined ? <EmptyValue /> : value.toLocaleString(locale));
   const opener = (value: number | null | undefined, name: string, focus: AudienceLeadFocus) =>
     onOpen && count && value !== null && value !== undefined ? (
-      <button type="button" aria-label={`${name}: ${value.toLocaleString(locale)}`} className={OPENER} onClick={() => onOpen(focus)}>
+      <button type="button" aria-label={`${name}: ${value.toLocaleString(locale)}`} title={t("openList")} className={FIGURE_OPENER} onClick={() => onOpen(focus)}>
         {value.toLocaleString(locale)}
+        <CaretRight className="size-3.5 text-muted-foreground" aria-hidden />
       </button>
     ) : (
       show(value)

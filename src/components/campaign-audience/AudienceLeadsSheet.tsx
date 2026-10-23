@@ -31,7 +31,7 @@ const PICK_LIMIT = 5000;
 
 export type AudienceLeadFocus = Pick<AudienceLeadQuery, "status" | "reason" | "variable" | "metadataKey">;
 
-const STATUS_TONE: Record<AudienceLeadStatus, StatusChipTone> = { ready: "healthy", out: "neutral", undecided: "warning" };
+export const LEAD_STATUS_TONE: Record<AudienceLeadStatus, StatusChipTone> = { ready: "healthy", out: "neutral", undecided: "warning" };
 
 function useFocusTitle(audience: CampaignAudience) {
   const t = useTranslations("campaignAudience.step.leads.title");
@@ -65,7 +65,7 @@ function LeadsTable({ audience, focus, onClose }: { audience: CampaignAudience; 
     () => [
       { key: "name", header: t("columns.name"), render: (lead) => lead.name || (lead.line > 0 ? t("line", { line: lead.line }) : <EmptyValue />) },
       { key: "contact", header: t("columns.contact"), className: "font-mono text-sm tabular-nums", render: (lead) => lead.contact || <EmptyValue /> },
-      { key: "status", header: t("columns.status"), render: (lead) => <StatusChip tone={STATUS_TONE[lead.status]} label={t(`status.${lead.status}`)} /> },
+      { key: "status", header: t("columns.status"), render: (lead) => <StatusChip tone={LEAD_STATUS_TONE[lead.status]} label={t(`status.${lead.status}`)} /> },
       { key: "reason", header: t("columns.reason"), render: (lead) => (lead.reason ? reasonText(lead.reason) : <EmptyValue />) },
       {
         key: "missing",

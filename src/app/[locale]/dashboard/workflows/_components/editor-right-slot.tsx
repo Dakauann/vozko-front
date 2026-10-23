@@ -5,13 +5,23 @@ import { useTranslations } from "next-intl";
 
 import type { SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
 import { useDragResize } from "@/hooks/use-drag-resize";
+import { useViewportWidth } from "@/hooks/use-viewport-width";
 import type { TriggerTestInput } from "@/lib/workflows/test-inputs";
-import { rightSlotView, type RightPanel } from "@/lib/workflows/editor-docking";
+import {
+  RIGHT_SLOT_DEFAULT_WIDTH,
+  RIGHT_SLOT_MIN_WIDTH,
+  rightSlotMaxWidth,
+  rightSlotView,
+  rightSlotWidth,
+  type RightPanel,
+} from "@/lib/workflows/editor-docking";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";
 
 import { WorkflowCopilotFab, WorkflowCopilotPanel } from "./workflow-copilot-panel";
 import { WorkflowTestPanel } from "./workflow-test-panel";
+
+const RESIZE_KEY_STEP = 40;
 
 export interface EditorRightSlotProps {
   testOpen: boolean;
@@ -72,13 +82,15 @@ function EditorRightSlotView({
 }: EditorRightSlotProps) {
   const tDebug = useTranslations("workflowDebug");
   const rightSlot = rightSlotView({ testOpen, copilotOpen, preferred });
-  const [width, setWidth] = useState(480);
+  const viewportWidth = useViewportWidth();
+  const [desiredWidth, setDesiredWidth] = useState(RIGHT_SLOT_DEFAULT_WIDTH);
+  const width = viewportWidth > 0 ? rightSlotWidth(desiredWidth, viewportWidth) : desiredWidth;
   const resizeTo = useCallback((next: number) => {
-    const applied = Math.min(Math.max(360, next), Math.max(360, window.innerWidth * 0.7));
-    setWidth(applied);
+    const applied = rightSlotWidth(next, window.innerWidth);
+    setDesiredWidth(applied);
     return applied;
   }, []);
-  const resize = useDragResize({ edge: "left", step: 40, read: () => width, resizeTo, commit: setWidth });
+  const resize = useDragResize({ edge: "left", step: RESIZE_KEY_STEP, read: () => width, resizeTo, commit: setDesiredWidth });
 
   return (
     <>
@@ -86,7 +98,7 @@ function EditorRightSlotView({
       {(copilotMounted || rightSlot.active) && (
         <div
           data-testid="right-slot"
-          style={{ width, maxWidth: "90vw", paddingRight: "var(--dock-rail-w, 0px)" }}
+          style={{ width, paddingRight: "var(--dock-rail-w, 0px)" }}
           className={cn("relative flex min-h-0 min-w-0 shrink-0 flex-col border-l border-border bg-card", !rightSlot.active && "hidden")}
         >
           <div
@@ -94,7 +106,8 @@ function EditorRightSlotView({
             tabIndex={0}
             aria-label={tDebug("slot.resize")}
             aria-orientation="vertical"
-            aria-valuemin={360}
+            aria-valuemin={RIGHT_SLOT_MIN_WIDTH}
+            aria-valuemax={rightSlotMaxWidth(viewportWidth)}
             aria-valuenow={width}
             className="absolute inset-y-0 -left-1 z-20 w-2 cursor-ew-resize touch-none hover:bg-primary/20 focus-visible:bg-primary/20 focus-visible:outline-none"
             {...resize.handleProps}

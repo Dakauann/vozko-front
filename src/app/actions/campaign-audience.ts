@@ -21,6 +21,8 @@ import type {
   TemplateSuggestion,
 } from "@/lib/campaign-audience/types";
 import { isText } from "@/lib/json/guards";
+import { parseMapSample } from "@/lib/maps/contracts";
+import type { MapSample } from "@/lib/maps/types";
 
 const PASTED_FILE_NAME = "colado.csv";
 const SAMPLE_NAME = "modelo-publico";
@@ -51,8 +53,9 @@ export function countAudienceAction(channel: AudienceChannel, spec: AudienceSpec
   return parsedRequest(channelPath(channel, "count"), signal ? { ...init, signal } : init, parseAudienceCount);
 }
 
-export function listAudienceLeadsAction(channel: AudienceChannel, spec: AudienceSpec, fields: ChannelFields, query: AudienceLeadQuery) {
-  return parsedRequest(channelPath(channel, "leads"), json("POST", { ...spec, ...fields, ...query }), parseAudienceLeadPage);
+export function listAudienceLeadsAction(channel: AudienceChannel, spec: AudienceSpec, fields: ChannelFields, query: AudienceLeadQuery, signal?: AbortSignal) {
+  const init = json("POST", { ...spec, ...fields, ...query });
+  return parsedRequest(channelPath(channel, "leads"), signal ? { ...init, signal } : init, parseAudienceLeadPage);
 }
 
 export function uploadAudienceListAction(channel: AudienceChannel, file: File, context: ListContext) {
@@ -108,4 +111,17 @@ export function getTemplateSuggestionsAction(templateId: string) {
 
 export function saveTemplateSuggestionsAction(templateId: string, suggestions: TemplateSuggestion[]) {
   return parsedRequest(suggestionsPath(templateId), json("PUT", { suggestions }), parseTemplateSuggestions);
+}
+
+function parsedMapSample(value: unknown): MapSample | null {
+  try {
+    return parseMapSample(value);
+  } catch {
+    return null;
+  }
+}
+
+export function mapAudienceAction(channel: AudienceChannel, spec: AudienceSpec, signal?: AbortSignal) {
+  const init = json("POST", spec);
+  return parsedRequest(channelPath(channel, "map"), signal ? { ...init, signal } : init, parsedMapSample);
 }

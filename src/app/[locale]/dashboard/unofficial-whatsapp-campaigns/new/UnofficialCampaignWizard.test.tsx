@@ -37,6 +37,8 @@ vi.mock("next-intl", () => ({
 vi.mock("@/contexts/workspace-context", () => ({ useWorkspace: () => ({ currentWorkspace: { id: "ws-1" }, can: () => true }) }));
 vi.mock("@/components/leads/LeadsToolbar", () => ({ LeadsToolbar: () => <div data-testid="leads-toolbar" /> }));
 vi.mock("@/components/leads/LeadSavedViews", () => ({ default: () => null }));
+vi.mock("@/components/maps/LeadMap", () => ({ LeadMap: () => null }));
+vi.mock("@/hooks/use-lead-map", () => ({ useLeadAreas: () => ({ data: [] }) }));
 vi.mock("@/hooks/use-lead-field-definitions", () => ({ useLeadFieldDefinitions: () => ({ definitions: [] }) }));
 
 const audienceActions = vi.hoisted(() => ({
@@ -51,6 +53,7 @@ const audienceActions = vi.hoisted(() => ({
   removeAudienceRowAction: vi.fn(),
   downloadAudienceSampleAction: vi.fn(),
   listTemplateFieldsAction: vi.fn(),
+  mapAudienceAction: vi.fn(),
 }));
 vi.mock("@/app/actions/campaign-audience", () => audienceActions);
 
@@ -114,6 +117,8 @@ vi.mock("@/components/elevated-design/button", () => ({
 
 import { UnofficialCampaignWizard } from "./UnofficialCampaignWizard";
 import type { GroupRow } from "@/lib/unofficial-whatsapp-groups/types";
+import { emptyCrmFilter, type CrmFilter } from "@/lib/crm/board";
+import { areaIdsOf, withDrawnArea } from "@/lib/leads/map-view";
 
 function render(ui: ReactElement) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -483,5 +488,47 @@ describe("UnofficialCampaignWizard reopening a draft from a group link", () => {
     wizard({ groupIds: ["b"] });
     expect(await screen.findByText("unofficialWhatsappCampaigns.wizard.prefillIgnored")).toBeInTheDocument();
     expect(groupActions.getWorkspaceGroupAction).not.toHaveBeenCalled();
+  });
+});
+
+describe("UnofficialCampaignWizard map round trip", () => {
+  it("applies the areas chosen on the map to the same draft and step and saves them", async () => {
+    navigation.search = "draft=d-8&step=audience&areas=area-2";
+    draftActions.getCampaignDraftAction.mockResolvedValue({
+      data: {
+        id: "d-8",
+        channel: "unofficial_whatsapp",
+        name: "Bairros",
+        payload: {
+          request: { name: "Bairros", instanceId: "i-1", message: { kind: "text", bodies: ["Oi /sair"] }, sendDelayMinMs: 9000, sendDelayMaxMs: 15000, dailyCap: 0 },
+          state: {
+            step: "audience",
+            responseMode: "agent",
+            pickedGroups: [],
+            audienceDraft: { source: "leads", listId: null, pick: "filter", filter: withDrawnArea(emptyCrmFilter, "area-1"), search: "", ids: [], excludeIds: [], variables: {} },
+            seed: { on: false, sentPercent: 40, failedPercent: 10 },
+          },
+        },
+        createdBy: "u-1",
+        createdAt: "2026-10-22T10:00:00Z",
+        updatedAt: "2026-10-22T10:00:00Z",
+      },
+    });
+    audienceActions.mapAudienceAction.mockResolvedValue({ data: { layer: { kind: "points", points: [] }, located: 0, positions: 0, sampled: false, bounds: null }, error: null });
+    wizard();
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith("/dashboard/unofficial-whatsapp-campaigns/new?draft=d-8&step=audience", { scroll: false }), SETTLE);
+    await waitFor(() => expect(draftActions.updateCampaignDraftAction).toHaveBeenCalled(), SETTLE);
+    const [, id, body] = draftActions.updateCampaignDraftAction.mock.calls.at(-1) as [string, string, { payload: { state: { audienceDraft: { filter: CrmFilter } } } }];
+    expect(id).toBe("d-8");
+    expect(areaIdsOf(body.payload.state.audienceDraft.filter)).toEqual(["area-2"]);
+    await waitFor(() => expect(audienceActions.mapAudienceAction).toHaveBeenCalled(), SETTLE);
+    expect(areaIdsOf(audienceActions.mapAudienceAction.mock.calls.at(-1)?.[1].selection.filter)).toEqual(["area-2"]);
+
+    fireEvent.click(await screen.findByText("campaignAudience.step.map.edit", undefined, SETTLE));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalled());
+    const opened = new URL(navigation.push.mock.calls.at(-1)?.[0] as string, "https://app.test");
+    expect(opened.pathname).toBe("/dashboard/leads");
+    expect(opened.searchParams.get("audienceChannel")).toBe("unofficial");
+    expect(opened.searchParams.get("audienceDraft")).toBe("d-8");
   });
 });

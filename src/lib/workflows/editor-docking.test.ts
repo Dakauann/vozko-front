@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rightSlotView } from "./editor-docking";
+import { RIGHT_SLOT_MIN_WIDTH, rightSlotMaxWidth, rightSlotView, rightSlotWidth } from "./editor-docking";
 
 describe("rightSlotView", () => {
   it("leaves the slot empty and shows the copilot launcher when nothing is open", () => {
@@ -18,5 +18,24 @@ describe("rightSlotView", () => {
   it("shows the preferred panel when both are open, with tabs to switch, so neither covers the other", () => {
     expect(rightSlotView({ testOpen: true, copilotOpen: true, preferred: "copilot" })).toEqual({ active: "copilot", tabs: true, launcher: false });
     expect(rightSlotView({ testOpen: true, copilotOpen: true, preferred: "test" })).toEqual({ active: "test", tabs: true, launcher: false });
+  });
+});
+
+describe("rightSlotWidth", () => {
+  it("keeps the requested width while it fits", () => {
+    expect(rightSlotWidth(640, 1600)).toBe(640);
+  });
+
+  it("never shrinks the panel below a usable width", () => {
+    expect(rightSlotWidth(120, 1600)).toBe(RIGHT_SLOT_MIN_WIDTH);
+  });
+
+  it("leaves most of the canvas visible on wide screens", () => {
+    expect(rightSlotWidth(5000, 1600)).toBe(rightSlotMaxWidth(1600));
+    expect(rightSlotMaxWidth(1600)).toBe(1120);
+  });
+
+  it("still offers the minimum width on narrow screens", () => {
+    expect(rightSlotWidth(500, 400)).toBe(RIGHT_SLOT_MIN_WIDTH);
   });
 });

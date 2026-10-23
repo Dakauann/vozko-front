@@ -22,6 +22,7 @@ import {
   useLeadsLiveRefetch,
 } from "@/components/leads/use-leads-live-refetch";
 import ImportLeadsDialog from "./_components/ImportLeadsDialog";
+import { AudienceMapReturn } from "@/components/campaign-audience/AudienceMapReturn";
 import { LeadImportsStatus } from "@/components/leads/imports/LeadImportsStatus";
 import { downloadLeadImportTemplate } from "@/lib/leads/template";
 import LeadSavedViews from "@/components/leads/LeadSavedViews";
@@ -276,6 +277,8 @@ function LeadsPageContent() {
           actions={headerActions}
         />
       </div>
+
+      <AudienceMapReturn filter={filter} />
 
       <ImportLeadsDialog
         open={importDialog.open}

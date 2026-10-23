@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query";
 
 import { listLabelsAction } from "@/app/actions/labels";
 import { listStagesAction } from "@/app/actions/stages";
-import { listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
+import { getWhatsAppCampaignByIdAction, listWhatsAppCampaignsAction } from "@/app/actions/whatsapp-campaigns";
 import type { FilterMultiSelectOption } from "@/components/filters/filter-multi-select";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useAssignableMembers } from "@/hooks/use-assignable-members";
-import { useLeadCompaniesPage } from "@/hooks/use-lead-companies";
+import { useLeadCompaniesPage, useLeadCompanyNames } from "@/hooks/use-lead-companies";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
 import { useLeadSection } from "@/hooks/use-lead-section";
 import { readableClassificationField, type CustomFieldDefinition } from "@/lib/crm/custom-fields";
@@ -56,6 +56,43 @@ async function loadCrmOptionSets(): Promise<CrmOptionSets> {
   };
 }
 
+function unlistedIdsOf(listed: readonly FilterMultiSelectOption[], ids: readonly string[]): string[] {
+  const known = new Set(listed.map((option) => option.value));
+  return [...new Set(ids)].filter((id) => id !== "" && !known.has(id));
+}
+
+function withUnlisted(listed: FilterMultiSelectOption[], unlisted: readonly string[], names: ReadonlyMap<string, string>): FilterMultiSelectOption[] {
+  if (unlisted.length === 0) return listed;
+  return [
+    ...listed,
+    ...unlisted.flatMap((id) => {
+      const name = names.get(id);
+      return name ? [{ value: id, label: name }] : [];
+    }),
+  ];
+}
+
+function campaignNamesOf(results: UseQueryResult<{ id: string; name: string } | null>[]): ReadonlyMap<string, string> {
+  return new Map(results.flatMap((result) => (result.data ? [[result.data.id, result.data.name] as const] : [])));
+}
+
+function useCampaignNames(workspaceId: string, campaignIds: readonly string[], enabled: boolean): ReadonlyMap<string, string> {
+  return useQueries({
+    combine: campaignNamesOf,
+    queries: campaignIds.map((campaignId) => ({
+      queryKey: [...leadFilterOptionsKey(workspaceId), "campaign", campaignId],
+      queryFn: async () => {
+        const result = await getWhatsAppCampaignByIdAction(campaignId);
+        if (result.error) throw new Error(result.error);
+        return result.campaign ? { id: result.campaign.id, name: result.campaign.name } : null;
+      },
+      enabled: enabled && workspaceId !== "",
+      staleTime: OPTION_SETS_STALE_MS,
+      refetchOnWindowFocus: false,
+    })),
+  });
+}
+
 function leadFilterOptionsKey(workspaceId: string) {
   return ["lead-filter-options", workspaceId] as const;
 }
@@ -82,8 +119,13 @@ export interface LeadFilterOptionSets {
 const NO_CITIES: LeadCityCount[] = [];
 const NO_DISTRICTS: LeadDistrictCount[] = [];
 const NO_OPTIONS: FilterMultiSelectOption[] = [];
+const NO_IDS: readonly string[] = [];
 
-export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly string[] } = {}): LeadFilterOptionSets {
+export function useLeadFilterOptions({
+  cityKeys = [],
+  companyIds = NO_IDS,
+  campaignIds = NO_IDS,
+}: { cityKeys?: readonly string[]; companyIds?: readonly string[]; campaignIds?: readonly string[] } = {}): LeadFilterOptionSets {
   const { currentWorkspace, can } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
   const readsAddresses = can("leads", "read_addresses");
@@ -150,10 +192,17 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
   const cities = places.data?.cities ?? NO_CITIES;
   const districts = districtSource.data?.districts ?? NO_DISTRICTS;
   const companyItems = companyPage.data?.items;
-  const companies = useMemo(() => (companyItems ?? []).map((company) => ({ value: company.id, label: company.name })), [companyItems]);
+  const listedCompanies = useMemo(() => (companyItems ?? []).map((company) => ({ value: company.id, label: company.name })), [companyItems]);
+  const unlistedCompanyIds = useMemo(() => unlistedIdsOf(listedCompanies, companyIds), [companyIds, listedCompanies]);
+  const unlistedCompanyNames = useLeadCompanyNames(unlistedCompanyIds, readsCompanies && companyPage.isSuccess);
+  const companies = useMemo(() => withUnlisted(listedCompanies, unlistedCompanyIds, unlistedCompanyNames), [listedCompanies, unlistedCompanyIds, unlistedCompanyNames]);
+  const listedCampaigns = crm.data?.campaigns ?? NO_OPTIONS;
+  const unlistedCampaignIds = useMemo(() => unlistedIdsOf(listedCampaigns, campaignIds), [campaignIds, listedCampaigns]);
+  const unlistedCampaignNames = useCampaignNames(workspaceId, unlistedCampaignIds, crm.isSuccess);
+  const campaigns = useMemo(() => withUnlisted(listedCampaigns, unlistedCampaignIds, unlistedCampaignNames), [listedCampaigns, unlistedCampaignIds, unlistedCampaignNames]);
   return useMemo(
     () => ({
-      campaigns: crm.data?.campaigns ?? NO_OPTIONS,
+      campaigns,
       stages: crm.data?.stages ?? NO_OPTIONS,
       labels: crm.data?.labels ?? NO_OPTIONS,
       companies,
@@ -170,6 +219,6 @@ export function useLeadFilterOptions({ cityKeys = [] }: { cityKeys?: readonly st
       fieldsFailed,
       retry,
     }),
-    [crm.data, companies, cities, districts, members.names, definitions, customFields, classification, readsAddresses, readsCompanies, pending, failed, fieldsFailed, retry],
+    [crm.data, campaigns, companies, cities, districts, members.names, definitions, customFields, classification, readsAddresses, readsCompanies, pending, failed, fieldsFailed, retry],
   );
 }

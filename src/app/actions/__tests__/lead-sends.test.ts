@@ -28,7 +28,7 @@ const review = {
     parts: 1,
     splitRequired: false,
     maxPerCampaign: 150000,
-    unitPriceMicros: 62500,
+    unitPriceMicros: 62500, unitPriceBrl: 0.3125, costBrl: 0, balanceBrl: 0,
     costMicros: 562500,
     balanceMicros: 1000000,
     currency: "USD",

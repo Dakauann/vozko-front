@@ -6571,12 +6571,12 @@
         "number": "Number",
         "template": "Template",
         "recipients": "Contacts",
-        "recipientsValue": "{count} ready to send",
+        "recipientsValue": "{count, plural, one {# ready to send} other {# ready to send}}",
         "cost": "Estimated cost"
       },
       "confirm": {
         "nowTitle": "Send the campaign now?",
-        "nowBody": "The campaign goes to {count} contacts, with an estimated cost of {total}.",
+        "nowBody": "The campaign goes to {count, plural, one {# contact} other {# contacts}}, with an estimated cost of {total}.",
         "scheduleTitle": "Schedule the campaign?",
         "scheduleBody": "The campaign starts on {date}. At that time the server checks everything again."
       }
@@ -7957,6 +7957,36 @@
     "openCatalog": "Open full catalog"
   },
   "invoicesPage": {
+    "payment": {
+      "title": "Pay with PIX",
+      "pay": "Pay",
+      "payInvoice": "Pay invoice",
+      "waiting": "Awaiting payment",
+      "scan": "Scan the QR code in your banking app or copy the PIX code.",
+      "qrAlt": "PIX QR code for this invoice",
+      "qrUnavailable": "QR code unavailable. Use the PIX code below.",
+      "copy": "Copy PIX code",
+      "copied": "Code copied",
+      "expiresAt": "PIX valid until",
+      "payableUntil": "Payment accepted until",
+      "expiredTitle": "The PIX for this invoice has expired",
+      "expiredBody": "Generate a new code to pay by {date}. The amount stays the same and the previous code stops working.",
+      "expiredBodyNoDate": "Generate a new code to pay. The amount stays the same and the previous code stops working.",
+      "renew": "Generate new PIX",
+      "renewing": "Generating new PIX...",
+      "paidTitle": "Payment confirmed",
+      "paidBody": "We received the payment for this invoice.",
+      "paidAt": "We received the payment for this invoice on {date}."
+    },
+    "errors": {
+      "default": "Could not generate a new PIX. Try again.",
+      "invoice_not_found": "Invoice not found.",
+      "invoice_not_payable": "This invoice can no longer be paid.",
+      "invoice_already_paid": "The payment for this invoice was already received.",
+      "invoice_pix_renew_in_progress": "A new PIX is already being generated. Wait a few seconds.",
+      "invoice_pix_unavailable": "Could not generate a new PIX right now. Try again in a moment.",
+      "customer_document_required": "Add your CPF or CNPJ to your profile to generate the PIX."
+    },
     "header": {
       "badge": "Invoices",
       "title": "My Invoices",
@@ -8023,6 +8053,7 @@
       "TOP_UP": "Top-up"
     },
     "status": {
+      "reversed": "Reversed",
       "pending": "Pending",
       "paid": "Paid",
       "overdue": "Overdue",
@@ -8329,6 +8360,7 @@
       "viewPayment": "View payment",
       "copyPix": "Copy PIX code",
       "statusLabels": {
+        "REVERSED": "Reversed",
         "PENDING": "Pending",
         "PAID": "Paid",
         "OVERDUE": "Overdue",
@@ -10446,6 +10478,7 @@
       "validation": "Validation",
       "cancelled": "Cancelled",
       "internal": "Internal",
+      "handled": "Failure handled by the flow",
       "realCallNotConfirmed": "Real call not confirmed",
       "windowClosed": "Service window closed",
       "unknown": "Other ({kind})"
@@ -11216,6 +11249,10 @@
       "WORKFLOW_INVALID": {
         "title": "The flow details are incomplete",
         "fix": "Give the flow a name and save again."
+      },
+      "WORKFLOW_VALIDATION_UNAVAILABLE": {
+        "title": "The flow resources could not be checked",
+        "fix": "Try validating again in a moment. The flow can only be published after a complete validation."
       },
       "WORKFLOW_VOICE_TRUNK_INVALID": {
         "title": "The flow's phone line is not available",
@@ -37982,14 +38019,14 @@
         "subject": "Subject",
         "noSubject": "No subject",
         "recipients": "Recipients",
-        "recipientsValue": "{count} ready to send",
+        "recipientsValue": "{count, plural, one {# ready to send} other {# ready to send}}",
         "cost": "Cost",
         "costValue": "{total} ({units} × {unit})"
       },
       "confirm": {
         "nowTitle": "Send the campaign now?",
         "scheduleTitle": "Schedule the campaign?",
-        "nowBody": "The full send is estimated at {total} ({count} emails at {unit} each). Now we charge only the first batch: {first}.",
+        "nowBody": "The full send is estimated at {total} ({count, plural, one {# email} other {# emails}} at {unit} each). Now we charge only the first batch: {first}.",
         "scheduleBody": "Nothing is charged now. On {date} we charge the first batch ({first}); the full send is estimated today at {total}.",
         "batches": "The campaign is charged in batches of {size} emails, each batch before it goes out. If the balance runs out, it pauses and continues on its own after a top up."
       },
@@ -38705,6 +38742,13 @@
     }
   },
   "campaignAudience": {
+    "mapTrip": {
+      "title": "Editing the areas of a campaign",
+      "body": "Choose or draw the areas on the map. When you go back, they replace the areas in the campaign audience.",
+      "selected": "{count, plural, =0 {No area selected} one {# area selected} other {# areas selected}}",
+      "apply": "Use these areas in the campaign",
+      "cancel": "Go back without changes"
+    },
     "errors": {
       "audience_busy": "Too many counts at once. Try again in a few seconds.",
       "audience_channel_invalid": "This channel has no audience step.",
@@ -38782,6 +38826,18 @@
       "template_suggestion_slot_invalid": "The template has no such variable."
     },
     "step": {
+      "map": {
+        "title": "On the map",
+        "description": "{located, plural, =0 {No leads with a position in the areas} one {# lead with a position in the areas} other {# leads with a position in the areas}}",
+        "sampled": "{located, number} leads with a position. Showing {shown, number} of {positions, number} points.",
+        "edit": "Edit on the map",
+        "label": "Audience map in the chosen areas",
+        "loading": "Loading the map",
+        "failed": "The map could not be shown.",
+        "retry": "Try again",
+        "empty": "No lead in this audience has a position inside the areas.",
+        "saveFirst": "The draft could not be saved. Try again before opening the map."
+      },
       "sourceLabel": "Who receives it",
       "sources": {
         "leads": "Your leads",
@@ -38891,7 +38947,8 @@
         "countedByServer": "Counted by the server with the sending rules",
         "failedShort": "Count unavailable",
         "failed": "Could not count the audience",
-        "retry": "Count again"
+        "retry": "Count again",
+        "openList": "See who they are"
       },
       "list": {
         "sample": "Download template",
@@ -38985,7 +39042,8 @@
       },
       "slot": {
         "headerSlot": "{tag} in the header",
-        "header": "Header"
+        "header": "Header",
+        "orText": "or “{text}”"
       },
       "leads": {
         "title": {
@@ -39018,6 +39076,15 @@
         "failed": "Could not list the leads.",
         "unit": "leads",
         "line": "Line {line}"
+      },
+      "preview": {
+        "title": "Who is in the audience",
+        "description": "{count, plural, one {# lead matches} other {# leads match}} these filters.",
+        "descriptionMore": "The first {shown, number} of {count, number} leads matching these filters.",
+        "viewAll": "View all",
+        "empty": "No lead matches these filters.",
+        "failed": "Could not show the leads.",
+        "retry": "Try again"
       }
     }
   },

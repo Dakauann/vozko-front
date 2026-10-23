@@ -52,6 +52,7 @@ const audienceActions = vi.hoisted(() => ({
   removeAudienceRowAction: vi.fn(),
   downloadAudienceSampleAction: vi.fn(),
   listTemplateFieldsAction: vi.fn(),
+  mapAudienceAction: vi.fn(),
 }));
 vi.mock("@/app/actions/campaign-audience", () => audienceActions);
 
@@ -60,6 +61,8 @@ vi.mock("@/components/leads/LeadsToolbar", () => ({
   LeadsToolbar: ({ filter }: { filter: unknown }) => <div data-testid="leads-toolbar">{JSON.stringify(filter)}</div>,
 }));
 vi.mock("@/components/leads/LeadSavedViews", () => ({ default: () => null }));
+vi.mock("@/components/maps/LeadMap", () => ({ LeadMap: () => null }));
+vi.mock("@/hooks/use-lead-map", () => ({ useLeadAreas: () => ({ data: [] }) }));
 vi.mock("@/components/explainers/ExplainerHint", () => ({ ExplainerHint: () => null }));
 vi.mock("@/components/email-editor", () => ({
   EmailEditor: () => <div data-testid="email-editor" />,
@@ -79,6 +82,8 @@ vi.mock("@/components/leads/sheet/LeadSheet", () => ({
 
 import { EmailCampaignWizard } from "../wizard/EmailCampaignWizard";
 import type { AudienceCount, ListPreview } from "@/lib/campaign-audience/types";
+import { emptyCrmFilter } from "@/lib/crm/board";
+import { areaIdsOf, withDrawnArea } from "@/lib/leads/map-view";
 
 const SETTLE = { timeout: 4000 };
 
@@ -156,8 +161,8 @@ const REVIEW: Review = {
     sendable: 990,
     skipped: { no_email: 100, unsubscribed: 60, suppressed: 50 },
   },
-  send: { units: 990, unit_micros: 600, unit_cost_micros: 165, total_micros: 594_000, unit_brl: 0.003, total_brl: 2.97 },
-  first_batch: { units: 990, unit_micros: 600, unit_cost_micros: 165, total_micros: 594_000, unit_brl: 0.003, total_brl: 2.97 },
+  send: { units: 990, unit_micros: 600, total_micros: 594_000, unit_brl: 0.003, total_brl: 2.97 },
+  first_batch: { units: 990, unit_micros: 600, total_micros: 594_000, unit_brl: 0.003, total_brl: 2.97 },
   batch_size: 1000,
   balance_micros: 100_000_000,
   missing_micros: 0,
@@ -331,7 +336,7 @@ describe("EmailCampaignWizard", () => {
   });
 
   it("never shows a cost below one centavo as zero and keeps the balance after it apart", async () => {
-    const tiny = { units: 1, unit_micros: 700, unit_cost_micros: 165, total_micros: 700, unit_brl: 0.0035, total_brl: 0.0035 };
+    const tiny = { units: 1, unit_micros: 700, total_micros: 700, unit_brl: 0.0035, total_brl: 0.0035 };
     actions.fetchEmailCampaignReview.mockResolvedValue({ ...READY, send: tiny, first_batch: tiny, balance_brl: 500, after_first_batch_brl: 499.9965 });
     navigation.search = "campaign=c1&step=review";
     renderWizard();
@@ -388,7 +393,7 @@ describe("EmailCampaignWizard", () => {
   });
 
   it("sums up a single email at the estimate the backend gives, never as zero", async () => {
-    const single = { units: 1, unit_micros: 583, unit_cost_micros: 165, total_micros: 583, unit_brl: 0.003498, total_brl: 0.003498 };
+    const single = { units: 1, unit_micros: 583, total_micros: 583, unit_brl: 0.003498, total_brl: 0.003498 };
     navigation.search = "campaign=c1&step=send";
     actions.fetchEmailCampaignReview.mockResolvedValue({ ...READY, audience: { ...READY.audience, sendable: 1 }, send: single, first_batch: single });
     renderWizard();
@@ -448,5 +453,27 @@ describe("EmailCampaignWizard", () => {
 
     expect(await screen.findByText("Ainda não dá para disparar")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Disparar campanha" })).toBeDisabled();
+  });
+});
+
+describe("EmailCampaignWizard map round trip", () => {
+  it("applies the areas chosen on the map to the same campaign and step and saves them", async () => {
+    actions.fetchEmailCampaign.mockResolvedValue({ ...CAMPAIGN, selection: { mode: "all_matching", filter: withDrawnArea(emptyCrmFilter, "area-1") } });
+    audienceActions.mapAudienceAction.mockResolvedValue({ data: { layer: { kind: "points", points: [] }, located: 0, positions: 0, sampled: false, bounds: null }, error: null });
+    navigation.search = "campaign=c1&step=audience&areas=area-2";
+    renderWizard();
+
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith("/dashboard/email/campaigns/new?campaign=c1&step=audience", { scroll: false }), SETTLE);
+    await waitFor(() => expect(areaIdsOf(lastSavedRequest()?.selection?.filter ?? emptyCrmFilter)).toEqual(["area-2"]), SETTLE);
+    expect(actions.updateEmailCampaignAction.mock.calls.at(-1)?.[0]).toBe("c1");
+    await waitFor(() => expect(audienceActions.mapAudienceAction).toHaveBeenCalled(), SETTLE);
+    expect(areaIdsOf(audienceActions.mapAudienceAction.mock.calls.at(-1)?.[1].selection.filter)).toEqual(["area-2"]);
+
+    fireEvent.click(await screen.findByRole("button", { name: ptMessages.campaignAudience.step.map.edit }, SETTLE));
+    await waitFor(() => expect(navigation.push).toHaveBeenCalled());
+    const opened = new URL(navigation.push.mock.calls.at(-1)?.[0] as string, "https://app.test");
+    expect(opened.pathname).toBe("/dashboard/leads");
+    expect(opened.searchParams.get("audienceChannel")).toBe("email");
+    expect(opened.searchParams.get("audienceDraft")).toBe("c1");
   });
 });

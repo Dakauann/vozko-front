@@ -4,16 +4,19 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const listWhatsAppCampaignsAction = vi.fn();
+const getWhatsAppCampaignByIdAction = vi.fn();
 const listStagesAction = vi.fn();
 const listLabelsAction = vi.fn();
 const fetchLeadSection = vi.fn();
 const listCustomFieldsAction = vi.fn();
 const listAssignableMembersAction = vi.fn();
 const listLeadCompaniesAction = vi.fn();
+const getLeadCompanyAction = vi.fn();
 const permissions = { current: new Set<string>(["leads:read", "members:read"]) };
 
 vi.mock("@/app/actions/whatsapp-campaigns", () => ({
   listWhatsAppCampaignsAction: (...args: unknown[]) => listWhatsAppCampaignsAction(...args),
+  getWhatsAppCampaignByIdAction: (...args: unknown[]) => getWhatsAppCampaignByIdAction(...args),
 }));
 vi.mock("@/app/actions/stages", () => ({ listStagesAction: (...args: unknown[]) => listStagesAction(...args) }));
 vi.mock("@/app/actions/labels", () => ({ listLabelsAction: (...args: unknown[]) => listLabelsAction(...args) }));
@@ -26,6 +29,7 @@ vi.mock("@/app/actions/workspace", () => ({
 }));
 vi.mock("@/app/actions/lead-companies", () => ({
   listLeadCompaniesAction: (...args: unknown[]) => listLeadCompaniesAction(...args),
+  getLeadCompanyAction: (...args: unknown[]) => getLeadCompanyAction(...args),
 }));
 vi.mock("@/contexts/workspace-context", () => ({
   useWorkspace: () => ({
@@ -149,6 +153,33 @@ describe("useLeadFilterOptions", () => {
     expect(outsider.result.current.readsCompanies).toBe(false);
     expect(outsider.result.current.companies).toEqual([]);
     expect(listLeadCompaniesAction).not.toHaveBeenCalled();
+  });
+
+  it("names a selected campaign that is not among the first campaigns by reading it", async () => {
+    getWhatsAppCampaignByIdAction.mockReset().mockResolvedValue({ campaign: { id: "c-900", name: "Volta às aulas 2025" }, error: null });
+    const reader = renderHook(() => useLeadFilterOptions({ campaignIds: ["c1", "c-900"] }), { wrapper: wrapper() });
+    await waitFor(() =>
+      expect(reader.result.current.campaigns).toEqual([
+        { value: "c1", label: "Matrículas" },
+        { value: "c-900", label: "Volta às aulas 2025" },
+      ]),
+    );
+    expect(getWhatsAppCampaignByIdAction).toHaveBeenCalledTimes(1);
+    expect(getWhatsAppCampaignByIdAction.mock.calls[0][0]).toBe("c-900");
+  });
+
+  it("names a selected company that is not on the first page by reading it", async () => {
+    permissions.current = new Set(["leads:read", "lead_companies:read"]);
+    getLeadCompanyAction.mockReset().mockResolvedValue({ data: { id: "co-900", name: "Zeta Ltda", acceptsLeads: true, membersCount: 1, createdAt: "x", updatedAt: "x" }, error: null });
+    const reader = renderHook(() => useLeadFilterOptions({ companyIds: ["co-1", "co-900"] }), { wrapper: wrapper() });
+    await waitFor(() =>
+      expect(reader.result.current.companies).toEqual([
+        { value: "co-1", label: "Acme" },
+        { value: "co-900", label: "Zeta Ltda" },
+      ]),
+    );
+    expect(getLeadCompanyAction).toHaveBeenCalledTimes(1);
+    expect(getLeadCompanyAction.mock.calls[0][0]).toBe("co-900");
   });
 
   it("tells the toolbar whether street level filters are allowed", async () => {

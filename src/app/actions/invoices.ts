@@ -9,6 +9,7 @@ import { REF_COOKIE_NAME } from '@/lib/affiliate/ref-cookie.client';
 import { clearClientCookie, readClientCookie } from '@/lib/browser/client-cookie';
 
 import { apiClient } from '@/lib/api/browser-client';
+import { codedErrorOf } from '@/lib/api/coded-error';
 
 export async function createInvoiceAction(payload: CreateInvoicePayload) {
   const referralCode = readClientCookie(REF_COOKIE_NAME)?.trim() || '';
@@ -49,6 +50,19 @@ export async function listInvoicesAction(params?: ListInvoicesParams) {
   }
 
   return { data: result.data ?? null, error: null };
+}
+
+export async function renewInvoicePixAction(id: string) {
+  const result = await apiClient<{ invoice: Invoice }>(
+    `/user/invoices/${encodeURIComponent(id)}/pix`,
+    { method: 'POST' },
+  );
+
+  if (result.error) {
+    return { data: null, error: codedErrorOf(result.error) };
+  }
+
+  return { data: result.data?.invoice ?? null, error: null };
 }
 
 export async function getInvoiceAction(id: string) {

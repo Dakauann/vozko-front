@@ -34,3 +34,13 @@ export function formatCentsAsBrl(cents: number, locale: string): string {
         currency: 'BRL',
     }).format(cents / 100);
 }
+
+export function formatBrl(reais: number | null | undefined, locale: string, fractionDigits = 2, distinctFrom?: number): string | null {
+    if (reais === null || reais === undefined || !Number.isFinite(reais)) return null;
+    return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: visibleFractionDigits(reais, Math.max(fractionDigits, 2), distinctFrom),
+    }).format(reais);
+}

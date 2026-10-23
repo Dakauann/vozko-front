@@ -10,6 +10,7 @@ const fetchLeadSection = vi.fn();
 const findLeadsByNameAction = vi.fn();
 const listLeadsQueryAction = vi.fn();
 const listCustomFieldsAction = vi.fn();
+const listLeadAreas = vi.fn();
 const INTERESSE = {
   id: "f1",
   key: "interesse",
@@ -36,6 +37,9 @@ vi.mock("@/app/actions/leads", () => ({
 }));
 vi.mock("@/app/actions/custom-fields", () => ({
   listCustomFieldsAction: (...args: unknown[]) => listCustomFieldsAction(...args),
+}));
+vi.mock("@/app/actions/lead-map", () => ({
+  listLeadAreas: (...args: unknown[]) => listLeadAreas(...args),
 }));
 vi.mock("@/app/actions/workspace", () => ({
   listAssignableMembersAction: async () => ({ members: [{ userId: "u-1", username: "Clara M." }] }),
@@ -135,6 +139,21 @@ describe("LeadsToolbar area chip", () => {
     renderToolbar({ initial, areas: [{ id: "a1", name: "Região Norte" }] });
     fireEvent.click(await screen.findByRole("button", { name: "Área: Região Norte · só posição exata" }));
     expect(areaIdsOf(latest)).toEqual([]);
+  });
+
+  it("looks up the saved area names itself when the screen does not pass them", async () => {
+    listLeadAreas.mockReset().mockResolvedValue([{ id: "b880ba99-4166-4705-81df-1679a1ad2799", name: "Zona Sul", points: [] }]);
+    const initial = withSet(emptyLeadFilter, LEAD_FILTER_FIELD.area, ["b880ba99-4166-4705-81df-1679a1ad2799"]);
+    renderToolbar({ initial });
+    expect(await screen.findByRole("button", { name: "Área: Zona Sul" })).toBeInTheDocument();
+    expect(screen.queryByText(/b880ba99/)).toBeNull();
+  });
+
+  it("does not load the saved areas when the filter has none", async () => {
+    listLeadAreas.mockReset().mockResolvedValue([]);
+    renderToolbar();
+    await screen.findByRole("button", { name: /^Filtros/ });
+    expect(listLeadAreas).not.toHaveBeenCalled();
   });
 
   it("names the approximate leads left out of an area by the area's saved name", async () => {

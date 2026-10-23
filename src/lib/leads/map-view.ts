@@ -141,6 +141,19 @@ function withAreaIds(filter: CrmFilter, ids: string[], exactOnly: boolean): CrmF
     return withSet(cleared, exactOnly ? LEAD_AREA_EXACT_ONLY_FIELD : LEAD_FILTER_FIELD.area, ids);
 }
 
+export interface AreaSelection {
+    ids: string[];
+    exactOnly: boolean;
+}
+
+export function areaSelectionOf(filter: CrmFilter): AreaSelection {
+    return { ids: areaIdsOf(filter), exactOnly: areaExactOnly(filter) };
+}
+
+export function withAreaSelection(filter: CrmFilter, selection: AreaSelection): CrmFilter {
+    return withAreaIds(filter, [...new Set(selection.ids)], selection.exactOnly && selection.ids.length > 0);
+}
+
 export function withDrawnArea(filter: CrmFilter, areaId: string): CrmFilter {
     const current = areaIdsOf(filter);
     if (current.includes(areaId)) return filter;

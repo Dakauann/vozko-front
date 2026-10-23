@@ -47,10 +47,10 @@ describe("conversation assignment tabs", () => {
     expect(await screen.findByRole("option", { name: "Assistente virtual" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: /Planilha de mensagens/ })).not.toBeInTheDocument();
     switchTo("Operadores");
-    expect(await screen.findByRole("option", { name: "Maria" })).toBeInTheDocument();
+    expect(await screen.findByRole("option", { name: /Maria/ })).toBeInTheDocument();
     expect(screen.getByText("Atendimento")).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "Assistente virtual" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("option", { name: "Maria" }));
+    fireEvent.click(screen.getByRole("option", { name: /Maria/ }));
     expect(onAssign).toHaveBeenCalledWith("u1");
     expect(onDelegate).not.toHaveBeenCalled();
   });

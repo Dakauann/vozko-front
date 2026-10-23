@@ -171,6 +171,9 @@ export interface SendQuote {
   balanceMicros: number;
   currency?: string;
   affordable: boolean;
+  unitPriceBrl: number;
+  costBrl: number;
+  balanceBrl: number;
   capRemaining?: number;
   fits: number;
   refusal?: string;
@@ -222,6 +225,10 @@ function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
 
+function isReais(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
 function isAmount(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value);
 }
@@ -252,6 +259,8 @@ export function parseSendQuote(value: unknown): SendQuote | null {
   if (!isCount(count) || !isCount(parts) || !isCount(maxPerCampaign) || !isCount(fits)) return null;
   if (!isCount(unitPriceMicros) || !isCount(costMicros) || !isAmount(balanceMicros)) return null;
   if (typeof value.splitRequired !== "boolean" || typeof value.affordable !== "boolean") return null;
+  const { unitPriceBrl, costBrl, balanceBrl } = value;
+  if (!isReais(unitPriceBrl) || !isReais(costBrl) || !isReais(balanceBrl) || unitPriceBrl < 0 || costBrl < 0) return null;
   const category = optional(value.category, isText);
   const currency = optional(value.currency, isText);
   const refusal = optional(value.refusal, isText);
@@ -268,6 +277,9 @@ export function parseSendQuote(value: unknown): SendQuote | null {
     costMicros,
     balanceMicros,
     affordable: value.affordable,
+    unitPriceBrl,
+    costBrl,
+    balanceBrl,
     fits,
   };
   const extras = { category, currency, refusal, capRemaining, dailyCap, estimatedDays };
@@ -410,12 +422,6 @@ export type SendBudgetView =
 
 const PRICING_UNAVAILABLE = "send_pricing_unavailable";
 const NOTHING_ELIGIBLE = "send_nothing_eligible";
-
-const BALANCE_CURRENCY = "USD";
-
-export function quoteCurrency(quote: SendQuote): string {
-  return quote.currency || BALANCE_CURRENCY;
-}
 
 export function sendBudgetView(review: Pick<SendReview, "eligible" | "quote">): SendBudgetView {
   if (review.eligible <= 0) return { kind: "blocked", refusal: NOTHING_ELIGIBLE };

@@ -11,6 +11,7 @@ export function useLaunchCost(review: Review | undefined) {
     unit: review ? reais(review.send.unit_brl, true) : "",
     first: review ? reais(review.first_batch.total_brl) : "",
     count: number(review?.send.units ?? 0),
+    units: review?.send.units ?? 0,
     batch: number(review?.batch_size ?? 0),
   };
 }

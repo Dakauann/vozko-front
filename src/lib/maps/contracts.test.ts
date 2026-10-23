@@ -7,6 +7,7 @@ import {
   parseDrawnAreas,
   parseGeoSummary,
   parseMapLayer,
+  parseMapSample,
   parseMapViewport,
 } from "./contracts";
 
@@ -237,5 +238,21 @@ describe("parseDrawnArea", () => {
 
   it("refuses a list that is not wrapped in items", () => {
     expect(() => parseDrawnAreas([drawnArea])).toThrow(MapContractError);
+  });
+});
+
+describe("parseMapSample", () => {
+  const sample = { layer: { kind: "points", points: [point] }, located: 3, positions: 1, sampled: false, bounds: { south: -23.6, west: -46.7, north: -23.5, east: -46.6 } };
+
+  it("reads the positions, the totals and the area box", () => {
+    expect(parseMapSample(sample)).toEqual({ ...sample, layer: parseMapLayer(sample.layer) });
+    expect(parseMapSample({ ...sample, bounds: null }).bounds).toBeNull();
+  });
+
+  it("refuses a sample outside the contract", () => {
+    expect(() => parseMapSample({ ...sample, sampled: "no" })).toThrow(MapContractError);
+    expect(() => parseMapSample({ ...sample, located: -1 })).toThrow(MapContractError);
+    expect(() => parseMapSample({ ...sample, bounds: { south: 0, west: 0, north: -1, east: 1 } })).toThrow(MapContractError);
+    expect(() => parseMapSample({ ...sample, layer: { kind: "dots" } })).toThrow(MapContractError);
   });
 });

@@ -150,7 +150,7 @@ describe("lead action answers", () => {
     parts: 1,
     splitRequired: false,
     maxPerCampaign: 150000,
-    unitPriceMicros: 62500,
+    unitPriceMicros: 62500, unitPriceBrl: 0.3125, costBrl: 0, balanceBrl: 0,
     costMicros: 2500000,
     balanceMicros: 9000000,
     currency: "USD",

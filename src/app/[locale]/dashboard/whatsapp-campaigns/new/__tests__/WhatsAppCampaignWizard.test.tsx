@@ -7,6 +7,8 @@ import ptMessages from "@/i18n/messages/pt.json";
 import type { TourStep } from "@/components/TourGuide";
 import { wizardStepOfTour } from "@/data/tour-whatsapp-campaigns";
 import type { AudienceCount, ListPreview } from "@/lib/campaign-audience/types";
+import { emptyCrmFilter, type CrmFilter } from "@/lib/crm/board";
+import { areaIdsOf, withDrawnArea } from "@/lib/leads/map-view";
 import { WHATSAPP_WIZARD_STEPS } from "@/lib/whatsapp-campaigns/wizard";
 
 const { toastMock } = vi.hoisted(() => ({
@@ -104,10 +106,13 @@ const audienceActions = vi.hoisted(() => ({
   removeAudienceRowAction: vi.fn(),
   downloadAudienceSampleAction: vi.fn(),
   listTemplateFieldsAction: vi.fn(),
+  mapAudienceAction: vi.fn(),
 }));
 vi.mock("@/app/actions/campaign-audience", () => audienceActions);
 vi.mock("@/components/leads/LeadsToolbar", () => ({ LeadsToolbar: () => <div data-testid="leads-toolbar" /> }));
 vi.mock("@/components/leads/LeadSavedViews", () => ({ default: () => null }));
+vi.mock("@/components/maps/LeadMap", () => ({ LeadMap: () => null }));
+vi.mock("@/hooks/use-lead-map", () => ({ useLeadAreas: () => ({ data: [] }) }));
 vi.mock("@/hooks/use-lead-field-definitions", () => ({ useLeadFieldDefinitions: () => ({ definitions: [] }) }));
 
 vi.mock("@/contexts/auth-context", () => ({ useAuth: () => ({ user: { role: "user" } }) }));
@@ -179,7 +184,7 @@ function savedDraft(id: string, body: { name: string; payload: unknown }) {
 
 const REVIEW_OK = {
   audience: audienceCount({ matched: 3, sendable: 2, outTotal: 1 }),
-  quote: { category: "MARKETING", unitPriceMicros: 400000, eligible: 2, costMicros: 800000, balanceMicros: 50000000, currency: "BRL", affordable: true },
+  quote: { category: "MARKETING", unitPriceMicros: 400000, eligible: 2, costMicros: 800000, balanceMicros: 50000000, currency: "USD", affordable: true, unitPriceBrl: 2.16, costBrl: 4.32, balanceBrl: 270 },
   estimate: null,
   check: { findings: [], fingerprint: "", blocks: false, needsConfirmation: false },
 };
@@ -340,6 +345,54 @@ describe("WhatsAppCampaignWizard steps and draft", () => {
     expect(lastSaved().payload.request).not.toHaveProperty("scheduledStart");
   });
 
+  it("renders the template next to the list columns with every slot marked where it sits", async () => {
+    catalog.templates = [
+      {
+        ...TEMPLATE,
+        components: [
+          { type: "HEADER", format: "TEXT", text: "Oferta {{1}}" },
+          { type: "BODY", text: "Olá {{1}}, seu código é {{2}}." },
+        ],
+      },
+    ];
+    const columns = [
+      { slot: 1, column: "loja", fill: "column" },
+      { slot: 2, column: "nome", fill: "column" },
+      { slot: 3, column: "codigo", fill: "column" },
+    ];
+    const withColumns = { ...PREVIEW, variableColumns: 3, columns: { ...PREVIEW.columns, variables: columns } } as ListPreview;
+    audienceActions.uploadAudienceListAction.mockResolvedValue({ data: withColumns, error: null });
+    audienceActions.previewAudienceListAction.mockResolvedValue({ data: withColumns, error: null });
+    audienceActions.countAudienceAction.mockResolvedValue({
+      data: audienceCount({
+        requiredVariables: 3,
+        variables: [
+          { key: "1", name: "1", header: true, missing: 0, policy: "", suggested: false, choiceRequired: false },
+          { key: "2", name: "1", header: false, missing: 0, policy: "", suggested: false, choiceRequired: false },
+          { key: "3", name: "2", header: false, missing: 0, policy: "", suggested: false, choiceRequired: false },
+        ],
+      }),
+      error: null,
+    });
+    audienceActions.searchAudienceRowsAction.mockResolvedValue({
+      data: { items: [{ id: "r1", line: 2, contact: "5511999990000", name: "Ana", variables: ["Loja Centro", "Ana", "X9"], metadata: {}, missing: [], metadataMissing: [], existing: true }], page: 1, pageSize: 50, totalPages: 1, totalItems: 1 },
+      error: null,
+    });
+    await fillConfig();
+    await chooseTemplate();
+    await uploadList();
+    const mark = (key: string) => document.querySelector(`mark[data-slot-key="${key}"]`);
+    await waitFor(() => expect(mark("3")).not.toBeNull(), SETTLE);
+    await waitFor(() => expect(mark("1")).toHaveTextContent("{{1}}Loja Centro"), SETTLE);
+    expect(mark("2")).toHaveTextContent("{{1}}Ana");
+    expect(mark("3")).toHaveTextContent("{{2}}X9");
+    expect(mark("2")).not.toHaveAttribute("data-active");
+
+    fireEvent.pointerEnter(screen.getByText("nome").parentElement?.parentElement as HTMLElement);
+    expect(mark("2")).toHaveAttribute("data-active", "true");
+    expect(mark("1")).not.toHaveAttribute("data-active");
+  });
+
   it("reopens a saved draft on its step with what was filled in", async () => {
     search.value = "draft=d7&step=audience";
     drafts.getCampaignDraftAction.mockResolvedValue({
@@ -371,6 +424,52 @@ describe("WhatsAppCampaignWizard steps and draft", () => {
     fireEvent.click(screen.getByRole("button", { name: new RegExp(wizard.steps.config) }));
     expect(await screen.findByDisplayValue("Volta às aulas")).toBeInTheDocument();
     expect(screen.getByRole("switch", { name: form.basicInfo.showTemplateInCrm })).toHaveAttribute("aria-checked", "true");
+  });
+});
+
+describe("WhatsAppCampaignWizard map round trip", () => {
+  const AREA_DRAFT = {
+    id: "d7",
+    channel: "whatsapp",
+    name: "Bairros do centro",
+    createdBy: "u1",
+    createdAt: "2026-10-22T10:00:00Z",
+    updatedAt: "2026-10-22T10:00:00Z",
+    payload: {
+      request: { name: "Bairros do centro", templateId: "tpl-1", businessPhoneId: "phone-1" },
+      state: {
+        values: { name: "Bairros do centro", templateId: "tpl-1", businessPhoneId: "phone-1", agentId: null, workflowId: null, enableAgentResponses: false, showTemplateInCrm: true, enableAnalysis: false, enableAutoStaging: false, enableAutoMemory: false, aiModel: "openai/gpt-4o-mini" },
+        responseMode: "agent",
+        pipelineId: "",
+        dealPipelineId: "",
+        templateInfoConfirmed: true,
+        audience: { source: "leads", listId: null, pick: "filter", filter: withDrawnArea(emptyCrmFilter, "area-1"), search: "", ids: [], excludeIds: [], variables: {} },
+        exit: { templateId: "tpl-1", choices: {}, acknowledged: false },
+        smartPolicy: null,
+      },
+    },
+  };
+
+  it("applies the areas chosen on the map to the same draft and step and saves them", async () => {
+    search.value = "draft=d7&step=audience&areas=area-2";
+    drafts.getCampaignDraftAction.mockResolvedValue({ data: AREA_DRAFT });
+    audienceActions.countAudienceAction.mockResolvedValue({ data: audienceCount({ source: "leads", list: null, selection: { selected: 4, confirmCount: 4, fingerprint: "fp" } }), error: null });
+    audienceActions.mapAudienceAction.mockResolvedValue({ data: { layer: { kind: "points", points: [] }, located: 0, positions: 0, sampled: false, bounds: null }, error: null });
+    renderWizard();
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/dashboard/whatsapp-campaigns/new?draft=d7&step=audience", { scroll: false }), SETTLE);
+    await waitFor(() => expect(drafts.updateCampaignDraftAction).toHaveBeenCalled(), SETTLE);
+    const [, id, body] = drafts.updateCampaignDraftAction.mock.calls.at(-1) as [string, string, { payload: { state: { audience: { filter: CrmFilter } } } }];
+    expect(id).toBe("d7");
+    expect(areaIdsOf(body.payload.state.audience.filter)).toEqual(["area-2"]);
+    await waitFor(() => expect(audienceActions.mapAudienceAction).toHaveBeenCalled(), SETTLE);
+    expect(areaIdsOf(audienceActions.mapAudienceAction.mock.calls.at(-1)?.[1].selection.filter)).toEqual(["area-2"]);
+
+    fireEvent.click(await screen.findByRole("button", { name: audienceStep.map.edit }, SETTLE));
+    await waitFor(() => expect(router.push).toHaveBeenCalled());
+    const opened = new URL(router.push.mock.calls.at(-1)?.[0] as string, "https://app.test");
+    expect(opened.pathname).toBe("/dashboard/leads");
+    expect(opened.searchParams.get("audienceChannel")).toBe("whatsapp");
+    expect(opened.searchParams.get("audienceDraft")).toBe("d7");
   });
 });
 
@@ -412,6 +511,22 @@ describe("WhatsAppCampaignWizard Revisão", () => {
 });
 
 describe("WhatsAppCampaignWizard Envio", () => {
+  it("confirms the start in reais from the server with the count in singular or plural", async () => {
+    drafts.reviewCampaignDraftAction.mockResolvedValue({
+      data: {
+        ...REVIEW_OK,
+        audience: audienceCount({ matched: 1, sendable: 1, outTotal: 0 }),
+        quote: { ...REVIEW_OK.quote, eligible: 1, unitPriceMicros: 700, costMicros: 700, unitPriceBrl: 0.0035, costBrl: 0.0035 },
+      },
+    });
+    await toSend();
+    expect(screen.getByText("1 pronto para envio")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: send.now.action }));
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText(/^A campanha vai para 1 contato, com custo estimado de R\$\s0,0035\.$/)).toBeInTheDocument();
+    expect(within(dialog).queryByText(/US\$/)).toBeNull();
+  });
+
   it("sends now in one request and opens the campaign", async () => {
     await toSend();
     fireEvent.click(screen.getByRole("button", { name: send.now.action }));

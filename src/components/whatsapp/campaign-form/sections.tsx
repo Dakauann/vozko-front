@@ -1,8 +1,12 @@
 "use client";
 
+import { Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { Controller } from "react-hook-form";
 
+import { SlotMark } from "@/components/campaign-audience/slot-focus";
+import { slotTag } from "@/components/campaign-audience/use-audience-copy";
+import { useAudienceFields } from "@/components/campaign-audience/use-audience-queries";
 import { DealAutomationDraft, DealAutomationSetting } from "@/components/channels/deal-automation-setting";
 import { SelectionSendNote } from "@/components/campaigns/SelectionSendNote";
 import { AIModelSelector } from "@/components/elevated-design/ai-model-selector";
@@ -15,7 +19,9 @@ import { EmptyValue } from "@/components/elevated-design/empty-value";
 import GrainBackground from "@/components/elevated-design/grain-background";
 import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { CalendarCheck, ImageSquare } from "@/components/icons";
+import { useFieldSourceLabel } from "@/components/leads/sends/send-copy";
 import { Notice } from "@/components/ui/notice";
+import { slotSegments } from "@/lib/campaign-audience/slots";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import { SendRiskNotice } from "@/components/whatsapp/SendRiskNotice";
 import { phoneSendRisk } from "@/lib/whatsapp-business-phones/health";
@@ -423,9 +429,40 @@ export function ScheduleField({ f }: FormProps) {
   );
 }
 
+function TemplateSlotText({ f, text, header }: FormProps & { text: string | undefined; header: boolean }) {
+  const tSlot = useTranslations("campaignAudience.step.slot");
+  const fields = useAudienceFields("whatsapp").data ?? [];
+  const labelOf = useFieldSourceLabel(fields);
+  if (!text) return null;
+  return (
+    <>
+      {slotSegments(text, header, f.templateSlots).map((segment, index) => {
+        if (!("variable" in segment) && !("name" in segment)) return <Fragment key={index}>{segment.text}</Fragment>;
+        if (!("variable" in segment)) {
+          return (
+            <SlotMark key={index} slotKey={null} tag={slotTag({ name: segment.name })}>
+              {null}
+            </SlotMark>
+          );
+        }
+        const preview = f.slotPreview(segment.variable, segment.position);
+        const field = preview.source ? `[${labelOf(preview.source)}]` : "";
+        const shown = preview.value || field || preview.fallback || "";
+        const orText = !preview.value && field && preview.fallback ? tSlot("orText", { text: preview.fallback }) : "";
+        return (
+          <SlotMark key={index} slotKey={segment.variable.key} tag={slotTag(segment.variable)}>
+            {shown}
+            {orText ? <span className="ml-1 text-muted-foreground">{orText}</span> : null}
+          </SlotMark>
+        );
+      })}
+    </>
+  );
+}
+
 export function TemplatePreviewCard({ f, confirmInfo = true }: FormProps & { confirmInfo?: boolean }) {
   const t = useTranslations("whatsappCampaignsPage.form");
-  const { selectedTemplate, previewEntry, renderTemplateText, campaignExit, contentLocked, pickPreviewEntry, templateInfoConfirmed, confirmTemplate, mode } = f;
+  const { selectedTemplate, previewEntry, campaignExit, contentLocked, pickPreviewEntry, templateInfoConfirmed, confirmTemplate, mode } = f;
   const header = selectedTemplate?.components.find((c) => c.type === "HEADER");
   const body = selectedTemplate?.components.find((c) => c.type === "BODY");
   const footer = selectedTemplate?.components.find((c) => c.type === "FOOTER");
@@ -454,17 +491,21 @@ export function TemplatePreviewCard({ f, confirmInfo = true }: FormProps & { con
             <div className="overflow-hidden rounded-lg bg-card shadow-sm">
               {header?.text && (
                 <div className="border-b border-border px-3 py-2">
-                  <p className="whitespace-pre-wrap text-sm font-semibold text-foreground">{renderTemplateText(header.text)}</p>
+                  <p className="whitespace-pre-wrap text-sm font-semibold leading-relaxed text-foreground">
+                    <TemplateSlotText f={f} text={header.text} header />
+                  </p>
                 </div>
               )}
 
               <div className="px-3 py-2">
-                <p className="whitespace-pre-wrap text-sm text-foreground">{renderTemplateText(body?.text)}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                  <TemplateSlotText f={f} text={body?.text} header={false} />
+                </p>
               </div>
 
               {footer?.text && (
                 <div className="px-3 py-1">
-                  <p className="whitespace-pre-wrap text-xs text-muted-foreground">{renderTemplateText(footer.text)}</p>
+                  <p className="whitespace-pre-wrap text-xs text-muted-foreground">{footer.text}</p>
                 </div>
               )}
 

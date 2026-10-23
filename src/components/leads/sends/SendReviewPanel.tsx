@@ -18,11 +18,9 @@ import {
   WhatsappLogo,
 } from "@/components/icons";
 import { Checkbox } from "@/components/elevated-design/elevated-checkbox";
-import { formatMicros } from "@/lib/advertising/money";
 import {
   bindingFieldKey,
   countedRows,
-  quoteCurrency,
   reviewSkipRows,
   sendBudgetView,
   type LeadSendChannel,
@@ -34,6 +32,7 @@ import {
   type SendSlotRef,
 } from "@/lib/leads/sends";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
+import { formatBrl } from "@/lib/format/money";
 import { cn } from "@/lib/utils";
 
 import { SendPaceLine } from "./SendPaceLine";
@@ -138,8 +137,7 @@ export function CountedNotice({ counted }: { counted: readonly SendSkipRow[] }) 
 export function SendQuoteFacts({ channel, quote }: { channel: LeadSendChannel; quote: SendQuote }) {
   const t = useTranslations("leadSends.review");
   const locale = useLocale();
-  const currency = quoteCurrency(quote);
-  const money = (micros: number, digits?: number) => formatMicros(micros, currency, locale, digits);
+  const money = (reais: number, digits?: number) => formatBrl(reais, locale, digits) ?? "";
   if (channel === "unofficial") {
     return (
       <div className="grid gap-1 border-t border-border pt-2.5">
@@ -154,11 +152,11 @@ export function SendQuoteFacts({ channel, quote }: { channel: LeadSendChannel; q
     <div className="grid gap-1 border-t border-border pt-2.5">
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-sm text-muted-foreground">{t("cost")}</span>
-        <b className="readout font-display text-lg font-semibold">{money(quote.costMicros)}</b>
+        <b className="readout font-display text-lg font-semibold">{money(quote.costBrl)}</b>
       </div>
       <div className="flex flex-wrap justify-between gap-x-3 text-xs text-muted-foreground">
         <span className="readout">
-          {t("costLine", { count: quote.count, unit: money(quote.unitPriceMicros, UNIT_PRICE_DIGITS), balance: money(quote.balanceMicros) })}
+          {t("costLine", { count: quote.count, unit: money(quote.unitPriceBrl, UNIT_PRICE_DIGITS), balance: money(quote.balanceBrl) })}
         </span>
         <span className="readout">{quote.capRemaining === undefined ? t("capNone") : t("capRemaining", { count: quote.capRemaining })}</span>
       </div>

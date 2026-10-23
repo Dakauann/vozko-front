@@ -17,6 +17,7 @@ import {
   type MapCell,
   type MapLayerResponse,
   type MapPoint,
+  type MapSample,
   type MapViewport,
   type ViewportCity,
 } from "./types";
@@ -195,6 +196,18 @@ function bbox(value: unknown): BBox {
   const valid = box as BBox;
   if (valid.south >= valid.north || valid.west >= valid.east) throw new MapContractError("bbox is inverted");
   return valid;
+}
+
+export function parseMapSample(value: unknown): MapSample {
+  const raw = record(value, "map sample");
+  if (typeof raw.sampled !== "boolean") throw new MapContractError("sampled is not a flag");
+  return {
+    layer: parseMapLayer(raw.layer),
+    located: count(raw, "located"),
+    positions: count(raw, "positions"),
+    sampled: raw.sampled,
+    bounds: raw.bounds === null || raw.bounds === undefined ? null : bbox(raw.bounds),
+  };
 }
 
 export function parseMapViewport(value: unknown): MapViewport {

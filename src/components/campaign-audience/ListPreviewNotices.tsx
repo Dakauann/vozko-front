@@ -9,6 +9,7 @@ import { Notice } from "@/components/ui/notice";
 import type { AudienceChannel, BindableField, ListPreview, MetadataGap, VariableColumn, VariableCount } from "@/lib/campaign-audience/types";
 import { cn } from "@/lib/utils";
 
+import { useSlotFocusHandlers } from "./slot-focus";
 import { useSlotLabel } from "./use-audience-copy";
 
 export function ListFileLine({ preview }: { preview: ListPreview }) {
@@ -39,14 +40,15 @@ function ColumnLine({ column, labelOf, slotLabel }: { column: VariableColumn; la
     ) : (
       t(`fill.${column.fill}`, { slot })
     );
+  const focus = useSlotFocusHandlers(String(column.slot));
   return (
-    <>
+    <div className="contents" {...focus}>
       <span className={cn("flex text-muted-foreground", column.fill === "none" && "text-warning-ink")}>
         <Table className="size-3.5" aria-hidden />
       </span>
       <span>{what}</span>
       <span className="text-right text-muted-foreground">{column.field ? labelOf(column.field) : t("free")}</span>
-    </>
+    </div>
   );
 }
 

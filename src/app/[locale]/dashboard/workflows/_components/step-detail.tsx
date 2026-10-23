@@ -31,6 +31,7 @@ const ERROR_KIND_KEYS: Record<string, string> = {
   validation: "validation",
   cancelled: "cancelled",
   internal: "internal",
+  handled: "handled",
   real_call_not_confirmed: "realCallNotConfirmed",
   window_closed: "windowClosed",
 };

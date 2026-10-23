@@ -4,16 +4,19 @@ import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Notice } from "@/components/ui/notice";
-import { sourcesOf, withNewLead, withVariableChoice } from "@/lib/campaign-audience/draft";
+import { sourcesOf, withNewLead, withVariableChoice, type LeadsPickDraft } from "@/lib/campaign-audience/draft";
 import type { AudienceCount, VariableCount } from "@/lib/campaign-audience/types";
 
 import { AudienceArrives } from "./AudienceArrives";
 import { AudienceCountPanel } from "./AudienceCountPanel";
+import { AudienceLeadsPreview } from "./AudienceLeadsPreview";
+import { AudienceMapPreview } from "./AudienceMapPreview";
 import { AudienceLeadsSheet, type AudienceLeadFocus } from "./AudienceLeadsSheet";
 import { AudienceListSection } from "./AudienceListSection";
 import { AudienceSourceRow } from "./AudienceSourceRow";
 import { AudienceVariablesPanel } from "./AudienceVariablesPanel";
 import { LeadsPicker } from "./LeadsPicker";
+import { AudienceSlotFocusProvider } from "./slot-focus";
 import { useAudienceErrorText, useSlotLabel } from "./use-audience-copy";
 import { useAudienceFields, useAudienceWorkspaceId } from "./use-audience-queries";
 import type { CampaignAudience } from "./use-campaign-audience";
@@ -43,12 +46,14 @@ export function CampaignAudienceStep({
   notice,
   preview,
   readOnly = false,
+  onEditMap,
 }: {
   audience: CampaignAudience;
   message?: string;
   notice?: ReactNode;
   preview?: ReactNode;
   readOnly?: boolean;
+  onEditMap?: (pick: LeadsPickDraft) => void;
 }) {
   const { channel, draft, update, count } = audience;
   const fields = useAudienceFields(channel).data ?? [];
@@ -63,48 +68,52 @@ export function CampaignAudienceStep({
   const variables = count?.source === "leads" ? count.variables : knownVariables?.scope === variableScope ? knownVariables.variables : NO_VARIABLES;
 
   return (
-    <div className="space-y-4">
-      <AudienceSourceRow
-        sources={sourcesOf(channel)}
-        value={draft.source}
-        onChange={(source) => update((current) => ({ ...current, source }))}
-        onLeadSaved={(lead) => {
-          update((current) => withNewLead(current, lead.id));
-          audience.recount();
-        }}
-        readOnly={readOnly}
-      />
+    <AudienceSlotFocusProvider>
+      <div className="space-y-4">
+        <AudienceSourceRow
+          sources={sourcesOf(channel)}
+          value={draft.source}
+          onChange={(source) => update((current) => ({ ...current, source }))}
+          onLeadSaved={(lead) => {
+            update((current) => withNewLead(current, lead.id));
+            audience.recount();
+          }}
+          readOnly={readOnly}
+        />
 
-      {draft.source === "list" ? (
-        <AudienceListSection audience={audience} fields={fields} readOnly={readOnly} onOpen={setFocus} />
-      ) : (
-        <>
-          {count ? <LeadsMetadataNotice count={count} onOpen={setFocus} /> : null}
-          <LeadsPicker value={draft} onChange={(patch) => update((current) => ({ ...current, ...patch }))} readOnly={readOnly} />
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
-            <div className="grid min-w-0 gap-5">
-              <AudienceVariablesPanel
-                channel={channel}
-                variables={variables}
-                choices={draft.variables}
-                fields={fields}
-                onChoice={(key, patch) => update((current) => withVariableChoice(current, key, patch))}
-                onOpen={setFocus}
-                readOnly={readOnly}
-              />
-              {channel === "email" ? null : <AudienceArrives channel={channel} message={message} variables={variables} choices={draft.variables} fields={fields} />}
+        {draft.source === "list" ? (
+          <AudienceListSection audience={audience} fields={fields} readOnly={readOnly} onOpen={setFocus} templatePreview={preview} />
+        ) : (
+          <>
+            {count ? <LeadsMetadataNotice count={count} onOpen={setFocus} /> : null}
+            <LeadsPicker value={draft} onChange={(patch) => update((current) => ({ ...current, ...patch }))} readOnly={readOnly} />
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+              <div className="grid min-w-0 gap-5">
+                <AudienceMapPreview audience={audience} onEdit={onEditMap && !readOnly ? () => onEditMap(draft) : undefined} />
+                {audience.countedSpec ? <AudienceLeadsPreview audience={audience} onOpen={setFocus} /> : null}
+                <AudienceVariablesPanel
+                  channel={channel}
+                  variables={variables}
+                  choices={draft.variables}
+                  fields={fields}
+                  onChoice={(key, patch) => update((current) => withVariableChoice(current, key, patch))}
+                  onOpen={setFocus}
+                  readOnly={readOnly}
+                />
+                {channel === "email" ? null : <AudienceArrives channel={channel} message={message} variables={variables} choices={draft.variables} fields={fields} />}
+              </div>
+              <div className="grid min-w-0 gap-5">
+                {preview}
+                <AudienceCountPanel audience={audience} fields={fields} errorText={audience.countError ? errorText(audience.countError) : null} onOpen={setFocus} />
+              </div>
             </div>
-            <div className="grid min-w-0 gap-5">
-              {preview}
-              <AudienceCountPanel audience={audience} fields={fields} errorText={audience.countError ? errorText(audience.countError) : null} onOpen={setFocus} />
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {notice}
-      <AudienceLeadsSheet audience={audience} focus={focus} onClose={() => setFocus(null)} />
-    </div>
+        {notice}
+        <AudienceLeadsSheet audience={audience} focus={focus} onClose={() => setFocus(null)} />
+      </div>
+    </AudienceSlotFocusProvider>
   );
 }
 

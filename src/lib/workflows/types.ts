@@ -285,7 +285,8 @@ export type RunErrorKind =
   | "gate"
   | "validation"
   | "cancelled"
-  | "internal";
+  | "internal"
+  | "handled";
 
 export interface RunHttpExchange {
   method: string;

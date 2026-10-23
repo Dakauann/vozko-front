@@ -124,6 +124,10 @@ const INVOICE_STATUS_CONFIG: Record<
     icon: ArrowDown,
     className: "text-muted-foreground bg-muted border-info",
   },
+  REVERSED: {
+    icon: ArrowDown,
+    className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",
+  },
   EXPIRED: {
     icon: XCircle,
     className: "text-white bg-[hsl(var(--plate-neutral))] border-transparent",

@@ -14,6 +14,9 @@ import {
 } from "@/components/elevated-design/elevated-dialog";
 import type { Invoice, InvoiceLineItem } from "@/lib/invoices/types";
 
+import { InvoicePaymentPanel } from "./InvoicePaymentPanel";
+import { useInvoicePayment } from "./use-invoice-payment";
+
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -33,13 +36,16 @@ export function InvoiceDetailDialog({
   invoice,
   open,
   onClose,
+  onInvoiceChange,
 }: {
   invoice: Invoice | null;
   open: boolean;
   onClose: () => void;
+  onInvoiceChange: (invoice: Invoice) => void;
 }) {
   const t = useTranslations("invoicesPage");
   const locale = useLocale();
+  const { renew, renewing, renewError } = useInvoicePayment({ invoice, open, onChange: onInvoiceChange });
 
   if (!invoice) return null;
 
@@ -72,6 +78,8 @@ export function InvoiceDetailDialog({
         </ElevatedDialogHeader>
 
         <div className="space-y-4">
+          <InvoicePaymentPanel invoice={invoice} renewing={renewing} renewError={renewError} onRenew={() => void renew()} />
+
           {invoice.dueDate ? (
             <div className="flex items-center gap-2 rounded-[--radius] border border-border bg-muted px-3 py-2 text-sm">
               <CalendarBlank className="h-4 w-4 text-primary-ink" weight="bold" />

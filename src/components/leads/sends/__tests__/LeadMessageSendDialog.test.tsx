@@ -43,7 +43,7 @@ const QUOTE = {
   parts: 1,
   splitRequired: false,
   maxPerCampaign: 150000,
-  unitPriceMicros: 0,
+  unitPriceMicros: 0, unitPriceBrl: 0, costBrl: 0, balanceBrl: 0,
   costMicros: 0,
   balanceMicros: 0,
   affordable: true,

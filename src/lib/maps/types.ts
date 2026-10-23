@@ -78,6 +78,14 @@ export type MapLayerResponse =
   | { kind: "points"; points: MapPoint[] }
   | { kind: "cells"; cellSizeDegrees: number; cells: MapCell[] };
 
+export interface MapSample {
+  layer: MapLayerResponse;
+  located: number;
+  positions: number;
+  sampled: boolean;
+  bounds: BBox | null;
+}
+
 export interface DistrictCount {
   pair: string;
   cityKey: string;

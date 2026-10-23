@@ -12,6 +12,7 @@ import {
 import { FilterMultiSelect } from "@/components/filters/filter-multi-select";
 import { Area, Buildings, MapPin, Tag, UserCheck, X } from "@/components/icons";
 import { useInView } from "@/hooks/use-in-view";
+import { useLeadAreas } from "@/hooks/use-lead-map";
 import { useLeadSection } from "@/hooks/use-lead-section";
 import { isBusySectionError } from "@/lib/analytics/section-query";
 import { readSet, toggleInSet, withSet } from "@/lib/filters/controls";
@@ -96,7 +97,9 @@ export function LeadsToolbar({
   const tMetrics = useTranslations("metricsOps.common");
 
   const cityKeys = readSet(filter, LEAD_FILTER_FIELD.city);
-  const options = useLeadFilterOptions({ cityKeys });
+  const companyIds = useMemo(() => readSet(filter, LEAD_FILTER_FIELD.company), [filter]);
+  const campaignIds = useMemo(() => readSet(filter, LEAD_FILTER_FIELD.campaign), [filter]);
+  const options = useLeadFilterOptions({ cityKeys, companyIds, campaignIds });
 
   const [ref, inView] = useInView<HTMLDivElement>();
   const facetsQuery = useLeadSection("facets", { filter, q: search }, { enabled: countFacets && inView });
@@ -109,7 +112,10 @@ export function LeadsToolbar({
     [filter, options, facets, entries, t, tr],
   );
 
-  const chipFields = useMemo<LeadChipField[]>(() => [...fields, ...areaFilterFieldConfigs(areas ?? [], t)], [fields, areas, t]);
+  const filtersByArea = AREA_FIELDS.some((field) => readSet(filter, field).length > 0);
+  const savedAreas = useLeadAreas({ enabled: areas === undefined && filtersByArea && options.readsAddresses });
+  const namedAreas = areas ?? savedAreas.data;
+  const chipFields = useMemo<LeadChipField[]>(() => [...fields, ...areaFilterFieldConfigs(namedAreas ?? [], t)], [fields, namedAreas, t]);
 
   const groups = useMemo<FilterGroupConfig[]>(
     () => LEAD_FILTER_GROUP_ORDER.map((id) => ({ id, label: t(`filters.groups.${id}`) })),

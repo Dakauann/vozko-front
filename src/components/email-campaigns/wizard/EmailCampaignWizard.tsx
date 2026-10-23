@@ -11,6 +11,7 @@ import { ScreenLoader } from "@/components/brand/screen-loader";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import Button from "@/components/elevated-design/button";
 import { EnvelopeSimple } from "@/components/icons";
+import { useMapTrip, useReturnedAreas } from "@/components/campaign-audience/use-audience-map-trip";
 import { SaveIndicator } from "@/components/campaign-wizard/SaveIndicator";
 import { WizardFooterNext, WizardNav } from "@/components/campaign-wizard/WizardNav";
 import { Notice } from "@/components/ui/notice";
@@ -22,6 +23,7 @@ import { readableFields } from "@/lib/crm/custom-fields";
 import type { CustomField } from "@/lib/email-design/merge-tags";
 import type { Issue } from "@/lib/email-design/types";
 import type { AudienceDraft } from "@/lib/campaign-audience/draft";
+import { withReturnedAreas } from "@/lib/campaign-audience/map-trip";
 import { campaignRequest, draftOf, emptyDraft, requestFingerprint, type CampaignDraft } from "@/lib/email-campaigns/draft";
 import { WIZARD_STEPS, wizardStepOf, type IssueFix, type WizardStep } from "@/lib/email-campaigns/review";
 import { canRun, isWizardStatus, wizardHref } from "@/lib/email-campaigns/status";
@@ -58,7 +60,11 @@ function WizardBody({ initial, initialStep, onCreated }: WizardBodyProps) {
   const senders = useEmailSenders();
 
   const [campaignId, setCampaignId] = useState<string | null>(initial?.id ?? null);
-  const [draft, setDraft] = useState<CampaignDraft>(() => (initial ? draftOf(initial) : emptyDraft()));
+  const returned = useReturnedAreas(initial ? wizardHref(initial.id, initialStep) : null);
+  const [draft, setDraft] = useState<CampaignDraft>(() => {
+    const opened = initial ? draftOf(initial) : emptyDraft();
+    return { ...opened, audience: withReturnedAreas(opened.audience, returned) };
+  });
   const [baseline] = useState(() => requestFingerprint(campaignRequest(initial ? draftOf(initial) : emptyDraft())));
   const [step, setStep] = useState<WizardStep>(initialStep);
   const [launching, setLaunching] = useState(false);
@@ -82,6 +88,7 @@ function WizardBody({ initial, initialStep, onCreated }: WizardBodyProps) {
   );
 
   const autosave = useCampaignAutosave({ campaignId, baseline, draft, editable, onSaved });
+  const editOnMap = useMapTrip(campaignId ? { channel: "email", draftId: campaignId } : null, autosave.save);
   const preview = useEmailPreview(draft.document, draft.subject || undefined);
 
   const reviewVersion = campaign ? `${campaign.updated_at}|${campaign.status}` : "none";
@@ -201,7 +208,7 @@ function WizardBody({ initial, initialStep, onCreated }: WizardBodyProps) {
           />
         ) : null}
         {step === "audience" ? (
-          <EmailAudienceStep initial={draft.audience} subject={draft.subject} document={draft.document} readOnly={!editable} onAudienceChange={setAudience} onCounted={refreshReview} />
+          <EmailAudienceStep initial={draft.audience} subject={draft.subject} document={draft.document} readOnly={!editable} onAudienceChange={setAudience} onCounted={refreshReview} onEditMap={editOnMap} />
         ) : null}
         {step === "review" ? reviewBody : null}
         {step === "send" && campaign ? (

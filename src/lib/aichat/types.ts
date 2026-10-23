@@ -151,6 +151,7 @@ export interface OfferCard {
   kind: OfferKind;
   status?: CapabilityStatus;
   balanceMicros: number;
+  balanceBrl?: number;
   subscriptionActive: boolean;
 }
 

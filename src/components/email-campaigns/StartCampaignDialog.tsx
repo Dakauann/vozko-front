@@ -24,7 +24,7 @@ export function StartCampaignDialog({ campaignId, onClose, onStart }: { campaign
       tone="default"
       icon={<PaperPlaneTilt size={28} />}
       title={t("send.confirm.nowTitle")}
-      description={review.data ? t("send.confirm.nowBody", { total: cost.total, count: cost.count, unit: cost.unit, first: cost.first }) : t("commands.start.loading")}
+      description={review.data ? t("send.confirm.nowBody", { total: cost.total, count: cost.units, unit: cost.unit, first: cost.first }) : t("commands.start.loading")}
       confirmLabel={t("commands.start.action")}
       confirmDisabled={!review.data}
       onConfirm={async () => {

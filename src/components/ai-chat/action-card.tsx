@@ -23,6 +23,7 @@ import { useWhatsAppCapacity } from "@/hooks/use-whatsapp-capacity";
 import { useWhatsAppEmbeddedSignup } from "@/hooks/use-whatsapp-embedded-signup";
 import { Link, useRouter } from "@/i18n/routing";
 import { openDock } from "@/lib/aichat/dock-state";
+import { formatBrl } from "@/lib/format/money";
 import { ElevatedSwitch } from "@/components/elevated-design/elevated-switch";
 import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { AskCardView } from "@/components/ai-chat/ask-card";
@@ -273,7 +274,7 @@ function CardShell({
   const t = useTranslations("aiChatPage.actions");
   const locale = useLocale();
   const config = KINDS[card.kind];
-  const balance = new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(card.balanceMicros / 1_000_000);
+  const balance = card.balanceBrl === undefined ? null : formatBrl(card.balanceBrl, locale);
   return (
     <section className="rounded-lg border border-border bg-card p-3.5 shadow-sm" aria-label={t(`kinds.${card.kind}.title`)}>
       <div className="flex items-start gap-3">
@@ -283,7 +284,7 @@ function CardShell({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold leading-snug text-foreground">{t(`kinds.${card.kind}.title`)}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t(`kinds.${card.kind}.description`)}</p>
-          {card.kind === "top_up_balance" ? (
+          {card.kind === "top_up_balance" && balance ? (
             <p className="mt-2 text-xs font-medium text-foreground">{t("balance", { amount: balance })}</p>
           ) : null}
           {view.usage && view.usage.total > 0 ? <UsageMeter used={view.usage.used} total={view.usage.total} /> : null}

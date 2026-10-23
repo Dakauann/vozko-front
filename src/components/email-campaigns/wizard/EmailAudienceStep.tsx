@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { CampaignAudienceStep } from "@/components/campaign-audience/CampaignAudienceStep";
 import { useCampaignAudience } from "@/components/campaign-audience/use-campaign-audience";
 import { Notice } from "@/components/ui/notice";
-import { keptChoices, type AudienceDraft } from "@/lib/campaign-audience/draft";
+import { keptChoices, type AudienceDraft, type LeadsPickDraft } from "@/lib/campaign-audience/draft";
 import type { ChannelFields } from "@/lib/campaign-audience/types";
 import type { Document } from "@/lib/email-design/types";
 
@@ -17,6 +17,7 @@ export function EmailAudienceStep({
   readOnly,
   onAudienceChange,
   onCounted,
+  onEditMap,
 }: {
   initial: AudienceDraft;
   subject: string;
@@ -24,6 +25,7 @@ export function EmailAudienceStep({
   readOnly: boolean;
   onAudienceChange: (audience: AudienceDraft) => void;
   onCounted: () => void;
+  onEditMap?: (pick: LeadsPickDraft) => void;
 }) {
   const t = useTranslations("emailCampaigns.audience");
   const fields = useMemo<ChannelFields>(() => (document ? { subject, document } : { subject }), [subject, document]);
@@ -51,6 +53,7 @@ export function EmailAudienceStep({
     <CampaignAudienceStep
       audience={audience}
       readOnly={readOnly}
+      onEditMap={onEditMap}
       notice={
         <Notice tone="info">
           <p>{t("consent")}</p>

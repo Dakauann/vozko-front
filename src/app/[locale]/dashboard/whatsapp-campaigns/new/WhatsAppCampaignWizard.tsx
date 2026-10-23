@@ -22,6 +22,8 @@ import { SaveIndicator } from "@/components/campaign-wizard/SaveIndicator";
 import { SendStep, type SendRefusal } from "@/components/campaign-wizard/SendStep";
 import { campaignDraftsKey, campaignDraftsRoot, useCampaignDraftsWorkspace } from "@/components/campaign-wizard/use-campaign-drafts";
 import { useDraftAutosave } from "@/components/campaign-wizard/use-draft-autosave";
+import { useMapTrip, useReturnedAreas } from "@/components/campaign-audience/use-audience-map-trip";
+import { withReturnedAreas } from "@/lib/campaign-audience/map-trip";
 import { useLaunchAnnouncer } from "@/components/campaign-wizard/use-launch-announcer";
 import TourGuide from "@/components/TourGuide";
 import { whatsappCampaignsTourPalette, whatsappCampaignsTourSeed, whatsappCampaignsTourSteps, wizardStepOfTour } from "@/data/tour-whatsapp-campaigns";
@@ -49,8 +51,8 @@ import { CampaignExitSection } from "@/components/whatsapp/exit/CampaignExitSect
 import { LaunchFindings } from "@/components/whatsapp/launch-check/LaunchCheckDialog";
 import { SmartCampaignSection } from "@/components/whatsapp/smart/SmartCampaignSection";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { formatMicros } from "@/lib/advertising/money";
 import { codedErrorMessage } from "@/lib/api/coded-error";
+import { formatBrl } from "@/lib/format/money";
 import { launchRefusalOf, type OfficialDraftReview } from "@/lib/campaign-drafts/types";
 import { stepOf } from "@/lib/campaign-wizard/steps";
 import type { ModelPricingInfo } from "@/lib/agents/types";
@@ -169,6 +171,7 @@ function WizardBody({
   const errorText = useWizardErrorText();
   const announce = useLaunchAnnouncer();
   const seedState = initial?.payload.state;
+  const returned = useReturnedAreas(initial ? wizardHref(initial.id, initialStep) : null);
   const seed = useMemo(
     () =>
       seedState
@@ -178,12 +181,12 @@ function WizardBody({
             pipelineId: seedState.pipelineId,
             dealPipelineId: seedState.dealPipelineId,
             templateInfoConfirmed: seedState.templateInfoConfirmed,
-            audience: seedState.audience,
+            audience: withReturnedAreas(seedState.audience, returned),
             exit: seedState.exit,
             smartPolicy: seedState.smartPolicy,
           }
         : undefined,
-    [seedState],
+    [seedState, returned],
   );
   const f = useWhatsAppCampaignForm({ mode: "create", aiModels, modelPricing, seed });
   const values = useWatch({ control: f.form.control }) as CampaignFormValues;
@@ -239,6 +242,7 @@ function WizardBody({
     idOf: (saved) => saved.id,
     onSaved,
   });
+  const editOnMap = useMapTrip(draftId ? { channel: "whatsapp", draftId } : null, autosave.save);
 
   const reviewKey = useMemo(() => [...campaignDraftsRoot(workspaceId), CHANNEL, draftId ?? "", "review", savedVersion] as const, [workspaceId, draftId, savedVersion]);
   const reviewing = REVIEWED_STEPS.includes(step);
@@ -318,8 +322,8 @@ function WizardBody({
 
   const sendable = reviewData?.audience?.sendable ?? null;
   const quote = reviewData?.quote ?? null;
-  const total = quote ? formatMicros(quote.costMicros, quote.currency || "BRL", locale) : "";
-  const count = sendable === null ? "" : new Intl.NumberFormat(locale).format(sendable);
+  const total = quote ? (formatBrl(quote.costBrl, locale) ?? "") : "";
+  const count = sendable ?? 0;
   const phone = f.businessPhoneOptions.find((option) => option.value === values.businessPhoneId)?.label;
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Sao_Paulo";
   const canCreate = can("whatsapp_campaigns", "create");
@@ -430,7 +434,7 @@ function WizardBody({
         {step === "audience" ? (
           <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
             <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">{t("form.contacts.audienceTitle")}</h2>
-            <CampaignAudienceStep audience={audience} message={f.selectedTemplate?.components.find((component) => component.type === "BODY")?.text ?? ""} preview={<TemplatePreviewCard f={f} confirmInfo={false} />} />
+            <CampaignAudienceStep audience={audience} message={f.selectedTemplate?.components.find((component) => component.type === "BODY")?.text ?? ""} preview={<TemplatePreviewCard f={f} confirmInfo={false} />} onEditMap={editOnMap} />
             <div className="mt-4 flex justify-end">
               <AudienceCreateHint audience={audience} />
             </div>

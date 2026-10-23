@@ -7,6 +7,7 @@ import {
   listAudienceLeadsAction,
   listAudienceFieldsAction,
   listTemplateFieldsAction,
+  mapAudienceAction,
   previewAudienceListAction,
   searchAudienceRowsAction,
 } from "@/app/actions/campaign-audience";
@@ -106,7 +107,22 @@ export function useAudienceLeadsQuery(channel: AudienceChannel, spec: AudienceSp
   const workspaceId = useWorkspaceId();
   return useQuery({
     queryKey: [...campaignAudienceLeadsRoot(workspaceId, channel), spec, fields, query],
-    queryFn: async () => answered(await listAudienceLeadsAction(channel, spec as AudienceSpec, fields, query)),
+    queryFn: async ({ signal }) => answered(await listAudienceLeadsAction(channel, spec as AudienceSpec, fields, query, signal)),
+    enabled: spec !== null && workspaceId !== "",
+    placeholderData: keepPreviousData,
+    ...QUERY_OPTIONS,
+  });
+}
+
+export function campaignAudienceMapRoot(workspaceId: string, channel: AudienceChannel) {
+  return [...campaignAudienceRoot(workspaceId, channel), "map"] as const;
+}
+
+export function useAudienceMapQuery(channel: AudienceChannel, spec: AudienceSpec | null) {
+  const workspaceId = useWorkspaceId();
+  return useQuery({
+    queryKey: [...campaignAudienceMapRoot(workspaceId, channel), spec],
+    queryFn: async ({ signal }) => answered(await mapAudienceAction(channel, spec as AudienceSpec, signal)),
     enabled: spec !== null && workspaceId !== "",
     placeholderData: keepPreviousData,
     ...QUERY_OPTIONS,

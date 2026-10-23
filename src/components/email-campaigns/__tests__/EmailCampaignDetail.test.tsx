@@ -133,8 +133,8 @@ const IDLE_METRICS: Metrics = {
 
 const READY_REVIEW: Review = {
   audience: { matched: 1200, with_email: 1100, sendable: 990, never_mailed: 0, skipped: { no_email: 100, unsubscribed: 60, suppressed: 50 } },
-  send: { units: 990, unit_micros: 583, unit_cost_micros: 165, total_micros: 577_170, unit_brl: 0.003498, total_brl: 3.46302 },
-  first_batch: { units: 990, unit_micros: 583, unit_cost_micros: 165, total_micros: 577_170, unit_brl: 0.003498, total_brl: 3.46302 },
+  send: { units: 990, unit_micros: 583, total_micros: 577_170, unit_brl: 0.003498, total_brl: 3.46302 },
+  first_batch: { units: 990, unit_micros: 583, total_micros: 577_170, unit_brl: 0.003498, total_brl: 3.46302 },
   batch_size: 1000,
   balance_micros: 10_000_000,
   missing_micros: 0,
@@ -405,8 +405,8 @@ describe("EmailCampaignDetail", () => {
     actions.fetchEmailCampaignMetrics.mockResolvedValue(IDLE_METRICS);
     actions.fetchEmailCampaignReview.mockResolvedValue({
       audience: { matched: 2, with_email: 2, sendable: 2, skipped: {} },
-      send: { units: 2, unit_micros: 1000, unit_cost_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
-      first_batch: { units: 2, unit_micros: 1000, unit_cost_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
+      send: { units: 2, unit_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
+      first_batch: { units: 2, unit_micros: 1000, total_micros: 2000, unit_brl: 0.005, total_brl: 0.01 },
       batch_size: 1000, balance_micros: 10_000_000, missing_micros: 0, exchange_rate: 5, balance_brl: 50, missing_brl: 0,
       after_first_batch_micros: 9_998_000, after_first_batch_brl: 49.99,
       time_zone: "America/Sao_Paulo", check: { blocking: [], hints: [] },
