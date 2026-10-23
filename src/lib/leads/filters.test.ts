@@ -52,6 +52,10 @@ describe("lead channels", () => {
     it("offers Messenger conversations as a channel", () => {
         expect(LEAD_CHANNELS).toContain("facebook");
     });
+
+    it("offers email conversations as a channel", () => {
+        expect(LEAD_CHANNELS).toContain("email");
+    });
 });
 
 describe("set predicates", () => {

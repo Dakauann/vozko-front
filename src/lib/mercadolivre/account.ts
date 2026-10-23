@@ -43,6 +43,10 @@ export function accountNotices(account: MercadoLivreAccount): MercadoLivreAccoun
   return notices;
 }
 
+export function accountHandle(account: MercadoLivreAccount): string | null {
+  return account.nickname && account.nickname !== account.displayName ? account.nickname : null;
+}
+
 export function reconnectable(account: MercadoLivreAccount): boolean {
   return account.needsReconnect || isOff(account.status);
 }

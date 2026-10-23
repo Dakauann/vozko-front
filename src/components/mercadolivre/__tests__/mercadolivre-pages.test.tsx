@@ -58,6 +58,7 @@ function account(overrides: Partial<MercadoLivreAccount>): MercadoLivreAccount {
     mlUserId: "111",
     siteId: "MLB",
     nickname: "LOJA_A",
+    displayName: "LOJA_A",
     status: "CONNECTED",
     needsReconnect: false,
     grantedScopes: [],
@@ -95,9 +96,9 @@ beforeEach(() => {
 
 describe("MercadoLivreAccountsList", () => {
   const accounts = [
-    account({ id: "acc-1", nickname: "LOJA_A" }),
-    account({ id: "acc-2", nickname: "LOJA_B", status: "NEEDS_RECONNECT", needsReconnect: true }),
-    account({ id: "acc-3", nickname: "LOJA_C", status: "DISCONNECTED", purgeAfter: "2026-11-18T15:00:00Z" }),
+    account({ id: "acc-1", nickname: "LOJA_A", displayName: "LOJA_A" }),
+    account({ id: "acc-2", nickname: "LOJA_B", displayName: "LOJA_B", status: "NEEDS_RECONNECT", needsReconnect: true }),
+    account({ id: "acc-3", nickname: "LOJA_C", displayName: "LOJA_C", status: "DISCONNECTED", purgeAfter: "2026-11-18T15:00:00Z" }),
   ];
 
   it("lists accounts with status chips, the purge date and the reconnect notice", async () => {
@@ -109,6 +110,17 @@ describe("MercadoLivreAccountsList", () => {
     expect(screen.getByText(copy.status.disconnected)).toBeInTheDocument();
     expect(screen.getByText("Dados apagados em 18 de novembro de 2026")).toBeInTheDocument();
     expect(screen.getByText("1 conta precisa ser reconectada para voltar a receber mensagens.")).toBeInTheDocument();
+  });
+
+  it("names each row by the seller name with the nickname as a handle", async () => {
+    mocks.list.mockResolvedValue({
+      accounts: [account({ id: "acc-9", nickname: "DGCAFEDHB50478", displayName: "Café do Vale" }), account({ id: "acc-1" })],
+      meta: META,
+    });
+    wrap(<MercadoLivreAccountsList />);
+    expect(await screen.findByText("Café do Vale")).toBeInTheDocument();
+    expect(screen.getByText("DGCAFEDHB50478")).toBeInTheDocument();
+    expect(screen.getAllByText("LOJA_A")).toHaveLength(1);
   });
 
   it("reconnects from the row", async () => {

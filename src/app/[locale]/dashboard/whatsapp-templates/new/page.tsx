@@ -26,7 +26,7 @@ import {
   ElevatedSelectItem,
 } from "@/components/elevated-design/elevated-select";
 import { createWhatsAppTemplateAction } from "@/app/actions/whatsapp-templates";
-import { templateErrorMessage } from "@/lib/whatsapp-templates/errors";
+import { templateErrorMessage, trackedButtonRefusal } from "@/lib/whatsapp-templates/errors";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import {
@@ -38,6 +38,7 @@ import { TemplateDraftPreview } from "@/components/whatsapp/builder/TemplateDraf
 import { TemplateGuidelines } from "@/components/whatsapp/builder/TemplateGuidelines";
 import { BUILDER_PROBLEMS_ANCHOR, TemplateMessageSection } from "@/components/whatsapp/builder/TemplateMessageSection";
 import { useTemplateDraft } from "@/components/whatsapp/builder/use-template-draft";
+import { useSaveTemplateSuggestions } from "@/components/whatsapp/builder/use-template-suggestions";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { MarketingExitDialog } from "@/components/whatsapp/exit/MarketingExitDialog";
 import { MARKETING_TEMPLATE_NEEDS_EXIT } from "@/lib/whatsapp-templates/exit";
@@ -48,6 +49,7 @@ import {
   leadExitRoom,
   type LeadExitPlan,
 } from "@/lib/whatsapp-templates/exit-draft";
+import { urlTrackingFields } from "@/lib/whatsapp-templates/url-tracking";
 import TourGuide from "@/components/TourGuide";
 import type { TourStep } from "@/components/TourGuide";
 import {
@@ -86,6 +88,7 @@ export default function NewWhatsAppTemplatePage() {
     initialCategory: "MARKETING",
   });
   const { components, category } = draft;
+  const saveSuggestions = useSaveTemplateSuggestions();
   const { can } = useWorkspace();
   const formButtons = can("whatsapp_forms", "send") ? { query: businessPhoneId ? { phoneId: businessPhoneId } : null } : undefined;
 
@@ -179,6 +182,7 @@ export default function NewWhatsAppTemplatePage() {
       return;
     }
     setFailure(null);
+    draft.refuseButton(null);
     await submitTemplate(components);
   };
 
@@ -199,13 +203,18 @@ export default function NewWhatsAppTemplatePage() {
         : {}),
       ...(headerMediaUrl ? { headerMediaUrl } : {}),
       ...exitSetupFields(collectExitSetup(submitted)),
+      ...urlTrackingFields(submitted, false),
     };
 
     try {
       const result = await createWhatsAppTemplateAction(payload);
+      if (!result.error && result.template?.id) await saveSuggestions(result.template.id, submitted, false);
 
+      const refusedIndex = trackedButtonRefusal(result.errorCode, result.expected);
       if (result.errorCode === MARKETING_TEMPLATE_NEEDS_EXIT) {
         setExitRefused(true);
+      } else if (refusedIndex !== null && draft.refuseButton({ index: refusedIndex, message: templateErrorMessage(tRoot, result.errorCode, result.error ?? "") })) {
+        return;
       } else if (result.error) {
         setFailure({
           title: t("toast.createError"),

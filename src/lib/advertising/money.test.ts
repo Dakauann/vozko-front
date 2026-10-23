@@ -35,6 +35,11 @@ describe("formatMicros", () => {
     expect(plain(formatMicros(62_500, "USD", "pt-BR", 4))).toBe("US$ 0,0625");
   });
 
+  it("never shows a non zero amount as zero", () => {
+    expect(formatMicros(3_500, "BRL", "pt-BR").replace(/\s/g, " ")).toBe("R$ 0,0035");
+    expect(formatMicros(0, "BRL", "pt-BR").replace(/\s/g, " ")).toBe("R$ 0,00");
+  });
+
   it("shows a dash for unknown values, never zero", () => {
     expect(formatMicros(null, "BRL")).toBe("n/d");
     expect(formatMicros(undefined, "BRL")).toBe("n/d");

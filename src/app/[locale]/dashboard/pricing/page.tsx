@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowCounterClockwise, CalendarCheck, CircleNotch, CurrencyDollar, Eye, FloppyDisk, Gear, Lightning, Megaphone, PencilSimple, Phone, Scales, WhatsappLogo, X } from "@/components/icons";
+import { ArrowCounterClockwise, CalendarCheck, CircleNotch, CurrencyDollar, EnvelopeSimple, Eye, FloppyDisk, Gear, Lightning, Megaphone, PencilSimple, Phone, Scales, WhatsappLogo, X } from "@/components/icons";
 import type {
   PricingAuditEntry,
   PricingItem,
@@ -23,9 +23,7 @@ import {
   updateDefaultPricingItemCostAction,
   updateExchangeRateAction,
 } from "@/app/actions/pricing";
-import {
-  formatPricingServiceFallback,
-} from "@/lib/branding/ai-models";
+import { pricingServiceLabel } from "@/lib/pricing/labels";
 import {
   formatUsdCurrency,
   microsToUsdDisplay,
@@ -50,6 +48,7 @@ const CATEGORY_ICONS: Record<string, Icon> = {
   whatsapp: WhatsappLogo,
   telephony: Phone,
   advertising: Megaphone,
+  email: EnvelopeSimple,
   exchange_rate: Scales,
 };
 
@@ -370,15 +369,7 @@ export default function AdminPricingPage() {
                                 className="transition-colors hover:bg-muted"
                               >
                                 <td className="px-6 py-3.5 text-sm font-medium text-foreground">
-                                  {(() => {
-                                    const translationKey =
-                                      `services.${item.category}.${item.service}` as const;
-                                    return t.has(translationKey)
-                                      ? t(translationKey)
-                                      : formatPricingServiceFallback(
-                                          item.service,
-                                        );
-                                  })()}
+                                  {pricingServiceLabel(t, "", item)}
                                 </td>
                                 <td className="px-6 py-3.5 text-sm text-muted-foreground">
                                   {t(`metrics.${item.metric}`)}
@@ -592,9 +583,7 @@ export default function AdminPricingPage() {
                                   />
                                   <div>
                                     <p className="text-sm font-medium text-foreground">
-                                      {formatPricingServiceFallback(
-                                        entry.service,
-                                      )}
+                                      {pricingServiceLabel(t, "", entry)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                       {entry.category} · {entry.metric}

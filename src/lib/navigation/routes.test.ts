@@ -105,6 +105,51 @@ describe("TikTok screens", () => {
   });
 });
 
+describe("email screens", () => {
+  it("opens every email page through its own screen", () => {
+    expect(ruleForPath("/dashboard/email")).toEqual({ kind: "screen", screen: "email_overview" });
+    expect(ruleForPath("/dashboard/email/campaigns")).toEqual({ kind: "screen", screen: "email_campaigns" });
+    expect(ruleForPath("/dashboard/email/campaigns/new")).toEqual({ kind: "screen", screen: "email_campaign_new" });
+    expect(ruleForPath("/dashboard/email/campaigns/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "email_campaign" });
+    expect(ruleForPath("/dashboard/email/designs")).toEqual({ kind: "screen", screen: "email_designs" });
+    expect(ruleForPath("/dashboard/email/designs/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "email_design" });
+    expect(ruleForPath("/dashboard/email/senders")).toEqual({ kind: "screen", screen: "email_senders" });
+    expect(pathForScreen("email_campaign", { campaignId: "7b1c2f9e-0a51" })).toBe("/dashboard/email/campaigns/7b1c2f9e-0a51");
+    expect(pathForScreen("email_design", { designId: "d-1" })).toBe("/dashboard/email/designs/d-1");
+    expect(ruleForPath("/dashboard/email/api")).toEqual({ kind: "screen", screen: "email_api" });
+    expect(ruleForPath("/dashboard/email/api/webhooks")).toEqual({ kind: "screen", screen: "email_webhooks" });
+    expect(ruleForPath("/dashboard/email/api/0b5f2f3c-6b7d")).toEqual({ kind: "screen", screen: "email_api_message" });
+    expect(pathForScreen("email_api_message", { messageId: "m-1" })).toBe("/dashboard/email/api/m-1");
+  });
+
+  it("opens the API keys page through its own screen under the integrations", () => {
+    expect(ruleForPath("/dashboard/integrations/api-keys")).toEqual({ kind: "screen", screen: "api_keys" });
+  });
+
+  it("keeps the email admin page behind the platform admin rule", () => {
+    expect(ruleForPath("/dashboard/admin/email")).toEqual({ kind: "platform_admin" });
+  });
+});
+
+describe("RCS and SMS screens", () => {
+  it("opens every RCS and SMS page through its own screen", () => {
+    expect(ruleForPath("/dashboard/rcs-sms")).toEqual({ kind: "screen", screen: "carrier_overview" });
+    expect(ruleForPath("/dashboard/rcs-sms/campaigns")).toEqual({ kind: "screen", screen: "carrier_campaigns" });
+    expect(ruleForPath("/dashboard/rcs-sms/campaigns/new")).toEqual({ kind: "screen", screen: "carrier_campaign_new" });
+    expect(ruleForPath("/dashboard/rcs-sms/campaigns/7b1c2f9e-0a51")).toEqual({ kind: "screen", screen: "carrier_campaign" });
+    expect(ruleForPath("/dashboard/rcs-sms/rcs-senders")).toEqual({ kind: "screen", screen: "carrier_rcs_senders" });
+    expect(ruleForPath("/dashboard/rcs-sms/rcs-senders/snd-1")).toEqual({ kind: "screen", screen: "carrier_rcs_sender" });
+    expect(ruleForPath("/dashboard/rcs-sms/sms-senders")).toEqual({ kind: "screen", screen: "carrier_sms_senders" });
+    expect(ruleForPath("/dashboard/rcs-sms/settings")).toEqual({ kind: "screen", screen: "carrier_settings" });
+    expect(pathForScreen("carrier_campaign", { campaignId: "7b1c2f9e-0a51" })).toBe("/dashboard/rcs-sms/campaigns/7b1c2f9e-0a51");
+    expect(pathForScreen("carrier_rcs_sender", { senderId: "snd-1" })).toBe("/dashboard/rcs-sms/rcs-senders/snd-1");
+  });
+
+  it("keeps the RCS and SMS admin page behind the platform admin rule", () => {
+    expect(ruleForPath("/dashboard/admin/rcs-sms")).toEqual({ kind: "platform_admin" });
+  });
+});
+
 describe("pathForScreen", () => {
   it("builds static and parameterised paths", () => {
     expect(pathForScreen("funnels")).toBe("/dashboard/funnels");

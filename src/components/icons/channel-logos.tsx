@@ -1,6 +1,6 @@
 "use client";
 
-import type { IconProps } from "@/components/icons";
+import { type IconProps } from "@/components/icons";
 import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 import { useId } from "react";
 
@@ -221,6 +221,31 @@ export function StudioLogoColor({ className }: IconProps) {
   );
 }
 
+const EMAIL_INDIGO = "#4F46E5";
+
+export function EmailLogoColor({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-4 w-4", className)}
+    >
+      <circle cx="12" cy="12" r="12" fill={EMAIL_INDIGO} />
+      <rect x="5.4" y="7.4" width="13.2" height="9.2" rx="1.8" fill="#FFFFFF" />
+      <path
+        d="M6.6 8.9 12 12.8l5.4-3.9"
+        fill="none"
+        stroke={EMAIL_INDIGO}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const MERCADOLIVRE_YELLOW = "#FFE600";
 const MERCADOLIVRE_NAVY = "#2D3277";
 
@@ -252,6 +277,55 @@ export function MercadoLivreLogoColor({ className }: IconProps) {
   );
 }
 
+const RCS_BLUE = "#1A73E8";
+const SMS_GREEN = "#0F9D58";
+
+export function RcsLogoColor({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false" className={cn("h-4 w-4", className)}>
+      <circle cx="12" cy="12" r="12" fill={RCS_BLUE} />
+      <path
+        fill="#FFFFFF"
+        d="M7.6 6.4h8.8a2.4 2.4 0 0 1 2.4 2.4v5a2.4 2.4 0 0 1-2.4 2.4h-3.2l-3.4 2.9a.5.5 0 0 1-.82-.38v-2.52H7.6a2.4 2.4 0 0 1-2.4-2.4v-5a2.4 2.4 0 0 1 2.4-2.4Z"
+      />
+      <rect x="8" y="8.7" width="5.2" height="3.8" rx="0.9" fill={RCS_BLUE} />
+      <path d="M14.4 9.4h1.8M14.4 11.8h1.8" stroke={RCS_BLUE} strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function SmsLogoColor({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false" className={cn("h-4 w-4", className)}>
+      <circle cx="12" cy="12" r="12" fill={SMS_GREEN} />
+      <path
+        fill="#FFFFFF"
+        d="M7.6 6.4h8.8a2.4 2.4 0 0 1 2.4 2.4v5a2.4 2.4 0 0 1-2.4 2.4h-3.2l-3.4 2.9a.5.5 0 0 1-.82-.38v-2.52H7.6a2.4 2.4 0 0 1-2.4-2.4v-5a2.4 2.4 0 0 1 2.4-2.4Z"
+      />
+      <path d="M8.4 9.6h7.2M8.4 12.2h4.6" stroke={SMS_GREEN} strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function RcsSmsLogoColor({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false" className={cn("h-4 w-4", className)}>
+      <circle cx="12" cy="12" r="12" fill={RCS_BLUE} />
+      <path
+        fill={SMS_GREEN}
+        stroke="#FFFFFF"
+        strokeWidth="1"
+        d="M11.2 10.6h6a2 2 0 0 1 2 2v3.2a2 2 0 0 1-2 2h-.6v1.9a.4.4 0 0 1-.66.3l-2.5-2.2h-2.24a2 2 0 0 1-2-2v-3.2a2 2 0 0 1 2-2Z"
+      />
+      <path
+        fill="#FFFFFF"
+        d="M6.6 5.4h6.8a2 2 0 0 1 2 2v3.4a2 2 0 0 1-2 2h-3.1l-2.6 2.2a.4.4 0 0 1-.66-.3v-1.9h-.44a2 2 0 0 1-2-2V7.4a2 2 0 0 1 2-2Z"
+      />
+      <path d="M7.4 8.1h4.6M7.4 10.1h3" stroke={RCS_BLUE} strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const CHANNELS_WITH_MARKS = new Set([
   "whatsapp",
   "unofficial_whatsapp",
@@ -261,6 +335,9 @@ const CHANNELS_WITH_MARKS = new Set([
   "webchat",
   "mercadolivre",
   "tiktok",
+  "email",
+  "rcs",
+  "sms",
 ]);
 
 export function hasChannelMark(channel: string | null | undefined): boolean {
@@ -291,6 +368,12 @@ export function ChannelLogo({
       return <MercadoLivreLogoColor className={className} />;
     case "tiktok":
       return <TiktokLogoColor className={className} />;
+    case "email":
+      return <EmailLogoColor className={className} />;
+    case "rcs":
+      return <RcsLogoColor className={className} />;
+    case "sms":
+      return <SmsLogoColor className={className} />;
     default:
       return null;
   }

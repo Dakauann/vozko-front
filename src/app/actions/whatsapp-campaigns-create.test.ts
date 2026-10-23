@@ -21,7 +21,7 @@ const payload: WhatsAppCampaignPayload = {
     enableAnalysis: false,
     enableAutoStaging: false,
     enableAutoMemory: false,
-    phoneNumbers: [],
+    recipients: { source: "list", listId: "list-1" },
     exitRiskAcknowledged: true,
 };
 
@@ -45,5 +45,29 @@ describe("createWhatsAppCampaignAction", () => {
         const result = await createWhatsAppCampaignAction(payload);
 
         expect(result).toEqual({ campaign: null, error: "exit risk not acknowledged", errorCode: "exit_risk_not_acknowledged" });
+    });
+
+    it("posts the settings, the smart policy and the exit acknowledgement with the list as recipients and no phone numbers", async () => {
+        apiClient.mockResolvedValue({ data: { id: "camp-1" } });
+        const smartPolicy = { waves: 3 } as unknown as WhatsAppCampaignPayload["smartPolicy"];
+
+        const result = await createWhatsAppCampaignAction({ ...payload, smartPolicy });
+
+        const [path, init] = apiClient.mock.calls[0];
+        expect(path).toBe("/whatsapp/campaigns");
+        expect(init.method).toBe("POST");
+        expect(JSON.parse(init.body)).toEqual({ ...payload, smartPolicy });
+        expect(JSON.parse(init.body)).not.toHaveProperty("phoneNumbers");
+        expect(result).toEqual({ campaign: { id: "camp-1" }, error: null });
+    });
+
+    it("sends a lead audience with the count the server confirmed", async () => {
+        apiClient.mockResolvedValue({ error: { message: "changed", code: "selection_changed", status: 409 } });
+        const recipients = { source: "leads" as const, selection: { mode: "everyone" as const, expectedCount: 4, fingerprint: "fp" } };
+
+        const result = await createWhatsAppCampaignAction({ ...payload, recipients });
+
+        expect(JSON.parse(apiClient.mock.calls[0][1].body).recipients).toEqual(recipients);
+        expect(result).toEqual({ campaign: null, error: "changed", errorCode: "selection_changed" });
     });
 });

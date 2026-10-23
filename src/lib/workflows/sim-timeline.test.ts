@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import type { ConversationMessage } from "@/lib/conversations/types";
+
 import type { SimEvent, SimStep } from "./sim-session";
-import { simTimeline } from "./sim-timeline";
+import { simTimeline, simTimelineGroups } from "./sim-timeline";
 
 function step(id: string, overrides: Partial<SimStep> = {}): SimEvent {
   return {
@@ -88,5 +90,31 @@ describe("simTimeline", () => {
     const later = simTimeline([message("m"), step("a"), step("b")], 40, null);
     expect(first.map((item) => item.key)).toEqual(later.slice(0, 2).map((item) => item.key));
     expect(new Set(later.map((item) => item.key)).size).toBe(later.length);
+  });
+});
+
+function said(id: string, author: string, minute: number): SimEvent {
+  const message = { id, text: author, created_at: new Date(Date.UTC(2026, 9, 20, 12, minute)).toISOString() } as ConversationMessage;
+  return { type: "message", direction: "outbound", text: author, msgType: "text", messageId: id, message };
+}
+
+describe("simTimelineGroups", () => {
+  const byAuthor = (message: ConversationMessage) => ({ author: message.text, at: message.created_at });
+  const positions = (events: SimEvent[]) => {
+    const items = simTimeline(events, 0, null);
+    const groups = simTimelineGroups(items, byAuthor);
+    return items.map((item) => groups.get(item.key) ?? item.kind);
+  };
+
+  it("stacks consecutive messages from the same source, the way the team chat stacks one person", () => {
+    expect(positions([said("a", "Boas-vindas", 0), said("b", "Boas-vindas", 0), said("c", "Boas-vindas", 1), said("d", "cliente", 2)])).toEqual(["first", "middle", "last", "single"]);
+  });
+
+  it("breaks the stack at a step row, which sits between the bubbles as a system line", () => {
+    expect(positions([said("a", "Boas-vindas", 0), step("s"), said("b", "Boas-vindas", 0)])).toEqual(["single", "step", "single"]);
+  });
+
+  it("leaves messages without a CRM message out of the stacks", () => {
+    expect(positions([said("a", "Fluxo", 0), message("voice"), said("b", "Fluxo", 0)])).toEqual(["single", "event", "single"]);
   });
 });

@@ -27,23 +27,32 @@ export function useSendErrorText() {
   );
 }
 
+type BindingsTranslator = ReturnType<typeof useTranslations>;
+
+function bindingLabelOf(t: BindingsTranslator, source: string, customLabel?: string): string {
+  if (source === LITERAL_SOURCE) return t("sources.literal");
+  if (Object.hasOwn(LEAD_FIELD_SOURCES, source)) return t(`sources.${LEAD_FIELD_SOURCES[source as keyof typeof LEAD_FIELD_SOURCES]}`);
+  return t("custom", { label: customLabel ?? bindingFieldKey(source) ?? source });
+}
+
 export function useBindingLabel(choices: readonly BindingChoice[]) {
   const t = useTranslations("leadSends.bindings");
   return useCallback(
-    (source: BindingSource): string => {
-      if (source === LITERAL_SOURCE) return t("sources.literal");
-      if (source in LEAD_FIELD_SOURCES) return t(`sources.${LEAD_FIELD_SOURCES[source as keyof typeof LEAD_FIELD_SOURCES]}`);
-      const field = choices.find((choice) => choice.source === source)?.field;
-      return t("custom", { label: field?.label ?? bindingFieldKey(source) ?? source });
-    },
+    (source: BindingSource): string => bindingLabelOf(t, source, choices.find((choice) => choice.source === source)?.field?.label),
     [t, choices],
   );
+}
+
+export function useFieldSourceLabel(fields: readonly { source: string; label?: string }[]) {
+  const t = useTranslations("leadSends.bindings");
+  return useCallback((source: string): string => bindingLabelOf(t, source, fields.find((field) => field.source === source)?.label), [t, fields]);
 }
 
 export function useMissingSlotText() {
   const t = useTranslations("leadSends.review");
   return useCallback(
-    ({ slot, source }: SendSlotRef, customLabel?: string): string => {
+    ({ slot: position, name, source }: SendSlotRef, customLabel?: string): string => {
+      const slot = name ?? position;
       if (source && Object.hasOwn(LEAD_FIELD_SOURCES, source)) {
         const field = t(`missingField.${LEAD_FIELD_SOURCES[source as keyof typeof LEAD_FIELD_SOURCES]}`);
         return t("missingSlot", { field, slot });

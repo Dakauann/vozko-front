@@ -79,6 +79,14 @@ const BACKEND_DESCRIPTORS: Record<EntryType, ChannelMediaLimit[]> = {
   ],
   mercadolivre: MERCADOLIVRE_WIRE as ChannelMediaLimit[],
   tiktok: [{ kind: "image", max_bytes: 3 * MB, mime_types: ["image/jpeg", "image/png"] }],
+  email: [],
+  rcs: [
+    { kind: "audio", max_bytes: 100 * MB, mime_types: ["audio/3gpp", "audio/aac", "audio/mp3", "audio/mp4", "audio/mpeg", "audio/ogg"] },
+    { kind: "document", max_bytes: 100 * MB, mime_types: ["application/pdf"] },
+    { kind: "image", max_bytes: 100 * MB, mime_types: ["image/gif", "image/jpeg", "image/png"] },
+    { kind: "video", max_bytes: 100 * MB, mime_types: ["video/h263", "video/m4v", "video/mp4", "video/mpeg", "video/webm"] },
+  ],
+  sms: [],
 };
 
 describe("reading the media limits a subscribe answer carries", () => {
@@ -265,6 +273,14 @@ describe("what the composer sent before the server limits, per channel", () => {
     expect(attachmentRefusal(file("foto.png", "image/png", 4 * MB), limits)).toEqual({ reason: "size", maxBytes: 3 * MB });
     expect(attachmentRefusal(file("animado.gif", "image/gif", MB), limits)).toEqual({ reason: "type" });
     expect(attachmentRefusal(file("video.mp4", "video/mp4", MB), limits)).toEqual({ reason: "type" });
+    expect(acceptsVoiceNotes(limits)).toBe(false);
+  });
+
+  it("takes no file and no voice note on email, whose server lists no kind", () => {
+    const limits = composerMediaLimits("email", BACKEND_DESCRIPTORS.email);
+    expect(limits).toEqual([]);
+    expect(attachmentRefusal(file("foto.jpg", "image/jpeg", MB), limits)).not.toBeNull();
+    expect(attachmentRefusal(file("nota.pdf", "application/pdf", MB), limits)).not.toBeNull();
     expect(acceptsVoiceNotes(limits)).toBe(false);
   });
 });

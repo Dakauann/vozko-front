@@ -24,6 +24,7 @@ export async function createInvoiceAction(payload: CreateInvoicePayload) {
       data: null,
       error: result.error.message || 'Failed to create invoice',
       errorCode: result.error.code ?? null,
+      errorStatus: result.error.status ?? null,
     };
   }
 
@@ -31,7 +32,7 @@ export async function createInvoiceAction(payload: CreateInvoicePayload) {
     clearClientCookie(REF_COOKIE_NAME);
   }
 
-  return { data: result.data ?? null, error: null, errorCode: null };
+  return { data: result.data ?? null, error: null, errorCode: null, errorStatus: null };
 }
 
 export async function listInvoicesAction(params?: ListInvoicesParams) {

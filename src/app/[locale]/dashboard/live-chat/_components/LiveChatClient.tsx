@@ -36,6 +36,9 @@ import {
   isCampaignChannel as isCampaignChannelFilter,
   type ChannelFilter,
 } from "@/lib/live-chat/channel-filter";
+import { ComingSoonChip } from "@/components/carrier-messaging/shared/ComingSoon";
+import { isParkedCarrierChannel } from "@/lib/carrier-messaging/channels";
+import { useCarrierChannels } from "@/lib/carrier-messaging/use-carrier-channels";
 import { ChannelLogo } from "@/components/icons/channel-logos";
 import {
   ElevatedSelect,
@@ -65,6 +68,9 @@ interface LiveChatTranslations extends CrmTranslations {
   filterFacebook: string;
   filterTelegram: string;
   filterWebchat: string;
+  filterMercadoLivre: string;
+  filterTiktok: string;
+  filterEmail: string;
   filterUnofficialWhatsapp: string;
   filterWhatsapp: string;
   filterVoice: string;
@@ -108,6 +114,9 @@ function ChannelFilterToggle({
 }) {
   const label = (key: string) =>
     (t as unknown as Record<string, string>)[key] ?? key;
+  const carrierChannels = useCarrierChannels(canRead("carrier_inboxes", "read"));
+  const comingSoon = (value: ChannelFilter) =>
+    isParkedCarrierChannel(value, carrierChannels.launched);
 
   return (
     <ElevatedSelect
@@ -141,16 +150,24 @@ function ChannelFilterToggle({
           key={value}
           value={value}
           disabled={
-            permission != null &&
-            !canRead(
-              permission.resource as ResourceType,
-              permission.action as ResourceAction,
-            )
+            comingSoon(value) ||
+            (permission != null &&
+              !canRead(
+                permission.resource as ResourceType,
+                permission.action as ResourceAction,
+              ))
           }
           icon={channelFilterMark(value, "row")}
           iconStyled={false}
         >
-          {label(labelKey)}
+          {comingSoon(value) ? (
+            <span className="inline-flex items-center gap-1.5">
+              {label(labelKey)}
+              <ComingSoonChip />
+            </span>
+          ) : (
+            label(labelKey)
+          )}
         </ElevatedSelectItem>
       ))}
     </ElevatedSelect>

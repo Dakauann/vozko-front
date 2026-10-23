@@ -11,7 +11,7 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { StatusChip } from "@/components/elevated-design/status-chip";
 import { MercadoLivreLogoColor } from "@/components/icons/channel-logos";
 import { Notice } from "@/components/ui/notice";
-import { accountStatusKey, accountStatusTone } from "@/lib/mercadolivre/account";
+import { accountHandle, accountStatusKey, accountStatusTone } from "@/lib/mercadolivre/account";
 import { MERCADOLIVRE_CAPABILITIES, type MercadoLivreAccount } from "@/lib/mercadolivre/types";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +32,7 @@ export function MercadoLivreAccountHeader({
   const checkedDate = useCheckedDate();
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const handle = accountHandle(account);
 
   const checkHealth = async () => {
     setChecking(true);
@@ -55,11 +56,12 @@ export function MercadoLivreAccountHeader({
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
-            <h2 className="truncate font-display text-lg font-semibold tracking-[0.01em] text-foreground">{account.nickname}</h2>
+            <h2 className="truncate font-display text-lg font-semibold tracking-[0.01em] text-foreground">{account.displayName}</h2>
             <StatusChip tone={accountStatusTone(account.status)} label={t(accountStatusKey(account.status))} />
           </div>
 
           <p className="flex flex-wrap gap-x-3 text-sm text-muted-foreground">
+            {handle ? <span>{handle}</span> : null}
             <span>{t("account.sellerId", { id: account.mlUserId })}</span>
             <span>{t("account.site", { site: account.siteId })}</span>
           </p>

@@ -58,6 +58,7 @@ export interface WhatsAppTemplate {
     headerMediaId?: string | null;
     usabilityStatus?: UsabilityStatus;
     usabilityMessage?: string;
+    trackedUrlButtons?: number[];
     createdAt: string;
     updatedAt: string;
 }
@@ -128,6 +129,7 @@ export interface CreateTemplatePayload {
     headerMediaUrl?: string;
     buttonActions?: ButtonActionInput[];
     exitConfirmation?: string;
+    trackedUrlButtons?: number[];
 }
 
 export interface UpdateHeaderMediaPayload {
@@ -140,6 +142,7 @@ export interface EditTemplateContentPayload {
     headerMediaUrl?: string;
     buttonActions?: ButtonActionInput[];
     exitConfirmation?: string;
+    trackedUrlButtons?: number[];
 }
 
 

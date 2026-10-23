@@ -5,6 +5,7 @@ import {
   readLeadImportJob,
   readLeadImportList,
   type LeadImportDryRunBody,
+  type LeadImportEmailFixes,
   type LeadImportJob,
   type LeadImportList,
 } from "@/lib/leads/imports";
@@ -61,8 +62,8 @@ export async function dryRunLeadImportAction(id: string, body: LeadImportDryRunB
   return jobRequest(importPath(id, "/dry-run"), { method: "POST", body: JSON.stringify(body) });
 }
 
-export async function startLeadImportAction(id: string): Promise<LeadImportActionResult> {
-  return jobRequest(importPath(id, "/start"), { method: "POST" });
+export async function startLeadImportAction(id: string, fixes: LeadImportEmailFixes): Promise<LeadImportActionResult> {
+  return jobRequest(importPath(id, "/start"), { method: "POST", body: JSON.stringify(fixes) });
 }
 
 export async function downloadLeadImportRejectionsAction(

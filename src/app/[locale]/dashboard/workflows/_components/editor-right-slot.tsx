@@ -4,6 +4,7 @@ import { memo } from "react";
 import { useTranslations } from "next-intl";
 
 import type { SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
+import type { TriggerTestInput } from "@/lib/workflows/test-inputs";
 import { rightSlotView, type RightPanel } from "@/lib/workflows/editor-docking";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,8 @@ export interface EditorRightSlotProps {
   onPinStep: (step: SimStep) => void;
   versionDiffers: (version: number | undefined) => boolean;
   onViewVersion: (version: number) => void;
+  scenariosOf: (nodeId: string) => TriggerTestInput[] | undefined;
+  onScenariosChange: (nodeId: string, scenarios: TriggerTestInput[]) => void;
   workflowId: string;
   workflowType: WorkflowType;
   onCopilotGraph: (graph: WorkflowGraph) => void;
@@ -57,6 +60,8 @@ function EditorRightSlotView({
   onPinStep,
   versionDiffers,
   onViewVersion,
+  scenariosOf,
+  onScenariosChange,
   workflowId,
   workflowType,
   onCopilotGraph,
@@ -107,6 +112,9 @@ function EditorRightSlotView({
                 onPinStep={onPinStep}
                 versionDiffers={versionDiffers}
                 onViewVersion={onViewVersion}
+                workflowId={workflowId}
+                scenariosOf={scenariosOf}
+                onScenariosChange={onScenariosChange}
               />
             </div>
           )}

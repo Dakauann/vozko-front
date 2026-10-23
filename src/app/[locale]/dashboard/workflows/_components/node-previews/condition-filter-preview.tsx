@@ -2,6 +2,7 @@
 
 import { EmptyPreview } from "../message-node-primitives";
 import { DecisionBlock, Op } from "./decision-block";
+import { useConfigOptionLabel } from "./node-definitions";
 
 export function ConditionFilterPreview({
   config,
@@ -9,8 +10,8 @@ export function ConditionFilterPreview({
   config: Record<string, unknown>;
 }) {
   const variable = (config.variable as string) || "";
-  const op =
-    (config._display_operator as string) || (config.operator as string) || "=";
+  const operator = (config.operator as string) || "";
+  const op = useConfigOptionLabel("condition_filter", "operator", operator) || operator || "=";
   const value = (config.value as string) || "";
   if (!variable.trim()) return <EmptyPreview label="Sem filtro" />;
   return (

@@ -25,11 +25,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { openScoped } from "@/lib/browser/scoped-download-url";
+import type { PeriodPreset } from "@/lib/attendance/period";
 import type { DraftSaveStatus } from "@/lib/workflows/draft-save";
 import type { EntryPointFix } from "@/lib/workflows/entry-points";
 import type { RuntimeAlertFix } from "@/lib/workflows/runtime-alerts";
 import type { LintIssue, RuntimeAlert, Workflow, WorkflowType } from "@/lib/workflows/types";
 
+import { ChoiceStatsPeriodChip } from "./choice-stats-period";
 import { DraftSaveStatusLine } from "./draft-save-status";
 import { EntryPointChips } from "./entry-point-chips";
 import { MoveToSecretDialog, type MoveToSecretRequest } from "./move-to-secret-dialog";
@@ -75,6 +77,9 @@ export interface EditorHeaderProps {
   onResume: () => void;
   onOpenVersions: () => void;
   onDelete: () => Promise<void>;
+  choicePeriod?: PeriodPreset;
+  onChoicePeriodChange?: (period: PeriodPreset) => void;
+  onChoiceStatsRetry?: () => void;
 }
 
 function EditorHeaderView({
@@ -116,6 +121,9 @@ function EditorHeaderView({
   onResume,
   onOpenVersions,
   onDelete,
+  choicePeriod,
+  onChoicePeriodChange,
+  onChoiceStatsRetry,
 }: EditorHeaderProps) {
   const t = useTranslations("workflowsPage");
   const tRuns = useTranslations("workflowRuns");
@@ -188,11 +196,15 @@ function EditorHeaderView({
       {entryPoints && entryPoints.length > 0 && (
         <div role="group" aria-label={t("entryPoints.title")} className="flex min-w-0 items-center gap-1.5">
           <span className="whitespace-nowrap text-xs text-muted-foreground">{t("entryPoints.title")}</span>
-          <EntryPointChips entries={entryPoints} canUpdate={canUpdate} onFix={onEntryFix} />
+          <EntryPointChips entries={entryPoints} canUpdate={canUpdate} inEditor onFix={onEntryFix} />
         </div>
       )}
 
       <div className="flex-1" />
+
+      {workflowState?.id && choicePeriod && onChoicePeriodChange && onChoiceStatsRetry && (
+        <ChoiceStatsPeriodChip period={choicePeriod} onChange={onChoicePeriodChange} onRetry={onChoiceStatsRetry} />
+      )}
 
       {workflowState?.id && (
         <ElevatedButton

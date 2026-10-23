@@ -68,7 +68,6 @@ export default function EditUnofficialCampaignPage({
 
       {!loading && campaign ? (
         <CreateUnofficialCampaignForm
-          mode="edit"
           initialCampaign={campaign}
           aiModels={aiModels}
           modelPricing={modelPricing}

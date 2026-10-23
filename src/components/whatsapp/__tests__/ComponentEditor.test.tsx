@@ -72,3 +72,50 @@ describe("ComponentEditor text limits", () => {
     expect(screen.getAllByRole("textbox")[0]).toHaveAttribute("maxLength", String(BUTTON_TEXT_LIMIT));
   });
 });
+
+describe("ComponentEditor link tracking", () => {
+  it("lets a URL button opt in to click tracking", () => {
+    renderEditor({ id: "b", type: "BUTTONS", data: { buttons: [{ id: "u", type: "URL", text: "Site", url: "https://exemplo.com" }] } });
+    fireEvent.click(screen.getByRole("switch", { name: ptMessages.choiceStats.track.label }));
+    expect(onChange).toHaveBeenCalledWith({
+      id: "b",
+      type: "BUTTONS",
+      data: { buttons: [{ id: "u", type: "URL", text: "Site", url: "https://exemplo.com", trackClicks: true }] },
+    });
+  });
+
+  it("offers no tracking on a quick reply, whose taps are always counted", () => {
+    renderEditor({ id: "b", type: "BUTTONS", data: { buttons: [{ id: "q", type: "QUICK_REPLY", text: "Quero" }] } });
+    expect(screen.queryByRole("switch", { name: ptMessages.choiceStats.track.label })).toBeNull();
+  });
+});
+
+describe("ComponentEditor tracked button refusal", () => {
+  it("shows the server's refusal on the link of the button it names", () => {
+    render(
+      <NextIntlClientProvider locale="pt" messages={ptMessages}>
+        <ComponentEditor
+          component={{
+            id: "b",
+            type: "BUTTONS",
+            data: {
+              buttons: [
+                { id: "u0", type: "URL", text: "Site", url: "https://exemplo.com" },
+                { id: "u1", type: "URL", text: "Loja", url: "https://loja.com/{{1}}", trackClicks: true },
+              ],
+            },
+          }}
+          onChange={onChange}
+          category="MARKETING"
+          allowedKinds={BUTTON_ACTION_KINDS}
+          refusedButton={{ index: 1, message: "Link com variável não pode ser rastreado" }}
+        />
+      </NextIntlClientProvider>,
+    );
+    const refused = screen.getByDisplayValue("https://loja.com/{{1}}");
+    const fine = screen.getByDisplayValue("https://exemplo.com");
+    expect(refused).toHaveAttribute("aria-invalid", "true");
+    expect(fine).not.toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText("Link com variável não pode ser rastreado")).toBeInTheDocument();
+  });
+});

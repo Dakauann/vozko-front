@@ -2,7 +2,10 @@
 
 import { useTranslations } from "next-intl";
 
+import { OptionCtr } from "@/components/choice-stats/OptionCtr";
 import { CircuitRoutes } from "@/components/elevated-design/circuit-routes";
+import { optionStatsOf, type PromptStats } from "@/lib/choice-stats/stats";
+import { templateButtonOptionId } from "@/lib/choice-stats/template-options";
 import type { ButtonChoices, ButtonRoute } from "@/lib/whatsapp-templates/exit";
 
 import { QuickReplyChip, RouteTarget } from "./ButtonRoutePieces";
@@ -13,7 +16,11 @@ function destinationOf(button: ButtonRoute, overrides: ButtonChoices) {
   return override ?? (button.stale ? null : button.action);
 }
 
-export function ButtonDestinations({ buttons, overrides = {} }: { buttons: ButtonRoute[]; overrides?: ButtonChoices }) {
+export function QuickReplyCtr({ clicks, index }: { clicks: PromptStats; index: number }) {
+  return <OptionCtr option={optionStatsOf(clicks, templateButtonOptionId(index))} className="text-2xs font-medium" />;
+}
+
+export function ButtonDestinations({ buttons, overrides = {}, clicks }: { buttons: ButtonRoute[]; overrides?: ButtonChoices; clicks?: PromptStats | null }) {
   const t = useTranslations("templateExit.campaign");
   const labelOf = useButtonActionLabel();
   if (buttons.length === 0) return null;
@@ -30,7 +37,7 @@ export function ButtonDestinations({ buttons, overrides = {} }: { buttons: Butto
             key: button.index,
             name: t("destination", { text: button.text, action }),
             state: destination ? "linked" : button.stale ? "stale" : "open",
-            source: <QuickReplyChip text={button.text} stale={button.stale && !destination} />,
+            source: <QuickReplyChip text={button.text} stale={button.stale && !destination} stat={clicks ? <QuickReplyCtr clicks={clicks} index={button.index} /> : undefined} />,
             target: <RouteTarget label={destination ? action : t("noActionOutcome")} open={!destination} />,
           };
         })}

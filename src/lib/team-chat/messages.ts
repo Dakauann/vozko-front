@@ -1,4 +1,5 @@
-import { dayKeyReader, GROUP_GAP_MS, type GroupPosition } from "@/lib/conversations/thread-rows";
+import { groupPosition, joinsGroup, type GroupMember, type GroupPosition } from "@/lib/chat/message-groups";
+import { dayKeyReader } from "@/lib/conversations/thread-rows";
 
 import type { TeamChatMessage, TeamChatThread } from "./types";
 
@@ -38,19 +39,8 @@ export function pendingAfterDelivery(pending: PendingMessage[], delivered: TeamC
   return left.length === pending.length ? pending : left;
 }
 
-function timeOf(message: TeamChatMessage): number {
-  return new Date(message.created_at).getTime();
-}
-
-function joins(previous: TeamChatMessage | null, current: TeamChatMessage): boolean {
-  return previous !== null && previous.author_id === current.author_id && timeOf(current) - timeOf(previous) <= GROUP_GAP_MS;
-}
-
-function positionOf(joinsPrevious: boolean, joinsNext: boolean): GroupPosition {
-  if (joinsPrevious && joinsNext) return "middle";
-  if (joinsPrevious) return "last";
-  if (joinsNext) return "first";
-  return "single";
+function groupMember(message: TeamChatMessage): GroupMember {
+  return { author: message.author_id, at: message.created_at };
 }
 
 export function threadRows(messages: TeamChatMessage[], timeZone?: string): TeamChatRow[] {
@@ -60,7 +50,7 @@ export function threadRows(messages: TeamChatMessage[], timeZone?: string): Team
   let run: TeamChatMessage[] = [];
   const closeRun = () => {
     run.forEach((message, index) => {
-      rows.push({ kind: "message", key: message.id, message, position: positionOf(index > 0, index < run.length - 1) });
+      rows.push({ kind: "message", key: message.id, message, position: groupPosition(index > 0, index < run.length - 1) });
     });
     run = [];
   };
@@ -76,7 +66,8 @@ export function threadRows(messages: TeamChatMessage[], timeZone?: string): Team
       rows.push({ kind: "system", key: message.id, message });
       continue;
     }
-    if (!joins(run[run.length - 1] ?? null, message)) closeRun();
+    const last = run[run.length - 1];
+    if (!joinsGroup(last ? groupMember(last) : null, groupMember(message))) closeRun();
     run.push(message);
   }
   closeRun();

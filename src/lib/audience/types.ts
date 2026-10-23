@@ -24,7 +24,10 @@ export type AudienceSource =
     | "telegram"
     | "unofficial_whatsapp"
     | "webchat"
-    | "tiktok";
+    | "tiktok"
+    | "email"
+    | "rcs"
+    | "sms";
 
 export type ConversationInterest = "interested" | "not_interested" | "undecided";
 export type ConversationDisposition = "sale" | "filling_info" | "callback" | "declined" | "pending";
@@ -398,6 +401,9 @@ export const AUDIENCE_SOURCES: AudienceSource[] = [
     "unofficial_whatsapp",
     "webchat",
     "tiktok",
+    "email",
+    "rcs",
+    "sms",
 ];
 
 export interface CommentListFilters {

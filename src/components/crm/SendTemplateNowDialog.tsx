@@ -11,7 +11,7 @@ import {
   ElevatedDialogHeader,
   ElevatedDialogTitle,
 } from "@/components/elevated-design/elevated-dialog";
-import { Warning } from "@/components/icons";
+import { useSlotName } from "@/components/campaign-audience/use-audience-copy";
 import { type TemplateComposerInitial, useTemplateComposer } from "@/hooks/use-template-composer";
 import { TemplatePickerFields } from "./TemplatePickerFields";
 
@@ -21,7 +21,7 @@ interface SendTemplateNowDialogProps {
   businessPhoneId: string;
   recipientName?: string;
   initial?: TemplateComposerInitial;
-  onSend: (templateId: string, parameters: string[]) => void;
+  onSend: (templateId: string, parameters: string[], headerParameters: string[]) => void;
 }
 
 export default function SendTemplateNowDialog({
@@ -35,12 +35,12 @@ export default function SendTemplateNowDialog({
   const t = useTranslations("crmComposer.templateNow");
   const scheduleT = useTranslations("scheduledMessages");
   const composer = useTemplateComposer({ businessPhoneId, enabled: open, initial });
-  const needsHeaderValues = composer.slots.header.length > 0;
-  const canSend = composer.ready && !needsHeaderValues;
+  const slotLabel = useSlotName();
+  const canSend = composer.ready;
 
   const send = () => {
     if (!canSend) return;
-    onSend(composer.templateId, composer.bodyValues);
+    onSend(composer.templateId, composer.bodyValues, composer.headerValues);
     onOpenChange(false);
   };
 
@@ -60,14 +60,7 @@ export default function SendTemplateNowDialog({
             composer={composer}
             businessPhoneId={businessPhoneId}
             previewDateLabel={new Date().toLocaleDateString()}
-            notice={
-              needsHeaderValues && (
-                <div className="flex items-start gap-2 rounded-[--radius] border border-border bg-card px-3 py-2">
-                  <Warning weight="fill" className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-ink" />
-                  <p className="text-2xs text-foreground">{t("headerUnsupported")}</p>
-                </div>
-              )
-            }
+            slotLabel={slotLabel}
           />
         </div>
 

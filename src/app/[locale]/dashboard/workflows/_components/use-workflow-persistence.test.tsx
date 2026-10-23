@@ -192,6 +192,16 @@ describe("draft autosave", () => {
     expect(actions.updateWorkflowAction).not.toHaveBeenCalled();
     expect(result.current.saveStatus).toEqual({ kind: "failed", message: ptMessages.workflowsPage.validation.nameRequired, retryable: false });
   });
+
+  it("names a refused saved test scenario in the catalog copy and leaves the retry to the person", async () => {
+    actions.updateWorkflowAction.mockResolvedValueOnce({ workflow: null, status: 422, code: "test_input_invalid", error: "raw scenario" });
+    const { result, rerender } = mount();
+    rerender({ draftKey: "k2", name: "A" });
+    await elapse(1500);
+    expect(result.current.saveStatus).toEqual({ kind: "failed", message: ptMessages.workflowsPage.errors.test_input_invalid, retryable: true });
+    await elapse(30_000);
+    expect(actions.updateWorkflowAction).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("draft conflicts", () => {

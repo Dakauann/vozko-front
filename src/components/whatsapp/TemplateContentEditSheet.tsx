@@ -25,13 +25,17 @@ import { TemplateDraftPreview } from "@/components/whatsapp/builder/TemplateDraf
 import { TemplateGuidelines } from "@/components/whatsapp/builder/TemplateGuidelines";
 import { BUILDER_PROBLEMS_ANCHOR, TemplateMessageSection } from "@/components/whatsapp/builder/TemplateMessageSection";
 import { useTemplateDraft } from "@/components/whatsapp/builder/use-template-draft";
+import { useSaveTemplateSuggestions, useTemplateSuggestions } from "@/components/whatsapp/builder/use-template-suggestions";
+import { codedErrorMessage, type CodedError } from "@/lib/api/coded-error";
+import type { TemplateSuggestion } from "@/lib/campaign-audience/types";
+import { withSuggestions } from "@/lib/whatsapp-templates/suggestions";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { ExitReadFailure } from "@/components/whatsapp/exit/ExitReadFailure";
 import { MarketingExitDialog } from "@/components/whatsapp/exit/MarketingExitDialog";
 import { useTemplateButtonActions } from "@/components/whatsapp/exit/use-template-exit";
 import { CONTENT_EDIT_CATEGORIES, categoryLockedOnEdit } from "@/lib/whatsapp-templates/content-edit";
 import { replacedHeaderMedia, toDraftComponents, toTemplateComponents } from "@/lib/whatsapp-templates/draft";
-import { templateEditErrorMessage } from "@/lib/whatsapp-templates/errors";
+import { templateEditErrorMessage, templateErrorMessage, trackedButtonRefusal } from "@/lib/whatsapp-templates/errors";
 import { MARKETING_TEMPLATE_NEEDS_EXIT, templateExitMissing } from "@/lib/whatsapp-templates/exit";
 import {
   editExitSetup,
@@ -41,6 +45,7 @@ import {
   type LeadExitPlan,
   type SavedExit,
 } from "@/lib/whatsapp-templates/exit-draft";
+import { urlTrackingFields, withTrackedUrls } from "@/lib/whatsapp-templates/url-tracking";
 import type { TemplateCategory, WhatsAppTemplate } from "@/lib/whatsapp-templates/types";
 
 interface Failure {
@@ -79,15 +84,19 @@ function EditSheetHeader({ name }: { name: string }) {
 interface ContentEditorProps {
   template: WhatsAppTemplate;
   saved: SavedExit;
+  suggestions: TemplateSuggestion[];
   onCancel: () => void;
   onSaved: (template: WhatsAppTemplate) => void;
 }
 
-function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProps) {
+function ContentEditor({ template, saved, suggestions, onCancel, onSaved }: ContentEditorProps) {
   const t = useTranslations("whatsappTemplates");
   const tRoot = useTranslations();
   const format = useFormatter();
-  const [original] = useState(() => withSavedExit(toDraftComponents(template.components, template.headerMediaUrl), saved));
+  const [original] = useState(() =>
+    withSuggestions(withTrackedUrls(withSavedExit(toDraftComponents(template.components, template.headerMediaUrl), saved), template.trackedUrlButtons ?? []), suggestions),
+  );
+  const saveSuggestions = useSaveTemplateSuggestions();
   const draft = useTemplateDraft({
     purpose: "edit",
     initialComponents: original,
@@ -110,9 +119,14 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
         ...(category !== template.category ? { category } : {}),
         ...(headerMediaUrl ? { headerMediaUrl } : {}),
         ...exitSetupFields(editExitSetup(submitted, saved.exitConfirmation)),
+        ...urlTrackingFields(submitted, Array.isArray(template.trackedUrlButtons)),
       });
       if (result.errorCode === MARKETING_TEMPLATE_NEEDS_EXIT) {
         setExitRefused(true);
+        return;
+      }
+      const refusedIndex = trackedButtonRefusal(result.errorCode, result.expected);
+      if (refusedIndex !== null && draft.refuseButton({ index: refusedIndex, message: templateErrorMessage(tRoot, result.errorCode, result.error ?? "") })) {
         return;
       }
       if (result.error !== null || !result.template) {
@@ -125,6 +139,7 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
         });
         return;
       }
+      await saveSuggestions(template.id, submitted, true);
       toast(t("contentEdit.saved"), { description: t("contentEdit.savedDesc") });
       onSaved(result.template);
     } catch {
@@ -146,6 +161,7 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
       return;
     }
     setFailure(null);
+    draft.refuseButton(null);
     const { draftVerdict, fresh } = draft.exitVerdict;
     if (fresh && draftVerdict && templateExitMissing(draftVerdict.verdict)) {
       setExitRefused(true);
@@ -259,11 +275,23 @@ function ContentEditor({ template, saved, onCancel, onSaved }: ContentEditorProp
   );
 }
 
-function SavedExitRead({ template, onCancel, onSaved }: Omit<ContentEditorProps, "saved">) {
+function SuggestionsReadFailure({ error, onRetry }: { error: CodedError; onRetry: () => void }) {
+  const t = useTranslations("whatsappTemplates.form.editor.body");
+  const tErrors = useTranslations("campaignAudience");
+  return (
+    <Notice tone="fault" title={t("suggestionsLoadFailed")}>
+      <p>{codedErrorMessage(tErrors, error, t("suggestionsLoadFailed"))}</p>
+      <Button type="button" variant="secondary" size="sm" title={t("suggestionsRetry")} onClick={onRetry} />
+    </Notice>
+  );
+}
+
+function SavedExitRead({ template, onCancel, onSaved }: Omit<ContentEditorProps, "saved" | "suggestions">) {
   const tExit = useTranslations("templateExit");
   const savedExit = useTemplateButtonActions(template.id);
-  if (savedExit.actions) {
-    return <ContentEditor template={template} saved={savedExit.actions} onCancel={onCancel} onSaved={onSaved} />;
+  const saved = useTemplateSuggestions(template.id);
+  if (savedExit.actions && saved.suggestions) {
+    return <ContentEditor template={template} saved={savedExit.actions} suggestions={saved.suggestions} onCancel={onCancel} onSaved={onSaved} />;
   }
   return (
     <>
@@ -271,6 +299,8 @@ function SavedExitRead({ template, onCancel, onSaved }: Omit<ContentEditorProps,
       <div className="p-6">
         {savedExit.error ? (
           <ExitReadFailure error={savedExit.error} fallback={tExit("panel.loadFailed")} onRetry={savedExit.reload} />
+        ) : saved.error ? (
+          <SuggestionsReadFailure error={saved.error} onRetry={saved.reload} />
         ) : (
           <p className="text-xs text-muted-foreground">{tExit("verdict.loading")}</p>
         )}

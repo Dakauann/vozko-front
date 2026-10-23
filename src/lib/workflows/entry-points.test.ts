@@ -101,6 +101,23 @@ describe("entryPointCopy", () => {
     expect(entryPointCopy(entry({ kind: "message_received", readiness: "blocked", reason: "no_channel" })).fix).toBeNull();
   });
 
+  it("says a lead exit cannot start a flow without a message trigger and offers to open the flow", () => {
+    const blocked = entry({
+      kind: "lead_exit",
+      readiness: "blocked",
+      reason: "needs_message_trigger",
+      details: { leadExits: [{ source: "template", name: "boas_vindas", language: "pt_BR", button: "Quero falar" }] },
+    });
+    expect(entryPointCopy(blocked)).toEqual({
+      labelKey: "kinds.lead_exit",
+      ready: false,
+      reasonKey: "reasons.needs_message_trigger",
+      inlineKey: null,
+      fix: { kind: "open_editor" },
+      fixKey: "fixes.openEditor",
+    });
+  });
+
   it("fails closed: an unknown readiness is blocked and an unknown reason or kind gets generic copy", () => {
     const odd = entryPointCopy({ kind: "smoke_signal", readiness: "maybe", reason: "solar_flare" } as unknown as EntryPoint);
     expect(odd).toEqual({ labelKey: "kinds.unknown", ready: false, reasonKey: "reasons.unknown", inlineKey: null, fix: null, fixKey: null });
@@ -139,7 +156,29 @@ describe("channelHref", () => {
       "/dashboard/tiktok-accounts/c1",
       "/dashboard/mercadolivre-accounts/c1",
       "/dashboard/webchat/c1",
+      null,
+      "/dashboard/rcs-sms/rcs-senders/c1",
+      null,
     ]);
+  });
+
+  it("offers no link for an email inbox, which has no settings page", () => {
+    expect(ENTRY_CHANNEL_KINDS).toContain("email_inbox");
+    expect(channelHref(channel({ kind: "email_inbox", id: "snd-1" }))).toBeNull();
+    const paused = entry({
+      kind: "message_received",
+      readiness: "blocked",
+      reason: "channel_paused",
+      details: { channels: [channel({ kind: "email_inbox", id: "snd-1", workflowEnabled: false })] },
+    });
+    expect(entryPointCopy(paused).fix).toBeNull();
+    expect(entryPointCopy(paused).fixKey).toBeNull();
+  });
+
+  it("links an RCS sender to its page and an SMS route to nothing, which has no page of its own", () => {
+    expect(ENTRY_CHANNEL_KINDS).toEqual(expect.arrayContaining(["rcs_sender", "sms_route"]));
+    expect(channelHref(channel({ kind: "rcs_sender", id: "snd-1" }))).toBe("/dashboard/rcs-sms/rcs-senders/snd-1");
+    expect(channelHref(channel({ kind: "sms_route", id: "rt-1" }))).toBeNull();
   });
 
   it("has no link for a channel kind it does not know", () => {

@@ -46,6 +46,12 @@ describe("the consent grant refusal", () => {
     expect((value as string).trim()).not.toBe("");
   });
 
+  it.each(Object.keys(locales))("explains the sheet binding refusal on agent saves in %s", (locale) => {
+    const value = lookup(locales[locale], "agents.form.toast.errorCodes.google_sheet_binding_forbidden");
+    expect(typeof value).toBe("string");
+    expect((value as string).trim()).not.toBe("");
+  });
+
   it.each(Object.keys(locales))("is explained on lead imports in %s", (locale) => {
     const t = translatorAt(locales[locale], "leadsPage.import");
     const message = importErrorMessage(t, refusal, { headers: [], fields: [], formatNumber: String, limits: null });

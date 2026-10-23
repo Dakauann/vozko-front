@@ -37,14 +37,6 @@ export interface ReminderOverride {
     minutes: number;
 }
 
-export interface GoogleCalendarConnection {
-    id: string;
-    workspaceId: string;
-    email: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
 export interface CreateEventInput {
     title: string;
     description?: string;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
+import { editorProjectOf } from "@/lib/aichat/editor-view";
 import type { ChatMode, ChatView } from "@/lib/aichat/types";
 import { browserTimezone } from "@/lib/working-hours/types";
 
@@ -9,7 +10,7 @@ import { openThread } from "./chat-turns";
 import { announceProjectOpened } from "./screen-bridge";
 
 function openedKey(threadId: string | null, view: ChatView | undefined, bound: string | null): string | null {
-  if (!threadId || view?.surface !== "studio" || !bound || view.projectId !== bound) return null;
+  if (!threadId || !bound || editorProjectOf(view) !== bound) return null;
   return `${threadId}:${bound}`;
 }
 

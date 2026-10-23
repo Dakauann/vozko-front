@@ -1,6 +1,7 @@
 "use client";
 
 import { loadAssetImage, loadUrlImage } from "@/components/studio/canvas/asset-images";
+import { canvasOf, encodeWithin } from "@/lib/vision/encode";
 import { videoCanvasSize, type CanvasSize, type ImageSurface, type Layer, type VideoDocument } from "@/lib/studio/document";
 import { frameLabel, frameNote, MAX_LOOK_ZOOM, rowSheet, sheetLayout, timecode, visibleItems, VISION_BUDGET, visionSize, type RegionBox, type SceneNote, type SheetLayout } from "@/lib/studio/agent/frames";
 import { clipMarkNumbers, markRadius, placeMarks, regionTargets, type MarkTarget } from "@/lib/studio/agent/marks";
@@ -29,8 +30,6 @@ import { reactLevels } from "../video/react-levels";
 import type { FrameExtractor } from "../video/timeline/frame-extractor";
 
 const RASTER_QUALITY = 0.92;
-const FALLBACK_QUALITIES = [0.82, 0.68, 0.55, 0.42];
-const MAX_CAPTURE_URL_CHARS = 2_000_000;
 const MAX_ARTBOARD_RASTER_PIXELS = 16_000_000;
 const LOOK_STALL_MS = 8000;
 const ARTBOARD_SHEET_GAP = 24;
@@ -235,13 +234,6 @@ function paintOverlay(context: CanvasRenderingContext2D, overlay: Pick<LookOverl
   if (overlay.numbered) drawMarks(context, targets, overlay.view !== "wireframe");
 }
 
-function canvasOf(width: number, height: number): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(width));
-  canvas.height = Math.max(1, Math.round(height));
-  return canvas;
-}
-
 function drawRegion(target: HTMLCanvasElement, source: CanvasImageSource, size: CanvasSize, region: RegionBox): void {
   const context = target.getContext("2d")!;
   context.imageSmoothingEnabled = true;
@@ -378,16 +370,6 @@ function contactSheet(frames: readonly CapturedFrame[], layout: SheetLayout): st
     drawLabel(context, frame.label, x, y, labelPx(layout.cellWidth));
   });
   return encodeWithin(sheet);
-}
-
-function encodeWithin(canvas: HTMLCanvasElement, maxChars: number = MAX_CAPTURE_URL_CHARS): string {
-  for (const quality of FALLBACK_QUALITIES) {
-    const url = canvas.toDataURL("image/jpeg", quality);
-    if (url.length <= maxChars) return url;
-  }
-  const half = canvasOf(canvas.width / 2, canvas.height / 2);
-  half.getContext("2d")!.drawImage(canvas, 0, 0, half.width, half.height);
-  return encodeWithin(half, maxChars);
 }
 
 interface VideoLook {

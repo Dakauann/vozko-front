@@ -41,10 +41,6 @@ export function contactPage<T>(rows: T[], page: number): ContactPage<T> {
   return { rows: rows.slice(start, start + CONTACT_LIST_PAGE_SIZE), page: current, pages };
 }
 
-export function viewShowingContact(index: number): ContactListView {
-  return { query: "", onlyMissing: false, page: Math.floor(index / CONTACT_LIST_PAGE_SIZE) };
-}
-
 export function onlyMissingView(view: ContactListView): ContactListView {
   return { ...view, onlyMissing: true, page: 0 };
 }

@@ -10,7 +10,10 @@ export type ChannelFilter =
     | "unofficial_whatsapp"
     | "webchat"
     | "mercadolivre"
-    | "tiktok";
+    | "tiktok"
+    | "email"
+    | "rcs"
+    | "sms";
 
 type ChannelFilterKind = "all" | "campaign" | "entry";
 
@@ -70,6 +73,24 @@ export const CHANNEL_FILTERS: readonly ChannelFilterSpec[] = [
         kind: "entry",
         labelKey: "filterTiktok",
         permission: { resource: "tiktok_accounts", action: "read" },
+    },
+    {
+        value: "email",
+        kind: "entry",
+        labelKey: "filterEmail",
+        permission: { resource: "email_inboxes", action: "read" },
+    },
+    {
+        value: "rcs",
+        kind: "entry",
+        labelKey: "filterRcs",
+        permission: { resource: "carrier_inboxes", action: "read" },
+    },
+    {
+        value: "sms",
+        kind: "entry",
+        labelKey: "filterSms",
+        permission: { resource: "carrier_inboxes", action: "read" },
     },
 ] as const;
 

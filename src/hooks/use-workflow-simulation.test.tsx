@@ -114,6 +114,65 @@ describe("useWorkflowSimulation real calls", () => {
     act(() => next.receive("sim_ready", { realCallNodes: ["n1"] }));
     expect(sentTypes(next)).toEqual(["set_breakpoints", "confirm_real_calls", "start"]);
   });
+
+  it("asks before the message trigger waits for the first message, so the composer never opens behind the question", () => {
+    const { socket, result } = openSimulation({ trigger: { triggerNodeId: "t1" } });
+    act(() => socket.receive("sim_ready", { realCallNodes: ["n1"] }));
+    expect(result.current.status).toBe("confirming");
+    expect(sentTypes(socket)).toEqual(["set_breakpoints"]);
+
+    act(() => result.current.skipRealCalls());
+    act(() => socket.receive("waiting_trigger", { triggerType: "trigger_message_received", nodeId: "t1" }));
+    expect(result.current.status).toBe("waiting_trigger");
+  });
+
+  function refusedAfterFirstMessage() {
+    const opened = openSimulation({ trigger: { triggerNodeId: "t1" } });
+    act(() => opened.socket.receive("sim_ready", { realCallNodes: ["n1"] }));
+    act(() => opened.result.current.skipRealCalls());
+    act(() => opened.socket.receive("waiting_trigger", { nodeId: "t1" }));
+    act(() => opened.result.current.sendReply({ kind: "text", text: "Quero me matricular" }));
+    act(() => opened.socket.receive("run_error", { error: "chamada real" }));
+    return opened;
+  }
+
+  it("sends the first customer message again after confirming a refused real call, so it is never retyped", () => {
+    const { result } = refusedAfterFirstMessage();
+    act(() => result.current.retryWithRealCalls("n1"));
+    const next = FakeWebSocket.instances[1];
+    act(() => next.simulateOpen());
+    act(() => next.receive("sim_ready", { realCallNodes: ["n1"] }));
+    act(() => next.receive("waiting_trigger", { nodeId: "t1" }));
+    expect(sentOf(next, "reply").map((msg) => msg.data)).toEqual([{ text: "Quero me matricular" }]);
+    expect(result.current.status).toBe("running");
+  });
+
+  it("keeps the first message while a newly found real call is asked about and sends it after the answer", () => {
+    const { result } = refusedAfterFirstMessage();
+    act(() => result.current.retryWithRealCalls("n1"));
+    const next = FakeWebSocket.instances[1];
+    act(() => next.simulateOpen());
+    act(() => next.receive("sim_ready", { realCallNodes: ["n1", "n9"] }));
+    expect(result.current.status).toBe("confirming");
+
+    act(() => result.current.skipRealCalls());
+    act(() => next.receive("waiting_trigger", { nodeId: "t1" }));
+    expect(sentOf(next, "reply").map((msg) => msg.data)).toEqual([{ text: "Quero me matricular" }]);
+  });
+
+  it("drops the kept first message when the question is cancelled", () => {
+    const { result } = refusedAfterFirstMessage();
+    act(() => result.current.retryWithRealCalls("n1"));
+    const next = FakeWebSocket.instances[1];
+    act(() => next.simulateOpen());
+    act(() => next.receive("sim_ready", { realCallNodes: ["n1", "n9"] }));
+    act(() => result.current.dismissRealCalls());
+
+    act(() => result.current.start());
+    act(() => next.receive("waiting_trigger", { nodeId: "t1" }));
+    expect(sentOf(next, "reply")).toEqual([]);
+    expect(result.current.status).toBe("waiting_trigger");
+  });
 });
 
 describe("useWorkflowSimulation debugging", () => {
@@ -229,5 +288,75 @@ describe("useWorkflowSimulation identity", () => {
     const first = view.result.current;
     view.rerender();
     expect(view.result.current).toBe(first);
+  });
+});
+
+describe("useWorkflowSimulation trigger input", () => {
+  const TRIGGER = { triggerNodeId: "t2", input: { cpf: "123", "agent.name": "Ana" } };
+
+  function readySimulation() {
+    const view = renderHook(() => useWorkflowSimulation({ workflowId: "wf-1", schedule: runNow }));
+    act(() => view.result.current.connect());
+    const socket = FakeWebSocket.instances[0];
+    act(() => socket.simulateOpen());
+    act(() => socket.receive("sim_ready", { realCallNodes: [], triggers: [], defaultTriggerNodeId: "t1" }));
+    return { ...view, socket };
+  }
+
+  it("waits on the start screen after connecting and sends the chosen trigger with its input", () => {
+    const { socket, result } = readySimulation();
+    expect(sentTypes(socket)).toEqual(["set_breakpoints"]);
+    act(() => result.current.start({ trigger: TRIGGER }));
+    expect(sentOf(socket, "start")[0].data).toEqual(TRIGGER);
+  });
+
+  it("sends a plain start when no trigger was chosen", () => {
+    const { socket, result } = readySimulation();
+    act(() => result.current.start());
+    expect(sentOf(socket, "start")[0]).toEqual({ type: "start" });
+  });
+
+  it("restarts with the same trigger and input, and runs until a node with them", () => {
+    const { socket, result } = readySimulation();
+    act(() => result.current.start({ trigger: TRIGGER }));
+    act(() => socket.receive("run_completed", { vars: {} }));
+
+    act(() => result.current.start());
+    const next = FakeWebSocket.instances[1];
+    act(() => next.simulateOpen());
+    act(() => next.receive("sim_ready", { realCallNodes: [] }));
+    expect(sentOf(next, "start")[0].data).toEqual(TRIGGER);
+
+    act(() => next.receive("run_completed", { vars: {} }));
+    act(() => next.close());
+    act(() => result.current.runUntil("n5"));
+    const third = FakeWebSocket.instances[2];
+    act(() => third.simulateOpen());
+    act(() => third.receive("sim_ready", { realCallNodes: [] }));
+    expect(sentTypes(third)).toEqual(["set_breakpoints", "run_until", "start"]);
+    expect(sentOf(third, "start")[0].data).toEqual(TRIGGER);
+  });
+
+  it("keeps the run until target when a refused start is sent again with the filled input", () => {
+    const { socket, result } = readySimulation();
+    act(() => result.current.runUntil("n5"));
+    act(() => socket.receive("command_refused", { command: "start", error: "x", code: "trigger_input_invalid", issues: [{ code: "required", key: "cpf" }] }));
+    expect(result.current.status).toBe("ready");
+
+    act(() => result.current.start({ trigger: TRIGGER }));
+    expect(sentOf(socket, "run_until").map((msg) => msg.data)).toEqual([{ nodeId: "n5" }, { nodeId: "n5" }]);
+    expect(sentOf(socket, "start")[1].data).toEqual(TRIGGER);
+  });
+
+  it("forgets the chosen trigger when the panel resets", () => {
+    const { socket, result } = readySimulation();
+    act(() => result.current.start({ trigger: TRIGGER }));
+    act(() => socket.receive("run_completed", { vars: {} }));
+    act(() => result.current.reset());
+    act(() => result.current.start());
+    const next = FakeWebSocket.instances[1];
+    act(() => next.simulateOpen());
+    act(() => next.receive("sim_ready", { realCallNodes: [] }));
+    expect(sentOf(next, "start")[0]).toEqual({ type: "start" });
   });
 });

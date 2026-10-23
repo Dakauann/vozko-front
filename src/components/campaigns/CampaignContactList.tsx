@@ -39,6 +39,12 @@ interface ContactListCount {
   count: number;
 }
 
+interface ServerPaging {
+  total: number;
+  totalItems: number;
+  totalPages: number;
+}
+
 interface CampaignContactListProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
@@ -53,6 +59,9 @@ interface CampaignContactListProps<T> {
   actions?: ReactNode;
   panel?: ReactNode;
   renderRowActions?: (row: T) => ReactNode;
+  server?: ServerPaging;
+  numberHeader?: string;
+  searchLabel?: string;
 }
 
 export function MissingValueMark() {
@@ -86,23 +95,27 @@ export function CampaignContactList<T>({
   actions,
   panel,
   renderRowActions,
+  server,
+  numberHeader,
+  searchLabel,
 }: CampaignContactListProps<T>) {
   const t = useTranslations("campaignContactList");
   const locale = useLocale();
   const isMissing = missing?.isMissing;
 
   const narrowed = useMemo(
-    () => narrowContacts(rows, view, searchable, isMissing),
-    [rows, view, searchable, isMissing],
+    () => (server ? rows : narrowContacts(rows, view, searchable, isMissing)),
+    [server, rows, view, searchable, isMissing],
   );
-  const page = contactPage(narrowed, view.page);
+  const page = server ? { rows, page: view.page, pages: server.totalPages } : contactPage(narrowed, view.page);
+  const matching = server ? server.totalItems : narrowed.length;
   const narrowedView = isNarrowed(view);
   const format = (count: number) => count.toLocaleString(locale);
 
   const columns: DashboardTableColumn<T>[] = [
     {
       key: "number",
-      header: t("number"),
+      header: numberHeader ?? t("number"),
       className: cn(DENSE_CELL, "min-w-[11rem] font-mono text-sm tabular-nums text-foreground"),
       render: (row) => orEmpty(number(row)),
     },
@@ -122,7 +135,7 @@ export function CampaignContactList<T>({
   const stats: DashboardTableStat[] = [
     {
       label: t("total"),
-      value: format(rows.length),
+      value: format(server ? server.total : rows.length),
       icon: <UsersThree className="h-4 w-4" weight="bold" />,
     },
     ...(missing
@@ -150,8 +163,8 @@ export function CampaignContactList<T>({
       <div className="flex w-full min-w-0 flex-wrap items-center gap-2">
         <ElevatedInput
           type="search"
-          aria-label={t("search")}
-          placeholder={t("search")}
+          aria-label={searchLabel ?? t("search")}
+          placeholder={searchLabel ?? t("search")}
           value={view.query}
           onChange={(event) => onViewChange({ ...view, query: event.target.value, page: 0 })}
           icon={<MagnifyingGlass className="h-4 w-4" weight="bold" />}
@@ -173,7 +186,7 @@ export function CampaignContactList<T>({
         {narrowedView ? (
           <div className="flex items-center gap-3 text-xs">
             <span className="text-muted-foreground tabular-nums">
-              {t("showing", { count: narrowed.length })}
+              {t("showing", { count: matching })}
             </span>
             <button
               type="button"
@@ -205,7 +218,7 @@ export function CampaignContactList<T>({
               currentPage: page.page + 1,
               totalPages: page.pages,
               pageSize: CONTACT_LIST_PAGE_SIZE,
-              totalItems: narrowed.length,
+              totalItems: matching,
               onPageChange: (next) => onViewChange({ ...view, page: next - 1 }),
             }
           : undefined

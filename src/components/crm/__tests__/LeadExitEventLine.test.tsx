@@ -34,6 +34,7 @@ describe("LeadExitEventLine", () => {
     "workflow_not_active",
     "workflow_type_invalid",
     "workflow_no_trigger",
+    "workflow_needs_message_trigger",
     "call_list_lead_not_admitted",
     "call_list_not_found",
     "call_list_not_active",

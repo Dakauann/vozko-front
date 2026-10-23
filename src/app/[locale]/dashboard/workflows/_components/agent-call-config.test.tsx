@@ -83,7 +83,7 @@ describe("AgentCallInputsField", () => {
 describe("AgentReplyFieldsField", () => {
   it("adds a key and value row", () => {
     const onChange = vi.fn();
-    render(<AgentReplyFieldsField value={[{ key: "status", value: "ok" }]} onChange={onChange} availableVars={[]} />);
+    render(<AgentReplyFieldsField value={[{ key: "status", value: "ok" }]} onChange={onChange} />);
     fireEvent.click(screen.getByRole("button", { name: "Adicionar campo" }));
     expect(onChange).toHaveBeenCalledWith([
       { key: "status", value: "ok" },
@@ -99,7 +99,7 @@ describe("AgentReplyFieldsField", () => {
           { key: "status", value: "b" },
         ]}
         onChange={vi.fn()}
-        availableVars={[]}
+       
       />,
     );
     expect(screen.getByText("Chave repetida: só o último valor chega ao agente.")).toBeInTheDocument();

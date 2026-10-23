@@ -77,7 +77,7 @@ import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useExportEntries } from "@/hooks/use-export-entries";
 import { exportErrorKey } from "@/lib/whatsapp-campaigns/export-errors";
-import { SEND_STATUSES } from "@/lib/whatsapp-campaigns/statuses";
+import { campaignListStatus, SEND_STATUSES } from "@/lib/whatsapp-campaigns/statuses";
 import TourGuide from "@/components/TourGuide";
 import { SmartCampaignPanel } from "@/components/whatsapp/smart/SmartCampaignPanel";
 import { useSmartRefusal } from "@/components/whatsapp/smart/use-smart-refusal";
@@ -89,11 +89,16 @@ import {
   whatsappDetailTourSeed,
 } from "@/data/tour-whatsapp-campaign-detail";
 import type { AbstractIntlMessages } from "next-intl";
+import { ChoiceClicksCard, type ChoiceOptionLabel } from "@/components/choice-stats/ChoiceClicksCard";
+import { usePromptChoiceStats } from "@/components/choice-stats/use-prompt-choice-stats";
+
+const NO_CHOICES: ChoiceOptionLabel[] = [];
 
 interface WhatsAppCampaignDetailProps {
   campaign: WhatsAppCampaign;
   agentName?: string;
   templateName?: string;
+  templateChoices?: ChoiceOptionLabel[];
   token?: string;
   messages: AbstractIntlMessages;
   locale: string;
@@ -689,8 +694,10 @@ function WhatsAppCampaignDetailContent({
   campaign: initialCampaign,
   agentName,
   templateName,
+  templateChoices = NO_CHOICES,
 }: WhatsAppCampaignDetailContentProps) {
   const router = useRouter();
+  const choiceClicks = usePromptChoiceStats(templateChoices.length > 0 ? { kind: "whatsapp_campaign", id: initialCampaign.id } : null);
   const { can, currentWorkspace } = useWorkspace();
   const hasActiveSubscription =
     currentWorkspace?.subscriptionStatus === "active";
@@ -732,6 +739,7 @@ function WhatsAppCampaignDetailContent({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoadRef = useRef(true);
   const t = useTranslations("whatsappCampaignsPage");
+  const tShared = useTranslations("campaignWizard");
   const tDetail = useTranslations("campaignDetail");
   const refusalText = useSelectionSendRefusalText();
   const smartRefusal = useSmartRefusal();
@@ -967,7 +975,8 @@ function WhatsAppCampaignDetailContent({
   }, [initialCampaign]);
 
   const status = liveStatus;
-  const statusLabel = t(`status.${statusKeys[status] ?? "stopped"}`);
+  const listStatus = campaignListStatus({ status, readyToStart: campaign.readyToStart });
+  const statusLabel = listStatus === "READY" ? tShared("status.ready") : t(`status.${statusKeys[status] ?? "stopped"}`);
   const followProgress = progress.refetch;
   const report = useCampaignReport(campaign.id, shouldAutoRefresh);
 
@@ -1192,7 +1201,7 @@ function WhatsAppCampaignDetailContent({
         <LaunchCheckDialog check={launch} links={{ templateId: campaign.templateId }} />
         <CampaignHeader
           name={campaign.name}
-          status={status}
+          status={listStatus}
           statusLabel={statusLabel}
           campaignType="whatsapp"
           backLink="/dashboard/whatsapp-campaigns"
@@ -1271,6 +1280,9 @@ function WhatsAppCampaignDetailContent({
               compact
             />
           </div>
+        ) : null}
+        {templateChoices.length > 0 ? (
+          <ChoiceClicksCard read={choiceClicks} options={templateChoices} scope="campaign" className="lg:col-span-12" />
         ) : null}
       </div>
 

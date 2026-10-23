@@ -34,7 +34,7 @@ import { appliedReport, concurrentOf, flagArg, ignoredOf, invalidResultRefusal, 
 import type { LibraryLookup } from "@/lib/studio/agent/element-ops";
 import { captureLibraryImage, captureMediaFrames, captureVideo, type VideoCapture } from "../agent/frame-capture";
 import type { AgentPresence } from "../agent/presence";
-import { replaySteps, stepDelay } from "../agent/replay";
+import { replaySteps, stepDelay } from "@/components/coworker/replay";
 import { momentTicks, videoTarget } from "../agent/targets";
 import { measureText } from "../agent/text-measure";
 import type { AgentFollower } from "./agent-follow";
@@ -405,7 +405,8 @@ export function createVideoAgent(deps: VideoAgentDeps): ScreenHandler {
       case "save_preset":
         return savePreset(command);
       case "create_project":
-        return screenRefusal("not_editor", "o editor não cria projetos; quem cria é a aba da conversa");
+      case "open_design":
+        return screenRefusal("not_editor", "o editor não cria nem abre projetos; quem faz isso é a aba da conversa");
     }
   };
 }

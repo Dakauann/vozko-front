@@ -1,4 +1,5 @@
 import { emptyValue } from "@/lib/format/empty-value";
+import { visibleFractionDigits } from "@/lib/format/money";
 
 const MICROS_PER_UNIT = 1_000_000;
 
@@ -19,7 +20,7 @@ function currencyFractionDigits(code: string): number {
   return currencyOffset(code) === 1 ? 0 : 2;
 }
 
-function currencyFormatter(currency: string, locale: string, fractionDigits?: number): Intl.NumberFormat | null {
+function currencyFormatter(currency: string, locale: string, fractionDigits?: number, maximumDigits = fractionDigits): Intl.NumberFormat | null {
   const normalized = normalizeCurrency(currency);
   if (!normalized) return null;
   try {
@@ -27,7 +28,7 @@ function currencyFormatter(currency: string, locale: string, fractionDigits?: nu
       style: "currency",
       currency: normalized,
       minimumFractionDigits: fractionDigits,
-      maximumFractionDigits: fractionDigits,
+      maximumFractionDigits: maximumDigits,
     });
   } catch {
     return null;
@@ -36,8 +37,10 @@ function currencyFormatter(currency: string, locale: string, fractionDigits?: nu
 
 export function formatMicros(micros: number | null | undefined, currency: string, locale = "pt-BR", fractionDigits?: number): string {
   if (micros === null || micros === undefined || !Number.isFinite(micros)) return emptyValue(locale);
-  const formatter = currencyFormatter(currency, locale, fractionDigits);
-  return formatter ? formatter.format(micros / MICROS_PER_UNIT) : emptyValue(locale);
+  const value = micros / MICROS_PER_UNIT;
+  const digits = fractionDigits ?? currencyFractionDigits(currency);
+  const formatter = currencyFormatter(currency, locale, digits, fractionDigits ?? visibleFractionDigits(value, digits));
+  return formatter ? formatter.format(value) : emptyValue(locale);
 }
 
 export function formatMinor(minor: number | null | undefined, currency: string, locale = "pt-BR"): string {

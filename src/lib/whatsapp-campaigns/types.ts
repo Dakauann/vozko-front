@@ -1,3 +1,4 @@
+import type { AudienceSpec } from "@/lib/campaign-audience/types";
 import type { CampaignMetrics } from "@/lib/campaigns/metrics";
 
 import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
@@ -55,6 +56,7 @@ export interface WhatsAppCampaign {
     aiModel?: string;
     scheduledStart?: string | null;
     status: WhatsAppCampaignStatus;
+    readyToStart?: boolean;
     archived: boolean;
     resetCode?: string;
     pipelineId?: string;
@@ -98,12 +100,12 @@ export interface WhatsAppCampaignPayload {
     enableAutoMemory: boolean;
     aiModel?: string;
     scheduledStart?: string | null;
-    phoneNumbers: Omit<WhatsAppCampaignPhoneNumber, 'id' | 'status' | 'createdAt' | 'updatedAt'>[];
+    recipients?: AudienceSpec;
     exitRiskAcknowledged?: true;
     smartPolicy?: SmartPolicy;
 }
 
-export type WhatsAppCampaignSettingsPayload = Omit<WhatsAppCampaignPayload, 'phoneNumbers'>;
+export type WhatsAppCampaignSettingsPayload = Omit<WhatsAppCampaignPayload, 'recipients'>;
 
 export interface WhatsAppCampaignLifecycleResponse {
     success: boolean;

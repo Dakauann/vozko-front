@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { ArrowSquareOut, CheckCircle, CircleNotch, Crown, Wallet } from "@/components/icons";
+import { ArrowSquareOut, CheckCircle, CircleNotch, Crown, EnvelopeSimple, Wallet } from "@/components/icons";
 import {
   FacebookLogoColor,
   InstagramLogoColor,
@@ -28,6 +28,7 @@ import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { AskCardView } from "@/components/ai-chat/ask-card";
 import { CallCardView } from "@/components/ai-chat/call-card";
 import { StudioProjectCardView } from "@/components/ai-chat/studio-project-card";
+import { EmailDesignCardView } from "@/components/ai-chat/email-design-card";
 import { useAutoOpenScreens } from "@/components/ai-chat/use-auto-open-screens";
 import { cardState, type CardView } from "@/lib/aichat/action-card";
 import type { ActionCard, NavigationCard, OfferCard, OfferKind } from "@/lib/aichat/types";
@@ -87,6 +88,10 @@ const KINDS: Record<OfferKind, KindConfig> = {
     resource: "webchat_widgets",
     href: "/dashboard/webchat/new",
   },
+  connect_email: {
+    logo: <EnvelopeSimple weight="duotone" className="h-6 w-6 text-primary-ink" />,
+    href: "/dashboard/email",
+  },
   top_up_balance: {
     logo: <Wallet weight="duotone" className="h-6 w-6 text-primary-ink" />,
     href: "/dashboard/balance",
@@ -111,6 +116,7 @@ export function ActionCardView({ card, live = false }: { card: ActionCard; live?
   if (card.kind === "connect_ad_account") return <ConnectAdAccountCard />;
   if (card.kind === "ask") return <AskCardView card={card} />;
   if (card.kind === "studio_project") return <StudioProjectCardView card={card} />;
+  if (card.kind === "email_design") return <EmailDesignCardView card={card} />;
   switch (card.kind) {
     case "connect_whatsapp_business":
       return <OfficialWhatsAppCard card={card} />;

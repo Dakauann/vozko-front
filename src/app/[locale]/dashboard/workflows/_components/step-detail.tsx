@@ -2,13 +2,17 @@
 
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { CaretDown, CaretRight, Info, PushPin } from "@/components/icons";
+import { CaretDown, CaretRight, Copy, Info, PushPin } from "@/components/icons";
+import ElevatedButton from "@/components/elevated-design/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 import { Notice } from "@/components/ui/notice";
 import { prettyJsonText } from "@/lib/format/json-text";
 import { stepTabs, type StepTab, type WaterfallBar } from "@/lib/workflows/run-format";
+import { stepJsonText } from "@/lib/workflows/run-export";
 import { sandboxEffectsOf, type SandboxEffects } from "@/lib/workflows/sandbox-effects";
+import { stepMessageSenders } from "@/lib/workflows/sim-session";
 import type { RunHttpExchange, WorkflowRunLog } from "@/lib/workflows/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +32,7 @@ const ERROR_KIND_KEYS: Record<string, string> = {
   cancelled: "cancelled",
   internal: "internal",
   real_call_not_confirmed: "realCallNotConfirmed",
+  window_closed: "windowClosed",
 };
 
 export function StepRow({
@@ -36,7 +41,6 @@ export function StepRow({
   label,
   expanded,
   onToggle,
-  compact = false,
   children,
 }: {
   step: WorkflowRunLog;
@@ -44,34 +48,11 @@ export function StepRow({
   label: string | undefined;
   expanded: boolean;
   onToggle: () => void;
-  compact?: boolean;
   children?: ReactNode;
 }) {
   const t = useTranslations("workflowRuns");
   const tDebug = useTranslations("workflowDebug");
   const failed = step.status === "failed";
-
-  if (compact) {
-    const Caret = expanded ? CaretDown : CaretRight;
-    return (
-      <li data-compact="true" className="flex flex-col items-center gap-1">
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={expanded}
-          className="inline-flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Caret size={10} className="shrink-0" />
-          <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-full", stepDotClass(step.status))} />
-          <span className="min-w-0 truncate">{label ?? step.nodeType}</span>
-          {step.pinned && <PushPin size={10} weight="fill" className="shrink-0" aria-label={tDebug("step.pinned")} />}
-          <span aria-hidden>·</span>
-          <DurationText ms={step.durationMs} className="shrink-0" />
-        </button>
-        {expanded && <div className="w-full rounded-[--radius] border border-border">{children}</div>}
-      </li>
-    );
-  }
 
   return (
     <li className={cn("rounded-[--radius] border", expanded ? "border-border" : "border-transparent")}>
@@ -133,23 +114,46 @@ export function SandboxEffectLines({ effects }: { effects: SandboxEffects }) {
   );
 }
 
-function SentMessages({ effects }: { effects: SandboxEffects }) {
+function SentMessages({ effects, senders }: { effects: SandboxEffects; senders: ReadonlyMap<string, string> }) {
   const t = useTranslations("workflowDebug.chat");
   if (effects.sentMessages.length === 0) return null;
   return (
     <div className="space-y-1">
       <p className="text-2xs font-semibold text-foreground">{t("sentMessages")}</p>
-      <div className="rounded-[--radius] bg-muted/40 p-2">
-        <SimMessageList messages={effects.sentMessages} />
+      <div className="rounded-[--radius] bg-muted px-2 pb-2">
+        <SimMessageList messages={effects.sentMessages} senders={senders} />
       </div>
     </div>
   );
 }
 
-export function StepDetail({ step, actions, children }: { step: WorkflowRunLog; actions?: ReactNode; children?: ReactNode }) {
+export function StepDetail({
+  step,
+  nodeName,
+  messageSenders,
+  actions,
+  children,
+}: {
+  step: WorkflowRunLog;
+  nodeName?: string;
+  messageSenders?: ReadonlyMap<string, string>;
+  actions?: ReactNode;
+  children?: ReactNode;
+}) {
   const t = useTranslations("workflowRuns");
   const tabs = stepTabs(step);
   const effects = useSandboxEffects(step);
+  const senders = useMemo(() => stepMessageSenders(effects.sentMessages, messageSenders, nodeName), [effects.sentMessages, messageSenders, nodeName]);
+  const failed = step.status === "failed";
+  const unresolved = step.unresolvedRefs ?? [];
+  const copyable = step.input != null || step.output != null;
+
+  const copyJson = () => {
+    navigator.clipboard.writeText(stepJsonText(step)).then(
+      () => toast.success(t("detail.copied")),
+      () => toast.error(t("detail.copyFailed")),
+    );
+  };
 
   return (
     <div className="space-y-2 border-t border-border px-2 pb-2 pt-2" data-testid="step-detail">
@@ -158,10 +162,31 @@ export function StepDetail({ step, actions, children }: { step: WorkflowRunLog; 
         <span>{t.has(`stepStatus.${step.status}`) ? t(`stepStatus.${step.status}`) : step.status}</span>
         {step.branch && <span>{t("detail.branch", { branch: step.branch })}</span>}
       </div>
-      {actions && <div className="flex flex-wrap gap-1.5">{actions}</div>}
+      {(actions || copyable) && (
+        <div className="flex flex-wrap gap-1.5">
+          {actions}
+          {copyable && (
+            <ElevatedButton
+              variant="ghost"
+              size="sm"
+              iconVisible
+              icon={<Copy size={12} />}
+              title={t("detail.copyStepJson")}
+              aria-description={t("detail.copyStepJsonHint")}
+              onClick={copyJson}
+            />
+          )}
+        </div>
+      )}
       <SandboxEffectLines effects={effects} />
+      {failed && step.error && (
+        <StepMark tone="fault">
+          <RunErrorText error={step.error} />
+        </StepMark>
+      )}
+      {unresolved.length > 0 && <StepMark tone="warning">{t("detail.unresolvedRefs", { refs: unresolved.join(", ") })}</StepMark>}
       {children}
-      <SentMessages effects={effects} />
+      <SentMessages effects={effects} senders={senders} />
       {tabs.length > 0 && (
         <Tabs defaultValue={tabs[0]}>
           <TabsList>
@@ -179,6 +204,15 @@ export function StepDetail({ step, actions, children }: { step: WorkflowRunLog; 
         </Tabs>
       )}
     </div>
+  );
+}
+
+function StepMark({ tone, children }: { tone: "fault" | "warning"; children: ReactNode }) {
+  return (
+    <p className="flex items-start gap-1.5 text-2xs leading-relaxed text-foreground">
+      <span aria-hidden className={cn("mt-1 h-1.5 w-1.5 shrink-0 rounded-full", tone === "fault" ? "bg-destructive" : "bg-warning")} />
+      <span className="min-w-0 break-words">{children}</span>
+    </p>
   );
 }
 

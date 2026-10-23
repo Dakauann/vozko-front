@@ -205,13 +205,66 @@ describe("WebhookTriggerConfig reference", () => {
     expect(screen.getByText("unofficial_whatsapp")).toBeInTheDocument();
 
     openTab("Respostas");
-    expect(await screen.findByText("202")).toBeInTheDocument();
+    expect((await screen.findAllByText("202")).length).toBe(2);
     expect(screen.getByText(/Reenvios\./)).toBeInTheDocument();
 
     openTab("No fluxo");
     expect(
-      await screen.findByText("{{var.webhook.method}}"),
+      await screen.findByText("{{webhook.method}}"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("WebhookTriggerConfig started on a lead", () => {
+  const copy = ptMessages.workflowsPage.webhookTrigger;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    listWorkflowWebhookDeliveriesAction.mockResolvedValue(NO_DELIVERIES);
+    getWorkflowWebhookAction.mockResolvedValue({ webhook: { ...BASE, auth_mode: "none", secret: "" } });
+  });
+
+  it("explains the lead payload and builds the example with the first accepted event", async () => {
+    render(<WebhookTriggerConfig workflowId="wf1" startOn="lead" events={["carrinho_abandonado"]} />);
+    const pre = await screen.findByText(/curl -X POST/);
+    expect(pre.textContent).toContain('"phone":"+5511998887777"');
+    expect(pre.textContent).toContain('"event":"carrinho_abandonado"');
+    expect(pre.textContent).not.toContain("entry_id");
+
+    fireEvent.click(screen.getByRole("button", { name: "email" }));
+    await waitFor(() => expect(screen.getByText(/curl -X POST/).textContent).toContain('"email":"ana@exemplo.com"'));
+
+    openTab(copy.reference.tabs.body);
+    expect((await screen.findAllByText("external_id")).length).toBeGreaterThan(0);
+    expect(screen.queryByText("entry_type")).toBeNull();
+    expect(screen.getByText(copy.reference.body.acceptedEvents)).toBeInTheDocument();
+
+    openTab(copy.reference.tabs.responses);
+    expect(await screen.findByText("ignored")).toBeInTheDocument();
+    expect(screen.getByText(copy.reference.responses.badRequest.lead)).toBeInTheDocument();
+
+    openTab(copy.reference.tabs.flow);
+    expect(await screen.findByText("{{lead_id}}")).toBeInTheDocument();
+    expect(screen.getByText("{{lead_name}}")).toBeInTheDocument();
+  });
+
+  it("keeps the conversation payload when the node starts on a conversation", async () => {
+    render(<WebhookTriggerConfig workflowId="wf1" startOn="conversation" />);
+    const pre = await screen.findByText(/curl -X POST/);
+    expect(pre.textContent).toContain('"entry_type":"whatsapp"');
+    openTab(copy.reference.tabs.flow);
+    expect(await screen.findByText("{{webhook.method}}")).toBeInTheDocument();
+    expect(screen.queryByText("{{lead_id}}")).toBeNull();
+  });
+
+  it("labels an ignored call in the log", async () => {
+    listWorkflowWebhookDeliveriesAction.mockResolvedValue({
+      deliveries: [{ id: "d3", webhookId: "wh1", workflowId: "wf1", workspaceId: "ws", receivedAt: "2026-10-19T10:02:00Z", outcome: "ignored", httpStatus: 202, latencyMs: 2 }],
+      meta: { page: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
+    });
+    render(<WebhookTriggerConfig workflowId="wf1" startOn="lead" />);
+    const list = await screen.findByRole("region", { name: "Últimas chamadas" });
+    expect(await within(list).findByText(ptMessages.workflowRuns.webhook.outcomes.ignored)).toBeInTheDocument();
   });
 });
 

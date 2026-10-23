@@ -22,6 +22,8 @@ import {
   listWhatsAppCampaignsAction,
 } from "@/app/actions/whatsapp-campaigns";
 import { CampaignsSummaryBar } from "@/components/dashboard/CampaignsSummaryBar";
+import { CampaignDraftsPanel } from "@/components/campaign-wizard/CampaignDraftsPanel";
+import { campaignListStatus } from "@/lib/whatsapp-campaigns/statuses";
 import { CampaignsLeadsExportDialog } from "./_components/CampaignsLeadsExportDialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -46,6 +48,7 @@ const statusColor: Record<string, string> = {
   RUNNING: "bg-healthy text-healthy-foreground",
   PAUSED: "bg-warning text-warning-foreground",
   STOPPED: "bg-muted text-muted-foreground",
+  READY: "bg-[hsl(var(--plate-neutral))] text-white",
   COMPLETED: "bg-muted text-muted-foreground",
 };
 
@@ -57,6 +60,7 @@ const CATEGORY_TONE: Record<string, string> = {
 
 export default function WhatsAppCampaignsPage() {
   const t = useTranslations("whatsappCampaignsPage");
+  const tShared = useTranslations("campaignWizard");
   const empty = useEmptyValue();
   const { can, currentWorkspace } = useWorkspace();
   const { currentDepartment } = useDepartment();
@@ -162,7 +166,7 @@ export default function WhatsAppCampaignsPage() {
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || campaign.status === statusFilter;
+      statusFilter === "all" || campaignListStatus(campaign) === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -206,16 +210,19 @@ export default function WhatsAppCampaignsPage() {
       {
         key: "status",
         header: "Status",
-        render: (row) => (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              statusColor[row.status] ?? "bg-[hsl(var(--plate-neutral))] text-white",
-            )}
-          >
-            {t(`status.${row.status.toLowerCase()}` as Parameters<typeof t>[0])}
-          </span>
-        ),
+        render: (row) => {
+          const listStatus = campaignListStatus(row);
+          return (
+            <span
+              className={cn(
+                "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
+                statusColor[listStatus] ?? "bg-[hsl(var(--plate-neutral))] text-white",
+              )}
+            >
+              {listStatus === "READY" ? tShared("status.ready") : t(`status.${row.status.toLowerCase()}` as Parameters<typeof t>[0])}
+            </span>
+          );
+        },
       },
       {
         key: "messageType",
@@ -362,6 +369,10 @@ export default function WhatsAppCampaignsPage() {
         }
       />
 
+      {can("whatsapp_campaigns", "create") ? (
+        <CampaignDraftsPanel channel="whatsapp" continueHref={(id) => `/dashboard/whatsapp-campaigns/new?draft=${encodeURIComponent(id)}`} />
+      ) : null}
+
       <DashboardTable<WhatsAppCampaign>
         data={filteredCampaigns}
         columns={columns}
@@ -417,6 +428,9 @@ export default function WhatsAppCampaignsPage() {
             </ElevatedSelectItem>
             <ElevatedSelectItem value="PAUSED">
               {t("status.paused")}
+            </ElevatedSelectItem>
+            <ElevatedSelectItem value="READY">
+              {tShared("status.ready")}
             </ElevatedSelectItem>
             <ElevatedSelectItem value="STOPPED">
               {t("status.stopped")}

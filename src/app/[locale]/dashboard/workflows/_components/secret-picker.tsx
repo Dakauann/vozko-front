@@ -1,27 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ArrowSquareOut, CircleNotch, Key } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { screenPaths } from "@/lib/navigation/routes";
-import { secretTemplateGroup, secretUsageSnippets } from "@/lib/workflow-secrets/secret-name";
+import { secretUsageSnippets } from "@/lib/workflow-secrets/secret-name";
 import { useWorkflowSecretNames } from "@/lib/workflow-secrets/use-workflow-secret-names";
-
-interface VarGroup {
-  label: string;
-  description?: string;
-  vars: { template: string; description: string }[];
-}
-
-export function useSecretVarGroups<T extends VarGroup>(availableVars: T[]): Array<T | VarGroup> {
-  const { names } = useWorkflowSecretNames();
-  return useMemo(() => {
-    const group = secretTemplateGroup(names);
-    return group ? [...availableVars, group] : availableVars;
-  }, [availableVars, names]);
-}
 
 export function SecretsManageLink() {
   const t = useTranslations("workflowsPage.secretPicker");

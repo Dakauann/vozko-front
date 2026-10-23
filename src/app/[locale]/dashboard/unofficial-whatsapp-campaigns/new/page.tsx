@@ -1,23 +1,21 @@
 "use client";
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
-
-import CreateUnofficialCampaignForm from "./CreateUnofficialCampaignForm";
-import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
-import { ChannelTile } from "@/components/channels/channel-tile";
-import ElevatedContainer from "@/components/elevated-design/elevated-container";
-import type { ModelPricingInfo } from "@/lib/agents/types";
-import { getAgentOptionsAction } from "@/app/actions/agents";
-import { readGroupPrefill } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+import { getAgentOptionsAction } from "@/app/actions/agents";
+import { ScreenLoader } from "@/components/brand/screen-loader";
+import { Notice } from "@/components/ui/notice";
+import type { ModelPricingInfo } from "@/lib/agents/types";
+import { readGroupPrefill } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
+
+import { UnofficialCampaignWizard } from "./UnofficialCampaignWizard";
 
 export default function NewUnofficialCampaignPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const router = useRouter();
   const t = useTranslations("unofficialWhatsappCampaigns");
   const query = use(searchParams);
   const groupPrefill = useMemo(() => readGroupPrefill(query), [query]);
@@ -43,45 +41,13 @@ export default function NewUnofficialCampaignPage({
       .finally(() => setLoading(false));
   }, [t]);
 
-  return (
-    <main className="w-full space-y-6">
-      <DashboardPageHeader
-        back={{
-          onClick: () => router.push("/dashboard/unofficial-whatsapp-campaigns"),
-          label: t("form.back"),
-        }}
-        icon={<ChannelTile channel="unofficial_whatsapp" size="sm" />}
-        badge={t("new.badge")}
-        title={t("new.title")}
-        description={t("new.description")}
-        colorClass="text-healthy-ink"
-      />
-
-      {error ? (
-        <ElevatedContainer className="border-border bg-muted">
-          <p className="text-sm text-destructive-ink">{error}</p>
-        </ElevatedContainer>
-      ) : null}
-
-      {loading ? (
-        <ElevatedContainer className="border-border bg-card">
-          <div className="flex items-center justify-center py-12">
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-5 animate-spin rounded-full border border-healthy border-t-transparent" />
-              <span className="text-sm text-muted-foreground">{t("new.loading")}</span>
-            </div>
-          </div>
-        </ElevatedContainer>
-      ) : null}
-
-      {!loading && !error ? (
-        <CreateUnofficialCampaignForm
-          mode="create"
-          aiModels={aiModels}
-          modelPricing={modelPricing}
-          groupPrefill={groupPrefill}
-        />
-      ) : null}
-    </main>
-  );
+  if (loading) return <ScreenLoader fit="screen" label={t("new.loading")} />;
+  if (error) {
+    return (
+      <main className="w-full space-y-4">
+        <Notice tone="fault" title={error} />
+      </main>
+    );
+  }
+  return <UnofficialCampaignWizard aiModels={aiModels} modelPricing={modelPricing} groupPrefill={groupPrefill} />;
 }

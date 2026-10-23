@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SECRET_NAME_MAX_LENGTH, isValidSecretName, secretTemplateGroup, secretUsageSnippets } from "./secret-name";
+import { SECRET_NAME_MAX_LENGTH, isValidSecretName, secretUsageSnippets } from "./secret-name";
 
 describe("isValidSecretName", () => {
   it.each([
@@ -35,21 +35,5 @@ describe("secretUsageSnippets", () => {
       template: "{{secret.unifecaf_senha}}",
       code: "secrets.get('unifecaf_senha')",
     });
-  });
-});
-
-describe("secretTemplateGroup", () => {
-  it("offers each workspace secret as a template in the variable picker", () => {
-    expect(secretTemplateGroup(["api_key", "senha"])).toEqual({
-      label: "Segredos",
-      vars: [
-        { template: "{{secret.api_key}}", description: "api_key" },
-        { template: "{{secret.senha}}", description: "senha" },
-      ],
-    });
-  });
-
-  it("is null without secrets, so the picker shows no empty group", () => {
-    expect(secretTemplateGroup([])).toBeNull();
   });
 });

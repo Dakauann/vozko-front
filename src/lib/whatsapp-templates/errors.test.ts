@@ -1,10 +1,22 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import ptMessages from "@/i18n/messages/pt.json";
 import enMessages from "@/i18n/messages/en.json";
 import esMessages from "@/i18n/messages/es.json";
 import deMessages from "@/i18n/messages/de.json";
-import { TEMPLATE_ERROR_CODES, templateEditErrorMessage, templateErrorMessage } from "./errors";
+import { TEMPLATE_ERROR_CODES, templateEditErrorMessage, templateErrorMessage, trackedButtonRefusal } from "./errors";
+
+const BACKEND_GOLDEN = resolve(__dirname, "../../../../vozko-back/delivery/http/whatsapptemplate/testdata/error_codes.golden");
+
+function goldenCodes(): string[] {
+  const codes = readFileSync(BACKEND_GOLDEN, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return [...new Set(codes)].sort();
+}
 
 type Messages = { whatsappTemplates: { errors: Record<string, string>; contentEdit: { windowUntil: string } } };
 
@@ -22,6 +34,10 @@ describe("TEMPLATE_ERROR_CODES", () => {
         expect(messages.whatsappTemplates.errors[code], `${locale}: ${code}`).toBeTruthy();
       }
     }
+  });
+
+  it.skipIf(!existsSync(BACKEND_GOLDEN))("matches the codes the backend declares in its golden file", () => {
+    expect([...TEMPLATE_ERROR_CODES].sort()).toEqual(goldenCodes());
   });
 
   it("knows the quote refusal", () => {
@@ -62,6 +78,25 @@ describe("templateErrorMessage", () => {
 
   it("keeps the server message for a code nobody knows", () => {
     expect(templateErrorMessage(t, "something_new", "Something new")).toBe("Something new");
+  });
+});
+
+describe("trackedButtonRefusal", () => {
+  it.each([
+    "template_tracked_button_not_url",
+    "template_tracked_button_dynamic",
+    "template_tracked_button_destination",
+    "template_tracked_link_unreadable",
+  ])("names the button the server refused for %s", (code) => {
+    expect(trackedButtonRefusal(code, { buttonIndex: "2" })).toBe(2);
+  });
+
+  it("names no button for another refusal or an unreadable index", () => {
+    expect(trackedButtonRefusal("template_in_use", { buttonIndex: "2" })).toBeNull();
+    expect(trackedButtonRefusal("template_tracked_button_dynamic", undefined)).toBeNull();
+    for (const buttonIndex of ["", "-1", "1.5", "x", " 2", "02"]) {
+      expect(trackedButtonRefusal("template_tracked_button_dynamic", { buttonIndex }), buttonIndex).toBeNull();
+    }
   });
 });
 

@@ -72,6 +72,32 @@ vi.mock("@/components/leads/sends/LeadSendDialog", () => ({
     </div>
   ),
 }));
+const emailSetup = vi.hoisted(() => ({ getEmailSetupAction: vi.fn() }));
+vi.mock("@/app/actions/email-marketing", () => ({
+  getEmailSetupAction: emailSetup.getEmailSetupAction,
+  getEmailOverviewAction: vi.fn(),
+  getEmailPricingAction: vi.fn(),
+  listEmailSuppressionsAction: vi.fn(),
+}));
+vi.mock("@/components/email-marketing/start-email-conversation-dialog", () => ({
+  StartEmailConversationDialog: ({
+    open,
+    target,
+    onStarted,
+  }: {
+    open: boolean;
+    target: { kind: string; leadId?: string; email?: string };
+    onStarted: (conversationId: string, entryType: string) => void;
+  }) =>
+    open ? (
+      <div role="dialog" aria-label="email">
+        {target.kind}:{target.leadId}:{target.email}
+        <button type="button" onClick={() => onStarted("conv-7", "email")}>
+          started
+        </button>
+      </div>
+    ) : null,
+}));
 vi.mock("next/navigation", () => ({ useRouter: () => router }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.fn() } }));
 vi.mock("@/components/leads/sheet/LeadSheet", () => ({
@@ -292,6 +318,57 @@ describe("lead detail header", () => {
     leadActions.getLeadByIdAction.mockResolvedValue({ lead: null, error: { status: 404, code: "lead_not_found" } });
     renderDetail();
     expect(await screen.findByText(t.notFound)).toBeInTheDocument();
+  });
+});
+
+describe("lead detail email", () => {
+  const sendableSetup = {
+    provisioned: true,
+    account: null,
+    probation: null,
+    replies_paused: false,
+    setup: { state: "done" },
+    subdomain: { slug: "loja", address: "contato@loja.envios.example", locked: false },
+    domains: [{ id: "d-1", retired: false, sendable: true, setup: { state: "done" } }],
+    senders: [{ id: "s-1", domain_id: "d-1", address: "vendas@loja.com", local_part: "vendas", display_name: "", reply_forward_to: "", is_default: true }],
+  };
+
+  beforeEach(() => {
+    emailSetup.getEmailSetupAction.mockResolvedValue({ data: sendableSetup });
+  });
+
+  it("offers Enviar e-mail to a lead with an email and opens the new conversation in the inbox", async () => {
+    grants.value = new Set(["leads:read", "email_marketing:start"]);
+    leadActions.getLeadByIdAction.mockResolvedValue({ lead: stored({ email: "maria@cliente.com" }), error: null });
+    renderDetail();
+    fireEvent.click(await screen.findByRole("button", { name: t.actions.sendEmail }));
+    expect(screen.getByRole("dialog", { name: "email" })).toHaveTextContent("lead:lead-1:maria@cliente.com");
+    fireEvent.click(screen.getByRole("button", { name: "started" }));
+    expect(router.push).toHaveBeenCalledWith("/dashboard/live-chat?entry=conv-7&type=email");
+  });
+
+  it("offers no Enviar e-mail to a lead without an email", async () => {
+    grants.value = new Set(["leads:read", "email_marketing:start"]);
+    renderDetail();
+    await screen.findByRole("heading", { name: "Maria Aparecida Souza" });
+    await waitFor(() => expect(emailSetup.getEmailSetupAction).toHaveBeenCalled());
+    expect(screen.queryByRole("button", { name: t.actions.sendEmail })).not.toBeInTheDocument();
+  });
+
+  it("offers no Enviar e-mail without the start permission or without a sender that can send", async () => {
+    leadActions.getLeadByIdAction.mockResolvedValue({ lead: stored({ email: "maria@cliente.com" }), error: null });
+    const { unmount } = renderDetail();
+    await screen.findByRole("heading", { name: "Maria Aparecida Souza" });
+    expect(screen.queryByRole("button", { name: t.actions.sendEmail })).not.toBeInTheDocument();
+    expect(emailSetup.getEmailSetupAction).not.toHaveBeenCalled();
+    unmount();
+
+    grants.value = new Set(["leads:read", "email_marketing:start"]);
+    emailSetup.getEmailSetupAction.mockResolvedValue({ data: { ...sendableSetup, domains: [{ id: "d-1", retired: false, sendable: false }] } });
+    renderDetail();
+    await screen.findByRole("heading", { name: "Maria Aparecida Souza" });
+    await waitFor(() => expect(emailSetup.getEmailSetupAction).toHaveBeenCalled());
+    expect(screen.queryByRole("button", { name: t.actions.sendEmail })).not.toBeInTheDocument();
   });
 });
 

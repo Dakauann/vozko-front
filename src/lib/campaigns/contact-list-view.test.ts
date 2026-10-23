@@ -7,7 +7,6 @@ import {
   isNarrowed,
   narrowContacts,
   onlyMissingView,
-  viewShowingContact,
 } from "./contact-list-view";
 
 interface Contact {
@@ -78,12 +77,6 @@ describe("contactPage", () => {
 });
 
 describe("list views", () => {
-  it("opens the page that holds a contact and drops every filter", () => {
-    const view = viewShowingContact(CONTACT_LIST_PAGE_SIZE * 3 + 4);
-    expect(view).toEqual({ query: "", onlyMissing: false, page: 3 });
-    expect(isNarrowed(view)).toBe(false);
-  });
-
   it("turns the missing filter on from the first page and keeps the search", () => {
     const view = onlyMissingView({ query: "ana", onlyMissing: false, page: 4 });
     expect(view).toEqual({ query: "ana", onlyMissing: true, page: 0 });

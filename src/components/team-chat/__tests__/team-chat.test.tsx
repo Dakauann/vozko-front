@@ -231,6 +231,38 @@ describe("team chat", () => {
     expect(sender).toHaveBeenCalledWith("t-dm");
   });
 
+  it("keeps its look: graphite own bubbles, the author once per run, dashed system lines on the muted canvas", async () => {
+    actions.listTeamChatMessagesAction.mockResolvedValue({
+      data: {
+        messages: [
+          message(1, { thread_id: "t-group", kind: "system", event: "created", author_id: "u-me", body: "Vendas" }),
+          message(2, { thread_id: "t-group", body: "primeira" }),
+          message(3, { thread_id: "t-group", body: "segunda" }),
+          message(4, { thread_id: "t-group", author_id: "u-me", author_name: "Eu", body: "minha" }),
+        ],
+        has_more: false,
+      },
+    });
+    renderChat();
+    const dock = await openDock();
+    fireEvent.click(await within(dock).findByText("Você criou o grupo Vendas"));
+    const first = await within(dock).findByText("primeira");
+
+    expect(within(dock).getByRole("heading", { name: "Vendas" }).className).toContain("text-sm font-semibold");
+    const bubbleOf = (text: string) => within(dock).getByText(text).closest(".shadow-sm") as HTMLElement;
+    expect(bubbleOf("primeira").className).toContain("border border-border bg-card text-foreground");
+    expect(bubbleOf("primeira").className).toContain("rounded-bl-sm");
+    expect(bubbleOf("segunda").className).toContain("rounded-tl-sm");
+    expect(bubbleOf("minha").className).toContain("bg-foreground text-background");
+    expect(bubbleOf("minha").parentElement?.className).toContain("justify-end");
+    expect(within(dock).getAllByText("Bia")).toHaveLength(1);
+    expect(within(dock).queryByText("Eu", { selector: "p" })).toBeNull();
+    const system = within(dock).getAllByText("Você criou o grupo Vendas").find((node) => node.className.includes("border-dashed"));
+    expect(system?.className).toContain("rounded-lg border border-dashed border-border-strong bg-card/70");
+    expect(first.closest(".overflow-y-auto")?.className).toContain("bg-muted");
+    expect(dock.querySelector(".vz-composer")?.className).toContain("border-t border-border bg-card/60");
+  });
+
   it("schedules a message instead of sending it", async () => {
     actions.scheduleTeamMessageAction.mockImplementation((_id: string, draft: { body: string; send_at: string }) =>
       Promise.resolve({

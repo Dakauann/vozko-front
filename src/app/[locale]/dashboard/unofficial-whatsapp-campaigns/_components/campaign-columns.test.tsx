@@ -10,7 +10,7 @@ import { campaignColumns } from "./campaign-columns";
 const t = (key: string, values?: Record<string, string | number>) => (values ? `${key}:${JSON.stringify(values)}` : key);
 
 function cell(key: string, row: UnofficialWhatsAppCampaign) {
-  const column = campaignColumns(t).find((c) => c.key === key);
+  const column = campaignColumns(t, "Pronta").find((c) => c.key === key);
   if (!column?.render) throw new Error(`no ${key} column`);
   return render(<>{column.render(row, 0)}</>);
 }
@@ -56,5 +56,17 @@ describe("campaign list name column", () => {
   it("keeps the number of a person campaign", () => {
     cell("name", campaign({ audience: "leads", instanceId: "i-1", instanceLabel: "Loja Centro", instanceSessionLive: true }));
     expect(screen.getByText("Loja Centro")).toBeInTheDocument();
+  });
+});
+
+describe("campaign list status column", () => {
+  it("shows a never started campaign as ready", () => {
+    cell("status", campaign({ status: "STOPPED", readyToStart: true }));
+    expect(screen.getByText("Pronta")).toHaveClass("bg-[hsl(var(--plate-neutral))]");
+  });
+
+  it("keeps stopped for a campaign the server does not call ready", () => {
+    cell("status", campaign({ status: "STOPPED", readyToStart: false }));
+    expect(screen.getByText("status.stopped")).toBeInTheDocument();
   });
 });

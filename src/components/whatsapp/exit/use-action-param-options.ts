@@ -75,7 +75,7 @@ export function useDelegateOptions(enabled: boolean): ParamOptions {
 
 export function useWorkflowOptions(enabled: boolean): ParamOptions {
   return useOptionsQuery("workflows", enabled, async () => {
-    const result = await listWorkflowsAction({ pageSize: PICKER_PAGE_SIZE });
+    const result = await listWorkflowsAction({ pageSize: PICKER_PAGE_SIZE, startsFromMessage: true });
     if (result.error) throw new Error(result.error);
     return result.workflows.map((workflow) => ({ value: workflow.id, label: workflow.name }));
   });

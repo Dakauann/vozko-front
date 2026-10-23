@@ -51,7 +51,7 @@ import UserPlansCatalog from "@/components/dashboard/plans/UserPlansCatalog";
 import type { Workspace } from "@/lib/workspace/types";
 import { cn } from "@/lib/utils";
 import { fetchWorkspaces } from "@/lib/workspace/client";
-import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
+import { pricingServiceLabel } from "@/lib/pricing/labels";
 import { softSurfaceShadow } from "@/components/elevated-design/shadow-presets";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import { toast } from "sonner";
@@ -696,7 +696,7 @@ export function AdminPlansManager() {
           icon={<Package className="h-6 w-6" weight="fill" />}
         />
       </div>
-
+
       <section className="well">
         <div className="flex flex-col gap-x-8 gap-y-4 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
           <dl className="flex flex-wrap items-end gap-x-8 gap-y-3">
@@ -749,7 +749,7 @@ export function AdminPlansManager() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
+      <div className="grid gap-4 xl:grid-cols-[288px_minmax(0,1fr)]">
         <section className="well h-fit overflow-hidden">
           <header className="rule-engraved flex items-center justify-between gap-3 px-4 py-2.5">
             <p className="legend">{t("register")}</p>
@@ -834,7 +834,7 @@ export function AdminPlansManager() {
             </ul>
           )}
         </section>
-
+
         <section className="well overflow-hidden">
           {!draft ? null : (
             <>
@@ -1226,14 +1226,6 @@ export function AdminPlansManager() {
 }
 
 
-function serviceLabel(
-  t: { has: (key: string) => boolean; (key: string): string },
-  service: string,
-) {
-  const key = `pricing.services.${service}`;
-  return t.has(key) ? t(key) : formatPricingServiceFallback(service);
-}
-
 function metricLabel(
   t: { has: (key: string) => boolean; (key: string): string },
   metric: string,
@@ -1320,9 +1312,9 @@ function PricingItemsEditor({
           {t("pricingItems.empty")}
         </p>
       ) : (
-        <div className="-mx-1 mt-4 overflow-x-auto px-1">
+        <div className="-mx-1 mt-4 max-h-[calc(100dvh_-_var(--dashboard-header-h)_-_3rem)] overflow-auto px-1">
           <table className="w-full min-w-[720px] border-collapse text-left">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-card">
               <tr className="rule-engraved">
                 <th className="legend py-2 pr-3 font-semibold" scope="col">
                   {t("pricingItems.service")}
@@ -1410,7 +1402,7 @@ function PricingItemsEditor({
                           scope="row"
                         >
                           <span className="flex flex-wrap items-center gap-1.5">
-                            {serviceLabel(t, item.service)}
+                            {pricingServiceLabel(t, "pricing", item)}
                             {customized ? (
                               <StatusChip
                                 tone="outline"

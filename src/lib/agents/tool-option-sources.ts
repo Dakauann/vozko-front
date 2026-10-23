@@ -1,6 +1,7 @@
 import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listPipelines } from "@/lib/crm/pipelines";
 import { fetchDepartments } from "@/lib/department/client";
+import { listSheets } from "@/lib/google-sheets/client";
 import { AGENT_CALL_TRIGGER } from "@/lib/workflows/agent-call";
 import { workflowOptionLabel } from "@/lib/workflows/publication";
 
@@ -10,6 +11,7 @@ export interface ToolOption {
 }
 
 const AGENT_WORKFLOWS_PAGE_SIZE = 100;
+const GOOGLE_SHEETS_PAGE_SIZE = 100;
 
 const loaders: Record<string, () => Promise<ToolOption[]>> = {
   departments: async () => {
@@ -29,6 +31,11 @@ const loaders: Record<string, () => Promise<ToolOption[]>> = {
     });
     if (res.error) throw new Error(res.error);
     return res.workflows.map((w) => ({ value: w.id, label: workflowOptionLabel(w) }));
+  },
+  google_sheets: async () => {
+    const res = await listSheets({ pageSize: GOOGLE_SHEETS_PAGE_SIZE });
+    if (res.error) throw new Error(res.error.message ?? res.error.code);
+    return (res.data?.items ?? []).map((sheet) => ({ value: sheet.id, label: sheet.title }));
   },
 };
 

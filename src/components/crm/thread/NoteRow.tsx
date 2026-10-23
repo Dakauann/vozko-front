@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { NotePencil, Trash } from "@/components/icons";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { NoteImages } from "@/components/crm/notes/NoteImages";
 import type { ThreadRow } from "@/lib/conversations/thread-rows";
 
 import { MessageTime } from "./message-parts";
@@ -47,7 +48,8 @@ export function NoteRow({ row }: { row: NoteThreadRow }) {
             ) : null}
           </span>
         </header>
-        <p className="select-text whitespace-pre-wrap break-words text-sm leading-relaxed">{note.body}</p>
+        <NoteImages noteId={note.id} images={note.images} />
+        {note.body ? <p className="select-text whitespace-pre-wrap break-words text-sm leading-relaxed">{note.body}</p> : null}
       </article>
       {ownNote ? (
         <ConfirmDialog

@@ -7,7 +7,6 @@ import {
     CheckCircle,
     CircleNotch,
     Clock,
-    PaperPlaneTilt,
     Plus,
     SquaresFour,
     Warning,
@@ -47,6 +46,7 @@ import { cn } from "@/lib/utils";
 import { createWhatsAppTemplateAction, getWhatsAppTemplateByIdAction } from "@/app/actions/whatsapp-templates";
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
 import { newIdempotencyKey } from "@/lib/api/idempotency-key";
+import { OutreachSendFooter } from "@/components/outreach/outreach-send-footer";
 import { normalizeRecipients } from "@/lib/unofficial-whatsapp/recipients";
 import { startOfficialConversationAction } from "@/app/actions/whatsapp-outreach";
 import { useTranslations } from "next-intl";
@@ -429,31 +429,14 @@ export function StartOfficialConversationDialog({
                             )}
                         </div>
 
-                        <ElevatedDialogFooter className="-mx-7 shrink-0 border-t border-border px-7 pt-4">
-                            <Button
-                                variant="secondary"
-                                title={t("cancel")}
-                                onClick={() => onOpenChange(false)}
-                                disabled={busy}
-                            />
-                            {phones.length > 0 && (
-                                <Button
-                                    variant="primary"
-                                    title={busy ? t("sending") : t("submit")}
-                                    icon={
-                                        busy ? (
-                                            <CircleNotch className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <PaperPlaneTilt className="h-4 w-4" weight="fill" />
-                                        )
-                                    }
-                                    iconVisible
-                                    iconSide="left"
-                                    onClick={() => void submit()}
-                                    disabled={!canSubmit}
-                                />
-                            )}
-                        </ElevatedDialogFooter>
+                        <OutreachSendFooter
+                            labels={{ cancel: t("cancel"), submit: t("submit"), sending: t("sending") }}
+                            busy={busy}
+                            canSubmit={canSubmit}
+                            showSubmit={phones.length > 0}
+                            onCancel={() => onOpenChange(false)}
+                            onSubmit={() => void submit()}
+                        />
                     </>
                 ) : (
                     <>

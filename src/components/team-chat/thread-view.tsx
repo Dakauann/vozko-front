@@ -6,15 +6,17 @@ import { toast } from "sonner";
 
 import { useStickToBottom } from "@/components/ai-chat/use-stick-to-bottom";
 import { ScreenLoader } from "@/components/brand/screen-loader";
+import { ChatScrollDownButton } from "@/components/chat/chat-parts";
+import { CHAT_CANVAS, CHAT_CANVAS_BODY, CHAT_EMPTY, CHAT_HEADER, CHAT_HEADER_SUBTITLE, CHAT_HEADER_TITLE, CHAT_LOAD_OLDER, CHAT_SYSTEM_LINE, CHAT_SYSTEM_ROW } from "@/components/chat/chat-styles";
 import { DayLabel, TypingIndicator } from "@/components/crm/thread/message-parts";
-import { ArrowDown, ArrowLeft, Clock, Gear, X } from "@/components/icons";
+import { ArrowLeft, Clock, Gear, X } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useTeamChatAccess, useTeamChatMe, useTeamChatThread } from "@/hooks/use-team-chat";
 import { useTeamChatMessages } from "@/hooks/use-team-chat-messages";
 import { useTeamChatScheduled } from "@/hooks/use-team-chat-scheduled";
 import { useTeamChatTyping } from "@/hooks/use-team-chat-typing";
 import { codedErrorMessage } from "@/lib/api/coded-error";
-import { opensGroup } from "@/lib/conversations/thread-rows";
+import { opensGroup } from "@/lib/chat/message-groups";
 import { lastSeq, readByOthers, threadRows, threadTitle } from "@/lib/team-chat/messages";
 import { closeTeamChat, showTeamChatList } from "@/lib/team-chat/panel";
 import type { TeamChatMessage, TeamChatThread } from "@/lib/team-chat/types";
@@ -122,14 +124,14 @@ function Conversation({ thread, me, onSettings }: { thread: TeamChatThread; me: 
 
   return (
     <>
-      <header className="flex items-center gap-1 border-b border-border py-2 pl-2 pr-2">
+      <header className={CHAT_HEADER}>
         <button type="button" onClick={showTeamChatList} aria-label={t("back")} title={t("back")} className={ICON_BUTTON}>
           <ArrowLeft className="h-4 w-4" />
         </button>
         <ThreadAvatar thread={thread} me={me} className="h-7 w-7" />
         <div className="min-w-0 flex-1 pl-1">
-          <h2 className="truncate text-sm font-semibold leading-5 text-foreground">{threadTitle(thread, me)}</h2>
-          {subtitle ? <p className="truncate text-2xs text-muted-foreground">{subtitle}</p> : null}
+          <h2 className={CHAT_HEADER_TITLE}>{threadTitle(thread, me)}</h2>
+          {subtitle ? <p className={CHAT_HEADER_SUBTITLE}>{subtitle}</p> : null}
         </div>
         {access.send ? (
           <button
@@ -157,11 +159,11 @@ function Conversation({ thread, me, onSettings }: { thread: TeamChatThread; me: 
       </header>
 
       <div className="relative min-h-0 flex-1">
-        <div ref={scrollRef} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain bg-muted">
-          <div className="px-3 pb-4 pt-1">
+        <div ref={scrollRef} onScroll={onScroll} className={CHAT_CANVAS}>
+          <div className={CHAT_CANVAS_BODY}>
             {chat.hasOlder ? (
               <div className="flex justify-center pb-2">
-                <button type="button" onClick={loadOlder} disabled={chat.loadingOlder} className="rounded-[--radius] px-3 py-1 text-2xs font-semibold text-muted-foreground hover:bg-accent-hover hover:text-foreground disabled:opacity-60">
+                <button type="button" onClick={loadOlder} disabled={chat.loadingOlder} className={CHAT_LOAD_OLDER}>
                   {chat.loadingOlder ? t("thread.loadingOlder") : t("thread.loadOlder")}
                 </button>
               </div>
@@ -169,7 +171,7 @@ function Conversation({ thread, me, onSettings }: { thread: TeamChatThread; me: 
             {!chat.loaded && !chat.failed ? <ScreenLoader fit="fill" className="min-h-40" /> : null}
             {chat.failed && !chat.loaded ? <p className="py-6 text-center text-xs text-muted-foreground">{t("thread.loadFailed")}</p> : null}
             {chat.loaded && chat.messages.length === 0 && chat.pending.length === 0 ? (
-              <p className="py-10 text-center text-xs text-muted-foreground">{t("thread.empty")}</p>
+              <p className={CHAT_EMPTY}>{t("thread.empty")}</p>
             ) : null}
             {rows.map((row) => {
               if (row.kind === "day") {
@@ -183,8 +185,8 @@ function Conversation({ thread, me, onSettings }: { thread: TeamChatThread; me: 
               }
               if (row.kind === "system") {
                 return (
-                  <div key={row.key} className="flex justify-center py-1.5">
-                    <span className="max-w-[90%] rounded-lg border border-dashed border-border-strong bg-card/70 px-3 py-1 text-center text-2xs text-muted-foreground">
+                  <div key={row.key} className={CHAT_SYSTEM_ROW}>
+                    <span className={CHAT_SYSTEM_LINE}>
                       {systemLine(row.message, thread, me)}
                     </span>
                   </div>
@@ -218,16 +220,7 @@ function Conversation({ thread, me, onSettings }: { thread: TeamChatThread; me: 
             {typing.names.length > 0 ? <TypingIndicator names={typing.names} /> : null}
           </div>
         </div>
-        {showScrollDown ? (
-          <button
-            type="button"
-            onClick={scrollToBottom}
-            aria-label={t("thread.latest")}
-            className="absolute bottom-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-md hover:text-foreground"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </button>
-        ) : null}
+        {showScrollDown ? <ChatScrollDownButton label={t("thread.latest")} onClick={scrollToBottom} /> : null}
       </div>
 
       {showScheduled && access.send ? <ScheduledPanel scheduled={scheduled.scheduled} onCancel={scheduled.cancel} /> : null}

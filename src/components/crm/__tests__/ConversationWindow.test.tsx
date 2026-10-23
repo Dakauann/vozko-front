@@ -275,7 +275,7 @@ describe("ConversationWindow", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "template now" }));
     fireEvent.click(screen.getByRole("button", { name: "send template t1" }));
-    expect(onReopenWindow).toHaveBeenCalledWith("e1", "whatsapp", "t1", ["Ana"]);
+    expect(onReopenWindow).toHaveBeenCalledWith("e1", "whatsapp", "t1", ["Ana"], undefined);
   });
 
   it("takes dropped files only while the reply window is open and the operator may send", () => {

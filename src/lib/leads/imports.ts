@@ -68,7 +68,36 @@ export interface LeadImportCounts {
   linksCreated: number;
   noAddress?: number;
   issues: Record<string, number>;
+  emails?: Record<string, number>;
+  emailFixable?: LeadImportEmailFixable;
 }
+
+export interface LeadImportEmailFixable {
+  typos: number;
+  undeliverable: number;
+}
+
+export interface LeadImportEmailFixes {
+  fixEmailTypos: boolean;
+  dropUndeliverableEmails: boolean;
+}
+
+export const NO_EMAIL_FIXES: LeadImportEmailFixes = { fixEmailTypos: false, dropUndeliverableEmails: false };
+
+export const LEAD_IMPORT_EMAIL_VERDICTS = [
+  "valid",
+  "typo",
+  "role",
+  "suppressed",
+  "bad_address",
+  "no_mail_domain",
+  "disposable",
+  "domain_unknown",
+  "domain_pending",
+  "inactive",
+] as const;
+
+export type LeadImportEmailVerdict = (typeof LEAD_IMPORT_EMAIL_VERDICTS)[number];
 
 export interface LeadImportSeed {
   queued: number;
@@ -115,6 +144,7 @@ export interface LeadImportSummary {
   startedAt?: string;
   finishedAt?: string;
   expiresAt: string;
+  emailFixes?: LeadImportEmailFixes;
 }
 
 const LEAD_IMPORT_SUMMARY_KEYS = [
@@ -133,6 +163,7 @@ const LEAD_IMPORT_SUMMARY_KEYS = [
   "startedAt",
   "finishedAt",
   "expiresAt",
+  "emailFixes",
 ] as const satisfies readonly (keyof LeadImportSummary)[];
 
 export function leadImportSummaryOf(job: LeadImportSummary): LeadImportSummary {

@@ -11,6 +11,7 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { Link, usePathname } from "@/i18n/routing";
 import { activeThreadKey } from "@/lib/aichat/active-thread";
+import { editorProjectOf, isEditorView } from "@/lib/aichat/editor-view";
 import { askTurn } from "@/lib/aichat/ask";
 import type { AssistantContext } from "@/lib/aichat/assistant-context";
 import { attachmentOfImage } from "@/lib/aichat/attachments";
@@ -55,6 +56,7 @@ function useCopy(context: AssistantContext | null) {
   const ta = useTranslations("metricsOps.attendance.assistant");
   const td = useTranslations("aiChatPage.dock");
   const ts = useTranslations("studio.agent");
+  const te = useTranslations("emailEditor.agent");
   const tl = useTranslations("leadsPage.assistant");
   if (context?.kind === "leads") {
     return { greeting: tl("greeting"), description: tl("description"), title: td("title") };
@@ -65,11 +67,15 @@ function useCopy(context: AssistantContext | null) {
   if (context?.kind === "studio") {
     return { greeting: ts(`greeting.${context.view.projectKind}`), description: ts(`description.${context.view.projectKind}`), title: ts("title") };
   }
+  if (context?.kind === "email_design") {
+    return { greeting: te("greeting"), description: te("description"), title: te("title") };
+  }
   return { greeting: td("greeting"), description: td("description"), title: td("title") };
 }
 
 function contextChips(context: AssistantContext | null): string[] {
   if (context?.kind === "studio") return [context.projectName];
+  if (context?.kind === "email_design") return [context.designName];
   if (context?.kind === "leads") return [context.scope.filter, context.scope.selected].filter((v): v is string => Boolean(v));
   const scope = context?.scope;
   return scope ? [scope.period, scope.department, scope.member, scope.channel, scope.campaign].filter((v): v is string => Boolean(v)) : [];
@@ -89,8 +95,8 @@ function Dock() {
   const [input, setInput] = useState("");
   const { model, models, pricing, changeModel, reasoning } = useChatModel();
   const [studioMode, setStudioMode] = useStudioMode();
-  const inStudio = context?.kind === "studio";
-  const studioProject = context?.kind === "studio" ? context.view.projectId : undefined;
+  const inEditor = isEditorView(context?.view);
+  const studioProject = editorProjectOf(context?.view);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const noticeActionRef = useRef<HTMLButtonElement>(null);
   const chat = useChatConversation({
@@ -355,7 +361,7 @@ function Dock() {
                 </button>
               </div>
             ) : null}
-            {inStudio ? <StudioModePicker mode={studioMode} onChange={setStudioMode} disabled={chat.streaming} /> : null}
+            {inEditor ? <StudioModePicker mode={studioMode} onChange={setStudioMode} disabled={chat.streaming} /> : null}
             <Composer
               docked
               disabled={otherProject}

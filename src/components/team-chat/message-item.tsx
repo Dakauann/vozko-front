@@ -2,22 +2,17 @@
 
 import { useTranslations } from "next-intl";
 
+import { CHAT_AUTHOR, CHAT_BUBBLE, CHAT_BUBBLE_OTHER, CHAT_BUBBLE_OWN, chatMetaClass, chatRowClass } from "@/components/chat/chat-styles";
 import { bubbleCorners } from "@/components/crm/thread/bubble-corners";
 import { CollapsibleMessageText, MessageTime } from "@/components/crm/thread/message-parts";
 import { ArrowBendUpLeft, Check, Checks, PencilSimple, Trash, Warning } from "@/components/icons";
-import { joinedEdges, type GroupPosition } from "@/lib/conversations/thread-rows";
+import type { GroupPosition } from "@/lib/chat/message-groups";
 import type { PendingMessage } from "@/lib/team-chat/messages";
 import type { TeamChatMessage } from "@/lib/team-chat/types";
 import { cn } from "@/lib/utils";
 
 const ACTION =
   "inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
-const BUBBLE = "relative max-w-[78%] rounded-lg px-3 py-2 shadow-sm";
-
-const MINE = "bg-foreground text-background";
-
-const THEIRS = "border border-border bg-card text-foreground";
 
 function Quote({ quoted, mine }: { quoted: TeamChatMessage | null | undefined; mine: boolean }) {
   const t = useTranslations("teamChat.thread");
@@ -38,7 +33,7 @@ function Quote({ quoted, mine }: { quoted: TeamChatMessage | null | undefined; m
 function Footer({ message, mine, read }: { message: TeamChatMessage; mine: boolean; read: boolean | null }) {
   const t = useTranslations("teamChat.thread");
   return (
-    <p className={cn("mt-0.5 flex items-center justify-end gap-1 text-[10px] tabular-nums", mine ? "text-background/65" : "text-muted-foreground")}>
+    <p className={chatMetaClass(mine)}>
       {message.edited_at ? <span>{t("edited")}</span> : null}
       <MessageTime iso={message.created_at} />
       {mine && read !== null ? (
@@ -98,16 +93,16 @@ export function MessageItem({
   ) : null;
 
   return (
-    <div className={cn("group/msg relative flex items-center gap-1", mine ? "justify-end" : "justify-start", joinedEdges(position).top ? "pt-[1px]" : "pt-1.5")}>
+    <div className={chatRowClass(mine, position)}>
       {mine ? actions : null}
       <div
         className={cn(
-          BUBBLE,
-          deleted ? "bg-transparent text-muted-foreground shadow-none ring-1 ring-border" : mine ? MINE : THEIRS,
+          CHAT_BUBBLE,
+          deleted ? "bg-transparent text-muted-foreground shadow-none ring-1 ring-border" : mine ? CHAT_BUBBLE_OWN : CHAT_BUBBLE_OTHER,
           bubbleCorners(position, mine),
         )}
       >
-        {showAuthor && !mine ? <p className="mb-0.5 text-2xs font-semibold text-foreground">{message.author_name}</p> : null}
+        {showAuthor && !mine ? <p className={CHAT_AUTHOR}>{message.author_name}</p> : null}
         {message.reply_to_id && !deleted ? <Quote quoted={quoted} mine={mine} /> : null}
         {deleted ? <p className="text-sm italic">{t("deleted")}</p> : <CollapsibleMessageText text={message.body} />}
         {deleted ? null : <Footer message={message} mine={mine} read={read} />}
@@ -121,7 +116,7 @@ export function PendingItem({ pending, onRetry, onDiscard }: { pending: PendingM
   const t = useTranslations("teamChat.thread");
   return (
     <div className="flex flex-col items-end pt-1">
-      <div className={cn(BUBBLE, MINE, !pending.failed && "opacity-70")}>
+      <div className={cn(CHAT_BUBBLE, CHAT_BUBBLE_OWN, !pending.failed && "opacity-70")}>
         <CollapsibleMessageText text={pending.body} />
         <p className="mt-0.5 text-right text-[10px] text-background/65">{pending.failed ? t("notSent") : t("sending")}</p>
       </div>

@@ -100,7 +100,7 @@ export interface ConversationWindowActionsBundle {
   ) => void;
   onToggleAutomation: (entryId: string, entryType: EntryType) => void;
   onSendAndFinish?: (entryId: string, entryType: EntryType) => void;
-  onReopenWindow?: (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => void;
+  onReopenWindow?: (entryId: string, entryType: EntryType, templateId: string, parameters: string[], headerParameters?: string[]) => void;
   onHandBack?: (entryId: string, entryType: EntryType) => void;
   onEntryStageChange?: (
     entryId: string,
@@ -564,8 +564,8 @@ export default function ConversationWindow({
               }}
               businessPhoneId={entryContext.businessPhoneId ?? ""}
               recipientName={conversation.lead_name}
-              onSend={(templateId, parameters) =>
-                actions.onReopenWindow?.(conversation.entry_id, conversation.entry_type, templateId, parameters)
+              onSend={(templateId, parameters, headerParameters) =>
+                actions.onReopenWindow?.(conversation.entry_id, conversation.entry_type, templateId, parameters, headerParameters)
               }
             />
           )}

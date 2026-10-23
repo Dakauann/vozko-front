@@ -30,6 +30,7 @@ export type ConversationEventType =
   | "queue_overflow"
   | "call_linked"
   | "agent_reply_withheld"
+  | "email_forward_skipped"
   | string;
 
 export type ConversationActorKind = "human" | "ai" | "workflow" | "system" | string;

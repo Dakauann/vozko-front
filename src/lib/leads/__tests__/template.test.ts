@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { parseDelimitedText } from "@/lib/csv/parse";
+import { UTF8_BOM } from "@/lib/csv/csv";
 
 import { buildLeadImportTemplate, LEAD_IMPORT_TEMPLATE_COLUMNS } from "../template";
+
+function templateRows(): { cells: string[] }[] {
+  return buildLeadImportTemplate()
+    .replace(UTF8_BOM, "")
+    .split(/\r\n/)
+    .filter((line) => line !== "")
+    .map((line) => ({ cells: line.split(";") }));
+}
 
 describe("lead import template", () => {
   it("names the columns the server recognises for every lead section", () => {
@@ -27,7 +35,7 @@ describe("lead import template", () => {
   });
 
   it("writes one example row per column, linking a relative inside the file", () => {
-    const rows = parseDelimitedText(buildLeadImportTemplate().replace(/^﻿/, ""));
+    const rows = templateRows();
     const [header, ...examples] = rows;
     expect(header.cells).toEqual([...LEAD_IMPORT_TEMPLATE_COLUMNS]);
     expect(examples.length).toBeGreaterThanOrEqual(2);

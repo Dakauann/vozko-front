@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
-export function OutgoingBubble({ text, emptyLabel, className }: { text: string; emptyLabel: string; className?: string }) {
+export function OutgoingBubble({ text, emptyLabel, className, children }: { text: string; emptyLabel: string; className?: string; children?: ReactNode }) {
   return (
     <div
       className={cn(
@@ -8,7 +10,7 @@ export function OutgoingBubble({ text, emptyLabel, className }: { text: string; 
         className,
       )}
     >
-      {text.trim() ? text : <span className="text-muted-foreground">{emptyLabel}</span>}
+      {text.trim() ? (children ?? text) : <span className="text-muted-foreground">{emptyLabel}</span>}
     </div>
   );
 }

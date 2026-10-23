@@ -8,7 +8,17 @@ export interface ConversationNote {
   author_name: string;
   body: string;
   mentions: string[];
+  images?: NoteImage[];
   created_at: string;
+}
+
+export interface NoteImage {
+  id: string;
+  url: string;
+  mime_type: string;
+  width?: number;
+  height?: number;
+  thumbhash?: string;
 }
 
 export interface NotesPage {
@@ -44,6 +54,30 @@ function timeOf(iso: string): number {
   return new Date(iso).getTime();
 }
 
+function positive(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : undefined;
+}
+
+export function readNoteImage(raw: unknown): NoteImage | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const value = raw as Record<string, unknown>;
+  const image: NoteImage = { id: text(value.id), url: text(value.url), mime_type: text(value.mime_type) };
+  if (!image.id || !image.url) return null;
+  const width = positive(value.width);
+  const height = positive(value.height);
+  if (width && height) {
+    image.width = width;
+    image.height = height;
+  }
+  const thumbhash = text(value.thumbhash);
+  if (thumbhash) image.thumbhash = thumbhash;
+  return image;
+}
+
+function readImages(raw: unknown): NoteImage[] {
+  return Array.isArray(raw) ? raw.map(readNoteImage).filter((image): image is NoteImage => image !== null) : [];
+}
+
 export function readNote(raw: unknown): ConversationNote | null {
   if (typeof raw !== "object" || raw === null) return null;
   const value = raw as Record<string, unknown>;
@@ -55,6 +89,7 @@ export function readNote(raw: unknown): ConversationNote | null {
     author_name: text(value.author_name),
     body: text(value.body),
     mentions: Array.isArray(value.mentions) ? value.mentions.filter((id): id is string => typeof id === "string") : [],
+    images: readImages(value.images),
     created_at: text(value.created_at),
   };
   if (!note.id || !note.entry_id || !note.entry_type || Number.isNaN(timeOf(note.created_at))) return null;

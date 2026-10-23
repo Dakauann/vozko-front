@@ -21,6 +21,7 @@ import {
   type LaunchCode,
   type LaunchFinding,
   type LaunchLevel,
+  type LaunchReport,
 } from "@/lib/whatsapp-campaigns/launch-check";
 
 import type { LaunchCheck } from "./use-launch-check";
@@ -43,7 +44,7 @@ const FIX_OF: Partial<Record<LaunchCode, FixKind>> = {
   balance_short: "balance",
 };
 
-interface LaunchLinks {
+export interface LaunchLinks {
   templateId?: string;
 }
 
@@ -73,12 +74,49 @@ function FindingItem({ finding, links }: { finding: LaunchFinding; links: Launch
   );
 }
 
+export function LaunchFindings({
+  report,
+  links,
+  confirmed,
+  onConfirmedChange,
+  disabled = false,
+}: {
+  report: LaunchReport;
+  links: LaunchLinks;
+  confirmed: boolean;
+  onConfirmedChange: (confirmed: boolean) => void;
+  disabled?: boolean;
+}) {
+  const t = useTranslations("launchCheck");
+  const grouped = findingsByLevel(report);
+  return (
+    <>
+      {LAUNCH_LEVELS.map((level) =>
+        grouped[level].length > 0 ? (
+          <Notice key={level} tone={LEVEL_TONE[level]} title={t(`levels.${level}`)}>
+            <ul className="space-y-3">
+              {grouped[level].map((finding) => (
+                <FindingItem key={finding.code} finding={finding} links={links} />
+              ))}
+            </ul>
+          </Notice>
+        ) : null,
+      )}
+      {report.needsConfirmation && !report.blocks ? (
+        <label className="flex items-start gap-2 text-sm text-foreground">
+          <Checkbox checked={confirmed} onCheckedChange={(value) => onConfirmedChange(value === true)} disabled={disabled} className="mt-0.5" />
+          <span>{t("confirm")}</span>
+        </label>
+      ) : null}
+    </>
+  );
+}
+
 export function LaunchCheckDialog({ check, links }: { check: LaunchCheck; links: LaunchLinks }) {
   const t = useTranslations("launchCheck");
   const { report, phase, confirmed, setConfirmed, changed, confirmStart, close } = check;
   const open = report !== null && (phase === "review" || phase === "starting");
   if (!report) return null;
-  const grouped = findingsByLevel(report);
   const starting = phase === "starting";
   return (
     <ElevatedDialog open={open} onOpenChange={(next) => !next && close()}>
@@ -89,23 +127,7 @@ export function LaunchCheckDialog({ check, links }: { check: LaunchCheck; links:
         </ElevatedDialogHeader>
         <div className="space-y-3">
           {changed ? <p className="text-xs text-muted-foreground">{t("changed")}</p> : null}
-          {LAUNCH_LEVELS.map((level) =>
-            grouped[level].length > 0 ? (
-              <Notice key={level} tone={LEVEL_TONE[level]} title={t(`levels.${level}`)}>
-                <ul className="space-y-3">
-                  {grouped[level].map((finding) => (
-                    <FindingItem key={finding.code} finding={finding} links={links} />
-                  ))}
-                </ul>
-              </Notice>
-            ) : null,
-          )}
-          {report.needsConfirmation && !report.blocks ? (
-            <label className="flex items-start gap-2 text-sm text-foreground">
-              <Checkbox checked={confirmed} onCheckedChange={(value) => setConfirmed(value === true)} disabled={starting} className="mt-0.5" />
-              <span>{t("confirm")}</span>
-            </label>
-          ) : null}
+          <LaunchFindings report={report} links={links} confirmed={confirmed} onConfirmedChange={setConfirmed} disabled={starting} />
         </div>
         <ElevatedDialogFooter>
           <Button type="button" variant="secondary" size="sm" title={t("cancel")} onClick={close} disabled={starting} />

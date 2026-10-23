@@ -7,7 +7,7 @@ import { readyItem } from "@/lib/studio/library/instantiate";
 import type { DocumentIssue } from "@/lib/studio/validate";
 
 import type { AgentPresence } from "./presence";
-import type { ReplayOutcome } from "./replay";
+import type { ReplayOutcome } from "@/components/coworker/replay";
 
 const FACT_TIMEOUT_MS = 6000;
 

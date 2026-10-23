@@ -16,6 +16,7 @@ const BACKEND_GOLDENS: Record<WorkflowErrorNamespace, string[]> = {
     "workflowwebhook/testdata/error_codes.golden",
     "workflowalerthttp/testdata/error_codes.golden",
     "conversation/testdata/ai_tool_call_error_codes.golden",
+    "workflowrunexporthttp/testdata/error_codes.golden",
   ],
   workflowSecretsPage: ["workflowsecrethttp/testdata/error_codes.golden"],
 };

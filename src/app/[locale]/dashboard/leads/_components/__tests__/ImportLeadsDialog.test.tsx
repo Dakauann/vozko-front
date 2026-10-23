@@ -367,8 +367,27 @@ describe("ImportLeadsDialog mapping step", () => {
 
     fireEvent.click(screen.getByRole("button", { name: `start.action {"count":3}` }));
 
-    await waitFor(() => expect(actions.start).toHaveBeenCalledWith("imp-1"));
+    await waitFor(() => expect(actions.start).toHaveBeenCalledWith("imp-1", { fixEmailTypos: false, dropUndeliverableEmails: false }));
     await screen.findByRole("button", { name: "closeBackground" });
+  });
+
+  it("shows the email checks and starts with the chosen fixes", async () => {
+    actions.start.mockResolvedValue({ job: job({ status: "importing", startedAt: "2026-10-08T12:05:00Z" }) });
+    openWith(
+      job({
+        status: "analyzed",
+        dryRun: counts({ rows: 3, created: 3, emails: { valid: 1, typo: 1, disposable: 1 }, emailFixable: { typos: 1, undeliverable: 1 } }),
+      }),
+    );
+
+    expect(screen.getByText(`emails.checked {"count":"3"}`)).toBeInTheDocument();
+    expect(screen.getByText("emails.verdicts.typo")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("switch", { name: `emails.fixTypos {"count":"1"}` }));
+    expect(screen.getByRole("switch", { name: `emails.dropUndeliverable {"count":"1"}` })).not.toBeChecked();
+
+    fireEvent.click(screen.getByRole("button", { name: `start.action {"count":3}` }));
+
+    await waitFor(() => expect(actions.start).toHaveBeenCalledWith("imp-1", { fixEmailTypos: true, dropUndeliverableEmails: false }));
   });
 
   it("asks for a new simulation after the columns change", () => {

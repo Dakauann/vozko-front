@@ -24,6 +24,7 @@ import type {
   UnofficialWhatsAppCampaign,
   UnofficialWhatsAppCampaignEntry,
 } from "@/lib/unofficial-whatsapp-campaigns/types";
+import { showsReady } from "@/lib/unofficial-whatsapp-campaigns/ready";
 import { UNOFFICIAL_SEND_STATUSES, canPause, canStart, canStop } from "@/lib/unofficial-whatsapp-campaigns/statuses";
 import {
   confirmClearHistoryUnofficialCampaignAction,
@@ -42,6 +43,13 @@ import { useReportJob } from "@/hooks/use-report-job";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { ChoiceClicksCard, type ChoiceOptionLabel } from "@/components/choice-stats/ChoiceClicksCard";
+import { usePromptChoiceStats } from "@/components/choice-stats/use-prompt-choice-stats";
+
+function menuChoices(campaign: UnofficialWhatsAppCampaign): ChoiceOptionLabel[] {
+  if (campaign.message.kind !== "menu") return [];
+  return (campaign.message.options ?? []).map((option) => ({ optionId: option.id, label: option.title }));
+}
 
 const ENTRIES_PAGE_SIZE = 25;
 
@@ -52,6 +60,7 @@ export default function UnofficialCampaignDetail({
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns");
   const tDetail = useTranslations("campaignDetail");
+  const tShared = useTranslations("campaignWizard");
   const refusalText = useSelectionSendRefusalText();
   const tCrm = useTranslations("crm");
   const tSidebar = useTranslations("sidebar");
@@ -59,6 +68,8 @@ export default function UnofficialCampaignDetail({
   const [pending, startTransition] = useTransition();
 
   const [campaign, setCampaign] = useState(initial);
+  const choices = useMemo(() => menuChoices(campaign), [campaign]);
+  const choiceClicks = usePromptChoiceStats(choices.length > 0 ? { kind: "unofficial_campaign", id: campaign.id } : null);
   const [entries, setEntries] = useState<UnofficialWhatsAppCampaignEntry[]>([]);
   const [entriesMeta, setEntriesMeta] = useState({ page: 1, totalPages: 1, totalItems: 0 });
   const [entriesPage, setEntriesPage] = useState(1);
@@ -208,8 +219,8 @@ export default function UnofficialCampaignDetail({
     <main className="w-full space-y-4">
       <CampaignHeader
         name={campaign.name}
-        status={liveStatus}
-        statusLabel={tDetail(`status.${liveStatus}`)}
+        status={showsReady(campaign, liveStatus) ? "READY" : liveStatus}
+        statusLabel={showsReady(campaign, liveStatus) ? tShared("status.ready") : tDetail(`status.${liveStatus}`)}
         campaignType="unofficial_whatsapp"
         backLink="/dashboard/unofficial-whatsapp-campaigns"
         editLink={`/dashboard/unofficial-whatsapp-campaigns/${campaign.id}/edit`}
@@ -336,6 +347,7 @@ export default function UnofficialCampaignDetail({
       <div className="grid gap-4 lg:grid-cols-12">
         <CampaignTimelinePanel channel="unofficial_whatsapp" campaignId={campaign.id} className="lg:col-span-8" />
         <UnofficialCampaignSettingsPanel campaign={campaign} canEdit={canUpdate} className="lg:col-span-4" />
+        {choices.length > 0 ? <ChoiceClicksCard read={choiceClicks} options={choices} scope="campaign" className="lg:col-span-12" /> : null}
       </div>
 
       <CampaignContactsTable

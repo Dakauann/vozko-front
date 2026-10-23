@@ -49,6 +49,7 @@ export interface CreateInvoicePayload {
   amountBrl: number;
   billingType: BillingType;
   description?: string;
+  idempotencyKey?: string;
 }
 
 export interface CreateInvoiceResponse {

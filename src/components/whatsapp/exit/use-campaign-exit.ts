@@ -40,16 +40,21 @@ export function useCampaignExit({
   campaignId,
   mode,
   initialTemplateId,
+  initial,
 }: {
   templateId: string;
   campaignId?: string;
   mode: "create" | "edit";
   initialTemplateId?: string;
+  initial?: { templateId: string; choices: ButtonChoices; acknowledged: boolean };
 }) {
-  const gate = useExitAcknowledgement(templateId, { required: mode === "create" || templateId !== initialTemplateId });
+  const gate = useExitAcknowledgement(templateId, {
+    required: mode === "create" || templateId !== initialTemplateId,
+    initial: initial ? { templateId: initial.templateId, checked: initial.acknowledged } : undefined,
+  });
   const routed = useTemplateExitVerdict(campaignId ? templateId : "", campaignId ?? "");
   const allowedKinds = useTemplateButtonActions(templateId).actions?.allowedKinds ?? NO_KINDS;
-  const [edited, setEdited] = useState<{ templateId: string; choices: ButtonChoices }>({ templateId: "", choices: {} });
+  const [edited, setEdited] = useState<{ templateId: string; choices: ButtonChoices }>(() => (initial ? { templateId: initial.templateId, choices: initial.choices } : { templateId: "", choices: {} }));
   const changes = useMemo(() => (edited.templateId === templateId ? edited.choices : {}), [edited, templateId]);
 
   const overrides: ButtonChoices = useMemo(() => ({ ...choicesOf(campaignRoutesOf(routed.verdict?.buttons ?? [])), ...changes }), [routed.verdict, changes]);
@@ -78,7 +83,9 @@ export function useCampaignExit({
     reloadRoutes();
   }, [reloadVerdict, reloadRoutes]);
 
-  return { ...gate, error: gate.error ?? routed.error, reload, overrides, setOverride, saveOverrides, refusal, allowedKinds };
+  const routeInputs = useMemo(() => actionInputs(changes, shownOnForm(gate.verdict?.buttons ?? [], changes)), [changes, gate.verdict]);
+
+  return { ...gate, error: gate.error ?? routed.error, reload, overrides, changes, routeInputs, setOverride, saveOverrides, refusal, allowedKinds };
 }
 
 export type CampaignExit = ReturnType<typeof useCampaignExit>;

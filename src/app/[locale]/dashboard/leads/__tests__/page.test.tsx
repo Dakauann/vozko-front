@@ -28,7 +28,7 @@ vi.mock("@/components/dashboard/ScopeBreadcrumb", () => ({ ScopeBreadcrumb: () =
 vi.mock("@/components/leads/map/LeadsMapView", () => ({ LeadsMapView: () => <div data-testid="leads-map" /> }));
 vi.mock("@/components/leads/LeadStatsStrip", () => ({ LeadStatsStrip: () => <div data-testid="stats" /> }));
 vi.mock("@/components/leads/LeadsToolbar", () => ({ LeadsToolbar: () => <div data-testid="toolbar" /> }));
-vi.mock("../_components/LeadSavedViews", () => ({ default: () => null }));
+vi.mock("@/components/leads/LeadSavedViews", () => ({ default: () => null }));
 vi.mock("../_components/ImportLeadsDialog", () => ({ default: () => null }));
 vi.mock("@/components/leads/imports/LeadImportsStatus", () => ({ LeadImportsStatus: () => null }));
 vi.mock("@/components/leads/sheet/LeadSheet", () => ({ LeadSheet: () => null }));

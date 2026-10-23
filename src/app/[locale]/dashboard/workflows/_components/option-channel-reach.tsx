@@ -21,6 +21,9 @@ const CHANNEL_NAMES: Record<string, string> = {
   webchat: "WebChat",
   mercadolivre: "Mercado Livre",
   tiktok: "TikTok",
+  email: "E-mail",
+  rcs: "RCS",
+  sms: "SMS",
 };
 
 function channelName(channel: string): string {

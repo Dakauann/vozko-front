@@ -10,7 +10,7 @@ import { listWorkflowWebhookDeliveriesAction } from "@/app/actions/workflows";
 import { usePagedList } from "@/hooks/use-paged-list";
 import { workflowRunHref } from "@/lib/workflows/run-format";
 import type { WebhookDelivery } from "@/lib/workflows/types";
-import { webhookOutcomeLabel, webhookReasonLabel } from "@/lib/workflows/webhook-delivery";
+import { webhookOutcomeLabel, webhookReasonLabel, webhookResolutionLabel } from "@/lib/workflows/webhook-delivery";
 
 import { ConversationLink, DateTimeText, LoadFailure, useOpenRun } from "./run-bits";
 
@@ -91,6 +91,7 @@ function DeliveryRow({
   const tRuns = useTranslations("workflowRuns");
   const outcome = webhookOutcomeLabel(delivery.outcome, t);
   const reason = webhookReasonLabel(delivery.reason, t);
+  const resolution = webhookResolutionLabel(delivery.entryResolution, t);
 
   return (
     <li className="space-y-1 px-3 py-2">
@@ -103,7 +104,7 @@ function DeliveryRow({
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex min-w-0 items-center gap-1.5">
           <ConversationLink entryId={delivery.entryId} entryType={delivery.entryType} />
-          {delivery.entryResolution === "phone" && <span className="text-2xs text-muted-foreground">{t("byPhone")}</span>}
+          {resolution ? <span className="text-2xs text-muted-foreground">{resolution}</span> : null}
         </span>
         {delivery.runId && (
           <a

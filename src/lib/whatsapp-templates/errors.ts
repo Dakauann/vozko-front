@@ -13,6 +13,7 @@ export const TEMPLATE_ERROR_CODES = [
     "template_external_id_required",
     "template_category_unavailable",
     "template_header_media_not_applicable",
+    "template_lookup_unavailable",
 
     "template_name_required",
     "template_name_invalid_chars",
@@ -42,6 +43,11 @@ export const TEMPLATE_ERROR_CODES = [
     "template_url_button_variable_not_end",
     "template_url_button_too_many_variables",
     "template_copy_code_needs_example",
+    "template_flow_button_needs_flow",
+    "template_flow_button_needs_screen",
+    "template_invalid_flow_action",
+    "template_multiple_flow_buttons",
+    "template_flow_token_required",
     "template_flow_not_published",
     "template_form_not_sendable",
 
@@ -62,6 +68,7 @@ export const TEMPLATE_ERROR_CODES = [
     "template_authentication_code_required",
 
     "template_mixed_parameter_styles",
+    "template_variable_name_invalid",
 
     "template_invalid_component_type",
     "template_invalid_header_format",
@@ -85,6 +92,12 @@ export const TEMPLATE_ERROR_CODES = [
     "template_edit_window",
     "template_in_use",
     "template_edit_not_owner",
+
+    "template_tracked_button_not_url",
+    "template_tracked_button_dynamic",
+    "template_tracked_button_destination",
+    "template_tracked_link_unreadable",
+    "template_tracking_unavailable",
 
     "template_provider_rejected",
     "template_provider_unavailable",
@@ -127,6 +140,22 @@ export function templateErrorMessage(
         return trimmed;
     }
     return t(`${I18N_PREFIX}.template_unknown_error`);
+}
+
+const TRACKED_BUTTON_REFUSALS: ReadonlySet<string> = new Set([
+    "template_tracked_button_not_url",
+    "template_tracked_button_dynamic",
+    "template_tracked_button_destination",
+    "template_tracked_link_unreadable",
+]);
+
+const BUTTON_INDEX = /^(0|[1-9][0-9]*)$/;
+
+export function trackedButtonRefusal(code: string | undefined, expected: Record<string, string> | undefined): number | null {
+    if (!code || !TRACKED_BUTTON_REFUSALS.has(code)) return null;
+    const index = expected?.buttonIndex;
+    if (typeof index !== "string" || !BUTTON_INDEX.test(index)) return null;
+    return Number(index);
 }
 
 const TEMPLATE_EDIT_WINDOW = "template_edit_window";

@@ -25,6 +25,7 @@ function note(id: string, created_at: string, overrides: Partial<ConversationNot
     author_name: "Ana",
     body: `nota ${id}`,
     mentions: [],
+    images: [],
     created_at,
     ...overrides,
   };
@@ -42,6 +43,27 @@ describe("readNote", () => {
     expect(readNote({ ...note("n1", t(0)), created_at: undefined })).toBeNull();
     expect(readNote(null)).toBeNull();
     expect(readNote({ ...note("n1", t(0)), mentions: null })?.mentions).toEqual([]);
+  });
+
+  it("reads each image with its size and thumbhash and drops what cannot be shown", () => {
+    const read = readNote({
+      ...note("n1", t(0)),
+      images: [
+        { id: "img-1", url: "https://cdn/a.png", mime_type: "image/png", width: 800, height: 600, thumbhash: "hash" },
+        { id: "img-2", url: "https://cdn/b.jpg", mime_type: "image/jpeg", width: 0, height: 600 },
+        { id: "", url: "https://cdn/c.png" },
+        { id: "img-4" },
+        "junk",
+      ],
+    });
+    expect(read?.images).toEqual([
+      { id: "img-1", url: "https://cdn/a.png", mime_type: "image/png", width: 800, height: 600, thumbhash: "hash" },
+      { id: "img-2", url: "https://cdn/b.jpg", mime_type: "image/jpeg" },
+    ]);
+  });
+
+  it("reads a note without images as having none", () => {
+    expect(readNote({ ...note("n1", t(0)), images: undefined })?.images).toEqual([]);
   });
 });
 

@@ -1,6 +1,7 @@
 import type { NodePin } from "./node-pin";
 import type { NodeTestBehavior } from "./node-test-behavior";
 import type { RunStepsWindow } from "./run-steps";
+import type { TriggerTestInput } from "./test-inputs";
 
 export type WorkflowNodeType =
   | "trigger_first_message"
@@ -9,12 +10,16 @@ export type WorkflowNodeType =
   | "trigger_call_received"
   | "trigger_form_submitted"
   | "trigger_agent_call"
+  | "trigger_birthday"
+  | "trigger_stage_added"
   | "action_play_audio"
   | "wait_dtmf"
   | "action_transfer_to_queue"
   | "action_send_text"
   | "action_send_template"
   | "action_send_email"
+  | "action_send_carrier"
+  | "action_send_platform_email"
   | "action_send_media"
   | "action_send_interactive"
   | "action_send_whatsapp_button"
@@ -29,9 +34,10 @@ export type WorkflowNodeType =
   | "action_run_workflow"
   | "action_loop"
   | "action_get_current_time"
-  | "action_schedule_meeting"
-  | "action_reschedule_meeting"
+  | "action_create_calendar_event"
+  | "action_reschedule_calendar_event"
   | "action_check_calendar_availability"
+  | "action_add_sheet_row"
   | "action_assign_label"
   | "action_assign_member"
   | "action_transfer_department"
@@ -64,7 +70,9 @@ export type WorkflowTriggerType =
   | "trigger_webhook"
   | "trigger_call_received"
   | "trigger_form_submitted"
-  | "trigger_agent_call";
+  | "trigger_agent_call"
+  | "trigger_birthday"
+  | "trigger_stage_added";
 
 export type WorkflowType = "messages" | "voice";
 
@@ -82,6 +90,7 @@ export interface WorkflowNode {
   position: WorkflowNodePosition;
   config: Record<string, unknown>;
   pinned?: NodePin;
+  testInputs?: TriggerTestInput[];
 }
 
 export interface WorkflowEdge {
@@ -124,12 +133,10 @@ export type EntryPointKind =
   | "webhook"
   | "form_submitted"
   | "agent_call"
-  | "campaign_sent"
   | "stage_added"
-  | "no_reply"
   | "call_received"
-  | "manual"
-  | "lead_exit";
+  | "lead_exit"
+  | "birthday";
 
 export type EntryReadiness = "ready" | "blocked";
 
@@ -143,7 +150,8 @@ export type EntryBlockReason =
   | "no_agent_bound"
   | "no_channel"
   | "channel_paused"
-  | "no_trigger";
+  | "no_trigger"
+  | "needs_message_trigger";
 
 export type EntryChannelKind =
   | "whatsapp_campaign"
@@ -154,7 +162,10 @@ export type EntryChannelKind =
   | "telegram_account"
   | "tiktok_account"
   | "mercadolivre_account"
-  | "webchat_widget";
+  | "webchat_widget"
+  | "email_inbox"
+  | "rcs_sender"
+  | "sms_route";
 
 export interface EntryWebhook {
   active: boolean;
@@ -320,6 +331,7 @@ export interface WorkflowRunLog {
   pinned?: boolean;
   simulated?: boolean;
   notice?: string;
+  unresolvedRefs?: string[];
 }
 
 export interface RunDetail {
@@ -332,6 +344,7 @@ export type WebhookDeliveryOutcome =
   | "accepted"
   | "duplicate"
   | "already_running"
+  | "ignored"
   | "rejected";
 
 export interface WebhookDelivery {
@@ -429,6 +442,7 @@ export interface UpdateWorkflowPayload {
 export interface StartRunPayload {
   entryId: string;
   entryType: string;
+  message?: string;
 }
 
 
@@ -567,6 +581,7 @@ export interface NodeAnalysis {
   can_run_direct: boolean;
   has_ai_deps: boolean;
   message: string;
+  trigger?: unknown;
 }
 
 export interface TestNodePayload {
@@ -574,6 +589,12 @@ export interface TestNodePayload {
   triggerVars?: Record<string, unknown>;
   skipExecution?: boolean;
   confirmRealCalls?: boolean;
+  trigger?: TestNodeTrigger;
+}
+
+export interface TestNodeTrigger {
+  nodeId: string;
+  input: unknown;
 }
 
 type BuilderMessageRole = "user" | "assistant" | "tool" | "system";

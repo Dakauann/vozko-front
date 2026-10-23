@@ -7,6 +7,7 @@ import { useRef, useState, type KeyboardEvent, type MouseEvent, type RefObject }
 import { ArrowBendUpLeft, DotsThree, WhatsappLogo } from "@/components/icons";
 import { ChannelAvatar } from "@/components/channels/channel-avatar";
 import { LocationMessageCard } from "@/components/crm/LocationMessageCard";
+import { EmailMessageBody } from "@/components/email/EmailMessageBody";
 import {
   PostbackChip,
   ReferralChip,
@@ -16,6 +17,10 @@ import {
 } from "@/components/crm/MetaMessageParts";
 import TemplateBubble from "@/components/crm/TemplateBubble";
 import { MercadoLivreMessageMarks } from "@/components/mercadolivre/mercadolivre-message-marks";
+import { RcsThreadCards, RcsThreadSuggestions } from "@/components/rcs/preview/RcsThreadContent";
+import { SmsSegmentsBadge } from "@/components/sms/SmsSegmentsBadge";
+import { readRcsTranscript, readSmsTranscript } from "@/lib/carrier-messaging/transcript";
+import { emailCampaignName } from "@/lib/email/campaign";
 import { bubbleSide, directionOfRow, showsDeliveryTicks } from "@/lib/conversations/bubble-side";
 import { messageTypeOf, senderBadge } from "@/lib/conversations/direction";
 import { hasTemplateMetadata, readFormBlock } from "@/lib/conversations/form-metadata";
@@ -184,6 +189,17 @@ function BubbleBody({ message }: { message: ConversationMessage }) {
   if (form?.kind === "response") return <FormResponseCard message={message} block={form} />;
   const interactive = templateCard ? null : readInteractiveMessage(message.metadata);
   if (interactive) return <InteractiveMessageCard text={message.text} interactive={interactive} />;
+  const channel = message.channel ?? message.entry_type;
+  const rcs = channel === "rcs" ? readRcsTranscript(message.metadata) : null;
+  const sms = channel === "sms" ? readSmsTranscript(message.metadata) : null;
+  if (rcs?.content.cards?.length) {
+    return (
+      <>
+        <RcsThreadCards content={rcs.content} />
+        <RcsThreadSuggestions content={rcs.content} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -218,7 +234,27 @@ function BubbleBody({ message }: { message: ConversationMessage }) {
         />
       )}
 
-      {message.text && !message.location && !templateCard && <CollapsibleMessageText text={message.text} />}
+      {message.text && !message.location && !templateCard && (channel === "email" ? (
+        <EmailMessageBody message={message} fallback={<CollapsibleMessageText text={message.text} />} />
+      ) : (
+        <CollapsibleMessageText text={message.text} />
+      ))}
+
+      {rcs ? <RcsThreadSuggestions content={rcs.content} /> : null}
+
+      {sms ? <SmsSegmentsBadge segments={sms.segments} /> : null}
+    </>
+  );
+}
+
+export function MessageContent({ message }: { message: ConversationMessage }) {
+  return (
+    <>
+      {message.reply_to_message_id && <QuotedMessage replyToId={message.reply_to_message_id} />}
+
+      <MetaParts message={message} />
+
+      <BubbleBody message={message} />
     </>
   );
 }
@@ -228,7 +264,8 @@ function BubbleFooter({ message, outgoing, own, ticks }: { message: Conversation
   const { conversation, perspective } = useThreadRow();
   const badge = perspective === "business" ? senderBadge(message, conversation.lead_number) : null;
   const badgeKey = senderLabelKey(badge ?? undefined, message.channel ?? message.entry_type);
-  const badgeLabel = badgeKey ? tCrm(badgeKey) : null;
+  const campaignName = badge === "campaign" ? emailCampaignName(message) : null;
+  const badgeLabel = campaignName ? tCrm("messageSender.campaignNamed", { name: campaignName }) : badgeKey ? tCrm(badgeKey) : null;
   const prefix = metaPrefix(message.channel ?? message.entry_type);
   const metadata = (message.metadata ?? null) as Record<string, unknown> | null;
   const sentVia = prefix === "facebook" && outgoing ? readSentVia(metadata) : null;
@@ -387,13 +424,7 @@ export function MessageBubbleRow({ row }: { row: MessageRow }) {
             }}
           />
         ) : (
-          <>
-            {message.reply_to_message_id && <QuotedMessage replyToId={message.reply_to_message_id} />}
-
-            <MetaParts message={message} />
-
-            <BubbleBody message={message} />
-          </>
+          <MessageContent message={message} />
         )}
 
         <ReactionChips message={message} own={own} />

@@ -78,7 +78,7 @@ export function MercadoLivreAccountView({ accountId }: { accountId: string }) {
       <DashboardPageHeader
         icon={<MercadoLivreLogoColor className="h-5 w-5" />}
         badge={t("screens.account.title")}
-        title={account?.nickname ?? t("screens.account.title")}
+        title={account?.displayName ?? t("screens.account.title")}
         description={t("screens.account.description")}
         back={{ onClick: () => router.push(MERCADOLIVRE_ACCOUNTS_PATH), label: t("account.back") }}
         actions={

@@ -22,6 +22,7 @@ const LEAD_RELATIVES_PAGE_SIZE = 50;
 const LEAD_HISTORY_PAGE_SIZE = 30;
 
 export const leadQueryKeys = {
+  all: (workspaceId: string) => ["lead", workspaceId] as const,
   lead: (workspaceId: string, leadId: string) => ["lead", workspaceId, leadId] as const,
   detail: (workspaceId: string, leadId: string) => ["lead", workspaceId, leadId, "detail"] as const,
   summary: (workspaceId: string, leadId: string) => ["lead", workspaceId, leadId, "summary"] as const,

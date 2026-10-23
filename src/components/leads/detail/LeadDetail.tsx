@@ -15,6 +15,7 @@ import { SectionError } from "@/components/dashboard/attendance/primitives";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 import Button from "@/components/elevated-design/button";
 import { LeadCallButton } from "@/components/leads/LeadCall";
+import { LeadEmailButton } from "@/components/leads/sends/LeadEmailButton";
 import { LeadSendButton } from "@/components/leads/sends/LeadSendButton";
 import { OwnerChip } from "@/components/leads/OwnerChip";
 import { LeadSheet } from "@/components/leads/sheet/LeadSheet";
@@ -174,6 +175,7 @@ export function LeadDetail({ leadId, initialTab }: { leadId: string; initialTab?
             <LeadSendButton leadId={lead.id} action="send_template" label={t("actions.sendTemplate")} />
             <LeadCallButton leadId={lead.id} revision={lead.version} />
             <LeadSendButton leadId={lead.id} action="send_unofficial" label={t("actions.sendMessage")} />
+            <LeadEmailButton leadId={lead.id} name={lead.realName ?? ""} email={lead.email} label={t("actions.sendEmail")} />
             {permissions.createDeals ? <LeadDealCreation leadId={lead.id} leadName={lead.realName ?? ""} /> : null}
             <LeadDetailActions
               lead={lead}

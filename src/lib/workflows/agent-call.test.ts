@@ -4,7 +4,6 @@ import {
   AGENT_CALL_TRIGGER,
   agentCallInputIssues,
   agentCallInputsOfGraph,
-  agentCallTemplateVars,
   emptyAgentCallInput,
   httpBodySchemaSources,
   importBodySchema,
@@ -114,20 +113,6 @@ describe("agentCallInputsOfGraph", () => {
   it("is null when the workflow has no agent-call trigger", () => {
     expect(agentCallInputsOfGraph({ nodes: [], edges: [] })).toBeNull();
     expect(agentCallInputsOfGraph(undefined)).toBeNull();
-  });
-});
-
-describe("agentCallTemplateVars", () => {
-  it("offers each declared input under input.* plus the calling agent", () => {
-    expect(agentCallTemplateVars({ inputs: [{ name: "cpf", description: "CPF do aluno" }, { name: "" }] })).toEqual([
-      { template: "{{input.cpf}}", description: "CPF do aluno" },
-      { template: "{{agent.id}}", description: "ID do agente que executou o fluxo" },
-      { template: "{{agent.name}}", description: "Nome do agente que executou o fluxo" },
-    ]);
-  });
-
-  it("falls back to the input name when it has no description", () => {
-    expect(agentCallTemplateVars({ inputs: [{ name: "cpf" }] })[0]).toEqual({ template: "{{input.cpf}}", description: "cpf" });
   });
 });
 

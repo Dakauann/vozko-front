@@ -4,7 +4,7 @@ import { formatPhoneForDisplay } from "@/lib/phone/display";
 
 const HELD_BY_OTHER = "customer_portfolio_held_by_other";
 
-export type PortfolioContactChannel = "unofficial_whatsapp" | "telegram" | "instagram" | "facebook" | "webchat" | "mercadolivre" | "tiktok";
+export type PortfolioContactChannel = "unofficial_whatsapp" | "telegram" | "instagram" | "facebook" | "webchat" | "mercadolivre" | "tiktok" | "email" | "rcs" | "sms";
 
 export type PortfolioSubject =
   | { kind: "lead"; leadId: string }
@@ -72,6 +72,9 @@ const CONTACT_CHANNEL_SET: Record<PortfolioContactChannel, true> = {
   webchat: true,
   mercadolivre: true,
   tiktok: true,
+  email: true,
+  rcs: true,
+  sms: true,
 };
 const CONTACT_CHANNELS: readonly string[] = Object.keys(CONTACT_CHANNEL_SET);
 

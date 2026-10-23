@@ -6,9 +6,9 @@ import { exitRiskFields } from "@/lib/whatsapp-templates/exit";
 
 import { useTemplateExitVerdict } from "./use-template-exit";
 
-export function useExitAcknowledgement(templateId: string, { required = true }: { required?: boolean } = {}) {
+export function useExitAcknowledgement(templateId: string, { required = true, initial }: { required?: boolean; initial?: { templateId: string; checked: boolean } } = {}) {
   const exitVerdict = useTemplateExitVerdict(templateId);
-  const [given, setGiven] = useState({ templateId: "", checked: false });
+  const [given, setGiven] = useState(initial ?? { templateId: "", checked: false });
   const acknowledged = given.templateId === templateId && given.checked;
   const judged = required && templateId !== "";
   const { verdict, error } = exitVerdict;

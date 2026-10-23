@@ -35,7 +35,7 @@ export function MercadoLivreDisconnectDialog({
     if (result.disconnected.warning) {
       toast.error(t("title"), { description: t("revokeFailed") });
     } else {
-      toast(t("title"), { description: t("done", { name: account.nickname, date: purgeDate(result.disconnected.purgeAfter) }) });
+      toast(t("title"), { description: t("done", { name: account.displayName, date: purgeDate(result.disconnected.purgeAfter) }) });
     }
     onDisconnected();
   };
@@ -46,7 +46,7 @@ export function MercadoLivreDisconnectDialog({
       onOpenChange={onOpenChange}
       tone="danger"
       title={t("title")}
-      description={t("body", { name: account?.nickname ?? "" })}
+      description={t("body", { name: account?.displayName ?? "" })}
       confirmLabel={t("action")}
       onConfirm={disconnect}
     />

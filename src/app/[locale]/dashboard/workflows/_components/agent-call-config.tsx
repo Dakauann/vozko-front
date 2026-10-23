@@ -25,12 +25,6 @@ import {
 
 import { VariableCommandInput } from "./variable-command-input";
 
-interface VarGroup {
-  label: string;
-  description?: string;
-  vars: { template: string; description: string }[];
-}
-
 export interface AgentPickerProps {
   value: string;
   onChange: (agentId: string) => void;
@@ -248,10 +242,9 @@ function HttpSchemaImport({
 interface AgentReplyFieldsFieldProps {
   value: unknown;
   onChange: (fields: ReplyField[]) => void;
-  availableVars: VarGroup[];
 }
 
-export function AgentReplyFieldsField({ value, onChange, availableVars }: AgentReplyFieldsFieldProps) {
+export function AgentReplyFieldsField({ value, onChange }: AgentReplyFieldsFieldProps) {
   const t = useTranslations("workflowsPage.replyToAgent");
   const fields = useMemo(() => readReplyFields(value), [value]);
   const repeated = useMemo(() => {
@@ -295,7 +288,6 @@ export function AgentReplyFieldsField({ value, onChange, availableVars }: AgentR
                 onChange={(next) => update(index, { value: next })}
                 placeholder="{{node.n5.status}}"
                 controlSize="sm"
-                availableVars={availableVars}
                 multiline
               />
               <div className="flex justify-end">

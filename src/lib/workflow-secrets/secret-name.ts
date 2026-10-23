@@ -17,16 +17,3 @@ export function secretUsageSnippets(name: string): SecretUsageSnippets {
     code: `secrets.get('${name}')`,
   };
 }
-
-export interface SecretTemplateGroup {
-  label: string;
-  vars: { template: string; description: string }[];
-}
-
-export function secretTemplateGroup(names: readonly string[]): SecretTemplateGroup | null {
-  if (names.length === 0) return null;
-  return {
-    label: "Segredos",
-    vars: names.map((name) => ({ template: secretUsageSnippets(name).template, description: name })),
-  };
-}

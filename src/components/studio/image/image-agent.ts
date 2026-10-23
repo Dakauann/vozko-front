@@ -29,7 +29,7 @@ import type { LibraryLookup } from "@/lib/studio/agent/element-ops";
 import { captureArtboard, captureArtboards, captureBackdrop, captureLibraryImage } from "../agent/frame-capture";
 import { assetKeyColor } from "../canvas/key-color";
 import type { AgentPresence } from "../agent/presence";
-import { replaySteps, stepDelay } from "../agent/replay";
+import { replaySteps, stepDelay } from "@/components/coworker/replay";
 import { imageRegionTarget, imageTarget } from "../agent/targets";
 import { measureText } from "../agent/text-measure";
 import { imageAiTarget, type ImageAiTarget } from "./ai-actions";
@@ -387,7 +387,8 @@ export function createImageAgent(deps: ImageAgentDeps): ScreenHandler {
       case "save_preset":
         return screenRefusal("not_video", "predefinições de animação só existem em projetos de vídeo");
       case "create_project":
-        return screenRefusal("not_editor", "o editor não cria projetos; quem cria é a aba da conversa");
+      case "open_design":
+        return screenRefusal("not_editor", "o editor não cria nem abre projetos; quem faz isso é a aba da conversa");
     }
   };
 }

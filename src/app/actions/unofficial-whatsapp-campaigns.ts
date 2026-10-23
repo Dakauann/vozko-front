@@ -1,5 +1,5 @@
 
-import type { CampaignEstimateDraft, CampaignEstimateRequest, UnofficialWhatsAppCampaign, UnofficialWhatsAppCampaignAudience, UnofficialWhatsAppCampaignEntry, UnofficialWhatsAppCampaignListMeta, UnofficialWhatsAppCampaignPayload, ValidateTargetsResult } from '@/lib/unofficial-whatsapp-campaigns/types';
+import type { UnofficialWhatsAppCampaign, UnofficialWhatsAppCampaignAudience, UnofficialWhatsAppCampaignEntry, UnofficialWhatsAppCampaignListMeta, UnofficialWhatsAppCampaignPayload, ValidateTargetsResult } from '@/lib/unofficial-whatsapp-campaigns/types';
 import type { CampaignMetrics } from '@/lib/campaigns/metrics';
 
 import { apiClient } from '@/lib/api/browser-client';
@@ -118,15 +118,6 @@ export async function listUnofficialCampaignEntriesAction(
         entries: response.data?.data ?? [],
         meta: response.data?.meta ?? DEFAULT_META,
     };
-}
-
-export async function estimateUnofficialCampaignAction(request: CampaignEstimateRequest) {
-    const response = await apiClient<Envelope<CampaignEstimateDraft>>(`${BASE}/estimate`, {
-        method: 'POST',
-        body: JSON.stringify(request),
-    });
-    if (response.error) return { error: response.error.message, code: response.error.code };
-    return { draft: unwrap(response.data) };
 }
 
 export async function createUnofficialCampaignAction(payload: UnofficialWhatsAppCampaignPayload) {

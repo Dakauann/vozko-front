@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { accountNotices, accountStatusKey, accountStatusTone, reconnectable, updateBodyOf } from "@/lib/mercadolivre/account";
+import { accountHandle, accountNotices, accountStatusKey, accountStatusTone, reconnectable, updateBodyOf } from "@/lib/mercadolivre/account";
 import type { MercadoLivreAccount } from "@/lib/mercadolivre/types";
 
 function account(overrides: Partial<MercadoLivreAccount> = {}): MercadoLivreAccount {
@@ -10,6 +10,7 @@ function account(overrides: Partial<MercadoLivreAccount> = {}): MercadoLivreAcco
     mlUserId: "123",
     siteId: "MLB",
     nickname: "LOJA",
+    displayName: "LOJA",
     status: "CONNECTED",
     needsReconnect: false,
     grantedScopes: ["offline_access", "read", "write"],
@@ -25,6 +26,20 @@ function account(overrides: Partial<MercadoLivreAccount> = {}): MercadoLivreAcco
     ...overrides,
   };
 }
+
+describe("accountHandle", () => {
+  it("is the nickname when the seller name differs from it", () => {
+    expect(accountHandle(account({ displayName: "Café do Vale", nickname: "DGCAFEDHB50478" }))).toBe("DGCAFEDHB50478");
+  });
+
+  it("is absent when the name already is the nickname", () => {
+    expect(accountHandle(account({ displayName: "DGCAFEDHB50478", nickname: "DGCAFEDHB50478" }))).toBeNull();
+  });
+
+  it("is absent when there is no nickname", () => {
+    expect(accountHandle(account({ displayName: "Café do Vale", nickname: "" }))).toBeNull();
+  });
+});
 
 describe("accountStatusTone", () => {
   it("gives each status a solid mark", () => {

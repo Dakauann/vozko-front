@@ -68,7 +68,7 @@ import {
 } from "@/components/elevated-design/table/dashboard-table";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { IconBox } from "@/components/elevated-design/listing-card";
-import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
+import { pricingServiceLabel } from "@/lib/pricing/labels";
 import Link from "next/link";
 import { Notice } from "@/components/ui/notice";
 import type { ResolvedPricingItem } from "@/lib/pricing/types";
@@ -93,6 +93,7 @@ const CATEGORY_META: Record<string, { icon: Icon; bg: string; fg: string }> = {
   whatsapp: { icon: WhatsappLogo, bg: channelPlate("whatsapp"), fg: "" },
   telephony: { icon: Phone, bg: channelPlate("voice"), fg: "" },
   advertising: { icon: Megaphone, bg: "tile-2", fg: "" },
+  email: { icon: Envelope, bg: channelPlate("email"), fg: "" },
   exchange_rate: { icon: CurrencyDollar, bg: "tile-3", fg: "" },
 };
 
@@ -406,13 +407,7 @@ export default function AdminWorkspaceDetailPage() {
         key: "service",
         render: (item) => (
           <span className="text-sm text-foreground">
-            {(() => {
-              const translationKey =
-                `services.${item.category}.${item.service}` as const;
-              return tp.has(translationKey)
-                ? tp(translationKey)
-                : formatPricingServiceFallback(item.service);
-            })()}
+            {pricingServiceLabel(tp, "", item)}
           </span>
         ),
       },

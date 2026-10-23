@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -8,7 +8,7 @@ import type { RunDetail, WorkflowRun, WorkflowRunLog } from "@/lib/workflows/typ
 
 import { WorkflowRunDetail } from "./workflow-run-detail";
 
-const actions = vi.hoisted(() => ({ getWorkflowRunAction: vi.fn(), cancelWorkflowRunAction: vi.fn() }));
+const actions = vi.hoisted(() => ({ getWorkflowRunAction: vi.fn(), cancelWorkflowRunAction: vi.fn(), downloadWorkflowRunAction: vi.fn() }));
 vi.mock("@/app/actions/workflows", () => actions);
 vi.mock("@/hooks/use-settled-permission", () => ({ useSettledPermission: () => false }));
 const toast = vi.hoisted(() => ({ error: vi.fn(), success: vi.fn() }));
@@ -126,5 +126,44 @@ describe("WorkflowRunDetail", () => {
     fireEvent.click(await screen.findByRole("tab", { name: "Erro" }));
     expect(screen.getAllByText("Cancelada por um operador")).toHaveLength(2);
     expect(screen.queryByText("cancelled_by_operator")).toBeNull();
+  });
+
+  it("downloads the run as JSON and shows a refusal in the workflow error copy", async () => {
+    actions.getWorkflowRunAction.mockResolvedValue({ detail: { run: run(), logs: [] } });
+    actions.downloadWorkflowRunAction.mockResolvedValue({ error: null });
+    renderDetail();
+    fireEvent.click(await screen.findByRole("button", { name: "Baixar JSON" }));
+    await vi.waitFor(() => expect(actions.downloadWorkflowRunAction).toHaveBeenCalledWith("r1"));
+    await vi.waitFor(() => expect(screen.getByRole("button", { name: "Baixar JSON" })).toBeEnabled());
+    expect(toast.error).not.toHaveBeenCalled();
+
+    actions.downloadWorkflowRunAction.mockResolvedValue({ error: { status: 404, code: "run_not_found", message: "Execução do workflow não encontrada" } });
+    fireEvent.click(screen.getByRole("button", { name: "Baixar JSON" }));
+    await vi.waitFor(() => expect(toast.error).toHaveBeenCalledWith(ptMessages.workflowsPage.errors.run_not_found));
+  });
+
+  it("copies a step's parameters and output as they were loaded", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const recorded = { ...step("s1", "a"), input: { url: "https://api", token: "••••" }, output: { status: 200 } };
+    actions.getWorkflowRunAction.mockResolvedValue({ detail: { run: run(), logs: [recorded] } });
+    renderDetail();
+    fireEvent.click(await screen.findByText("Nó a"));
+    fireEvent.click(await screen.findByRole("button", { name: "Copiar JSON" }));
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(JSON.parse(writeText.mock.calls[0][0])).toEqual({ input: recorded.input, output: recorded.output });
+    await vi.waitFor(() => expect(toast.success).toHaveBeenCalledWith("JSON copiado."));
+  });
+
+  it("labels a step's sent message with the step's node name, as the chat does, never the generic workflow sender", async () => {
+    const message = { id: "m1", entryType: "whatsapp", channel: "whatsapp", messageType: "ai_response", direction: "OUTBOUND", text: "Bom dia", sentBy: { kind: "workflow", id: "wf" }, createdAt: "2026-10-20T10:00:01Z" };
+    const sent = { ...step("s1", "a"), nodeType: "action_send_message", output: { sent_messages: [message] } };
+    actions.getWorkflowRunAction.mockResolvedValue({ detail: { run: run(), logs: [sent] } });
+    renderDetail();
+    fireEvent.click(await screen.findByText("Nó a"));
+    const detail = await screen.findByTestId("step-detail");
+    expect(within(detail).getByText("Bom dia")).toBeInTheDocument();
+    expect(within(detail).getByText("Nó a")).toBeInTheDocument();
+    expect(within(detail).queryByText(ptMessages.crm.messageSender.workflow)).toBeNull();
   });
 });

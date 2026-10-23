@@ -210,6 +210,14 @@ describe("WorkflowAlerts fix actions", () => {
     expect(screen.queryByRole("button", { name: /Mover para segredos/ })).toBeNull();
   });
 
+  it("lists a credential saved in a test scenario without a move it cannot locate", async () => {
+    const scenario: LintIssue = { ...plainHeader, nodeId: "t1", field: "testInputs", path: "testInputs.Com senha.password" };
+    renderAlerts({ issues: [scenario], nodeConfig: () => ({ password: "p4ss" }), onMoveToSecret: vi.fn() });
+    fireEvent.click(screen.getByRole("button", { name: /Alertas:/ }));
+    await screen.findByText(/guarda uma senha ou chave em texto aberto/);
+    expect(screen.queryByRole("button", { name: /Mover para segredos/ })).toBeNull();
+  });
+
   it("shows the template found in the node code and the replacement from the alert on Ver sugestão", async () => {
     renderAlerts({ issues: [codeTemplate], nodeConfig: () => ({ code: "return { ok: {{node.n55.status_code}} };" }) });
     fireEvent.click(screen.getByRole("button", { name: /Alertas:/ }));

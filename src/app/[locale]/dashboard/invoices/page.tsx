@@ -17,7 +17,7 @@ import {
 import type { Icon } from "@/components/icons";
 import type { Invoice, InvoiceStatus } from "@/lib/invoices/types";
 import type { PublicPlanDetails } from "@/lib/workspace-plan/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { PlanCatalogRail } from "@/components/dashboard/plans/PlanCatalogRail";
@@ -48,6 +48,11 @@ import {
   isRechargeSubscriptionRequiredError,
   normalizeRechargeErrorMessage,
 } from "@/lib/invoices/recharge-errors";
+import {
+  keepsRechargeKey,
+  rechargeKeyFor,
+  type RechargeKey,
+} from "@/lib/invoices/recharge-key";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 const PAGE_SIZE = 15;
@@ -121,6 +126,7 @@ export default function InvoicesPage() {
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "boleto">("pix");
   const [generating, setGenerating] = useState(false);
+  const rechargeKeyRef = useRef<RechargeKey | null>(null);
   const [generatedInvoice, setGeneratedInvoice] = useState<Invoice | null>(
     null,
   );
@@ -408,10 +414,19 @@ export default function InvoicesPage() {
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
     setCreateError(null);
-    const result = await createInvoiceAction({
+    const draft = {
       amountBrl: Number(rechargeAmount),
       billingType: paymentMethod === "pix" ? "PIX" : "BOLETO",
+    } as const;
+    const rechargeKey = rechargeKeyFor(rechargeKeyRef.current, draft);
+    rechargeKeyRef.current = rechargeKey;
+    const result = await createInvoiceAction({
+      ...draft,
+      idempotencyKey: rechargeKey.key,
     });
+    if (!keepsRechargeKey(result)) {
+      rechargeKeyRef.current = null;
+    }
     setGenerating(false);
 
     if (result.error) {

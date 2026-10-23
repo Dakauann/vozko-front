@@ -11,7 +11,8 @@ export type ServiceType =
     | 'voice_call'
     | 'ai'
     | 'manual_adjustment'
-    | 'top_up';
+    | 'top_up'
+    | 'email';
 
 export interface Balance {
     id: string;

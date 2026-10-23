@@ -4,7 +4,7 @@ import { readFormBlock, hasTemplateMetadata } from "@/lib/conversations/form-met
 import { readInteractiveMessage } from "@/lib/conversations/interactive-message";
 import { bubbleSide, directionOfRow } from "@/lib/conversations/bubble-side";
 
-import { simConversationMessage, simSenderLabel, simThreadRow } from "./sim-message";
+import { simConversationMessage, simGroupMember, simSenderLabel, simThreadRow } from "./sim-message";
 
 const base = {
   id: "sim-msg-1",
@@ -135,6 +135,10 @@ describe("simThreadRow", () => {
     });
     expect(simThreadRow(inbound).outgoing).toBe(false);
   });
+
+  it("carries the place the message takes in its stack", () => {
+    expect(simThreadRow(simConversationMessage(base)!, "middle").groupPosition).toBe("middle");
+  });
 });
 
 const customer = { ...base, direction: "INBOUND", messageType: "user_message", sentBy: { kind: "contact", id: "5511999990000" }, from: "5511999990000", to: "sim-business-phone" };
@@ -197,5 +201,26 @@ describe("simSenderLabel", () => {
     expect(label({ ...agent, senderName: "Bia" }, "Agente IA")).toBe("Bia");
     expect(label(agent, "Agente IA")).toBe("Agente IA");
     expect(label(agent)).toBe("IA");
+  });
+});
+
+describe("simGroupMember", () => {
+  const member = (wire: Record<string, unknown>, label: string) => simGroupMember(simConversationMessage(wire)!, label);
+
+  it("stacks every message the tester sends as one author", () => {
+    expect(member(customer, "Você (cliente)").author).toBe(member({ ...customer, id: "in-2", location: LOCATION }, "Você (cliente)").author);
+  });
+
+  it("tells workflow sources apart by the name shown on the bubble", () => {
+    expect(member(base, "Boas-vindas").author).toBe(member({ ...base, id: "out-2" }, "Boas-vindas").author);
+    expect(member(base, "Boas-vindas").author).not.toBe(member(base, "Enviar folheto").author);
+  });
+
+  it("never stacks the tester with a source that happens to share the name", () => {
+    expect(member(customer, "Bia").author).not.toBe(member(base, "Bia").author);
+  });
+
+  it("times the member by the message", () => {
+    expect(member(base, "Fluxo").at).toBe("2026-10-20T12:00:00Z");
   });
 });

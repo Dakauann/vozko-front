@@ -69,7 +69,7 @@ describe("SendTemplateNowDialog", () => {
 
     fireEvent.click(confirm);
 
-    expect(onSend).toHaveBeenCalledWith("follow_up", ["Ana"]);
+    expect(onSend).toHaveBeenCalledWith("follow_up", ["Ana"], []);
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
@@ -79,10 +79,19 @@ describe("SendTemplateNowDialog", () => {
     expect(screen.getByRole("button", { name: copy.confirm })).toBeDisabled();
   });
 
-  it("refuses a template with header values, since the conversation socket cannot carry them", async () => {
+  it("asks the header value first, labelled as the header, and sends it apart from the body", async () => {
     const onSend = vi.fn();
     renderDialog(onSend, "promo", ["Ana"]);
-    expect(await screen.findByText(copy.headerUnsupported)).toBeInTheDocument();
+    const header = await screen.findByLabelText("{{1}} no cabeçalho");
+    expect(screen.getByLabelText("{{1}}")).toHaveValue("Ana");
+    expect(header.compareDocumentPosition(screen.getByLabelText("{{1}}")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("button", { name: copy.confirm })).toBeDisabled();
+
+    fireEvent.change(header, { target: { value: "de Natal" } });
+    const confirm = screen.getByRole("button", { name: copy.confirm });
+    await waitFor(() => expect(confirm).not.toBeDisabled());
+    fireEvent.click(confirm);
+
+    expect(onSend).toHaveBeenCalledWith("promo", ["Ana"], ["de Natal"]);
   });
 });

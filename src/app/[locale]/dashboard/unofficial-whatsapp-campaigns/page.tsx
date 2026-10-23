@@ -3,6 +3,7 @@
 import { Archive } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { CampaignDraftsPanel } from "@/components/campaign-wizard/CampaignDraftsPanel";
 import { CampaignsListShell } from "@/components/campaigns/CampaignsListShell";
 import { ChannelTile } from "@/components/channels/channel-tile";
 import { CampaignsSummaryBar } from "@/components/dashboard/CampaignsSummaryBar";
@@ -25,8 +26,11 @@ import { useWorkspace } from "@/contexts/workspace-context";
 
 const PAGE_SIZE = 15;
 
+const draftHref = (id: string) => `/dashboard/unofficial-whatsapp-campaigns/new?draft=${encodeURIComponent(id)}`;
+
 export default function UnofficialWhatsAppCampaignsPage() {
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const tShared = useTranslations("campaignWizard");
   const { can, currentWorkspace } = useWorkspace();
   const { currentDepartment } = useDepartment();
   const router = useRouter();
@@ -99,7 +103,8 @@ export default function UnofficialWhatsAppCampaignsPage() {
     setPage(1);
   }, [search, statusFilter]);
 
-  const columns = useMemo(() => campaignColumns(t as (k: string) => string), [t]);
+  const columns = useMemo(() => campaignColumns(t as (k: string) => string, tShared("status.ready")), [t, tShared]);
+  const canCreate = can("unofficial_whatsapp_campaigns", "create");
 
   const contactCount = campaigns.reduce(
     (sum, c) => sum + (c.metrics?.totalNumbers ?? 0),
@@ -155,8 +160,9 @@ export default function UnofficialWhatsAppCampaignsPage() {
       onRowClick={(row) =>
         router.push(`/dashboard/unofficial-whatsapp-campaigns/${row.id}`)
       }
-      canCreate={can("unofficial_whatsapp_campaigns", "create")}
+      canCreate={canCreate}
       createHref="/dashboard/unofficial-whatsapp-campaigns/new"
+      notice={canCreate ? <CampaignDraftsPanel channel="unofficial_whatsapp" continueHref={draftHref} /> : undefined}
       summary={
         <CampaignsSummaryBar
           variant="whatsapp"

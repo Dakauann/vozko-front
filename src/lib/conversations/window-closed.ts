@@ -1,3 +1,4 @@
+import { EMAIL_BLOCK_DETAILS } from "@/lib/email/channel";
 import { MERCADOLIVRE_BLOCK_SUBSTATUSES } from "@/lib/mercadolivre/window";
 import type { EntryType, WindowClosedReason } from "./types";
 
@@ -48,6 +49,7 @@ export function mergeWindowClosed(wire: WindowClosedWire, previous: Partial<Wind
 
 export const CLOSED_DETAIL_CATALOGS: Partial<Record<EntryType, readonly string[]>> = {
   mercadolivre: MERCADOLIVRE_BLOCK_SUBSTATUSES,
+  email: EMAIL_BLOCK_DETAILS,
 };
 
 export const CHANNEL_UNAVAILABLE_BY_CHANNEL: Partial<Record<EntryType, true>> = {
@@ -58,6 +60,9 @@ export const CHANNEL_UNAVAILABLE_BY_CHANNEL: Partial<Record<EntryType, true>> = 
   telegram: true,
   mercadolivre: true,
   tiktok: true,
+  email: true,
+  rcs: true,
+  sms: true,
 };
 
 export const CHANNEL_REASON_COPY: Partial<Record<EntryType, readonly WindowClosedReason[]>> = {

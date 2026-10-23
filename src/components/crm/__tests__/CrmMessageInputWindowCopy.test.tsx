@@ -80,6 +80,18 @@ describe("composer window-closed copy", () => {
         expect(screen.queryByText(reasonCopy.provider_blocked)).not.toBeInTheDocument();
     });
 
+    it("explains why an email reply is blocked, and names a removed inbox", () => {
+        const emailDetail = ptMessages.conversationWindow.closedDetail.email;
+        for (const detail of ["email_address_suppressed", "email_sender_not_provisioned", "email_sender_paused"] as const) {
+            const { unmount } = renderClosed("provider_blocked", null, "email", detail);
+            expect(screen.getByText(emailDetail[detail])).toBeInTheDocument();
+            expect(screen.queryByText(reasonCopy.provider_blocked)).not.toBeInTheDocument();
+            unmount();
+        }
+        renderClosed("channel_unavailable", null, "email");
+        expect(screen.getByText(byChannel.email.channel_unavailable)).toBeInTheDocument();
+    });
+
     it("falls back to the generic block copy for a substatus it does not know", () => {
         renderClosed("provider_blocked", null, "mercadolivre", "blocked_by_something_new");
         expect(screen.getByText(reasonCopy.provider_blocked)).toBeInTheDocument();

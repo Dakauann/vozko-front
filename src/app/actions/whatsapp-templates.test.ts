@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const apiClient = vi.fn();
 vi.mock("@/lib/api/browser-client", () => ({ apiClient: (...args: unknown[]) => apiClient(...args) }));
 
-import { editWhatsAppTemplateContentAction } from "./whatsapp-templates";
+import { checkTemplateVariableNamesAction, createWhatsAppTemplateAction, editWhatsAppTemplateContentAction } from "./whatsapp-templates";
 
 const components = [{ type: "BODY" as const, text: "Oi, novidades. Responda /sair" }];
 
@@ -38,5 +38,41 @@ describe("editWhatsAppTemplateContentAction", () => {
       errorCode: "template_edit_window",
       expected: { nextEditAt: "2026-10-18T09:30:00Z" },
     });
+  });
+});
+
+describe("createWhatsAppTemplateAction", () => {
+  it("returns the refusal code and the button the server refused", async () => {
+    apiClient.mockResolvedValueOnce({
+      error: { message: "dynamic", status: 400, code: "template_tracked_button_dynamic", expected: { buttonIndex: "1" } },
+    });
+    const result = await createWhatsAppTemplateAction({ businessPhoneId: "bp-1", name: "oferta", language: "pt_BR", category: "MARKETING", components });
+
+    expect(result).toEqual({
+      template: null,
+      error: "dynamic",
+      errorCode: "template_tracked_button_dynamic",
+      expected: { buttonIndex: "1" },
+    });
+  });
+});
+
+describe("checkTemplateVariableNamesAction", () => {
+  it("asks the server whether the names follow the template rule", async () => {
+    apiClient.mockResolvedValueOnce({ data: { valid: true } });
+    const answer = await checkTemplateVariableNamesAction(["serie_2027"]);
+    expect(apiClient).toHaveBeenCalledWith("/whatsapp/templates/variable-names/check", { method: "POST", body: JSON.stringify({ names: ["serie_2027"] }) });
+    expect(answer).toEqual({ data: { valid: true }, error: null });
+  });
+
+  it("keeps the refused name the server names", async () => {
+    apiClient.mockResolvedValueOnce({ error: { message: "bad", status: 400, code: "template_variable_name_invalid", expected: { variable: "Serie" } } });
+    const answer = await checkTemplateVariableNamesAction(["Serie"]);
+    expect(answer.error).toEqual({ message: "bad", status: 400, code: "template_variable_name_invalid", expected: { variable: "Serie" } });
+  });
+
+  it("refuses an answer that does not say the names are valid", async () => {
+    apiClient.mockResolvedValueOnce({ data: { valid: false } });
+    expect((await checkTemplateVariableNamesAction(["x"])).data).toBeNull();
   });
 });

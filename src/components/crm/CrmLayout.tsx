@@ -17,7 +17,7 @@ import {
 } from "@/lib/conversations/hand-back";
 import { HandBackConfirmDialog } from "@/components/crm/HandBackConfirmDialog";
 import type { FunnelColumnState } from "@/hooks/use-conversation-ws";
-import { ArrowSquareOut, Bell, BellSlash, ChatCircleDots, Info, Robot, WhatsappLogo } from "@/components/icons";
+import { ArrowSquareOut, Bell, BellSlash, ChatCircleDots, EnvelopeSimple, Info, Robot, WhatsappLogo } from "@/components/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MotionConfig } from "framer-motion";
 
@@ -109,6 +109,8 @@ import { cn } from "@/lib/utils";
 import { setMessageSoundsMuted, useMessageSoundsMuted } from "@/lib/sounds/message-sound-preference";
 import { useCrm } from "@/contexts/crm-context";
 import { StartOfficialConversationDialog } from "@/components/whatsapp/start-official-conversation-dialog";
+import { EMAIL_ADDRESS_TARGET, StartEmailConversationDialog } from "@/components/email-marketing/start-email-conversation-dialog";
+import { useEmailOutreachAvailability } from "@/hooks/use-email-outreach";
 import { StartConversationDialog } from "@/components/unofficial-whatsapp/start-conversation-dialog";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { channelCapabilities } from "@/lib/conversations/types";
@@ -933,8 +935,10 @@ export default function CrmLayout({
 
   const canStartConversation = can("unofficial_whatsapp_instances", "send");
   const canStartOfficial = can("whatsapp_templates", "send");
+  const canStartEmail = useEmailOutreachAvailability().available;
   const [startConversationOpen, setStartConversationOpen] = useState(false);
   const [startOfficialOpen, setStartOfficialOpen] = useState(false);
+  const [startEmailOpen, setStartEmailOpen] = useState(false);
 
   const handleConversationStarted = useCallback(
     (entryId: string, entryType: string) => {
@@ -1891,7 +1895,7 @@ export default function CrmLayout({
           </div>
 
           <div className="flex min-w-0 shrink-0 items-stretch border-t border-border sm:border-l sm:border-t-0">
-            {(canStartConversation || canStartOfficial) && (
+            {(canStartConversation || canStartOfficial || canStartEmail) && (
               <ConsoleBank legend={tBoard("bank.outbound")}>
                 {canStartOfficial && (
                   <TooltipWrapper content={tBoard("toolbar.startOfficialHint")}>
@@ -1922,6 +1926,20 @@ export default function CrmLayout({
                     iconSide="left"
                   />
                 </TooltipWrapper>
+                )}
+                {canStartEmail && (
+                  <TooltipWrapper content={tBoard("toolbar.startEmailHint")}>
+                    <ElevatedButton
+                      variant="outline-subtle"
+                      size="sm"
+                      onClick={() => setStartEmailOpen(true)}
+                      title={tBoard("toolbar.startEmail")}
+                      titleClassName="hidden sm:inline"
+                      icon={<EnvelopeSimple size={16} weight="bold" />}
+                      iconVisible
+                      iconSide="left"
+                    />
+                  </TooltipWrapper>
                 )}
               </ConsoleBank>
             )}
@@ -2404,6 +2422,15 @@ export default function CrmLayout({
         />
       )}
 
+      {canStartEmail && (
+        <StartEmailConversationDialog
+          open={startEmailOpen}
+          onOpenChange={setStartEmailOpen}
+          target={EMAIL_ADDRESS_TARGET}
+          onStarted={handleConversationStarted}
+        />
+      )}
+
       {scheduleDraft && scheduleEntryType && scheduleEntryId && (
         <ScheduleMessageDialog
           open
@@ -2458,8 +2485,8 @@ export default function CrmLayout({
             inbox.find((e) => e.entry_id === activeConversation.entry_id)?.business_phone_id ?? ""
           }
           recipientName={activeConversation.lead_name}
-          onSend={(templateId, parameters) =>
-            reopenWindow(activeConversation.entry_id, activeConversation.entry_type, templateId, parameters)
+          onSend={(templateId, parameters, headerParameters) =>
+            reopenWindow(activeConversation.entry_id, activeConversation.entry_type, templateId, parameters, headerParameters)
           }
         />
       )}

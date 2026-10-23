@@ -1,3 +1,4 @@
+import { isPlainObject, signatureTime, sortedValue } from "./json-value";
 import type { WorkflowRunLog } from "./types";
 
 export const PIN_MAX_BYTES = 64 * 1024;
@@ -39,10 +40,6 @@ export function pinSourceOf(source: string): PinSource | null {
   if (!source.startsWith(RUN_SOURCE_PREFIX)) return null;
   const runId = source.slice(RUN_SOURCE_PREFIX.length).trim();
   return runId ? { kind: "run", runId } : null;
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function knownEdge(edge: string | undefined, edges: readonly string[]): string | undefined {
@@ -110,24 +107,13 @@ export function pinText(pin: NodePin): string {
   return JSON.stringify(pin.output, null, 2);
 }
 
-function sortedValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(sortedValue);
-  if (!isPlainObject(value)) return value;
-  return Object.fromEntries(
-    Object.keys(value)
-      .sort()
-      .map((key) => [key, sortedValue(value[key])]),
-  );
-}
-
 export function pinSignature(pin: NodePin | undefined | null): string {
   if (!pin) return "";
-  const at = Date.parse(pin.pinned_at);
   return JSON.stringify({
     output: sortedValue(pin.output ?? {}),
     edge: pin.edge ?? "",
     source: pin.source,
-    at: Number.isNaN(at) ? pin.pinned_at : at,
+    at: signatureTime(pin.pinned_at),
     ...(isWithheldPin(pin) ? { withheld: true } : {}),
   });
 }

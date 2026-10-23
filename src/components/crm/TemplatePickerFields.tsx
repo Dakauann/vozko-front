@@ -16,9 +16,10 @@ interface TemplatePickerFieldsProps {
   previewDateLabel: string;
   children?: ReactNode;
   notice?: ReactNode;
+  slotLabel?: (slot: { name: string; header: boolean }) => string;
 }
 
-export function TemplatePickerFields({ composer, businessPhoneId, previewDateLabel, children, notice }: TemplatePickerFieldsProps) {
+export function TemplatePickerFields({ composer, businessPhoneId, previewDateLabel, children, notice, slotLabel }: TemplatePickerFieldsProps) {
   const t = useTranslations("scheduledMessages.templateDialog");
   const noTemplates = !composer.templatesLoading && composer.templates.length > 0 && composer.readyTemplates.length === 0;
 
@@ -50,6 +51,7 @@ export function TemplatePickerFields({ composer, businessPhoneId, previewDateLab
           headerValues={composer.headerValues}
           onBodyChange={composer.setBodyValue}
           onHeaderChange={composer.setHeaderValue}
+          labelOf={slotLabel}
         />
 
         {children}

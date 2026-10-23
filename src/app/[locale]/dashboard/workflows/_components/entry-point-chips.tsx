@@ -5,14 +5,12 @@ import { useLocale, useNow, useTranslations } from "next-intl";
 
 import {
   ArrowBendUpLeft,
+  CalendarCheck,
   ChatCircle,
   ChatCircleDots,
-  ClockCountdown,
   FileText,
   Kanban,
-  Megaphone,
   PhoneCall,
-  Play,
   Question,
   Robot,
   WebhooksLogo,
@@ -33,12 +31,10 @@ const KIND_ICONS: Record<EntryPointKind, Icon> = {
   webhook: WebhooksLogo,
   form_submitted: FileText,
   agent_call: Robot,
-  campaign_sent: Megaphone,
   stage_added: Kanban,
-  no_reply: ClockCountdown,
   call_received: PhoneCall,
-  manual: Play,
   lead_exit: ArrowBendUpLeft,
+  birthday: CalendarCheck,
 };
 
 const LAST_CALL_TICK_MS = 60_000;
@@ -68,7 +64,8 @@ export function EntryLastCall({ at }: { at?: string }) {
   return <>{ago ? t("lastCall", { ago }) : t("noCall")}</>;
 }
 
-function fixAllowed(fix: EntryPointFix, canUpdate: boolean): boolean {
+function fixAllowed(fix: EntryPointFix, canUpdate: boolean, inEditor: boolean): boolean {
+  if (fix.kind === "open_editor") return canUpdate && !inEditor;
   return fix.kind === "link" || fix.kind === "open_node" || canUpdate;
 }
 
@@ -165,16 +162,18 @@ function LastOutcome({ entry }: { entry: EntryPoint }) {
 export function EntryPointCard({
   entry,
   canUpdate,
+  inEditor = false,
   onFix,
 }: {
   entry: EntryPoint;
   canUpdate: boolean;
+  inEditor?: boolean;
   onFix: (fix: EntryPointFix) => void;
 }) {
   const text = useEntryPointText();
   const copy = entryPointCopy(entry);
   const fixLabel = text.fix(copy);
-  const fix = copy.fix && fixLabel && fixAllowed(copy.fix, canUpdate) ? copy.fix : null;
+  const fix = copy.fix && fixLabel && fixAllowed(copy.fix, canUpdate, inEditor) ? copy.fix : null;
   return (
     <div className="space-y-2.5" onClick={(event) => event.stopPropagation()}>
       <div className="space-y-1">
@@ -199,10 +198,12 @@ export function EntryPointCard({
 function EntryPointChip({
   entry,
   canUpdate,
+  inEditor,
   onFix,
 }: {
   entry: EntryPoint;
   canUpdate: boolean;
+  inEditor: boolean;
   onFix: (fix: EntryPointFix) => void;
 }) {
   const text = useEntryPointText();
@@ -222,7 +223,7 @@ function EntryPointChip({
         </button>
       </HoverCardTrigger>
       <HoverCardContent align="start" className="w-72">
-        <EntryPointCard entry={entry} canUpdate={canUpdate} onFix={onFix} />
+        <EntryPointCard entry={entry} canUpdate={canUpdate} inEditor={inEditor} onFix={onFix} />
       </HoverCardContent>
     </HoverCard>
   );
@@ -231,11 +232,13 @@ function EntryPointChip({
 function EntryPointChipsView({
   entries,
   canUpdate,
+  inEditor = false,
   onFix,
   className,
 }: {
   entries: readonly EntryPoint[] | undefined;
   canUpdate: boolean;
+  inEditor?: boolean;
   onFix: (fix: EntryPointFix) => void;
   className?: string;
 }) {
@@ -245,7 +248,7 @@ function EntryPointChipsView({
   return (
     <span className={cn("inline-flex flex-wrap items-center gap-1", className)}>
       {entries.map((entry, index) => (
-        <EntryPointChip key={`${entry.kind}:${entry.nodeId ?? index}`} entry={entry} canUpdate={canUpdate} onFix={onFix} />
+        <EntryPointChip key={`${entry.kind}:${entry.nodeId ?? index}`} entry={entry} canUpdate={canUpdate} inEditor={inEditor} onFix={onFix} />
       ))}
     </span>
   );

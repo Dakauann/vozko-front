@@ -1,4 +1,8 @@
-const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job", "export", "listen", "save_preset", "create_project"] as const;
+const SCREEN_COMMANDS = ["read", "edit", "look", "resolve_source", "follow_job", "export", "listen", "save_preset", "create_project", "open_design"] as const;
+
+export const APP_SCREEN_COMMANDS = ["create_project", "open_design"] as const;
+
+export type AppScreenCommandName = (typeof APP_SCREEN_COMMANDS)[number];
 
 export type ScreenCommandName = (typeof SCREEN_COMMANDS)[number];
 
@@ -57,7 +61,7 @@ interface ScreenRegistry {
 }
 
 const NO_EDITOR_MESSAGE = "o projeto não está aberto nesta aba; peça ao usuário para abrir o projeto no Estúdio";
-const NO_CREATOR_MESSAGE = "esta aba não pode criar o projeto agora";
+const NO_CREATOR_MESSAGE = "esta aba não pode fazer isso agora";
 export const EDITOR_GRACE_MS = 3000;
 
 async function runSafely(handler: ScreenHandler, command: ScreenCommand): Promise<ScreenReply> {
@@ -69,10 +73,15 @@ async function runSafely(handler: ScreenHandler, command: ScreenCommand): Promis
   }
 }
 
-export function routeScreenCommand(command: ScreenCommand, editors: ScreenHandler, creator: ScreenHandler | null): Promise<ScreenReply> {
-  if (command.name !== "create_project") return editors(command);
-  if (!creator) return Promise.resolve(screenRefusal("no_editor", NO_CREATOR_MESSAGE));
-  return runSafely(creator, command);
+function isAppCommand(name: ScreenCommandName): name is AppScreenCommandName {
+  return (APP_SCREEN_COMMANDS as readonly string[]).includes(name);
+}
+
+export function routeScreenCommand(command: ScreenCommand, editors: ScreenHandler, app: (name: AppScreenCommandName) => ScreenHandler | null): Promise<ScreenReply> {
+  if (!isAppCommand(command.name)) return editors(command);
+  const handler = app(command.name);
+  if (!handler) return Promise.resolve(screenRefusal("no_editor", NO_CREATOR_MESSAGE));
+  return runSafely(handler, command);
 }
 
 export interface TabLocks {

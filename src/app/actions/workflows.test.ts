@@ -10,6 +10,9 @@ vi.mock("@/lib/api/browser-client", () => ({ apiClient }));
 import {
   activateWorkflowAction,
   analyzeNodeAction,
+  getNodeVariablesAction,
+  getTriggerLastInputAction,
+  getWorkflowChoiceStatsAction,
   cancelWorkflowRunAction,
   getWorkflowRunAction,
   listConversationWorkflowRunsAction,
@@ -264,5 +267,129 @@ describe("workflow list filters", () => {
 
     await listWorkflowsAction({ page: 2, pageSize: 15, entryKind: "webhook" });
     expect(apiClient).toHaveBeenCalledWith("/workflows?page=2&pageSize=15&entryKind=webhook", { method: "GET" });
+  });
+
+  it("asks the server for the flows a button can start", async () => {
+    apiClient.mockResolvedValue({ data: { data: [], meta: { page: 1, pageSize: 100, totalPages: 1, totalItems: 0 } } });
+
+    await listWorkflowsAction({ pageSize: 100, startsFromMessage: true });
+    expect(apiClient).toHaveBeenCalledWith("/workflows?pageSize=100&startsFromMessage=true", { method: "GET" });
+  });
+});
+
+describe("trigger input actions", () => {
+  beforeEach(() => apiClient.mockReset());
+
+  it("reads the last real call of a trigger", async () => {
+    apiClient.mockResolvedValue({ data: { input: { cpf: "•••", nome: "Ana" }, maskedKeys: ["cpf"], runId: "r1", startedAt: "2026-10-22T10:00:00Z" } });
+    await expect(getTriggerLastInputAction("wf 1", "t/1")).resolves.toEqual({
+      lastInput: { input: { cpf: "•••", nome: "Ana" }, maskedKeys: ["cpf"], runId: "r1", startedAt: "2026-10-22T10:00:00Z" },
+    });
+    expect(apiClient).toHaveBeenCalledWith("/workflows/wf%201/triggers/t%2F1/last-input", { method: "GET" });
+  });
+
+  it("passes the coded 404 on when there is no recent real call", async () => {
+    apiClient.mockResolvedValue({ error: { message: "Nenhuma chamada", status: 404, code: "no_recent_input" } });
+    await expect(getTriggerLastInputAction("wf-1", "t1")).resolves.toEqual({
+      lastInput: null,
+      error: "Nenhuma chamada",
+      code: "no_recent_input",
+      status: 404,
+    });
+  });
+
+  it.each([
+    ["trigger_not_found", 404],
+    ["trigger_input_unavailable", 503],
+  ] as const)("passes the coded %s refusal on", async (code, status) => {
+    apiClient.mockResolvedValue({ error: { message: "raw", status, code } });
+    await expect(getTriggerLastInputAction("wf-1", "t1")).resolves.toEqual({ lastInput: null, error: "raw", code, status });
+  });
+
+  it("reads the last input only at the top level, never unwrapping a data envelope", async () => {
+    apiClient.mockResolvedValue({ data: { data: { input: { nome: "Ana" }, maskedKeys: [], runId: "r1", startedAt: "2026-10-22T10:00:00Z" } } });
+    const answer = await getTriggerLastInputAction("wf-1", "t1");
+    expect(answer.lastInput).toBeNull();
+    expect(answer.code).toBeUndefined();
+  });
+
+  it("refuses an answer it cannot read instead of loading an empty input", async () => {
+    apiClient.mockResolvedValue({ data: { input: {} } });
+    const answer = await getTriggerLastInputAction("wf-1", "t1");
+    expect(answer.lastInput).toBeNull();
+    expect(answer.error).toBeTruthy();
+    expect(answer.code).toBeUndefined();
+  });
+
+  it("sends the trigger input with a node test and returns the refused fields", async () => {
+    apiClient.mockResolvedValue({
+      error: { message: "Dados inválidos", status: 422, code: "trigger_input_invalid", details: { issues: [{ code: "required", key: "cpf" }] } },
+    });
+    const payload = { mockedState: {}, trigger: { nodeId: "t1", input: { nome: "Ana" } } };
+    await expect(testNodeAction("wf-1", "n4", payload)).resolves.toEqual({
+      result: null,
+      error: "Dados inválidos",
+      code: "trigger_input_invalid",
+      status: 422,
+      issues: [{ code: "required", key: "cpf" }],
+    });
+    expect(apiClient).toHaveBeenCalledWith("/workflows/wf-1/nodes/n4/test", { method: "POST", body: JSON.stringify(payload) });
+  });
+});
+
+describe("getWorkflowChoiceStatsAction", () => {
+  beforeEach(() => apiClient.mockReset());
+
+  const body = { from: "2026-10-16", to: "2026-10-22", timezone: "America/Sao_Paulo", version: null, nodes: [] };
+
+  it("asks for the period once for the whole canvas", async () => {
+    apiClient.mockResolvedValue({ data: body });
+    const answer = await getWorkflowChoiceStatsAction("wf 1", { from: "2026-10-16", to: "2026-10-22" });
+    expect(answer.status).toBe("ready");
+    expect(apiClient).toHaveBeenCalledWith("/workflows/wf%201/choice-stats?from=2026-10-16&to=2026-10-22", { method: "GET" });
+  });
+
+  it("adds the version filter only when one is chosen", async () => {
+    apiClient.mockResolvedValue({ data: { ...body, version: 2 } });
+    await getWorkflowChoiceStatsAction("wf-1", { from: "2026-10-16", to: "2026-10-22", version: 2 });
+    expect(apiClient).toHaveBeenCalledWith("/workflows/wf-1/choice-stats?from=2026-10-16&to=2026-10-22&version=2", { method: "GET" });
+  });
+
+  it("reports a body it cannot read as unreadable", async () => {
+    apiClient.mockResolvedValue({ data: { nodes: "many" } });
+    await expect(getWorkflowChoiceStatsAction("wf-1", { from: "2026-10-16", to: "2026-10-22" })).resolves.toEqual({ status: "unreadable" });
+  });
+
+  it("passes a coded refusal on", async () => {
+    apiClient.mockResolvedValue({ error: { message: "raw", status: 400, code: "invalid_period" } });
+    await expect(getWorkflowChoiceStatsAction("wf-1", { from: "x", to: "y" })).resolves.toEqual({ status: "failed", message: "raw", code: "invalid_period", httpStatus: 400 });
+  });
+});
+
+describe("getNodeVariablesAction", () => {
+  beforeEach(() => apiClient.mockReset());
+
+  it("reads the variable catalog the backend computed for the node", async () => {
+    apiClient.mockResolvedValue({
+      data: { variables: [{ ref: "sys.date", label: "Data de hoje", group: "system", kind: "system", source: null, type: "date", example: null, availability: "always" }] },
+    });
+    const answer = await getNodeVariablesAction("wf 1", "n/1");
+    expect(answer).toEqual({
+      catalog: {
+        variables: [{ ref: "sys.date", label: "Data de hoje", group: "system", kind: "system", source: null, type: "date", example: null, availability: "always" }],
+        unreadable: 0,
+      },
+    });
+    expect(apiClient).toHaveBeenCalledWith("/workflows/wf%201/nodes/n%2F1/variables", { method: "GET" });
+  });
+
+  it("passes a coded refusal on", async () => {
+    apiClient.mockResolvedValue({ error: { message: "raw", status: 404, code: "node_not_found" } });
+    await expect(getNodeVariablesAction("wf-1", "n1")).resolves.toEqual({ error: "raw", code: "node_not_found", status: 404 });
+  });
+
+  it("answers an error for an unreadable body instead of an empty catalog", async () => {
+    apiClient.mockResolvedValue({ data: { items: [] } });
+    await expect(getNodeVariablesAction("wf-1", "n1")).resolves.toEqual({ error: "unreadable variable catalog" });
   });
 });

@@ -26,7 +26,7 @@ import { AdImage } from "../ad-image";
 type Mode = "upload" | "library" | "generate";
 type MediaAccept = AdMediaKind | "any";
 
-const ASPECTS: ImageAspect[] = ["square", "portrait", "story"];
+const ASPECTS: readonly ImageAspect[] = ["square", "portrait", "story"];
 const MAX_PROMPT = 4000;
 const ACCEPT: Record<MediaAccept, string> = {
   image: "image/jpeg,image/png",
@@ -145,11 +145,13 @@ export function MediaPicker({
   accept,
   canGenerate,
   onChange,
+  aspects = ASPECTS,
 }: {
   value: MediaChoice | null;
   accept: MediaAccept;
   canGenerate: boolean;
   onChange: (media: MediaChoice | null) => void;
+  aspects?: readonly ImageAspect[];
 }) {
   const t = useTranslations("adsWizard.media");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -158,7 +160,7 @@ export function MediaPicker({
   const [references, setReferences] = useState<ReferenceThumbnail[]>([]);
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<string | null>(null);
-  const [aspect, setAspect] = useState<ImageAspect>("square");
+  const [aspect, setAspect] = useState<ImageAspect>(aspects[0]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const generation = useMediaGeneration({
@@ -325,7 +327,7 @@ export function MediaPicker({
             size="sm"
             value={aspect}
             onChange={setAspect}
-            options={ASPECTS.map((option) => ({ value: option, label: t(`aspect.${option}`), disabled: generating }))}
+            options={aspects.map((option) => ({ value: option, label: t(`aspect.${option}`), disabled: generating }))}
           />
           <MediaModelSelect kind="image" value={model} onChange={setModel} disabled={generating} />
           <div className="space-y-1.5">

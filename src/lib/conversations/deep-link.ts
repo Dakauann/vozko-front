@@ -9,6 +9,9 @@ const CONVERSATION_ENTRY_TYPE_SET: Record<EntryType, true> = {
   webchat: true,
   mercadolivre: true,
   tiktok: true,
+  email: true,
+  rcs: true,
+  sms: true,
 };
 
 const CONVERSATION_ENTRY_TYPES = Object.keys(CONVERSATION_ENTRY_TYPE_SET) as readonly EntryType[];

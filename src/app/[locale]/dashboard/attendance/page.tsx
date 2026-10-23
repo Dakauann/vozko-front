@@ -217,6 +217,9 @@ const CHANNEL_BAR: Record<string, string> = {
   webchat: "#0d9488",
   mercadolivre: "#ffe600",
   tiktok: "#fe2c55",
+  email: "#4f46e5",
+  rcs: "#1a73e8",
+  sms: "#0f9d58",
   voice: "#8b5cf6",
 };
 
@@ -238,6 +241,12 @@ function channelLabel(channel: string, tc: (key: string) => string): string {
       return tc("mercadolivre");
     case "tiktok":
       return tc("tiktok");
+    case "email":
+      return tc("email");
+    case "rcs":
+      return tc("rcs");
+    case "sms":
+      return tc("sms");
     default:
       return channel;
   }
@@ -2282,6 +2291,24 @@ export default function AttendanceOpsPage() {
                         <span className="inline-flex items-center gap-1.5">
                           <ChannelTile channel="tiktok" size="sm" className="h-5 w-5" />
                           {tc("tiktok")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="email">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="email" size="sm" className="h-5 w-5" />
+                          {tc("email")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="rcs">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="rcs" size="sm" className="h-5 w-5" />
+                          {tc("rcs")}
+                        </span>
+                      </ElevatedSelectItem>
+                      <ElevatedSelectItem value="sms">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChannelTile channel="sms" size="sm" className="h-5 w-5" />
+                          {tc("sms")}
                         </span>
                       </ElevatedSelectItem>
                     </ElevatedSelect>

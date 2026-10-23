@@ -1,5 +1,5 @@
 import type { EntryType } from '@/lib/conversations/types';
-import { readNote, type ConversationNote } from '@/lib/conversations/notes';
+import { readNote, readNoteImage, type ConversationNote, type NoteImage } from '@/lib/conversations/notes';
 import { apiClient } from '@/lib/api/browser-client';
 
 interface NoteListResult {
@@ -44,10 +44,11 @@ export async function createConversationNoteAction(
     entryId: string,
     body: string,
     mentions: string[],
+    imageIds: string[] = [],
 ): Promise<NoteWriteResult> {
     const response = await apiClient<{ note?: unknown }>(notesPath(entryType, entryId), {
         method: 'POST',
-        body: JSON.stringify({ body, mentions }),
+        body: JSON.stringify({ body, mentions, image_ids: imageIds }),
     });
     if (response.error) return { note: null, error: response.error.message, code: response.error.code };
     const note = readNote(response.data?.note);
@@ -57,4 +58,22 @@ export async function createConversationNoteAction(
 export async function deleteConversationNoteAction(noteId: string): Promise<{ error?: string; code?: string }> {
     const response = await apiClient(`/conversation-notes/${encodeURIComponent(noteId)}`, { method: 'DELETE' });
     return response.error ? { error: response.error.message, code: response.error.code } : {};
+}
+
+interface NoteImageUploadResult {
+    image: NoteImage | null;
+    error?: string;
+    code?: string;
+}
+
+export async function uploadNoteImageAction(entryType: EntryType, entryId: string, file: File): Promise<NoteImageUploadResult> {
+    const form = new FormData();
+    form.append('image', file);
+    const response = await apiClient<{ image?: unknown }>(`${notesPath(entryType, entryId)}/images`, {
+        method: 'POST',
+        body: form,
+    });
+    if (response.error) return { image: null, error: response.error.message, code: response.error.code };
+    const image = readNoteImage(response.data?.image);
+    return image ? { image } : { image: null, error: 'invalid_image' };
 }

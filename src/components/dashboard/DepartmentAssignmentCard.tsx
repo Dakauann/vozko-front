@@ -158,8 +158,8 @@ export function DepartmentAssignmentCard({
     <ElevatedContainer
       className={cn("!p-5", className)}
     >
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 flex-[999_1_18rem] space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-[--radius] border border-control-edge bg-card text-foreground shadow-sm">
               <TreeStructure weight="regular" className="h-5 w-5" />
@@ -186,7 +186,7 @@ export function DepartmentAssignmentCard({
           </span>
         </div>
 
-        <div className="flex w-full flex-col gap-3 xl:w-[320px] xl:min-w-[320px]">
+        <div className="flex min-w-0 flex-[1_1_20rem] flex-col gap-3">
           <ElevatedSelect
             value={selectedDepartment?.id ?? ""}
             onValueChange={setSelectedDepartmentId}

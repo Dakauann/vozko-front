@@ -1,14 +1,18 @@
 "use client";
 
-import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useId, useImperativeHandle, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type Ref } from "react";
 import { useTranslations } from "next-intl";
+import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 
-import { createConversationNoteAction } from "@/app/actions/conversation-notes";
-import { CircleNotch, NotePencil } from "@/components/icons";
+import { createConversationNoteAction, uploadNoteImageAction } from "@/app/actions/conversation-notes";
+import { CircleNotch, Image as ImageIcon, NotePencil } from "@/components/icons";
 import { memberDisplayName, useAssignableMembers } from "@/hooks/use-assignable-members";
+import { useComposerAttachments, type AttachmentUploader } from "@/hooks/use-composer-attachments";
 import { rememberNote } from "@/hooks/use-conversation-notes";
 import { readDraft, useDraftAutosave, useDraftScope } from "@/hooks/use-conversation-drafts";
+import { clipboardFiles } from "@/lib/conversations/clipboard-files";
+import { attachmentsReady, type ComposerAttachment } from "@/lib/conversations/composer-attachments";
 import {
   insertMention,
   matchingMembers,
@@ -21,15 +25,24 @@ import type { EntryType } from "@/lib/conversations/types";
 import { windowKey } from "@/lib/conversations/window-deck";
 import { cn } from "@/lib/utils";
 
+import { ComposerAttachmentStrip } from "./ComposerAttachmentStrip";
+
+export interface NoteFieldControl {
+  attachFiles: (files: File[]) => void;
+}
+
 interface ComposerNoteFieldProps {
   entryId: string;
   entryType: EntryType;
   onEscape: () => void;
+  controlRef?: Ref<NoteFieldControl>;
 }
 
 const NO_DRAFT_ATTACHMENTS: never[] = [];
+const NO_ATTACHMENTS: ComposerAttachment[] = [];
+const admitEveryFile = () => true;
 
-export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNoteFieldProps) {
+export function ComposerNoteField({ entryId, entryType, onEscape, controlRef }: ComposerNoteFieldProps) {
   const t = useTranslations("crmMessage");
   const entryKey = windowKey(entryId, entryType);
   const draftScope = useDraftScope();
@@ -47,6 +60,48 @@ export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNote
   );
   const suggestions = mention ? matchingMembers(candidates, mention.query) : [];
   const picking = mention !== null;
+
+  const errorCopy = useCallback(
+    (code: string | undefined, fallback: "notes.saveFailed" | "notes.imageUploadFailed") =>
+      code && t.has(`notes.errors.${code}`) ? t(`notes.errors.${code}`) : t(fallback),
+    [t],
+  );
+
+  const uploadImage = useCallback<AttachmentUploader>(
+    async (file) => {
+      const result = await uploadNoteImageAction(entryType, entryId, file);
+      return result.image ? { mediaId: result.image.id } : { mediaId: null, error: errorCopy(result.code, "notes.imageUploadFailed") };
+    },
+    [entryId, entryType, errorCopy],
+  );
+
+  const { attachments, attachFiles, remove, clearAll } = useComposerAttachments({
+    entryType,
+    entryId,
+    initial: NO_ATTACHMENTS,
+    admit: admitEveryFile,
+    upload: uploadImage,
+  });
+
+  const addFiles = useCallback(
+    (files: readonly File[]) => {
+      if (files.length > 0) void attachFiles(files);
+    },
+    [attachFiles],
+  );
+
+  useImperativeHandle(controlRef, () => ({ attachFiles: addFiles }), [addFiles]);
+
+  const { getRootProps, getInputProps, isDragActive, open: pickImages } = useDropzone({
+    onDrop: addFiles,
+    noClick: true,
+    noKeyboard: true,
+    multiple: true,
+    noDragEventsBubbling: true,
+  });
+
+  const body = text.trim();
+  const savable = (body !== "" || attachments.length > 0) && attachmentsReady(attachments) && !saving;
 
   const trackMention = (value: string, caret: number) => {
     const next = mentionQuery(value, caret);
@@ -66,20 +121,28 @@ export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNote
   };
 
   const save = async () => {
-    const body = text.trim();
-    if (!body || saving) return;
+    if (!savable) return;
     setSaving(true);
-    const result = await createConversationNoteAction(entryType, entryId, body, mentionsIn(body, candidates));
+    const imageIds = attachments.flatMap((attachment) => (attachment.mediaId ? [attachment.mediaId] : []));
+    const result = await createConversationNoteAction(entryType, entryId, body, mentionsIn(body, candidates), imageIds);
     setSaving(false);
     if (!result.note) {
-      toast.error(result.code && t.has(`notes.errors.${result.code}`) ? t(`notes.errors.${result.code}`) : t("notes.saveFailed"));
+      toast.error(errorCopy(result.code, "notes.saveFailed"));
       return;
     }
     rememberNote(result.note);
     discardDraft();
     setText("");
+    clearAll();
     setMention(null);
     fieldRef.current?.focus();
+  };
+
+  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = clipboardFiles(event.clipboardData);
+    if (files.length === 0) return;
+    event.preventDefault();
+    addFiles(files);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -110,8 +173,14 @@ export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNote
   };
 
   return (
-    <div className="flex items-end gap-2 px-2 py-2 sm:px-3">
-      <div className="relative min-w-0 flex-1 rounded-[--radius] border border-dashed border-border-strong bg-muted px-1.5 py-1">
+    <div {...getRootProps({ className: "flex items-end gap-2 px-2 py-2 sm:px-3" })}>
+      <input {...getInputProps({ accept: "image/*" })} aria-label={t("composer.addNoteImage")} />
+      <div
+        className={cn(
+          "relative min-w-0 flex-1 rounded-[--radius] border border-dashed border-border-strong bg-muted px-1.5 py-1 transition-colors duration-150",
+          isDragActive && "border-primary bg-background",
+        )}
+      >
         {picking ? (
           <ul
             id={listId}
@@ -142,6 +211,7 @@ export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNote
             )}
           </ul>
         ) : null}
+        <ComposerAttachmentStrip attachments={attachments} onRemove={remove} />
         <textarea
           ref={fieldRef}
           rows={2}
@@ -155,14 +225,26 @@ export function ComposerNoteField({ entryId, entryType, onEscape }: ComposerNote
           }}
           onSelect={(event) => trackMention(event.currentTarget.value, event.currentTarget.selectionStart)}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           className="block max-h-[120px] w-full resize-none border-0 bg-transparent px-2 py-2 text-sm font-medium leading-snug text-foreground outline-none placeholder:text-muted-foreground focus:ring-0"
         />
-        <p className="px-2 pb-1 text-2xs text-muted-foreground">{t("composer.noteHint")}</p>
+        <div className="flex items-center gap-2 pb-0.5 pl-2">
+          <p className="min-w-0 flex-1 text-2xs text-muted-foreground">{isDragActive ? t("composer.dropNoteImages") : t("composer.noteHint")}</p>
+          <button
+            type="button"
+            onClick={pickImages}
+            aria-label={t("composer.addNoteImage")}
+            title={t("composer.addNoteImage")}
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors duration-150 hover:bg-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ImageIcon weight="bold" className="h-4 w-4" />
+          </button>
+        </div>
       </div>
       <button
         type="button"
         onClick={() => void save()}
-        disabled={!text.trim() || saving}
+        disabled={!savable}
         aria-label={t("composer.saveNote")}
         title={t("composer.saveNote")}
         className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-colors duration-150 hover:bg-[hsl(var(--primary-hover))] disabled:opacity-50"

@@ -11,14 +11,33 @@ import type { NodeDebugMarks } from "@/lib/workflows/debug-marks";
 import type { RightPanel } from "@/lib/workflows/editor-docking";
 import { pinEdgeOptions, pinFromStep, type NodePin } from "@/lib/workflows/node-pin";
 import { isLiveSimStatus } from "@/lib/workflows/sim-session";
+import { withNodeTestInputs, type TriggerTestInput } from "@/lib/workflows/test-inputs";
 import type { WorkflowRunLog } from "@/lib/workflows/types";
 
 import type { NodeDebugStore } from "./node-debug-marks";
 import type { NodeDebugControls } from "./node-debug-section";
+import { useStableValue } from "./use-stable-value";
 import { getDomainEdgeLabel } from "./workflow-graph";
 import type { WorkflowNodeData } from "./workflow-node";
 
 const NO_NODE_IDS: ReadonlySet<string> = new Set();
+
+type TestInputsByNode = ReadonlyMap<string, TriggerTestInput[]>;
+
+function testInputsByNode(nodes: readonly Node[]): TestInputsByNode {
+  return new Map(
+    nodes.flatMap((node): Array<[string, TriggerTestInput[]]> => {
+      const scenarios = (node.data as unknown as WorkflowNodeData).testInputs;
+      return scenarios?.length ? [[node.id, scenarios]] : [];
+    }),
+  );
+}
+
+function sameTestInputsByNode(prev: TestInputsByNode, next: TestInputsByNode): boolean {
+  if (prev.size !== next.size) return false;
+  for (const [nodeId, scenarios] of next) if (prev.get(nodeId) !== scenarios) return false;
+  return true;
+}
 
 interface EditorDebugInput {
   simulation: UseWorkflowSimulationReturn;
@@ -82,20 +101,34 @@ export function useEditorDebug({
     if (pausedNodeId) centreOnNode(pausedNodeId);
   }, [pausedNodeId, centreOnNode]);
 
-  const setNodePin = useCallback(
-    (nodeId: string, pin: NodePin | null) => {
+  const updateNodeData = useCallback(
+    (nodeId: string, update: (data: WorkflowNodeData) => WorkflowNodeData) => {
       takeSnapshot();
-      setNodes((nds) =>
-        nds.map((n) => {
-          if (n.id !== nodeId) return n;
-          const { pinned: _previous, ...data } = n.data as unknown as WorkflowNodeData;
-          void _previous;
-          return { ...n, data: pin ? { ...data, pinned: pin } : data };
-        }),
-      );
+      setNodes((nds) => nds.map((n) => (n.id === nodeId ? { ...n, data: update(n.data as unknown as WorkflowNodeData) } : n)));
     },
     [setNodes, takeSnapshot],
   );
+
+  const setNodePin = useCallback(
+    (nodeId: string, pin: NodePin | null) =>
+      updateNodeData(nodeId, (current) => {
+        const { pinned: _previous, ...data } = current;
+        void _previous;
+        return pin ? { ...data, pinned: pin } : data;
+      }),
+    [updateNodeData],
+  );
+
+  const setNodeTestInputs = useCallback(
+    (nodeId: string, scenarios: TriggerTestInput[]) => updateNodeData(nodeId, (data) => withNodeTestInputs(data, scenarios)),
+    [updateNodeData],
+  );
+
+  const scenariosByNode = useStableValue(
+    useMemo(() => testInputsByNode(structureNodes), [structureNodes]),
+    sameTestInputsByNode,
+  );
+  const scenariosOf = useCallback((nodeId: string) => scenariosByNode.get(nodeId), [scenariosByNode]);
 
   const pinSimStep = useCallback(
     (step: SimStep) => {
@@ -166,5 +199,7 @@ export function useEditorDebug({
     runUntilNode,
     reproduceRun,
     nodeDebugControls,
+    scenariosOf,
+    setNodeTestInputs,
   };
 }

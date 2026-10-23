@@ -103,7 +103,14 @@ export interface LeadsView {
   selectedLeads?: number;
 }
 
-export type ChatView = AttendanceView | StudioView | LeadsView;
+export interface EmailDesignView {
+  surface: "email_design";
+  projectId: string;
+}
+
+export type EditorView = StudioView | EmailDesignView;
+
+export type ChatView = AttendanceView | StudioView | LeadsView | EmailDesignView;
 
 export interface AttendanceView {
   surface: "attendance";
@@ -126,6 +133,7 @@ export type OfferKind =
   | "connect_mercadolivre"
   | "connect_tiktok"
   | "create_webchat"
+  | "connect_email"
   | "top_up_balance"
   | "manage_subscription";
 
@@ -194,7 +202,12 @@ export interface StudioProjectCard {
   };
 }
 
-export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard | StudioProjectCard;
+export interface EmailDesignCard {
+  kind: "email_design";
+  emailDesign: { designId: string; name: string };
+}
+
+export type ActionCard = OfferCard | NavigationCard | CallCard | AdReadinessCard | ConnectAdAccountCard | AskCard | StudioProjectCard | EmailDesignCard;
 
 export interface ToolSubject {
   kind: string;

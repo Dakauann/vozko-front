@@ -1,9 +1,17 @@
 import type { BuilderSession, ConversationWorkflowRun, CreateWorkflowPayload, EntryPointKind, HandleDefinition, LintIssue, NodeAnalysis, NodeDefinition, PagedResponse, RunDetail, RunStatus, RuntimeAlert, TestNodePayload, TestNodeResult, UpdateWorkflowPayload, WebhookDelivery, Workflow, WorkflowGraph, WorkflowListMeta, WorkflowListResponse, WorkflowNodeType, WorkflowRun, WorkflowVersion } from '@/lib/workflows/types';
 
 import { apiClient } from '@/lib/api/browser-client';
+import type { CodedRefusal } from '@/lib/api/coded-error';
+import { downloadApiFile } from '@/lib/api/download-file';
+import type { RunsExportQuery } from '@/lib/workflows/run-export';
 import { draftConflictOf, type DraftWriteAnswer } from '@/lib/workflows/draft-save';
 import { publishFailureOf, type PublishAnswer } from '@/lib/workflows/publication';
 import { runStepsRequest } from '@/lib/workflows/run-steps';
+import { readVariableCatalog } from '@/lib/workflows/variable-catalog';
+import { choiceStatsAnswer, type ChoiceStatsAnswer } from '@/lib/choice-stats/answer';
+import { readWorkflowChoiceStats, type WorkflowChoiceStats } from '@/lib/choice-stats/stats';
+import type { CatalogAnswer } from '@/lib/workflows/variable-catalog-loader';
+import { readTriggerInputIssues, readTriggerLastInput, type TriggerInputIssue, type TriggerLastInput } from '@/lib/workflows/trigger-input';
 
 const DEFAULT_META: WorkflowListMeta = {
     page: 1,
@@ -122,6 +130,7 @@ export async function listWorkflowsAction(params?: {
     type?: string;
     triggerType?: string;
     entryKind?: EntryPointKind;
+    startsFromMessage?: boolean;
 }) {
     const qp = new URLSearchParams();
     if (params?.page) qp.set('page', String(params.page));
@@ -131,6 +140,7 @@ export async function listWorkflowsAction(params?: {
     if (params?.type) qp.set('type', params.type);
     if (params?.triggerType) qp.set('triggerType', params.triggerType);
     if (params?.entryKind) qp.set('entryKind', params.entryKind);
+    if (params?.startsFromMessage) qp.set('startsFromMessage', 'true');
     const qs = qp.toString();
 
     const response = await apiClient<WorkflowListResponse>(`/workflows${qs ? `?${qs}` : ''}`, { method: 'GET' });
@@ -322,6 +332,18 @@ export async function getWorkflowRunAction(runId: string, page = 1) {
     return { detail: { run: detail.run, logs: detail.logs ?? [], ...(detail.steps ? { steps: detail.steps } : {}) } };
 }
 
+export async function downloadWorkflowRunAction(runId: string): Promise<{ error: CodedRefusal | null }> {
+    return downloadApiFile(`/workflow-runs/${encodeURIComponent(runId)}/export`, `execucao-${runId}.json`, { accept: 'application/json' });
+}
+
+export async function downloadWorkflowRunsAction(workflowId: string, query: RunsExportQuery): Promise<{ error: CodedRefusal | null }> {
+    return downloadApiFile(
+        `/workflows/${encodeURIComponent(workflowId)}/runs/export${pageQuery({ ...query })}`,
+        'execucoes.ndjson',
+        { accept: 'application/x-ndjson' },
+    );
+}
+
 export async function listConversationWorkflowRunsAction(
     entryType: string,
     entryId: string,
@@ -490,14 +512,70 @@ export async function analyzeNodeAction(workflowId: string, nodeId: string) {
     return { analysis: response.data ?? null };
 }
 
-export async function testNodeAction(workflowId: string, nodeId: string, payload: TestNodePayload) {
+export interface TestNodeAnswer {
+    result: TestNodeResult | null;
+    error?: string;
+    code?: string;
+    status?: number;
+    issues?: TriggerInputIssue[];
+}
+
+export async function testNodeAction(workflowId: string, nodeId: string, payload: TestNodePayload): Promise<TestNodeAnswer> {
     const response = await apiClient<TestNodeResult>(
         `/workflows/${encodeURIComponent(workflowId)}/nodes/${encodeURIComponent(nodeId)}/test`,
         { method: 'POST', body: JSON.stringify(payload) },
     );
 
     if (response.error) {
-        return { result: null as TestNodeResult | null, error: response.error.message, code: response.error.code, status: response.error.status };
+        const issues = readTriggerInputIssues(response.error.details?.issues);
+        return {
+            result: null,
+            error: response.error.message,
+            code: response.error.code,
+            status: response.error.status,
+            ...(issues.length > 0 ? { issues } : {}),
+        };
     }
     return { result: response.data ?? null };
+}
+
+export async function getTriggerLastInputAction(workflowId: string, nodeId: string) {
+    const response = await apiClient<unknown>(
+        `/workflows/${encodeURIComponent(workflowId)}/triggers/${encodeURIComponent(nodeId)}/last-input`,
+        { method: 'GET' },
+    );
+    if (response.error) {
+        return { lastInput: null as TriggerLastInput | null, error: response.error.message, code: response.error.code, status: response.error.status };
+    }
+    const lastInput = readTriggerLastInput(response.data);
+    if (!lastInput) {
+        return { lastInput: null as TriggerLastInput | null, error: 'unreadable last input' };
+    }
+    return { lastInput };
+}
+
+export interface WorkflowChoiceStatsQuery {
+    from: string;
+    to: string;
+    version?: number;
+}
+
+export async function getWorkflowChoiceStatsAction(workflowId: string, query: WorkflowChoiceStatsQuery): Promise<ChoiceStatsAnswer<WorkflowChoiceStats>> {
+    const params = new URLSearchParams({ from: query.from, to: query.to });
+    if (query.version !== undefined) params.set('version', String(query.version));
+    const response = await apiClient<unknown>(`/workflows/${encodeURIComponent(workflowId)}/choice-stats?${params.toString()}`, { method: 'GET' });
+    return choiceStatsAnswer(response, readWorkflowChoiceStats);
+}
+
+export async function getNodeVariablesAction(workflowId: string, nodeId: string): Promise<CatalogAnswer> {
+    const response = await apiClient<unknown>(
+        `/workflows/${encodeURIComponent(workflowId)}/nodes/${encodeURIComponent(nodeId)}/variables`,
+        { method: 'GET' },
+    );
+    if (response.error) {
+        const { message, code, status } = response.error;
+        return { error: message, ...(code ? { code } : {}), ...(status !== undefined ? { status } : {}) };
+    }
+    const catalog = readVariableCatalog(response.data);
+    return catalog ? { catalog } : { error: 'unreadable variable catalog' };
 }

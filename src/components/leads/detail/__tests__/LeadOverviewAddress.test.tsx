@@ -15,6 +15,7 @@ vi.mock("@/components/maps/MiniMap", () => ({
   },
 }));
 vi.mock("@/components/leads/LeadCall", () => ({ LeadNumberCall: () => null }));
+vi.mock("@/components/email-marketing/address-status", () => ({ EmailAddressStatusHint: () => null }));
 
 import { LeadOverview } from "../LeadOverview";
 

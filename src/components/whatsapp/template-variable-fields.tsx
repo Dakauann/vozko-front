@@ -10,12 +10,14 @@ export function TemplateVariableFields({
     headerValues,
     onBodyChange,
     onHeaderChange,
+    labelOf,
 }: {
     slots: TemplateParamSlots;
     bodyValues: string[];
     headerValues: string[];
     onBodyChange: (index: number, value: string) => void;
     onHeaderChange: (index: number, value: string) => void;
+    labelOf?: (slot: { name: string; header: boolean }) => string;
 }) {
     const t = useTranslations("whatsappOutreach");
 
@@ -27,7 +29,7 @@ export function TemplateVariableFields({
             {slots.header.map((slot, index) => (
                 <ElevatedInput
                     key={`header-${index}`}
-                    label={t("headerVariable", { name: slots.named ? slot : String(index + 1) })}
+                    label={labelOf ? labelOf({ name: slots.named ? slot : String(index + 1), header: true }) : t("headerVariable", { name: slots.named ? slot : String(index + 1) })}
                     value={headerValues[index] ?? ""}
                     onChange={(event) => onHeaderChange(index, event.target.value)}
                     className="w-full"
@@ -36,7 +38,7 @@ export function TemplateVariableFields({
             {slots.body.map((slot, index) => (
                 <ElevatedInput
                     key={`body-${index}`}
-                    label={slots.named ? slot : t("bodyVariable", { name: String(index + 1) })}
+                    label={labelOf ? labelOf({ name: slots.named ? slot : String(index + 1), header: false }) : slots.named ? slot : t("bodyVariable", { name: String(index + 1) })}
                     value={bodyValues[index] ?? ""}
                     onChange={(event) => onBodyChange(index, event.target.value)}
                     className="w-full"

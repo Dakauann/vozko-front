@@ -91,6 +91,11 @@ const statusStyles: Record<string, { bg: string; text: string; dot: string }> =
       text: "text-muted-foreground",
       dot: "bg-muted",
     },
+    READY: {
+      bg: "bg-muted",
+      text: "text-foreground",
+      dot: "bg-[hsl(var(--plate-neutral))]",
+    },
     RUNNING: {
       bg: "bg-muted",
       text: "text-foreground",

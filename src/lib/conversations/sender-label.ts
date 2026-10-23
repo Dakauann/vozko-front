@@ -11,6 +11,9 @@ export const SENDER_LABEL_CHANNELS: readonly EntryType[] = [
   "webchat",
   "mercadolivre",
   "tiktok",
+  "email",
+  "rcs",
+  "sms",
 ];
 
 export type SenderLabelKey =

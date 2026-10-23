@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { MERCADOLIVRE_BLOCK_SUBSTATUSES } from "@/lib/mercadolivre/window";
-import { mergeWindowClosed, readWindowClosed, readWindowClosedReason, windowClosedCopyKey } from "./window-closed";
+import { CLOSED_DETAIL_CATALOGS, mergeWindowClosed, readWindowClosed, readWindowClosedReason, windowClosedCopyKey } from "./window-closed";
 
 describe("readWindowClosedReason", () => {
   it("reads every reason the server sends", () => {
@@ -65,6 +65,16 @@ describe("windowClosedCopyKey", () => {
     expect(windowClosedCopyKey("instagram", "provider_blocked", "blocked_by_mediation")).toBe("closed.provider_blocked");
   });
 
+  it("explains an email block by the reason the server names", () => {
+    expect(CLOSED_DETAIL_CATALOGS.email).toEqual(["email_address_suppressed", "email_sender_not_provisioned", "email_sender_paused"]);
+    for (const detail of ["email_address_suppressed", "email_sender_not_provisioned", "email_sender_paused"]) {
+      expect(windowClosedCopyKey("email", "provider_blocked", detail)).toBe(`closedDetail.email.${detail}`);
+    }
+    expect(windowClosedCopyKey("email", "provider_blocked", "email_something_new")).toBe("closed.provider_blocked");
+    expect(windowClosedCopyKey("email", "provider_blocked", "blocked_by_mediation")).toBe("closed.provider_blocked");
+    expect(windowClosedCopyKey("mercadolivre", "provider_blocked", "email_sender_paused")).toBe("closed.provider_blocked");
+  });
+
   it("names what disconnected on each channel, and stays neutral where nothing more is known", () => {
     expect(windowClosedCopyKey("whatsapp", "channel_unavailable", null)).toBe("closedByChannel.whatsapp.channel_unavailable");
     expect(windowClosedCopyKey("unofficial_whatsapp", "channel_unavailable", null)).toBe("closedByChannel.unofficial_whatsapp.channel_unavailable");
@@ -73,6 +83,7 @@ describe("windowClosedCopyKey", () => {
     expect(windowClosedCopyKey("telegram", "channel_unavailable", null)).toBe("closedByChannel.telegram.channel_unavailable");
     expect(windowClosedCopyKey("mercadolivre", "channel_unavailable", null)).toBe("closedByChannel.mercadolivre.channel_unavailable");
     expect(windowClosedCopyKey("tiktok", "channel_unavailable", null)).toBe("closedByChannel.tiktok.channel_unavailable");
+    expect(windowClosedCopyKey("email", "channel_unavailable", null)).toBe("closedByChannel.email.channel_unavailable");
     expect(windowClosedCopyKey("webchat", "channel_unavailable", null)).toBe("closed.channel_unavailable");
   });
 

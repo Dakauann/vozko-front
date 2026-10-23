@@ -4,6 +4,9 @@ import { StatusChip, type StatusChipTone } from "@/components/elevated-design/st
 import { cn } from "@/lib/utils";
 
 const STATUS_TONE: Record<string, StatusChipTone> = {
+  DRAFT: "outline",
+  READY: "neutral",
+  SCHEDULED: "neutral",
   RUNNING: "healthy",
   PAUSED: "warning",
   STOPPED: "muted",

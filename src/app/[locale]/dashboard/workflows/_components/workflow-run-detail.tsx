@@ -4,12 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { ArrowCounterClockwise, CircleNotch, Eye, PushPin, Stop, Target, TestTube } from "@/components/icons";
+import { ArrowCounterClockwise, CircleNotch, DownloadSimple, Eye, PushPin, Stop, Target, TestTube } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Notice } from "@/components/ui/notice";
-import { cancelWorkflowRunAction, getWorkflowRunAction } from "@/app/actions/workflows";
+import { cancelWorkflowRunAction, downloadWorkflowRunAction, getWorkflowRunAction } from "@/app/actions/workflows";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import { usePagedList, type PageAnswer } from "@/hooks/use-paged-list";
 import { versionTag } from "@/lib/workflows/publication";
 import { isPinnableStep } from "@/lib/workflows/node-pin";
@@ -78,11 +79,13 @@ export function WorkflowRunDetail({
 }: WorkflowRunDetailProps) {
   const t = useTranslations("workflowRuns");
   const tDebug = useTranslations("workflowDebug");
+  const tPage = useTranslations("workflowsPage");
   const behaviorOf = useTestBehaviorOf();
   const failureText = useLoadFailureText();
   const [pinningStep, setPinningStep] = useState<string | null>(null);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const readSteps = useCallback(
     async (page: number): Promise<PageAnswer<WorkflowRunLog, WorkflowRun>> => {
@@ -140,6 +143,14 @@ export function WorkflowRunDetail({
     return true;
   };
 
+  const downloadJson = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    const { error } = await downloadWorkflowRunAction(run.id);
+    setDownloading(false);
+    if (error) toast.error(codedErrorMessage(tPage, error, t("detail.downloadFailed")));
+  };
+
   const toggleStep = (step: WorkflowRunLog) => {
     setExpandedStep((current) => (current === step.id ? null : step.id));
     if (nodeExists(step.nodeId)) onFocusNode(step.nodeId);
@@ -161,6 +172,15 @@ export function WorkflowRunDetail({
           <RunStatusChip status={run.status} />
           {loading && <CircleNotch size={12} className="animate-spin text-muted-foreground" />}
           <div className="flex-1" />
+          <ElevatedButton
+            variant="outline-subtle"
+            size="sm"
+            iconVisible
+            icon={downloading ? <CircleNotch size={12} className="animate-spin" /> : <DownloadSimple size={12} />}
+            title={t("detail.downloadJson")}
+            disabled={downloading}
+            onClick={() => void downloadJson()}
+          />
           {debug.reproduce && (
             <ElevatedButton
               variant="outline-subtle"
@@ -258,6 +278,7 @@ export function WorkflowRunDetail({
                 >
                   <StepDetail
                     step={step}
+                    nodeName={nodeLabel(step.nodeId)}
                     actions={
                       exists ? (
                         <>

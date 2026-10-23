@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import type { RefusedButton } from "@/components/whatsapp/ComponentEditor";
 import { paletteForCategory, type DraggableComponent } from "@/components/whatsapp/DragDropBuilder";
 import { useDraftExitVerdict } from "@/components/whatsapp/exit/use-template-exit";
 import { validateDraftMessage, type DraftMessageProblems, type TemplateDraftPurpose } from "@/lib/whatsapp-templates/draft";
@@ -33,6 +34,7 @@ export function useTemplateDraft({ purpose, initialComponents, initialCategory }
   const [category, setCategory] = useState<TemplateCategory>(initialCategory);
   const [problems, setProblems] = useState<DraftMessageProblems>({});
   const [choosingExit, setChoosingExit] = useState(false);
+  const [refusedButton, setRefusedButton] = useState<RefusedButton | null>(null);
 
   const exitVerdict = useDraftExitVerdict(draftVerdictRequest(components, category));
 
@@ -51,6 +53,15 @@ export function useTemplateDraft({ purpose, initialComponents, initialCategory }
   const updateComponent = (updated: DraggableComponent) => {
     setComponents((current) => current.map((c) => (c.id === updated.id ? updated : c)));
     setSelected(updated);
+    setRefusedButton(null);
+  };
+
+  const refuseButton = (refusal: RefusedButton | null): boolean => {
+    const buttons = components.find((c) => c.type === "BUTTONS");
+    const shown = Boolean(refusal && buttons?.data.buttons?.[refusal.index]);
+    setRefusedButton(shown ? refusal : null);
+    if (shown) setSelected(buttons ?? null);
+    return shown;
   };
 
   const check = (): DraftMessageProblems => {
@@ -78,6 +89,8 @@ export function useTemplateDraft({ purpose, initialComponents, initialCategory }
     updateComponent,
     problems,
     check,
+    refusedButton,
+    refuseButton,
     choosingExit,
     setChoosingExit,
     applyExitPlan,

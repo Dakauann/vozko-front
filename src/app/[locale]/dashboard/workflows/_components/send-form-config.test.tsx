@@ -67,7 +67,7 @@ beforeEach(() => {
 describe("SendFormConfigSection", () => {
   it("lists only published forms and seeds the default copy on pick", async () => {
     const onChange = vi.fn();
-    render(<SendFormConfigSection config={{}} onChange={onChange} availableVars={[]} fallbackTemplate={<span>fallback picker</span>} />, { wrapper });
+    render(<SendFormConfigSection config={{}} onChange={onChange} fallbackTemplate={<span>fallback picker</span>} />, { wrapper });
 
     await waitFor(() => expect(screen.getByRole("option", { name: "Captação" })).toBeInTheDocument());
     expect(screen.queryByRole("option", { name: "Rascunho" })).toBeNull();
@@ -83,7 +83,7 @@ describe("SendFormConfigSection", () => {
       <SendFormConfigSection
         config={{ form_id: "f1", body: "Olá", cta: "Abrir", timeout_seconds: 3600 }}
         onChange={onChange}
-        availableVars={[]}
+       
         fallbackTemplate={null}
       />,
       { wrapper },

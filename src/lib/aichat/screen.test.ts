@@ -219,16 +219,26 @@ describe("routing screen commands", () => {
   it("hands project creation to this tab's creator and every other command to the open editors", async () => {
     const editors = vi.fn(async () => screenOk({ editor: true }));
     const creator = vi.fn(async () => screenOk({ projectId: "p-9" }));
-    await expect(routeScreenCommand(create, editors, creator)).resolves.toEqual(screenOk({ projectId: "p-9" }));
-    await expect(routeScreenCommand(read, editors, creator)).resolves.toEqual(screenOk({ editor: true }));
+    const app = (name: string) => (name === "create_project" ? creator : null);
+    await expect(routeScreenCommand(create, editors, app)).resolves.toEqual(screenOk({ projectId: "p-9" }));
+    await expect(routeScreenCommand(read, editors, app)).resolves.toEqual(screenOk({ editor: true }));
     expect(editors).toHaveBeenCalledTimes(1);
     expect(creator).toHaveBeenCalledTimes(1);
   });
 
+  it("hands opening a design to this tab's opener, never to an editor", async () => {
+    const editors = vi.fn(async () => screenOk());
+    const opener = vi.fn(async () => screenOk({ opened: true }));
+    const open: ScreenCommand = { id: "cmd-7", name: "open_design", projectId: "", args: { designId: "d-1" } };
+    expect(isScreenCommand(open)).toBe(true);
+    await expect(routeScreenCommand(open, editors, (name) => (name === "open_design" ? opener : null))).resolves.toEqual(screenOk({ opened: true }));
+    expect(editors).not.toHaveBeenCalled();
+  });
+
   it("lets another tab create the project when this one cannot, and reads a crash as a refusal", async () => {
     const editors = vi.fn(async () => screenOk());
-    expect(await routeScreenCommand(create, editors, null)).toMatchObject({ ok: false, error: { code: "no_editor" } });
-    const crashed = await routeScreenCommand(create, editors, async () => {
+    expect(await routeScreenCommand(create, editors, () => null)).toMatchObject({ ok: false, error: { code: "no_editor" } });
+    const crashed = await routeScreenCommand(create, editors, () => async () => {
       throw new Error("sem rede");
     });
     expect(crashed).toMatchObject({ ok: false, error: { code: "editor_failed" } });

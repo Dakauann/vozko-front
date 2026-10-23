@@ -7,6 +7,14 @@ export const SEND_ERROR_KEYS = [
   "notFound",
   "windowExpired",
   "unsupported",
+  "emailBalanceInsufficient",
+  "emailAttachmentBlocked",
+  "emailAttachmentTooLarge",
+  "mediaNotSendable",
+  "emailDomainChecking",
+  "emailDomainUnknown",
+  "emailDisposableAddress",
+  "emailNoMailDomain",
   "generic",
 ] as const;
 
@@ -22,6 +30,14 @@ const KEY_BY_CODE: Record<string, SendErrorKey> = {
   window_expired: "windowExpired",
   unsupported: "unsupported",
   failed: "sendFailed",
+  email_balance_insufficient: "emailBalanceInsufficient",
+  email_attachment_blocked: "emailAttachmentBlocked",
+  email_attachment_too_large: "emailAttachmentTooLarge",
+  media_not_sendable: "mediaNotSendable",
+  email_domain_checking: "emailDomainChecking",
+  email_domain_unknown: "emailDomainUnknown",
+  email_disposable_address: "emailDisposableAddress",
+  email_no_mail_domain: "emailNoMailDomain",
 };
 
 export function sendErrorKey(code: string | undefined): SendErrorKey {

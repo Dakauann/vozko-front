@@ -20,6 +20,7 @@ const PAGE_SIZE = 15;
 
 export default function ArchivedUnofficialCampaignsPage() {
   const t = useTranslations("unofficialWhatsappCampaigns");
+  const tShared = useTranslations("campaignWizard");
   const { can, currentWorkspace } = useWorkspace();
   const { currentDepartment } = useDepartment();
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function ArchivedUnofficialCampaignsPage() {
     setPage(1);
   }, [search, statusFilter]);
 
-  const columns = useMemo(() => campaignColumns(t as (k: string) => string), [t]);
+  const columns = useMemo(() => campaignColumns(t as (k: string) => string, tShared("status.ready")), [t, tShared]);
 
   return (
     <CampaignsListShell<UnofficialWhatsAppCampaign>

@@ -16,8 +16,8 @@ type SmartPolicyDraft = {
   fields: { smartPolicy?: SmartPolicy };
 };
 
-export function useSmartPolicyDraft(mode: "create" | "edit"): SmartPolicyDraft {
-  const [policy, setPolicy] = useState<SmartPolicy | null>(null);
+export function useSmartPolicyDraft(mode: "create" | "edit", initial: SmartPolicy | null = null): SmartPolicyDraft {
+  const [policy, setPolicy] = useState<SmartPolicy | null>(initial);
   const [defaults, setDefaults] = useState<SmartDefaults | null>(null);
   const [error, setError] = useState<string | null>(null);
 

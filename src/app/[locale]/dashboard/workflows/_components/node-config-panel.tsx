@@ -44,11 +44,13 @@ import { TestNodeSection, type TestNodeSeed } from "./test-node-section";
 import { NodeDebugSection, type NodeDebugControls } from "./node-debug-section";
 import { declaredTestBehavior, isTestableBehavior } from "@/lib/workflows/node-test-behavior";
 import { WebhookTriggerConfig } from "./webhook-trigger-config";
+import { acceptedWebhookEvents, webhookStartOn } from "@/lib/workflows/webhook-trigger";
 import { VariableCommandInput } from "./variable-command-input";
 import { CodeField } from "./code-field";
 import { AgentCallInputsField, AgentReplyFieldsField, type AgentPickerProps } from "./agent-call-config";
-import { SecretCodeMenu, SecretsManageLink, useSecretVarGroups } from "./secret-picker";
-import { AGENT_CALL_TRIGGER, agentCallTemplateVars } from "@/lib/workflows/agent-call";
+import { SecretCodeMenu, SecretsManageLink } from "./secret-picker";
+import { NodeVariablesProvider, useNodeVariableCatalog, type NodeVariables } from "./variable-catalog-context";
+import { VariableCatalogList } from "./variable-catalog-list";
 import {
   nodeIconOf,
   CATEGORY_STYLES,
@@ -80,6 +82,9 @@ import { listWorkflowsAction } from "@/app/actions/workflows";
 import { listKnowledgeBasesAction } from "@/app/actions/knowledge-bases";
 import { listLabelsAction } from "@/app/actions/labels";
 import { listCallQueuesAction } from "@/app/actions/call-routing";
+import { listEmailSendersAction } from "@/app/actions/email-marketing";
+import { fetchEmailDesigns } from "@/app/actions/email-campaigns";
+import { isActionError } from "@/app/actions/action-result";
 import { listSipTrunksAction } from "@/app/actions/sip-trunks";
 import { receivesCalls } from "@/lib/sip-trunks/types";
 import { listMembersAction } from "@/app/actions/workspace";
@@ -89,6 +94,11 @@ import { normalizeKeyValueMap } from "@/lib/workflows/key-value";
 import { UpdateLeadFieldKeys } from "./update-lead-config";
 import { TemplateButtonBranchField } from "./template-button-branch";
 import { SendFormConfigSection, usePublishedForms } from "./send-form-config";
+import { SendCarrierConfigSection } from "./send-carrier-config";
+import { SheetRowConfigSection } from "./sheet-row-config";
+import { StringListField } from "./string-list-field";
+import { SEND_CARRIER_CONFIG_KEYS, SEND_CARRIER_NODE } from "@/lib/workflows/carrier-node";
+import { ADD_SHEET_ROW_NODE, SHEET_ROW_CONFIG_KEYS } from "@/lib/workflows/sheet-row-node";
 import {
   FORM_SUBMITTED_TRIGGER,
   FORM_TRIGGER_CONFIG_KEYS,
@@ -105,7 +115,7 @@ import {
   emptyChoiceLabel,
   fromSelectValue,
 } from "@/lib/forms/optional-select";
-import { fetchGoogleConnection } from "@/lib/calendar/client";
+import { fetchGoogleStatus } from "@/lib/google/client";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import type { ModelPricingInfo } from "@/lib/agents/types";
 import { REASONING_LEVEL_KEY, reasoningAfterModelChange, reasoningOptionsOf, type ReasoningAdjustment } from "@/lib/ai-models/reasoning";
@@ -122,6 +132,9 @@ import {
   type InteractiveListRow,
 } from "@/lib/workflows/interactive-options";
 import { IllegibleOptions } from "./illegible-options";
+import { ChoiceStatsSection } from "./choice-stats-section";
+import { sendsChoices } from "./choice-stats-store";
+import { choiceOptionLabels, templateChoiceOptions } from "@/lib/choice-stats/template-options";
 
 const PAGINATED_OPTION_SOURCES = new Set([
   "agents",
@@ -231,6 +244,7 @@ interface NodeConfigPanelProps {
   workflowId?: string | null;
   workspaceId?: string | null;
   isWorkflowDirty?: boolean;
+  draftRevision?: number | null;
   definitions: NodeDefinition[];
   allNodes: Node[];
   allEdges: Edge[];
@@ -249,6 +263,7 @@ function NodeConfigPanelView({
   workflowId,
   workspaceId,
   isWorkflowDirty = false,
+  draftRevision = null,
   definitions,
   allNodes,
   allEdges,
@@ -274,11 +289,12 @@ function NodeConfigPanelView({
   const ruleConfig = { ...def?.defaultConfig, ...config };
   const displayName = (config.display_name as string) || "";
   const label = displayName || (def?.label ?? data.label ?? nodeType);
-  const isScheduleMeetingNode = nodeType === "action_schedule_meeting";
-  const isRescheduleMeetingNode = nodeType === "action_reschedule_meeting";
+  const isCreateCalendarEventNode = nodeType === "action_create_calendar_event";
+  const isRescheduleCalendarEventNode =
+    nodeType === "action_reschedule_calendar_event";
   const isCalendarNode =
-    isScheduleMeetingNode ||
-    isRescheduleMeetingNode ||
+    isCreateCalendarEventNode ||
+    isRescheduleCalendarEventNode ||
     nodeType === "action_check_calendar_availability";
   const isTestableNode = isTestableBehavior(declaredTestBehavior(def));
   const isWebhookTriggerNode = nodeType === "trigger_webhook";
@@ -286,11 +302,17 @@ function NodeConfigPanelView({
   const isSendTemplateNode = nodeType === "action_send_template";
   const isSendFormNode = nodeType === SEND_FORM_NODE;
   const isFormTriggerNode = nodeType === FORM_SUBMITTED_TRIGGER;
+  const isSendCarrierNode = nodeType === SEND_CARRIER_NODE;
+  const isSheetRowNode = nodeType === ADD_SHEET_ROW_NODE;
   const ownedKeys: readonly string[] = isSendFormNode
     ? SEND_FORM_CONFIG_KEYS
     : isFormTriggerNode
       ? FORM_TRIGGER_CONFIG_KEYS
-      : [];
+      : isSendCarrierNode
+        ? SEND_CARRIER_CONFIG_KEYS
+        : isSheetRowNode
+          ? SHEET_ROW_CONFIG_KEYS
+          : [];
   const isInteractivePromptNode = isInteractivePromptType(nodeType);
 
   const interactiveReach = useMemo(
@@ -388,6 +410,11 @@ function NodeConfigPanelView({
     [selectedTemplate, currentTemplateId],
   );
 
+  const choiceLabels = useMemo(
+    () => choiceOptionLabels(data.outputs ?? [], currentTemplateId && selectedTemplate ? templateChoiceOptions(selectedTemplate.components) : []),
+    [data.outputs, currentTemplateId, selectedTemplate],
+  );
+
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [mediaLoading, setMediaLoading] = useState(false);
 
@@ -426,13 +453,13 @@ function NodeConfigPanelView({
       error: undefined,
     }));
 
-    void fetchGoogleConnection().then((result) => {
+    void fetchGoogleStatus("calendar").then((result) => {
       if (!active) return;
       setGoogleCalendarStatus({
         loading: false,
-        connected: result.connected,
-        email: result.connection?.email,
-        error: result.error,
+        connected: result.status?.connected ?? false,
+        email: result.status?.email,
+        error: result.error?.message,
       });
     });
 
@@ -441,10 +468,7 @@ function NodeConfigPanelView({
     };
   }, [isCalendarNode]);
 
-  const availableVars = useMemo(
-    () => buildAvailableVariables(node.id, allNodes, allEdges, definitions),
-    [node.id, allNodes, allEdges, definitions],
-  );
+  const nodeVariables = useNodeVariableCatalog(node.id, { workflowId: workflowId ?? null, revision: draftRevision });
 
   const inputConnections = useMemo(
     () =>
@@ -486,6 +510,7 @@ function NodeConfigPanelView({
   }, [allEdges, allNodes, data.outputs, def?.outputs, node.id]);
 
   return (
+    <NodeVariablesProvider value={nodeVariables}>
     <div className="fixed inset-0 z-[70] flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50"
@@ -579,7 +604,7 @@ function NodeConfigPanelView({
                   {googleCalendarStatus.loading
                     ? "Verificando integração da área de trabalho..."
                     : googleCalendarStatus.connected
-                      ? `Conectado com ${googleCalendarStatus.email ?? "uma conta Google"}. ${isScheduleMeetingNode ? "Este nó criará eventos nesse calendário." : isRescheduleMeetingNode ? "Este nó reagendará (moverá) eventos nesse calendário." : "Este nó consultará disponibilidade nesse calendário."}`
+                      ? `Conectado com ${googleCalendarStatus.email ?? "uma conta Google"}. ${isCreateCalendarEventNode ? "Este nó criará eventos nesse calendário." : isRescheduleCalendarEventNode ? "Este nó reagendará (moverá) eventos nesse calendário." : "Este nó consultará disponibilidade nesse calendário."}`
                       : "Nenhuma conta Google Calendar conectada nesta área de trabalho. Este nó seguirá pela saída de erro até a integração ser configurada."}
                 </p>
                 {!googleCalendarStatus.loading &&
@@ -600,7 +625,7 @@ function NodeConfigPanelView({
             )}
 
             {isWebhookTriggerNode && (
-              <WebhookTriggerConfig workflowId={workflowId} focusDeliveries={focusDeliveries} />
+              <WebhookTriggerConfig workflowId={workflowId} focusDeliveries={focusDeliveries} startOn={webhookStartOn(ruleConfig.start_on)} events={acceptedWebhookEvents(ruleConfig.events)} />
             )}
 
             {isSendTemplateNode && (
@@ -612,19 +637,33 @@ function NodeConfigPanelView({
               />
             )}
 
+            {isSheetRowNode && (
+              <SheetRowConfigSection
+                config={config}
+                onChange={(patch) => onConfigChange(node.id, { ...config, ...patch })}
+              />
+            )}
+
             {isSendFormNode && (
               <SendFormConfigSection
                 config={config}
                 onChange={(patch) => onConfigChange(node.id, { ...config, ...patch })}
-                availableVars={availableVars}
                 fallbackTemplate={
                   <FallbackTemplateField
                     config={config}
                     onChange={(value, meta) => updateField("fallback_template_id", value, meta)}
-                    availableVars={availableVars}
                     workspaceId={workspaceId}
                   />
                 }
+              />
+            )}
+
+            {isSendCarrierNode && def && (
+              <SendCarrierConfigSection
+                config={config}
+                defaults={def?.defaultConfig ?? {}}
+                channelOptions={schema.find((field) => field.key === "channel")?.options ?? []}
+                onChange={(patch) => onConfigChange(node.id, { ...config, ...patch })}
               />
             )}
 
@@ -640,7 +679,6 @@ function NodeConfigPanelView({
                 config={config}
                 updateField={updateField}
                 schema={schema}
-                availableVars={availableVars}
                 isWidePanel={isWidePanel}
                 isExtraWidePanel={isExtraWidePanel}
               />
@@ -749,7 +787,6 @@ function NodeConfigPanelView({
                           | undefined) ?? undefined
                       }
                       onChange={(val, meta) => updateField(field.key, val, meta)}
-                      availableVars={availableVars}
                       workspaceId={workspaceId}
                     />
                   </InteractiveReachContext.Provider>
@@ -782,7 +819,6 @@ function NodeConfigPanelView({
                 values={(config.params as Record<string, string>) ?? {}}
                 onChange={(params) => updateField("params", params)}
                 templateName={selectedTemplate?.name}
-                availableVars={availableVars}
               />
             )}
             {templateLoading && currentTemplateId && (
@@ -798,6 +834,10 @@ function NodeConfigPanelView({
               <p className="text-2xs text-muted-foreground italic">
                 Carregando preview da mídia...
               </p>
+            )}
+
+            {sendsChoices(nodeType) && (
+              <ChoiceStatsSection nodeId={node.id} saved={Boolean(workflowId)} optionLabel={(optionId) => choiceLabels.get(optionId) ?? null} />
             )}
 
             {debug && workflowId && (
@@ -826,7 +866,7 @@ function NodeConfigPanelView({
               </Notice>
             )}
 
-            <AvailableVariablesPanel groups={availableVars} />
+            <AvailableVariablesPanel variables={nodeVariables} />
           </>
         )}
 
@@ -877,6 +917,7 @@ function NodeConfigPanelView({
         </aside>
       </div>
     </div>
+    </NodeVariablesProvider>
   );
 }
 
@@ -1010,18 +1051,12 @@ function KeyValueField({
   label,
   value,
   onChange,
-  availableVars,
   error,
 }: {
   field: ConfigField;
   label: string;
   value: unknown;
   onChange: (val: unknown, meta?: Record<string, unknown>) => void;
-  availableVars: Array<{
-    label: string;
-    description?: string;
-    vars: { template: string; description: string }[];
-  }>;
   error?: string;
 }) {
   const entries = useMemo(
@@ -1105,7 +1140,6 @@ function KeyValueField({
                     }
                     placeholder={field.placeholder ?? "Valor"}
                     controlSize="sm"
-                    availableVars={availableVars}
                     multiline
                   />
                 </div>
@@ -1143,7 +1177,6 @@ function KeyValueField({
               onChange={setDraftValue}
               placeholder={field.placeholder ?? "Valor"}
               controlSize="sm"
-              availableVars={availableVars}
               multiline
             />
           </div>
@@ -1169,7 +1202,6 @@ function HTTPRequestConfigSection({
   config,
   updateField,
   schema,
-  availableVars,
   isWidePanel,
   isExtraWidePanel,
 }: {
@@ -1180,11 +1212,6 @@ function HTTPRequestConfigSection({
     extra?: Record<string, unknown>,
   ) => void;
   schema: ConfigField[];
-  availableVars: Array<{
-    label: string;
-    description?: string;
-    vars: { template: string; description: string }[];
-  }>;
   isWidePanel: boolean;
   isExtraWidePanel: boolean;
 }) {
@@ -1196,7 +1223,6 @@ function HTTPRequestConfigSection({
       >,
     [schema],
   );
-  const vars = useSecretVarGroups(availableVars);
   const method = ((config.method as string) ?? "GET").toUpperCase();
   const authType = ((config.auth_type as string) ?? "").trim();
   const showBody = method !== "GET" && method !== "HEAD";
@@ -1231,13 +1257,11 @@ function HTTPRequestConfigSection({
           field={fieldByKey.method}
           value={config.method}
           onChange={(val, meta) => updateField("method", val, meta)}
-          availableVars={vars}
         />
         <SchemaField
           field={fieldByKey.url}
           value={config.url}
           onChange={(val, meta) => updateField("url", val, meta)}
-          availableVars={vars}
         />
       </div>
 
@@ -1252,14 +1276,12 @@ function HTTPRequestConfigSection({
           label={fieldByKey.headers?.label ?? "Headers"}
           value={config.headers}
           onChange={(val, meta) => updateField("headers", val, meta)}
-          availableVars={vars}
         />
         <KeyValueField
           field={fieldByKey.query_params}
           label={fieldByKey.query_params?.label ?? "Parâmetros de Query"}
           value={config.query_params}
           onChange={(val, meta) => updateField("query_params", val, meta)}
-          availableVars={vars}
         />
       </div>
 
@@ -1293,13 +1315,11 @@ function HTTPRequestConfigSection({
             field={fieldByKey.auth_type}
             value={config.auth_type}
             onChange={(val, meta) => updateField("auth_type", val, meta)}
-            availableVars={vars}
           />
           <SchemaField
             field={fieldByKey.timeout_seconds}
             value={config.timeout_seconds}
             onChange={(val, meta) => updateField("timeout_seconds", val, meta)}
-            availableVars={vars}
           />
         </div>
 
@@ -1315,7 +1335,6 @@ function HTTPRequestConfigSection({
                 field={fieldByKey.auth_user}
                 value={config.auth_user}
                 onChange={(val, meta) => updateField("auth_user", val, meta)}
-                availableVars={vars}
               />
             )}
             {authType === "api_key" && fieldByKey.auth_key_name && (
@@ -1325,7 +1344,6 @@ function HTTPRequestConfigSection({
                 onChange={(val, meta) =>
                   updateField("auth_key_name", val, meta)
                 }
-                availableVars={vars}
               />
             )}
             {fieldByKey.auth_token && (
@@ -1333,7 +1351,6 @@ function HTTPRequestConfigSection({
                 field={fieldByKey.auth_token}
                 value={config.auth_token}
                 onChange={(val, meta) => updateField("auth_token", val, meta)}
-                availableVars={vars}
               />
             )}
           </div>
@@ -1345,7 +1362,6 @@ function HTTPRequestConfigSection({
           field={fieldByKey.body}
           value={config.body}
           onChange={(val, meta) => updateField("body", val, meta)}
-          availableVars={vars}
         />
       ) : (
         <div className="rounded-[--radius] border border-border bg-mist px-3 py-2 text-2xs text-muted-foreground">
@@ -1358,7 +1374,6 @@ function HTTPRequestConfigSection({
         field={fieldByKey.capture_variable}
         value={config.capture_variable}
         onChange={(val, meta) => updateField("capture_variable", val, meta)}
-        availableVars={vars}
       />
     </div>
   );
@@ -1650,12 +1665,10 @@ function SendTemplateConfigSection({
 function FallbackTemplateField({
   config,
   onChange,
-  availableVars,
   workspaceId,
 }: {
   config: Record<string, unknown>;
   onChange: (value: unknown, meta?: Record<string, unknown>) => void;
-  availableVars: VarGroup[];
   workspaceId?: string | null;
 }) {
   const t = useTranslations("workflowsPage.sendForm");
@@ -1670,7 +1683,6 @@ function FallbackTemplateField({
       value={config.fallback_template_id}
       displayValue={(config._display_fallback_template_id as string | undefined) ?? undefined}
       onChange={onChange}
-      availableVars={availableVars}
       workspaceId={workspaceId}
     />
   );
@@ -1857,19 +1869,21 @@ function RangeField({
   );
 }
 
+function stringListValue(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
 function SchemaField({
   field,
   value,
   displayValue,
   onChange,
-  availableVars,
   workspaceId,
 }: {
   field: ConfigField;
   value: unknown;
   displayValue?: string;
   onChange: (val: unknown, meta?: Record<string, unknown>) => void;
-  availableVars: VarGroup[];
   workspaceId?: string | null;
 }) {
   const requiredEmpty =
@@ -1887,7 +1901,6 @@ function SchemaField({
           onChange={(val) => onChange(val)}
           placeholder={field.placeholder ?? ""}
           controlSize="sm"
-          availableVars={availableVars}
           multiline
         />
       );
@@ -1947,7 +1960,6 @@ function SchemaField({
         <AgentReplyFieldsField
           value={value}
           onChange={(fields) => onChange(fields)}
-          availableVars={availableVars}
         />
       );
     case "select":
@@ -1976,10 +1988,11 @@ function SchemaField({
           label={reqLabel}
           value={value}
           onChange={onChange}
-          availableVars={availableVars}
           error={reqError}
         />
       );
+    case "tags":
+      return <StringListField label={reqLabel} description={field.description} placeholder={field.placeholder} value={stringListValue(value)} onChange={onChange} />;
     case "multi-select":
       if (!field.options?.length) return null;
       return (
@@ -2024,7 +2037,6 @@ function SchemaField({
           onChange={(val) => onChange(val)}
           placeholder={field.placeholder ?? ""}
           controlSize="sm"
-          availableVars={availableVars}
         />
       );
   }
@@ -2527,6 +2539,23 @@ function useDynamicOptions(
             }
             break;
           }
+          case "email_senders": {
+            const res = await listEmailSendersAction();
+            if (!cancelled && !isActionError(res)) {
+              fetched = res.data.map((sender) => ({
+                value: sender.id,
+                label: sender.display_name ? `${sender.display_name} <${sender.address}>` : sender.address,
+              }));
+            }
+            break;
+          }
+          case "email_designs": {
+            const res = await fetchEmailDesigns({ pageSize: 200 });
+            if (!cancelled) {
+              fetched = res.items.map((design) => ({ value: design.id, label: design.name }));
+            }
+            break;
+          }
           case "call_queues": {
             const res = await listCallQueuesAction();
             if (!cancelled) {
@@ -2674,13 +2703,11 @@ function TemplateParamsSection({
   values,
   onChange,
   templateName,
-  availableVars,
 }: {
   params: TemplateParam[];
   values: Record<string, string>;
   onChange: (params: Record<string, string>) => void;
   templateName?: string;
-  availableVars: VarGroup[];
 }) {
   const updateParam = useCallback(
     (key: string, val: string) => {
@@ -2724,7 +2751,6 @@ function TemplateParamsSection({
                 onChange={(val) => updateParam(paramKey, val)}
                 placeholder={`Ex: {{var.${p.name}}} ou valor fixo`}
                 controlSize="sm"
-                availableVars={availableVars}
               />
             );
           })}
@@ -2746,7 +2772,6 @@ function TemplateParamsSection({
               onChange={(val) => updateParam(p.name, val)}
               placeholder={`Ex: {{var.${p.name}}} ou valor fixo`}
               controlSize="sm"
-              availableVars={availableVars}
             />
           ))}
         </div>
@@ -4176,174 +4201,6 @@ function CasesField({
   );
 }
 
-interface VarGroup {
-  label: string;
-  description?: string;
-  vars: { template: string; description: string }[];
-}
-
-function buildAvailableVariables(
-  nodeId: string,
-  allNodes: Node[],
-  allEdges: Edge[],
-  definitions: NodeDefinition[],
-): VarGroup[] {
-  const groups: VarGroup[] = [];
-  const defMap = new Map(definitions.map((d) => [d.type, d]));
-
-  const incomingMap = new Map<string, string[]>();
-  for (const edge of allEdges) {
-    const arr = incomingMap.get(edge.target) ?? [];
-    arr.push(edge.source);
-    incomingMap.set(edge.target, arr);
-  }
-
-  const edgeLabelMap = new Map<string, string>();
-  for (const edge of allEdges) {
-    const lbl = (edge.sourceHandle as string) || (edge.label as string) || "";
-    if (lbl) edgeLabelMap.set(`${edge.source}:${edge.target}`, lbl);
-  }
-
-  const visited = new Set<string>();
-  const ordered: string[] = [];
-  const ancestorToolLabel = new Map<string, string>();
-  let frontier = incomingMap.get(nodeId) ?? [];
-  for (const id of frontier) {
-    visited.add(id);
-    const lbl = edgeLabelMap.get(`${id}:${nodeId}`);
-    if (lbl) ancestorToolLabel.set(id, lbl);
-  }
-  while (frontier.length > 0) {
-    const nextFrontier: string[] = [];
-    for (const nid of frontier) {
-      ordered.push(nid);
-      const nidLabel = ancestorToolLabel.get(nid);
-      for (const src of incomingMap.get(nid) ?? []) {
-        if (!visited.has(src)) {
-          visited.add(src);
-          nextFrontier.push(src);
-          const lbl = edgeLabelMap.get(`${src}:${nid}`);
-          if (lbl) ancestorToolLabel.set(src, lbl);
-          else if (nidLabel) ancestorToolLabel.set(src, nidLabel);
-        }
-      }
-    }
-    frontier = nextFrontier;
-  }
-
-  const directParentIds = new Set(incomingMap.get(nodeId) ?? []);
-
-  const addedIds = new Set<string>();
-
-  for (const ancestorId of ordered) {
-    const ancestorNode = allNodes.find((n) => n.id === ancestorId);
-    if (!ancestorNode) continue;
-    const srcData = ancestorNode.data as unknown as WorkflowNodeData;
-    const srcDef = defMap.get(srcData.nodeType);
-    if (!srcDef) continue;
-    if (addedIds.has(ancestorId)) continue;
-    addedIds.add(ancestorId);
-
-    const isDirect = directParentIds.has(ancestorId);
-    const nodeLabel = srcDef.label ?? srcData.nodeType;
-    const vars: { template: string; description: string }[] = [];
-
-    const toolEdgeLabel = ancestorToolLabel.get(ancestorId);
-
-    const captureVar =
-      srcData.config?.capture_variable ?? srcData.config?.response_variable;
-    const hasCustomVar =
-      typeof captureVar === "string" && captureVar.trim() !== "";
-    const varName = hasCustomVar ? captureVar.trim() : null;
-
-    const outputKeys = srcDef.outputKeys;
-    if (srcData.nodeType === AGENT_CALL_TRIGGER) {
-      vars.push(...agentCallTemplateVars(srcData.config));
-    } else if (outputKeys && outputKeys.length > 0) {
-      for (const ok of outputKeys) {
-        if (ok.key === "*") continue;
-
-        if (varName) {
-          vars.push({
-            template: `{{${varName}.${ok.key}}}`,
-            description: ok.description,
-          });
-        } else {
-          vars.push({
-            template: isDirect
-              ? `{{last.${ok.key}}}`
-              : `{{node.${ancestorId}.${ok.key}}}`,
-            description: ok.description,
-          });
-        }
-      }
-    }
-
-    if (varName) {
-      vars.push({
-        template: `{{${varName}}}`,
-        description: "Objeto completo da resposta",
-      });
-
-      if (srcData.config?.response_variable && srcData.config?.custom_tools) {
-        const tools = srcData.config.custom_tools as Array<{
-          name: string;
-          parameters?: Array<{
-            name: string;
-            description?: string;
-            required?: boolean;
-          }>;
-        }>;
-        const matchedTool = toolEdgeLabel
-          ? tools.find((t) => t.name === toolEdgeLabel)
-          : undefined;
-        const toolsToShow = matchedTool ? [matchedTool] : [];
-        for (const tool of toolsToShow) {
-          if (!tool.parameters?.length) continue;
-          for (const param of tool.parameters) {
-            if (!param.name) continue;
-            const opt = param.required === false ? " (opcional)" : "";
-            vars.push({
-              template: `{{${varName}.tool_args.${param.name}}}`,
-              description: `${param.description || param.name}${opt}`,
-            });
-          }
-        }
-      }
-    }
-
-    if (vars.length > 0) {
-      groups.push({
-        label: isDirect ? `${nodeLabel} (nó anterior)` : nodeLabel,
-        description: isDirect ? undefined : `ID: ${ancestorId}`,
-        vars,
-      });
-    }
-  }
-
-  groups.push({
-    label: "Sistema",
-    vars: [
-      { template: "{{message}}", description: "Texto da mensagem recebida" },
-      {
-        template: "{{contact_number}}",
-        description:
-          "Telefone do contato (WhatsApp) ou ID do chat (Telegram/Instagram/Messenger)",
-      },
-      {
-        template: "{{channel}}",
-        description:
-          "Canal da execução: whatsapp, unofficial_whatsapp, instagram, facebook, telegram, webchat, mercadolivre, tiktok, voice",
-      },
-      { template: "{{sys.date}}", description: "Data atual (YYYY-MM-DD)" },
-      { template: "{{sys.time}}", description: "Hora atual (HH:MM:SS)" },
-      { template: "{{sys.timestamp}}", description: "Timestamp Unix" },
-    ],
-  });
-
-  return groups;
-}
-
 function MediaPreviewSection({ media }: { media: Media }) {
   const url = media.previewUrl || media.url;
   const mediaType = media.type?.toLowerCase() ?? "";
@@ -4408,127 +4265,39 @@ function MediaPreviewSection({ media }: { media: Media }) {
   );
 }
 
-function AvailableVariablesPanel({ groups }: { groups: VarGroup[] }) {
+function AvailableVariablesPanel({ variables }: { variables: NodeVariables }) {
+  const t = useTranslations("workflowsPage.variablePicker");
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const count = variables.state.status === "ready" ? variables.state.catalog.variables.length : null;
 
-  if (groups.length === 0) return null;
-
-  const query = search.toLowerCase().trim();
-  const filteredGroups = query
-    ? groups
-        .map((g) => ({
-          ...g,
-          vars: g.vars.filter(
-            (v) =>
-              v.template.toLowerCase().includes(query) ||
-              v.description.toLowerCase().includes(query) ||
-              g.label.toLowerCase().includes(query),
-          ),
-        }))
-        .filter((g) => g.vars.length > 0)
-    : groups;
+  const copy = useCallback((template: string) => {
+    void navigator.clipboard.writeText(template).then(() => setCopied(template));
+  }, []);
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
       <button
         type="button"
+        aria-expanded={open}
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
-        {open ? (
-          <CaretDown size={12} weight="bold" />
-        ) : (
-          <CaretRight size={12} weight="bold" />
-        )}
+        {open ? <CaretDown size={12} weight="bold" /> : <CaretRight size={12} weight="bold" />}
         <Info size={12} />
-        Variáveis disponíveis
-        <span className="ml-auto text-2xs text-muted-foreground">
-          {groups.reduce((n, g) => n + g.vars.length, 0)}
-        </span>
+        {t("panelTitle")}
+        {count !== null && <span className="ml-auto text-2xs text-muted-foreground">{count}</span>}
       </button>
-
       {open && (
-        <div className="px-3 pb-3 space-y-2">
-          <ElevatedInput
-            value={search}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setSearch(e.target.value)
-            }
-            placeholder="Buscar variável..."
-            controlSize="sm"
-          />
-          {filteredGroups.length === 0 && (
-            <p className="text-2xs text-muted-foreground italic py-1">
-              Nenhuma variável encontrada.
+        <div className="border-t border-border">
+          <VariableCatalogList variables={variables} onPick={copy} />
+          {copied && (
+            <p role="status" className="border-t border-border px-3 py-1.5 text-2xs text-muted-foreground">
+              {t("copied")}: <code className="font-mono">{copied}</code>
             </p>
           )}
-          {filteredGroups.map((group) => (
-            <VariableGroup key={group.label} group={group} />
-          ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function VariableGroup({ group }: { group: VarGroup }) {
-  return (
-    <div className="space-y-1">
-      <span className="text-2xs font-semibold text-foreground">
-        {group.label}
-      </span>
-      {group.vars.map((v) => (
-        <VariableRow
-          key={v.template}
-          template={v.template}
-          description={v.description}
-        />
-      ))}
-    </div>
-  );
-}
-
-function VariableRow({
-  template,
-  description,
-}: {
-  template: string;
-  description: string;
-}) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(template).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }, [template]);
-
-  return (
-    <div className="flex flex-col gap-0.5 group">
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="flex items-center gap-1 w-full font-mono text-2xs bg-muted hover:bg-muted px-1.5 py-0.5 rounded text-foreground transition-colors text-left min-w-0"
-        title={template}
-      >
-        {copied ? (
-          <span className="text-healthy-ink shrink-0">✓</span>
-        ) : (
-          <Copy
-            size={10}
-            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-          />
-        )}
-        <span className="truncate">{template}</span>
-      </button>
-      <span
-        className="text-2xs text-muted-foreground leading-snug pl-1 line-clamp-2"
-        title={description}
-      >
-        {description}
-      </span>
     </div>
   );
 }

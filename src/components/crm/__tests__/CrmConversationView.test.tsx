@@ -159,6 +159,29 @@ describe("CrmConversationView rendering", () => {
     expect(screen.queryByTestId("sale-summary")).toBeNull();
   });
 
+  it("heads an email conversation with the subject of its latest message that carries one", () => {
+    const emailMsg = (id: string, subject: string | undefined) =>
+      makeMsg({
+        id,
+        entry_type: "email",
+        channel: "email",
+        metadata: (subject === undefined ? undefined : { email_subject: subject }) as ConversationMessage["metadata"],
+      });
+    const conv = makeConversation({
+      entry_type: "email",
+      messages: [emailMsg("m1", "Orçamento"), emailMsg("m2", "Re: Orçamento"), emailMsg("m3", undefined)],
+    });
+    render(<CrmConversationView conversation={conv} isTyping={false} translations={defaultTranslations as never} />);
+    expect(screen.getByText(ptMessages.crm.emailSubject.replace("{subject}", "Re: Orçamento"))).toBeInTheDocument();
+    expect(screen.queryByText(ptMessages.crm.emailSubject.replace("{subject}", "Orçamento"))).toBeNull();
+  });
+
+  it("shows no subject line outside email conversations", () => {
+    const conv = makeConversation({ messages: [makeMsg({ id: "m1", metadata: { email_subject: "Oi" } as unknown as ConversationMessage["metadata"] })] });
+    render(<CrmConversationView conversation={conv} isTyping={false} translations={defaultTranslations as never} />);
+    expect(screen.queryByText(ptMessages.crm.emailSubject.replace("{subject}", "Oi"))).toBeNull();
+  });
+
   it("shows empty state when no conversation", () => {
     render(
       <CrmConversationView

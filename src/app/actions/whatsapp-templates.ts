@@ -9,6 +9,7 @@ import type {
 } from '@/lib/whatsapp-templates/types';
 
 import { apiClient } from "@/lib/api/browser-client";
+import { parsedRequest } from "@/lib/api/parsed-request";
 
 const DEFAULT_TEMPLATE_META: TemplateListMeta = {
   page: 1,
@@ -109,10 +110,11 @@ export async function createWhatsAppTemplateAction(payload: CreateTemplatePayloa
       template: null,
       error: response.error.message,
       errorCode: response.error.code,
+      expected: response.error.expected,
     };
   }
 
-  return { template: response.data ?? null, error: null, errorCode: undefined };
+  return { template: response.data ?? null, error: null, errorCode: undefined, expected: undefined };
 }
 
 export async function editWhatsAppTemplateContentAction(templateId: string, payload: EditTemplateContentPayload) {
@@ -261,4 +263,12 @@ export async function getWhatsAppTemplateByIdAdminAction(templateId: string) {
   }
 
   return { template: response.data ?? null };
+}
+
+function parseValidNames(value: unknown): { valid: true } | null {
+  return typeof value === "object" && value !== null && (value as { valid?: unknown }).valid === true ? { valid: true } : null;
+}
+
+export function checkTemplateVariableNamesAction(names: string[]) {
+  return parsedRequest("/whatsapp/templates/variable-names/check", { method: "POST", body: JSON.stringify({ names }) }, parseValidNames);
 }

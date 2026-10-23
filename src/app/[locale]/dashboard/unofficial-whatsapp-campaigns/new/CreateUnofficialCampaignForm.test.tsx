@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fireEvent, render as renderPlain, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UnofficialWhatsAppCampaign } from "@/lib/unofficial-whatsapp-campaigns/types";
@@ -9,7 +11,6 @@ vi.mock("sonner", () => ({ toast: toastMock }));
 const actions = vi.hoisted(() => ({
   createUnofficialCampaignAction: vi.fn(),
   updateUnofficialCampaignAction: vi.fn(),
-  estimateUnofficialCampaignAction: vi.fn(),
 }));
 vi.mock("@/app/actions/unofficial-whatsapp-campaigns", () => actions);
 
@@ -25,8 +26,29 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("next-intl", () => ({
   useNow: () => new Date("2026-10-18T12:00:00Z"),
   useLocale: () => "pt",
-  useTranslations: (namespace: string) => (key: string) => `${namespace}.${key}`,
+  useTranslations: (namespace: string) =>
+    Object.assign((key: string) => `${namespace}.${key}`, { has: () => true, rich: (key: string) => `${namespace}.${key}` }),
 }));
+
+vi.mock("@/contexts/workspace-context", () => ({ useWorkspace: () => ({ currentWorkspace: { id: "ws-1" }, can: () => true }) }));
+vi.mock("@/components/leads/LeadsToolbar", () => ({ LeadsToolbar: () => <div data-testid="leads-toolbar" /> }));
+vi.mock("@/components/leads/LeadSavedViews", () => ({ default: () => null }));
+vi.mock("@/hooks/use-lead-field-definitions", () => ({ useLeadFieldDefinitions: () => ({ definitions: [] }) }));
+
+const audienceActions = vi.hoisted(() => ({
+  countAudienceAction: vi.fn(),
+  listAudienceFieldsAction: vi.fn(),
+  uploadAudienceListAction: vi.fn(),
+  pasteAudienceListAction: vi.fn(),
+  previewAudienceListAction: vi.fn(),
+  searchAudienceRowsAction: vi.fn(),
+  addAudienceRowAction: vi.fn(),
+  editAudienceRowAction: vi.fn(),
+  removeAudienceRowAction: vi.fn(),
+  downloadAudienceSampleAction: vi.fn(),
+  listTemplateFieldsAction: vi.fn(),
+}));
+vi.mock("@/app/actions/campaign-audience", () => audienceActions);
 
 vi.mock("@/app/actions/agents", () => ({ listAgentsAction: vi.fn(async () => ({ agents: [], meta: { totalPages: 1 } })) }));
 vi.mock("@/app/actions/workflows", () => ({ listWorkflowsAction: vi.fn(async () => ({ workflows: [], meta: { totalPages: 1 } })) }));
@@ -43,8 +65,8 @@ vi.mock("@/components/unofficial-whatsapp/instance-select", () => ({
 }));
 
 vi.mock("@/components/elevated-design/elevated-command-select", () => ({
-  ElevatedCommandSelect: ({ label, disabled }: { label: string; disabled?: boolean }) => (
-    <select aria-label={label} disabled={disabled} />
+  ElevatedCommandSelect: ({ label, disabled, value, onValueChange }: { label: string; disabled?: boolean; value?: string; onValueChange?: (value: string) => void }) => (
+    <input aria-label={label} disabled={disabled} value={value ?? ""} onChange={(event) => onValueChange?.(event.target.value)} />
   ),
 }));
 vi.mock("@/components/unofficial-whatsapp/campaign-message-composer", async (importOriginal) => {
@@ -66,6 +88,9 @@ vi.mock("@/components/unofficial-whatsapp/campaign-message-composer", async (imp
         </button>
         <button type="button" onClick={() => onChange({ kind: "text", bodies: ["Olá {{1}}"] })}>
           personalize
+        </button>
+        <button type="button" onClick={() => onChange({ kind: "text", bodies: ["Olá {{1}}, responda /sair"] })}>
+          personalize with exit
         </button>
         {showExitLine === false ? null : <p>exit-line</p>}
       </fieldset>
@@ -94,11 +119,35 @@ vi.mock("@/components/elevated-design/button", () => ({
 }));
 
 import CreateUnofficialCampaignForm from "./CreateUnofficialCampaignForm";
-import type { GroupDetail, GroupOrigin, GroupRow } from "@/lib/unofficial-whatsapp-groups/types";
+
+function render(ui: ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderPlain(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+}
+
+const LEADS_COUNT = {
+  channel: "unofficial",
+  source: "leads",
+  matched: 120,
+  withContact: 110,
+  sendable: 100,
+  out: { no_identity: 10 },
+  outTotal: 10,
+  requiredVariables: 1,
+  variables: [{ key: "1", name: "1", header: false, source: "lead.first_name", missing: 0, policy: "", suggested: false, choiceRequired: false }],
+  blockers: [],
+  selection: { selected: 120, confirmCount: 120, fingerprint: "fp-1" },
+  list: null,
+  metadataMissing: [],
+};
 
 beforeEach(() => {
   pipelineActions.listPipelinesAction.mockReset();
   pipelineActions.listPipelinesAction.mockResolvedValue({ pipelines: [] });
+  Object.values(audienceActions).forEach((action) => action.mockReset());
+  audienceActions.listAudienceFieldsAction.mockResolvedValue({ data: [], error: null });
+  audienceActions.countAudienceAction.mockResolvedValue({ data: LEADS_COUNT, error: null });
+  audienceActions.searchAudienceRowsAction.mockResolvedValue({ data: { items: [], page: 1, pageSize: 50, totalPages: 0, totalItems: 0 }, error: null });
 });
 
 function campaign(source?: string, scheduledStart?: string): UnofficialWhatsAppCampaign {
@@ -122,33 +171,33 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
   });
 
   it("locks the number and the message of a send prepared from leads and says why", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign("lead_selection")} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign("lead_selection")} />);
     expect(screen.getByLabelText("unofficialWhatsappCampaigns.form.number")).toBeDisabled();
     expect(screen.getByLabelText("composer")).toBeDisabled();
     expect(screen.getByRole("note")).toHaveTextContent("leadSends.campaign.contentLocked");
   });
 
   it("keeps the number and the message editable on a campaign built by hand", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign()} />);
     expect(screen.getByLabelText("unofficialWhatsappCampaigns.form.number")).toBeEnabled();
     expect(screen.getByLabelText("composer")).toBeEnabled();
     expect(screen.queryByRole("note")).toBeNull();
   });
 
   it("offers no schedule on a send prepared from leads, since it only starts from the review", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign("lead_selection", "2026-10-20T12:00:00.000Z")} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign("lead_selection", "2026-10-20T12:00:00.000Z")} />);
     expect(screen.queryByText("unofficialWhatsappCampaigns.form.scheduleToggle")).toBeNull();
     expect(screen.queryByLabelText("unofficialWhatsappCampaigns.form.scheduledStart")).toBeNull();
   });
 
   it("keeps the schedule on a campaign built by hand", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign(undefined, "2026-10-20T12:00:00.000Z")} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign(undefined, "2026-10-20T12:00:00.000Z")} />);
     expect(screen.getByText("unofficialWhatsappCampaigns.form.scheduleToggle")).toBeInTheDocument();
   });
 
   it("saves a send prepared from leads without a scheduled start", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ error: "conflict", code: "send_selection_locked" });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign("lead_selection", "2026-10-20T12:00:00.000Z")} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign("lead_selection", "2026-10-20T12:00:00.000Z")} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() => expect(actions.updateUnofficialCampaignAction).toHaveBeenCalled());
     expect(actions.updateUnofficialCampaignAction.mock.calls[0][1]).toMatchObject({ scheduledStart: null });
@@ -156,7 +205,7 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
 
   it("shows the coded refusal when the server refuses the edit", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ error: "conflict", code: "send_selection_locked" });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign("lead_selection")} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign("lead_selection")} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() =>
       expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
@@ -167,7 +216,7 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
   });
 
   it("keeps an old message without an exit but holds a new one until it shows the exit", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign()} />);
     expect(screen.getByText("unofficialWhatsappCampaigns.form.save")).toBeEnabled();
 
     fireEvent.click(screen.getByText("rewrite"));
@@ -177,7 +226,7 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
 
   it("explains the refusal of a message that does not show the exit", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ error: "needs exit", code: "unofficial_campaign_needs_exit" });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign()} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() =>
       expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
@@ -188,7 +237,7 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
 
   it("keeps the server message when the refusal has no known code", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ error: "Falha ao salvar" });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={campaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={campaign()} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() =>
       expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
@@ -198,208 +247,17 @@ describe("CreateUnofficialCampaignForm in edit mode", () => {
   });
 });
 
-describe("CreateUnofficialCampaignForm recipients", () => {
-  function paste(value: string) {
-    fireEvent.change(screen.getByPlaceholderText("unofficialWhatsappCampaigns.form.recipientsPlaceholder"), {
-      target: { value },
-    });
-  }
-
-  function bodyRows() {
-    const [, ...rows] = within(screen.getByRole("table")).getAllByRole("row");
-    return rows;
-  }
-
-  function stat(label: string) {
-    return screen.getByText(label).nextElementSibling;
-  }
-
-  it("shows no contact table until something is pasted", () => {
-    render(<CreateUnofficialCampaignForm />);
-    expect(screen.queryByRole("table")).toBeNull();
-  });
-
-  it("lists the kept contacts one per row under one summary of what was kept and dropped", () => {
-    render(<CreateUnofficialCampaignForm />);
-    paste("5584999990001,Ana,ouro\n5584999990002;Bia\n5584999990001\n123");
-
-    expect(bodyRows()).toHaveLength(2);
-    expect(within(bodyRows()[0]).getByText("5584999990001")).toBeInTheDocument();
-    expect(within(bodyRows()[0]).getByText("Ana")).toBeInTheDocument();
-    expect(within(bodyRows()[0]).getByText("ouro")).toBeInTheDocument();
-    expect(within(bodyRows()[1]).getAllByText("n/d")).toHaveLength(1);
-    expect(screen.getByRole("columnheader", { name: "unofficialWhatsappCampaigns.form.recipientsVariable" })).toBeInTheDocument();
-    expect(stat("campaignContactList.total")).toHaveTextContent("2");
-    expect(stat("unofficialWhatsappCampaigns.form.recipientsDuplicates")).toHaveTextContent("1");
-    expect(stat("unofficialWhatsappCampaigns.form.recipientsInvalid")).toHaveTextContent("1");
-    expect(screen.queryByText("campaignContactList.missing")).toBeNull();
-  });
-
-  it("finds a pasted contact by number or name", () => {
-    render(<CreateUnofficialCampaignForm />);
-    paste("5584999990001,Ana\n5584999990002,Bia\n5511988880003,Carla");
-
-    fireEvent.change(screen.getByRole("searchbox", { name: "campaignContactList.search" }), { target: { value: "bia" } });
-    expect(bodyRows()).toHaveLength(1);
-    expect(within(bodyRows()[0]).getByText("5584999990002")).toBeInTheDocument();
-
-    fireEvent.change(screen.getByRole("searchbox", { name: "campaignContactList.search" }), { target: { value: "1198" } });
-    expect(bodyRows()).toHaveLength(1);
-    expect(within(bodyRows()[0]).getByText("Carla")).toBeInTheDocument();
-  });
-});
-
-function groupRow(id: string, canPost: boolean, instanceId = "i-1", origin: GroupOrigin = "managed"): GroupRow {
-  return {
-    group: { id, jid: `${id}@g.us`, subject: `Grupo ${id}`, memberCount: 12, origin },
-    numbers: [{ instanceId, label: "Comercial", connected: true, admin: false, canPost }],
-    activity: { messages: 0, joins: 0, leaves: 0 },
-    hasAnalysis: false,
-    runningCampaigns: 0,
-  } as GroupRow;
-}
-
 function groupCampaign(): UnofficialWhatsAppCampaign {
   return { ...campaign(), audience: "groups" };
 }
 
-describe("CreateUnofficialCampaignForm destination", () => {
+describe("CreateUnofficialCampaignForm for a groups campaign", () => {
   beforeEach(() => {
-    toastMock.error.mockClear();
-    actions.createUnofficialCampaignAction.mockReset();
     actions.updateUnofficialCampaignAction.mockReset();
-    groupActions.listWorkspaceGroupsAction.mockReset();
-    groupActions.getWorkspaceGroupAction.mockReset();
-    groupActions.listWorkspaceGroupsAction.mockResolvedValue({
-      items: [groupRow("a", true), groupRow("b", false)],
-      meta: { page: 1, pageSize: 50, totalPages: 1, totalItems: 2 },
-    });
-    actions.estimateUnofficialCampaignAction.mockReset();
-    actions.estimateUnofficialCampaignAction.mockImplementation(async (request: { groupJids?: string[] }) => ({
-      draft: {
-        estimate: { seconds: 300, pending: request.groupJids?.length ?? 4, senders: 2, unsendable: 0 },
-        groups: (request.groupJids ?? []).map((jid) => ({ jid, name: `Grupo ${jid.split("@")[0]}`, senders: [{ instanceId: "i-1", label: "Comercial" }] })),
-      },
-    }));
-    push.mockClear();
-  });
-
-  function audience(label: string) {
-    return within(screen.getByRole("group", { name: "unofficialWhatsappCampaigns.form.audience.label" })).getByRole("button", { name: label });
-  }
-
-  function fillName() {
-    fireEvent.change(screen.getByLabelText("unofficialWhatsappCampaigns.form.name"), { target: { value: "Ofertas da semana" } });
-  }
-
-  it("sends to leads by default, with the spreadsheet and the exit line as today", () => {
-    render(<CreateUnofficialCampaignForm />);
-    expect(audience("unofficialWhatsappCampaigns.form.audience.leads")).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByPlaceholderText("unofficialWhatsappCampaigns.form.recipientsPlaceholder")).toBeInTheDocument();
-    expect(screen.getByText("exit-line")).toBeInTheDocument();
-    expect(groupActions.listWorkspaceGroupsAction).not.toHaveBeenCalled();
-  });
-
-  it("asks for no number when the destination is groups and lists the groups of every number", async () => {
-    render(<CreateUnofficialCampaignForm />);
-    fireEvent.click(audience("unofficialWhatsappCampaigns.form.audience.groups"));
-    expect(screen.queryByPlaceholderText("unofficialWhatsappCampaigns.form.recipientsPlaceholder")).toBeNull();
-    expect(screen.queryByLabelText("unofficialWhatsappCampaigns.form.number")).toBeNull();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.numberLocked")).toBeInTheDocument();
-    expect(await screen.findByRole("checkbox", { name: "Grupo a" })).toBeInTheDocument();
-    expect(groupActions.listWorkspaceGroupsAction).toHaveBeenCalledWith(expect.not.objectContaining({ instanceId: expect.anything() }));
-  });
-
-  it("shows per group who posts or why nobody can, and notes the ban risk in one line", async () => {
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    expect(audience("unofficialWhatsappCampaigns.form.audience.groups")).toHaveAttribute("aria-pressed", "true");
-    expect(await screen.findByRole("checkbox", { name: "Grupo a" })).toBeEnabled();
-    expect(screen.getByRole("checkbox", { name: "Grupo b" })).toBeDisabled();
-    const rowOf = (name: string) => screen.getByRole("checkbox", { name }).closest("label") as HTMLElement;
-    expect(within(rowOf("Grupo a")).getByText("unofficialWhatsappCampaigns.form.groups.postsFrom")).toBeInTheDocument();
-    expect(within(rowOf("Grupo b")).getByText("unofficialWhatsappCampaigns.form.groups.block.cannot_post")).toBeInTheDocument();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.banRisk")).toBeInTheDocument();
-    expect(screen.queryByText("unofficialWhatsappCampaigns.form.groups.banRiskTitle")).toBeNull();
-    expect(screen.queryByText("unofficialGroups.kit.notices.external.title")).toBeNull();
-    expect(screen.queryByPlaceholderText("unofficialWhatsappCampaigns.form.recipientsPlaceholder")).toBeNull();
-    expect(screen.queryByText("unofficialWhatsappCampaigns.form.downloadExample")).toBeNull();
-    expect(screen.queryByText("exit-line")).toBeNull();
-  });
-
-  it("creates the campaign for the picked groups by jid and subject, with no exit command in the message", async () => {
-    actions.createUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-9" } });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    fillName();
-    fireEvent.click(screen.getByText("rewrite"));
-
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.create")).toBeEnabled();
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-
-    await waitFor(() => expect(actions.createUnofficialCampaignAction).toHaveBeenCalled());
-    expect(actions.createUnofficialCampaignAction.mock.calls[0][0]).toMatchObject({
-      audience: "groups",
-      targets: [{ groupJid: "a@g.us", name: "Grupo a" }],
-    });
-    expect(actions.createUnofficialCampaignAction.mock.calls[0][0].instanceId).toBeUndefined();
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard/unofficial-whatsapp-campaigns/c-9"));
-  });
-
-  it("refuses a groups campaign without any group picked", async () => {
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    await screen.findByRole("checkbox", { name: "Grupo a" });
-    fillName();
-    fireEvent.click(screen.getByText("rewrite"));
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-
-    await waitFor(() =>
-      expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
-        description: "unofficialWhatsappCampaigns.form.groups.noGroups",
-      }),
-    );
-    expect(actions.createUnofficialCampaignAction).not.toHaveBeenCalled();
-  });
-
-  it("refuses variables in a message for groups, since a group has no values to fill them", async () => {
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    fillName();
-    fireEvent.click(screen.getByText("personalize"));
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-
-    await waitFor(() =>
-      expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
-        description: "unofficialWhatsappCampaigns.form.groups.noVariables",
-      }),
-    );
-    expect(actions.createUnofficialCampaignAction).not.toHaveBeenCalled();
-  });
-
-  it("preselects the groups a link names and says which ones no number can post in", async () => {
-    groupActions.getWorkspaceGroupAction.mockImplementation(async (id: string) => ({
-      data: { ...groupRow(id, id === "a") } as GroupDetail,
-    }));
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: ["a", "b"] }} />);
-
-    const picked = await screen.findByRole("list", { name: "unofficialWhatsappCampaigns.form.groups.picked" });
-    expect(within(picked).getByText("Grupo a")).toBeInTheDocument();
-    expect(within(picked).queryByText("Grupo b")).toBeNull();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.prefillSkipped")).toBeInTheDocument();
-    expect(groupActions.getWorkspaceGroupAction).toHaveBeenCalledWith("a");
-    expect(groupActions.getWorkspaceGroupAction).toHaveBeenCalledWith("b");
-  });
-
-  it("drops a picked group when its chip is removed", async () => {
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    const picked = screen.getByRole("list", { name: "unofficialWhatsappCampaigns.form.groups.picked" });
-    fireEvent.click(within(picked).getByRole("button", { name: "unofficialWhatsappCampaigns.form.groups.remove" }));
-    expect(screen.queryByRole("list", { name: "unofficialWhatsappCampaigns.form.groups.picked" })).toBeNull();
-    expect(screen.getByRole("checkbox", { name: "Grupo a" })).not.toBeChecked();
   });
 
   it("asks a groups campaign for no number and does not ask its message for an exit", () => {
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={groupCampaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={groupCampaign()} />);
     expect(screen.queryByLabelText("unofficialWhatsappCampaigns.form.number")).toBeNull();
     expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.numberLocked")).toBeInTheDocument();
     expect(screen.queryByText("exit-line")).toBeNull();
@@ -412,105 +270,16 @@ describe("CreateUnofficialCampaignForm destination", () => {
 
   it("saves a groups campaign without naming a number", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-1" } });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={groupCampaign()} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={groupCampaign()} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() => expect(actions.updateUnofficialCampaignAction).toHaveBeenCalled());
     expect(actions.updateUnofficialCampaignAction.mock.calls[0][1]).toMatchObject({ targets: [] });
     expect(actions.updateUnofficialCampaignAction.mock.calls[0][1].instanceId).toBeUndefined();
   });
 
-  it("reviews the picked groups with the send time and who posts in each", async () => {
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-
-    const review = await screen.findByRole("list", { name: "unofficialWhatsappCampaigns.form.review.groups" });
-    expect(within(review).getByText("Grupo a")).toBeInTheDocument();
-    expect(within(review).getByText("unofficialWhatsappCampaigns.form.groups.postsFrom")).toBeInTheDocument();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.review.estimate")).toBeInTheDocument();
-    expect(actions.estimateUnofficialCampaignAction).toHaveBeenCalledWith(expect.objectContaining({ audience: "groups", groupJids: ["a@g.us"] }));
-  });
-
-  it("warns, without blocking, about a group already in a running campaign", async () => {
-    actions.createUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-9" } });
-    groupActions.listWorkspaceGroupsAction.mockResolvedValue({
-      items: [{ ...groupRow("a", true), runningCampaigns: 1 }],
-      meta: { page: 1, pageSize: 50, totalPages: 1, totalItems: 1 },
-    });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    const rowOf = (name: string) => screen.getByRole("checkbox", { name }).closest("label") as HTMLElement;
-    await screen.findByRole("checkbox", { name: "Grupo a" });
-    expect(within(rowOf("Grupo a")).getByText("unofficialWhatsappCampaigns.form.groups.running")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("checkbox", { name: "Grupo a" }));
-    expect(await screen.findByText("unofficialWhatsappCampaigns.form.review.running")).toBeInTheDocument();
-
-    fillName();
-    fireEvent.click(screen.getByText("rewrite"));
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-    await waitFor(() => expect(actions.createUnofficialCampaignAction).toHaveBeenCalled());
-  });
-
-  it("holds the campaign while the review finds a group no number can post in", async () => {
-    actions.estimateUnofficialCampaignAction.mockResolvedValue({
-      draft: {
-        estimate: { seconds: 0, pending: 0, senders: 0, unsendable: 1 },
-        groups: [{ jid: "a@g.us", name: "Grupo a", senders: [], block: "cannot_post" }],
-      },
-    });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    expect(await screen.findByText("unofficialWhatsappCampaigns.form.review.unsendable")).toBeInTheDocument();
-    fillName();
-    fireEvent.click(screen.getByText("rewrite"));
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-
-    await waitFor(() =>
-      expect(toastMock.error).toHaveBeenCalledWith("unofficialWhatsappCampaigns.form.saveFailed", {
-        description: "unofficialWhatsappCampaigns.form.review.unsendable",
-      }),
-    );
-    expect(actions.createUnofficialCampaignAction).not.toHaveBeenCalled();
-  });
-
-  it("offers the funnel to a leads campaign", async () => {
-    pipelineActions.listPipelinesAction.mockResolvedValue({ pipelines: [{ id: "p-1", name: "Vendas" }] });
-    render(<CreateUnofficialCampaignForm />);
-    expect(await screen.findByLabelText("unofficialWhatsappCampaigns.form.pipeline")).toBeInTheDocument();
-    expect(screen.queryByText("unofficialWhatsappCampaigns.form.groups.funnelNotApplied")).toBeNull();
-  });
-
-  it("hides the funnel for groups and says why in one line", async () => {
-    pipelineActions.listPipelinesAction.mockResolvedValue({ pipelines: [{ id: "p-1", name: "Vendas" }] });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    await screen.findByRole("checkbox", { name: "Grupo a" });
-    await waitFor(() => expect(pipelineActions.listPipelinesAction).toHaveBeenCalled());
-    expect(screen.queryByLabelText("unofficialWhatsappCampaigns.form.pipeline")).toBeNull();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.funnelNotApplied")).toBeInTheDocument();
-  });
-
-  it("hides the funnel again when the destination switches from leads to groups", async () => {
-    pipelineActions.listPipelinesAction.mockResolvedValue({ pipelines: [{ id: "p-1", name: "Vendas" }] });
-    render(<CreateUnofficialCampaignForm />);
-    await screen.findByLabelText("unofficialWhatsappCampaigns.form.pipeline");
-    fireEvent.click(audience("unofficialWhatsappCampaigns.form.audience.groups"));
-    expect(screen.queryByLabelText("unofficialWhatsappCampaigns.form.pipeline")).toBeNull();
-    expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.funnelNotApplied")).toBeInTheDocument();
-  });
-
-  it("creates a groups campaign with no funnel", async () => {
-    actions.createUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-9" } });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    fillName();
-    fireEvent.click(screen.getByText("rewrite"));
-    fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.create"));
-    await waitFor(() => expect(actions.createUnofficialCampaignAction).toHaveBeenCalled());
-    expect(actions.createUnofficialCampaignAction.mock.calls[0][0]).toMatchObject({ audience: "groups", pipelineId: null });
-  });
-
   it("drops the funnel a groups campaign still carries when it is saved", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-1" } });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={{ ...groupCampaign(), pipelineId: "p-1" }} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={{ ...groupCampaign(), pipelineId: "p-1" }} />);
     expect(screen.getByText("unofficialWhatsappCampaigns.form.groups.funnelNotApplied")).toBeInTheDocument();
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() => expect(actions.updateUnofficialCampaignAction).toHaveBeenCalled());
@@ -519,39 +288,10 @@ describe("CreateUnofficialCampaignForm destination", () => {
 
   it("keeps the funnel a leads campaign was given", async () => {
     actions.updateUnofficialCampaignAction.mockResolvedValue({ campaign: { id: "c-1" } });
-    render(<CreateUnofficialCampaignForm mode="edit" initialCampaign={{ ...campaign(), pipelineId: "p-1" }} />);
+    render(<CreateUnofficialCampaignForm initialCampaign={{ ...campaign(), pipelineId: "p-1" }} />);
     fireEvent.click(screen.getByText("unofficialWhatsappCampaigns.form.save"));
     await waitFor(() => expect(actions.updateUnofficialCampaignAction).toHaveBeenCalled());
     expect(actions.updateUnofficialCampaignAction.mock.calls[0][1]).toMatchObject({ pipelineId: "p-1" });
   });
 
-  it("warns about the ban risk of external groups only once one is picked", async () => {
-    groupActions.listWorkspaceGroupsAction.mockResolvedValue({
-      items: [groupRow("a", true), groupRow("x", true, "i-1", "external")],
-      meta: { page: 1, pageSize: 50, totalPages: 1, totalItems: 2 },
-    });
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: [] }} />);
-    fireEvent.click(await screen.findByRole("checkbox", { name: "Grupo a" }));
-    expect(screen.queryByText("unofficialGroups.kit.notices.external.title")).toBeNull();
-    const rowOf = (name: string) => screen.getByRole("checkbox", { name }).closest("label") as HTMLElement;
-    expect(within(rowOf("Grupo x")).getByText("unofficialGroups.kit.origin.external")).toBeInTheDocument();
-    expect(within(rowOf("Grupo a")).getByText("unofficialGroups.kit.origin.managed")).toBeInTheDocument();
-    const picked = () => screen.getByRole("list", { name: "unofficialWhatsappCampaigns.form.groups.picked" });
-    expect(within(picked()).queryByText("unofficialGroups.kit.origin.external")).toBeNull();
-
-    fireEvent.click(screen.getByRole("checkbox", { name: "Grupo x" }));
-    expect(screen.getByText("unofficialGroups.kit.notices.external.title")).toBeInTheDocument();
-    expect(within(picked()).getByText("unofficialGroups.kit.origin.external")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("checkbox", { name: "Grupo x" }));
-    expect(screen.queryByText("unofficialGroups.kit.notices.external.title")).toBeNull();
-  });
-
-  it("warns about the ban risk when a link preselects an external group", async () => {
-    groupActions.getWorkspaceGroupAction.mockImplementation(async (id: string) => ({
-      data: { ...groupRow(id, true, "i-1", "external") } as GroupDetail,
-    }));
-    render(<CreateUnofficialCampaignForm groupPrefill={{ groupIds: ["x"] }} />);
-    expect(await screen.findByText("unofficialGroups.kit.notices.external.title")).toBeInTheDocument();
-  });
 });

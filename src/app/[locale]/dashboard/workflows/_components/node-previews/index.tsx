@@ -7,6 +7,8 @@ import { SendTextPreview } from "./send-text-preview";
 import { SendEmailPreview } from "./send-email-preview";
 import { SendTemplatePreview } from "./send-template-preview";
 import { SendMediaPreview } from "./send-media-preview";
+import { SendCarrierPreview } from "./send-carrier-preview";
+import { SendPlatformEmailPreview } from "./send-platform-email-preview";
 
 export { renderConditionContentPreview } from "./conditions";
 export { renderActionContentPreview } from "./actions";
@@ -24,6 +26,10 @@ export function renderMessageContentPreview(
       return <SendTemplatePreview config={config} />;
     case "action_send_media":
       return <SendMediaPreview config={config} />;
+    case "action_send_carrier":
+      return <SendCarrierPreview config={config} />;
+    case "action_send_platform_email":
+      return <SendPlatformEmailPreview config={config} />;
     default:
       return undefined;
   }

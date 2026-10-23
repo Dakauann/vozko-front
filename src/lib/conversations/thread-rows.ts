@@ -5,10 +5,9 @@ import type { AgentToolCall } from "./agent-tool-calls";
 import type { ConversationNote } from "./notes";
 import { isToolMessage, toolCallIdOf, toolCallNameOf } from "./tool-events";
 import type { ConversationMessage } from "./types";
+import { groupPosition, joinsGroup, type GroupPosition } from "@/lib/chat/message-groups";
 
-export type GroupPosition = "single" | "first" | "middle" | "last";
-
-export const GROUP_GAP_MS = 5 * 60 * 1000;
+export { GROUP_GAP_MS, joinedEdges, opensGroup, type GroupPosition } from "@/lib/chat/message-groups";
 
 const RECORDED_CALL_WINDOW_MS = 2 * 60 * 1000;
 
@@ -191,20 +190,8 @@ function senderKey(message: ConversationMessage, outgoing: boolean, leadNumber: 
   return `out:${senderBadge(message, leadNumber) ?? ""}:${message.sender_name ?? ""}`;
 }
 
-function withinGap(previous: ConversationMessage, current: ConversationMessage): boolean {
-  const gap = timeOf(current) - timeOf(previous);
-  return gap >= 0 && gap <= GROUP_GAP_MS;
-}
-
 function isDraftMessage(draft: Draft): draft is DraftMessage {
   return "joinsPrevious" in draft;
-}
-
-function positionOf(joinsPrevious: boolean, joinsNext: boolean): GroupPosition {
-  if (joinsPrevious && joinsNext) return "middle";
-  if (joinsPrevious) return "last";
-  if (joinsNext) return "first";
-  return "single";
 }
 
 function settlePositions(drafts: Draft[]): ThreadRow[] {
@@ -212,7 +199,7 @@ function settlePositions(drafts: Draft[]): ThreadRow[] {
     if (!isDraftMessage(draft)) return draft;
     const following = drafts[index + 1];
     const joinsNext = following !== undefined && isDraftMessage(following) && following.joinsPrevious;
-    return { ...draft.row, groupPosition: positionOf(draft.joinsPrevious, joinsNext) };
+    return { ...draft.row, groupPosition: groupPosition(draft.joinsPrevious, joinsNext) };
   });
 }
 
@@ -291,8 +278,7 @@ export function buildThreadRows(messages: ConversationMessage[], options: Thread
 
         const outgoing = isOutgoingMessage(message, options.leadNumber);
         const sender = senderKey(message, outgoing, options.leadNumber);
-        const joinsPrevious =
-          previousSender !== null && previousSender.key === sender && withinGap(previousSender.message, message);
+        const joinsPrevious = joinsGroup(previousSender && { author: previousSender.key, at: previousSender.message.created_at }, { author: sender, at: message.created_at });
         drafts.push({
           row: {
             kind: "message",
@@ -327,15 +313,4 @@ export function daySections(rows: readonly ThreadRow[]): DaySection[] {
     else sections[sections.length - 1]?.rows.push(row);
   }
   return sections;
-}
-
-export function joinedEdges(position: GroupPosition): { top: boolean; bottom: boolean } {
-  return {
-    top: position === "middle" || position === "last",
-    bottom: position === "first" || position === "middle",
-  };
-}
-
-export function opensGroup(position: GroupPosition): boolean {
-  return position === "first" || position === "single";
 }

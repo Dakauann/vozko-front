@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { render } from "@testing-library/react";
 
-import { ChannelLogo, MercadoLivreLogoColor, hasChannelMark } from "./channel-logos";
+import { ChannelLogo, EmailLogoColor, MercadoLivreLogoColor, RcsLogoColor, SmsLogoColor, hasChannelMark } from "./channel-logos";
 import { TiktokLogoColor } from "@/components/tiktok/tiktok-logo";
 import { FILTERABLE_MESSAGE_CHANNELS } from "@/lib/conversations/types";
 
 describe("channel marks", () => {
   it("renders a mark for exactly the channels it claims to", () => {
-    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat", "mercadolivre", "tiktok"]) {
+    for (const channel of ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat", "mercadolivre", "tiktok", "email", "rcs", "sms"]) {
       expect(hasChannelMark(channel), `${channel} should claim a mark`).toBe(true);
       expect(ChannelLogo({ channel }), `${channel} should render one`).not.toBeNull();
     }
@@ -44,5 +44,19 @@ describe("channel marks", () => {
 
   it("draws TikTok with its own mark", () => {
     expect((ChannelLogo({ channel: "tiktok" }) as { type: unknown }).type).toBe(TiktokLogoColor);
+  });
+
+  it("draws email like the other in-house marks: an indigo plate with a solid white envelope drawn inline", () => {
+    const { container } = render(<EmailLogoColor />);
+    const fills = Array.from(container.querySelectorAll("[fill]")).map((node) => node.getAttribute("fill"));
+    expect(fills).toContain("#4F46E5");
+    expect(fills).toContain("#FFFFFF");
+    expect(container.querySelectorAll("svg svg")).toHaveLength(0);
+    expect((ChannelLogo({ channel: "email" }) as { type: unknown }).type).toBe(EmailLogoColor);
+  });
+
+  it("draws RCS and SMS as their own marks", () => {
+    expect((ChannelLogo({ channel: "rcs" }) as { type: unknown }).type).toBe(RcsLogoColor);
+    expect((ChannelLogo({ channel: "sms" }) as { type: unknown }).type).toBe(SmsLogoColor);
   });
 });

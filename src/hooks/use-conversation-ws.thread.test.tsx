@@ -427,6 +427,16 @@ describe("sending a template now", () => {
     vi.unstubAllGlobals();
   });
 
+  it("sends the header values of the template beside the body values", async () => {
+    const { view, socket } = await mountOpenSocket();
+    await openPane(view, socket);
+
+    act(() => view.result.current.reopenWindow("e1", "whatsapp", "t1", ["Ana"], ["de Natal"]));
+    expect(socket.sentOfType("reopen_window")).toEqual([
+      { entry_id: "e1", entry_type: "whatsapp", template_id: "t1", parameters: ["Ana"], header_parameters: ["de Natal"], request_id: expect.stringMatching(UUID) },
+    ]);
+  });
+
   it("reopens the window with the chosen template under a fresh request id and opens the composer when the server confirms", async () => {
     const { view, socket } = await mountOpenSocket();
     await openPane(view, socket);

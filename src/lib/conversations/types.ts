@@ -6,6 +6,8 @@ import type { ViewersPayload } from './viewers';
 import type { LiveRead } from '@/lib/live-decisions/types';
 import type { LeadsBulkUpdateEvent, LeadUpdateEvent } from '@/lib/leads/types';
 import type { TeamChatSocketEvent } from '@/lib/team-chat/types';
+import { RCS_LIMITS } from '@/lib/rcs/limits';
+import { SMS_LIMITS } from '@/lib/sms/limits';
 import { TIKTOK_TEXT_LIMIT } from '@/lib/tiktok/channel';
 
 export interface Stage {
@@ -73,13 +75,16 @@ export type EntryType =
     | 'unofficial_whatsapp'
     | 'webchat'
     | 'mercadolivre'
-    | 'tiktok';
+    | 'tiktok'
+    | 'email'
+    | 'rcs'
+    | 'sms';
 
 export type CampaignType = 'whatsapp' | 'unofficial_whatsapp';
 
 export type ContainerKind = 'campaign' | undefined;
 
-export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp' | 'webchat' | 'mercadolivre' | 'tiktok';
+export type MessageChannel = 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'unofficial_whatsapp' | 'webchat' | 'mercadolivre' | 'tiktok' | 'email' | 'rcs' | 'sms';
 
 export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'whatsapp',
@@ -90,6 +95,9 @@ export const FILTERABLE_MESSAGE_CHANNELS: readonly MessageChannel[] = [
     'webchat',
     'mercadolivre',
     'tiktok',
+    'email',
+    'rcs',
+    'sms',
 ] as const;
 
 export type WhatsAppCampaignTypeFilter = 'standard' | 'organic';
@@ -160,6 +168,21 @@ const CHANNEL_CAPABILITIES: Record<EntryType, ChannelCapabilityRow> = {
         timedOutboundWindow: true,
         aiHandling: true,
         textLimit: TIKTOK_TEXT_LIMIT,
+    },
+    email: { calling: false, messageEditing: false, timedOutboundWindow: false, aiHandling: true, textLimit: null },
+    rcs: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: false,
+        aiHandling: true,
+        textLimit: { max: RCS_LIMITS.maxTextRunes, unit: 'characters' },
+    },
+    sms: {
+        calling: false,
+        messageEditing: false,
+        timedOutboundWindow: false,
+        aiHandling: true,
+        textLimit: { max: SMS_LIMITS.maxTextRunes, unit: 'characters' },
     },
 };
 

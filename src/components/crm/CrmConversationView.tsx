@@ -38,6 +38,7 @@ import MoveToFunnelDialog from "@/components/crm/MoveToFunnelDialog";
 import type { FunnelStages } from "@/app/actions/stages";
 import { AdOriginBanner } from "./ad-origin-banner";
 import { MercadoLivreSaleSummary } from "@/components/mercadolivre/mercadolivre-sale-summary";
+import { latestEmailSubject } from "@/lib/email/subject";
 import { cn } from "@/lib/utils";
 import { getAgentToolsAction } from "@/app/actions/agents";
 import { useTranslations } from "next-intl";
@@ -225,6 +226,11 @@ export default function CrmConversationView({
   );
   const threadMessages = useMemo(() => withPendingBubbles(foldResent(shownMessages), bubbles), [shownMessages, bubbles]);
   const arrivalCandidates = useMemo(() => threadMessages.filter((message) => !message.client_request_id), [threadMessages]);
+  const shownEntryType = shown?.entry_type;
+  const emailSubject = useMemo(
+    () => (shownEntryType === "email" ? latestEmailSubject(threadMessages) : null),
+    [shownEntryType, threadMessages],
+  );
   const resendingIds = useMemo(
     () => (shown ? resendingMessageIds(outbox, shown.entry_id, shown.entry_type) : NO_IDS),
     [outbox, shown],
@@ -685,6 +691,12 @@ export default function CrmConversationView({
       ) : null}
 
       {shown.entry_type === "mercadolivre" ? <MercadoLivreSaleSummary key={shown.entry_id} entryId={shown.entry_id} /> : null}
+
+      {emailSubject ? (
+        <p title={emailSubject} className="truncate border-b border-border px-4 py-1.5 text-xs text-muted-foreground">
+          {tCrm("emailSubject", { subject: emailSubject })}
+        </p>
+      ) : null}
 
       <div className="relative flex min-h-0 flex-1 flex-col">
         <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex items-start justify-between gap-3">

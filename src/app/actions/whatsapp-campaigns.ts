@@ -158,8 +158,6 @@ export async function createWhatsAppCampaignAction(payload: WhatsAppCampaignPayl
         }
     );
 
-    console.log(JSON.stringify(response))
-
     if (response.error) {
         return { campaign: null, error: response.error.message, errorCode: response.error.code };
     }

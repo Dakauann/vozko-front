@@ -28,6 +28,7 @@ export interface LeadSelectionSort {
 export interface LeadSelection {
   mode: SelectionMode;
   ids?: string[];
+  excludeIds?: string[];
   filter?: CrmFilter;
   sort?: LeadSelectionSort[];
   limit?: number;

@@ -2,6 +2,7 @@ export type LaunchLevel = "block" | "confirm" | "advice";
 
 export type LaunchCode =
   | "nothing_pending"
+  | "audience_empty"
   | "access_revoked"
   | "health_unreadable"
   | "template_not_ready"
@@ -19,7 +20,11 @@ export type LaunchCode =
   | "last_run_engagement"
   | "last_run_undeliverable"
   | "opted_out_pending"
-  | "cap_below_pending";
+  | "cap_below_pending"
+  | "number_unusable"
+  | "number_restricted"
+  | "number_cannot_send"
+  | "groups_unsendable";
 
 export interface LaunchFinding {
   code: LaunchCode;

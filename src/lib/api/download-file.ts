@@ -8,19 +8,27 @@ interface RefusalBody {
   expected?: Record<string, string>;
 }
 
+function requestOf(options: { accept?: string; body?: unknown }): RequestInit {
+  const posting = options.body !== undefined;
+  return {
+    method: posting ? "POST" : "GET",
+    credentials: "include",
+    headers: {
+      ...(options.accept ? { Accept: options.accept } : {}),
+      ...(posting ? { "Content-Type": "application/json" } : {}),
+      ...scopeHeaders(),
+    },
+    ...(posting ? { body: JSON.stringify(options.body) } : {}),
+  };
+}
+
 export async function downloadApiFile(
   path: string,
   fallbackName: string,
-  options: { accept?: string } = {},
+  options: { accept?: string; body?: unknown } = {},
 ): Promise<{ error: CodedRefusal | null }> {
   try {
-    const response = await fetchWithRefresh(() =>
-      fetch(`${getApiBaseUrl()}${path}`, {
-        method: "GET",
-        credentials: "include",
-        headers: { ...(options.accept ? { Accept: options.accept } : {}), ...scopeHeaders() },
-      }),
-    );
+    const response = await fetchWithRefresh(() => fetch(`${getApiBaseUrl()}${path}`, requestOf(options)));
     if (!response.ok) {
       const body = (await response.json().catch(() => ({}))) as RefusalBody;
       return {

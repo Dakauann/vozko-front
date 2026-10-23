@@ -8,6 +8,7 @@ import {
   isLiveSimStatus,
   simCommand,
   simEventWindowStart,
+  simMessageSenders,
   simulationUrl,
   type SimSession,
 } from "./sim-session";
@@ -295,5 +296,119 @@ describe("initialSimSession", () => {
     expect(session.status).toBe("idle");
     expect(session.steps).toEqual([]);
     expect(session.pause).toBeNull();
+  });
+});
+
+describe("starting from a chosen trigger", () => {
+  const AGENT = {
+    nodeId: "t1",
+    triggerType: "trigger_agent_call",
+    label: "Chamado por agente IA",
+    shape: "fields",
+    fields: [{ key: "cpf", type: "text", required: true, description: "", example: "", readBy: [] }],
+    sample: null,
+    readKeys: [],
+    issues: [],
+    windowEditable: true,
+  };
+  const WEBHOOK = { ...AGENT, nodeId: "t2", triggerType: "trigger_webhook", label: "Webhook", shape: "json", fields: [], sample: {} };
+
+  it("keeps every trigger's input spec and the default trigger from sim_ready", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { realCallNodes: [], triggers: [AGENT, WEBHOOK], defaultTriggerNodeId: "t1" }]);
+    expect(ready.triggers.map((spec) => spec.nodeId)).toEqual(["t1", "t2"]);
+    expect(ready.defaultTriggerNodeId).toBe("t1");
+    expect(ready.unreadableTriggers).toBe(0);
+  });
+
+  it("counts a trigger it cannot read instead of offering it", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggers: [AGENT, { ...WEBHOOK, shape: "?" }], defaultTriggerNodeId: "t1" }]);
+    expect(ready.triggers.map((spec) => spec.nodeId)).toEqual(["t1"]);
+    expect(ready.unreadableTriggers).toBe(1);
+  });
+
+  it("goes back to the start screen with the refused fields when the input is refused", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggers: [AGENT], defaultTriggerNodeId: "t1" }]);
+    const sent = applySimIntent(ready, { kind: "start_sent" });
+    const refused = receive(sent, [
+      "command_refused",
+      { command: "start", error: "Dados de entrada inválidos", code: "trigger_input_invalid", issues: [{ code: "required", key: "cpf" }] },
+    ]);
+    expect(refused.status).toBe("ready");
+    expect(refused.refusal).toEqual({
+      command: "start",
+      error: "Dados de entrada inválidos",
+      code: "trigger_input_invalid",
+      issues: [{ code: "required", key: "cpf" }],
+    });
+    expect(refused.triggers).toEqual(ready.triggers);
+  });
+
+  it("waits for the first message of the chosen message trigger", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggers: [AGENT], defaultTriggerNodeId: "t1" }]);
+    const waiting = receive(applySimIntent(ready, { kind: "start_sent" }), ["waiting_trigger", { triggerType: "trigger_message_received", nodeId: "t3" }]);
+    expect(waiting.status).toBe("waiting_trigger");
+    expect(waiting.refusal).toBeNull();
+  });
+
+  it("keeps a start refused without a code, such as malformed start data, with the backend text only", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggers: [AGENT], defaultTriggerNodeId: "t1" }]);
+    const refused = receive(applySimIntent(ready, { kind: "start_sent" }), ["command_refused", { command: "start", error: "dados de início malformados" }]);
+    expect(refused.status).toBe("ready");
+    expect(refused.refusal).toEqual({ command: "start", error: "dados de início malformados" });
+  });
+
+  it("records the recorded trigger a reproduction started from", () => {
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggers: [AGENT, WEBHOOK], defaultTriggerNodeId: "t1" }]);
+    const sent = applySimIntent(ready, { kind: "start_sent", reproduceRunId: "r1" });
+    const started = receive(sent, [
+      "sim_started",
+      { runId: "s1", trigger: { nodeId: "t2", triggerType: "trigger_webhook" }, reproducing: { runId: "r1", pinnedNodes: ["n4"] } },
+    ]);
+    expect(started.startedTrigger).toEqual({ nodeId: "t2", triggerType: "trigger_webhook" });
+    expect(started.reproducing).toEqual({ runId: "r1", pinnedNodes: ["n4"] });
+  });
+
+  it("reads the voice call trigger the backend lists without input", () => {
+    const call = { nodeId: "call", triggerType: "trigger_call_received", label: "", shape: "none", fields: [], sample: null, readKeys: null, issues: [], windowEditable: false };
+    const ready = receive(connectingSimSession(), ["sim_ready", { triggerType: "trigger_call_received", triggers: [call], defaultTriggerNodeId: "call" }]);
+    expect(ready.unreadableTriggers).toBe(0);
+    expect(ready.triggers).toEqual([{ ...call, readKeys: [], window: null, acceptedEvents: [] }]);
+    expect(ready.defaultTriggerNodeId).toBe("call");
+  });
+
+  it("records which trigger the run started from", () => {
+    const started = receive(connectingSimSession(), ["sim_started", { runId: "s1", trigger: { nodeId: "t2", triggerType: "trigger_webhook" } }]);
+    expect(started.startedTrigger).toEqual({ nodeId: "t2", triggerType: "trigger_webhook" });
+    expect(receive(connectingSimSession(), ["sim_started", { runId: "s1" }]).startedTrigger).toBeNull();
+  });
+});
+
+describe("message sender names", () => {
+  const withMessage = (nodeId: string | undefined, nodeName: string | undefined, id: string) =>
+    receive(connectingSimSession(), [
+      "message_sent",
+      {
+        direction: "outbound",
+        text: "Oi",
+        msgType: "text",
+        nodeId,
+        nodeName,
+        messageId: id,
+        message: { id, entryType: "whatsapp", channel: "whatsapp", messageType: "ai_response", direction: "OUTBOUND", text: "Oi" },
+      },
+    ]);
+
+  it("keeps the sending node name the backend sends with the message", () => {
+    const event = withMessage("n2", "Boas-vindas", "m1").events.at(-1);
+    expect(event).toMatchObject({ type: "message", nodeId: "n2", nodeName: "Boas-vindas" });
+  });
+
+  it("labels each message by the backend node name, else by the canvas label of its node", () => {
+    const events = [...withMessage("n2", "Boas-vindas", "m1").events, ...withMessage("n3", undefined, "m2").events, ...withMessage(undefined, undefined, "m3").events];
+    const senders = simMessageSenders(events, (nodeId) => (nodeId === "n3" ? "Lembrete" : "Gatilho"));
+    expect([...senders]).toEqual([
+      ["m1", "Boas-vindas"],
+      ["m2", "Lembrete"],
+    ]);
   });
 });

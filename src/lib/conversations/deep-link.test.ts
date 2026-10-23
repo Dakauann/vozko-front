@@ -25,7 +25,7 @@ describe("readConversationDeepLink", () => {
   });
 
   it("reads every channel a conversation can live on", () => {
-    for (const entryType of ["whatsapp", "instagram", "facebook", "telegram", "unofficial_whatsapp", "webchat", "mercadolivre", "tiktok"] as const) {
+    for (const entryType of ["whatsapp", "instagram", "facebook", "telegram", "unofficial_whatsapp", "webchat", "mercadolivre", "tiktok", "email"] as const) {
       expect(readConversationDeepLink(conversationHref(id, entryType).split("?")[1])).toEqual({ entryId: id, entryType });
     }
   });

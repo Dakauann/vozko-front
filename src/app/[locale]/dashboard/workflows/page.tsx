@@ -32,7 +32,7 @@ import type { EntryPointKind, Workflow } from "@/lib/workflows/types";
 import { codedErrorMessage } from "@/lib/api/coded-error";
 import { publishFailureCopy, type PublishFailure } from "@/lib/workflows/publication";
 import { ENTRY_POINT_KINDS, type EntryPointFix } from "@/lib/workflows/entry-points";
-import { workflowNodeHref } from "@/lib/workflows/run-format";
+import { workflowHref, workflowNodeHref } from "@/lib/workflows/run-format";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import {
   listWorkflowsAction,
@@ -207,6 +207,9 @@ export default function WorkflowsPage() {
         return;
       case "open_node":
         router.push(workflowNodeHref(workflowId, fix.nodeId));
+        return;
+      case "open_editor":
+        router.push(workflowHref(workflowId));
         return;
       case "link":
         router.push(fix.href);

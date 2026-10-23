@@ -22,6 +22,11 @@ describe("nodeSummary", () => {
     expect(nodeSummary("action_send_email", { subject: "Confirmado", body: "<p>Sua aula&nbsp;está <b>confirmada</b></p>" })).toEqual({ heading: "Confirmado", text: "Sua aula está confirmada" });
   });
 
+  it("shows the platform email subject with its text or the saved design name", () => {
+    expect(nodeSummary("action_send_platform_email", { subject: "Pedido", body_mode: "text", text: "Seu pedido saiu" })).toEqual({ heading: "Pedido", text: "Seu pedido saiu" });
+    expect(nodeSummary("action_send_platform_email", { subject: "Pedido", body_mode: "design", design_id: "d-1", _display_design_id: "Confirmação", text: "x" })).toEqual({ heading: "Pedido", text: "Confirmação" });
+  });
+
   it("shows the form header and body, falling back to the form name", () => {
     expect(nodeSummary("action_send_form", { form_id: "f1", _display_form_id: "Matrícula", body: "Preencha seus dados" })).toEqual({ heading: "Matrícula", text: "Preencha seus dados" });
     expect(nodeSummary("action_send_form", { form_id: "f1", header: "Inscrição", body: "Dados" })).toEqual({ heading: "Inscrição", text: "Dados" });

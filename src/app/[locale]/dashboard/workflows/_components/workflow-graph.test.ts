@@ -4,6 +4,7 @@ import type { Node } from "@xyflow/react";
 
 import type { WorkflowGraph } from "@/lib/workflows/types";
 
+import { domainToFlow } from "./editor-flow";
 import { createWorkflowSnapshot, flowToDomain, getDomainEdgeLabel, workflowDraftSnapshot } from "./workflow-graph";
 
 describe("getDomainEdgeLabel", () => {
@@ -70,5 +71,56 @@ describe("workflowDraftSnapshot", () => {
     expect(workflowDraftSnapshot({ name: "Ligação", triggerType: "trigger_call_received", graph } as Parameters<typeof workflowDraftSnapshot>[0])).toBe(
       createWorkflowSnapshot({ name: "Ligação", description: "", workflowType: "voice", graph }),
     );
+  });
+});
+
+const OUTPUT_LABELS = {
+  defaultPath: "Padrão",
+  textResponse: "Resposta",
+  noMatch: "Sem correspondência",
+  error: "Erro",
+  form: { completed: "Respondeu", no_reply: "Não respondeu", send_failed: "Falha no envio" },
+};
+
+describe("saved test scenarios in the draft graph", () => {
+  const scenario = { id: "s1", name: "Candidato completo", input: { cpf: "123", curso: { id: 1, nome: "ADM" } }, savedAt: "2026-10-22T12:00:00.000Z" };
+  const triggerNode = (testInputs?: (typeof scenario)[]): Node => ({
+    id: "t1",
+    type: "workflowNode",
+    position: { x: 0, y: 0 },
+    data: { nodeType: "trigger_agent_call", config: {}, ...(testInputs ? { testInputs } : {}) },
+  });
+  const snapshot = (graph: WorkflowGraph) => createWorkflowSnapshot({ name: "f", description: "", workflowType: "messages", graph });
+
+  it("saves the scenarios with the trigger node, so the normal draft save and autosave store them", () => {
+    expect(flowToDomain([triggerNode([scenario])], []).nodes[0]).toEqual({
+      id: "t1",
+      type: "trigger_agent_call",
+      position: { x: 0, y: 0 },
+      config: {},
+      testInputs: [scenario],
+    });
+    expect("testInputs" in flowToDomain([triggerNode()], []).nodes[0]).toBe(false);
+    expect("testInputs" in flowToDomain([triggerNode([])], []).nodes[0]).toBe(false);
+  });
+
+  it("reads a new scenario as a change until it is saved", () => {
+    expect(snapshot(flowToDomain([triggerNode([scenario])], []))).not.toBe(snapshot(flowToDomain([triggerNode()], [])));
+  });
+
+  it("reads the scenarios the server sends back after the save as unchanged", () => {
+    const local = flowToDomain([triggerNode([scenario])], []);
+    const server: WorkflowGraph = {
+      nodes: [{ ...local.nodes[0], testInputs: [{ ...scenario, savedAt: "2026-10-22T12:00:00Z", input: { curso: { nome: "ADM", id: 1 }, cpf: "123" } }] }],
+      edges: [],
+    };
+    expect(snapshot(server)).toBe(snapshot(local));
+  });
+
+  it("carries the scenarios from the stored graph onto the canvas node", () => {
+    const { nodes } = domainToFlow({ nodes: [{ id: "t1", type: "trigger_agent_call", position: { x: 0, y: 0 }, config: {}, testInputs: [scenario] }], edges: [] }, new Map(), OUTPUT_LABELS);
+    expect((nodes[0].data as { testInputs?: unknown }).testInputs).toEqual([scenario]);
+    const bare = domainToFlow({ nodes: [{ id: "t1", type: "trigger_agent_call", position: { x: 0, y: 0 }, config: {}, testInputs: [] }], edges: [] }, new Map(), OUTPUT_LABELS);
+    expect("testInputs" in bare.nodes[0].data).toBe(false);
   });
 });

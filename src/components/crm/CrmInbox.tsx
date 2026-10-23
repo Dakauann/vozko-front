@@ -236,6 +236,9 @@ const CHANNEL_FILTER_LABELS: Record<MessageChannel, string> = {
   webchat: "WebChat",
   mercadolivre: "Mercado Livre",
   tiktok: "TikTok",
+  email: "E-mail",
+  rcs: "RCS",
+  sms: "SMS",
 };
 
 const EMPTY_FILTERS: FilterState = {

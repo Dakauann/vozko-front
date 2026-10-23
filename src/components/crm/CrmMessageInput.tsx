@@ -32,6 +32,7 @@ import {
 } from "@/lib/conversations/composer-attachments";
 import type { ReplyTarget } from "@/lib/conversations/drafts";
 import { insertAtSelection } from "@/lib/conversations/composer-format";
+import { clipboardFiles } from "@/lib/conversations/clipboard-files";
 import { windowKey } from "@/lib/conversations/window-deck";
 import { resolveShortcutVariables, unresolvedVariables } from "@/lib/message-shortcuts/variables";
 import { FacebookThreadBanner } from "./FacebookThreadBanner";
@@ -61,7 +62,7 @@ import { ComposerEmojiPicker } from "./ComposerEmojiPicker";
 import { ComposerUnresolvedVariables } from "./ComposerUnresolvedVariables";
 import { TextLimitFeedback } from "./TextLimitFeedback";
 import { ComposerModeSwitch, type ComposerMode } from "./ComposerModeSwitch";
-import { ComposerNoteField } from "./ComposerNoteField";
+import { ComposerNoteField, type NoteFieldControl } from "./ComposerNoteField";
 import { useEntryConversation } from "@/hooks/use-entry-conversation";
 import { useMessageActions } from "@/hooks/use-message-actions";
 import { editingMessageOf, startEditing, stopEditing } from "@/hooks/use-message-editing";
@@ -126,14 +127,6 @@ export interface ComposerControl {
 const ICON_BUTTON_CLASS = COMPOSER_ICON_BUTTON;
 
 const SIGNED_PREFERENCE_KEY = "sendSigned";
-
-function getClipboardFiles(clipboardData: DataTransfer): File[] {
-  if (clipboardData.files.length > 0) return Array.from(clipboardData.files);
-  return Array.from(clipboardData.items)
-    .filter((item) => item.kind === "file")
-    .map((item) => item.getAsFile())
-    .filter((file): file is File => file !== null);
-}
 
 type RemainingWindow = {
   hours: number;
@@ -232,6 +225,7 @@ function EntryComposer({
   }, []);
   const [previewing, setPreviewing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const noteControlRef = useRef<NoteFieldControl | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onTypingRef = useRef(onTyping);
   const variableValues = useShortcutVariableValues(entryId, entryType);
@@ -499,7 +493,7 @@ function EntryComposer({
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
       if (!acceptsFiles) return;
-      const files = getClipboardFiles(e.clipboardData);
+      const files = clipboardFiles(e.clipboardData);
       if (files.length === 0) return;
       e.preventDefault();
       addFiles(files);
@@ -550,8 +544,11 @@ function EntryComposer({
 
   useImperativeHandle(
     controlRef,
-    () => ({ focus: () => textareaRef.current?.focus(), attachFiles: addFiles }),
-    [addFiles],
+    () => ({
+      focus: () => textareaRef.current?.focus(),
+      attachFiles: (files: File[]) => (mode === "note" ? noteControlRef.current?.attachFiles(files) : addFiles(files)),
+    }),
+    [addFiles, mode],
   );
 
   useEffect(() => {
@@ -619,7 +616,7 @@ function EntryComposer({
         {!recorder.isRecording && <ComposerModeSwitch mode={mode} onChange={setMode} />}
 
         {mode === "note" ? (
-          <ComposerNoteField entryId={entryId} entryType={entryType} onEscape={() => setMode("message")} />
+          <ComposerNoteField entryId={entryId} entryType={entryType} onEscape={() => setMode("message")} controlRef={noteControlRef} />
         ) : (
           <>
             <ComposerAttachmentStrip attachments={attachments} onRemove={removeAttachment} />

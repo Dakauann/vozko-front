@@ -21,7 +21,7 @@ import {
 import ImportLeadsDialog from "./_components/ImportLeadsDialog";
 import { LeadImportsStatus } from "@/components/leads/imports/LeadImportsStatus";
 import { downloadLeadImportTemplate } from "@/lib/leads/template";
-import LeadSavedViews from "./_components/LeadSavedViews";
+import LeadSavedViews from "@/components/leads/LeadSavedViews";
 import { LeadsToolbar } from "@/components/leads/LeadsToolbar";
 import { LeadStatsStrip } from "@/components/leads/LeadStatsStrip";
 import { LeadsHeaderActions } from "@/components/leads/LeadsHeaderActions";

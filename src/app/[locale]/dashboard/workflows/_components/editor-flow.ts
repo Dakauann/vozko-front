@@ -192,6 +192,7 @@ export function domainToFlow(
         outputs,
         hasMissingRequired: checkMissingRequired(def, n.config ?? {}, n.type),
         ...(n.pinned ? { pinned: n.pinned } : {}),
+        ...(n.testInputs?.length ? { testInputs: n.testInputs } : {}),
       } satisfies WorkflowNodeData,
     };
   });

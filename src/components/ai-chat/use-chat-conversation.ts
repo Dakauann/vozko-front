@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 
 import { createChatThreadAction } from "@/app/actions/aichat";
 import { chatStreams } from "@/lib/aichat/chat-stream";
+import { editorProjectOf } from "@/lib/aichat/editor-view";
 import type { Approval, ChatAttachment, ChatMode, ChatThread, ChatView } from "@/lib/aichat/types";
 import { forgetActiveThread, readActiveThread, rememberActiveThread } from "@/lib/aichat/active-thread";
 import { expireOpen, isOpenProposal } from "@/lib/aichat/proposal";
@@ -41,7 +42,7 @@ function awaitsApproval(threadId: string): boolean {
 const OTHER_PROJECT = "thread_other_project";
 
 function openProjectOf(view: ChatView | undefined): string | undefined {
-  return view?.surface === "studio" ? view.projectId : undefined;
+  return editorProjectOf(view);
 }
 
 function belongsElsewhere(threadId: string, openProject: string | undefined): boolean {

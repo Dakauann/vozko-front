@@ -188,6 +188,7 @@ export interface SendPart {
 
 export interface SendMissingVariable {
   slot: number;
+  name?: string;
   source?: string;
   count: number;
 }
@@ -358,6 +359,7 @@ const MISSING_VARIABLE = "missing_variable";
 
 export interface SendSlotRef {
   slot: number;
+  name?: string;
   source?: string;
 }
 
@@ -367,8 +369,8 @@ export interface SendReviewSkipRow extends SendSkipRow {
   nested?: boolean;
 }
 
-function slotRef({ slot, source }: SendMissingVariable): SendSlotRef {
-  return source === undefined ? { slot } : { slot, source };
+function slotRef({ slot, name, source }: SendMissingVariable): SendSlotRef {
+  return { slot, ...(name === undefined ? {} : { name }), ...(source === undefined ? {} : { source }) };
 }
 
 function missingVariableRows(total: number, missing: readonly SendMissingVariable[]): SendReviewSkipRow[] {
@@ -380,12 +382,16 @@ function missingVariableRows(total: number, missing: readonly SendMissingVariabl
   ];
 }
 
-export function reviewSkipRows(review: SendReview): SendReviewSkipRow[] {
-  return reasonRows(review.skipped, SEND_SKIP_REASONS).flatMap((row): SendReviewSkipRow[] => {
-    if (row.reason === COOLDOWN && review.cooldownDays !== undefined) return [{ ...row, days: review.cooldownDays }];
-    if (row.reason === MISSING_VARIABLE) return missingVariableRows(row.count, review.missingVariables);
+export function skipRowsOf(skipped: Record<string, number>, missingVariables: readonly SendMissingVariable[], cooldownDays?: number): SendReviewSkipRow[] {
+  return reasonRows(skipped, SEND_SKIP_REASONS).flatMap((row): SendReviewSkipRow[] => {
+    if (row.reason === COOLDOWN && cooldownDays !== undefined) return [{ ...row, days: cooldownDays }];
+    if (row.reason === MISSING_VARIABLE) return missingVariableRows(row.count, missingVariables);
     return [row];
   });
+}
+
+export function reviewSkipRows(review: SendReview): SendReviewSkipRow[] {
+  return skipRowsOf(review.skipped, review.missingVariables, review.cooldownDays);
 }
 
 export function countedRows(counted: Record<string, number>): SendSkipRow[] {
@@ -424,8 +430,6 @@ export const LEAD_SEND_ERROR_CODES = [
   "send_creation_scope_missing",
   "send_department_forbidden",
   "send_department_required",
-  "send_header_variable_unsupported",
-  "send_named_parameters_unsupported",
   "send_bindings_mismatch",
   "send_binding_unknown",
   "send_binding_literal_empty",

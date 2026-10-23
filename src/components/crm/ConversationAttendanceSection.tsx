@@ -9,6 +9,7 @@ import {
   ChartBar,
   CheckCircle,
   ClockCounterClockwise,
+  EnvelopeSimple,
   FlowArrow,
   Phone,
   Prohibit,
@@ -36,6 +37,7 @@ import { closeOutcomeLabel } from "@/lib/conversations/close-outcome";
 import { useOutcomeCapture } from "@/hooks/use-outcome-capture";
 import { aiSessionEndLine } from "@/lib/conversations/ai-session-end";
 import { LEAD_EXIT_ACTION, LEAD_SEND_REFUSED, leadExitView, type LeadExitTone } from "@/lib/conversations/lead-exit-event";
+import { EMAIL_FORWARD_SKIPPED, emailForwardSkippedKey } from "@/lib/email/events";
 import { LeadExitEventLine } from "./LeadExitEventLine";
 import {
   eventMatchesFilter,
@@ -100,6 +102,7 @@ const KNOWN_EVENT_TYPES = new Set([
   "queue_overflow",
   "call_linked",
   AGENT_REPLY_WITHHELD,
+  EMAIL_FORWARD_SKIPPED,
   LEAD_EXIT_ACTION,
   LEAD_SEND_REFUSED,
 ]);
@@ -142,6 +145,8 @@ function iconForEvent(type: string): { Icon: IconComp; tile: string } {
       return { Icon: ChartBar, tile: "tile-neutral" };
     case "call_linked":
       return { Icon: Phone, tile: "tile-neutral" };
+    case EMAIL_FORWARD_SKIPPED:
+      return { Icon: EnvelopeSimple, tile: "tile-warning" };
     case "queue_enqueued":
     case "queue_connected":
     case "queue_abandoned":
@@ -730,6 +735,8 @@ export default function ConversationAttendanceSection({
                       ? null
                       : ev.event_type === AGENT_REPLY_WITHHELD
                       ? t("details.agentReplyWithheld")
+                      : ev.event_type === EMAIL_FORWARD_SKIPPED
+                      ? t(`details.${emailForwardSkippedKey(details)}`)
                       : aiEnd
                       ? t(`aiSessionEnd.${aiEnd.key}` as "aiSessionEnd.paused", aiEnd.values)
                       : detailLine(details, (key, values) =>

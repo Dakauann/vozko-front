@@ -105,9 +105,7 @@ export function SendCounts({ selected, eligible, skipped }: { selected: number; 
             <dd className="readout text-right font-display text-base font-semibold">{eligible.toLocaleString(locale)}</dd>
           </>
         )}
-        {skipped.map((row) => (
-          <SkipRow key={row.slot ? `${row.reason}:${row.slot.slot}:${row.slot.source ?? ""}` : row.reason} row={row} locale={locale} />
-        ))}
+        <SkipRowList rows={skipped} />
       </dl>
       {overlapping ? <p className="text-xs text-muted-foreground">{t("missingOverlap")}</p> : null}
     </>
@@ -201,14 +199,57 @@ function SkipRowLabel({ row: { reason, days, slot } }: { row: SendReviewSkipRow 
   return <>{t.has(`skipped.${reason}`) ? t(`skipped.${reason}`) : t("skipped.other")}</>;
 }
 
-function SkipRow({ row, locale }: { row: SendReviewSkipRow; locale: string }) {
+type SkipRowLabelOf = (row: SendReviewSkipRow) => ReactNode;
+
+const SEND_SKIP_LABEL: SkipRowLabelOf = (row) => <SkipRowLabel row={row} />;
+
+export function SkipRowList({
+  rows,
+  label = SEND_SKIP_LABEL,
+  icons = SKIP_ICONS,
+  onOpen,
+}: {
+  rows: readonly SendReviewSkipRow[];
+  label?: SkipRowLabelOf;
+  icons?: Record<string, ReactNode>;
+  onOpen?: (row: SendReviewSkipRow) => void;
+}) {
+  const locale = useLocale();
+  return (
+    <>
+      {rows.map((row) => (
+        <SkipRow key={row.slot ? `${row.reason}:${row.slot.slot}:${row.slot.source ?? ""}` : row.reason} row={row} locale={locale} label={label} icons={icons} onOpen={onOpen} />
+      ))}
+    </>
+  );
+}
+
+function SkipRow({
+  row,
+  locale,
+  label,
+  icons,
+  onOpen,
+}: {
+  row: SendReviewSkipRow;
+  locale: string;
+  label: SkipRowLabelOf;
+  icons: Record<string, ReactNode>;
+  onOpen?: (row: SendReviewSkipRow) => void;
+}) {
   const nested = row.nested === true;
   return (
     <>
       <dt className="contents">
-        <span className="text-muted-foreground">{nested ? null : (SKIP_ICONS[row.reason] ?? <Minus className={ICON} aria-hidden />)}</span>
+        <span className="text-muted-foreground">{nested ? null : (icons[row.reason] ?? <Minus className={ICON} aria-hidden />)}</span>
         <span className={cn("text-muted-foreground", nested && "pl-3 text-xs")}>
-          <SkipRowLabel row={row} />
+          {onOpen ? (
+            <button type="button" className="text-left underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => onOpen(row)}>
+              {label(row)}
+            </button>
+          ) : (
+            label(row)
+          )}
         </span>
       </dt>
       <dd className={cn("readout text-right text-muted-foreground", nested && "text-xs")}>{row.count.toLocaleString(locale)}</dd>

@@ -6,6 +6,7 @@ import {
 } from "@/components/campaigns/CampaignStatusChip";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
 import type { DashboardTableColumn } from "@/components/elevated-design/table/dashboard-table";
+import { showsReady } from "@/lib/unofficial-whatsapp-campaigns/ready";
 import { campaignTarget } from "@/lib/unofficial-whatsapp-campaigns/send-estimate";
 import type { UnofficialWhatsAppCampaign } from "@/lib/unofficial-whatsapp-campaigns/types";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,7 @@ function TargetCell({ row, t }: { row: UnofficialWhatsAppCampaign; t: T }) {
   );
 }
 
-export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCampaign>[] {
+export function campaignColumns(t: T, readyLabel: string): DashboardTableColumn<UnofficialWhatsAppCampaign>[] {
   return [
     {
       key: "name",
@@ -41,7 +42,8 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
           {row.audience === "groups" && !row.instanceId ? (
             <span className="block truncate text-2xs text-muted-foreground">{t("table.senderPerGroup")}</span>
           ) : (
-            <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+            <span className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+
               <span
                 aria-hidden
                 className={cn(
@@ -65,8 +67,8 @@ export function campaignColumns(t: T): DashboardTableColumn<UnofficialWhatsAppCa
       header: t("table.status"),
       render: (row) => (
         <CampaignStatusChip
-          status={row.status}
-          label={t(`status.${row.status.toLowerCase()}`)}
+          status={showsReady(row) ? "READY" : row.status}
+          label={showsReady(row) ? readyLabel : t(`status.${row.status.toLowerCase()}`)}
         />
       ),
     },

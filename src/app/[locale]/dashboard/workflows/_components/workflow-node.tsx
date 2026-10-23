@@ -33,6 +33,7 @@ import {
   Square,
   Funnel,
   CalendarBlank,
+  Table,
   Code,
   GitMerge,
   ArrowsClockwise,
@@ -58,6 +59,8 @@ import {
   ShieldCheck,
   ArrowBendUpLeft,
   ClipboardText,
+  Storefront,
+  ChatText,
 } from "@/components/icons";
 import type { Icon } from "@/components/icons";
 import { ChannelLogo, hasChannelMark } from "@/components/icons/channel-logos";
@@ -68,6 +71,7 @@ import type {
 } from "@/lib/workflows/types";
 import { isInteractivePromptType } from "@/lib/workflows/types";
 import type { NodePin } from "@/lib/workflows/node-pin";
+import type { TriggerTestInput } from "@/lib/workflows/test-inputs";
 import { cn } from "@/lib/utils";
 import {
   parseInteractiveConfig,
@@ -85,9 +89,12 @@ import { MESSAGE_NODE_TYPES } from "./canvas-detail";
 import { renderActionContentPreview, renderConditionContentPreview, renderMessageContentPreview, renderMessageGlance } from "./node-previews";
 import { agentNameOf, nodeSummary } from "./node-previews/node-summary";
 import { TriggerEntryMark } from "./trigger-entry-mark";
+import { sendsChoices } from "./choice-stats-store";
+import { NodeOptionCtr } from "./node-choice-stats";
 
 
 const ICON_MAP: Record<string, Icon> = {
+  Table,
   ClipboardText,
   ChatCircleDots,
   ChatCircle,
@@ -143,6 +150,8 @@ const ICON_MAP: Record<string, Icon> = {
   ShieldCheck,
   SealQuestion: Shield,
   ArrowBendUpLeft,
+  Storefront,
+  ChatText,
 };
 
 function nodeIconOf(name: string | undefined, fallback: Icon = PaperPlaneTilt): Icon {
@@ -200,6 +209,8 @@ function getCategory(type: WorkflowNodeType): NodeCategory {
     "action_send_whatsapp_button",
     "action_send_media",
     "action_send_form",
+    "action_send_carrier",
+    "action_send_platform_email",
   ];
   if ((messagingTypes as string[]).includes(type)) return "messaging";
   return "action";
@@ -216,6 +227,7 @@ export interface WorkflowNodeData {
   searchMatch?: boolean;
   searchDim?: boolean;
   pinned?: NodePin;
+  testInputs?: TriggerTestInput[];
   [key: string]: unknown;
 }
 
@@ -262,11 +274,16 @@ function WhatsAppInteractiveNode({ id, data, selected }: NodeProps) {
       pinned={Boolean(nodeData.pinned)}
       searchMatch={Boolean(nodeData.searchMatch)}
       searchDim={Boolean(nodeData.searchDim)}
+      choiceNode
     >
-      {({ registerRow }) => (
+      {({ registerRow, choice }) => (
         <>
           {}
-          <WhatsAppMessagePreview parsed={parsed} rowRef={registerRow} />
+          <WhatsAppMessagePreview
+            parsed={parsed}
+            rowRef={registerRow}
+            optionStat={choice?.kind === "stats" ? (optionId) => <NodeOptionCtr view={choice} optionId={optionId} /> : undefined}
+          />
 
           {}
           <BranchRows hasContentAbove>
@@ -315,6 +332,7 @@ function MessageNode({ id, data, selected }: NodeProps) {
       searchDim={Boolean(nodeData.searchDim)}
       glance={glance}
       summary={summary}
+      choiceNode={sendsChoices(nodeData.nodeType)}
     >
       {() => content}
     </InteractiveNodeShell>

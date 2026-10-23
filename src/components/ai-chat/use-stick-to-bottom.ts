@@ -4,17 +4,20 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 
 const BOTTOM_SLACK_PX = 48;
 
-export function useStickToBottom(content: unknown, conversationKey: unknown) {
+export type ScrollAnchor = "bottom" | "top";
+
+export function useStickToBottom(content: unknown, conversationKey: unknown, anchor: ScrollAnchor = "bottom") {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const stickRef = useRef(true);
+  const stickRef = useRef(anchor === "bottom");
+  const topRef = useRef(anchor === "top");
   const [showScrollDown, setShowScrollDown] = useState(false);
 
   const onScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_SLACK_PX;
-    stickRef.current = atBottom;
-    setShowScrollDown(!atBottom);
+    stickRef.current = atBottom && !topRef.current;
+    setShowScrollDown(!atBottom && !topRef.current);
   }, []);
 
   const scrollToBottom = useCallback(() => {
@@ -26,10 +29,18 @@ export function useStickToBottom(content: unknown, conversationKey: unknown) {
   }, []);
 
   useLayoutEffect(() => {
-    stickRef.current = true;
+    stickRef.current = !topRef.current;
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el && stickRef.current) el.scrollTop = el.scrollHeight;
   }, [conversationKey]);
+
+  useLayoutEffect(() => {
+    topRef.current = anchor === "top";
+    stickRef.current = !topRef.current;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = topRef.current ? 0 : el.scrollHeight;
+  }, [anchor]);
 
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -47,5 +58,5 @@ export function useStickToBottom(content: unknown, conversationKey: unknown) {
     return () => observer.disconnect();
   }, [conversationKey]);
 
-  return { scrollRef, onScroll, showScrollDown, scrollToBottom };
+  return { scrollRef, onScroll, showScrollDown: showScrollDown && anchor === "bottom", scrollToBottom };
 }

@@ -3,11 +3,15 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
+import { ChatComposerFrame, ChatComposerRow } from "@/components/chat/chat-parts";
+import { CHAT_COMPOSER_PANEL } from "@/components/chat/chat-styles";
+import { COMPOSER_ICON_BUTTON, COMPOSER_SEND_BUTTON, COMPOSER_TEXTAREA } from "@/components/crm/composer-chrome";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { MapPin, Paperclip, PaperPlaneRight } from "@/components/icons";
 import { Notice } from "@/components/ui/notice";
+import { cn } from "@/lib/utils";
 import {
   SIM_MEDIA_KINDS,
   locationReply,
@@ -22,9 +26,6 @@ type ComposerMode = "text" | "location" | "media";
 
 const EMPTY_LOCATION: LocationDraft = { latitude: "", longitude: "", name: "", address: "" };
 const EMPTY_MEDIA: MediaDraft = { kind: "image", url: "", caption: "" };
-
-const TOOL_BUTTON =
-  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function ReplyForm({ error, onSubmit, onCancel, children }: { error: string | null; onSubmit: () => void; onCancel: () => void; children: ReactNode }) {
   const t = useTranslations("workflowDebug.chat");
@@ -116,7 +117,7 @@ export function SimComposer({ trigger, onReply }: { trigger: boolean; onReply: (
   const t = useTranslations("workflowDebug.chat");
   const [mode, setMode] = useState<ComposerMode>("text");
   const [text, setText] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (mode === "text") inputRef.current?.focus();
@@ -134,46 +135,54 @@ export function SimComposer({ trigger, onReply }: { trigger: boolean; onReply: (
     setText("");
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== "Enter" || event.shiftKey) return;
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
     event.preventDefault();
     sendText();
   };
 
   const close = () => setMode("text");
 
+  if (mode !== "text") {
+    return (
+      <ChatComposerFrame>
+        <div className={cn(CHAT_COMPOSER_PANEL, "mb-2 py-2")}>
+          {mode === "location" ? <LocationForm onSend={send} onCancel={close} /> : <MediaForm onSend={send} onCancel={close} />}
+        </div>
+      </ChatComposerFrame>
+    );
+  }
+
   return (
-    <div className="border-t border-border px-3 py-2 flex-shrink-0">
-      {mode === "location" && <LocationForm onSend={send} onCancel={close} />}
-      {mode === "media" && <MediaForm onSend={send} onCancel={close} />}
-      {mode === "text" && (
-        <div className="flex items-center gap-1">
-          <button type="button" aria-label={t("sendLocation")} title={t("sendLocation")} onClick={() => setMode("location")} className={TOOL_BUTTON}>
-            <MapPin size={15} />
-          </button>
-          <button type="button" aria-label={t("sendMedia")} title={t("sendMedia")} onClick={() => setMode("media")} className={TOOL_BUTTON}>
-            <Paperclip size={15} />
-          </button>
-          <input
+    <ChatComposerFrame>
+      <ChatComposerRow
+        start={
+          <>
+            <button type="button" aria-label={t("sendLocation")} title={t("sendLocation")} onClick={() => setMode("location")} className={COMPOSER_ICON_BUTTON}>
+              <MapPin weight="bold" className="h-5 w-5" />
+            </button>
+            <button type="button" aria-label={t("sendMedia")} title={t("sendMedia")} onClick={() => setMode("media")} className={COMPOSER_ICON_BUTTON}>
+              <Paperclip weight="bold" className="h-5 w-5" />
+            </button>
+          </>
+        }
+        field={
+          <textarea
             ref={inputRef}
-            type="text"
+            rows={1}
             value={text}
             onChange={(event) => setText(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={trigger ? "Envie a mensagem inicial..." : "Escreva uma resposta..."}
-            className="ml-1 min-w-0 flex-1 text-sm bg-muted border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-ring"
+            className={cn("block", COMPOSER_TEXTAREA)}
           />
-          <button
-            type="button"
-            onClick={sendText}
-            disabled={!text.trim()}
-            aria-label="Enviar"
-            className="p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 transition-colors"
-          >
-            <PaperPlaneRight size={14} weight="fill" />
+        }
+        send={
+          <button type="button" onClick={sendText} disabled={!text.trim()} aria-label="Enviar" title="Enviar" className={COMPOSER_SEND_BUTTON}>
+            <PaperPlaneRight weight="fill" className="h-5 w-5" />
           </button>
-        </div>
-      )}
-    </div>
+        }
+      />
+    </ChatComposerFrame>
   );
 }

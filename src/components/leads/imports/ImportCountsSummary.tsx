@@ -15,6 +15,7 @@ import {
 } from "@/lib/leads/imports";
 import { cn } from "@/lib/utils";
 
+import { ImportEmailSummary } from "./ImportEmailChecks";
 import { importReasonLabel, type ImportTranslator } from "./import-messages";
 
 type Tense = "planned" | "done";
@@ -68,6 +69,8 @@ export function ImportCountsSummary({
           </div>
         ))}
       </dl>
+
+      <ImportEmailSummary counts={counts} />
 
       {finished ? <ImportPlacementCard counts={counts} placement={placement} /> : <AddressQueue counts={counts} />}
 

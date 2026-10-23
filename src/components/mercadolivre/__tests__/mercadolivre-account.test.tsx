@@ -50,6 +50,7 @@ function account(overrides: Partial<MercadoLivreAccount> = {}): MercadoLivreAcco
     mlUserId: "123456",
     siteId: "MLB",
     nickname: "LOJA_TESTE",
+    displayName: "LOJA_TESTE",
     status: "CONNECTED",
     needsReconnect: false,
     grantedScopes: ["offline_access", "read", "write"],
@@ -138,6 +139,17 @@ describe("MercadoLivreAccountHeader", () => {
     expect(screen.getByText(/Verificada em/)).toBeInTheDocument();
   });
 
+  it("titles the account with the seller name and keeps the nickname as a handle", () => {
+    wrap(<MercadoLivreAccountHeader account={account({ displayName: "Café do Vale", nickname: "DGCAFEDHB50478" })} canCheckHealth onUpdated={vi.fn()} />);
+    expect(screen.getByRole("heading", { name: "Café do Vale" })).toBeInTheDocument();
+    expect(screen.getByText("DGCAFEDHB50478")).toBeInTheDocument();
+  });
+
+  it("does not repeat the nickname when it is the name", () => {
+    wrap(<MercadoLivreAccountHeader account={account()} canCheckHealth onUpdated={vi.fn()} />);
+    expect(screen.getAllByText("LOJA_TESTE")).toHaveLength(1);
+  });
+
   it("says when the account was never checked", () => {
     wrap(<MercadoLivreAccountHeader account={account()} canCheckHealth={false} onUpdated={vi.fn()} />);
     expect(screen.getByText(copy.account.neverChecked)).toBeInTheDocument();
@@ -220,6 +232,12 @@ describe("MercadoLivreDisconnectDialog", () => {
     wrap(<MercadoLivreDisconnectDialog account={account()} open onOpenChange={vi.fn()} onDisconnected={vi.fn()} />);
     expect(screen.getByText(/apagados em 30 dias/)).toBeInTheDocument();
     expect(screen.getByText(/para a Acme na hora/)).toBeInTheDocument();
+  });
+
+  it("names the account by its seller name", () => {
+    wrap(<MercadoLivreDisconnectDialog account={account({ displayName: "Café do Vale", nickname: "DGCAFEDHB50478" })} open onOpenChange={vi.fn()} onDisconnected={vi.fn()} />);
+    expect(screen.getByText(/Café do Vale/)).toBeInTheDocument();
+    expect(screen.queryByText(/DGCAFEDHB50478/)).not.toBeInTheDocument();
   });
 
   it("disconnects and reports the purge date", async () => {

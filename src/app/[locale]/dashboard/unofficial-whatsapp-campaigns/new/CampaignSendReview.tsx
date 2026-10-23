@@ -7,10 +7,9 @@ import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { Notice } from "@/components/ui/notice";
 import { useSendTimeLabel } from "@/components/unofficial-whatsapp/send-time";
 import { blocksForGood } from "@/lib/unofficial-whatsapp-campaigns/group-audience";
-import type { GroupSenderPlan } from "@/lib/unofficial-whatsapp-campaigns/types";
+import type { CampaignEstimateDraft, GroupSenderPlan } from "@/lib/unofficial-whatsapp-campaigns/types";
 
 import { pickedInRunningCampaigns, type PickedCampaignGroup } from "./group-picks";
-import type { CampaignEstimateState } from "./use-campaign-estimate";
 
 export function pickedPlan(groups: readonly GroupSenderPlan[] | undefined, picked: readonly PickedCampaignGroup[]): GroupSenderPlan[] {
   const jids = new Set(picked.map((group) => group.jid));
@@ -23,11 +22,13 @@ export function unsendableGroups(groups: readonly GroupSenderPlan[]): number {
 
 export function CampaignSendReview({
   isGroups,
-  estimate,
+  draft,
+  failed,
   picked,
 }: {
   isGroups: boolean;
-  estimate: CampaignEstimateState;
+  draft: CampaignEstimateDraft | null;
+  failed: boolean;
   picked: readonly PickedCampaignGroup[];
 }) {
   const t = useTranslations("unofficialWhatsappCampaigns.form");
@@ -36,7 +37,6 @@ export function CampaignSendReview({
   const orList = useMemo(() => new Intl.ListFormat(locale, { type: "disjunction" }), [locale]);
   const runningById = useMemo(() => new Map(picked.map((group) => [group.jid, group.runningCampaigns])), [picked]);
 
-  const draft = estimate.draft;
   const plan = pickedPlan(draft?.groups, picked);
   const blocked = unsendableGroups(plan);
   const running = isGroups ? pickedInRunningCampaigns(picked) : 0;
@@ -48,12 +48,10 @@ export function CampaignSendReview({
         {draft ? (
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">{t("review.estimate", { time: sendTime(draft.estimate.seconds) })}</p>
-            {isGroups && draft.estimate.senders > 1 ? (
-              <p className="text-xs text-muted-foreground">{t("review.parallel", { count: draft.estimate.senders })}</p>
-            ) : null}
+            {isGroups && draft.estimate.senders > 1 ? <p className="text-xs text-muted-foreground">{t("review.parallel", { count: draft.estimate.senders })}</p> : null}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">{estimate.failed ? t("review.failed") : t("review.loading")}</p>
+          <p className="text-sm text-muted-foreground">{failed ? t("review.failed") : t("review.loading")}</p>
         )}
 
         {isGroups && plan.length > 0 ? (
@@ -68,11 +66,7 @@ export function CampaignSendReview({
                       {t("groups.running", { count: runningById.get(group.jid) ?? 0 })}
                     </span>
                   ) : null}
-                  <span>
-                    {group.block
-                      ? t(`groups.block.${group.block}`)
-                      : t("groups.postsFrom", { numbers: orList.format(group.senders.map((sender) => sender.label)) })}
-                  </span>
+                  <span>{group.block ? t(`groups.block.${group.block}`) : t("groups.postsFrom", { numbers: orList.format(group.senders.map((sender) => sender.label)) })}</span>
                 </span>
               </li>
             ))}

@@ -3,6 +3,7 @@ import { secretUsageSnippets } from "@/lib/workflow-secrets/secret-name";
 import { toIdentifierName } from "./identifier-name";
 import { normalizeKeyValueMap } from "./key-value";
 import type { LintIssue } from "./types";
+import { TEMPLATE_REF_SOURCE } from "./variable-catalog";
 
 export const SECRET_IN_PLAIN_TEXT = "NODE_SECRET_IN_PLAIN_TEXT";
 export const CODE_READS_TEMPLATE = "NODE_CODE_READS_TEMPLATE";
@@ -21,7 +22,7 @@ const CODE_PATH = "code:";
 const AUTH_TOKEN_PATH = "auth_token";
 const VALUE_PATH = "config.value";
 const CODE_ASSIGNMENT = /['"]?([A-Za-z_$][\w$]*)['"]?\s*[:=]\s*('[^'\n]+'|"[^"\n]+"|`[^`\n]+`)/g;
-const TEMPLATE_IN_CODE = /\{\{\s*[\w.[\]]+\s*\}\}/;
+const TEMPLATE_IN_CODE = new RegExp(TEMPLATE_REF_SOURCE);
 const CONCRETE_CODE_READ = /(?:state|secrets)\.get\('[^'<>]*'\)/g;
 
 function isPlainCredential(value: unknown): boolean {

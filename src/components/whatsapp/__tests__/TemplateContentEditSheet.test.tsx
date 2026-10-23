@@ -13,6 +13,8 @@ vi.mock("@/app/actions/whatsapp-templates", () => ({
 }));
 const exitActions = vi.hoisted(() => ({ getDraftExitVerdictAction: vi.fn(), getTemplateButtonActionsAction: vi.fn() }));
 vi.mock("@/app/actions/template-exit", () => exitActions);
+const audienceActions = vi.hoisted(() => ({ getTemplateSuggestionsAction: vi.fn(), saveTemplateSuggestionsAction: vi.fn(), listTemplateFieldsAction: vi.fn() }));
+vi.mock("@/app/actions/campaign-audience", () => audienceActions);
 vi.mock("@/contexts/workspace-context", () => ({ useWorkspace: () => ({ currentWorkspace: { id: "ws-1" }, can: () => true }) }));
 const toast = vi.hoisted(() => Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }));
 vi.mock("sonner", () => ({ toast }));
@@ -84,9 +86,49 @@ beforeEach(() => {
   editWhatsAppTemplateContentAction.mockReset();
   exitActions.getDraftExitVerdictAction.mockReset().mockResolvedValue({ data: { verdict: VERDICT_OK, allowedKinds: ["opt_out"] } });
   exitActions.getTemplateButtonActionsAction.mockReset().mockResolvedValue({ data: storedActions });
+  audienceActions.getTemplateSuggestionsAction.mockReset().mockResolvedValue({ data: { templateId: "tpl-1", suggestions: [] }, error: null });
+  audienceActions.saveTemplateSuggestionsAction.mockReset().mockResolvedValue({ data: { templateId: "tpl-1", suggestions: [] }, error: null });
+  audienceActions.listTemplateFieldsAction.mockReset().mockResolvedValue({ data: [], error: null });
   onSaved.mockReset();
   onOpenChange.mockReset();
   toast.mockReset();
+});
+
+describe("TemplateContentEditSheet suggested fields", () => {
+  it("loads the saved suggestion into the body and saves it again after the edit", async () => {
+    audienceActions.getTemplateSuggestionsAction.mockResolvedValue({ data: { templateId: "tpl-1", suggestions: [{ slot: 1, source: "lead.first_name" }] }, error: null });
+    editWhatsAppTemplateContentAction.mockResolvedValueOnce({ template: template(), error: null });
+    renderSheet();
+    fireEvent.click(await screen.findByRole("button", { name: tpl.componentType.BODY, expanded: false }));
+    expect(await screen.findByText(ptMessages.leadSends.bindings.sources.firstName)).toBeInTheDocument();
+    fireEvent.click(await saveButton());
+    await waitFor(() => expect(audienceActions.saveTemplateSuggestionsAction).toHaveBeenCalledWith("tpl-1", [{ slot: 1, source: "lead.first_name" }]));
+    expect(JSON.stringify(editWhatsAppTemplateContentAction.mock.calls[0][1])).not.toContain("lead.first_name");
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+  });
+
+  it("clears the suggestions when the body has none left", async () => {
+    editWhatsAppTemplateContentAction.mockResolvedValueOnce({ template: template(), error: null });
+    renderSheet();
+    fireEvent.click(await saveButton());
+    await waitFor(() => expect(audienceActions.saveTemplateSuggestionsAction).toHaveBeenCalledWith("tpl-1", []));
+  });
+
+  it("keeps the saved template and says when the suggestions could not be saved", async () => {
+    audienceActions.saveTemplateSuggestionsAction.mockResolvedValue({ data: null, error: { message: "x", code: "template_suggestion_duplicate", status: 400 } });
+    editWhatsAppTemplateContentAction.mockResolvedValueOnce({ template: template(), error: null });
+    renderSheet();
+    fireEvent.click(await saveButton());
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(toast.error).toHaveBeenCalledWith(tpl.form.editor.body.suggestionsSaveFailed, { description: ptMessages.campaignAudience.errors.template_suggestion_duplicate });
+  });
+
+  it("does not open the editor when the suggestions cannot be read", async () => {
+    audienceActions.getTemplateSuggestionsAction.mockResolvedValue({ data: null, error: { message: "x", code: "template_not_found", status: 404 } });
+    renderSheet();
+    expect(await screen.findByText(ptMessages.campaignAudience.errors.template_not_found)).toBeInTheDocument();
+    expect(screen.queryByText(edit.fixedHint)).not.toBeInTheDocument();
+  });
 });
 
 describe("TemplateContentEditSheet", () => {
@@ -221,6 +263,29 @@ describe("TemplateContentEditSheet", () => {
     const payload = editWhatsAppTemplateContentAction.mock.calls[0][1];
     expect(payload.components).toContainEqual({ type: "BUTTONS", buttons: [{ type: "QUICK_REPLY", text: "Não quero" }] });
     expect(payload.buttonActions).toEqual([{ buttonIndex: 0, buttonText: "Não quero", kind: "opt_out", params: {}, confirmation: "" }]);
+  });
+
+  it("opens the buttons and shows a tracking refusal on the link it names", async () => {
+    editWhatsAppTemplateContentAction.mockResolvedValueOnce({
+      template: null,
+      error: "blocked",
+      errorCode: "template_tracked_button_destination",
+      expected: { buttonIndex: "1" },
+    });
+    renderSheet(
+      template({
+        components: [
+          { type: "BODY", text: BODY, example: { body_text: [["Maria"]] } },
+          { type: "BUTTONS", buttons: [{ type: "QUICK_REPLY", text: "Parar" }, { type: "URL", text: "Loja", url: "http://10.0.0.1/loja" }] },
+        ],
+        headerMediaUrl: null,
+      }),
+    );
+    fireEvent.click(await saveButton());
+    const link = await screen.findByDisplayValue("http://10.0.0.1/loja");
+    expect(link).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByText(tpl.errors.template_tracked_button_destination)).toBeInTheDocument();
+    expect(onSaved).not.toHaveBeenCalled();
   });
 
   it("shows a refused button action the way create does", async () => {

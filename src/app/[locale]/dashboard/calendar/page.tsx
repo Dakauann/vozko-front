@@ -11,9 +11,9 @@ import {
   createCalendarEvent,
   deleteCalendarEvent,
   fetchCalendarEvents,
-  fetchGoogleConnection,
   updateCalendarEvent,
 } from "@/lib/calendar/client";
+import { fetchGoogleStatus } from "@/lib/google/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
@@ -85,8 +85,8 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (!currentWorkspace) return;
-    fetchGoogleConnection().then((res) => {
-      setConnected(res.connected);
+    fetchGoogleStatus("calendar").then((res) => {
+      setConnected(res.status?.connected ?? false);
     });
   }, [currentWorkspace]);
 

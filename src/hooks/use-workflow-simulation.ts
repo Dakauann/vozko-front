@@ -16,6 +16,7 @@ import {
     type SimServerMessage,
     type SimSession,
 } from "@/lib/workflows/sim-session";
+import type { SimTriggerStart } from "@/lib/workflows/trigger-input";
 
 export type { SimEvent, SimStatus, SimStep } from "@/lib/workflows/sim-session";
 
@@ -25,6 +26,7 @@ const WS_BASE_URL =
 export interface SimStartOptions {
     reproduceRunId?: string;
     runUntil?: string;
+    trigger?: SimTriggerStart;
 }
 
 type Schedule = (flush: () => void) => void;
@@ -79,8 +81,11 @@ export function useWorkflowSimulation({
     const confirmedRef = useRef<ReadonlySet<string>>(new Set());
     const pendingStartRef = useRef<SimStartOptions | null>(null);
     const lastStartRef = useRef<SimStartOptions>({});
+    const lastTriggerRef = useRef<SimTriggerStart | null>(null);
     const readyRealCallsRef = useRef<string[]>([]);
     const readyRef = useRef(false);
+    const firstReplyRef = useRef<SimCustomerReply | null>(null);
+    const replayRef = useRef<SimCustomerReply | null>(null);
 
     const flush = useCallback(() => {
         flushScheduledRef.current = false;
@@ -124,6 +129,24 @@ export function useWorkflowSimulation({
 
     useEffect(() => closeSocket, [closeSocket]);
 
+    const deliverReply = useCallback(
+        (reply: SimCustomerReply) => {
+            const command = customerReplyCommand(reply);
+            if (!send(command.type, command.data)) return false;
+            applyNow({ kind: "replied" });
+            return true;
+        },
+        [send, applyNow],
+    );
+
+    const replayFirstReply = useCallback(() => {
+        const reply = replayRef.current;
+        replayRef.current = null;
+        if (!reply) return;
+        flush();
+        deliverReply(reply);
+    }, [flush, deliverReply]);
+
     const launch = useCallback(
         (options: SimStartOptions, confirm: boolean) => {
             pendingStartRef.current = null;
@@ -131,6 +154,7 @@ export function useWorkflowSimulation({
             if (confirm) send("confirm_real_calls");
             if (options.runUntil) send("run_until", { nodeId: options.runUntil });
             if (options.reproduceRunId) send("reproduce_run", { runId: options.reproduceRunId });
+            else if (options.trigger) send("start", { ...options.trigger });
             else send("start");
             applyNow({ kind: "start_sent", reproduceRunId: options.reproduceRunId });
         },
@@ -138,7 +162,10 @@ export function useWorkflowSimulation({
     );
 
     const proceed = useCallback(
-        (options: SimStartOptions) => {
+        (requested: SimStartOptions) => {
+            const trigger = requested.trigger ?? (requested.reproduceRunId ? undefined : lastTriggerRef.current ?? undefined);
+            const options = trigger ? { ...requested, trigger } : requested;
+            if (options.trigger) lastTriggerRef.current = options.trigger;
             lastStartRef.current = options;
             const realCallNodes = readyRealCallsRef.current;
             const decision = startDecision({
@@ -162,6 +189,7 @@ export function useWorkflowSimulation({
             closeSocket();
             queueRef.current = [];
             pendingStartRef.current = options;
+            replayRef.current = null;
             setPendingRealCalls([]);
             setSession(connectingSimSession());
 
@@ -177,6 +205,10 @@ export function useWorkflowSimulation({
                     return;
                 }
                 enqueue((current) => applySimMessage(current, message));
+                if (message.type === "waiting_trigger") {
+                    replayFirstReply();
+                    return;
+                }
                 if (message.type !== "sim_ready") return;
                 const payload = (message.payload ?? {}) as { realCallNodes?: unknown };
                 readyRealCallsRef.current = Array.isArray(payload.realCallNodes)
@@ -202,7 +234,7 @@ export function useWorkflowSimulation({
                 enqueue((current) => applySimIntent(current, { kind: "failed" }));
             };
         },
-        [closeSocket, enqueue, flush, proceed, send, workflowId, workspaceId],
+        [closeSocket, enqueue, flush, proceed, replayFirstReply, send, workflowId, workspaceId],
     );
 
     const connect = useCallback(() => open(null), [open]);
@@ -210,21 +242,21 @@ export function useWorkflowSimulation({
     const start = useCallback(
         (options: SimStartOptions = {}) => {
             if (readyRef.current && session.status === "ready") {
-                proceed(options);
+                const refusedRunUntil = session.refusal?.command === "start" ? lastStartRef.current.runUntil : undefined;
+                proceed(refusedRunUntil && !options.runUntil ? { ...options, runUntil: refusedRunUntil } : options);
                 return;
             }
             open(options);
         },
-        [open, proceed, session.status],
+        [open, proceed, session.status, session.refusal],
     );
 
     const sendReply = useCallback(
         (reply: SimCustomerReply) => {
-            const command = customerReplyCommand(reply);
-            if (!send(command.type, command.data)) return;
-            applyNow({ kind: "replied" });
+            if (!deliverReply(reply)) return;
+            if (session.status === "waiting_trigger") firstReplyRef.current = reply;
         },
-        [send, applyNow],
+        [deliverReply, session.status],
     );
 
     const sendKey = useCallback(
@@ -239,6 +271,7 @@ export function useWorkflowSimulation({
         send("cancel");
         closeSocket();
         pendingStartRef.current = null;
+        replayRef.current = null;
         setPendingRealCalls([]);
         applyNow({ kind: "cancelled" });
     }, [send, closeSocket, applyNow]);
@@ -286,6 +319,7 @@ export function useWorkflowSimulation({
 
     const dismissRealCalls = useCallback(() => {
         pendingStartRef.current = null;
+        replayRef.current = null;
         setPendingRealCalls([]);
         applyNow({ kind: "dismissed" });
     }, [applyNow]);
@@ -294,6 +328,7 @@ export function useWorkflowSimulation({
         (nodeId: string) => {
             confirmedRef.current = withConfirmedRealCalls(confirmedRef.current, [...readyRealCallsRef.current, nodeId]);
             open(lastStartRef.current);
+            replayRef.current = firstReplyRef.current;
         },
         [open],
     );
@@ -305,6 +340,10 @@ export function useWorkflowSimulation({
         pendingStartRef.current = null;
         confirmedRef.current = new Set();
         readyRealCallsRef.current = [];
+        lastTriggerRef.current = null;
+        lastStartRef.current = {};
+        firstReplyRef.current = null;
+        replayRef.current = null;
         setPendingRealCalls([]);
         setSession(initialSimSession());
     }, [send, closeSocket]);

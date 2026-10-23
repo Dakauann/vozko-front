@@ -26,3 +26,8 @@ export function useTestBehaviorOf(): (nodeType: string) => NodeTestBehavior | un
   const byType = useContext(NodeDefinitionsContext);
   return useCallback((nodeType: string) => testBehaviorOf(byType, nodeType), [byType]);
 }
+
+export function useConfigOptionLabel(type: string, key: string, value: string): string | undefined {
+  const definition = useNodeDefinition(type);
+  return definition?.configSchema?.find((field) => field.key === key)?.options?.find((option) => option.value === value)?.label || undefined;
+}

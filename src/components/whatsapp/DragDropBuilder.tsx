@@ -38,6 +38,7 @@ export interface DraggableComponent {
     locationAddress?: string;
     variableExamples?: string[];
     namedVariableExamples?: Record<string, string>;
+    variableSuggestions?: Record<string, string>;
     buttons?: Array<{
       id: string;
       type: string;
@@ -52,6 +53,7 @@ export interface DraggableComponent {
       formName?: string;
       action?: ButtonActionChoice;
       exitPiece?: boolean;
+      trackClicks?: boolean;
     }>;
     exitConfirmation?: string;
     exitPiece?: boolean;

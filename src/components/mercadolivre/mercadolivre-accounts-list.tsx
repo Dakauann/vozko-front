@@ -21,7 +21,7 @@ import { MercadoLivreLogoColor } from "@/components/icons/channel-logos";
 import { Notice } from "@/components/ui/notice";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useMercadoLivreConnect } from "@/hooks/use-mercadolivre-connect";
-import { accountNotices, accountStatusKey, accountStatusTone, reconnectable } from "@/lib/mercadolivre/account";
+import { accountHandle, accountNotices, accountStatusKey, accountStatusTone, reconnectable } from "@/lib/mercadolivre/account";
 import { MERCADOLIVRE_ACCOUNTS_PATH, MERCADOLIVRE_CONNECT_PATH, mercadoLivreAccountPath } from "@/lib/mercadolivre/connect";
 import { MERCADOLIVRE_CAPABILITIES, type MercadoLivreAccount, type MercadoLivreConnectResult } from "@/lib/mercadolivre/types";
 import { cn } from "@/lib/utils";
@@ -122,7 +122,8 @@ export function MercadoLivreAccountsList() {
         header: t("list.account"),
         render: (row) => (
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-medium text-foreground">{row.nickname}</span>
+            <span className="truncate text-sm font-medium text-foreground">{row.displayName}</span>
+            {accountHandle(row) ? <span className="truncate text-xs text-muted-foreground">{accountHandle(row)}</span> : null}
             <span className="text-xs text-muted-foreground">{t("account.sellerId", { id: row.mlUserId })}</span>
           </div>
         ),

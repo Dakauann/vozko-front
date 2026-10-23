@@ -156,6 +156,9 @@ export const LEAD_CHANNELS = [
     'webchat',
     'mercadolivre',
     'tiktok',
+    'email',
+    'rcs',
+    'sms',
 ] as const;
 
 const LEAD_CAMPAIGN_STATUSES = [

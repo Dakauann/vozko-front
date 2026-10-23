@@ -2,7 +2,7 @@
 
 import { WhatsappLogo } from "@/components/icons";
 
-import CreateWhatsAppCampaignForm from "../../../new/CreateWhatsAppCampaignForm";
+import EditWhatsAppCampaignForm from "@/components/whatsapp/campaign-form/EditWhatsAppCampaignForm";
 import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
 import type { WhatsAppCampaign } from "@/lib/whatsapp-campaigns/types";
 import { useRouter } from "next/navigation";
@@ -36,10 +36,7 @@ export default function EditWhatsAppCampaignPage({
       </div>
 
       <div>
-        <CreateWhatsAppCampaignForm
-          mode="edit"
-          initialCampaign={campaign}
-        />
+        <EditWhatsAppCampaignForm initialCampaign={campaign} />
       </div>
     </div>
   );

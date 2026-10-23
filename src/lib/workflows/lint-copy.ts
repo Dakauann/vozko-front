@@ -30,6 +30,7 @@ function subjectValues(t: LintTranslator, issue: LintIssue, subjects: LintSubjec
     node: nodeLabel ? quoted(nodeLabel) : t("lintCopy.someNode"),
     field: fieldLabel ? quoted(fieldLabel) : t("lintCopy.someField"),
     output: outputLabel ? t("lintCopy.namedOutput", { label: quoted(outputLabel) }) : t("lintCopy.someOutput"),
+    ref: issue.path ? `{{${issue.path}}}` : t("lintCopy.someData"),
   };
 }
 

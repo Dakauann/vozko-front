@@ -11,6 +11,7 @@ import { listAgentsAction } from "@/app/actions/agents";
 import { listWhatsAppTemplatesAction } from "@/app/actions/whatsapp-templates";
 import { notFound } from "next/navigation";
 import { useMessages } from "next-intl";
+import { templateChoiceOptions, type TemplateChoiceOption } from "@/lib/choice-stats/template-options";
 
 interface WhatsAppCampaignDetailPageProps {
   params: Promise<{
@@ -26,6 +27,7 @@ interface PageState {
   campaign?: WhatsAppCampaign;
   agentName?: string;
   templateName?: string;
+  templateChoices?: TemplateChoiceOption[];
 }
 
 export default function WhatsAppCampaignDetailPage({
@@ -68,6 +70,7 @@ export default function WhatsAppCampaignDetailPage({
         campaign,
         agentName: agentMatch?.name ?? campaign.agentName ?? undefined,
         templateName: templateMatch?.name ?? campaign.templateName ?? undefined,
+        templateChoices: templateMatch ? templateChoiceOptions(templateMatch.components) : [],
       });
     });
 
@@ -102,6 +105,7 @@ export default function WhatsAppCampaignDetailPage({
         campaign={state.campaign!}
         agentName={state.agentName}
         templateName={state.templateName}
+        templateChoices={state.templateChoices}
         messages={messages}
         locale={locale}
       />

@@ -117,4 +117,30 @@ describe("EntryPointCard", () => {
     expect(screen.getByText("boas_vindas")).toBeInTheDocument();
     expect(screen.getByText("Template · botão Sair")).toBeInTheDocument();
   });
+
+  const blockedExit: EntryPoint = {
+    kind: "lead_exit",
+    readiness: "blocked",
+    reason: "needs_message_trigger",
+    details: { leadExits: [{ source: "campaign", id: "c1", name: "Black Friday", button: "Matricular" }] },
+  };
+
+  it("says a lead exit needs a message trigger, lists its buttons and opens the flow from the list", () => {
+    const onFix = vi.fn();
+    const copy = ptMessages.workflowsPage.entryPoints;
+    wrap(<EntryPointCard entry={blockedExit} canUpdate onFix={onFix} />);
+    expect(screen.getByText(copy.blocked.replace("{reason}", copy.reasons.needs_message_trigger))).toBeInTheDocument();
+    expect(screen.getByText("Campanha · botão Matricular")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: copy.fixes.openEditor }));
+    expect(onFix).toHaveBeenCalledWith({ kind: "open_editor" });
+  });
+
+  it("does not offer to open the flow inside its own editor or to someone who cannot edit it", () => {
+    const copy = ptMessages.workflowsPage.entryPoints;
+    const { unmount } = wrap(<EntryPointCard entry={blockedExit} canUpdate inEditor onFix={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: copy.fixes.openEditor })).toBeNull();
+    unmount();
+    wrap(<EntryPointCard entry={blockedExit} canUpdate={false} onFix={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: copy.fixes.openEditor })).toBeNull();
+  });
 });

@@ -35,9 +35,9 @@ import {
   createCalendarEvent,
   deleteCalendarEvent,
   fetchCalendarEvents,
-  fetchGoogleConnection,
   updateCalendarEvent,
 } from "@/lib/calendar/client";
+import { fetchGoogleStatus } from "@/lib/google/client";
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -96,9 +96,9 @@ export function CalendarSheet({ open, onOpenChange }: CalendarSheetProps) {
     if (open) {
       setView("list");
       setEditingEvent(null);
-      fetchGoogleConnection().then((res) => {
-        setConnected(res.connected);
-        if (res.connected) {
+      fetchGoogleStatus("calendar").then((res) => {
+        setConnected(res.status?.connected ?? false);
+        if (res.status?.connected) {
           loadEvents();
         }
       });

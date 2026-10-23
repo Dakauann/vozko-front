@@ -188,7 +188,7 @@ export default function TourGuide({
   const resolvedSteps = useMemo(
     () => steps.map((s, i) => {
       const data = (s as any).data;
-      const needsBefore = data?._tab || data?._selectComponent;
+      const needsBefore = data?._tab || data?._selectComponent || data?._wizardStep;
       const base: any = {
         ...s,
         placement: computedPlacements[i] || s.placement || "bottom",

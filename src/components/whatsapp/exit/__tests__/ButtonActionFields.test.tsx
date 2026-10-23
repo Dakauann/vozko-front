@@ -123,6 +123,11 @@ describe("ButtonActionFields", () => {
     expect(seen.values.at(-1)).toEqual({ kind: "delegate", params: { workflowId: "wf-2" }, confirmation: "" });
   });
 
+  it("says a started flow begins as the lead's message, so only flows with a message trigger are offered", () => {
+    renderFields({ initial: { kind: "start_workflow", params: {}, confirmation: "" } });
+    expect(screen.getByText(t.params.workflowHint)).toBeInTheDocument();
+  });
+
   it("drops the previous kind's params when the kind changes", async () => {
     renderFields({ initial: { kind: "hand_off", params: { userId: "u-1" }, confirmation: "Ok" } });
     await pick(t.action.label, t.kinds.opt_out);

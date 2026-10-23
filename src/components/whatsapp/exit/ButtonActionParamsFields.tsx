@@ -121,7 +121,12 @@ function DelegateField({ params, onChange }: { params: ButtonActionParams; onCha
 
 function WorkflowField({ params, onChange }: { params: ButtonActionParams; onChange: ParamsChange }) {
   const t = useTranslations("templateExit.params");
-  return <ParamPicker label={t("workflow")} choices={useWorkflowOptions(true)} value={params.workflowId ?? ""} onPick={(workflowId) => onChange({ workflowId })} />;
+  return (
+    <div className="space-y-1">
+      <ParamPicker label={t("workflow")} choices={useWorkflowOptions(true)} value={params.workflowId ?? ""} onPick={(workflowId) => onChange({ workflowId })} />
+      <p className="text-xs text-muted-foreground">{t("workflowHint")}</p>
+    </div>
+  );
 }
 
 function CallListField({ params, onChange }: { params: ButtonActionParams; onChange: ParamsChange }) {

@@ -9,7 +9,7 @@ import {
 
 describe("FILTERABLE_MESSAGE_CHANNELS", () => {
     it("offers every messaging channel the product supports", () => {
-        for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "webchat", "mercadolivre", "tiktok"] as const) {
+        for (const channel of ["whatsapp", "instagram", "facebook", "telegram", "webchat", "mercadolivre", "tiktok", "email"] as const) {
             expect(FILTERABLE_MESSAGE_CHANNELS).toContain(channel);
         }
     });
@@ -29,6 +29,9 @@ describe("FILTERABLE_MESSAGE_CHANNELS", () => {
             webchat: true,
             mercadolivre: true,
             tiktok: true,
+            email: true,
+            rcs: true,
+            sms: true,
         };
         for (const channel of Object.keys(covered) as MessageChannel[]) {
             expect(FILTERABLE_MESSAGE_CHANNELS).toContain(channel);
@@ -57,6 +60,16 @@ describe("channelCapabilities for the website chat", () => {
         expect(channelCapabilities.supportsCalling("webchat")).toBe(false);
         expect(channelCapabilities.supportsMessageEditing("webchat")).toBe(false);
         expect(channelCapabilities.hasTimedOutboundWindow("webchat")).toBe(false);
+    });
+});
+
+describe("channelCapabilities for email", () => {
+    it("hands conversations to AI, with no calls, edits, timed window or text limit", () => {
+        expect(channelCapabilities.supportsAiHandling("email")).toBe(true);
+        expect(channelCapabilities.supportsCalling("email")).toBe(false);
+        expect(channelCapabilities.supportsMessageEditing("email")).toBe(false);
+        expect(channelCapabilities.hasTimedOutboundWindow("email")).toBe(false);
+        expect(channelCapabilities.textLimit("email")).toBeNull();
     });
 });
 

@@ -31,6 +31,11 @@ import {
   isRechargeSubscriptionRequiredError,
   normalizeRechargeErrorMessage,
 } from "@/lib/invoices/recharge-errors";
+import {
+  keepsRechargeKey,
+  rechargeKeyFor,
+  type RechargeKey,
+} from "@/lib/invoices/recharge-key";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -157,6 +162,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "boleto">("pix");
   const [generating, setGenerating] = useState(false);
+  const rechargeKeyRef = useRef<RechargeKey | null>(null);
   const [generatedInvoice, setGeneratedInvoice] = useState<Invoice | null>(
     null,
   );
@@ -313,7 +319,7 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
   );
 
   return (
-    <div className={cn("relative", className)} ref={containerRef}>
+    <div className={cn("relative", className)} ref={containerRef}>
       <div
         className={cn(
           "flex items-center gap-1.5 rounded-[--radius] px-1.5 py-1 transition-colors",
@@ -734,10 +740,19 @@ export function BalanceIndicator({ className }: BalanceIndicatorProps) {
                 onClick={async () => {
                   setGenerating(true);
                   setRechargeError(null);
-                  const result = await createInvoiceAction({
+                  const draft = {
                     amountBrl: Number(rechargeAmount),
                     billingType: paymentMethod === "pix" ? "PIX" : "BOLETO",
+                  } as const;
+                  const rechargeKey = rechargeKeyFor(rechargeKeyRef.current, draft);
+                  rechargeKeyRef.current = rechargeKey;
+                  const result = await createInvoiceAction({
+                    ...draft,
+                    idempotencyKey: rechargeKey.key,
                   });
+                  if (!keepsRechargeKey(result)) {
+                    rechargeKeyRef.current = null;
+                  }
                   setGenerating(false);
                   if (result.error) {
                     setRechargeError(

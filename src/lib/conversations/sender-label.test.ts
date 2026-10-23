@@ -42,6 +42,7 @@ describe("naming who sent a message", () => {
     expect(senderLabelKey("external", "unofficial_whatsapp")).toBe("messageSender.externalVia.unofficial_whatsapp");
     expect(senderLabelKey("external", "instagram")).toBe("messageSender.externalVia.instagram");
     expect(senderLabelKey("external", "tiktok")).toBe("messageSender.externalVia.tiktok");
+    expect(senderLabelKey("external", "email")).toBe("messageSender.externalVia.email");
   });
 
   it("falls back to the generic outside label on a channel it does not know", () => {

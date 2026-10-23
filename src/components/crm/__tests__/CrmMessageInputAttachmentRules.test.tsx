@@ -153,6 +153,15 @@ describe("composer before the channel limits are known", () => {
     expect(mocks.upload).not.toHaveBeenCalled();
     expect(mocks.toastError).toHaveBeenCalledWith(attachmentsT.channelTakesNone.replace("{name}", "foto.jpg"));
   });
+
+  it("refuses every file and offers no voice note on email", () => {
+    const { input } = renderOpen("email");
+    expect(screen.getByRole("button", { name: composerT.attachFile })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: composerT.recording })).not.toBeInTheDocument();
+    pick(input, [file("nota.pdf", "application/pdf", 10)]);
+    expect(mocks.upload).not.toHaveBeenCalled();
+    expect(mocks.toastError).toHaveBeenCalledWith(attachmentsT.channelTakesNone.replace("{name}", "nota.pdf"));
+  });
 });
 
 describe("recorded voice notes against the channel limits", () => {

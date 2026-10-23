@@ -70,6 +70,8 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   controlId = "channel-automation-enabled",
   showHandling = false,
   dealEntryType,
+  showPipeline = true,
+  readOnly = false,
 }: {
   account: T;
   onUpdated: (account: T) => void;
@@ -81,6 +83,8 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   controlId?: string;
   showHandling?: boolean;
   dealEntryType?: string;
+  showPipeline?: boolean;
+  readOnly?: boolean;
 }) {
   const t = useTranslations(translationNamespace);
 
@@ -134,6 +138,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
   });
 
   useEffect(() => {
+    if (!showPipeline) return;
     let active = true;
     void listPipelinesAction("conversation").then((result) => {
       if (active) setPipelines(result.pipelines);
@@ -141,7 +146,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
     return () => {
       active = false;
     };
-  }, []);
+  }, [showPipeline]);
 
   const [resolvedAgent, setResolvedAgent] = useState<{ id: string; name: string } | null>(null);
   const [resolvedWorkflow, setResolvedWorkflow] = useState<{ id: string; name: string } | null>(
@@ -317,7 +322,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
                 type="button"
                 role="radio"
                 aria-checked={selected}
-                disabled={saving}
+                disabled={saving || readOnly}
                 onClick={() => handleModeChange(id)}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
@@ -348,7 +353,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
               onScrollEnd={agentSelect.onScrollEnd}
               onOpenChange={agentSelect.onOpenChange}
               isLoading={agentSelect.isLoading}
-              disabled={saving}
+              disabled={saving || readOnly}
               fullWidth
             />
           ) : (
@@ -363,7 +368,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
               onScrollEnd={workflowSelect.onScrollEnd}
               onOpenChange={workflowSelect.onOpenChange}
               isLoading={workflowSelect.isLoading}
-              disabled={saving}
+              disabled={saving || readOnly}
               fullWidth
             />
           )}
@@ -398,12 +403,12 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             id={controlId}
             checked={enabled}
             onCheckedChange={handleEnabledChange}
-            disabled={saving || !selectedId}
+            disabled={saving || readOnly || !selectedId}
             aria-label={t("enableLabel")}
           />
         </div>
 
-        {pipelines.length > 0 ? (
+        {showPipeline && pipelines.length > 0 ? (
           <div className="space-y-1.5 border-t border-border pt-4">
             <label htmlFor={`${controlId}-pipeline`} className="text-sm text-foreground">
               {t("pipelineLabel")}
@@ -412,7 +417,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
             <ElevatedSelect
               value={pipelineId ?? ""}
               onValueChange={(next: string) => handlePipelineChange(next)}
-              disabled={saving}
+              disabled={saving || readOnly}
             >
               <ElevatedSelectItem value="">{t("pipelineDefault")}</ElevatedSelectItem>
               {pipelines.map((pipeline) => (
@@ -442,7 +447,7 @@ export function ChannelAutomationPanel<T extends ChannelAutomationAccount>({
                   id={`${controlId}-${key}`}
                   checked={handling[key]}
                   onCheckedChange={(next: boolean) => handleHandlingChange(key, next)}
-                  disabled={saving}
+                  disabled={saving || readOnly}
                   aria-label={t(`${key}Label`)}
                 />
               </div>

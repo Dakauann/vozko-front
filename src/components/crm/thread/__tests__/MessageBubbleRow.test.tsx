@@ -130,3 +130,18 @@ describe("MessageBubbleRow from the customer's perspective", () => {
     expect(bubbleOf(container).querySelectorAll("svg")).toHaveLength(0);
   });
 });
+
+describe("MessageBubbleRow campaign badge on email", () => {
+  const campaignEmail = (metadata?: Record<string, unknown>) =>
+    msg({ id: "em-1", entry_type: "email", channel: "email", message_type: "operator", sent_by: { kind: "campaign", id: "camp-1" }, metadata: metadata as ConversationMessage["metadata"] });
+
+  it("names the campaign in the badge of an email campaign row", () => {
+    renderBubble(campaignEmail({ email_campaign_name: "Black Friday" }), true);
+    expect(screen.getByText("Campanha: Black Friday")).toBeInTheDocument();
+  });
+
+  it("keeps the plain campaign badge when the row carries no name", () => {
+    renderBubble(campaignEmail({}), true);
+    expect(screen.getByText(ptMessages.crm.messageSender.campaign)).toBeInTheDocument();
+  });
+});

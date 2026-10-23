@@ -1,5 +1,7 @@
 import { REPLY_TO_AGENT_FIELDS_KEY, REPLY_TO_AGENT_NODE, readReplyFields } from "@/lib/workflows/agent-call";
 import { configText } from "@/lib/workflows/config-text";
+import { carrierNodeSummary } from "@/lib/workflows/carrier-node";
+import { platformEmailSummary } from "@/lib/workflows/platform-email-node";
 import { readSendFormConfig } from "@/lib/workflows/form-node";
 import { isInteractivePromptType, type WorkflowNodeType } from "@/lib/workflows/types";
 
@@ -70,6 +72,12 @@ export function nodeSummary(nodeType: WorkflowNodeType, config: Record<string, u
       );
     case "action_send_media":
       return summary("", configText(config.caption));
+    case "action_send_platform_email": {
+      const email = platformEmailSummary(config);
+      return summary(email.subject, email.mode === "design" ? email.designName : email.body);
+    }
+    case "action_send_carrier":
+      return summary("", carrierNodeSummary(config)?.text ?? "");
     case "action_set_variable": {
       const variable = configText(config.variable);
       return variable ? summary("", `${variable} = ${configText(config.value)}`) : null;

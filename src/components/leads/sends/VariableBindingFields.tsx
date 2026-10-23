@@ -13,8 +13,18 @@ interface VariableBindingControls {
   labelOf: (source: BindingSource) => string;
 }
 
-export function VariableBindingFields({ slots, binding }: { slots: readonly string[]; binding: VariableBindingControls }) {
+export interface BindingSlot {
+  name: string;
+  header: boolean;
+}
+
+function slotOf(slot: string | BindingSlot): BindingSlot {
+  return typeof slot === "string" ? { name: slot, header: false } : slot;
+}
+
+export function VariableBindingFields({ slots, binding }: { slots: readonly (string | BindingSlot)[]; binding: VariableBindingControls }) {
   const t = useTranslations("leadSends.bindings");
+  const tSlot = useTranslations("campaignAudience.step.slot");
   const { choices, values, onChange, labelOf } = binding;
 
   return (
@@ -23,13 +33,18 @@ export function VariableBindingFields({ slots, binding }: { slots: readonly stri
         <span className="legend">{t("title")}</span>
         <p className="text-xs text-muted-foreground">{t("hint")}</p>
       </div>
-      {slots.map((slot, index) => {
-        const name = `{{${slot}}}`;
+      {slots.map((entry, index) => {
+        const slot = slotOf(entry);
+        const tag = `{{${slot.name}}}`;
+        const name = slot.header ? tSlot("headerSlot", { tag }) : tag;
         const current = values[index] ?? { source: LITERAL_SOURCE, value: "" };
         const literal = current.source === LITERAL_SOURCE;
         return (
-          <div key={`binding-${index}`} className="grid items-start gap-2 sm:grid-cols-[3rem_minmax(0,1fr)_minmax(0,1fr)]">
-            <span className="readout mt-2.5 w-fit rounded-[--radius] bg-muted px-1.5 text-xs font-semibold text-foreground">{name}</span>
+          <div key={`binding-${index}`} className="grid items-start gap-2 sm:grid-cols-[minmax(3rem,auto)_minmax(0,1fr)_minmax(0,1fr)]">
+            <span className="mt-2.5 flex flex-col items-start gap-1">
+              <span className="readout w-fit rounded-[--radius] bg-muted px-1.5 text-xs font-semibold text-foreground">{tag}</span>
+              {slot.header ? <span className="text-2xs font-medium text-muted-foreground">{tSlot("header")}</span> : null}
+            </span>
             <ElevatedSelect
               label={t("source", { slot: name })}
               aria-label={t("source", { slot: name })}

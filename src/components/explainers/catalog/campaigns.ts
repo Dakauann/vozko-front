@@ -1,4 +1,4 @@
-import { CalendarCheck, ChatText, Clock, Files, PaperPlaneTilt, Robot } from "@/components/icons";
+import { CalendarCheck, ChartBar, ChatText, Clock, CursorClick, Files, Globe, PaperPlaneTilt, Robot } from "@/components/icons";
 import { SmartSendMark } from "@/components/whatsapp/smart/SmartSendArt";
 
 import type { ExplainerArea } from "./types";
@@ -47,6 +47,19 @@ export const campaignExplainers = {
         { icon: ChatText, label: "question" },
         { icon: Files, label: "excerpts" },
         { icon: Robot, label: "reply", tone: "accent" },
+      ],
+    },
+    steps: 3,
+    footnote: true,
+  },
+  trackLinkClicks: {
+    icon: CursorClick,
+    scene: {
+      kind: "flow",
+      nodes: [
+        { icon: CursorClick, label: "tap" },
+        { icon: ChartBar, label: "count", tone: "accent" },
+        { icon: Globe, label: "destination" },
       ],
     },
     steps: 3,

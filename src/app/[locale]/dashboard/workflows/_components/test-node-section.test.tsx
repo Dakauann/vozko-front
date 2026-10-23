@@ -522,3 +522,97 @@ describe("TestNodeSection result", () => {
     expect(test).toHaveBeenCalledWith("wf-1", "n5", false, true);
   });
 });
+
+describe("TestNodeSection trigger input", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const triggerSpec = {
+    nodeId: "t1",
+    triggerType: "trigger_agent_call",
+    label: "Chamado por agente IA",
+    shape: "fields",
+    fields: [
+      { key: "cpf", type: "text", required: true, description: "CPF do candidato", example: "000", readBy: ["n5"] },
+      { key: "dados", type: "object", required: false, description: "", example: null, readBy: [] },
+    ],
+    sample: null,
+    readKeys: [],
+    issues: [],
+    windowEditable: true,
+  };
+  const analysis = {
+    node_id: "n5",
+    node_type: "action_http_request",
+    node_label: "Login",
+    test_mode: "execute_until",
+    mock_fields: [],
+    can_run_direct: false,
+    has_ai_deps: false,
+    message: "Executa os nós anteriores",
+    trigger: triggerSpec,
+  };
+  const hookState = (overrides: Record<string, unknown> = {}) => ({
+    status: "ready",
+    analysis,
+    result: null,
+    error: null,
+    mockedState: {},
+    triggerVars: {},
+    analyze,
+    test,
+    setMockedValue,
+    setTriggerVar,
+    reset,
+    ...overrides,
+  });
+
+  it("fills the trigger's input with the Testar editor and sends it with the test", () => {
+    useTestNode.mockReturnValue(hookState());
+    render(<TestNodeSection workflowId="wf-1" nodeId="n5" />);
+    fireEvent.click(screen.getByRole("button", { name: /testar nó/i }));
+
+    expect(screen.getByTestId("trigger-input-editor")).toBeInTheDocument();
+    expect(screen.getByText("CPF do candidato")).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText("Ex.: 000"), { target: { value: "123" } });
+    fireEvent.click(screen.getByRole("button", { name: /executar teste/i }));
+    expect(test).toHaveBeenCalledWith("wf-1", "n5", false, false, { nodeId: "t1", input: { cpf: "123" } });
+  });
+
+  it("blocks a test only for text that is not JSON", () => {
+    useTestNode.mockReturnValue(hookState());
+    render(<TestNodeSection workflowId="wf-1" nodeId="n5" />);
+    fireEvent.click(screen.getByRole("button", { name: /testar nó/i }));
+    fireEvent.change(screen.getByLabelText("dados"), { target: { value: "{" } });
+    fireEvent.click(screen.getByRole("button", { name: /executar teste/i }));
+    expect(test).not.toHaveBeenCalled();
+    expect(screen.getByText(ptMessages.workflowDebug.triggerInput.syntax)).toBeInTheDocument();
+  });
+
+  it("shows the refused trigger fields inline with the coded copy", () => {
+    useTestNode.mockReturnValue(
+      hookState({
+        status: "error",
+        error: "raw",
+        errorStatus: 422,
+        errorCode: "trigger_input_invalid",
+        errorIssues: [{ code: "required", key: "cpf" }],
+      }),
+    );
+    render(<TestNodeSection workflowId="wf-1" nodeId="n5" />);
+    fireEvent.click(screen.getByRole("button", { name: /testar nó/i }));
+    expect(screen.getByText(ptMessages.workflowsPage.errors.trigger_input_invalid)).toBeInTheDocument();
+    expect(screen.getByText(ptMessages.workflowDebug.triggerInput.issues.required)).toBeInTheDocument();
+    expect(screen.queryByText("raw")).toBeNull();
+  });
+
+  it("keeps the old request when the path has no trigger with input", () => {
+    useTestNode.mockReturnValue(hookState({ analysis: { ...analysis, trigger: { ...triggerSpec, shape: "none", fields: [] } } }));
+    render(<TestNodeSection workflowId="wf-1" nodeId="n5" />);
+    fireEvent.click(screen.getByRole("button", { name: /testar nó/i }));
+    expect(screen.queryByTestId("trigger-input-editor")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /executar teste/i }));
+    expect(test).toHaveBeenCalledWith("wf-1", "n5", false, false);
+  });
+});

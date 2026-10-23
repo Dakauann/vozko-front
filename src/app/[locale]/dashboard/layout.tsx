@@ -22,6 +22,7 @@ import { AssistantDock } from "@/components/ai-chat/assistant-dock";
 import { AttentionHost } from "@/components/attention/attention-host";
 import { TeamChatDock } from "@/components/team-chat/team-chat-dock";
 import { StudioProjectCommandsHost } from "@/components/ai-chat/studio-project-commands";
+import { EmailDesignCommandsHost } from "@/components/ai-chat/email-design-commands";
 import { RouteGate } from "@/components/access/route-gate";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
@@ -83,6 +84,7 @@ export default function DashboardLayout({
                     <TeamChatDock />
                     <AttentionHost />
                     <StudioProjectCommandsHost />
+                    <EmailDesignCommandsHost />
                     <DialerDock />
                   </CallSessionProvider>
                 </DashboardCrmWrapper>

@@ -114,3 +114,24 @@ describe("configFieldLabel", () => {
     expect(configFieldLabel(undefined, "message")).toBeUndefined();
   });
 });
+
+describe("data reference issues", () => {
+  const neverSet: LintIssue = { code: "DATA_REF_NEVER_SET", severity: "blocking", nodeId: "send_1", field: "message", path: "input.telefone", message: "raw" };
+  const somePaths: LintIssue = { ...neverSet, code: "DATA_REF_SOME_PATHS", severity: "advisory", path: "status" };
+
+  it("names the reference the step reads, since the field alone does not say which value is missing", () => {
+    expect(localizedLintIssues(t, [neverSet], subjects)[0].title).toBe("“Enviar boas-vindas” usa {{input.telefone}} em “Mensagem”, um dado que nada fornece");
+    expect(localizedLintIssues(t, [somePaths], subjects)[0].title).toBe("“Enviar boas-vindas” usa {{status}} em “Mensagem”, um dado que só alguns caminhos fornecem");
+  });
+
+  it.each([
+    ["en", enMessages],
+    ["es", esMessages],
+    ["de", deMessages],
+  ] as const)("names the reference in %s too", (locale, messages) => {
+    const translator = translatorFor(locale, messages as typeof ptMessages);
+    for (const issue of [neverSet, somePaths]) {
+      expect(localizedLintIssues(translator, [issue], subjects)[0].title).toContain(`{{${issue.path}}}`);
+    }
+  });
+});

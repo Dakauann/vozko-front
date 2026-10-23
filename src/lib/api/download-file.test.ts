@@ -37,6 +37,19 @@ describe("downloadApiFile", () => {
     expect(download.blob).toHaveBeenCalledWith(expect.anything(), "linhas.csv");
   });
 
+  it("posts a json body when the file is built from one", async () => {
+    browser.fetch.mockResolvedValue(new Response("number;name\n", { status: 200 }));
+
+    await downloadApiFile("/campaign-audience/whatsapp/sample", "modelo.csv", { body: { templateId: "tpl-1" } });
+
+    expect(browser.fetch).toHaveBeenCalledWith("https://api.test/campaign-audience/whatsapp/sample", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", "X-Workspace-ID": "ws-1" },
+      body: JSON.stringify({ templateId: "tpl-1" }),
+    });
+  });
+
   it("falls back to the given name", async () => {
     browser.fetch.mockResolvedValue(new Response("x", { status: 200 }));
 

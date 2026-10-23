@@ -1,4 +1,4 @@
-import { format, subDays } from "date-fns";
+import { formatISO, subDays } from "date-fns";
 
 export type PeriodPreset = "7d" | "30d" | "90d";
 
@@ -11,8 +11,8 @@ export interface PeriodRange {
 
 export function presetRange(preset: PeriodPreset, now: Date = new Date()): PeriodRange {
   return {
-    dateFrom: format(subDays(now, DAYS_BEFORE_TODAY[preset]), "yyyy-MM-dd"),
-    dateTo: format(now, "yyyy-MM-dd"),
+    dateFrom: formatISO(subDays(now, DAYS_BEFORE_TODAY[preset]), { representation: "date" }),
+    dateTo: formatISO(now, { representation: "date" }),
   };
 }
 

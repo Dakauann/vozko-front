@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   WebhooksLogo,
@@ -30,6 +30,11 @@ import { Notice } from "@/components/ui/notice";
 import { codedErrorMessage, type CodedFailure } from "@/lib/api/coded-error";
 import { cn } from "@/lib/utils";
 import {
+  webhookExamples,
+  type WebhookExampleKey,
+  type WebhookStartOn,
+} from "@/lib/workflows/webhook-trigger";
+import {
   getWorkflowWebhookAction,
   createWorkflowWebhookAction,
   updateWorkflowWebhookAction,
@@ -41,7 +46,7 @@ import { WebhookDeliveries } from "./webhook-deliveries";
 
 type AuthMode = "none" | "header_token" | "hmac";
 type CopyTarget = "url" | "secret" | "curl" | "body";
-type EntryMode = "entry" | "phone";
+type Translate = ReturnType<typeof useTranslations>;
 
 interface Draft {
   auth_mode: AuthMode;
@@ -55,21 +60,9 @@ const DEFAULT_SIGNATURE_HEADER = "X-Signature-256";
 
 const RECEIVER_METHOD = "POST";
 
-const COMPACT_BODY: Record<EntryMode, string> = {
-  entry:
-    '{"entry_id":"c7f1e2a0-9b3d-4a1e-8f2c-1d2e3f4a5b6c","entry_type":"whatsapp"}',
-  phone: '{"phone":"+5511998887777"}',
-};
+const ENTRY_TYPES = ["whatsapp", "unofficial_whatsapp", "instagram", "facebook", "telegram", "webchat", "email"];
 
-const PRETTY_BODY: Record<EntryMode, string> = {
-  entry: `{
-  "entry_id": "c7f1e2a0-9b3d-4a1e-8f2c-1d2e3f4a5b6c",
-  "entry_type": "whatsapp"
-}`,
-  phone: `{
-  "phone": "+5511998887777"
-}`,
-};
+const richCode = { code: (chunks: ReactNode) => <Mono>{chunks}</Mono>, strong: (chunks: ReactNode) => <span className="font-medium text-foreground">{chunks}</span> };
 
 function toDraft(w: WorkflowWebhookConfig): Draft {
   return {
@@ -133,11 +126,16 @@ function buildCurl(opts: {
 export function WebhookTriggerConfig({
   workflowId,
   focusDeliveries = false,
+  startOn = "conversation",
+  events = [],
 }: {
   workflowId?: string | null;
   focusDeliveries?: boolean;
+  startOn?: WebhookStartOn;
+  events?: readonly string[];
 }) {
-  const t = useTranslations("workflowsPage");
+  const tPage = useTranslations("workflowsPage");
+  const t = useTranslations("workflowsPage.webhookTrigger");
   const [webhook, setWebhook] = useState<WorkflowWebhookConfig | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,14 +158,14 @@ export function WebhookTriggerConfig({
       setLoading(true);
       const res = await getWorkflowWebhookAction(workflowId);
       if (cancelled) return;
-      if (res.error) setError(codedErrorMessage(t, res, res.error));
+      if (res.error) setError(codedErrorMessage(tPage, res, res.error));
       apply(res.webhook ?? null);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [workflowId, apply, t]);
+  }, [workflowId, apply, tPage]);
 
   const copy = useCallback((value: string, which: CopyTarget) => {
     void navigator.clipboard.writeText(value).then(() => {
@@ -183,18 +181,18 @@ export function WebhookTriggerConfig({
       setBusy(true);
       setError(null);
       const res = await fn();
-      if (res.error) setError(codedErrorMessage(t, res, res.error));
+      if (res.error) setError(codedErrorMessage(tPage, res, res.error));
       else apply(res.webhook ?? null);
       setBusy(false);
     },
-    [apply, t],
+    [apply, tPage],
   );
 
   if (!workflowId) {
     return (
-      <ConfigShell>
+      <ConfigShell startOn={startOn}>
         <p className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-          Salve o fluxo para gerar a URL do webhook.
+          {t("saveFirst")}
         </p>
       </ConfigShell>
     );
@@ -202,10 +200,10 @@ export function WebhookTriggerConfig({
 
   if (loading) {
     return (
-      <ConfigShell>
+      <ConfigShell startOn={startOn}>
         <div className="flex items-center gap-2 px-1 py-2 text-xs text-muted-foreground">
           <CircleNotch className="h-4 w-4 animate-spin" />
-          Carregando configuração do webhook...
+          {t("loading")}
         </div>
       </ConfigShell>
     );
@@ -213,12 +211,12 @@ export function WebhookTriggerConfig({
 
   if (!webhook || !draft) {
     return (
-      <ConfigShell>
+      <ConfigShell startOn={startOn}>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Gere uma URL exclusiva para que sistemas externos iniciem este fluxo.
+          {t("createHint")}
         </p>
         <ElevatedButton
-          title="Gerar URL do webhook"
+          title={t("create")}
           variant="primary"
           size="sm"
           iconVisible
@@ -234,11 +232,11 @@ export function WebhookTriggerConfig({
   const dirty = !draftsEqual(draft, toDraft(webhook));
   const showSecret = draft.auth_mode !== "none";
   const secretLabel =
-    draft.auth_mode === "header_token" ? "Token do cabeçalho" : "Segredo de assinatura";
+    draft.auth_mode === "header_token" ? t("secretToken") : t("secretSignature");
 
   return (
-    <ConfigShell active={webhook.active}>
-      <Field label="URL de produção">
+    <ConfigShell startOn={startOn} active={webhook.active}>
+      <Field label={t("url")}>
         <div className="flex items-center gap-2">
           <ElevatedInput
             readOnly
@@ -252,7 +250,7 @@ export function WebhookTriggerConfig({
             size="icon"
             title=""
             iconVisible
-            aria-label="Copiar URL"
+            aria-label={t("copyUrl")}
             icon={
               copied === "url" ? (
                 <Check className="h-4 w-4 text-healthy-ink" weight="bold" />
@@ -266,20 +264,20 @@ export function WebhookTriggerConfig({
       </Field>
 
       <ElevatedSelect
-        label="Autenticação"
+        label={t("auth")}
         value={draft.auth_mode}
         onValueChange={(v) =>
           setDraft((d) => (d ? { ...d, auth_mode: v as AuthMode } : d))
         }
       >
-        <ElevatedSelectItem value="none">Somente URL secreta</ElevatedSelectItem>
-        <ElevatedSelectItem value="header_token">Token no cabeçalho</ElevatedSelectItem>
-        <ElevatedSelectItem value="hmac">Assinatura HMAC SHA256</ElevatedSelectItem>
+        <ElevatedSelectItem value="none">{t("authModes.none")}</ElevatedSelectItem>
+        <ElevatedSelectItem value="header_token">{t("authModes.header_token")}</ElevatedSelectItem>
+        <ElevatedSelectItem value="hmac">{t("authModes.hmac")}</ElevatedSelectItem>
       </ElevatedSelect>
 
       {showSecret && (
         <ElevatedInput
-          label="Nome do cabeçalho"
+          label={t("headerName")}
           value={draft.header_name}
           placeholder={
             draft.auth_mode === "hmac"
@@ -307,7 +305,7 @@ export function WebhookTriggerConfig({
               size="icon"
               title=""
               iconVisible
-              aria-label={revealSecret ? "Ocultar segredo" : "Revelar segredo"}
+              aria-label={revealSecret ? t("hideSecret") : t("revealSecret")}
               icon={
                 revealSecret ? (
                   <EyeSlash className="h-4 w-4" />
@@ -322,7 +320,7 @@ export function WebhookTriggerConfig({
               size="icon"
               title=""
               iconVisible
-              aria-label="Copiar segredo"
+              aria-label={t("copySecret")}
               icon={
                 copied === "secret" ? (
                   <Check className="h-4 w-4 text-healthy-ink" weight="bold" />
@@ -337,7 +335,7 @@ export function WebhookTriggerConfig({
       )}
 
       <ElevatedSelect
-        label="Método HTTP"
+        label={t("method")}
         value={draft.method}
         onValueChange={(v) => setDraft((d) => (d ? { ...d, method: v } : d))}
       >
@@ -347,25 +345,19 @@ export function WebhookTriggerConfig({
       </ElevatedSelect>
 
       {draft.method !== RECEIVER_METHOD && (
-        <NoticeLine>
-          O receptor público aceita somente <Mono>POST</Mono>. Com{" "}
-          <Mono>{draft.method}</Mono> as chamadas retornam <Mono>405</Mono> antes
-          de alcançar o fluxo.
-        </NoticeLine>
+        <NoticeLine>{t.rich("methodWarning", { ...richCode, method: draft.method })}</NoticeLine>
       )}
 
       <div className="flex items-center justify-between rounded-lg border border-border bg-muted px-3 py-2">
         <div>
-          <p className="text-xs font-medium text-foreground">Webhook ativo</p>
-          <p className="text-2xs text-muted-foreground">
-            Quando inativo, as chamadas recebidas retornam 404.
-          </p>
+          <p className="text-xs font-medium text-foreground">{t("active")}</p>
+          <p className="text-2xs text-muted-foreground">{t("activeHint")}</p>
         </div>
         <button
           type="button"
           role="switch"
           aria-checked={draft.active}
-          aria-label="Ativar webhook"
+          aria-label={t("toggleActive")}
           onClick={() => setDraft((d) => (d ? { ...d, active: !d.active } : d))}
           className={cn(
             "relative h-6 w-11 shrink-0 rounded-full transition-colors",
@@ -383,7 +375,10 @@ export function WebhookTriggerConfig({
       </div>
 
       <WebhookReference
+        key={startOn}
         webhook={webhook}
+        startOn={startOn}
+        events={events}
         dirty={dirty}
         revealSecret={revealSecret}
         onToggleSecret={() => setRevealSecret((v) => !v)}
@@ -393,7 +388,7 @@ export function WebhookTriggerConfig({
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
         <ElevatedButton
-          title="Salvar"
+          title={t("save")}
           variant="primary"
           size="sm"
           disabled={!dirty || busy}
@@ -402,31 +397,27 @@ export function WebhookTriggerConfig({
           }
         />
         <ElevatedButton
-          title="Regerar URL e segredo"
+          title={t("rotate")}
           variant="outline-subtle"
           size="sm"
           iconVisible
           icon={<ArrowsClockwise className="h-4 w-4" />}
           disabled={busy}
           onClick={() => {
-            if (
-              window.confirm(
-                "Isso invalida a URL e o segredo atuais. Integrações existentes vão parar de funcionar ate serem atualizadas. Continuar?",
-              )
-            ) {
+            if (window.confirm(t("rotateConfirm"))) {
               void runAction(() => rotateWorkflowWebhookAction(workflowId));
             }
           }}
         />
         <ElevatedButton
-          title="Remover"
+          title={t("remove")}
           variant="ghost"
           size="sm"
           iconVisible
           icon={<Trash className="h-4 w-4" />}
           disabled={busy}
           onClick={() => {
-            if (window.confirm("Remover o webhook deste fluxo?")) {
+            if (window.confirm(t("removeConfirm"))) {
               void runAction(async () => {
                 const res = await deleteWorkflowWebhookAction(workflowId);
                 return { webhook: null, error: res.error };
@@ -446,10 +437,13 @@ export function WebhookTriggerConfig({
 function ConfigShell({
   children,
   active,
+  startOn,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   active?: boolean;
+  startOn: WebhookStartOn;
 }) {
+  const t = useTranslations("workflowsPage.webhookTrigger");
   return (
     <section className="space-y-4">
       <div className="flex items-start gap-3">
@@ -458,18 +452,15 @@ function ConfigShell({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-foreground">Gatilho de Webhook</p>
+            <p className="text-sm font-semibold text-foreground">{t("title")}</p>
             {active === false && (
               <span className="rounded-[--radius] bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
-                inativo
+                {t("inactive")}
               </span>
             )}
           </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Um sistema externo inicia este fluxo com uma requisição HTTP. O corpo
-            precisa dizer sobre qual conversa o fluxo vai rodar: por{" "}
-            <Mono>entry_id</Mono> + <Mono>entry_type</Mono>, ou por{" "}
-            <Mono>phone</Mono>. A referência abaixo monta a chamada pronta.
+            {t.rich(`intro.${startOn}`, richCode)}
           </p>
         </div>
       </div>
@@ -478,7 +469,7 @@ function ConfigShell({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
       <label className="text-xs font-medium text-foreground">{label}</label>
@@ -489,6 +480,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function WebhookReference({
   webhook,
+  startOn,
+  events,
   dirty,
   revealSecret,
   onToggleSecret,
@@ -496,17 +489,23 @@ function WebhookReference({
   onCopy,
 }: {
   webhook: WorkflowWebhookConfig;
+  startOn: WebhookStartOn;
+  events: readonly string[];
   dirty: boolean;
   revealSecret: boolean;
   onToggleSecret: () => void;
   copied: CopyTarget | null;
   onCopy: (value: string, which: CopyTarget) => void;
 }) {
-  const [entryMode, setEntryMode] = useState<EntryMode>("entry");
+  const t = useTranslations("workflowsPage.webhookTrigger");
+  const examples = useMemo(() => webhookExamples(startOn, events), [startOn, events]);
+  const [exampleKey, setExampleKey] = useState<WebhookExampleKey>(examples[0].key);
+  const chosen = examples.find((candidate) => candidate.key === exampleKey) ?? examples[0];
+  const bodyVariable = `{{webhook.body.<${t("reference.fieldPlaceholder")}>}}`;
 
   const authMode = webhook.auth_mode;
   const hasSecret = authMode !== "none" && Boolean(webhook.secret);
-  const secretPlaceholder = authMode === "hmac" ? "SEU_SEGREDO" : "SEU_TOKEN";
+  const secretPlaceholder = authMode === "hmac" ? t("reference.secretPlaceholder.signature") : t("reference.secretPlaceholder.token");
   const secretForSnippet =
     revealSecret && webhook.secret ? webhook.secret : secretPlaceholder;
 
@@ -518,7 +517,7 @@ function WebhookReference({
         authMode,
         headerName: webhook.header_name ?? "",
         secret: secretForSnippet,
-        body: COMPACT_BODY[entryMode],
+        body: chosen.compact,
       }),
     [
       webhook.url,
@@ -526,7 +525,7 @@ function WebhookReference({
       webhook.header_name,
       authMode,
       secretForSnippet,
-      entryMode,
+      chosen.compact,
     ],
   );
 
@@ -535,23 +534,23 @@ function WebhookReference({
       <div className="flex items-center gap-1.5 border-b border-border px-3 py-2">
         <Code className="h-3.5 w-3.5 text-primary-ink" weight="bold" />
         <span className="text-xs font-medium text-foreground">
-          Como chamar este webhook
+          {t("reference.title")}
         </span>
       </div>
 
       <Tabs defaultValue="request" className="px-3 pb-3">
         <TabsList>
           <TabsTrigger value="request" className="text-xs">
-            Requisição
+            {t("reference.tabs.request")}
           </TabsTrigger>
           <TabsTrigger value="body" className="text-xs">
-            Corpo
+            {t("reference.tabs.body")}
           </TabsTrigger>
           <TabsTrigger value="responses" className="text-xs">
-            Respostas
+            {t("reference.tabs.responses")}
           </TabsTrigger>
           <TabsTrigger value="flow" className="text-xs">
-            No fluxo
+            {t("reference.tabs.flow")}
           </TabsTrigger>
         </TabsList>
 
@@ -559,14 +558,11 @@ function WebhookReference({
           <AuthNote authMode={authMode} headerName={webhook.header_name ?? ""} />
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <ElevatedPillToggle<EntryMode>
-              aria-label="Forma de identificar a conversa no exemplo"
-              value={entryMode}
-              onChange={setEntryMode}
-              options={[
-                { value: "entry", label: "entry_id" },
-                { value: "phone", label: "phone" },
-              ]}
+            <ElevatedPillToggle<WebhookExampleKey>
+              aria-label={t(`reference.exampleLabel.${startOn}`)}
+              value={chosen.key}
+              onChange={setExampleKey}
+              options={examples.map((candidate) => ({ value: candidate.key, label: candidate.label }))}
             />
             {hasSecret && (
               <button
@@ -579,7 +575,7 @@ function WebhookReference({
                 ) : (
                   <Eye className="h-3.5 w-3.5" />
                 )}
-                {revealSecret ? "Ocultar segredo" : "Incluir segredo"}
+                {revealSecret ? t("reference.hideSecret") : t("reference.includeSecret")}
               </button>
             )}
           </div>
@@ -588,116 +584,132 @@ function WebhookReference({
             code={curl}
             copied={copied === "curl"}
             onCopy={() => onCopy(curl, "curl")}
-            copyLabel="Copiar comando"
+            copyLabel={t("reference.copyCommand")}
           />
 
-          {dirty && (
-            <NoticeLine>
-              O exemplo usa a configuração já salva. Salve as alterações para
-              refleti-las aqui.
-            </NoticeLine>
-          )}
+          {dirty && <NoticeLine>{t("reference.dirty")}</NoticeLine>}
           {hasSecret && !revealSecret && (
             <p className="text-2xs leading-relaxed text-muted-foreground">
-              <Mono>{secretPlaceholder}</Mono> é um marcador. Use “Incluir
-              segredo” para copiar o comando já preenchido.
+              {t.rich("reference.placeholderHint", { ...richCode, placeholder: secretPlaceholder })}
             </p>
           )}
         </TabsContent>
 
         <TabsContent value="body" className="mt-3 space-y-3">
           <p className="text-2xs leading-relaxed text-muted-foreground">
-            O corpo é JSON e identifica a conversa de{" "}
-            <span className="font-medium text-foreground">uma</span> destas duas
-            formas.
+            {t.rich(`reference.body.intro.${startOn}`, richCode)}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <BodyOption
-              title="entry_id + entry_type"
-              hint="Quando o sistema externo já conhece o id interno da conversa."
-              code={PRETTY_BODY.entry}
-              copied={copied === "body" && entryMode === "entry"}
-              onCopy={() => {
-                setEntryMode("entry");
-                onCopy(PRETTY_BODY.entry, "body");
-              }}
-            />
-            <BodyOption
-              title="phone"
-              hint="Resolve para a conversa de WhatsApp mais recente com esse número."
-              code={PRETTY_BODY.phone}
-              copied={copied === "body" && entryMode === "phone"}
-              onCopy={() => {
-                setEntryMode("phone");
-                onCopy(PRETTY_BODY.phone, "body");
-              }}
-            />
+            {examples.map((candidate) => (
+              <BodyOption
+                key={candidate.key}
+                title={candidate.key === "entry" ? "entry_id + entry_type" : candidate.label}
+                hint={t.rich(`reference.body.options.${candidate.key}`, richCode)}
+                code={candidate.pretty}
+                copyLabel={t("reference.copyBody", { title: candidate.label })}
+                copied={copied === "body" && chosen.key === candidate.key}
+                onCopy={() => {
+                  setExampleKey(candidate.key);
+                  onCopy(candidate.pretty, "body");
+                }}
+              />
+            ))}
           </div>
 
           <dl className="space-y-1.5 border-t border-border pt-2.5">
-            <FieldRow name="entry_id" type="string">
-              Id interno da conversa. Só vale acompanhado de{" "}
-              <Mono>entry_type</Mono>.
-            </FieldRow>
-            <FieldRow name="entry_type" type="string">
-              Um de <Mono>whatsapp</Mono>, <Mono>unofficial_whatsapp</Mono>,{" "}
-              <Mono>instagram</Mono>, <Mono>facebook</Mono>, <Mono>telegram</Mono> ou{" "}
-              <Mono>webchat</Mono>.
-            </FieldRow>
-            <FieldRow name="phone" type="string">
-              Número em E.164 (<Mono>+5511998887777</Mono>). Alternativa ao par
-              acima; o formato brasileiro com e sem o nono dígito é aceito.
-            </FieldRow>
+            {startOn === "conversation" ? (
+              <>
+                <FieldRow name="entry_id" type="string">
+                  {t.rich("reference.body.fields.entry_id", richCode)}
+                </FieldRow>
+                <FieldRow name="entry_type" type="string">
+                  {t("reference.body.fields.entry_type")}{" "}
+                  {ENTRY_TYPES.map((type, index) => (
+                    <span key={type}>
+                      {index > 0 ? " " : null}
+                      <Mono>{type}</Mono>
+                    </span>
+                  ))}
+                </FieldRow>
+                <FieldRow name="phone" type="string">
+                  {t.rich("reference.body.fields.phone", richCode)}
+                </FieldRow>
+              </>
+            ) : (
+              <>
+                <FieldRow name="phone" type="string">
+                  {t.rich("reference.body.fields.leadPhone", richCode)}
+                </FieldRow>
+                <FieldRow name="name" type="string">
+                  {t.rich("reference.body.fields.name", richCode)}
+                </FieldRow>
+                <FieldRow name="email" type="string">
+                  {t.rich("reference.body.fields.email", richCode)}
+                </FieldRow>
+                <FieldRow name="event" type="string">
+                  {t.rich("reference.body.fields.event", richCode)}
+                </FieldRow>
+                <FieldRow name="external_id" type="string">
+                  {t.rich("reference.body.fields.external_id", richCode)}
+                </FieldRow>
+              </>
+            )}
           </dl>
 
+          {startOn === "lead" && events.length > 0 ? (
+            <p className="text-2xs leading-relaxed text-muted-foreground">
+              {t("reference.body.acceptedEvents")}{" "}
+              {events.map((event, index) => (
+                <span key={event}>
+                  {index > 0 ? " " : null}
+                  <Mono>{event}</Mono>
+                </span>
+              ))}
+            </p>
+          ) : null}
+
           <p className="text-2xs leading-relaxed text-muted-foreground">
-            Qualquer outro campo enviado é preservado e fica disponível no fluxo
-            em <Mono>{"{{var.webhook.body.<campo>}}"}</Mono>.
+            {t.rich("reference.body.extra", { ...richCode, variable: bodyVariable })}
           </p>
         </TabsContent>
 
         <TabsContent value="responses" className="mt-3 space-y-3">
           <div className="space-y-1.5">
-            {SUCCESS_RESPONSES.map((r) => (
+            {successResponses(t, startOn).map((r) => (
               <StatusRow key={r.code + r.status} {...r} />
             ))}
           </div>
 
           <div className="space-y-1.5 border-t border-border pt-2.5">
-            {ERROR_RESPONSES.map((r) => (
-              <StatusRow key={r.code + r.status} {...r} />
+            {errorResponses(t, startOn).map((r) => (
+              <StatusRow key={r.code + r.meaning} {...r} />
             ))}
           </div>
 
           <div className="rounded-[--radius] border border-border bg-muted px-2.5 py-2">
             <p className="text-2xs leading-relaxed text-muted-foreground">
-              <span className="font-medium text-foreground">Reenvios.</span> Uma
-              chamada repetida é ignorada por 6 h. A chave vem de{" "}
-              <Mono>X-Idempotency-Key</Mono> (ou <Mono>X-Webhook-Id</Mono> /{" "}
-              <Mono>X-Event-Id</Mono>); sem esses cabeçalhos ela é o hash do
-              corpo, então dois disparos legítimos de corpo idêntico contam como
-              um só. Envie um deles para controlar isso.
+              {t.rich("reference.responses.retries", richCode)}
             </p>
           </div>
         </TabsContent>
 
         <TabsContent value="flow" className="mt-3 space-y-2.5">
           <p className="text-2xs leading-relaxed text-muted-foreground">
-            O que a requisição deixa disponível para os nós seguintes:
+            {t("reference.flow.intro")}
           </p>
           <dl className="space-y-1.5">
-            <FieldRow name="{{var.webhook.body.<campo>}}">
-              Qualquer campo do corpo recebido, inclusive os do provedor.
-            </FieldRow>
-            <FieldRow name="{{var.webhook.method}}">
-              Método da requisição.
-            </FieldRow>
+            <FieldRow name={bodyVariable}>{t("reference.flow.body")}</FieldRow>
+            <FieldRow name="{{webhook.method}}">{t("reference.flow.method")}</FieldRow>
+            {startOn === "lead" ? (
+              <>
+                <FieldRow name="{{lead_id}}">{t("reference.flow.leadId")}</FieldRow>
+                <FieldRow name="{{lead_name}}">{t("reference.flow.leadName")}</FieldRow>
+              </>
+            ) : null}
           </dl>
           <p className="text-2xs leading-relaxed text-muted-foreground">
-            A conversa identificada no corpo vira a entrada da execução: os nós
-            de mensagem, etapa e finalização já agem sobre ela, sem precisar
-            referenciá-la.
+            {t(`reference.flow.outro.${startOn}`)}
           </p>
         </TabsContent>
       </Tabs>
@@ -712,30 +724,24 @@ function AuthNote({
   authMode: AuthMode;
   headerName: string;
 }) {
+  const t = useTranslations("workflowsPage.webhookTrigger.reference");
   const header = resolveHeaderName(authMode, headerName);
 
   if (authMode === "none") {
-    return (
-      <NoticeLine>
-        Sem autenticação: qualquer chamada com a URL correta inicia o fluxo.
-        Trate a URL como um segredo.
-      </NoticeLine>
-    );
+    return <NoticeLine>{t("authNone")}</NoticeLine>;
   }
 
   if (authMode === "hmac") {
     return (
       <p className="text-2xs leading-relaxed text-muted-foreground">
-        Assine os bytes exatos do corpo com HMAC-SHA256 e envie o digest em{" "}
-        <Mono>{header}</Mono> no formato <Mono>{"sha256=<hex>"}</Mono>. Sem o
-        prefixo <Mono>sha256=</Mono> a verificação falha com <Mono>401</Mono>.
+        {t.rich("authHmac", { ...richCode, header, digest: "sha256=<hex>", prefix: "sha256=" })}
       </p>
     );
   }
 
   return (
     <p className="text-2xs leading-relaxed text-muted-foreground">
-      Envie o token, sem prefixo, no cabeçalho <Mono>{header}</Mono>.
+      {t.rich("authToken", { ...richCode, header })}
     </p>
   );
 }
@@ -744,12 +750,14 @@ function BodyOption({
   title,
   hint,
   code,
+  copyLabel,
   copied,
   onCopy,
 }: {
   title: string;
-  hint: string;
+  hint: ReactNode;
   code: string;
+  copyLabel: string;
   copied: boolean;
   onCopy: () => void;
 }) {
@@ -757,12 +765,7 @@ function BodyOption({
     <div className="space-y-1.5">
       <p className="font-mono text-2xs font-medium text-foreground">{title}</p>
       <p className="text-2xs leading-relaxed text-muted-foreground">{hint}</p>
-      <CodeBlock
-        code={code}
-        copied={copied}
-        onCopy={onCopy}
-        copyLabel={`Copiar corpo com ${title}`}
-      />
+      <CodeBlock code={code} copied={copied} onCopy={onCopy} copyLabel={copyLabel} />
     </div>
   );
 }
@@ -812,78 +815,33 @@ interface StatusResponse {
   meaning: string;
 }
 
-const SUCCESS_RESPONSES: StatusResponse[] = [
-  {
-    code: "202",
-    status: "accepted",
-    tone: "ok",
-    meaning: "Execução criada; o run_id vem na resposta.",
-  },
-  {
-    code: "200",
-    status: "already_running",
-    tone: "ok",
-    meaning: "Já existe execução ativa para esta conversa neste gatilho.",
-  },
-  {
-    code: "200",
-    status: "duplicate",
-    tone: "ok",
-    meaning: "Reenvio detectado na janela de 6 h; nada foi iniciado.",
-  },
-];
+function successResponses(t: Translate, startOn: WebhookStartOn): StatusResponse[] {
+  return [
+    { code: "202", status: "accepted", tone: "ok", meaning: t("reference.responses.accepted") },
+    { code: "202", status: "ignored", tone: "ok", meaning: t("reference.responses.ignored") },
+    { code: "200", status: "already_running", tone: "ok", meaning: t(`reference.responses.alreadyRunning.${startOn}`) },
+    { code: "200", status: "duplicate", tone: "ok", meaning: t("reference.responses.duplicate") },
+  ];
+}
 
-const ERROR_RESPONSES: StatusResponse[] = [
-  {
-    code: "400",
-    status: "",
-    tone: "client",
-    meaning: "Corpo sem entry_id + entry_type e sem phone.",
-  },
-  {
-    code: "401",
-    status: "",
-    tone: "fault",
-    meaning: "Token ausente ou incorreto, ou assinatura inválida.",
-  },
-  {
-    code: "403",
-    status: "",
-    tone: "fault",
-    meaning: "A conversa não pertence a esta área de trabalho.",
-  },
-  {
-    code: "404",
-    status: "",
-    tone: "client",
-    meaning:
-      "Webhook inexistente ou desativado, ou nenhuma conversa para o telefone.",
-  },
-  {
-    code: "405",
-    status: "",
-    tone: "client",
-    meaning: "Método diferente do configurado.",
-  },
-  {
-    code: "409",
-    status: "",
-    tone: "client",
-    meaning: "O fluxo não está ativo. Use Ativar no editor.",
-  },
-  {
-    code: "422",
-    status: "",
-    tone: "client",
-    meaning: "O fluxo não tem um nó de gatilho de webhook.",
-  },
-  {
-    code: "429",
-    status: "",
-    tone: "client",
-    meaning: "Limite de execuções simultâneas da área de trabalho atingido.",
-  },
-];
+function errorResponses(t: Translate, startOn: WebhookStartOn): StatusResponse[] {
+  const forbidden: StatusResponse[] =
+    startOn === "conversation" ? [{ code: "403", status: "", tone: "fault", meaning: t("reference.responses.forbidden") }] : [];
+  const leadPhone: StatusResponse[] =
+    startOn === "lead" ? [{ code: "422", status: "", tone: "client", meaning: t("reference.responses.leadPhoneInvalid") }] : [];
+  return [
+    { code: "400", status: "", tone: "client", meaning: t(`reference.responses.badRequest.${startOn}`) },
+    { code: "401", status: "", tone: "fault", meaning: t("reference.responses.unauthorized") },
+    ...forbidden,
+    { code: "404", status: "", tone: "client", meaning: t(`reference.responses.notFound.${startOn}`) },
+    { code: "405", status: "", tone: "client", meaning: t("reference.responses.methodNotAllowed") },
+    { code: "409", status: "", tone: "client", meaning: t("reference.responses.notActive") },
+    ...leadPhone,
+    { code: "422", status: "", tone: "client", meaning: t("reference.responses.triggerInvalid") },
+    { code: "422", status: "", tone: "client", meaning: t("reference.responses.noTrigger") },
+    { code: "429", status: "", tone: "client", meaning: t("reference.responses.capacity") },
+  ];
+}
 
 const statusToneClass: Record<StatusTone, string> = {
   ok: "text-healthy-ink",
@@ -922,7 +880,7 @@ function FieldRow({
 }: {
   name: string;
   type?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -939,7 +897,7 @@ function FieldRow({
   );
 }
 
-function Mono({ children }: { children: React.ReactNode }) {
+function Mono({ children }: { children: ReactNode }) {
   return (
     <code className="rounded bg-background px-1 py-0.5 font-mono text-[0.95em] text-foreground">
       {children}
@@ -947,7 +905,7 @@ function Mono({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NoticeLine({ children }: { children: React.ReactNode }) {
+function NoticeLine({ children }: { children: ReactNode }) {
   return (
     <Notice tone="warning">{children}</Notice>
   );

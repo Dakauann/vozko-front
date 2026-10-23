@@ -1,4 +1,4 @@
-import type { WhatsAppCampaignPhoneStatus } from "./types";
+import type { WhatsAppCampaignPhoneStatus, WhatsAppCampaignStatus } from "./types";
 
 export const SEND_STATUSES: {
     value: WhatsAppCampaignPhoneStatus;
@@ -20,3 +20,9 @@ export const DISPATCHED_STATUSES: WhatsAppCampaignPhoneStatus[] = [
     "DELIVERED",
     "READ",
 ];
+
+export type CampaignListStatus = WhatsAppCampaignStatus | "READY";
+
+export function campaignListStatus(campaign: { status: WhatsAppCampaignStatus; readyToStart?: boolean }): CampaignListStatus {
+    return campaign.status === "STOPPED" && campaign.readyToStart === true ? "READY" : campaign.status;
+}

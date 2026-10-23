@@ -18,11 +18,13 @@ export function AutomationDisclosureEditor({
   translationNamespace,
   onSave,
   check,
+  readOnly = false,
 }: {
   value: string;
   translationNamespace: string;
   onSave: (text: string) => Promise<{ saved?: string; error?: string }>;
   check?: (text: string) => DisclosureCheck;
+  readOnly?: boolean;
 }) {
   const t = useTranslations(translationNamespace);
   const [text, setText] = useState(value);
@@ -55,7 +57,7 @@ export function AutomationDisclosureEditor({
       <Textarea
         value={text}
         rows={2}
-        disabled={saving}
+        disabled={saving || readOnly}
         placeholder={t("disclosurePlaceholder")}
         onChange={(e) => {
           setText(e.target.value);
@@ -69,16 +71,18 @@ export function AutomationDisclosureEditor({
           {error}
         </p>
       ) : null}
-      <div className="flex items-center justify-end gap-3">
-        {saved ? <span className="text-xs text-healthy-ink">{t("saved")}</span> : null}
-        <Button
-          size="sm"
-          variant="primary"
-          title={saving ? t("saving") : t("disclosureSave")}
-          disabled={saving || !dirty || Boolean(verdict?.blocked)}
-          onClick={() => void save()}
-        />
-      </div>
+      {readOnly ? null : (
+        <div className="flex items-center justify-end gap-3">
+          {saved ? <span className="text-xs text-healthy-ink">{t("saved")}</span> : null}
+          <Button
+            size="sm"
+            variant="primary"
+            title={saving ? t("saving") : t("disclosureSave")}
+            disabled={saving || !dirty || Boolean(verdict?.blocked)}
+            onClick={() => void save()}
+          />
+        </div>
+      )}
     </ElevatedContainer>
   );
 }

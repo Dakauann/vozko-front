@@ -26,6 +26,8 @@ interface ElevatedSegmentOption {
   label: string;
   description?: string;
   icon?: ReactNode;
+  disabled?: boolean;
+  badge?: ReactNode;
 }
 
 interface ElevatedSegmentedControlProps {
@@ -111,6 +113,7 @@ export function ElevatedSegmentedControl({
     >
       {options.map((option) => {
         const isSelected = option.value === value;
+        const optionDisabled = Boolean(disabled || option.disabled);
         const iconColor = iconColorByVariant[resolvedVariant];
         const inactiveClasses = inactiveVariantClasses[resolvedVariant];
 
@@ -119,7 +122,7 @@ export function ElevatedSegmentedControl({
             key={option.value}
             type="button"
             onClick={() => {
-              if (!disabled) {
+              if (!optionDisabled) {
                 onChange(option.value);
               }
             }}
@@ -127,12 +130,12 @@ export function ElevatedSegmentedControl({
             className={cn(
               "flex w-full flex-col items-start justify-center rounded-[--radius] text-left font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               basePadding[size],
-              disabled ? "cursor-not-allowed opacity-60" : "",
+              optionDisabled ? "cursor-not-allowed opacity-60" : "",
               isSelected
                 ? activeVariantClasses[resolvedVariant]
                 : inactiveClasses
             )}
-            disabled={disabled}
+            disabled={optionDisabled}
           >
             <div className="flex w-full items-center gap-3">
               {option.icon ? (
@@ -148,8 +151,9 @@ export function ElevatedSegmentedControl({
                 </span>
               ) : null}
               <div className="flex-1">
-                <span className="block text-sm font-semibold">
+                <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
                   {option.label}
+                  {option.badge}
                 </span>
                 {option.description ? (
                   <span className="mt-1 block text-xs text-muted-foreground">

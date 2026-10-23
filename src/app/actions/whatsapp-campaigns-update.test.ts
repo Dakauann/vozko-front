@@ -21,7 +21,6 @@ const payload: WhatsAppCampaignPayload = {
     enableAnalysis: false,
     enableAutoStaging: false,
     enableAutoMemory: false,
-    phoneNumbers: [],
 };
 
 beforeEach(() => {

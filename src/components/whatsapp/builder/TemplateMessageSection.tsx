@@ -11,6 +11,7 @@ import { DraftExitStrip } from "@/components/whatsapp/exit/DraftExitStrip";
 import { LeadExitDialog } from "@/components/whatsapp/exit/LeadExitDialog";
 import { computeParameterFormat, type ParameterFormatState } from "@/lib/whatsapp-templates/draft";
 import { leadExitPieceUsed, leadExitRoom } from "@/lib/whatsapp-templates/exit-draft";
+import { variableFormatOf } from "@/lib/whatsapp-templates/suggestions";
 
 import type { TemplateDraft } from "./use-template-draft";
 
@@ -56,10 +57,12 @@ export function TemplateMessageSection({ draft, forms }: { draft: TemplateDraft;
           renderEditor={(component) => (
             <ComponentEditor
               component={component}
+              variableFormat={variableFormatOf(components)}
               onChange={draft.updateComponent}
               category={category}
               allowedKinds={draft.exitVerdict.allowedKinds}
               forms={forms}
+              refusedButton={draft.refusedButton}
             />
           )}
         />

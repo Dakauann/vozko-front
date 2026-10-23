@@ -1,13 +1,14 @@
 "use client";
 
-import { memo, useMemo, type ReactNode } from "react";
+import { memo, useCallback, useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
+import { ChatMessageRow } from "@/components/crm/thread/ChatMessageRow";
 import { READ_ONLY_THREAD_ROW, ThreadRowProvider, useThreadToolCopy, type ThreadRowContextValue } from "@/components/crm/thread/thread-context";
-import { ThreadRowView } from "@/components/crm/thread/ThreadRowView";
+import { groupPositions, type GroupPosition } from "@/lib/chat/message-groups";
 import type { InteractiveChoice } from "@/lib/conversations/interactive-message";
 import type { ActiveConversation, ConversationMessage } from "@/lib/conversations/types";
-import { simSenderLabel, simThreadRow, type SimSenderCopy } from "@/lib/workflows/sim-message";
+import { simGroupMember, simSenderLabel, simThreadRow, type SimSenderCopy } from "@/lib/workflows/sim-message";
 
 const SIM_CONVERSATION: ActiveConversation = {
   entry_id: "sim-entry",
@@ -21,8 +22,9 @@ const SIM_CONVERSATION: ActiveConversation = {
   window_expires_at: null,
 };
 
-const NO_NODES: ReadonlyMap<string, string> = new Map();
-const noNodeLabel = () => undefined;
+const NO_SENDERS: ReadonlyMap<string, string> = new Map();
+
+export type SimSenderLabel = (message: ConversationMessage) => string;
 
 function useSimSenderCopy(): SimSenderCopy {
   const tChat = useTranslations("workflowDebug.chat");
@@ -33,6 +35,11 @@ function useSimSenderCopy(): SimSenderCopy {
   );
 }
 
+export function useSimSenderLabel(senders: ReadonlyMap<string, string> = NO_SENDERS): SimSenderLabel {
+  const copy = useSimSenderCopy();
+  return useCallback((message: ConversationMessage) => simSenderLabel(message, senders.get(message.id), copy), [senders, copy]);
+}
+
 function jumpToMessage(messageId: string) {
   document.querySelector(`[data-msg-id="${CSS.escape(messageId)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -40,18 +47,17 @@ function jumpToMessage(messageId: string) {
 export function SimThreadProvider({
   messages,
   onChooseOption,
-  nodeIds = NO_NODES,
-  nodeLabel = noNodeLabel,
+  senderLabel,
   children,
 }: {
   messages: readonly ConversationMessage[];
   onChooseOption?: (choice: InteractiveChoice) => void;
-  nodeIds?: ReadonlyMap<string, string>;
-  nodeLabel?: (nodeId: string) => string | undefined;
+  senderLabel?: SimSenderLabel;
   children: ReactNode;
 }) {
   const toolCopy = useThreadToolCopy();
-  const senderCopy = useSimSenderCopy();
+  const fallbackLabel = useSimSenderLabel();
+  const label = senderLabel ?? fallbackLabel;
   const messagesById = useMemo(() => new Map(messages.map((message): [string, ConversationMessage] => [message.id, message])), [messages]);
   const value = useMemo<ThreadRowContextValue>(
     () => ({
@@ -62,28 +68,27 @@ export function SimThreadProvider({
       toolCopy,
       onChooseOption,
       perspective: "customer",
-      senderLabel: (message: ConversationMessage) => {
-        const nodeId = nodeIds.get(message.id);
-        return simSenderLabel(message, nodeId ? nodeLabel(nodeId) : undefined, senderCopy);
-      },
+      senderLabel: label,
     }),
-    [messagesById, toolCopy, onChooseOption, nodeIds, nodeLabel, senderCopy],
+    [messagesById, toolCopy, onChooseOption, label],
   );
   return <ThreadRowProvider value={value}>{children}</ThreadRowProvider>;
 }
 
-export const SimMessageRow = memo(function SimMessageRow({ message }: { message: ConversationMessage }) {
-  const row = useMemo(() => simThreadRow(message), [message]);
-  return <ThreadRowView row={row} />;
+export const SimMessageRow = memo(function SimMessageRow({ message, position = "single" }: { message: ConversationMessage; position?: GroupPosition }) {
+  const row = useMemo(() => simThreadRow(message, position), [message, position]);
+  return <ChatMessageRow row={row} />;
 });
 
-export function SimMessageList({ messages }: { messages: readonly ConversationMessage[] }) {
+export function SimMessageList({ messages, senders }: { messages: readonly ConversationMessage[]; senders?: ReadonlyMap<string, string> }) {
+  const senderLabel = useSimSenderLabel(senders);
+  const positions = useMemo(() => groupPositions(messages.map((message) => simGroupMember(message, senderLabel(message)))), [messages, senderLabel]);
   return (
-    <SimThreadProvider messages={messages}>
-      <ol className="space-y-1">
-        {messages.map((message) => (
+    <SimThreadProvider messages={messages} senderLabel={senderLabel}>
+      <ol>
+        {messages.map((message, index) => (
           <li key={message.id}>
-            <SimMessageRow message={message} />
+            <SimMessageRow message={message} position={positions[index] ?? "single"} />
           </li>
         ))}
       </ol>

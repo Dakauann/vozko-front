@@ -30,6 +30,10 @@ vi.mock("@/app/actions/lead-sends", () => ({
 vi.mock("@/app/actions/whatsapp-templates", () => ({
   listWhatsAppTemplatesAction: (...args: unknown[]) => listWhatsAppTemplatesAction(...args),
 }));
+const countAudienceAction = vi.fn();
+vi.mock("@/app/actions/campaign-audience", () => ({
+  countAudienceAction: (...args: unknown[]) => countAudienceAction(...args),
+}));
 vi.mock("@/app/actions/whatsapp-outreach", () => ({ quoteTemplateSendAction: async () => ({ quote: null }) }));
 const getTemplateExitVerdictAction = vi.fn();
 vi.mock("@/app/actions/template-exit", () => ({
@@ -95,6 +99,41 @@ const HEADER_TEMPLATE = {
   name: "aviso_cabecalho",
   components: [{ type: "HEADER", format: "TEXT", text: "Oi {{1}}" }, { type: "BODY", text: "Olá {{1}}." }],
 };
+
+const NAMED_TEMPLATE = {
+  ...TEMPLATE,
+  id: "tpl-3",
+  name: "boas_vindas_nome",
+  components: [{ type: "BODY", text: "Olá {{nome}}, seja bem-vindo." }],
+};
+
+function slot(key: string, name: string, header = false) {
+  return { key, name, header, missing: 0, policy: "", suggested: false, choiceRequired: false };
+}
+
+const SLOTS: Record<string, ReturnType<typeof slot>[]> = {
+  "tpl-1": [slot("1", "1"), slot("2", "2")],
+  "tpl-2": [slot("1", "1", true), slot("2", "1")],
+  "tpl-3": [slot("1", "nome")],
+};
+
+function slotCount(templateId: string) {
+  return {
+    channel: "whatsapp",
+    source: "leads",
+    matched: 12,
+    withContact: 12,
+    sendable: 12,
+    out: {},
+    outTotal: 0,
+    requiredVariables: SLOTS[templateId].length,
+    variables: SLOTS[templateId],
+    blockers: [],
+    selection: { selected: 12, confirmCount: 12 },
+    list: null,
+    metadataMissing: [],
+  };
+}
 
 const EXIT_OK = {
   state: "ok",
@@ -167,7 +206,8 @@ describe("LeadTemplateSendDialog", () => {
     departments.resolved = true;
     departments.failed = false;
     listBusinessPhonesAction.mockResolvedValue({ phones: [{ id: "bp-1", displayPhoneNumber: "+55 11 4199-0001", verifiedName: "Prisma" }] });
-    listWhatsAppTemplatesAction.mockResolvedValue({ templates: [TEMPLATE, HEADER_TEMPLATE] });
+    listWhatsAppTemplatesAction.mockResolvedValue({ templates: [TEMPLATE, HEADER_TEMPLATE, NAMED_TEMPLATE] });
+    countAudienceAction.mockImplementation(async (_channel: string, _spec: unknown, fields: { templateId: string }) => ({ data: slotCount(fields.templateId), error: null }));
     previewLeadActionAction.mockImplementation(async (request: { action: string }) => ({
       data: {
         id: "p-1",
@@ -357,12 +397,62 @@ describe("LeadTemplateSendDialog", () => {
     expect(startLeadActionAction).toHaveBeenCalledTimes(1);
   });
 
-  it("refuses a template with a variable in the header before anything is asked", async () => {
+  it("reads the slots of the chosen template from the server for the selection", async () => {
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    await waitFor(() => expect(countAudienceAction).toHaveBeenCalled());
+    expect(countAudienceAction).toHaveBeenLastCalledWith(
+      "whatsapp",
+      { source: "leads", selection: { mode: "ids", ids: ["l-1", "l-2"] } },
+      { templateId: "tpl-1", businessPhoneId: "bp-1" },
+    );
+  });
+
+  it("binds a named template by the names the server gives, in its order", async () => {
+    renderDialog();
+    await chooseTemplate(NAMED_TEMPLATE.name);
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
+    expect(screen.getByText("{{nome}}")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: t.bindings.source.replace("{slot}", "{{nome}}") })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.review })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: t.actions.review }));
+    await screen.findByText(t.review.stopped);
+    expect(startLeadActionAction.mock.calls[0][0].params.send).toMatchObject({ templateId: "tpl-3", bindings: [{ source: "lead.first_name" }] });
+  });
+
+  it("puts the header variable first and marks it as the header", async () => {
     renderDialog();
     await chooseTemplate(HEADER_TEMPLATE.name);
-    expect(await screen.findByText(t.errors.send_header_variable_unsupported)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: t.actions.next }));
+    const header = ptMessages.campaignAudience.step.slot.headerSlot.replace("{tag}", "{{1}}");
+    const sources = screen.getAllByRole("combobox", { name: new RegExp(`^${t.bindings.source.split("{slot}")[0]}`) });
+    expect(sources).toHaveLength(2);
+    expect(sources[0]).toHaveAccessibleName(t.bindings.source.replace("{slot}", header));
+    expect(sources[1]).toHaveAccessibleName(t.bindings.source.replace("{slot}", "{{1}}"));
+    expect(screen.getByText(ptMessages.campaignAudience.step.slot.header)).toBeInTheDocument();
     expect(previewLeadActionAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps the person from going on while the slots are read", async () => {
+    countAudienceAction.mockReturnValue(new Promise(() => undefined));
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    expect(await screen.findByText(t.template.slotsLoading)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+  });
+
+  it("explains a failed read of the slots and lets the person read them again", async () => {
+    countAudienceAction
+      .mockResolvedValueOnce({ data: null, error: { message: "down", code: "send_template_unavailable", status: 422 } })
+      .mockImplementation(async (_channel: string, _spec: unknown, fields: { templateId: string }) => ({ data: slotCount(fields.templateId), error: null }));
+    renderDialog();
+    await chooseTemplate(TEMPLATE.name);
+    expect(await screen.findByText(ptMessages.campaignAudience.errors.send_template_unavailable)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t.actions.next })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.leadsPage.bulk.dialog.retry }));
+    await waitFor(() => expect(screen.getByRole("button", { name: t.actions.next })).toBeEnabled());
   });
 
   it("asks for the department in a workspace that has departments", async () => {

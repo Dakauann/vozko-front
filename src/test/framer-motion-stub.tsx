@@ -16,3 +16,7 @@ export const motion = new Proxy({}, { get: (_target, tag: string) => staticEleme
 export function AnimatePresence({ children }: { children: ReactNode }) {
     return children;
 }
+
+export function useReducedMotion(): boolean {
+  return false;
+}

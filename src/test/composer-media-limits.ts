@@ -44,6 +44,14 @@ export const MEDIA_LIMITS_BY_CHANNEL: Record<EntryType, ChannelMediaLimit[]> = {
     { kind: "image", max_bytes: 25 * MB, mime_types: ["image/jpeg", "image/png"] },
   ],
   tiktok: [{ kind: "image", max_bytes: 3 * MB, mime_types: ["image/jpeg", "image/png"] }],
+  email: [],
+  rcs: [
+    { kind: "image", max_bytes: 100 * MB, mime_types: ["image/jpeg", "image/png", "image/gif"] },
+    { kind: "video", max_bytes: 100 * MB, mime_types: ["video/mp4", "video/mpeg", "video/webm", "video/h263", "video/m4v"] },
+    { kind: "audio", max_bytes: 100 * MB, mime_types: ["audio/aac", "audio/mpeg", "audio/mp3", "audio/mp4", "audio/ogg", "audio/3gpp"] },
+    { kind: "document", max_bytes: 100 * MB, mime_types: ["application/pdf"] },
+  ],
+  sms: [],
 };
 
 export function subscribedConversation(

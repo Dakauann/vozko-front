@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   ArrowBendUpLeft,
   List as ListIcon,
@@ -72,12 +73,14 @@ export function parseInteractiveConfig(
 interface WhatsAppMessagePreviewProps {
   parsed: ParsedInteractive;
   rowRef?: (el: HTMLDivElement | null, optionId: string) => void;
+  optionStat?: (optionId: string) => ReactNode;
   className?: string;
 }
 
 export function WhatsAppMessagePreview({
   parsed,
   rowRef,
+  optionStat,
   className,
 }: WhatsAppMessagePreviewProps) {
   const { headerType, headerText, headerMediaUrl, body, footer, options } =
@@ -95,13 +98,17 @@ export function WhatsAppMessagePreview({
     id: opt.id,
     leading: <ArrowBendUpLeft size={12} weight="bold" className={WA_ACTION_TEXT} />,
     primary: opt.title.trim() || "Botão",
+    trailing: optionStat?.(opt.id),
   }));
 
   const listRows: ActionRowItem[] = options.map((opt) => ({
     id: opt.id,
     primary: opt.title.trim() || "Opção",
     trailing: (
-      <CaretRight size={11} weight="bold" className={cn("shrink-0", WA_MUTED_TEXT)} />
+      <>
+        {optionStat?.(opt.id)}
+        <CaretRight size={11} weight="bold" className={cn("shrink-0", WA_MUTED_TEXT)} />
+      </>
     ),
   }));
 

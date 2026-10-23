@@ -22,6 +22,8 @@ import { DraggableComponent } from "./DragDropBuilder";
 import { Notice } from "@/components/ui/notice";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
+import ElevatedSwitch from "@/components/elevated-design/elevated-switch";
+import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { CircuitRoutes } from "@/components/elevated-design/circuit-routes";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -29,6 +31,16 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { uploadTemplateHeaderMediaAction } from "@/app/actions/whatsapp-templates";
 import type { TemplateCategory } from "@/lib/whatsapp-templates/types";
 import { detectVariables } from "@/lib/whatsapp-templates/draft";
+import {
+  nextVariableSlot,
+  withFieldVariable,
+  withFreeVariable,
+  withHeaderFieldVariable,
+  withNamedFieldVariable,
+  withNamedFreeVariable,
+  type VariableFormat,
+} from "@/lib/whatsapp-templates/suggestions";
+import { BodyVariableMenu, SuggestionChip } from "./builder/BodyVariableMenu";
 import type { SendableQuery } from "@/app/actions/whatsapp-forms";
 import {
   BUTTON_TEXT_LIMIT,
@@ -61,12 +73,19 @@ export interface FormButtonSource {
   query: SendableQuery | null;
 }
 
+export interface RefusedButton {
+  index: number;
+  message: string;
+}
+
 interface ComponentEditorProps {
   component: DraggableComponent;
+  variableFormat?: VariableFormat;
   onChange: (component: DraggableComponent) => void;
   category?: TemplateCategory;
   allowedKinds: readonly string[];
   forms?: FormButtonSource;
+  refusedButton?: RefusedButton | null;
 }
 
 function CharCount({ count, limit }: { count: number; limit: number }) {
@@ -80,10 +99,12 @@ function CharCount({ count, limit }: { count: number; limit: number }) {
 
 export default function ComponentEditor({
   component,
+  variableFormat = "positional",
   onChange,
   category = "MARKETING",
   allowedKinds,
   forms,
+  refusedButton,
 }: ComponentEditorProps) {
   const updateData = (updates: Partial<DraggableComponent["data"]>) => {
     onChange({
@@ -96,13 +117,14 @@ export default function ComponentEditor({
     <div>
       <div className="space-y-4">
         {component.type === "HEADER" && (
-          <HeaderEditor component={component} updateData={updateData} />
+          <HeaderEditor component={component} updateData={updateData} variableFormat={variableFormat} />
         )}
         {component.type === "BODY" && (
           <BodyEditor
             component={component}
             updateData={updateData}
             category={category}
+            variableFormat={variableFormat}
           />
         )}
         {component.type === "FOOTER" && (
@@ -119,6 +141,7 @@ export default function ComponentEditor({
             category={category}
             allowedKinds={allowedKinds}
             forms={forms}
+            refusedButton={refusedButton}
           />
         )}
         {component.type === "CALL_PERMISSION_REQUEST" && <CallPermissionEditor />}
@@ -150,12 +173,106 @@ function CallPermissionEditor() {
   );
 }
 
-function HeaderEditor({
+function withExampleAt(examples: readonly string[], index: number, value: string): string[] {
+  const next = [...examples];
+  while (next.length <= index) next.push("");
+  next[index] = value;
+  return next;
+}
+
+function formatOfText(text: string, fallback: VariableFormat): VariableFormat {
+  const { type, variables } = detectVariables(text);
+  return variables.length > 0 ? type : fallback;
+}
+
+function VariableExampleRow({
+  name,
+  source,
+  value,
+  onChange,
+}: {
+  name: string;
+  source?: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const t = useTranslations("whatsappTemplates.form.editor");
+  return (
+    <div className="flex items-center gap-2">
+      <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-warning-foreground shrink-0">{`{{${name}}}`}</code>
+      <SuggestionChip source={source} />
+      <ElevatedInput
+        placeholder={t("body.examplesRequired.placeholder", { variable: `{{${name}}}` })}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 !py-1.5 !text-xs"
+      />
+    </div>
+  );
+}
+
+function HeaderVariable({
   component,
   updateData,
+  variableFormat,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+  variableFormat: VariableFormat;
+}) {
+  const t = useTranslations("whatsappTemplates.form.editor");
+  const text = component.data.text || "";
+  const { type, variables } = detectVariables(text);
+  const format = formatOfText(text, variableFormat);
+  const suggestions = component.data.variableSuggestions ?? {};
+  const variableExamples = component.data.variableExamples || [];
+  const namedVariableExamples = component.data.namedVariableExamples || {};
+  if (variables.length === 0) {
+    return (
+      <div className="mt-2 flex justify-end">
+        <BodyVariableMenu
+          label={t("body.addVariable")}
+          free={{
+            slot: nextVariableSlot(text),
+            named: format === "named",
+            text,
+            onFree: () => updateData(withFreeVariable(component.data)),
+            onNamed: (name) => updateData(withNamedFreeVariable(component.data, name)),
+          }}
+          onField={(source, example, column) => updateData(withHeaderFieldVariable(component.data, format, source, column, example))}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3 space-y-2">
+      {variables.map((name) => (
+        <VariableExampleRow
+          key={name}
+          name={name}
+          source={suggestions[name]}
+          value={type === "positional" ? variableExamples[parseInt(name) - 1] || "" : namedVariableExamples[name] || ""}
+          onChange={(value) =>
+            updateData(
+              type === "positional"
+                ? { variableExamples: withExampleAt(variableExamples, parseInt(name) - 1, value) }
+                : { namedVariableExamples: { ...namedVariableExamples, [name]: value } },
+            )
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+function HeaderEditor({
+  component,
+  updateData,
+  variableFormat,
+}: {
+  component: DraggableComponent;
+  updateData: (updates: Partial<DraggableComponent["data"]>) => void;
+  variableFormat: VariableFormat;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.header");
 
@@ -244,6 +361,7 @@ function HeaderEditor({
             maxLength={60}
           />
           <CharCount count={component.data.text?.length || 0} limit={60} />
+          <HeaderVariable component={component} updateData={updateData} variableFormat={variableFormat} />
         </div>
       )}
 
@@ -327,10 +445,12 @@ function BodyEditor({
   component,
   updateData,
   category,
+  variableFormat,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
   category: TemplateCategory;
+  variableFormat: VariableFormat;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor");
 
@@ -338,36 +458,17 @@ function BodyEditor({
     return <AuthenticationBodyEditor component={component} updateData={updateData} />;
   }
 
-  const insertVariable = () => {
-    const text = component.data.text || "";
-    const variableCount = (text.match(/\{\{\d+\}\}/g) || []).length;
-    const newVariable = `{{${variableCount + 1}}}`;
-    updateData({ text: text + newVariable });
-  };
-
-  const { type: varType, variables } = detectVariables(
-    component.data.text || "",
-  );
+  const text = component.data.text || "";
+  const { type: varType, variables } = detectVariables(text);
+  const format = formatOfText(text, variableFormat);
+  const suggestions = component.data.variableSuggestions ?? {};
+  const hasFreeVariable = variables.some((name) => !suggestions[name]);
+  const hasSuggestion = variables.some((name) => Boolean(suggestions[name]));
   const variableExamples = component.data.variableExamples || [];
   const namedVariableExamples = component.data.namedVariableExamples || {};
 
-  const updateVariableExample = (index: number, value: string) => {
-    const newExamples = [...variableExamples];
-    while (newExamples.length <= index) {
-      newExamples.push("");
-    }
-    newExamples[index] = value;
-    updateData({ variableExamples: newExamples });
-  };
-
-  const updateNamedVariableExample = (varName: string, value: string) => {
-    updateData({
-      namedVariableExamples: {
-        ...namedVariableExamples,
-        [varName]: value,
-      },
-    });
-  };
+  const addField = (source: string, example: string, column: string) =>
+    updateData(format === "named" ? withNamedFieldVariable(component.data, source, column, example) : withFieldVariable(component.data, source, example));
 
   return (
     <div data-tour="wt-body-editor" className="space-y-4">
@@ -376,18 +477,21 @@ function BodyEditor({
           <p className="legend">
             {t("body.messageText")}
           </p>
-          <button
-            type="button"
-            onClick={insertVariable}
-            className="flex items-center gap-1 rounded-[--radius] px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Plus className="h-3 w-3" weight="bold" />
-            {t("body.addVariable")}
-          </button>
+          <BodyVariableMenu
+            label={t("body.addVariable")}
+            free={{
+              slot: nextVariableSlot(text),
+              named: format === "named",
+              text,
+              onFree: () => updateData(withFreeVariable(component.data)),
+              onNamed: (name) => updateData(withNamedFreeVariable(component.data, name)),
+            }}
+            onField={addField}
+          />
         </div>
         <ElevatedTextarea
           placeholder={t("body.messagePlaceholder")}
-          value={component.data.text || ""}
+          value={text}
           onChange={(e) => updateData({ text: e.target.value })}
           rows={6}
           maxLength={1024}
@@ -402,47 +506,28 @@ function BodyEditor({
             {t("body.examplesRequired.description")}
           </p>
           <div className="space-y-2 pt-1">
-            {varType === "positional"
-              ?
-                variables.map((varNum) => (
-                  <div key={varNum} className="flex items-center gap-2">
-                    <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-warning-foreground shrink-0">
-                      {`{{${varNum}}}`}
-                    </code>
-                    <ElevatedInput
-                      placeholder={t("body.examplesRequired.placeholder", {
-                        variable: `{{${varNum}}}`,
-                      })}
-                      value={variableExamples[parseInt(varNum) - 1] || ""}
-                      onChange={(e) =>
-                        updateVariableExample(
-                          parseInt(varNum) - 1,
-                          e.target.value,
-                        )
-                      }
-                      className="flex-1 !py-1.5 !text-xs"
-                    />
-                  </div>
-                ))
-              :
-                variables.map((varName) => (
-                  <div key={varName} className="flex items-center gap-2">
-                    <code className="bg-warning px-2 py-1 rounded text-xs font-mono text-warning-foreground shrink-0">
-                      {`{{${varName}}}`}
-                    </code>
-                    <ElevatedInput
-                      placeholder={t("body.examplesRequired.placeholder", {
-                        variable: `{{${varName}}}`,
-                      })}
-                      value={namedVariableExamples[varName] || ""}
-                      onChange={(e) =>
-                        updateNamedVariableExample(varName, e.target.value)
-                      }
-                      className="flex-1 !py-1.5 !text-xs"
-                    />
-                  </div>
-                ))}
+            {variables.map((name) => (
+              <VariableExampleRow
+                key={name}
+                name={name}
+                source={suggestions[name]}
+                value={varType === "positional" ? variableExamples[parseInt(name) - 1] || "" : namedVariableExamples[name] || ""}
+                onChange={(value) =>
+                  updateData(
+                    varType === "positional"
+                      ? { variableExamples: withExampleAt(variableExamples, parseInt(name) - 1, value) }
+                      : { namedVariableExamples: { ...namedVariableExamples, [name]: value } },
+                  )
+                }
+              />
+            ))}
           </div>
+          {hasFreeVariable ? (
+            <Notice tone="info">
+              <p>{t("body.freeNotice")}</p>
+            </Notice>
+          ) : null}
+          {hasSuggestion ? <p className="text-xs text-muted-foreground">{t("body.suggestionHint")}</p> : null}
           </Notice>
         </div>
       )}
@@ -495,15 +580,18 @@ function ButtonsEditor({
   category,
   allowedKinds,
   forms,
+  refusedButton,
 }: {
   component: DraggableComponent;
   updateData: (updates: Partial<DraggableComponent["data"]>) => void;
   category: TemplateCategory;
   allowedKinds: readonly string[];
   forms?: FormButtonSource;
+  refusedButton?: RefusedButton | null;
 }) {
   const t = useTranslations("whatsappTemplates.form.editor.buttons");
   const exitT = useTranslations("templateExit");
+  const trackT = useTranslations("choiceStats.track");
   const labelOf = useButtonActionLabel();
   const buttons = component.data.buttons || [];
 
@@ -659,6 +747,14 @@ function ButtonsEditor({
                     onChange={(e) =>
                       updateButton(index, { url: e.target.value })
                     }
+                    error={refusedButton?.index === index ? refusedButton.message : undefined}
+                  />
+                  <ElevatedSwitch
+                    checked={Boolean(button.trackClicks)}
+                    onCheckedChange={(checked) => updateButton(index, { trackClicks: checked })}
+                    label={trackT("label")}
+                    description={trackT("description")}
+                    explainer={<ExplainerHint id="campaigns.trackLinkClicks" />}
                   />
                 </div>
               )}

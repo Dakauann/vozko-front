@@ -3,7 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { fetchWithRefresh, getApiBaseUrl, scopeHeaders } from "@/lib/api/browser-client";
-import { createGoSignals, createScreenAnswerer, createScreenClaimer, createScreenRegistry, routeScreenCommand, type ReplyDelivery, type ScreenGo, type ScreenHandler, type ScreenReply, type ScreenTarget, type SubjectTarget } from "@/lib/aichat/screen";
+import { createGoSignals, createScreenAnswerer, createScreenClaimer, createScreenRegistry, routeScreenCommand, type AppScreenCommandName, type ReplyDelivery, type ScreenGo, type ScreenHandler, type ScreenReply, type ScreenTarget, type SubjectTarget } from "@/lib/aichat/screen";
 import type { ChatMode, ChatView } from "@/lib/aichat/types";
 
 const registry = createScreenRegistry();
@@ -35,9 +35,9 @@ async function postScreenReply(threadId: string, commandId: string, reply: Scree
   return res.status >= 500 || res.status === 429 ? "retry" : "gone";
 }
 
-let creator: ScreenHandler | null = null;
+const appCommands = new Map<AppScreenCommandName, ScreenHandler>();
 
-export function useProjectCreator(handler: ScreenHandler) {
+export function useAppScreenCommand(name: AppScreenCommandName, handler: ScreenHandler) {
   const latest = useRef(handler);
 
   useEffect(() => {
@@ -46,11 +46,15 @@ export function useProjectCreator(handler: ScreenHandler) {
 
   useEffect(() => {
     const run: ScreenHandler = (command) => latest.current(command);
-    creator = run;
+    appCommands.set(name, run);
     return () => {
-      if (creator === run) creator = null;
+      if (appCommands.get(name) === run) appCommands.delete(name);
     };
-  }, []);
+  }, [name]);
+}
+
+export function useProjectCreator(handler: ScreenHandler) {
+  useAppScreenCommand("create_project", handler);
 }
 
 async function postScreenClaim(threadId: string, commandId: string, claimant: string): Promise<boolean> {
@@ -73,7 +77,7 @@ export const receiveScreenGo = (signal: ScreenGo) => goSignals.arrive(signal);
 
 const claimScreenCommand = createScreenClaimer({ post: postScreenClaim, signals: goSignals, newClaimant: () => crypto.randomUUID(), waitMs: CLAIM_WAIT_MS });
 
-export const answerScreenCommand = createScreenAnswerer({ run: (command) => routeScreenCommand(command, registry.run, creator), post: postScreenReply, claim: claimScreenCommand });
+export const answerScreenCommand = createScreenAnswerer({ run: (command) => routeScreenCommand(command, registry.run, (name) => appCommands.get(name) ?? null), post: postScreenReply, claim: claimScreenCommand });
 
 type ProjectOpenOutcome = "delivered" | "resumed" | "ignored";
 

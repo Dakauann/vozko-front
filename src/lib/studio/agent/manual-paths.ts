@@ -1,26 +1,14 @@
 import type { ImageOpName } from "./image-ops";
 import type { VideoOpName } from "./video-ops";
 
-export interface ManualPath {
-  file: string;
-  control: string;
-  how: string;
-}
+import { at, by, type ManualEntry, type ManualPath, type ToolEntry } from "@/lib/coworker/manual-paths";
 
-export type ManualEntry = { paths: readonly ManualPath[] } | { pending: string };
+export type { ManualEntry, ManualPath };
 
-export type StudioToolEntry = ManualEntry | { perception: string };
+export type StudioToolEntry = ToolEntry;
 
 const VIDEO = "components/studio/video";
 const IMAGE = "components/studio/image";
-
-function by(...paths: ManualPath[]): ManualEntry {
-  return { paths };
-}
-
-function at(file: string, control: string, how: string): ManualPath {
-  return { file, control, how };
-}
 
 const KEY_DIAMOND = at(`${VIDEO}/inspector/animation-fields.tsx`, "studio.video.keyframes.add", "Animation section: the key diamond records position, size, rotation and opacity at the playhead");
 const FIELD_DIAMOND = at(`${VIDEO}/inspector/layer-style-fields.tsx`, "studio.video.keyframes.keyHere", "Color and outline fields: the diamond beside each field starts or keys a color animation");

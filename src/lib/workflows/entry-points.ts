@@ -13,12 +13,10 @@ export const ENTRY_POINT_KINDS: readonly EntryPointKind[] = [
   "webhook",
   "form_submitted",
   "agent_call",
-  "campaign_sent",
   "stage_added",
-  "no_reply",
   "call_received",
-  "manual",
   "lead_exit",
+  "birthday",
 ];
 
 export const ENTRY_BLOCK_REASONS: readonly EntryBlockReason[] = [
@@ -32,9 +30,10 @@ export const ENTRY_BLOCK_REASONS: readonly EntryBlockReason[] = [
   "no_channel",
   "channel_paused",
   "no_trigger",
+  "needs_message_trigger",
 ];
 
-const CHANNEL_ROUTES: Record<EntryChannelKind, string> = {
+const CHANNEL_ROUTES: Record<EntryChannelKind, string | null> = {
   whatsapp_campaign: "/dashboard/whatsapp-campaigns",
   unofficial_whatsapp_campaign: "/dashboard/unofficial-whatsapp-campaigns",
   unofficial_whatsapp_instance: "/dashboard/unofficial-whatsapp",
@@ -44,6 +43,9 @@ const CHANNEL_ROUTES: Record<EntryChannelKind, string> = {
   tiktok_account: "/dashboard/tiktok-accounts",
   mercadolivre_account: "/dashboard/mercadolivre-accounts",
   webchat_widget: "/dashboard/webchat",
+  email_inbox: null,
+  rcs_sender: "/dashboard/rcs-sms/rcs-senders",
+  sms_route: null,
 };
 
 export const ENTRY_CHANNEL_KINDS = Object.keys(CHANNEL_ROUTES) as EntryChannelKind[];
@@ -57,6 +59,7 @@ export type EntryPointFix =
   | { kind: "publish" }
   | { kind: "resume" }
   | { kind: "open_node"; nodeId: string }
+  | { kind: "open_editor" }
   | { kind: "link"; href: string };
 
 export interface EntryPointCopy {
@@ -117,6 +120,8 @@ function fixOf(reason: EntryBlockReason, entry: EntryPoint): Pick<EntryPointCopy
       const fix = channelFix(entry.details);
       return { fix, fixKey: fix ? "fixes.openChannel" : null };
     }
+    case "needs_message_trigger":
+      return { fix: { kind: "open_editor" }, fixKey: "fixes.openEditor" };
     case "no_channel":
     case "no_trigger":
       return { fix: null, fixKey: null };

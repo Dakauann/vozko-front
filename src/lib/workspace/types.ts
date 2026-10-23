@@ -45,12 +45,18 @@ export type ResourceType =
     | "mercadolivre_accounts"
     | "tiktok_accounts"
     | "webchat_widgets"
+    | "email_inboxes"
+    | "email_marketing"
+    | "carrier_messaging"
+    | "carrier_inboxes"
+    | "api_keys"
     | "unofficial_whatsapp_instances"
     | "unofficial_whatsapp_campaigns"
     | "unofficial_whatsapp_groups"
     | "mcp"
     | "knowledge_bases"
     | "calendar"
+    | "google_sheets"
     | "ai_chat"
     | "team_chat";
 

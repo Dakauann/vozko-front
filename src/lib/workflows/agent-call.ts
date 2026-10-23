@@ -30,11 +30,6 @@ export interface ReplyField {
   value: string;
 }
 
-export interface TemplateVar {
-  template: string;
-  description: string;
-}
-
 type Loose = Record<string, unknown>;
 
 function isRecord(value: unknown): value is Loose {
@@ -122,18 +117,6 @@ export function agentCallInputsOfGraph(graph: WorkflowGraph | null | undefined):
   const trigger = graph?.nodes?.find((node) => node.type === AGENT_CALL_TRIGGER);
   if (!trigger) return null;
   return readAgentCallInputs(trigger.config?.[AGENT_CALL_INPUTS_KEY]);
-}
-
-export function agentCallTemplateVars(config: Record<string, unknown> | undefined): TemplateVar[] {
-  const declared = readAgentCallInputs(config?.[AGENT_CALL_INPUTS_KEY])
-    .map((input) => ({ name: input.name.trim(), description: input.description.trim() }))
-    .filter((input) => input.name !== "")
-    .map((input) => ({ template: `{{input.${input.name}}}`, description: input.description || input.name }));
-  return [
-    ...declared,
-    { template: "{{agent.id}}", description: "ID do agente que executou o fluxo" },
-    { template: "{{agent.name}}", description: "Nome do agente que executou o fluxo" },
-  ];
 }
 
 export function readReplyFields(raw: unknown): ReplyField[] {

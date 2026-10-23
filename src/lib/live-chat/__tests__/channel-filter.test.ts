@@ -63,6 +63,17 @@ describe("channel filter table", () => {
         expect(campaignTypeFor("tiktok")).toBeUndefined();
     });
 
+    it("offers email behind the email inboxes read permission", () => {
+        expect(channelFilterSpec("email")).toEqual({
+            value: "email",
+            kind: "entry",
+            labelKey: "filterEmail",
+            permission: { resource: "email_inboxes", action: "read" },
+        });
+        expect(entryTypeFor("email")).toBe("email");
+        expect(campaignTypeFor("email")).toBeUndefined();
+    });
+
     it("keeps the two WhatsApp transports as distinct filters", () => {
         const values = CHANNEL_FILTERS.map((spec) => spec.value);
         expect(values).toContain("whatsapp");
@@ -123,6 +134,8 @@ describe("narrowing", () => {
             "unofficial_whatsapp",
             "webchat",
             "mercadolivre",
+            "tiktok",
+            "email",
         ];
         for (const filter of all) {
             const both =

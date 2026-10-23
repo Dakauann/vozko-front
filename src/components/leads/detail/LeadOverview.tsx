@@ -22,6 +22,7 @@ import {
 import { PanelSection } from "@/components/dashboard/PanelSection";
 import Button from "@/components/elevated-design/button";
 import { EmptyValue } from "@/components/elevated-design/empty-value";
+import { EmailAddressStatusHint } from "@/components/email-marketing/address-status";
 import { CustomFieldValue } from "@/components/crm/CustomFieldValue";
 import { LeadCompanyRow } from "@/components/leads/companies/LeadCompanyRow";
 import { LeadPortfolioRow } from "@/components/customer-portfolio/LeadPortfolioRow";
@@ -75,7 +76,7 @@ function ContactSection({ lead, summary }: { lead: LeadDetail; summary: LeadDeta
             {formatPhoneForDisplay(phone.number)}
           </DetailRow>
         ))}
-        <DetailRow icon={<Envelope />} label={t("email")}>
+        <DetailRow icon={<Envelope />} label={t("email")} hint={lead.email ? <EmailAddressStatusHint address={lead.email} /> : undefined}>
           {lead.email || <EmptyValue />}
         </DetailRow>
         <DetailRow

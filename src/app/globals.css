@@ -1046,7 +1046,8 @@ input:-webkit-autofill:active {
   (scratchpad/vozko-contrast.mjs, 2026-08-23). The tightest are quoted inline.
 */
 @layer base {
-  :root {
+  :root,
+  .dark .vz-inverse {
     --dashboard-header-h: calc(3rem + var(--campaign-strip-h, 0px));
     /* Canvas → sheet. The canvas keeps the 4-point step below the white sheet
        (elevation separates on its own; no doubled border+shadow), recast from
@@ -1325,7 +1326,8 @@ input:-webkit-autofill:active {
     --sidebar-ring: 164 100% 38%;
   }
 
-  .dark {
+  .dark,
+  :root:not(.dark) .vz-inverse {
     /*
       The brand-canonical scene, tuned darker by user direction (2026-08-24,
       "the pages read grayish"): canvas AND app chrome share the board's

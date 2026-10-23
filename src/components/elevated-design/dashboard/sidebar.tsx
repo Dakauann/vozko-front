@@ -4,15 +4,17 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import { Archive, ArrowsInSimple, ArrowsOut, Buildings, Check, CaretDown, ChatCircle, PlusCircle, ClipboardText, DeviceMobile, Files, FilmStrip, Image as ImageIcon, Palette, SquaresFour, Sparkle, Package, Phone, PhoneOutgoing, Bell, FileText, Megaphone, Robot, Gear, GitBranch, Handshake, UserCircle, UserCheck, UsersFour, UserPlus, Wallet, LinkSimple, Plugs, PuzzlePiece, EnvelopeSimple, Headset, ClockCounterClockwise, CurrencyDollar, Receipt, Scales, LockKey, MapTrifold, Wrench, CalendarBlank, Lightning, GearSix, Kanban, ChartBar, UsersThree, Pulse, Storefront, X } from "@/components/icons";
+import { Archive, ArrowsInSimple, ArrowsOut, Buildings, Check, CaretDown, ChatCircle, PlusCircle, ClipboardText, DeviceMobile, Files, FilmStrip, Image as ImageIcon, Palette, SquaresFour, Sparkle, Package, Phone, PhoneOutgoing, Bell, FileText, Megaphone, Robot, Gear, GitBranch, Handshake, UserCircle, UserCheck, UsersFour, UserPlus, Wallet, LinkSimple, Plugs, PuzzlePiece, Table, EnvelopeSimple, Headset, ClockCounterClockwise, CurrencyDollar, Receipt, Scales, LockKey, MapTrifold, Wrench, CalendarBlank, Lightning, GearSix, Kanban, ChartBar, UsersThree, Pulse, Storefront, Eye, PaperPlaneTilt, X, Code, Key, WebhooksLogo } from "@/components/icons";
 import type { Icon, IconProps } from "@/components/icons";
 import type { ComponentType } from "react";
 
 import {
+  EmailLogoColor,
   FacebookLogoColor,
   InstagramLogoColor,
   MercadoLivreLogoColor,
   MetaLogoColor,
+  RcsSmsLogoColor,
   StudioLogoColor,
   TelegramLogoColor,
   VoiceLogoColor,
@@ -38,6 +40,10 @@ import { WorkspaceSwitcher } from "@/components/elevated-design/dashboard/worksp
 import { DepartmentSwitcher } from "@/components/elevated-design/dashboard/department-switcher";
 import { useAccess } from "@/hooks/use-access";
 import { isUpcomingPath } from "@/lib/navigation/routes";
+import { CarrierAreaSoonChip, CarrierSoonChip } from "@/components/carrier-messaging/shared/ComingSoon";
+import { carrierRequirementMet, type CarrierRequirement } from "@/lib/carrier-messaging/channels";
+import type { CarrierChannel } from "@/lib/carrier-messaging/types";
+import { useCarrierChannels } from "@/lib/carrier-messaging/use-carrier-channels";
 import { getBrand } from "@/config/brand";
 
 const OPEN_ITEMS_KEY = "dashboard-open-families";
@@ -104,6 +110,12 @@ export interface NavItem {
   hideForAdmin?: boolean;
   children?: NavItem[];
   family?: string;
+  product?: "groups";
+  requiresCarrier?: CarrierRequirement;
+}
+
+export function navItemOpen(item: NavItem, launched: (channel: CarrierChannel) => boolean): boolean {
+  return !item.requiresCarrier || carrierRequirementMet(item.requiresCarrier, launched);
 }
 
 export function navItemVisible(item: NavItem, canOpen: (href: string) => boolean): boolean {
@@ -471,6 +483,7 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.unofficialWhatsappGroups",
     href: "/dashboard/unofficial-whatsapp-groups",
     family: "unofficial-whatsapp",
+    product: "groups",
     children: [
       {
         icon: ChartBar,
@@ -539,6 +552,107 @@ export const campanhasNavItems: NavItem[] = [
         href: "/dashboard/whatsapp-business-phones/manage",
       },
     ],
+  },
+  {
+    icon: SquaresFour,
+    labelKey: "nav.emailOverview",
+    href: "/dashboard/email",
+    family: "email",
+  },
+  {
+    icon: Megaphone,
+    labelKey: "nav.emailCampaigns",
+    href: "/dashboard/email/campaigns",
+    family: "email",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.emailCampaignsList",
+        href: "/dashboard/email/campaigns",
+      },
+      {
+        icon: PlusCircle,
+        labelKey: "nav.createEmailCampaign",
+        href: "/dashboard/email/campaigns/new",
+      },
+    ],
+  },
+  {
+    icon: FileText,
+    labelKey: "nav.emailDesigns",
+    href: "/dashboard/email/designs",
+    family: "email",
+  },
+  {
+    icon: PaperPlaneTilt,
+    labelKey: "nav.emailSenders",
+    href: "/dashboard/email/senders",
+    family: "email",
+  },
+  {
+    icon: Code,
+    labelKey: "nav.emailApi",
+    href: "/dashboard/email/api",
+    family: "email",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.emailApiLog",
+        href: "/dashboard/email/api",
+      },
+      {
+        icon: WebhooksLogo,
+        labelKey: "nav.emailWebhooks",
+        href: "/dashboard/email/api/webhooks",
+      },
+    ],
+  },
+  {
+    icon: SquaresFour,
+    labelKey: "nav.carrierOverview",
+    href: "/dashboard/rcs-sms",
+    family: "rcs_sms",
+    requiresCarrier: "any",
+  },
+  {
+    icon: Megaphone,
+    labelKey: "nav.carrierCampaigns",
+    href: "/dashboard/rcs-sms/campaigns",
+    family: "rcs_sms",
+    requiresCarrier: "any",
+    children: [
+      {
+        icon: ClipboardText,
+        labelKey: "nav.carrierCampaignsList",
+        href: "/dashboard/rcs-sms/campaigns",
+      },
+      {
+        icon: PlusCircle,
+        labelKey: "nav.createCarrierCampaign",
+        href: "/dashboard/rcs-sms/campaigns/new",
+      },
+    ],
+  },
+  {
+    icon: DeviceMobile,
+    labelKey: "nav.carrierRcsSenders",
+    href: "/dashboard/rcs-sms/rcs-senders",
+    family: "rcs_sms",
+    requiresCarrier: "rcs",
+  },
+  {
+    icon: ChatCircle,
+    labelKey: "nav.carrierSmsSenders",
+    href: "/dashboard/rcs-sms/sms-senders",
+    family: "rcs_sms",
+    requiresCarrier: "sms",
+  },
+  {
+    icon: GearSix,
+    labelKey: "nav.carrierSettings",
+    href: "/dashboard/rcs-sms/settings",
+    family: "rcs_sms",
+    requiresCarrier: "any",
   },
   {
     icon: Palette,
@@ -687,6 +801,23 @@ export const campanhasNavItems: NavItem[] = [
     labelKey: "nav.integrations",
     href: "/dashboard/integrations",
     family: "management",
+    children: [
+      {
+        icon: Plugs,
+        labelKey: "nav.integrationsOverview",
+        href: "/dashboard/integrations",
+      },
+      {
+        icon: Table,
+        labelKey: "nav.googleSheets",
+        href: "/dashboard/integrations/google-sheets",
+      },
+      {
+        icon: Key,
+        labelKey: "nav.apiKeys",
+        href: "/dashboard/integrations/api-keys",
+      },
+    ],
   },
   {
     icon: LinkSimple,
@@ -733,6 +864,19 @@ export const adminNavItems: NavItem[] = [
     labelKey: "nav.adminSendCaps",
     href: "/dashboard/admin/send-caps",
     family: "platform",
+  },
+  {
+    icon: EnvelopeSimple,
+    labelKey: "nav.adminEmail",
+    href: "/dashboard/admin/email",
+    family: "platform",
+  },
+  {
+    icon: DeviceMobile,
+    labelKey: "nav.adminCarrier",
+    href: "/dashboard/admin/rcs-sms",
+    family: "platform",
+    requiresCarrier: "any",
   },
   {
     icon: Bell,
@@ -1104,7 +1248,7 @@ const mobileContainerVariants: Variants = {
   },
 };
 
-function NavItemComponent({
+export function NavItemComponent({
   item,
   isExpanded,
   depth = 0,
@@ -1148,14 +1292,18 @@ function NavItemComponent({
   };
   const effectiveFamily = item.family ?? parentFamily;
   const upcoming = isUpcomingPath(item.href);
-  const isLit = !upcoming && Boolean(isActive || hasActiveChild);
+  const carrierChannels = useCarrierChannels(Boolean(item.requiresCarrier));
+  const tSoon = useTranslations("carrierMessaging.comingSoon");
+  const carrierLocked = !navItemOpen(item, carrierChannels.launched);
+  const disabled = upcoming || carrierLocked;
+  const isLit = !disabled && Boolean(isActive || hasActiveChild);
   const isAssistant = item.href === "/dashboard/ai-chat";
   const rowClassName = cn(
     "sidebar-item group relative flex items-center rounded-[--radius] text-sm transition-colors",
     isExpanded ? "h-8 w-full pr-2" : "h-8 w-full justify-center",
     isAssistant && "vz-ai-launcher",
     isAssistant && isLit && "[--elo-accent:currentColor]",
-    upcoming
+    disabled
       ? "cursor-not-allowed text-muted-foreground opacity-60"
       : isLit
         ? "bg-primary text-primary-foreground shadow-button-primary hover:bg-[hsl(var(--primary-hover))]"
@@ -1163,7 +1311,7 @@ function NavItemComponent({
           ? "text-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
   );
-  const children = upcoming ? undefined : item.children;
+  const children = disabled ? undefined : item.children;
 
   const rowContent = (
     <>
@@ -1212,13 +1360,17 @@ function NavItemComponent({
 
             <span
               className={cn(
-                "min-w-0 flex-1 truncate leading-tight",
+                "flex-1 leading-tight",
+                item.product ? "whitespace-nowrap" : "min-w-0 truncate",
                 depth > 0 && "text-xs",
                 isLit && "font-semibold",
               )}
             >
               {t(item.labelKey)}
             </span>
+
+            {item.product === "groups" ? <GroupsProductMark /> : null}
+            {item.requiresCarrier && item.requiresCarrier !== "any" ? <CarrierSoonChip channel={item.requiresCarrier} /> : null}
 
             {children && (
               <CaretDown
@@ -1252,11 +1404,11 @@ function NavItemComponent({
 
   return (
     <div className="w-full">
-      {upcoming ? (
+      {disabled ? (
         <div
           role="link"
           aria-disabled="true"
-          title={t("families.badges.soonHint")}
+          title={upcoming ? t("families.badges.soonHint") : tSoon("navHint")}
           className={rowClassName}
         >
           {rowContent}
@@ -1315,6 +1467,17 @@ function NavItemComponent({
 }
 
 
+const GROUPS_PRODUCT_NAME = "Verus";
+
+function GroupsProductMark() {
+  return (
+    <span title={GROUPS_PRODUCT_NAME} className="inline-flex min-w-0 items-center gap-1 rounded-lg border border-border bg-card px-1 py-px text-2xs font-semibold text-foreground">
+      <Eye aria-hidden="true" className="ink-2 h-3 w-3 shrink-0" weight="fill" />
+      <span className="truncate">{GROUPS_PRODUCT_NAME}</span>
+    </span>
+  );
+}
+
 const familyBadgeKey: Record<string, string> = {
   whatsapp: "families.badges.official",
   "unofficial-whatsapp": "families.badges.unofficial",
@@ -1332,6 +1495,8 @@ const familyIcon: Record<string, NavIcon> = {
   telephony: VoiceLogoColor,
   meta: MetaLogoColor,
   studio: StudioLogoColor,
+  email: EmailLogoColor,
+  rcs_sms: RcsSmsLogoColor,
 };
 
 function groupByFamily(
@@ -1460,15 +1625,16 @@ function GroupedNavItems({
                   type="button"
                   onClick={() => toggleFamily(group.family as string)}
                   aria-expanded={familyOpen}
-                  className="legend group/family flex w-full items-center gap-1.5 rounded-[--radius] px-1 py-0.5 text-left transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="legend group/family flex w-full items-center gap-2 rounded-[--radius] px-1 py-0.5 text-left transition-colors hover:!text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {familyIcon[group.family] &&
                     React.createElement(familyIcon[group.family], {
-                      className: "h-3 w-3 flex-shrink-0",
+                      className: "h-[18px] w-[18px] flex-shrink-0",
                     })}
-                  <span className="min-w-0 truncate">
+                  <span className="shrink-0">
                     {t(`families.${group.family}`)}
                   </span>
+                  {group.family === "rcs_sms" ? <CarrierAreaSoonChip /> : null}
                   {familyBadgeKey[group.family] && (
                     <span
                       title={t(`${familyBadgeKey[group.family]}Hint`)}
@@ -1479,7 +1645,7 @@ function GroupedNavItems({
                   )}
                   <span
                     aria-hidden="true"
-                    className="ml-0.5 h-px flex-1 bg-border"
+                    className="ml-0.5 h-px min-w-0 flex-1 bg-border"
                   />
                   <CaretDown
                     aria-hidden="true"

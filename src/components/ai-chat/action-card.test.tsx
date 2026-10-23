@@ -104,6 +104,18 @@ describe("ActionCardView", () => {
     );
   });
 
+  it("sends the email card to the email area, where senders are set up", () => {
+    permissions.allowed = true;
+    renderCard({
+      kind: "connect_email",
+      balanceMicros: 0,
+      subscriptionActive: true,
+      status: { capability: "email", count: 0, canAdd: true },
+    });
+    expect(screen.getByText(actions.kinds.connect_email.title)).toBeTruthy();
+    expect(screen.getByRole("link", { name: actions.kinds.connect_email.cta }).getAttribute("href")).toBe("/dashboard/email");
+  });
+
   it("never offers the action without permission", () => {
     permissions.allowed = false;
     renderCard({

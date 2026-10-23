@@ -1,50 +1,14 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import de from "@/i18n/messages/de.json";
-import en from "@/i18n/messages/en.json";
-import es from "@/i18n/messages/es.json";
-import pt from "@/i18n/messages/pt.json";
+import { audit, problemsOf, SRC } from "@/lib/coworker/manual-path-audit";
 
 import { IMAGE_OPERATIONS } from "./image-ops";
-import { ELO_TOOL_PATHS, IMAGE_MANUAL_PATHS, STUDIO_TOOL_PATHS, VIDEO_MANUAL_PATHS, type ManualEntry, type StudioToolEntry } from "./manual-paths";
+import { ELO_TOOL_PATHS, IMAGE_MANUAL_PATHS, STUDIO_TOOL_PATHS, VIDEO_MANUAL_PATHS } from "./manual-paths";
 import { VIDEO_OPERATIONS } from "./video-ops";
 
-const SRC = join(__dirname, "..", "..", "..");
 const TOOLS_DIR = join(SRC, "..", "..", "vozko-back", "usecases", "copilot", "copilottools", "studiotools");
-const LOCALES = { pt, en, es, de } as const;
-
-function message(messages: unknown, key: string): unknown {
-  return key.split(".").reduce<unknown>((node, part) => (node && typeof node === "object" ? (node as Record<string, unknown>)[part] : undefined), messages);
-}
-
-function readsKey(source: string, key: string): boolean {
-  const parts = key.split(".");
-  return parts.slice(1).some((_, index) => {
-    const namespace = parts.slice(0, index + 1).join(".");
-    const rest = parts.slice(index + 1).join(".");
-    return source.includes(`useTranslations("${namespace}")`) && (source.includes(`"${rest}"`) || source.includes(`\`${rest}`));
-  });
-}
-
-function problemsOf(name: string, entry: StudioToolEntry | undefined): string[] {
-  if (!entry) return [`${name}: no manual path registered`];
-  if ("pending" in entry) return entry.pending.trim() === "" ? [`${name}: pending without a reason`] : [];
-  if ("perception" in entry) return entry.perception.trim() === "" ? [`${name}: perception without a reason`] : [];
-  if (entry.paths.length === 0) return [`${name}: no manual path listed`];
-  return entry.paths.flatMap((path) => {
-    const file = join(SRC, path.file);
-    if (!existsSync(file)) return [`${name}: ${path.file} does not exist`];
-    const missing = Object.entries(LOCALES).flatMap(([locale, messages]) => (typeof message(messages, path.control) === "string" ? [] : [`${name}: ${path.control} has no ${locale} text`]));
-    const used = readsKey(readFileSync(file, "utf8"), path.control);
-    return used ? missing : [...missing, `${name}: ${path.file} never uses ${path.control}`];
-  });
-}
-
-function audit(names: readonly string[], registry: Readonly<Record<string, ManualEntry>>): string[] {
-  return names.flatMap((name) => problemsOf(name, registry[name]));
-}
 
 function goToolNames(): string[] {
   const sources = readdirSync(TOOLS_DIR)

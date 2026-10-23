@@ -36,6 +36,41 @@ export async function getWorkflowWebhookAction() {
   return null;
 }
 
+export async function getNodeVariablesAction() {
+  return { catalog: { variables: [], unreadable: 0 } };
+}
+
+function choicePrompt(sends: number, optionIds: string[]) {
+  return {
+    sends,
+    clickedPrompts: Math.round(sends * 0.8),
+    clickRate: 8000,
+    freeText: { count: Math.round(sends * 0.05), rate: 500 },
+    options: optionIds.map((optionId, index) => ({ optionId, shown: sends, clicks: Math.round(sends * (0.1 + index * 0.2)), ctr: 1000 + index * 2000 })),
+  };
+}
+
+export async function getWorkflowChoiceStatsAction() {
+  return {
+    status: "ready",
+    stats: {
+      from: "2026-09-23",
+      to: "2026-10-22",
+      timezone: "America/Sao_Paulo",
+      version: null,
+      nodes: new Map([
+        ["t3", choicePrompt(1742, ["planos", "horarios", "experimental"])],
+        ["t5", choicePrompt(980, ["template_button:0"])],
+        ["t6", choicePrompt(640, ["centro", "norte", "sul"])],
+      ]),
+    },
+  };
+}
+
+export async function getTriggerLastInputAction() {
+  return { lastInput: null, ...REFUSED };
+}
+
 export const createWorkflowAction = async () => REFUSED;
 export const updateWorkflowAction = async () => REFUSED;
 export const assignWorkflowDepartmentAction = async () => REFUSED;
@@ -57,5 +92,7 @@ export const listWorkflowRunsAction = async () => ({ runs: [], meta: { page: 1, 
 export const listWorkflowAlertsAction = async () => ({ alerts: [] });
 export const getWorkflowRunAction = async () => REFUSED;
 export const cancelWorkflowRunAction = async () => REFUSED;
+export const downloadWorkflowRunAction = async () => ({ error: REFUSED });
+export const downloadWorkflowRunsAction = async () => ({ error: REFUSED });
 export const analyzeNodeAction = async () => REFUSED;
 export const testNodeAction = async () => REFUSED;

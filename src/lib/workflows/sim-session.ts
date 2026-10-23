@@ -1,6 +1,7 @@
 import type { ConversationMessage } from "@/lib/conversations/types";
 
 import { payloadRecord as record, simConversationMessage } from "./sim-message";
+import { readTriggerInputIssues, readTriggerInputSpecs, type TriggerInputIssue, type TriggerInputSpec } from "./trigger-input";
 import type { WorkflowRunLog } from "./types";
 
 export type SimStatus =
@@ -42,6 +43,13 @@ export interface SimReproducing {
 export interface SimRefusal {
   command: string;
   error: string;
+  code?: string;
+  issues?: TriggerInputIssue[];
+}
+
+export interface SimStartedTrigger {
+  nodeId: string;
+  triggerType: string;
 }
 
 export type SimCancelReason = "cancelled" | "paused_timeout" | "start_timeout";
@@ -59,6 +67,7 @@ export interface SimMessageEvent {
   text: string;
   msgType: string;
   nodeId?: string;
+  nodeName?: string;
   messageId: string;
   audioBase64?: string;
   audioMime?: string;
@@ -91,6 +100,10 @@ export interface SimSession {
   refusal: SimRefusal | null;
   cancelReason: SimCancelReason | null;
   waitingForm: SimFormWait | null;
+  triggers: TriggerInputSpec[];
+  defaultTriggerNodeId: string | null;
+  unreadableTriggers: number;
+  startedTrigger: SimStartedTrigger | null;
 }
 
 export interface SimServerMessage {
@@ -146,6 +159,10 @@ export function initialSimSession(): SimSession {
     refusal: null,
     cancelReason: null,
     waitingForm: null,
+    triggers: [],
+    defaultTriggerNodeId: null,
+    unreadableTriggers: 0,
+    startedTrigger: null,
   };
 }
 
@@ -188,6 +205,23 @@ function reproducingOf(value: unknown): SimReproducing | null {
   };
 }
 
+function startedTriggerOf(value: unknown): SimStartedTrigger | null {
+  const data = record(value);
+  const nodeId = text(data.nodeId);
+  return nodeId ? { nodeId, triggerType: text(data.triggerType) } : null;
+}
+
+function refusalOf(data: Record<string, unknown>): SimRefusal {
+  const code = text(data.code);
+  const issues = readTriggerInputIssues(data.issues);
+  return {
+    command: text(data.command),
+    error: text(data.error),
+    ...(code ? { code } : {}),
+    ...(issues.length > 0 ? { issues } : {}),
+  };
+}
+
 function errorText(payload: unknown, fallback: string): string {
   if (typeof payload === "string" && payload) return payload;
   return text(record(payload).error) || fallback;
@@ -202,13 +236,18 @@ const UNKNOWN_ERROR = "Erro desconhecido";
 export function applySimMessage(session: SimSession, message: SimServerMessage): SimSession {
   const data = record(message.payload);
   switch (message.type) {
-    case "sim_ready":
+    case "sim_ready": {
+      const { specs, unreadable } = readTriggerInputSpecs(data.triggers);
       return {
         ...session,
         status: "ready",
         realCallNodes: stringList(data.realCallNodes),
         triggerType: text(data.triggerType) || null,
+        triggers: specs,
+        defaultTriggerNodeId: text(data.defaultTriggerNodeId) || null,
+        unreadableTriggers: unreadable,
       };
+    }
     case "waiting_trigger":
       return { ...session, status: "waiting_trigger", refusal: null };
     case "sim_started":
@@ -218,6 +257,7 @@ export function applySimMessage(session: SimSession, message: SimServerMessage):
         runId: text(data.runId) || null,
         realCallNodes: stringList(data.realCallNodes),
         reproducing: reproducingOf(data.reproducing),
+        startedTrigger: startedTriggerOf(data.trigger),
         refusal: null,
       };
     case "node_executed": {
@@ -244,7 +284,7 @@ export function applySimMessage(session: SimSession, message: SimServerMessage):
       });
     }
     case "command_refused": {
-      const refusal = { command: text(data.command), error: text(data.error) };
+      const refusal = refusalOf(data);
       const startRefused = refusal.command === "reproduce_run" || refusal.command === "start";
       return {
         ...session,
@@ -259,6 +299,7 @@ export function applySimMessage(session: SimSession, message: SimServerMessage):
         text: text(data.text),
         msgType: text(data.msgType),
         nodeId: text(data.nodeId) || undefined,
+        nodeName: text(data.nodeName) || undefined,
         messageId: text(data.messageId),
         audioBase64: text(data.audioBase64) || undefined,
         audioMime: text(data.audioMime) || undefined,
@@ -354,4 +395,27 @@ export function applySimIntent(session: SimSession, intent: SimIntent): SimSessi
     case "failed":
       return { ...session, status: "error", pause: null };
   }
+}
+
+export function simMessageSenders(events: readonly SimEvent[], nodeLabel: (nodeId: string) => string | undefined): Map<string, string> {
+  const senders = new Map<string, string>();
+  for (const event of events) {
+    if (event.type !== "message" || !event.message) continue;
+    const label = event.nodeName || (event.nodeId ? nodeLabel(event.nodeId) : undefined);
+    if (label) senders.set(event.message.id, label);
+  }
+  return senders;
+}
+
+export function stepMessageSenders(
+  messages: readonly { id: string }[],
+  known: ReadonlyMap<string, string> | undefined,
+  nodeName: string | undefined,
+): Map<string, string> {
+  const senders = new Map<string, string>();
+  for (const message of messages) {
+    const label = known?.get(message.id) || nodeName;
+    if (label) senders.set(message.id, label);
+  }
+  return senders;
 }

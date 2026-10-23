@@ -6,14 +6,22 @@ import { useTranslations } from "next-intl";
 import { uploadConversationMediaAction } from "@/app/actions/conversations";
 import type { ComposerAttachment } from "@/lib/conversations/composer-attachments";
 import { mediaTypeForFile, normalizeUploadFile } from "@/lib/conversations/media";
-import type { EntryType } from "@/lib/conversations/types";
+import type { EntryType, MediaType } from "@/lib/conversations/types";
 import { fileFromShortcutMedia } from "@/lib/message-shortcuts/shortcut-media";
+
+export interface AttachmentUpload {
+  mediaId: string | null;
+  error?: string;
+}
+
+export type AttachmentUploader = (file: File, type: MediaType) => Promise<AttachmentUpload>;
 
 interface ComposerAttachmentsOptions {
   entryType: EntryType;
   entryId: string;
   initial: ComposerAttachment[];
   admit: (file: File) => boolean;
+  upload?: AttachmentUploader;
 }
 
 function newLocalId(): string {
@@ -30,7 +38,7 @@ function revokePreview(attachment: ComposerAttachment) {
   if (attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl);
 }
 
-export function useComposerAttachments({ entryType, entryId, initial, admit }: ComposerAttachmentsOptions) {
+export function useComposerAttachments({ entryType, entryId, initial, admit, upload }: ComposerAttachmentsOptions) {
   const t = useTranslations("crmComposer.attachments");
   const [attachments, setAttachments] = useState<ComposerAttachment[]>(initial);
   const attachmentsRef = useRef(attachments);
@@ -57,14 +65,14 @@ export function useComposerAttachments({ entryType, entryId, initial, admit }: C
         { localId, name: file.name, size: file.size, type, previewUrl, status: "uploading" },
       ]);
 
-      const result = await uploadConversationMediaAction(entryType, entryId, file, type);
+      const result = upload ? await upload(file, type) : await uploadConversationMediaAction(entryType, entryId, file, type);
       if (result.error || !result.mediaId) {
         patch(localId, { status: "failed", error: result.error || t("uploadFailed") });
         return;
       }
       patch(localId, { status: "ready", mediaId: result.mediaId });
     },
-    [admit, entryId, entryType, patch, t],
+    [admit, entryId, entryType, patch, t, upload],
   );
 
   const attachFiles = useCallback(

@@ -18,6 +18,9 @@ const AUDIENCE_SOURCE_SET: Record<AudienceSource, true> = {
     unofficial_whatsapp: true,
     webchat: true,
     tiktok: true,
+    email: true,
+    rcs: true,
+    sms: true,
 };
 
 const ANALYSABLE_COMMENT_SOURCE_SET: Record<AnalysableCommentSource, true> = {
@@ -50,5 +53,11 @@ describe("audience sources", () => {
         expect(isAnalysableCommentSource("tiktok")).toBe(true);
         expect(isCommentSource("tiktok")).toBe(true);
         expect(isAnalysableCommentSource("whatsapp")).toBe(false);
+    });
+
+    it("analyses email conversations but never as a comment source", () => {
+        expect(AUDIENCE_SOURCES).toContain("email");
+        expect(isCommentSource("email")).toBe(false);
+        expect(isAnalysableCommentSource("email")).toBe(false);
     });
 });

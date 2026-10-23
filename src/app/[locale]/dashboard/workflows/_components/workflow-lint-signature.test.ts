@@ -15,3 +15,14 @@ describe("lintSignature", () => {
     expect(lintSignature("messages", pinned)).not.toBe(lintSignature("messages", graph()));
   });
 });
+
+describe("lintSignature with saved scenarios", () => {
+  it("changes when a scenario is added, so the plain secret lint reads the new input", () => {
+    const base = graph();
+    const withScenario: WorkflowGraph = {
+      ...base,
+      nodes: [{ ...base.nodes[0], testInputs: [{ id: "s1", name: "A", input: { token: "x" }, savedAt: "2026-10-22T12:00:00Z" }] }],
+    };
+    expect(lintSignature("messages", withScenario)).not.toBe(lintSignature("messages", base));
+  });
+});

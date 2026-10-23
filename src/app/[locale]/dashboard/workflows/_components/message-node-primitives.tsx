@@ -28,9 +28,12 @@ import {
 } from "./canvas-detail";
 import type { NodeSummary } from "./node-previews/node-summary";
 import { MISSING_OUTPUT_TITLE, MissingOutputRows, useMissingOutputs } from "./missing-outputs";
+import { TemplateRefText } from "./template-ref-text";
 import { useBatchedNodeInternals } from "./node-internals-batch";
 import { useNodeDebugFlags } from "./node-debug-marks";
 import { useRunNodeMark } from "./run-overlay";
+import { useNodeChoiceStats, type NodeChoiceView } from "./choice-stats-store";
+import { NodeChoiceLine } from "./node-choice-stats";
 
 
 const WA_CHAT_BG = "bg-[#efeae2] dark:bg-[#0b141a]";
@@ -129,7 +132,7 @@ export function MessageBubble({
               t.text,
             )}
           >
-            {body}
+            <TemplateRefText text={body} />
           </p>
         ) : (
           <p className={cn("text-2xs italic", t.muted)}>{emptyBodyLabel}</p>
@@ -247,7 +250,8 @@ export function ActionRowList({
             data-option-id={r.id}
             ref={rowRef ? (el) => rowRef(el, r.id) : undefined}
             className={cn(
-              "flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 shadow-sm",
+              "relative flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 shadow-sm",
+              r.trailing != null && "pr-14",
               WA_SURFACE_BG,
             )}
           >
@@ -255,6 +259,9 @@ export function ActionRowList({
             <span className={cn("truncate text-2xs font-medium", WA_ACTION_TEXT)}>
               {r.primary}
             </span>
+            {r.trailing != null && (
+              <span className="absolute right-2 top-1/2 -translate-y-1/2">{r.trailing}</span>
+            )}
           </div>
         ))}
       </div>
@@ -446,7 +453,9 @@ function CompactNodeCard({
   branches,
   branchTops,
   height,
+  choice,
 }: {
+  choice: NodeChoiceView | null;
   tier: CompactTier;
   className: string;
   icon: Icon;
@@ -483,6 +492,7 @@ function CompactNodeCard({
         {pinned && <PushPin size={icon.glyph} weight="fill" aria-label="Saída fixada" className="shrink-0 text-primary-ink" />}
       </div>
       <div className="overflow-hidden" style={{ height: contentHeight }}>
+        {tier === "simplified" && choice && <NodeChoiceLine view={choice} size="simplified" />}
         {tier === "minimal" && summary && <CompactSummary tier={tier} summary={summary} height={contentHeight} />}
         {glance}
         {tier === "simplified" && summary && (
@@ -524,8 +534,10 @@ interface InteractiveNodeShellProps {
   defaultOutputRequired?: boolean;
   glance?: ReactNode;
   summary?: NodeSummary | null;
+  choiceNode?: boolean;
   children: (api: {
     registerRow: (el: HTMLElement | null, id: string) => void;
+    choice: NodeChoiceView | null;
   }) => ReactNode;
 }
 
@@ -550,11 +562,13 @@ export function InteractiveNodeShell({
   defaultOutputRequired = true,
   glance,
   summary = null,
+  choiceNode = false,
   children,
 }: InteractiveNodeShellProps) {
   const branches = useMissingOutputs(id, declaredBranches);
   const updateNodeInternals = useBatchedNodeInternals();
   const runMark = useRunNodeMark(id);
+  const choice = useNodeChoiceStats(id, choiceNode);
   const debugFlags = useNodeDebugFlags(id);
   const paused = hasDebugFlag(debugFlags, NODE_PAUSED);
   const simulating = Boolean(isSimulating) || hasDebugFlag(debugFlags, NODE_ACTIVE);
@@ -712,6 +726,7 @@ export function InteractiveNodeShell({
           branches={branches}
           branchTops={handleTops}
           height={measuredHeight}
+          choice={choice}
         />
       ) : (
         <motion.div
@@ -735,7 +750,9 @@ export function InteractiveNodeShell({
 
           {header}
 
-          {children({ registerRow })}
+          {choice && <NodeChoiceLine view={choice} size="full" />}
+
+          {children({ registerRow, choice })}
 
           <MissingOutputRows branches={branches} registerRow={registerRow} />
         </motion.div>

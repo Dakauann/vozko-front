@@ -3,7 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 
 import { analyzeNodeAction, testNodeAction } from "@/app/actions/workflows";
-import type { NodeAnalysis, TestNodePayload, TestNodeResult } from "@/lib/workflows/types";
+import type { TriggerInputIssue } from "@/lib/workflows/trigger-input";
+import type { NodeAnalysis, TestNodePayload, TestNodeResult, TestNodeTrigger } from "@/lib/workflows/types";
 
 
 type TestStatus = "idle" | "analyzing" | "ready" | "testing" | "success" | "error";
@@ -15,10 +16,11 @@ interface UseTestNodeReturn {
     error: string | null;
     errorStatus: number | null;
     errorCode: string | null;
+    errorIssues: TriggerInputIssue[];
     mockedState: Record<string, unknown>;
     triggerVars: Record<string, unknown>;
     analyze: (workflowId: string, nodeId: string, recordedValue?: (key: string) => unknown) => Promise<void>;
-    test: (workflowId: string, nodeId: string, skipExecution?: boolean, confirmRealCalls?: boolean) => Promise<void>;
+    test: (workflowId: string, nodeId: string, skipExecution?: boolean, confirmRealCalls?: boolean, trigger?: TestNodeTrigger) => Promise<void>;
     setMockedValue: (key: string, value: unknown) => void;
     setTriggerVar: (key: string, value: unknown) => void;
     reset: () => void;
@@ -33,6 +35,7 @@ export function useTestNode(): UseTestNodeReturn {
     const [error, setError] = useState<string | null>(null);
     const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [errorCode, setErrorCode] = useState<string | null>(null);
+    const [errorIssues, setErrorIssues] = useState<TriggerInputIssue[]>([]);
     const [mockedState, setMockedState] = useState<Record<string, unknown>>({});
     const [triggerVars, setTriggerVars] = useState<Record<string, unknown>>({});
 
@@ -81,12 +84,13 @@ export function useTestNode(): UseTestNodeReturn {
         }
     }, []);
 
-    const test = useCallback(async (workflowId: string, nodeId: string, skipExecution = false, confirmRealCalls = false) => {
+    const test = useCallback(async (workflowId: string, nodeId: string, skipExecution = false, confirmRealCalls = false, trigger?: TestNodeTrigger) => {
         const requestId = ++requestIdRef.current;
         setStatus("testing");
         setError(null);
         setErrorStatus(null);
         setErrorCode(null);
+        setErrorIssues([]);
         setResult(null);
 
         try {
@@ -95,9 +99,10 @@ export function useTestNode(): UseTestNodeReturn {
                 triggerVars,
                 skipExecution,
                 ...(confirmRealCalls ? { confirmRealCalls: true } : {}),
+                ...(trigger ? { trigger } : {}),
             };
 
-            const { result: testResult, error: testError, status: testStatus, code: testCode } = await testNodeAction(workflowId, nodeId, payload);
+            const { result: testResult, error: testError, status: testStatus, code: testCode, issues: testIssues } = await testNodeAction(workflowId, nodeId, payload);
 
             if (requestId !== requestIdRef.current) {
                 return;
@@ -108,6 +113,7 @@ export function useTestNode(): UseTestNodeReturn {
                 setError(testError);
                 setErrorStatus(testStatus ?? null);
                 setErrorCode(testCode ?? null);
+                setErrorIssues(testIssues ?? []);
                 return;
             }
 
@@ -145,6 +151,7 @@ export function useTestNode(): UseTestNodeReturn {
         setError(null);
         setErrorStatus(null);
         setErrorCode(null);
+        setErrorIssues([]);
         setMockedState({});
         setTriggerVars({});
     }, []);
@@ -156,6 +163,7 @@ export function useTestNode(): UseTestNodeReturn {
         error,
         errorStatus,
         errorCode,
+        errorIssues,
         mockedState,
         triggerVars,
         analyze,

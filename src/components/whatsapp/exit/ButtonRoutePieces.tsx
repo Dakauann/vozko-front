@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ArrowBendUpLeft } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-export function QuickReplyChip({ text, stale = false }: { text: string; stale?: boolean }) {
+export function QuickReplyChip({ text, stale = false, stat }: { text: string; stale?: boolean; stat?: ReactNode }) {
   return (
     <span
       className={cn(
@@ -13,6 +13,7 @@ export function QuickReplyChip({ text, stale = false }: { text: string; stale?: 
     >
       <ArrowBendUpLeft className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
       <span className="truncate">{text}</span>
+      {stat ? <span className="ml-1 shrink-0">{stat}</span> : null}
     </span>
   );
 }

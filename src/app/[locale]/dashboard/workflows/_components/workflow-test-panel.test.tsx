@@ -271,14 +271,25 @@ describe("WorkflowTestPanel conversation", () => {
     expect(sim.sendReply).toHaveBeenCalledWith({ kind: "selection", choice: { kind: "button", id: "sim", title: "Sim" } });
   });
 
-  it("shows the tester's reply on the right as their own and the workflow's message on the left, as the customer sees them", () => {
+  it("shows the tester's reply on the right as their own graphite bubble and the workflow's message on the left, as the team chat shows me and the others", () => {
     const reply = messageEvent("in-1", { direction: "INBOUND", messageType: "user_message", text: "Sim, quero", sentBy: { kind: "contact", id: "c" }, from: "5511999990000" });
     const { container } = renderPanel({ simulation: simulation({ status: "running", events: [BUTTONS_EVENT, reply] }) });
     expect(screen.getByText("Sim, quero")).toBeInTheDocument();
     expect(container.querySelector('[data-msg-id="in-1"]')?.className).toContain("justify-end");
+    expect(container.querySelector('[data-msg-id="in-1"] [data-bubble]')?.className).toContain("bg-foreground text-background");
     expect(container.querySelector('[data-msg-id="m1"]')?.className).toContain("justify-start");
-    expect(screen.getByText(chat.customerSelf)).toBeInTheDocument();
+    expect(container.querySelector('[data-msg-id="m1"] [data-bubble]')?.className).toContain("bg-card");
+    expect(screen.queryByText(chat.customerSelf)).toBeNull();
     expect(screen.queryByText("5511999990000")).toBeNull();
+  });
+
+  it("uses the team chat header: the title, the status as a solid chip, and close", () => {
+    const onClose = vi.fn();
+    renderPanel({ simulation: simulation({ status: "error" }), onClose });
+    expect(screen.getByRole("heading", { name: "Simulação" }).className).toContain("text-sm font-semibold");
+    expect(screen.getByText("Erro").className).toContain("bg-destructive");
+    fireEvent.click(screen.getByRole("button", { name: "Fechar simulação" }));
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("shows an ignored interactive reply as a muted line", () => {
@@ -345,6 +356,18 @@ describe("WorkflowTestPanel conversation", () => {
     const detail = screen.getByTestId("step-detail");
     expect(within(detail).getByText(chat.sentMessages)).toBeInTheDocument();
     expect(within(detail).getByText("Bem-vindo à matrícula")).toBeInTheDocument();
+  });
+
+  it("labels a step's sent message with the same node name the chat gives it, never the generic workflow sender", () => {
+    const sentWire = { text: "Bem-vindo à matrícula", sentBy: { kind: "workflow", id: "wf" } };
+    const sent = step({ nodeId: "n7", nodeType: "action_send_message", output: { sent_messages: [wire("m9", sentWire)] } });
+    const chatMessage = { ...messageEvent("m9", sentWire), nodeId: "n7", nodeName: "Boas-vindas da matrícula" };
+    renderPanel({ simulation: simulation({ status: "completed", steps: [sent], events: [chatMessage, { type: "step", step: sent }] }), nodeLabel: () => "Enviar Texto" });
+    openStepGroups();
+    fireEvent.click(screen.getByRole("button", { name: /Enviar Texto/ }));
+    const detail = screen.getByTestId("step-detail");
+    expect(within(detail).getByText("Boas-vindas da matrícula")).toBeInTheDocument();
+    expect(within(detail).queryByText(ptMessages.crm.messageSender.workflow)).toBeNull();
   });
 
   it("windows a long timeline to the newest events and reveals older ones on demand", () => {
@@ -446,6 +469,28 @@ describe("WorkflowTestPanel timeline from the customer's perspective", () => {
     expect(bubble.querySelectorAll("[data-bubble] svg")).toHaveLength(0);
   });
 
+  it("names the source once for a stack of messages it sent, the way the team chat names an author once", () => {
+    const second = { ...messageEvent("out-2", { ...welcomeWire, text: "Vamos começar" }), nodeId: "n2" };
+    const { container } = renderPanel({ simulation: simulation({ status: "running", events: [greeting, welcome, second] }), nodeLabel });
+    expect(screen.getAllByText("Enviar Texto")).toHaveLength(1);
+    expect(container.querySelector('[data-msg-id="out-1"]')).toHaveAttribute("data-group-position", "first");
+    expect(container.querySelector('[data-msg-id="out-2"]')).toHaveAttribute("data-group-position", "last");
+  });
+
+  it("starts a new stack after a step line, which sits between the bubbles", () => {
+    const second = { ...messageEvent("out-2", { ...welcomeWire, text: "Vamos começar" }), nodeId: "n2" };
+    renderPanel({ simulation: simulation({ status: "running", events: [welcome, { type: "step", step: sentText }, second] }), nodeLabel });
+    expect(screen.getAllByText("Enviar Texto", { selector: "p" })).toHaveLength(2);
+  });
+
+  it("names the workflow message by the node name the backend sent with it, over the canvas label", () => {
+    const named = { ...welcome, nodeId: "n1", nodeName: "Boas-vindas" };
+    const { container } = renderPanel({ simulation: simulation({ status: "running", events: [greeting, named] }), nodeLabel });
+    const bubble = container.querySelector('[data-msg-id="out-1"]') as HTMLElement;
+    expect(within(bubble).getByText("Boas-vindas")).toBeInTheDocument();
+    expect(within(bubble).queryByText("Mensagem Recebida")).toBeNull();
+  });
+
   it("names a workflow message without a node as the workflow", () => {
     const { container } = renderPanel({ simulation: simulation({ status: "running", events: [messageEvent("out-1", welcomeWire)] }), nodeLabel });
     const bubble = container.querySelector('[data-msg-id="out-1"]') as HTMLElement;
@@ -467,6 +512,7 @@ describe("WorkflowTestPanel timeline from the customer's perspective", () => {
     expect(screen.queryByRole("button", { name: /Aguardar Duração/ })).toBeNull();
 
     const group = screen.getByRole("button", { name: /3 etapas/ });
+    expect(group.className).toContain("border-dashed");
     expect(group).toHaveAttribute("aria-expanded", "false");
     expect(group.textContent).toMatch(/12\s?ms/);
     fireEvent.click(group);
@@ -482,6 +528,7 @@ describe("WorkflowTestPanel timeline from the customer's perspective", () => {
     const item = row.closest("li")!;
     expect(item).toHaveAttribute("data-compact", "true");
     expect(item.className).toContain("items-center");
+    expect(row.className).toContain("border-dashed");
     fireEvent.click(row);
     expect(within(item).getByTestId("step-detail")).toBeInTheDocument();
   });
@@ -507,5 +554,24 @@ describe("WorkflowTestPanel timeline from the customer's perspective", () => {
     expect(container.querySelector('[data-msg-id="m1"]')?.className).toContain("justify-start");
     fireEvent.click(screen.getByRole("button", { name: "Não" }));
     expect(sim.sendReply).toHaveBeenCalledWith({ kind: "selection", choice: { kind: "button", id: "nao", title: "Não" } });
+  });
+});
+
+describe("WorkflowTestPanel step detail warnings", () => {
+  it("warns about references that had no value in the step", () => {
+    const sent = step({ unresolvedRefs: ["input.telefone", "lead_name"] });
+    renderPanel({ simulation: simulation({ status: "running", steps: [sent], events: [{ type: "step", step: sent }] }), nodeLabel: () => "Enviar" });
+    openStepGroups();
+    fireEvent.click(screen.getByRole("button", { name: /Enviar/ }));
+    const detail = screen.getByTestId("step-detail");
+    expect(within(detail).getByText("Referências sem valor nesta etapa: input.telefone, lead_name")).toBeInTheDocument();
+  });
+
+  it("shows the failure text of a failed step, such as the template fix for a closed window, without opening a tab", () => {
+    const failed = step({ status: "failed", error: "Janela de atendimento fechada: use um template para falar com o cliente fora da janela." });
+    renderPanel({ simulation: simulation({ status: "error", steps: [failed], events: [{ type: "step", step: failed }] }), nodeLabel: () => "Enviar" });
+    fireEvent.click(screen.getByRole("button", { name: /Enviar/ }));
+    const detail = screen.getByTestId("step-detail");
+    expect(within(detail).getAllByText("Janela de atendimento fechada: use um template para falar com o cliente fora da janela.").length).toBeGreaterThan(0);
   });
 });

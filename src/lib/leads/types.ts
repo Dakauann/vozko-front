@@ -11,7 +11,10 @@ export type ConversationEntryType =
     | 'unofficial_whatsapp'
     | 'webchat'
     | 'mercadolivre'
-    | 'tiktok';
+    | 'tiktok'
+    | 'email'
+    | 'rcs'
+    | 'sms';
 
 type VoiceEntryStatus =
     | 'PENDING'

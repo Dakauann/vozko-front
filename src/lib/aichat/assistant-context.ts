@@ -1,4 +1,4 @@
-import type { AttendanceView, LeadsView, StudioView } from "./types";
+import type { AttendanceView, EmailDesignView, LeadsView, StudioView } from "./types";
 
 interface AssistantScope {
   period: string;
@@ -31,7 +31,13 @@ export interface LeadsAssistantContext {
   scope: LeadsAssistantScope;
 }
 
-export type AssistantContext = AttendanceAssistantContext | StudioAssistantContext | LeadsAssistantContext;
+export interface EmailDesignAssistantContext {
+  kind: "email_design";
+  view: EmailDesignView;
+  designName: string;
+}
+
+export type AssistantContext = AttendanceAssistantContext | StudioAssistantContext | LeadsAssistantContext | EmailDesignAssistantContext;
 
 interface AssistantContextStore {
   get: () => AssistantContext | null;

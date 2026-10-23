@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { CHAT_ICON_BUTTON } from "@/components/chat/chat-styles";
 import { UsersThree } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { initials } from "@/lib/format/initials";
@@ -9,8 +10,7 @@ import { otherMember } from "@/lib/team-chat/messages";
 import type { TeamChatMessage, TeamChatThread } from "@/lib/team-chat/types";
 import { cn } from "@/lib/utils";
 
-export const ICON_BUTTON =
-  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[--radius] text-muted-foreground transition-colors hover:bg-accent-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
+export const ICON_BUTTON = CHAT_ICON_BUTTON;
 
 export const BADGE = "inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none tabular-nums text-primary-foreground";
 

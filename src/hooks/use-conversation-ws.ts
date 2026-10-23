@@ -350,7 +350,7 @@ interface UseConversationWsReturn {
   outbox: Outbox;
   retrySend: (requestId: string) => void;
   resendMessage: (entryId: string, entryType: EntryType, messageId: string) => void;
-  reopenWindow: (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => void;
+  reopenWindow: (entryId: string, entryType: EntryType, templateId: string, parameters: string[], headerParameters?: string[]) => void;
   requestInboxPage: (page: number) => void;
   inboxHasMore: boolean;
   inboxTotalItems: number;
@@ -2676,12 +2676,13 @@ export function useConversationWs({
   );
 
   const reopenWindow = useCallback(
-    (entryId: string, entryType: EntryType, templateId: string, parameters: string[]) => {
+    (entryId: string, entryType: EntryType, templateId: string, parameters: string[], headerParameters: string[] = []) => {
       send("reopen_window", {
         entry_id: entryId,
         entry_type: entryType,
         template_id: templateId,
         parameters,
+        ...(headerParameters.length > 0 ? { header_parameters: headerParameters } : {}),
         request_id: newRequestId(),
       });
     },

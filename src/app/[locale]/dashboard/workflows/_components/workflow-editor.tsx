@@ -30,10 +30,11 @@ import type {
   WorkflowRunLog,
 } from "@/lib/workflows/types";
 import { isDebuggableBehavior, testBehaviorOf } from "@/lib/workflows/node-test-behavior";
+import type { PeriodPreset } from "@/lib/attendance/period";
 import type { RightPanel } from "@/lib/workflows/editor-docking";
 import type { RuntimeAlertFix } from "@/lib/workflows/runtime-alerts";
 import { entryPointsByNode, type EntryPointFix } from "@/lib/workflows/entry-points";
-import { initialDraftName } from "@/lib/workflows/draft-save";
+import { initialDraftName, isDraftRevision } from "@/lib/workflows/draft-save";
 import { mergeLintIssues, runDiffersFromCanvas } from "@/lib/workflows/publication";
 import { getWorkflowVersionAction } from "@/app/actions/workflows";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
@@ -62,11 +63,13 @@ import { useStableValue } from "./use-stable-value";
 import { buildObstacleIndex } from "./edge-routing";
 import { createHoverStore } from "./edge-activity";
 import { createRunOverlayStore } from "./run-overlay";
+import { ChoiceStatsContext, createChoiceStatsStore, DEFAULT_CHOICE_STATS_PERIOD, useChoiceStatsLoader } from "./choice-stats-store";
 import { createNodeDebugStore } from "./node-debug-marks";
 import type { VersionFocus } from "./version-run-canvas";
 import { OpenRunContext } from "./run-bits";
 import type { TestNodeSeed } from "./test-node-section";
 import { NodeDefinitionsProvider } from "./node-previews/node-definitions";
+import { VariableCatalogSourceProvider } from "./variable-catalog-context";
 import { NodeConfigPanel } from "./node-config-panel";
 import { useUndoRedo } from "./use-undo-redo";
 import { useWorkflowLint } from "./use-workflow-lint";
@@ -149,6 +152,9 @@ export function WorkflowEditor({
   const [deliveriesFocusNode, setDeliveriesFocusNode] = useState<string | null>(null);
   const [runOverlayStore] = useState(createRunOverlayStore);
   const [debugStore] = useState(createNodeDebugStore);
+  const [choiceStatsStore] = useState(createChoiceStatsStore);
+  const [choicePeriod, setChoicePeriod] = useState<PeriodPreset>(DEFAULT_CHOICE_STATS_PERIOD);
+  const reloadChoiceStats = useChoiceStatsLoader(choiceStatsStore, workflowState?.id ?? null, choicePeriod);
   const [showCopilot, setShowCopilot] = useState(false);
   const [copilotMounted, setCopilotMounted] = useState(false);
   const [copilotBusy, setCopilotBusy] = useState(false);
@@ -538,6 +544,7 @@ export function WorkflowEditor({
   );
 
   const isWorkflowDirty = persistence.unsaved;
+  const draftRevision = isDraftRevision(workflowState?.version) ? workflowState.version : null;
 
   const entryPointsByNodeId = useMemo(() => entryPointsByNode(workflowState?.entryPoints), [workflowState?.entryPoints]);
 
@@ -697,6 +704,8 @@ export function WorkflowEditor({
       case "link":
         router.push(fix.href);
         return;
+      case "open_editor":
+        return;
     }
   });
 
@@ -735,7 +744,9 @@ export function WorkflowEditor({
 
   return (
     <NodeDefinitionsProvider definitions={definitions}>
+    <VariableCatalogSourceProvider workflowId={workflowState?.id ?? null} revision={draftRevision}>
     <OpenRunContext.Provider value={openRun}>
+    <ChoiceStatsContext.Provider value={choiceStatsStore}>
     <div className="flex flex-col h-[calc(100vh_-_var(--dashboard-header-h))] overflow-hidden">
       <EditorHeader
         name={name}
@@ -776,6 +787,9 @@ export function WorkflowEditor({
         onResume={persistence.handleResume}
         onOpenVersions={openVersionsPanel}
         onDelete={persistence.handleDelete}
+        choicePeriod={choicePeriod}
+        onChoicePeriodChange={setChoicePeriod}
+        onChoiceStatsRetry={reloadChoiceStats}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -876,6 +890,8 @@ export function WorkflowEditor({
           onPinStep={debug.pinSimStep}
           versionDiffers={runVersionDiffers}
           onViewVersion={viewSimulationVersion}
+          scenariosOf={debug.scenariosOf}
+          onScenariosChange={debug.setNodeTestInputs}
           workflowId={workflowState?.id ?? ""}
           workflowType={workflowType}
           onCopilotGraph={applyCopilotGraph}
@@ -890,6 +906,7 @@ export function WorkflowEditor({
             workflowId={workflowState?.id ?? null}
             workspaceId={workflowState?.workspaceId ?? null}
             isWorkflowDirty={isWorkflowDirty}
+            draftRevision={draftRevision}
             definitions={definitions}
             allNodes={structureNodes}
             allEdges={edges}
@@ -910,7 +927,9 @@ export function WorkflowEditor({
         onDismiss={persistence.dismissConflict}
       />
     </div>
+    </ChoiceStatsContext.Provider>
     </OpenRunContext.Provider>
+    </VariableCatalogSourceProvider>
     </NodeDefinitionsProvider>
   );
 }

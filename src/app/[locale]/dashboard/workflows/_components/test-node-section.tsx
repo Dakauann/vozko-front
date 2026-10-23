@@ -25,9 +25,18 @@ import { codedErrorMessage } from "@/lib/api/coded-error";
 import { cn } from "@/lib/utils";
 import { useTestNode } from "@/hooks/use-test-node";
 import { nodeTestSteps } from "@/lib/workflows/node-test-steps";
+import {
+  emptyTriggerDraft,
+  hasTriggerInput,
+  readTriggerInputSpec,
+  triggerStartOf,
+  type TriggerInputDraft,
+  type TriggerInputSpec,
+} from "@/lib/workflows/trigger-input";
 
 import { DurationText, JsonBlock, useLoadFailureText } from "./run-bits";
 import { StepDetail, StepRow } from "./step-detail";
+import { TriggerInputEditor } from "./trigger-input-editor";
 
 
 export interface TestNodeSeed {
@@ -87,6 +96,16 @@ function getSourceLabel(source: string): string {
       return source;
   }
 }
+
+type AnalysisTrigger = { kind: "none" } | { kind: "unreadable" } | { kind: "spec"; spec: TriggerInputSpec };
+
+function analysisTriggerOf(value: unknown): AnalysisTrigger {
+  if (value === undefined || value === null) return { kind: "none" };
+  const spec = readTriggerInputSpec(value);
+  return spec ? { kind: "spec", spec } : { kind: "unreadable" };
+}
+
+const NO_SYNTAX: readonly string[] = [];
 
 function getMockTemplate(field: MockFieldSpec): string {
   return `{{${field.display_name}}}`;
@@ -192,6 +211,7 @@ export function TestNodeSection({
 }: TestNodeSectionProps) {
   const tDebug = useTranslations("workflowDebug.nodeTest");
   const tWorkflows = useTranslations("workflowsPage");
+  const tTrigger = useTranslations("workflowDebug.triggerInput");
   const failureText = useLoadFailureText();
   const [expanded, setExpanded] = useState(false);
   const [confirmRealCalls, setConfirmRealCalls] = useState(false);
@@ -203,6 +223,7 @@ export function TestNodeSection({
     error,
     errorStatus,
     errorCode,
+    errorIssues,
     mockedState,
     triggerVars,
     analyze,
@@ -222,6 +243,22 @@ export function TestNodeSection({
         .map((field) => field.display_name)
         .join(", ")}.`
     : null;
+
+  const analysisTrigger = useMemo(() => analysisTriggerOf(analysis?.trigger), [analysis]);
+  const triggerSpec = analysisTrigger.kind === "spec" && hasTriggerInput(analysisTrigger.spec) ? analysisTrigger.spec : null;
+  const [triggerDraft, setTriggerDraft] = useState<TriggerInputDraft | null>(null);
+  const [triggerSyntax, setTriggerSyntax] = useState<readonly string[]>(NO_SYNTAX);
+  const [draftAnalysis, setDraftAnalysis] = useState(analysis);
+  if (draftAnalysis !== analysis) {
+    setDraftAnalysis(analysis);
+    setTriggerDraft(null);
+    setTriggerSyntax(NO_SYNTAX);
+  }
+  const shownTriggerDraft = triggerSpec ? (triggerDraft ?? emptyTriggerDraft(triggerSpec)) : null;
+  const changeTriggerDraft = useCallback((next: TriggerInputDraft) => {
+    setTriggerDraft(next);
+    setTriggerSyntax(NO_SYNTAX);
+  }, []);
 
   const testedNode = `${workflowId}:${nodeId}`;
   const [shownNode, setShownNode] = useState(testedNode);
@@ -262,8 +299,17 @@ export function TestNodeSection({
     if (disabled || status === "testing" || hasMissingRequiredMocks) {
       return;
     }
-    await test(workflowId, nodeId, false, confirmRealCalls);
-  }, [disabled, hasMissingRequiredMocks, nodeId, status, test, workflowId, confirmRealCalls]);
+    if (!triggerSpec || !shownTriggerDraft) {
+      await test(workflowId, nodeId, false, confirmRealCalls);
+      return;
+    }
+    const built = triggerStartOf(triggerSpec, shownTriggerDraft);
+    if (!built.ok) {
+      setTriggerSyntax(built.syntax);
+      return;
+    }
+    await test(workflowId, nodeId, false, confirmRealCalls, { nodeId: triggerSpec.nodeId, input: built.start.input ?? {} });
+  }, [disabled, hasMissingRequiredMocks, nodeId, status, test, workflowId, confirmRealCalls, triggerSpec, shownTriggerDraft]);
 
   const handleReset = useCallback(() => {
     reset();
@@ -377,7 +423,22 @@ export function TestNodeSection({
                 </div>
               )}
 
-              {}
+              {triggerSpec && shownTriggerDraft && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">{tTrigger("nodeTest", { trigger: triggerSpec.label })}</p>
+                  <TriggerInputEditor
+                    spec={triggerSpec}
+                    draft={shownTriggerDraft}
+                    onDraftChange={changeTriggerDraft}
+                    issues={errorIssues}
+                    syntax={triggerSyntax}
+                  />
+                </div>
+              )}
+              {analysisTrigger.kind === "unreadable" && (
+                <p className="text-2xs text-muted-foreground">{tTrigger("unreadable", { count: 1 })}</p>
+              )}
+
               {analysis.can_run_direct && (
                 <details className="group">
                   <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
@@ -454,7 +515,10 @@ export function TestNodeSection({
           {}
           {status === "error" && error && !result && (
             <Notice tone="fault" title="Erro">
-              {failureText(errorStatus, codedErrorMessage(tWorkflows, { code: errorCode ?? undefined }, error))}
+              {failureText(
+                errorStatus,
+                codedErrorMessage(tWorkflows, { code: errorCode ?? undefined }, error),
+              )}
             </Notice>
           )}
         </div>

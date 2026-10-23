@@ -95,6 +95,12 @@ describe("plainSecretFix", () => {
     expect(plainSecretFix(issue("code", "code:token"), { code })).toBeNull();
   });
 
+  it("offers nothing for a credential saved in a test scenario, a path it does not know", () => {
+    const config = { body: '{"password":"p4ss"}', headers: { Authorization: "Bearer b" } };
+    expect(plainSecretFix(issue("testInputs", "testInputs.Com senha.body.password"), config)).toBeNull();
+    expect(plainSecretFix(issue("testInputs", "testInputs.Com senha.headers.Authorization"), config)).toBeNull();
+  });
+
   it("offers nothing when the alert carries no path", () => {
     expect(plainSecretFix(issue("headers", undefined), { headers: { Authorization: "b" } })).toBeNull();
   });

@@ -42,7 +42,7 @@ import {
   featuredPlan,
   sortedPlans,
 } from "@/lib/workspace-plan/catalog";
-import { formatPricingServiceFallback } from "@/lib/branding/ai-models";
+import { pricingServiceLabel } from "@/lib/pricing/labels";
 import type { Invoice } from "@/lib/invoices/types";
 import type {
   PublicPlanDetails,
@@ -1328,7 +1328,7 @@ export function PlanPricingTable({
                   .map((item) => (
                     <tr key={`${item.service}-${item.metric}`} className="border-b border-border last:border-b-0">
                       <th className="py-2.5 pr-3 text-sm font-medium text-foreground" scope="row">
-                        {translatedOr(t, `pricing.services.${item.service}`, formatPricingServiceFallback(item.service))}
+                        {pricingServiceLabel(t, "pricing", item)}
                       </th>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground">
                         {translatedOr(t, `pricing.metrics.${item.metric}`, item.metric)}
@@ -1399,7 +1399,7 @@ export function PlanEstimatesPanel({
                 {translatedOr(
                   t,
                   `estimates.serviceLabel.${est.category}.${est.service}`,
-                  translatedOr(t, `pricing.services.${est.service}`, est.service),
+                  pricingServiceLabel(t, "pricing", est),
                 )}
               </span>
             </dt>

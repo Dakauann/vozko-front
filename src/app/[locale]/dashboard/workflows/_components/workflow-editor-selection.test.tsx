@@ -29,6 +29,8 @@ vi.mock("@/hooks/use-workflow-simulation", () => ({
 vi.mock("@/app/actions/workflows", () => ({
   getWorkflowVersionAction: vi.fn(async () => ({ version: null })),
   resolveHandlesAction: vi.fn(async () => ({ handles: {} })),
+  getNodeVariablesAction: vi.fn(async () => ({ catalog: { variables: [], unreadable: 0 } })),
+  getWorkflowChoiceStatsAction: vi.fn(async () => ({ status: "unreadable" })),
 }));
 
 vi.mock("./use-runtime-alerts", () => ({

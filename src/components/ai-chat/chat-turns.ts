@@ -36,6 +36,7 @@ function turnHandlers(threadId: string, run: TurnRun, approved?: PendingAction):
     onCard: (card) => {
       chatTurns.apply(threadId, { kind: "card", card });
       if (card.kind === "studio_project" && card.studioProject.projectId) chatTurns.bindProject(threadId, card.studioProject.projectId);
+      if (card.kind === "email_design") chatTurns.bindProject(threadId, card.emailDesign.designId);
     },
     onImage: (media) => chatTurns.apply(threadId, { kind: "media", media }),
     onDelta: (text) => chatTurns.apply(threadId, { kind: "delta", text }),

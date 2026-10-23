@@ -60,4 +60,18 @@ describe("ButtonDestinations", () => {
     expect(screen.getByRole("listitem", { name: line("SAIR", t.kinds.opt_out) })).toHaveAttribute("data-state", "linked");
     expect(screen.getByRole("listitem", { name: line("Ver horários", t.builder.noAction) })).toHaveAttribute("data-state", "open");
   });
+
+  it("shows the CTR of each quick reply beside it when the template has clicks", () => {
+    const clicks = {
+      sends: 50,
+      clickedPrompts: 20,
+      clickRate: 4000,
+      freeText: { count: 0, rate: 0 },
+      options: [{ optionId: "template_button:0", shown: 50, clicks: 20, ctr: 4000, tracked: true }],
+    };
+    wrap(<ButtonDestinations buttons={OK.buttons} clicks={clicks} />);
+    const line = (text: string, action: string) => t.campaign.destination.replace("{text}", text).replace("{action}", action);
+    expect(screen.getByRole("listitem", { name: line("Falar com atendente", t.kinds.hand_off) })).toHaveTextContent("CTR 40,0%");
+    expect(screen.getByRole("listitem", { name: line("SAIR", t.kinds.opt_out) })).toHaveTextContent("CTR n/d");
+  });
 });

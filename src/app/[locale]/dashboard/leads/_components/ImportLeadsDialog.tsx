@@ -17,6 +17,7 @@ import {
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
 import { Check, DownloadSimple, FileCsv, UploadSimple } from "@/components/icons";
 import { ImportCountsSummary } from "@/components/leads/imports/ImportCountsSummary";
+import { ImportEmailChoices } from "@/components/leads/imports/ImportEmailChecks";
 import { ImportMappingList } from "@/components/leads/imports/ImportMappingList";
 import {
   EMPTY_SEED_DRAFT,
@@ -53,6 +54,8 @@ import {
   LEAD_IMPORT_ACCEPT,
   leadImportPercent,
   leadImportStep,
+  NO_EMAIL_FIXES,
+  type LeadImportEmailFixes,
   type LeadImportJob,
   type LeadImportLimits,
   type LeadImportPolicy,
@@ -117,6 +120,7 @@ export function ImportLeadsDialog({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [busy, setBusy] = useState<Busy>(null);
+  const [emailFixes, setEmailFixes] = useState<LeadImportEmailFixes>(NO_EMAIL_FIXES);
   const [refused, setRefused] = useState<{ jobId: string | null; error: CodedRefusal } | null>(null);
   const [draft, setDraft] = useState<ImportDraft | null>(null);
 
@@ -188,7 +192,7 @@ export function ImportLeadsDialog({
     if (!job) return;
     setBusy("start");
     setRefusal(null);
-    const outcome = await startLeadImportAction(job.id);
+    const outcome = await startLeadImportAction(job.id, emailFixes);
     setBusy(null);
     if ("error" in outcome) {
       refuse(outcome.error, false);
@@ -389,6 +393,7 @@ export function ImportLeadsDialog({
                           <span className="text-xs text-muted-foreground">{t("dryRun.help")}</span>
                         </div>
                         <ImportCountsSummary counts={job.dryRun} tense="planned" />
+                        <ImportEmailChoices counts={job.dryRun} value={emailFixes} onChange={setEmailFixes} disabled={busy !== null} />
                         {current.dirty ? <Notice tone="warning" text={t("dryRun.stale")} /> : null}
                       </section>
                     ) : null}

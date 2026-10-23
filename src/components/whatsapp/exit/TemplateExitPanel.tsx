@@ -9,6 +9,7 @@ import { CircuitRoutes } from "@/components/elevated-design/circuit-routes";
 import ElevatedContainer from "@/components/elevated-design/elevated-container";
 import { Notice } from "@/components/ui/notice";
 import { codedErrorMessage } from "@/lib/api/coded-error";
+import type { PromptStats } from "@/lib/choice-stats/stats";
 import {
   BUTTON_ACTION_KINDS,
   actionInputs,
@@ -24,7 +25,7 @@ import {
 
 import { ButtonActionFields } from "./ButtonActionFields";
 import { FIELD_ANCHOR, QuickReplyChip, RouteCard } from "./ButtonRoutePieces";
-import { ButtonDestinations } from "./ButtonDestinations";
+import { ButtonDestinations, QuickReplyCtr } from "./ButtonDestinations";
 import { ExitConfirmationField } from "./ExitConfirmationField";
 import { ExitReadFailure } from "./ExitReadFailure";
 import { ExitVerdictNotice } from "./ExitVerdictNotice";
@@ -34,11 +35,11 @@ import { useTemplateButtonActions, useTemplateExitVerdict, type TemplateActionsS
 type PanelNotice = { tone: "warning" | "fault"; text: string } | null;
 type VerdictRead = ReturnType<typeof useTemplateExitVerdict>;
 
-function ReadOnlyExit({ stored }: { stored: TemplateButtonActions }) {
+function ReadOnlyExit({ stored, clicks }: { stored: TemplateButtonActions; clicks: PromptStats | null }) {
   const t = useTranslations("templateExit");
   return (
     <div className="space-y-3">
-      <ButtonDestinations buttons={stored.buttons} />
+      <ButtonDestinations buttons={stored.buttons} clicks={clicks} />
       <p className="text-xs text-muted-foreground">{t("panel.readOnly")}</p>
     </div>
   );
@@ -65,7 +66,9 @@ function TemplateExitEditor({
   verdict,
   onSave,
   onNotice,
+  clicks,
 }: {
+  clicks: PromptStats | null;
   stored: TemplateButtonActions;
   verdict: ExitVerdict | null;
   onSave: (change: TemplateActionsChange) => Promise<TemplateActionsSave>;
@@ -109,7 +112,7 @@ function TemplateExitEditor({
               name: t("campaign.destination", { text: button.text, action: labelOf(choice) }),
               state: stale ? "stale" : choice ? "linked" : "open",
               targetAnchor: button.stale ? undefined : FIELD_ANCHOR,
-              source: <QuickReplyChip text={button.text} stale={stale} />,
+              source: <QuickReplyChip text={button.text} stale={stale} stat={clicks ? <QuickReplyCtr clicks={clicks} index={button.index} /> : undefined} />,
               target: (
                 <RouteCard>
                   {button.stale ? (
@@ -158,7 +161,7 @@ function PanelVerdict({ read }: { read: VerdictRead }) {
   );
 }
 
-export function TemplateExitPanel({ templateId, canEdit }: { templateId: string; canEdit: boolean }) {
+export function TemplateExitPanel({ templateId, canEdit, clicks = null }: { templateId: string; canEdit: boolean; clicks?: PromptStats | null }) {
   const t = useTranslations("templateExit");
   const exit = useTemplateButtonActions(templateId);
   const verdictRead = useTemplateExitVerdict(templateId);
@@ -179,8 +182,8 @@ export function TemplateExitPanel({ templateId, canEdit }: { templateId: string;
       ) : null}
       {exit.loading ? <p className="text-xs text-muted-foreground">{t("verdict.loading")}</p> : null}
       {exit.error ? <ExitReadFailure error={exit.error} fallback={t("panel.loadFailed")} onRetry={exit.reload} /> : null}
-      {stored && canEdit ? <TemplateExitEditor key={stored.version} stored={stored} verdict={verdictRead.verdict} onSave={exit.save} onNotice={setNotice} /> : null}
-      {stored && !canEdit ? <ReadOnlyExit stored={stored} /> : null}
+      {stored && canEdit ? <TemplateExitEditor key={stored.version} stored={stored} verdict={verdictRead.verdict} onSave={exit.save} onNotice={setNotice} clicks={clicks} /> : null}
+      {stored && !canEdit ? <ReadOnlyExit stored={stored} clicks={clicks} /> : null}
     </ElevatedContainer>
   );
 }

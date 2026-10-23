@@ -2,17 +2,21 @@
 
 import { useCallback, useMemo, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { ArrowsClockwise, CaretLeft, CircleNotch, X } from "@/components/icons";
+import { ArrowsClockwise, CaretLeft, CircleNotch, DownloadSimple, X } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ListPager } from "@/components/elevated-design/list-pager";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
-import { listWorkflowRunsAction, type ListWorkflowRunsParams } from "@/app/actions/workflows";
+import { downloadWorkflowRunsAction, listWorkflowRunsAction, type ListWorkflowRunsParams } from "@/app/actions/workflows";
 import { usePagedList } from "@/hooks/use-paged-list";
+import { codedErrorMessage } from "@/lib/api/coded-error";
+import type { PeriodRange } from "@/lib/attendance/period";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { versionTag } from "@/lib/workflows/publication";
 import { hasLiveRuns, runDurationMs } from "@/lib/workflows/run-format";
+import { defaultRunsExportRange, runsExportQuery } from "@/lib/workflows/run-export";
 import type { RunDetail, RunStatus } from "@/lib/workflows/types";
 
 import { ConversationLink, DateTimeText, DurationText, LoadFailure, RunStatusChip, StartedByText, useAgentNames } from "./run-bits";
@@ -79,6 +83,31 @@ export function WorkflowRunsPanel({
   const startedBys = useMemo(() => runs.map((run) => run.startedBy), [runs]);
   const agentName = useAgentNames(startedBys);
   const filtered = status !== null || entryId !== "";
+
+  const tPage = useTranslations("workflowsPage");
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportRange, setExportRange] = useState<PeriodRange>(() => defaultRunsExportRange());
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const exportQuery = runsExportQuery(exportRange, { status: status ?? undefined, entryId: entryId || undefined });
+
+  const changeExportRange = (change: Partial<PeriodRange>) => {
+    setExportRange((current) => ({ ...current, ...change }));
+    setExportError(null);
+  };
+
+  const exportRuns = async () => {
+    if (!exportQuery || exporting) return;
+    setExporting(true);
+    setExportError(null);
+    const { error } = await downloadWorkflowRunsAction(workflowId, exportQuery);
+    setExporting(false);
+    if (error) {
+      setExportError(codedErrorMessage(tPage, error, t("export.failed")));
+      return;
+    }
+    toast.success(t("export.done"));
+  };
 
   const applyEntryFilter = () => {
     setEntryId(entryDraft.trim());
@@ -180,6 +209,53 @@ export function WorkflowRunsPanel({
               inputClassName="font-mono text-xs"
             />
             <p className="text-2xs text-muted-foreground">{t("panel.conversationFilterHint")}</p>
+            {exportOpen ? (
+              <div className="space-y-2 rounded-[--radius] border border-border p-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <ElevatedInput
+                    type="date"
+                    label={t("export.from")}
+                    value={exportRange.dateFrom}
+                    onChange={(event) => changeExportRange({ dateFrom: event.target.value })}
+                    controlSize="sm"
+                  />
+                  <ElevatedInput
+                    type="date"
+                    label={t("export.to")}
+                    value={exportRange.dateTo}
+                    onChange={(event) => changeExportRange({ dateTo: event.target.value })}
+                    controlSize="sm"
+                  />
+                </div>
+                <p className="text-2xs leading-relaxed text-muted-foreground">{t("export.hint")}</p>
+                {exportError && (
+                  <p role="alert" className="text-2xs leading-relaxed text-destructive-ink">
+                    {exportError}
+                  </p>
+                )}
+                <div className="flex justify-end gap-1.5">
+                  <ElevatedButton variant="ghost" size="sm" title={t("export.cancel")} onClick={() => setExportOpen(false)} />
+                  <ElevatedButton
+                    variant="outline-subtle"
+                    size="sm"
+                    iconVisible
+                    icon={exporting ? <CircleNotch size={12} className="animate-spin" /> : <DownloadSimple size={12} />}
+                    title={t("export.download")}
+                    disabled={!exportQuery || exporting}
+                    onClick={() => void exportRuns()}
+                  />
+                </div>
+              </div>
+            ) : (
+              <ElevatedButton
+                variant="outline-subtle"
+                size="sm"
+                iconVisible
+                icon={<DownloadSimple size={12} />}
+                title={t("export.action")}
+                onClick={() => setExportOpen(true)}
+              />
+            )}
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">

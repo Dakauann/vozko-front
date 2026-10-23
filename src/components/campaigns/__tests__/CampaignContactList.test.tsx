@@ -152,3 +152,40 @@ describe("CampaignContactList", () => {
     expect(screen.getByRole("button", { name: "remover 5584999900001" })).toBeInTheDocument();
   });
 });
+
+describe("CampaignContactList with server pages", () => {
+  function ServerList({ onViewChange }: { onViewChange: (view: ContactListView) => void }) {
+    const [view, setView] = useState(OPEN_CONTACT_LIST_VIEW);
+    return (
+      <NextIntlClientProvider locale="pt" messages={ptMessages}>
+        <CampaignContactList<Contact>
+          rows={contacts(2)}
+          rowKey={(row) => row.number}
+          number={(row) => row.number}
+          name={(row) => row.name}
+          numberHeader="E-mail"
+          searchable={() => []}
+          view={view}
+          onViewChange={(next) => {
+            setView(next);
+            onViewChange(next);
+          }}
+          server={{ total: 1204, totalItems: 120, totalPages: 3 }}
+        />
+      </NextIntlClientProvider>
+    );
+  }
+
+  it("shows the rows the server sent with its totals and asks it for the next page", () => {
+    const changes: ContactListView[] = [];
+    render(<ServerList onViewChange={(view) => changes.push(view)} />);
+    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(3);
+    expect(screen.getByText(copy.total).nextElementSibling).toHaveTextContent("1.204");
+    expect(screen.getByRole("columnheader", { name: "E-mail" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox", { name: copy.search }), { target: { value: "ana" } });
+    expect(changes.at(-1)).toEqual({ query: "ana", onlyMissing: false, page: 0 });
+    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(3);
+    expect(screen.getByText("Exibindo 120 contatos")).toBeInTheDocument();
+  });
+});

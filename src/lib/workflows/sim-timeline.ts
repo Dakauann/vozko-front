@@ -1,3 +1,6 @@
+import { groupPositions, type GroupMember, type GroupPosition } from "@/lib/chat/message-groups";
+import type { ConversationMessage } from "@/lib/conversations/types";
+
 import type { SimEvent, SimPause, SimStep } from "./sim-session";
 
 export type SimTimelineItem =
@@ -44,4 +47,19 @@ export function simTimeline(events: readonly SimEvent[], firstIndex: number, pau
 function unfoldLoneStep(item: SimTimelineItem): SimTimelineItem {
   if (item.kind !== "steps" || item.steps.length >= SMALLEST_GROUP) return item;
   return { kind: "step", key: item.key, step: item.steps[0], compact: true };
+}
+
+function messageOf(item: SimTimelineItem): ConversationMessage | null {
+  return item.kind === "event" && item.event.type === "message" ? (item.event.message ?? null) : null;
+}
+
+export function simTimelineGroups(items: readonly SimTimelineItem[], memberOf: (message: ConversationMessage) => GroupMember): Map<string, GroupPosition> {
+  const positions = groupPositions(items.map((item) => {
+    const message = messageOf(item);
+    return message ? memberOf(message) : null;
+  }));
+  return new Map(items.flatMap((item, index): Array<[string, GroupPosition]> => {
+    const position = positions[index];
+    return position ? [[item.key, position]] : [];
+  }));
 }

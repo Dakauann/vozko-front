@@ -2,6 +2,7 @@ import type { Edge, Node } from "@xyflow/react";
 
 import { edgeBranch } from "@/lib/workflows/edge-branch";
 import { pinSignature } from "@/lib/workflows/node-pin";
+import { testInputsSignature } from "@/lib/workflows/test-inputs";
 import type { Workflow, WorkflowGraph, WorkflowNodeType, WorkflowType } from "@/lib/workflows/types";
 import { workflowTypeOfTrigger } from "@/lib/workflows/workflow-types";
 
@@ -34,6 +35,7 @@ export function flowToDomain(nodes: readonly Node[], edges: readonly Edge[]): Wo
         position: { x: n.position.x, y: n.position.y },
         config,
         ...(data.pinned ? { pinned: data.pinned } : {}),
+        ...(data.testInputs?.length ? { testInputs: data.testInputs } : {}),
       };
     }),
     edges: edges.map((e) => ({
@@ -76,10 +78,11 @@ function sanitizeWorkflowConfig(
 function normalizeGraphForDirtyCheck(graph: WorkflowGraph): WorkflowGraph {
   return {
     nodes: [...(graph.nodes ?? [])]
-      .map(({ pinned, ...node }) => ({
+      .map(({ pinned, testInputs, ...node }) => ({
         ...node,
         config: sanitizeWorkflowConfig(node.config ?? {}),
         pin: pinSignature(pinned),
+        scenarios: testInputsSignature(testInputs),
       }))
       .sort((left, right) => left.id.localeCompare(right.id)),
     edges: [...(graph.edges ?? [])].sort((left, right) => {

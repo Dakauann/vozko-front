@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 
 import { listBusinessPhonesAction } from "@/app/actions/whatsapp-business-phones";
+import Button from "@/components/elevated-design/button";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { PhonePicker } from "@/components/whatsapp/start-official-conversation-dialog";
@@ -14,6 +15,7 @@ import { useExitAcknowledgement } from "@/components/whatsapp/exit/use-exit-ackn
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
 import { useTemplateComposer } from "@/hooks/use-template-composer";
+import { codedErrorMessage } from "@/lib/api/coded-error";
 import type { LeadActionRequest } from "@/lib/leads/actions";
 import {
   bindingChoices,
@@ -23,17 +25,28 @@ import {
   templateSendParams,
   type VariableBinding,
 } from "@/lib/leads/sends";
-import { isTemplateSendable, templateMessageMetadata } from "@/lib/whatsapp-templates/params";
+import { isTemplateSendable, templateMessageMetadata, type TemplateParamSlots } from "@/lib/whatsapp-templates/params";
 
 import { SendDepartmentField, useSendDepartment } from "./SendDepartmentField";
 import { BindingList, SendSummaryLine } from "./SendSummary";
 import { LeadSendDialogFrame, useLeadSendDialog, type LeadSendDialogProps } from "./LeadSendDialogFrame";
 import { VariableBindingFields } from "./VariableBindingFields";
-import { useBindingLabel, useSendErrorText } from "./send-copy";
+import { useBindingLabel } from "./send-copy";
+import { useTemplateSlots, type TemplateSlot } from "./use-template-slots";
 
 const PHONES_PAGE = 50;
 
-function useConnectedPhones() {
+const NUMBERED = /^\d+$/;
+
+function paramSlotsOf(slots: readonly TemplateSlot[]): TemplateParamSlots {
+  return {
+    header: slots.filter((slot) => slot.header).map((slot) => slot.name),
+    body: slots.filter((slot) => !slot.header).map((slot) => slot.name),
+    named: slots.some((slot) => !NUMBERED.test(slot.name)),
+  };
+}
+
+export function useConnectedPhones() {
   const { currentWorkspace } = useWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
   return useQuery({
@@ -53,7 +66,8 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
   const t = useTranslations("leadSends");
   const tCategory = useTranslations("whatsappTemplates.category");
   const format = useFormatter();
-  const errorText = useSendErrorText();
+  const tAudience = useTranslations("campaignAudience");
+  const tDialog = useTranslations("leadsPage.bulk.dialog");
   const [openedAt] = useState(() => new Date());
   const phones = useConnectedPhones();
   const list = phones.data ?? [];
@@ -61,7 +75,9 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
   const phoneId = phoneChoice || (list.length === 1 ? list[0].id : "");
   const phone = list.find((candidate) => candidate.id === phoneId) ?? null;
   const composer = useTemplateComposer({ businessPhoneId: phoneId, enabled: phoneId !== "", quote: false });
-  const { template, slots, templateId } = composer;
+  const { template, templateId } = composer;
+  const templateSlots = useTemplateSlots({ selection, templateId, businessPhoneId: phoneId });
+  const serverSlots = templateSlots.slots;
   const exitGate = useExitAcknowledgement(templateId);
   const [name, setName] = useState<string | null>(null);
   const department = useSendDepartment();
@@ -70,7 +86,7 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
   const choices = useMemo(() => bindingChoices(fields), [fields]);
   const labelOf = useBindingLabel(choices);
 
-  const slotCount = slots.body.length;
+  const slotCount = serverSlots?.length ?? 0;
   const [bound, setBound] = useState<{ templateId: string; bindings: VariableBinding[] }>({ templateId: "", bindings: [] });
   if (bound.templateId !== templateId || bound.bindings.length !== slotCount) {
     setBound({
@@ -82,7 +98,7 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
 
   const proposedName = template ? t("name.template", { template: template.name, date: format.dateTime(openedAt, { dateStyle: "short" }) }) : "";
   const sendName = name ?? proposedName;
-  const shapeRefusal = template ? (slots.named ? "send_named_parameters_unsupported" : slots.header.length > 0 ? "send_header_variable_unsupported" : null) : null;
+  const slotsReady = serverSlots !== null && !templateSlots.loading && templateSlots.error === null;
 
   const params = templateSendParams({
     name: sendName,
@@ -95,19 +111,20 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
     slots: slotCount,
   });
   const request: LeadActionRequest | null =
-    params && !shapeRefusal && department.ready && !exitGate.blocks ? { action: "send_template", params: { send: { ...params, ...exitGate.fields } }, selection } : null;
+    params && slotsReady && department.ready && !exitGate.blocks ? { action: "send_template", params: { send: { ...params, ...exitGate.fields } }, selection } : null;
   const state = useLeadSendDialog({ action: "send_template", request, onClose, onDepartmentRequired: department.reload });
 
   const canContinue =
     template !== null &&
     isTemplateSendable(template) &&
-    shapeRefusal === null &&
+    slotsReady &&
     !exitGate.blocks &&
     sendName.trim() !== "" &&
     department.ready;
 
   const previewValues = bindingPreviewValues(bindings, labelOf);
-  const metadata = templateMessageMetadata(template, previewValues, [], slots);
+  const headerCount = (serverSlots ?? []).filter((slot) => slot.header).length;
+  const metadata = templateMessageMetadata(template, previewValues.slice(headerCount), previewValues.slice(0, headerCount), paramSlotsOf(serverSlots ?? []));
   const preview = (
     <div className="space-y-2">
       <span className="legend">{t("template.previewLabel")}</span>
@@ -148,10 +165,16 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
               <p className="text-xs text-muted-foreground">{t("template.noTemplates")}</p>
             ) : null}
             <TemplateExitGate gate={exitGate} />
-            {shapeRefusal ? (
-              <p role="alert" className="text-xs text-warning-ink">
-                {errorText({ code: shapeRefusal })}
+            {templateId && templateSlots.loading ? (
+              <p role="status" className="text-xs text-muted-foreground">
+                {t("template.slotsLoading")}
               </p>
+            ) : null}
+            {templateId && templateSlots.error && !templateSlots.loading ? (
+              <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span className="text-destructive-ink">{codedErrorMessage(tAudience, templateSlots.error, t("template.slotsFailed"))}</span>
+                <Button variant="secondary" size="sm" title={tDialog("retry")} onClick={templateSlots.reload} />
+              </div>
             ) : null}
           </>
         )}
@@ -166,7 +189,7 @@ export function LeadTemplateSendDialog({ selection, size, onClose }: LeadSendDia
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
       {slotCount > 0 ? (
         <VariableBindingFields
-          slots={slots.body}
+          slots={serverSlots ?? []}
           binding={{
             choices,
             values: bindings,

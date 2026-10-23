@@ -1,4 +1,4 @@
-
+import type { AudienceSpec } from "@/lib/campaign-audience/types";
 import type { CampaignMetrics, CampaignStatus } from "@/lib/campaigns/metrics";
 
 export type { CampaignMetrics, CampaignStatus };
@@ -61,15 +61,6 @@ export interface CampaignEstimateDraft {
     groups: GroupSenderPlan[];
 }
 
-export interface CampaignEstimateRequest {
-    audience: UnofficialWhatsAppCampaignAudience;
-    instanceId?: string;
-    sendDelayMinMs?: number;
-    sendDelayMaxMs?: number;
-    targets?: number;
-    groupJids?: string[];
-}
-
 export interface UnofficialWhatsAppCampaign {
     source?: string;
     id: string;
@@ -101,6 +92,7 @@ export interface UnofficialWhatsAppCampaign {
 
     status: CampaignStatus;
     statusReason?: string;
+    readyToStart?: boolean;
 
     scheduledStart?: string | null;
     archived: boolean;
@@ -148,6 +140,7 @@ export interface UnofficialWhatsAppCampaignPayload {
     scheduledStart?: string | null;
     archived?: boolean;
     targets?: UnofficialWhatsAppCampaignTarget[];
+    recipients?: AudienceSpec;
     seedOutcome?: UnofficialWhatsAppCampaignSeedOutcome | null;
 }
 

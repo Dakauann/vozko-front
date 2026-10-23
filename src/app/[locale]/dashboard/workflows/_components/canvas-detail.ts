@@ -17,6 +17,8 @@ export const MESSAGE_NODE_TYPES: ReadonlySet<string> = new Set<WorkflowNodeType>
   "action_send_email",
   "action_send_template",
   "action_send_media",
+  "action_send_carrier",
+  "action_send_platform_email",
 ]);
 
 export function labelsOutputsOnNode(nodeType: string | undefined): boolean {

@@ -43,7 +43,7 @@ import {
   syncWhatsAppTemplateByIdAction,
   updateWhatsAppTemplateHeaderMediaAction,
 } from "@/app/actions/whatsapp-templates";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@/components/elevated-design/button";
 import { isMediaHeaderFormat, toDraftComponents } from "@/lib/whatsapp-templates/draft";
@@ -64,6 +64,9 @@ import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
 import { TemplateContentEditSheet } from "@/components/whatsapp/TemplateContentEditSheet";
 import { templateExitKeys } from "@/components/whatsapp/exit/use-template-exit";
 import { TemplateExitPanel } from "@/components/whatsapp/exit/TemplateExitPanel";
+import { ChoiceClicksCard } from "@/components/choice-stats/ChoiceClicksCard";
+import { usePromptChoiceStats } from "@/components/choice-stats/use-prompt-choice-stats";
+import { templateChoiceOptions } from "@/lib/choice-stats/template-options";
 import type { WhatsAppBusinessPhone } from "@/lib/whatsapp-business-phones/types";
 import WhatsAppPreview from "@/components/whatsapp/WhatsAppPreview";
 import type { Workspace } from "@/lib/workspace/types";
@@ -115,6 +118,9 @@ export default function WhatsAppTemplateDetailPage() {
 
   const [template, setTemplate] = useState<WhatsAppTemplate | null>(null);
   const templateHealth = useTemplateHealth(template?.id);
+  const templateChoices = useMemo(() => (template ? templateChoiceOptions(template.components) : []), [template]);
+  const choiceClicks = usePromptChoiceStats(template && templateChoices.length > 0 ? { kind: "template", id: template.id } : null);
+  const templateClicks = choiceClicks.answer?.status === "ready" ? choiceClicks.answer.stats.prompt : null;
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -624,7 +630,9 @@ export default function WhatsAppTemplateDetailPage() {
           </ElevatedContainer>
         </div>
 
-        <TemplateExitPanel templateId={template.id} canEdit={isAdmin} />
+        <TemplateExitPanel templateId={template.id} canEdit={isAdmin} clicks={templateClicks} />
+
+        {templateChoices.length > 0 ? <ChoiceClicksCard read={choiceClicks} options={templateChoices} scope="template" /> : null}
 
         {}
         <div>

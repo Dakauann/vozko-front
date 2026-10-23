@@ -1,15 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import { ChatCircle, CheckCircle, Clock, Eye, PaperPlaneTilt, Prohibit, ShieldWarning, Users, Warning } from "@/components/icons";
+import { ChatCircle, CheckCircle, Clock, Eye, PaperPlaneTilt, Prohibit, ShieldWarning, Warning } from "@/components/icons";
 import { SegmentBar } from "@/components/charts/vozko";
 import { StatusChip, type StatusChipTone } from "@/components/elevated-design/status-chip";
 import type { CampaignPace } from "@/lib/campaigns/live";
 import type { CampaignMetrics, CampaignStatus } from "@/lib/campaigns/metrics";
-import { cn } from "@/lib/utils";
+
+import { LiveFact, LiveStamp, StageStrip } from "./live-primitives";
 
 export type CampaignStageKey =
   | "pending"
@@ -128,7 +129,11 @@ function useFlowAnimation(metrics: CampaignMetrics) {
     };
   }, [pending, sent, delivered, read]);
 
-  return { containerRef, anchorRefs, floating };
+  const anchor = useCallback((key: string, node: HTMLElement | null) => {
+    anchorRefs.current[key as CampaignStageKey] = node;
+  }, []);
+
+  return { containerRef, anchor, floating };
 }
 
 function FloatingMessages({ messages }: { messages: FloatingMessage[] }) {
@@ -169,17 +174,6 @@ function useDuration() {
   };
 }
 
-function Fact({ value, label, emphasis = false }: { value: ReactNode; label: string; emphasis?: boolean }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <b className={cn("readout truncate font-display font-semibold leading-tight text-foreground", emphasis ? "text-[28px]" : "text-lg")}>
-        {value}
-      </b>
-      <span className="truncate text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
 export function CampaignLiveOverview({
   status,
   metrics,
@@ -200,7 +194,7 @@ export function CampaignLiveOverview({
   const t = useTranslations("campaignDetail");
   const format = useFormatter();
   const duration = useDuration();
-  const { containerRef, anchorRefs, floating } = useFlowAnimation(metrics);
+  const { containerRef, anchor, floating } = useFlowAnimation(metrics);
   const running = status === "RUNNING";
   const completion = Math.max(0, Math.min(100, metrics.completionRate));
   const sampleTime = sampledAt ? format.dateTime(new Date(sampledAt), { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : null;
@@ -217,13 +211,13 @@ export function CampaignLiveOverview({
     <section className="well relative overflow-hidden" data-tour="wd-info" aria-label={t("live.title")}>
       <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 border-b border-border px-4 py-4 sm:px-5">
         <div className="flex min-w-0 flex-wrap items-end gap-x-8 gap-y-3">
-          <Fact
+          <LiveFact
             emphasis
             value={`${format.number(Math.round(completion))}%`}
             label={t("live.processedOf", { processed: format.number(metrics.processed), total: format.number(metrics.totalNumbers) })}
           />
-          <Fact value={running && pace ? format.number(pace.processedPerMinute) : noPace} label={t("live.perMinute")} />
-          <Fact
+          <LiveFact value={running && pace ? format.number(pace.processedPerMinute) : noPace} label={t("live.perMinute")} />
+          <LiveFact
             value={
               running && pace?.remainingSeconds !== undefined
                 ? t("live.about", { duration: duration(pace.remainingSeconds) })
@@ -233,17 +227,11 @@ export function CampaignLiveOverview({
             }
             label={t("live.remaining")}
           />
-          <Fact value={`${format.number(Math.round(metrics.successRate))}%`} label={t("live.successRate")} />
+          <LiveFact value={`${format.number(Math.round(metrics.successRate))}%`} label={t("live.successRate")} />
         </div>
         <div className="flex flex-col items-end gap-1.5">
           <StatusChip tone={STATUS_TONE[status]} label={t(`status.${status}`)} />
-          <p className="flex items-center gap-1.5 text-2xs text-muted-foreground" aria-live="polite">
-            {running && !progressUnavailable ? (
-              <span className="relative flex h-2 w-2" aria-hidden>
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-healthy opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-healthy" />
-              </span>
-            ) : null}
+          <LiveStamp live={running && !progressUnavailable}>
             {progressUnavailable
               ? t("live.unavailable")
               : sampleTime
@@ -251,7 +239,7 @@ export function CampaignLiveOverview({
                   ? t("live.liveAt", { time: sampleTime })
                   : t("live.updatedAt", { time: sampleTime })
                 : t("live.loading")}
-          </p>
+          </LiveStamp>
         </div>
       </div>
 
@@ -263,48 +251,22 @@ export function CampaignLiveOverview({
         <SegmentBar segments={segments} size="md" formatValue={(value) => format.number(value)} />
       </div>
 
-      <div ref={containerRef} className="relative border-t border-border bg-card px-2 py-1.5 sm:px-3" data-tour="wd-metrics">
-        <FloatingMessages messages={floating} />
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="inline-flex items-center gap-2 px-2 py-1">
-            <Users className="h-4 w-4 text-info-ink" weight="fill" />
-            <span className="whitespace-nowrap text-xs text-muted-foreground">{t("live.total")}</span>
-            <span className="readout whitespace-nowrap text-sm font-semibold text-foreground">{format.number(metrics.totalNumbers)}</span>
-          </span>
-          {visibleStages(metrics, STRIP_ORDER).map((key) => {
-            const filterStatus = CAMPAIGN_STAGE_STATUS[key];
-            const applied = activeStatus === filterStatus;
-            return (
-              <button
-                key={key}
-                type="button"
-                ref={(node) => {
-                  anchorRefs.current[key] = node;
-                }}
-                aria-pressed={applied}
-                title={applied ? t("live.clearFilter") : t("live.filterBy")}
-                onClick={() => onFilterStatus(applied ? "" : filterStatus)}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-[--radius] px-2 py-1 transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  applied ? "bg-muted text-foreground shadow-[inset_0_-2px_0_0_hsl(var(--primary))]" : "hover:bg-muted",
-                )}
-              >
-                {STAGE_ICON[key]}
-                <span className="whitespace-nowrap text-xs text-muted-foreground">{t(`stage.${key}`)}</span>
-                <span
-                  className={cn(
-                    "readout whitespace-nowrap text-sm font-semibold text-foreground",
-                    !applied && "underline decoration-border-strong underline-offset-[3px]",
-                  )}
-                >
-                  {format.number(stageCount(metrics, key))}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <StageStrip
+        ref={containerRef}
+        tour="wd-metrics"
+        overlay={<FloatingMessages messages={floating} />}
+        total={format.number(metrics.totalNumbers)}
+        tiles={visibleStages(metrics, STRIP_ORDER).map((key) => ({
+          key,
+          icon: STAGE_ICON[key],
+          label: t(`stage.${key}`),
+          value: format.number(stageCount(metrics, key)),
+          filter: CAMPAIGN_STAGE_STATUS[key],
+        }))}
+        active={activeStatus}
+        onFilter={onFilterStatus}
+        anchor={anchor}
+      />
     </section>
   );
 }

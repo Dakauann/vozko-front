@@ -10,6 +10,7 @@ export interface MercadoLivreAccount {
   mlUserId: string;
   siteId: string;
   nickname: string;
+  displayName: string;
 
   status: MercadoLivreAccountStatus;
   statusReason?: string;

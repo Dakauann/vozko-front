@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { CaretDown, CaretRight, CheckCircle, Eye, Pause, Play, Robot, Stop, User, Warning, XCircle } from "@/components/icons";
+import { CHAT_OWN_CONTENT, CHAT_SYSTEM_LINE, CHAT_SYSTEM_ROW, chatBubbleClass, chatRowClass } from "@/components/chat/chat-styles";
+import { CaretDown, CaretRight, Eye, Play, PushPin, Stop } from "@/components/icons";
 import ElevatedButton from "@/components/elevated-design/button";
-import type { SimEvent, SimStatus, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
+import type { SimEvent, SimStatus, SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
 import { DIAL_KEYS } from "@/lib/dialer/dial-string";
 import { versionTag } from "@/lib/workflows/publication";
 import { cn } from "@/lib/utils";
 
-import { DurationText, ToneChip } from "./run-bits";
+import { DurationText, stepDotClass, ToneChip } from "./run-bits";
 
 const PAUSE_REASON_KEYS: Record<string, string> = {
   breakpoint: "breakpoint",
@@ -173,6 +174,17 @@ export function StatusBadge({ status }: { status: SimStatus }) {
   return label ? <ToneChip status={status} label={label} /> : null;
 }
 
+function SimSystemLine({ dot, strong = false, children }: { dot: string; strong?: boolean; children: ReactNode }) {
+  return (
+    <li className={CHAT_SYSTEM_ROW}>
+      <span className={cn(CHAT_SYSTEM_LINE, "inline-flex items-center gap-1.5", strong && "text-foreground")}>
+        <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
+        <span className="min-w-0 break-words">{children}</span>
+      </span>
+    </li>
+  );
+}
+
 export function EventItem({ event, nodeLabel }: { event: Exclude<SimEvent, { type: "step" }>; nodeLabel: (nodeId: string) => string | undefined }) {
   const t = useTranslations("workflowDebug");
   switch (event.type) {
@@ -183,97 +195,54 @@ export function EventItem({ event, nodeLabel }: { event: Exclude<SimEvent, { typ
         </li>
       );
     case "paused":
-      return (
-        <li className="flex items-center justify-center gap-1.5 py-0.5 text-center text-2xs text-muted-foreground">
-          <Pause size={11} weight="fill" className="text-warning-ink" />
-          {t("toolbar.pausedAt", { node: nodeLabel(event.pause.nodeId) ?? event.pause.nodeId })}
-        </li>
-      );
+      return <SimSystemLine dot="bg-warning">{t("toolbar.pausedAt", { node: nodeLabel(event.pause.nodeId) ?? event.pause.nodeId })}</SimSystemLine>;
     case "reply_ignored":
-      return (
-        <li className="flex items-center justify-center gap-1.5 py-0.5 text-center text-2xs text-muted-foreground">
-          <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground" />
-          {t("chat.replyIgnored")}
-        </li>
-      );
+      return <SimSystemLine dot="bg-muted-foreground">{t("chat.replyIgnored")}</SimSystemLine>;
     case "waiting_reply":
-      return (
-        <li className="flex items-center justify-center gap-1.5 py-1 text-center text-xs text-warning-ink">
-          <Warning size={12} weight="fill" />
-          Aguardando resposta... ({event.timeoutSeconds}s)
-        </li>
-      );
+      return <SimSystemLine dot="bg-warning">Aguardando resposta... ({event.timeoutSeconds}s)</SimSystemLine>;
     case "waiting_form":
-      return (
-        <li className="flex items-center justify-center gap-1.5 py-1 text-center text-xs text-warning-ink">
-          <Warning size={12} weight="fill" />
-          {t("form.waiting", { seconds: event.timeoutSeconds })}
-        </li>
-      );
+      return <SimSystemLine dot="bg-warning">{t("form.waiting", { seconds: event.timeoutSeconds })}</SimSystemLine>;
     case "waiting_key":
-      return (
-        <li className="flex items-center justify-center gap-1.5 py-1 text-center text-xs text-warning-ink">
-          <Warning size={12} weight="fill" />
-          Aguardando uma tecla... ({event.timeoutSeconds}s)
-        </li>
-      );
+      return <SimSystemLine dot="bg-warning">Aguardando uma tecla... ({event.timeoutSeconds}s)</SimSystemLine>;
     case "call_transferred":
       return (
-        <li className="py-1 text-xs text-healthy-ink">
-          <p className="flex items-center gap-1.5 font-semibold">
-            <CheckCircle size={12} weight="fill" />
-            Transferida para a fila {event.queueName}. Um atendente livre atende e o fluxo termina.
-          </p>
-          {event.notes ? <p className="mt-0.5 pl-[18px] text-muted-foreground">Nota: {event.notes}</p> : null}
-        </li>
+        <SimSystemLine dot="bg-healthy" strong>
+          Transferida para a fila {event.queueName}. Um atendente livre atende e o fluxo termina.
+          {event.notes ? <span className="block text-muted-foreground">Nota: {event.notes}</span> : null}
+        </SimSystemLine>
       );
     case "error":
       return (
-        <li className="flex items-center justify-center gap-1.5 py-1 text-center text-xs text-destructive-ink">
-          <XCircle size={12} weight="fill" />
+        <SimSystemLine dot="bg-destructive" strong>
           {event.message}
-        </li>
+        </SimSystemLine>
       );
   }
 }
 
 function MessageBubble({ event }: { event: Extract<SimEvent, { type: "message" }> }) {
-  const isOutbound = event.direction === "outbound";
-
+  const own = event.direction !== "outbound";
   return (
-    <div className={cn("flex gap-2", isOutbound ? "justify-start" : "justify-end")}>
-      {isOutbound && (
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-          <Robot size={12} className="text-primary-ink" />
+    <div className={chatRowClass(own, "single")}>
+      <div className={chatBubbleClass(own, "single")}>
+        <div className={cn("text-sm leading-relaxed", own && CHAT_OWN_CONTENT)}>
+          {event.audioUrl ? (
+            <>
+              <audio controls autoPlay preload="auto" src={event.audioUrl} className="h-8 max-w-full" />
+              <span className="mt-1 block text-2xs text-muted-foreground">{event.text}</span>
+            </>
+          ) : event.audioBase64 ? (
+            <audio controls preload="metadata" src={`data:${event.audioMime || "audio/ogg"};base64,${event.audioBase64}`} className="h-8 max-w-full" />
+          ) : event.msgType === "key" ? (
+            <span className="readout font-semibold">{event.text}</span>
+          ) : (
+            event.text
+          )}
+          {event.msgType !== "text" && event.msgType !== "key" && !event.audioBase64 && !event.audioUrl && (
+            <span className="mt-0.5 block text-2xs text-muted-foreground">[{event.msgType}]</span>
+          )}
         </div>
-      )}
-      <div
-        className={cn(
-          "max-w-[85%] rounded-[--radius] px-3 py-1.5 text-xs leading-relaxed",
-          isOutbound ? "bg-muted text-foreground rounded-tl-sm" : "bg-primary text-primary-foreground rounded-tr-sm",
-        )}
-      >
-        {event.audioUrl ? (
-          <>
-            <audio controls autoPlay preload="auto" src={event.audioUrl} className="max-w-full h-8" />
-            <span className="mt-1 block text-2xs opacity-70">{event.text}</span>
-          </>
-        ) : event.audioBase64 ? (
-          <audio controls preload="metadata" src={`data:${event.audioMime || "audio/ogg"};base64,${event.audioBase64}`} className="max-w-full h-8" />
-        ) : event.msgType === "key" ? (
-          <span className="readout text-sm font-semibold">{event.text}</span>
-        ) : (
-          event.text
-        )}
-        {event.msgType !== "text" && event.msgType !== "key" && !event.audioBase64 && !event.audioUrl && (
-          <span className="block text-2xs opacity-60 mt-0.5">[{event.msgType}]</span>
-        )}
       </div>
-      {!isOutbound && (
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-          <User size={12} className="text-muted-foreground" />
-        </div>
-      )}
     </div>
   );
 }
@@ -301,22 +270,63 @@ export function Keypad({ waiting, onKey }: { waiting: boolean; onKey: (key: stri
   );
 }
 
+const STEP_LINE = cn(
+  CHAT_SYSTEM_LINE,
+  "inline-flex items-center gap-1.5 transition-colors hover:border-solid hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+);
+
 export function SimStepGroup({ count, durationMs, expanded, onToggle }: { count: number; durationMs: number; expanded: boolean; onToggle: () => void }) {
   const t = useTranslations("workflowDebug.chat");
   const Caret = expanded ? CaretDown : CaretRight;
   return (
-    <li className="flex justify-center">
-      <button
-        type="button"
-        aria-expanded={expanded}
-        onClick={onToggle}
-        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
+    <li className={CHAT_SYSTEM_ROW}>
+      <button type="button" aria-expanded={expanded} onClick={onToggle} className={STEP_LINE}>
         <Caret size={10} className="shrink-0" />
-        <span>{t("stepGroup", { count })}</span>{" "}
-        <span aria-hidden>·</span>{" "}
+        <span>{t("stepGroup", { count })}</span>
+        <span aria-hidden>·</span>
         <DurationText ms={durationMs} />
       </button>
+    </li>
+  );
+}
+
+export function SimStepLine({
+  step,
+  label,
+  lone,
+  expanded,
+  onToggle,
+  children,
+}: {
+  step: SimStep;
+  label: string | undefined;
+  lone: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  const t = useTranslations("workflowRuns");
+  const tDebug = useTranslations("workflowDebug");
+  const Caret = expanded ? CaretDown : CaretRight;
+  const settled = step.status === "executed";
+  return (
+    <li data-compact={lone ? "true" : undefined} className="flex flex-col items-center py-1.5">
+      <button type="button" onClick={onToggle} aria-expanded={expanded} className={cn(STEP_LINE, !settled && "text-foreground")}>
+        <Caret size={10} className="shrink-0" />
+        <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-full", stepDotClass(step.status))} />
+        <span className="min-w-0 truncate">{label ?? step.nodeType}</span>
+        {step.pinned && <PushPin size={10} weight="fill" className="shrink-0" aria-label={tDebug("step.pinned")} />}
+        {!settled && (
+          <>
+            <span aria-hidden>·</span>
+            <span className="shrink-0">{t.has(`stepStatus.${step.status}`) ? t(`stepStatus.${step.status}`) : step.status}</span>
+          </>
+        )}
+        {step.attempt > 1 && <span className="shrink-0">{t("detail.attempt", { attempt: step.attempt })}</span>}
+        <span aria-hidden>·</span>
+        <DurationText ms={step.durationMs} className="shrink-0" />
+      </button>
+      {expanded && <div className="mt-1.5 w-full rounded-lg border border-border bg-card text-left shadow-sm [&>[data-testid=step-detail]]:border-t-0">{children}</div>}
     </li>
   );
 }

@@ -48,6 +48,7 @@ function account(overrides: Partial<MercadoLivreAccount> = {}): MercadoLivreAcco
     mlUserId: "123456",
     siteId: "MLB",
     nickname: "LOJA_TESTE",
+    displayName: "LOJA_TESTE",
     status: "CONNECTED",
     needsReconnect: false,
     grantedScopes: [],

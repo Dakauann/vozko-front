@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { listFormsAction } from "@/app/actions/whatsapp-forms";
 import { ElevatedCommandSelect } from "@/components/elevated-design/elevated-command-select";
@@ -11,8 +11,6 @@ import { publishedForms, readSendFormConfig } from "@/lib/workflows/form-node";
 import type { FormSummary } from "@/lib/whatsapp-forms/types";
 
 import { VariableCommandInput } from "./variable-command-input";
-
-type AvailableVars = ComponentProps<typeof VariableCommandInput>["availableVars"];
 
 interface FormList {
   forms: FormSummary[];
@@ -45,12 +43,10 @@ function Counter({ count, limit }: { count: number; limit: number }) {
 export function SendFormConfigSection({
   config,
   onChange,
-  availableVars,
   fallbackTemplate,
 }: {
   config: Record<string, unknown>;
   onChange: (patch: Record<string, unknown>) => void;
-  availableVars: AvailableVars;
   fallbackTemplate: ReactNode;
 }) {
   const t = useTranslations("workflowsPage.sendForm");
@@ -91,15 +87,15 @@ export function SendFormConfigSection({
       </div>
 
       <div>
-        <VariableCommandInput label={t("header")} value={form.header} onChange={(header) => onChange({ header })} controlSize="sm" availableVars={availableVars} />
+        <VariableCommandInput label={t("header")} value={form.header} onChange={(header) => onChange({ header })} controlSize="sm" />
         <Counter count={form.header.length} limit={FORM_COPY_LIMITS.header} />
       </div>
       <div>
-        <VariableCommandInput label={`${t("body")} *`} value={form.body} onChange={(body) => onChange({ body })} controlSize="sm" availableVars={availableVars} multiline />
+        <VariableCommandInput label={`${t("body")} *`} value={form.body} onChange={(body) => onChange({ body })} controlSize="sm" multiline />
         <Counter count={form.body.length} limit={FORM_COPY_LIMITS.body} />
       </div>
       <div>
-        <VariableCommandInput label={t("footer")} value={form.footer} onChange={(footer) => onChange({ footer })} controlSize="sm" availableVars={availableVars} />
+        <VariableCommandInput label={t("footer")} value={form.footer} onChange={(footer) => onChange({ footer })} controlSize="sm" />
         <Counter count={form.footer.length} limit={FORM_COPY_LIMITS.footer} />
       </div>
       <div>
