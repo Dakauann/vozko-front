@@ -18,7 +18,7 @@ const hours = { timezone: "America/Sao_Paulo", days: { mon: [{ start: "08:00", e
 const standard: SmartPolicy = {
   preset: "standard", firstWaveSize: 200, minWaveSize: 50, maxWaveSize: 5000, growth: 2, shrink: 0.5,
   observeWaitMinutes: 120, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50,
-  failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause",
+  failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause", onPhoneYellow: "slow_down", onPhoneRed: "pause",
   sendHours: hours,
 };
 
@@ -64,6 +64,24 @@ describe("SmartCampaignSection", () => {
     expect(forecast).toHaveTextContent("Onda 2");
     expect(projectSmartWavesAction).toHaveBeenCalledWith(standard, 50000, undefined);
     expect(screen.getByTestId("blocks")).toHaveTextContent("false");
+  });
+
+  it("keeps the number colour rules behind the advanced settings, already filled by the pace", async () => {
+    render(<Harness />);
+    const toggle = await screen.findByRole("switch", { name: smart.enable });
+    await waitFor(() => expect(toggle).not.toBeDisabled());
+    fireEvent.click(toggle);
+
+    expect(screen.queryByText(smart.fields.onPhoneRed)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(smart.advanced) }));
+
+    expect(screen.getByText(smart.fields.onPhoneYellow)).toBeInTheDocument();
+    expect(screen.getByText(smart.fields.onPhoneRed)).toBeInTheDocument();
+    expect(screen.getByText(smart.protectionHint)).toBeInTheDocument();
+    const summary = smart.presetProtection.replace("{yellow}", smart.protectiveShort.slow_down).replace("{red}", smart.protectiveShort.pause);
+    expect(screen.getAllByText(new RegExp(summary)).length).toBeGreaterThan(0);
+    const fields = JSON.parse(screen.getByTestId("fields").textContent ?? "{}").smartPolicy;
+    expect([fields.onPhoneYellow, fields.onPhoneRed]).toEqual(["slow_down", "pause"]);
   });
 
   it("explains what Disparo Inteligente does before anyone switches it on", async () => {

@@ -22,7 +22,8 @@ vi.mock("next/navigation", () => ({ useRouter: () => router }));
 vi.mock("@/components/TourGuide", () => ({ default: () => null }));
 vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }));
 const getDraftExitVerdictAction = vi.hoisted(() => vi.fn());
-vi.mock("@/app/actions/template-exit", () => ({ getDraftExitVerdictAction }));
+const getButtonActionKindsAction = vi.hoisted(() => vi.fn());
+vi.mock("@/app/actions/template-exit", () => ({ getDraftExitVerdictAction, getButtonActionKindsAction }));
 vi.mock("@/contexts/workspace-context", () => ({ useWorkspace: () => ({ currentWorkspace: { id: "ws-1" }, can: () => true }) }));
 
 import NewWhatsAppTemplatePage from "../page";
@@ -54,9 +55,9 @@ beforeEach(() => {
   getDraftExitVerdictAction.mockReset().mockResolvedValue({
     data: {
       verdict: { state: "none", buttons: [], exitWords: [], templateExitRequired: true, campaignAcknowledgementRequired: true },
-      allowedKinds: ["opt_out", "consent_grant", "hand_off"],
     },
   });
+  getButtonActionKindsAction.mockReset().mockResolvedValue({ data: { allowedKinds: ["opt_out", "consent_grant", "hand_off"] } });
   createWhatsAppTemplateAction.mockReset();
   router.push.mockReset();
 });
@@ -119,22 +120,24 @@ describe("The kinds the builder offers", () => {
     return screen.queryAllByRole("option").map((option) => option.textContent);
   }
 
-  it("come from the server's draft verdict", async () => {
-    getDraftExitVerdictAction.mockResolvedValue({
-      data: {
-        verdict: { state: "none", buttons: [], exitWords: [], templateExitRequired: true, campaignAcknowledgementRequired: true },
-        allowedKinds: ["hand_off", "opt_out"],
-      },
-    });
+  it("come from the kinds the server allows this viewer", async () => {
+    getButtonActionKindsAction.mockResolvedValue({ data: { allowedKinds: ["hand_off", "opt_out"] } });
     await fillTemplate();
-    await waitFor(() => expect(getDraftExitVerdictAction).toHaveBeenCalled(), { timeout: 3000 });
+    await waitFor(() => expect(getButtonActionKindsAction).toHaveBeenCalled(), { timeout: 3000 });
     await waitFor(async () => expect(await exitKindsOffered()).toEqual([exit.kinds.opt_out]), { timeout: 3000 });
   });
 
-  it("leave out every exit kind when the draft verdict failed", async () => {
-    getDraftExitVerdictAction.mockResolvedValue({ error: "boom", status: 500 });
+  it("stay offered while the draft still has an unfinished button action", async () => {
+    getDraftExitVerdictAction.mockResolvedValue({ error: "boom", status: 400, code: "button_action_params_invalid" });
     await fillTemplate();
     await waitFor(() => expect(getDraftExitVerdictAction).toHaveBeenCalled(), { timeout: 3000 });
+    await waitFor(async () => expect(await exitKindsOffered()).toEqual([exit.kinds.opt_out, exit.kinds.consent_grant]), { timeout: 3000 });
+  });
+
+  it("leave out every exit kind when the allowed kinds could not be read", async () => {
+    getButtonActionKindsAction.mockResolvedValue({ error: "boom", status: 500 });
+    await fillTemplate();
+    await waitFor(() => expect(getButtonActionKindsAction).toHaveBeenCalled(), { timeout: 3000 });
     expect(await exitKindsOffered()).toEqual([]);
   });
 });

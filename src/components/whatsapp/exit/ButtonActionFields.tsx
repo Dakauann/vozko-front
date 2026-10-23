@@ -7,6 +7,7 @@ import ElevatedTextarea from "@/components/elevated-design/elevated-textarea";
 import type { ButtonActionChoice, ButtonActionKind } from "@/lib/whatsapp-templates/exit";
 
 import { ButtonActionParamsFields } from "./ButtonActionParamsFields";
+import { OptOutNotice } from "./OptOutNotice";
 
 const NO_ACTION = "none";
 
@@ -45,6 +46,7 @@ export function ButtonActionFields({
           </ElevatedSelectItem>
         ))}
       </ElevatedSelect>
+      {value?.kind === "opt_out" ? <OptOutNotice /> : null}
       {value ? (
         <>
           <ButtonActionParamsFields kind={value.kind} params={value.params} onChange={(params) => onChange({ ...value, params })} />

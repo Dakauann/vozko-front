@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,6 +15,8 @@ import { getWorkflowAction, listWorkflowsAction } from "@/app/actions/workflows"
 import { useListRowsQuery } from "@/components/campaign-audience/use-audience-queries";
 import { useCampaignAudience } from "@/components/campaign-audience/use-campaign-audience";
 import type { ElevatedCommandOption } from "@/components/elevated-design/elevated-command-select";
+import { PhoneQualityChip, PhoneStatusChip } from "@/components/whatsapp/business-phone-health/PhoneHealthChips";
+import { TemplateQualityChip, TemplateStatusChip } from "@/components/whatsapp/template-health/TemplateQuality";
 import { useCampaignExit } from "@/components/whatsapp/exit/use-campaign-exit";
 import { useSmartPolicyDraft } from "@/components/whatsapp/smart/SmartCampaignSection";
 import { useAuth } from "@/contexts/auth-context";
@@ -249,6 +251,12 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
     (phone: WhatsAppBusinessPhone): ElevatedCommandOption => ({
       label: phone.verifiedName ? `${phone.verifiedName} (${phone.displayPhoneNumber})` : phone.displayPhoneNumber,
       value: phone.id,
+      description: createElement(
+        "span",
+        { className: "flex flex-wrap items-center gap-1.5" },
+        createElement(PhoneStatusChip, { status: phone.status }),
+        createElement(PhoneQualityChip, { rating: phone.qualityRating }),
+      ),
     }),
     [],
   );
@@ -261,7 +269,13 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
       return {
         label: `${template.name} (${template.language})`,
         value: template.id,
-        description: needsMedia ? t("media.missingMediaShort") : undefined,
+        description: createElement(
+          "span",
+          { className: "flex flex-wrap items-center gap-1.5" },
+          createElement(TemplateStatusChip, { status: template.status }),
+          createElement(TemplateQualityChip, { quality: template.quality ?? "" }),
+          needsMedia ? createElement("span", null, t("media.missingMediaShort")) : null,
+        ),
       };
     },
     [t],
@@ -453,6 +467,7 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
     }
   }, [aiModels, mode, getValues, setValue]);
 
+  const selectedBusinessPhone = selectedBusinessPhoneId ? knownBusinessPhones[selectedBusinessPhoneId] : undefined;
   const selectedTemplate = useMemo(() => (selectedTemplateId ? knownTemplates[selectedTemplateId] : undefined), [selectedTemplateId, knownTemplates]);
   const templateVariables = useMemo(() => extractTemplateVariables(selectedTemplate), [selectedTemplate]);
 
@@ -625,6 +640,7 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
     templateOptions,
     agentOptions,
     workflowOptions,
+    selectedBusinessPhone,
     selectedTemplate,
     templateVariables,
     pickPreviewEntry,

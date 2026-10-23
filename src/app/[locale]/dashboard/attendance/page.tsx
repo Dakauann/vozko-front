@@ -7,7 +7,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -984,23 +983,37 @@ function TeamResolutionChart({
     );
   }
 
-  const chartH = Math.max(220, data.length * 32 + 56);
-  const legendH = 24;
-  const margin = { top: 28, bottom: 4 };
-  const plotH = chartH - legendH - margin.top - margin.bottom;
+  const xAxisH = 30;
+  const margin = { top: 4, bottom: 4 };
+  const chartH = Math.max(196, data.length * 32 + margin.top + margin.bottom + xAxisH);
+  const plotH = chartH - margin.top - margin.bottom - xAxisH;
   const slotH = data.length > 0 ? plotH / data.length : 0;
+  const legend = [
+    { label: resolvedLabel, color: COLORS.finished },
+    { label: ongoingLabel, color: COLORS.open },
+    { label: pendingLabel, color: COLORS.pending },
+  ];
 
   return (
+    <div className="space-y-2">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1">
+      {legend.map((item) => (
+        <li key={item.label} className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+          {item.label}
+        </li>
+      ))}
+    </ul>
     <div style={{ height: chartH }} className="relative">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
           layout="vertical"
-          margin={{ top: 28, right: 44, left: 4, bottom: 4 }}
+          margin={{ top: margin.top, right: 44, left: 4, bottom: margin.bottom }}
           barCategoryGap={6}
         >
           <CartesianGrid {...vozGrid} vertical horizontal={false} />
-          <XAxis type="number" allowDecimals={false} {...vozXAxis} />
+          <XAxis type="number" allowDecimals={false} {...vozXAxis} height={xAxisH} />
           <YAxis type="category" dataKey="name" {...vozYAxis} width={100} />
           <Tooltip
             cursor={{ fill: "hsl(var(--primary) / 0.08)" }}
@@ -1043,17 +1056,6 @@ function TeamResolutionChart({
               );
             }}
           />
-          <Legend
-            verticalAlign="top"
-            align="left"
-            height={24}
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ paddingBottom: 4, display: "flex", gap: 12 }}
-            formatter={(v) => (
-              <span className="mr-4 text-2xs text-muted-foreground">{v}</span>
-            )}
-          />
           <Bar
             dataKey="resolvidas"
             name={resolvedLabel}
@@ -1080,7 +1082,7 @@ function TeamResolutionChart({
       </ResponsiveContainer>
       <div
         className="pointer-events-none absolute top-0 right-0 flex flex-col items-end"
-        style={{ height: chartH, paddingTop: legendH + margin.top, paddingBottom: margin.bottom }}
+        style={{ height: chartH, paddingTop: margin.top, paddingBottom: margin.bottom + xAxisH }}
       >
         {data.map((d, i) => (
           <div
@@ -1092,6 +1094,7 @@ function TeamResolutionChart({
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

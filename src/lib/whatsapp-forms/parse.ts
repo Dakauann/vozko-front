@@ -47,6 +47,7 @@ import {
   type Publication,
   type PublicationBrief,
   type PublishResult,
+  type PublishTarget,
   type Response,
   type ResponseDetail,
   type ResponseRow,
@@ -302,12 +303,13 @@ export function parseDraftSaved(value: unknown): Version | null {
 }
 
 function parseOutcome(value: unknown): Outcome | null {
-  if (!isJson(value) || !isText(value.metaWabaId) || !oneOf(PUBLICATION_STATUSES, value.status)) return null;
+  if (!isJson(value) || !isText(value.metaWabaId)) return null;
+  if (value.status !== undefined && !oneOf(PUBLICATION_STATUSES, value.status)) return null;
   const problems = strictList(value.problems, parseProblem);
   if (problems === null) return null;
   return {
     metaWabaId: value.metaWabaId,
-    status: value.status,
+    ...(value.status !== undefined ? { status: value.status } : {}),
     ...texts(value, ["error", "code"] as const),
     ...(problems.length > 0 ? { problems } : {}),
   };
@@ -319,6 +321,15 @@ export function parsePublishResult(value: unknown): PublishResult | null {
   const form = parseFormDetail(value.form);
   if (outcomes === null || !form) return null;
   return { outcomes, form };
+}
+
+function parsePublishTarget(value: unknown): PublishTarget | null {
+  if (!isJson(value) || !isText(value.metaWabaId)) return null;
+  return { metaWabaId: value.metaWabaId, supported: value.supported === true, businessVerified: value.businessVerified === true };
+}
+
+export function parsePublishTargets(value: unknown): PublishTarget[] | null {
+  return strictList(value, parsePublishTarget);
 }
 
 export function parsePreview(value: unknown): Preview | null {

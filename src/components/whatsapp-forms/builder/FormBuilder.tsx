@@ -17,7 +17,7 @@ import {
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ArrowCounterClockwise, ArrowClockwise, ArrowLeft, CheckCircle, Code, DeviceMobile, PaperPlaneTilt, WarningCircle } from "@/components/icons";
-import { useOwnedPhones, useRefreshForms } from "@/hooks/use-whatsapp-forms";
+import { useOwnedPhones, usePublishTargets, useRefreshForms } from "@/hooks/use-whatsapp-forms";
 import { Link } from "@/i18n/routing";
 import type { Json } from "@/lib/json/guards";
 import { useStudioEditor } from "@/lib/studio/store";
@@ -53,6 +53,7 @@ export function FormBuilder({ detail: initial, options, canEdit, canPublish }: {
   const errorText = useFormError();
   const refresh = useRefreshForms();
   const phones = useOwnedPhones();
+  const targets = usePublishTargets();
   const readOnly = !canEdit;
   const formId = initial.form.id;
 
@@ -189,10 +190,10 @@ export function FormBuilder({ detail: initial, options, canEdit, canPublish }: {
     setPanelOpen(false);
   };
 
-  const publish = async () => {
+  const publish = async (metaWabaIds: string[]) => {
     setPublishing(true);
     await flush();
-    const answer = await publishFormAction(formId);
+    const answer = await publishFormAction(formId, metaWabaIds);
     setPublishing(false);
     if (answer.error) {
       const refused = problemsOf(answer.error);
@@ -204,7 +205,7 @@ export function FormBuilder({ detail: initial, options, canEdit, canPublish }: {
     setDetail(answer.data.form);
     setPublishProblems([]);
     void refresh(formId);
-    const failed = answer.data.outcomes.filter((outcome) => outcome.status === "failed").length;
+    const failed = answer.data.outcomes.filter((outcome) => outcome.status === "failed" || outcome.error).length;
     if (failed === 0) toast.success(t("publish.done"));
     else toast.warning(t("publish.partial", { count: failed }));
   };
@@ -387,10 +388,11 @@ export function FormBuilder({ detail: initial, options, canEdit, canPublish }: {
         detail={detail}
         outcomes={outcomes}
         phones={phones.data ?? []}
+        targets={targets.data ?? []}
         problems={publishProblems}
         publishing={publishing}
         canPublish={canPublish}
-        onPublish={() => void publish()}
+        onPublish={(metaWabaIds) => void publish(metaWabaIds)}
         onDeprecate={deprecate}
         onJump={jump}
       />

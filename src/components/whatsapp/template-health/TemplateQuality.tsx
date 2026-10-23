@@ -6,7 +6,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { getTemplateHealthAction } from "@/app/actions/template-health";
 import { StatusChip } from "@/components/elevated-design/status-chip";
 import { FlagCheckered } from "@/components/icons";
-import { knownQuality, qualityTone, type TemplateHealth, type TemplateHealthChange } from "@/lib/whatsapp-templates/health";
+import { knownQuality, qualityTone, templateStatusTone, type TemplateHealth, type TemplateHealthChange } from "@/lib/whatsapp-templates/health";
 
 type TemplateHealthState = { health: TemplateHealth | null; error: boolean };
 
@@ -27,16 +27,29 @@ export function useTemplateHealth(templateId: string | null | undefined): Templa
   return state.id === templateId ? { health: state.health, error: state.error } : { health: null, error: false };
 }
 
+export function TemplateStatusChip({ status }: { status: string }) {
+  const t = useTranslations("whatsappTemplates.status");
+  const key = status.toLowerCase();
+  return <StatusChip tone={templateStatusTone(status)} label={t.has(key) ? t(key) : status} />;
+}
+
+export function TemplateQualityChip({ quality: raw }: { quality: string }) {
+  const t = useTranslations("templateHealth");
+  const quality = knownQuality(raw);
+  return (
+    <span title={t(`qualityHint.${quality}`)}>
+      <StatusChip tone={qualityTone(quality)} label={t(`quality.${quality}`)} />
+    </span>
+  );
+}
+
 export function TemplateQualityChips({ state }: { state: TemplateHealthState }) {
   const t = useTranslations("templateHealth");
   if (state.error) return <StatusChip tone="outline" label={t("unavailable")} />;
   if (!state.health) return null;
-  const quality = knownQuality(state.health.quality);
   return (
     <>
-      <span title={t(`qualityHint.${quality}`)}>
-        <StatusChip tone={qualityTone(quality)} label={t(`quality.${quality}`)} />
-      </span>
+      <TemplateQualityChip quality={state.health.quality} />
       {state.health.flagged ? (
         <span title={t("flaggedHint")}>
           <StatusChip tone="warning" icon={<FlagCheckered className="h-3.5 w-3.5" weight="fill" />} label={t("flagged")} />

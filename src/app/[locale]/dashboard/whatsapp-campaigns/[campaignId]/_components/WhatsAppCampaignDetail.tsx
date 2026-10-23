@@ -73,7 +73,7 @@ import { CampaignFailuresPanel, CampaignFullReportLink, CampaignFunnelPanel, use
 import { CampaignSettingsPanel } from "./CampaignSettingsPanel";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { NextIntlClientProvider, useTranslations } from "next-intl";
+import { NextIntlClientProvider, useTimeZone, useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useExportEntries } from "@/hooks/use-export-entries";
 import { exportErrorKey } from "@/lib/whatsapp-campaigns/export-errors";
@@ -114,8 +114,9 @@ export default function WhatsAppCampaignDetail({
   locale,
   ...rest
 }: WhatsAppCampaignDetailProps) {
+  const timeZone = useTimeZone();
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
       <WhatsAppCampaignDetailContent {...rest} locale={locale} />
     </NextIntlClientProvider>
   );

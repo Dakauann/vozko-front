@@ -3359,7 +3359,8 @@
         "lead_exit_action": "Lead-Austritt",
         "lead_send_refused": "Senden abgelehnt",
         "agent_reply_withheld": "Agent-Antwort zurückgehalten",
-        "email_forward_skipped": "Kopie nicht weitergeleitet"
+        "email_forward_skipped": "Kopie nicht weitergeleitet",
+        "lead_button_action": "Schaltflächenaktion"
       },
       "details": {
         "assignedTo": "An {name}",
@@ -5691,6 +5692,7 @@
     "card": {
       "name": "Name",
       "status": "Status",
+      "quality": "Qualität",
       "noDescription": "Keine Beschreibung",
       "language": "Sprache",
       "components": "Komponenten",
@@ -6495,6 +6497,7 @@
         "pace": "Tempo",
         "protection": "Schutz"
       },
+      "protectionHint": "Die Farbe ist die Qualität, die Meta der Nummer und der Vorlage gibt: grün, gelb oder rot.",
       "description": "Versendet in Wellen und beobachtet zwischen den Wellen den Zustand von Nummer und Vorlage bei Meta. Läuft etwas schief, verlangsamt, pausiert oder stoppt der Versand von selbst und informiert den Kontoinhaber per E-Mail.",
       "enable": "Smart-Versand einschalten",
       "preset": "Tempo",
@@ -6504,6 +6507,7 @@
         "aggressive": "Schnell"
       },
       "presetHint": "Wellen von {first} bis {max}, {minutes} Min. Beobachtung dazwischen",
+      "presetProtection": "Wenn die Nummer schlechter wird: gelb {yellow}, rot {red}",
       "sendHours": "Versandzeiten",
       "sendHoursHint": "Übernommen aus den Arbeitszeiten der Abteilung oder des Workspace. Wellen gehen nur innerhalb dieser Zeiten raus.",
       "sendHoursRequired": "Lege Versandzeiten fest, um zu speichern.",
@@ -6517,7 +6521,9 @@
         "failureRateSlow": "Fehler zum Verkleinern der Welle (%)",
         "failureRateStop": "Fehler zum Stoppen (%)",
         "maxSlowWavesAtFloor": "Wellen auf Minimum vor dem Pausieren",
-        "onTemplateYellow": "GELBE Vorlage"
+        "onTemplateYellow": "GELBE Vorlage",
+        "onPhoneYellow": "Nummer GELB",
+        "onPhoneRed": "Nummer ROT"
       },
       "protective": {
         "slow_down": "Welle verkleinern",
@@ -6545,6 +6551,8 @@
         "template_in_review": "die Vorlage ist wieder in der Prüfung bei Meta",
         "template_red": "die Vorlage ist ROT",
         "template_yellow": "die Vorlage ist GELB",
+        "phone_yellow": "die Nummer wurde bei Meta GELB",
+        "phone_red": "die Nummer wurde bei Meta ROT",
         "category_marketing": "die Vorlage wurde als Marketing neu eingestuft",
         "phone_banned": "die Nummer wurde gesperrt",
         "phone_unavailable": "die Nummer kann gerade nicht senden (eingeschränkt oder getrennt)",
@@ -6599,6 +6607,16 @@
         "more": "Und weitere Wellen danach.",
         "caveat": "Prognose im besten Fall: keine Warnungen von Meta. Jede Welle wartet die Beobachtung der vorherigen ab und geht nur innerhalb der Versandzeiten raus. Eine Warnung von Meta verkleinert, pausiert oder verschiebt die nächsten Wellen.",
         "failed": "Die Wellenprognose konnte nicht berechnet werden."
+      },
+      "protectiveShort": {
+        "slow_down": "verkleinert",
+        "pause": "pausiert",
+        "stop": "stoppt"
+      },
+      "protectiveHints": {
+        "slow_down": "Die nächste Welle geht mit der Hälfte der Kontakte raus",
+        "pause": "Hält an und behält die Kontakte; du setzt fort, wann du willst",
+        "stop": "Hält endgültig an; die restlichen Kontakte werden nicht gesendet"
       }
     },
     "header": {
@@ -10293,6 +10311,14 @@
       "NODE_NEEDS_CONVERSATION": {
         "title": "{node} braucht eine Unterhaltung, aber dieser Workflow startet mit einem Lead",
         "fix": "Workflows, die mit einem Lead starten (Geburtstag oder Webhook mit Start bei Lead), haben keine offene Unterhaltung, also bleibt dieser Schritt ohne Wirkung. Nutze Schritte, die ohne Unterhaltung funktionieren, wie E-Mail, CRM und HTTP-Anfrage."
+      },
+      "NODE_UNKNOWN_CUSTOM_FIELD": {
+        "title": "{node} schreibt in das Feld {key}, das nicht existiert",
+        "fix": "Flows schreiben nur in benutzerdefinierte Lead-Felder, die im Workspace existieren. Lege das Feld an oder wähle im Schritt eines der vorhandenen Felder."
+      },
+      "NODE_SENSITIVE_CUSTOM_FIELD": {
+        "title": "{node} versucht, das sensible Feld {key} zu schreiben",
+        "fix": "Flows schreiben nie sensible Felder. Entferne dieses Feld aus dem Schritt."
       }
     },
     "lintCopy": {
@@ -12924,7 +12950,8 @@
       "tiktok": "TikTok",
       "email": "E-mail",
       "rcs": "RCS",
-      "sms": "SMS"
+      "sms": "SMS",
+      "workflow": "Workflow"
     },
     "export": {
       "executive": {
@@ -29774,6 +29801,10 @@
     "confirmation": {
       "label": "Ausstiegsbestätigung (optional)",
       "hint": "Wird gesendet, wenn der Lead den Ausstieg dieser Vorlage nutzt. Leer wird nichts gesendet."
+    },
+    "optOutNotice": {
+      "title": "Wer diesen Ausstieg nutzt, erhält keine Vorlagen mehr",
+      "body": "Ab dann erhält der Lead keine deiner Vorlagen mehr, in keiner Kampagne, und wird aus den Anruflisten entfernt. Er erhält erst wieder Nachrichten, wenn er erneut zustimmt. Meta verlangt, dass Leads den Empfang einfach beenden können, ohne deine Nummer zu blockieren: Wer keinen Ausstieg findet, blockiert oder meldet eher, was die Qualität deiner Nummer senkt und zu Einschränkungen führen kann."
     }
   },
   "leadExit": {
@@ -35231,9 +35262,15 @@
     },
     "publish": {
       "title": "Formular veröffentlichen",
-      "description": "Das Formular wird in allen WhatsApp Konten mit offiziellen Nummern dieses Workspace veröffentlicht.",
-      "confirm": "Veröffentlichen",
-      "confirmNew": "Neue Version veröffentlichen",
+      "description": "Wähle, in welchen WhatsApp Konten veröffentlicht wird. Formulare funktionieren nur mit offiziellen Nummern, die direkt mit Meta verbunden sind.",
+      "confirm": "In {count, plural, one {# Konto} other {# Konten}} veröffentlichen",
+      "confirmNew": "Neue Version in {count, plural, one {# Konto} other {# Konten}} veröffentlichen",
+      "chooseAccount": "Wähle ein Konto zum Veröffentlichen",
+      "choose": "Im Konto {name} veröffentlichen",
+      "unsupportedTitle": "Dieses Konto unterstützt keine Formulare",
+      "unsupportedBody": "Die Nummern dieses Kontos stammen von einem anderen Anbieter, nicht direkt von Meta. Formulare können nur auf Nummern veröffentlicht werden, die direkt mit Meta verbunden sind.",
+      "unverifiedTitle": "Unternehmen nicht von Meta verifiziert",
+      "unverifiedBody": "Meta veröffentlicht Formulare nur für verifizierte Unternehmen mit genehmigtem Anzeigenamen und guter Qualität. Sonst lehnt Meta mit \"Integrity requirements not met\" ab. Schließe die Unternehmensverifizierung im Meta Business Manager ab und veröffentliche erneut.",
       "publishing": "Wird veröffentlicht...",
       "problemsTitle": "Vor dem Veröffentlichen korrigieren",
       "noAccounts": "Kein WhatsApp Konto mit offizieller Nummer dieses Workspace.",
@@ -39304,6 +39341,28 @@
       "workflow_access_denied": "Du hast keinen Zugriff auf diesen Ablauf.",
       "template_not_found": "Vorlage nicht gefunden.",
       "workflow_not_found": "Workflow nicht gefunden."
+    }
+  },
+  "campaignSendRisk": {
+    "phone": {
+      "fault": {
+        "title": "Nummer droht gesperrt zu werden",
+        "body": "Meta hat diese Nummer mit niedriger Qualität bewertet oder gesperrt. Ein Versand jetzt kann zur Einschränkung der Nummer führen. Wähle eine andere Nummer oder warte, bis sich die Qualität verbessert."
+      },
+      "warning": {
+        "title": "Qualität der Nummer sinkt",
+        "body": "Die Qualität dieser Nummer ist auf mittel gesunken oder Meta hat sie markiert. Wenn du fortfährst, sende ein kleineres Volumen und beobachte Sperren und Antworten."
+      }
+    },
+    "template": {
+      "fault": {
+        "title": "Vorlage mit niedriger Qualität",
+        "body": "Meta hat diese Vorlage mit niedriger Qualität bewertet. Wenn Leads sie weiter blockieren oder melden, kann Meta die Vorlage mitten in der Kampagne pausieren."
+      },
+      "warning": {
+        "title": "Vorlage mit mittlerer Qualität",
+        "body": "Einige Leads blockieren oder melden diese Vorlage. Überarbeite den Text oder sende an weniger Personen, bevor du ausweitest."
+      }
     }
   }
 }

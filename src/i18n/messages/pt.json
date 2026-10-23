@@ -3359,7 +3359,8 @@
         "lead_exit_action": "Saída do lead",
         "lead_send_refused": "Envio recusado",
         "agent_reply_withheld": "Resposta do agente retida",
-        "email_forward_skipped": "Cópia não encaminhada"
+        "email_forward_skipped": "Cópia não encaminhada",
+        "lead_button_action": "Ação do botão"
       },
       "details": {
         "assignedTo": "Para {name}",
@@ -5163,6 +5164,7 @@
     "card": {
       "name": "Nome",
       "status": "Status",
+      "quality": "Qualidade",
       "business": "Negócio",
       "noDescription": "Sem descrição",
       "language": "Idioma",
@@ -6558,6 +6560,7 @@
         "pace": "Ritmo",
         "protection": "Proteção"
       },
+      "protectionHint": "A cor é a qualidade que a Meta dá ao número e ao modelo: verde, amarelo ou vermelho.",
       "description": "Envia em ondas e observa a saúde do número e do modelo na Meta entre uma onda e outra. Se algo der errado, reduz, pausa ou encerra sozinho e avisa o dono da conta por e-mail.",
       "enable": "Ativar Disparo Inteligente",
       "preset": "Ritmo",
@@ -6567,6 +6570,7 @@
         "aggressive": "Agressivo"
       },
       "presetHint": "Ondas de {first} até {max}, observação de {minutes} min entre elas",
+      "presetProtection": "Se o número piorar: amarelo {yellow}, vermelho {red}",
       "sendHours": "Horário de envio",
       "sendHoursHint": "Vem do horário de funcionamento do departamento ou do workspace. As ondas só saem dentro dele.",
       "sendHoursRequired": "Defina um horário de envio para salvar.",
@@ -6580,7 +6584,9 @@
         "failureRateSlow": "Falhas para reduzir a onda (%)",
         "failureRateStop": "Falhas para encerrar (%)",
         "maxSlowWavesAtFloor": "Ondas no mínimo antes de pausar",
-        "onTemplateYellow": "Modelo AMARELO"
+        "onTemplateYellow": "Modelo AMARELO",
+        "onPhoneYellow": "Número AMARELO",
+        "onPhoneRed": "Número VERMELHO"
       },
       "protective": {
         "slow_down": "Reduzir a onda",
@@ -6608,6 +6614,8 @@
         "template_in_review": "o modelo voltou para análise da Meta",
         "template_red": "o modelo ficou VERMELHO",
         "template_yellow": "o modelo ficou AMARELO",
+        "phone_yellow": "o número ficou AMARELO na Meta",
+        "phone_red": "o número ficou VERMELHO na Meta",
         "category_marketing": "o modelo foi reclassificado como marketing",
         "phone_banned": "o número foi banido",
         "phone_unavailable": "o número não pode enviar agora (restrito ou desconectado)",
@@ -6662,6 +6670,16 @@
         "more": "E mais ondas depois destas.",
         "caveat": "Previsão no melhor caso: sem alertas da Meta. Cada onda espera a observação da anterior e só sai no horário de envio. Um alerta da Meta reduz, pausa ou adia as próximas ondas.",
         "failed": "Não foi possível calcular a previsão das ondas."
+      },
+      "protectiveShort": {
+        "slow_down": "reduz",
+        "pause": "pausa",
+        "stop": "encerra"
+      },
+      "protectiveHints": {
+        "slow_down": "A próxima onda sai com metade dos contatos",
+        "pause": "Para e guarda os contatos; você retoma quando quiser",
+        "stop": "Para de vez; os contatos restantes não são enviados"
       }
     },
     "header": {
@@ -11001,7 +11019,7 @@
     },
     "consent": {
       "registrar": "Registrar consentimento",
-      "retirar": "Retirar consentimento (opt-out)",
+      "retirar": "Retirar consentimento (parar de receber)",
       "noMode": "Escolha registrar ou retirar",
       "purpose": "Finalidade: {purpose}",
       "note": "Nota: {note}"
@@ -11221,6 +11239,14 @@
       "NODE_NEEDS_CONVERSATION": {
         "title": "{node} precisa de uma conversa, mas este fluxo começa em um lead",
         "fix": "Fluxos que começam em um lead (Aniversário, ou Webhook iniciando em Lead) não têm conversa aberta, então este passo segue sem efeito. Use passos que funcionam sem conversa, como email, CRM e requisição HTTP."
+      },
+      "NODE_UNKNOWN_CUSTOM_FIELD": {
+        "title": "{node} grava no campo {key}, que não existe",
+        "fix": "Os fluxos só gravam em campos personalizados de lead que existem no workspace. Crie o campo ou escolha um dos campos existentes no passo."
+      },
+      "NODE_SENSITIVE_CUSTOM_FIELD": {
+        "title": "{node} tenta gravar o campo sensível {key}",
+        "fix": "Fluxos nunca gravam campos sensíveis. Remova esse campo do passo."
       }
     },
     "lintCopy": {
@@ -11240,7 +11266,7 @@
       "trigger_input_invalid": "Os dados de entrada foram recusados. Corrija os campos marcados.",
       "trigger_input_unavailable": "Não foi possível ler os dados deste gatilho agora. Tente de novo.",
       "trigger_not_found": "Este gatilho não existe mais no rascunho salvo.",
-      "workflow_consent_grant_needs_reply": "Registrar consentimento só vale depois da resposta do lead em todos os caminhos (Aguardar resposta, uma opção de botões ou o botão do template). Para opt-out use Retirar.",
+      "workflow_consent_grant_needs_reply": "Registrar consentimento só vale depois da resposta do lead em todos os caminhos (Aguardar resposta, uma opção de botões ou o botão do template). Para o lead parar de receber, use Retirar.",
       "lead_consent_grant_forbidden": "Só quem tem permissão para registrar consentimento de leads pode salvar ou ativar um fluxo com o passo Registrar consentimento.",
       "agent_call_inputs_invalid": "Os campos do gatilho Chamado por agente IA são inválidos. Dê a cada campo um nome único e um tipo.",
       "body_too_large": "O arquivo passa de 2 MB. Envie um fluxo menor.",
@@ -14189,7 +14215,8 @@
       "tiktok": "TikTok",
       "email": "E-mail",
       "rcs": "RCS",
-      "sms": "SMS"
+      "sms": "SMS",
+      "workflow": "Fluxo"
     },
     "export": {
       "executive": {
@@ -29605,7 +29632,7 @@
   "templateExit": {
     "kinds": {
       "none": "Sem ação",
-      "opt_out": "Registrar opt-out",
+      "opt_out": "Parar de receber templates (opt-out)",
       "consent_grant": "Registrar consentimento",
       "hand_off": "Encaminhar para atendimento",
       "delegate": "Passar para IA ou automação",
@@ -29678,7 +29705,7 @@
     },
     "risk": {
       "title": "Seguir sem saída configurada",
-      "policy": "A Política de Mensagens Comerciais do WhatsApp exige atender pedidos de opt-out.",
+      "policy": "A Política de Mensagens Comerciais do WhatsApp exige atender quem pede para parar de receber mensagens.",
       "quality": "Bloqueios e denúncias baixam a classificação de qualidade e o limite de mensagens do número, e podem levar à restrição do número.",
       "lgpd": "A LGPD garante à pessoa o direito de retirar o consentimento a qualquer momento.",
       "confirm": "Entendo esses riscos e quero seguir sem uma saída configurada.",
@@ -29774,6 +29801,10 @@
     "confirmation": {
       "label": "Confirmação da saída (opcional)",
       "hint": "Enviada quando o lead usa a saída deste modelo. Em branco, nada é enviado."
+    },
+    "optOutNotice": {
+      "title": "Quem usar esta saída não recebe mais seus templates",
+      "body": "A partir desse momento o lead não recebe mais nenhum template seu, seja de campanha, fluxo ou envio avulso, e sai das listas de ligação. Ele só volta a receber se der o consentimento de novo. A Meta pede que o lead tenha um jeito simples de parar de receber sem precisar bloquear o número: quem não encontra essa saída costuma bloquear ou denunciar, o que derruba a qualidade do seu número e pode levar a restrições."
     }
   },
   "leadExit": {
@@ -29793,7 +29824,7 @@
         "unknown": "Pedido de saída"
       },
       "changed": {
-        "opt_out": "opt-out registrado",
+        "opt_out": "parou de receber templates",
         "consent_grant": "consentimento registrado",
         "hand_off": "encaminhado para atendimento",
         "delegate": "passado para a IA ou automação",
@@ -35231,9 +35262,15 @@
     },
     "publish": {
       "title": "Publicar formulário",
-      "description": "O formulário é publicado em todas as contas do WhatsApp com números oficiais deste workspace.",
-      "confirm": "Publicar",
-      "confirmNew": "Publicar nova versão",
+      "description": "Escolha em quais contas do WhatsApp publicar. Formulários só funcionam em números oficiais conectados direto à Meta.",
+      "confirm": "Publicar em {count, plural, one {# conta} other {# contas}}",
+      "confirmNew": "Publicar nova versão em {count, plural, one {# conta} other {# contas}}",
+      "chooseAccount": "Escolha uma conta para publicar",
+      "choose": "Publicar na conta {name}",
+      "unsupportedTitle": "Esta conta não aceita formulários",
+      "unsupportedBody": "Os números desta conta são de outro provedor, não da Meta direto. Formulários só podem ser publicados em números conectados direto à Meta.",
+      "unverifiedTitle": "Empresa não verificada na Meta",
+      "unverifiedBody": "A Meta só publica formulários de empresas verificadas, com nome de exibição aprovado e boa qualidade. Sem isso ela recusa com \"Integrity requirements not met\". Conclua a verificação da empresa no Gerenciador de Negócios da Meta e publique de novo.",
       "publishing": "Publicando...",
       "problemsTitle": "Corrija antes de publicar",
       "noAccounts": "Nenhuma conta do WhatsApp com número oficial deste workspace.",
@@ -39304,6 +39341,28 @@
       "workflow_access_denied": "Você não tem acesso a este fluxo.",
       "template_not_found": "Template não encontrado.",
       "workflow_not_found": "Fluxo não encontrado."
+    }
+  },
+  "campaignSendRisk": {
+    "phone": {
+      "fault": {
+        "title": "Número com risco de bloqueio",
+        "body": "A Meta classificou este número com qualidade baixa ou o bloqueou. Disparar agora pode levar à restrição do número. Escolha outro número ou aguarde a qualidade melhorar."
+      },
+      "warning": {
+        "title": "Número com qualidade em queda",
+        "body": "A qualidade deste número caiu para média ou ele foi sinalizado pela Meta. Se continuar, envie em volume menor e acompanhe bloqueios e respostas."
+      }
+    },
+    "template": {
+      "fault": {
+        "title": "Modelo com qualidade baixa",
+        "body": "A Meta classificou este modelo com qualidade baixa. Se os leads continuarem bloqueando ou denunciando, a Meta pode pausar o modelo no meio do disparo."
+      },
+      "warning": {
+        "title": "Modelo com qualidade média",
+        "body": "Alguns leads estão bloqueando ou denunciando este modelo. Revise o texto ou envie para menos pessoas antes de ampliar."
+      }
     }
   }
 }

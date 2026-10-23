@@ -58,6 +58,7 @@ interface WorkflowPersistenceInput {
   workflowType: WorkflowType;
   graph: WorkflowGraph;
   draftKey: string;
+  lintRevision: string;
   canSave: boolean;
   workflowState: Workflow | null;
   setWorkflowState: Dispatch<SetStateAction<Workflow | null>>;
@@ -100,6 +101,7 @@ export function useWorkflowPersistence({
   workflowType,
   graph,
   draftKey,
+  lintRevision,
   canSave,
   workflowState,
   setWorkflowState,
@@ -133,10 +135,10 @@ export function useWorkflowPersistence({
   const workflowRef = useRef(workflowState);
   const queue = useRef<Promise<unknown>>(Promise.resolve());
   const afterOverwrite = useRef<OverwriteRetry | null>(null);
-  const [blocked, setBlocked] = useState<{ key: string; issues: LintIssue[] } | null>(null);
+  const [blocked, setBlocked] = useState<{ key: string; revision: string; issues: LintIssue[] } | null>(null);
   const [alertsRequest, setAlertsRequest] = useState(0);
   const showProblems = useCallback(() => setAlertsRequest((request) => request + 1), []);
-  const publishIssues = blocked && blocked.key === draftKey ? blocked.issues : NO_ISSUES;
+  const publishIssues = blocked && blocked.key === draftKey && blocked.revision === lintRevision ? blocked.issues : NO_ISSUES;
 
   const apply = useCallback((event: DraftSaveEvent) => {
     machineRef.current = draftSaveReducer(machineRef.current, event);
@@ -432,7 +434,7 @@ export function useWorkflowPersistence({
     const failure = outcome.failure ?? { message: "" };
     const copy = publishFailureCopy(failure, t, t("publication.publishFailed"), lintSubjects);
     if (failure.issues && failure.issues.length > 0) {
-      setBlocked({ key: prepareDraft().key, issues: failure.issues });
+      setBlocked({ key: prepareDraft().key, revision: lintRevision, issues: failure.issues });
       showProblems();
       toast.error(copy.title, {
         description: copy.description,

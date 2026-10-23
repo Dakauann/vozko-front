@@ -17,7 +17,7 @@ import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
 const policy: SmartPolicy = {
   preset: "standard", firstWaveSize: 200, minWaveSize: 50, maxWaveSize: 5000, growth: 2, shrink: 0.5,
   observeWaitMinutes: 120, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50,
-  failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause",
+  failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause", onPhoneYellow: "slow_down", onPhoneRed: "pause",
   sendHours: { timezone: "America/Sao_Paulo", days: { mon: [{ start: "08:00", end: "20:00" }] } },
 };
 

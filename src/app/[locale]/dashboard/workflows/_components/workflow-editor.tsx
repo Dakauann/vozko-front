@@ -35,6 +35,8 @@ import type { RightPanel } from "@/lib/workflows/editor-docking";
 import type { RuntimeAlertFix } from "@/lib/workflows/runtime-alerts";
 import { entryPointsByNode, type EntryPointFix } from "@/lib/workflows/entry-points";
 import { initialDraftName, isDraftRevision } from "@/lib/workflows/draft-save";
+import { useLeadFieldDefinitions } from "@/hooks/use-lead-field-definitions";
+import { leadFieldsRevision } from "@/lib/workflows/custom-field-fix";
 import { mergeLintIssues, runDiffersFromCanvas } from "@/lib/workflows/publication";
 import { getWorkflowVersionAction } from "@/app/actions/workflows";
 import { useSettledPermission } from "@/hooks/use-settled-permission";
@@ -289,7 +291,9 @@ export function WorkflowEditor({
   });
 
   const domainGraph = useMemo(() => flowToDomain(layoutNodes, edges), [layoutNodes, edges]);
-  const lint = useWorkflowLint({ workflowType, graph: domainGraph });
+  const leadFields = useLeadFieldDefinitions();
+  const lintRevision = useMemo(() => leadFieldsRevision(leadFields.definitions), [leadFields.definitions]);
+  const lint = useWorkflowLint({ workflowType, graph: domainGraph, revision: lintRevision });
 
   const nodeLabelById = useMemo(() => {
     const map = new Map<string, string>();
@@ -516,6 +520,7 @@ export function WorkflowEditor({
     workflowType,
     graph: domainGraph,
     draftKey: currentSnapshot,
+    lintRevision,
     canSave,
     workflowState,
     setWorkflowState,

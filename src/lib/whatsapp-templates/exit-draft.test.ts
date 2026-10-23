@@ -6,7 +6,7 @@ import {
   EMPTY_LEAD_EXIT_DRAFT,
   applyLeadExit,
   collectExitSetup,
-  draftAllowedKinds,
+  allowedKindsOf,
   draftVerdictRequest,
   editExitSetup,
   exitSetupFields,
@@ -214,15 +214,13 @@ describe("withoutExitSetup", () => {
   });
 });
 
-describe("draftAllowedKinds", () => {
-  const verdict = { state: "none" as const, buttons: [], exitWords: [], templateExitRequired: true, campaignAcknowledgementRequired: true };
-
+describe("allowedKindsOf", () => {
   it("offers the kinds the server allows this viewer", () => {
-    expect(draftAllowedKinds({ verdict, allowedKinds: ["opt_out", "hand_off"] })).toEqual(["opt_out", "hand_off"]);
+    expect(allowedKindsOf({ allowedKinds: ["opt_out", "hand_off"] })).toEqual(["opt_out", "hand_off"]);
   });
 
-  it("offers nothing while the draft verdict is unknown", () => {
-    expect(draftAllowedKinds(null)).toEqual([]);
+  it("offers nothing while the allowed kinds are unknown", () => {
+    expect(allowedKindsOf(null)).toEqual([]);
   });
 });
 

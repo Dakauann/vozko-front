@@ -61,28 +61,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { PhoneQualityChip, PhoneStatusChip } from "@/components/whatsapp/business-phone-health/PhoneHealthChips";
 
-const STATUS_COLORS: Record<BusinessPhoneStatus, string> = {
-  PENDING: "bg-warning text-warning-foreground",
-  VERIFYING: "bg-muted text-muted-foreground",
-  CONNECTED: "bg-healthy text-healthy-foreground",
-  DISCONNECTED: "bg-muted text-muted-foreground",
-  BANNED: "bg-destructive text-destructive-foreground",
-  FLAGGED: "bg-warning text-warning-foreground",
-  RESTRICTED: "bg-warning text-warning-foreground",
-  RATE_LIMITED: "bg-muted text-muted-foreground",
-  UNVERIFIED: "bg-warning text-warning-foreground",
-  ONBOARDING_FAILED: "bg-destructive text-destructive-foreground",
-  DELETED: "bg-muted text-muted-foreground",
-};
-
-const QUALITY_COLORS: Record<QualityRating, string> = {
-  GREEN: "bg-healthy text-healthy-foreground",
-  YELLOW: "bg-warning text-warning-foreground",
-  RED: "bg-destructive text-destructive-foreground",
-  UNKNOWN: "bg-muted text-muted-foreground",
-  NA: "bg-muted text-muted-foreground",
-};
 
 
 const PAGE_SIZE = 25;
@@ -370,14 +350,7 @@ export default function WhatsAppBusinessPhonesPage({
             </span>
           ) : (
           <div className="flex flex-col gap-1">
-            <span
-              className={cn(
-                "inline-flex w-fit items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-                STATUS_COLORS[row.status] ?? "bg-muted text-muted-foreground",
-              )}
-            >
-              {getStatusLabel(row.status)}
-            </span>
+            <PhoneStatusChip status={row.status} />
             {row.status === "ONBOARDING_FAILED" && row.onboardingError && (
               <span
                 className="flex max-w-[240px] items-start gap-1 text-xs text-destructive-ink"
@@ -409,14 +382,7 @@ export default function WhatsAppBusinessPhonesPage({
         key: "quality",
         header: t("card.quality"),
         render: (row) => (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              QUALITY_COLORS[row.qualityRating] ?? "bg-muted text-muted-foreground",
-            )}
-          >
-            {getQualityLabel(row.qualityRating)}
-          </span>
+          <PhoneQualityChip rating={row.qualityRating} />
         ),
       },
       {

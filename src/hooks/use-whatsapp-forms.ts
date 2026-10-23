@@ -15,6 +15,7 @@ import {
   listFormResponsesAction,
   listFormSendsAction,
   listFormsAction,
+  publishTargetsAction,
   type FormListQuery,
   type PeriodQuery,
   type ResponseListQuery,
@@ -54,6 +55,7 @@ export const formKeys = {
   sends: (workspaceId: string, formId: string) => ["whatsapp-forms", workspaceId, "form", formId, "sends"] as const,
   automations: (workspaceId: string, formId: string) => ["whatsapp-forms", workspaceId, "form", formId, "automations"] as const,
   phones: (workspaceId: string) => ["whatsapp-forms", workspaceId, "phones"] as const,
+  publishTargets: (workspaceId: string) => ["whatsapp-forms", workspaceId, "publish-targets"] as const,
 };
 
 export function useFormOptions() {
@@ -160,6 +162,15 @@ export function useOwnedPhones() {
       return result.phones;
     },
     enabled: view && workspaceId !== "",
+  });
+}
+
+export function usePublishTargets() {
+  const { workspaceId, publish } = useFormAccess();
+  return useSectionQuery({
+    queryKey: formKeys.publishTargets(workspaceId),
+    queryFn: async (signal) => required(await publishTargetsAction(signal), "form publish targets"),
+    enabled: publish && workspaceId !== "",
   });
 }
 

@@ -24,6 +24,8 @@ export type SmartPolicy = {
   failureRateStop: number;
   engagementRateSlow: number;
   onTemplateYellow: SmartProtectiveAction;
+  onPhoneYellow: SmartProtectiveAction;
+  onPhoneRed: SmartProtectiveAction;
   sendHours: WorkingHoursSpec | null;
 };
 

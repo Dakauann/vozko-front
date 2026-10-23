@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OPT_OUT_SKILL, missingOptOutSkill } from "./opt-out-skill";
 
-const optOut = { name: OPT_OUT_SKILL, displayName: "Registrar opt-out" };
+const optOut = { name: OPT_OUT_SKILL, displayName: "Parar de receber templates (opt-out)" };
 const search = { name: "search_knowledge_base", displayName: "Buscar na base" };
 
 describe("the opt-out skill note", () => {

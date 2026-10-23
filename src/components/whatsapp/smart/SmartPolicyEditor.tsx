@@ -28,7 +28,7 @@ import { WaveProjectionList } from "./WaveProjection";
 
 type NumberField = "firstWaveSize" | "minWaveSize" | "maxWaveSize" | "observeWaitMinutes" | "maxWavesPerDay" | "maxSlowWavesAtFloor";
 type RateField = "failureRateSlow" | "failureRateStop";
-type ActionField = "onTemplateYellow";
+type ActionField = "onTemplateYellow" | "onPhoneYellow" | "onPhoneRed";
 type Field = { kind: "number"; key: NumberField } | { kind: "rate"; key: RateField } | { kind: "action"; key: ActionField };
 
 const FIELD_GROUPS: { key: "waves" | "pace" | "protection"; fields: Field[] }[] = [
@@ -36,7 +36,13 @@ const FIELD_GROUPS: { key: "waves" | "pace" | "protection"; fields: Field[] }[] 
   { key: "pace", fields: [{ kind: "number", key: "observeWaitMinutes" }, { kind: "number", key: "maxWavesPerDay" }, { kind: "number", key: "maxSlowWavesAtFloor" }] },
   {
     key: "protection",
-    fields: [{ kind: "rate", key: "failureRateSlow" }, { kind: "rate", key: "failureRateStop" }, { kind: "action", key: "onTemplateYellow" }],
+    fields: [
+      { kind: "rate", key: "failureRateSlow" },
+      { kind: "rate", key: "failureRateStop" },
+      { kind: "action", key: "onTemplateYellow" },
+      { kind: "action", key: "onPhoneYellow" },
+      { kind: "action", key: "onPhoneRed" },
+    ],
   },
 ];
 const PROTECTIVE_ACTIONS: SmartProtectiveAction[] = ["slow_down", "pause", "stop"];
@@ -110,11 +116,14 @@ function PolicyFields({
   const options = SMART_PRESETS.map((preset) => ({
     value: preset,
     label: t(`presets.${preset}`),
-    description: t("presetHint", {
+    description: `${t("presetHint", {
       first: defaults.presets[preset].firstWaveSize,
       max: defaults.presets[preset].maxWaveSize,
       minutes: defaults.presets[preset].observeWaitMinutes,
-    }),
+    })}. ${t("presetProtection", {
+      yellow: t(`protectiveShort.${defaults.presets[preset].onPhoneYellow}`),
+      red: t(`protectiveShort.${defaults.presets[preset].onPhoneRed}`),
+    })}`,
   }));
 
   return (
@@ -158,6 +167,7 @@ function PolicyFields({
             {FIELD_GROUPS.map((group) => (
               <fieldset key={group.key} className="min-w-0 space-y-2">
                 <legend className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">{t(`advancedGroups.${group.key}`)}</legend>
+                {group.key === "protection" ? <p className="text-xs text-muted-foreground">{t("protectionHint")}</p> : null}
                 {group.fields.map((field) => (
                   <PolicyField key={field.key} field={field} value={value} onChange={onChange} disabled={disabled} />
                 ))}
@@ -180,7 +190,7 @@ function PolicyField({ field, value, onChange, disabled }: { field: Field; value
         <p className="text-xs text-muted-foreground">{label}</p>
         <ElevatedSelect value={value[field.key]} onValueChange={(next) => onChange({ ...value, [field.key]: next as SmartProtectiveAction })} disabled={disabled}>
           {PROTECTIVE_ACTIONS.map((action) => (
-            <ElevatedSelectItem key={action} value={action}>
+            <ElevatedSelectItem key={action} value={action} description={t(`protectiveHints.${action}`)}>
               {t(`protective.${action}`)}
             </ElevatedSelectItem>
           ))}

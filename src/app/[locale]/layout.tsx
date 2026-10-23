@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClientProviderComponent } from "@/components/providers/query-client-provider";
 import { ViewportIntegrityProvider } from "@/components/providers/viewport-integrity";
+import { TimeZoneSync } from "@/components/providers/time-zone-sync";
 import { RefCapture } from "@/components/affiliate/ref-capture";
 import { Toaster as SonnerToaster } from "sonner";
 import { Suspense } from "react";
@@ -60,7 +61,9 @@ export default async function LocaleLayout({ children, params }: Props) {
           <ViewportIntegrityProvider>
             <Suspense fallback={null}>
               <RefCapture />
-            </Suspense>
+            </Suspense>
+            <TimeZoneSync />
+
             <LayoutWrapper>{children}</LayoutWrapper>
             <SonnerToaster position="bottom-center" />
           </ViewportIntegrityProvider>

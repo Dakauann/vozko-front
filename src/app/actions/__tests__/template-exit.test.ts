@@ -17,6 +17,7 @@ vi.mock("@/lib/api/browser-client", () => ({
 
 import {
   getAudienceExitsAction,
+  getButtonActionKindsAction,
   getDraftExitVerdictAction,
   getCampaignButtonRoutesAction,
   getTemplateButtonActionsAction,
@@ -104,11 +105,19 @@ describe("campaign button routes", () => {
 
 describe("draft exit verdict", () => {
   it("asks the server to judge the draft and stores nothing", async () => {
-    const verdict = { verdict: { state: "none", buttons: [], exitWords: [], templateExitRequired: true, campaignAcknowledgementRequired: true }, allowedKinds: [] };
+    const verdict = { verdict: { state: "none", buttons: [], exitWords: [], templateExitRequired: true, campaignAcknowledgementRequired: true } };
     api.results.push({ data: verdict });
     const draft = { category: "MARKETING", header: "", body: "Ofertas", footer: "Responda /sair", buttons: [{ type: "QUICK_REPLY", text: "Ver" }], buttonActions: [] };
     expect(await getDraftExitVerdictAction(draft)).toEqual({ data: verdict });
     expect(api.calls[0]).toMatchObject({ path: "/whatsapp/templates/exit-verdict", method: "POST", body: draft });
+  });
+});
+
+describe("button action kinds", () => {
+  it("reads the kinds this viewer may set without any draft", async () => {
+    api.results.push({ data: { allowedKinds: ["opt_out", "classify"] } });
+    expect(await getButtonActionKindsAction()).toEqual({ data: { allowedKinds: ["opt_out", "classify"] } });
+    expect(api.calls[0]).toMatchObject({ path: "/whatsapp/button-action-kinds", method: "GET" });
   });
 });
 

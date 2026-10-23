@@ -1,7 +1,7 @@
 import type { DraggableComponent } from "@/components/whatsapp/DragDropBuilder";
 
 import { MAX_BUILDER_BUTTONS } from "./builder";
-import { exitWordLabel, type ButtonActionChoice, type ButtonActionInput, type ButtonActionView, type DraftExitVerdict } from "./exit";
+import { exitWordLabel, type ButtonActionChoice, type ButtonActionInput, type ButtonActionView, type ButtonActionKinds } from "./exit";
 
 export type LeadExitPlan =
   | { mode: "button"; text: string; action: ButtonActionChoice }
@@ -145,8 +145,8 @@ export function draftVerdictRequest(components: DraggableComponent[], category: 
 
 const UNKNOWN_KINDS: readonly string[] = [];
 
-export function draftAllowedKinds(draftVerdict: DraftExitVerdict | null): readonly string[] {
-  return draftVerdict?.allowedKinds ?? UNKNOWN_KINDS;
+export function allowedKindsOf(kinds: ButtonActionKinds | null): readonly string[] {
+  return kinds?.allowedKinds ?? UNKNOWN_KINDS;
 }
 
 export function exitSetupFields(setup: ExitSetup): Partial<ExitSetup> {

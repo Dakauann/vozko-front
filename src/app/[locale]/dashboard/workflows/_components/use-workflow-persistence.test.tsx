@@ -76,6 +76,7 @@ function mount(initial: Workflow | null = stored()) {
         workflowType: "messages",
         graph: GRAPH,
         draftKey,
+        lintRevision: "",
         canSave: true,
         workflowState: initial,
         setWorkflowState: spies.setWorkflowState,

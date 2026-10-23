@@ -229,10 +229,16 @@ export interface FormDetail {
 
 export interface Outcome {
   metaWabaId: string;
-  status: PublicationStatus;
+  status?: PublicationStatus;
   problems?: Problem[];
   error?: string;
   code?: string;
+}
+
+export interface PublishTarget {
+  metaWabaId: string;
+  supported: boolean;
+  businessVerified: boolean;
 }
 
 export interface PublishResult {

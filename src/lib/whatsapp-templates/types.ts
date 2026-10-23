@@ -47,6 +47,7 @@ export interface WhatsAppTemplate {
     externalId: string;
     wabaId?: string;
     wabaName?: string;
+    quality?: string;
     name: string;
     language: string;
     category: TemplateCategory;

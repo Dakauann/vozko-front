@@ -17,9 +17,9 @@ const hours = { timezone: "America/Sao_Paulo", days: { mon: [{ start: "08:00", e
 const defaults: SmartDefaults = {
   sendHours: hours,
   presets: {
-    conservative: { preset: "conservative", firstWaveSize: 100, minWaveSize: 50, maxWaveSize: 2000, growth: 1.5, shrink: 0.5, observeWaitMinutes: 180, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.05, failureRateStop: 0.1, engagementRateSlow: 0.02, onTemplateYellow: "pause", sendHours: hours },
-    standard: { preset: "standard", firstWaveSize: 200, minWaveSize: 50, maxWaveSize: 5000, growth: 2, shrink: 0.5, observeWaitMinutes: 120, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause", sendHours: hours },
-    aggressive: { preset: "aggressive", firstWaveSize: 500, minWaveSize: 100, maxWaveSize: 20000, growth: 3, shrink: 0.5, observeWaitMinutes: 60, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.1, failureRateStop: 0.2, engagementRateSlow: 0.05, onTemplateYellow: "slow_down", sendHours: hours },
+    conservative: { preset: "conservative", firstWaveSize: 100, minWaveSize: 50, maxWaveSize: 2000, growth: 1.5, shrink: 0.5, observeWaitMinutes: 180, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.05, failureRateStop: 0.1, engagementRateSlow: 0.02, onTemplateYellow: "pause", onPhoneYellow: "pause", onPhoneRed: "stop", sendHours: hours },
+    standard: { preset: "standard", firstWaveSize: 200, minWaveSize: 50, maxWaveSize: 5000, growth: 2, shrink: 0.5, observeWaitMinutes: 120, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.08, failureRateStop: 0.15, engagementRateSlow: 0.03, onTemplateYellow: "pause", onPhoneYellow: "slow_down", onPhoneRed: "pause", sendHours: hours },
+    aggressive: { preset: "aggressive", firstWaveSize: 500, minWaveSize: 100, maxWaveSize: 20000, growth: 3, shrink: 0.5, observeWaitMinutes: 60, maxObserveWaitMinutes: 300, maxWavesPerDay: 0, maxSlowWavesAtFloor: 3, minSample: 50, failureRateSlow: 0.1, failureRateStop: 0.2, engagementRateSlow: 0.05, onTemplateYellow: "slow_down", onPhoneYellow: "slow_down", onPhoneRed: "pause", sendHours: hours },
   },
 };
 

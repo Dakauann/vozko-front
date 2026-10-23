@@ -309,6 +309,28 @@ describe("WhatsAppCampaignWizard steps and draft", () => {
     expect(lastSaved().payload.state).toMatchObject({ templateInfoConfirmed: true, exit: { templateId: "tpl-1", acknowledged: true } });
   });
 
+  it("shows phone and template quality and send risks in the wizard", async () => {
+    catalog.phones = [{ id: "phone-1", displayPhoneNumber: "+55 11 4000-0000", verifiedName: "Clínica", status: "CONNECTED", qualityRating: "RED" }];
+    catalog.templates = [{ ...TEMPLATE, quality: "YELLOW" }];
+    renderWizard();
+    fireEvent.change(await screen.findByLabelText(form.basicInfo.campaignName), { target: { value: "Matrículas 2027" } });
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(form.basicInfo.businessPhone) }));
+    const phone = await screen.findByRole("option", { name: /Clínica/ });
+    expect(within(phone).getByText(ptMessages.whatsappBusinessPhones.status.CONNECTED)).toBeInTheDocument();
+    expect(within(phone).getByText(ptMessages.whatsappBusinessPhones.qualityRating.RED)).toBeInTheDocument();
+    fireEvent.click(phone);
+    expect(await screen.findByText(ptMessages.campaignSendRisk.phone.fault.title)).toBeInTheDocument();
+    await waitFor(() => expect(nextButton(wizard.next.message)).toBeEnabled(), SETTLE);
+    fireEvent.click(nextButton(wizard.next.message));
+    await waitFor(() => expect(screen.getByRole("button", { name: new RegExp(form.basicInfo.template) })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(form.basicInfo.template) }));
+    const template = await screen.findByRole("option", { name: /promo_outubro/ });
+    expect(within(template).getByText(ptMessages.whatsappTemplates.status.approved)).toBeInTheDocument();
+    expect(within(template).getByText(ptMessages.templateHealth.quality.YELLOW)).toBeInTheDocument();
+    fireEvent.click(template);
+    expect(await screen.findByText(ptMessages.campaignSendRisk.template.warning.title)).toBeInTheDocument();
+  });
+
   it("sends the list as recipients from Público", async () => {
     await fillConfig();
     await chooseTemplate();

@@ -106,7 +106,7 @@ export function usePresenceLabel() {
 export function useActorKindLabel() {
   const tc = useTranslations("metricsOps.common");
   return useCallback(
-    (kind: string) => (kind === "ai" ? tc("ai") : tc("human")),
+    (kind: string) => (kind === "ai" ? tc("ai") : kind === "workflow" ? tc("workflow") : tc("human")),
     [tc],
   );
 }

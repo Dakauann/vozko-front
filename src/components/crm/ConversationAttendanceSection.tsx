@@ -36,7 +36,7 @@ import type { EntryType } from "@/lib/conversations/types";
 import { closeOutcomeLabel } from "@/lib/conversations/close-outcome";
 import { useOutcomeCapture } from "@/hooks/use-outcome-capture";
 import { aiSessionEndLine } from "@/lib/conversations/ai-session-end";
-import { LEAD_EXIT_ACTION, LEAD_SEND_REFUSED, leadExitView, type LeadExitTone } from "@/lib/conversations/lead-exit-event";
+import { LEAD_EXIT_ACTION, LEAD_SEND_REFUSED, exitEventTitleType, leadExitView, type LeadExitTone } from "@/lib/conversations/lead-exit-event";
 import { EMAIL_FORWARD_SKIPPED, emailForwardSkippedKey } from "@/lib/email/events";
 import { LeadExitEventLine } from "./LeadExitEventLine";
 import {
@@ -72,6 +72,7 @@ const LOCALE_TAG: Record<string, string> = {
 const AGENT_REPLY_WITHHELD = "agent_reply_withheld";
 
 const KNOWN_EVENT_TYPES = new Set([
+  "lead_button_action",
   "assigned",
   "auto_assigned",
   "unassigned",
@@ -745,8 +746,9 @@ export default function ConversationAttendanceSection({
                     const showHandoff =
                       isHandoffEvent(ev.event_type) &&
                       Boolean(who.from || who.to);
-                    const title = KNOWN_EVENT_TYPES.has(ev.event_type)
-                      ? t(`types.${ev.event_type}` as "types.assigned")
+                    const titleType = exitEventTitleType(ev.event_type, details);
+                    const title = KNOWN_EVENT_TYPES.has(titleType)
+                      ? t(`types.${titleType}` as "types.assigned")
                       : t("types.unknown", { type: ev.event_type });
 
                     return (

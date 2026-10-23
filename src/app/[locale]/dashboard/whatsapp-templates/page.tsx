@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { TemplateQualityChip, TemplateStatusChip } from "@/components/whatsapp/template-health/TemplateQuality";
 import {
   listBusinessPhonesAction,
   listBusinessPhonesAdminAction,
@@ -46,14 +47,6 @@ import {
   listWhatsAppTemplatesAdminAction,
   syncAllWhatsAppTemplatesAction,
 } from "@/app/actions/whatsapp-templates";
-
-const STATUS_COLORS: Record<TemplateStatus, string> = {
-  APPROVED: "bg-healthy text-healthy-foreground",
-  PENDING: "bg-warning text-warning-foreground",
-  REJECTED: "bg-destructive text-destructive-foreground",
-  PAUSED: "bg-muted text-muted-foreground",
-  DISABLED: "bg-muted text-muted-foreground",
-};
 
 const CATEGORY_COLORS: Record<TemplateCategory, string> = {
   MARKETING: "bg-muted text-muted-foreground",
@@ -274,15 +267,13 @@ export default function WhatsAppTemplatesPage({
         key: "status",
         header: t("card.status"),
         render: (row) => (
-          <span
-            className={cn(
-              "inline-flex items-center rounded-[--radius] px-2.5 py-0.5 text-xs font-medium",
-              STATUS_COLORS[row.status] ?? "bg-muted text-muted-foreground",
-            )}
-          >
-            {t(`status.${row.status.toLowerCase()}`)}
-          </span>
+          <TemplateStatusChip status={row.status} />
         ),
+      },
+      {
+        key: "quality",
+        header: t("card.quality"),
+        render: (row) => <TemplateQualityChip quality={row.quality ?? ""} />,
       },
       {
         key: "category",

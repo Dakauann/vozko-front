@@ -5,6 +5,7 @@ import type { DraftVerdictRequest } from "@/lib/whatsapp-templates/exit-draft";
 import type {
   AudienceExits,
   ButtonActionInput,
+  ButtonActionKinds,
   CampaignButtonRoutes,
   DraftExitVerdict,
   ExitVerdict,
@@ -77,6 +78,10 @@ export async function saveCampaignButtonRoutesAction(
 
 export async function getDraftExitVerdictAction(draft: DraftVerdictRequest): Promise<ActionResult<DraftExitVerdict>> {
   return settleResult(await apiClient<DraftExitVerdict>("/whatsapp/templates/exit-verdict", { method: "POST", body: JSON.stringify(draft) }));
+}
+
+export async function getButtonActionKindsAction(): Promise<ActionResult<ButtonActionKinds>> {
+  return settleResult(await apiClient<ButtonActionKinds>("/whatsapp/button-action-kinds", { method: "GET" }));
 }
 
 export async function getAudienceExitsAction(numbers: string[]): Promise<ActionResult<AudienceExits>> {

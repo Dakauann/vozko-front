@@ -73,6 +73,16 @@ beforeEach(() => {
 });
 
 describe("ButtonActionFields", () => {
+  it("tells what an opt-out means only once opt-out is the chosen action", async () => {
+    renderFields();
+    expect(screen.queryByText(t.optOutNotice.title)).toBeNull();
+    await pick(t.action.label, t.kinds.hand_off);
+    expect(screen.queryByText(t.optOutNotice.title)).toBeNull();
+    await pick(t.action.label, t.kinds.opt_out);
+    expect(screen.getByText(t.optOutNotice.title)).toBeInTheDocument();
+    expect(screen.getByText(t.optOutNotice.body)).toBeInTheDocument();
+  });
+
   it("offers exactly the kinds it is given, plus no action", async () => {
     renderFields();
     fireEvent.click(screen.getByRole("combobox", { name: t.action.label }));

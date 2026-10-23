@@ -98,4 +98,11 @@ describe("LeadExitDialog", () => {
     expect(screen.getByRole("radio", { name: new RegExp(t.choice.button) })).toBeDisabled();
     expect(screen.getByText(t.choice.buttonFull)).toBeInTheDocument();
   });
+
+  it("tells what an opt-out means when the exit is a word", () => {
+    renderDialog();
+    expect(screen.queryByText(t.optOutNotice.title)).toBeNull();
+    fireEvent.click(screen.getByRole("radio", { name: new RegExp(t.choice.word) }));
+    expect(screen.getByText(t.optOutNotice.title)).toBeInTheDocument();
+  });
 });

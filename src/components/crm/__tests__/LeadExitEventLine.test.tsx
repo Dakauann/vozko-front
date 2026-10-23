@@ -19,7 +19,7 @@ function show(type: string, details: Record<string, string>) {
 describe("LeadExitEventLine", () => {
   it("reads like the agreed line: the tap, what it recorded and the one confirmation", () => {
     show("lead_exit_action", { trigger: "button", kind: "opt_out", outcome: "changed", button_text: "SAIR", confirmation: "sent" });
-    expect(screen.getByText("Tocou SAIR: opt-out registrado")).toBeInTheDocument();
+    expect(screen.getByText("Tocou SAIR: parou de receber templates")).toBeInTheDocument();
     expect(screen.getByText(t.confirmation.sent)).toBeInTheDocument();
   });
 

@@ -33,7 +33,7 @@ const DISABLED_SHADOW =
 type ElevatedCommandOption = {
   value: string;
   label: string;
-  description?: string;
+  description?: ReactNode;
   icon?: ReactNode;
   meta?: ReactNode;
   disabled?: boolean;
@@ -270,9 +270,9 @@ const ElevatedCommandSelect = ({
                             {option.label}
                           </p>
                           {option.description ? (
-                            <p className="truncate text-xs text-muted-foreground">
+                            <div className="mt-0.5 truncate text-xs text-muted-foreground">
                               {option.description}
-                            </p>
+                            </div>
                           ) : null}
                         </div>
                       </div>

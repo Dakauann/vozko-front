@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isActionError, type ActionError, type ActionResult } from "@/app/actions/action-result";
 import {
   getAudienceExitsAction,
+  getButtonActionKindsAction,
   getDraftExitVerdictAction,
   getTemplateButtonActionsAction,
   getTemplateExitVerdictAction,
@@ -16,7 +17,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SectionError } from "@/lib/analytics/section-query";
 import { codedQueryError } from "@/lib/api/coded-query-error";
 import type { TemplateActionsChange, TemplateButtonActions } from "@/lib/whatsapp-templates/exit";
-import { draftAllowedKinds, type DraftVerdictRequest } from "@/lib/whatsapp-templates/exit-draft";
+import { allowedKindsOf, type DraftVerdictRequest } from "@/lib/whatsapp-templates/exit-draft";
 
 export const templateExitKeys = {
   template: (workspaceId: string, templateId: string) => ["template-exit", workspaceId, templateId] as const,
@@ -25,6 +26,7 @@ export const templateExitKeys = {
   actions: (workspaceId: string, templateId: string) => [...templateExitKeys.template(workspaceId, templateId), "actions"] as const,
   draft: (workspaceId: string, draft: string) => ["template-exit", workspaceId, "draft", draft] as const,
   audience: (workspaceId: string, list: string) => ["template-exit", workspaceId, "audience", list] as const,
+  kinds: (workspaceId: string) => ["template-exit", workspaceId, "kinds"] as const,
 };
 
 const EXIT_READ_DEBOUNCE_MS = 500;
@@ -110,8 +112,21 @@ export function useTemplateButtonActions(templateId: string, enabled = true) {
   };
 }
 
+function useButtonActionKinds() {
+  const workspaceId = useWorkspaceId();
+  const query = useQuery({
+    queryKey: templateExitKeys.kinds(workspaceId),
+    queryFn: async () => required(await getButtonActionKindsAction()),
+    enabled: workspaceId !== "",
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  return allowedKindsOf(query.data ?? null);
+}
+
 export function useDraftExitVerdict(draft: DraftVerdictRequest | null) {
   const workspaceId = useWorkspaceId();
+  const allowedKinds = useButtonActionKinds();
   const current = draft ? JSON.stringify(draft) : "";
   const settled = useDebouncedValue(current, EXIT_READ_DEBOUNCE_MS);
   const enabled = workspaceId !== "" && settled !== "";
@@ -126,7 +141,7 @@ export function useDraftExitVerdict(draft: DraftVerdictRequest | null) {
   const draftVerdict = enabled ? (query.data ?? null) : null;
   const error = codedQueryError(query.error);
   const fresh = draftVerdict !== null && settled === current && query.isSuccess && !query.isPlaceholderData;
-  return { draftVerdict, fresh, error, allowedKinds: draftAllowedKinds(error ? null : draftVerdict) };
+  return { draftVerdict, fresh, error, allowedKinds };
 }
 
 export function useAudienceExits(numbers: readonly string[]) {

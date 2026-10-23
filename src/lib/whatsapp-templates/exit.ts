@@ -119,6 +119,9 @@ export function templateExitMissing(verdict: ExitVerdict): boolean {
 
 export interface DraftExitVerdict {
   verdict: ExitVerdict;
+}
+
+export interface ButtonActionKinds {
   allowedKinds: string[];
 }
 

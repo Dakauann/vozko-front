@@ -63,7 +63,7 @@ describe("ConversationAttendanceSection exit lines", () => {
       </NextIntlClientProvider>,
     );
     expect(await screen.findAllByText(types.lead_exit_action)).toHaveLength(2);
-    expect(screen.getByText("Tocou SAIR: opt-out registrado")).toBeInTheDocument();
+    expect(screen.getByText("Tocou SAIR: parou de receber templates")).toBeInTheDocument();
     expect(screen.getByText(exitCopy.confirmation.sent)).toBeInTheDocument();
     expect(screen.getByText(types.lead_send_refused)).toBeInTheDocument();
     expect(screen.getByText(exitCopy.sendRefused.lead_opted_out)).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe("ConversationAttendanceSection exit lines", () => {
       </NextIntlClientProvider>,
     );
     const tileOf = (line: HTMLElement) => line.closest("li")?.querySelector("[class*=\"tile-\"]")?.className ?? "";
-    expect(tileOf(await screen.findByText("Tocou SAIR: opt-out registrado"))).toContain("tile-healthy");
+    expect(tileOf(await screen.findByText("Tocou SAIR: parou de receber templates"))).toContain("tile-healthy");
     expect(tileOf(screen.getByText(`Tocou PARAR: ${exitCopy.failed}`))).toContain("tile-warning");
     expect(tileOf(screen.getByText(`Tocou PARAR: ${exitCopy.failed}`))).not.toContain("tile-healthy");
     expect(tileOf(screen.getByText(exitCopy.sendRefused.lead_opted_out))).toContain("tile-warning");

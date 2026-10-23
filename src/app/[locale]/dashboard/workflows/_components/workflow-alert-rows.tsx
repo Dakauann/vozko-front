@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-import { ArrowRight, CaretDown, CheckCircle, Info, Key, Lightbulb, Lightning, Warning, WarningCircle } from "@/components/icons";
+import { ArrowRight, CaretDown, CheckCircle, Info, Key, Lightbulb, Lightning, Plus, Warning, WarningCircle } from "@/components/icons";
 import { CopyValueButton } from "@/components/crm/CopyValueButton";
 import { cn } from "@/lib/utils";
 import type { LocalizedLintIssue } from "@/lib/workflows/lint-copy";
 import { lintSeverityOf } from "@/lib/workflows/lint-severity";
+import { unknownCustomFieldOf, type CreateCustomFieldRequest } from "@/lib/workflows/custom-field-fix";
 import { codeTemplateSuggestion, plainSecretFix } from "@/lib/workflows/plain-secret";
 import { runtimeAlertView, type RuntimeAlertFix } from "@/lib/workflows/runtime-alerts";
 import type { RuntimeAlert } from "@/lib/workflows/types";
@@ -30,6 +31,7 @@ export function LintIssueRow({
   nodeConfig,
   onFocusNode,
   onMoveToSecret,
+  onCreateCustomField,
   suggestionShown,
   onToggleSuggestion,
   onClose,
@@ -39,6 +41,7 @@ export function LintIssueRow({
   nodeConfig?: (nodeId: string) => Record<string, unknown> | undefined;
   onFocusNode?: (nodeId: string) => void;
   onMoveToSecret?: (request: MoveToSecretRequest) => void;
+  onCreateCustomField?: (request: CreateCustomFieldRequest) => void;
   suggestionShown: boolean;
   onToggleSuggestion: () => void;
   onClose: () => void;
@@ -56,8 +59,9 @@ export function LintIssueRow({
   const config = issue.nodeId ? nodeConfig?.(issue.nodeId) : undefined;
   const secretFix = config && onMoveToSecret ? plainSecretFix(issue, config) : null;
   const suggestion = codeTemplateSuggestion(issue, config);
+  const missingField = onCreateCustomField ? unknownCustomFieldOf(issue, config) : null;
   const actions =
-    secretFix || suggestion || issue.technical ? (
+    secretFix || suggestion || missingField || issue.technical ? (
       <div className="space-y-2 px-4 pb-3 pl-[52px]">
         <div className="flex flex-wrap gap-2">
           {issue.technical && (
@@ -87,6 +91,19 @@ export function LintIssueRow({
             >
               <Key size={12} weight="bold" />
               Mover para segredos
+            </button>
+          )}
+          {missingField && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onCreateCustomField?.(missingField);
+              }}
+              className={ACTION_CLASS}
+            >
+              <Plus size={12} weight="bold" />
+              Criar campo
             </button>
           )}
           {suggestion && (

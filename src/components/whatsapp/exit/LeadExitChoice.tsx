@@ -12,6 +12,7 @@ import { footerShowsCommand, withExitWord, type LeadExitDraft, type LeadExitMode
 import { ButtonActionFields } from "./ButtonActionFields";
 import { ExitConfirmationField } from "./ExitConfirmationField";
 import { ExitWordInput } from "./ExitWordInput";
+import { OptOutNotice } from "./OptOutNotice";
 
 type DraftChange = (draft: LeadExitDraft) => void;
 
@@ -41,6 +42,7 @@ function WordPlanFields({ draft, onChange }: { draft: LeadExitDraft; onChange: D
       />
       {missingCommand ? <p className="text-xs text-warning-ink">{t("footerNeedsCommand", { command: exitWordLabel(word) })}</p> : null}
       <ExitConfirmationField value={draft.confirmation} onChange={(confirmation) => onChange({ ...draft, confirmation })} />
+      <OptOutNotice />
     </div>
   );
 }

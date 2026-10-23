@@ -21,6 +21,7 @@ import {
   sortedRuntimeAlerts,
   type RuntimeAlertFix,
 } from "@/lib/workflows/runtime-alerts";
+import type { CreateCustomFieldRequest } from "@/lib/workflows/custom-field-fix";
 import { localizedLintIssues } from "@/lib/workflows/lint-copy";
 import { lintCounts, sortedLintIssues } from "@/lib/workflows/lint-severity";
 import type { LintIssue, RuntimeAlert } from "@/lib/workflows/types";
@@ -42,6 +43,7 @@ interface WorkflowAlertsProps {
   onFocusNode?: (nodeId: string) => void;
   nodeConfig?: (nodeId: string) => Record<string, unknown> | undefined;
   onMoveToSecret?: (request: MoveToSecretRequest) => void;
+  onCreateCustomField?: (request: CreateCustomFieldRequest) => void;
   onRuntimeFix?: (fix: RuntimeAlertFix) => void;
   onOpen?: () => void;
   openRequest?: number;
@@ -63,6 +65,7 @@ export function WorkflowAlerts({
   onFocusNode,
   nodeConfig,
   onMoveToSecret,
+  onCreateCustomField,
   onRuntimeFix,
   onOpen,
   openRequest = 0,
@@ -227,6 +230,7 @@ export function WorkflowAlerts({
                     nodeConfig={nodeConfig}
                     onFocusNode={onFocusNode}
                     onMoveToSecret={onMoveToSecret}
+                    onCreateCustomField={onCreateCustomField}
                     suggestionShown={suggestionShown === rowKey}
                     onToggleSuggestion={() => setSuggestionShown((shown) => (shown === rowKey ? null : rowKey))}
                     onClose={() => setOpen(false)}

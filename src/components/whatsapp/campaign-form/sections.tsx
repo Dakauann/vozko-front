@@ -17,6 +17,9 @@ import { ExplainerHint } from "@/components/explainers/ExplainerHint";
 import { CalendarCheck, ImageSquare } from "@/components/icons";
 import { Notice } from "@/components/ui/notice";
 import TemplateEditModal from "@/components/whatsapp/TemplateEditModal";
+import { SendRiskNotice } from "@/components/whatsapp/SendRiskNotice";
+import { phoneSendRisk } from "@/lib/whatsapp-business-phones/health";
+import { templateSendRisk } from "@/lib/whatsapp-templates/health";
 import { ButtonDestinations } from "@/components/whatsapp/exit/ButtonDestinations";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +78,7 @@ export function BusinessPhoneField({ f }: FormProps) {
         )}
       />
       <FieldError message={errors.businessPhoneId?.message} />
+      {f.selectedBusinessPhone ? <SendRiskNotice subject="phone" risk={phoneSendRisk(f.selectedBusinessPhone)} className="mt-3" /> : null}
       {f.contentLocked ? <SelectionSendNote reason="templateLocked" className="mt-2" /> : <p className="mt-1 text-xs text-muted-foreground">{t("basicInfo.businessPhoneDescription")}</p>}
     </div>
   );
@@ -126,6 +130,7 @@ export function TemplateField({ f }: FormProps) {
         )}
       />
       <FieldError message={errors.templateId?.message} />
+      {selectedTemplate ? <SendRiskNotice subject="template" risk={templateSendRisk(selectedTemplate)} className="mt-3" /> : null}
 
       {f.selectedTemplateMissingMedia && f.isAdmin && selectedTemplate && (
         <Notice tone="warning" title={t("media.missingTitle")} icon={<ImageSquare weight="fill" />} className="mt-3">

@@ -3359,7 +3359,8 @@
         "lead_exit_action": "Lead exit",
         "lead_send_refused": "Send refused",
         "agent_reply_withheld": "Agent reply withheld",
-        "email_forward_skipped": "Copy not forwarded"
+        "email_forward_skipped": "Copy not forwarded",
+        "lead_button_action": "Button action"
       },
       "details": {
         "assignedTo": "To {name}",
@@ -5193,6 +5194,7 @@
     "card": {
       "name": "Name",
       "status": "Status",
+      "quality": "Quality",
       "business": "Business",
       "noDescription": "No description",
       "language": "Language",
@@ -6588,6 +6590,7 @@
         "pace": "Pace",
         "protection": "Protection"
       },
+      "protectionHint": "The colour is the quality Meta gives the number and the template: green, yellow or red.",
       "description": "Sends in waves and watches the health of the number and the template at Meta between waves. If something goes wrong, it slows down, pauses or stops on its own and emails the account owner.",
       "enable": "Turn on Smart Send",
       "preset": "Pace",
@@ -6597,6 +6600,7 @@
         "aggressive": "Aggressive"
       },
       "presetHint": "Waves of {first} up to {max}, {minutes} min of observation between them",
+      "presetProtection": "If the number worsens: yellow {yellow}, red {red}",
       "sendHours": "Send hours",
       "sendHoursHint": "Taken from the department's or the workspace's working hours. Waves only go out inside them.",
       "sendHoursRequired": "Set send hours to save.",
@@ -6610,7 +6614,9 @@
         "failureRateSlow": "Failures to shrink the wave (%)",
         "failureRateStop": "Failures to stop (%)",
         "maxSlowWavesAtFloor": "Waves at the minimum before pausing",
-        "onTemplateYellow": "YELLOW template"
+        "onTemplateYellow": "YELLOW template",
+        "onPhoneYellow": "YELLOW number",
+        "onPhoneRed": "RED number"
       },
       "protective": {
         "slow_down": "Shrink the wave",
@@ -6638,6 +6644,8 @@
         "template_in_review": "the template went back to Meta's review",
         "template_red": "the template turned RED",
         "template_yellow": "the template turned YELLOW",
+        "phone_yellow": "the number turned YELLOW at Meta",
+        "phone_red": "the number turned RED at Meta",
         "category_marketing": "the template was reclassified as marketing",
         "phone_banned": "the number was banned",
         "phone_unavailable": "the number cannot send now (restricted or disconnected)",
@@ -6692,6 +6700,16 @@
         "more": "And more waves after these.",
         "caveat": "Best-case forecast: no warnings from Meta. Each wave waits for the previous one's observation and only goes out within the send hours. A warning from Meta shrinks, pauses or delays the next waves.",
         "failed": "Could not calculate the wave forecast."
+      },
+      "protectiveShort": {
+        "slow_down": "slows down",
+        "pause": "pauses",
+        "stop": "stops"
+      },
+      "protectiveHints": {
+        "slow_down": "The next wave goes out with half the contacts",
+        "pause": "Stops and keeps the contacts; you resume when you want",
+        "stop": "Stops for good; the remaining contacts are not sent"
       }
     },
     "header": {
@@ -11221,6 +11239,14 @@
       "NODE_NEEDS_CONVERSATION": {
         "title": "{node} needs a conversation, but this workflow starts on a lead",
         "fix": "Workflows that start on a lead (Birthday, or Webhook starting on Lead) have no open conversation, so this step has no effect. Use steps that work without a conversation, such as email, CRM and HTTP request."
+      },
+      "NODE_UNKNOWN_CUSTOM_FIELD": {
+        "title": "{node} writes to the field {key}, which does not exist",
+        "fix": "Flows only write to lead custom fields that exist in the workspace. Create the field or pick one of the existing fields in the step."
+      },
+      "NODE_SENSITIVE_CUSTOM_FIELD": {
+        "title": "{node} tries to write the sensitive field {key}",
+        "fix": "Flows never write sensitive fields. Remove this field from the step."
       }
     },
     "lintCopy": {
@@ -14189,7 +14215,8 @@
       "tiktok": "TikTok",
       "email": "Email",
       "rcs": "RCS",
-      "sms": "SMS"
+      "sms": "SMS",
+      "workflow": "Workflow"
     },
     "export": {
       "executive": {
@@ -29774,6 +29801,10 @@
     "confirmation": {
       "label": "Exit confirmation (optional)",
       "hint": "Sent when the lead uses this template's exit. Left blank, nothing is sent."
+    },
+    "optOutNotice": {
+      "title": "Leads who use this exit stop receiving your templates",
+      "body": "From then on the lead receives none of your templates, in any campaign, and leaves your call lists. They only receive again if they give consent again. Meta asks that leads have a simple way to stop receiving without blocking your number: leads who can't find one tend to block or report, which lowers your number's quality and can lead to restrictions."
     }
   },
   "leadExit": {
@@ -35231,9 +35262,15 @@
     },
     "publish": {
       "title": "Publish form",
-      "description": "The form is published to every WhatsApp account with official numbers of this workspace.",
-      "confirm": "Publish",
-      "confirmNew": "Publish new version",
+      "description": "Choose which WhatsApp accounts to publish to. Forms only work on official numbers connected directly to Meta.",
+      "confirm": "Publish to {count, plural, one {# account} other {# accounts}}",
+      "confirmNew": "Publish new version to {count, plural, one {# account} other {# accounts}}",
+      "chooseAccount": "Choose an account to publish to",
+      "choose": "Publish to account {name}",
+      "unsupportedTitle": "This account does not accept forms",
+      "unsupportedBody": "The numbers in this account come from another provider, not directly from Meta. Forms can only be published on numbers connected directly to Meta.",
+      "unverifiedTitle": "Business not verified by Meta",
+      "unverifiedBody": "Meta only publishes forms for verified businesses with an approved display name and good quality. Otherwise it refuses with \"Integrity requirements not met\". Complete business verification in Meta Business Manager and publish again.",
       "publishing": "Publishing...",
       "problemsTitle": "Fix before publishing",
       "noAccounts": "No WhatsApp account with an official number of this workspace.",
@@ -39304,6 +39341,28 @@
       "workflow_access_denied": "You do not have access to this flow.",
       "template_not_found": "Template not found.",
       "workflow_not_found": "Workflow not found."
+    }
+  },
+  "campaignSendRisk": {
+    "phone": {
+      "fault": {
+        "title": "Number at risk of being blocked",
+        "body": "Meta rated this number low quality or blocked it. Sending now can get the number restricted. Choose another number or wait for the quality to improve."
+      },
+      "warning": {
+        "title": "Number quality is dropping",
+        "body": "This number's quality fell to medium or Meta flagged it. If you go ahead, send a smaller volume and watch blocks and replies."
+      }
+    },
+    "template": {
+      "fault": {
+        "title": "Low quality template",
+        "body": "Meta rated this template low quality. If leads keep blocking or reporting it, Meta may pause the template in the middle of the campaign."
+      },
+      "warning": {
+        "title": "Medium quality template",
+        "body": "Some leads are blocking or reporting this template. Review the text or send to fewer people before scaling up."
+      }
     }
   }
 }

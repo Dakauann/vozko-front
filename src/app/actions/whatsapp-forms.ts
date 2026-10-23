@@ -12,6 +12,7 @@ import {
   parsePreview,
   parseProblems,
   parsePublishResult,
+  parsePublishTargets,
   parseResponseDetail,
   parseResponsePage,
   parseSend,
@@ -126,8 +127,12 @@ export function archiveFormAction(formId: string) {
   return parsedRequest(`${formPath(formId)}/archive`, { method: "POST" }, done);
 }
 
-export function publishFormAction(formId: string) {
-  return parsedRequest(`${formPath(formId)}/publish`, { method: "POST" }, parsePublishResult);
+export function publishFormAction(formId: string, metaWabaIds: readonly string[]) {
+  return parsedRequest(`${formPath(formId)}/publish`, { method: "POST", body: JSON.stringify({ metaWabaIds }) }, parsePublishResult);
+}
+
+export function publishTargetsAction(signal?: AbortSignal) {
+  return parsedRequest(`${ROOT}/publish-targets`, { method: "GET", signal }, parsePublishTargets);
 }
 
 export function deprecatePublicationAction(formId: string, metaWabaId: string) {

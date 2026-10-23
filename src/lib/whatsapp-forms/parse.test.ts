@@ -10,6 +10,7 @@ import {
   parseOptions,
   parseProblems,
   parsePublishResult,
+  parsePublishTargets,
   parseResponseDetail,
   parseResponsePage,
   parseSend,
@@ -155,6 +156,23 @@ describe("parsePublishResult", () => {
     });
     expect(result?.outcomes[1]).toEqual({ metaWabaId: "456", status: "failed", error: "Meta refused", code: "meta_validation", problems: [{ code: "meta_validation", block: "b_nome0001", message: "bad" }] });
     expect(result?.form.form.id).toBe("f-1");
+  });
+
+  it("keeps an outcome refused before Meta had a status for it", () => {
+    const result = parsePublishResult({
+      outcomes: [{ metaWabaId: "789", error: "not available", code: "whatsapp_form_provider_unsupported" }],
+      form: { form, draft: version, publications: [publication] },
+    });
+    expect(result?.outcomes).toEqual([{ metaWabaId: "789", error: "not available", code: "whatsapp_form_provider_unsupported" }]);
+  });
+});
+
+describe("parsePublishTargets", () => {
+  it("reads whether each account takes forms and has a verified business", () => {
+    expect(parsePublishTargets([{ metaWabaId: "123", supported: true, businessVerified: false }, { metaWabaId: "456", supported: false }])).toEqual([
+      { metaWabaId: "123", supported: true, businessVerified: false },
+      { metaWabaId: "456", supported: false, businessVerified: false },
+    ]);
   });
 });
 

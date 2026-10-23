@@ -16,6 +16,8 @@ import {
   Trash,
   Upload,
 } from "@/components/icons";
+import CustomFieldManager from "@/components/crm/CustomFieldManager";
+import { emptyFieldDraft } from "@/components/crm/custom-field-draft";
 import ElevatedButton from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
@@ -25,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useSettledPermission } from "@/hooks/use-settled-permission";
 import { getApiBaseUrl } from "@/lib/api/browser-client";
 import { openScoped } from "@/lib/browser/scoped-download-url";
+import { renameCustomField, type CreateCustomFieldRequest } from "@/lib/workflows/custom-field-fix";
 import type { PeriodPreset } from "@/lib/attendance/period";
 import type { DraftSaveStatus } from "@/lib/workflows/draft-save";
 import type { EntryPointFix } from "@/lib/workflows/entry-points";
@@ -134,6 +137,8 @@ function EditorHeaderView({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
   const [moveToSecret, setMoveToSecret] = useState<MoveToSecretRequest | null>(null);
+  const canCreateLeadFields = useSettledPermission("leads", "configure");
+  const [createField, setCreateField] = useState<CreateCustomFieldRequest | null>(null);
   const canSave = workflowState?.id ? canUpdate : canCreate;
   const canPublish = canSave && canUpdate;
   const leave = () => router.push("/dashboard/workflows");
@@ -244,6 +249,7 @@ function EditorHeaderView({
         onFocusNode={onFocusNode}
         nodeConfig={nodeConfig}
         onMoveToSecret={canUpdate ? setMoveToSecret : undefined}
+        onCreateCustomField={canUpdate && canCreateLeadFields ? setCreateField : undefined}
         onRuntimeFix={onRuntimeFix}
         onOpen={onAlertsOpen}
         openRequest={alertsRequest}
@@ -253,6 +259,19 @@ function EditorHeaderView({
           request={moveToSecret}
           onClose={() => setMoveToSecret(null)}
           onMoved={onConfigChange}
+        />
+      )}
+      {createField && (
+        <CustomFieldManager
+          objectType="lead"
+          open
+          onOpenChange={(open) => !open && setCreateField(null)}
+          startWith={{ ...emptyFieldDraft(), label: createField.key }}
+          onCreated={(field) => {
+            const config = nodeConfig(createField.nodeId);
+            if (config) onConfigChange(createField.nodeId, renameCustomField(config, createField.key, field.key));
+            setCreateField(null);
+          }}
         />
       )}
 

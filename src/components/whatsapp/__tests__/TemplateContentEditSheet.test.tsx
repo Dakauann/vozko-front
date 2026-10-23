@@ -11,7 +11,7 @@ vi.mock("@/app/actions/whatsapp-templates", () => ({
   editWhatsAppTemplateContentAction,
   uploadTemplateHeaderMediaAction: vi.fn(),
 }));
-const exitActions = vi.hoisted(() => ({ getDraftExitVerdictAction: vi.fn(), getTemplateButtonActionsAction: vi.fn() }));
+const exitActions = vi.hoisted(() => ({ getDraftExitVerdictAction: vi.fn(), getTemplateButtonActionsAction: vi.fn(), getButtonActionKindsAction: vi.fn() }));
 vi.mock("@/app/actions/template-exit", () => exitActions);
 const audienceActions = vi.hoisted(() => ({ getTemplateSuggestionsAction: vi.fn(), saveTemplateSuggestionsAction: vi.fn(), listTemplateFieldsAction: vi.fn() }));
 vi.mock("@/app/actions/campaign-audience", () => audienceActions);
@@ -84,7 +84,8 @@ async function verdictSettled() {
 
 beforeEach(() => {
   editWhatsAppTemplateContentAction.mockReset();
-  exitActions.getDraftExitVerdictAction.mockReset().mockResolvedValue({ data: { verdict: VERDICT_OK, allowedKinds: ["opt_out"] } });
+  exitActions.getDraftExitVerdictAction.mockReset().mockResolvedValue({ data: { verdict: VERDICT_OK } });
+  exitActions.getButtonActionKindsAction.mockReset().mockResolvedValue({ data: { allowedKinds: ["opt_out"] } });
   exitActions.getTemplateButtonActionsAction.mockReset().mockResolvedValue({ data: storedActions });
   audienceActions.getTemplateSuggestionsAction.mockReset().mockResolvedValue({ data: { templateId: "tpl-1", suggestions: [] }, error: null });
   audienceActions.saveTemplateSuggestionsAction.mockReset().mockResolvedValue({ data: { templateId: "tpl-1", suggestions: [] }, error: null });
@@ -236,7 +237,7 @@ describe("TemplateContentEditSheet", () => {
   });
 
   it("asks for a shown exit before sending a marketing draft the server says has none", async () => {
-    exitActions.getDraftExitVerdictAction.mockResolvedValue({ data: { verdict: VERDICT_NONE, allowedKinds: ["opt_out"] } });
+    exitActions.getDraftExitVerdictAction.mockResolvedValue({ data: { verdict: VERDICT_NONE } });
     renderSheet();
     expect(await screen.findByText(exit.verdict.editNeedsExit, {}, { timeout: 3000 })).toBeInTheDocument();
     fireEvent.click(await saveButton());
@@ -246,7 +247,7 @@ describe("TemplateContentEditSheet", () => {
   });
 
   it("saves a new exit button with its action", async () => {
-    exitActions.getDraftExitVerdictAction.mockResolvedValue({ data: { verdict: VERDICT_NONE, allowedKinds: ["opt_out"] } });
+    exitActions.getDraftExitVerdictAction.mockResolvedValue({ data: { verdict: VERDICT_NONE } });
     editWhatsAppTemplateContentAction.mockResolvedValueOnce({ template: template(), error: null });
     renderSheet(template({ components: [{ type: "BODY", text: "Temos novidades para você." }], headerMediaUrl: null }));
     expect(await screen.findByText(exit.verdict.editNeedsExit, {}, { timeout: 3000 })).toBeInTheDocument();

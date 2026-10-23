@@ -1,4 +1,7 @@
 import type { StatusChipTone } from "@/components/elevated-design/status-chip";
+import { sendRiskOf, type SendRisk } from "@/lib/whatsapp/send-risk";
+
+import type { TemplateStatus, WhatsAppTemplate } from "./types";
 
 export const TEMPLATE_QUALITIES = ["GREEN", "YELLOW", "RED", "UNKNOWN"] as const;
 
@@ -35,4 +38,20 @@ export function knownQuality(quality: string): TemplateQuality {
 
 export function qualityTone(quality: string): StatusChipTone {
   return QUALITY_TONE[knownQuality(quality)];
+}
+
+const TEMPLATE_STATUS_TONE: Record<TemplateStatus, StatusChipTone> = {
+  APPROVED: "healthy",
+  PENDING: "warning",
+  REJECTED: "fault",
+  PAUSED: "muted",
+  DISABLED: "muted",
+};
+
+export function templateStatusTone(status: string): StatusChipTone {
+  return TEMPLATE_STATUS_TONE[status as TemplateStatus] ?? "muted";
+}
+
+export function templateSendRisk(template: Pick<WhatsAppTemplate, "status" | "quality">): SendRisk | null {
+  return sendRiskOf(templateStatusTone(template.status), qualityTone(template.quality ?? ""));
 }

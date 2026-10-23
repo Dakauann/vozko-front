@@ -68,6 +68,8 @@ interface CustomFieldManagerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onChanged?: () => void;
+  startWith?: FieldDraft;
+  onCreated?: (field: CustomFieldDefinition) => void;
 }
 
 export default function CustomFieldManager({
@@ -75,11 +77,13 @@ export default function CustomFieldManager({
   open,
   onOpenChange,
   onChanged,
+  startWith,
+  onCreated,
 }: CustomFieldManagerProps) {
   const t = useTranslations("customFields");
   const definitions = useCustomFieldDefinitions(objectType, open);
   const fields = definitions.definitions;
-  const [draft, setDraft] = useState<FieldDraft | null>(null);
+  const [draft, setDraft] = useState<FieldDraft | null>(startWith ?? null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<CustomFieldDefinition | null>(null);
 
@@ -119,6 +123,7 @@ export default function CustomFieldManager({
     setDraft(null);
     await definitions.reload();
     onChanged?.();
+    if (!draft.id) onCreated?.(res.field);
   };
 
   const handleDelete = async (field: CustomFieldDefinition): Promise<boolean> => {

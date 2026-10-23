@@ -8,7 +8,7 @@ import { AgentOptOutNote } from "../AgentOptOutNote";
 
 const note = ptMessages.leadExit.agentNote;
 const risk = ptMessages.templateExit.risk;
-const optOut = { name: "record_opt_out", displayName: "Registrar opt-out" };
+const optOut = { name: "record_opt_out", displayName: "Parar de receber templates (opt-out)" };
 
 function renderNote(props: Partial<Parameters<typeof AgentOptOutNote>[0]> = {}) {
   const onAdd = vi.fn();
@@ -23,7 +23,7 @@ function renderNote(props: Partial<Parameters<typeof AgentOptOutNote>[0]> = {}) 
 describe("AgentOptOutNote", () => {
   it("explains, with the shared risk list, what happens without the opt-out skill", () => {
     renderNote();
-    expect(screen.getByText(note.title.replace("{name}", "Registrar opt-out"))).toBeInTheDocument();
+    expect(screen.getByText(note.title.replace("{name}", "Parar de receber templates (opt-out)"))).toBeInTheDocument();
     expect(screen.getByText(note.body)).toBeInTheDocument();
     for (const item of [risk.policy, risk.quality, risk.lgpd]) expect(screen.getByText(item)).toBeInTheDocument();
     expect(screen.queryByRole("checkbox")).toBeNull();
@@ -32,7 +32,7 @@ describe("AgentOptOutNote", () => {
   it("adds the skill only when the author asks", () => {
     const onAdd = renderNote();
     expect(onAdd).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: note.add.replace("{name}", "Registrar opt-out") }));
+    fireEvent.click(screen.getByRole("button", { name: note.add.replace("{name}", "Parar de receber templates (opt-out)") }));
     expect(onAdd).toHaveBeenCalledWith(optOut);
   });
 

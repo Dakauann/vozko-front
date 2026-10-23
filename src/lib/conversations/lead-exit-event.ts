@@ -1,4 +1,4 @@
-import { BUTTON_ACTION_KINDS, EXIT_KINDS, exitWordLabel } from "@/lib/whatsapp-templates/exit";
+import { BUTTON_ACTION_KINDS, EXIT_KINDS, exitWordLabel, isExitKind } from "@/lib/whatsapp-templates/exit";
 
 export const LEAD_EXIT_ACTION = "lead_exit_action";
 export const LEAD_SEND_REFUSED = "lead_send_refused";
@@ -22,6 +22,12 @@ interface LeadExitView {
   result: LeadExitPhrase;
   reason: string | null;
   confirmation: string | null;
+}
+
+export const LEAD_BUTTON_ACTION = "lead_button_action";
+
+export function exitEventTitleType(type: string, details: Record<string, string>): string {
+  return type === LEAD_EXIT_ACTION && !isExitKind(details.kind ?? "") ? LEAD_BUTTON_ACTION : type;
 }
 
 export function isLeadExitEvent(type: string): boolean {

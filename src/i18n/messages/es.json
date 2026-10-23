@@ -3359,7 +3359,8 @@
         "lead_exit_action": "Salida del lead",
         "lead_send_refused": "Envío rechazado",
         "agent_reply_withheld": "Respuesta del agente retenida",
-        "email_forward_skipped": "Copia no reenviada"
+        "email_forward_skipped": "Copia no reenviada",
+        "lead_button_action": "Acción del botón"
       },
       "details": {
         "assignedTo": "Para {name}",
@@ -5691,6 +5692,7 @@
     "card": {
       "name": "Nombre",
       "status": "Estado",
+      "quality": "Calidad",
       "noDescription": "Sin descripción",
       "language": "Idioma",
       "components": "Componentes",
@@ -6495,6 +6497,7 @@
         "pace": "Ritmo",
         "protection": "Protección"
       },
+      "protectionHint": "El color es la calidad que Meta da al número y a la plantilla: verde, amarillo o rojo.",
       "description": "Envía en olas y observa la salud del número y de la plantilla en Meta entre una ola y otra. Si algo sale mal, reduce, pausa o detiene por sí solo y avisa por correo al dueño de la cuenta.",
       "enable": "Activar Envío Inteligente",
       "preset": "Ritmo",
@@ -6504,6 +6507,7 @@
         "aggressive": "Agresivo"
       },
       "presetHint": "Olas de {first} hasta {max}, {minutes} min de observación entre ellas",
+      "presetProtection": "Si el número empeora: amarillo {yellow}, rojo {red}",
       "sendHours": "Horario de envío",
       "sendHoursHint": "Viene del horario de atención del departamento o del workspace. Las olas solo salen dentro de él.",
       "sendHoursRequired": "Define un horario de envío para guardar.",
@@ -6517,7 +6521,9 @@
         "failureRateSlow": "Fallos para reducir la ola (%)",
         "failureRateStop": "Fallos para detener (%)",
         "maxSlowWavesAtFloor": "Olas en el mínimo antes de pausar",
-        "onTemplateYellow": "Plantilla AMARILLA"
+        "onTemplateYellow": "Plantilla AMARILLA",
+        "onPhoneYellow": "Número AMARILLO",
+        "onPhoneRed": "Número ROJO"
       },
       "protective": {
         "slow_down": "Reducir la ola",
@@ -6545,6 +6551,8 @@
         "template_in_review": "la plantilla volvió a revisión de Meta",
         "template_red": "la plantilla quedó en ROJO",
         "template_yellow": "la plantilla quedó en AMARILLO",
+        "phone_yellow": "el número quedó AMARILLO en Meta",
+        "phone_red": "el número quedó ROJO en Meta",
         "category_marketing": "la plantilla fue reclasificada como marketing",
         "phone_banned": "el número fue bloqueado",
         "phone_unavailable": "el número no puede enviar ahora (restringido o desconectado)",
@@ -6599,6 +6607,16 @@
         "more": "Y más olas después de estas.",
         "caveat": "Previsión en el mejor caso: sin alertas de Meta. Cada ola espera la observación de la anterior y solo sale dentro del horario de envío. Una alerta de Meta reduce, pausa o retrasa las próximas olas.",
         "failed": "No se pudo calcular la previsión de las olas."
+      },
+      "protectiveShort": {
+        "slow_down": "reduce",
+        "pause": "pausa",
+        "stop": "detiene"
+      },
+      "protectiveHints": {
+        "slow_down": "La próxima ola sale con la mitad de los contactos",
+        "pause": "Se detiene y guarda los contactos; la reanudas cuando quieras",
+        "stop": "Se detiene definitivamente; los contactos restantes no se envían"
       }
     },
     "header": {
@@ -10293,6 +10311,14 @@
       "NODE_NEEDS_CONVERSATION": {
         "title": "{node} necesita una conversación, pero este flujo empieza en un lead",
         "fix": "Los flujos que empiezan en un lead (Cumpleaños, o Webhook que inicia en Lead) no tienen una conversación abierta, así que este paso no tiene efecto. Usa pasos que funcionan sin conversación, como email, CRM y solicitud HTTP."
+      },
+      "NODE_UNKNOWN_CUSTOM_FIELD": {
+        "title": "{node} escribe en el campo {key}, que no existe",
+        "fix": "Los flujos solo escriben en campos personalizados de lead que existen en el workspace. Crea el campo o elige uno de los campos existentes en el paso."
+      },
+      "NODE_SENSITIVE_CUSTOM_FIELD": {
+        "title": "{node} intenta escribir el campo sensible {key}",
+        "fix": "Los flujos nunca escriben campos sensibles. Quita este campo del paso."
       }
     },
     "lintCopy": {
@@ -13034,7 +13060,8 @@
       "tiktok": "TikTok",
       "email": "E-mail",
       "rcs": "RCS",
-      "sms": "SMS"
+      "sms": "SMS",
+      "workflow": "Flujo"
     },
     "export": {
       "executive": {
@@ -29774,6 +29801,10 @@
     "confirmation": {
       "label": "Confirmación de la salida (opcional)",
       "hint": "Se envía cuando el lead usa la salida de esta plantilla. En blanco, no se envía nada."
+    },
+    "optOutNotice": {
+      "title": "Quien use esta salida deja de recibir tus plantillas",
+      "body": "Desde ese momento el lead no recibe ninguna de tus plantillas, en ninguna campaña, y sale de las listas de llamadas. Solo vuelve a recibir si da su consentimiento de nuevo. Meta pide que el lead tenga una forma sencilla de dejar de recibir sin bloquear tu número: quien no la encuentra suele bloquear o denunciar, lo que baja la calidad de tu número y puede llevar a restricciones."
     }
   },
   "leadExit": {
@@ -35231,9 +35262,15 @@
     },
     "publish": {
       "title": "Publicar formulario",
-      "description": "El formulario se publica en todas las cuentas de WhatsApp con números oficiales de este workspace.",
-      "confirm": "Publicar",
-      "confirmNew": "Publicar nueva versión",
+      "description": "Elige en qué cuentas de WhatsApp publicar. Los formularios solo funcionan en números oficiales conectados directo a Meta.",
+      "confirm": "Publicar en {count, plural, one {# cuenta} other {# cuentas}}",
+      "confirmNew": "Publicar nueva versión en {count, plural, one {# cuenta} other {# cuentas}}",
+      "chooseAccount": "Elige una cuenta para publicar",
+      "choose": "Publicar en la cuenta {name}",
+      "unsupportedTitle": "Esta cuenta no acepta formularios",
+      "unsupportedBody": "Los números de esta cuenta son de otro proveedor, no de Meta directo. Los formularios solo se pueden publicar en números conectados directo a Meta.",
+      "unverifiedTitle": "Empresa no verificada en Meta",
+      "unverifiedBody": "Meta solo publica formularios de empresas verificadas, con nombre visible aprobado y buena calidad. Si no, los rechaza con \"Integrity requirements not met\". Completa la verificación de la empresa en el Administrador comercial de Meta y vuelve a publicar.",
       "publishing": "Publicando...",
       "problemsTitle": "Corrige antes de publicar",
       "noAccounts": "Ninguna cuenta de WhatsApp con número oficial de este workspace.",
@@ -39304,6 +39341,28 @@
       "workflow_access_denied": "No tienes acceso a este flujo.",
       "template_not_found": "Plantilla no encontrada.",
       "workflow_not_found": "Flujo no encontrado."
+    }
+  },
+  "campaignSendRisk": {
+    "phone": {
+      "fault": {
+        "title": "Número con riesgo de bloqueo",
+        "body": "Meta calificó este número con calidad baja o lo bloqueó. Enviar ahora puede llevar a la restricción del número. Elige otro número o espera a que la calidad mejore."
+      },
+      "warning": {
+        "title": "La calidad del número está bajando",
+        "body": "La calidad de este número bajó a media o Meta lo marcó. Si continúas, envía un volumen menor y sigue los bloqueos y respuestas."
+      }
+    },
+    "template": {
+      "fault": {
+        "title": "Plantilla con calidad baja",
+        "body": "Meta calificó esta plantilla con calidad baja. Si los leads siguen bloqueándola o denunciándola, Meta puede pausarla en medio del envío."
+      },
+      "warning": {
+        "title": "Plantilla con calidad media",
+        "body": "Algunos leads están bloqueando o denunciando esta plantilla. Revisa el texto o envía a menos personas antes de ampliar."
+      }
     }
   }
 }
