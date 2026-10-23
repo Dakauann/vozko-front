@@ -8,9 +8,20 @@ export interface StepPatch {
   blocks?: Record<string, Block>;
 }
 
+export interface Envelope {
+  subject: string;
+  preheader: string;
+}
+
+export interface EnvelopeEdit {
+  base: Envelope;
+  next: Envelope;
+}
+
 export interface EditPayload {
   base: Document;
   steps: StepPatch[];
+  envelope?: EnvelopeEdit;
 }
 
 export interface EmailStep {
@@ -25,6 +36,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isDocument(value: unknown): value is Document {
   return isRecord(value) && typeof value.version === "number" && isRecord(value.settings) && Array.isArray(value.blocks);
+}
+
+function isEnvelope(value: unknown): value is Envelope {
+  return isRecord(value) && typeof value.subject === "string" && typeof value.preheader === "string";
+}
+
+function isEnvelopeEdit(value: unknown): value is EnvelopeEdit {
+  return isRecord(value) && isEnvelope(value.base) && isEnvelope(value.next);
 }
 
 function isPatch(value: unknown): value is StepPatch {
@@ -49,7 +68,9 @@ function rebuilt(previous: Document, patch: StepPatch): Document | null {
 
 export function editPayloadOf(value: unknown): EditPayload | null {
   if (!isRecord(value) || !isDocument(value.base) || !Array.isArray(value.steps) || !value.steps.every(isPatch)) return null;
-  const payload: EditPayload = { base: value.base, steps: value.steps };
+  const envelope = value.envelope;
+  if (envelope !== undefined && !isEnvelopeEdit(envelope)) return null;
+  const payload: EditPayload = { base: value.base, steps: value.steps, ...(envelope ? { envelope } : {}) };
   let current: Document | null = payload.base;
   for (const patch of payload.steps) {
     current = current && rebuilt(current, patch);

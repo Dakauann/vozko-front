@@ -256,7 +256,7 @@ function messageEvent(id: string, overrides: Record<string, unknown> = {}): SimM
 }
 
 const BUTTONS_EVENT = messageEvent("m1", {
-  metadata: { buttons: { body_text: "Quer continuar?", buttons: [{ id: "sim", title: "Sim" }, { id: "nao", title: "Não" }] } },
+  interactive: { kind: "buttons", body: "Quer continuar?", buttons: [{ kind: "reply", id: "sim", title: "Sim" }, { kind: "reply", id: "nao", title: "Não" }] },
 });
 
 describe("WorkflowTestPanel conversation", () => {

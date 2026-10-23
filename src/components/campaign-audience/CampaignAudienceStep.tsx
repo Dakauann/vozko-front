@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Notice } from "@/components/ui/notice";
-import { sourcesOf, withNewLead, withVariableChoice, type LeadsPickDraft } from "@/lib/campaign-audience/draft";
+import { sourcesOf, withIncludedLead, withVariableChoice, type LeadsPickDraft } from "@/lib/campaign-audience/draft";
 import type { AudienceCount, VariableCount } from "@/lib/campaign-audience/types";
 
 import { AudienceArrives } from "./AudienceArrives";
@@ -15,6 +15,7 @@ import { AudienceLeadsSheet, type AudienceLeadFocus } from "./AudienceLeadsSheet
 import { AudienceListSection } from "./AudienceListSection";
 import { AudienceSourceRow } from "./AudienceSourceRow";
 import { AudienceVariablesPanel } from "./AudienceVariablesPanel";
+import { LeadsHandPicker } from "./LeadsHandPicker";
 import { LeadsPicker } from "./LeadsPicker";
 import { AudienceSlotFocusProvider } from "./slot-focus";
 import { useAudienceErrorText, useSlotLabel } from "./use-audience-copy";
@@ -75,7 +76,7 @@ export function CampaignAudienceStep({
           value={draft.source}
           onChange={(source) => update((current) => ({ ...current, source }))}
           onLeadSaved={(lead) => {
-            update((current) => withNewLead(current, lead.id));
+            update((current) => withIncludedLead(current, lead.id));
             audience.recount();
           }}
           readOnly={readOnly}
@@ -87,10 +88,11 @@ export function CampaignAudienceStep({
           <>
             {count ? <LeadsMetadataNotice count={count} onOpen={setFocus} /> : null}
             <LeadsPicker value={draft} onChange={(patch) => update((current) => ({ ...current, ...patch }))} readOnly={readOnly} />
+            <LeadsHandPicker audience={audience} readOnly={readOnly} />
             <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
               <div className="grid min-w-0 gap-5">
                 <AudienceMapPreview audience={audience} onEdit={onEditMap && !readOnly ? () => onEditMap(draft) : undefined} />
-                {audience.countedSpec ? <AudienceLeadsPreview audience={audience} onOpen={setFocus} /> : null}
+                {audience.countedSpec ? <AudienceLeadsPreview audience={audience} onOpen={setFocus} readOnly={readOnly} /> : null}
                 <AudienceVariablesPanel
                   channel={channel}
                   variables={variables}

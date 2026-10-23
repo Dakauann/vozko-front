@@ -77,6 +77,7 @@ export interface Selection {
   sort?: SelectionSort[];
   limit?: number;
   exclude_ids?: string[];
+  include_ids?: string[];
 }
 
 export interface MergePolicy {

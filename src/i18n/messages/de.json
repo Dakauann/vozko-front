@@ -16493,7 +16493,10 @@
       },
       "interactive": {
         "choiceHint": "Der Kontakt tippt diese Option in WhatsApp an",
-        "listFallback": "Optionen ansehen"
+        "copyCode": "Code kopieren",
+        "chosen": "Vom Kontakt gewählt",
+        "sheetReadOnly": "Optionen, die der Kontakt erhalten hat. Nur er kann eine wählen.",
+        "sheetChoose": "Wähle eine Option, um als Kontakt zu antworten."
       }
     },
     "connection": {
@@ -36934,6 +36937,10 @@
       "title": "Elo in der E-Mail",
       "greeting": "Gestalten wir diese E-Mail zusammen?",
       "description": "Ich baue die Blöcke, schreibe die Texte, passe Farben an und erstelle Bilder mit KI direkt im Editor, während du weiter bearbeitest. Du siehst meinen Cursor und machst jeden Schritt mit Strg+Z rückgängig.",
+      "campaign": {
+        "greeting": "Arbeiten wir an der E-Mail dieser Kampagne?",
+        "description": "Ich bearbeite Betreff, Vorschautext und Blöcke dieser Kampagne direkt im Editor, während du weiter bearbeitest. Die Änderungen landen im Kampagnenentwurf, und die unter Vorlagen gespeicherte Vorlage bleibt unverändert."
+      },
       "actions": {
         "add": "Block wird hinzugefügt",
         "set": "Block wird bearbeitet",
@@ -37844,6 +37851,10 @@
         "failed": "Die Vorlage konnte nicht gespeichert werden."
       },
       "designFallbackName": "Vorlage ohne Namen",
+      "agent": {
+        "envelopeChanged": "Elo hat den Betreff oder den Vorschautext der Kampagne geändert.",
+        "undo": "Rückgängig"
+      },
       "noDesign": "Diese Kampagne hat noch keinen Inhalt.",
       "replaceConfirm": {
         "title": "Vorlage wechseln?",
@@ -38866,11 +38877,33 @@
         "everyoneHint": "Alle Leads, die du sehen kannst, kommen in die Kampagne.",
         "quantityTitle": "Erste {count, number} Leads im Filter",
         "quantityBody": "Die Begrenzung und Reihenfolge der Lead-Auswahl bleiben erhalten.",
-        "idsTitle": "{count, plural, one {# Lead einzeln gewählt} other {# Leads einzeln gewählt}}",
-        "idsBody": "Diese Zielgruppe wurde durch eine feste Liste von Leads bestimmt. Wechsle zu Filtern, um sie zu ändern.",
+        "ids": "Leads auswählen",
+        "idsHint": "Suche und markiere jeden Lead, der die Kampagne erhält.",
         "idsSwitch": "Filter nutzen",
         "excluded": "{count, plural, one {# Lead aus der Zielgruppe genommen} other {# Leads aus der Zielgruppe genommen}}",
         "restore": "Zurück in die Zielgruppe"
+      },
+      "hand": {
+        "searchLabel": "Leads suchen",
+        "searchPlaceholder": "Nach Name oder Kontakt suchen",
+        "searchHint": "Tippe, um Leads nach Name oder Kontakt zu finden.",
+        "searchEmpty": "Kein Lead für diese Suche gefunden.",
+        "searchFailed": "Die Leads konnten nicht gesucht werden.",
+        "retry": "Erneut versuchen",
+        "results": "{count, plural, one {# Lead gefunden} other {# Leads gefunden}}",
+        "resultsMore": "Die ersten {shown, number} von {count, number} gefundenen Leads. Verfeinere die Suche, um weitere zu sehen.",
+        "pick": "{name} markieren",
+        "picked": "Ausgewählt ({count, number})",
+        "pickedEmpty": "Noch kein Lead gewählt. Suche oben und markiere, wer sie erhält.",
+        "included": "Von Hand hinzugefügt: {count, number}",
+        "includedHint": "Sie kommen auch außerhalb des Filters in die Zielgruppe.",
+        "add": "Lead von Hand hinzufügen",
+        "closeSearch": "Suche schließen",
+        "remove": "{name} von der Liste nehmen",
+        "unnamed": "Lead ohne Namen",
+        "previous": "Zurück",
+        "next": "Weiter",
+        "page": "Seite {page, number} von {total, number}"
       },
       "variables": {
         "title": "Variablen",
@@ -39094,7 +39127,10 @@
         "viewAll": "Alle ansehen",
         "empty": "Kein Lead mit diesen Filtern.",
         "failed": "Die Leads konnten nicht angezeigt werden.",
-        "retry": "Erneut versuchen"
+        "retry": "Erneut versuchen",
+        "include": "{name} von Hand hinzufügen",
+        "includedTag": "Von Hand hinzugefügt",
+        "exclude": "{name} aus der Zielgruppe nehmen"
       }
     }
   },

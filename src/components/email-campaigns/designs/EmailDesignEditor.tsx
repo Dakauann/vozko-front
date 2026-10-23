@@ -138,7 +138,7 @@ function EditorBody({ design }: { design: Design }) {
         previewHtml={preview.html}
         previewLoading={preview.loading}
         readOnly={!editable}
-        agent={{ designId: design.id, name: name.trim() || design.name }}
+        agent={{ surface: "email_design", projectId: design.id, name: name.trim() || design.name }}
         className="h-[calc(100vh-12rem)] min-h-[640px]"
       />
     </main>

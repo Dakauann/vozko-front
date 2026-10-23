@@ -5,7 +5,7 @@ import type { Document } from "@/lib/email-design/types";
 
 import { emptyAudienceDraft } from "@/lib/campaign-audience/draft";
 
-import { audienceSelection, campaignRequest, draftOf, duplicateRequest, emptyDraft, parseTestAddresses, requestFingerprint, runeLength } from "../draft";
+import { audienceOfSelection, audienceSelection, campaignRequest, draftOf, duplicateRequest, emptyDraft, parseTestAddresses, requestFingerprint, runeLength } from "../draft";
 import type { Campaign } from "../types";
 
 const DOC: Document = {
@@ -85,6 +85,12 @@ describe("audienceSelection", () => {
   it("sends the leads taken out of a filtered or whole base audience", () => {
     expect(audienceSelection({ ...AUDIENCE, pick: "everyone", excludeIds: ["l1"] })).toEqual({ mode: "everyone", exclude_ids: ["l1"] });
     expect(audienceSelection({ ...AUDIENCE, filter: FILTER, excludeIds: ["l2"] })).toEqual({ mode: "all_matching", filter: FILTER, exclude_ids: ["l2"] });
+  });
+
+  it("sends and restores the leads included by hand on top of a filter", () => {
+    const selection = audienceSelection({ ...AUDIENCE, filter: FILTER, includeIds: ["l3"], excludeIds: ["l2"] });
+    expect(selection).toEqual({ mode: "all_matching", filter: FILTER, include_ids: ["l3"], exclude_ids: ["l2"] });
+    expect(audienceOfSelection(selection)).toMatchObject({ pick: "filter", filter: FILTER, includeIds: ["l3"], excludeIds: ["l2"] });
   });
 
   it("sends no selection for a list", () => {

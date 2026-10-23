@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { readFormBlock, hasTemplateMetadata } from "@/lib/conversations/form-metadata";
-import { readInteractiveMessage } from "@/lib/conversations/interactive-message";
 import { bubbleSide, directionOfRow } from "@/lib/conversations/bubble-side";
 
 import { simConversationMessage, simGroupMember, simSenderLabel, simThreadRow } from "./sim-message";
@@ -66,19 +65,13 @@ describe("simConversationMessage", () => {
     });
   });
 
-  it("keeps reply buttons and list sections readable by the CRM interactive reader", () => {
-    const buttons = simConversationMessage({ ...base, metadata: { buttons: { body_text: "Continuar?", buttons: [{ id: "sim", title: "Sim" }] } } });
-    expect(readInteractiveMessage(buttons?.metadata)).toEqual({ kind: "buttons", choices: [{ kind: "button", id: "sim", title: "Sim" }] });
+  it("keeps the interactive content and the customer choice the backend sends", () => {
+    const interactive = { kind: "list", body: "Turno", button_label: "Ver", sections: [{ title: "Turnos", rows: [{ id: "m", title: "Manhã" }] }] };
+    expect(simConversationMessage({ ...base, interactive })?.interactive).toEqual(interactive);
 
-    const list = simConversationMessage({
-      ...base,
-      metadata: { list: { body_text: "Turno", button_text: "Ver", sections: [{ title: "Turnos", rows: [{ id: "m", title: "Manhã" }] }] } },
-    });
-    expect(readInteractiveMessage(list?.metadata)).toEqual({
-      kind: "list",
-      buttonText: "Ver",
-      sections: [{ title: "Turnos", rows: [{ kind: "list", id: "m", title: "Manhã" }] }],
-    });
+    const reply = { kind: "list", option_id: "m", title: "Manhã" };
+    expect(simConversationMessage({ ...base, direction: "INBOUND", interactive_reply: reply })?.interactive_reply).toEqual(reply);
+    expect(simConversationMessage({ ...base, interactive: "lista" })?.interactive).toBeUndefined();
   });
 
   it("keeps template and form metadata for the CRM template bubble and form card", () => {

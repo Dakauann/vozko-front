@@ -1,11 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { createEmailDesignAction, isEmailActionError } from "@/app/actions/email-campaigns";
 import { EmailEditor } from "@/components/email-editor";
+import type { EnvelopePort } from "@/components/email-editor/agent/email-agent";
 import Button from "@/components/elevated-design/button";
 import ElevatedInput from "@/components/elevated-design/elevated-input";
 import { ElevatedSelect, ElevatedSelectItem } from "@/components/elevated-design/elevated-select";
@@ -14,9 +15,11 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Notice } from "@/components/ui/notice";
 import { useEmailSenders } from "@/hooks/use-email-campaigns";
 import { MAX_PREHEADER_RUNES, MAX_SUBJECT_RUNES } from "@/lib/email-design/limits";
+import type { Envelope } from "@/lib/email-design/agent/steps";
 import type { CustomField } from "@/lib/email-design/merge-tags";
 import type { Document, Hint, Issue } from "@/lib/email-design/types";
 import type { CampaignDraft } from "@/lib/email-campaigns/draft";
+import { envelopeOfDraft, undoneEnvelope } from "@/lib/email-campaigns/envelope";
 import type { Sender } from "@/lib/email-campaigns/types";
 
 import { DocumentPicker } from "../designs/DocumentPicker";
@@ -49,6 +52,31 @@ function InboxRow({ sender, subject, preheader }: { sender: string; subject: str
   );
 }
 
+function useEnvelopePort(draft: CampaignDraft, onDraftChange: (patch: Partial<CampaignDraft>) => void): EnvelopePort {
+  const t = useTranslations("emailCampaigns.content.agent");
+  const latest = useRef({ draft, onDraftChange, t });
+
+  useLayoutEffect(() => {
+    latest.current = { draft, onDraftChange, t };
+  });
+
+  return useMemo<EnvelopePort>(() => {
+    const change = (next: Envelope) => {
+      latest.current.draft = { ...latest.current.draft, ...next };
+      latest.current.onDraftChange(next);
+    };
+    return {
+      read: () => envelopeOfDraft(latest.current.draft),
+      apply: (next, previous) => {
+        change(next);
+        toast(latest.current.t("envelopeChanged"), {
+          action: { label: latest.current.t("undo"), onClick: () => change(undoneEnvelope(next, envelopeOfDraft(latest.current.draft), previous)) },
+        });
+      },
+    };
+  }, []);
+}
+
 export function ContentStep({
   draft,
   onDraftChange,
@@ -76,6 +104,7 @@ export function ContentStep({
   const senders = useEmailSenders();
   const [replacing, setReplacing] = useState(false);
   const [savingDesign, setSavingDesign] = useState(false);
+  const envelope = useEnvelopePort(draft, onDraftChange);
 
   const senderList = useMemo(() => senders.data ?? [], [senders.data]);
   const chosenSender = senderList.find((sender) => sender.id === draft.senderId) ?? senderList.find((sender) => sender.is_default);
@@ -203,6 +232,7 @@ export function ContentStep({
             previewHtml={preview.html}
             previewLoading={preview.loading}
             readOnly={readOnly}
+            agent={campaignId ? { surface: "email_campaign", projectId: campaignId, name: draft.name.trim() || t("designFallbackName"), envelope } : undefined}
             className="h-[calc(100vh-12rem)] min-h-[640px]"
           />
         ) : readOnly ? (

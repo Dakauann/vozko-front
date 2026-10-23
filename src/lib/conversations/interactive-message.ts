@@ -1,3 +1,5 @@
+import type { ConversationMessage, InteractiveAction, InteractiveContent, InteractiveRow } from "./types";
+
 export type InteractiveChoiceKind = "button" | "list";
 
 export interface InteractiveChoice {
@@ -6,74 +8,32 @@ export interface InteractiveChoice {
   title: string;
 }
 
-export interface InteractiveListRow extends InteractiveChoice {
-  description?: string;
+export function buttonChoice(action: InteractiveAction): InteractiveChoice | null {
+  return action.kind === "reply" && action.id ? { kind: "button", id: action.id, title: action.title } : null;
 }
 
-export interface InteractiveListSection {
-  title?: string;
-  rows: InteractiveListRow[];
+export function rowChoice(row: InteractiveRow): InteractiveChoice {
+  return { kind: "list", id: row.id, title: row.title };
 }
 
-interface InteractiveFrame {
-  header?: string;
-  footer?: string;
+export function interactiveActions(content: InteractiveContent): InteractiveAction[] {
+  return content.kind === "list" ? [] : (content.buttons ?? []);
 }
 
-export type InteractiveMessage =
-  | (InteractiveFrame & { kind: "buttons"; choices: InteractiveChoice[] })
-  | (InteractiveFrame & { kind: "list"; buttonText?: string; sections: InteractiveListSection[] });
-
-type Row = Record<string, unknown>;
-
-function rowOf(value: unknown): Row | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as Row) : null;
+export function chosenOptionId(promptId: string, messages: Iterable<ConversationMessage>): string | undefined {
+  let chosen: ConversationMessage | undefined;
+  for (const message of messages) {
+    if (message.reply_to_message_id !== promptId || !message.interactive_reply) continue;
+    if (!chosen || message.created_at > chosen.created_at) chosen = message;
+  }
+  return chosen?.interactive_reply?.option_id;
 }
 
-function filled(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() !== "" ? value : undefined;
-}
-
-function optional<K extends string>(key: K, value: unknown): Partial<Record<K, string>> {
-  const text = filled(value);
-  return text === undefined ? {} : ({ [key]: text } as Record<K, string>);
-}
-
-function frameOf(block: Row): InteractiveFrame {
-  return { ...optional("header", block.header_text), ...optional("footer", block.footer_text) };
-}
-
-function choicesOf<T extends InteractiveChoice>(value: unknown, kind: InteractiveChoiceKind, extra: (row: Row) => Partial<T> = () => ({})): T[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => {
-    const row = rowOf(item);
-    const id = filled(row?.id);
-    const title = filled(row?.title);
-    return row && id && title ? [{ kind, id, title, ...extra(row) } as T] : [];
-  });
-}
-
-function listOf(block: Row): InteractiveMessage | null {
-  const sections = (Array.isArray(block.sections) ? block.sections : []).flatMap((item): InteractiveListSection[] => {
-    const section = rowOf(item);
-    if (!section) return [];
-    const rows = choicesOf<InteractiveListRow>(section.rows, "list", (row) => optional("description", row.description));
-    return rows.length > 0 ? [{ ...optional("title", section.title), rows }] : [];
-  });
-  if (sections.length === 0) return null;
-  return { kind: "list", ...frameOf(block), ...optional("buttonText", block.button_text), sections };
-}
-
-function buttonsOf(block: Row): InteractiveMessage | null {
-  const choices = choicesOf<InteractiveChoice>(block.buttons, "button");
-  return choices.length > 0 ? { kind: "buttons", ...frameOf(block), choices } : null;
-}
-
-export function readInteractiveMessage(metadata: unknown): InteractiveMessage | null {
-  const fields = rowOf(metadata);
-  if (!fields) return null;
-  const list = rowOf(fields.list);
-  if (list) return listOf(list);
-  const buttons = rowOf(fields.buttons);
-  return buttons ? buttonsOf(buttons) : null;
+export function chosenRow(content: InteractiveContent | undefined, optionId: string | undefined): InteractiveRow | undefined {
+  if (!content || !optionId) return undefined;
+  for (const section of content.sections ?? []) {
+    const row = section.rows.find((candidate) => candidate.id === optionId);
+    if (row) return row;
+  }
+  return undefined;
 }

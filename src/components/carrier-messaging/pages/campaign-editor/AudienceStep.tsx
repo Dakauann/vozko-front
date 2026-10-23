@@ -20,9 +20,9 @@ import type { LeadSelection } from "@/lib/leads/actions";
 import { audienceCount } from "./editor-state";
 
 function initialDraftOf(audience: LeadSelection | null): Partial<AudienceDraft> {
-  if (audience?.mode === "everyone") return { pick: "everyone", excludeIds: audience.excludeIds ?? [] };
+  if (audience?.mode === "everyone") return { pick: "everyone", excludeIds: audience.excludeIds ?? [], includeIds: audience.includeIds ?? [] };
   if (audience?.mode === "ids") return { pick: "ids", ids: audience.ids ?? [] };
-  if (audience?.mode === "all_matching" && audience.filter) return { pick: "filter", filter: audience.filter, excludeIds: audience.excludeIds ?? [] };
+  if (audience?.mode === "all_matching" && audience.filter) return { pick: "filter", filter: audience.filter, excludeIds: audience.excludeIds ?? [], includeIds: audience.includeIds ?? [] };
   return {};
 }
 

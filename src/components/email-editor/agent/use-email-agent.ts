@@ -8,18 +8,27 @@ import { usePublishAssistantContext } from "@/components/ai-chat/assistant-conte
 import { useScreenHandler } from "@/components/ai-chat/screen-bridge";
 import type { ReplayTarget } from "@/components/coworker/replay";
 import { createAgentPresence, type AgentPresence } from "@/components/studio/agent/presence";
+import type { AssistantContext } from "@/lib/aichat/assistant-context";
 import type { ScreenHandler } from "@/lib/aichat/screen";
 import type { Document } from "@/lib/email-design/types";
 
 import { captureEmail } from "./capture";
-import { createEmailAgent } from "./email-agent";
+import { createEmailAgent, type EnvelopePort } from "./email-agent";
 
 export const EMAIL_CANVAS_ANCHOR = "[data-email-canvas]";
 const POINTER_INSET = 12;
 
-export interface EmailAgentBinding {
-  designId: string;
-  name: string;
+export type EmailAgentBinding =
+  | { surface: "email_design"; projectId: string; name: string }
+  | { surface: "email_campaign"; projectId: string; name: string; envelope: EnvelopePort };
+
+function contextOf(binding: EmailAgentBinding): AssistantContext {
+  if (binding.surface === "email_campaign") return { kind: "email_campaign", view: { surface: "email_campaign", projectId: binding.projectId }, campaignName: binding.name };
+  return { kind: "email_design", view: { surface: "email_design", projectId: binding.projectId }, designName: binding.name };
+}
+
+function envelopeOf(binding: EmailAgentBinding | undefined): EnvelopePort | null {
+  return binding?.surface === "email_campaign" ? binding.envelope : null;
 }
 
 export interface EditorLive {
@@ -49,15 +58,15 @@ export function useEmailEditorAgent(binding: EmailAgentBinding | undefined, live
   const t = useTranslations("emailEditor.agent.actions");
   const reduced = Boolean(useReducedMotion());
   const [presence] = useState(() => createAgentPresence());
-  const latest = useRef({ t, reduced, name: binding?.name ?? "", join });
+  const latest = useRef({ t, reduced, name: binding?.name ?? "", join, envelope: envelopeOf(binding) });
 
   useEffect(() => {
-    latest.current = { t, reduced, name: binding?.name ?? "", join };
+    latest.current = { t, reduced, name: binding?.name ?? "", join, envelope: envelopeOf(binding) };
   });
 
   useEffect(() => () => presence.dispose(), [presence]);
 
-  usePublishAssistantContext(binding ? { kind: "email_design", view: { surface: "email_design", projectId: binding.designId }, designName: binding.name } : null);
+  usePublishAssistantContext(binding ? contextOf(binding) : null);
 
   const handler = useCallback<ScreenHandler>(
     (command) =>
@@ -70,10 +79,11 @@ export function useEmailEditorAgent(binding: EmailAgentBinding | undefined, live
         reduceMotion: () => latest.current.reduced,
         hidden: () => typeof document !== "undefined" && document.visibilityState === "hidden",
         capture: captureEmail,
+        ...(latest.current.envelope ? { envelope: latest.current.envelope } : {}),
       })(command),
     [live, presence],
   );
 
-  useScreenHandler(binding?.designId ?? null, handler);
+  useScreenHandler(binding?.projectId ?? null, handler);
   return binding ? presence : null;
 }

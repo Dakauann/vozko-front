@@ -108,9 +108,16 @@ export interface EmailDesignView {
   projectId: string;
 }
 
-export type EditorView = StudioView | EmailDesignView;
+export interface EmailCampaignView {
+  surface: "email_campaign";
+  projectId: string;
+}
 
-export type ChatView = AttendanceView | StudioView | LeadsView | EmailDesignView;
+export type EmailDocumentView = EmailDesignView | EmailCampaignView;
+
+export type EditorView = StudioView | EmailDocumentView;
+
+export type ChatView = AttendanceView | StudioView | LeadsView | EmailDocumentView;
 
 export interface AttendanceView {
   surface: "attendance";

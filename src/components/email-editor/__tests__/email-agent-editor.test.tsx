@@ -33,7 +33,7 @@ function Harness({ initial, seen }: { initial: Document; seen: { current: Docume
           seen.current = next;
           setDocument(next);
         }}
-        agent={{ designId, name: "Black Friday" }}
+        agent={{ surface: "email_design", projectId: designId, name: "Black Friday" }}
       />
     </NextIntlClientProvider>
   );

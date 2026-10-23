@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { ScreenCommand } from "@/lib/aichat/screen";
-import type { StepPatch } from "@/lib/email-design/agent/steps";
+import type { Envelope, StepPatch } from "@/lib/email-design/agent/steps";
 import type { Block, Document } from "@/lib/email-design/types";
 
-import { createEmailAgent, type EmailAgentDeps } from "./email-agent";
+import { createEmailAgent, type EmailAgentDeps, type EnvelopePort } from "./email-agent";
 
 const title: Block = { id: "title", kind: "heading", heading: { text: "Oi", level: 1 } };
 const intro: Block = { id: "intro", kind: "text", text: { paragraphs: [{ runs: [{ text: "Olá" }] }] } };
@@ -98,5 +98,67 @@ describe("createEmailAgent", () => {
   it("refuses commands that belong to other editors", async () => {
     const { deps } = rig();
     expect(await createEmailAgent(deps)({ id: "c", name: "export", projectId: "d1" })).toMatchObject({ ok: false, error: { code: "not_email" } });
+  });
+});
+
+function campaignRig(typed?: Partial<Envelope>) {
+  let envelope: Envelope = { subject: "Oferta para {{first_name|você}}", preheader: "Só hoje" };
+  const applied: Array<{ next: Envelope; previous: Envelope }> = [];
+  const port: EnvelopePort = {
+    read: () => envelope,
+    apply: (next, previous) => {
+      applied.push({ next, previous });
+      envelope = next;
+    },
+  };
+  const base = rig({ envelope: port });
+  if (typed) envelope = { ...envelope, ...typed };
+  return { ...base, applied, envelope: () => envelope };
+}
+
+const envelopeEdit = (next: Partial<Envelope>) => ({
+  base: { subject: "Oferta para {{first_name|você}}", preheader: "Só hoje" },
+  next: { subject: "Oferta para {{first_name|você}}", preheader: "Só hoje", ...next },
+});
+
+describe("createEmailAgent on a campaign", () => {
+  it("reads the subject and the preheader next to the document", async () => {
+    const { deps } = campaignRig();
+    expect(await createEmailAgent(deps)({ id: "c", name: "read", projectId: "c1" })).toEqual({
+      ok: true,
+      data: { document: base, selected: "intro", name: "Black Friday", subject: "Oferta para {{first_name|você}}", preheader: "Só hoje" },
+    });
+  });
+
+  it("lands the document steps and the envelope live, and answers with both", async () => {
+    const { deps, current, applied, envelope } = campaignRig();
+    const reply = await createEmailAgent(deps)({ ...editCommand, args: { base, steps, envelope: envelopeEdit({ subject: "Última chance, {{first_name|cliente}}" }) } });
+    expect(current().blocks.map((block) => block.id)).toEqual(["title", "intro", "button-1", "footer"]);
+    expect(envelope()).toEqual({ subject: "Última chance, {{first_name|cliente}}", preheader: "Só hoje" });
+    expect(applied).toEqual([{ next: envelope(), previous: { subject: "Oferta para {{first_name|você}}", preheader: "Só hoje" } }]);
+    expect(reply).toEqual({ ok: true, data: { document: current(), conflicts: [], skipped: [], subject: "Última chance, {{first_name|cliente}}", preheader: "Só hoje" } });
+  });
+
+  it("keeps the subject the person typed meanwhile and reports the clash", async () => {
+    const { deps, applied, envelope } = campaignRig({ subject: "O que ela digitou" });
+    const reply = await createEmailAgent(deps)({ ...editCommand, args: { base, steps: [], envelope: envelopeEdit({ subject: "O da Elo", preheader: "Frete grátis" }) } });
+    expect(envelope()).toEqual({ subject: "O que ela digitou", preheader: "Frete grátis" });
+    expect(applied).toHaveLength(1);
+    expect(reply).toMatchObject({ ok: true, data: { conflicts: ["subject"], subject: "O que ela digitou", preheader: "Frete grátis" } });
+  });
+
+  it("touches nothing when the envelope did not change", async () => {
+    const { deps, applied } = campaignRig();
+    await createEmailAgent(deps)({ ...editCommand, args: { base, steps: [], envelope: envelopeEdit({}) } });
+    expect(applied).toHaveLength(0);
+  });
+
+  it("refuses an envelope on a design and a campaign batch without one", async () => {
+    const design = rig();
+    expect(await createEmailAgent(design.deps)({ ...editCommand, args: { base, steps, envelope: envelopeEdit({ subject: "x" }) } })).toMatchObject({ ok: false, error: { code: "invalid_edit" } });
+    const campaign = campaignRig();
+    expect(await createEmailAgent(campaign.deps)(editCommand)).toMatchObject({ ok: false, error: { code: "invalid_edit" } });
+    expect(await createEmailAgent(campaign.deps)({ ...editCommand, args: { base, steps, envelope: { base: {}, next: {} } } })).toMatchObject({ ok: false, error: { code: "invalid_edit" } });
+    expect(campaign.applied).toHaveLength(0);
   });
 });

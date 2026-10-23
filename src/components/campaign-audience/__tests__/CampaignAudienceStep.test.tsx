@@ -518,8 +518,8 @@ describe("CampaignAudienceStep leads behind the numbers", () => {
     fireEvent.click(within(dialog).getAllByRole("checkbox", { name: ptMessages.dashboardTable.selectRow })[0]);
     fireEvent.click(within(dialog).getByRole("button", { name: step.leads.pickOnly }));
     await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-1"] } }), SETTLE);
-    expect(screen.getByText(/1 lead escolhido/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: step.pick.idsSwitch }));
+    expect(screen.getByText("Selecionados (1)")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: step.pick.filter }));
     await waitFor(() => expect(lastCountSpec()?.selection?.mode).toBe("all_matching"), SETTLE);
   });
 
@@ -571,8 +571,125 @@ describe("CampaignAudienceStep new lead", () => {
     fireEvent.click(screen.getByRole("button", { name: ptMessages.leadsPage.header.newLead }));
     fireEvent.click(screen.getByRole("button", { name: "salvar lead de teste" }));
 
-    await waitFor(() => expect(actions.countAudienceAction).toHaveBeenCalledTimes(2), SETTLE);
-    expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone" } });
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone", includeIds: ["lead-new"] } }), SETTLE);
+  });
+
+  it("puts the saved lead in an audience that had nobody yet and counts it", async () => {
+    actions.countAudienceAction.mockResolvedValue({
+      data: leadsCount({ channel: "email", matched: 1, withContact: 1, sendable: 1, out: {}, outTotal: 0, blockers: [], variables: [], selection: { selected: 1, confirmCount: 0 } }),
+      error: null,
+    });
+    renderStep("email");
+    expect(screen.getByRole("button", { name: step.pick.filter })).toHaveAttribute("aria-pressed", "true");
+    expect(actions.countAudienceAction).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.leadsPage.header.newLead }));
+    fireEvent.click(screen.getByRole("button", { name: "salvar lead de teste" }));
+
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-new"] } }), SETTLE);
+    expect(screen.getByText("Selecionados (1)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: step.pick.ids })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("adds the saved lead on top of a filter and shows it among the hand-included leads", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: leadsCount({ blockers: [], sendable: 2, variables: [] }), error: null });
+    renderStep("email", {}, { filter: { groups: [{ conjunction: "and", predicates: [{ field: "city", operator: "in", values: ["sp"] }] }] } as never, excludeIds: ["lead-new"] });
+    await waitFor(() => expect(lastCountSpec()?.selection?.excludeIds).toEqual(["lead-new"]), SETTLE);
+
+    fireEvent.click(screen.getByRole("button", { name: ptMessages.leadsPage.header.newLead }));
+    fireEvent.click(screen.getByRole("button", { name: "salvar lead de teste" }));
+
+    await waitFor(() => expect(lastCountSpec()?.selection).toMatchObject({ mode: "all_matching", includeIds: ["lead-new"] }), SETTLE);
+    expect(lastCountSpec()?.selection?.excludeIds).toBeUndefined();
+    expect(screen.getByText("Incluídos à mão: 1")).toBeInTheDocument();
+  });
+});
+
+describe("CampaignAudienceStep hand-picked leads", () => {
+  const PEOPLE: Record<string, { name: string; contact: string; status: "ready" | "out"; reason: string }> = {
+    "lead-d": { name: "Dakauann Costa", contact: "dakauann@exemplo.com", status: "ready", reason: "" },
+    "lead-b": { name: "Bia Melo", contact: "", status: "out", reason: "no_email" },
+  };
+
+  function leadRow(id: string) {
+    const person = PEOPLE[id];
+    return { leadId: id, line: 0, name: person.name, contact: person.contact, status: person.status, reason: person.reason, missing: [], metadataMissing: [], variables: [] };
+  }
+
+  function pageOf(ids: string[], limit: number) {
+    return { data: { items: ids.map(leadRow), page: 1, pageSize: limit, totalPages: ids.length > 0 ? 1 : 0, totalItems: ids.length }, error: null };
+  }
+
+  beforeEach(() => {
+    actions.countAudienceAction.mockResolvedValue({ data: leadsCount({ channel: "email", blockers: [], variables: [] }), error: null });
+    actions.listAudienceLeadsAction.mockImplementation(async (_channel: string, spec: { selection?: { mode: string; ids?: string[] } }, _fields: unknown, query: { limit: number }) => {
+      const selection = spec.selection;
+      if (selection?.mode === "ids") return pageOf(selection.ids ?? [], query.limit);
+      if (selection?.mode === "everyone") return pageOf(Object.keys(PEOPLE), query.limit);
+      const written = JSON.stringify(selection);
+      return pageOf(Object.keys(PEOPLE).filter((id) => written.includes(PEOPLE[id].name.split(" ")[0])), query.limit);
+    });
+  });
+
+  function search(term: string) {
+    fireEvent.change(screen.getByRole("searchbox", { name: step.hand.searchLabel }), { target: { value: term } });
+  }
+
+  it("keeps the leads picked across searches, removes one and counts by their ids", async () => {
+    renderStep("email");
+    fireEvent.click(screen.getByRole("button", { name: step.pick.ids }));
+
+    search("Dakauann");
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Marcar Dakauann Costa" }, SETTLE));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-d"] } }), SETTLE);
+
+    search("Bia");
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Marcar Bia Melo" }, SETTLE));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-d", "lead-b"] } }), SETTLE);
+    expect(screen.getByText("Selecionados (2)")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Marcar Bia Melo" })).toHaveAttribute("aria-checked", "true");
+    expect(await screen.findByRole("button", { name: "Tirar Dakauann Costa da lista" }, SETTLE)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tirar Dakauann Costa da lista" }));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-b"] } }), SETTLE);
+    expect(screen.getByText("Selecionados (1)")).toBeInTheDocument();
+  });
+
+  it("keeps the picks in the draft while another mode is chosen", async () => {
+    renderStep("email", {}, { pick: "ids", ids: ["lead-d", "lead-b"] });
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-d", "lead-b"] } }), SETTLE);
+
+    fireEvent.click(screen.getByRole("button", { name: step.pick.everyone }));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone" } }), SETTLE);
+
+    fireEvent.click(screen.getByRole("button", { name: step.pick.ids }));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "ids", ids: ["lead-d", "lead-b"] } }), SETTLE);
+    expect(screen.getByText("Selecionados (2)")).toBeInTheDocument();
+  });
+
+  it("adjusts a filtered result from its preview rows", async () => {
+    renderStep("email", {}, { pick: "everyone" });
+    const include = await screen.findByRole("button", { name: "Incluir Dakauann Costa à mão" }, SETTLE);
+    expect(include).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(include);
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone", includeIds: ["lead-d"] } }), SETTLE);
+    expect(screen.getByText("Incluídos à mão: 1")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tirar Bia Melo do público" }));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone", includeIds: ["lead-d"], excludeIds: ["lead-b"] } }), SETTLE);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Tirar Dakauann Costa do público" }));
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone", excludeIds: ["lead-b", "lead-d"] } }), SETTLE);
+  });
+
+  it("finds a lead outside the filter and includes it by hand", async () => {
+    renderStep("email", {}, { pick: "everyone" });
+    fireEvent.click(screen.getByRole("button", { name: step.hand.add }));
+    search("Dakauann");
+    const box = await screen.findByRole("checkbox", { name: "Marcar Dakauann Costa" }, SETTLE);
+    fireEvent.click(box);
+    await waitFor(() => expect(lastCountSpec()).toEqual({ source: "leads", selection: { mode: "everyone", includeIds: ["lead-d"] } }), SETTLE);
   });
 });
 
@@ -628,7 +745,14 @@ describe("CampaignAudienceStep matched leads preview", () => {
 
   it("aborts the preview the audience no longer needs once it changes", async () => {
     actions.countAudienceAction.mockResolvedValue({ data: COUNTED, error: null });
-    actions.listAudienceLeadsAction.mockImplementationOnce(() => new Promise(() => undefined)).mockResolvedValue({ data: MATCHED, error: null });
+    let held = false;
+    actions.listAudienceLeadsAction.mockImplementation((...args: unknown[]) => {
+      if ((args[3] as { limit?: number })?.limit === 5 && !held) {
+        held = true;
+        return new Promise(() => undefined);
+      }
+      return Promise.resolve({ data: MATCHED, error: null });
+    });
     renderStep("email", {}, { pick: "ids", ids: ["lead-a"] });
     await waitFor(() => expect(previewCalls().length).toBe(1), SETTLE);
     const first = previewCalls()[0][4] as AbortSignal;

@@ -37,7 +37,7 @@ function msg(overrides: Partial<ConversationMessage>): ConversationMessage {
 
 const WORKFLOW = msg({});
 const CUSTOMER = msg({ id: "in-1", direction: "INBOUND", message_type: "user_message", from: "5511999990000", to: "business", text: "Quero me matricular" });
-const BUTTONS = msg({ id: "out-2", metadata: { buttons: { body_text: "Continuar?", buttons: [{ id: "sim", title: "Sim" }] } } as unknown as ConversationMessage["metadata"] });
+const BUTTONS = msg({ id: "out-2", interactive: { kind: "buttons", body: "Continuar?", buttons: [{ kind: "reply", id: "sim", title: "Sim" }] } });
 
 function renderRow(message: ConversationMessage, position: GroupPosition, extra: Partial<ThreadRowContextValue> = {}) {
   const context: ThreadRowContextValue = {

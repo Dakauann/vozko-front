@@ -15,7 +15,6 @@ import {
   SharedLinkCard,
   StickerPlaceholder,
 } from "@/components/crm/MetaMessageParts";
-import TemplateBubble from "@/components/crm/TemplateBubble";
 import { MercadoLivreMessageMarks } from "@/components/mercadolivre/mercadolivre-message-marks";
 import { RcsThreadCards, RcsThreadSuggestions } from "@/components/rcs/preview/RcsThreadContent";
 import { SmsSegmentsBadge } from "@/components/sms/SmsSegmentsBadge";
@@ -23,8 +22,7 @@ import { readRcsTranscript, readSmsTranscript } from "@/lib/carrier-messaging/tr
 import { emailCampaignName } from "@/lib/email/campaign";
 import { bubbleSide, directionOfRow, showsDeliveryTicks } from "@/lib/conversations/bubble-side";
 import { messageTypeOf, senderBadge } from "@/lib/conversations/direction";
-import { hasTemplateMetadata, readFormBlock } from "@/lib/conversations/form-metadata";
-import { readInteractiveMessage } from "@/lib/conversations/interactive-message";
+import { readFormBlock } from "@/lib/conversations/form-metadata";
 import {
   metaPrefix,
   readLinkShare,
@@ -37,7 +35,7 @@ import { messageMenuItems } from "@/lib/conversations/message-menu";
 import { senderLabelKey } from "@/lib/conversations/sender-label";
 import { mediaLabelKey } from "@/lib/conversations/thread-labels";
 import { joinedEdges, opensGroup, type ThreadRow } from "@/lib/conversations/thread-rows";
-import type { ConversationMessage, TemplateMessageMetadata } from "@/lib/conversations/types";
+import type { ConversationMessage } from "@/lib/conversations/types";
 import { arrivalTransition } from "@/lib/motion/tokens";
 import { cn } from "@/lib/utils";
 import { bubbleCorners } from "./bubble-corners";
@@ -46,7 +44,7 @@ import { MessageMedia } from "../message-media";
 import { CollapsibleMessageText, MessageTimestamp, ReadReceipt } from "./message-parts";
 import { AudioTranscript, EditedMark, RetractedNotice } from "./message-states";
 import { FormMessageCard, FormResponseCard } from "./FormCards";
-import { InteractiveMessageCard } from "./InteractiveMessageCard";
+import { InteractiveMessageActions, InteractiveMessageBody, InteractiveReplyText } from "./InteractiveMessageCard";
 import { MessageActionsMenu, type MenuAnchor } from "./MessageActionsMenu";
 import { MessageEditor } from "./MessageEditor";
 import { ReactionChips } from "./ReactionChips";
@@ -181,14 +179,13 @@ function PendingMediaLabel({ message }: { message: ConversationMessage }) {
 function BubbleBody({ message }: { message: ConversationMessage }) {
   const { conversation } = useThreadRow();
   const messageType = messageTypeOf(message);
-  const templateCard = messageType === "template" && hasTemplateMetadata(message.metadata);
   const form = readFormBlock(message.metadata);
   const transcript = message.transcript?.trim();
 
   if (form?.kind === "message") return <FormMessageCard message={message} block={form} />;
   if (form?.kind === "response") return <FormResponseCard message={message} block={form} />;
-  const interactive = templateCard ? null : readInteractiveMessage(message.metadata);
-  if (interactive) return <InteractiveMessageCard text={message.text} interactive={interactive} />;
+  if (message.interactive) return <InteractiveMessageBody content={message.interactive} />;
+  if (message.interactive_reply && !message.media_type) return <InteractiveReplyText message={message} />;
   const channel = message.channel ?? message.entry_type;
   const rcs = channel === "rcs" ? readRcsTranscript(message.metadata) : null;
   const sms = channel === "sms" ? readSmsTranscript(message.metadata) : null;
@@ -222,8 +219,6 @@ function BubbleBody({ message }: { message: ConversationMessage }) {
 
       {transcript ? <AudioTranscript transcript={transcript} /> : null}
 
-      {templateCard && <TemplateBubble metadata={message.metadata as TemplateMessageMetadata} />}
-
       {message.location && (
         <LocationMessageCard
           messageId={message.id}
@@ -234,7 +229,7 @@ function BubbleBody({ message }: { message: ConversationMessage }) {
         />
       )}
 
-      {message.text && !message.location && !templateCard && (channel === "email" ? (
+      {message.text && !message.location && (channel === "email" ? (
         <EmailMessageBody message={message} fallback={<CollapsibleMessageText text={message.text} />} />
       ) : (
         <CollapsibleMessageText text={message.text} />
@@ -285,7 +280,7 @@ function BubbleFooter({ message, outgoing, own, ticks }: { message: Conversation
       )}
       {sentVia && <SentViaBadge via={sentVia} />}
       {isTemplate && (
-        <span className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
+        <span title={message.interactive?.template_name} className="rounded-md bg-healthy px-1.5 py-0.5 text-2xs font-semibold  text-healthy-foreground">
           {tCrm("messageSender.template")}
         </span>
       )}
@@ -434,6 +429,8 @@ export function MessageBubbleRow({ row }: { row: MessageRow }) {
         {message.channel === "mercadolivre" && !retracted ? <MercadoLivreMessageMarks message={message} outgoing={outgoing} /> : null}
 
         <SendFailure message={message} />
+
+        {message.interactive && !retracted && !editing ? <InteractiveMessageActions message={message} content={message.interactive} /> : null}
       </div>
       {!own && !editing && <HoverActions message={message} menuAvailable={menuAvailable} onOpenMenu={openMenuBeside} />}
       {menuAvailable ? (

@@ -49,10 +49,7 @@ function sentByOperator(message: ConversationMessage, operatorId: string): boole
 }
 
 function hasButtons(message: ConversationMessage): boolean {
-  const metadata = message.metadata as unknown;
-  if (!isRecord(metadata) || !isRecord(metadata.buttons)) return false;
-  const { buttons } = metadata.buttons;
-  return Array.isArray(buttons) && buttons.length > 0;
+  return Boolean(message.interactive);
 }
 
 function isPlainText(message: ConversationMessage): boolean {

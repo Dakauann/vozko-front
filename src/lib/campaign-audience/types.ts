@@ -29,6 +29,7 @@ export interface AudienceSelection {
   filter?: CrmFilter;
   ids?: string[];
   excludeIds?: string[];
+  includeIds?: string[];
   expectedCount?: number;
   fingerprint?: string;
 }

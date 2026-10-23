@@ -17216,7 +17216,10 @@
       },
       "interactive": {
         "choiceHint": "The contact taps this option on WhatsApp",
-        "listFallback": "See options"
+        "copyCode": "Copy code",
+        "chosen": "Chosen by the contact",
+        "sheetReadOnly": "Options the contact received. Only they can choose one.",
+        "sheetChoose": "Choose an option to reply as the contact."
       }
     },
     "connection": {
@@ -36934,6 +36937,10 @@
       "title": "Elo in the email",
       "greeting": "Shall we design this email together?",
       "description": "I build the blocks, write the copy, tune colors and generate images with AI right in the editor while you keep editing. You see my cursor and can undo any step with Ctrl+Z.",
+      "campaign": {
+        "greeting": "Shall we work on this campaign's email?",
+        "description": "I edit this campaign's subject, preview text and blocks right in the editor while you keep editing. Changes go into the campaign draft, and the template saved in Templates stays as it is."
+      },
       "actions": {
         "add": "Adding a block",
         "set": "Editing a block",
@@ -37844,6 +37851,10 @@
         "failed": "Could not save the template."
       },
       "designFallbackName": "Untitled template",
+      "agent": {
+        "envelopeChanged": "Elo changed the campaign's subject or preview text.",
+        "undo": "Undo"
+      },
       "noDesign": "This campaign has no content yet.",
       "replaceConfirm": {
         "title": "Change the template?",
@@ -38866,11 +38877,33 @@
         "everyoneHint": "Every lead you can see joins the campaign.",
         "quantityTitle": "First {count, number} leads in the filter",
         "quantityBody": "The limit and order chosen in the lead selection will be preserved.",
-        "idsTitle": "{count, plural, one {# lead picked} other {# leads picked}} one by one",
-        "idsBody": "This audience was set by a fixed list of leads. To change it, switch to filters.",
+        "ids": "Pick leads",
+        "idsHint": "Search and tick each lead who receives the campaign.",
         "idsSwitch": "Use filters",
         "excluded": "{count, plural, one {# lead taken out of the audience} other {# leads taken out of the audience}}",
         "restore": "Put back in the audience"
+      },
+      "hand": {
+        "searchLabel": "Search leads",
+        "searchPlaceholder": "Search by name or contact",
+        "searchHint": "Type to find leads by name or contact.",
+        "searchEmpty": "No lead found for this search.",
+        "searchFailed": "Could not search the leads.",
+        "retry": "Try again",
+        "results": "{count, plural, one {# lead found} other {# leads found}}",
+        "resultsMore": "The first {shown, number} of {count, number} leads found. Narrow the search to see others.",
+        "pick": "Tick {name}",
+        "picked": "Selected ({count, number})",
+        "pickedEmpty": "No lead picked yet. Search above and tick who receives it.",
+        "included": "Added by hand: {count, number}",
+        "includedHint": "They join the audience even outside the filter.",
+        "add": "Add a lead by hand",
+        "closeSearch": "Close search",
+        "remove": "Remove {name} from the list",
+        "unnamed": "Unnamed lead",
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page {page, number} of {total, number}"
       },
       "variables": {
         "title": "Variables",
@@ -39094,7 +39127,10 @@
         "viewAll": "View all",
         "empty": "No lead matches these filters.",
         "failed": "Could not show the leads.",
-        "retry": "Try again"
+        "retry": "Try again",
+        "include": "Add {name} by hand",
+        "includedTag": "Added by hand",
+        "exclude": "Take {name} out of the audience"
       }
     }
   },

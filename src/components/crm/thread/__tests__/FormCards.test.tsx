@@ -193,6 +193,7 @@ describe("template bubble fallback (F4)", () => {
         direction: "OUTBOUND",
         text: "corpo duplicado",
         metadata: { template_name: "boas_vindas", language: "pt_BR", category: "MARKETING", components: [{ type: "BODY", text: "Olá do template" }] },
+        interactive: { kind: "template", template_name: "boas_vindas", body: "Olá do template" },
       }),
       true,
     );

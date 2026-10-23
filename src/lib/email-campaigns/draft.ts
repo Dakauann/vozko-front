@@ -49,7 +49,9 @@ export function audienceSelection(audience: AudienceDraft): Selection | undefine
   if (!selection) return undefined;
   if (selection.mode === "ids") return { mode: "ids", ids: selection.ids ?? [] };
   const wide: Selection = selection.mode === "everyone" ? { mode: "everyone" } : selection.mode === "first_n" ? { mode: "first_n", filter: selection.filter, limit: selection.limit, sort: selection.sort } : { mode: "all_matching", filter: selection.filter };
-  return selection.excludeIds ? { ...wide, exclude_ids: selection.excludeIds } : wide;
+  if (selection.includeIds) wide.include_ids = selection.includeIds;
+  if (selection.excludeIds) wide.exclude_ids = selection.excludeIds;
+  return wide;
 }
 
 function mergePolicyOf(key: string, choice: VariableChoice): MergePolicy | null {
@@ -102,7 +104,7 @@ function choicesOf(policies: readonly MergePolicy[] | undefined): Record<string,
 export function audienceOfSelection(selection: Selection | undefined): AudienceDraft {
   const empty = emptyAudienceDraft("email");
   if (!selection) return empty;
-  const excluded = { ...empty, excludeIds: selection.exclude_ids ?? [] };
+  const excluded = { ...empty, excludeIds: selection.exclude_ids ?? [], includeIds: selection.include_ids ?? [] };
   switch (selection.mode) {
     case "everyone":
       return { ...excluded, pick: "everyone" };

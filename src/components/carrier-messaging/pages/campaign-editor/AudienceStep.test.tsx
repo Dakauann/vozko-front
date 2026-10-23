@@ -95,7 +95,7 @@ describe("carrier AudienceStep", () => {
   it("keeps a pick by ids from the leads page and counts it", async () => {
     actions.countAudienceAction.mockResolvedValue({ data: carrierCount({ matched: 2, withContact: 2, sendable: 2, out: {}, outTotal: 0, selection: { selected: 2, confirmCount: 2 } }), error: null });
     const onChange = renderStep({ mode: "ids", ids: ["a", "b"] });
-    expect(screen.getByText(/2 leads escolhidos/)).toBeInTheDocument();
+    expect(screen.getByText("Selecionados (2)")).toBeInTheDocument();
     await waitFor(() => expect(lastCount()?.[1]).toEqual({ source: "leads", selection: { mode: "ids", ids: ["a", "b"] } }), SETTLE);
     expect(await screen.findByText(step.count.noneOut)).toBeInTheDocument();
     expect(onChange).not.toHaveBeenCalled();

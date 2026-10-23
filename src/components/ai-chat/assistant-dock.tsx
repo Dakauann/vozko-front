@@ -70,12 +70,16 @@ function useCopy(context: AssistantContext | null) {
   if (context?.kind === "email_design") {
     return { greeting: te("greeting"), description: te("description"), title: te("title") };
   }
+  if (context?.kind === "email_campaign") {
+    return { greeting: te("campaign.greeting"), description: te("campaign.description"), title: te("title") };
+  }
   return { greeting: td("greeting"), description: td("description"), title: td("title") };
 }
 
 function contextChips(context: AssistantContext | null): string[] {
   if (context?.kind === "studio") return [context.projectName];
   if (context?.kind === "email_design") return [context.designName];
+  if (context?.kind === "email_campaign") return [context.campaignName];
   if (context?.kind === "leads") return [context.scope.filter, context.scope.selected].filter((v): v is string => Boolean(v));
   const scope = context?.scope;
   return scope ? [scope.period, scope.department, scope.member, scope.channel, scope.campaign].filter((v): v is string => Boolean(v)) : [];

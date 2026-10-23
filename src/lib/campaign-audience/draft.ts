@@ -30,6 +30,7 @@ export interface LeadsPickDraft {
   search: string;
   ids: string[];
   excludeIds?: string[];
+  includeIds?: string[];
   limit?: number;
   sort?: AudienceSelection["sort"];
 }
@@ -63,26 +64,35 @@ export function defaultSourceOf(channel: AudienceChannel): AudienceSource {
 }
 
 export function emptyAudienceDraft(channel: AudienceChannel): AudienceDraft {
-  return { source: defaultSourceOf(channel), pick: "filter", filter: emptyCrmFilter, search: "", ids: [], excludeIds: [], listId: null, variables: {} };
+  return { source: defaultSourceOf(channel), pick: "filter", filter: emptyCrmFilter, search: "", ids: [], excludeIds: [], includeIds: [], listId: null, variables: {} };
 }
 
-function withExclusions(selection: AudienceSelection, excludeIds: readonly string[] | undefined): AudienceSelection {
-  return excludeIds && excludeIds.length > 0 ? { ...selection, excludeIds: [...excludeIds] } : selection;
+function withAdjustments(selection: AudienceSelection, { excludeIds, includeIds }: Pick<LeadsPickDraft, "excludeIds" | "includeIds">): AudienceSelection {
+  const adjusted = { ...selection };
+  if (includeIds && includeIds.length > 0) adjusted.includeIds = [...includeIds];
+  if (excludeIds && excludeIds.length > 0) adjusted.excludeIds = [...excludeIds];
+  return adjusted;
 }
 
-export function leadsSelectionOf({ pick, filter, search, ids, excludeIds, limit, sort }: LeadsPickDraft): AudienceSelection | null {
-  if (pick === "everyone") return withExclusions({ mode: "everyone" }, excludeIds);
+export function leadsSelectionOf(draft: LeadsPickDraft): AudienceSelection | null {
+  const { pick, filter, search, ids, limit, sort } = draft;
+  if (pick === "everyone") return withAdjustments({ mode: "everyone" }, draft);
   if (pick === "ids") return ids.length > 0 ? { mode: "ids", ids: [...ids] } : null;
   const effective = effectiveLeadFilter(filter, search);
   if (pick === "first_n") {
     if (isEmptyCrmFilter(effective) || !Number.isSafeInteger(limit) || (limit ?? 0) < 1) return null;
-    return withExclusions({ mode: "first_n", filter: effective, limit, sort }, excludeIds);
+    return withAdjustments({ mode: "first_n", filter: effective, limit, sort }, draft);
   }
-  return isEmptyCrmFilter(effective) ? null : withExclusions({ mode: "all_matching", filter: effective }, excludeIds);
+  return isEmptyCrmFilter(effective) ? null : withAdjustments({ mode: "all_matching", filter: effective }, draft);
 }
 
 function unique(ids: readonly string[]): string[] {
   return [...new Set(ids)];
+}
+
+function without(ids: readonly string[] | undefined, dropped: readonly string[]): string[] {
+  const gone = new Set(dropped);
+  return (ids ?? []).filter((id) => !gone.has(id));
 }
 
 export function withPickedLeads(draft: AudienceDraft, ids: readonly string[]): AudienceDraft {
@@ -90,10 +100,28 @@ export function withPickedLeads(draft: AudienceDraft, ids: readonly string[]): A
 }
 
 export function withExcludedLeads(draft: AudienceDraft, ids: readonly string[]): AudienceDraft {
-  return { ...draft, excludeIds: unique([...(draft.excludeIds ?? []), ...ids]) };
+  return { ...draft, includeIds: without(draft.includeIds, ids), excludeIds: unique([...(draft.excludeIds ?? []), ...ids]) };
 }
 
-export function withIncludedLeads(draft: AudienceDraft): AudienceDraft {
+function choosesNobodyYet(draft: LeadsPickDraft): boolean {
+  return draft.pick === "filter" && isEmptyCrmFilter(effectiveLeadFilter(draft.filter, draft.search));
+}
+
+export function withIncludedLead<T extends LeadsPickDraft>(draft: T, leadId: string): T {
+  if (draft.pick === "ids" || choosesNobodyYet(draft)) return { ...draft, pick: "ids", ids: unique([...draft.ids, leadId]) };
+  return { ...draft, includeIds: unique([...(draft.includeIds ?? []), leadId]), excludeIds: without(draft.excludeIds, [leadId]) };
+}
+
+export function withoutChosenLead<T extends LeadsPickDraft>(draft: T, leadId: string): T {
+  if (draft.pick === "ids") return { ...draft, ids: without(draft.ids, [leadId]) };
+  return { ...draft, includeIds: without(draft.includeIds, [leadId]) };
+}
+
+export function chosenLeadsOf(draft: LeadsPickDraft): readonly string[] {
+  return draft.pick === "ids" ? draft.ids : (draft.includeIds ?? []);
+}
+
+export function withRestoredLeads(draft: AudienceDraft): AudienceDraft {
   return { ...draft, excludeIds: [] };
 }
 
@@ -139,11 +167,6 @@ export function recipientsOf(spec: AudienceSpec, count: AudienceCount): Audience
   const confirmed: AudienceSelection = { ...selection, expectedCount: count.selection.confirmCount };
   if (count.selection.fingerprint) confirmed.fingerprint = count.selection.fingerprint;
   return { ...spec, selection: confirmed };
-}
-
-export function withNewLead(draft: AudienceDraft, leadId: string): AudienceDraft {
-  if (draft.pick !== "ids" || draft.ids.includes(leadId)) return draft;
-  return { ...draft, ids: [...draft.ids, leadId] };
 }
 
 export function channelFieldsReady(channel: AudienceChannel, fields: ChannelFields): boolean {

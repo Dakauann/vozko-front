@@ -1,6 +1,14 @@
 import { messageLocation } from "./message-location";
 import { messageMedia } from "./message-media";
-import type { ConversationMessage, EntryType, MediaType, MessageChannel, MessageReaction } from "./types";
+import type {
+  ConversationMessage,
+  EntryType,
+  InteractiveContent,
+  InteractiveReply,
+  MediaType,
+  MessageChannel,
+  MessageReaction,
+} from "./types";
 
 type WireRow = Record<string, unknown>;
 
@@ -27,6 +35,17 @@ function providerMessageId(msg: WireRow): string | undefined {
 function storedResentAs(msg: WireRow): string | undefined {
   const metadata = msg.metadata;
   return metadata && typeof metadata === "object" ? text((metadata as WireRow).resent_as) : undefined;
+}
+
+function record<T>(value: unknown): T | undefined {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as T) : undefined;
+}
+
+function interactiveFields(msg: WireRow): Partial<ConversationMessage> {
+  return {
+    ...optional("interactive", record<InteractiveContent>(msg.interactive)),
+    ...optional("interactive_reply", record<InteractiveReply>(msg.interactive_reply)),
+  };
 }
 
 function actionFields(msg: WireRow): Partial<ConversationMessage> {
@@ -70,6 +89,7 @@ export function normalizeWireMessage(message: ConversationMessage | WireRow): Co
     reply_to_message_id: (msg.reply_to_message_id as string) ?? (msg.replyToMessageId as string) ?? undefined,
     metadata: (msg.metadata as ConversationMessage["metadata"]) ?? undefined,
     ...messageLocation(msg),
+    ...interactiveFields(msg),
     ...actionFields(msg),
     created_at: (msg.created_at as string) ?? (msg.createdAt as string) ?? "",
     updated_at: (msg.updated_at as string) ?? (msg.updatedAt as string) ?? "",

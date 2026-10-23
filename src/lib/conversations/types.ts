@@ -402,6 +402,8 @@ export interface ConversationMessage {
     reply_to_message_id?: string;
     metadata?: TemplateMessageMetadata;
     location?: MessageLocation;
+    interactive?: InteractiveContent;
+    interactive_reply?: InteractiveReply;
     client_request_id?: string;
     provider_message_id?: string;
     sender_user_id?: string;
@@ -413,6 +415,53 @@ export interface ConversationMessage {
     local_send?: LocalSend;
     created_at: string;
     updated_at: string;
+}
+
+export type InteractiveKind = 'buttons' | 'list' | 'cta_url' | 'template';
+
+export type InteractiveActionKind = 'reply' | 'url' | 'phone' | 'copy_code' | 'flow';
+
+export interface InteractiveHeader {
+    type: 'text' | 'image' | 'video' | 'document';
+    text?: string;
+    media_url?: string;
+}
+
+export interface InteractiveRow {
+    id: string;
+    title: string;
+    description?: string;
+}
+
+export interface InteractiveSection {
+    title?: string;
+    rows: InteractiveRow[];
+}
+
+export interface InteractiveAction {
+    kind: InteractiveActionKind;
+    id?: string;
+    title: string;
+    url?: string;
+    phone?: string;
+    code?: string;
+}
+
+export interface InteractiveContent {
+    kind: InteractiveKind;
+    header?: InteractiveHeader;
+    body: string;
+    footer?: string;
+    button_label?: string;
+    sections?: InteractiveSection[];
+    buttons?: InteractiveAction[];
+    template_name?: string;
+}
+
+export interface InteractiveReply {
+    kind: string;
+    option_id: string;
+    title?: string;
 }
 
 export interface MessageReaction {

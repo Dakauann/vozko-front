@@ -5,6 +5,7 @@ import { opensGroup } from "@/lib/chat/message-groups";
 import { bubbleSide, directionOfRow } from "@/lib/conversations/bubble-side";
 import type { ThreadRow } from "@/lib/conversations/thread-rows";
 
+import { InteractiveMessageActions } from "./InteractiveMessageCard";
 import { MessageContent } from "./MessageBubbleRow";
 import { MessageTimestamp } from "./message-parts";
 import { EditedMark } from "./message-states";
@@ -29,6 +30,7 @@ export function ChatMessageRow({ row }: { row: MessageRow }) {
           {message.edited_at ? <EditedMark editedAt={message.edited_at} /> : null}
           <MessageTimestamp message={message} outgoing={false} />
         </p>
+        {message.interactive && !message.retracted_at ? <InteractiveMessageActions message={message} content={message.interactive} /> : null}
       </div>
     </div>
   );

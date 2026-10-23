@@ -4,6 +4,7 @@ const EDITOR = "components/email-editor";
 const INSPECTOR = `${EDITOR}/inspector.tsx`;
 const CANVAS = `${EDITOR}/canvas.tsx`;
 const TOOLBAR = `${EDITOR}/email-editor.tsx`;
+const CAMPAIGN_CONTENT = "components/email-campaigns/wizard/ContentStep.tsx";
 
 const field = (key: string, how: string) => by(at(INSPECTOR, `emailEditor.inspector.fields.${key}`, how));
 
@@ -52,11 +53,12 @@ export const EMAIL_FIELD_PATHS: Readonly<Record<string, ManualEntry>> = {
   button_color: field("buttonColor", "Default button color in the email settings"),
   button_text_color: field("buttonTextColor", "Default button text color in the email settings"),
   font_family: field("font", "Font in the email settings"),
-  preheader: field("preheader", "Preheader in the email settings"),
+  preheader: by(at(INSPECTOR, "emailEditor.inspector.fields.preheader", "Preheader in the email settings"), at(CAMPAIGN_CONTENT, "emailCampaigns.content.preheader", "Campaign content step: the preheader field next to the subject")),
+  subject: by(at(CAMPAIGN_CONTENT, "emailCampaigns.content.subject", "Campaign content step: the subject field")),
 };
 
 export const EMAIL_TOOL_PATHS: Readonly<Record<string, ToolEntry>> = {
-  email_read: { perception: "How Elo reads the open design; a person sees the canvas, the inspector and the issues rail" },
+  email_read: { perception: "How Elo reads the open design or campaign content; a person sees the canvas, the inspector, the issues rail and the subject fields" },
   email_edit: by(at(INSPECTOR, "emailEditor.inspector.groups.content", "Every operation of the batch is a manual edit of the canvas, the blocks list or the inspector")),
   email_look: by(
     at(TOOLBAR, "emailEditor.toolbar.preview", "Preview mode shows the rendered email the backend sends"),

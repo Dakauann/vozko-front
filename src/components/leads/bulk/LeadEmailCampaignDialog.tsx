@@ -44,7 +44,7 @@ export function LeadEmailCampaignDialog({ selection, onClose }: { selection: Lea
     setSaving(true);
     setError(null);
     try {
-      const audience = audienceOfSelection({ ...selection, exclude_ids: selection.excludeIds });
+      const audience = audienceOfSelection({ ...selection, exclude_ids: selection.excludeIds, include_ids: selection.includeIds });
       const request = campaignRequest({ ...emptyDraft(), name, audience });
       if (!request.selection) {
         setError(t("invalidSelection"));

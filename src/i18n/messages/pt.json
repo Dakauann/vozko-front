@@ -17216,7 +17216,10 @@
       },
       "interactive": {
         "choiceHint": "O contato toca esta opção no WhatsApp",
-        "listFallback": "Ver opções"
+        "copyCode": "Copiar código",
+        "chosen": "Escolhida pelo contato",
+        "sheetReadOnly": "Opções que o contato recebeu. Só ele pode escolher uma.",
+        "sheetChoose": "Escolha uma opção para responder como o contato."
       }
     },
     "connection": {
@@ -36934,6 +36937,10 @@
       "title": "Elo no e-mail",
       "greeting": "Vamos desenhar este e-mail juntos?",
       "description": "Eu monto os blocos, escrevo os textos, ajusto cores e gero imagens com IA direto no editor, enquanto você continua editando. Você vê o meu cursor e desfaz qualquer passo com Ctrl+Z.",
+      "campaign": {
+        "greeting": "Vamos trabalhar no e-mail desta campanha?",
+        "description": "Eu edito o assunto, a prévia e os blocos desta campanha direto no editor, enquanto você continua editando. As mudanças entram no rascunho da campanha, e o modelo salvo em Modelos não muda."
+      },
       "actions": {
         "add": "Adicionando bloco",
         "set": "Editando bloco",
@@ -37844,6 +37851,10 @@
         "failed": "Não foi possível salvar o modelo."
       },
       "designFallbackName": "Modelo sem nome",
+      "agent": {
+        "envelopeChanged": "A Elo mudou o assunto ou a prévia da campanha.",
+        "undo": "Desfazer"
+      },
       "noDesign": "Esta campanha ainda não tem conteúdo.",
       "replaceConfirm": {
         "title": "Trocar o modelo?",
@@ -38866,11 +38877,33 @@
         "everyoneHint": "Todos os leads que você pode ver entram na campanha.",
         "quantityTitle": "Primeiros {count, number} leads do filtro",
         "quantityBody": "O limite e a ordem definidos na seleção de leads serão preservados.",
-        "idsTitle": "{count, plural, one {# lead escolhido} other {# leads escolhidos}} um a um",
-        "idsBody": "Este público foi definido por uma lista fixa de leads. Para mudar, troque por filtros.",
+        "ids": "Escolher leads",
+        "idsHint": "Busque e marque cada lead que recebe a campanha.",
         "idsSwitch": "Usar filtros",
         "excluded": "{count, plural, one {# lead tirado do público} other {# leads tirados do público}}",
         "restore": "Devolver ao público"
+      },
+      "hand": {
+        "searchLabel": "Buscar leads",
+        "searchPlaceholder": "Buscar por nome ou contato",
+        "searchHint": "Digite para encontrar leads por nome ou contato.",
+        "searchEmpty": "Nenhum lead encontrado com essa busca.",
+        "searchFailed": "Não foi possível buscar os leads.",
+        "retry": "Tentar de novo",
+        "results": "{count, plural, one {# lead encontrado} other {# leads encontrados}}",
+        "resultsMore": "Os primeiros {shown, number} de {count, number} leads encontrados. Refine a busca para ver outros.",
+        "pick": "Marcar {name}",
+        "picked": "Selecionados ({count, number})",
+        "pickedEmpty": "Nenhum lead escolhido ainda. Busque acima e marque quem recebe.",
+        "included": "Incluídos à mão: {count, number}",
+        "includedHint": "Entram no público mesmo fora do filtro.",
+        "add": "Incluir lead à mão",
+        "closeSearch": "Fechar busca",
+        "remove": "Tirar {name} da lista",
+        "unnamed": "Lead sem nome",
+        "previous": "Anterior",
+        "next": "Próxima",
+        "page": "Página {page, number} de {total, number}"
       },
       "variables": {
         "title": "Variáveis",
@@ -39094,7 +39127,10 @@
         "viewAll": "Ver todos",
         "empty": "Nenhum lead com estes filtros.",
         "failed": "Não foi possível mostrar os leads.",
-        "retry": "Tentar de novo"
+        "retry": "Tentar de novo",
+        "include": "Incluir {name} à mão",
+        "includedTag": "Incluído à mão",
+        "exclude": "Tirar {name} do público"
       }
     }
   },

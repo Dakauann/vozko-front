@@ -15,8 +15,9 @@ import {
   recipientsOf,
   sourcesOf,
   withExcludedLeads,
-  withIncludedLeads,
-  withNewLead,
+  withIncludedLead,
+  withoutChosenLead,
+  withRestoredLeads,
   withPickedLeads,
   withVariableChoice,
 } from "./draft";
@@ -130,17 +131,54 @@ describe("picking and dropping leads", () => {
 
   it("puts the excluded leads back", () => {
     const dropped = withExcludedLeads({ ...emptyAudienceDraft("email"), filter: FILTER }, ["a"]);
-    expect(leadsSelectionOf(withIncludedLeads(dropped))).toEqual({ mode: "all_matching", filter: FILTER });
+    expect(leadsSelectionOf(withRestoredLeads(dropped))).toEqual({ mode: "all_matching", filter: FILTER });
   });
 });
 
-describe("withNewLead", () => {
-  it("adds the saved lead to a pick by ids and leaves a filter untouched", () => {
+describe("withIncludedLead", () => {
+  it("adds the lead to a pick by ids once", () => {
     const picked = { ...emptyAudienceDraft("email"), pick: "ids" as const, ids: ["a"] };
-    expect(withNewLead(picked, "b").ids).toEqual(["a", "b"]);
-    expect(withNewLead(picked, "a").ids).toEqual(["a"]);
-    const filtered = { ...emptyAudienceDraft("email"), filter: FILTER };
-    expect(withNewLead(filtered, "b")).toBe(filtered);
+    expect(withIncludedLead(picked, "b").ids).toEqual(["a", "b"]);
+    expect(withIncludedLead(picked, "a").ids).toEqual(["a"]);
+  });
+
+  it("turns a filtered audience that chose nobody yet into a pick of that lead", () => {
+    const empty = emptyAudienceDraft("email");
+    const chosen = withIncludedLead(empty, "new");
+    expect(chosen).toMatchObject({ pick: "ids", ids: ["new"] });
+    expect(leadsSelectionOf(chosen)).toEqual({ mode: "ids", ids: ["new"] });
+  });
+
+  it("joins a filter, a quantity and the whole base on top and takes the lead out of the exclusions", () => {
+    const filtered = withExcludedLeads({ ...emptyAudienceDraft("email"), filter: FILTER }, ["new", "x"]);
+    expect(leadsSelectionOf(withIncludedLead(filtered, "new"))).toEqual({ mode: "all_matching", filter: FILTER, includeIds: ["new"], excludeIds: ["x"] });
+    const searched = withIncludedLead({ ...emptyAudienceDraft("email"), search: "ana" }, "new");
+    expect(searched.pick).toBe("filter");
+    expect(searched.includeIds).toEqual(["new"]);
+    const quantity = { ...emptyAudienceDraft("email"), pick: "first_n" as const, filter: FILTER, limit: 50 };
+    expect(leadsSelectionOf(withIncludedLead(quantity, "new"))).toEqual({ mode: "first_n", filter: FILTER, limit: 50, sort: undefined, includeIds: ["new"] });
+    const everyone = { ...emptyAudienceDraft("email"), pick: "everyone" as const };
+    expect(leadsSelectionOf(withIncludedLead(withIncludedLead(everyone, "new"), "new"))).toEqual({ mode: "everyone", includeIds: ["new"] });
+  });
+
+  it("drops a hand-included lead that is excluded afterwards", () => {
+    const included = withIncludedLead({ ...emptyAudienceDraft("email"), filter: FILTER }, "new");
+    const dropped = withExcludedLeads(included, ["new"]);
+    expect(leadsSelectionOf(dropped)).toEqual({ mode: "all_matching", filter: FILTER, excludeIds: ["new"] });
+  });
+
+  it("removes a chosen lead from the picks or from the hand-included list", () => {
+    const picked = { ...emptyAudienceDraft("email"), pick: "ids" as const, ids: ["a", "b"] };
+    expect(withoutChosenLead(picked, "a").ids).toEqual(["b"]);
+    const included = withIncludedLead({ ...emptyAudienceDraft("email"), filter: FILTER }, "new");
+    expect(leadsSelectionOf(withoutChosenLead(included, "new"))).toEqual({ mode: "all_matching", filter: FILTER });
+  });
+
+  it("keeps the picks in the draft while another mode is used", () => {
+    const picked = { ...emptyAudienceDraft("email"), pick: "ids" as const, ids: ["a", "b"] };
+    const filtered = { ...picked, pick: "filter" as const, filter: FILTER };
+    expect(leadsSelectionOf(filtered)).toEqual({ mode: "all_matching", filter: FILTER });
+    expect(leadsSelectionOf({ ...filtered, pick: "ids" })).toEqual({ mode: "ids", ids: ["a", "b"] });
   });
 });
 
