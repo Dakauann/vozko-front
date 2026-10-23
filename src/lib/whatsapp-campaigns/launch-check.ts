@@ -5,6 +5,8 @@ export type LaunchCode =
   | "audience_empty"
   | "access_revoked"
   | "health_unreadable"
+  | "plan_inactive"
+  | "template_missing"
   | "template_not_ready"
   | "form_not_sendable"
   | "phone_unavailable"

@@ -32124,6 +32124,7 @@
     "fix": {
       "template": "Abrir la plantilla",
       "phone": "Ver números",
+      "plan": "Ver planes",
       "balance": "Agregar saldo"
     },
     "codes": {
@@ -32134,6 +32135,14 @@
       "access_revoked": {
         "title": "Sin acceso al número o a la plantilla",
         "description": "Este workspace perdió el acceso al número o a la plantilla que usa la campaña."
+      },
+      "plan_inactive": {
+        "title": "El plan del workspace no está activo",
+        "description": "Sin un plan activo no se puede calcular el costo del envío. Renueva o activa el plan y vuelve a comprobar."
+      },
+      "template_missing": {
+        "title": "Elige la plantilla",
+        "description": "La campaña todavía no tiene plantilla. Elígela en el paso Mensaje."
       },
       "health_unreadable": {
         "title": "No se pudo revisar todo",
@@ -39029,6 +39038,7 @@
         "counting": "Espera el conteo del público.",
         "count_failed": "El conteo del público falló. Cuenta de nuevo para crear la campaña.",
         "variable_choice_required": "Elige qué hacer con {slot} para crear la campaña.",
+        "variable_value_required": "Escribe el texto fijo de {slot} para crear la campaña.",
         "variable_source_required": "Elige el origen de {slot} para crear la campaña.",
         "list_variables_missing": "Completa las variables que faltan en la lista para crear la campaña.",
         "list_metadata_missing": "Completa las columnas que exige el flujo o agente en todos los contactos de la lista para crear la campaña.",

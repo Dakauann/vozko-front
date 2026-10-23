@@ -32124,6 +32124,7 @@
     "fix": {
       "template": "Vorlage öffnen",
       "phone": "Nummern ansehen",
+      "plan": "Tarife ansehen",
       "balance": "Guthaben aufladen"
     },
     "codes": {
@@ -32134,6 +32135,14 @@
       "access_revoked": {
         "title": "Kein Zugriff auf Nummer oder Vorlage",
         "description": "Dieser Workspace hat den Zugriff auf die Nummer oder die Vorlage der Kampagne verloren."
+      },
+      "plan_inactive": {
+        "title": "Der Tarif des Workspace ist nicht aktiv",
+        "description": "Ohne aktiven Tarif lassen sich die Versandkosten nicht berechnen. Verlängere oder aktiviere den Tarif und prüfe erneut."
+      },
+      "template_missing": {
+        "title": "Wähle die Vorlage",
+        "description": "Die Kampagne hat noch keine Vorlage. Wähle sie im Schritt Nachricht."
       },
       "health_unreadable": {
         "title": "Nicht alles konnte geprüft werden",
@@ -39029,6 +39038,7 @@
         "counting": "Warte auf die Zählung der Zielgruppe.",
         "count_failed": "Die Zählung ist fehlgeschlagen. Zähle erneut, um die Kampagne zu erstellen.",
         "variable_choice_required": "Wähle, was mit {slot} passieren soll, um die Kampagne zu erstellen.",
+        "variable_value_required": "Schreibe den festen Text für {slot}, um die Kampagne zu erstellen.",
         "variable_source_required": "Wähle die Herkunft von {slot}, um die Kampagne zu erstellen.",
         "list_variables_missing": "Fülle die fehlenden Variablen der Liste, um die Kampagne zu erstellen.",
         "list_metadata_missing": "Fülle die Spalten, die der Ablauf oder Agent braucht, bei allen Kontakten der Liste, um die Kampagne zu erstellen.",
