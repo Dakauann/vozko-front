@@ -1909,6 +1909,8 @@ function SchemaField({
         <ElevatedInput
           label={reqLabel}
           type="number"
+          min={field.min}
+          max={field.max}
           value={String(value ?? "")}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onChange(parseInt(e.target.value) || 0)
