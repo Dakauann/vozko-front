@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { usePaginatedSelect } from "@/hooks/use-paginated-select";
 import type { AgentListItem, ModelPricingInfo } from "@/lib/agents/types";
 import type { AudienceDraft } from "@/lib/campaign-audience/draft";
-import type { RowQuery } from "@/lib/campaign-audience/types";
+import { LITERAL_AUDIENCE_SOURCE, type RowQuery } from "@/lib/campaign-audience/types";
 import { CONTACT_LIST_PAGE_SIZE } from "@/lib/campaigns/contact-list-view";
 import { selectionSendControls } from "@/lib/campaigns/selection-send";
 import type { SmartPolicy } from "@/lib/whatsapp-campaigns/smart";
@@ -481,14 +481,19 @@ export function useWhatsAppCampaignForm({ mode, initialCampaign, aiModels: aiMod
       let rendered = text;
 
       templateVariables.forEach((placeholder, index) => {
-        const value = previewVariables[index]?.trim() || placeholder;
+        const name = placeholder.replace(/^\{\{\s*|\s*\}\}$/g, "");
+        const variable = audience.count?.variables.find((item) => item.name === name);
+        const choice = audience.draft.variables[variable?.key ?? name];
+        const source = choice?.source ?? variable?.source;
+        const fixedValue = source === LITERAL_AUDIENCE_SOURCE ? choice?.value ?? variable?.value ?? "" : undefined;
+        const value = fixedValue !== undefined ? fixedValue.trim() || placeholder : previewVariables[index]?.trim() || placeholder;
         rendered = rendered.split(placeholder).join(value);
         rendered = rendered.replaceAll(`{{${index + 1}}}`, value);
       });
 
       return rendered;
     },
-    [templateVariables, previewVariables],
+    [templateVariables, previewVariables, audience.count?.variables, audience.draft.variables],
   );
 
   const selectedTemplateHasMediaHeader = useMemo(() => {

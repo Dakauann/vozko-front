@@ -353,13 +353,13 @@ describe("WhatsAppCampaignWizard steps and draft", () => {
 });
 
 describe("WhatsAppCampaignWizard Revisão", () => {
-  it("shows the server count, cost and launch check of the saved draft", async () => {
+  it("shows the server count and launch check without an estimated-cost notice", async () => {
     await toReview();
     expect(await screen.findByText(wizard.review.check.ready, undefined, SETTLE)).toBeInTheDocument();
     expect(drafts.reviewCampaignDraftAction).toHaveBeenCalledWith("whatsapp", "d1", expect.anything());
     const audience = screen.getByText(wizard.review.audience.sendable).closest("div") as HTMLElement;
     expect(within(audience).getByText("2")).toBeInTheDocument();
-    expect(screen.getByText(/0,80/)).toBeInTheDocument();
+    expect(screen.queryByText(wizard.review.cost.title)).not.toBeInTheDocument();
   });
 
   it("asks to confirm the risks and sends their fingerprint with the launch", async () => {
@@ -421,6 +421,21 @@ describe("WhatsAppCampaignWizard Envio", () => {
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     await waitFor(() => expect(router.push).toHaveBeenCalledWith("/dashboard/whatsapp-campaigns/camp-9"));
     expect(toastMock.success).toHaveBeenCalledWith(shared.toast.readied);
+  });
+
+  it("opens a ready campaign without waiting for or refetching its consumed draft", async () => {
+    drafts.launchCampaignDraftAction.mockResolvedValue({ data: { campaign: { id: "camp-9" }, started: false, mode: "ready", warnings: [] } });
+    await toSend();
+    fireEvent.click(screen.getByRole("radio", { name: /Deixar pronta/ }));
+    const invalidate = vi.spyOn(QueryClient.prototype, "invalidateQueries").mockImplementation(() => new Promise<void>(() => {}));
+    try {
+      fireEvent.click(screen.getByRole("button", { name: send.ready.action }));
+      await waitFor(() => expect(router.push).toHaveBeenCalledWith("/dashboard/whatsapp-campaigns/camp-9"));
+      expect(invalidate).toHaveBeenCalledWith(expect.objectContaining({ refetchType: "none" }));
+      expect(screen.getByRole("button", { name: send.ready.action })).toBeDisabled();
+    } finally {
+      invalidate.mockRestore();
+    }
   });
 
   it("keeps the campaign unstarted and shows the issues when the launch check blocks", async () => {

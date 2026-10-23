@@ -11871,8 +11871,10 @@
       "inFilter": "{count, plural, one {# Lead im Filter} other {# Leads im Filter}}"
     },
     "bulk": {
+      "emailCampaign": {"title":"E-Mail-Kampagne erstellen","description":"Die aktuelle Auswahl wird als Zielgruppe verwendet. Wähle anschließend den Absender und bereite den Inhalt vor.","name":"Kampagnenname","cancel":"Abbrechen","continue":"E-Mail vorbereiten","invalidSelection":"Die Auswahl konnte nicht übernommen werden. Schließe den Dialog und wähle die Leads erneut aus."},
       "actions": {
         "send_template": "Vorlage senden",
+        "send_email": "E-Mail-Kampagne senden",
         "send_message": "Nachricht",
         "call_list": "Anrufliste",
         "classify": "Klassifizieren",
@@ -11903,6 +11905,7 @@
         "noOfficialNumber": "Keine offizielle Nummer verbunden",
         "noUnofficialNumber": "Keine inoffizielle Nummer verbunden",
         "noDialableLine": "Keine Telefonleitung zum Anrufen verfügbar",
+        "permissionEmailCampaign": "Du darfst keine E-Mail-Kampagnen erstellen.",
         "permissionConsent": "Du darfst die Einwilligung der Leads nicht erfassen."
       },
       "dialog": {
@@ -38759,6 +38762,8 @@
         "everyone": "Gesamter Bestand",
         "filterHint": "Nutze die Filter der Lead-Ansicht oder eine gespeicherte Ansicht.",
         "everyoneHint": "Alle Leads, die du sehen kannst, kommen in die Kampagne.",
+        "quantityTitle": "Erste {count, number} Leads im Filter",
+        "quantityBody": "Die Begrenzung und Reihenfolge der Lead-Auswahl bleiben erhalten.",
         "idsTitle": "{count, plural, one {# Lead einzeln gewählt} other {# Leads einzeln gewählt}}",
         "idsBody": "Diese Zielgruppe wurde durch eine feste Liste von Leads bestimmt. Wechsle zu Filtern, um sie zu ändern.",
         "idsSwitch": "Filter nutzen",

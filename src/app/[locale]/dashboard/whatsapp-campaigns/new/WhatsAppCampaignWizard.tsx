@@ -121,53 +121,22 @@ function ReviewNumbers({ review }: { review: OfficialDraftReview }) {
   const t = useTranslations("whatsappCampaignsPage.wizard.review");
   const locale = useLocale();
   const number = (value: number | null | undefined) => (value === null || value === undefined ? <EmptyValue /> : new Intl.NumberFormat(locale).format(value));
-  const quote = review.quote;
-  const money = (micros: number, digits?: number) => formatMicros(micros, quote?.currency || "BRL", locale, digits);
   const rows: [string, ReactNode][] = [
     [t("audience.matched"), number(review.audience?.matched)],
     [t("audience.sendable"), number(review.audience?.sendable)],
     [t("audience.out"), number(review.audience?.outTotal)],
   ];
   return (
-    <>
-      <PanelSection boxed title={t("audience.title")} description={t("audience.description")}>
-        <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
-          {rows.map(([label, value]) => (
-            <div key={label} className="bg-card px-3 py-2">
-              <dt className="legend">{label}</dt>
-              <dd className="readout font-display text-base font-semibold text-foreground">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </PanelSection>
-      <PanelSection boxed title={t("cost.title")} description={t("cost.description")}>
-        {quote ? (
-          <div className="space-y-3">
-            <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
-              <div className="bg-card px-3 py-2">
-                <dt className="legend">{t("cost.total")}</dt>
-                <dd className="readout font-display text-base font-semibold text-foreground">{money(quote.costMicros)}</dd>
-              </div>
-              <div className="bg-card px-3 py-2">
-                <dt className="legend">{t("cost.unit")}</dt>
-                <dd className="readout font-display text-base font-semibold text-foreground">{money(quote.unitPriceMicros, 4)}</dd>
-              </div>
-              <div className="bg-card px-3 py-2">
-                <dt className="legend">{t("cost.balance")}</dt>
-                <dd className="readout font-display text-base font-semibold text-foreground">{money(quote.balanceMicros)}</dd>
-              </div>
-            </dl>
-            {!quote.affordable ? (
-              <Notice tone="warning" title={t("cost.short")}>
-                <Button variant="secondary" size="sm" title={t("cost.topUp")} link="/dashboard/balance" newTab={false} />
-              </Notice>
-            ) : null}
+    <PanelSection boxed title={t("audience.title")} description={t("audience.description")}>
+      <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+        {rows.map(([label, value]) => (
+          <div key={label} className="bg-card px-3 py-2">
+            <dt className="legend">{label}</dt>
+            <dd className="readout font-display text-base font-semibold text-foreground">{value}</dd>
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">{t("cost.unavailable")}</p>
-        )}
-      </PanelSection>
-    </>
+        ))}
+      </dl>
+    </PanelSection>
   );
 }
 
@@ -326,8 +295,8 @@ function WizardBody({
       ...(scheduledAt ? { scheduledStart: scheduledAt } : {}),
       ...(confirmed && report?.fingerprint ? { confirmedFingerprint: report.fingerprint } : {}),
     });
-    setLaunching(false);
     if (isDraftActionError(result)) {
+      setLaunching(false);
       if (result.code && LAUNCH_REFUSAL_CODES.has(result.code)) {
         const codes = launchRefusalCodes({ ...launchRefusalOf(result.details), findings: result.details?.findings });
         setRefused(codes.map((code) => ({ key: code, text: tLaunch.has(`codes.${code}.title`) ? tLaunch(`codes.${code}.title`) : code })));
@@ -342,7 +311,7 @@ function WizardBody({
     }
     const outcome = result.data;
     announce(outcome, (code) => errorText({ code, error: tShared("errors.generic") }));
-    await client.invalidateQueries({ queryKey: campaignDraftsRoot(workspaceId) });
+    void client.invalidateQueries({ queryKey: campaignDraftsRoot(workspaceId), refetchType: "none" });
     router.push(`/dashboard/whatsapp-campaigns/${outcome.campaign.id}`);
     return true;
   };
@@ -461,7 +430,7 @@ function WizardBody({
         {step === "audience" ? (
           <ElevatedContainer className="rounded-lg border border-border bg-card p-6" data-tour="wc-contacts">
             <h2 className="mb-4 font-display text-xl font-semibold tracking-[0.01em] text-foreground">{t("form.contacts.audienceTitle")}</h2>
-            <CampaignAudienceStep audience={audience} message={f.selectedTemplate?.components.find((component) => component.type === "BODY")?.text ?? ""} />
+            <CampaignAudienceStep audience={audience} message={f.selectedTemplate?.components.find((component) => component.type === "BODY")?.text ?? ""} preview={<TemplatePreviewCard f={f} confirmInfo={false} />} />
             <div className="mt-4 flex justify-end">
               <AudienceCreateHint audience={audience} />
             </div>
@@ -491,7 +460,6 @@ function WizardBody({
                 { label: tw("summary.number"), value: phone ?? <EmptyValue /> },
                 { label: tw("summary.template"), value: f.selectedTemplate?.name ?? <EmptyValue /> },
                 { label: tw("summary.recipients"), value: sendable === null ? <EmptyValue /> : tw("summary.recipientsValue", { count }) },
-                { label: tw("summary.cost"), value: total || <EmptyValue /> },
               ]}
               confirm={{
                 now: { title: tw("confirm.nowTitle"), body: tw("confirm.nowBody", { count, total }) },

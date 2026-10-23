@@ -8,6 +8,7 @@ import { fetchLeadSection } from "@/app/actions/leads";
 import type { DashboardTableSelection } from "@/components/elevated-design/table/dashboard-table";
 import type { MapSelectionBarView } from "@/components/leads/map/LeadsMapView";
 import { LeadSendDialog } from "@/components/leads/sends/LeadSendDialog";
+import { useEmailPermission } from "@/components/email-campaigns/shared";
 import { useLeadSendGate } from "@/components/leads/sends/use-lead-send-gate";
 import { SelectionCount, type SelectionOffer } from "@/components/selection/SelectionCount";
 import { useBulkSelection, type WideCount } from "@/components/selection/use-bulk-selection";
@@ -15,7 +16,7 @@ import { useAccess } from "@/hooks/use-access";
 import { useDialTargets } from "@/hooks/use-dial-targets";
 import { emptyCrmFilter, isEmptyCrmFilter, type CrmFilter } from "@/lib/crm/board";
 import type { CustomFieldDefinition } from "@/lib/crm/custom-fields";
-import type { LeadActionKind, LeadActionStart } from "@/lib/leads/actions";
+import type { LeadActionStart } from "@/lib/leads/actions";
 import {
   effectiveLeadFilter,
   leadBulkAccess,
@@ -25,11 +26,13 @@ import {
   pickedAfterMapChange,
   visibleMapPicks,
   type MapPickGroups,
+  type LeadBulkActionKind,
 } from "@/lib/leads/bulk-selection";
 import type { LeadSort } from "@/lib/leads/types";
 import { offersAllMatching } from "@/lib/selection/bulk-state";
 
 import { LeadActionDialog } from "./LeadActionDialog";
+import { LeadEmailCampaignDialog } from "./LeadEmailCampaignDialog";
 import { LeadBulkBar } from "./LeadBulkBar";
 import { LeadSelectionModes } from "./LeadSelectionModes";
 import { useLeadActionTracker } from "./use-lead-action-tracker";
@@ -60,7 +63,8 @@ export function useLeadBulk({ filter, search, sorts, filterInvalid, fields, clas
   if (mapPicks.scope !== scope) setMapPicks({ scope, picks: {} });
   const shownPicks = mapPicks.scope === scope ? visibleMapPicks(mapPicks.picks, selection.picked) : {};
 
-  const [dialog, setDialog] = useState<LeadActionKind | null>(null);
+  const [dialog, setDialog] = useState<LeadBulkActionKind | null>(null);
+  const emailPermission = useEmailPermission();
 
   const track = useLeadActionTracker({ onSettled });
   const started = useCallback(
@@ -86,6 +90,7 @@ export function useLeadBulk({ filter, search, sorts, filterInvalid, fields, clas
       permissions: access.permissions,
       sends,
       noDialableLine,
+      canCreateEmail: emailPermission("read") && emailPermission("create"),
     });
   const states = statesFor(chosen !== null);
   const engaged = selection.size > 0 || selection.wide !== null || selection.counting !== null;
@@ -195,7 +200,9 @@ export function useLeadBulk({ filter, search, sorts, filterInvalid, fields, clas
 
   const dialogElement =
     sendDialog ??
-    (dialog && chosen ? (
+    (dialog === "send_email" && chosen ? (
+      <LeadEmailCampaignDialog selection={chosen} onClose={() => setDialog(null)} />
+    ) : dialog && dialog !== "send_email" && chosen ? (
       <LeadActionDialog
         action={dialog}
         selection={chosen}

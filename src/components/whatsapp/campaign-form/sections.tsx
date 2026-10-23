@@ -418,7 +418,7 @@ export function ScheduleField({ f }: FormProps) {
   );
 }
 
-export function TemplatePreviewCard({ f }: FormProps) {
+export function TemplatePreviewCard({ f, confirmInfo = true }: FormProps & { confirmInfo?: boolean }) {
   const t = useTranslations("whatsappCampaignsPage.form");
   const { selectedTemplate, previewEntry, renderTemplateText, campaignExit, contentLocked, pickPreviewEntry, templateInfoConfirmed, confirmTemplate, mode } = f;
   const header = selectedTemplate?.components.find((c) => c.type === "HEADER");
@@ -477,7 +477,7 @@ export function TemplatePreviewCard({ f }: FormProps) {
 
           {contentLocked && campaignExit.verdict ? <ButtonDestinations buttons={campaignExit.verdict.buttons} overrides={campaignExit.overrides} /> : null}
 
-          <div>
+          {confirmInfo ? <div>
             <GrainBackground
               palette={"alert"}
               seed={20000}
@@ -487,7 +487,7 @@ export function TemplatePreviewCard({ f }: FormProps) {
               <ElevatedSwitch checked={templateInfoConfirmed} onCheckedChange={confirmTemplate} label={t("validation.confirmTemplateLabel")} />
               {mode === "create" && !templateInfoConfirmed ? <p className="mt-2 text-xs text-destructive-ink">{t("validation.confirmTemplateRequired")}</p> : null}
             </GrainBackground>
-          </div>
+          </div> : null}
         </div>
       )}
     </ElevatedContainer>

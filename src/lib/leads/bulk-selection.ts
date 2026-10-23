@@ -69,6 +69,7 @@ export function typedCountMatches(typed: string, count: number): boolean {
 export const LEAD_BULK_ACTIONS = [
   "send_template",
   "send_message",
+  "send_email",
   "call_list",
   "classify",
   "assign_owner",
@@ -79,6 +80,7 @@ export const LEAD_BULK_ACTIONS = [
 ] as const;
 
 export type LeadBulkAction = (typeof LEAD_BULK_ACTIONS)[number];
+export type LeadBulkActionKind = LeadActionKind | "send_email";
 
 export type LeadBulkBlocker =
   | LeadSendBlocker
@@ -93,6 +95,7 @@ export type LeadBulkBlocker =
   | "permissionMetaAudience"
   | "permissionCallList"
   | "permissionConsent"
+  | "permissionEmailCampaign"
   | "noDialableLine";
 
 export interface LeadBulkPermissions {
@@ -113,11 +116,12 @@ export interface LeadBulkContext {
   permissions: LeadBulkPermissions;
   sends: LeadSendStates;
   noDialableLine: boolean;
+  canCreateEmail?: boolean;
 }
 
 export type LeadBulkActionStates = Record<LeadBulkAction, ActionState<LeadBulkBlocker>>;
 
-export function leadBulkActionStates({ filterInvalid, hasSelection, hasEditableFields, checking, permissions, sends, noDialableLine }: LeadBulkContext): LeadBulkActionStates {
+export function leadBulkActionStates({ filterInvalid, hasSelection, hasEditableFields, checking, permissions, sends, noDialableLine, canCreateEmail = false }: LeadBulkContext): LeadBulkActionStates {
   const selectable: [boolean, LeadBulkBlocker][] = [
     [filterInvalid, "invalidFilter"],
     [!hasSelection, "empty"],
@@ -127,6 +131,7 @@ export function leadBulkActionStates({ filterInvalid, hasSelection, hasEditableF
   return {
     send_template: selected.enabled ? sends.send_template : selected,
     send_message: selected.enabled ? sends.send_message : selected,
+    send_email: firstBlocker([...selectable, [!canCreateEmail, "permissionEmailCampaign"]]),
     call_list: firstBlocker([...selectable, [!permissions.manageCallLists, "permissionCallList"], [noDialableLine, "noDialableLine"]]),
     classify: firstBlocker([...selectable, [!permissions.bulkEdit, "permissionBulkEdit"], [!hasEditableFields, "noFields"]]),
     assign_owner: firstBlocker([...selectable, [!permissions.bulkEdit, "permissionBulkEdit"], [!permissions.assign, "permissionAssign"]]),

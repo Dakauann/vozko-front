@@ -13026,8 +13026,10 @@
       "inFilter": "{count, plural, one {# lead no filtro} other {# leads no filtro}}"
     },
     "bulk": {
+      "emailCampaign": {"title":"Criar campanha de e-mail","description":"A seleção atual será usada como público. Na próxima tela, escolha o remetente e prepare o conteúdo.","name":"Nome da campanha","cancel":"Cancelar","continue":"Preparar e-mail","invalidSelection":"Não foi possível preservar a seleção. Feche e selecione os leads novamente."},
       "actions": {
         "send_template": "Enviar template",
+        "send_email": "Enviar campanha de e-mail",
         "send_message": "Mensagem",
         "call_list": "Lista de ligação",
         "classify": "Classificar",
@@ -13058,6 +13060,7 @@
         "noOfficialNumber": "Nenhum número oficial conectado",
         "noUnofficialNumber": "Nenhum número não oficial conectado",
         "noDialableLine": "Nenhuma linha telefônica disponível para ligar",
+        "permissionEmailCampaign": "Você não tem permissão para criar campanhas de e-mail.",
         "permissionConsent": "Você não tem permissão para registrar o consentimento dos leads."
       },
       "dialog": {
@@ -38759,6 +38762,8 @@
         "everyone": "Toda a base",
         "filterHint": "Use os filtros da tela de leads ou uma visão salva.",
         "everyoneHint": "Todos os leads que você pode ver entram na campanha.",
+        "quantityTitle": "Primeiros {count, number} leads do filtro",
+        "quantityBody": "O limite e a ordem definidos na seleção de leads serão preservados.",
         "idsTitle": "{count, plural, one {# lead escolhido} other {# leads escolhidos}} um a um",
         "idsBody": "Este público foi definido por uma lista fixa de leads. Para mudar, troque por filtros.",
         "idsSwitch": "Usar filtros",

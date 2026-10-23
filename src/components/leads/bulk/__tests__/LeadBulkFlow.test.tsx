@@ -22,6 +22,12 @@ const listAdAccountsAction = vi.fn();
 const listBusinessPhonesAction = vi.fn();
 const listInstancesAction = vi.fn();
 const fetchDialTargets = vi.fn();
+const emailActions = vi.hoisted(() => ({ createEmailCampaignAction: vi.fn(), push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: emailActions.push }) }));
+vi.mock("@/app/actions/email-campaigns", () => ({
+  createEmailCampaignAction: emailActions.createEmailCampaignAction,
+  isEmailActionError: (result: object) => "error" in result,
+}));
 const permissions = vi.hoisted(() => ({ granted: new Set<string>() }));
 const bulkListeners = vi.hoisted(() => new Set<(event: { runId: string }) => void>());
 
@@ -169,6 +175,42 @@ describe("lead bulk selection", () => {
       data: { action: "export", report: { id: "job-1", status: "queued", kind: "leads" } },
       error: null,
     });
+  });
+
+  it("creates an email draft from the picked leads and opens the existing campaign wizard", async () => {
+    permissions.granted.add("email_marketing:read");
+    permissions.granted.add("email_marketing:create");
+    emailActions.createEmailCampaignAction.mockResolvedValue({ data: { id: "email-1" } });
+    renderHarness(<Harness rows={["l-1", "l-2"]} total={200000} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    fireEvent.click(screen.getByRole("button", { name: bulk.actions.send_email }));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.change(within(dialog).getByRole("textbox", { name: bulk.emailCampaign.name }), { target: { value: "Novidades" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: bulk.emailCampaign.continue }));
+    await waitFor(() => expect(emailActions.push).toHaveBeenCalledWith("/dashboard/email/campaigns/new?campaign=email-1"));
+    expect(emailActions.createEmailCampaignAction).toHaveBeenCalledWith({ name: "Novidades", subject: "", selection: { mode: "ids", ids: ["l-1", "l-2"] } });
+  });
+
+  it("disables email campaigns without the create permission", () => {
+    renderHarness(<Harness rows={["l-1"]} total={1} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    expect(screen.getByRole("button", { name: `${bulk.actions.send_email}. ${bulk.blockers.permissionEmailCampaign}` })).toBeDisabled();
+  });
+
+  it("keeps the selected filter on the server for a large email audience", async () => {
+    permissions.granted.add("email_marketing:read");
+    permissions.granted.add("email_marketing:create");
+    emailActions.createEmailCampaignAction.mockResolvedValue({ error: "unavailable" });
+    renderHarness(<Harness rows={["l-1"]} total={200000} search="maria" />);
+    fireEvent.click(screen.getByRole("checkbox", { name: ptMessages.leadsPage.selection.selectPage }));
+    fireEvent.click(screen.getByRole("button", { name: "Selecionar todos os 200.000 do filtro" }));
+    fireEvent.click(screen.getByRole("button", { name: bulk.actions.send_email }));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.change(within(dialog).getByRole("textbox", { name: bulk.emailCampaign.name }), { target: { value: "Novidades" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: bulk.emailCampaign.continue }));
+    await within(dialog).findByRole("alert");
+    expect(emailActions.createEmailCampaignAction).toHaveBeenCalledWith({ name: "Novidades", subject: "", selection: { mode: "all_matching", filter: effectiveLeadFilter(BAIRRO, "maria") } });
+    expect(emailActions.push).not.toHaveBeenCalled();
   });
 
   it("keeps picks from page one when page two is picked, and sends both as ids", async () => {

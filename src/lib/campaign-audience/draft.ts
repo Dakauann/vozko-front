@@ -30,6 +30,8 @@ export interface LeadsPickDraft {
   search: string;
   ids: string[];
   excludeIds?: string[];
+  limit?: number;
+  sort?: AudienceSelection["sort"];
 }
 
 export interface AudienceDraft extends LeadsPickDraft {
@@ -68,10 +70,14 @@ function withExclusions(selection: AudienceSelection, excludeIds: readonly strin
   return excludeIds && excludeIds.length > 0 ? { ...selection, excludeIds: [...excludeIds] } : selection;
 }
 
-export function leadsSelectionOf({ pick, filter, search, ids, excludeIds }: LeadsPickDraft): AudienceSelection | null {
+export function leadsSelectionOf({ pick, filter, search, ids, excludeIds, limit, sort }: LeadsPickDraft): AudienceSelection | null {
   if (pick === "everyone") return withExclusions({ mode: "everyone" }, excludeIds);
   if (pick === "ids") return ids.length > 0 ? { mode: "ids", ids: [...ids] } : null;
   const effective = effectiveLeadFilter(filter, search);
+  if (pick === "first_n") {
+    if (isEmptyCrmFilter(effective) || !Number.isSafeInteger(limit) || (limit ?? 0) < 1) return null;
+    return withExclusions({ mode: "first_n", filter: effective, limit, sort }, excludeIds);
+  }
   return isEmptyCrmFilter(effective) ? null : withExclusions({ mode: "all_matching", filter: effective }, excludeIds);
 }
 
