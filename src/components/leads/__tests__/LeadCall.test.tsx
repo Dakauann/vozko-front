@@ -192,6 +192,16 @@ describe("Ligar on a lead", () => {
       renderWith(<LeadRowActions leadId="lead-1" label="Maria" />);
       expect(screen.queryByRole("button", { name: "Ações de Maria" })).toBeNull();
     });
+
+    it("offers the shared email action even when calling and editing are unavailable", async () => {
+      grants.value = new Set();
+      const onEmail = vi.fn();
+      renderWith(<LeadRowActions leadId="lead-1" label="Maria" onEmail={onEmail} />);
+      await openRowMenu();
+      fireEvent.click(await screen.findByRole("menuitem", { name: pt.leadDetail.actions.sendEmail }));
+      expect(onEmail).toHaveBeenCalledOnce();
+      expect(screen.queryByRole("menuitem", { name: /Ligar/ })).toBeNull();
+    });
   });
 
   describe("one number of the lead", () => {

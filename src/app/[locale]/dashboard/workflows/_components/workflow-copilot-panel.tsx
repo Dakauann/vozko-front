@@ -156,7 +156,7 @@ export function WorkflowCopilotPanel({
     <aside
       aria-label="Copiloto de Fluxos"
       className={cn(
-        "relative flex min-h-0 w-[400px] flex-1 flex-col overflow-hidden bg-card",
+        "relative flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden bg-card",
         !visible && "hidden",
       )}
     >

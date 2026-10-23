@@ -164,6 +164,8 @@ describe("WorkflowTestPanel", () => {
     const toolbar = screen.getByRole("toolbar");
     expect(within(toolbar).getByText("Pausado antes de Calcular")).toBeInTheDocument();
     expect(within(toolbar).getByText("(ponto de parada)")).toBeInTheDocument();
+    expect(screen.queryByText(/••••12/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Variáveis na pausa/ }));
     expect(screen.getByText(/••••12/)).toBeInTheDocument();
 
     fireEvent.click(within(toolbar).getByRole("button", { name: "Próximo passo" }));

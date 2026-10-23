@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import Button from "@/components/elevated-design/button";
-import { DotsThree, PencilSimple } from "@/components/icons";
+import { DotsThree, PencilSimple, EnvelopeSimple } from "@/components/icons";
 import { LeadCallMenuItem } from "@/components/leads/LeadCall";
 import {
   DropdownMenu,
@@ -18,12 +18,14 @@ interface LeadRowActionsProps {
   revision?: number;
   label: string;
   onEdit?: () => void;
+  onEmail?: () => void;
 }
 
-export function LeadRowActions({ leadId, revision, label, onEdit }: LeadRowActionsProps) {
+export function LeadRowActions({ leadId, revision, label, onEdit, onEmail }: LeadRowActionsProps) {
   const t = useTranslations("leadsPage.table");
+  const tEmail = useTranslations("leadDetail.actions");
   const mayCall = useMayPlaceCalls();
-  if (!mayCall && !onEdit) return null;
+  if (!mayCall && !onEdit && !onEmail) return null;
   const name = label.trim();
   const menuLabel = name ? t("rowActions", { name }) : t("rowActionsUnnamed");
   return (
@@ -39,6 +41,7 @@ export function LeadRowActions({ leadId, revision, label, onEdit }: LeadRowActio
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         {mayCall ? <LeadCallMenuItem leadId={leadId} revision={revision} /> : null}
+        {onEmail ? <DropdownMenuItem onSelect={onEmail}><EnvelopeSimple className="h-4 w-4" aria-hidden />{tEmail("sendEmail")}</DropdownMenuItem> : null}
         {onEdit ? (
           <DropdownMenuItem onSelect={onEdit}>
             <PencilSimple className="h-4 w-4" aria-hidden />

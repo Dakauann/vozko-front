@@ -99,6 +99,25 @@ export interface SheetHealth {
   problems: SheetProblemRow[];
 }
 
+export interface SheetDataRow {
+  id: string;
+  values: Record<string, string | number | boolean | null>;
+  status: "pending" | "in_flight" | "held" | "failed" | "written";
+  rowNumber?: number;
+  origin: SheetProblemRow["origin"];
+  createdAt: string;
+  writtenAt?: string;
+  errorCode?: string;
+}
+
+export interface SheetRowsPage {
+  items: SheetDataRow[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+}
+
 export interface SheetSourceInfo {
   source: Exclude<SheetColumnSource, "input">;
   type: SheetColumnType;

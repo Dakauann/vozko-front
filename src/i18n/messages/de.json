@@ -9696,6 +9696,7 @@
       "confirmRealCallsHint": "Ohne diese Option halten Knoten, die externe Dienste aufrufen (HTTP, E-Mail, Kalender), mit einem Hinweis an, statt aufzurufen."
     },
     "slot": {
+      "resize": "Test- und Copilotbereich vergrößern oder verkleinern",
       "label": "Seitenleiste",
       "test": "Test",
       "copilot": "Copilot"
@@ -11780,6 +11781,7 @@
       "of": "von"
     },
     "table": {
+      "noEmail": "Dieser Lead hat keine E-Mail-Adresse.",
       "number": "Telefon",
       "name": "Name",
       "age": "Alter",
@@ -38476,6 +38478,14 @@
     }
   },
   "googleSheets": {
+    "rows": {
+      "title": "Erfasste Zeilen",
+      "hint": "Von Vozko gesendete Werte. Ältere Zeilen werden nach Ablauf der Aufbewahrungsfrist möglicherweise nicht mehr angezeigt.",
+      "failed": "Zeilen konnten nicht geladen werden.",
+      "refresh": "Aktualisieren",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
     "header": {
       "badge": "Google Tabellen",
       "description": "Im Dashboard erstellte Tabellen mit den Spalten deiner Wahl, ausgefüllt von Agenten, Abläufen und deinem Team.",
@@ -38486,6 +38496,9 @@
       "needs_attention": "Braucht Aufmerksamkeit"
     },
     "rowStatus": {
+      "pending": "In Warteschlange",
+      "in_flight": "Wird geschrieben",
+      "written": "Geschrieben",
       "held": "Zurückgehalten",
       "failed": "Abgelehnt"
     },

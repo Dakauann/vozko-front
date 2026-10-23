@@ -109,15 +109,9 @@ export function WorkflowTestPanel({
   const { status, events, currentNodeId, stateVars, pause, reproducing, refusal, cancelReason, waitingForm, start, sendReply, sendKey, cancel } = simulation;
 
   const [windowSize, setWindowSize] = useState(SIM_EVENT_WINDOW);
-  const [showState, setShowState] = useState(Boolean(simulation.pause));
-  const [shownPause, setShownPause] = useState(pause);
+  const [showState, setShowState] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<ReadonlySet<string>>(() => new Set());
-
-  if (pause !== shownPause) {
-    setShownPause(pause);
-    if (pause) setShowState(true);
-  }
 
   if (events.length === 0 && windowSize !== SIM_EVENT_WINDOW) setWindowSize(SIM_EVENT_WINDOW);
   const windowStart = simEventWindowStart(events.length, windowSize);
@@ -240,7 +234,7 @@ export function WorkflowTestPanel({
   };
 
   return (
-    <aside aria-label="Simulação" className="relative flex min-h-0 w-[400px] flex-1 flex-col bg-card">
+    <aside aria-label="Simulação" className="relative flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden bg-card">
       <header className={cn(CHAT_HEADER, "flex-shrink-0")}>
         <span aria-hidden className="tile-neutral ml-1 flex h-7 w-7 shrink-0 items-center justify-center">
           <Robot className="h-4 w-4" />
@@ -254,7 +248,7 @@ export function WorkflowTestPanel({
         </button>
       </header>
 
-      <div className="space-y-2 px-3 empty:hidden [&:not(:empty)]:py-2">
+      <div className="max-h-[25%] shrink-0 overflow-y-auto space-y-2 px-3 empty:hidden [&:not(:empty)]:py-2">
         {unsaved && <Notice tone="info">{t("session.unsaved")}</Notice>}
         {reproducing && (
           <ReproducingBanner reproducing={reproducing} nodeLabel={nodeLabel} versionDiffers={versionDiffers} onViewVersion={onViewVersion} />
@@ -288,7 +282,7 @@ export function WorkflowTestPanel({
         )}
       </div>
 
-      <div className="relative min-h-0 flex-1">
+      <div className="relative min-h-32 flex-1">
         <div ref={scrollRef} onScroll={onScroll} className={CHAT_CANVAS}>
           <div className={CHAT_CANVAS_BODY}>
             {status === "waiting_trigger" && !hasHistory && <p className={CHAT_EMPTY}>Envie uma mensagem para iniciar o workflow.</p>}
@@ -375,7 +369,7 @@ export function WorkflowTestPanel({
       )}
 
       {(stateCount > 0 || pause) && (
-        <div className="border-t border-border">
+        <div className="shrink-0 border-t border-border">
           <button
             type="button"
             aria-expanded={showState}
@@ -387,7 +381,7 @@ export function WorkflowTestPanel({
           </button>
           {showState && (
             <div className="px-3 pb-2">
-              <JsonBlock value={stateVars} className="max-h-48" />
+              <JsonBlock value={stateVars} className="max-h-[min(24vh,12rem)] whitespace-pre-wrap break-words" />
             </div>
           )}
         </div>
@@ -405,7 +399,7 @@ export function WorkflowTestPanel({
         <SimFormReply key={`${waitingForm.nodeId}:${waitingForm.formId}`} formId={waitingForm.formId} onReply={sendReply} />
       )}
 
-      <div className="flex items-center gap-2 px-3 py-2.5 border-t border-border flex-shrink-0">
+      <div className={cn("flex items-center gap-2 px-3 py-2.5 border-t border-border flex-shrink-0", status === "paused" && "hidden")}>
         {showStartScreen ? (
           <ElevatedButton
             variant="primary"
