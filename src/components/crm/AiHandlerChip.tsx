@@ -42,12 +42,15 @@ export function AiHandlerChip({
   onOpenWorkflow,
   className,
 }: AiHandlerChipProps) {
-  const humanOwns = assigneeKind(assignedUserId) === "human";
-  if (conversationStatus === "finished" || humanOwns) return null;
+  if (conversationStatus === "finished") return null;
 
   const resolved: AIHandler | null =
     handler && (handler.kind === "agent" || handler.kind === "workflow") ? handler : null;
   if (!resolved) return null;
+
+  const owner = assigneeKind(assignedUserId);
+  const heldByHandler = resolved.kind === "workflow" ? owner === "workflow" : owner === "ai";
+  if (!heldByHandler) return null;
 
   const paused = !isAiAutoReplyEnabled(automationEnabled);
   const isWorkflow = resolved.kind === "workflow";

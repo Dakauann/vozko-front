@@ -19,36 +19,63 @@ describe("AiHandlerChip", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("names the agent when one really is configured", () => {
+  it("names the agent while it holds the conversation", () => {
     render(
       <AiHandlerChip
         handler={{ kind: "agent", agent_id: "a1", agent_name: "Clara" }}
         automationEnabled={null}
         conversationStatus="ongoing"
+        assignedUserId="ai:a1"
       />,
     );
     expect(screen.getByText("Clara")).toBeTruthy();
     expect(screen.getByText(/IA ·/)).toBeTruthy();
   });
 
-  it("names the workflow when the handler is one", () => {
+  it("names the workflow while it holds the conversation", () => {
     render(
       <AiHandlerChip
         handler={{ kind: "workflow", workflow_id: "w1", workflow_name: "Régua NR" }}
         automationEnabled={null}
         conversationStatus="ongoing"
+        assignedUserId="workflow:w1"
       />,
     );
     expect(screen.getByText("Régua NR")).toBeTruthy();
     expect(screen.getByText(/Fluxo ·/)).toBeTruthy();
   });
 
-  it("still shows a configured agent when paused for the conversation", () => {
+  it("hides the number's workflow on a conversation nobody holds", () => {
+    const { container } = render(
+      <AiHandlerChip
+        handler={{ kind: "workflow", workflow_id: "w1", workflow_name: "RECEPTIVO" }}
+        automationEnabled={null}
+        conversationStatus="new"
+        assignedUserId={null}
+      />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("hides a workflow while an agent holds the conversation", () => {
+    const { container } = render(
+      <AiHandlerChip
+        handler={{ kind: "workflow", workflow_id: "w1", workflow_name: "RECEPTIVO" }}
+        automationEnabled={null}
+        conversationStatus="ongoing"
+        assignedUserId="ai:a1"
+      />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("still shows the holding agent when paused for the conversation", () => {
     render(
       <AiHandlerChip
         handler={{ kind: "agent", agent_name: "Clara" }}
         automationEnabled={false}
         conversationStatus="ongoing"
+        assignedUserId="ai:a1"
       />,
     );
     expect(screen.getByText("Clara")).toBeTruthy();
