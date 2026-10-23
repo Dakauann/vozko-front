@@ -9,8 +9,15 @@ import { EnvelopeSimple } from "@/components/icons";
 import { useEmailOutreachAvailability } from "@/hooks/use-email-outreach";
 import { conversationHref, isEntryType } from "@/lib/conversations/deep-link";
 
-export function LeadEmailButton({ leadId, name, email, label }: { leadId: string; name: string; email: string | undefined; label: string }) {
+type LeadEmailTarget = { leadId: string; name: string; email: string | undefined };
+
+export function LeadEmailDialog({ target, open, onOpenChange }: { target: LeadEmailTarget; open: boolean; onOpenChange: (open: boolean) => void }) {
   const router = useRouter();
+  if (!target.email) return null;
+  return <StartEmailConversationDialog open={open} onOpenChange={onOpenChange} target={{ kind: "lead", ...target, email: target.email }} onStarted={(conversationId, entryType) => router.push(conversationHref(conversationId, isEntryType(entryType) ? entryType : "email"))} />;
+}
+
+export function LeadEmailButton({ leadId, name, email, label }: LeadEmailTarget & { label: string }) {
   const { available } = useEmailOutreachAvailability();
   const [open, setOpen] = useState(false);
 
@@ -27,11 +34,10 @@ export function LeadEmailButton({ leadId, name, email, label }: { leadId: string
         title={label}
         onClick={() => setOpen(true)}
       />
-      <StartEmailConversationDialog
+      <LeadEmailDialog
         open={open}
         onOpenChange={setOpen}
-        target={{ kind: "lead", leadId, name, email }}
-        onStarted={(conversationId, entryType) => router.push(conversationHref(conversationId, isEntryType(entryType) ? entryType : "email"))}
+        target={{ leadId, name, email }}
       />
     </>
   );

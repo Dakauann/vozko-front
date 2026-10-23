@@ -9678,6 +9678,7 @@
       "confirmRealCallsHint": "Sin esta opción, los nodos que llaman a servicios externos (HTTP, correo, agenda) se detienen con un aviso en lugar de llamar."
     },
     "slot": {
+      "resize": "Cambiar tamaño del panel de prueba y copiloto",
       "label": "Panel lateral",
       "test": "Prueba",
       "copilot": "Copiloto"
@@ -11754,6 +11755,7 @@
       "of": "de"
     },
     "table": {
+      "noEmail": "Este lead no tiene un correo registrado.",
       "number": "Teléfono",
       "name": "Nombre",
       "age": "Edad",
@@ -38439,6 +38441,14 @@
     }
   },
   "googleSheets": {
+    "rows": {
+      "title": "Filas registradas",
+      "hint": "Valores enviados por Vozko. Las filas antiguas pueden dejar de aparecer tras el plazo de retención.",
+      "failed": "No se pudieron cargar las filas.",
+      "refresh": "Actualizar",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
     "header": {
       "badge": "Hojas de cálculo de Google",
       "description": "Hojas creadas desde el panel, con las columnas que eliges, completadas por agentes, flujos y tu equipo.",
@@ -38449,6 +38459,9 @@
       "needs_attention": "Requiere atención"
     },
     "rowStatus": {
+      "pending": "En cola",
+      "in_flight": "Escribiendo",
+      "written": "Guardada",
       "held": "Retenida",
       "failed": "Rechazada"
     },

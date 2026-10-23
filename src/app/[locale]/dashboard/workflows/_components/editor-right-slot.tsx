@@ -1,9 +1,10 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import type { SimStep, UseWorkflowSimulationReturn } from "@/hooks/use-workflow-simulation";
+import { useDragResize } from "@/hooks/use-drag-resize";
 import type { TriggerTestInput } from "@/lib/workflows/test-inputs";
 import { rightSlotView, type RightPanel } from "@/lib/workflows/editor-docking";
 import type { WorkflowGraph, WorkflowType } from "@/lib/workflows/types";
@@ -71,6 +72,13 @@ function EditorRightSlotView({
 }: EditorRightSlotProps) {
   const tDebug = useTranslations("workflowDebug");
   const rightSlot = rightSlotView({ testOpen, copilotOpen, preferred });
+  const [width, setWidth] = useState(480);
+  const resizeTo = useCallback((next: number) => {
+    const applied = Math.min(Math.max(360, next), Math.max(360, window.innerWidth * 0.7));
+    setWidth(applied);
+    return applied;
+  }, []);
+  const resize = useDragResize({ edge: "left", step: 40, read: () => width, resizeTo, commit: setWidth });
 
   return (
     <>
@@ -78,8 +86,19 @@ function EditorRightSlotView({
       {(copilotMounted || rightSlot.active) && (
         <div
           data-testid="right-slot"
-          className={cn("flex w-[400px] shrink-0 flex-col border-l border-border bg-card", !rightSlot.active && "hidden")}
+          style={{ width, maxWidth: "90vw", paddingRight: "var(--dock-rail-w, 0px)" }}
+          className={cn("relative flex min-h-0 min-w-0 shrink-0 flex-col border-l border-border bg-card", !rightSlot.active && "hidden")}
         >
+          <div
+            role="separator"
+            tabIndex={0}
+            aria-label={tDebug("slot.resize")}
+            aria-orientation="vertical"
+            aria-valuemin={360}
+            aria-valuenow={width}
+            className="absolute inset-y-0 -left-1 z-20 w-2 cursor-ew-resize touch-none hover:bg-primary/20 focus-visible:bg-primary/20 focus-visible:outline-none"
+            {...resize.handleProps}
+          />
           {rightSlot.tabs && (
             <div role="tablist" aria-label={tDebug("slot.label")} className="flex shrink-0 gap-1 border-b border-border px-2 pt-1.5">
               {(["test", "copilot"] as const).map((panel) => (

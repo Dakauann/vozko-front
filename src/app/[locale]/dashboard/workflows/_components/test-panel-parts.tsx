@@ -79,13 +79,13 @@ export function PauseToolbar({
   const t = useTranslations("workflowDebug");
   const pauseReasonKey = PAUSE_REASON_KEYS[pause.reason];
   return (
-    <div role="toolbar" aria-label={t("toolbar.pausedAt", { node: pausedLabel })} className="space-y-2 border-t border-border px-3 py-2.5">
+    <div role="toolbar" aria-label={t("toolbar.pausedAt", { node: pausedLabel })} className="shrink-0 space-y-2 border-t border-border px-3 py-2.5">
       <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
         <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-warning" />
         <span className="min-w-0 truncate">{t("toolbar.pausedAt", { node: pausedLabel })}</span>
         {pauseReasonKey && <span className="shrink-0 text-2xs font-normal text-muted-foreground">({t(`toolbar.reasons.${pauseReasonKey}`)})</span>}
       </p>
-      <div className="flex gap-1.5">
+      <div className="grid grid-cols-2 gap-1.5">
         <ElevatedButton variant="primary" size="sm" iconVisible icon={<CaretRight size={12} weight="bold" />} title={t("toolbar.next")} onClick={onStep} className="flex-1" />
         <ElevatedButton variant="outline-subtle" size="sm" iconVisible icon={<Play size={12} weight="fill" />} title={t("toolbar.continue")} onClick={onResume} className="flex-1" />
         <ElevatedButton
@@ -95,7 +95,7 @@ export function PauseToolbar({
           icon={<Stop size={12} weight="fill" />}
           title={t("toolbar.stop")}
           onClick={onStop}
-          className="text-destructive-ink"
+          className="col-span-2 text-destructive-ink"
         />
       </div>
     </div>

@@ -10606,6 +10606,7 @@
       "confirmRealCallsHint": "Without this, nodes that call external services (HTTP, email, calendar) stop with a notice instead of calling."
     },
     "slot": {
+      "resize": "Resize test and copilot panel",
       "label": "Side panel",
       "test": "Test",
       "copilot": "Copilot"
@@ -12909,6 +12910,7 @@
       "of": "of"
     },
     "table": {
+      "noEmail": "This lead has no email address.",
       "number": "Phone",
       "name": "Name",
       "age": "Age",
@@ -38439,6 +38441,14 @@
     }
   },
   "googleSheets": {
+    "rows": {
+      "title": "Recorded rows",
+      "hint": "Values sent by Vozko. Older rows may no longer appear after the retention period.",
+      "failed": "Could not load rows.",
+      "refresh": "Refresh",
+      "previous": "Previous",
+      "next": "Next"
+    },
     "header": {
       "badge": "Google Sheets",
       "description": "Spreadsheets created from the dashboard, with the columns you choose, filled by agents, workflows and your team.",
@@ -38449,6 +38459,9 @@
       "needs_attention": "Needs attention"
     },
     "rowStatus": {
+      "pending": "Queued",
+      "in_flight": "Writing",
+      "written": "Written",
       "held": "Held",
       "failed": "Refused"
     },

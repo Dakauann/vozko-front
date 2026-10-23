@@ -8,11 +8,16 @@ import type {
   SheetColumnInput,
   SheetColumnUpdate,
   SheetHealth,
+  SheetRowsPage,
 } from "@/lib/google-sheets/types";
 
 export interface SheetResult<T> {
   data: T | null;
   error?: CodedRefusal;
+}
+
+export async function listSheetRows(id: string, page = 1, signal?: AbortSignal): Promise<SheetResult<SheetRowsPage>> {
+  return settle(await apiClient<SheetRowsPage>(`/google-sheets/${id}/rows?page=${page}&pageSize=25`, { method: "GET", signal }));
 }
 
 function settle<T>(res: ApiResult<T>): SheetResult<T> {

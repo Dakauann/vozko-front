@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { MagnifyingGlass, Users } from "@/components/icons";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +12,8 @@ import { ScreenLoader } from "@/components/brand/screen-loader";
 import CustomFieldManager from "@/components/crm/CustomFieldManager";
 import { LeadColumnsMenu } from "@/components/leads/LeadColumnsMenu";
 import { LeadRowActions } from "@/components/leads/LeadRowActions";
+import { LeadEmailDialog } from "@/components/leads/sends/LeadEmailButton";
+import { useEmailOutreachAvailability } from "@/hooks/use-email-outreach";
 import { LeadSheet } from "@/components/leads/sheet/LeadSheet";
 import { useLeadColumns, isLeadOptionalColumn, rowsNeedMemberDirectory, type LeadOptionalColumn } from "@/components/leads/use-lead-columns";
 import {
@@ -35,7 +38,7 @@ import { RetryNotice } from "@/components/elevated-design/retry-notice";
 import { effectiveLeadFilter } from "@/lib/leads/bulk-selection";
 import { isRefusedFilter, listRefusedFilter } from "@/lib/aichat/leads-context";
 import { readableFields } from "@/lib/crm/custom-fields";
-import { listLeadsQueryAction } from "@/app/actions/leads";
+import { listLeadsQueryAction, getLeadByIdAction } from "@/app/actions/leads";
 import { useLeadPresentation } from "@/hooks/use-lead-presentation";
 import { useMayPlaceCalls } from "@/hooks/use-call-readiness";
 import { useListQueryState } from "@/hooks/use-list-query-state";
@@ -50,6 +53,7 @@ import {
   LEAD_PAGE_SIZES,
   LEAD_SORT_KEYS,
   type LeadListItem,
+  type LeadDetail,
   type LeadSortKey,
 } from "@/lib/leads/types";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -85,6 +89,14 @@ function LeadsPageContent() {
   const [importDialog, setImportDialog] = useState<{ open: boolean; jobId: string | null }>({ open: false, jobId: null });
   const [fieldsOpen, setFieldsOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetTarget>({ mode: "closed" });
+  const { available: emailAvailable } = useEmailOutreachAvailability();
+  const [emailTarget, setEmailTarget] = useState<LeadDetail | null>(null);
+  const startEmail = async (row: LeadListItem) => {
+    const result = await getLeadByIdAction(row.id);
+    if (result.error) { toast.error(codedErrorMessage(t, result.error, t("error.title"))); return; }
+    if (!result.lead.email) { toast.error(t("table.noEmail")); return; }
+    setEmailTarget(result.lead);
+  };
   const [optionalColumns, setOptionalColumns] = useState<ReadonlySet<LeadOptionalColumn>>(new Set());
 
   const [reloadKey, setReloadKey] = useState(0);
@@ -335,13 +347,14 @@ function LeadsPageContent() {
           loading={loading}
           selection={view === "table" ? bulk.tableSelection(pageKeys, totalItems) : undefined}
           renderRowActions={
-            canEditLead || mayPlaceCalls
+            canEditLead || mayPlaceCalls || emailAvailable
               ? (row) => (
                   <LeadRowActions
                     leadId={row.id}
                     revision={row.version}
                     label={leadNameLines(row).title}
                     onEdit={canEditLead ? () => setSheet({ mode: "edit", leadId: row.id }) : undefined}
+                    onEmail={emailAvailable ? () => void startEmail(row) : undefined}
                   />
                 )
               : undefined
@@ -433,6 +446,7 @@ function LeadsPageContent() {
           }
         />
       </div>
+      {emailTarget ? <LeadEmailDialog open target={{ leadId: emailTarget.id, name: leadNameLines(emailTarget).title, email: emailTarget.email }} onOpenChange={(open) => { if (!open) setEmailTarget(null); }} /> : null}
     </main>
   );
 }

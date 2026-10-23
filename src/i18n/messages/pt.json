@@ -10606,6 +10606,7 @@
       "confirmRealCallsHint": "Sem esta opção, nós que chamam serviços externos (HTTP, e-mail, agenda) param com um aviso em vez de chamar."
     },
     "slot": {
+      "resize": "Redimensionar painel de teste e copiloto",
       "label": "Painel lateral",
       "test": "Teste",
       "copilot": "Copiloto"
@@ -12909,6 +12910,7 @@
       "of": "de"
     },
     "table": {
+      "noEmail": "Este lead não tem um e-mail cadastrado.",
       "number": "Telefone",
       "name": "Nome",
       "age": "Idade",
@@ -38439,6 +38441,14 @@
     }
   },
   "googleSheets": {
+    "rows": {
+      "title": "Linhas registradas",
+      "hint": "Valores enviados pela Vozko. Linhas antigas podem deixar de aparecer conforme o prazo de retenção.",
+      "failed": "Não foi possível carregar as linhas.",
+      "refresh": "Atualizar",
+      "previous": "Anterior",
+      "next": "Próxima"
+    },
     "header": {
       "badge": "Google Planilhas",
       "description": "Planilhas criadas pelo painel, com as colunas que você escolhe, preenchidas por agentes, fluxos e pela equipe.",
@@ -38449,6 +38459,9 @@
       "needs_attention": "Precisa de atenção"
     },
     "rowStatus": {
+      "pending": "Na fila",
+      "in_flight": "Gravando",
+      "written": "Gravada",
       "held": "Retida",
       "failed": "Recusada"
     },

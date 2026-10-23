@@ -16,6 +16,7 @@ import { AddRowDialog } from "@/components/google-sheets/AddRowDialog";
 import { ColumnDialog, type ColumnDialogMode } from "@/components/google-sheets/ColumnDialog";
 import { SheetDetailsDialog } from "@/components/google-sheets/SheetDetailsDialog";
 import { SheetHealthCard } from "@/components/google-sheets/SheetHealthCard";
+import { SheetRowsCard } from "@/components/google-sheets/SheetRowsCard";
 import { SHEET_STATUS_TONE } from "@/components/google-sheets/sheet-status";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Notice } from "@/components/ui/notice";
@@ -49,6 +50,8 @@ export default function GoogleSheetPage() {
 
   useEffect(() => {
     load();
+    const timer = window.setInterval(() => { if (document.visibilityState === "visible") load(); }, 10_000);
+    return () => window.clearInterval(timer);
   }, [load]);
 
   useEffect(() => {
@@ -168,6 +171,7 @@ export default function GoogleSheetPage() {
       ) : null}
 
       {health ? <SheetHealthCard health={health} canEdit={canEdit} onChanged={load} /> : null}
+      {sheet ? <SheetRowsCard key={sheet.id} sheet={sheet} /> : null}
 
       <ElevatedContainer>
         <div className="space-y-3 p-6">
