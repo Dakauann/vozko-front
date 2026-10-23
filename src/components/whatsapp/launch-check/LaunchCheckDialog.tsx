@@ -30,7 +30,7 @@ const LEVEL_TONE: Record<LaunchLevel, NoticeTone> = { block: "fault", confirm: "
 
 const RATE_CODES = new Set<LaunchCode>(["last_run_failures", "last_run_engagement"]);
 
-type FixKind = "template" | "phone" | "balance";
+type FixKind = "template" | "phone" | "balance" | "plan";
 
 const FIX_OF: Partial<Record<LaunchCode, FixKind>> = {
   template_not_ready: "template",
@@ -42,6 +42,7 @@ const FIX_OF: Partial<Record<LaunchCode, FixKind>> = {
   no_exit: "template",
   phone_unavailable: "phone",
   balance_short: "balance",
+  plan_inactive: "plan",
 };
 
 export interface LaunchLinks {
@@ -51,6 +52,7 @@ export interface LaunchLinks {
 function fixHref(kind: FixKind, links: LaunchLinks): string | null {
   if (kind === "template") return links.templateId ? pathForScreen("whatsapp_template_detail", { templateId: links.templateId }) : null;
   if (kind === "phone") return pathForScreen("business_phones");
+  if (kind === "plan") return pathForScreen("plans");
   return pathForScreen("balance");
 }
 

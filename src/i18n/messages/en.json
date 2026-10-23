@@ -32087,6 +32087,7 @@
     "fix": {
       "template": "Open the template",
       "phone": "See numbers",
+      "plan": "See plans",
       "balance": "Add balance"
     },
     "codes": {
@@ -32097,6 +32098,14 @@
       "access_revoked": {
         "title": "No access to the number or the template",
         "description": "This workspace lost access to the number or the template the campaign uses."
+      },
+      "plan_inactive": {
+        "title": "The workspace plan is not active",
+        "description": "Without an active plan the send cost cannot be calculated. Renew or activate the plan and check again."
+      },
+      "template_missing": {
+        "title": "Choose the template",
+        "description": "The campaign has no template yet. Choose it in the Message step."
       },
       "health_unreadable": {
         "title": "Could not check everything",
@@ -38972,6 +38981,7 @@
         "counting": "Wait for the audience count.",
         "count_failed": "The audience count failed. Count again to create the campaign.",
         "variable_choice_required": "Choose what to do with {slot} to create the campaign.",
+        "variable_value_required": "Write the fixed text for {slot} to create the campaign.",
         "variable_source_required": "Pick where {slot} comes from to create the campaign.",
         "list_variables_missing": "Fill the variables missing in the list to create the campaign.",
         "list_metadata_missing": "Fill the columns the flow or agent needs for every contact in the list to create the campaign.",

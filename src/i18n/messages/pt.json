@@ -32087,6 +32087,7 @@
     "fix": {
       "template": "Abrir o modelo",
       "phone": "Ver números",
+      "plan": "Ver planos",
       "balance": "Adicionar saldo"
     },
     "codes": {
@@ -32097,6 +32098,14 @@
       "access_revoked": {
         "title": "Sem acesso ao número ou ao modelo",
         "description": "Este workspace perdeu o acesso ao número ou ao modelo usado pela campanha."
+      },
+      "plan_inactive": {
+        "title": "O plano do workspace não está ativo",
+        "description": "Sem um plano ativo não dá para calcular o custo do envio. Renove ou ative o plano e confira de novo."
+      },
+      "template_missing": {
+        "title": "Escolha o modelo",
+        "description": "A campanha ainda não tem um modelo. Escolha o modelo na etapa Mensagem."
       },
       "health_unreadable": {
         "title": "Não foi possível conferir tudo",
@@ -38972,6 +38981,7 @@
         "counting": "Aguarde a contagem do público.",
         "count_failed": "A contagem do público falhou. Conte de novo para criar a campanha.",
         "variable_choice_required": "Escolha o que fazer em {slot} para criar a campanha.",
+        "variable_value_required": "Escreva o texto fixo de {slot} para criar a campanha.",
         "variable_source_required": "Escolha a origem de {slot} para criar a campanha.",
         "list_variables_missing": "Preencha as variáveis que faltam na lista para criar a campanha.",
         "list_metadata_missing": "Preencha as colunas que o fluxo ou agente exige em todos os contatos da lista para criar a campanha.",
