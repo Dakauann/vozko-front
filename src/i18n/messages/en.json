@@ -13052,8 +13052,10 @@
       "inFilter": "{count, plural, one {# lead in the filter} other {# leads in the filter}}"
     },
     "bulk": {
+      "emailCampaign": {"title":"Create email campaign","description":"The current selection will be used as the audience. Choose the sender and prepare the content on the next screen.","name":"Campaign name","cancel":"Cancel","continue":"Prepare email","invalidSelection":"The selection could not be preserved. Close and select the leads again."},
       "actions": {
         "send_template": "Send template",
+        "send_email": "Send email campaign",
         "send_message": "Message",
         "call_list": "Call list",
         "classify": "Classify",
@@ -13084,6 +13086,7 @@
         "noOfficialNumber": "No official number connected",
         "noUnofficialNumber": "No unofficial number connected",
         "noDialableLine": "No phone line available to call through",
+        "permissionEmailCampaign": "You are not allowed to create email campaigns.",
         "permissionConsent": "You are not allowed to record the leads' consent."
       },
       "dialog": {
@@ -38796,6 +38799,8 @@
         "everyone": "Whole base",
         "filterHint": "Use the filters from the leads page or a saved view.",
         "everyoneHint": "Every lead you can see joins the campaign.",
+        "quantityTitle": "First {count, number} leads in the filter",
+        "quantityBody": "The limit and order chosen in the lead selection will be preserved.",
         "idsTitle": "{count, plural, one {# lead picked} other {# leads picked}} one by one",
         "idsBody": "This audience was set by a fixed list of leads. To change it, switch to filters.",
         "idsSwitch": "Use filters",

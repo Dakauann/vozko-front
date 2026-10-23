@@ -15,7 +15,7 @@ import { AudienceSourceRow } from "./AudienceSourceRow";
 import { AudienceVariablesPanel } from "./AudienceVariablesPanel";
 import { LeadsPicker } from "./LeadsPicker";
 import { useAudienceErrorText, useSlotLabel } from "./use-audience-copy";
-import { useAudienceFields } from "./use-audience-queries";
+import { useAudienceFields, useAudienceWorkspaceId } from "./use-audience-queries";
 import type { CampaignAudience } from "./use-campaign-audience";
 
 const NO_VARIABLES: readonly VariableCount[] = [];
@@ -41,18 +41,26 @@ export function CampaignAudienceStep({
   audience,
   message = "",
   notice,
+  preview,
   readOnly = false,
 }: {
   audience: CampaignAudience;
   message?: string;
   notice?: ReactNode;
+  preview?: ReactNode;
   readOnly?: boolean;
 }) {
   const { channel, draft, update, count } = audience;
   const fields = useAudienceFields(channel).data ?? [];
   const errorText = useAudienceErrorText();
   const [focus, setFocus] = useState<AudienceLeadFocus | null>(null);
-  const variables = count?.source === "leads" ? count.variables : [];
+  const workspaceId = useAudienceWorkspaceId();
+  const variableScope = JSON.stringify([workspaceId, channel, audience.fields, draft.source, audience.spec?.selection]);
+  const [knownVariables, setKnownVariables] = useState<{ scope: string; variables: readonly VariableCount[] } | null>(null);
+  if (count?.source === "leads" && !audience.counting && (knownVariables?.scope !== variableScope || knownVariables.variables !== count.variables)) {
+    setKnownVariables({ scope: variableScope, variables: count.variables });
+  }
+  const variables = count?.source === "leads" ? count.variables : knownVariables?.scope === variableScope ? knownVariables.variables : NO_VARIABLES;
 
   return (
     <div className="space-y-4">
@@ -86,7 +94,10 @@ export function CampaignAudienceStep({
               />
               {channel === "email" ? null : <AudienceArrives channel={channel} message={message} variables={variables} choices={draft.variables} fields={fields} />}
             </div>
-            <AudienceCountPanel audience={audience} fields={fields} errorText={audience.countError ? errorText(audience.countError) : null} onOpen={setFocus} />
+            <div className="grid min-w-0 gap-5">
+              {preview}
+              <AudienceCountPanel audience={audience} fields={fields} errorText={audience.countError ? errorText(audience.countError) : null} onOpen={setFocus} />
+            </div>
           </div>
         </>
       )}

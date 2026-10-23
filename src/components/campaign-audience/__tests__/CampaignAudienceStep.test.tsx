@@ -269,6 +269,32 @@ describe("CampaignAudienceStep automation metadata", () => {
 });
 
 describe("CampaignAudienceStep variables", () => {
+  it("keeps fixed text editable after a failed count and recovers when the text is filled", async () => {
+    renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
+    const source = await screen.findByRole("combobox", { name: /Origem da variável.*1/ }, SETTLE);
+    actions.countAudienceAction.mockResolvedValue({ data: null, error: { code: "send_binding_literal_empty", message: "empty", status: 422 } });
+    fireEvent.keyDown(source, { key: "Enter" });
+    fireEvent.click(await screen.findByRole("option", { name: ptMessages.leadSends.bindings.sources.literal }));
+    await screen.findByText(ptMessages.campaignAudience.errors.send_binding_literal_empty, undefined, SETTLE);
+    const input = screen.getByRole("textbox", { name: /Texto da variável.*1/ });
+    expect(input).toHaveValue("");
+    expect(screen.getByTestId("recipients")).toHaveTextContent("null");
+    actions.countAudienceAction.mockResolvedValue({ data: leadsCount({ blockers: [], sendable: 1 }), error: null });
+    fireEvent.change(input, { target: { value: "Dakauann" } });
+    await waitFor(() => expect(lastCountSpec()?.variables).toContainEqual({ key: "1", source: "literal", value: "Dakauann" }), SETTLE);
+    await waitFor(() => expect(screen.getByTestId("recipients")).not.toHaveTextContent("null"), SETTLE);
+  });
+
+  it("opens a saved incomplete fixed-text choice as a blocking editable field", async () => {
+    actions.countAudienceAction.mockResolvedValue({ data: leadsCount({
+      blockers: ["variable_source_required"],
+      variables: [{ key: "1", name: "1", header: false, source: "literal", value: "", missing: 0, policy: "", suggested: false, choiceRequired: false }],
+    }), error: null });
+    renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone", variables: { "1": { source: "literal", value: "" } } });
+    expect(await screen.findByRole("textbox", { name: /Texto da variável.*1/ }, SETTLE)).toHaveValue("");
+    expect(screen.getByTestId("recipients")).toHaveTextContent("null");
+  });
+
   it("keeps the create closed until a missing variable has a choice", async () => {
     renderStep("whatsapp", { templateId: "tpl-1" }, { source: "leads", pick: "everyone" });
 

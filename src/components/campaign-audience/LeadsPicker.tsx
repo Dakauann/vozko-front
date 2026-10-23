@@ -11,10 +11,19 @@ import { Notice } from "@/components/ui/notice";
 import type { LeadsPickDraft } from "@/lib/campaign-audience/draft";
 import { emptyLeadFilter } from "@/lib/leads/filters";
 
-type WidePick = Exclude<LeadsPickDraft["pick"], "ids">;
+type WidePick = "filter" | "everyone";
 
 export function LeadsPicker({ value, onChange, readOnly = false }: { value: LeadsPickDraft; onChange: (patch: Partial<LeadsPickDraft>) => void; readOnly?: boolean }) {
   const t = useTranslations("campaignAudience.step.pick");
+
+  if (value.pick === "first_n") {
+    return (
+      <Notice tone="info" title={t("quantityTitle", { count: value.limit ?? 0 })}>
+        <p>{t("quantityBody")}</p>
+        {readOnly ? null : <Button variant="secondary" size="sm" title={t("idsSwitch")} onClick={() => onChange({ pick: "filter", limit: undefined, sort: undefined })} />}
+      </Notice>
+    );
+  }
 
   if (value.pick === "ids") {
     return (

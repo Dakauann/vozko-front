@@ -48,7 +48,7 @@ export function audienceSelection(audience: AudienceDraft): Selection | undefine
   const selection = leadsSelectionOf(audience);
   if (!selection) return undefined;
   if (selection.mode === "ids") return { mode: "ids", ids: selection.ids ?? [] };
-  const wide: Selection = selection.mode === "everyone" ? { mode: "everyone" } : { mode: "all_matching", filter: selection.filter };
+  const wide: Selection = selection.mode === "everyone" ? { mode: "everyone" } : selection.mode === "first_n" ? { mode: "first_n", filter: selection.filter, limit: selection.limit, sort: selection.sort } : { mode: "all_matching", filter: selection.filter };
   return selection.excludeIds ? { ...wide, exclude_ids: selection.excludeIds } : wide;
 }
 
@@ -99,10 +99,8 @@ function choicesOf(policies: readonly MergePolicy[] | undefined): Record<string,
   return Object.fromEntries((policies ?? []).map((policy) => [policy.key, policy.missing === "text" ? { missing: "text", text: policy.text ?? "" } : { missing: "exclude" }]));
 }
 
-function audienceOf(campaign: Campaign): AudienceDraft {
-  const empty: AudienceDraft = { ...emptyAudienceDraft("email"), variables: choicesOf(campaign.merge_policies) };
-  if (campaign.list_id) return { ...empty, source: "list", listId: campaign.list_id };
-  const selection = campaign.selection;
+export function audienceOfSelection(selection: Selection | undefined): AudienceDraft {
+  const empty = emptyAudienceDraft("email");
   if (!selection) return empty;
   const excluded = { ...empty, excludeIds: selection.exclude_ids ?? [] };
   switch (selection.mode) {
@@ -110,9 +108,16 @@ function audienceOf(campaign: Campaign): AudienceDraft {
       return { ...excluded, pick: "everyone" };
     case "ids":
       return { ...empty, pick: "ids", ids: selection.ids ?? [] };
+    case "first_n":
+      return { ...excluded, pick: "first_n", filter: selection.filter ?? emptyCrmFilter, limit: selection.limit, sort: selection.sort };
     default:
       return { ...excluded, pick: "filter", filter: selection.filter ?? emptyCrmFilter };
   }
+}
+
+function audienceOf(campaign: Campaign): AudienceDraft {
+  const audience = campaign.list_id ? { ...emptyAudienceDraft("email"), source: "list" as const, listId: campaign.list_id } : audienceOfSelection(campaign.selection);
+  return { ...audience, variables: choicesOf(campaign.merge_policies) };
 }
 
 export function draftOf(campaign: Campaign): CampaignDraft {

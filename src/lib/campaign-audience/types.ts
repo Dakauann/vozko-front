@@ -10,7 +10,7 @@ export type AudienceSource = "leads" | "list";
 
 export type MissingPolicy = "text" | "exclude";
 
-export type LeadsPick = "filter" | "everyone" | "ids";
+export type LeadsPick = "filter" | "everyone" | "ids" | "first_n";
 
 export const LITERAL_AUDIENCE_SOURCE = "literal";
 
@@ -23,7 +23,9 @@ export interface AudienceVariable {
 }
 
 export interface AudienceSelection {
-  mode: "all_matching" | "everyone" | "ids";
+  mode: "all_matching" | "everyone" | "ids" | "first_n";
+  limit?: number;
+  sort?: { field: string; key?: string; desc?: boolean }[];
   filter?: CrmFilter;
   ids?: string[];
   excludeIds?: string[];

@@ -7,6 +7,7 @@ import {
   ArrowCounterClockwise,
   ChatText,
   DotsThree,
+  EnvelopeSimple,
   DownloadSimple,
   PaperPlaneTilt,
   PhoneOutgoing,
@@ -24,14 +25,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ActionState } from "@/lib/selection/action-state";
-import type { LeadActionKind } from "@/lib/leads/actions";
-import type { LeadBulkAction, LeadBulkActionStates, LeadBulkBlocker } from "@/lib/leads/bulk-selection";
+import type { LeadBulkAction, LeadBulkActionKind, LeadBulkActionStates, LeadBulkBlocker } from "@/lib/leads/bulk-selection";
 
 const ICON = "h-3.5 w-3.5";
 
 const ICONS: Record<LeadBulkAction, ReactNode> = {
   send_template: <PaperPlaneTilt className={ICON} aria-hidden />,
   send_message: <ChatText className={ICON} aria-hidden />,
+  send_email: <EnvelopeSimple className={ICON} aria-hidden />,
   call_list: <PhoneOutgoing className={ICON} aria-hidden />,
   classify: <Tag className={ICON} aria-hidden />,
   assign_owner: <UserCheck className={ICON} aria-hidden />,
@@ -41,13 +42,14 @@ const ICONS: Record<LeadBulkAction, ReactNode> = {
   restore_opt_out: <ArrowCounterClockwise className={ICON} aria-hidden />,
 };
 
-const BAR: readonly LeadBulkAction[] = ["send_template", "send_message", "call_list", "classify", "assign_owner"];
+const BAR: readonly LeadBulkAction[] = ["send_template", "send_message", "send_email", "call_list", "classify", "assign_owner"];
 const MORE: readonly LeadBulkAction[] = ["export", "meta_audience", "block", "restore_opt_out"];
 const ALL: readonly LeadBulkAction[] = [...BAR, ...MORE];
 
-const RUNNABLE: Partial<Record<LeadBulkAction, LeadActionKind>> = {
+const RUNNABLE: Partial<Record<LeadBulkAction, LeadBulkActionKind>> = {
   send_template: "send_template",
   send_message: "send_unofficial",
+  send_email: "send_email",
   call_list: "call_list",
   classify: "classify",
   assign_owner: "assign_owner",
@@ -68,7 +70,7 @@ export function LeadBulkBar({
   onClear,
 }: {
   states: LeadBulkActionStates;
-  onAction: (action: LeadActionKind) => void;
+  onAction: (action: LeadBulkActionKind) => void;
   onClear?: () => void;
 }) {
   const t = useTranslations("leadsPage.bulk");

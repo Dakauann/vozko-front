@@ -55,6 +55,14 @@ function campaign(overrides: Partial<Campaign> = {}): Campaign {
 const AUDIENCE = emptyAudienceDraft("email");
 
 describe("audienceSelection", () => {
+  it("preserves quantity, order and exclusions when a saved campaign is edited", () => {
+    const selection = { mode: "first_n" as const, filter: FILTER, limit: 200000, sort: [{ field: "lastActivityAt", desc: true }], exclude_ids: ["l1"] };
+    expect(campaignRequest(draftOf(campaign({ selection }))).selection).toEqual(selection);
+  });
+
+  it("does not expand an invalid quantity selection to every matching lead", () => {
+    expect(audienceSelection({ ...AUDIENCE, pick: "first_n", filter: FILTER, limit: 0 })).toBeUndefined();
+  });
   it("leaves the audience out until a filter is chosen", () => {
     expect(audienceSelection({ ...AUDIENCE, pick: "filter" })).toBeUndefined();
   });
