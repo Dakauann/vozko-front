@@ -1,9 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 import { CircleNotch, FlowArrow, Robot, UserCirclePlus } from "@/components/icons";
 import { useLocale } from "next-intl";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/elevated-design/elevated-tabs";
 
 import {
   Command,
@@ -40,6 +43,12 @@ const STRINGS = {
     current: "Atual",
     handBack: "Devolver para",
     automations: "Automações",
+    agents: "Agentes",
+    operators: "Operadores",
+    searchAutomation: "Buscar automação...",
+    searchAgent: "Buscar agente...",
+    noResults: "Nenhum resultado encontrado",
+    loadFailed: "Não foi possível carregar. Tente novamente.",
     adminHint:
       "Administradores aparecem quando participam da distribuição automática.",
   },
@@ -51,6 +60,12 @@ const STRINGS = {
     current: "Current",
     handBack: "Hand back to",
     automations: "Automations",
+    agents: "Agents",
+    operators: "Operators",
+    searchAutomation: "Search automation...",
+    searchAgent: "Search agent...",
+    noResults: "No results found",
+    loadFailed: "Could not load. Please try again.",
     adminHint: "Admins appear when they take part in the automatic distribution.",
   },
   es: {
@@ -61,6 +76,12 @@ const STRINGS = {
     current: "Actual",
     handBack: "Devolver a",
     automations: "Automatizaciones",
+    agents: "Agentes",
+    operators: "Operadores",
+    searchAutomation: "Buscar automatización...",
+    searchAgent: "Buscar agente...",
+    noResults: "No se encontraron resultados",
+    loadFailed: "No se pudo cargar. Inténtalo de nuevo.",
     adminHint:
       "Los administradores aparecen cuando participan en la distribución automática.",
   },
@@ -72,12 +93,19 @@ const STRINGS = {
     current: "Aktuell",
     handBack: "Zurückgeben an",
     automations: "Automatisierungen",
+    agents: "Agenten",
+    operators: "Mitarbeiter",
+    searchAutomation: "Automatisierung suchen...",
+    searchAgent: "Agent suchen...",
+    noResults: "Keine Ergebnisse gefunden",
+    loadFailed: "Laden fehlgeschlagen. Bitte erneut versuchen.",
     adminHint:
       "Administratoren erscheinen, wenn sie an der automatischen Verteilung teilnehmen.",
   },
 } as const;
 
 type Strings = Record<keyof (typeof STRINGS)["en"], string>;
+type PickerTab = "workflow" | "agent" | "operators";
 
 interface AssignMemberPickerProps {
   workspaceId: string;
@@ -108,75 +136,45 @@ export default function AssignMemberPicker({
   const tx: Strings = STRINGS[locale as keyof typeof STRINGS] ?? STRINGS.en;
 
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<PickerTab>(onDelegate ? "workflow" : "operators");
   const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("");
-  const [members, setMembers] = useState<AssignableMember[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [targets, setTargets] = useState<DelegationTarget[]>([]);
+  const query = useDebouncedValue(search.trim(), 250);
   const listRef = useRef<HTMLDivElement>(null);
-  const reqRef = useRef(0);
-
-  useEffect(() => {
-    const t = setTimeout(() => setQuery(search.trim()), 250);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  const fetchPage = useCallback(
-    async (pageToLoad: number, q: string, replace: boolean) => {
-      if (!workspaceId || !canAssignMembers) return;
-      const reqId = ++reqRef.current;
-      setLoading(true);
-      const res = await listAssignableMembersAction(workspaceId, {
-        search: q,
-        page: pageToLoad,
-        pageSize: PAGE_SIZE,
-      });
-      if (reqId !== reqRef.current) return;
-      setTotalPages(res.totalPages || 1);
-      setPage(res.page || pageToLoad);
-      setMembers((prev) => (replace ? res.members : [...prev, ...res.members]));
-      setLoading(false);
+  const memberQuery = useInfiniteQuery({
+    queryKey: ["assignable-conversation-members", workspaceId, query],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const result = await listAssignableMembersAction(workspaceId, { search: query, page: pageParam, pageSize: PAGE_SIZE });
+      if (result.error) throw new Error(result.error);
+      return result;
     },
-    [workspaceId, canAssignMembers],
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    fetchPage(1, query, true);
-  }, [open, query, fetchPage]);
-
-  useEffect(() => {
-    if (!open || !onDelegate) return;
-    let current = true;
-    listDelegationTargetsAction(query).then((found) => {
-      if (current) setTargets(found);
-    });
-    return () => {
-      current = false;
-    };
-  }, [open, query, onDelegate]);
-
+    getNextPageParam: (last) => last.page < last.totalPages ? last.page + 1 : undefined,
+    enabled: open && tab === "operators" && canAssignMembers && Boolean(workspaceId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const targetQuery = useQuery({
+    queryKey: ["conversation-delegation-targets", workspaceId, query],
+    queryFn: () => listDelegationTargetsAction(query),
+    enabled: open && tab !== "operators" && Boolean(onDelegate) && Boolean(workspaceId),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const members = useMemo(() => memberQuery.data?.pages.flatMap((page) => page.members) ?? [], [memberQuery.data]);
+  const targets = targetQuery.data ?? [];
   const handleOpenChange = useCallback((next: boolean) => {
     setOpen(next);
     if (next) {
+      setTab(onDelegate ? assignedUserId?.startsWith("ai:") ? "agent" : assignedUserId?.startsWith("workflow:") || !canAssignMembers ? "workflow" : "operators" : "operators");
       setSearch("");
-      setQuery("");
-      setMembers([]);
-      setPage(1);
-      setTotalPages(1);
     }
-  }, []);
+  }, [onDelegate, assignedUserId, canAssignMembers]);
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = () => {
     const el = listRef.current;
-    if (!el || loading || page >= totalPages) return;
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 48) {
-      fetchPage(page + 1, query, false);
-    }
-  }, [loading, page, totalPages, query, fetchPage]);
-
+    if (tab !== "operators" || !el || memberQuery.isFetching || !memberQuery.hasNextPage) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 48) void memberQuery.fetchNextPage();
+  };
   const { groups, hasDepartments } = useMemo(() => {
     const withDepts = members.some((m) => (m.departments?.length ?? 0) > 0);
     if (!withDepts) {
@@ -230,12 +228,17 @@ export default function AssignMemberPicker({
     onHandBack?.();
   }, [onHandBack]);
 
+  const visibleTargets = targets.filter((target) => target.kind === tab);
+  const busy = tab === "operators" ? memberQuery.isFetching : targetQuery.isFetching;
+  const failed = tab === "operators" ? memberQuery.isError : targetQuery.isError;
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <TooltipWrapper content={tx.tooltip}>
         <PopoverTrigger asChild>
           <button
             type="button"
+            aria-label={tx.tooltip}
             className={cn(
               "flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200",
               assignedUserId
@@ -253,20 +256,27 @@ export default function AssignMemberPicker({
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="w-64 rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
+        className="w-[340px] max-w-[calc(100vw-2rem)] rounded-[--radius] border border-border bg-card p-0 shadow-2xl"
       >
+        <Tabs value={tab} onValueChange={(value) => setTab(value as PickerTab)}>
+          <TabsList aria-label={tx.tooltip} className="grid grid-cols-3 gap-0 px-1.5 pt-1">
+            <TabsTrigger value="workflow" disabled={!onDelegate} className="min-w-0 px-1.5 text-xs">{tx.automations}</TabsTrigger>
+            <TabsTrigger value="agent" disabled={!onDelegate} className="min-w-0 px-1.5 text-xs">{tx.agents}</TabsTrigger>
+            <TabsTrigger value="operators" disabled={!canAssignMembers} className="min-w-0 px-1.5 text-xs">{tx.operators}</TabsTrigger>
+          </TabsList>
+          <TabsContent key={tab} value={tab} className="mt-0">
         <Command
           shouldFilter={false}
           className="rounded-[--radius] bg-transparent text-foreground"
         >
           <CommandInput
-            placeholder={tx.search}
+            placeholder={tab === "workflow" ? tx.searchAutomation : tab === "agent" ? tx.searchAgent : tx.search}
             value={search}
             onValueChange={setSearch}
             className="text-sm"
           />
           <CommandList ref={listRef} onScroll={handleScroll} className="max-h-64">
-            {handBack && onHandBack ? (
+            {handBack && onHandBack && handBack.kind === tab ? (
               <CommandGroup>
                 <CommandItem
                   value="__hand_back__"
@@ -286,9 +296,9 @@ export default function AssignMemberPicker({
                 </CommandItem>
               </CommandGroup>
             ) : null}
-            {onDelegate && targets.length > 0 ? (
-              <CommandGroup heading={tx.automations}>
-                {targets.map((target) => {
+            {!failed && onDelegate && visibleTargets.length > 0 ? (
+              <CommandGroup>
+                {visibleTargets.map((target) => {
                   const isAssigned = assignedUserId === ownerOf(target);
                   return (
                     <CommandItem
@@ -319,10 +329,11 @@ export default function AssignMemberPicker({
                 })}
               </CommandGroup>
             ) : null}
-            {canAssignMembers && members.length === 0 && !loading ? (
-              <CommandEmpty>{tx.empty}</CommandEmpty>
+            {failed ? <p role="alert" className="px-3 py-4 text-center text-xs text-destructive-ink">{tx.loadFailed}</p> : null}
+            {!failed && !busy && (tab === "operators" ? members.length === 0 : visibleTargets.length === 0) ? (
+              <CommandEmpty>{tx.noResults}</CommandEmpty>
             ) : null}
-            {groups.map((group) => (
+            {!failed && tab === "operators" && groups.map((group) => (
               <CommandGroup key={group.id} heading={group.name || undefined}>
                 {group.members.map((m) => {
                   const isOnline = onlineUserIds?.has(m.userId) ?? false;
@@ -358,14 +369,16 @@ export default function AssignMemberPicker({
                 })}
               </CommandGroup>
             ))}
-            {loading && (
+            {busy && (
               <div className="flex items-center justify-center py-3">
                 <CircleNotch className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             )}
           </CommandList>
         </Command>
-        {hasDepartments && (
+          </TabsContent>
+        </Tabs>
+        {tab === "operators" && hasDepartments && (
           <p className="border-t border-border px-3 py-2 text-2xs leading-snug text-muted-foreground">
             {tx.adminHint}
           </p>

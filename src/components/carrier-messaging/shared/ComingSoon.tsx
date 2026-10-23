@@ -23,7 +23,7 @@ function anyLaunched(channels: CarrierChannelsState): boolean {
 
 export function ComingSoonChip({ className }: { className?: string }) {
   const t = useTranslations("carrierMessaging.comingSoon");
-  return <StatusChip tone="neutral" label={t("chip")} className={cn("px-2 py-0 text-2xs", className)} />;
+  return <StatusChip tone="muted" label={t("chip")} className={cn("shrink-0 whitespace-nowrap rounded-full border border-border/70 bg-muted/60 px-1.5 py-0.5 text-[10px] leading-none normal-case tracking-normal", className)} />;
 }
 
 export function CarrierSoonChip({ channel, className }: { channel: CarrierChannel; className?: string }) {

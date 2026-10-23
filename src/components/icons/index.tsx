@@ -1,4 +1,5 @@
 export type { Icon, IconProps,  } from "./types";
+export { GoogleLogo } from "./google-logo";
 
 export {
   Archive,
@@ -111,7 +112,6 @@ export {
   Globe,
   Globe as GlobeHemisphereWest,
   Globe as GlobeSimple,
-  Google as GoogleLogo,
   GraduationCap,
   Dashboard as GridFour,
   Handshake,

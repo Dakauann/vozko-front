@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -20,6 +21,11 @@ const STATUS_TONE: Record<GoogleAccountStatus, StatusChipTone> = {
   connected: "healthy",
   needs_reconnect: "warning",
   disconnected: "muted",
+};
+
+const PRODUCT_LOGO: Record<GoogleProduct, string> = {
+  calendar: "/images/brands/google/calendar.png",
+  sheets: "/images/brands/google/sheets.png",
 };
 
 interface GoogleAccountCardProps {
@@ -91,8 +97,8 @@ export function GoogleAccountCard({ product, canConnect, canDisconnect, returnPa
   return (
     <ElevatedContainer>
       <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[--radius] bg-muted">
-          <GoogleLogo size={24} weight="bold" />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-card shadow-quiet">
+          <Image src={PRODUCT_LOGO[product]} width={24} height={24} alt="" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -112,7 +118,7 @@ export function GoogleAccountCard({ product, canConnect, canDisconnect, returnPa
               {canConnect && !connected ? (
                 <ElevatedButton
                   title={isConnecting ? t("connecting") : state === "needs_reconnect" ? t("reconnect") : t("connect")}
-                  icon={<GoogleLogo size={16} weight="bold" />}
+                  icon={<GoogleLogo size={16} />}
                   iconVisible
                   onClick={() => connect(returnPath)}
                   disabled={isConnecting}
