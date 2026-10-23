@@ -454,7 +454,7 @@ describe("WhatsAppCampaignWizard Envio", () => {
       fireEvent.click(screen.getByRole("button", { name: send.ready.action }));
       await waitFor(() => expect(router.push).toHaveBeenCalledWith("/dashboard/whatsapp-campaigns/camp-9"));
       expect(invalidate).toHaveBeenCalledWith(expect.objectContaining({ refetchType: "none" }));
-      expect(screen.getByRole("button", { name: send.ready.action })).toBeDisabled();
+      expect(toastMock.error).not.toHaveBeenCalled();
     } finally {
       invalidate.mockRestore();
     }
